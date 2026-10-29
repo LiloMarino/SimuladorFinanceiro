@@ -14,6 +14,7 @@ from fastapi import HTTPException
 from backend.core import repository
 from backend.core.dto.events.strategy import StrategyEventDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeOfferDTO
+from backend.core.dto.pending import PendingDTO
 from backend.core.dto.strategy import (
     AllocationViewDTO,
     MyStrategyDTO,
@@ -32,6 +33,7 @@ from backend.core.enum import (
     IndicatorSeries,
     OrderAction,
     OrderStatus,
+    PendingType,
     StrategyAction,
     StrategyLogKind,
     StrategyOrderStatus,
@@ -47,6 +49,7 @@ from backend.core.runtime.event_manager import EventManager
 from backend.core.utils import required
 from backend.features.fixed_income.accrual import offer
 from backend.features.fixed_income.liquidity import redeemable_today
+from backend.features.notifications import registry
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     StrategyOrdersEventDTO,
@@ -148,6 +151,19 @@ class StrategyRunner:
 
     def infos(self, today: date) -> list[StrategyInfoDTO]:
         return catalog.infos(today, self._engine.simulation_id, self._engine.stocks)
+
+    def pending(self, user: UserDTO) -> list[PendingDTO]:
+        """O erro que devolveu o jogador ao manual, até ele ligar uma estratégia de novo."""
+        state = derive_state(
+            repository.strategy.mode_rows(self._engine.simulation_id, user.id)
+        )
+        if state.error is None:
+            return []
+        return [
+            registry.pending(
+                PendingType.STRATEGY_ERROR, state.error.reason or "Sem detalhes do erro"
+            )
+        ]
 
     def mine(self, user: UserDTO, today: date) -> MyStrategyDTO:
         state = derive_state(

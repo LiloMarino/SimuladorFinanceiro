@@ -41,6 +41,8 @@ STEP = Decimal(1) / 3
 FLOOR = 25
 IMPEACHMENT_MONTHS = 6
 GRACE_MONTHS = 12
+# A faixa de risco: aprovação a menos de 10 pontos do piso, ou já abaixo dele
+RISK_MARGIN = 10
 
 # Inflação: pontos por ponto percentual abaixo da meta somada a 1,5, até 5 para cada lado
 INFLATION_TOLERANCE = Decimal("1.5")

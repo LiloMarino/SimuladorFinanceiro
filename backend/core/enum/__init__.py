@@ -717,6 +717,25 @@ class NewsPosition(Enum):
     STRIP = "STRIP"
 
 
+class PendingType(Enum):
+    """Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar."""
+
+    OVERDUE_INSTALLMENT = "OVERDUE_INSTALLMENT"
+    NEGATIVE_CASH = "NEGATIVE_CASH"
+    IMPEACHMENT_RISK = "IMPEACHMENT_RISK"
+    CASH_SHORT = "CASH_SHORT"
+    STRATEGY_ERROR = "STRATEGY_ERROR"
+    VICE_INVITE = "VICE_INVITE"
+    CAMPAIGN_OPEN = "CAMPAIGN_OPEN"
+
+
+class PendingSeverity(Enum):
+    """Grave já custa dinheiro ou trava algo; aviso ainda dá tempo."""
+
+    SEVERE = "SEVERE"
+    WARNING = "WARNING"
+
+
 class ToastType(Enum):
     """Um aviso do que acontece com o próprio jogador, ligado ou desligado por tipo."""
 

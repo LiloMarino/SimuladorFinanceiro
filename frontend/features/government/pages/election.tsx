@@ -9,6 +9,7 @@ import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { ElectionPanel } from "@/types";
+import { CampaignOpenedDialog } from "../components/campaign-opened-dialog";
 import { CampaignSection } from "../components/campaign-section";
 import { ChooseFlagsDialog } from "../components/choose-flags-dialog";
 import { ContributionDialog } from "../components/contribution-dialog";
@@ -56,6 +57,7 @@ type Dialog =
   | "ticket"
   | "promises"
   | "vice"
+  | "campaign"
   | "leave"
   | "donate"
   | "flags"
@@ -324,6 +326,12 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
         </>
       )}
       <ViceInviteDialog open={dialog === "vice"} onOpenChange={close} panel={panel} />
+      <CampaignOpenedDialog
+        open={dialog === "campaign"}
+        onOpenChange={close}
+        panel={panel}
+        onShortcut={(shortcut) => (shortcut === "join" ? openJoin() : setDialog(shortcut))}
+      />
       <DonateDialog open={dialog === "donate"} onOpenChange={close} panel={panel} cash={cash} />
       {party && runoffRace && (
         <>

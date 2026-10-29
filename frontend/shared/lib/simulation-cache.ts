@@ -11,6 +11,7 @@ export async function revalidateSimulation(client: QueryClient) {
     queryKeys.economicIndicators(),
     queryKeys.economyPanel(),
     queryKeys.myStrategy(),
+    queryKeys.pending(),
   ];
   await Promise.all(keys.map((queryKey) => client.cancelQueries({ queryKey })));
   await Promise.all(keys.map((queryKey) => client.invalidateQueries({ queryKey })));

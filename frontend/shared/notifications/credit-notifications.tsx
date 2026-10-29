@@ -1,12 +1,11 @@
-import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Clock, TrendingUp, TriangleAlert } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { useRealtime } from "@/shared/hooks/useRealtime";
-import { displaySelicSpread, displayWholePercent, isDowngrade, payOverdueLink } from "@/shared/lib/credit";
+import { displaySelicSpread, displayWholePercent, isDowngrade } from "@/shared/lib/credit";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import { displayDayMonth, displayMoney, displayMonthName } from "@/shared/lib/utils/display";
+import { displayMoney, displayMonthName } from "@/shared/lib/utils/display";
 
 /**
  * Dono único dos avisos de crédito em tempo real: cada evento renova a tela de crédito
@@ -14,7 +13,6 @@ import { displayDayMonth, displayMoney, displayMonthName } from "@/shared/lib/ut
  */
 export function CreditNotifications() {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const { isToastOn } = useNotificationPreferences();
 
   const renew = () => {
@@ -38,23 +36,9 @@ export function CreditNotifications() {
     });
   });
 
-  useRealtime("credit_installment_late", (event) => {
-    renew();
-    toast.error("Parcela em atraso", {
-      icon: <TriangleAlert className="size-4 text-toast-error" />,
-      description: `Faltou caixa para os ${displayMoney(event.amount)} do Empréstimo ${event.loan_number}. Multa de 2% e mora correndo.`,
-      action: { label: "Pagar", onClick: () => void navigate(payOverdueLink(event.loan_id)) },
-    });
-  });
-
-  useRealtime("credit_installment_warning", (event) => {
-    renew();
-    toast.warning(`O caixa não cobre a parcela de ${displayDayMonth(event.due_date)}`, {
-      icon: <Clock className="size-4 text-toast-warning" />,
-      description: `Faltam ${displayMoney(event.shortfall)} para os ${displayMoney(event.amount)}. Venda algo ou ela atrasa.`,
-      action: { label: "Ver", onClick: () => void navigate("/credit") },
-    });
-  });
+  // Atraso e parcela sem caixa são pendências: o aviso nasce na lista de pendências; aqui só renovam a tela
+  useRealtime("credit_installment_late", renew);
+  useRealtime("credit_installment_warning", renew);
 
   useRealtime("credit_rating_changed", (event) => {
     renew();

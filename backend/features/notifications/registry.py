@@ -5,8 +5,18 @@ cada jogador, o histórico do jornal e a escolha da manchete numa rajada leem da
 """
 
 from dataclasses import dataclass
+from uuid import UUID
 
-from backend.core.enum import NewsLevel, NewsPosition, NewsSection, NewsType, ToastType
+from backend.core.dto.pending import PendingDTO
+from backend.core.enum import (
+    NewsLevel,
+    NewsPosition,
+    NewsSection,
+    NewsType,
+    PendingSeverity,
+    PendingType,
+    ToastType,
+)
 
 
 @dataclass(frozen=True)
@@ -34,6 +44,15 @@ class ToastSpec:
     label: str
     description: str
     default_on: bool = True
+
+
+@dataclass(frozen=True)
+class PendingSpec:
+    type: PendingType
+    severity: PendingSeverity
+    label: str
+    # Quando ela some; pendência não se desliga, só acaba com a condição
+    resolves: str
 
 
 DEFAULT_POSITION = NewsPosition.BOTTOM_LEFT
@@ -138,8 +157,79 @@ TOASTS: tuple[ToastSpec, ...] = (
     ),
 )
 
+# A ordem é a da gravidade: as graves primeiro e, dentro de cada gravidade, a que custa mais antes
+PENDING: tuple[PendingSpec, ...] = (
+    PendingSpec(
+        PendingType.OVERDUE_INSTALLMENT,
+        PendingSeverity.SEVERE,
+        "Parcela em atraso",
+        "Some quando a parcela é paga",
+    ),
+    PendingSpec(
+        PendingType.NEGATIVE_CASH,
+        PendingSeverity.SEVERE,
+        "Caixa negativo",
+        "Some quando o caixa volta a zero",
+    ),
+    PendingSpec(
+        PendingType.IMPEACHMENT_RISK,
+        PendingSeverity.SEVERE,
+        "Risco de impeachment",
+        "Só para o presidente; some quando a aprovação sai da faixa de risco",
+    ),
+    PendingSpec(
+        PendingType.CASH_SHORT,
+        PendingSeverity.WARNING,
+        "Caixa não cobre a próxima parcela",
+        "Some quando o caixa cobre; no vencimento, vira atraso",
+    ),
+    PendingSpec(
+        PendingType.STRATEGY_ERROR,
+        PendingSeverity.WARNING,
+        "Estratégia desligada por erro",
+        "Some quando a estratégia volta a rodar",
+    ),
+    PendingSpec(
+        PendingType.VICE_INVITE,
+        PendingSeverity.WARNING,
+        "Convite para vice",
+        "Some ao responder ou quando as chapas fecham",
+    ),
+    PendingSpec(
+        PendingType.CAMPAIGN_OPEN,
+        PendingSeverity.WARNING,
+        "Campanha aberta sem filiação",
+        "Some ao se filiar ou quando as chapas fecham",
+    ),
+)
+
 NEWS_BY_TYPE: dict[NewsType, NewsSpec] = {spec.type: spec for spec in NEWS}
 TOASTS_BY_TYPE: dict[ToastType, ToastSpec] = {spec.type: spec for spec in TOASTS}
+PENDING_BY_TYPE: dict[PendingType, PendingSpec] = {spec.type: spec for spec in PENDING}
+
+
+def pending(
+    pending_type: PendingType,
+    detail: str,
+    ref: str = "",
+    loan_id: UUID | None = None,
+) -> PendingDTO:
+    """A pendência do tipo com título e gravidade do registro; `ref` distingue duas do mesmo tipo."""
+    spec = PENDING_BY_TYPE[pending_type]
+    return PendingDTO(
+        key=f"{pending_type.value}:{ref}" if ref else pending_type.value,
+        type=pending_type,
+        severity=spec.severity,
+        title=spec.label,
+        detail=detail,
+        loan_id=loan_id,
+    )
+
+
+def sort_pending(items: list[PendingDTO]) -> list[PendingDTO]:
+    """As graves primeiro, na ordem do registro; as do mesmo tipo pela chave."""
+    order = {spec.type: index for index, spec in enumerate(PENDING)}
+    return sorted(items, key=lambda item: (order[item.type], item.key))
 
 
 def news_levels(chosen: dict[NewsType, NewsLevel]) -> dict[NewsType, NewsLevel]:

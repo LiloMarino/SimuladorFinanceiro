@@ -103,6 +103,10 @@ export type ToastType = components["schemas"]["ToastType"];
 // Jornal da partida
 export type News = components["schemas"]["NewsDTO"];
 
+// Pendências da partida: o que pede ação do jogador até a condição acabar
+export type Pending = components["schemas"]["PendingDTO"];
+export type PendingType = components["schemas"]["PendingType"];
+
 // Indicadores técnicos
 export type IndicatorSettings = components["schemas"]["IndicatorSettingsDTO-Output"];
 export type IndicatorParams = components["schemas"]["IndicatorParamsDTO-Output"];

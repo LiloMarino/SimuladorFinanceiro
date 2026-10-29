@@ -52,10 +52,8 @@ export function StrategyNotifications() {
     }
   });
 
-  useRealtime("strategy_update", ({ error }) => {
-    renew();
-    if (error) toast.error("Estratégia desligada por erro", { description: error, action: seeStrategies });
-  });
+  // O desligamento por erro é pendência: o aviso nasce na lista de pendências; aqui só renova a tela
+  useRealtime("strategy_update", renew);
 
   return null;
 }

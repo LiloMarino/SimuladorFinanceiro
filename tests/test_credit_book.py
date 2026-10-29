@@ -16,10 +16,13 @@ from backend.core.enum import (
     CreditEventType,
     CreditGrade,
     IndicatorSeries,
+    PendingSeverity,
+    PendingType,
     PrepaymentMode,
 )
 from backend.core.exceptions import InsufficentCashError
 from backend.core.exceptions.http_exceptions import ConflictError
+from backend.core.utils import format_money
 from backend.features.credit.credit_book import CreditBook
 from backend.features.credit.overview import build_overview, build_quote
 from backend.features.fixed_income.market import FixedIncomeMarket
@@ -164,6 +167,51 @@ def test_warning_comes_once_when_the_cash_does_not_cover_the_installment(
     run_until(engine, due - timedelta(days=3))
 
     assert notices.count("credit_installment_warning") == 1
+
+
+def test_overdue_installment_is_a_pending_with_the_loan_to_pay(engine):
+    loan = engine.credit_book.contract(PLAYER, Decimal(5000), 12)
+    engine.cash[PLAYER] = Decimal(0)
+    installment = loan.state.due_amount()
+
+    run_until(engine, loan.state.next_due)
+
+    [pending] = engine.credit_book.pending(PLAYER, engine.current_date)
+    assert pending.type is PendingType.OVERDUE_INSTALLMENT
+    assert pending.severity is PendingSeverity.SEVERE
+    assert pending.loan_id == loan.loan_id
+    assert pending.detail.startswith(f"Empréstimo 1 · {format_money(installment)}")
+    assert pending.key == f"OVERDUE_INSTALLMENT:{loan.loan_id}"
+
+
+def test_overdue_pending_goes_away_when_the_installment_is_paid(engine):
+    loan = engine.credit_book.contract(PLAYER, Decimal(5000), 12)
+    engine.cash[PLAYER] = Decimal(0)
+    run_until(engine, loan.state.next_due)
+    engine.cash[PLAYER] = Decimal(10000)
+
+    engine.credit_book.pay_overdue(PLAYER, loan.loan_id)
+
+    assert engine.credit_book.pending(PLAYER, engine.current_date) == []
+
+
+def test_short_cash_is_a_warning_only_inside_the_seven_days_before_the_due_date(
+    engine,
+):
+    loan = engine.credit_book.contract(PLAYER, Decimal(5000), 12)
+    engine.cash[PLAYER] = Decimal(10)
+    due = loan.state.next_due
+
+    assert engine.credit_book.pending(PLAYER, due - timedelta(days=8)) == []
+
+    [pending] = engine.credit_book.pending(PLAYER, due - timedelta(days=7))
+    assert pending.type is PendingType.CASH_SHORT
+    assert pending.severity is PendingSeverity.WARNING
+    assert pending.key == "CASH_SHORT"
+    assert f"{due:%d/%m}" in pending.detail
+
+    engine.cash[PLAYER] = Decimal(20000)
+    assert engine.credit_book.pending(PLAYER, due - timedelta(days=7)) == []
 
 
 def test_late_installment_drops_the_grade_at_once(engine):

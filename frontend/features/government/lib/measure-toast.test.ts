@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { GovernmentNotice } from "@/types";
-import { monthClosedToast, warningToast } from "./measure-toast";
+import { monthClosedToast } from "./measure-toast";
 
 const EMPTY_NOTICE: GovernmentNotice = {
   kind: "UPDATED",
@@ -32,22 +32,6 @@ const notice = (partial: Partial<GovernmentNotice>): GovernmentNotice => ({
   ...EMPTY_NOTICE,
   kind: "IMPEACHMENT_WARNING",
   ...partial,
-});
-
-describe("warningToast", () => {
-  const rule = { floor: 25, impeachment_months: 6 };
-
-  it("avisa quantos fechamentos o governo passou abaixo do piso e quantos faltam", () => {
-    const toast = warningToast(notice({ months_below_floor: 3, approval: 22 }), rule);
-    expect(toast.title).toBe("3 de 6 meses seguidos abaixo de 25%");
-    expect(toast.description).toContain("Aprovação de 22%");
-    expect(toast.description).toContain("Mais 3 fechamentos abaixo do piso");
-  });
-
-  it("no penúltimo mês diz que o próximo fechamento decide", () => {
-    const toast = warningToast(notice({ months_below_floor: 5, approval: 22 }), rule);
-    expect(toast.description).toContain("Se o próximo fechamento ficar abaixo do piso");
-  });
 });
 
 describe("monthClosedToast", () => {

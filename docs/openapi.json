@@ -3845,6 +3845,57 @@
         }
       }
     },
+    "/api/pending": {
+      "get": {
+        "tags": [
+          "Pending"
+        ],
+        "summary": "Pendências do jogador",
+        "description": "O que pede ação do jogador agora, das graves para as de aviso: parcela em atraso, caixa negativo ou curto, estratégia desligada por erro, risco de impeachment, convite de vice e campanha aberta sem filiação.",
+        "operationId": "get_pending_api_pending_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PendingDTO"
+                  },
+                  "type": "array",
+                  "title": "Response Get Pending Api Pending Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/correlation/assets": {
       "get": {
         "tags": [
@@ -17979,6 +18030,75 @@
           "today"
         ],
         "title": "PeakDTO"
+      },
+      "PendingDTO": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "type": {
+            "$ref": "#/components/schemas/PendingType"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/PendingSeverity"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "loan_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loan Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "type",
+          "severity",
+          "title",
+          "detail",
+          "loan_id"
+        ],
+        "title": "PendingDTO",
+        "description": "Uma pendência do jogador; a gravidade e o título vêm do tipo, no registro."
+      },
+      "PendingSeverity": {
+        "type": "string",
+        "enum": [
+          "SEVERE",
+          "WARNING"
+        ],
+        "title": "PendingSeverity",
+        "description": "Grave já custa dinheiro ou trava algo; aviso ainda dá tempo."
+      },
+      "PendingType": {
+        "type": "string",
+        "enum": [
+          "OVERDUE_INSTALLMENT",
+          "NEGATIVE_CASH",
+          "IMPEACHMENT_RISK",
+          "CASH_SHORT",
+          "STRATEGY_ERROR",
+          "VICE_INVITE",
+          "CAMPAIGN_OPEN"
+        ],
+        "title": "PendingType",
+        "description": "Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar."
       },
       "PlayerActivity": {
         "type": "string",

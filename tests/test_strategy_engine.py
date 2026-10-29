@@ -11,6 +11,7 @@ from backend.core import repository
 from backend.core.dto.strategy import StrategyParamValue
 from backend.core.enum import (
     OrderAction,
+    PendingType,
     StrategyAction,
     StrategyGroup,
     StrategyLogKind,
@@ -216,6 +217,22 @@ def test_an_error_in_the_strategy_returns_the_player_to_manual_with_the_cause(ma
             action=OrderAction.BUY,
         )
     )
+
+
+def test_the_strategy_error_is_a_pending_until_the_player_turns_one_on_again(match):
+    sim, ana, bia = match
+    sim.set_my_strategy(ana, "boom", {})
+    assert sim.get_pending(ana) == []
+
+    sim.next_tick()
+
+    [pending] = sim.get_pending(ana)
+    assert pending.type is PendingType.STRATEGY_ERROR
+    assert "Voltou ao manual" in pending.detail
+    assert sim.get_pending(bia) == []
+
+    sim.set_my_strategy(ana, "buy_one", {})
+    assert sim.get_pending(ana) == []
 
 
 def test_marking_the_error_as_seen_keeps_it_out_of_the_log(match):

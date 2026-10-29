@@ -1352,6 +1352,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/pending": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Pendências do jogador
+         * @description O que pede ação do jogador agora, das graves para as de aviso: parcela em atraso, caixa negativo ou curto, estratégia desligada por erro, risco de impeachment, convite de vice e campanha aberta sem filiação.
+         */
+        get: operations["get_pending_api_pending_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/correlation/assets": {
         parameters: {
             query?: never;
@@ -6354,6 +6374,34 @@ export interface components {
             /** Today */
             today: number;
         };
+        /**
+         * PendingDTO
+         * @description Uma pendência do jogador; a gravidade e o título vêm do tipo, no registro.
+         */
+        PendingDTO: {
+            /** Key */
+            key: string;
+            type: components["schemas"]["PendingType"];
+            severity: components["schemas"]["PendingSeverity"];
+            /** Title */
+            title: string;
+            /** Detail */
+            detail: string;
+            /** Loan Id */
+            loan_id: string | null;
+        };
+        /**
+         * PendingSeverity
+         * @description Grave já custa dinheiro ou trava algo; aviso ainda dá tempo.
+         * @enum {string}
+         */
+        PendingSeverity: "SEVERE" | "WARNING";
+        /**
+         * PendingType
+         * @description Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar.
+         * @enum {string}
+         */
+        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN";
         /**
          * PlayerActivity
          * @description O que o jogador está fazendo na sala: a tela em que está, ou fora da aba do jogo.
@@ -12168,6 +12216,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NewsDTO"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_pending_api_pending_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PendingDTO"][];
                 };
             };
             /** @description Unprocessable Content */

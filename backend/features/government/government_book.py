@@ -19,6 +19,7 @@ from backend.core.dto.government import (
     MeasurePreviewDTO,
     ValueMoveDTO,
 )
+from backend.core.dto.pending import PendingDTO
 from backend.core.dto.promises import PromiseRequest
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
@@ -32,6 +33,7 @@ from backend.core.enum import (
     MeasureKind,
     MeasureStatus,
     PauseReason,
+    PendingType,
     VoterGroup,
     VoterValue,
 )
@@ -65,6 +67,7 @@ from backend.features.government.state import (
     apply,
     replay,
 )
+from backend.features.notifications import registry
 from backend.features.notifications.news import Headline
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import GovernmentUpdateEventDTO
@@ -161,6 +164,69 @@ class GovernmentBook:
             approval_rules.market_on(today),
             today,
         )
+
+    def pending(self, user: UserDTO, today: date) -> list[PendingDTO]:
+        """Risco de impeachment (só o presidente), convite de vice e campanha aberta sem filiação."""
+        items: list[PendingDTO] = []
+        if risk := self._impeachment_risk(user, today):
+            items.append(risk)
+        if not self._ticket_open(today):
+            return items
+        party = next(
+            (
+                p
+                for p in self.state.player_parties()
+                if p.vice_id == user.id and not p.vice_accepted
+            ),
+            None,
+        )
+        if party is not None:
+            founder = self._people.get(party.founder_id) if party.founder_id else None
+            items.append(
+                registry.pending(
+                    PendingType.VICE_INVITE,
+                    f"{founder.nickname if founder else party.name} quer você na chapa do {party.abbr}",
+                )
+            )
+        if self.state.party_of(user.id) is None and not user.is_bot:
+            items.append(
+                registry.pending(
+                    PendingType.CAMPAIGN_OPEN,
+                    f"As chapas fecham em {self.cycle().ticket_deadline:%d/%m}",
+                )
+            )
+        return items
+
+    def _ticket_open(self, today: date) -> bool:
+        """A campanha está aberta e as chapas ainda não fecharam."""
+        cycle = self.cycle()
+        return (
+            self.state.runoff is None
+            and self.state.pending_term is None
+            and cycle.campaign_start <= today <= cycle.ticket_deadline
+        )
+
+    def _impeachment_risk(self, user: UserDTO, today: date) -> PendingDTO | None:
+        term = self.state.term
+        if term is None or term.president_id != user.id:
+            return None
+        current = required(self.approval(today))
+        if approval_rules.in_grace(term, today.replace(day=1)):
+            return None
+        streak = self.state.low_streak
+        if (
+            streak == 0
+            and current.value >= approval_rules.FLOOR + approval_rules.RISK_MARGIN
+        ):
+            return None
+        floor = approval_rules.FLOOR
+        months = approval_rules.IMPEACHMENT_MONTHS
+        detail = (
+            f"Aprovação em {current.value}% e {streak} de {months} fechamentos abaixo de {floor}%"
+            if streak
+            else f"Aprovação em {current.value}%; {months} fechamentos abaixo de {floor}% abrem o impeachment"
+        )
+        return registry.pending(PendingType.IMPEACHMENT_RISK, detail)
 
     def tickers(self, measure: Measure) -> list[str]:
         """Os ativos que a medida de setor atinge."""

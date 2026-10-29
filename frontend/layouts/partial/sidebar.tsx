@@ -29,6 +29,7 @@ import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
 import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
 import { hasGoal } from "@/shared/lib/game-types";
 import { TutorialMenuItem } from "@/features/tutorial/components/menu-item";
+import { PendingMenuItem } from "@/features/pending/components/pending-menu-item";
 
 interface SidebarProps {
   navItems: NavItem[];
@@ -84,6 +85,12 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
 
       {/* Navegação por grupo */}
       <SidebarContent>
+        {/* Pendências da partida */}
+        <SidebarGroup>
+          <SidebarMenu>
+            <PendingMenuItem />
+          </SidebarMenu>
+        </SidebarGroup>
         {NAV_GROUPS.filter((group) => navItems.some((item) => item.group === group && isVisible(item))).map((group) => (
           <SidebarGroup key={group}>
             <SidebarGroupLabel>{group}</SidebarGroupLabel>

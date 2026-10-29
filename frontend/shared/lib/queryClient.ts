@@ -1,4 +1,5 @@
-import { QueryClient } from "@tanstack/react-query";
+import { MutationCache, QueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/shared/lib/queryKeys";
 import ApiError from "@/shared/lib/models/ApiError";
 
 // `apiFetch` sempre rejeita com ApiError: toda query e mutation herda esse tipo de erro
@@ -9,6 +10,10 @@ declare module "@tanstack/react-query" {
 }
 
 export const queryClient = new QueryClient({
+  // Toda ação do jogador pode resolver ou criar uma pendência: a lista confere depois de cada uma
+  mutationCache: new MutationCache({
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: queryKeys.pending() }),
+  }),
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5min

@@ -12,10 +12,12 @@ from uuid import UUID, uuid4
 from backend.core import repository
 from backend.core.dto.events.credit import CreditEventDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
+from backend.core.dto.pending import PendingDTO
 from backend.core.enum import (
     CreditEventType,
     CreditGrade,
     IndicatorSeries,
+    PendingType,
     PrepaymentMode,
 )
 from backend.core.exceptions import InsufficentCashError
@@ -27,7 +29,7 @@ from backend.core.exceptions.http_exceptions import (
 from backend.core.indicators import annual_index_rate
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
-from backend.core.utils import next_business_day, required
+from backend.core.utils import format_money, next_business_day, required
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.credit.loan import LoanState
 from backend.features.credit.price import (
@@ -53,6 +55,7 @@ from backend.features.credit.rules import (
     tier_of,
 )
 from backend.features.fixed_income.accrual import offer as fixed_income_offer
+from backend.features.notifications import registry
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     CreditInstallmentLateEventDTO,
@@ -382,6 +385,34 @@ class CreditBook:
         if any(loan.overdue for loan in client.loans.values()):
             return True
         return self._shortfall(client_id, client, day) > 0
+
+    def pending(self, client_id: UUID, day: date) -> list[PendingDTO]:
+        """Uma pendência por empréstimo com parcela em atraso e uma se o caixa não cobre o que vence em breve."""
+        client = self.client(client_id)
+        items = [
+            registry.pending(
+                PendingType.OVERDUE_INSTALLMENT,
+                f"Empréstimo {loan.number} · "
+                f"{format_money(sum((o.amount for o in loan.overdue), ZERO))}"
+                " · multa de 2% e mora correndo",
+                ref=str(loan.loan_id),
+                loan_id=loan.loan_id,
+            )
+            for loan in sorted(client.loans.values(), key=lambda loan: loan.number)
+            if loan.overdue
+        ]
+        shortfall = self._shortfall(client_id, client, day)
+        if shortfall > 0:
+            next_due = min(
+                loan.state.next_due for loan, _ in self._due_soon(client, day)
+            )
+            items.append(
+                registry.pending(
+                    PendingType.CASH_SHORT,
+                    f"Faltam {format_money(shortfall)} até {next_due:%d/%m}",
+                )
+            )
+        return items
 
     def _due_soon(self, client: ClientCredit, day: date) -> list[tuple[Loan, Decimal]]:
         limit = day + timedelta(days=WARNING_DAYS)

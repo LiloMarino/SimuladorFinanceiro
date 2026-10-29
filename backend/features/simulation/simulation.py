@@ -49,6 +49,7 @@ from backend.core.dto.patrimonial_history import (
     PatrimonialHistoryDTO,
     PortfolioHistoryPointDTO,
 )
+from backend.core.dto.pending import PendingDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
 from backend.core.dto.simulation import SimulationDTO
@@ -68,6 +69,7 @@ from backend.core.enum import (
     IndicatorSeries,
     OrderAction,
     PauseReason,
+    PendingType,
     PlayerGrouping,
     PrepaymentMode,
     VoterValue,
@@ -78,7 +80,12 @@ from backend.core.life_budget import LifeBudget
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
-from backend.core.utils import next_business_day, next_month_turn, required
+from backend.core.utils import (
+    format_money,
+    next_business_day,
+    next_month_turn,
+    required,
+)
 from backend.features.achievements.catalog import Achievement
 from backend.features.achievements.evaluator import (
     AchievementEvaluator,
@@ -120,7 +127,7 @@ from backend.features.government.promise_panel import (
     build_preview,
     build_promises_panel,
 )
-from backend.features.notifications import news
+from backend.features.notifications import news, registry
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     PortfolioUpdateEventDTO,
@@ -607,6 +614,22 @@ class Simulation:
         if self._government is None:
             raise ConflictError("Esta partida não usa a expansão Governo & Política.")
         return self._government
+
+    @synchronized
+    def get_pending(self, user: UserDTO) -> list[PendingDTO]:
+        """O que pede ação do jogador agora: as graves primeiro, cada uma some quando a condição acaba."""
+        client_id, today = user.client_id, self._current_date
+        items = self._engine.credit_book.pending(client_id, today)
+        cash = self._engine.get_cash(client_id)
+        if cash < 0:
+            detail = format_money(cash)
+            if self._life is not None:
+                detail += f" · cheque especial a {_overdraft_rate() * 100:.0f}% ao mês"
+            items.append(registry.pending(PendingType.NEGATIVE_CASH, detail))
+        items += self._strategies.pending(user)
+        if self._government is not None:
+            items += self._government.pending(user, today)
+        return registry.sort_pending(items)
 
     @synchronized
     def get_credit(self, client_id: UUID) -> CreditOverviewDTO:
