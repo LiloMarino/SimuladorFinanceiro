@@ -127,6 +127,7 @@ from backend.features.government.promise_panel import (
     build_preview,
     build_promises_panel,
 )
+from backend.features.newsroom.newsroom import Newsroom
 from backend.features.notifications import news, registry
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
@@ -259,6 +260,17 @@ class Simulation:
                 random_seed,
             )
             if settings.government_enabled and backtest is None
+            else None
+        )
+
+        # O noticiário lê as séries de cada pregão e entrega as manchetes ao jornal
+        self._newsroom = (
+            Newsroom(
+                settings.id,
+                lambda: self._engine.classification,
+                lambda day, headline: news.publish(settings.id, day, headline),
+            )
+            if backtest is None
             else None
         )
 
@@ -840,6 +852,7 @@ class Simulation:
         if self._life is not None:
             self._charge_overdraft(users)
         EventManager.flush()
+        self._publish_newsroom(stocks)
 
         if self.backtest is not None:
             self._record_backtest_day(users, month_changed)
@@ -887,6 +900,15 @@ class Simulation:
                 self._human_snapshots(users), month_changed
             ),
         )
+
+    def _publish_newsroom(self, stocks: list[CandleDTO]) -> None:
+        """As manchetes do pregão; uma falha do noticiário não para a partida."""
+        if self._newsroom is None:
+            return
+        try:
+            self._newsroom.on_tick(self._current_date, stocks)
+        except Exception:
+            logger.exception("Erro ao montar o noticiário do pregão")
 
     def _settle_candle_challenges(self) -> None:
         """

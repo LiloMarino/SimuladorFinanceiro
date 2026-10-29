@@ -4,7 +4,9 @@ import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Label } from "@/shared/components/ui/label";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Switch } from "@/shared/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { useNotificationCatalog } from "@/shared/hooks/queries/useNotificationCatalog";
 import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
@@ -23,10 +25,21 @@ export function JournalSettingsCard() {
   const { data: catalog } = useNotificationCatalog();
   const [failure, setFailure] = useState<string | null>(null);
 
-  const save = (news: Record<string, NewsLevel>, failureText: string) => {
+  const save = (news: Record<string, NewsLevel>, failureText: string, newsHeldOnly = preferences?.news_held_only) => {
     if (!preferences) return;
     setFailure(null);
-    updatePreferences({ ...preferences, news }, { onError: () => setFailure(failureText) });
+    updatePreferences(
+      { ...preferences, news, news_held_only: newsHeldOnly ?? {} },
+      { onError: () => setFailure(failureText) },
+    );
+  };
+
+  const changeHeldOnly = (spec: NewsTypeInfo, onlyHeld: boolean) => {
+    if (!preferences) return;
+    save(preferences.news, `Não salvou: “${spec.label}” voltou ao filtro anterior.`, {
+      ...preferences.news_held_only,
+      [spec.type]: onlyHeld,
+    });
   };
 
   const change = (spec: NewsTypeInfo, level: NewsLevel) => {
@@ -39,6 +52,7 @@ export function JournalSettingsCard() {
     save(
       Object.fromEntries(catalog.news.map((spec) => [spec.type, spec.default_level])),
       "Não salvou: o padrão não foi restaurado.",
+      {},
     );
   };
 
@@ -74,6 +88,17 @@ export function JournalSettingsCard() {
                     <span className="grid min-w-0 flex-1">
                       <span className="font-medium">{spec.label}</span>
                       <span className="text-xs text-muted-foreground">{spec.description}</span>
+                      {spec.portfolio_filter && (
+                        <span className="mt-1.5 flex items-center gap-2">
+                          <Switch
+                            id={`held-only-${spec.type}`}
+                            size="sm"
+                            checked={preferences.news_held_only[spec.type] ?? false}
+                            onCheckedChange={(checked) => changeHeldOnly(spec, checked)}
+                          />
+                          <Label htmlFor={`held-only-${spec.type}`}>Só ativos da minha carteira</Label>
+                        </span>
+                      )}
                     </span>
                     {spec.fixed ? (
                       <Badge variant="inverse" size="tag">

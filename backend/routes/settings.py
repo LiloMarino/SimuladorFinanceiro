@@ -29,6 +29,8 @@ class NotificationSettings(BaseModel):
 
     news_position: NewsPosition = registry.DEFAULT_POSITION
     news: dict[NewsType, NewsLevel] = {}
+    # Os tipos com filtro que só mostram manchetes de ativos da carteira
+    news_held_only: dict[NewsType, bool] = {}
     toasts: dict[ToastType, bool] = {}
 
 
@@ -67,6 +69,7 @@ def _with_debug(settings: dict[str, Any]) -> SettingsResponse:
     complete = CompleteNotificationSettings(
         news_position=chosen.news_position,
         news=registry.news_levels(chosen.news),
+        news_held_only=registry.news_held_only(chosen.news_held_only),
         toasts=registry.toasts_on(chosen.toasts),
     )
     return SettingsResponse.model_validate(
@@ -130,6 +133,7 @@ class NewsTypeInfo(BaseModel):
     description: str
     default_level: NewsLevel
     fixed: bool
+    portfolio_filter: bool
 
 
 class ToastTypeInfo(BaseModel):
@@ -171,6 +175,7 @@ def get_notification_types():
                 description=n.description,
                 default_level=n.default_level,
                 fixed=n.fixed,
+                portfolio_filter=n.portfolio_filter,
             )
             for n in registry.NEWS
         ],

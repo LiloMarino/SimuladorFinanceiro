@@ -3847,6 +3847,13 @@ export interface components {
                 [key: string]: components["schemas"]["NewsLevel"];
             };
             /**
+             * News Held Only
+             * @default {}
+             */
+            news_held_only: {
+                [key: string]: boolean;
+            };
+            /**
              * Toasts
              * @default {}
              */
@@ -5930,7 +5937,7 @@ export interface components {
          * @description Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro.
          * @enum {string}
          */
-        NewsType: "ELECTION_CALENDAR" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN";
+        NewsType: "ELECTION_CALENDAR" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN" | "COPOM_DECISION" | "MONTHLY_INFLATION" | "IBOVESPA_EXTREME" | "STRONG_MOVE" | "WEEK_HIGH" | "HISTORICAL_MILESTONE";
         /** NewsTypeInfo */
         NewsTypeInfo: {
             type: components["schemas"]["NewsType"];
@@ -5942,6 +5949,8 @@ export interface components {
             default_level: components["schemas"]["NewsLevel"];
             /** Fixed */
             fixed: boolean;
+            /** Portfolio Filter */
+            portfolio_filter: boolean;
         };
         /** NextTaxDropDTO */
         NextTaxDropDTO: {
@@ -5979,6 +5988,13 @@ export interface components {
              */
             news: {
                 [key: string]: components["schemas"]["NewsLevel"];
+            };
+            /**
+             * News Held Only
+             * @default {}
+             */
+            news_held_only: {
+                [key: string]: boolean;
             };
             /**
              * Toasts
@@ -7799,6 +7815,7 @@ export interface components {
              * @default {
              *       "news_position": "BOTTOM_LEFT",
              *       "news": {},
+             *       "news_held_only": {},
              *       "toasts": {}
              *     }
              */

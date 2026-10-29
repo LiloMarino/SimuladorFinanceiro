@@ -8,17 +8,31 @@ export type JournalFilter = {
 };
 
 type FilterContext = {
-  /** A seção e o nível de cada tipo, pelo registro e pelas preferências do jogador */
+  /** A seção de cada tipo, pelo registro */
   sectionOf: (type: NewsType) => NewsSection | undefined;
-  levelOf: (type: NewsType) => NewsLevel | undefined;
+  /** O nível da manchete para o jogador, com o filtro de carteira já aplicado */
+  levelOf: (item: News) => NewsLevel | undefined;
   held: ReadonlySet<string>;
 };
+
+/**
+ * O nível que o jogador dá à manchete: o do tipo, ou desligado quando o tipo só vale para ativos da
+ * carteira e a manchete não cita nenhum deles.
+ */
+export function levelFor<Level extends NewsLevel | undefined>(
+  level: Level,
+  onlyHeld: boolean,
+  tickers: readonly string[],
+  held: ReadonlySet<string>,
+): Level | "OFF" {
+  return onlyHeld && !tickers.some((ticker) => held.has(ticker)) ? "OFF" : level;
+}
 
 /** O que a página do jornal mostra: o tipo desligado fica de fora; o resto passa pela busca, pela seção e pela carteira. */
 export function filterNews(items: News[], filter: JournalFilter, { sectionOf, levelOf, held }: FilterContext) {
   const query = filter.query.trim().toLocaleLowerCase("pt-BR");
   return items.filter((item) => {
-    if (levelOf(item.news_type) === "OFF") return false;
+    if (levelOf(item) === "OFF") return false;
     if (filter.section !== null && sectionOf(item.news_type) !== filter.section) return false;
     if (filter.onlyMine && !item.tickers.some((ticker) => held.has(ticker))) return false;
     if (query === "") return true;

@@ -36,6 +36,8 @@ class NewsSpec:
     default_level: NewsLevel
     # Fixo: o tipo abre a janela com pausa para a sala inteira e não se configura
     fixed: bool = False
+    # Oferece o filtro "só ativos da minha carteira": a manchete cita ativos
+    portfolio_filter: bool = False
 
 
 @dataclass(frozen=True)
@@ -67,6 +69,43 @@ SECTIONS: tuple[SectionSpec, ...] = (
 
 # A ordem é a da importância numa rajada: as seções na ordem de SECTIONS e, dentro delas, o mais grave antes
 NEWS: tuple[NewsSpec, ...] = (
+    NewsSpec(
+        NewsType.COPOM_DECISION,
+        NewsSection.ECONOMY,
+        "Copom decide a SELIC",
+        "“Copom sobe a SELIC em 0,5 ponto, para 14,25%”",
+        NewsLevel.JOURNAL,
+    ),
+    NewsSpec(
+        NewsType.MONTHLY_INFLATION,
+        NewsSection.ECONOMY,
+        "Inflação do mês",
+        "“IPCA de fevereiro fica em 0,9%”",
+        NewsLevel.JOURNAL,
+    ),
+    NewsSpec(
+        NewsType.IBOVESPA_EXTREME,
+        NewsSection.ECONOMY,
+        "Recorde e maior queda do Ibovespa",
+        "“Ibovespa tem a maior queda do ano: \N{MINUS SIGN}4,2%”",
+        NewsLevel.JOURNAL,
+    ),
+    NewsSpec(
+        NewsType.STRONG_MOVE,
+        NewsSection.COMPANIES,
+        "Movimento forte no dia",
+        "Alta ou queda acima de 5%, com a causa",
+        NewsLevel.JOURNAL,
+        portfolio_filter=True,
+    ),
+    NewsSpec(
+        NewsType.WEEK_HIGH,
+        NewsSection.COMPANIES,
+        "Máxima de 52 semanas",
+        "“WEG atinge o maior preço em um ano”",
+        NewsLevel.HISTORY_ONLY,
+        portfolio_filter=True,
+    ),
     NewsSpec(
         NewsType.ELECTION_RESULT,
         NewsSection.POLITICS,
@@ -116,6 +155,13 @@ NEWS: tuple[NewsSpec, ...] = (
         "Vida dos partidos",
         "Partido fundado, doação, expulsão",
         NewsLevel.JOURNAL,
+    ),
+    NewsSpec(
+        NewsType.HISTORICAL_MILESTONE,
+        NewsSection.HISTORY,
+        "Marcos históricos",
+        "“Joesley Day: Ibovespa cai 8,8% e o pregão para”",
+        NewsLevel.WINDOW,
     ),
 )
 
@@ -230,6 +276,15 @@ def sort_pending(items: list[PendingDTO]) -> list[PendingDTO]:
     """As graves primeiro, na ordem do registro; as do mesmo tipo pela chave."""
     order = {spec.type: index for index, spec in enumerate(PENDING)}
     return sorted(items, key=lambda item: (order[item.type], item.key))
+
+
+def news_held_only(chosen: dict[NewsType, bool]) -> dict[NewsType, bool]:
+    """Se cada tipo com filtro mostra só ativos da carteira: o escolhido pelo jogador, senão desligado."""
+    return {
+        spec.type: chosen.get(spec.type, False)
+        for spec in NEWS
+        if spec.portfolio_filter
+    }
 
 
 def news_levels(chosen: dict[NewsType, NewsLevel]) -> dict[NewsType, NewsLevel]:

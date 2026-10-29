@@ -13,7 +13,7 @@ import { useNotificationPreferences } from "@/shared/hooks/useNotificationPrefer
 import { displayWeekdayDate } from "@/shared/lib/utils/display";
 import type { NewsSection } from "@/types";
 import { useNews } from "../hooks/queries/useNews";
-import { filterNews, type JournalFilter } from "../lib/filter";
+import { filterNews, levelFor, type JournalFilter } from "../lib/filter";
 import { sectionOf } from "../lib/catalog";
 import { JournalEntries } from "./journal-entries";
 import { JournalSkeleton } from "./journal-skeleton";
@@ -100,7 +100,13 @@ export function JournalPaper({ simulationId }: JournalPaperProps) {
           <JournalEntries
             items={filterNews(news.data, filter, {
               sectionOf: (type) => sectionOf(catalog, type),
-              levelOf: (type) => preferences.news[type],
+              levelOf: (item) =>
+                levelFor(
+                  preferences.news[item.news_type],
+                  preferences.news_held_only[item.news_type] ?? false,
+                  item.tickers,
+                  held,
+                ),
               held,
             })}
             total={news.data.length}

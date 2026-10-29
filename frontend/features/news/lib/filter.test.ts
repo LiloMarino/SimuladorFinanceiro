@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { News, NewsLevel, NewsType } from "@/types";
-import { filterNews, groupByDay, type JournalFilter } from "./filter";
+import { filterNews, groupByDay, levelFor, type JournalFilter } from "./filter";
 
 const item = (id: number, partial: Partial<News>): News => ({
   id,
@@ -16,7 +16,7 @@ const NONE: JournalFilter = { query: "", section: null, onlyMine: false };
 const levels: Partial<Record<NewsType, NewsLevel>> = { PARTY_LIFE: "OFF" };
 const context = {
   sectionOf: () => "POLITICS" as const,
-  levelOf: (type: NewsType) => levels[type] ?? "JOURNAL",
+  levelOf: (found: News) => levels[found.news_type] ?? "JOURNAL",
   held: new Set(["PETR4"]),
 };
 
@@ -59,5 +59,19 @@ describe("groupByDay", () => {
       ["2016-03-14", 2],
       ["2016-03-11", 1],
     ]);
+  });
+});
+
+describe("levelFor", () => {
+  const held = new Set(["PETR4"]);
+
+  it("mantém o nível do tipo quando o filtro de carteira está desligado", () => {
+    expect(levelFor("JOURNAL", false, ["VALE3"], held)).toBe("JOURNAL");
+  });
+
+  it("com o filtro ligado, só a manchete de um ativo da carteira mantém o nível", () => {
+    expect(levelFor("WINDOW", true, ["VALE3", "PETR4"], held)).toBe("WINDOW");
+    expect(levelFor("WINDOW", true, ["VALE3"], held)).toBe("OFF");
+    expect(levelFor("WINDOW", true, [], held)).toBe("OFF");
   });
 });

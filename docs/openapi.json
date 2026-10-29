@@ -11012,6 +11012,17 @@
             "title": "News",
             "default": {}
           },
+          "news_held_only": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/NewsType"
+            },
+            "type": "object",
+            "title": "News Held Only",
+            "default": {}
+          },
           "toasts": {
             "additionalProperties": {
               "type": "boolean"
@@ -11028,6 +11039,7 @@
         "required": [
           "news_position",
           "news",
+          "news_held_only",
           "toasts"
         ],
         "title": "CompleteNotificationSettings"
@@ -16784,7 +16796,13 @@
           "MEASURE_PROPOSED",
           "MEASURE_VOTED",
           "PARTY_LIFE",
-          "CAMPAIGN"
+          "CAMPAIGN",
+          "COPOM_DECISION",
+          "MONTHLY_INFLATION",
+          "IBOVESPA_EXTREME",
+          "STRONG_MOVE",
+          "WEEK_HIGH",
+          "HISTORICAL_MILESTONE"
         ],
         "title": "NewsType",
         "description": "Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro."
@@ -16811,6 +16829,10 @@
           "fixed": {
             "type": "boolean",
             "title": "Fixed"
+          },
+          "portfolio_filter": {
+            "type": "boolean",
+            "title": "Portfolio Filter"
           }
         },
         "type": "object",
@@ -16820,7 +16842,8 @@
           "label",
           "description",
           "default_level",
-          "fixed"
+          "fixed",
+          "portfolio_filter"
         ],
         "title": "NewsTypeInfo"
       },
@@ -16896,6 +16919,17 @@
             },
             "type": "object",
             "title": "News",
+            "default": {}
+          },
+          "news_held_only": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/NewsType"
+            },
+            "type": "object",
+            "title": "News Held Only",
             "default": {}
           },
           "toasts": {
@@ -22322,6 +22356,7 @@
             "default": {
               "news_position": "BOTTOM_LEFT",
               "news": {},
+              "news_held_only": {},
               "toasts": {}
             }
           },
