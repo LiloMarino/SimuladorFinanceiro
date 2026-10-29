@@ -247,6 +247,12 @@ PENDING: tuple[PendingSpec, ...] = (
         "Campanha aberta sem filiação",
         "Some ao se filiar ou quando as chapas fecham",
     ),
+    PendingSpec(
+        PendingType.UNGUIDED_VOTE,
+        PendingSeverity.WARNING,
+        "Votação sem orientação",
+        "Só para o líder do partido; some ao orientar a bancada ou quando a casa vota",
+    ),
 )
 
 NEWS_BY_TYPE: dict[NewsType, NewsSpec] = {spec.type: spec for spec in NEWS}

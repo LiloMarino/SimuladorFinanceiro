@@ -68,8 +68,8 @@ export function ImpeachmentFloor({ panel }: ImpeachmentFloorProps) {
           Piso do impeachment
           <InfoHint label="Como funciona o piso do impeachment">
             Se a aprovação geral fechar o mês abaixo do piso, entra na contagem; {approval.impeachment_months}{" "}
-            fechamentos seguidos derrubam o presidente. No primeiro ano do mandato o piso não conta, e fechar um mês
-            acima dele zera a contagem.
+            fechamentos seguidos abrem o pedido de impeachment, que a casa vota com 68 de 101 cadeiras. No primeiro ano
+            do mandato o piso não conta, e fechar um mês acima dele zera a contagem.
           </InfoHint>
         </span>
         <span className="text-xs leading-normal text-muted-foreground">{floorSentence(panel, approval)}</span>

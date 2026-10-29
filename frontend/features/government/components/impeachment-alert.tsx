@@ -18,8 +18,8 @@ export function ImpeachmentAlert({ panel }: ImpeachmentAlertProps) {
   const outlook = `Aprovação de ${approval.value}% hoje, com alvo de ${approval.target}%: no ritmo atual ela ${recovers ? "volta" : "não volta"} acima do piso.`;
   const consequence =
     left <= 1
-      ? `Se ${displayDayMonth(approval.closes_on)} fechar abaixo de ${approval.floor}%, o impeachment tira você; ${successionLabel(panel)}.`
-      : `Mais ${left} meses (${remainingMonths(approval)}) e o impeachment tira você; ${successionLabel(panel)}.`;
+      ? `Se ${displayDayMonth(approval.closes_on)} fechar abaixo de ${approval.floor}%, abre o pedido de impeachment e a casa vota se tira você; com 68 de 101 votos Sim, ${successionLabel(panel)}.`
+      : `Mais ${left} meses (${remainingMonths(approval)}) e abre o pedido de impeachment: a casa vota e, com 68 de 101 votos Sim, ${successionLabel(panel)}.`;
 
   return (
     <Alert variant="destructive">

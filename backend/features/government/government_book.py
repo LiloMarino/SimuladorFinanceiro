@@ -53,6 +53,7 @@ from backend.features.government import (
     congress,
     election,
     headlines,
+    house,
     promises,
     second_round,
     spending,
@@ -62,6 +63,10 @@ from backend.features.government import (
 from backend.features.government import measures as rules
 from backend.features.government.budget import BudgetCourse
 from backend.features.government.calendar import ElectionCycle, election_cycle
+from backend.features.government.computer_parties import (
+    COMPUTER_FLAGS,
+    COMPUTER_PARTIES,
+)
 from backend.features.government.measures import PolicyTimeline
 from backend.features.government.promises import Promise
 from backend.features.government.spending import SpendingTimeline
@@ -83,6 +88,15 @@ from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.tax_policy import TaxPolicy
 
 logger = logging.getLogger(__name__)
+
+# A orientação do pedido de impeachment aberto; a das medidas é "measure:<id>"
+IMPEACHMENT_REF = "impeachment"
+
+
+def measure_ref(measure_id: int | None) -> str:
+    """A chave da votação em que o líder orienta: a medida ou, sem id, o pedido de impeachment."""
+    return IMPEACHMENT_REF if measure_id is None else f"measure:{measure_id}"
+
 
 # Pontos somados a um setor vão até 20 pontos
 SECTOR_EXTRA_LIMIT = Decimal("0.2")
@@ -237,6 +251,7 @@ class GovernmentBook:
         items: list[PendingDTO] = []
         if risk := self._impeachment_risk(user, today):
             items.append(risk)
+        items.extend(self._unguided_votes(user, today))
         if not self._ticket_open(today):
             return items
         party = next(
@@ -263,6 +278,53 @@ class GovernmentBook:
                 )
             )
         return items
+
+    def _unguided_votes(self, user: UserDTO, today: date) -> list[PendingDTO]:
+        """Uma pendência por votação aberta em que o líder ainda não orientou a bancada."""
+        party = self.state.party_of(user.id)
+        if party is None or party.founder_id != user.id:
+            return []
+        bloc = self.state.house_on(today).of_party(party.id)
+        if bloc is None or bloc.seats == 0:
+            return []
+        items = []
+        vote_day = congress.next_vote_date(today)
+        for measure in self._queue():
+            orientation, guided, _ = self.measure_orientations(measure, today)
+            if not guided.get(bloc.key, False):
+                items.append(
+                    self._unguided_item(
+                        rules.title(measure),
+                        vote_day,
+                        party,
+                        orientation[bloc.key],
+                        measure_ref(measure.id),
+                    )
+                )
+        request = self.state.request
+        if request is not None:
+            orientation, guided, _ = self.impeachment_orientations(today)
+            if not guided.get(bloc.key, False):
+                items.append(
+                    self._unguided_item(
+                        "Pedido de impeachment",
+                        request.vote_day,
+                        party,
+                        orientation[bloc.key],
+                        IMPEACHMENT_REF,
+                    )
+                )
+        return [item for item in items if item is not None]
+
+    def _unguided_item(
+        self, title: str, vote_day: date, party: Party, standard: bool, ref: str
+    ) -> PendingDTO:
+        return registry.pending(
+            PendingType.UNGUIDED_VOTE,
+            f"{title} · a casa vota em {vote_day:%d/%m}. Sem você, o {party.abbr} "
+            f"vota pelo padrão: {'Sim' if standard else 'Não'}.",
+            ref=ref,
+        )
 
     def _ticket_open(self, today: date) -> bool:
         """A campanha está aberta e as chapas ainda não fecharam."""
@@ -291,7 +353,7 @@ class GovernmentBook:
         detail = (
             f"Aprovação em {current.value}% e {streak} de {months} fechamentos abaixo de {floor}%"
             if streak
-            else f"Aprovação em {current.value}%; {months} fechamentos abaixo de {floor}% abrem o impeachment"
+            else f"Aprovação em {current.value}%; {months} fechamentos abaixo de {floor}% abrem o pedido de impeachment"
         )
         return registry.pending(PendingType.IMPEACHMENT_RISK, detail)
 
@@ -426,15 +488,17 @@ class GovernmentBook:
         color: str,
         flags: list[VoterValue],
         contribution: Decimal,
+        congress: Decimal = Decimal(0),
     ) -> None:
         self._ensure_person(user)
         self._ensure_campaign_open(today)
         self._ensure_without_party(user)
         self._ensure_valid_flags(flags)
+        self._ensure_split(contribution, congress)
         if not PARTY_ABBR_PATTERN.match(abbr):
             raise UnprocessableEntityError("A sigla tem de 2 a 8 letras.")
         parties = self.state.parties.values()
-        if any(p.abbr == abbr for p in parties):
+        if abbr in house.COMPUTER_KEYS or any(p.abbr == abbr for p in parties):
             raise ConflictError(f"Já existe um partido com a sigla {abbr}.")
         if any(p.name.casefold() == name.casefold() for p in parties):
             raise ConflictError("Já existe um partido com esse nome.")
@@ -450,6 +514,7 @@ class GovernmentBook:
             flags=[v.value for v in flags],
             founder_id=user.id,
             contribution=str(contribution),
+            congress=str(congress),
         )
         self._ensure_computers(today)
         self._notice(GovernmentNoticeKind.PARTY_FOUNDED, user, party_abbr=abbr)
@@ -477,11 +542,17 @@ class GovernmentBook:
             )
 
     def join_party(
-        self, user: UserDTO, today: date, party_id: int, contribution: Decimal
+        self,
+        user: UserDTO,
+        today: date,
+        party_id: int,
+        contribution: Decimal,
+        congress: Decimal = Decimal(0),
     ) -> None:
         self._ensure_person(user)
         self._ensure_campaign_open(today)
         self._ensure_without_party(user)
+        self._ensure_split(contribution, congress)
         party = self._party(party_id)
         if party.is_computer:
             raise ConflictError("O partido do computador não aceita filiados.")
@@ -491,6 +562,7 @@ class GovernmentBook:
             party_id=party.id,
             user_id=user.id,
             contribution=str(contribution),
+            congress=str(congress),
         )
         self._ensure_computers(today)
         self._notice(GovernmentNoticeKind.UPDATED, user, party_abbr=party.abbr)
@@ -503,17 +575,152 @@ class GovernmentBook:
         self._notice(GovernmentNoticeKind.UPDATED, user, party_abbr=party.abbr)
 
     def set_contribution(
-        self, user: UserDTO, today: date, contribution: Decimal
+        self,
+        user: UserDTO,
+        today: date,
+        contribution: Decimal,
+        congress: Decimal = Decimal(0),
     ) -> None:
         self._ensure_membership_open()
+        self._ensure_split(contribution, congress)
         party = self._my_party(user)
         self._emit(
             GovernmentEventType.CONTRIBUTION_SET,
             today,
             user_id=user.id,
             contribution=str(contribution),
+            congress=str(congress),
         )
         self._notice(GovernmentNoticeKind.UPDATED, user, party_abbr=party.abbr)
+
+    def _ensure_split(self, contribution: Decimal, congress: Decimal) -> None:
+        if not 0 <= congress <= contribution:
+            raise UnprocessableEntityError(
+                "A parte do Congresso fica entre zero e a contribuição inteira."
+            )
+
+    # Congresso: a orientação do líder
+
+    def guide(
+        self, user: UserDTO, today: date, measure_id: int | None, yes: bool
+    ) -> None:
+        """O líder orienta a bancada numa votação aberta, até a véspera; sem `measure_id`, é o pedido de impeachment."""
+        party = self._leader_party(user)
+        bloc = self.state.house_on(today).of_party(party.id)
+        if bloc is None or bloc.seats == 0:
+            raise ConflictError("O partido não tem bancada na casa.")
+        if measure_id is None:
+            request = self.state.request
+            if request is None:
+                raise ConflictError("Não há pedido de impeachment aberto.")
+            vote_day = request.vote_day
+        else:
+            measure = self._measure(measure_id)
+            if measure.status is not MeasureStatus.QUEUED:
+                raise ConflictError("A medida já foi votada ou retirada.")
+            vote_day = congress.next_vote_date(today)
+        if today >= vote_day:
+            raise ConflictError("A casa vota hoje: a orientação fechou na véspera.")
+        self._emit(
+            GovernmentEventType.BLOC_GUIDED,
+            today,
+            ref=measure_ref(measure_id),
+            party_id=party.id,
+            yes=yes,
+            user_id=user.id,
+        )
+        self._notice(GovernmentNoticeKind.UPDATED, user, party_abbr=party.abbr)
+
+    def set_guidance_rule(
+        self, user: UserDTO, today: date, value: VoterValue, yes: bool
+    ) -> None:
+        """O líder troca a orientação padrão do partido para um valor."""
+        party = self._leader_party(user)
+        self._emit(
+            GovernmentEventType.GUIDANCE_RULE_SET,
+            today,
+            party_id=party.id,
+            value=value.value,
+            yes=yes,
+            user_id=user.id,
+        )
+        self._notice(GovernmentNoticeKind.UPDATED, user, party_abbr=party.abbr)
+
+    def _leader_party(self, user: UserDTO) -> Party:
+        party = self._my_party(user)
+        if party.founder_id != user.id:
+            raise ForbiddenError("Só o líder do partido orienta a bancada.")
+        return party
+
+    def effects_of(self, measure: Measure) -> dict[VoterValue, Decimal]:
+        """O que a medida avança (+) ou recua (-) nos valores; a de gasto não mexe neles."""
+        if measure.kind.is_spending:
+            return {}
+        return voters.measure_effects(measure.kind, measure.value, measure.before)
+
+    def bloc_orientation(
+        self,
+        bloc: house.Bloc,
+        ref: str,
+        default: Callable[[dict[VoterValue, bool]], bool],
+    ) -> tuple[bool, bool]:
+        """A orientação da bancada numa votação e se o líder a deu; sem ela vale a regra padrão do partido."""
+        party_id = bloc.party_id
+        chosen = (
+            self.state.orientations.get(ref, {}).get(party_id) if party_id else None
+        )
+        if chosen is not None:
+            return chosen, True
+        return default(self._bloc_rules(bloc)), False
+
+    def _bloc_rules(self, bloc: house.Bloc) -> dict[VoterValue, bool]:
+        """A regra de orientação da bancada: a do partido (do jogador ou do computador) ou, sem partido, Não em tudo."""
+        party = self.state.parties.get(bloc.party_id) if bloc.party_id else None
+        if party is not None:
+            return party.rules
+        flags = COMPUTER_FLAGS.get(bloc.abbr) if bloc.is_computer else None
+        return house.flag_rules(flags) if flags else house.flag_rules(None)
+
+    def measure_orientations(
+        self, measure: Measure, day: date
+    ) -> tuple[dict[int, bool], dict[int, bool], dict[int, Decimal]]:
+        """Por bancada da casa em exercício: a orientação, se o líder a deu e o que os eleitores querem."""
+        effects = self.effects_of(measure)
+        by_group = house.reactions(effects)
+        proposer = self.state.party_of(measure.proposer_id)
+        orientations, guided, wanted = {}, {}, {}
+        for bloc in self.state.house_on(day).seated:
+            # A bancada do partido que propôs a medida vota Sim sem orientação
+            own = proposer is not None and proposer.id == bloc.party_id
+            orientations[bloc.key], guided[bloc.key] = self.bloc_orientation(
+                bloc,
+                measure_ref(measure.id),
+                lambda rules, effects=effects, own=own: (
+                    own or house.default_orientation(rules, effects)
+                ),
+            )
+            wanted[bloc.key] = house.wants(bloc.mix, by_group)
+        return orientations, guided, wanted
+
+    def impeachment_orientations(
+        self, day: date
+    ) -> tuple[dict[int, bool], dict[int, bool], dict[int, Decimal]]:
+        """O mesmo para o pedido de impeachment: pelos eleitores, e a bancada do presidente vota Não."""
+        term = self.state.term
+        by_group = house.impeachment_reactions(self.state.satisfaction)
+        orientations, guided, wanted = {}, {}, {}
+        for bloc in self.state.house_on(day).seated:
+            mood = house.mood(bloc.mix, self.state.satisfaction)
+            governing = term is not None and bloc.party_id == term.party_id
+            orientations[bloc.key], guided[bloc.key] = self.bloc_orientation(
+                bloc,
+                IMPEACHMENT_REF,
+                lambda _rules, mood=mood, governing=governing: (
+                    not governing and house.impeachment_orientation(mood)
+                ),
+            )
+            wanted[bloc.key] = house.wants(bloc.mix, by_group)
+        return orientations, guided, wanted
 
     def expel(
         self, founder: UserDTO, today: date, nickname: str, users: list[UserDTO]
@@ -1175,7 +1382,6 @@ class GovernmentBook:
         """O que a medida faria, sem propô-la: perfil do partido, pontos na aprovação, voto e vigência."""
         self._ensure_president(user)
         draft = self._draft(user, today, kind, value, sector, segment)
-        current = required(self.approval(today))
         vote = congress.next_vote_date(today)
         tickers = self.tickers(draft)
         moves = voters.radar_moves(draft.kind, draft.value, draft.before)
@@ -1185,7 +1391,6 @@ class GovernmentBook:
                 ValueMoveDTO(value=v, points=points) for v, points in moves.items()
             ],
             impact=approval_rules.measure_impact(draft),
-            chance=current.value,
             vote_date=vote,
             effective=vote + timedelta(days=VIGENCE_DAYS),
             assets=len(tickers) if draft.kind.is_sector else None,
@@ -1327,10 +1532,11 @@ class GovernmentBook:
 
     def _close_month(self, today: date) -> bool:
         """
-        No último dia útil do mês cada grupo anda um terço do caminho até o alvo, o
-        Congresso vota a fila com chance igual à aprovação resultante e, depois de 6
-        fechamentos seguidos abaixo do piso (a contar do 13º mês do mandato), o
-        presidente sofre impeachment. Devolve se houve impeachment, que pausa a partida.
+        No último dia útil do mês cada grupo anda um terço do caminho até o alvo, a casa
+        vota o pedido de impeachment aberto e a fila de medidas e, depois de 6 fechamentos
+        seguidos abaixo do piso (a contar do 13º mês do mandato), o pedido de impeachment
+        abre para a casa votar no mês seguinte. Devolve se o presidente caiu, o que pausa
+        a partida.
         """
         term = self.state.term
         month = today.replace(day=1)
@@ -1341,6 +1547,13 @@ class GovernmentBook:
             or self.state.last_measured == month
         ):
             return False
+        request = self.state.request
+        if (
+            request is not None
+            and today >= request.vote_day
+            and self._vote_impeachment(today)
+        ):
+            return True
         before = required(self.approval(today))
         satisfaction = {
             g: approval_rules.next_satisfaction(before.satisfaction[g], t.target)
@@ -1359,19 +1572,119 @@ class GovernmentBook:
             low_streak=streak,
             month=month.isoformat(),
         )
-        if streak >= approval_rules.IMPEACHMENT_MONTHS:
-            self._impeach(today)
-            return True
-        if streak == approval_rules.IMPEACHMENT_MONTHS - 1:
+        if streak >= approval_rules.IMPEACHMENT_MONTHS and self.state.request is None:
+            self._request_impeachment(today)
+        elif streak == approval_rules.IMPEACHMENT_MONTHS - 1:
             self._notice(
                 GovernmentNoticeKind.IMPEACHMENT_WARNING,
                 self.president(),
                 months_below_floor=streak,
                 approval=value,
             )
-        self._vote(today, value)
+        self._vote(today)
         self._notice_month_closed(before.value, satisfaction, value)
         return False
+
+    def _request_impeachment(self, today: date) -> None:
+        """O 6º fechamento seguido abaixo do piso abre o pedido; a casa vota no dia de votação do mês seguinte."""
+        vote_day = congress.next_vote_date(today + timedelta(days=1))
+        self._emit(
+            GovernmentEventType.IMPEACHMENT_REQUESTED,
+            today,
+            vote_day=vote_day.isoformat(),
+        )
+        term = required(self.state.term)
+        president = self.president()
+        self._notice(
+            GovernmentNoticeKind.IMPEACHMENT_REQUESTED,
+            president,
+            party_abbr=self._party_abbr(term.party_id),
+            effective=vote_day,
+        )
+        if president is not None:
+            self._on_news(
+                today,
+                headlines.impeachment_requested(
+                    president.nickname,
+                    self._party_abbr(term.party_id),
+                    vote_day,
+                ),
+            )
+
+    def _vote_impeachment(self, today: date) -> bool:
+        """A casa vota o pedido: com 68 votos Sim o presidente cai; sem eles a contagem recomeça do zero."""
+        request = required(self.state.request)
+        current = self.state.house_on(today)
+        orientations, _, wanted = self.impeachment_orientations(today)
+        tally = house.count(
+            f"impeachment:{request.opened.isoformat()}",
+            self._seed,
+            current,
+            orientations,
+            wanted,
+        )
+        by_group = house.impeachment_reactions(self.state.satisfaction)
+        approved = tally.yes >= house.IMPEACHMENT_VOTES
+        self._emit(
+            GovernmentEventType.IMPEACHMENT_VOTED,
+            today,
+            approved=approved,
+            **self._tally_payload(tally, current, by_group),
+        )
+        term = required(self.state.term)
+        president = self.president()
+        self._notice(
+            GovernmentNoticeKind.IMPEACHMENT_VOTED,
+            president,
+            party_abbr=self._party_abbr(term.party_id),
+            accepted=approved,
+            yes=tally.yes,
+            no=tally.no,
+            defected=tally.defected,
+        )
+        if approved:
+            self._impeach(today, tally)
+        elif president is not None:
+            self._on_news(
+                today,
+                headlines.impeachment_rejected(
+                    president.nickname,
+                    self._party_abbr(term.party_id),
+                    tally.yes,
+                    tally.no,
+                ),
+            )
+        return approved
+
+    def _tally_payload(
+        self,
+        tally: house.Tally,
+        current: house.House,
+        reactions: dict[VoterGroup, Decimal],
+    ) -> dict[str, object]:
+        """O placar como vai no evento, com a causa de quem desobedeceu em cada bancada."""
+        blocs = {}
+        for key, vote in tally.blocs.items():
+            bloc = current.bloc(key)
+            cause = (
+                house.contrary_group(bloc.mix, reactions, vote.orientation)
+                if bloc is not None and vote.defected
+                else None
+            )
+            blocs[str(key)] = {
+                "seats": vote.seats,
+                "orientation": vote.orientation,
+                "yes": vote.yes,
+                "no": vote.no,
+                "defected": vote.defected,
+                "cause": cause.value if cause else None,
+            }
+        return {
+            "yes": tally.yes,
+            "no": tally.no,
+            "defected": tally.defected,
+            "blocs": blocs,
+        }
 
     def _notice_month_closed(
         self,
@@ -1395,15 +1708,27 @@ class GovernmentBook:
             ],
         )
 
-    def _vote(self, today: date, chance: int) -> None:
+    def _vote(self, today: date) -> None:
+        """A casa vota cada medida da fila: a bancada segue a orientação, e parte dela desobedece."""
+        current = self.state.house_on(today)
         for measure in self._queue():
-            approved = congress.passes(self._seed, today, measure.id, chance)
+            orientations, _, wanted = self.measure_orientations(measure, today)
+            tally = house.count(
+                f"{measure_ref(measure.id)}:{today.isoformat()}",
+                self._seed,
+                current,
+                orientations,
+                wanted,
+            )
+            approved = tally.yes >= house.MAJORITY
             self._emit(
                 GovernmentEventType.MEASURE_VOTED,
                 today,
                 measure_id=measure.id,
                 approved=approved,
-                chance=str(chance),
+                **self._tally_payload(
+                    tally, current, house.reactions(self.effects_of(measure))
+                ),
             )
             if approved:
                 self._timeline = PolicyTimeline(self.state.measures.values())
@@ -1414,7 +1739,9 @@ class GovernmentBook:
                 self._people.get(measure.proposer_id),
                 accepted=approved,
                 measure_title=rules.title(measure),
-                chance=chance,
+                yes=tally.yes,
+                no=tally.no,
+                defected=tally.defected,
                 effective=measure.effective,
                 tickers=self.tickers(measure),
             )
@@ -1425,10 +1752,13 @@ class GovernmentBook:
                     approved,
                     measure.effective,
                     self.tickers(measure),
+                    tally.yes,
+                    tally.no,
+                    tally.defected,
                 ),
             )
 
-    def _impeach(self, today: date) -> None:
+    def _impeach(self, today: date, tally: house.Tally) -> None:
         """Assume o vice que segue na partida; sem ele, o computador governa sem propor medidas."""
         term = required(self.state.term)
         out = self.president()
@@ -1456,6 +1786,8 @@ class GovernmentBook:
                     out.nickname,
                     self._party_abbr(term.party_id),
                     successor.nickname if successor else None,
+                    tally.yes,
+                    tally.no,
                 ),
             )
 
@@ -1506,8 +1838,12 @@ class GovernmentBook:
         self._announce_computer_promises(today)
 
         spent: dict[str, str] = {}
+        to_house: dict[str, str] = {}
         for party in self.state.player_parties():
             total = Decimal(0)
+            house_total = Decimal(0)
+            # Sem candidato à presidência, toda a contribuição vai para o Congresso
+            runs = election.runs(self.state, party)
             for user_id, contribution in party.members.items():
                 user = people.get(user_id)
                 if (
@@ -1522,17 +1858,24 @@ class GovernmentBook:
                     CashflowEventType.CAMPAIGN_CONTRIBUTION,
                 )
                 total += contribution
-            spent[str(party.id)] = str(total)
+                house_total += (
+                    party.congress.get(user_id, Decimal(0)) if runs else contribution
+                )
+            spent[str(party.id)] = str(total - house_total)
+            to_house[str(party.id)] = str(house_total)
         computer_amount = election.computer_spend(self.state, self._factor)
         for party in sorted(self.state.computer_parties(), key=lambda p: p.id):
-            spent[str(party.id)] = str(
-                self._computer_campaign(party, computer_amount, today)
-            )
+            # Das ações sobra a verba de base, que o computador divide entre a presidência e o Congresso
+            left = self._computer_campaign(party, computer_amount, today)
+            computer_house = left * house.COMPUTER_HOUSE_SHARE
+            spent[str(party.id)] = str(left - computer_house)
+            to_house[str(party.id)] = str(computer_house)
         self._emit(
             GovernmentEventType.CAMPAIGN_SPENT,
             today,
             month=month.isoformat(),
             spent=spent,
+            house=to_house,
         )
         self._notice(GovernmentNoticeKind.UPDATED)
 
@@ -1592,6 +1935,7 @@ class GovernmentBook:
         shares = election.valid_shares(points)
         winner = election.first_round_winner(shares)
         finalists = [winner] if winner is not None else election.top_two(points)
+        self._elect_house(cycle, today)
         self._emit_round(
             cycle,
             today,
@@ -1606,6 +1950,90 @@ class GovernmentBook:
                 election.start_satisfaction(vote, winner) if winner is not None else {}
             ),
         )
+
+    def _elect_house(self, cycle: ElectionCycle, today: date) -> None:
+        """
+        A casa sai do mesmo modelo de grupos, pesando o histórico do partido mais do que a
+        campanha: os três do computador sempre entram, e o partido de jogador entra se
+        tiver filiado.
+        """
+        candidates, strengths = self._house_field()
+        elected = house.elect(candidates, strengths)
+        self._emit(
+            GovernmentEventType.HOUSE_ELECTED,
+            today,
+            cycle=self.state.cycle,
+            takes_office=cycle.inauguration.isoformat(),
+            blocs=[
+                {
+                    "key": b.key,
+                    "party_id": b.party_id,
+                    "abbr": b.abbr,
+                    "name": b.name,
+                    "color": b.color,
+                    "is_computer": b.is_computer,
+                    "votes": str(b.votes),
+                    "seats": b.seats,
+                    "mix": {g.value: str(v) for g, v in b.mix.items()},
+                }
+                for b in elected.blocs
+            ],
+            below=list(elected.below),
+            last=str(elected.last),
+            upcoming=str(elected.upcoming),
+        )
+        self._notice(GovernmentNoticeKind.HOUSE_ELECTED)
+
+    def house_field(
+        self,
+    ) -> tuple[list[house.Candidate], dict[int, dict[VoterGroup, Decimal]]]:
+        """Os partidos na disputa da casa e a força de cada um em cada grupo, como estão hoje."""
+        return self._house_field()
+
+    def _house_field(
+        self,
+    ) -> tuple[list[house.Candidate], dict[int, dict[VoterGroup, Decimal]]]:
+        candidates: list[house.Candidate] = []
+        strengths: dict[int, dict[VoterGroup, Decimal]] = {}
+        zero = dict.fromkeys(VoterGroup, Decimal(0))
+        for spec in COMPUTER_PARTIES:
+            key = house.COMPUTER_KEYS[spec.abbr]
+            party = next(
+                (p for p in self.state.computer_parties() if p.abbr == spec.abbr), None
+            )
+            candidates.append(
+                house.Candidate(
+                    key, spec.abbr, spec.name, None, True, party.id if party else None
+                )
+            )
+            radar = party.radar if party else voters.initial_radar(spec.flags)
+            strengths[key] = {
+                g: house.strength(
+                    g,
+                    radar,
+                    party.loyalty[g] if party else zero[g],
+                    party.rejection[g] if party else zero[g],
+                    party.house_campaign[g] if party else zero[g],
+                )
+                for g in VoterGroup
+            }
+        for party in sorted(self.state.player_parties(), key=lambda p: p.id):
+            candidates.append(
+                house.Candidate(
+                    party.id, party.abbr, party.name, party.color, False, party.id
+                )
+            )
+            strengths[party.id] = {
+                g: house.strength(
+                    g,
+                    party.radar,
+                    party.loyalty[g],
+                    party.rejection[g],
+                    party.house_campaign[g],
+                )
+                for g in VoterGroup
+            }
+        return candidates, strengths
 
     def _hold_runoff(self, cycle: ElectionCycle, today: date) -> None:
         """A votação do 2º turno: o voto de cada grupo entre os finalistas; quem seguia indeciso se abstém."""
@@ -1959,7 +2387,9 @@ class GovernmentBook:
         winner_name: str | None = None,
         accepted: bool | None = None,
         measure_title: str | None = None,
-        chance: int | None = None,
+        yes: int | None = None,
+        no: int | None = None,
+        defected: int | None = None,
         effective: date | None = None,
         tickers: list[str] | None = None,
         months_below_floor: int | None = None,
@@ -1986,7 +2416,9 @@ class GovernmentBook:
                 winner_name=winner_name,
                 accepted=accepted,
                 measure_title=measure_title,
-                chance=chance,
+                yes=yes,
+                no=no,
+                defected=defected,
                 effective=effective,
                 tickers=tickers,
                 months_below_floor=months_below_floor,

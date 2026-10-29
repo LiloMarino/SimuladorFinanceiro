@@ -559,7 +559,7 @@ def test_impeachment_without_a_vice_closes_the_balance_with_the_party(
     party = party_of(book, ALICE)
     before = dict(party.rejection)
 
-    assert close_months(book, 18) == PauseReason.IMPEACHMENT
+    assert close_months(book, 19) == PauseReason.IMPEACHMENT
 
     [balance] = book.state.balances
     assert balance.impeached is True
@@ -573,7 +573,7 @@ def test_the_vice_inherits_the_promises_after_an_impeachment(
 ):
     govern_promising(book, engine, request(), vice=True)
 
-    assert close_months(book, 18) == PauseReason.IMPEACHMENT
+    assert close_months(book, 19) == PauseReason.IMPEACHMENT
 
     term = book.state.term
     assert term is not None and term.president_id == BOB.id

@@ -8,6 +8,7 @@ import { displayMoney, displayMoneyWhole, displayMonthShort } from "@/shared/lib
 import type { ElectionPanel, ElectionParty } from "@/types";
 import { BUDGET, SPENT, VOTE_YIELD } from "../lib/election-metrics";
 import { monthlyYield } from "../lib/election";
+import { GuidanceRules } from "./guidance-rules";
 import { PartyMark } from "./party-mark";
 import { PromiseBadges } from "./promise-badges";
 import { ValueChips } from "./value-chip";
@@ -192,6 +193,8 @@ export function MyPartyCard({
               governo.
             </span>
           </div>
+
+          {mine && <GuidanceRules rules={mine.guidance} isLeader={mine.is_founder} abbr={party.abbr} />}
 
           <Button
             variant="outline-destructive"

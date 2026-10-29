@@ -486,6 +486,15 @@ class GovernmentEventType(Enum):
     RUNOFF_CONTRIBUTION = "RUNOFF_CONTRIBUTION"
     # Entre os turnos: a pesquisa semanal, com o voto exato do dia
     RUNOFF_POLL = "RUNOFF_POLL"
+    # A casa de 101 cadeiras, eleita no 1º turno com o presidente
+    HOUSE_ELECTED = "HOUSE_ELECTED"
+    # O líder orienta a bancada numa votação
+    BLOC_GUIDED = "BLOC_GUIDED"
+    # O líder muda a regra de orientação de um valor
+    GUIDANCE_RULE_SET = "GUIDANCE_RULE_SET"
+    # O pedido de impeachment abre e, no dia de votação, a casa decide
+    IMPEACHMENT_REQUESTED = "IMPEACHMENT_REQUESTED"
+    IMPEACHMENT_VOTED = "IMPEACHMENT_VOTED"
 
 
 class ElectionPhase(Enum):
@@ -545,6 +554,9 @@ class GovernmentNoticeKind(Enum):
     PROMISES_SET = "PROMISES_SET"
     PROMISES_SETTLED = "PROMISES_SETTLED"
     ENDORSEMENT = "ENDORSEMENT"
+    HOUSE_ELECTED = "HOUSE_ELECTED"
+    IMPEACHMENT_REQUESTED = "IMPEACHMENT_REQUESTED"
+    IMPEACHMENT_VOTED = "IMPEACHMENT_VOTED"
 
 
 class CampaignActionKind(Enum):
@@ -771,6 +783,7 @@ class PendingType(Enum):
     STRATEGY_ERROR = "STRATEGY_ERROR"
     VICE_INVITE = "VICE_INVITE"
     CAMPAIGN_OPEN = "CAMPAIGN_OPEN"
+    UNGUIDED_VOTE = "UNGUIDED_VOTE"
 
 
 class PendingSeverity(Enum):

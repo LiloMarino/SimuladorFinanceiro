@@ -1,4 +1,5 @@
 import { Info } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -13,11 +14,13 @@ import { useReproposeMeasure } from "../hooks/mutations/useReproposeMeasure";
 import { useWithdrawMeasure } from "../hooks/mutations/useWithdrawMeasure";
 import { useToday } from "../hooks/useToday";
 import { signedShareLabel, shareLabel } from "../lib/budget";
-import { daysUntil, nextStep, STAGES } from "../lib/government";
+import { daysUntil, effectiveDate, nextStep, STAGES } from "../lib/government";
 import { inflationTone, signedIpca } from "@/shared/lib/effects";
 import { isSpending } from "@/shared/lib/spending-kinds";
-import { CHANCE, QUEUE_BUDGET, QUEUE_INFLATION } from "../lib/government-metrics";
+import { FORECAST, QUEUE_BUDGET, QUEUE_INFLATION } from "../lib/government-metrics";
+import { outlook, outlookLabel, resultLabel } from "../lib/house";
 import { MeasureSteps } from "./measure-steps";
+import { VoteDialog } from "./vote-dialog";
 
 type QueueCardProps = { panel: GovernmentPanel };
 
@@ -26,6 +29,8 @@ export function QueueCard({ panel }: QueueCardProps) {
   const today = useToday(panel);
   const withdraw = useWithdrawMeasure();
   const repropose = useReproposeMeasure();
+  const [voting, setVoting] = useState<number | null>(null);
+  const open = panel.queue.find((measure) => measure.id === voting);
   // O IPCA que a fila inteira soma no pico: só as medidas de gasto que ainda podem valer
   const queueInflation = panel.queue
     .filter((measure) => measure.status === "QUEUED" || measure.status === "APPROVED")
@@ -66,7 +71,7 @@ export function QueueCard({ panel }: QueueCardProps) {
                   <TableHead>Próximo passo</TableHead>
                   <TableHead numeric>
                     <span className="inline-flex items-center gap-1">
-                      {CHANCE.label}
+                      <MetricLabel metric={FORECAST} />
                       <Popover>
                         <PopoverTrigger type="button" aria-label="Como uma medida vira regra">
                           <Info className="size-4 text-muted-foreground" />
@@ -123,7 +128,12 @@ export function QueueCard({ panel }: QueueCardProps) {
                     </TableCell>
                     <TableCell className="whitespace-normal">{nextStep(measure, today)}</TableCell>
                     <TableCell numeric>
-                      <ChanceCell measure={measure} today={today} vigenceDays={panel.vigence_days} />
+                      <ScoreCell
+                        measure={measure}
+                        today={today}
+                        vigenceDays={panel.vigence_days}
+                        onOpen={() => setVoting(measure.id)}
+                      />
                     </TableCell>
                     <TableCell numeric>
                       {measure.can_withdraw && (
@@ -169,11 +179,23 @@ export function QueueCard({ panel }: QueueCardProps) {
           )}
 
           <p className="rounded-lg bg-subtle px-2.5 py-2 text-xs leading-normal text-muted-foreground">
-            No fechamento de cada mês, o Congresso vota a fila inteira. Cada medida passa com chance igual à aprovação
-            do governo naquele dia; aprovada, espera {panel.vigence_days} dias para valer.
+            No fechamento de cada mês, a casa de 101 deputados vota a fila inteira. A medida passa com 51 votos Sim, e
+            cada bancada vota como o líder do partido orientou; aprovada, espera {panel.vigence_days} dias para valer.
           </p>
         </div>
       </CardContent>
+      {open?.vote && (
+        <VoteDialog
+          open
+          onOpenChange={(next) => !next && setVoting(null)}
+          title={open.title}
+          description={voteContext(open, panel)}
+          vote={open.vote}
+          measureId={open.id}
+          subject="a medida"
+          approved={open.status === "APPROVED"}
+        />
+      )}
     </Card>
   );
 }
@@ -201,19 +223,60 @@ function stageDate(measure: GovernmentMeasure) {
   }
 }
 
-type ChanceCellProps = { measure: GovernmentMeasure; today: string; vigenceDays: number };
+/** "Proposta por Bia em 02 mar · a casa vota em 31 mar · se passar, vale em 29 jun" */
+function voteContext(measure: GovernmentMeasure, panel: GovernmentPanel) {
+  if (measure.status === "QUEUED") {
+    return `Proposta por ${measure.proposer} em ${displayDayMonth(measure.proposed)} · a casa vota em ${displayDayMonth(panel.next_vote)} · se passar, vale em ${displayDayMonth(effectiveDate(panel.next_vote, panel.vigence_days))}`;
+  }
+  const voted = measure.vote_date ? `Votada em ${displayDayMonth(measure.vote_date)}` : "Votada";
+  return measure.effective ? `${voted} · vale em ${displayDayMonth(measure.effective)}` : voted;
+}
 
-/** Na fila, a chance de passar hoje; aprovada, o quanto da espera já correu. */
-function ChanceCell({ measure, today, vigenceDays }: ChanceCellProps) {
-  if (measure.status === "QUEUED" && measure.chance !== null) return <span>{measure.chance}%</span>;
-  if (measure.status !== "APPROVED" || !measure.effective) return null;
-  const waited = vigenceDays - daysUntil(today, measure.effective);
-  return (
-    <span className="grid min-w-30 gap-0.75">
-      <Progress value={(waited / vigenceDays) * 100} size="sm" aria-label="Dias de espera" />
-      <span className="text-[11px] text-muted-foreground">
-        {waited} de {vigenceDays} dias
+type ScoreCellProps = { measure: GovernmentMeasure; today: string; vigenceDays: number; onOpen: () => void };
+
+/** Na fila, o placar previsto; votada, o resultado; aprovada, o quanto da espera já correu. */
+function ScoreCell({ measure, today, vigenceDays, onOpen }: ScoreCellProps) {
+  const vote = measure.vote;
+  if (measure.status === "QUEUED" && vote) {
+    const tone = { passes: "success", falls: "destructive", open: "warning" } as const;
+    return (
+      <span className="grid justify-items-end gap-1">
+        <Badge variant={tone[outlook(vote)]} size="sm">
+          {outlookLabel(vote)}
+        </Badge>
+        <Button size="xs" variant="outline" onClick={onOpen}>
+          Ver a votação
+        </Button>
       </span>
-    </span>
-  );
+    );
+  }
+  if (measure.status === "APPROVED" && measure.effective) {
+    const waited = vigenceDays - daysUntil(today, measure.effective);
+    return (
+      <span className="grid justify-items-end gap-1">
+        <span className="grid min-w-30 gap-0.75">
+          <Progress value={(waited / vigenceDays) * 100} size="sm" aria-label="Dias de espera" />
+          <span className="text-[11px] text-muted-foreground">
+            {waited} de {vigenceDays} dias
+          </span>
+        </span>
+        {vote && (
+          <Button size="xs" variant="outline" onClick={onOpen}>
+            Ver a votação
+          </Button>
+        )}
+      </span>
+    );
+  }
+  if (vote?.yes != null) {
+    return (
+      <span className="grid justify-items-end gap-1">
+        <span className="text-xs text-muted-foreground">{resultLabel({ yes: vote.yes, no: vote.no ?? 0 }, false)}</span>
+        <Button size="xs" variant="outline" onClick={onOpen}>
+          Ver a votação
+        </Button>
+      </span>
+    );
+  }
+  return null;
 }

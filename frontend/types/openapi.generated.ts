@@ -1656,6 +1656,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/government/congress/guidance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Orientar a bancada numa votação
+         * @description O líder do partido (o fundador; se ele sai, o filiado mais antigo) orienta a bancada com Sim ou Não numa medida da fila, ou no pedido de impeachment aberto quando `measure_id` vem nulo. Vale até a véspera da votação; sem orientação, a bancada segue a orientação padrão do partido. Recusa com 403 para quem não é líder e com 409 quando o partido não tem bancada ou a votação já fechou.
+         */
+        put: operations["guide_bloc_api_government_congress_guidance_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/parties/guidance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Mudar a orientação padrão do partido
+         * @description O líder troca a orientação padrão da bancada para um valor: Sim ou Não nas medidas que mais puxam esse valor. Vale quando o líder não orienta a votação.
+         */
+        put: operations["set_guidance_rule_api_government_parties_guidance_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/government/parties/expel": {
         parameters: {
             query?: never;
@@ -3525,6 +3565,69 @@ export interface components {
             /** Value */
             value: string;
         };
+        /**
+         * BlocDTO
+         * @description A bancada de um partido na casa.
+         */
+        BlocDTO: {
+            /** Key */
+            key: number;
+            /** Party Id */
+            party_id: number | null;
+            /** Abbr */
+            abbr: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string | null;
+            /** Is Computer */
+            is_computer: boolean;
+            /** Votes */
+            votes: string;
+            /** Seats */
+            seats: number;
+            /** Previous Seats */
+            previous_seats: number | null;
+            /** Governing */
+            governing: boolean;
+            /** Votes Cast */
+            votes_cast: number;
+            /** Yes Share */
+            yes_share: string | null;
+            /** Defection Share */
+            defection_share: string | null;
+            /** Is Mine */
+            is_mine: boolean;
+        };
+        /**
+         * BlocVoteDTO
+         * @description Como a bancada vota numa medida ou num pedido de impeachment.
+         */
+        BlocVoteDTO: {
+            /** Key */
+            key: number;
+            /** Abbr */
+            abbr: string;
+            /** Color */
+            color: string | null;
+            /** Seats */
+            seats: number;
+            /** Orientation */
+            orientation: boolean;
+            /** Guided */
+            guided: boolean;
+            /** May Defect */
+            may_defect: number;
+            /** Yes */
+            yes: number | null;
+            /** No */
+            no: number | null;
+            /** Defected */
+            defected: number | null;
+            cause: components["schemas"]["VoterGroup"] | null;
+            /** Cause Share */
+            cause_share: string | null;
+        };
         /** Body_import_assets_csv_api_import_assets_csv_post */
         Body_import_assets_csv_api_import_assets_csv_post: {
             /** Ticker */
@@ -4104,6 +4207,16 @@ export interface components {
          * @enum {string}
          */
         ComputerDifficulty: "EASY" | "NORMAL" | "HARD";
+        /** CongressDTO */
+        CongressDTO: {
+            house: components["schemas"]["HouseDTO"];
+            elected: components["schemas"]["HouseDTO"] | null;
+            impeachment_request: components["schemas"]["ImpeachmentRequestDTO"] | null;
+            /** History */
+            history: components["schemas"]["PastVoteDTO"][];
+            /** Low Streak */
+            low_streak: number;
+        };
         /** ContractLoanRequestDTO */
         ContractLoanRequestDTO: {
             /** Amount */
@@ -4115,6 +4228,11 @@ export interface components {
         ContributionRequest: {
             /** Contribution */
             contribution: number | string;
+            /**
+             * Congress
+             * @default 0
+             */
+            congress: number | string;
         };
         /**
          * CopomChangeDTO
@@ -4962,6 +5080,11 @@ export interface components {
              * @default 0
              */
             contribution: number | string;
+            /**
+             * Congress
+             * @default 0
+             */
+            congress: number | string;
         };
         /** FrozenPortfolioDTO */
         FrozenPortfolioDTO: {
@@ -5111,7 +5234,7 @@ export interface components {
          * @description O que o aviso em tempo real conta; o front escolhe o toast pelo tipo.
          * @enum {string}
          */
-        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED" | "ENDORSEMENT";
+        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED" | "ENDORSEMENT" | "HOUSE_ELECTED" | "IMPEACHMENT_REQUESTED" | "IMPEACHMENT_VOTED";
         /** GovernmentPanelDTO */
         GovernmentPanelDTO: {
             /**
@@ -5131,6 +5254,7 @@ export interface components {
              * Format: date
              */
             next_election: string;
+            congress: components["schemas"]["CongressDTO"];
             approval: components["schemas"]["ApprovalDTO"] | null;
             /** Taxes */
             taxes: components["schemas"]["TaxRowDTO"][];
@@ -5177,8 +5301,12 @@ export interface components {
             accepted: boolean | null;
             /** Measure Title */
             measure_title: string | null;
-            /** Chance */
-            chance: number | null;
+            /** Yes */
+            yes: number | null;
+            /** No */
+            no: number | null;
+            /** Defected */
+            defected: number | null;
             /** Effective */
             effective: string | null;
             /** Tickers */
@@ -5281,6 +5409,72 @@ export interface components {
             /** Growth */
             growth: string;
         };
+        /**
+         * GuidanceRequest
+         * @description A orientação do líder numa votação: a medida, ou o pedido de impeachment quando `measure_id` é nulo.
+         */
+        GuidanceRequest: {
+            /** Measure Id */
+            measure_id?: number | null;
+            /** Yes */
+            yes: boolean;
+        };
+        /**
+         * GuidanceRuleDTO
+         * @description A orientação padrão do partido para um valor: Sim ou Não nas medidas que mais puxam esse valor.
+         */
+        GuidanceRuleDTO: {
+            value: components["schemas"]["VoterValue"];
+            /** Yes */
+            yes: boolean;
+        };
+        /** GuidanceRuleRequest */
+        GuidanceRuleRequest: {
+            value: components["schemas"]["VoterValue"];
+            /** Yes */
+            yes: boolean;
+        };
+        /**
+         * GuideDTO
+         * @description O que o líder vê para orientar a bancada dele numa votação.
+         */
+        GuideDTO: {
+            /** Bloc Key */
+            bloc_key: number;
+            /** Abbr */
+            abbr: string;
+            /** Seats */
+            seats: number;
+            /**
+             * Deadline
+             * Format: date
+             */
+            deadline: string;
+            /** Default Orientation */
+            default_orientation: boolean;
+            pulled_value: components["schemas"]["VoterValue"] | null;
+            /** Scenarios */
+            scenarios: components["schemas"]["GuideScenarioDTO"][];
+            /** Yes Moves */
+            yes_moves: components["schemas"]["ValueMoveDTO"][];
+        };
+        /**
+         * GuideScenarioDTO
+         * @description O que muda no placar se o líder orientar a bancada dele assim.
+         */
+        GuideScenarioDTO: {
+            /** Orientation */
+            orientation: boolean;
+            /** Low */
+            low: number;
+            /** High */
+            high: number;
+            /** May Defect */
+            may_defect: number;
+            cause: components["schemas"]["VoterGroup"] | null;
+            /** Cause Share */
+            cause_share: string | null;
+        };
         /** HighlightsDTO */
         HighlightsDTO: {
             biggest_return: components["schemas"]["PlayerHighlightDTO"] | null;
@@ -5288,6 +5482,29 @@ export interface components {
             most_trades: components["schemas"]["PlayerHighlightDTO"] | null;
             most_tax: components["schemas"]["PlayerHighlightDTO"] | null;
             your_best_month: components["schemas"]["BestMonthDTO"] | null;
+        };
+        /** HouseDTO */
+        HouseDTO: {
+            /** Elected */
+            elected: string | null;
+            /** Takes Office */
+            takes_office: string | null;
+            /** Seats */
+            seats: number;
+            /** Majority */
+            majority: number;
+            /** Impeachment Votes */
+            impeachment_votes: number;
+            /** Barrier */
+            barrier: string;
+            /** Blocs */
+            blocs: components["schemas"]["BlocDTO"][];
+            /** Below */
+            below: string[];
+            /** Last Quotient */
+            last_quotient: string;
+            /** Next Quotient */
+            next_quotient: string;
         };
         /** ImpeachmentDTO */
         ImpeachmentDTO: {
@@ -5304,6 +5521,26 @@ export interface components {
             months: number;
             /** Floor */
             floor: number;
+            /** Yes */
+            yes: number;
+            /** No */
+            no: number;
+        };
+        /** ImpeachmentRequestDTO */
+        ImpeachmentRequestDTO: {
+            /**
+             * Opened
+             * Format: date
+             */
+            opened: string;
+            /**
+             * Vote Day
+             * Format: date
+             */
+            vote_day: string;
+            /** President */
+            president: string | null;
+            vote: components["schemas"]["VoteDTO"];
         };
         /** ImportResultDTO */
         ImportResultDTO: {
@@ -5770,6 +6007,11 @@ export interface components {
              * @default 0
              */
             contribution: number | string;
+            /**
+             * Congress
+             * @default 0
+             */
+            congress: number | string;
         };
         /** LadderTierDTO */
         LadderTierDTO: {
@@ -6051,8 +6293,7 @@ export interface components {
             status: components["schemas"]["MeasureStatus"];
             /** Vote Date */
             vote_date: string | null;
-            /** Chance */
-            chance: number | null;
+            vote: components["schemas"]["VoteDTO"] | null;
             /** Effective */
             effective: string | null;
             /** Waiting Days */
@@ -6095,8 +6336,6 @@ export interface components {
             profile_moves: components["schemas"]["ValueMoveDTO"][];
             /** Impact */
             impact: number;
-            /** Chance */
-            chance: number;
             /**
              * Vote Date
              * Format: date
@@ -6247,6 +6486,10 @@ export interface components {
             is_candidate: boolean;
             /** Contribution */
             contribution: string;
+            /** Congress */
+            congress: string;
+            /** Guidance */
+            guidance: components["schemas"]["GuidanceRuleDTO"][];
         };
         /** MyStrategyDTO */
         MyStrategyDTO: {
@@ -6674,6 +6917,8 @@ export interface components {
             color: string;
             /** Contribution */
             contribution: string;
+            /** Congress */
+            congress: string;
             /** Is Founder */
             is_founder: boolean;
             /** Is Candidate */
@@ -6719,6 +6964,29 @@ export interface components {
             members: string[];
             /** Total Networth */
             total_networth: string;
+        };
+        /**
+         * PastVoteDTO
+         * @description Uma votação já feita pela casa, para o histórico.
+         */
+        PastVoteDTO: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Title */
+            title: string;
+            /** Approved */
+            approved: boolean;
+            /** Yes */
+            yes: number;
+            /** No */
+            no: number;
+            /** Defected */
+            defected: number;
+            /** Is Impeachment */
+            is_impeachment: boolean;
         };
         /** PatrimonialHistoryDTO */
         PatrimonialHistoryDTO: {
@@ -6798,7 +7066,7 @@ export interface components {
          * @description Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar.
          * @enum {string}
          */
-        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN";
+        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNGUIDED_VOTE";
         /**
          * PlayerActivity
          * @description O que o jogador está fazendo na sala: a tela em que está, ou fora da aba do jogo.
@@ -9739,6 +10007,27 @@ export interface components {
          * @enum {string}
          */
         VictoryCriterion: "SCORE" | "RETURN" | "NETWORTH" | "SHARPE";
+        /**
+         * VoteDTO
+         * @description O placar de uma votação: previsto em faixa na fila, exato depois de votada.
+         */
+        VoteDTO: {
+            /** Blocs */
+            blocs: components["schemas"]["BlocVoteDTO"][];
+            /** Needed */
+            needed: number;
+            /** Yes */
+            yes: number | null;
+            /** No */
+            no: number | null;
+            /** Defected */
+            defected: number | null;
+            /** Low */
+            low: number | null;
+            /** High */
+            high: number | null;
+            guide: components["schemas"]["GuideDTO"] | null;
+        };
         /**
          * VoterGroup
          * @description Os grupos em que o eleitorado se divide; cada um vota pelo que acha de cada partido.
@@ -13313,6 +13602,86 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ContributionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    guide_bloc_api_government_congress_guidance_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuidanceRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_guidance_rule_api_government_parties_guidance_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuidanceRuleRequest"];
             };
         };
         responses: {

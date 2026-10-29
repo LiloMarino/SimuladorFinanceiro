@@ -463,15 +463,6 @@ def test_next_vote_is_the_last_business_day_of_the_month(day: date, vote: date):
     assert congress.next_vote_date(day) == vote
 
 
-def test_vote_draw_is_deterministic_and_follows_the_approval():
-    draws = [congress.passes(7, DAY, measure_id, 56) for measure_id in range(1, 2001)]
-
-    assert draws == [congress.passes(7, DAY, i, 56) for i in range(1, 2001)]
-    assert 0.5 < sum(draws) / len(draws) < 0.62
-    assert not any(congress.passes(7, DAY, i, 0) for i in range(1, 200))
-    assert all(congress.passes(7, DAY, i, 100) for i in range(1, 200))
-
-
 def test_titles_read_in_portuguese():
     assert (
         rules.title(measure(MeasureKind.DAY_TRADE_RATE, "0.225", "0.20"))

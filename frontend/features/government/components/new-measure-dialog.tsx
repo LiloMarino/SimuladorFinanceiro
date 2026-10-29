@@ -390,7 +390,7 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
                 <Gavel />
                 <AlertTitle>O Congresso vota em {displayDayMonth(data.vote_date)}</AlertTitle>
                 <AlertDescription>
-                  Passa com {data.chance}% de chance, a aprovação de hoje. Aprovada, vale em{" "}
+                  Passa com 51 votos Sim de 101, e as bancadas votam como o líder orienta. Aprovada, vale em{" "}
                   {displayDayMonth(data.effective)}, {panel.vigence_days} dias depois.
                 </AlertDescription>
               </Alert>

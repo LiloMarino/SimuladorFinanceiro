@@ -12,8 +12,9 @@ import {
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { ElectionParty } from "@/types";
 import { useSetContribution } from "../hooks/mutations/useSetContribution";
-import { contributionAmount, contributionText } from "../lib/contribution";
+import { congressAmount, congressShare, contributionAmount, contributionText } from "../lib/contribution";
 import { ContributionField } from "./contribution-field";
+import { ContributionSplit } from "./contribution-split";
 
 type ContributionDialogProps = {
   open: boolean;
@@ -21,12 +22,22 @@ type ContributionDialogProps = {
   party: ElectionParty;
   /** Quanto o jogador contribui hoje, em reais */
   current: string;
+  /** A parte de `current` que vai ao Congresso, em reais */
+  currentCongress: string;
   cash: string | undefined;
 };
 
 /** Mudar a contribuição mensal; vale a partir do próximo dia 1º. */
-export function ContributionDialog({ open, onOpenChange, party, current, cash }: ContributionDialogProps) {
+export function ContributionDialog({
+  open,
+  onOpenChange,
+  party,
+  current,
+  currentCongress,
+  cash,
+}: ContributionDialogProps) {
   const [text, setText] = useState(() => contributionText(current));
+  const [share, setShare] = useState(() => congressShare(current, currentCongress));
   const set = useSetContribution();
   const monthly = Number(contributionAmount(text));
   const overCash = cash !== undefined && monthly > Number(cash);
@@ -35,7 +46,7 @@ export function ContributionDialog({ open, onOpenChange, party, current, cash }:
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-110">
         <DialogHeader variant="divided">
-          <DialogTitle>Contribuição ao {party.abbr}</DialogTitle>
+          <DialogTitle>Contribuição mensal ao {party.abbr}</DialogTitle>
           <DialogDescription>Vale a partir do próximo dia 1º; pode ser zero.</DialogDescription>
         </DialogHeader>
         <DialogBody>
@@ -46,6 +57,7 @@ export function ContributionDialog({ open, onOpenChange, party, current, cash }:
             error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}
             note={`Hoje você contribui com ${displayMoney(current)} por mês.`}
           />
+          <ContributionSplit share={share} onShare={setShare} monthly={monthly} runs={party.candidate !== null} />
         </DialogBody>
         <DialogFooter variant="divided" className="sm:justify-end">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -54,7 +66,13 @@ export function ContributionDialog({ open, onOpenChange, party, current, cash }:
           <Button
             disabled={set.isPending}
             onClick={() =>
-              set.mutate({ contribution: contributionAmount(text) }, { onSuccess: () => onOpenChange(false) })
+              set.mutate(
+                {
+                  contribution: contributionAmount(text),
+                  congress: congressAmount(monthly, share, party.candidate !== null),
+                },
+                { onSuccess: () => onOpenChange(false) },
+              )
             }
           >
             Salvar

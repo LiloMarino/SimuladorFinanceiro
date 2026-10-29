@@ -21,6 +21,7 @@ from backend.core.dto.government import (
     SegmentOptionDTO,
     TaxRowDTO,
     UpcomingEffectDTO,
+    VoteDTO,
 )
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.user import UserDTO
@@ -29,6 +30,7 @@ from backend.features.government import approval as approval_rules
 from backend.features.government import (
     budget_panel,
     congress,
+    house_panel,
     promises,
     spending_panel,
     voters,
@@ -68,7 +70,7 @@ def build_governance(
             measure,
             people,
             today,
-            current,
+            house_panel.vote_dto(book, viewer, today, measure),
             is_president,
             measures,
             promised,
@@ -92,6 +94,8 @@ def build_governance(
     policy = book.policy(today)
     end = book.term_end()
     impeachment = state.impeachments[-1] if state.impeachments else None
+    # O voto que aprovou o impeachment mais recente
+    ousting = next((v for v in reversed(state.impeachment_votes) if v.approved), None)
 
     return GovernmentPanelDTO(
         today=today,
@@ -100,6 +104,7 @@ def build_governance(
         is_president=is_president,
         term_end=end,
         next_election=book.cycle().first_round,
+        congress=house_panel.build_congress(book, viewer, today, people),
         approval=_approval(book, current, viewer, today),
         taxes=[
             TaxRowDTO(
@@ -155,6 +160,8 @@ def build_governance(
                 successor=_nickname(people, impeachment.successor_id),
                 months=approval_rules.IMPEACHMENT_MONTHS,
                 floor=approval_rules.FLOOR,
+                yes=ousting.tally.yes if ousting else 0,
+                no=ousting.tally.no if ousting else 0,
             )
             if impeachment
             else None
@@ -188,7 +195,7 @@ def _measure(
     measure: Measure,
     people: dict[int, UserDTO],
     today: date,
-    current: approval_rules.Approval | None,
+    vote: VoteDTO | None,
     is_president: bool,
     measures: list[Measure],
     promised: set[tuple[MeasureKind, str | None, str | None]],
@@ -211,13 +218,7 @@ def _measure(
         proposed=measure.proposed,
         status=measure.status,
         vote_date=congress.next_vote_date(today) if queued else measure.decided,
-        chance=(
-            current.value
-            if queued and current
-            else int(measure.chance)
-            if measure.chance is not None
-            else None
-        ),
+        vote=vote,
         effective=measure.effective,
         waiting_days=VIGENCE_DAYS - days_left if days_left is not None else None,
         days_left=days_left,

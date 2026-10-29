@@ -218,9 +218,11 @@ class GovernmentUpdateEventDTO(BaseDTO):
     winner_name: str | None = None
     # Na resposta ao convite de vice: se aceitou
     accepted: bool | None = None
-    # Nas medidas: o título, a chance no voto, o dia em que passa a valer e os ativos que atinge
+    # Nas votações da casa: o título da medida, o placar (Sim, Não e quantos desobedeceram), o dia em que passa a valer e os ativos que atinge
     measure_title: str | None = None
-    chance: int | None = None
+    yes: int | None = None
+    no: int | None = None
+    defected: int | None = None
     effective: date | None = None
     tickers: list[str] | None = None
     # No impeachment: quem saiu (actor) e quem assumiu (target, nulo sem vice); no aviso, os meses abaixo do piso

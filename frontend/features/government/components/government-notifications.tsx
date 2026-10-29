@@ -8,10 +8,13 @@ import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { ElectionPanel, ElectionRound, GovernmentPanel } from "@/types";
 import { campaignToast } from "../lib/campaign";
-import { monthClosedToast } from "../lib/measure-toast";
+import { impeachmentToast, measureVotedToast, monthClosedToast } from "../lib/measure-toast";
 import { useRenewElection } from "../hooks/mutations/useRenewElection";
 import { ImpeachmentDialog } from "./impeachment-dialog";
 import { RoundResultDialog } from "./round-result-dialog";
+
+// Votos Sim para a casa tirar o presidente
+const IMPEACHMENT_VOTES = 68;
 
 /**
  * Dono único dos avisos da eleição em tempo real: cada evento renova a página da eleição
@@ -79,6 +82,19 @@ export function GovernmentNotifications() {
           setImpeachment(queryClient.getQueryData<GovernmentPanel>(queryKeys.government()) ?? null);
         });
         break;
+      case "MEASURE_VOTED": {
+        const notice = measureVotedToast(event);
+        toast[notice.tone](notice.title, { description: notice.description });
+        break;
+      }
+      case "IMPEACHMENT_REQUESTED":
+      case "IMPEACHMENT_VOTED": {
+        // O pedido aprovado vira o diálogo do impeachment; aqui só o aberto e o rejeitado
+        if (event.kind === "IMPEACHMENT_VOTED" && event.accepted) break;
+        const notice = impeachmentToast(event, IMPEACHMENT_VOTES);
+        toast[notice.tone](notice.title, { description: notice.description });
+        break;
+      }
       case "CAMPAIGN_ACTION": {
         // Quem fez a ação já viu o dado no diálogo; os outros filiados e o partido atacado recebem o aviso
         const election = queryClient.getQueryData<ElectionPanel>(queryKeys.election());
@@ -98,8 +114,8 @@ export function GovernmentNotifications() {
       case "TERM_STARTED":
       case "MEASURE_PROPOSED":
       case "MEASURE_WITHDRAWN":
-      case "MEASURE_VOTED":
       case "MEASURE_IN_FORCE":
+      case "HOUSE_ELECTED":
       case "PROMISES_SET":
       case "PROMISES_SETTLED":
       case "ENDORSEMENT":

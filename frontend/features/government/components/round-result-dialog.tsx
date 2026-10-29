@@ -1,6 +1,7 @@
 import { Gavel, Trophy } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
+import { cn } from "@/shared/lib/utils";
 import {
   Dialog,
   DialogBody,
@@ -11,8 +12,10 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { displayDayMonth, displayShortDate, displayMoney, displayPercent } from "@/shared/lib/utils/display";
+import { useGovernment } from "@/shared/hooks/queries/useGovernment";
 import type { ElectionPanel, ElectionRound } from "@/types";
 import { GROUP_INFO, pollPoints } from "../lib/voters";
+import { ElectedHouse } from "./elected-house";
 import { PartyMark, PersonMark } from "./party-mark";
 import { PromiseBadges } from "./promise-badges";
 
@@ -33,10 +36,14 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
     : [];
   const donations = result?.donations.filter((entry) => Number(entry.amount) > 0) ?? [];
   const canDonate = panel?.can_donate ?? false;
+  // A casa é eleita no 1º turno: o painel do governo traz a que saiu das urnas neste dia
+  const { data: government } = useGovernment({ enabled: result?.round === 1 });
+  const elected = government?.congress.elected;
+  const house = result?.round === 1 && elected?.elected === result.date ? elected : null;
 
   return (
     <Dialog open={result !== null} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col sm:max-w-130">
+      <DialogContent className={cn("flex max-h-[calc(100dvh-2rem)] flex-col", house ? "sm:max-w-170" : "sm:max-w-130")}>
         {result && (
           <>
             <DialogHeader variant="divided">
@@ -129,6 +136,8 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
                     </AlertDescription>
                   </Alert>
                 )}
+
+                {house && <ElectedHouse house={house} />}
 
                 {canDonate && panel && (
                   <Alert variant="warning">

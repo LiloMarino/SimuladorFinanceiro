@@ -41,6 +41,7 @@ from backend.features.government import (
     campaign,
     congress,
     election,
+    house,
     voters,
 )
 from backend.features.government.calendar import election_cycle
@@ -803,7 +804,23 @@ def close_months(book: GovernmentBook, count: int, first: date = FIRST_VOTE):
 
 
 def congress_says(monkeypatch: pytest.MonkeyPatch, approved: bool) -> None:
-    monkeypatch.setattr(congress, "passes", lambda *_: approved)
+    """A casa inteira vota Sim (aprova) ou Não (rejeita), sem desobediência."""
+
+    def count(_key, _seed, current: house.House, *_) -> house.Tally:
+        blocs = {
+            bloc.key: house.BlocVote(
+                bloc.seats,
+                approved,
+                bloc.seats if approved else 0,
+                0 if approved else bloc.seats,
+                0,
+            )
+            for bloc in current.seated
+        }
+        yes = sum(v.yes for v in blocs.values())
+        return house.Tally(yes, house.SEATS - yes, blocs)
+
+    monkeypatch.setattr(house, "count", count)
 
 
 def govern(book: GovernmentBook, engine, *, vice: bool = False) -> None:
@@ -890,9 +907,8 @@ def test_approved_measure_binds_only_ninety_days_after_the_vote(
 
     measure = book.state.measures[1]
     assert measure.status is MeasureStatus.APPROVED
-    # A chance do voto é a aprovação do fechamento do mês
-    closing = book.state.approvals[0].satisfaction
-    assert measure.chance == approval_rules.rounded(approval_rules.overall(closing))
+    assert measure.tally is not None
+    assert measure.tally.yes == house.SEATS
     assert measure.effective == date(2022, 5, 1)
     before, after = date(2022, 4, 29), date(2022, 5, 2)
     assert book.policy(before).rates[LossPool.COMMON] == Decimal("0.15")
@@ -1010,8 +1026,13 @@ def test_six_closings_below_the_floor_after_the_grace_remove_the_president(
     assert GovernmentNoticeKind.IMPEACHMENT_WARNING.value in [
         n["kind"] for n in notices
     ]
+    # O 6º fechamento abre o pedido; a casa o vota no dia de votação do mês seguinte
+    assert close_months(book, 1, date(2023, 6, 30)) is None
+    request = book.state.request
+    assert request is not None
+    assert request.vote_day == date(2023, 7, 31)
     propose(book, "0.25")
-    assert close_months(book, 1, date(2023, 6, 30)) == PauseReason.IMPEACHMENT
+    assert close_months(book, 1, date(2023, 7, 31)) == PauseReason.IMPEACHMENT
 
     term = book.state.term
     assert term is not None
@@ -1039,7 +1060,7 @@ def test_impeachment_hands_the_office_to_a_vice_from_another_party(
     book.on_tick(USERS, RUNOFF, False)
     book.on_tick(USERS, TERM_START, False)
 
-    assert close_months(book, 18) == PauseReason.IMPEACHMENT
+    assert close_months(book, 19) == PauseReason.IMPEACHMENT
 
     term = book.state.term
     assert term is not None
@@ -1053,7 +1074,7 @@ def test_impeachment_without_a_vice_leaves_a_neutral_computer_government(
 ):
     govern(book, engine)
 
-    assert close_months(book, 18) == PauseReason.IMPEACHMENT
+    assert close_months(book, 19) == PauseReason.IMPEACHMENT
 
     term = book.state.term
     assert term is not None
@@ -1583,11 +1604,10 @@ def test_the_impeachment_names_the_president_who_falls(
 ):
     govern(book, engine)
 
-    assert close_months(book, 18) == PauseReason.IMPEACHMENT
+    assert close_months(book, 19) == PauseReason.IMPEACHMENT
 
-    assert texts(headlines, NewsType.ELECTION_RESULT)[-1] == (
-        "Impeachment tira Alice (AAA) da Presidência"
-    )
+    last = texts(headlines, NewsType.ELECTION_RESULT)[-1]
+    assert last.startswith("Casa tira Alice (AAA) da Presidência por ")
 
 
 def test_the_engine_reads_the_risk_premium_from_the_budget(

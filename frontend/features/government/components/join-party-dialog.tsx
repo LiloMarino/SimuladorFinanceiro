@@ -16,8 +16,9 @@ import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayMoneyWhole } from "@/shared/lib/utils/display";
 import type { ElectionParty } from "@/types";
 import { useJoinParty } from "../hooks/mutations/useJoinParty";
-import { contributionAmount } from "../lib/contribution";
+import { congressAmount, contributionAmount } from "../lib/contribution";
 import { ContributionField } from "./contribution-field";
+import { ContributionSplit } from "./contribution-split";
 import { PartyMark } from "./party-mark";
 
 type JoinPartyDialogProps = {
@@ -33,6 +34,7 @@ type JoinPartyDialogProps = {
 export function JoinPartyDialog({ open, onOpenChange, parties, initialPartyId, cash }: JoinPartyDialogProps) {
   const [partyId, setPartyId] = useState(initialPartyId ?? parties[0]?.id);
   const [contribution, setContribution] = useState("");
+  const [share, setShare] = useState(0);
   const join = useJoinParty(partyId ?? 0);
 
   const party = parties.find((candidate) => candidate.id === partyId);
@@ -86,6 +88,7 @@ export function JoinPartyDialog({ open, onOpenChange, parties, initialPartyId, c
                   error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}
                   note={`Pode ser zero; dá para mudar todo mês. Com ${displayMoney(monthly)}, a verba do ${party.abbr} vai a ${displayMoneyWhole(Number(party.budget) + monthly)}/mês.`}
                 />
+                <ContributionSplit share={share} onShare={setShare} monthly={monthly} runs={party.candidate !== null} />
 
                 <div className="rounded-lg border px-3 py-1">
                   <KeyValueRow label="Quem escolhe a chapa" value={`${party.founder}, quem fundou`} />
@@ -112,7 +115,13 @@ export function JoinPartyDialog({ open, onOpenChange, parties, initialPartyId, c
           <Button
             disabled={!party || join.isPending}
             onClick={() =>
-              join.mutate({ contribution: contributionAmount(contribution) }, { onSuccess: () => onOpenChange(false) })
+              join.mutate(
+                {
+                  contribution: contributionAmount(contribution),
+                  congress: congressAmount(monthly, share, party?.candidate !== null),
+                },
+                { onSuccess: () => onOpenChange(false) },
+              )
             }
           >
             Filiar-se{party ? ` ao ${party.abbr}` : ""}

@@ -108,7 +108,9 @@ export function nextStep(measure: GovernmentMeasure, today: string) {
         ? `Vale em ${displayDayMonth(measure.effective)} · faltam ${daysUntil(today, measure.effective)} dias`
         : "Vale após a espera";
     case "REJECTED":
-      return measure.chance !== null ? `Tinha ${measure.chance}% de chance` : "Rejeitada pelo Congresso";
+      return measure.vote?.yes != null
+        ? `Rejeitada por ${measure.vote.no} a ${measure.vote.yes}`
+        : "Rejeitada pelo Congresso";
     default:
       return "";
   }

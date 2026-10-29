@@ -507,6 +507,7 @@ class Simulation:
             color=party.color,
             flags=party.flags,
             contribution=party.contribution,
+            congress=party.congress,
         )
 
     @synchronized
@@ -514,9 +515,11 @@ class Simulation:
         self._ensure_government().set_flags(user, self._current_date, flags)
 
     @synchronized
-    def join_party(self, user: UserDTO, party_id: int, contribution: Decimal) -> None:
+    def join_party(
+        self, user: UserDTO, party_id: int, contribution: Decimal, congress: Decimal
+    ) -> None:
         self._ensure_government().join_party(
-            user, self._current_date, party_id, contribution
+            user, self._current_date, party_id, contribution, congress
         )
 
     @synchronized
@@ -524,9 +527,21 @@ class Simulation:
         self._ensure_government().leave_party(user, self._current_date)
 
     @synchronized
-    def set_contribution(self, user: UserDTO, contribution: Decimal) -> None:
+    def set_contribution(
+        self, user: UserDTO, contribution: Decimal, congress: Decimal
+    ) -> None:
         self._ensure_government().set_contribution(
-            user, self._current_date, contribution
+            user, self._current_date, contribution, congress
+        )
+
+    @synchronized
+    def guide_bloc(self, user: UserDTO, measure_id: int | None, yes: bool) -> None:
+        self._ensure_government().guide(user, self._current_date, measure_id, yes)
+
+    @synchronized
+    def set_guidance_rule(self, user: UserDTO, value: VoterValue, yes: bool) -> None:
+        self._ensure_government().set_guidance_rule(
+            user, self._current_date, value, yes
         )
 
     @synchronized

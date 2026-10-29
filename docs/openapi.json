@@ -4745,6 +4745,106 @@
         ]
       }
     },
+    "/api/government/congress/guidance": {
+      "put": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Orientar a bancada numa votação",
+        "description": "O líder do partido (o fundador; se ele sai, o filiado mais antigo) orienta a bancada com Sim ou Não numa medida da fila, ou no pedido de impeachment aberto quando `measure_id` vem nulo. Vale até a véspera da votação; sem orientação, a bancada segue a orientação padrão do partido. Recusa com 403 para quem não é líder e com 409 quando o partido não tem bancada ou a votação já fechou.",
+        "operationId": "guide_bloc_api_government_congress_guidance_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuidanceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/parties/guidance": {
+      "put": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Mudar a orientação padrão do partido",
+        "description": "O líder troca a orientação padrão da bancada para um valor: Sim ou Não nas medidas que mais puxam esse valor. Vale quando o líder não orienta a votação.",
+        "operationId": "set_guidance_rule_api_government_parties_guidance_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuidanceRuleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/government/parties/expel": {
       "post": {
         "tags": [
@@ -9987,6 +10087,232 @@
         ],
         "title": "BestMonthDTO"
       },
+      "BlocDTO": {
+        "properties": {
+          "key": {
+            "type": "integer",
+            "title": "Key"
+          },
+          "party_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Id"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "is_computer": {
+            "type": "boolean",
+            "title": "Is Computer"
+          },
+          "votes": {
+            "type": "string",
+            "title": "Votes"
+          },
+          "seats": {
+            "type": "integer",
+            "title": "Seats"
+          },
+          "previous_seats": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Seats"
+          },
+          "governing": {
+            "type": "boolean",
+            "title": "Governing"
+          },
+          "votes_cast": {
+            "type": "integer",
+            "title": "Votes Cast"
+          },
+          "yes_share": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yes Share"
+          },
+          "defection_share": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defection Share"
+          },
+          "is_mine": {
+            "type": "boolean",
+            "title": "Is Mine"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "party_id",
+          "abbr",
+          "name",
+          "color",
+          "is_computer",
+          "votes",
+          "seats",
+          "previous_seats",
+          "governing",
+          "votes_cast",
+          "yes_share",
+          "defection_share",
+          "is_mine"
+        ],
+        "title": "BlocDTO",
+        "description": "A bancada de um partido na casa."
+      },
+      "BlocVoteDTO": {
+        "properties": {
+          "key": {
+            "type": "integer",
+            "title": "Key"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "seats": {
+            "type": "integer",
+            "title": "Seats"
+          },
+          "orientation": {
+            "type": "boolean",
+            "title": "Orientation"
+          },
+          "guided": {
+            "type": "boolean",
+            "title": "Guided"
+          },
+          "may_defect": {
+            "type": "integer",
+            "title": "May Defect"
+          },
+          "yes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yes"
+          },
+          "no": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "No"
+          },
+          "defected": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defected"
+          },
+          "cause": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VoterGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cause_share": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cause Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "abbr",
+          "color",
+          "seats",
+          "orientation",
+          "guided",
+          "may_defect",
+          "yes",
+          "no",
+          "defected",
+          "cause",
+          "cause_share"
+        ],
+        "title": "BlocVoteDTO",
+        "description": "Como a bancada vota numa medida ou num pedido de impeachment."
+      },
       "Body_import_assets_csv_api_import_assets_csv_post": {
         "properties": {
           "ticker": {
@@ -11668,6 +11994,54 @@
         "title": "ComputerDifficulty",
         "description": "A verba de cada partido do computador, em múltiplo da média dos partidos de jogadores."
       },
+      "CongressDTO": {
+        "properties": {
+          "house": {
+            "$ref": "#/components/schemas/HouseDTO"
+          },
+          "elected": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "impeachment_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImpeachmentRequestDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/PastVoteDTO"
+            },
+            "type": "array",
+            "title": "History"
+          },
+          "low_streak": {
+            "type": "integer",
+            "title": "Low Streak"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "house",
+          "elected",
+          "impeachment_request",
+          "history",
+          "low_streak"
+        ],
+        "title": "CongressDTO"
+      },
       "ContractLoanRequestDTO": {
         "properties": {
           "amount": {
@@ -11707,6 +12081,19 @@
               }
             ],
             "title": "Contribution"
+          },
+          "congress": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Congress",
+            "default": "0"
           }
         },
         "additionalProperties": false,
@@ -14129,6 +14516,19 @@
             ],
             "title": "Contribution",
             "default": "0"
+          },
+          "congress": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Congress",
+            "default": "0"
           }
         },
         "additionalProperties": false,
@@ -14606,7 +15006,10 @@
           "CAMPAIGN_ACTION",
           "PROMISES_SET",
           "PROMISES_SETTLED",
-          "ENDORSEMENT"
+          "ENDORSEMENT",
+          "HOUSE_ELECTED",
+          "IMPEACHMENT_REQUESTED",
+          "IMPEACHMENT_VOTED"
         ],
         "title": "GovernmentNoticeKind",
         "description": "O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."
@@ -14652,6 +15055,9 @@
             "type": "string",
             "format": "date",
             "title": "Next Election"
+          },
+          "congress": {
+            "$ref": "#/components/schemas/CongressDTO"
           },
           "approval": {
             "anyOf": [
@@ -14746,6 +15152,7 @@
           "is_president",
           "term_end",
           "next_election",
+          "congress",
           "approval",
           "taxes",
           "spending",
@@ -14865,7 +15272,7 @@
             ],
             "title": "Measure Title"
           },
-          "chance": {
+          "yes": {
             "anyOf": [
               {
                 "type": "integer"
@@ -14874,7 +15281,29 @@
                 "type": "null"
               }
             ],
-            "title": "Chance"
+            "title": "Yes"
+          },
+          "no": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "No"
+          },
+          "defected": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defected"
           },
           "effective": {
             "anyOf": [
@@ -15032,7 +15461,9 @@
           "winner_name",
           "accepted",
           "measure_title",
-          "chance",
+          "yes",
+          "no",
+          "defected",
           "effective",
           "tickers",
           "months_below_floor",
@@ -15265,6 +15696,185 @@
         "title": "GrowthPartsDTO",
         "description": "O que puxa o alvo do crescimento hoje, em fração ao ano: tendência + juro real +\nbolsa dão o alvo, e o crescimento anda um quarto do caminho até ele a cada mês."
       },
+      "GuidanceRequest": {
+        "properties": {
+          "measure_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measure Id"
+          },
+          "yes": {
+            "type": "boolean",
+            "title": "Yes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "yes"
+        ],
+        "title": "GuidanceRequest",
+        "description": "A orientação do líder numa votação: a medida, ou o pedido de impeachment quando `measure_id` é nulo."
+      },
+      "GuidanceRuleDTO": {
+        "properties": {
+          "value": {
+            "$ref": "#/components/schemas/VoterValue"
+          },
+          "yes": {
+            "type": "boolean",
+            "title": "Yes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "yes"
+        ],
+        "title": "GuidanceRuleDTO",
+        "description": "A orientação padrão do partido para um valor: Sim ou Não nas medidas que mais puxam esse valor."
+      },
+      "GuidanceRuleRequest": {
+        "properties": {
+          "value": {
+            "$ref": "#/components/schemas/VoterValue"
+          },
+          "yes": {
+            "type": "boolean",
+            "title": "Yes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "yes"
+        ],
+        "title": "GuidanceRuleRequest"
+      },
+      "GuideDTO": {
+        "properties": {
+          "bloc_key": {
+            "type": "integer",
+            "title": "Bloc Key"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "seats": {
+            "type": "integer",
+            "title": "Seats"
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date",
+            "title": "Deadline"
+          },
+          "default_orientation": {
+            "type": "boolean",
+            "title": "Default Orientation"
+          },
+          "pulled_value": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VoterValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scenarios": {
+            "items": {
+              "$ref": "#/components/schemas/GuideScenarioDTO"
+            },
+            "type": "array",
+            "title": "Scenarios"
+          },
+          "yes_moves": {
+            "items": {
+              "$ref": "#/components/schemas/ValueMoveDTO"
+            },
+            "type": "array",
+            "title": "Yes Moves"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "bloc_key",
+          "abbr",
+          "seats",
+          "deadline",
+          "default_orientation",
+          "pulled_value",
+          "scenarios",
+          "yes_moves"
+        ],
+        "title": "GuideDTO",
+        "description": "O que o líder vê para orientar a bancada dele numa votação."
+      },
+      "GuideScenarioDTO": {
+        "properties": {
+          "orientation": {
+            "type": "boolean",
+            "title": "Orientation"
+          },
+          "low": {
+            "type": "integer",
+            "title": "Low"
+          },
+          "high": {
+            "type": "integer",
+            "title": "High"
+          },
+          "may_defect": {
+            "type": "integer",
+            "title": "May Defect"
+          },
+          "cause": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VoterGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cause_share": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cause Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "orientation",
+          "low",
+          "high",
+          "may_defect",
+          "cause",
+          "cause_share"
+        ],
+        "title": "GuideScenarioDTO",
+        "description": "O que muda no placar se o líder orientar a bancada dele assim."
+      },
       "HighlightsDTO": {
         "properties": {
           "biggest_return": {
@@ -15329,6 +15939,87 @@
         ],
         "title": "HighlightsDTO"
       },
+      "HouseDTO": {
+        "properties": {
+          "elected": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elected"
+          },
+          "takes_office": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Takes Office"
+          },
+          "seats": {
+            "type": "integer",
+            "title": "Seats"
+          },
+          "majority": {
+            "type": "integer",
+            "title": "Majority"
+          },
+          "impeachment_votes": {
+            "type": "integer",
+            "title": "Impeachment Votes"
+          },
+          "barrier": {
+            "type": "string",
+            "title": "Barrier"
+          },
+          "blocs": {
+            "items": {
+              "$ref": "#/components/schemas/BlocDTO"
+            },
+            "type": "array",
+            "title": "Blocs"
+          },
+          "below": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Below"
+          },
+          "last_quotient": {
+            "type": "string",
+            "title": "Last Quotient"
+          },
+          "next_quotient": {
+            "type": "string",
+            "title": "Next Quotient"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "elected",
+          "takes_office",
+          "seats",
+          "majority",
+          "impeachment_votes",
+          "barrier",
+          "blocs",
+          "below",
+          "last_quotient",
+          "next_quotient"
+        ],
+        "title": "HouseDTO"
+      },
       "ImpeachmentDTO": {
         "properties": {
           "date": {
@@ -15365,6 +16056,14 @@
           "floor": {
             "type": "integer",
             "title": "Floor"
+          },
+          "yes": {
+            "type": "integer",
+            "title": "Yes"
+          },
+          "no": {
+            "type": "integer",
+            "title": "No"
           }
         },
         "additionalProperties": false,
@@ -15374,9 +16073,48 @@
           "president",
           "successor",
           "months",
-          "floor"
+          "floor",
+          "yes",
+          "no"
         ],
         "title": "ImpeachmentDTO"
+      },
+      "ImpeachmentRequestDTO": {
+        "properties": {
+          "opened": {
+            "type": "string",
+            "format": "date",
+            "title": "Opened"
+          },
+          "vote_day": {
+            "type": "string",
+            "format": "date",
+            "title": "Vote Day"
+          },
+          "president": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "President"
+          },
+          "vote": {
+            "$ref": "#/components/schemas/VoteDTO"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "opened",
+          "vote_day",
+          "president",
+          "vote"
+        ],
+        "title": "ImpeachmentRequestDTO"
       },
       "ImportResultDTO": {
         "properties": {
@@ -16270,6 +17008,19 @@
             ],
             "title": "Contribution",
             "default": "0"
+          },
+          "congress": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Congress",
+            "default": "0"
           }
         },
         "additionalProperties": false,
@@ -17060,16 +17811,15 @@
             ],
             "title": "Vote Date"
           },
-          "chance": {
+          "vote": {
             "anyOf": [
               {
-                "type": "integer"
+                "$ref": "#/components/schemas/VoteDTO"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Chance"
+            ]
           },
           "effective": {
             "anyOf": [
@@ -17143,7 +17893,7 @@
           "proposed",
           "status",
           "vote_date",
-          "chance",
+          "vote",
           "effective",
           "waiting_days",
           "days_left",
@@ -17215,10 +17965,6 @@
             "type": "integer",
             "title": "Impact"
           },
-          "chance": {
-            "type": "integer",
-            "title": "Chance"
-          },
           "vote_date": {
             "type": "string",
             "format": "date",
@@ -17274,7 +18020,6 @@
           "title",
           "profile_moves",
           "impact",
-          "chance",
           "vote_date",
           "effective",
           "assets",
@@ -17633,6 +18378,17 @@
           "contribution": {
             "type": "string",
             "title": "Contribution"
+          },
+          "congress": {
+            "type": "string",
+            "title": "Congress"
+          },
+          "guidance": {
+            "items": {
+              "$ref": "#/components/schemas/GuidanceRuleDTO"
+            },
+            "type": "array",
+            "title": "Guidance"
           }
         },
         "additionalProperties": false,
@@ -17641,7 +18397,9 @@
           "party_id",
           "is_founder",
           "is_candidate",
-          "contribution"
+          "contribution",
+          "congress",
+          "guidance"
         ],
         "title": "MyPartyDTO"
       },
@@ -18865,6 +19623,10 @@
             "type": "string",
             "title": "Contribution"
           },
+          "congress": {
+            "type": "string",
+            "title": "Congress"
+          },
           "is_founder": {
             "type": "boolean",
             "title": "Is Founder"
@@ -18883,6 +19645,7 @@
           "nickname",
           "color",
           "contribution",
+          "congress",
           "is_founder",
           "is_candidate",
           "vice"
@@ -18991,6 +19754,52 @@
         ],
         "title": "PartyStandingDTO",
         "description": "O patrimônio do partido é a soma do patrimônio dos filiados."
+      },
+      "PastVoteDTO": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "approved": {
+            "type": "boolean",
+            "title": "Approved"
+          },
+          "yes": {
+            "type": "integer",
+            "title": "Yes"
+          },
+          "no": {
+            "type": "integer",
+            "title": "No"
+          },
+          "defected": {
+            "type": "integer",
+            "title": "Defected"
+          },
+          "is_impeachment": {
+            "type": "boolean",
+            "title": "Is Impeachment"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "day",
+          "title",
+          "approved",
+          "yes",
+          "no",
+          "defected",
+          "is_impeachment"
+        ],
+        "title": "PastVoteDTO",
+        "description": "Uma votação já feita pela casa, para o histórico."
       },
       "PatrimonialHistoryDTO": {
         "properties": {
@@ -19170,7 +19979,8 @@
           "CASH_SHORT",
           "STRATEGY_ERROR",
           "VICE_INVITE",
-          "CAMPAIGN_OPEN"
+          "CAMPAIGN_OPEN",
+          "UNGUIDED_VOTE"
         ],
         "title": "PendingType",
         "description": "Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar."
@@ -27655,6 +28465,100 @@
           "SHARPE"
         ],
         "title": "VictoryCriterion"
+      },
+      "VoteDTO": {
+        "properties": {
+          "blocs": {
+            "items": {
+              "$ref": "#/components/schemas/BlocVoteDTO"
+            },
+            "type": "array",
+            "title": "Blocs"
+          },
+          "needed": {
+            "type": "integer",
+            "title": "Needed"
+          },
+          "yes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yes"
+          },
+          "no": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "No"
+          },
+          "defected": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defected"
+          },
+          "low": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Low"
+          },
+          "high": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High"
+          },
+          "guide": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GuideDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "blocs",
+          "needed",
+          "yes",
+          "no",
+          "defected",
+          "low",
+          "high",
+          "guide"
+        ],
+        "title": "VoteDTO",
+        "description": "O placar de uma votação: previsto em faixa na fila, exato depois de votada."
       },
       "VoterGroup": {
         "type": "string",

@@ -1,9 +1,11 @@
+import { format, subMonths } from "date-fns";
 import { Gavel } from "lucide-react";
 import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/shared/components/ui/dialog";
+import { parseLocalDate } from "@/shared/lib/utils/display";
 import type { GovernmentPanel } from "@/types";
 import { monthsSpan } from "../lib/approval";
 import { monthYear } from "../lib/government";
@@ -25,12 +27,17 @@ export function ImpeachmentDialog({ panel, onClose }: ImpeachmentDialogProps) {
   );
 }
 
+/** A votação cai no mês seguinte ao último fechamento abaixo do piso. */
+function lastClosing(voteDate: string) {
+  return format(subMonths(parseLocalDate(voteDate), 1), "yyyy-MM-dd");
+}
+
 function ImpeachmentBody({ panel, onClose }: ImpeachmentDialogProps) {
   const impeachment = panel?.last_impeachment;
   if (!panel || !impeachment) return null;
-  const { successor, months, floor, date } = impeachment;
+  const { successor, months, floor, date, yes, no } = impeachment;
   const president = impeachment.president ?? "O presidente";
-  const cause = `A aprovação fechou ${months} meses seguidos abaixo de ${floor}%, de ${monthsSpan(date, months)}.`;
+  const cause = `A aprovação fechou ${months} meses seguidos abaixo de ${floor}%, de ${monthsSpan(lastClosing(date), months)}, e a casa aprovou o impeachment por ${yes} a ${no}.`;
   const until = panel.term_end ? monthYear(panel.term_end) : "o fim do mandato";
 
   return (

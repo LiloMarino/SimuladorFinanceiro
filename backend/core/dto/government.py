@@ -104,6 +104,8 @@ class PartyMemberDTO(BaseDTO):
     # Chave da paleta (chart-N): a cor do jogador na partida
     color: str
     contribution: Decimal
+    # A parte da contribuição que vai para a campanha do Congresso
+    congress: Decimal
     is_founder: bool
     is_candidate: bool
     vice: VicePhase
@@ -323,11 +325,22 @@ class ElectionDatesDTO(BaseDTO):
     inauguration: date
 
 
+class GuidanceRuleDTO(BaseDTO):
+    """A orientação padrão do partido para um valor: Sim ou Não nas medidas que mais puxam esse valor."""
+
+    value: VoterValue
+    yes: bool
+
+
 class MyPartyDTO(BaseDTO):
     party_id: int
     is_founder: bool
     is_candidate: bool
     contribution: Decimal
+    # A parte da contribuição que vai para a campanha do Congresso
+    congress: Decimal
+    # A orientação padrão da bancada, um valor por vez; só o líder muda
+    guidance: list[GuidanceRuleDTO]
 
 
 class MyViceDTO(BaseDTO):
@@ -393,6 +406,144 @@ class ElectionPanelDTO(BaseDTO):
     computer_budget_factor: Decimal
 
 
+# Congresso
+
+
+class BlocDTO(BaseDTO):
+    """A bancada de um partido na casa."""
+
+    key: int
+    party_id: int | None
+    abbr: str
+    name: str
+    color: str | None
+    is_computer: bool
+    # Em cada 100 votos válidos da eleição da casa
+    votes: Decimal
+    seats: int
+    # Cadeiras na casa anterior; nulo na primeira casa eleita
+    previous_seats: int | None
+    # A bancada é do partido do presidente
+    governing: bool
+    # Votações em que a bancada já votou, e dessas em quantas por cento ela votou Sim e quantos deputados desobedeceram
+    votes_cast: int
+    yes_share: Decimal | None
+    defection_share: Decimal | None
+    # Quem vê é o líder desta bancada
+    is_mine: bool
+
+
+class HouseDTO(BaseDTO):
+    # O dia da eleição e o da posse; nulos na casa inicial do computador
+    elected: date | None
+    takes_office: date | None
+    seats: int
+    majority: int
+    impeachment_votes: int
+    # Piso de votos válidos para ter cadeira, em fração
+    barrier: Decimal
+    blocs: list[BlocDTO]
+    # Siglas que ficaram abaixo da barreira
+    below: list[str]
+    # O quociente da última cadeira dada e o da primeira que ficou de fora (D'Hondt)
+    last_quotient: Decimal
+    next_quotient: Decimal
+
+
+class BlocVoteDTO(BaseDTO):
+    """Como a bancada vota numa medida ou num pedido de impeachment."""
+
+    key: int
+    abbr: str
+    color: str | None
+    seats: int
+    # A orientação: Sim (verdadeiro) ou Não
+    orientation: bool
+    # O líder orientou; falso quando vale a orientação padrão
+    guided: bool
+    # Na fila: até quantos deputados podem votar contra a orientação
+    may_defect: int
+    # Votada: o Sim, o Não e quantos foram contra a orientação
+    yes: int | None
+    no: int | None
+    defected: int | None
+    # O grupo do eleitorado da bancada que mais queria o voto contrário e quanto ele pesa nos eleitores dela, de 0 a 1
+    cause: VoterGroup | None
+    cause_share: Decimal | None
+
+
+class GuideScenarioDTO(BaseDTO):
+    """O que muda no placar se o líder orientar a bancada dele assim."""
+
+    orientation: bool
+    low: int
+    high: int
+    may_defect: int
+    cause: VoterGroup | None
+    cause_share: Decimal | None
+
+
+class GuideDTO(BaseDTO):
+    """O que o líder vê para orientar a bancada dele numa votação."""
+
+    bloc_key: int
+    abbr: str
+    seats: int
+    # Até quando muda: a véspera da votação
+    deadline: date
+    # A orientação que vale sem ele, e o valor da medida que a decide
+    default_orientation: bool
+    pulled_value: VoterValue | None
+    scenarios: list[GuideScenarioDTO]
+    # Quanto orientar Sim move o perfil do partido dele; vazio no governo e nas medidas de gasto
+    yes_moves: list[ValueMoveDTO]
+
+
+class VoteDTO(BaseDTO):
+    """O placar de uma votação: previsto em faixa na fila, exato depois de votada."""
+
+    blocs: list[BlocVoteDTO]
+    # Votos Sim para passar
+    needed: int
+    yes: int | None
+    no: int | None
+    defected: int | None
+    # Na fila: do Sim com todos os que podem desobedecer votando contra até o Sim sem nenhum
+    low: int | None
+    high: int | None
+    # Presente quando quem vê é o líder de uma bancada e ainda dá tempo de orientar
+    guide: GuideDTO | None
+
+
+class ImpeachmentRequestDTO(BaseDTO):
+    opened: date
+    vote_day: date
+    president: str | None
+    vote: VoteDTO
+
+
+class PastVoteDTO(BaseDTO):
+    """Uma votação já feita pela casa, para o histórico."""
+
+    day: date
+    title: str
+    approved: bool
+    yes: int
+    no: int
+    defected: int
+    is_impeachment: bool
+
+
+class CongressDTO(BaseDTO):
+    # A casa em exercício e, depois da eleição e antes da posse, a que vai assumir
+    house: HouseDTO
+    elected: HouseDTO | None
+    impeachment_request: ImpeachmentRequestDTO | None
+    history: list[PastVoteDTO]
+    # Meses seguidos abaixo do piso e quantos faltam para abrir o pedido
+    low_streak: int
+
+
 # Governo
 
 
@@ -408,8 +559,8 @@ class MeasureDTO(BaseDTO):
     status: MeasureStatus
     # Na fila: o dia do próximo voto. Decidida: o dia em que foi votada
     vote_date: date | None
-    # Em cada 100 eleitores, quantos aprovavam no voto (ou aprovam hoje, na fila)
-    chance: int | None
+    # Na fila: o placar previsto e a orientação de cada bancada. Decidida: o placar da votação
+    vote: VoteDTO | None
     # Aprovada: o dia em que passa a valer
     effective: date | None
     # Aprovada: dias de espera já cumpridos e os que faltam
@@ -595,9 +746,12 @@ class ImpeachmentDTO(BaseDTO):
     date: date
     president: str | None
     successor: str | None
-    # A regra que o disparou: fechamentos seguidos abaixo do piso de aprovação
+    # A regra que o abriu: fechamentos seguidos abaixo do piso de aprovação
     months: int
     floor: int
+    # O placar da votação que derrubou o presidente
+    yes: int
+    no: int
 
 
 class GovernmentPanelDTO(BaseDTO):
@@ -609,6 +763,7 @@ class GovernmentPanelDTO(BaseDTO):
     # Fim do mandato: a carteira do presidente congelada vai até aqui
     term_end: date | None
     next_election: date
+    congress: CongressDTO
     approval: ApprovalDTO | None
     taxes: list[TaxRowDTO]
     spending: SpendingCardDTO
@@ -700,7 +855,6 @@ class MeasurePreviewDTO(BaseDTO):
     profile_moves: list[ValueMoveDTO]
     # Pontos no alvo da aprovação geral quando a medida vale cheia, pesados pelo tamanho dos grupos
     impact: int
-    chance: int
     vote_date: date
     effective: date
     assets: int | None
@@ -722,6 +876,7 @@ class FoundPartyRequest(BaseDTO):
     color: Annotated[str, StringConstraints(pattern=PARTY_COLOR_PATTERN)]
     flags: list[VoterValue]
     contribution: Contribution = Decimal(0)
+    congress: Contribution = Decimal(0)
 
 
 class PartyFlagsRequest(BaseDTO):
@@ -730,10 +885,25 @@ class PartyFlagsRequest(BaseDTO):
 
 class JoinPartyRequest(BaseDTO):
     contribution: Contribution = Decimal(0)
+    congress: Contribution = Decimal(0)
 
 
 class ContributionRequest(BaseDTO):
     contribution: Contribution
+    # A parte que vai para o Congresso; o resto vai para a presidência
+    congress: Contribution = Decimal(0)
+
+
+class GuidanceRequest(BaseDTO):
+    """A orientação do líder numa votação: a medida, ou o pedido de impeachment quando `measure_id` é nulo."""
+
+    measure_id: int | None = None
+    yes: bool
+
+
+class GuidanceRuleRequest(BaseDTO):
+    value: VoterValue
+    yes: bool
 
 
 class ExpelRequest(BaseDTO):

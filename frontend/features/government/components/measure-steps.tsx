@@ -17,7 +17,7 @@ function steps(panel: StepsPanel): Steps {
     {
       title: "Votação no Congresso",
       when: displayDayMonth(panel.next_vote),
-      text: "No fechamento do mês, o Congresso vota a fila inteira. Cada medida passa com chance igual à aprovação do governo naquele dia.",
+      text: "No fechamento do mês, a casa de 101 deputados vota a fila inteira. A medida passa com 51 votos Sim, e cada bancada vota como o líder do partido orientou.",
     },
     {
       title: `Espera de ${panel.vigence_days} dias`,

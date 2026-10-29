@@ -81,8 +81,9 @@ describe("nextStep", () => {
     );
   });
 
-  it("lembra a chance que a rejeitada tinha", () => {
-    expect(nextStep(measure({ status: "REJECTED", chance: 59 }), "2020-03-14")).toBe("Tinha 59% de chance");
+  it("lembra o placar da votação que derrubou a medida", () => {
+    const vote = { blocs: [], needed: 51, yes: 44, no: 57, defected: 2, low: null, high: null, guide: null };
+    expect(nextStep(measure({ status: "REJECTED", vote }), "2020-03-14")).toBe("Rejeitada por 57 a 44");
   });
 });
 

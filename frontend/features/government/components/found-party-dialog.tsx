@@ -20,8 +20,9 @@ import { cn } from "@/shared/lib/utils";
 import { displayMoney } from "@/shared/lib/utils/display";
 import { useFoundParty } from "../hooks/mutations/useFoundParty";
 import { PARTY_COLORS } from "../lib/party-colors";
-import { contributionAmount } from "../lib/contribution";
+import { congressAmount, contributionAmount } from "../lib/contribution";
 import { ContributionField } from "./contribution-field";
+import { ContributionSplit } from "./contribution-split";
 import type { ElectionPanel, VoterValue } from "@/types";
 import { FLAGS_PER_PARTY } from "../lib/voters";
 import { FlagsPicker } from "./flags-picker";
@@ -55,6 +56,7 @@ export function FoundPartyDialog({ panel, open, onOpenChange, takenColors, cash 
   const taken = new Set(takenColors.map((color) => color.toUpperCase()));
   const firstFree = PARTY_COLORS.find((color) => !taken.has(color)) ?? PARTY_COLORS[0];
   const [contribution, setContribution] = useState("");
+  const [share, setShare] = useState(0);
 
   const form = useForm<FoundPartyForm>({
     resolver: zodResolver(foundPartySchema),
@@ -74,6 +76,7 @@ export function FoundPartyDialog({ panel, open, onOpenChange, takenColors, cash 
         color: values.color,
         flags: values.flags,
         contribution: contributionAmount(contribution),
+        congress: congressAmount(monthly, share, true),
       },
       { onSuccess: () => onOpenChange(false) },
     ),
@@ -186,6 +189,7 @@ export function FoundPartyDialog({ panel, open, onOpenChange, takenColors, cash 
               error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}
               note="Pode ser zero. Sai do seu caixa todo dia 1º e não volta; a verba do partido é a soma das contribuições."
             />
+            <ContributionSplit share={share} onShare={setShare} monthly={monthly} runs />
 
             <Alert variant="muted">
               <Info />

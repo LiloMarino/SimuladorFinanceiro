@@ -34,6 +34,7 @@ from backend.features.government import election, voters
 from backend.features.government import measures as rules
 from backend.features.government.calendar import ElectionCycle
 from backend.features.government.government_book import GovernmentBook
+from backend.features.government.house_panel import guidance_rules
 from backend.features.government.poll_panel import group_polls, poll_dto, publish
 from backend.features.government.promise_panel import promise_dto, record_dto
 from backend.features.government.runoff_panel import build_race
@@ -123,6 +124,8 @@ def build_panel(
                 is_founder=is_founder,
                 is_candidate=election.effective_ticket(state, mine)[0] == viewer.id,
                 contribution=mine.members[viewer.id],
+                congress=mine.congress.get(viewer.id, Decimal(0)),
+                guidance=guidance_rules(mine),
             )
             if mine is not None
             else None
@@ -330,6 +333,7 @@ def _party(
                 nickname=_nickname(people, user_id),
                 color=_color(user_id),
                 contribution=contribution,
+                congress=party.congress.get(user_id, Decimal(0)),
                 is_founder=user_id == party.founder_id,
                 is_candidate=user_id == candidate_id,
                 vice=_vice_phase(party, user_id),

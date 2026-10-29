@@ -22,7 +22,13 @@ from backend.core.enum import (
 )
 from backend.core.enum import GovernmentEventType as Event
 from backend.core.utils import required
-from backend.features.government import campaign, promises, second_round, voters
+from backend.features.government import (
+    campaign,
+    house,
+    promises,
+    second_round,
+    voters,
+)
 from backend.features.government.computer_parties import COMPUTER_FLAGS
 from backend.features.government.promises import GroupEffects, Promise
 
@@ -61,6 +67,8 @@ class Party:
     candidate_name: str | None = None
     # Filiados na ordem de entrada e a contribuição mensal de cada um
     members: dict[int, Decimal] = field(default_factory=dict)
+    # Quanto de cada contribuição vai para a campanha do Congresso; o resto é da presidência
+    congress: dict[int, Decimal] = field(default_factory=dict)
     candidate_id: int | None = None
     vice_id: int | None = None
     vice_accepted: bool = False
@@ -70,6 +78,8 @@ class Party:
     # Apoio da campanha em curso em cada grupo (verba, doações e ações); volta a zero a
     # cada eleição e cai pela metade a cada 3 meses, até o dia em `campaign_day`
     campaign: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
+    # O mesmo para a campanha do Congresso: volta a zero na eleição da casa
+    house_campaign: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
     campaign_day: date | None = None
     # Rejeição que as ações já repararam em cada grupo nesta campanha
     repaired: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
@@ -83,6 +93,8 @@ class Party:
     promises: list[Promise] = field(default_factory=list)
     past_promises: list["PromiseRecord"] = field(default_factory=list)
     spent: Decimal = Decimal(0)
+    # Os valores em que o líder trocou a orientação padrão da bancada
+    guidance: dict[VoterValue, bool] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if not self.radar:
@@ -114,14 +126,29 @@ class Party:
         for group in VoterGroup:
             self.campaign[group] += points
 
+    def add_house_campaign(self, amount: Decimal) -> None:
+        """A verba do Congresso vira apoio à bancada, igual em todos os grupos."""
+        points = voters.campaign_points(amount)
+        for group in VoterGroup:
+            self.house_campaign[group] += points
+
+    @property
+    def rules(self) -> dict[VoterValue, bool]:
+        """A orientação padrão da bancada: Sim nas bandeiras do partido, salvo o que o líder trocou."""
+        return {**house.flag_rules(self.flags), **self.guidance}
+
     def decay_to(self, day: date) -> None:
         """O apoio da campanha perde a parte que o tempo leva entre `campaign_day` e `day`."""
         if self.campaign_day is not None and day > self.campaign_day:
             keep = campaign.decay_factor((day - self.campaign_day).days)
             for group in VoterGroup:
                 self.campaign[group] *= keep
+                self.house_campaign[group] *= keep
         if self.campaign_day is None or day > self.campaign_day:
             self.campaign_day = day
+
+    def reset_house_campaign(self) -> None:
+        self.house_campaign = _zero_by_group()
 
     def reset_campaign(self) -> None:
         self.campaign = _zero_by_group()
@@ -327,8 +354,8 @@ class Measure:
     proposed: date
     status: MeasureStatus = MeasureStatus.QUEUED
     decided: date | None = None
-    # A chance que a medida tinha no voto
-    chance: Decimal | None = None
+    # Como a casa votou: nula na medida da fila ou votada antes da casa existir
+    tally: house.Tally | None = None
     effective: date | None = None
 
 
@@ -347,6 +374,33 @@ class Impeachment:
     party_id: int | None
     # O vice que assumiu; nulo quando o computador ficou no lugar
     successor_id: int | None
+
+
+@dataclass(frozen=True)
+class ElectedHouse:
+    """A casa que uma eleição formou e o dia em que ela toma posse."""
+
+    day: date
+    takes_office: date
+    cycle: int
+    house: house.House
+
+
+@dataclass(frozen=True)
+class ImpeachmentRequest:
+    """O pedido aberto: a casa vota no dia marcado."""
+
+    opened: date
+    vote_day: date
+
+
+@dataclass(frozen=True)
+class ImpeachmentVote:
+    day: date
+    opened: date
+    president_id: int | None
+    tally: house.Tally
+    approved: bool
 
 
 @dataclass
@@ -383,6 +437,12 @@ class GovernmentState:
     low_streak: int = 0
     last_measured: date | None = None
     impeachments: list[Impeachment] = field(default_factory=list)
+    # As casas eleitas, em ordem; antes da 1ª eleição vale a casa inicial do computador
+    houses: list[ElectedHouse] = field(default_factory=list)
+    # A orientação de cada bancada em cada votação aberta: "measure:7" ou "impeachment"
+    orientations: dict[str, dict[int, bool]] = field(default_factory=dict)
+    request: ImpeachmentRequest | None = None
+    impeachment_votes: list[ImpeachmentVote] = field(default_factory=list)
     # O balanço das promessas de cada governo que acabou
     balances: list[Balance] = field(default_factory=list)
 
@@ -393,6 +453,15 @@ class GovernmentState:
             return self.approvals[-1].satisfaction
         start = self.term.satisfaction if self.term else {}
         return {g: start.get(g, NEUTRAL_SATISFACTION) for g in VoterGroup}
+
+    def house_on(self, day: date) -> house.House:
+        """A casa em exercício no dia: a última cuja posse já chegou, ou a inicial do computador."""
+        seated = [e for e in self.houses if e.takes_office <= day]
+        return seated[-1].house if seated else house.initial_house()
+
+    def elected_house(self) -> ElectedHouse | None:
+        """A última casa eleita, tenha ou não tomado posse."""
+        return self.houses[-1] if self.houses else None
 
     def advance(self, day: date) -> None:
         """Leva o apoio de campanha de todos os partidos até `day`, aplicando a queda do tempo."""
@@ -466,6 +535,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 is_computer=False,
                 founded=day,
                 members={founder: _money(p, "contribution")},
+                congress=_congress(p, founder),
             )
             state.next_party_id = max(state.next_party_id, party_id + 1)
         case Event.COMPUTER_PARTY_ADDED:
@@ -487,9 +557,10 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
         case Event.COMPUTER_PARTY_REMOVED:
             state.parties.pop(_int(p, "party_id"), None)
         case Event.PARTY_JOINED:
-            state.parties[_int(p, "party_id")].members[_int(p, "user_id")] = _money(
-                p, "contribution"
-            )
+            party = state.parties[_int(p, "party_id")]
+            user_id = _int(p, "user_id")
+            party.members[user_id] = _money(p, "contribution")
+            party.congress = {**party.congress, **_congress(p, user_id)}
         case Event.PARTY_LEFT | Event.MEMBER_EXPELLED:
             _remove_member(state, _int(p, "user_id"))
         case Event.CONTRIBUTION_SET:
@@ -497,6 +568,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             party = state.party_of(user_id)
             if party is not None:
                 party.members[user_id] = _money(p, "contribution")
+                party.congress = {**party.congress, **_congress(p, user_id)}
         case Event.TICKET_SET:
             party = state.parties[_int(p, "party_id")]
             party.candidate_id = _int(p, "candidate_id")
@@ -520,6 +592,11 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                             day, party_id, amount, voters.campaign_points(amount)
                         )
                     )
+            for party_id, amount in _money_map(p, "house").items():
+                party = state.parties.get(party_id)
+                if party is not None:
+                    party.spent += amount
+                    party.add_house_campaign(amount)
             state.last_collection = date.fromisoformat(_str(p, "month"))
             state.polls.append(
                 Poll(
@@ -580,13 +657,14 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
         case Event.MEASURE_VOTED:
             measure = state.measures[_int(p, "measure_id")]
             measure.decided = day
-            measure.chance = _money(p, "chance")
+            measure.tally = _tally(p)
             if p["approved"]:
                 measure.status = MeasureStatus.APPROVED
                 measure.effective = day + timedelta(days=VIGENCE_DAYS)
                 _move_profile(state, measure, day)
             else:
                 measure.status = MeasureStatus.REJECTED
+            _move_bloc_profiles(state, measure, day)
         case Event.APPROVAL_MEASURED:
             satisfaction = _satisfaction(p, "satisfaction")
             state.approvals.append(ApprovalPoint(day, satisfaction))
@@ -595,6 +673,22 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             _remember_month(state, satisfaction)
         case Event.IMPEACHED:
             _apply_impeachment(state, event)
+        case Event.HOUSE_ELECTED:
+            _apply_house(state, event)
+        case Event.BLOC_GUIDED:
+            state.orientations.setdefault(_str(p, "ref"), {})[_int(p, "party_id")] = (
+                bool(p["yes"])
+            )
+        case Event.GUIDANCE_RULE_SET:
+            state.parties[_int(p, "party_id")].guidance[
+                VoterValue(_str(p, "value"))
+            ] = bool(p["yes"])
+        case Event.IMPEACHMENT_REQUESTED:
+            state.request = ImpeachmentRequest(
+                day, date.fromisoformat(_str(p, "vote_day"))
+            )
+        case Event.IMPEACHMENT_VOTED:
+            _apply_impeachment_vote(state, event)
         case Event.PROMISES_SET:
             _apply_promises_set(state, event)
         case Event.PROMISES_WEIGHED:
@@ -610,6 +704,8 @@ def _reset_government(state: GovernmentState) -> None:
             measure.status = MeasureStatus.DROPPED
     state.approvals = []
     state.low_streak = 0
+    state.request = None
+    state.orientations.pop("impeachment", None)
 
 
 def _apply_impeachment(state: GovernmentState, event: GovernmentEventDTO) -> None:
@@ -650,6 +746,7 @@ def _remove_member(state: GovernmentState, user_id: int) -> None:
     # A fundação passa ao filiado mais antigo que ficou
     if party.founder_id == user_id:
         party.founder_id = next(iter(party.members))
+    party.congress.pop(user_id, None)
     if party.candidate_id == user_id:
         party.candidate_id = None
     if party.vice_id == user_id:
@@ -983,11 +1080,84 @@ def _remember_month(
             )
 
 
+def _apply_house(state: GovernmentState, event: GovernmentEventDTO) -> None:
+    """A casa eleita no 1º turno; a campanha do Congresso acaba com a eleição."""
+    p = event.payload
+    blocs = tuple(
+        house.Bloc(
+            key=_int(b, "key"),
+            party_id=_opt_int(b, "party_id"),
+            abbr=_str(b, "abbr"),
+            name=_str(b, "name"),
+            color=_opt_str(b, "color"),
+            is_computer=bool(b["is_computer"]),
+            votes=_money(b, "votes"),
+            seats=_int(b, "seats"),
+            mix={VoterGroup(g): Decimal(str(v)) for g, v in _dict_of(b, "mix").items()},
+        )
+        for b in _dict_list(p, "blocs")
+    )
+    state.houses.append(
+        ElectedHouse(
+            day=event.event_date,
+            takes_office=date.fromisoformat(_str(p, "takes_office")),
+            cycle=_int(p, "cycle"),
+            house=house.House(
+                blocs,
+                below=tuple(int(k) for k in _list(p, "below")),  # type: ignore[call-overload]
+                last=_money(p, "last"),
+                upcoming=_money(p, "upcoming"),
+            ),
+        )
+    )
+    for party in state.parties.values():
+        party.reset_house_campaign()
+
+
+def _apply_impeachment_vote(state: GovernmentState, event: GovernmentEventDTO) -> None:
+    p = event.payload
+    request = state.request
+    approved = bool(p["approved"])
+    state.impeachment_votes.append(
+        ImpeachmentVote(
+            day=event.event_date,
+            opened=request.opened if request else event.event_date,
+            president_id=state.term.president_id if state.term else None,
+            tally=_tally(p) or house.Tally(0, 0, {}),
+            approved=approved,
+        )
+    )
+    state.request = None
+    state.orientations.pop("impeachment", None)
+    # Sem os votos para derrubar, a contagem de meses abaixo do piso recomeça do zero
+    if not approved:
+        state.low_streak = 0
+
+
+def _move_bloc_profiles(state: GovernmentState, measure: Measure, day: date) -> None:
+    """A bancada que o líder orientou a votar Sim move o perfil do partido, como aprovar a medida."""
+    if measure.tally is None:
+        return
+    governing = state.term.party_id if state.term else None
+    for key, vote in measure.tally.blocs.items():
+        party = state.parties.get(key) if key > 0 else None
+        if party is None or party.is_computer or key == governing:
+            continue
+        if vote.orientation:
+            _move_party_profile(party, measure, day)
+
+
 def _move_profile(state: GovernmentState, measure: Measure, day: date) -> None:
     """A medida aprovada move o perfil do partido que governa; o do computador não muda."""
     term = state.term
     party = state.parties.get(term.party_id) if term and term.party_id else None
     if party is None or party.is_computer:
+        return
+    _move_party_profile(party, measure, day)
+
+
+def _move_party_profile(party: Party, measure: Measure, day: date) -> None:
+    if measure.kind.is_spending:
         return
     changes = voters.radar_moves(measure.kind, measure.value, measure.before)
     if not changes:
@@ -1027,6 +1197,41 @@ def _flags(p: dict[str, object]) -> tuple[VoterValue, ...] | None:
     return tuple(VoterValue(str(v)) for v in flags)  # type: ignore[attr-defined]
 
 
+def _congress(p: dict[str, object], user_id: int) -> dict[int, Decimal]:
+    """A parte da contribuição que vai ao Congresso; ausente no evento, zero."""
+    return {user_id: Decimal(str(p.get("congress") or 0))}
+
+
+def _tally(p: dict[str, object]) -> house.Tally | None:
+    """A votação guardada no evento; ausente nos eventos de antes da casa existir."""
+    blocs = p.get("blocs")
+    if blocs is None:
+        return None
+    return house.Tally(
+        yes=_int(p, "yes"),
+        no=_int(p, "no"),
+        blocs={
+            int(key): house.BlocVote(
+                seats=_int(b, "seats"),
+                orientation=bool(b["orientation"]),
+                yes=_int(b, "yes"),
+                no=_int(b, "no"),
+                defected=_int(b, "defected"),
+                cause=VoterGroup(str(b["cause"])) if b.get("cause") else None,
+            )
+            for key, b in _dict(p, "blocs").items()
+        },
+    )
+
+
+def _dict_of(p: dict[str, object], key: str) -> dict[str, object]:
+    return p[key]  # type: ignore[return-value]
+
+
+def _dict_list(p: dict[str, object], key: str) -> list[dict[str, object]]:
+    return p[key]  # type: ignore[return-value]
+
+
 def _money(p: dict[str, object], key: str) -> Decimal:
     return Decimal(str(p[key]))
 
@@ -1054,4 +1259,5 @@ def _satisfaction(p: dict[str, object], key: str) -> dict[VoterGroup, Decimal]:
 
 
 def _money_map(p: dict[str, object], key: str) -> dict[int, Decimal]:
-    return {int(k): Decimal(str(v)) for k, v in p[key].items()}  # type: ignore[attr-defined]
+    # Partidas gravadas antes da campanha do Congresso não têm o mapa `house`
+    return {int(k): Decimal(str(v)) for k, v in dict(p.get(key) or {}).items()}  # type: ignore[call-overload]

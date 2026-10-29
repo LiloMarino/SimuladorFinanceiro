@@ -126,17 +126,39 @@ def runoff_called(finalists: list[tuple[str, Decimal]], runoff: date) -> Headlin
     )
 
 
-def impeachment(president: str, abbr: str | None, successor: str | None) -> Headline:
+def impeachment_requested(president: str, abbr: str | None, vote_day: date) -> Headline:
+    party = f" ({abbr})" if abbr else ""
+    return Headline(
+        NewsType.ELECTION_RESULT,
+        f"Abre o pedido de impeachment de {president}{party}",
+        f"A casa vota em {vote_day.day:02d}/{vote_day.month:02d}/{vote_day.year}.",
+    )
+
+
+def impeachment_rejected(
+    president: str, abbr: str | None, yes: int, no: int
+) -> Headline:
+    party = f" ({abbr})" if abbr else ""
+    return Headline(
+        NewsType.ELECTION_RESULT,
+        f"Casa rejeita o impeachment de {president}{party} por {no} a {yes}",
+        "A contagem de meses abaixo do piso recomeça do zero.",
+    )
+
+
+def impeachment(
+    president: str, abbr: str | None, successor: str | None, yes: int, no: int
+) -> Headline:
     party = f" ({abbr})" if abbr else ""
     if successor:
         return Headline(
             NewsType.ELECTION_RESULT,
-            f"Impeachment tira {president}{party} da Presidência; {successor} assume",
+            f"Casa tira {president}{party} da Presidência por {yes} a {no}; {successor} assume",
             "A aprovação ficou abaixo do piso por meses seguidos.",
         )
     return Headline(
         NewsType.ELECTION_RESULT,
-        f"Impeachment tira {president}{party} da Presidência",
+        f"Casa tira {president}{party} da Presidência por {yes} a {no}",
         "Sem vice, o governo passa ao computador até o fim do mandato.",
     )
 
@@ -168,13 +190,22 @@ def measure_withdrawn(president: str, title: str) -> Headline:
 
 
 def measure_voted(
-    title: str, approved: bool, effective: date | None, tickers: list[str]
+    title: str,
+    approved: bool,
+    effective: date | None,
+    tickers: list[str],
+    yes: int,
+    no: int,
+    defected: int,
 ) -> Headline:
+    score = f"{yes} a {no}" + (
+        f", com {defected} que desobedeceram" if defected else ""
+    )
     if not approved:
         return Headline(
             NewsType.MEASURE_VOTED,
-            f"Congresso rejeita: {title}",
-            "Nada muda.",
+            f"Casa rejeita por {no} a {yes}: {title}",
+            f"Placar {score}. Nada muda.",
             tuple(tickers),
         )
     when = (
@@ -183,7 +214,10 @@ def measure_voted(
         else None
     )
     return Headline(
-        NewsType.MEASURE_VOTED, f"Congresso aprova: {title}", when, tuple(tickers)
+        NewsType.MEASURE_VOTED,
+        f"Casa aprova por {yes} a {no}: {title}",
+        f"Placar {score}. {when}" if when else f"Placar {score}.",
+        tuple(tickers),
     )
 
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { Badge } from "@/shared/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useGovernment } from "@/shared/hooks/queries/useGovernment";
 import usePageLabel from "@/shared/hooks/usePageLabel";
@@ -9,10 +10,11 @@ import { ApprovalCard } from "../components/approval-card";
 import { FrozenPortfolioCard } from "../components/frozen-portfolio-card";
 import { GovernmentHeader } from "../components/government-header";
 import { ImpeachmentAlert } from "../components/impeachment-alert";
+import { CongressTab } from "../components/congress-tab";
 import { BeforeFirstTerm, GovernmentError, GovernmentSkeleton } from "../components/government-states";
 import { NewMeasureDialog } from "../components/new-measure-dialog";
-import { QueueCard } from "../components/queue-card";
 import { TermPromisesCard } from "../components/term-promises-card";
+import { unguidedCount } from "../lib/house";
 
 export default function GovernmentPage() {
   usePageLabel("Governo");
@@ -39,6 +41,7 @@ function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [params, setParams] = useSearchParams();
   const tab = tabFrom(params.get("tab"));
+  const unguided = unguidedCount(panel.congress, panel.queue);
 
   if (panel.computer_until_inauguration) return <BeforeFirstTerm />;
 
@@ -53,7 +56,14 @@ function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
         <TabsList variant="line">
           <TabsTrigger value="mandate">Mandato</TabsTrigger>
           <TabsTrigger value="accounts">Contas</TabsTrigger>
-          <TabsTrigger value="congress">Congresso</TabsTrigger>
+          <TabsTrigger value="congress">
+            Congresso
+            {unguided > 0 && (
+              <Badge variant="warning" size="sm" aria-label={`${unguided} votações sem orientação`}>
+                {unguided}
+              </Badge>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         {/* Aprovação, promessas da chapa e carteira do presidente */}
@@ -74,9 +84,7 @@ function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
 
         {/* Fila do Congresso */}
         <TabsContent value="congress">
-          <div className="pt-3">
-            <QueueCard panel={panel} />
-          </div>
+          <CongressTab panel={panel} />
         </TabsContent>
       </Tabs>
 

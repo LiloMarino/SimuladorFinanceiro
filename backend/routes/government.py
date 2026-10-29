@@ -18,6 +18,8 @@ from backend.core.dto.government import (
     ExpelRequest,
     FoundPartyRequest,
     GovernmentPanelDTO,
+    GuidanceRequest,
+    GuidanceRuleRequest,
     JoinPartyRequest,
     MeasurePreviewDTO,
     PartyFlagsRequest,
@@ -79,7 +81,7 @@ def join_party(
     party_id: int,
     payload: JoinPartyRequest,
 ):
-    simulation.join_party(user, party_id, payload.contribution)
+    simulation.join_party(user, party_id, payload.contribution, payload.congress)
 
 
 @government_router.delete(
@@ -101,7 +103,31 @@ def leave_party(simulation: ActiveSimulation, user: CurrentUser):
 def set_contribution(
     simulation: ActiveSimulation, user: CurrentUser, payload: ContributionRequest
 ):
-    simulation.set_contribution(user, payload.contribution)
+    simulation.set_contribution(user, payload.contribution, payload.congress)
+
+
+@government_router.put(
+    "/congress/guidance",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Orientar a bancada numa votação",
+    description="O líder do partido (o fundador; se ele sai, o filiado mais antigo) orienta a bancada com Sim ou Não numa medida da fila, ou no pedido de impeachment aberto quando `measure_id` vem nulo. Vale até a véspera da votação; sem orientação, a bancada segue a orientação padrão do partido. Recusa com 403 para quem não é líder e com 409 quando o partido não tem bancada ou a votação já fechou.",
+)
+def guide_bloc(
+    simulation: ActiveSimulation, user: CurrentUser, payload: GuidanceRequest
+):
+    simulation.guide_bloc(user, payload.measure_id, payload.yes)
+
+
+@government_router.put(
+    "/parties/guidance",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Mudar a orientação padrão do partido",
+    description="O líder troca a orientação padrão da bancada para um valor: Sim ou Não nas medidas que mais puxam esse valor. Vale quando o líder não orienta a votação.",
+)
+def set_guidance_rule(
+    simulation: ActiveSimulation, user: CurrentUser, payload: GuidanceRuleRequest
+):
+    simulation.set_guidance_rule(user, payload.value, payload.yes)
 
 
 @government_router.post(

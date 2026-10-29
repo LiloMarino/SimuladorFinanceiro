@@ -6,11 +6,11 @@ export const APPROVAL: MetricInfo = {
   label: "Aprovação",
   description: "De cada 100 eleitores, quantos aprovam o governo",
   definition:
-    "É a média da satisfação dos 6 grupos de eleitores, pesada pelo tamanho de cada um. Cada grupo anda um terço do caminho até o alvo dele a cada fim de mês, e o alvo sai do que o grupo lê: inflação, SELIC, bolsa, desemprego, prêmio de risco da dívida e as medidas do governo. É também a chance de cada medida passar no Congresso.",
+    "É a média da satisfação dos 6 grupos de eleitores, pesada pelo tamanho de cada um. Cada grupo anda um terço do caminho até o alvo dele a cada fim de mês, e o alvo sai do que o grupo lê: inflação, SELIC, bolsa, desemprego, prêmio de risco da dívida e as medidas do governo.",
   example:
     "Ex.: se os grupos que somam 60% do eleitorado estão em 70 e os outros 40% estão em 40, a aprovação geral é 0,6 × 70 + 0,4 × 40 = 58.",
   reading:
-    "Acima de 50, o governo tem folga. Abaixo de 25 por 6 fechamentos seguidos, depois do primeiro ano, o impeachment tira o presidente. A leitura vale para o mês: a aprovação se mede de novo no fechamento de cada mês.",
+    "Acima de 50, o governo tem folga. Abaixo de 25 por 6 fechamentos seguidos, depois do primeiro ano, abre o pedido de impeachment, que a casa vota. A leitura vale para o mês: a aprovação se mede de novo no fechamento de cada mês.",
   format: (value) => `${value}%`,
 };
 
@@ -35,16 +35,71 @@ export const TARGET: MetricInfo = {
   format: (value) => `${value}`,
 };
 
-export const CHANCE: MetricInfo = {
-  label: "Chance",
-  description: "A chance de o Congresso aprovar a medida",
+export const FORECAST: MetricInfo = {
+  label: "Placar previsto",
+  description: "Quantos votos Sim a medida deve ter, em faixa",
   definition:
-    "No fechamento do mês, o Congresso vota a fila inteira. Cada medida passa com chance igual à aprovação do governo naquele dia.",
+    "Soma os votos Sim se cada bancada seguir a orientação, menos os deputados que podem votar contra porque a medida contraria quem elegeu a bancada. A faixa vai do pior caso (todos os que podem desobedecer votam contra) ao melhor (ninguém desobedece).",
   example:
-    "Ex.: com 56% de aprovação, cada medida da fila tem 56% de chance, e o sorteio de uma não decide o das outras.",
+    "Ex.: Sim 53 a 60 significa 60 votos se ninguém desobedecer e 53 se todos os 7 que podem desobedecer votarem Não.",
   reading:
-    "Quanto maior a aprovação, mais fácil passar. A chance só diz a probabilidade: uma medida com 80% ainda pode cair.",
+    "A medida passa com 51 votos ou mais, de 101. Faixa toda acima de 51: passa. Toda abaixo: cai. Atravessando o 51: depende de quem desobedecer.",
+  format: (value) => `${value}`,
+};
+
+export const DEFIANCE: MetricInfo = {
+  label: "Pode desobedecer",
+  description: "Deputados que podem votar contra a orientação do líder",
+  definition:
+    "Cada deputado é sorteado na votação. A chance de votar contra cresce com o quanto os eleitores da bancada querem o voto oposto ao orientado, e nunca passa de um terço da bancada.",
+  example:
+    "Ex.: os investidores são 40% de quem elegeu o MRC e perdem com a medida. Se o MRC orientar Sim, até 4 dos 16 deputados podem votar Não.",
+  reading:
+    "Quanto menor, mais a bancada é previsível: 0 significa que ela vota como o líder orientou. Um terço da bancada é o máximo.",
+  format: (value) => `${value}`,
+};
+
+export const WITH_GOVERNMENT: MetricInfo = {
+  label: "Com o governo",
+  description: "Em quantos por cento das votações a bancada votou Sim",
+  definition:
+    "Entre as medidas que o presidente já levou à casa, a fatia dos deputados da bancada que votou Sim. Vem sempre com o número de votações: 100% de 2 votações pesa menos que 80% de 12.",
+  example: "Ex.: 75% em 8 votações: de cada 4 votos da bancada, 3 foram Sim.",
+  reading:
+    "Perto de 100%, a bancada é da base do governo; perto de 0%, é da oposição. Com poucas votações o número ainda varia muito.",
   format: (value) => `${value}%`,
+};
+
+export const DEFECTION_RATE: MetricInfo = {
+  label: "Desobediência",
+  description: "Dos deputados da bancada, quantos por cento votaram contra o líder",
+  definition: "Média, nas votações já feitas, dos deputados da bancada que votaram contra a orientação do líder.",
+  example: "Ex.: 6% em 8 votações: de cada 100 votos da bancada, 6 foram contra o líder.",
+  reading:
+    "Perto de 0%, o líder manda na bancada. Acima de 15%, ele orienta contra o que os eleitores da bancada querem, com frequência.",
+  format: (value) => `${value}%`,
+};
+
+export const BARRIER: MetricInfo = {
+  label: "Barreira de 5%",
+  description: "O mínimo de votos válidos para ter cadeira",
+  definition:
+    "O partido que não alcança 5% dos votos válidos da eleição da casa fica sem cadeira, e os votos dele não entram na divisão.",
+  example: "Ex.: com 4,2% dos votos, o partido fica de fora; com 5,3%, entra e leva umas 5 cadeiras de 101.",
+  reading: "Partido pequeno precisa passar da barreira antes de pensar em bancada.",
+  format: (value) => `${value}%`,
+};
+
+export const DHONDT: MetricInfo = {
+  label: "Como os votos viram cadeiras",
+  description: "O método D'Hondt, que divide as 101 cadeiras",
+  definition:
+    "Os votos de cada partido são divididos por 1, 2, 3 e assim por diante. As 101 maiores divisões levam uma cadeira cada, então a cadeira seguinte de um partido sempre vale menos votos que a anterior.",
+  example:
+    "Ex.: com 40, 35 e 25 votos, o primeiro partido leva a 1ª cadeira (40), o segundo a 2ª (35), o terceiro a 3ª (25), e a 4ª volta ao primeiro (40÷2 = 20)... até as 101 saírem.",
+  reading:
+    "O partido maior leva uma fatia de cadeiras um pouco acima da fatia de votos; os pequenos ficam um pouco abaixo.",
+  format: (value) => `${value}`,
 };
 
 export const REVENUE: MetricInfo = {
