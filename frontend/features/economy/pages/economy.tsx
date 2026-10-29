@@ -2,6 +2,7 @@ import usePageLabel from "@/shared/hooks/usePageLabel";
 import type { EconomyPanel } from "@/types";
 import { DebtCard } from "../components/debt-card";
 import { EconomyChart } from "../components/economy-chart";
+import { EffectsCard } from "../components/effects-card";
 import { EconomyKpis } from "../components/economy-kpis";
 import { EconomyError, EconomySkeleton } from "../components/economy-states";
 import { EconomyTable } from "../components/economy-table";
@@ -29,6 +30,7 @@ function EconomyContent({ panel }: { panel: EconomyPanel }) {
       </p>
       <EconomyKpis panel={panel} />
       <EconomyChart panel={panel} />
+      {panel.effects && <EffectsCard panel={panel} effects={panel.effects} />}
       <div className="grid items-start gap-5 lg:grid-cols-2">
         <GrowthCard panel={panel} />
         <UnemploymentCard panel={panel} />

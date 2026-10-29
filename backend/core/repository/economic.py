@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
 from itertools import batched
+from typing import Protocol
 
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
@@ -54,21 +55,64 @@ class IndicatorHistory:
         return [self.values[d] for d in self.dates[max(index - count, 0) : index]]
 
 
+class EconomyAdjustment(Protocol):
+    """O efeito que uma partida soma por cima das séries guardadas e do preço das ações."""
+
+    def adjust(
+        self, series: IndicatorSeries, history: IndicatorHistory
+    ) -> IndicatorHistory: ...
+
+    def stock_factor(self, ticker: str, day: date) -> float: ...
+
+
 class EconomicRepository:
     def __init__(self) -> None:
         # O motor lê as séries a cada tick e por posição; o cache, por série e
         # versão, só muda quando algo grava, e cada troca substitui o dict inteiro
         self._histories: dict[tuple[IndicatorSeries, int], IndicatorHistory] = {}
+        # A série como a partida a lê, com o efeito do governo por cima da guardada
+        self._adjusted: dict[tuple[IndicatorSeries, int], IndicatorHistory] = {}
+        self._adjustments: dict[int, EconomyAdjustment] = {}
 
     def get_history(
-        self, series: IndicatorSeries, simulation_id: int | None = None
+        self,
+        series: IndicatorSeries,
+        simulation_id: int | None = None,
+        *,
+        stored: bool = False,
     ) -> IndicatorHistory:
+        """A série da partida; com `stored`, a guardada, sem o efeito das medidas do governo."""
         key = (series, reading_version(simulation_id))
         history = self._histories.get(key)
         if history is None:
             history = self._load_history(*key)
             self._histories = {**self._histories, key: history}
-        return history
+        adjustment = self._adjustments.get(key[1])
+        if stored or adjustment is None:
+            return history
+        adjusted = self._adjusted.get(key)
+        if adjusted is None:
+            adjusted = adjustment.adjust(series, history)
+            self._adjusted = {**self._adjusted, key: adjusted}
+        return adjusted
+
+    def use_adjustment(self, simulation_id: int, adjustment: EconomyAdjustment) -> None:
+        """A partida passa a ler as séries e os preços com o efeito de `adjustment`."""
+        self._adjustments = {**self._adjustments, simulation_id: adjustment}
+        self.refresh_adjusted(simulation_id)
+
+    def refresh_adjusted(self, simulation_id: int) -> None:
+        """Descarta as séries com efeito da partida: a próxima leitura as refaz."""
+        self._adjusted = {
+            key: history
+            for key, history in self._adjusted.items()
+            if key[1] != simulation_id
+        }
+
+    def stock_factor(self, simulation_id: int, ticker: str, day: date) -> float:
+        """O quanto o efeito do governo move o preço da ação no dia; 1 sem efeito."""
+        adjustment = self._adjustments.get(simulation_id)
+        return 1.0 if adjustment is None else adjustment.stock_factor(ticker, day)
 
     def save_history(
         self, series: IndicatorSeries, rows: list[tuple[date, Decimal]]
@@ -80,6 +124,7 @@ class EconomicRepository:
 
     def clear_cache(self) -> None:
         self._histories = {}
+        self._adjusted = {}
 
     @transactional
     def _load_history(

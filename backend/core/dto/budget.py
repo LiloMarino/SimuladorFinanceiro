@@ -90,6 +90,12 @@ class BudgetEffectDTO(BaseDTO):
     # Variação da receita total, em fração do PIB por ano e em reais por ano
     revenue_change: Decimal
     revenue_change_amount: Decimal
+    # Variação do gasto (positivo gasta mais), em fração do PIB por ano e em reais por ano
+    spending_change: Decimal
+    spending_change_amount: Decimal
+    # O gasto total do governo hoje e no fim da projeção com a medida, em fração do PIB por ano
+    spending_before: Decimal
+    spending_after: Decimal
     tax_name: str
     # Nulas quando o imposto é isento
     rate_before: Decimal | None
@@ -107,9 +113,9 @@ class BudgetEffectDTO(BaseDTO):
 
 
 class QueueBudgetDTO(BaseDTO):
-    """A fila inteira do Congresso, se passar: o que muda na receita e no resultado."""
+    """A fila inteira do Congresso, se passar: o que muda no resultado do governo."""
 
-    # Variação da receita, em fração do PIB por ano
+    # Variação do resultado (receita menos gasto), em fração do PIB por ano
     total: Decimal
     result_now: Decimal
     result_if_passes: Decimal

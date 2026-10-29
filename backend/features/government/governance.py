@@ -26,8 +26,13 @@ from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import GroupVerdict, MeasureKind, MeasureStatus, VoterGroup
 from backend.features.government import approval as approval_rules
-from backend.features.government import budget as budget_rules
-from backend.features.government import budget_panel, congress, promises, voters
+from backend.features.government import (
+    budget_panel,
+    congress,
+    promises,
+    spending_panel,
+    voters,
+)
 from backend.features.government import measures as rules
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_term
@@ -67,7 +72,8 @@ def build_governance(
             is_president,
             measures,
             promised,
-            budget_rules.measure_effect(book.policy_before(measure), measure),
+            budget_panel.result_change(book.policy_before(measure), measure),
+            spending_panel.peak_inflation(measure),
         )
 
     pending = [
@@ -113,8 +119,16 @@ def build_governance(
                 ),
                 promised=any(key[0] is kind for key in promised),
             )
-            for kind in promises.GENERAL_KINDS
+            for kind in promises.TAX_KINDS
         ],
+        spending=spending_panel.spending_card(
+            book.spending_timeline(),
+            book.economy(),
+            book.budget().latest(today).gdp,
+            today,
+            {m.kind: dto(m) for m in pending if m.kind.is_spending},
+            {key[0] for key in promised},
+        ),
         sector_measures=[
             SectorMeasureDTO(measure=dto(m), assets=len(book.tickers(m)))
             for m in reversed(measures)
@@ -179,6 +193,7 @@ def _measure(
     measures: list[Measure],
     promised: set[tuple[MeasureKind, str | None, str | None]],
     budget_effect: Decimal,
+    inflation_effect: Decimal,
 ) -> MeasureDTO:
     queued = measure.status is MeasureStatus.QUEUED
     waiting = measure.status is MeasureStatus.APPROVED and _waiting(measure, today)
@@ -208,6 +223,7 @@ def _measure(
         days_left=days_left,
         impact=approval_rules.measure_impact(measure),
         budget_effect=budget_effect,
+        inflation_effect=inflation_effect,
         fulfills_promise=(
             measure.status in (MeasureStatus.QUEUED, MeasureStatus.APPROVED)
             and (measure.kind, measure.sector, measure.segment) in promised

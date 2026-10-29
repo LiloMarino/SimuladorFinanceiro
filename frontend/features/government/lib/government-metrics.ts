@@ -1,4 +1,5 @@
 import type { MetricInfo } from "@/shared/lib/metric-info";
+import { signedIpca } from "@/shared/lib/effects";
 import { displayPercent } from "@/shared/lib/utils/display";
 
 export const APPROVAL: MetricInfo = {
@@ -92,12 +93,56 @@ export const RESULT: MetricInfo = {
 
 export const QUEUE_BUDGET: MetricInfo = {
   label: "No orçamento",
-  description: "Quanto a medida muda a receita do governo",
+  description: "Quanto a medida muda o resultado do governo",
   definition:
-    "A variação da receita que a medida causa, em % do PIB por ano. Verde soma à receita do governo; vermelho tira dela. É uma estimativa: supõe a medida valendo e mais nada mudando.",
+    "A variação do resultado do governo (receita menos gasto) que a medida causa, em % do PIB por ano. Verde melhora o resultado: imposto que arrecada mais ou gasto que cai. Vermelho piora: imposto que arrecada menos ou gasto que sobe. É uma estimativa: supõe a medida valendo e mais nada mudando.",
   example:
-    "Ex.: −0,08% quer dizer que o governo passa a arrecadar 0,08% do PIB a menos por ano, uns R$ 5,9 bi num PIB de R$ 7,4 tri.",
+    "Ex.: −0,08% quer dizer que o governo passa a faltar 0,08% do PIB a mais por ano, uns R$ 5,9 bi num PIB de R$ 7,4 tri.",
   reading:
-    "Receita menor aumenta o déficit e a dívida; maior, o contrário. Medida de poucos centésimos quase não pesa na conta do país.",
+    "Resultado pior aumenta o déficit e a dívida; melhor, o contrário. Medida de poucos centésimos quase não pesa na conta do país.",
   format: (value) => displayPercent(value, 2),
+};
+
+export const QUEUE_INFLATION: MetricInfo = {
+  label: "Na inflação",
+  description: "Pontos que a medida soma ao IPCA de 12 meses, no pico",
+  definition:
+    "Só as medidas de gasto mexem aqui. O IPCA de 12 meses é a inflação acumulada no último ano; a medida soma ou tira pontos dele. O efeito demora: enche em 6 meses, vale cheio no pico e cai pela metade a cada 12 meses. Vermelho é inflação a mais; verde, a menos.",
+  example: "Ex.: +0,25 com o IPCA em 3,3% leva o 12 meses a 3,55% no pico, uns 6 meses depois de a medida valer.",
+  reading:
+    "Inflação a mais desagrada quem lê a inflação, e o Banco Central sobe a SELIC 1,5 vez o tanto. Abaixo de 0,1 ponto quase não se sente.",
+  format: (value) => `${signedIpca(value)} ponto`,
+};
+
+export const INFLATION_EXPECTED: MetricInfo = {
+  label: "Inflação esperada",
+  description: "Quanto a medida muda o IPCA de 12 meses, no pico",
+  definition:
+    "A medida de gasto põe mais (ou menos) dinheiro nas mãos de quem consome, e os preços reagem meses depois. O efeito enche em 6 meses, vale cheio no pico e cai pela metade a cada 12 meses. Vale para a partida inteira, na história e no futuro gerado, e a série guardada não muda: a diferença aparece tracejada no painel da economia.",
+  example:
+    "Ex.: +0,55 ponto com o IPCA em 3,3% leva o 12 meses a 3,85% no pico. Se o Banco Central responde com 1,5 vez o tanto, a SELIC sobe 0,83 ponto.",
+  reading:
+    "Pontos a mais pesam contra o governo: os grupos que leem a inflação reprovam, a SELIC sobe e a bolsa cai. Menos de 0,1 ponto quase não se sente.",
+  format: (value) => `${signedIpca(value)} ponto`,
+};
+
+export const SPENDING_COST: MetricInfo = {
+  label: "Custa",
+  description: "Quanto a medida pesa no gasto do governo, por ano",
+  definition:
+    "A parte do gasto do governo que a medida ocupa hoje, em % do PIB por ano e em reais por ano. No reajuste, é a folha de pagamento que ele multiplica, e ela cresce todo janeiro.",
+  example: "Ex.: 1,40% de um PIB de R$ 7,4 tri são uns R$ 104 bi por ano.",
+  reading:
+    "Gasto maior que a receita aumenta o déficit e a dívida. O que a medida custa não diz se vale a pena: pese também o que ela faz com a inflação e com os grupos de eleitores.",
+  format: (value) => displayPercent(value, 2),
+};
+
+export const SPENDING_INFLATION_NOW: MetricInfo = {
+  label: "Na inflação agora",
+  description: "Pontos de IPCA que a medida põe hoje",
+  definition:
+    "O quanto da medida já chegou ao IPCA de 12 meses neste dia. Sobe nos primeiros 6 meses depois de a medida valer, fica cheio no pico e cai pela metade a cada 12 meses.",
+  example: "Ex.: +0,12 hoje e +0,25 no pico: a medida ainda está chegando e vai pesar mais nos próximos meses.",
+  reading: "Zero ou traço: o efeito ainda não começou ou já sumiu. Vermelho é inflação a mais; verde, a menos.",
+  format: (value) => `${signedIpca(value)} ponto`,
 };

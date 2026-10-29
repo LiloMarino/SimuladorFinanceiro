@@ -1,4 +1,5 @@
 import type { MetricInfo } from "@/shared/lib/metric-info";
+import { isSpending } from "@/shared/lib/spending-kinds";
 import { displayMoneyCompact } from "@/shared/lib/utils/display";
 import type {
   CampaignPromise,
@@ -12,6 +13,7 @@ import type {
 } from "@/types";
 
 import { percentLabel } from "./government";
+import { spendingValue } from "./spending";
 
 const MINUS = "−";
 
@@ -70,6 +72,7 @@ export function signedDecimal(value: string | number) {
 
 /** O valor de uma medida como a tela escreve: a alíquota em %, o teto da isenção em reais por mês. */
 export function promiseValue(kind: MeasureKind, value: string | number) {
+  if (isSpending(kind)) return spendingValue(kind, value);
   return kind === "STOCK_EXEMPTION" ? `até ${displayMoneyCompact(value)}/mês` : percentLabel(value);
 }
 

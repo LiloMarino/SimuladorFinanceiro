@@ -8,14 +8,17 @@ import { normalizeNumberString } from "@/shared/lib/utils";
 import { displayList, displayMoneyCompact } from "@/shared/lib/utils/display";
 import { formatMoney } from "@/shared/lib/utils/format";
 import type { PromisesPanel } from "@/types";
-import { type GeneralKind, generalLabel, isGeneral, percentLabel, rateToFraction } from "../lib/government";
+import { isRaise, isSpending, SPENDING_LABEL } from "@/shared/lib/spending-kinds";
+import { generalLabel, isGeneral, percentLabel, rateToFraction } from "../lib/government";
+import { spendingValue } from "../lib/spending";
 import type { PromiseDraft, PromiseOption } from "../lib/promises";
 
 const WHOLE_SECTOR = "all";
 // Metade de um ponto percentual por passo do controle
 const SLIDER_STEP = 0.5;
+const SPENDING_SLIDER_STEP = 0.1;
 
-type Mode = "general" | "sector";
+type Mode = "general" | "spending" | "sector";
 
 type PromiseEditorProps = {
   draft: PromiseDraft;
@@ -26,9 +29,9 @@ type PromiseEditorProps = {
   onChange: (draft: PromiseDraft) => void;
 };
 
-/** Edita uma promessa da lista: um imposto geral com alvo, ou a isenção de um setor ou segmento. */
+/** Edita uma promessa da lista: um imposto geral ou uma medida de gasto com alvo, ou a isenção de um setor ou segmento. */
 export function PromiseEditor({ draft, panel, taken, disabled, onChange }: PromiseEditorProps) {
-  const mode: Mode = draft.sector === null ? "general" : "sector";
+  const mode: Mode = draft.sector !== null ? "sector" : isSpending(draft.kind) ? "spending" : "general";
   const option = panel.options.find((candidate) => candidate.kind === draft.kind);
 
   const changeMode = (next: Mode) => {
@@ -37,7 +40,8 @@ export function PromiseEditor({ draft, panel, taken, disabled, onChange }: Promi
       onChange({ kind: "SECTOR_EXEMPT", target: null, sector: panel.sectors[0]?.name ?? null, segment: null });
       return;
     }
-    const first = panel.options.find((candidate) => !taken.has(candidate.kind)) ?? panel.options[0];
+    const family = panel.options.filter((candidate) => isSpending(candidate.kind) === (next === "spending"));
+    const first = family.find((candidate) => !taken.has(candidate.kind)) ?? family[0];
     if (first) onChange({ kind: first.kind, target: first.baseline, sector: null, segment: null });
   };
 
@@ -54,13 +58,17 @@ export function PromiseEditor({ draft, panel, taken, disabled, onChange }: Promi
         <ToggleGroupItem value="general" className="flex-1">
           Imposto geral
         </ToggleGroupItem>
+        <ToggleGroupItem value="spending" className="flex-1">
+          Gasto público
+        </ToggleGroupItem>
         <ToggleGroupItem value="sector" className="flex-1">
           Isentar um setor
         </ToggleGroupItem>
       </ToggleGroup>
 
-      {mode === "general" && option && (
+      {mode !== "sector" && option && (
         <GeneralFields
+          spending={mode === "spending"}
           draft={draft}
           option={option}
           panel={panel}
@@ -74,12 +82,24 @@ export function PromiseEditor({ draft, panel, taken, disabled, onChange }: Promi
   );
 }
 
-type GeneralFieldsProps = Omit<PromiseEditorProps, "disabled"> & { option: PromiseOption; disabled: boolean };
+type GeneralFieldsProps = Omit<PromiseEditorProps, "disabled"> & {
+  option: PromiseOption;
+  disabled: boolean;
+  /** As medidas de gasto no lugar dos impostos gerais */
+  spending: boolean;
+};
 
-function GeneralFields({ draft, option, panel, taken, disabled, onChange }: GeneralFieldsProps) {
-  const kinds = panel.options.filter((candidate): candidate is typeof candidate & { kind: GeneralKind } =>
-    isGeneral(candidate.kind),
-  );
+/** O nome da medida no seletor: o imposto com o valor de hoje ou a medida de gasto com o dela. */
+function optionLabel(candidate: PromiseOption) {
+  return isSpending(candidate.kind)
+    ? `${SPENDING_LABEL[candidate.kind]} · hoje ${spendingValue(candidate.kind, candidate.baseline)}`
+    : isGeneral(candidate.kind)
+      ? generalLabel(candidate.kind, candidate.baseline)
+      : candidate.kind;
+}
+
+function GeneralFields({ spending, draft, option, panel, taken, disabled, onChange }: GeneralFieldsProps) {
+  const kinds = panel.options.filter((candidate) => isSpending(candidate.kind) === spending);
 
   return (
     <div className="grid gap-3.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
@@ -88,9 +108,7 @@ function GeneralFields({ draft, option, panel, taken, disabled, onChange }: Gene
         <Select
           value={draft.kind}
           disabled={disabled}
-          items={Object.fromEntries(
-            kinds.map((candidate) => [candidate.kind, generalLabel(candidate.kind, candidate.baseline)]),
-          )}
+          items={Object.fromEntries(kinds.map((candidate) => [candidate.kind, optionLabel(candidate)]))}
           onValueChange={(value) => {
             const next = kinds.find((candidate) => candidate.kind === value);
             if (next) onChange({ kind: next.kind, target: next.baseline, sector: null, segment: null });
@@ -106,7 +124,7 @@ function GeneralFields({ draft, option, panel, taken, disabled, onChange }: Gene
                 value={candidate.kind}
                 disabled={taken.has(candidate.kind) && candidate.kind !== draft.kind}
               >
-                {generalLabel(candidate.kind, candidate.baseline)}
+                {optionLabel(candidate)}
                 {taken.has(candidate.kind) && candidate.kind !== draft.kind && (
                   <span className="text-xs text-muted-foreground">já prometida</span>
                 )}
@@ -165,6 +183,8 @@ function TargetField({ draft, option, disabled, onChange }: TargetFieldProps) {
   }
 
   const limit = Number(option.limit ?? 1) * 100;
+  // O auxílio e as obras andam em décimos de ponto; os reajustes, em meios pontos
+  const sliderStep = isSpending(option.kind) && !isRaise(option.kind) ? SPENDING_SLIDER_STEP : SLIDER_STEP;
   const sliderValue = Math.min(Math.max(Number(draft.target ?? option.baseline) * 100, 0), limit);
 
   return (
@@ -178,7 +198,7 @@ function TargetField({ draft, option, disabled, onChange }: TargetFieldProps) {
           aria-label="Alvo da promessa"
           min={0}
           max={limit}
-          step={SLIDER_STEP}
+          step={sliderStep}
           disabled={disabled}
           value={sliderValue}
           onValueChange={(next) => {
@@ -200,8 +220,8 @@ function TargetField({ draft, option, disabled, onChange }: TargetFieldProps) {
         />
       </div>
       <FieldDescription>
-        Hoje {percentLabel(option.baseline)}. Quanto maior o passo, mais rende agora e mais rejeição soma se não
-        cumprir.
+        Hoje {isSpending(option.kind) ? spendingValue(option.kind, option.baseline) : percentLabel(option.baseline)}.
+        Quanto maior o passo, mais rende agora e mais rejeição soma se não cumprir.
       </FieldDescription>
     </Field>
   );

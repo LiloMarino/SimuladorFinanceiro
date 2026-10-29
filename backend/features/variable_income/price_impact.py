@@ -79,8 +79,11 @@ class PriceImpact:
         }
 
     def apply(self, candle: CandleRow) -> CandleRow:
-        """Candle do dia corrente com o fator calculado no último `refresh`."""
-        return _scale(candle, self._factors.get(candle.ticker, 1.0))
+        """Candle do dia corrente com o fator calculado no último `refresh` e o efeito do governo na bolsa."""
+        factor = self._factors.get(candle.ticker, 1.0) * self._market(
+            candle.ticker, candle.price_date
+        )
+        return _scale(candle, factor)
 
     def apply_history(
         self, ticker: str, history: list[StockPriceHistoryDTO]
@@ -96,7 +99,15 @@ class PriceImpact:
             if self.enabled
             else []
         )
-        return {day: self._factor_on(flows, day) if flows else 1.0 for day in days}
+        return {
+            day: (self._factor_on(flows, day) if flows else 1.0)
+            * self._market(ticker, day)
+            for day in days
+        }
+
+    def _market(self, ticker: str, day: date) -> float:
+        """O efeito das medidas do governo na bolsa vale com o impacto das ordens ligado ou não."""
+        return repository.economic.stock_factor(self.simulation_id, ticker, day)
 
     def _factor_on(self, flows: list[DailyEquityFlowDTO], on: date) -> float:
         total = 0.0

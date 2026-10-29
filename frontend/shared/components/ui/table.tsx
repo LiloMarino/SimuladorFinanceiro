@@ -87,7 +87,7 @@ function TableHead({
   ...props
 }: React.ComponentProps<"th"> & {
   numeric?: boolean | undefined;
-  variant?: "default" | "compact" | "matrix" | "hint" | undefined;
+  variant?: "default" | "compact" | "matrix" | "hint" | "tinted" | undefined;
 }) {
   return (
     <th
@@ -99,6 +99,7 @@ function TableHead({
         variant === "compact" && "h-auto bg-transparent px-0 pb-1 text-[11px] text-faint-foreground data-numeric:pl-2",
         variant === "matrix" && "h-auto bg-transparent px-1 pb-1.5 font-mono text-xs text-muted-foreground",
         variant === "hint" && "h-auto bg-transparent px-1.5 py-0.5 text-xs text-inherit",
+        variant === "tinted" && "h-10 bg-warning-soft/40 px-4 text-xs text-muted-foreground",
         className,
       )}
       {...props}
@@ -110,17 +111,20 @@ function TableHead({
  * `numeric`: valor alinhado à direita, em mono com algarismos alinhados.
  * `variant`: `group` é o título de um grupo de linhas; `note` é o texto de apoio, em tom discreto.
  * `tone`: cor do valor, para o que está esperando (`warning`) ou isento (`success`).
+ * `tinted`: coluna com fundo em laranja suave, para destacar uma coluna inteira (acompanha `TableHead` `tinted`).
  */
 function TableCell({
   className,
   numeric = false,
   variant = "default",
   tone,
+  tinted = false,
   ...props
 }: React.ComponentProps<"td"> & {
   numeric?: boolean | undefined;
   variant?: "default" | "group" | "note" | undefined;
   tone?: "warning" | "success" | undefined;
+  tinted?: boolean | undefined;
 }) {
   return (
     <td
@@ -132,6 +136,7 @@ function TableCell({
         variant === "note" && "text-xs text-muted-foreground",
         tone === "warning" && "text-warning",
         tone === "success" && "text-success",
+        tinted && "bg-warning-soft/40",
         className,
       )}
       {...props}

@@ -8,11 +8,12 @@ import type {
   MeasurePreview,
   MeasureStatus,
 } from "@/types";
+import type { SpendingKind } from "@/shared/lib/spending-kinds";
 
 const MINUS = "−";
 const PERCENT = new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 1 });
 
-export type GeneralKind = Exclude<MeasureKind, "SECTOR_EXEMPT" | "SECTOR_TAX">;
+export type GeneralKind = Exclude<MeasureKind, "SECTOR_EXEMPT" | "SECTOR_TAX" | SpendingKind>;
 
 export const GENERAL_KINDS = [
   "STOCK_PROFIT_RATE",

@@ -65,6 +65,13 @@ TARGET = Decimal("0.10")
 ANNOUNCED = date(2020, 11, 2)
 
 
+@pytest.fixture(autouse=True)
+def silent_computers(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch):
+    """Os partidos do computador só prometem nos testes deles: a eleição dos demais é entre a Alice e o perfil dos partidos."""
+    if "computer" not in request.node.name:
+        monkeypatch.setattr(promises, "computer_picks", lambda *_: [])
+
+
 def promise(
     target: str = "0.10", baseline: str = "0.15", kind=MeasureKind.STOCK_PROFIT_RATE
 ) -> Promise:

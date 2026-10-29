@@ -14,7 +14,9 @@ import { useWithdrawMeasure } from "../hooks/mutations/useWithdrawMeasure";
 import { useToday } from "../hooks/useToday";
 import { signedShareLabel, shareLabel } from "../lib/budget";
 import { daysUntil, nextStep, STAGES } from "../lib/government";
-import { CHANCE, QUEUE_BUDGET } from "../lib/government-metrics";
+import { inflationTone, signedIpca } from "@/shared/lib/effects";
+import { isSpending } from "@/shared/lib/spending-kinds";
+import { CHANCE, QUEUE_BUDGET, QUEUE_INFLATION } from "../lib/government-metrics";
 import { MeasureSteps } from "./measure-steps";
 
 type QueueCardProps = { panel: GovernmentPanel };
@@ -24,6 +26,10 @@ export function QueueCard({ panel }: QueueCardProps) {
   const today = useToday(panel);
   const withdraw = useWithdrawMeasure();
   const repropose = useReproposeMeasure();
+  // O IPCA que a fila inteira soma no pico: só as medidas de gasto que ainda podem valer
+  const queueInflation = panel.queue
+    .filter((measure) => measure.status === "QUEUED" || measure.status === "APPROVED")
+    .reduce((sum, measure) => sum + Number(measure.inflation_effect), 0);
 
   return (
     <Card>
@@ -40,8 +46,8 @@ export function QueueCard({ panel }: QueueCardProps) {
                 <EmptyTitle>Nenhuma medida a caminho</EmptyTitle>
                 <EmptyDescription>
                   {panel.is_president
-                    ? "Proponha uma mudança de imposto: ela entra na fila e o Congresso vota no fechamento do mês."
-                    : "Quando o presidente propuser uma mudança de imposto, ela aparece aqui para a sala toda."}
+                    ? "Proponha uma mudança de imposto ou de gasto: ela entra na fila e o Congresso vota no fechamento do mês."
+                    : "Quando o presidente propuser uma mudança de imposto ou de gasto, ela aparece aqui para a sala toda."}
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
@@ -53,6 +59,9 @@ export function QueueCard({ panel }: QueueCardProps) {
                   <TableHead>Medida</TableHead>
                   <TableHead numeric>
                     <MetricLabel metric={QUEUE_BUDGET} />
+                  </TableHead>
+                  <TableHead numeric variant="tinted">
+                    <MetricLabel metric={QUEUE_INFLATION} />
                   </TableHead>
                   <TableHead>Próximo passo</TableHead>
                   <TableHead numeric>
@@ -97,6 +106,21 @@ export function QueueCard({ panel }: QueueCardProps) {
                         {signedShareLabel(measure.budget_effect)}
                       </span>
                     </TableCell>
+                    <TableCell numeric tinted>
+                      {isSpending(measure.kind) ? (
+                        <span
+                          className={
+                            measure.status === "QUEUED" || measure.status === "APPROVED"
+                              ? INFLATION_TONE[inflationTone(measure.inflation_effect)]
+                              : INFLATION_TONE.default
+                          }
+                        >
+                          {signedIpca(measure.inflation_effect)}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
                     <TableCell className="whitespace-normal">{nextStep(measure, today)}</TableCell>
                     <TableCell numeric>
                       <ChanceCell measure={measure} today={today} vigenceDays={panel.vigence_days} />
@@ -132,6 +156,9 @@ export function QueueCard({ panel }: QueueCardProps) {
                   <TableCell numeric>
                     <b className={budgetTone(panel.queue_budget.total)}>{signedShareLabel(panel.queue_budget.total)}</b>
                   </TableCell>
+                  <TableCell numeric tinted>
+                    <b className={INFLATION_TONE[inflationTone(queueInflation)]}>{signedIpca(queueInflation)}</b>
+                  </TableCell>
                   <TableCell colSpan={3} variant="note" className="whitespace-normal">
                     resultado de {shareLabel(panel.queue_budget.result_now)} para{" "}
                     {shareLabel(panel.queue_budget.result_if_passes)} do PIB por ano
@@ -151,7 +178,9 @@ export function QueueCard({ panel }: QueueCardProps) {
   );
 }
 
-/** Medida que soma à receita pesa em verde; a que tira, em vermelho. */
+const INFLATION_TONE = { destructive: "text-destructive", success: "text-success", default: "text-muted-foreground" };
+
+/** Medida que melhora o resultado do governo pesa em verde; a que piora, em vermelho. */
 function budgetTone(change: string | number) {
   const value = Number(change);
   if (value > 0) return "text-success";

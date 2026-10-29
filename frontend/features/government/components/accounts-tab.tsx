@@ -5,6 +5,7 @@ import { BudgetCard } from "./budget-card";
 import { BudgetError, BudgetSkeleton } from "./budget-states";
 import { DebtPremiumCard } from "./debt-premium-card";
 import { RevenueCard } from "./revenue-card";
+import { SpendingCard } from "./spending-card";
 import { TaxesCard } from "./taxes-card";
 
 type AccountsTabProps = {
@@ -12,7 +13,7 @@ type AccountsTabProps = {
   onPropose: (kind?: MeasureKind) => void;
 };
 
-/** A aba Contas: o orçamento do país, de onde vem a receita, a dívida com o prêmio e os impostos em vigor. */
+/** A aba Contas: o orçamento do país, de onde vem a receita, a dívida com o prêmio e os impostos e o gasto público em vigor. */
 export function AccountsTab({ panel, onPropose }: AccountsTabProps) {
   const { data: budget, error, refetch } = useBudget();
 
@@ -25,9 +26,12 @@ export function AccountsTab({ panel, onPropose }: AccountsTabProps) {
       {/* A conta do mês */}
       <BudgetCard budget={budget} />
 
-      {/* Impostos em vigor e a dívida com o prêmio */}
+      {/* Impostos e gasto público em vigor, e a dívida com o prêmio */}
       <div className="grid items-start gap-5 xl:grid-cols-2">
-        <TaxesCard panel={panel} onPropose={onPropose} />
+        <div className="grid gap-5">
+          <TaxesCard panel={panel} onPropose={onPropose} />
+          <SpendingCard panel={panel} onPropose={onPropose} />
+        </div>
         <DebtPremiumCard budget={budget} />
       </div>
 

@@ -1,6 +1,6 @@
 """
-As medidas do presidente: o que cada uma muda na política de impostos. Tudo aqui é
-função pura sobre `Measure`.
+As medidas do presidente: o que cada uma muda na política de impostos (as de gasto
+público moram em `spending`). Tudo aqui é função pura sobre `Measure`.
 """
 
 from bisect import bisect_right
@@ -64,6 +64,14 @@ def apply_measure(policy: TaxPolicy, measure: Measure) -> TaxPolicy:
                 extra=value or Decimal(0),
             )
             return replace(policy, sector_rules=(*policy.sector_rules, rule))
+        case (
+            MeasureKind.WELFARE_SPENDING
+            | MeasureKind.SERVANT_RAISE
+            | MeasureKind.RETIREE_RAISE
+            | MeasureKind.PUBLIC_WORKS
+        ):
+            # O gasto público não mexe nos impostos; vive na linha do tempo do gasto
+            return policy
 
 
 def general_value(policy: TaxPolicy, kind: MeasureKind) -> Decimal | None:
@@ -91,7 +99,9 @@ class PolicyTimeline:
             (
                 m
                 for m in measures
-                if m.status is MeasureStatus.APPROVED and m.effective is not None
+                if m.status is MeasureStatus.APPROVED
+                and m.effective is not None
+                and not m.kind.is_spending
             ),
             key=lambda m: (m.effective, m.id),
         )
@@ -137,6 +147,14 @@ def title(measure: Measure) -> str:
                 f"{target_name(measure)}: +{number(required(value) * HUNDRED)} pontos no IR "
                 "das vendas com lucro"
             )
+        case MeasureKind.WELFARE_SPENDING:
+            return f"Auxílio: {percent(value)} do PIB"
+        case MeasureKind.SERVANT_RAISE:
+            return f"Servidores: reajuste de {percent(value)} acima da inflação"
+        case MeasureKind.RETIREE_RAISE:
+            return f"Aposentadorias: reajuste de {percent(value)} acima da inflação"
+        case MeasureKind.PUBLIC_WORKS:
+            return f"Obras: {percent(value)} do PIB"
 
 
 def target_name(measure: Measure) -> str:

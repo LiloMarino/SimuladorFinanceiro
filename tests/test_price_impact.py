@@ -205,3 +205,69 @@ def test_history_uses_factor_of_each_day(flows: list[DailyEquityFlowDTO]):
 
     # Segunda: a ordem é do próprio dia; terça: +2% cheio; dia 20: idade 9 → 30,25%
     assert closes == [10.0, 10.2, round(10 * (1 + 0.02 * decay(9, DECAY_DAYS)), 2)]
+
+
+class Market:
+    """O efeito das medidas de gasto na bolsa: o nível do mercado elevado ao beta de cada ativo."""
+
+    def __init__(self, factor: float):
+        self.factor = factor
+
+    def adjust(self, series, history):
+        return history
+
+    def stock_factor(self, ticker: str, day: date) -> float:
+        return self.factor if ticker == "ABCD" else 1.0
+
+
+@pytest.fixture
+def market_effect(monkeypatch: pytest.MonkeyPatch):
+    def use(factor: float) -> None:
+        monkeypatch.setattr(repository.economic, "_adjustments", {1: Market(factor)})
+
+    return use
+
+
+def test_the_government_effect_moves_the_candle_even_with_the_impact_off(
+    market_effect,
+):
+    market_effect(0.97)
+    price_impact = _impact(enabled=False)
+    price_impact.refresh(TUESDAY)
+
+    candle = price_impact.apply(_candle())
+
+    assert candle.close == round(10.5 * 0.97, 2)
+    assert candle.open == round(10.0 * 0.97, 2)
+
+
+def test_the_government_effect_multiplies_the_factor_of_the_orders(
+    flows: list[DailyEquityFlowDTO], market_effect
+):
+    flows.append(_flow(100_000))
+    market_effect(0.9)
+    price_impact = _impact()
+
+    orders_only = price_impact._factor_on(flows, TUESDAY)
+
+    assert price_impact.factors_on("ABCD", [TUESDAY])[TUESDAY] == pytest.approx(
+        orders_only * 0.9
+    )
+    # O ativo sem efeito de mercado fica só com o das ordens
+    assert price_impact.factors_on("OTHER", [TUESDAY])[TUESDAY] == 1.0
+
+
+def test_the_history_carries_the_government_effect_of_each_day(market_effect):
+    market_effect(0.95)
+    row = StockPriceHistoryDTO(
+        price_date=TUESDAY,
+        open=10.0,
+        high=11.0,
+        low=9.0,
+        close=10.5,
+        volume=500,
+    )
+
+    [scaled] = _impact(enabled=False).apply_history("ABCD", [row])
+
+    assert scaled.close == round(10.5 * 0.95, 2)

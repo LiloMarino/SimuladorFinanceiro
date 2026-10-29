@@ -5,11 +5,16 @@ from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 
-from backend.core.enum import IndicatorSeries
+import pytest
+
+from backend.core.enum import EffectPhase, IndicatorSeries, MeasureKind, MeasureStatus
 from backend.core.indicators import annualize_daily, inflation_tolerance
 from backend.features.economy.growth import MacroCourse
 from backend.features.economy.panel import build_economy_panel, month_ends
+from backend.features.government.spending_effects import SpendingEconomy
+from backend.features.government.state import Measure
 from tests.conftest import SetIndicator
+from tests.fakes import daily_series, monthly_series
 
 # 0.0551% ao dia compõe, em 252 dias úteis, cerca de 14,9% ao ano
 DAILY_LOW = Decimal("0.0551")
@@ -133,3 +138,70 @@ def test_panel_carries_growth_unemployment_and_the_growth_parts(
     parts = panel.growth_parts
     assert parts.target == parts.trend + parts.real_rate_part + parts.stocks_part
     assert parts.growth == last.growth
+
+
+def test_panel_without_the_government_has_no_effects_and_no_stored_series(
+    indicators: SetIndicator,
+):
+    indicators(IndicatorSeries.SELIC, {date(2022, 1, 3): DAILY_LOW})
+    indicators(IndicatorSeries.IPCA, {date(2022, 1, 1): Decimal("0.5")})
+    indicators(IndicatorSeries.IBOV, {date(2022, 1, 3): Decimal(100000)})
+
+    panel = build_economy_panel(
+        date(2022, 1, 3), date(2022, 1, 3), MacroCourse(date(2022, 1, 3))
+    )
+
+    [point] = panel.points
+    assert panel.effects is None
+    assert point.ibovespa == Decimal(100000)
+    assert (point.stored_selic, point.stored_ipca, point.stored_ibovespa) == (
+        None,
+        None,
+        None,
+    )
+
+
+def test_panel_with_the_government_lists_the_effects_and_keeps_the_stored_series(
+    indicators: SetIndicator,
+):
+    start = date(2022, 1, 3)
+    indicators(IndicatorSeries.SELIC, daily_series(start, date(2023, 12, 29), "0.0551"))
+    indicators(IndicatorSeries.IPCA, monthly_series(start, 24, "0.3"))
+    indicators(IndicatorSeries.IBOV, daily_series(start, date(2023, 12, 29), "100000"))
+    approved = Measure(
+        id=1,
+        kind=MeasureKind.WELFARE_SPENDING,
+        value=Decimal("0.02"),
+        before=Decimal("0.015"),
+        sector=None,
+        segment=None,
+        proposer_id=1,
+        term_start=start,
+        proposed=start,
+        status=MeasureStatus.APPROVED,
+        effective=date(2022, 4, 1),
+    )
+    economy = SpendingEconomy(1, start)
+    economy.update([approved])
+    today = date(2022, 12, 30)
+
+    panel = build_economy_panel(
+        start,
+        today,
+        MacroCourse(start),
+        None,
+        economy,
+        [approved],
+    )
+
+    [effect] = panel.effects or []
+    assert effect.measure_id == 1
+    assert effect.title == "Auxílio: 2% do PIB"
+    assert effect.phase is EffectPhase.FALLING
+    assert effect.inflation > 0
+    assert effect.selic == pytest.approx(
+        effect.inflation * Decimal("1.5"), abs=Decimal("0.001")
+    )
+    assert effect.stocks < 0
+    assert effect.peak_on < today < effect.faded_on
+    assert len(effect.curve) == 37 and effect.elapsed_months == 8

@@ -20,11 +20,10 @@ from backend.core.dto.promises import (
     TermPromisesDTO,
 )
 from backend.core.dto.user import UserDTO
-from backend.core.enum import MeasureKind, VoterGroup
+from backend.core.enum import VoterGroup
 from backend.features.government import congress, promises, second_round, voters
 from backend.features.government import measures as rules
 from backend.features.government.government_book import (
-    RATE_LIMIT,
     GovernmentBook,
 )
 from backend.features.government.promises import GroupEffects, Promise
@@ -116,7 +115,7 @@ def build_promises_panel(
                 kind=kind,
                 baseline=baseline,
                 step=voters.EFFECT_STEPS[kind],
-                limit=None if kind is MeasureKind.STOCK_EXEMPTION else RATE_LIMIT,
+                limit=promises.limit_of(kind),
             )
             for kind in promises.GENERAL_KINDS
             if (baseline := book.promise_baseline(kind, today)) is not None

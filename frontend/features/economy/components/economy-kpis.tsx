@@ -2,11 +2,11 @@ import { Kpi } from "@/shared/components/kpi";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
-import { DEBT_GDP, GROWTH, UNEMPLOYMENT } from "@/shared/lib/budget-metrics";
+import { signedIpca, signedStocks } from "@/shared/lib/effects";
+import { GROWTH, UNEMPLOYMENT } from "@/shared/lib/budget-metrics";
+import { displayPercent } from "@/shared/lib/utils/display";
 import type { EconomyPanel } from "@/types";
 import {
-  debtNote,
-  debtTone,
   growthExample,
   ipcaExample,
   lastCopomNote,
@@ -14,10 +14,12 @@ import {
   monthChangeNote,
   realRateTone,
   selicExample,
+  stocksEffect,
+  sumEffects,
   targetNote,
   unemploymentExample,
 } from "../lib/economy";
-import { IPCA, REAL_RATE, SELIC } from "../lib/economy-metrics";
+import { IBOVESPA, IPCA, REAL_RATE, SELIC } from "../lib/economy-metrics";
 
 type EconomyKpisProps = { panel: EconomyPanel };
 
@@ -52,20 +54,31 @@ function Tile({ metric, value, note, description, tone = "default" }: TileProps)
   );
 }
 
-/** Os números de hoje: SELIC, crescimento, dívida (só com a expansão Governo), inflação, juro real e desemprego. */
+/** "+1,35 pelas medidas": o que as medidas de gasto somam ao número, em pontos ou em %. */
+const measuresNote = (shift: string) => `${shift} pelas medidas`;
+
+/** " Na história, 3,75% hoje.": o número da série guardada, sem as medidas; vazio sem a expansão Governo. */
+const historyNote = (stored: string | null, format: (value: string) => string) =>
+  stored === null ? "" : ` Na história, ${format(stored)} hoje.`;
+
+/** Os números de hoje: SELIC, crescimento, Ibovespa (só com a expansão Governo), inflação, juro real e desemprego. */
 export function EconomyKpis({ panel }: EconomyKpisProps) {
   const today = panel.points.at(-1);
   if (!today) return null;
-  const { debt, growth_parts: parts } = panel;
+  const { effects, growth_parts: parts } = panel;
+  const measured = effects !== null && effects.length > 0;
+  const selicShift = effects ? sumEffects(effects, "selic") : 0;
+  const ipcaShift = effects ? sumEffects(effects, "inflation") : 0;
+  const stocksShift = stocksEffect(today);
 
   return (
-    <div className={cn("grid gap-3 sm:grid-cols-3", debt ? "xl:grid-cols-6" : "xl:grid-cols-5")}>
+    <div className={cn("grid gap-3 sm:grid-cols-3", effects ? "xl:grid-cols-6" : "xl:grid-cols-5")}>
       {/* SELIC */}
       <Tile
         metric={SELIC}
         value={SELIC.format(today.selic)}
-        note={lastCopomNote(panel.copom_changes)}
-        description={selicExample(today)}
+        note={measured ? measuresNote(signedIpca(selicShift)) : lastCopomNote(panel.copom_changes)}
+        description={`${selicExample(today)}${historyNote(today.stored_selic, (value) => displayPercent(value, 2))}`}
       />
 
       {/* Crescimento do PIB */}
@@ -77,19 +90,27 @@ export function EconomyKpis({ panel }: EconomyKpisProps) {
         tone={Number(today.growth) < 0 ? "destructive" : "default"}
       />
 
-      {/* Dívida em % do PIB */}
-      {debt && (
+      {/* Ibovespa */}
+      {effects && today.ibovespa !== null && (
         <Tile
-          metric={DEBT_GDP}
-          value={DEBT_GDP.format(debt.debt)}
-          note={debtNote(debt.premium)}
-          description="Quanto o governo deve perto de tudo o que o país produz num ano."
-          tone={debtTone(debt.premium)}
+          metric={IBOVESPA}
+          value={IBOVESPA.format(today.ibovespa)}
+          note={
+            stocksShift !== null && Math.abs(stocksShift) >= 0.0005
+              ? measuresNote(signedStocks(stocksShift))
+              : "sem efeito das medidas"
+          }
+          description={`${IBOVESPA.description}${historyNote(today.stored_ibovespa, IBOVESPA.format)}`}
         />
       )}
 
       {/* IPCA */}
-      <Tile metric={IPCA} value={IPCA.format(today.ipca)} note={targetNote(today)} description={ipcaExample(today)} />
+      <Tile
+        metric={IPCA}
+        value={IPCA.format(today.ipca)}
+        note={measured ? measuresNote(signedIpca(ipcaShift)) : targetNote(today)}
+        description={`${ipcaExample(today)}${historyNote(today.stored_ipca, (value) => displayPercent(value, 2))}`}
+      />
 
       {/* Juro real */}
       <Tile

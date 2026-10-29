@@ -21,7 +21,9 @@ from backend.core.dto.budget import (
 from backend.core.enum import InitialAccount, MeasureKind
 from backend.features.government import budget as budget_rules
 from backend.features.government import measures as rules
+from backend.features.government import spending
 from backend.features.government.budget import BudgetCourse, BudgetMonth, TaxRow
+from backend.features.government.spending import SpendingTimeline
 from backend.features.government.state import Measure
 from backend.features.tax_policy import TaxPolicy
 
@@ -136,6 +138,8 @@ def current_result(course: BudgetCourse, today: date) -> Decimal:
 
 
 def _row_of(rows: Iterable[TaxRow], measure: Measure) -> TaxRow | None:
+    if measure.kind.is_spending:
+        return None
     if measure.kind.is_sector:
         name = f"{measure.segment or measure.sector} · setor"
         return next((r for r in rows if r.key == "SECTOR" and r.name == name), None)
@@ -143,9 +147,24 @@ def _row_of(rows: Iterable[TaxRow], measure: Measure) -> TaxRow | None:
     return next((r for r in rows if r.key == key), None)
 
 
+def spending_change(measure: Measure) -> Decimal:
+    """Quanto a medida muda o gasto no primeiro ano, em fração do PIB por ano; zero nos impostos."""
+    if not measure.kind.is_spending:
+        return ZERO
+    return spending.cost_change(measure.kind, measure.value, measure.before)
+
+
+def result_change(policy_before: TaxPolicy, measure: Measure) -> Decimal:
+    """Quanto a medida muda o resultado do governo: a receita a mais menos o gasto a mais."""
+    return budget_rules.measure_effect(policy_before, measure) - spending_change(
+        measure
+    )
+
+
 def measure_budget(
     course: BudgetCourse,
     policy_before: TaxPolicy,
+    timeline: SpendingTimeline,
     measure: Measure,
     today: date,
     effective: date,
@@ -153,6 +172,7 @@ def measure_budget(
 ) -> BudgetEffectDTO:
     """O efeito da medida na conta, se ela passar e valer em `effective`."""
     change = budget_rules.measure_effect(policy_before, measure)
+    outlay = spending_change(measure)
     before_row = _row_of(budget_rules.tax_rows(policy_before), measure)
     after_row = _row_of(
         budget_rules.tax_rows(rules.apply_measure(policy_before, measure)), measure
@@ -160,20 +180,32 @@ def measure_budget(
     affected = after_row or before_row
     end = projection_end(term_end, today)
     without = course.project(today, end)
-    with_measure = course.project(today, end, change, effective)
+    with_measure = course.project(
+        today,
+        end,
+        change,
+        effective,
+        timeline.with_measure(measure, effective).spending_on
+        if measure.kind.is_spending
+        else None,
+    )
     latest_debt = course.latest(today).debt
     result_now = current_result(course, today)
     gdp = course.latest(today).gdp
     return BudgetEffectDTO(
         revenue_change=change,
         revenue_change_amount=change * gdp,
+        spending_change=outlay,
+        spending_change_amount=outlay * gdp,
+        spending_before=timeline.spending_on(effective),
+        spending_after=timeline.spending_on(effective) + outlay,
         tax_name=affected.name if affected else "",
         rate_before=before_row.rate if before_row else None,
         rate_after=after_row.rate if after_row else None,
         tax_revenue_before=before_row.revenue if before_row else ZERO,
         tax_revenue_after=after_row.revenue if after_row else ZERO,
         result_before=result_now,
-        result_after=result_now + change,
+        result_after=result_now + change - outlay,
         debt_end=end,
         debt_before=without[-1].debt if without else latest_debt,
         debt_after=with_measure[-1].debt if with_measure else latest_debt,
@@ -183,10 +215,14 @@ def measure_budget(
 def queue_budget(
     course: BudgetCourse, policy: TaxPolicy, queued: Iterable[Measure], today: date
 ) -> QueueBudgetDTO:
-    """A fila inteira aplicada em ordem sobre a política de hoje."""
+    """A fila inteira aplicada em ordem sobre a política de hoje: a receita a mais menos o gasto a mais."""
     final = policy
+    outlay = ZERO
     for measure in sorted(queued, key=lambda m: m.id):
         final = rules.apply_measure(final, measure)
-    total = budget_rules.game_revenue(final) - budget_rules.game_revenue(policy)
+        outlay += spending_change(measure)
+    total = (
+        budget_rules.game_revenue(final) - budget_rules.game_revenue(policy) - outlay
+    )
     now = current_result(course, today)
     return QueueBudgetDTO(total=total, result_now=now, result_if_passes=now + total)

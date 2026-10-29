@@ -103,14 +103,18 @@ A Política só aparece quando a expansão **Governo & Política** está ligada.
 
 ## Governar
 
-Quem vence a eleição toma posse em 1º de janeiro e governa por 4 anos. A página **Governo** mostra a aprovação, os impostos em vigor, a fila do Congresso e a carteira do presidente. Até a primeira posse, um governo neutro do computador conduz o país e não muda impostos.
+Quem vence a eleição toma posse em 1º de janeiro e governa por 4 anos. A página **Governo** mostra a aprovação, os impostos e o gasto público em vigor, a fila do Congresso e a carteira do presidente. Até a primeira posse, um governo neutro do computador conduz o país e não muda impostos.
 
 ### Propor medidas
 
-O presidente propõe medidas pelo botão **Nova medida**. Dois tipos:
+O presidente propõe medidas pelo botão **Nova medida**. Três tipos:
 
 - **Imposto geral:** muda a alíquota do imposto sobre o lucro de ações, o teto de isenção de ações (R$ por mês), a tabela de imposto da renda fixa ou a alíquota das LCI/LCA. Alíquotas vão de 0% a 100%.
 - **Por setor ou segmento:** soma pontos de imposto aos ativos de um setor (até 20 pontos) ou isenta o setor. Ex.: +5 pontos num setor com imposto de 15% passa a cobrar 20% sobre o lucro dos ativos dele.
+
+- **Gasto público:** muda o **auxílio** e as **obras** (em % do PIB por ano) ou o **reajuste dos servidores** e o **das aposentadorias** (ganho real ao ano, acima da inflação). Cada medida anda um passo: até 0,5 ponto do PIB no auxílio e nas obras, até 3 pontos nos reajustes, para cima ou para baixo (o ganho real não fica abaixo de 0%). Todo janeiro a folha sobe a inflação mais o ganho real em vigor.
+
+Gasto mexe em preço. O dinheiro a mais vira consumo, o **IPCA de 12 meses** sobe uns meses depois (o efeito enche em 6 meses e cai pela metade a cada 12), o Banco Central sobe a **SELIC** 1,5 vez o que as medidas somam à inflação, e cada ponto de SELIC a mais tira 2,9% da bolsa no trimestre, mais nas ações de beta alto (as que se mexem mais que o Ibovespa). O CDI sobe junto com a SELIC. Ex.: um auxílio que soma 0,5 ponto à inflação leva a SELIC a +0,75 ponto e derruba a bolsa uns 2,2%. Cortar gasto faz o caminho inverso. As obras também somam ao crescimento do PIB. O efeito vale para a partida inteira, na história e no futuro gerado, e a série guardada não muda: o painel da **Economia** mostra a série da história tracejada, o efeito de cada medida e o Ibovespa com e sem elas.
 
 Antes de enviar, o diálogo mostra a **prévia**: o que a medida faz na carteira de cada jogador e o efeito esperado na aprovação. Só pode haver uma medida igual na fila por vez, e o presidente pode retirar uma medida enquanto ela espera a votação.
 

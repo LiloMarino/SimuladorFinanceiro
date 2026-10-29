@@ -55,6 +55,8 @@ from backend.features.government import (
     headlines,
     promises,
     second_round,
+    spending,
+    spending_panel,
     voters,
 )
 from backend.features.government import measures as rules
@@ -62,6 +64,8 @@ from backend.features.government.budget import BudgetCourse
 from backend.features.government.calendar import ElectionCycle, election_cycle
 from backend.features.government.measures import PolicyTimeline
 from backend.features.government.promises import Promise
+from backend.features.government.spending import SpendingTimeline
+from backend.features.government.spending_effects import SpendingEconomy
 from backend.features.government.state import (
     VIGENCE_DAYS,
     CampaignRecord,
@@ -80,8 +84,7 @@ from backend.features.tax_policy import TaxPolicy
 
 logger = logging.getLogger(__name__)
 
-# Alíquota e pontos somados a um setor vão até 100% e 20 pontos
-RATE_LIMIT = Decimal(1)
+# Pontos somados a um setor vão até 20 pontos
 SECTOR_EXTRA_LIMIT = Decimal("0.2")
 
 
@@ -123,13 +126,20 @@ class GovernmentBook:
         self._previous_day: date | None = None
         self._people: dict[int, UserDTO] = {}
         self._timeline = PolicyTimeline(self.state.measures.values())
-        # O orçamento lê a política de cada dia e a conta de largada da sala
+        self._spending = SpendingTimeline(self.state.measures.values())
+        # As séries e os preços da partida levam o efeito das medidas de gasto aprovadas
+        self._economy = SpendingEconomy(settings.id, settings.start_date)
+        self._economy.update(self.state.measures.values())
+        repository.economic.use_adjustment(settings.id, self._economy)
+        # O orçamento lê a política e o gasto de cada dia e a conta de largada da sala
         self._macro = macro or MacroCourse(settings.start_date)
+        self._macro.use_spending(self._economy.growth_points)
         self._budget = BudgetCourse(
             settings.start_date,
             self.policy,
             budget_rules.initial_account(settings.start_date, settings.initial_account),
             self._macro,
+            self.spending_on,
         )
         # O engine lê os impostos e o prêmio de risco de cada dia do governo
         engine.use_tax_policy(self.policy)
@@ -150,6 +160,28 @@ class GovernmentBook:
 
     def risk_premium_on(self, day: date) -> Decimal:
         return self._budget.premium_on(day)
+
+    def economy(self) -> SpendingEconomy:
+        return self._economy
+
+    def spending_timeline(self) -> SpendingTimeline:
+        return self._spending
+
+    def spending_on(self, day: date) -> Decimal:
+        """O gasto total do governo no dia, em fração do PIB por ano."""
+        return self._spending.spending_on(day)
+
+    def value_in_force(self, kind: MeasureKind, day: date) -> Decimal | None:
+        """O valor que a medida geral tem no país no dia; nulo na medida de setor."""
+        if kind.is_spending:
+            return self._spending.value_on(kind, day)
+        return rules.general_value(self.policy(day), kind)
+
+    def latest_value(self, kind: MeasureKind) -> Decimal | None:
+        """O valor da medida geral depois de todas as aprovadas valerem."""
+        if kind.is_spending:
+            return self._spending.latest(kind)
+        return rules.general_value(self._timeline.latest, kind)
 
     # Impostos e carteira do presidente
 
@@ -859,7 +891,7 @@ class GovernmentBook:
 
     def promise_value(self, promise: Promise, day: date) -> Decimal | None:
         """O que a medida prometida vale no país no dia; nulo na medida de setor."""
-        return rules.general_value(self.policy(day), promise.kind)
+        return self.value_in_force(promise.kind, day)
 
     def promise_exempt(self, promise: Promise, day: date) -> bool:
         rule = self.policy(day).sector_rule(promise.sector, promise.segment)
@@ -881,7 +913,7 @@ class GovernmentBook:
 
     def promise_baseline(self, kind: MeasureKind, day: date) -> Decimal | None:
         """O "era" de uma promessa nova: o que a medida muda, como está hoje."""
-        return rules.general_value(self.policy(day), kind)
+        return self.value_in_force(kind, day)
 
     def promises_open_reason(
         self, today: date, party: Party | None = None
@@ -973,7 +1005,7 @@ class GovernmentBook:
             return promise
         if item.sector is not None or item.segment is not None:
             raise UnprocessableEntityError("Essa medida não é de um setor.")
-        limit = None if kind is MeasureKind.STOCK_EXEMPTION else RATE_LIMIT
+        limit = promises.limit_of(kind)
         target = item.target
         if target is None or target < 0 or (limit is not None and target > limit):
             raise UnprocessableEntityError("Informe um alvo válido para a promessa.")
@@ -1161,11 +1193,14 @@ class GovernmentBook:
             budget=budget_panel.measure_budget(
                 self._budget,
                 self._timeline.latest,
+                self._spending,
                 draft,
                 today,
                 vote + timedelta(days=VIGENCE_DAYS),
                 self.term_end(),
             ),
+            inflation=spending_panel.inflation_effect(draft, today),
+            reactions=spending_panel.reactions(draft),
         )
 
     def _holdings(self, tickers: list[str]) -> list[MeasureHoldingDTO]:
@@ -1215,13 +1250,22 @@ class GovernmentBook:
         else:
             if sector is not None or segment is not None:
                 raise UnprocessableEntityError("Essa medida não é de um setor.")
-            limit = None if kind is MeasureKind.STOCK_EXEMPTION else RATE_LIMIT
+            limit = promises.limit_of(kind)
             if value is None or value < 0 or (limit is not None and value > limit):
                 raise UnprocessableEntityError("Informe um valor válido para a medida.")
-            before = rules.general_value(self._timeline.latest, kind)
+            before = self.latest_value(kind)
             if value == before:
                 raise ConflictError(
                     "Esse já é o valor em vigor: a medida não muda nada."
+                )
+            # Uma medida de gasto anda no máximo um passo de referência por vez
+            if (
+                kind.is_spending
+                and abs(value - required(before)) > spending.STEPS[kind]
+            ):
+                points = f"{spending.STEPS[kind] * 100:.1f}".replace(".", ",")
+                raise UnprocessableEntityError(
+                    f"A medida anda no máximo {points} ponto para cima ou para baixo."
                 )
         return Measure(
             id=self.state.next_measure_id,
@@ -1363,6 +1407,8 @@ class GovernmentBook:
             )
             if approved:
                 self._timeline = PolicyTimeline(self.state.measures.values())
+                self._spending = SpendingTimeline(self.state.measures.values())
+                self._economy.update(self.state.measures.values())
             self._notice(
                 GovernmentNoticeKind.MEASURE_VOTED,
                 self._people.get(measure.proposer_id),

@@ -27,6 +27,7 @@ export type RedeemFixedIncomeRequest = components["schemas"]["RedeemFixedIncomeR
 // Economic
 export type EconomicIndicators = components["schemas"]["EconomicIndicatorsDTO"];
 export type EconomyPanel = components["schemas"]["EconomyPanelDTO"];
+export type EconomyEffect = NonNullable<EconomyPanel["effects"]>[number];
 
 // Data center
 export type SeriesCoverage = components["schemas"]["SeriesCoverageDTO"];
@@ -209,6 +210,10 @@ export type Budget = components["schemas"]["BudgetDTO"];
 export type BudgetMonth = components["schemas"]["BudgetMonthDTO"];
 export type BudgetTax = components["schemas"]["BudgetTaxDTO"];
 export type BudgetEffect = components["schemas"]["BudgetEffectDTO"];
+export type SpendingRow = GovernmentPanel["spending"]["rows"][number];
+export type InflationEffect = NonNullable<MeasurePreview["inflation"]>;
+export type GroupReaction = MeasurePreview["reactions"][number];
+export type EffectPhase = components["schemas"]["EffectPhase"];
 export type InitialAccount = components["schemas"]["InitialAccount"];
 export type InitialAccountPreview = components["schemas"]["InitialAccountDTO"];
 export type CampaignPanel = components["schemas"]["CampaignPanelDTO"];

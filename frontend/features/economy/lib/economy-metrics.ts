@@ -33,3 +33,36 @@ export const REAL_RATE: MetricInfo = {
     "Positivo, guardar dinheiro na renda fixa ganha da inflação; negativo, perde. Acima de uns 7% esfria a economia; perto de zero ou negativo, aquece e puxa a inflação.",
   format: percent,
 };
+
+export const IBOVESPA: MetricInfo = {
+  label: "Ibovespa",
+  description: "O índice das ações mais negociadas da bolsa, em pontos",
+  definition:
+    "Uma média do preço das maiores ações da bolsa, em pontos. Sobe quando a bolsa em geral sobe e cai quando ela cai. Aqui ele já conta o efeito das medidas de gasto: a SELIC mais alta tira 2,9% da bolsa por ponto, no trimestre.",
+  example: "Ex.: de 78.800 para 75.700 pontos é uma queda de 3,9%: uma carteira que acompanha a bolsa perde 3,9%.",
+  reading:
+    "Mais alto é bom para quem tem ações. Compare com a história ao lado: a diferença é o que as medidas do governo fizeram.",
+  format: (value) => Number(value).toLocaleString("pt-BR", { maximumFractionDigits: 0 }),
+};
+
+export const EFFECT_IPCA = {
+  definition:
+    "Quantos pontos a medida soma hoje ao IPCA de 12 meses. O efeito chega meses depois de a medida valer, fica cheio e cai pela metade a cada 12 meses.",
+  example: "Ex.: +0,55 com o IPCA da história em 2,40% leva a inflação da partida a 2,95%.",
+  reading:
+    "Vermelho é inflação a mais; verde, a menos. Zero ou traço quer dizer que o efeito ainda não chegou ou já sumiu.",
+};
+
+export const EFFECT_SELIC = {
+  definition:
+    "O quanto o Banco Central sobe (ou corta) a SELIC por causa da inflação que a medida soma: 1,5 vez o tanto.",
+  example: "Ex.: +0,55 ponto de inflação leva a +0,83 ponto de SELIC (0,55 × 1,5).",
+  reading: "SELIC mais alta encarece o crédito e faz a renda fixa render mais; menos crescimento no curto prazo.",
+};
+
+export const EFFECT_STOCKS = {
+  definition:
+    "Quanto a bolsa anda no trimestre por causa da SELIC que a medida move: cada ponto de SELIC a mais tira 2,9% da bolsa, e ações de beta alto (que se mexem mais que o Ibovespa) sentem mais.",
+  example: "Ex.: +0,83 ponto de SELIC tira uns 2,4% do Ibovespa no trimestre.",
+  reading: "Negativo, a bolsa cai por causa da medida; positivo, sobe. Vale para toda ação, ajustada pelo beta dela.",
+};

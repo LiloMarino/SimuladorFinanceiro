@@ -147,9 +147,11 @@ def index_value_on(series: IndicatorSeries, day: date) -> Decimal | None:
     return history.last_known(day)
 
 
-def last_known_value(series: IndicatorSeries, on: date) -> Decimal | None:
-    """Último valor publicado até `on`: o que um investidor conhece naquele dia."""
-    history = repository.economic.get_history(series)
+def last_known_value(
+    series: IndicatorSeries, on: date, *, stored: bool = False
+) -> Decimal | None:
+    """Último valor publicado até `on`: o que um investidor conhece naquele dia; com `stored`, o da série guardada."""
+    history = repository.economic.get_history(series, stored=stored)
     if series is IndicatorSeries.IPCA:
         return history.last_known(on.replace(day=1))
     return history.last_known(on)
@@ -177,21 +179,23 @@ def annualize_daily(value: Decimal) -> Decimal:
     return (1 + value / 100) ** BUSINESS_DAYS_PER_YEAR - 1
 
 
-def annual_index_rate(series: IndicatorSeries, on: date) -> Decimal:
+def annual_index_rate(
+    series: IndicatorSeries, on: date, *, stored: bool = False
+) -> Decimal:
     """
-    Taxa anual do indexador conhecida em `on` (0.149 = 14,9% a.a.).
+    Taxa anual do indexador conhecida em `on` (0.149 = 14,9% a.a.); com `stored`, a da série guardada, sem o efeito das medidas do governo.
 
     CDI/SELIC: a taxa do dia composta por 252 dias úteis. IPCA: o acumulado dos
     últimos 12 meses.
     """
     if series is IndicatorSeries.IPCA:
-        history = repository.economic.get_history(series)
+        history = repository.economic.get_history(series, stored=stored)
         growth = Decimal(1)
         for value in history.values_until(on.replace(day=1), IPCA_WINDOW_MONTHS):
             growth *= 1 + value / 100
         return growth - 1
 
-    value = last_known_value(series, on)
+    value = last_known_value(series, on, stored=stored)
     if value is None:
         return Decimal(0)
     return annualize_daily(value)

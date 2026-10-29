@@ -583,7 +583,7 @@ class CampaignEntryKind(Enum):
 
 
 class MeasureKind(Enum):
-    """O que uma medida muda: um imposto geral ou a regra de um setor ou segmento."""
+    """O que uma medida muda: um imposto geral, a regra de um setor ou segmento ou um gasto público."""
 
     # Alíquota do ganho comum nas vendas de ações
     STOCK_PROFIT_RATE = "STOCK_PROFIT_RATE"
@@ -596,10 +596,37 @@ class MeasureKind(Enum):
     SECTOR_EXEMPT = "SECTOR_EXEMPT"
     # Soma pontos à alíquota do ganho do setor
     SECTOR_TAX = "SECTOR_TAX"
+    # Gasto público: o auxílio e as obras em fração do PIB por ano, os reajustes em fração ao ano
+    WELFARE_SPENDING = "WELFARE_SPENDING"
+    SERVANT_RAISE = "SERVANT_RAISE"
+    RETIREE_RAISE = "RETIREE_RAISE"
+    PUBLIC_WORKS = "PUBLIC_WORKS"
 
     @property
     def is_sector(self) -> bool:
         return self in (MeasureKind.SECTOR_EXEMPT, MeasureKind.SECTOR_TAX)
+
+    @property
+    def is_spending(self) -> bool:
+        return self in (
+            MeasureKind.WELFARE_SPENDING,
+            MeasureKind.SERVANT_RAISE,
+            MeasureKind.RETIREE_RAISE,
+            MeasureKind.PUBLIC_WORKS,
+        )
+
+
+class EffectPhase(Enum):
+    """Onde está o efeito de uma medida de gasto na economia."""
+
+    # A medida foi aprovada e ainda não vale
+    WAITING = "WAITING"
+    # Vale e o efeito ainda enche
+    RISING = "RISING"
+    # Passou do cheio e cai pela metade a cada meia-vida
+    FALLING = "FALLING"
+    # Restou tão pouco que já não pesa
+    FADED = "FADED"
 
 
 class MeasureStatus(Enum):

@@ -12,7 +12,7 @@ from typing import Any
 
 from backend.core.enum import MeasureKind, PromiseState, VoterGroup, VoterValue
 from backend.core.utils import required
-from backend.features.government import voters
+from backend.features.government import spending, voters
 
 ZERO = Decimal(0)
 ONE = Decimal(1)
@@ -35,6 +35,8 @@ WEIGHED_SHARE = Decimal("0.5")
 COMPUTER_PROMISES = 2
 # As medidas gerais que se prometem: as que têm um valor em vigor
 GENERAL_KINDS = tuple(kind for kind in MeasureKind if not kind.is_sector)
+# Entre elas, os impostos; o resto é gasto público
+TAX_KINDS = tuple(kind for kind in GENERAL_KINDS if not kind.is_spending)
 
 
 @dataclass(frozen=True)
@@ -67,6 +69,13 @@ class GroupEffect:
 GroupEffects = dict[VoterGroup, GroupEffect]
 
 
+def limit_of(kind: MeasureKind) -> Decimal | None:
+    """O maior valor que uma medida geral leva: 100% nas alíquotas, o teto do gasto nos gastos e nenhum na isenção das vendas."""
+    if kind is MeasureKind.STOCK_EXEMPTION:
+        return None
+    return spending.LIMITS.get(kind, ONE)
+
+
 def promisable(kind: MeasureKind) -> bool:
     """O imposto geral e a isenção de setor se prometem; somar pontos ao IR de um setor, não."""
     return kind is not MeasureKind.SECTOR_TAX
@@ -79,7 +88,9 @@ def effects(promise: Promise) -> dict[VoterValue, Decimal]:
 
 def reaction(group: VoterGroup, promise: Promise) -> Decimal:
     """Quanto o grupo quer o que a promessa faz: positivo quer, negativo não quer."""
-    return voters.reaction(group, effects(promise))
+    return voters.measure_reaction(
+        group, promise.kind, promise.target, promise.baseline
+    )
 
 
 def wanted(group: VoterGroup, promise: Promise) -> Decimal:
@@ -190,23 +201,28 @@ def retreat(old: Promise, new: Promise | None) -> dict[VoterGroup, Decimal]:
     dropped = _dropped(old, new)
     if dropped is None:
         return dict.fromkeys(VoterGroup, ZERO)
+    value, before = dropped
     return {
-        g: RETREAT_SHARE * BREAK * max(ZERO, voters.reaction(g, dropped))
+        g: RETREAT_SHARE
+        * BREAK
+        * max(ZERO, voters.measure_reaction(g, old.kind, value, before))
         for g in VoterGroup
     }
 
 
-def _dropped(old: Promise, new: Promise | None) -> dict[VoterValue, Decimal] | None:
-    """O efeito do pedaço da promessa que deixou de valer; nulo quando nada foi abandonado."""
+def _dropped(
+    old: Promise, new: Promise | None
+) -> tuple[Decimal | None, Decimal | None] | None:
+    """O pedaço da promessa que deixou de valer, como valor e "era" da medida; nulo quando nada foi abandonado."""
     if new is None or old.kind.is_sector:
-        return effects(old)
+        return old.target, old.baseline
     old_walk = required(old.target) - required(old.baseline)
     new_walk = required(new.target) - required(old.baseline)
     same_side = old_walk * new_walk > 0
     if not same_side:
-        return effects(old)
+        return old.target, old.baseline
     if abs(new_walk) < abs(old_walk):
-        return voters.measure_effects(old.kind, old.target, new.target)
+        return old.target, new.target
     return None
 
 
@@ -266,7 +282,8 @@ def computer_picks(
         reference = voters.EFFECT_STEPS[kind]
         best: tuple[Decimal, Promise] | None = None
         for target in (baseline - reference, baseline + reference):
-            if target < 0 or (kind is not MeasureKind.STOCK_EXEMPTION and target > 1):
+            limit = limit_of(kind)
+            if target < 0 or (limit is not None and target > limit):
                 continue
             promise = Promise(kind, target, baseline, None, None, day)
             score = sum(

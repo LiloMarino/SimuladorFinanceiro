@@ -6,8 +6,8 @@ import {
   displayShortMonthYear,
   parseLocalDate,
 } from "@/shared/lib/utils/display";
-import { displayPremiumPoints } from "@/shared/lib/budget-metrics";
-import type { EconomyPanel } from "@/types";
+import { isSpending, SPENDING_LABEL } from "@/shared/lib/spending-kinds";
+import type { EconomyEffect, EconomyPanel } from "@/types";
 
 type EconomyPoint = EconomyPanel["points"][number];
 type CopomChange = EconomyPanel["copom_changes"][number];
@@ -26,9 +26,17 @@ export type EconomyRow = {
   unemployment: number;
   /** Só nas partidas com a expansão Governo */
   debt: number | null;
+  /** O Ibovespa, em pontos; nulo quando a série não cobre o dia */
+  ibovespa: number | null;
+  /** A SELIC, o IPCA e o Ibovespa da história, sem as medidas de gasto; nulos sem a expansão Governo */
+  storedSelic: number | null;
+  storedIpca: number | null;
+  storedIbovespa: number | null;
   /** Mudança da SELIC decidida nesse dia, quando houve */
   copom: CopomChange | undefined;
 };
+
+const nullable = (value: string | null) => (value === null ? null : Number(value));
 
 /** Os pontos do painel em linhas do gráfico, com a mudança do Copom do dia ligada à linha dele. */
 export function economyRows(panel: EconomyPanel, range: EconomyRange = "all"): EconomyRow[] {
@@ -50,6 +58,10 @@ export function economyRows(panel: EconomyPanel, range: EconomyRange = "all"): E
       growth: Number(point.growth),
       unemployment: Number(point.unemployment),
       debt: point.debt === null ? null : Number(point.debt),
+      ibovespa: nullable(point.ibovespa),
+      storedSelic: nullable(point.stored_selic),
+      storedIpca: nullable(point.stored_ipca),
+      storedIbovespa: nullable(point.stored_ibovespa),
       copom: changeByDate.get(point.date),
     }))
     .filter((row) => row.time >= since);
@@ -131,15 +143,6 @@ export function unemploymentExample(point: EconomyPoint): string {
   return `De cada 100 pessoas que procuram emprego, ${per100} não acham.`;
 }
 
-/** Com prêmio, o aviso de que a dívida já encarece o Tesouro. */
-export function debtNote(premium: string): string {
-  return Number(premium) > 0 ? `prêmio de ${displayPremiumPoints(premium)}` : "sem prêmio de risco";
-}
-
-export function debtTone(premium: string): "warning" | "default" {
-  return Number(premium) > 0 ? "warning" : "default";
-}
-
 type GrowthParts = EconomyPanel["growth_parts"];
 
 export type GrowthLine = {
@@ -188,4 +191,48 @@ export function growthLines(parts: GrowthParts): GrowthLine[] {
 function signedPercent(fraction: number) {
   const percent = Math.round(fraction * 100);
   return `${percent < 0 ? "−" : "+"}${Math.abs(percent)}%`;
+}
+
+const DAYS_PER_MONTH = 30.4375;
+const DAY_MS = 86_400_000;
+
+/** O quanto cada efeito soma à inflação em `time`, em pontos de IPCA: a curva da medida no mês que já correu desde que ela valeu. */
+export function effectShares(
+  effects: readonly EconomyEffect[],
+  time: number,
+): { kind: EconomyEffect["kind"]; label: string; points: number }[] {
+  return effects
+    .map((effect) => {
+      const month = Math.floor((time - parseLocalDate(effect.effective).getTime()) / DAY_MS / DAYS_PER_MONTH);
+      const points = month < 0 ? 0 : Number(effect.curve[month] ?? 0);
+      return { kind: effect.kind, label: effectLabel(effect), points };
+    })
+    .filter((share) => Math.abs(share.points) >= 0.005)
+    .sort((a, b) => Math.abs(b.points) - Math.abs(a.points));
+}
+
+/** O nome curto do efeito: o tipo da medida, sem o "de A para B". */
+export const effectLabel = (effect: Pick<EconomyEffect, "kind">) =>
+  isSpending(effect.kind) ? SPENDING_LABEL[effect.kind] : effect.kind;
+
+/** A soma de um campo dos efeitos ativos (pontos de IPCA ou de SELIC). */
+export const sumEffects = (effects: readonly EconomyEffect[], key: "inflation" | "selic") =>
+  effects.reduce((sum, effect) => sum + Number(effect[key]), 0);
+
+export type InflationPart = { kind: EconomyEffect["kind"]; label: string; points: number };
+
+/** O IPCA de hoje aberto por tipo de medida: o que a história já trazia e o que cada tipo soma ou tira, do maior ao menor. */
+export function inflationBreakdown(effects: readonly EconomyEffect[]): InflationPart[] {
+  const byKind = new Map<EconomyEffect["kind"], number>();
+  for (const effect of effects) byKind.set(effect.kind, (byKind.get(effect.kind) ?? 0) + Number(effect.inflation));
+  return [...byKind]
+    .map(([kind, points]) => ({ kind, label: effectLabel({ kind }), points }))
+    .filter((part) => Math.abs(part.points) >= 0.005)
+    .sort((a, b) => b.points - a.points);
+}
+
+/** O quanto a bolsa anda por causa das medidas: o Ibovespa da partida contra o da história (−0.039 = 3,9% abaixo). */
+export function stocksEffect(point: EconomyPoint): number | null {
+  if (point.ibovespa === null || point.stored_ibovespa === null || Number(point.stored_ibovespa) === 0) return null;
+  return Number(point.ibovespa) / Number(point.stored_ibovespa) - 1;
 }

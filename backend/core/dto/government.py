@@ -17,6 +17,7 @@ from backend.core.dto.promises import (
 )
 from backend.core.enum import (
     ApprovalFactorKind,
+    EffectPhase,
     ElectionPhase,
     GroupReading,
     GroupVerdict,
@@ -416,8 +417,10 @@ class MeasureDTO(BaseDTO):
     days_left: int | None
     # Pontos no alvo da aprovação geral quando a medida vale cheia
     impact: int
-    # Quanto a medida muda a receita do governo, em fração do PIB por ano
+    # Quanto a medida muda o resultado do governo (receita menos gasto), em fração do PIB por ano
     budget_effect: Decimal
+    # Pontos de IPCA que a medida soma no pico, em 12 meses; negativo é corte. Zero nos impostos
+    inflation_effect: Decimal
     # A medida cumpre uma promessa da chapa que governa
     fulfills_promise: bool
     can_withdraw: bool
@@ -512,6 +515,40 @@ class TaxRowDTO(BaseDTO):
     promised: bool
 
 
+class SpendingRowDTO(BaseDTO):
+    """Uma medida de gasto no cartão Gasto público: o valor em vigor, o que pesa e o que soma à inflação."""
+
+    kind: MeasureKind
+    # O valor em vigor: fração do PIB por ano (auxílio, obras) ou ganho real ao ano (reajustes)
+    value: Decimal
+    # O dia em que esse valor passou a valer; nulo no valor de largada
+    since: date | None
+    # Quanto a medida pesa no gasto do país, em fração do PIB por ano e em reais por ano
+    cost: Decimal
+    cost_amount: Decimal
+    # O quanto o valor anda por passo de referência (também o máximo de uma medida) e o teto
+    step: Decimal
+    limit: Decimal
+    # Pontos de IPCA que a última mudança soma hoje, a fase dela e o desenho mês a mês
+    inflation: Decimal
+    phase: EffectPhase | None
+    curve: list[Decimal]
+    elapsed_months: int | None
+    # A medida da fila ou esperando a vigência que muda esta linha
+    pending: MeasureDTO | None
+    promised: bool
+
+
+class SpendingCardDTO(BaseDTO):
+    rows: list[SpendingRowDTO]
+    # O resto do gasto, que as medidas não mexem, o gasto total e quanto ele passa do de largada
+    rest: Decimal
+    total: Decimal
+    total_difference: Decimal
+    # Pontos de IPCA que todas as medidas somam hoje
+    inflation: Decimal
+
+
 class SectorMeasureDTO(BaseDTO):
     measure: MeasureDTO
     assets: int
@@ -574,6 +611,7 @@ class GovernmentPanelDTO(BaseDTO):
     next_election: date
     approval: ApprovalDTO | None
     taxes: list[TaxRowDTO]
+    spending: SpendingCardDTO
     sector_measures: list[SectorMeasureDTO]
     queue: list[MeasureDTO]
     # A fila inteira do Congresso, se passar
@@ -627,6 +665,35 @@ class MeasureHoldingDTO(BaseDTO):
     value: Decimal
 
 
+class InflationCurvePointDTO(BaseDTO):
+    month: int
+    points: Decimal
+
+
+class InflationEffectDTO(BaseDTO):
+    """O que uma medida de gasto faz com a inflação, a SELIC e a bolsa, estimado."""
+
+    # Pontos de IPCA em 12 meses no pico (negativo é corte) e o mês em que o efeito vale cheio
+    peak: Decimal
+    peak_month: int
+    curve: list[InflationCurvePointDTO]
+    # IPCA em 12 meses e SELIC de hoje e no pico, em fração ao ano, se nada mais mudar
+    ipca_before: Decimal
+    ipca_after: Decimal
+    selic_before: Decimal
+    selic_after: Decimal
+    # Variação da bolsa (fração) no trimestre da alta da SELIC; mais nas ações de beta alto
+    stocks: Decimal
+    # Pontos de crescimento do PIB que a medida soma no pico (as obras)
+    growth: Decimal
+
+
+class GroupReactionDTO(BaseDTO):
+    group: VoterGroup
+    # Pontos no alvo de apoio do grupo quando a medida vale cheia
+    points: Decimal
+
+
 class MeasurePreviewDTO(BaseDTO):
     title: str
     # Quanto a medida, aprovada, move o perfil do partido do presidente
@@ -640,6 +707,10 @@ class MeasurePreviewDTO(BaseDTO):
     holdings: list[MeasureHoldingDTO]
     # O que a medida faz com a conta do governo, estimado
     budget: BudgetEffectDTO
+    # A inflação, a SELIC e a bolsa esperadas; só nas medidas de gasto
+    inflation: InflationEffectDTO | None
+    # Como cada grupo de eleitores reage
+    reactions: list[GroupReactionDTO]
 
 
 # Requisições

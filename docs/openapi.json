@@ -8721,6 +8721,90 @@
         "title": "AchievementUnlockedEventDTO",
         "description": "As conquistas que saíram no último tick, de uma vez, para um toast só."
       },
+      "ActiveEffectDTO": {
+        "properties": {
+          "measure_id": {
+            "type": "integer",
+            "title": "Measure Id"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/MeasureKind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "before": {
+            "type": "string",
+            "title": "Before"
+          },
+          "effective": {
+            "type": "string",
+            "format": "date",
+            "title": "Effective"
+          },
+          "peak_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Peak On"
+          },
+          "faded_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Faded On"
+          },
+          "phase": {
+            "$ref": "#/components/schemas/EffectPhase"
+          },
+          "inflation": {
+            "type": "string",
+            "title": "Inflation"
+          },
+          "selic": {
+            "type": "string",
+            "title": "Selic"
+          },
+          "stocks": {
+            "type": "string",
+            "title": "Stocks"
+          },
+          "curve": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Curve"
+          },
+          "elapsed_months": {
+            "type": "integer",
+            "title": "Elapsed Months"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "measure_id",
+          "kind",
+          "title",
+          "value",
+          "before",
+          "effective",
+          "peak_on",
+          "faded_on",
+          "phase",
+          "inflation",
+          "selic",
+          "stocks",
+          "curve",
+          "elapsed_months"
+        ],
+        "title": "ActiveEffectDTO",
+        "description": "O efeito de uma medida de gasto aprovada na economia da partida, hoje."
+      },
       "AllocationItemDTO": {
         "properties": {
           "label": {
@@ -10136,6 +10220,22 @@
             "type": "string",
             "title": "Revenue Change Amount"
           },
+          "spending_change": {
+            "type": "string",
+            "title": "Spending Change"
+          },
+          "spending_change_amount": {
+            "type": "string",
+            "title": "Spending Change Amount"
+          },
+          "spending_before": {
+            "type": "string",
+            "title": "Spending Before"
+          },
+          "spending_after": {
+            "type": "string",
+            "title": "Spending After"
+          },
           "tax_name": {
             "type": "string",
             "title": "Tax Name"
@@ -10197,6 +10297,10 @@
         "required": [
           "revenue_change",
           "revenue_change_amount",
+          "spending_change",
+          "spending_change_amount",
+          "spending_before",
+          "spending_after",
           "tax_name",
           "rate_before",
           "rate_after",
@@ -12789,6 +12893,20 @@
                 "type": "null"
               }
             ]
+          },
+          "effects": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ActiveEffectDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effects"
           }
         },
         "additionalProperties": false,
@@ -12797,7 +12915,8 @@
           "points",
           "copom_changes",
           "growth_parts",
-          "debt"
+          "debt",
+          "effects"
         ],
         "title": "EconomyPanelDTO"
       },
@@ -12857,6 +12976,50 @@
               }
             ],
             "title": "Premium"
+          },
+          "ibovespa": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ibovespa"
+          },
+          "stored_selic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stored Selic"
+          },
+          "stored_ipca": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stored Ipca"
+          },
+          "stored_ibovespa": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stored Ibovespa"
           }
         },
         "additionalProperties": false,
@@ -12871,10 +13034,25 @@
           "growth",
           "unemployment",
           "debt",
-          "premium"
+          "premium",
+          "ibovespa",
+          "stored_selic",
+          "stored_ipca",
+          "stored_ibovespa"
         ],
         "title": "EconomyPointDTO",
         "description": "A economia num dia da partida; as taxas são frações (0.1425 = 14,25% ao ano)."
+      },
+      "EffectPhase": {
+        "type": "string",
+        "enum": [
+          "WAITING",
+          "RISING",
+          "FALLING",
+          "FADED"
+        ],
+        "title": "EffectPhase",
+        "description": "Onde está o efeito de uma medida de gasto na economia."
       },
       "ElectionDatesDTO": {
         "properties": {
@@ -14492,6 +14670,9 @@
             "type": "array",
             "title": "Taxes"
           },
+          "spending": {
+            "$ref": "#/components/schemas/SpendingCardDTO"
+          },
           "sector_measures": {
             "items": {
               "$ref": "#/components/schemas/SectorMeasureDTO"
@@ -14567,6 +14748,7 @@
           "next_election",
           "approval",
           "taxes",
+          "spending",
           "sector_measures",
           "queue",
           "queue_budget",
@@ -14966,6 +15148,24 @@
           "margin"
         ],
         "title": "GroupPollDTO"
+      },
+      "GroupReactionDTO": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/VoterGroup"
+          },
+          "points": {
+            "type": "string",
+            "title": "Points"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group",
+          "points"
+        ],
+        "title": "GroupReactionDTO"
       },
       "GroupReading": {
         "type": "string",
@@ -15801,6 +16001,83 @@
         "additionalProperties": false,
         "type": "object",
         "title": "IndicatorsRequestDTO"
+      },
+      "InflationCurvePointDTO": {
+        "properties": {
+          "month": {
+            "type": "integer",
+            "title": "Month"
+          },
+          "points": {
+            "type": "string",
+            "title": "Points"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "points"
+        ],
+        "title": "InflationCurvePointDTO"
+      },
+      "InflationEffectDTO": {
+        "properties": {
+          "peak": {
+            "type": "string",
+            "title": "Peak"
+          },
+          "peak_month": {
+            "type": "integer",
+            "title": "Peak Month"
+          },
+          "curve": {
+            "items": {
+              "$ref": "#/components/schemas/InflationCurvePointDTO"
+            },
+            "type": "array",
+            "title": "Curve"
+          },
+          "ipca_before": {
+            "type": "string",
+            "title": "Ipca Before"
+          },
+          "ipca_after": {
+            "type": "string",
+            "title": "Ipca After"
+          },
+          "selic_before": {
+            "type": "string",
+            "title": "Selic Before"
+          },
+          "selic_after": {
+            "type": "string",
+            "title": "Selic After"
+          },
+          "stocks": {
+            "type": "string",
+            "title": "Stocks"
+          },
+          "growth": {
+            "type": "string",
+            "title": "Growth"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "peak",
+          "peak_month",
+          "curve",
+          "ipca_before",
+          "ipca_after",
+          "selic_before",
+          "selic_after",
+          "stocks",
+          "growth"
+        ],
+        "title": "InflationEffectDTO",
+        "description": "O que uma medida de gasto faz com a inflação, a SELIC e a bolsa, estimado."
       },
       "InitialAccount": {
         "type": "string",
@@ -16836,6 +17113,10 @@
             "type": "string",
             "title": "Budget Effect"
           },
+          "inflation_effect": {
+            "type": "string",
+            "title": "Inflation Effect"
+          },
           "fulfills_promise": {
             "type": "boolean",
             "title": "Fulfills Promise"
@@ -16868,6 +17149,7 @@
           "days_left",
           "impact",
           "budget_effect",
+          "inflation_effect",
           "fulfills_promise",
           "can_withdraw",
           "can_repropose"
@@ -16907,10 +17189,14 @@
           "FIXED_INCOME_TABLE",
           "LCI_LCA_RATE",
           "SECTOR_EXEMPT",
-          "SECTOR_TAX"
+          "SECTOR_TAX",
+          "WELFARE_SPENDING",
+          "SERVANT_RAISE",
+          "RETIREE_RAISE",
+          "PUBLIC_WORKS"
         ],
         "title": "MeasureKind",
-        "description": "O que uma medida muda: um imposto geral ou a regra de um setor ou segmento."
+        "description": "O que uma medida muda: um imposto geral, a regra de um setor ou segmento ou um gasto público."
       },
       "MeasurePreviewDTO": {
         "properties": {
@@ -16963,6 +17249,23 @@
           },
           "budget": {
             "$ref": "#/components/schemas/BudgetEffectDTO"
+          },
+          "inflation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InflationEffectDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reactions": {
+            "items": {
+              "$ref": "#/components/schemas/GroupReactionDTO"
+            },
+            "type": "array",
+            "title": "Reactions"
           }
         },
         "additionalProperties": false,
@@ -16976,7 +17279,9 @@
           "effective",
           "assets",
           "holdings",
-          "budget"
+          "budget",
+          "inflation",
+          "reactions"
         ],
         "title": "MeasurePreviewDTO"
       },
@@ -21265,7 +21570,7 @@
           "result_if_passes"
         ],
         "title": "QueueBudgetDTO",
-        "description": "A fila inteira do Congresso, se passar: o que muda na receita e no resultado."
+        "description": "A fila inteira do Congresso, se passar: o que muda no resultado do governo."
       },
       "RankingMoveDTO": {
         "properties": {
@@ -24207,6 +24512,147 @@
         ],
         "title": "SpeedUpdateEventDTO",
         "description": "Nova velocidade da partida; com ela parada (0), o motivo da pausa."
+      },
+      "SpendingCardDTO": {
+        "properties": {
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/SpendingRowDTO"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "rest": {
+            "type": "string",
+            "title": "Rest"
+          },
+          "total": {
+            "type": "string",
+            "title": "Total"
+          },
+          "total_difference": {
+            "type": "string",
+            "title": "Total Difference"
+          },
+          "inflation": {
+            "type": "string",
+            "title": "Inflation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rows",
+          "rest",
+          "total",
+          "total_difference",
+          "inflation"
+        ],
+        "title": "SpendingCardDTO"
+      },
+      "SpendingRowDTO": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/MeasureKind"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Since"
+          },
+          "cost": {
+            "type": "string",
+            "title": "Cost"
+          },
+          "cost_amount": {
+            "type": "string",
+            "title": "Cost Amount"
+          },
+          "step": {
+            "type": "string",
+            "title": "Step"
+          },
+          "limit": {
+            "type": "string",
+            "title": "Limit"
+          },
+          "inflation": {
+            "type": "string",
+            "title": "Inflation"
+          },
+          "phase": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EffectPhase"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "curve": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Curve"
+          },
+          "elapsed_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elapsed Months"
+          },
+          "pending": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MeasureDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "promised": {
+            "type": "boolean",
+            "title": "Promised"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "value",
+          "since",
+          "cost",
+          "cost_amount",
+          "step",
+          "limit",
+          "inflation",
+          "phase",
+          "curve",
+          "elapsed_months",
+          "pending",
+          "promised"
+        ],
+        "title": "SpendingRowDTO",
+        "description": "Uma medida de gasto no cartão Gasto público: o valor em vigor, o que pesa e o que soma à inflação."
       },
       "StatisticsNextUpdateDTO": {
         "properties": {

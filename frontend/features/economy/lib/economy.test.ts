@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { EconomyPanel } from "@/types";
+import type { EconomyEffect, EconomyPanel } from "@/types";
 import {
   copomLabel,
-  debtNote,
   economyRows,
+  effectShares,
+  inflationBreakdown,
+  stocksEffect,
+  sumEffects,
   growthLines,
   ipcaExample,
   lastCopomNote,
@@ -21,6 +24,10 @@ const point = (date: string, selic: string, ipca: string, target = "0.035", grow
   unemployment: "0.09",
   debt: null,
   premium: null,
+  ibovespa: null,
+  stored_selic: null,
+  stored_ipca: null,
+  stored_ibovespa: null,
   date,
   selic,
   ipca,
@@ -48,6 +55,7 @@ describe("economyRows", () => {
       copom_changes: [rise],
       growth_parts: growthParts,
       debt: null,
+      effects: null,
     };
     const [first, second] = economyRows(panel);
     expect(first?.copom).toBeUndefined();
@@ -79,6 +87,7 @@ describe("economyRows", () => {
     copom_changes: [],
     growth_parts: growthParts,
     debt: null,
+    effects: null,
   };
 
   it("monta a faixa da meta com a tolerância para os dois lados", () => {
@@ -181,9 +190,55 @@ describe("unemploymentExample", () => {
   });
 });
 
-describe("debtNote", () => {
-  it("avisa o prêmio em pontos, ou que não há", () => {
-    expect(debtNote("0.0097")).toBe("prêmio de 0,97 ponto");
-    expect(debtNote("0")).toBe("sem prêmio de risco");
+const effect = (kind: EconomyEffect["kind"], inflation: string, curve: string[] = []): EconomyEffect => ({
+  measure_id: 1,
+  kind,
+  title: "Auxílio: de 0,9% para 1,4% do PIB",
+  value: "0.014",
+  before: "0.009",
+  effective: "2020-01-10",
+  peak_on: "2020-07-10",
+  faded_on: "2021-08-10",
+  phase: "RISING",
+  inflation,
+  selic: String(Number(inflation) * 1.5),
+  stocks: "-0.02",
+  curve,
+  elapsed_months: 2,
+});
+
+describe("efeitos das medidas", () => {
+  const effects = [
+    effect("WELFARE_SPENDING", "0.55"),
+    effect("PUBLIC_WORKS", "0.2"),
+    effect("SERVANT_RAISE", "-0.1"),
+    effect("WELFARE_SPENDING", "0.25"),
+  ];
+
+  it("soma os pontos de IPCA e de SELIC", () => {
+    expect(sumEffects(effects, "inflation")).toBeCloseTo(0.9, 6);
+    expect(sumEffects(effects, "selic")).toBeCloseTo(1.35, 6);
+  });
+
+  it("agrupa por tipo de medida, do que mais soma ao que tira", () => {
+    expect(inflationBreakdown(effects).map((part) => [part.label, Math.round(part.points * 100) / 100])).toEqual([
+      ["Auxílio", 0.8],
+      ["Obras", 0.2],
+      ["Reajuste dos servidores", -0.1],
+    ]);
+  });
+
+  it("lê a curva no mês que já correu desde a vigência", () => {
+    const withCurve = [effect("WELFARE_SPENDING", "0.5", ["0", "0.1", "0.2", "0.3"])];
+    // 2 meses e meio depois de 10 jan: mês 2 da curva
+    const shares = effectShares(withCurve, new Date(2020, 2, 25).getTime());
+    expect(shares).toEqual([{ kind: "WELFARE_SPENDING", label: "Auxílio", points: 0.2 }]);
+    expect(effectShares(withCurve, new Date(2019, 11, 1).getTime())).toEqual([]);
+  });
+
+  it("compara o Ibovespa da partida com o da história", () => {
+    const today = { ...point("2020-04-14", "0.05", "0.03"), ibovespa: "75700", stored_ibovespa: "78800" };
+    expect(stocksEffect(today)).toBeCloseTo(-0.0393, 3);
+    expect(stocksEffect(point("2020-04-14", "0.05", "0.03"))).toBeNull();
   });
 });

@@ -14,8 +14,9 @@ import { InfoHint } from "@/shared/components/info-hint";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { displayDate, displayPercent, displayShortMonthYear } from "@/shared/lib/utils/display";
+import { signedIpca } from "@/shared/lib/effects";
 import type { EconomyPanel } from "@/types";
-import { copomLabel, economyRows, type EconomyRange, type EconomyRow } from "../lib/economy";
+import { copomLabel, economyRows, effectShares, type EconomyRange, type EconomyRow } from "../lib/economy";
 import { IPCA, REAL_RATE, SELIC } from "../lib/economy-metrics";
 
 const TICK = { fontSize: 10.5, fill: "var(--faint-foreground)" };
@@ -25,7 +26,8 @@ const TARGET_COLOR = "var(--muted-foreground)";
 
 type EconomyChartProps = { panel: EconomyPanel };
 
-function Legend() {
+/** `measured`: a partida tem a expansão Governo, e a linha tracejada mostra a história sem as medidas. */
+function Legend({ measured }: { measured: boolean }) {
   return (
     <ul className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-muted-foreground">
       <li className="flex items-center gap-1.5">
@@ -50,13 +52,29 @@ function Legend() {
         <span className="size-2 rounded-full ring-2 ring-card" style={{ background: SELIC_COLOR }} />
         Mudança da SELIC pelo Copom
       </li>
+      {measured && (
+        <li className="flex items-center gap-1.5">
+          <span className="h-0 w-5 border-t-2 border-dashed" style={{ borderColor: IPCA_COLOR }} />
+          <span className="h-0 w-5 border-t-2 border-dashed" style={{ borderColor: SELIC_COLOR }} />
+          na história, sem as medidas
+        </li>
+      )}
     </ul>
   );
 }
 
-function EconomyTooltip({ active, payload }: { active?: boolean; payload?: { payload: EconomyRow }[] }) {
+function EconomyTooltip({
+  active,
+  payload,
+  effects,
+}: {
+  active?: boolean;
+  payload?: { payload: EconomyRow }[];
+  effects: EconomyPanel["effects"];
+}) {
   const row = payload?.[0]?.payload;
   if (!active || !row) return null;
+  const shares = effects ? effectShares(effects, row.time) : [];
   return (
     <div className="grid gap-1 rounded-lg border bg-popover px-2.5 py-2 text-xs shadow-md">
       <span className="text-muted-foreground">{displayDate(new Date(row.time))}</span>
@@ -64,10 +82,28 @@ function EconomyTooltip({ active, payload }: { active?: boolean; payload?: { pay
         <span>SELIC</span>
         <span className="font-mono font-semibold">{displayPercent(row.selic, 2)}</span>
       </span>
+      {row.storedSelic !== null && (
+        <span className="flex items-center justify-between gap-6 text-muted-foreground">
+          <span>SELIC na história</span>
+          <span className="font-mono">{displayPercent(row.storedSelic, 2)}</span>
+        </span>
+      )}
       <span className="flex items-center justify-between gap-6">
         <span>IPCA em 12 meses</span>
         <span className="font-mono font-semibold">{displayPercent(row.ipca, 2)}</span>
       </span>
+      {row.storedIpca !== null && (
+        <span className="flex items-center justify-between gap-6 text-muted-foreground">
+          <span>IPCA na história</span>
+          <span className="font-mono">{displayPercent(row.storedIpca, 2)}</span>
+        </span>
+      )}
+      {shares.map((share) => (
+        <span key={share.label} className="flex items-center justify-between gap-6 pl-2 text-muted-foreground">
+          <span>{share.label}</span>
+          <span className="font-mono">{signedIpca(share.points)}</span>
+        </span>
+      ))}
       <span className="flex items-center justify-between gap-6">
         <span>Juro real</span>
         <span className="font-mono font-semibold">{displayPercent(row.realRate, 2)}</span>
@@ -93,6 +129,7 @@ export function EconomyChart({ panel }: EconomyChartProps) {
   const rows = economyRows(panel, range);
   const today = panel.points.at(-1);
   const changes = rows.filter((row) => row.copom !== undefined);
+  const measured = panel.effects !== null;
 
   return (
     <Card>
@@ -128,7 +165,7 @@ export function EconomyChart({ panel }: EconomyChartProps) {
             </ToggleGroup>
           </div>
 
-          <Legend />
+          <Legend measured={measured} />
 
           {rows.length < 2 ? (
             <div className="flex h-72 items-center justify-center rounded-[10px] border border-dashed border-input text-sm text-muted-foreground">
@@ -156,7 +193,10 @@ export function EconomyChart({ panel }: EconomyChartProps) {
                   tickLine={false}
                   width={40}
                 />
-                <Tooltip cursor={{ stroke: "var(--foreground)", strokeOpacity: 0.4 }} content={<EconomyTooltip />} />
+                <Tooltip
+                  cursor={{ stroke: "var(--foreground)", strokeOpacity: 0.4 }}
+                  content={<EconomyTooltip effects={panel.effects} />}
+                />
                 <Area
                   dataKey="band"
                   type="stepAfter"
@@ -176,6 +216,30 @@ export function EconomyChart({ panel }: EconomyChartProps) {
                   activeDot={false}
                   isAnimationActive={false}
                 />
+                {measured && (
+                  <Line
+                    dataKey="storedIpca"
+                    type="linear"
+                    stroke={IPCA_COLOR}
+                    strokeWidth={1.5}
+                    strokeDasharray="6 3"
+                    dot={false}
+                    activeDot={false}
+                    isAnimationActive={false}
+                  />
+                )}
+                {measured && (
+                  <Line
+                    dataKey="storedSelic"
+                    type="linear"
+                    stroke={SELIC_COLOR}
+                    strokeWidth={1.5}
+                    strokeDasharray="6 3"
+                    dot={false}
+                    activeDot={false}
+                    isAnimationActive={false}
+                  />
+                )}
                 <Line
                   dataKey="ipca"
                   type="linear"
@@ -206,6 +270,13 @@ export function EconomyChart({ panel }: EconomyChartProps) {
                 ))}
               </ComposedChart>
             </ResponsiveContainer>
+          )}
+
+          {measured && (
+            <p className="text-[12.5px] text-muted-foreground">
+              Linha cheia: a partida. Tracejada: o que aconteceu de verdade (ou o futuro gerado, depois do último dado
+              real), sem as medidas de gasto do governo. A distância entre as duas é o efeito das medidas.
+            </p>
           )}
 
           {today && (

@@ -1245,6 +1245,10 @@ class Simulation:
             self._current_date,
             self._macro,
             self._government.budget() if self._government is not None else None,
+            self._government.economy() if self._government is not None else None,
+            self._government.state.measures.values()
+            if self._government is not None
+            else (),
         )
 
     @synchronized

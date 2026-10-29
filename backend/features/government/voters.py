@@ -162,6 +162,11 @@ EFFECT_STEPS: dict[MeasureKind, Decimal] = {
     MeasureKind.FIXED_INCOME_TABLE: Decimal("0.05"),
     MeasureKind.LCI_LCA_RATE: Decimal("0.15"),
     MeasureKind.SECTOR_TAX: Decimal("0.05"),
+    # Meio ponto do PIB no auxílio e nas obras; 3 pontos nos reajustes
+    MeasureKind.WELFARE_SPENDING: Decimal("0.005"),
+    MeasureKind.PUBLIC_WORKS: Decimal("0.005"),
+    MeasureKind.SERVANT_RAISE: Decimal("0.03"),
+    MeasureKind.RETIREE_RAISE: Decimal("0.03"),
 }
 EFFECTS: dict[MeasureKind, dict[VoterValue, Decimal]] = {
     # Por corte de 5 pontos no IR do ganho comum
@@ -197,6 +202,28 @@ EFFECTS: dict[MeasureKind, dict[VoterValue, Decimal]] = {
         V.FREE_MARKET: Decimal("0.3"),
         V.SOCIAL_JUSTICE: Decimal("-0.5"),
         V.DEVELOPMENT: Decimal(1),
+    },
+    # Por meio ponto do PIB a mais no auxílio
+    MeasureKind.WELFARE_SPENDING: {
+        V.SOCIAL_JUSTICE: Decimal(1),
+        V.STABILITY: Decimal("-0.5"),
+    },
+    # Por 3 pontos de reajuste real dos servidores
+    MeasureKind.SERVANT_RAISE: {V.PUBLIC_SERVICE: Decimal(1)},
+    # Por 3 pontos de reajuste real das aposentadorias
+    MeasureKind.RETIREE_RAISE: {V.SOCIAL_JUSTICE: Decimal("0.5")},
+    # Por meio ponto do PIB a mais em obras
+    MeasureKind.PUBLIC_WORKS: {V.DEVELOPMENT: Decimal(1)},
+}
+# O agrado direto de uma medida de gasto a quem recebe o dinheiro, por passo de referência;
+# vai além dos valores que ela move
+DIRECT: dict[MeasureKind, dict[VoterGroup, Decimal]] = {
+    MeasureKind.WELFARE_SPENDING: {G.WELFARE: Decimal("1.5")},
+    MeasureKind.SERVANT_RAISE: {G.PUBLIC_SERVANTS: Decimal("0.5")},
+    MeasureKind.RETIREE_RAISE: {G.RETIREES: Decimal(1)},
+    MeasureKind.PUBLIC_WORKS: {
+        G.ENTREPRENEURS: Decimal("0.5"),
+        G.FORMAL_WORKERS: Decimal("0.5"),
     },
 }
 # Na tabela, o passo positivo de cada tipo: corte de alíquota, teto maior, imposto novo
@@ -420,6 +447,16 @@ def reaction(group: VoterGroup, effects: Mapping[VoterValue, Decimal]) -> Decima
     """Quanto o grupo quer o que a medida faz: a posição dele em cada valor vezes o que a medida move."""
     positions = POSITIONS[group]
     return sum((positions[v] * effect for v, effect in effects.items()), ZERO)
+
+
+def measure_reaction(
+    group: VoterGroup, kind: MeasureKind, value: Decimal | None, before: Decimal | None
+) -> Decimal:
+    """Quanto o grupo quer a medida: o que ela faz nos valores mais o agrado direto de quem recebe o gasto."""
+    direct = DIRECT.get(kind, {}).get(group, ZERO)
+    return reaction(
+        group, measure_effects(kind, value, before)
+    ) + direct * measure_steps(kind, value, before)
 
 
 def radar_moves(

@@ -4,7 +4,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { cn } from "@/shared/lib/utils";
 import { displayMonthSlashYear, displayPercent } from "@/shared/lib/utils/display";
 import type { BudgetEffect } from "@/types";
-import { effectHeadline, rateChangeLabel, relativeChange, shareLabel } from "../lib/budget";
+import { effectHeadline, rateChangeLabel, relativeChange, shareLabel, spendingHeadline } from "../lib/budget";
 
 const TONE_CLASS = { success: "text-success", destructive: "text-destructive", default: "text-foreground" } as const;
 
@@ -27,11 +27,15 @@ function Change({ text, relative }: { text: string; relative: string | null }) {
   );
 }
 
-type MeasureBudgetEffectProps = { effect: BudgetEffect };
+type MeasureBudgetEffectProps = {
+  effect: BudgetEffect;
+  /** Medida de gasto: a conta muda o gasto do governo, e não a receita de um imposto */
+  spending?: boolean;
+};
 
-/** O que a medida faz com a conta do governo, estimado: receita, resultado e dívida no fim do mandato. */
-export function MeasureBudgetEffect({ effect }: MeasureBudgetEffectProps) {
-  const headline = effectHeadline(effect);
+/** O que a medida faz com a conta do governo, estimado: receita ou gasto, resultado e dívida no fim do mandato. */
+export function MeasureBudgetEffect({ effect, spending = false }: MeasureBudgetEffectProps) {
+  const headline = spending ? spendingHeadline(effect) : effectHeadline(effect);
 
   return (
     <div className="grid gap-2.5 rounded-lg border border-info-border bg-info-soft/40 p-3.5">
@@ -63,24 +67,32 @@ export function MeasureBudgetEffect({ effect }: MeasureBudgetEffectProps) {
       </div>
 
       <dl className="grid gap-1 text-[12.5px]">
-        {(effect.rate_before !== null || effect.rate_after !== null) && (
-          <Line label={`Alíquota · ${effect.tax_name}`}>
-            <Change
-              text={rateChangeLabel(effect.rate_before, effect.rate_after)}
-              relative={
-                effect.rate_before !== null && effect.rate_after !== null
-                  ? relativeChange(effect.rate_before, effect.rate_after)
-                  : null
-              }
-            />
+        {spending ? (
+          <Line label="Gasto do governo">
+            {shareLabel(effect.spending_before)} → {shareLabel(effect.spending_after)}
           </Line>
+        ) : (
+          <>
+            {(effect.rate_before !== null || effect.rate_after !== null) && (
+              <Line label={`Alíquota · ${effect.tax_name}`}>
+                <Change
+                  text={rateChangeLabel(effect.rate_before, effect.rate_after)}
+                  relative={
+                    effect.rate_before !== null && effect.rate_after !== null
+                      ? relativeChange(effect.rate_before, effect.rate_after)
+                      : null
+                  }
+                />
+              </Line>
+            )}
+            <Line label={`Receita · ${effect.tax_name}`}>
+              <Change
+                text={`${shareLabel(effect.tax_revenue_before)} → ${shareLabel(effect.tax_revenue_after)}`}
+                relative={relativeChange(effect.tax_revenue_before, effect.tax_revenue_after)}
+              />
+            </Line>
+          </>
         )}
-        <Line label={`Receita · ${effect.tax_name}`}>
-          <Change
-            text={`${shareLabel(effect.tax_revenue_before)} → ${shareLabel(effect.tax_revenue_after)}`}
-            relative={relativeChange(effect.tax_revenue_before, effect.tax_revenue_after)}
-          />
-        </Line>
         <Line label="Resultado do governo, por ano">
           {shareLabel(effect.result_before)} → {shareLabel(effect.result_after)}
         </Line>

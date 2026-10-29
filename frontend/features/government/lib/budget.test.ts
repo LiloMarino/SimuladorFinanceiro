@@ -7,6 +7,7 @@ import {
   debtSeries,
   debtTone,
   effectHeadline,
+  spendingHeadline,
   rateChangeLabel,
   relativeChange,
   defaultRateLabel,
@@ -203,5 +204,25 @@ describe("rateChangeLabel", () => {
   it("escreve de onde e para onde, com isenta quando não há alíquota", () => {
     expect(rateChangeLabel("0.15", null)).toBe("15% → isenta");
     expect(rateChangeLabel("0.184", "0.15")).toBe("18,4% → 15%");
+  });
+});
+
+describe("spendingHeadline", () => {
+  it("gasto a mais piora o resultado e pesa em vermelho", () => {
+    const headline = spendingHeadline({ spending_change: "0.005", spending_change_amount: "37000000000" });
+    expect(headline.value).toBe("−0,50%");
+    expect(headline.detail).toContain("a mais de gasto");
+    expect(headline.tone).toBe("destructive");
+  });
+
+  it("corte de gasto melhora o resultado e pesa em verde", () => {
+    const headline = spendingHeadline({ spending_change: "-0.005", spending_change_amount: "-37000000000" });
+    expect(headline.value).toBe("+0,50%");
+    expect(headline.detail).toContain("a menos de gasto");
+    expect(headline.tone).toBe("success");
+  });
+
+  it("variação abaixo de R$ 50 mi não conta", () => {
+    expect(spendingHeadline({ spending_change: "0.000001", spending_change_amount: "7000000" }).tone).toBe("default");
   });
 });

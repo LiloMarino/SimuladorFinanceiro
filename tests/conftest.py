@@ -75,7 +75,9 @@ def indicators(monkeypatch: pytest.MonkeyPatch) -> SetIndicator:
     monkeypatch.setattr(
         repository.economic,
         "get_history",
-        lambda series: histories.get(series, IndicatorHistory([], {})),
+        lambda series, _simulation_id=None, *, stored=False: histories.get(
+            series, IndicatorHistory([], {})
+        ),
     )
 
     def _set(series: IndicatorSeries, values: dict[date, Decimal]) -> None:

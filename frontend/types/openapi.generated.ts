@@ -3042,6 +3042,47 @@ export interface components {
             /** Achievements */
             achievements: components["schemas"]["UnlockedAchievementDTO"][];
         };
+        /**
+         * ActiveEffectDTO
+         * @description O efeito de uma medida de gasto aprovada na economia da partida, hoje.
+         */
+        ActiveEffectDTO: {
+            /** Measure Id */
+            measure_id: number;
+            kind: components["schemas"]["MeasureKind"];
+            /** Title */
+            title: string;
+            /** Value */
+            value: string;
+            /** Before */
+            before: string;
+            /**
+             * Effective
+             * Format: date
+             */
+            effective: string;
+            /**
+             * Peak On
+             * Format: date
+             */
+            peak_on: string;
+            /**
+             * Faded On
+             * Format: date
+             */
+            faded_on: string;
+            phase: components["schemas"]["EffectPhase"];
+            /** Inflation */
+            inflation: string;
+            /** Selic */
+            selic: string;
+            /** Stocks */
+            stocks: string;
+            /** Curve */
+            curve: string[];
+            /** Elapsed Months */
+            elapsed_months: number;
+        };
         /** AllocationItemDTO */
         AllocationItemDTO: {
             /** Label */
@@ -3583,6 +3624,14 @@ export interface components {
             revenue_change: string;
             /** Revenue Change Amount */
             revenue_change_amount: string;
+            /** Spending Change */
+            spending_change: string;
+            /** Spending Change Amount */
+            spending_change_amount: string;
+            /** Spending Before */
+            spending_before: string;
+            /** Spending After */
+            spending_after: string;
             /** Tax Name */
             tax_name: string;
             /** Rate Before */
@@ -4511,6 +4560,8 @@ export interface components {
             copom_changes: components["schemas"]["CopomChangeDTO"][];
             growth_parts: components["schemas"]["GrowthPartsDTO"];
             debt: components["schemas"]["DebtSummaryDTO"] | null;
+            /** Effects */
+            effects: components["schemas"]["ActiveEffectDTO"][] | null;
         };
         /**
          * EconomyPointDTO
@@ -4540,7 +4591,21 @@ export interface components {
             debt: string | null;
             /** Premium */
             premium: string | null;
+            /** Ibovespa */
+            ibovespa: string | null;
+            /** Stored Selic */
+            stored_selic: string | null;
+            /** Stored Ipca */
+            stored_ipca: string | null;
+            /** Stored Ibovespa */
+            stored_ibovespa: string | null;
         };
+        /**
+         * EffectPhase
+         * @description Onde está o efeito de uma medida de gasto na economia.
+         * @enum {string}
+         */
+        EffectPhase: "WAITING" | "RISING" | "FALLING" | "FADED";
         /** ElectionDatesDTO */
         ElectionDatesDTO: {
             /**
@@ -5069,6 +5134,7 @@ export interface components {
             approval: components["schemas"]["ApprovalDTO"] | null;
             /** Taxes */
             taxes: components["schemas"]["TaxRowDTO"][];
+            spending: components["schemas"]["SpendingCardDTO"];
             /** Sector Measures */
             sector_measures: components["schemas"]["SectorMeasureDTO"][];
             /** Queue */
@@ -5167,6 +5233,12 @@ export interface components {
             undecided: string;
             /** Margin */
             margin: number;
+        };
+        /** GroupReactionDTO */
+        GroupReactionDTO: {
+            group: components["schemas"]["VoterGroup"];
+            /** Points */
+            points: string;
         };
         /**
          * GroupReading
@@ -5589,6 +5661,37 @@ export interface components {
              */
             series: components["schemas"]["IndicatorKey"][];
         };
+        /** InflationCurvePointDTO */
+        InflationCurvePointDTO: {
+            /** Month */
+            month: number;
+            /** Points */
+            points: string;
+        };
+        /**
+         * InflationEffectDTO
+         * @description O que uma medida de gasto faz com a inflação, a SELIC e a bolsa, estimado.
+         */
+        InflationEffectDTO: {
+            /** Peak */
+            peak: string;
+            /** Peak Month */
+            peak_month: number;
+            /** Curve */
+            curve: components["schemas"]["InflationCurvePointDTO"][];
+            /** Ipca Before */
+            ipca_before: string;
+            /** Ipca After */
+            ipca_after: string;
+            /** Selic Before */
+            selic_before: string;
+            /** Selic After */
+            selic_after: string;
+            /** Stocks */
+            stocks: string;
+            /** Growth */
+            growth: string;
+        };
         /**
          * InitialAccount
          * @description A conta do governo no primeiro dia: a dívida real com receita igual ao gasto, ou com o déficit real.
@@ -5960,6 +6063,8 @@ export interface components {
             impact: number;
             /** Budget Effect */
             budget_effect: string;
+            /** Inflation Effect */
+            inflation_effect: string;
             /** Fulfills Promise */
             fulfills_promise: boolean;
             /** Can Withdraw */
@@ -5978,10 +6083,10 @@ export interface components {
         };
         /**
          * MeasureKind
-         * @description O que uma medida muda: um imposto geral ou a regra de um setor ou segmento.
+         * @description O que uma medida muda: um imposto geral, a regra de um setor ou segmento ou um gasto público.
          * @enum {string}
          */
-        MeasureKind: "STOCK_PROFIT_RATE" | "DAY_TRADE_RATE" | "STOCK_EXEMPTION" | "FIXED_INCOME_TABLE" | "LCI_LCA_RATE" | "SECTOR_EXEMPT" | "SECTOR_TAX";
+        MeasureKind: "STOCK_PROFIT_RATE" | "DAY_TRADE_RATE" | "STOCK_EXEMPTION" | "FIXED_INCOME_TABLE" | "LCI_LCA_RATE" | "SECTOR_EXEMPT" | "SECTOR_TAX" | "WELFARE_SPENDING" | "SERVANT_RAISE" | "RETIREE_RAISE" | "PUBLIC_WORKS";
         /** MeasurePreviewDTO */
         MeasurePreviewDTO: {
             /** Title */
@@ -6007,6 +6112,9 @@ export interface components {
             /** Holdings */
             holdings: components["schemas"]["MeasureHoldingDTO"][];
             budget: components["schemas"]["BudgetEffectDTO"];
+            inflation: components["schemas"]["InflationEffectDTO"] | null;
+            /** Reactions */
+            reactions: components["schemas"]["GroupReactionDTO"][];
         };
         /**
          * MeasureStatus
@@ -7485,7 +7593,7 @@ export interface components {
         };
         /**
          * QueueBudgetDTO
-         * @description A fila inteira do Congresso, se passar: o que muda na receita e no resultado.
+         * @description A fila inteira do Congresso, se passar: o que muda no resultado do governo.
          */
         QueueBudgetDTO: {
             /** Total */
@@ -8597,6 +8705,48 @@ export interface components {
             /** Speed */
             speed: number;
             pause_reason: components["schemas"]["PauseReason"] | null;
+        };
+        /** SpendingCardDTO */
+        SpendingCardDTO: {
+            /** Rows */
+            rows: components["schemas"]["SpendingRowDTO"][];
+            /** Rest */
+            rest: string;
+            /** Total */
+            total: string;
+            /** Total Difference */
+            total_difference: string;
+            /** Inflation */
+            inflation: string;
+        };
+        /**
+         * SpendingRowDTO
+         * @description Uma medida de gasto no cartão Gasto público: o valor em vigor, o que pesa e o que soma à inflação.
+         */
+        SpendingRowDTO: {
+            kind: components["schemas"]["MeasureKind"];
+            /** Value */
+            value: string;
+            /** Since */
+            since: string | null;
+            /** Cost */
+            cost: string;
+            /** Cost Amount */
+            cost_amount: string;
+            /** Step */
+            step: string;
+            /** Limit */
+            limit: string;
+            /** Inflation */
+            inflation: string;
+            phase: components["schemas"]["EffectPhase"] | null;
+            /** Curve */
+            curve: string[];
+            /** Elapsed Months */
+            elapsed_months: number | null;
+            pending: components["schemas"]["MeasureDTO"] | null;
+            /** Promised */
+            promised: boolean;
         };
         /**
          * StatisticsNextUpdateDTO

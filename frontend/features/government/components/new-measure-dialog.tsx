@@ -23,6 +23,9 @@ import type { GovernmentPanel, MeasureKind, ProposeMeasureRequest } from "@/type
 import { useProposeMeasure } from "../hooks/mutations/useProposeMeasure";
 import { useMeasurePreview } from "../hooks/queries/useMeasurePreview";
 import { MeasureBudgetEffect } from "./measure-budget-effect";
+import { MeasureInflationEffect } from "./measure-inflation-effect";
+import { MeasureReactions } from "./measure-reactions";
+import { SpendingForm } from "./spending-form";
 import { VALUE_INFO, signedPoints as signedProfilePoints } from "../lib/voters";
 import {
   GENERAL_KINDS,
@@ -35,8 +38,10 @@ import {
   rateToFraction,
   signedPoints,
 } from "../lib/government";
+import { isSpending, SPENDING_KINDS, type SpendingKind } from "@/shared/lib/spending-kinds";
+import { checkValue } from "../lib/spending";
 
-type Mode = "general" | "sector";
+type Mode = "general" | "sector" | "spending";
 type ExemptionRule = "keep" | "end" | "change";
 type SectorChange = "tax" | "exempt";
 
@@ -53,11 +58,11 @@ type NewMeasureDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   panel: GovernmentPanel;
-  /** O imposto que "Mudar" pré-seleciona; sem ele a medida nasce no primeiro imposto sem pendência */
+  /** A medida que "Mudar" pré-seleciona; sem ela a medida nasce no primeiro imposto sem pendência */
   initialKind?: MeasureKind | undefined;
 };
 
-/** Propor uma medida ao Congresso: um imposto geral ou a regra de um setor ou segmento. */
+/** Propor uma medida ao Congresso: um imposto geral, a regra de um setor ou segmento, ou uma medida de gasto público. */
 export function NewMeasureDialog({ open, onOpenChange, panel, initialKind }: NewMeasureDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -84,7 +89,15 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
   const pendingKinds = new Set(panel.taxes.filter((row) => row.pending).map((row) => row.kind));
   const firstFree = GENERAL_KINDS.find((kind) => !pendingKinds.has(kind)) ?? GENERAL_KINDS[0];
 
-  const [mode, setMode] = useState<Mode>(initialKind && !isGeneral(initialKind) ? "sector" : "general");
+  const firstFreeSpending =
+    SPENDING_KINDS.find((candidate) => !panel.spending.rows.some((item) => item.kind === candidate && item.pending)) ??
+    SPENDING_KINDS[0];
+
+  const [mode, setMode] = useState<Mode>(initialMode(initialKind));
+  const [spendingKind, setSpendingKind] = useState<SpendingKind>(
+    initialKind && isSpending(initialKind) ? initialKind : firstFreeSpending,
+  );
+  const [spendingText, setSpendingText] = useState("");
   const [kind, setKind] = useState<GeneralKind>(initialKind && isGeneral(initialKind) ? initialKind : firstFree);
   const [rule, setRule] = useState<ExemptionRule>("keep");
   const [valueText, setValueText] = useState("");
@@ -98,7 +111,20 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
   const option = panel.sectors.find((candidate) => candidate.name === sector);
   const segmentOption = option?.segments.find((candidate) => candidate.name === segment);
 
-  const request = buildRequest({ mode, kind, rule, valueText, sector, segment, change, pointsText });
+  const spendingRow = panel.spending.rows.find((candidate) => candidate.kind === spendingKind);
+  const spendingCheck = spendingRow && !spendingRow.pending ? checkValue(spendingRow, spendingText) : null;
+  const request = buildRequest({
+    mode,
+    kind,
+    rule,
+    valueText,
+    sector,
+    segment,
+    change,
+    pointsText,
+    spendingKind,
+    spendingFraction: spendingCheck?.status === "ok" ? spendingCheck.fraction : null,
+  });
   const preview = useMeasurePreview(request);
   // A prévia anterior fica à vista enquanto a nova carrega, mas some quando o pedido deixa de estar completo
   const data = request && !preview.isError ? preview.data : undefined;
@@ -120,7 +146,23 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
             <ToggleGroupItem value="sector" className="flex-1">
               Por setor
             </ToggleGroupItem>
+            <ToggleGroupItem value="spending" className="flex-1">
+              Gasto público
+            </ToggleGroupItem>
           </ToggleGroup>
+
+          {mode === "spending" && (
+            <SpendingForm
+              rows={panel.spending.rows}
+              kind={spendingKind}
+              onKindChange={(next) => {
+                setSpendingKind(next);
+                setSpendingText("");
+              }}
+              valueText={spendingText}
+              onValueTextChange={setSpendingText}
+            />
+          )}
 
           {mode === "general" && row && (
             <>
@@ -310,25 +352,40 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
 
           {data && (
             <>
-              <dl className="grid divide-y rounded-lg border px-3 text-[13px]">
-                {mode === "sector" && (
-                  <Row label="Quem tem esses ativos">
-                    {data.holdings.length > 0
-                      ? data.holdings.map((holding) => holdingLabel(holding, user?.nickname)).join(" · ")
-                      : "ninguém"}
+              {mode !== "spending" && (
+                <dl className="grid divide-y rounded-lg border px-3 text-[13px]">
+                  {mode === "sector" && (
+                    <Row label="Quem tem esses ativos">
+                      {data.holdings.length > 0
+                        ? data.holdings.map((holding) => holdingLabel(holding, user?.nickname)).join(" · ")
+                        : "ninguém"}
+                    </Row>
+                  )}
+                  <Row label="Alvo da aprovação, ao valer">{signedPoints(data.impact)}</Row>
+                  <Row label="Perfil do partido, se aprovada">
+                    {data.profile_moves.length > 0
+                      ? data.profile_moves
+                          .map((move) => `${signedProfilePoints(Number(move.points))} ${VALUE_INFO[move.value].label}`)
+                          .join(" · ")
+                      : "não muda"}
                   </Row>
-                )}
-                <Row label="Alvo da aprovação, ao valer">{signedPoints(data.impact)}</Row>
-                <Row label="Perfil do partido, se aprovada">
-                  {data.profile_moves.length > 0
-                    ? data.profile_moves
-                        .map((move) => `${signedProfilePoints(Number(move.points))} ${VALUE_INFO[move.value].label}`)
-                        .join(" · ")
-                    : "não muda"}
-                </Row>
-              </dl>
-              <p className="text-xs leading-normal text-muted-foreground">{impactSentence(data)}</p>
-              <MeasureBudgetEffect effect={data.budget} />
+                </dl>
+              )}
+              {mode !== "spending" && (
+                <p className="text-xs leading-normal text-muted-foreground">{impactSentence(data)}</p>
+              )}
+              <MeasureBudgetEffect effect={data.budget} spending={mode === "spending"} />
+              {mode === "spending" && (
+                <>
+                  {data.inflation && <MeasureInflationEffect effect={data.inflation} />}
+                  <MeasureReactions
+                    kind={spendingKind}
+                    reactions={data.reactions}
+                    moves={data.profile_moves}
+                    raising={Number(data.budget.spending_change) > 0}
+                  />
+                </>
+              )}
               <Alert variant="info">
                 <Gavel />
                 <AlertTitle>O Congresso vota em {displayDayMonth(data.vote_date)}</AlertTitle>
@@ -394,10 +451,23 @@ type Draft = {
   segment: string;
   change: SectorChange;
   pointsText: string;
+  spendingKind: SpendingKind;
+  /** O valor novo da medida de gasto, em fração; nulo enquanto o campo não está pronto */
+  spendingFraction: string | null;
 };
+
+/** A aba que abre: a da medida que "Mudar" trouxe, ou a dos impostos gerais. */
+function initialMode(initialKind: MeasureKind | undefined): Mode {
+  if (!initialKind) return "general";
+  if (isSpending(initialKind)) return "spending";
+  return isGeneral(initialKind) ? "general" : "sector";
+}
 
 /** O pedido que o rascunho forma; nulo enquanto falta o valor, e a prévia só roda com pedido completo. */
 function buildRequest(draft: Draft): ProposeMeasureRequest | null {
+  if (draft.mode === "spending") {
+    return draft.spendingFraction ? { kind: draft.spendingKind, value: draft.spendingFraction } : null;
+  }
   if (draft.mode === "sector") {
     if (!draft.sector) return null;
     const segment = draft.segment === WHOLE_SECTOR ? null : draft.segment;

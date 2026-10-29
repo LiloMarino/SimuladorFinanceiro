@@ -32,7 +32,7 @@ class PriceHistory:
         frame = self._frame(ticker)
         end = int((frame.index <= pd.Timestamp(today)).sum())
         window = frame.iloc[max(0, end - days) : end]
-        if not self._price_impact.enabled or window.empty:
+        if window.empty:
             return window
         factors = self._price_impact.factors_on(
             ticker, [day.date() for day in window.index]

@@ -4,11 +4,13 @@ partida, só com o que o jogador já conhece em `today`.
 """
 
 from calendar import monthrange
+from collections.abc import Iterable
 from datetime import date, timedelta
 from decimal import Decimal
 
 from backend.core import repository
 from backend.core.dto.economy import (
+    ActiveEffectDTO,
     CopomChangeDTO,
     DebtSummaryDTO,
     EconomyPanelDTO,
@@ -28,7 +30,11 @@ from backend.features.economy.growth import (
     MacroCourse,
     growth_aim,
 )
+from backend.features.government import measures as rules
+from backend.features.government import spending_effects
 from backend.features.government.budget import BudgetCourse
+from backend.features.government.spending_effects import SpendingEconomy
+from backend.features.government.state import Measure
 
 # Degrau mínimo para contar como mudança da SELIC (0.1 ponto); abaixo disso é ruído da série
 MIN_COPOM_STEP = Decimal("0.001")
@@ -50,6 +56,10 @@ def month_ends(start: date, end: date) -> list[date]:
     return days
 
 
+def ibovespa_on(day: date, *, stored: bool = False) -> Decimal | None:
+    return last_known_value(IndicatorSeries.IBOV, day, stored=stored)
+
+
 def point_on(
     day: date, macro: MacroCourse, budget: BudgetCourse | None
 ) -> EconomyPointDTO:
@@ -68,6 +78,18 @@ def point_on(
         unemployment=country.unemployment,
         debt=account.debt if account is not None else None,
         premium=account.premium if account is not None else None,
+        ibovespa=ibovespa_on(day),
+        stored_selic=(
+            annual_index_rate(IndicatorSeries.SELIC, day, stored=True)
+            if budget is not None
+            else None
+        ),
+        stored_ipca=(
+            annual_index_rate(IndicatorSeries.IPCA, day, stored=True)
+            if budget is not None
+            else None
+        ),
+        stored_ibovespa=ibovespa_on(day, stored=True) if budget is not None else None,
     )
 
 
@@ -119,13 +141,53 @@ def growth_parts(macro: MacroCourse, today: date) -> GrowthPartsDTO:
     )
 
 
+def points(value: float) -> Decimal:
+    return Decimal(str(round(value, 4)))
+
+
+def active_effects(
+    economy: SpendingEconomy, measures: Iterable[Measure], today: date
+) -> list[ActiveEffectDTO]:
+    """Os efeitos das medidas de gasto aprovadas, do mais novo ao mais antigo."""
+    by_id = {m.id: m for m in measures}
+    effects = []
+    for now in reversed(economy.now(today)):
+        effect = now.effect
+        measure = by_id[effect.measure_id]
+        elapsed = spending_effects.elapsed_months(effect.start, today)
+        effects.append(
+            ActiveEffectDTO(
+                measure_id=effect.measure_id,
+                kind=effect.kind,
+                title=rules.title(measure),
+                value=measure.value or Decimal(0),
+                before=measure.before or Decimal(0),
+                effective=effect.start,
+                peak_on=spending_effects.peak_on(effect),
+                faded_on=spending_effects.faded_on(effect),
+                phase=now.phase,
+                inflation=points(now.inflation),
+                selic=points(now.selic),
+                stocks=points(now.stocks),
+                curve=[
+                    points(value)
+                    for value in spending_effects.curve(effect.kind, effect.steps)
+                ],
+                elapsed_months=max(int(elapsed), 0),
+            )
+        )
+    return effects
+
+
 def build_economy_panel(
     start: date,
     today: date,
     macro: MacroCourse,
     budget: BudgetCourse | None = None,
+    economy: SpendingEconomy | None = None,
+    measures: Iterable[Measure] = (),
 ) -> EconomyPanelDTO:
-    """`budget` só existe nas partidas com a expansão Governo; sem ele a dívida fica de fora."""
+    """`budget` e `economy` só existem nas partidas com a expansão Governo; sem eles a dívida e os efeitos ficam de fora."""
     # Antes do primeiro pregão o painel já mostra o dia de partida
     end = max(start, today)
     changes = copom_changes(start, end)
@@ -136,4 +198,7 @@ def build_economy_panel(
         copom_changes=changes,
         growth_parts=growth_parts(macro, today),
         debt=debt_summary(budget, today) if budget is not None else None,
+        effects=(
+            active_effects(economy, measures, today) if economy is not None else None
+        ),
     )

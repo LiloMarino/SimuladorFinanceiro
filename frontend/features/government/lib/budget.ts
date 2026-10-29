@@ -150,6 +150,22 @@ export function effectHeadline(effect: Pick<BudgetEffect, "revenue_change" | "re
   };
 }
 
+/** O destaque de uma medida de gasto: quanto o resultado do governo muda por ano, já que gasto a mais piora o resultado. */
+export function spendingHeadline(
+  effect: Pick<BudgetEffect, "spending_change" | "spending_change_amount">,
+): EffectHeadline {
+  const amount = Math.abs(Number(effect.spending_change_amount));
+  if (amount < NEGLIGIBLE_AMOUNT) {
+    return { value: "≈ 0,00%", detail: "menos de R$ 50 mi por ano", tone: "default" };
+  }
+  const more = Number(effect.spending_change) > 0;
+  return {
+    value: signedShareLabel(-Number(effect.spending_change)),
+    detail: `do PIB por ano a ${more ? "mais" : "menos"} de gasto · cerca de ${displayMoneyLarge(amount)} por ano`,
+    tone: more ? "destructive" : "success",
+  };
+}
+
 /** A variação relativa entre dois valores ("−18%"); nula quando o de antes é zero ou nada mudou. */
 export function relativeChange(before: string, after: string) {
   const from = Number(before);

@@ -138,3 +138,21 @@ def test_before_the_first_close_the_country_is_at_the_starting_point(
 
     assert start.growth == growth.TREND
     assert start.unemployment == growth.NEUTRAL_UNEMPLOYMENT
+
+
+def test_works_add_their_part_to_the_aim_and_the_growth_climbs_toward_it(
+    flat_economy: None,
+):
+    without = growth.growth_aim(date(2020, 6, 30))
+    with_works = growth.growth_aim(date(2020, 6, 30), Decimal("0.006"))
+
+    assert with_works.spending_part == Decimal("0.006")
+    assert with_works.value == without.value + Decimal("0.006")
+
+    plain = MacroCourse(START)
+    built = MacroCourse(START)
+    built.use_spending(lambda _day: Decimal("0.006"))
+    assert (
+        built.latest(date(2020, 12, 31)).growth
+        > plain.latest(date(2020, 12, 31)).growth
+    )

@@ -265,8 +265,9 @@ def measure_fade(measure: Measure, today: date) -> Decimal:
 
 def measure_reaction(group: VoterGroup, measure: Measure) -> Decimal:
     """Pontos no alvo do grupo quando a medida vale cheia."""
-    effects = voters.measure_effects(measure.kind, measure.value, measure.before)
-    return MEASURE_POINTS * voters.reaction(group, effects)
+    return MEASURE_POINTS * voters.measure_reaction(
+        group, measure.kind, measure.value, measure.before
+    )
 
 
 def measure_impact(measure: Measure) -> int:

@@ -24,6 +24,7 @@ from backend.core.indicators import (
 from backend.core.utils import last_day_of_month
 from backend.features.economy.growth import MacroCourse
 from backend.features.government import measures as rules
+from backend.features.government.spending import BASE_SPENDING
 from backend.features.government.state import Measure
 from backend.features.tax_policy import DEFAULT_TAX_POLICY, LossPool, TaxPolicy
 
@@ -31,9 +32,6 @@ ZERO = Decimal(0)
 HUNDRED = Decimal(100)
 MONTHS_PER_YEAR = Decimal(12)
 ONE_TWELFTH = Decimal(1) / MONTHS_PER_YEAR
-
-# Gasto base do governo, em fração do PIB por ano
-BASE_SPENDING = Decimal("0.19")
 
 
 @dataclass(frozen=True)
@@ -387,11 +385,13 @@ class BudgetCourse:
         until: date,
         revenue_delta: Decimal = ZERO,
         delta_from: date | None = None,
+        spending_on: SpendingOn | None = None,
     ) -> list[BudgetMonth]:
         """
         Os meses de depois do último fechamento até `until`, se nada mais mudar: SELIC,
-        IPCA e crescimento de `day` ficam como estão, e valem os impostos que o governo
-        já aprovou. `revenue_delta` soma à receita dos meses a partir de `delta_from`.
+        IPCA e crescimento de `day` ficam como estão, e valem os impostos e os gastos que
+        o governo já aprovou. `revenue_delta` soma à receita dos meses a partir de
+        `delta_from`; `spending_on` troca o gasto dos meses projetados.
         """
         previous = self.latest(day)
         selic = annual_index_rate(IndicatorSeries.SELIC, day)
@@ -406,7 +406,9 @@ class BudgetCourse:
                 if delta_from is not None and month_end >= delta_from
                 else ZERO
             )
-            previous = self._month(previous, month_end, selic, ipca, growth, extra)
+            previous = self._month(
+                previous, month_end, selic, ipca, growth, extra, spending_on
+            )
             projected.append(previous)
         return projected
 
@@ -428,9 +430,10 @@ class BudgetCourse:
         ipca: Decimal,
         growth: Decimal,
         extra_revenue: Decimal,
+        spending_on: SpendingOn | None = None,
     ) -> BudgetMonth:
         revenue = self.revenue_on(month_end) + extra_revenue
-        spending = self._spending_on(month_end)
+        spending = (spending_on or self._spending_on)(month_end)
         primary = revenue - spending
         rate = selic + premium(previous.debt)
         debt = step(previous.debt, selic, ipca, growth, primary)

@@ -6,6 +6,7 @@ um fechamento de mês por vez e guarda o que já andou: um mês fechado nunca mu
 """
 
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal
@@ -44,10 +45,12 @@ class GrowthAim:
     # Alta do Ibovespa em 12 meses (nula quando a série não cobre) e o quanto ela empurra
     stocks: Decimal | None
     stocks_part: Decimal
+    # O que as obras do governo somam ao alvo, em fração ao ano
+    spending_part: Decimal = Decimal(0)
 
     @property
     def value(self) -> Decimal:
-        return self.trend + self.real_rate_part + self.stocks_part
+        return self.trend + self.real_rate_part + self.stocks_part + self.spending_part
 
 
 @dataclass(frozen=True)
@@ -61,8 +64,8 @@ class MacroMonth:
     aim: GrowthAim
 
 
-def growth_aim(day: date) -> GrowthAim:
-    """O alvo do crescimento com o que o jogador conhece em `day`."""
+def growth_aim(day: date, spending: Decimal = Decimal(0)) -> GrowthAim:
+    """O alvo do crescimento com o que o jogador conhece em `day`, mais o que as obras somam."""
     real_rate = annual_index_rate(IndicatorSeries.SELIC, day) - annual_index_rate(
         IndicatorSeries.IPCA, day
     )
@@ -82,12 +85,15 @@ def growth_aim(day: date) -> GrowthAim:
             if stocks is not None
             else Decimal(0)
         ),
+        spending_part=spending,
     )
 
 
-def next_month(previous: MacroMonth, month_end: date) -> MacroMonth:
+def next_month(
+    previous: MacroMonth, month_end: date, spending: Decimal = Decimal(0)
+) -> MacroMonth:
     """O fechamento seguinte: o crescimento anda 1/4 até o alvo e o desemprego segue o Okun."""
-    aim = growth_aim(month_end)
+    aim = growth_aim(month_end, spending)
     growth = previous.growth + GROWTH_STEP * (aim.value - previous.growth)
     unemployment = previous.unemployment - OKUN * (growth - TREND) / MONTHS_PER_YEAR
     return MacroMonth(
@@ -115,6 +121,11 @@ class MacroCourse:
             aim=growth_aim(start - timedelta(days=1)),
         )
         self._months: list[MacroMonth] = []
+        self._spending_on: Callable[[date], Decimal] = lambda _day: Decimal(0)
+
+    def use_spending(self, source: Callable[[date], Decimal]) -> None:
+        """O que as obras do governo somam ao alvo do crescimento em cada dia."""
+        self._spending_on = source
 
     def months_until(self, day: date) -> list[MacroMonth]:
         """Os meses já fechados em `day`: o fim do mês é hoje ou já passou."""
@@ -124,7 +135,9 @@ class MacroCourse:
                 following = last_day_of_month(last.month_end + timedelta(days=1))
                 if following > day:
                     break
-                self._months.append(next_month(last, following))
+                self._months.append(
+                    next_month(last, following, self._spending_on(following))
+                )
             return [m for m in self._months if m.month_end <= day]
 
     def latest(self, day: date) -> MacroMonth:

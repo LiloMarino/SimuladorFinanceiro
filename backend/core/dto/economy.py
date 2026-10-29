@@ -2,6 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from backend.core.dto.base import BaseDTO
+from backend.core.enum import EffectPhase, MeasureKind
 
 
 class EconomyPointDTO(BaseDTO):
@@ -23,6 +24,12 @@ class EconomyPointDTO(BaseDTO):
     # Dívida bruta em fração do PIB e prêmio de risco que ela cobra; nulos sem a expansão Governo
     debt: Decimal | None
     premium: Decimal | None
+    # O Ibovespa (pontos) da partida; nulo quando a série não cobre o dia
+    ibovespa: Decimal | None
+    # A SELIC, o IPCA e o Ibovespa da série guardada, sem as medidas de gasto; nulos sem a expansão Governo
+    stored_selic: Decimal | None
+    stored_ipca: Decimal | None
+    stored_ibovespa: Decimal | None
 
 
 class CopomChangeDTO(BaseDTO):
@@ -68,9 +75,34 @@ class DebtSummaryDTO(BaseDTO):
     month_result: Decimal | None
 
 
+class ActiveEffectDTO(BaseDTO):
+    """O efeito de uma medida de gasto aprovada na economia da partida, hoje."""
+
+    measure_id: int
+    kind: MeasureKind
+    title: str
+    # O valor depois da medida e o de antes: fração do PIB ao ano ou ganho real ao ano
+    value: Decimal
+    before: Decimal
+    # O dia em que a medida passou a valer, o dia em que o efeito chega cheio e o dia em que já não pesa
+    effective: date
+    peak_on: date
+    faded_on: date
+    phase: EffectPhase
+    # Pontos de IPCA e de SELIC que a medida põe hoje e a variação da bolsa (fração) no trimestre
+    inflation: Decimal
+    selic: Decimal
+    stocks: Decimal
+    # Pontos de IPCA mês a mês desde a vigência e quantos meses já correram
+    curve: list[Decimal]
+    elapsed_months: int
+
+
 class EconomyPanelDTO(BaseDTO):
     points: list[EconomyPointDTO]
     copom_changes: list[CopomChangeDTO]
     growth_parts: GrowthPartsDTO
     # Só nas partidas com a expansão Governo & Política
     debt: DebtSummaryDTO | None
+    # Os efeitos das medidas de gasto aprovadas; nulo sem a expansão Governo
+    effects: list[ActiveEffectDTO] | None
