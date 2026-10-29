@@ -91,7 +91,6 @@
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | ⏳ |
 | [**F141**](#f141) | README com as features de hoje | — | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
-| [**F154**](#f154) | Negociar apoio com as bancadas, por emendas | — | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | — | 🔍 |
 | [**F159**](#f159) | Conquista "Ordem com paciência" | — | ⏳ |
@@ -100,7 +99,7 @@
 | [**F167**](#f167) | Notícias do ativo como marcadores no gráfico de preço | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (34 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (35 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -133,6 +132,7 @@
 | [**F151**](#f151) | Segundo turno com disputa | — | ✅ |
 | [**F152**](#f152) | Promessas de campanha cobradas no mandato | — | ✅ |
 | [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | — | ✅ |
+| [**F154**](#f154) | Negociar apoio com as bancadas, por emendas | — | ✅ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
 | [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | ✅ |
 | [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ✅ |
@@ -162,7 +162,6 @@
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | 🔍 |
-| [**F154**](#f154) | Negociar apoio com as bancadas, por emendas | M19 | 0 | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 0 | 🔍 |
@@ -332,19 +331,20 @@
 >
 > **Serve:** N34
 >
-> **Progresso:** 3/4 concluídas
+> **Progresso:** 4/4 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F154**](#f154) | Negociar apoio com as bancadas, por emendas | [F153](#f153), [F128](#f128) | ⏳ |
+| — | *(nada em aberto)* | — | — |
 
-<details><summary>Concluído (3 itens)</summary>
+<details><summary>Concluído (4 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F106**](#f106) | Governo & Política: medidas de gasto público | [F128](#f128), [F107](#f107) | ✅ |
 | [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | [F107](#f107) | ✅ |
 | [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | [F107](#f107), [F130](#f130) | ✅ |
+| [**F154**](#f154) | Negociar apoio com as bancadas, por emendas | [F153](#f153), [F128](#f128) | ✅ |
 
 </details>
 
@@ -417,7 +417,7 @@
 | **F128** | Orçamento do governo, dívida pública e prêmio de risco | N34 | D19, D14 | M19 | [F107](#f107) | Alto | Alto | Alto | Bom | ✅ Concluído |
 | **F106** | Governo & Política: medidas de gasto público | N34 | D19, D14 | M19 | [F128](#f128), [F107](#f107) | Alto | Alto | Alto | Bom | ✅ Concluído |
 | **F153** | Congresso eleito, com bancadas orientadas pelo líder | N34 | D19 | M19 | [F107](#f107), [F130](#f130) | Alto | Alto | Alto | Bom | ✅ Concluído |
-| **F154** | Negociar apoio com as bancadas, por emendas | N34 | D19 | M19 | [F153](#f153), [F128](#f128) | Médio | Médio | Alto | Bom | ⏳ Pendente |
+| **F154** | Negociar apoio com as bancadas, por emendas | N34 | D19 | M19 | [F153](#f153), [F128](#f128) | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F161** | Jornal da partida: notificações configuráveis por tipo | N31, N32 | — | M15 | — | Alto | Médio | Alto | Bom | ✅ Concluído |
 | **F166** | Pendências da partida: o que pede ação fica à vista até ser resolvido | N15 | — | M15 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 
@@ -531,6 +531,8 @@ Ficou de fora: a conferência de propor, votar e ver o efeito no app rodando: no
 
 <a id="f154"></a>
 **F154 — Negociar apoio com as bancadas, por emendas.** Serve N34. Com o Congresso de bancadas (F153), o governo monta maioria pagando emendas: verba do orçamento (F128) destinada à base do partido aliado, que entra como gasto e agrada os grupos desse partido (D19). (1) **Apoio por prazo:** o aliado entra na base por 6 meses, renováveis, e o líder dele orienta Sim em tudo o que o governo propuser, em troca de uma emenda mensal. A desobediência da bancada (F153) continua valendo. Um mês antes do fim, o governo recebe o aviso para propor de novo, pelo preço do dia; sem proposta, o acordo acaba sem quebra. O acordo vale até a posse do novo Congresso e acaba ali sem quebra. O aliado de jogador ganha só o apoio dos grupos dele: nenhum dinheiro entra no caixa de ninguém. (2) **Preço por cadeira:** cada cadeira custa uma fração fixa do PIB, cobrada por mês (valor inicial: 0,01% do PIB por ano por cadeira, a confirmar no protótipo), e o centrão cobra 1,5 vez isso. O partido de jogador recebe a proposta num aviso de aceitar ou recusar, no mesmo molde do convite de vice (F145), com o valor e o prazo; ele tem 15 dias para responder, e sem resposta conta como recusa. O partido do computador responde pelo perfil: o centrão aceita quase sempre, e os outros só quando os valores do governo combinam com os deles, no pregão seguinte. A tela mostra a previsão em palavras (deve aceitar, deve recusar, quase sempre aceita), sem número. Depois de uma recusa, nova proposta ao mesmo partido só em 30 dias. Com um pedido de impeachment aberto, nenhum acordo novo até o resultado; os que existem seguem valendo. (3) **Quebra:** se o governo para de pagar, os grupos do aliado, que recebiam a emenda, somam rejeição ao partido do presidente; se o aliado orienta Não durante o prazo, os grupos do governo somam rejeição ao aliado. Nos dois casos o acordo acaba e sai no jornal (F161). Romper é um botão nos dois lados (o governo rompe, o aliado de jogador sai da base), com o custo e a base que sobra à vista antes do clique: é a mesma quebra de parar de pagar ou de orientar Não. Valores iniciais: +8 de rejeição na quebra e cerca de +1 de apoio por mês de acordo, a confirmar no protótipo. Acordos, valores e prazos são públicos, como o orçamento; quem não governa os vê sem os botões. Como a rejeição só cai com reparação (F107), trair a base cobra na eleição seguinte. **Protótipo:** o preço por cadeira e o tamanho da rejeição na quebra. **Gatilho:** depois da F153 e da F128. **Canvas:** proposta de acordo do governo clicando no hemiciclo, que é o seletor (cheia: na base; anel: entra com a proposta; clara: fora), com o partido escolhido, o preço e os efeitos, a descrição e a dica de emenda, o custo de romper antes de propor e o botão com o valor; aviso de proposta para o partido de jogador; a base do governo no hemiciclo, num cartão Base no Congresso entre o cabeçalho e o orçamento (folga sobre a maioria, total das emendas, desobediência e a tabela dos acordos com prazo e como orientou), e as emendas no orçamento como linha própria na conta do mês; aviso e manchete de quebra de acordo. **Calibrado no protótipo de 29/out** (1.000 partidas): (1) preço por cadeira 0,005% do PIB por ano, metade do valor inicial, e o centrão cobra 1,5 vez isso. A base mais barata até 51 cadeiras mais 5 de folga sai em mediana por 0,20% do PIB por ano (8 em 10 entre 0,13% e 0,29%), contra 0,33% de uma medida de gasto média; em 9% de 1.000 partidas os partidos que aceitam não somam 51. Com a base, passam 99% das propostas, inclusive com a oposição em maioria. (2) No protótipo, o partido do computador aceita com ao menos 2 bandeiras em comum com o governo, o centrão sempre, e o de jogador metade das vezes. (3) A emenda entra como gasto e não soma inflação. (4) Apoio do acordo +1 por mês nos grupos do aliado, que cai pela metade em 3 meses como o de campanha e se estabiliza perto de +4,8. (5) Quebra: +8 de rejeição, cheia no grupo em que o aliado é mais forte e proporcional nos outros. Na eleição seguinte, com verbas iguais, o partido do presidente cai de 24,5% para 23,1% dos votos no 1º turno, e a chance de vencer de 67% para 32% de 1.000.
+
+**Entregue:** o card Base no Congresso na aba Contas do Governo (hemiciclo da base, folga sobre a maioria, total das emendas, desobediência e a tabela dos acordos com prazo e como a bancada orientou, pública, com os botões só para quem governa), o diálogo Negociar apoio com o hemiciclo como seletor (cheia, anel, clara), a previsão em palavras, o custo na dívida e na base antes de propor, o convite ao líder do partido de jogador (abre sozinho em qualquer página e fica como pendência e aviso fixo), a resposta do computador no pregão seguinte, o prazo de 15 dias e a espera de 30 dias depois da recusa, o preço de 0,005% do PIB por ano por cadeira (centrão 1,5 vez), o acordo de 6 meses que acaba sem quebra na posse do novo Congresso, o aviso de renovação um mês antes, a quebra nos dois lados com o custo à vista (+8 de rejeição pelos grupos mais fortes, cheia no mais forte), o selo de acordo e a confirmação de orientar Não na votação, a linha de emendas na conta do mês, as manchetes e os avisos de resposta, quebra e fim. Os acordos são eventos do estado político, refeitos na retomada, e a emenda do mês é gasto avaliado pelo dia anterior, para o fechamento do orçamento ser o mesmo ao vivo e na retomada. **Conferência:** pytest (36 testes novos), vitest e o check completo; a migration subiu no banco de teste e o app iniciou, mas a tela da base não foi conferida rodando porque ela só aparece depois da primeira posse.
 
 <a id="f161"></a>
 **F161 — Jornal da partida: notificações configuráveis por tipo.** Serve N31 e N32; retrabalho da F91. A caixa de entrada saiu como um e-mail (envelope com contagem de não lidas, painel lateral, marca de lida), e não é o que o jogo pede: com o tempo correndo, notícia é passageira. O modelo vem do OpenTTD (notícia grande em janela, pequena na faixa, e cada tipo configurável) e do Victoria 3 (cada tipo escolhe se aparece, fica só no registro ou some, e só o que é global pausa). Decidido no canvas em 27/out: (1) **Régua:** no jornal entra só o que pareceria notícia num jornal de verdade: economia, empresas, política (calendário da eleição, resultado, posse, medidas propostas, votadas e em vigor, vida dos partidos) e marcos históricos. O que é do jogador continua toast, com liga/desliga por tipo: ordens (manuais, a limite e do automático), jogador entrou ou saiu, parcelas pagas, empréstimo quitado, nota de risco, imprevisto, resposta do vice e resumo do mês. A resposta a um clique é toast e não se configura. O que pede ação é pendência, feature própria (F166). (2) **Como aparece**, escolha de cada jogador: o cartão do jornal num canto (embaixo à esquerda, o padrão; embaixo à direita; em cima à esquerda) ou a faixa de manchetes abaixo da topbar; os toasts ficam embaixo, no lado oposto (com a faixa, embaixo à direita). Em cima à direita fica de fora, porque divide a borda com a aba do tutorial. Várias manchetes no mesmo pregão: sobe a mais importante, com "+N neste pregão", sem fila. (3) **Configuração por tipo**, num registro único de tipos (categoria, texto, padrão): Janela, Jornal, Só no histórico ou Desligado. Janela abre a manchete no centro sem pausar e sem escurecer o fundo, fecha sozinha em 8 s, no máximo uma por pregão; no padrão fica para poucos tipos, e serve a quem quer ênfase numa categoria. Resultado de turno e impeachment ficam presos na janela com pausa. Em empresas, o filtro "só ativos da minha carteira". (4) **Histórico** da partida inteira, salvo com ela, por data, sem "lida" e sem contagem, com busca, filtro por seção e "só minha carteira". Ele mora numa página própria, com o item Jornal no menu lateral, sob Mercado; "Abrir o jornal" no cartão e o selo recolhido levam para ela. (5) **A caixa de entrada sai:** resumo do mês e retrospectiva viram toast com Abrir, e os passados ficam numa aba Resumos em Estatísticas. (6) **Multiplayer:** a configuração é de cada jogador e nunca pausa a sala. (7) **Ficam como estão,** fora do jornal e da configuração: aviso de que o host removeu o jogador, erro no servidor, conquista e aviso do backtest. O histórico em página própria foi escolhido no canvas em 28/out. **Entregue:** a caixa de entrada saiu e o jornal entrou. Um registro único de tipos de notificação (7 tipos de manchete em 4 seções e 9 tipos de aviso pessoal) manda no que o jogador vê: cada tipo de manchete tem nível Janela, Jornal, Só no histórico ou Desligado, e cada aviso pessoal liga e desliga. A manchete nova chega pronta pelo tempo real: a de nível Janela abre no centro da tela sem pausar e fecha em 8 s (a segunda espera a primeira; a terceira vira só cartão), a de nível Jornal vira cartão de papel num canto (ou uma faixa de 40 px sob a topbar) e recolhe num selo depois de cerca de 6 s; numa rajada no mesmo pregão aparece só a mais importante, com "+N neste pregão". Os avisos ficam embaixo, no lado oposto ao do cartão. A página Jornal, sob Mercado, guarda o histórico da partida inteira, com busca, abas por seção, "Só minha carteira" e os estados vazio, carregando, erro e filtro sem resultado. Em Configurações há o cartão Jornal (nível por tipo, com Restaurar padrão), a escolha da posição em quatro cartões de esboço e o cartão Avisos (um interruptor por tipo). O resumo do mês e a retrospectiva do ano viraram a aba Resumos de Estatísticas, com o toast "Resumo de <mês>" e o botão Abrir. Os toasts políticos que viraram manchete saíram do aviso. **Ficou de fora:** a opção "Só ativos da minha carteira" por tipo na configuração do jornal (o contrato de configurações não tem o campo; a página do jornal já filtra pela carteira); a aba Resumos não tem board no canvas. **Decidido na implementação:** a janela aceita uma fila de duas; a faixa mostra a última manchete elegível, apagada, depois do tempo do cartão; o aviso do ataque entre outros partidos saiu e o ataque ao partido do jogador segue como aviso.
