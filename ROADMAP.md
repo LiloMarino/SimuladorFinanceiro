@@ -73,7 +73,6 @@
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
 | [**F90**](#f90) | Cenários | — | 🔍 |
-| [**F92**](#f92) | Noticiário da partida | — | ⏳ |
 | [**F93**](#f93) | Rumores antecipados | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 | [**F100**](#f100) | Proventos na carteira e nas telas | — | ⏳ |
@@ -104,7 +103,7 @@
 | [**F167**](#f167) | Notícias do ativo como marcadores no gráfico de preço | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (30 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (31 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -126,6 +125,7 @@
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | — | ✅ |
 | **D18** | Uma migration por versão; caminho antigo só cai numa major | — | ✅ |
 | **D19** | O eleitorado são grupos, cada um com apoio e rejeição por partido | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154) | ✅ |
+| [**F92**](#f92) | Noticiário da partida | — | ✅ |
 | [**F107**](#f107) | Grupos de eleitores, com apoio e rejeição por partido | — | ✅ |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | ✅ |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ✅ |
@@ -152,12 +152,12 @@
 | [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | M19 | 4 | ⏳ |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
-| [**F92**](#f92) | Noticiário da partida | M15 | 2 | ⏳ |
 | [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | M19 | 1 | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F90**](#f90) | Cenários | — | 0 | 🔍 |
+| [**F93**](#f93) | Rumores antecipados | M15 | 0 | 🔍 |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
 | [**F131**](#f131) | Catálogo de padrões de vela | M11 | 0 | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
@@ -245,18 +245,18 @@
 >
 > **Serve:** N31, N32
 >
-> **Progresso:** 2/5 concluídas
+> **Progresso:** 3/5 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F92**](#f92) | Noticiário da partida | [F161](#f161) | ⏳ |
 | [**F93**](#f93) | Rumores antecipados | [F92](#f92) | 🔍 |
 | [**F167**](#f167) | Notícias do ativo como marcadores no gráfico de preço | [F92](#f92) | 💤 |
 
-<details><summary>Concluído (2 itens)</summary>
+<details><summary>Concluído (3 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
+| [**F92**](#f92) | Noticiário da partida | [F161](#f161) | ✅ |
 | [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | ✅ |
 | [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ✅ |
 
@@ -384,7 +384,7 @@
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F69** | Imprevistos configuráveis e tipos novos | N23 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
-| **F92** | Noticiário da partida | N31 | D7 | M15 | [F161](#f161) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F92** | Noticiário da partida | N31 | D7 | M15 | [F161](#f161) | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F101** | Carteira separada do jogador | N23 | D9 | M18 | — | Alto | Alto | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F110** | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
@@ -439,7 +439,7 @@
 **F72 — Gráficos padronizados sobre o `ChartContainer` do shadcn.** Serve N15; continua a padronização da interface no shadcn, que deixou o `shared/components/ui/chart.tsx` sem nenhum consumidor. Hoje cada gráfico Recharts repete o `ResponsiveContainer`, a cor da grade e um array `{ key, label, color }` de séries (que é o `ChartConfig`), e uns cinco cards de tooltip feitos à mão reimplementam o `ChartTooltipContent`. Plano: (1) antes|depois no canvas de `player-line-chart` e `networth-chart` com `ChartContainer` + `ChartTooltipContent`, para aprovar o visual do tooltip (texto menor, indicador) e decidir se o `ui/chart.tsx` ganha variante; (2) convenção de pasta por gráfico: `<nome>-chart/` com `<nome>-chart.tsx` (componente puro, recebe o dado da API por prop), `chart-data.ts` (`ChartConfig`, tipos de linha e `build*`), `chart-legend.tsx` opcional (a legenda clicável que liga e desliga série continua própria) e `index.ts` exportando só o componente; gráfico sem legenda nem transformação fica arquivo solto `<nome>-chart.tsx`; (3) migrar `player-line-chart/` (`utils.ts` + `series.ts` → `chart-data.ts`, sai o tooltip próprio), `networth-chart`, `allocation-donut` e os gráficos embutidos em `composition-tab.tsx` (`AreaChart`) e `risk-tab.tsx` (`ScatterChart`), extraídos para pastas próprias; o `stock-chart` (lightweight-charts, imperativo) fica fora do `ChartContainer`; (4) a seção Gráficos entra em `docs/docs/desenvolvimento/convencoes-frontend.md`. Gatilho: a próxima rodada de design no canvas, ou o próximo gráfico novo.
 
 <a id="f92"></a>
-**F92 — Noticiário da partida.** Serve N31; segue a D7. Um noticiário sintético: as manchetes nascem das séries que a partida já lê, e por isso funcionam igual no futuro gerado, que é onde o jogo passa a maior parte do tempo, e na história real. Sem LLM e sem internet. (1) **Motor genérico:** uma lista de regras, cada uma olhando as séries no tick e, quando dispara, criando uma notícia da sala entregue pelo jornal da partida (F161) a partir de um modelo de texto com algumas variações, para a mesma frase não se repetir. Regra nova é só mais um item da lista. (2) **Macro, as manchetes padrão:** Copom subiu, baixou ou manteve a SELIC, com o tamanho ("Copom sobe a SELIC em 0,5 ponto, para 14,25%"); IPCA do mês acima ou abaixo do anterior; Ibovespa no recorde ou na maior queda do ano. (3) **Empresas:** a mesma lógica para um ativo que sobe ou cai mais de um limite no dia, chega à máxima de 52 semanas ou anuncia provento. O movimento ganha uma causa sintética plausível, sorteada de um banco de causas por setor e direção ("resultado do trimestre acima do esperado", "troca no comando", "vendas de fim de ano fracas" para o varejo). A notícia sai depois do movimento: dá contexto e não dá vantagem. (4) **Extra, para período real:** marcos históricos curados à mão (crise de 2008, Joesley Day em 2017, Covid em março de 2020), num arquivo de dados com data, manchete e ativos ligados. O futuro gerado sempre começa depois do último dia real, então um marco datado só aparece em período real, e um cenário (F90) pode trazer os seus. Os tipos, os exemplos de texto e o nível padrão de cada um estão no board de Configurações do jornal no canvas: em Economia, Copom, inflação do mês e recorde ou maior queda do Ibovespa; em Empresas, movimento forte no dia (alta ou queda acima de 5%, com a causa), máxima de 52 semanas e proventos anunciados; em História, os marcos. O filtro "Só ativos da minha carteira" por tipo, que o board mostra em Empresas e o jornal da partida deixou de fora, entra aqui. Proventos anunciados esperam a F22, porque o jogo ainda não guarda proventos. Os marcadores no gráfico de preço ficam na F167. Gatilho: o jornal da partida (F161) está pronto; a F92 sai na versão 3.1.
+**F92 — Noticiário da partida.** O noticiário (`features/newsroom/`) lê o pregão no tick e entrega manchetes ao jornal da partida pelo mesmo `news.publish` da política; sem LLM e sem internet, e a lista de regras vale para o futuro gerado e para a história real. Regra nova é só mais um item da lista em `Newsroom`. Economia: o Copom sobe ou baixa a SELIC (compara o nível anual com o do pregão anterior, com o tamanho e o novo nível), o IPCA do mês que fechou sai no primeiro pregão do mês seguinte (acima ou abaixo do anterior, com o acumulado em 12 meses) e o Ibovespa no recorde (no máximo um a cada 30 dias) ou na maior queda do ano (a partir de 2% no dia). Empresas: movimento forte no dia (acima de 5% contra o fechamento anterior, só ações, FIIs e BDRs) com a causa sorteada de um banco por setor e direção, e máxima de 52 semanas; cada regra põe no máximo 3 ativos por pregão, os de maior movimento, e a notícia sai depois do movimento, sem dar vantagem. A frase varia por sorteio com semente fixa na partida e no dia: o mesmo fato sai com a mesma frase. História: 14 marcos curados à mão em `history.py` (crise de 2008, Joesley Day, Covid-19, entre outros), que só saem em período real; um marco que cai no fim de semana sai no pregão seguinte. Os seis tipos entram no registro de tipos (seções Economia, Empresas e História, com os níveis padrão do board de Configurações do jornal) e a configuração ganha, nos tipos de empresas, o filtro "Só ativos da minha carteira": a manchete que não cita ativo da carteira do jogador fica de fora da janela, do cartão e do histórico dele. Fora: proventos anunciados (esperam a F22) e os marcadores no gráfico de preço (F167); "Copom manteve a SELIC" também fica de fora, porque as séries não guardam as datas das reuniões, só as mudanças.
 
 <a id="f101"></a>
 **F101 — Carteira separada do jogador.** Serve N23; segue a D9. A base da expansão Gestoras (F44): hoje eventos e snapshots pertencem ao jogador (`user_id`), e a gestora precisa de carteira própria. Entra uma tabela `portfolios`, e eventos e snapshots passam a apontar para a carteira; a carteira pessoal de cada jogador é migrada uma a uma, inclusive nas partidas salvas. Nada muda na tela: cada jogador segue com uma carteira só até a F44 existir. Gatilho: a F44 sair da avaliação.
