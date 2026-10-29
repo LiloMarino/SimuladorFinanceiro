@@ -7,6 +7,8 @@ type HemicycleProps = {
   marks?: { at: number; label: string }[];
   width?: number;
   label: string;
+  /** Torna as cadeiras com bancada clicáveis */
+  onSelect?: (blocKey: number) => void;
 };
 
 const ROWS = [11, 15, 20, 25, 30];
@@ -29,7 +31,7 @@ function layout(total: number) {
 }
 
 /** O plenário em semicírculo: uma bolinha por cadeira, com cunhas por partido ou cheia/clara por voto. */
-export function Hemicycle({ seats, marks = [], width = 420, label }: HemicycleProps) {
+export function Hemicycle({ seats, marks = [], width = 420, label, onSelect }: HemicycleProps) {
   const spots = layout(seats.length);
   const size = (GEOMETRY.outer - GEOMETRY.inner) / (ROWS.length - 1) / 2 - 1.2;
 
@@ -45,8 +47,10 @@ export function Hemicycle({ seats, marks = [], width = 420, label }: HemicyclePr
       {spots.map((spot, index) => {
         const seat = seats[index];
         if (!seat) return null;
+        const pick = onSelect && seat.blocKey !== undefined ? () => onSelect(seat.blocKey!) : undefined;
         return (
-          <g key={index}>
+          <g key={index} onClick={pick} className={pick ? "cursor-pointer" : undefined}>
+            {seat.title && <title>{seat.title}</title>}
             <circle
               cx={spot.x}
               cy={spot.y}

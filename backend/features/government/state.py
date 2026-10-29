@@ -14,6 +14,8 @@ from typing import Any
 from backend.core.dto.events.government import GovernmentEventDTO
 from backend.core.enum import (
     CampaignActionKind,
+    DealBreaker,
+    DealStatus,
     DiceBand,
     MeasureKind,
     MeasureStatus,
@@ -29,7 +31,11 @@ from backend.features.government import (
     second_round,
     voters,
 )
+from backend.features.government import (
+    deals as deal_rules,
+)
 from backend.features.government.computer_parties import COMPUTER_FLAGS
+from backend.features.government.deals import Deal
 from backend.features.government.promises import GroupEffects, Promise
 
 # A medida aprovada vale depois da noventena
@@ -443,6 +449,9 @@ class GovernmentState:
     orientations: dict[str, dict[int, bool]] = field(default_factory=dict)
     request: ImpeachmentRequest | None = None
     impeachment_votes: list[ImpeachmentVote] = field(default_factory=list)
+    # Os acordos de apoio por emenda, da proposta ao fim
+    deals: dict[int, Deal] = field(default_factory=dict)
+    next_deal_id: int = 1
     # O balanço das promessas de cada governo que acabou
     balances: list[Balance] = field(default_factory=list)
 
@@ -458,6 +467,45 @@ class GovernmentState:
         """A casa em exercício no dia: a última cuja posse já chegou, ou a inicial do computador."""
         seated = [e for e in self.houses if e.takes_office <= day]
         return seated[-1].house if seated else house.initial_house()
+
+    def deals_in_force(self, day: date) -> list[Deal]:
+        """Os acordos que valem no dia, na ordem em que foram propostos."""
+        return [d for d in self.deals.values() if d.in_force(day)]
+
+    def deal_of(self, bloc_key: int, day: date) -> Deal | None:
+        """O acordo em vigor da bancada no dia."""
+        return next(
+            (d for d in self.deals_in_force(day) if d.bloc_key == bloc_key), None
+        )
+
+    def pending_deal_of(self, bloc_key: int) -> Deal | None:
+        return next(
+            (
+                d
+                for d in self.deals.values()
+                if d.bloc_key == bloc_key and d.status is DealStatus.PENDING
+            ),
+            None,
+        )
+
+    def amendments_on(self, day: date) -> Decimal:
+        """
+        O que os acordos pagam no fechamento do mês que acaba em `day`, em fração do PIB por
+        ano. Conta o que vigorava na véspera: o fechamento nunca depende de um fato do
+        próprio dia, que na partida rodando pode vir depois dele.
+        """
+        return deal_rules.amendments(self.deals.values(), day - timedelta(days=1))
+
+    def last_refusal(self, bloc_key: int) -> date | None:
+        """O dia da última recusa da bancada, para a espera até a próxima proposta."""
+        days = [
+            d.answered
+            for d in self.deals.values()
+            if d.bloc_key == bloc_key
+            and d.status is DealStatus.DECLINED
+            and d.answered is not None
+        ]
+        return max(days, default=None)
 
     def elected_house(self) -> ElectedHouse | None:
         """A última casa eleita, tenha ou não tomado posse."""
@@ -637,7 +685,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 promises=pending.promises if pending else (),
             )
             state.pending_term = None
-            _reset_government(state)
+            _reset_government(state, day)
         case Event.MEASURE_PROPOSED:
             measure_id = _int(p, "measure_id")
             state.measures[measure_id] = Measure(
@@ -670,7 +718,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             state.approvals.append(ApprovalPoint(day, satisfaction))
             state.low_streak = _int(p, "low_streak")
             state.last_measured = date.fromisoformat(_str(p, "month"))
-            _remember_month(state, satisfaction)
+            _remember_month(state, satisfaction, day)
         case Event.IMPEACHED:
             _apply_impeachment(state, event)
         case Event.HOUSE_ELECTED:
@@ -689,6 +737,14 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             )
         case Event.IMPEACHMENT_VOTED:
             _apply_impeachment_vote(state, event)
+        case Event.DEAL_PROPOSED:
+            _apply_deal_proposed(state, event)
+        case Event.DEAL_ANSWERED:
+            _apply_deal_answered(state, event)
+        case Event.DEAL_WITHDRAWN:
+            state.deals[_int(p, "deal_id")].status = DealStatus.WITHDRAWN
+        case Event.DEAL_BROKEN:
+            _apply_deal_broken(state, event)
         case Event.PROMISES_SET:
             _apply_promises_set(state, event)
         case Event.PROMISES_WEIGHED:
@@ -697,7 +753,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             _apply_promises_settled(state, event)
 
 
-def _reset_government(state: GovernmentState) -> None:
+def _reset_government(state: GovernmentState, day: date) -> None:
     """Um governo novo começa sem a fila do anterior e sem o histórico de aprovação."""
     for measure in state.measures.values():
         if measure.status is MeasureStatus.QUEUED:
@@ -706,6 +762,7 @@ def _reset_government(state: GovernmentState) -> None:
     state.low_streak = 0
     state.request = None
     state.orientations.pop("impeachment", None)
+    _cut_deals(state, day)
 
 
 def _apply_impeachment(state: GovernmentState, event: GovernmentEventDTO) -> None:
@@ -732,7 +789,83 @@ def _apply_impeachment(state: GovernmentState, event: GovernmentEventDTO) -> Non
         weighed=term.weighed,
         applied=term.applied,
     )
-    _reset_government(state)
+    _reset_government(state, event.event_date)
+
+
+def _cut_deals(state: GovernmentState, day: date) -> None:
+    """Um governo novo herda uma base vazia: os acordos acabam sem quebra e as propostas caem."""
+    for deal in state.deals.values():
+        if deal.status is DealStatus.ACTIVE:
+            deal.status = DealStatus.CUT
+            if deal.end is not None:
+                deal.end = min(deal.end, day - timedelta(days=1))
+        elif deal.status is DealStatus.PENDING:
+            deal.status = DealStatus.WITHDRAWN
+
+
+def _apply_deal_proposed(state: GovernmentState, event: GovernmentEventDTO) -> None:
+    p = event.payload
+    deal_id = _int(p, "deal_id")
+    answer_by = _opt_str(p, "answer_by")
+    state.deals[deal_id] = Deal(
+        id=deal_id,
+        bloc_key=_int(p, "bloc_key"),
+        party_id=_opt_int(p, "party_id"),
+        abbr=_str(p, "abbr"),
+        seats=_int(p, "seats"),
+        ratio=_money(p, "ratio"),
+        proposed=event.event_date,
+        proposer_id=_int(p, "proposer_id"),
+        answer_by=date.fromisoformat(answer_by) if answer_by else None,
+    )
+    state.next_deal_id = max(state.next_deal_id, deal_id + 1)
+
+
+def _apply_deal_answered(state: GovernmentState, event: GovernmentEventDTO) -> None:
+    """A resposta aceita abre o acordo (e encerra o anterior da mesma bancada, que a renovação substitui); a recusada guarda o dia."""
+    p = event.payload
+    day = event.event_date
+    deal = state.deals[_int(p, "deal_id")]
+    deal.answered = day
+    if not p["accepted"]:
+        deal.status = DealStatus.DECLINED
+        return
+    for old in state.deals.values():
+        if old.bloc_key == deal.bloc_key and old.status is DealStatus.ACTIVE:
+            old.status = DealStatus.CUT
+            old.end = day - timedelta(days=1)
+    deal.status = DealStatus.ACTIVE
+    deal.start = day
+    deal.end = date.fromisoformat(_str(p, "end"))
+
+
+def _apply_deal_broken(state: GovernmentState, event: GovernmentEventDTO) -> None:
+    """
+    O acordo acaba na hora. Quando o governo para de pagar, os grupos do aliado somam
+    rejeição ao partido do presidente; quando o aliado rompe, os grupos do governo somam
+    rejeição ao aliado.
+    """
+    p = event.payload
+    day = event.event_date
+    deal = state.deals[_int(p, "deal_id")]
+    deal.status = DealStatus.BROKEN
+    deal.end = day
+    deal.broken_by = DealBreaker(_str(p, "by"))
+    current = state.house_on(day)
+    term = state.term
+    governing = current.of_party(term.party_id) if term and term.party_id else None
+    ally = current.bloc(deal.bloc_key)
+    default_mix = dict(voters.WEIGHTS)
+    if deal.broken_by is DealBreaker.GOVERNMENT:
+        victim = state.parties.get(term.party_id) if term and term.party_id else None
+        mix = ally.mix if ally is not None else default_mix
+    else:
+        victim = state.parties.get(deal.party_id) if deal.party_id else None
+        mix = governing.mix if governing is not None else default_mix
+    if victim is None:
+        return
+    for group, amount in deal_rules.break_rejection(mix).items():
+        victim.rejection[group] = voters.add_rejection(victim.rejection[group], amount)
 
 
 def _remove_member(state: GovernmentState, user_id: int) -> None:
@@ -1056,8 +1189,22 @@ def _set_flags(party: Party, flags: tuple[VoterValue, ...]) -> None:
         )
 
 
+def _support_allies(state: GovernmentState, governing: set[int], day: date) -> None:
+    """Cada mês de acordo soma apoio ao partido aliado nos grupos dele; o apoio cai pela metade em 3 meses, como o do mandato."""
+    current = state.house_on(day)
+    for deal in state.deals_in_force(day):
+        party = state.parties.get(deal.party_id) if deal.party_id else None
+        bloc = current.bloc(deal.bloc_key)
+        if party is None or bloc is None or party.id in governing:
+            continue
+        for group, points in deal_rules.month_support(bloc.mix).items():
+            party.term_support[group] = (
+                party.term_support[group] * voters.SUPPORT_MONTHLY_KEEP + points
+            )
+
+
 def _remember_month(
-    state: GovernmentState, satisfaction: dict[VoterGroup, Decimal]
+    state: GovernmentState, satisfaction: dict[VoterGroup, Decimal], day: date
 ) -> None:
     """O mês fechado mexe no apoio e na rejeição dos partidos do presidente e do vice."""
     term = state.term
@@ -1078,6 +1225,7 @@ def _remember_month(
                 party.rejection[group],
                 voters.month_verdict(value),
             )
+    _support_allies(state, set(governing), day)
 
 
 def _apply_house(state: GovernmentState, event: GovernmentEventDTO) -> None:

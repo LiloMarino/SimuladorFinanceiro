@@ -4751,7 +4751,7 @@
           "Government"
         ],
         "summary": "Orientar a bancada numa votação",
-        "description": "O líder do partido (o fundador; se ele sai, o filiado mais antigo) orienta a bancada com Sim ou Não numa medida da fila, ou no pedido de impeachment aberto quando `measure_id` vem nulo. Vale até a véspera da votação; sem orientação, a bancada segue a orientação padrão do partido. Recusa com 403 para quem não é líder e com 409 quando o partido não tem bancada ou a votação já fechou.",
+        "description": "O líder do partido (o fundador; se ele sai, o filiado mais antigo) orienta a bancada com Sim ou Não numa medida da fila, ou no pedido de impeachment aberto quando `measure_id` vem nulo. Vale até a véspera da votação; sem orientação, a bancada segue a orientação padrão do partido. Com acordo de apoio em vigor, orientar Não numa medida rompe o acordo e exige `break_deal` verdadeiro. Recusa com 403 para quem não é líder e com 409 quando o partido não tem bancada, a votação já fechou ou falta a confirmação da quebra.",
         "operationId": "guide_bloc_api_government_congress_guidance_put",
         "requestBody": {
           "content": {
@@ -4793,6 +4793,353 @@
             "APIKeyCookie": []
           }
         ]
+      }
+    },
+    "/api/government/base": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter a base do governo no Congresso",
+        "description": "Retorna o partido do governo, as bancadas da casa com a situação de cada uma (na base, esperando resposta, o que impede propor), os acordos de apoio por emenda em vigor ou esperando resposta (preço, prazo, medidas orientadas Sim, cadeiras da base se acabar), o total das emendas e a última votação com a desobediência da base. Pública: a sala inteira vê. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+        "operationId": "get_base_api_government_base_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CongressBaseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/deals/preview": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Ver a prévia de uma proposta de acordo",
+        "description": "Para a bancada `bloc_key`, retorna a emenda (fração do PIB por ano e reais por mês), o prazo, as cadeiras da base antes e depois, a dívida no fim do mandato sem e com o acordo, os grupos do aliado e, no partido do computador, se ele deve aceitar e quantas bandeiras divide com o governo. Recusa com 404 quando a bancada não tem cadeira.",
+        "operationId": "preview_deal_api_government_deals_preview_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bloc_key",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Bloc Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DealPreviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/government/deals": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Propor um acordo de apoio",
+        "description": "O presidente propõe à bancada entrar na base por 6 meses (no máximo até a véspera da posse do novo Congresso): a emenda é 0,005% do PIB por ano por cadeira (o centrão, 1,5 vez) e a bancada orienta Sim em tudo o que o governo propuser. O partido de jogador tem 15 dias para responder; o do computador responde no pregão seguinte. Recusa com 403 para quem não preside e com 409 quando o partido já é da base com mais de 31 dias de prazo, tem proposta esperando, recusou há menos de 30 dias ou o impeachment está em votação.",
+        "operationId": "propose_deal_api_government_deals_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposeDealRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/deals/answer": {
+      "put": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Responder a proposta de acordo",
+        "description": "O líder do partido aceita ou recusa a proposta que espera resposta; o acordo vale a partir de hoje. Recusar não custa nada. Recusa com 404 sem proposta e com 409 depois do prazo.",
+        "operationId": "answer_deal_api_government_deals_answer_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerDealRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/deals/leave": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Sair da base do governo",
+        "description": "O líder do partido aliado rompe o acordo: a emenda para e os grupos do governo somam rejeição ao partido dele. Recusa com 403 para quem não lidera o partido e com 409 quando o partido não está na base.",
+        "operationId": "leave_base_api_government_deals_leave_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/deals/{deal_id}": {
+      "delete": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Cancelar a proposta de acordo",
+        "description": "O presidente cancela a proposta antes da resposta. Recusa com 403 para quem não preside e com 409 quando a proposta já foi respondida.",
+        "operationId": "withdraw_deal_api_government_deals__deal_id__delete",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "deal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Deal Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/government/deals/{deal_id}/break": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Romper o acordo de apoio",
+        "description": "O presidente para de pagar a emenda: o acordo acaba na hora e os grupos do aliado somam rejeição ao partido do governo. Recusa com 403 para quem não preside e com 409 quando o acordo não está em vigor.",
+        "operationId": "break_deal_api_government_deals__deal_id__break_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "deal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Deal Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
       }
     },
     "/api/government/parties/guidance": {
@@ -8975,6 +9322,46 @@
         "title": "AllocationViewDTO",
         "description": "A carteira da estratégia contra a meta e o que ela faria hoje."
       },
+      "AmendmentLineDTO": {
+        "properties": {
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "abbr",
+          "amount"
+        ],
+        "title": "AmendmentLineDTO",
+        "description": "A emenda de um partido da base no gasto do mês."
+      },
+      "AmendmentSummaryDTO": {
+        "properties": {
+          "ratio": {
+            "type": "string",
+            "title": "Ratio"
+          },
+          "monthly": {
+            "type": "string",
+            "title": "Monthly"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ratio",
+          "monthly"
+        ],
+        "title": "AmendmentSummaryDTO",
+        "description": "O que os acordos em vigor pagam: em fração do PIB por ano e em reais por mês."
+      },
       "AnswerChallengeRequest": {
         "properties": {
           "direction": {
@@ -8987,6 +9374,20 @@
           "direction"
         ],
         "title": "AnswerChallengeRequest"
+      },
+      "AnswerDealRequest": {
+        "properties": {
+          "accept": {
+            "type": "boolean",
+            "title": "Accept"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "accept"
+        ],
+        "title": "AnswerDealRequest"
       },
       "AppFoldersResponse": {
         "properties": {
@@ -10017,6 +10418,166 @@
         ],
         "title": "BandsSeriesDTO"
       },
+      "BaseBlocDTO": {
+        "properties": {
+          "key": {
+            "type": "integer",
+            "title": "Key"
+          },
+          "party_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Id"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "seats": {
+            "type": "integer",
+            "title": "Seats"
+          },
+          "is_computer": {
+            "type": "boolean",
+            "title": "Is Computer"
+          },
+          "centrao": {
+            "type": "boolean",
+            "title": "Centrao"
+          },
+          "leader": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leader"
+          },
+          "governing": {
+            "type": "boolean",
+            "title": "Governing"
+          },
+          "in_base": {
+            "type": "boolean",
+            "title": "In Base"
+          },
+          "pending": {
+            "type": "boolean",
+            "title": "Pending"
+          },
+          "ratio": {
+            "type": "string",
+            "title": "Ratio"
+          },
+          "monthly": {
+            "type": "string",
+            "title": "Monthly"
+          },
+          "blocker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocker"
+          },
+          "retry_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry From"
+          },
+          "declined_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Declined On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "party_id",
+          "abbr",
+          "name",
+          "color",
+          "seats",
+          "is_computer",
+          "centrao",
+          "leader",
+          "governing",
+          "in_base",
+          "pending",
+          "ratio",
+          "monthly",
+          "blocker",
+          "retry_from",
+          "declined_on"
+        ],
+        "title": "BaseBlocDTO",
+        "description": "Uma bancada no hemiciclo da base: a situação dela e o que impede propor."
+      },
+      "BaseVoteDTO": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "defected": {
+            "type": "integer",
+            "title": "Defected"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "day",
+          "defected"
+        ],
+        "title": "BaseVoteDTO",
+        "description": "A última votação de medida do governo e quantos deputados da base votaram contra a orientação."
+      },
       "BenchmarkDTO": {
         "properties": {
           "series": {
@@ -10292,6 +10853,10 @@
               }
             ],
             "title": "Cause Share"
+          },
+          "by_deal": {
+            "type": "boolean",
+            "title": "By Deal"
           }
         },
         "additionalProperties": false,
@@ -10308,7 +10873,8 @@
           "no",
           "defected",
           "cause",
-          "cause_share"
+          "cause_share",
+          "by_deal"
         ],
         "title": "BlocVoteDTO",
         "description": "Como a bancada vota numa medida ou num pedido de impeachment."
@@ -10516,6 +11082,21 @@
           "premium_floor": {
             "type": "string",
             "title": "Premium Floor"
+          },
+          "amendments": {
+            "items": {
+              "$ref": "#/components/schemas/AmendmentLineDTO"
+            },
+            "type": "array",
+            "title": "Amendments"
+          },
+          "amendments_amount": {
+            "type": "string",
+            "title": "Amendments Amount"
+          },
+          "amendments_ratio": {
+            "type": "string",
+            "title": "Amendments Ratio"
           }
         },
         "additionalProperties": false,
@@ -10532,7 +11113,10 @@
           "projection",
           "projection_end",
           "premium_curve",
-          "premium_floor"
+          "premium_floor",
+          "amendments",
+          "amendments_amount",
+          "amendments_ratio"
         ],
         "title": "BudgetDTO"
       },
@@ -11994,6 +12578,140 @@
         "title": "ComputerDifficulty",
         "description": "A verba de cada partido do computador, em múltiplo da média dos partidos de jogadores."
       },
+      "CongressBaseDTO": {
+        "properties": {
+          "governing_abbr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Governing Abbr"
+          },
+          "governing_seats": {
+            "type": "integer",
+            "title": "Governing Seats"
+          },
+          "seats": {
+            "type": "integer",
+            "title": "Seats"
+          },
+          "majority": {
+            "type": "integer",
+            "title": "Majority"
+          },
+          "impeachment_votes": {
+            "type": "integer",
+            "title": "Impeachment Votes"
+          },
+          "president": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "President"
+          },
+          "is_president": {
+            "type": "boolean",
+            "title": "Is President"
+          },
+          "my_deal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DealDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "my_proposal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DealDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "deals": {
+            "items": {
+              "$ref": "#/components/schemas/DealDTO"
+            },
+            "type": "array",
+            "title": "Deals"
+          },
+          "blocs": {
+            "items": {
+              "$ref": "#/components/schemas/BaseBlocDTO"
+            },
+            "type": "array",
+            "title": "Blocs"
+          },
+          "amendments": {
+            "$ref": "#/components/schemas/AmendmentSummaryDTO"
+          },
+          "last_vote": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BaseVoteDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "blocker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocker"
+          },
+          "answer_days": {
+            "type": "integer",
+            "title": "Answer Days"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "governing_abbr",
+          "governing_seats",
+          "seats",
+          "majority",
+          "impeachment_votes",
+          "president",
+          "is_president",
+          "my_deal",
+          "my_proposal",
+          "deals",
+          "blocs",
+          "amendments",
+          "last_vote",
+          "blocker",
+          "answer_days",
+          "term_months"
+        ],
+        "title": "CongressBaseDTO",
+        "description": "A base do governo no Congresso: o partido do presidente mais os aliados pagos com emenda."
+      },
       "CongressDTO": {
         "properties": {
           "house": {
@@ -13001,6 +13719,378 @@
           "debt_limit"
         ],
         "title": "CreditRatingChangedEventDTO"
+      },
+      "DealDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "bloc_key": {
+            "type": "integer",
+            "title": "Bloc Key"
+          },
+          "party_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Id"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "seats": {
+            "type": "integer",
+            "title": "Seats"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DealStatus"
+          },
+          "leader": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leader"
+          },
+          "is_computer": {
+            "type": "boolean",
+            "title": "Is Computer"
+          },
+          "centrao": {
+            "type": "boolean",
+            "title": "Centrao"
+          },
+          "ratio": {
+            "type": "string",
+            "title": "Ratio"
+          },
+          "monthly": {
+            "type": "string",
+            "title": "Monthly"
+          },
+          "answer_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer By"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End"
+          },
+          "days_left": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Days Left"
+          },
+          "renewable": {
+            "type": "boolean",
+            "title": "Renewable"
+          },
+          "votes": {
+            "type": "integer",
+            "title": "Votes"
+          },
+          "yes": {
+            "type": "integer",
+            "title": "Yes"
+          },
+          "base_after": {
+            "type": "integer",
+            "title": "Base After"
+          },
+          "ally_groups": {
+            "items": {
+              "$ref": "#/components/schemas/VoterGroup"
+            },
+            "type": "array",
+            "title": "Ally Groups"
+          },
+          "government_groups": {
+            "items": {
+              "$ref": "#/components/schemas/VoterGroup"
+            },
+            "type": "array",
+            "title": "Government Groups"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "bloc_key",
+          "party_id",
+          "abbr",
+          "name",
+          "color",
+          "seats",
+          "status",
+          "leader",
+          "is_computer",
+          "centrao",
+          "ratio",
+          "monthly",
+          "answer_by",
+          "start",
+          "end",
+          "days_left",
+          "renewable",
+          "votes",
+          "yes",
+          "base_after",
+          "ally_groups",
+          "government_groups"
+        ],
+        "title": "DealDTO",
+        "description": "Um acordo de apoio por emenda, da proposta ao fim."
+      },
+      "DealPreviewDTO": {
+        "properties": {
+          "bloc_key": {
+            "type": "integer",
+            "title": "Bloc Key"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "seats": {
+            "type": "integer",
+            "title": "Seats"
+          },
+          "leader": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leader"
+          },
+          "is_computer": {
+            "type": "boolean",
+            "title": "Is Computer"
+          },
+          "centrao": {
+            "type": "boolean",
+            "title": "Centrao"
+          },
+          "ratio": {
+            "type": "string",
+            "title": "Ratio"
+          },
+          "monthly": {
+            "type": "string",
+            "title": "Monthly"
+          },
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "title": "End"
+          },
+          "base_before": {
+            "type": "integer",
+            "title": "Base Before"
+          },
+          "base_after": {
+            "type": "integer",
+            "title": "Base After"
+          },
+          "debt_before": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Debt Before"
+          },
+          "debt_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Debt After"
+          },
+          "debt_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Debt End"
+          },
+          "ally_groups": {
+            "items": {
+              "$ref": "#/components/schemas/VoterGroup"
+            },
+            "type": "array",
+            "title": "Ally Groups"
+          },
+          "likely": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Likely"
+          },
+          "shared_flags": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shared Flags"
+          },
+          "blocker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocker"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "bloc_key",
+          "abbr",
+          "name",
+          "color",
+          "seats",
+          "leader",
+          "is_computer",
+          "centrao",
+          "ratio",
+          "monthly",
+          "start",
+          "end",
+          "base_before",
+          "base_after",
+          "debt_before",
+          "debt_after",
+          "debt_end",
+          "ally_groups",
+          "likely",
+          "shared_flags",
+          "blocker"
+        ],
+        "title": "DealPreviewDTO",
+        "description": "O que a proposta faz antes de enviar: o preço, a base, a dívida e a chance de aceitar."
+      },
+      "DealStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "ACTIVE",
+          "DECLINED",
+          "WITHDRAWN",
+          "BROKEN",
+          "CUT"
+        ],
+        "title": "DealStatus",
+        "description": "Onde está um acordo de apoio por emenda entre o governo e a bancada de um partido."
       },
       "DebtSummaryDTO": {
         "properties": {
@@ -15009,7 +16099,11 @@
           "ENDORSEMENT",
           "HOUSE_ELECTED",
           "IMPEACHMENT_REQUESTED",
-          "IMPEACHMENT_VOTED"
+          "IMPEACHMENT_VOTED",
+          "DEAL_PROPOSED",
+          "DEAL_ANSWERED",
+          "DEAL_BROKEN",
+          "DEAL_ENDED"
         ],
         "title": "GovernmentNoticeKind",
         "description": "O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."
@@ -15446,6 +16540,39 @@
               }
             ],
             "title": "Rival Abbr"
+          },
+          "seats_before": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seats Before"
+          },
+          "seats_after": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seats After"
+          },
+          "broken_by_ally": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Broken By Ally"
           }
         },
         "additionalProperties": false,
@@ -15475,7 +16602,10 @@
           "first_round",
           "campaign_action",
           "group",
-          "rival_abbr"
+          "rival_abbr",
+          "seats_before",
+          "seats_after",
+          "broken_by_ally"
         ],
         "title": "GovernmentUpdateEventDTO",
         "description": "A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve."
@@ -15712,6 +16842,11 @@
           "yes": {
             "type": "boolean",
             "title": "Yes"
+          },
+          "break_deal": {
+            "type": "boolean",
+            "title": "Break Deal",
+            "default": false
           }
         },
         "additionalProperties": false,
@@ -15805,6 +16940,10 @@
             },
             "type": "array",
             "title": "Yes Moves"
+          },
+          "by_deal": {
+            "type": "boolean",
+            "title": "By Deal"
           }
         },
         "additionalProperties": false,
@@ -15817,7 +16956,8 @@
           "default_orientation",
           "pulled_value",
           "scenarios",
-          "yes_moves"
+          "yes_moves",
+          "by_deal"
         ],
         "title": "GuideDTO",
         "description": "O que o líder vê para orientar a bancada dele numa votação."
@@ -19980,7 +21120,8 @@
           "STRATEGY_ERROR",
           "VICE_INVITE",
           "CAMPAIGN_OPEN",
-          "UNGUIDED_VOTE"
+          "UNGUIDED_VOTE",
+          "DEAL_PROPOSAL"
         ],
         "title": "PendingType",
         "description": "Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar."
@@ -22306,6 +23447,20 @@
           "promises"
         ],
         "title": "PromisesRequest"
+      },
+      "ProposeDealRequest": {
+        "properties": {
+          "bloc_key": {
+            "type": "integer",
+            "title": "Bloc Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "bloc_key"
+        ],
+        "title": "ProposeDealRequest"
       },
       "ProposeMeasureRequest": {
         "properties": {

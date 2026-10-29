@@ -19,6 +19,7 @@ const TARGETS: Record<PendingType, (item: Pending) => PendingTarget> = {
   STRATEGY_ERROR: () => ({ label: "Religar", to: "/strategies" }),
   UNGUIDED_VOTE: () => ({ label: "Orientar", to: "/government?tab=congress" }),
   VICE_INVITE: () => ({ label: "Responder", to: "/election", state: { dialog: "vice" } }),
+  DEAL_PROPOSAL: () => ({ label: "Responder", to: "/government?tab=accounts&deal=answer" }),
   CAMPAIGN_OPEN: () => ({ label: "Ver eleição", to: "/election", state: { dialog: "campaign" } }),
 };
 

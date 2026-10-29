@@ -8,8 +8,12 @@ import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { ElectionPanel, ElectionRound, GovernmentPanel } from "@/types";
 import { campaignToast } from "../lib/campaign";
+import { dealAnsweredToast, dealBrokenToast, dealEndedToast } from "../lib/deal-toast";
 import { impeachmentToast, measureVotedToast, monthClosedToast } from "../lib/measure-toast";
 import { useRenewElection } from "../hooks/mutations/useRenewElection";
+import { useRenewBase } from "../hooks/mutations/useRenewBase";
+import { useDealDialog } from "../hooks/useDealDialog";
+import { DealProposalDialog } from "./deal-proposal-dialog";
 import { ImpeachmentDialog } from "./impeachment-dialog";
 import { RoundResultDialog } from "./round-result-dialog";
 
@@ -33,6 +37,8 @@ export function GovernmentNotifications() {
   const me = user?.nickname;
 
   const renew = useRenewElection();
+  const renewBase = useRenewBase();
+  const dealDialog = useDealDialog();
 
   const openGovernment = () => void navigate("/government");
 
@@ -103,6 +109,32 @@ export function GovernmentNotifications() {
         if (notice) toast[notice.tone](notice.title, { description: notice.description });
         break;
       }
+      case "DEAL_PROPOSED":
+        // A proposta ao partido de jogador abre na tela do líder, em qualquer página
+        if (event.target === me) dealDialog.setOpen(true);
+        break;
+      case "DEAL_ANSWERED":
+        if (event.target === me) {
+          const notice = dealAnsweredToast(event);
+          toast[notice.tone](notice.title, { description: notice.description });
+        }
+        break;
+      case "DEAL_BROKEN":
+        // Avisa o lado que sofreu a quebra; quem rompeu já viu o diálogo
+        if (event.target === me) {
+          const notice = dealBrokenToast(event);
+          toast[notice.tone](notice.title, { description: notice.description });
+        }
+        break;
+      case "DEAL_ENDED": {
+        // O fim do acordo é aviso de quem governa
+        const panel = queryClient.getQueryData<GovernmentPanel>(queryKeys.government());
+        if (panel?.is_president) {
+          const notice = dealEndedToast(event);
+          toast[notice.tone](notice.title, { description: notice.description });
+        }
+        break;
+      }
       // O jornal da partida conta estes fatos (news_published) e as pendências, os que pedem ação; aqui só renovam a tela
       case "CAMPAIGN_OPENED":
       case "VICE_INVITED":
@@ -123,10 +155,12 @@ export function GovernmentNotifications() {
         break;
     }
     renew();
+    if (event.kind.startsWith("DEAL_")) renewBase();
   });
 
   return (
     <>
+      <DealProposalDialog open={dealDialog.open} onOpenChange={dealDialog.setOpen} />
       <ImpeachmentDialog panel={impeachment} onClose={() => setImpeachment(null)} />
       <RoundResultDialog
         result={shown?.result ?? null}

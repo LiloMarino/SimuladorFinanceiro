@@ -1,4 +1,4 @@
-import { Bot } from "lucide-react";
+import { Bot, Handshake } from "lucide-react";
 import { MetricLabel } from "@/shared/components/metric-hint";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { DEFIANCE, FORECAST } from "../lib/government-metrics";
@@ -105,7 +105,12 @@ function OpenCells({ bloc, subject }: { bloc: BlocVote; subject: string }) {
     <>
       <TableCell>
         <span className="inline-flex items-center gap-1.5 text-[13px]">
-          {bloc.guided ? (
+          {bloc.by_deal ? (
+            <>
+              <Handshake className="size-3.5 text-primary" />
+              Acordo com o governo
+            </>
+          ) : bloc.guided ? (
             "O líder"
           ) : (
             <>

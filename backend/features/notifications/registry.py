@@ -153,7 +153,7 @@ NEWS: tuple[NewsSpec, ...] = (
         NewsType.PARTY_LIFE,
         NewsSection.POLITICS,
         "Vida dos partidos",
-        "Partido fundado, doação, expulsão",
+        "Partido fundado, doação, expulsão, acordo de apoio rompido ou encerrado",
         NewsLevel.JOURNAL,
     ),
     NewsSpec(
@@ -252,6 +252,12 @@ PENDING: tuple[PendingSpec, ...] = (
         PendingSeverity.WARNING,
         "Votação sem orientação",
         "Só para o líder do partido; some ao orientar a bancada ou quando a casa vota",
+    ),
+    PendingSpec(
+        PendingType.DEAL_PROPOSAL,
+        PendingSeverity.WARNING,
+        "Proposta de acordo de apoio",
+        "Só para o líder do partido; some ao responder ou quando o prazo de 15 dias vence",
     ),
 )
 

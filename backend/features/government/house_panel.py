@@ -104,8 +104,14 @@ def vote_dto(
             house.pulled_value(effects),
             moves,
             lambda bloc: _default(
-                book, bloc, house.pulled_value(effects), orientations, proposer_party
+                book,
+                bloc,
+                house.pulled_value(effects),
+                orientations,
+                proposer_party,
+                today,
             ),
+            with_deals=True,
         )
     if measure.tally is None or measure.decided is None:
         return None
@@ -130,6 +136,7 @@ def _open_vote(
     pulled: VoterValue | None,
     yes_moves: list[ValueMoveDTO],
     standard: Callable[[house.Bloc], bool],
+    with_deals: bool = False,
 ) -> VoteDTO:
     current = book.state.house_on(today)
     low, high = house.forecast(current, orientations, wanted)
@@ -138,6 +145,7 @@ def _open_vote(
     blocs = []
     for bloc in current.seated:
         cause, share = _cause(bloc, reactions, orientations[bloc.key])
+        by_deal = with_deals and book.state.deal_of(bloc.key, today) is not None
         blocs.append(
             BlocVoteDTO(
                 key=bloc.key,
@@ -154,6 +162,7 @@ def _open_vote(
                 defected=None,
                 cause=cause,
                 cause_share=share,
+                by_deal=by_deal,
             )
         )
     guide = None
@@ -172,6 +181,7 @@ def _open_vote(
                 for orientation in (True, False)
             ],
             yes_moves=[] if _governing(book, leading) else yes_moves,
+            by_deal=with_deals and book.state.deal_of(leading.key, today) is not None,
         )
     return VoteDTO(
         blocs=blocs,
@@ -196,9 +206,12 @@ def _default(
     pulled: VoterValue | None,
     orientations: dict[int, bool],
     proposer_party: int | None,
+    today: date,
 ) -> bool:
-    """A orientação que vale quando o líder não orienta: Sim na medida do próprio governo, senão a regra do partido para o valor da medida."""
+    """A orientação que vale quando o líder não orienta: Sim na medida do próprio governo ou com acordo em vigor, senão a regra do partido para o valor da medida."""
     if bloc.party_id is not None and bloc.party_id == proposer_party:
+        return True
+    if book.state.deal_of(bloc.key, today) is not None:
         return True
     party = book.state.parties.get(bloc.party_id) if bloc.party_id else None
     if party is None:
@@ -256,6 +269,10 @@ def _closed_vote(
                 defected=vote.defected,
                 cause=vote.cause,
                 cause_share=bloc.mix[vote.cause] if bloc and vote.cause else None,
+                by_deal=any(
+                    d.bloc_key == key and d.covers(day)
+                    for d in book.state.deals.values()
+                ),
             )
         )
     return VoteDTO(

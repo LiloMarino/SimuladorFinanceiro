@@ -71,6 +71,9 @@ const notice = (partial: Partial<GovernmentNotice>): GovernmentNotice => ({
   campaign_action: "EVENT",
   group: "RETIREES",
   rival_abbr: null,
+  seats_before: null,
+  seats_after: null,
+  broken_by_ally: null,
   ...partial,
 });
 

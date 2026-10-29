@@ -46,6 +46,7 @@ const blocVote = (overrides: Partial<Vote["blocs"][number]>): Vote["blocs"][numb
   defected: null,
   cause: null,
   cause_share: null,
+  by_deal: false,
   ...overrides,
 });
 

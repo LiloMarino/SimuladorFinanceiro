@@ -12,6 +12,9 @@ export type HemicycleSeat = {
   color: string | null;
   tone: "solid" | "light" | "empty";
   ring?: boolean;
+  /** A bancada da cadeira, quando o hemiciclo deixa escolhê-la, e o texto de quem passa o mouse */
+  blocKey?: number;
+  title?: string;
 };
 
 /** Os partidos do computador não escolhem cor: a casa os pinta com uma paleta fixa. */
@@ -111,7 +114,7 @@ export function voteSeats(vote: Vote): HemicycleSeat[] {
   return pad(seats);
 }
 
-function pad(seats: HemicycleSeat[]): HemicycleSeat[] {
+export function pad(seats: HemicycleSeat[]): HemicycleSeat[] {
   const missing = Math.max(0, SEAT_TOTAL - seats.length);
   return [...seats, ...Array.from({ length: missing }, (): HemicycleSeat => ({ color: null, tone: "empty" }))];
 }

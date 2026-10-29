@@ -11,7 +11,10 @@ from backend.core.dto.campaign import (
     CampaignRollDTO,
 )
 from backend.core.dto.government import (
+    AnswerDealRequest,
+    CongressBaseDTO,
     ContributionRequest,
+    DealPreviewDTO,
     DonationRequest,
     ElectionPanelDTO,
     EndorsementRequest,
@@ -24,6 +27,7 @@ from backend.core.dto.government import (
     MeasurePreviewDTO,
     PartyFlagsRequest,
     PromisesPanelDTO,
+    ProposeDealRequest,
     ProposeMeasureRequest,
     RunoffContributionRequest,
     TicketRequest,
@@ -110,12 +114,86 @@ def set_contribution(
     "/congress/guidance",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Orientar a bancada numa votação",
-    description="O líder do partido (o fundador; se ele sai, o filiado mais antigo) orienta a bancada com Sim ou Não numa medida da fila, ou no pedido de impeachment aberto quando `measure_id` vem nulo. Vale até a véspera da votação; sem orientação, a bancada segue a orientação padrão do partido. Recusa com 403 para quem não é líder e com 409 quando o partido não tem bancada ou a votação já fechou.",
+    description="O líder do partido (o fundador; se ele sai, o filiado mais antigo) orienta a bancada com Sim ou Não numa medida da fila, ou no pedido de impeachment aberto quando `measure_id` vem nulo. Vale até a véspera da votação; sem orientação, a bancada segue a orientação padrão do partido. Com acordo de apoio em vigor, orientar Não numa medida rompe o acordo e exige `break_deal` verdadeiro. Recusa com 403 para quem não é líder e com 409 quando o partido não tem bancada, a votação já fechou ou falta a confirmação da quebra.",
 )
 def guide_bloc(
     simulation: ActiveSimulation, user: CurrentUser, payload: GuidanceRequest
 ):
-    simulation.guide_bloc(user, payload.measure_id, payload.yes)
+    simulation.guide_bloc(user, payload.measure_id, payload.yes, payload.break_deal)
+
+
+@government_router.get(
+    "/base",
+    response_model=CongressBaseDTO,
+    summary="Obter a base do governo no Congresso",
+    description="Retorna o partido do governo, as bancadas da casa com a situação de cada uma (na base, esperando resposta, o que impede propor), os acordos de apoio por emenda em vigor ou esperando resposta (preço, prazo, medidas orientadas Sim, cadeiras da base se acabar), o total das emendas e a última votação com a desobediência da base. Pública: a sala inteira vê. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+)
+def get_base(simulation: ActiveSimulation, user: CurrentUser):
+    return simulation.get_base(user)
+
+
+@government_router.get(
+    "/deals/preview",
+    response_model=DealPreviewDTO,
+    summary="Ver a prévia de uma proposta de acordo",
+    description="Para a bancada `bloc_key`, retorna a emenda (fração do PIB por ano e reais por mês), o prazo, as cadeiras da base antes e depois, a dívida no fim do mandato sem e com o acordo, os grupos do aliado e, no partido do computador, se ele deve aceitar e quantas bandeiras divide com o governo. Recusa com 404 quando a bancada não tem cadeira.",
+)
+def preview_deal(simulation: ActiveSimulation, user: CurrentUser, bloc_key: int):
+    return simulation.preview_deal(bloc_key)
+
+
+@government_router.post(
+    "/deals",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Propor um acordo de apoio",
+    description="O presidente propõe à bancada entrar na base por 6 meses (no máximo até a véspera da posse do novo Congresso): a emenda é 0,005% do PIB por ano por cadeira (o centrão, 1,5 vez) e a bancada orienta Sim em tudo o que o governo propuser. O partido de jogador tem 15 dias para responder; o do computador responde no pregão seguinte. Recusa com 403 para quem não preside e com 409 quando o partido já é da base com mais de 31 dias de prazo, tem proposta esperando, recusou há menos de 30 dias ou o impeachment está em votação.",
+)
+def propose_deal(
+    simulation: ActiveSimulation, user: CurrentUser, payload: ProposeDealRequest
+):
+    simulation.propose_deal(user, payload.bloc_key)
+
+
+@government_router.put(
+    "/deals/answer",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Responder a proposta de acordo",
+    description="O líder do partido aceita ou recusa a proposta que espera resposta; o acordo vale a partir de hoje. Recusar não custa nada. Recusa com 404 sem proposta e com 409 depois do prazo.",
+)
+def answer_deal(
+    simulation: ActiveSimulation, user: CurrentUser, payload: AnswerDealRequest
+):
+    simulation.answer_deal(user, payload.accept)
+
+
+@government_router.post(
+    "/deals/leave",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Sair da base do governo",
+    description="O líder do partido aliado rompe o acordo: a emenda para e os grupos do governo somam rejeição ao partido dele. Recusa com 403 para quem não lidera o partido e com 409 quando o partido não está na base.",
+)
+def leave_base(simulation: ActiveSimulation, user: CurrentUser):
+    simulation.leave_base(user)
+
+
+@government_router.delete(
+    "/deals/{deal_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Cancelar a proposta de acordo",
+    description="O presidente cancela a proposta antes da resposta. Recusa com 403 para quem não preside e com 409 quando a proposta já foi respondida.",
+)
+def withdraw_deal(simulation: ActiveSimulation, user: CurrentUser, deal_id: int):
+    simulation.withdraw_deal(user, deal_id)
+
+
+@government_router.post(
+    "/deals/{deal_id}/break",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Romper o acordo de apoio",
+    description="O presidente para de pagar a emenda: o acordo acaba na hora e os grupos do aliado somam rejeição ao partido do governo. Recusa com 403 para quem não preside e com 409 quando o acordo não está em vigor.",
+)
+def break_deal(simulation: ActiveSimulation, user: CurrentUser, deal_id: int):
+    simulation.break_deal(user, deal_id)
 
 
 @government_router.put(

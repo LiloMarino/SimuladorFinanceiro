@@ -80,6 +80,39 @@ export const DEFECTION_RATE: MetricInfo = {
   format: (value) => `${value}%`,
 };
 
+export const BASE_SEATS: MetricInfo = {
+  label: "Base do governo",
+  description: "Cadeiras que orientam Sim em tudo o que o governo propõe",
+  definition:
+    "É a bancada do partido do presidente mais as bancadas aliadas, que recebem emenda em troca de orientar Sim. São 101 cadeiras; 51 aprovam uma medida e 68 derrubam o presidente.",
+  example: "Ex.: 33 cadeiras do governo + 24 de aliados = base de 57, que passa a maioria de 51 com 6 de folga.",
+  reading:
+    "Abaixo de 51, cada medida depende de como as outras bancadas votam. Acima de 51, o governo aprova com folga, mas até um terço de cada bancada ainda pode desobedecer o líder.",
+  format: (value) => `${value}`,
+};
+
+export const BASE_DEFECTION: MetricInfo = {
+  label: "Desobediência",
+  description: "Deputados da base que votaram contra a orientação na última medida",
+  definition:
+    "Mesmo com acordo, o líder não manda em todos: até um terço de cada bancada da base ainda pode votar contra a orientação Sim.",
+  example: "Ex.: 3 deputados da base votaram Não numa medida que a base orientou Sim.",
+  reading:
+    "Poucos deputados não mudam o resultado quando a folga sobre a maioria é grande. Com a base perto de 51, três votos contra podem derrubar a medida.",
+  format: (value) => `${value}`,
+};
+
+export const AMENDMENTS: MetricInfo = {
+  label: "Emendas",
+  description: "O que o governo paga por mês às bancadas aliadas",
+  definition:
+    "Cada cadeira aliada custa 0,005% do PIB por ano (o centrão, 1,5 vez). A emenda é gasto como outro qualquer: soma ao déficit e vira dívida.",
+  example: "Ex.: 11 cadeiras × 0,005% = 0,055% do PIB por ano. Com PIB de R$ 9 tri, são cerca de R$ 41 mi por mês.",
+  reading:
+    "Quanto mais cadeiras compradas, maior o gasto e a dívida no fim do mandato. Vale pesar a maioria que se ganha contra o prêmio de risco que a dívida cobra.",
+  format: (value) => `${value}`,
+};
+
 export const BARRIER: MetricInfo = {
   label: "Barreira de 5%",
   description: "O mínimo de votos válidos para ter cadeira",

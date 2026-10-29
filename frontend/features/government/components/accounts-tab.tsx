@@ -1,5 +1,6 @@
 import type { GovernmentPanel, MeasureKind } from "@/types";
 import { useBudget } from "@/shared/hooks/queries/useBudget";
+import { BaseCard } from "./base-card";
 import { BudgetReadersCard } from "./budget-readers-card";
 import { BudgetCard } from "./budget-card";
 import { BudgetError, BudgetSkeleton } from "./budget-states";
@@ -23,6 +24,9 @@ export function AccountsTab({ panel, onPropose }: AccountsTabProps) {
 
   return (
     <div className="grid gap-5">
+      {/* A base do governo no Congresso */}
+      <BaseCard />
+
       {/* A conta do mês */}
       <BudgetCard budget={budget} />
 

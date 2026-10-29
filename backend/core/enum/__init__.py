@@ -495,6 +495,13 @@ class GovernmentEventType(Enum):
     # O pedido de impeachment abre e, no dia de votação, a casa decide
     IMPEACHMENT_REQUESTED = "IMPEACHMENT_REQUESTED"
     IMPEACHMENT_VOTED = "IMPEACHMENT_VOTED"
+    # O governo propõe um acordo de apoio por emenda e o partido responde, ou o prazo vence
+    DEAL_PROPOSED = "DEAL_PROPOSED"
+    DEAL_ANSWERED = "DEAL_ANSWERED"
+    # O governo cancela a proposta antes da resposta
+    DEAL_WITHDRAWN = "DEAL_WITHDRAWN"
+    # Um dos lados rompe o acordo em vigor
+    DEAL_BROKEN = "DEAL_BROKEN"
 
 
 class ElectionPhase(Enum):
@@ -557,6 +564,10 @@ class GovernmentNoticeKind(Enum):
     HOUSE_ELECTED = "HOUSE_ELECTED"
     IMPEACHMENT_REQUESTED = "IMPEACHMENT_REQUESTED"
     IMPEACHMENT_VOTED = "IMPEACHMENT_VOTED"
+    DEAL_PROPOSED = "DEAL_PROPOSED"
+    DEAL_ANSWERED = "DEAL_ANSWERED"
+    DEAL_BROKEN = "DEAL_BROKEN"
+    DEAL_ENDED = "DEAL_ENDED"
 
 
 class CampaignActionKind(Enum):
@@ -649,6 +660,29 @@ class MeasureStatus(Enum):
     WITHDRAWN = "WITHDRAWN"
     # A fila não votada sai quando o governo muda
     DROPPED = "DROPPED"
+
+
+class DealStatus(Enum):
+    """Onde está um acordo de apoio por emenda entre o governo e a bancada de um partido."""
+
+    # Proposto, esperando a resposta do partido
+    PENDING = "PENDING"
+    # Aceito: a bancada orienta Sim e a emenda corre até o fim do prazo
+    ACTIVE = "ACTIVE"
+    DECLINED = "DECLINED"
+    # O governo cancelou a proposta antes da resposta
+    WITHDRAWN = "WITHDRAWN"
+    # Um dos lados rompeu o acordo em vigor
+    BROKEN = "BROKEN"
+    # Encerrado antes do prazo sem quebra: o governo mudou
+    CUT = "CUT"
+
+
+class DealBreaker(Enum):
+    """Quem rompeu o acordo."""
+
+    GOVERNMENT = "GOVERNMENT"
+    ALLY = "ALLY"
 
 
 class ApprovalFactorKind(Enum):
@@ -784,6 +818,7 @@ class PendingType(Enum):
     VICE_INVITE = "VICE_INVITE"
     CAMPAIGN_OPEN = "CAMPAIGN_OPEN"
     UNGUIDED_VOTE = "UNGUIDED_VOTE"
+    DEAL_PROPOSAL = "DEAL_PROPOSAL"
 
 
 class PendingSeverity(Enum):

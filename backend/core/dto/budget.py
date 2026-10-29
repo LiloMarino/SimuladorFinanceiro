@@ -61,6 +61,14 @@ class PremiumPointDTO(BaseDTO):
     premium: Decimal
 
 
+class AmendmentLineDTO(BaseDTO):
+    """A emenda de um partido da base no gasto do mês."""
+
+    abbr: str
+    # Em reais no mês
+    amount: Decimal
+
+
 class BudgetDTO(BaseDTO):
     today: date
     # O último fechamento de mês, ou o ponto de partida antes do primeiro
@@ -79,6 +87,10 @@ class BudgetDTO(BaseDTO):
     premium_curve: list[PremiumPointDTO]
     # Dívida em fração do PIB abaixo da qual o prêmio é zero
     premium_floor: Decimal
+    # As emendas dos acordos de apoio que o último fechamento contou: por partido, o total em reais no mês e em fração do PIB por ano
+    amendments: list[AmendmentLineDTO]
+    amendments_amount: Decimal
+    amendments_ratio: Decimal
 
 
 class BudgetEffectDTO(BaseDTO):

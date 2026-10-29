@@ -1666,10 +1666,150 @@ export interface paths {
         get?: never;
         /**
          * Orientar a bancada numa votação
-         * @description O líder do partido (o fundador; se ele sai, o filiado mais antigo) orienta a bancada com Sim ou Não numa medida da fila, ou no pedido de impeachment aberto quando `measure_id` vem nulo. Vale até a véspera da votação; sem orientação, a bancada segue a orientação padrão do partido. Recusa com 403 para quem não é líder e com 409 quando o partido não tem bancada ou a votação já fechou.
+         * @description O líder do partido (o fundador; se ele sai, o filiado mais antigo) orienta a bancada com Sim ou Não numa medida da fila, ou no pedido de impeachment aberto quando `measure_id` vem nulo. Vale até a véspera da votação; sem orientação, a bancada segue a orientação padrão do partido. Com acordo de apoio em vigor, orientar Não numa medida rompe o acordo e exige `break_deal` verdadeiro. Recusa com 403 para quem não é líder e com 409 quando o partido não tem bancada, a votação já fechou ou falta a confirmação da quebra.
          */
         put: operations["guide_bloc_api_government_congress_guidance_put"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/base": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter a base do governo no Congresso
+         * @description Retorna o partido do governo, as bancadas da casa com a situação de cada uma (na base, esperando resposta, o que impede propor), os acordos de apoio por emenda em vigor ou esperando resposta (preço, prazo, medidas orientadas Sim, cadeiras da base se acabar), o total das emendas e a última votação com a desobediência da base. Pública: a sala inteira vê. Recusa com 409 quando a partida não usa a expansão Governo & Política.
+         */
+        get: operations["get_base_api_government_base_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/deals/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver a prévia de uma proposta de acordo
+         * @description Para a bancada `bloc_key`, retorna a emenda (fração do PIB por ano e reais por mês), o prazo, as cadeiras da base antes e depois, a dívida no fim do mandato sem e com o acordo, os grupos do aliado e, no partido do computador, se ele deve aceitar e quantas bandeiras divide com o governo. Recusa com 404 quando a bancada não tem cadeira.
+         */
+        get: operations["preview_deal_api_government_deals_preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/deals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Propor um acordo de apoio
+         * @description O presidente propõe à bancada entrar na base por 6 meses (no máximo até a véspera da posse do novo Congresso): a emenda é 0,005% do PIB por ano por cadeira (o centrão, 1,5 vez) e a bancada orienta Sim em tudo o que o governo propuser. O partido de jogador tem 15 dias para responder; o do computador responde no pregão seguinte. Recusa com 403 para quem não preside e com 409 quando o partido já é da base com mais de 31 dias de prazo, tem proposta esperando, recusou há menos de 30 dias ou o impeachment está em votação.
+         */
+        post: operations["propose_deal_api_government_deals_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/deals/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Responder a proposta de acordo
+         * @description O líder do partido aceita ou recusa a proposta que espera resposta; o acordo vale a partir de hoje. Recusar não custa nada. Recusa com 404 sem proposta e com 409 depois do prazo.
+         */
+        put: operations["answer_deal_api_government_deals_answer_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/deals/leave": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sair da base do governo
+         * @description O líder do partido aliado rompe o acordo: a emenda para e os grupos do governo somam rejeição ao partido dele. Recusa com 403 para quem não lidera o partido e com 409 quando o partido não está na base.
+         */
+        post: operations["leave_base_api_government_deals_leave_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/deals/{deal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Cancelar a proposta de acordo
+         * @description O presidente cancela a proposta antes da resposta. Recusa com 403 para quem não preside e com 409 quando a proposta já foi respondida.
+         */
+        delete: operations["withdraw_deal_api_government_deals__deal_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/deals/{deal_id}/break": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Romper o acordo de apoio
+         * @description O presidente para de pagar a emenda: o acordo acaba na hora e os grupos do aliado somam rejeição ao partido do governo. Recusa com 403 para quem não preside e com 409 quando o acordo não está em vigor.
+         */
+        post: operations["break_deal_api_government_deals__deal_id__break_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3150,9 +3290,34 @@ export interface components {
             /** Today */
             today: string[];
         };
+        /**
+         * AmendmentLineDTO
+         * @description A emenda de um partido da base no gasto do mês.
+         */
+        AmendmentLineDTO: {
+            /** Abbr */
+            abbr: string;
+            /** Amount */
+            amount: string;
+        };
+        /**
+         * AmendmentSummaryDTO
+         * @description O que os acordos em vigor pagam: em fração do PIB por ano e em reais por mês.
+         */
+        AmendmentSummaryDTO: {
+            /** Ratio */
+            ratio: string;
+            /** Monthly */
+            monthly: string;
+        };
         /** AnswerChallengeRequest */
         AnswerChallengeRequest: {
             direction: components["schemas"]["ChallengeDirection"];
+        };
+        /** AnswerDealRequest */
+        AnswerDealRequest: {
+            /** Accept */
+            accept: boolean;
         };
         /** AppFoldersResponse */
         AppFoldersResponse: {
@@ -3541,6 +3706,59 @@ export interface components {
             /** Lower */
             lower: components["schemas"]["IndicatorPointDTO"][];
         };
+        /**
+         * BaseBlocDTO
+         * @description Uma bancada no hemiciclo da base: a situação dela e o que impede propor.
+         */
+        BaseBlocDTO: {
+            /** Key */
+            key: number;
+            /** Party Id */
+            party_id: number | null;
+            /** Abbr */
+            abbr: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string | null;
+            /** Seats */
+            seats: number;
+            /** Is Computer */
+            is_computer: boolean;
+            /** Centrao */
+            centrao: boolean;
+            /** Leader */
+            leader: string | null;
+            /** Governing */
+            governing: boolean;
+            /** In Base */
+            in_base: boolean;
+            /** Pending */
+            pending: boolean;
+            /** Ratio */
+            ratio: string;
+            /** Monthly */
+            monthly: string;
+            /** Blocker */
+            blocker: string | null;
+            /** Retry From */
+            retry_from: string | null;
+            /** Declined On */
+            declined_on: string | null;
+        };
+        /**
+         * BaseVoteDTO
+         * @description A última votação de medida do governo e quantos deputados da base votaram contra a orientação.
+         */
+        BaseVoteDTO: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Defected */
+            defected: number;
+        };
         /** BenchmarkDTO */
         BenchmarkDTO: {
             series: components["schemas"]["BenchmarkSeries"];
@@ -3627,6 +3845,8 @@ export interface components {
             cause: components["schemas"]["VoterGroup"] | null;
             /** Cause Share */
             cause_share: string | null;
+            /** By Deal */
+            by_deal: boolean;
         };
         /** Body_import_assets_csv_api_import_assets_csv_post */
         Body_import_assets_csv_api_import_assets_csv_post: {
@@ -3716,6 +3936,12 @@ export interface components {
             premium_curve: components["schemas"]["PremiumPointDTO"][];
             /** Premium Floor */
             premium_floor: string;
+            /** Amendments */
+            amendments: components["schemas"]["AmendmentLineDTO"][];
+            /** Amendments Amount */
+            amendments_amount: string;
+            /** Amendments Ratio */
+            amendments_ratio: string;
         };
         /**
          * BudgetEffectDTO
@@ -4207,6 +4433,40 @@ export interface components {
          * @enum {string}
          */
         ComputerDifficulty: "EASY" | "NORMAL" | "HARD";
+        /**
+         * CongressBaseDTO
+         * @description A base do governo no Congresso: o partido do presidente mais os aliados pagos com emenda.
+         */
+        CongressBaseDTO: {
+            /** Governing Abbr */
+            governing_abbr: string | null;
+            /** Governing Seats */
+            governing_seats: number;
+            /** Seats */
+            seats: number;
+            /** Majority */
+            majority: number;
+            /** Impeachment Votes */
+            impeachment_votes: number;
+            /** President */
+            president: string | null;
+            /** Is President */
+            is_president: boolean;
+            my_deal: components["schemas"]["DealDTO"] | null;
+            my_proposal: components["schemas"]["DealDTO"] | null;
+            /** Deals */
+            deals: components["schemas"]["DealDTO"][];
+            /** Blocs */
+            blocs: components["schemas"]["BaseBlocDTO"][];
+            amendments: components["schemas"]["AmendmentSummaryDTO"];
+            last_vote: components["schemas"]["BaseVoteDTO"] | null;
+            /** Blocker */
+            blocker: string | null;
+            /** Answer Days */
+            answer_days: number;
+            /** Term Months */
+            term_months: number;
+        };
         /** CongressDTO */
         CongressDTO: {
             house: components["schemas"]["HouseDTO"];
@@ -4567,6 +4827,117 @@ export interface components {
             /** Debt Limit */
             debt_limit: string;
         };
+        /**
+         * DealDTO
+         * @description Um acordo de apoio por emenda, da proposta ao fim.
+         */
+        DealDTO: {
+            /** Id */
+            id: number;
+            /** Bloc Key */
+            bloc_key: number;
+            /** Party Id */
+            party_id: number | null;
+            /** Abbr */
+            abbr: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string | null;
+            /** Seats */
+            seats: number;
+            status: components["schemas"]["DealStatus"];
+            /** Leader */
+            leader: string | null;
+            /** Is Computer */
+            is_computer: boolean;
+            /** Centrao */
+            centrao: boolean;
+            /** Ratio */
+            ratio: string;
+            /** Monthly */
+            monthly: string;
+            /** Answer By */
+            answer_by: string | null;
+            /** Start */
+            start: string | null;
+            /** End */
+            end: string | null;
+            /** Days Left */
+            days_left: number | null;
+            /** Renewable */
+            renewable: boolean;
+            /** Votes */
+            votes: number;
+            /** Yes */
+            yes: number;
+            /** Base After */
+            base_after: number;
+            /** Ally Groups */
+            ally_groups: components["schemas"]["VoterGroup"][];
+            /** Government Groups */
+            government_groups: components["schemas"]["VoterGroup"][];
+        };
+        /**
+         * DealPreviewDTO
+         * @description O que a proposta faz antes de enviar: o preço, a base, a dívida e a chance de aceitar.
+         */
+        DealPreviewDTO: {
+            /** Bloc Key */
+            bloc_key: number;
+            /** Abbr */
+            abbr: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string | null;
+            /** Seats */
+            seats: number;
+            /** Leader */
+            leader: string | null;
+            /** Is Computer */
+            is_computer: boolean;
+            /** Centrao */
+            centrao: boolean;
+            /** Ratio */
+            ratio: string;
+            /** Monthly */
+            monthly: string;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Base Before */
+            base_before: number;
+            /** Base After */
+            base_after: number;
+            /** Debt Before */
+            debt_before: string | null;
+            /** Debt After */
+            debt_after: string | null;
+            /** Debt End */
+            debt_end: string | null;
+            /** Ally Groups */
+            ally_groups: components["schemas"]["VoterGroup"][];
+            /** Likely */
+            likely: boolean | null;
+            /** Shared Flags */
+            shared_flags: number | null;
+            /** Blocker */
+            blocker: string | null;
+        };
+        /**
+         * DealStatus
+         * @description Onde está um acordo de apoio por emenda entre o governo e a bancada de um partido.
+         * @enum {string}
+         */
+        DealStatus: "PENDING" | "ACTIVE" | "DECLINED" | "WITHDRAWN" | "BROKEN" | "CUT";
         /**
          * DebtSummaryDTO
          * @description A dívida do governo no último fechamento de mês.
@@ -5234,7 +5605,7 @@ export interface components {
          * @description O que o aviso em tempo real conta; o front escolhe o toast pelo tipo.
          * @enum {string}
          */
-        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED" | "ENDORSEMENT" | "HOUSE_ELECTED" | "IMPEACHMENT_REQUESTED" | "IMPEACHMENT_VOTED";
+        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED" | "ENDORSEMENT" | "HOUSE_ELECTED" | "IMPEACHMENT_REQUESTED" | "IMPEACHMENT_VOTED" | "DEAL_PROPOSED" | "DEAL_ANSWERED" | "DEAL_BROKEN" | "DEAL_ENDED";
         /** GovernmentPanelDTO */
         GovernmentPanelDTO: {
             /**
@@ -5329,6 +5700,12 @@ export interface components {
             group: components["schemas"]["VoterGroup"] | null;
             /** Rival Abbr */
             rival_abbr: string | null;
+            /** Seats Before */
+            seats_before: number | null;
+            /** Seats After */
+            seats_after: number | null;
+            /** Broken By Ally */
+            broken_by_ally: boolean | null;
         };
         /**
          * GroupApprovalDTO
@@ -5418,6 +5795,11 @@ export interface components {
             measure_id?: number | null;
             /** Yes */
             yes: boolean;
+            /**
+             * Break Deal
+             * @default false
+             */
+            break_deal: boolean;
         };
         /**
          * GuidanceRuleDTO
@@ -5457,6 +5839,8 @@ export interface components {
             scenarios: components["schemas"]["GuideScenarioDTO"][];
             /** Yes Moves */
             yes_moves: components["schemas"]["ValueMoveDTO"][];
+            /** By Deal */
+            by_deal: boolean;
         };
         /**
          * GuideScenarioDTO
@@ -7066,7 +7450,7 @@ export interface components {
          * @description Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar.
          * @enum {string}
          */
-        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNGUIDED_VOTE";
+        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNGUIDED_VOTE" | "DEAL_PROPOSAL";
         /**
          * PlayerActivity
          * @description O que o jogador está fazendo na sala: a tela em que está, ou fora da aba do jogo.
@@ -7848,6 +8232,11 @@ export interface components {
         PromisesRequest: {
             /** Promises */
             promises: components["schemas"]["PromiseRequest"][];
+        };
+        /** ProposeDealRequest */
+        ProposeDealRequest: {
+            /** Bloc Key */
+            bloc_key: number;
         };
         /** ProposeMeasureRequest */
         ProposeMeasureRequest: {
@@ -13644,6 +14033,276 @@ export interface operations {
                 "application/json": components["schemas"]["GuidanceRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_base_api_government_base_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CongressBaseDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_deal_api_government_deals_preview_get: {
+        parameters: {
+            query: {
+                bloc_key: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DealPreviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    propose_deal_api_government_deals_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProposeDealRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    answer_deal_api_government_deals_answer_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnswerDealRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    leave_base_api_government_deals_leave_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    withdraw_deal_api_government_deals__deal_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    break_deal_api_government_deals__deal_id__break_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             204: {

@@ -3,11 +3,12 @@ O painel do orçamento: a conta do mês, os impostos, a dívida com a projeção
 do mandato e o efeito de cada medida na conta do governo.
 """
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from datetime import date, timedelta
 from decimal import Decimal
 
 from backend.core.dto.budget import (
+    AmendmentLineDTO,
     BudgetAmountsDTO,
     BudgetDTO,
     BudgetEffectDTO,
@@ -76,7 +77,11 @@ def projection_end(term_end: date | None, today: date) -> date:
 
 
 def build_budget(
-    course: BudgetCourse, policy: TaxPolicy, today: date, term_end: date | None
+    course: BudgetCourse,
+    policy: TaxPolicy,
+    today: date,
+    term_end: date | None,
+    amendments: list[tuple[str, Decimal]],
 ) -> BudgetDTO:
     month = course.latest(today)
     end = projection_end(term_end, today)
@@ -105,6 +110,12 @@ def build_budget(
             for debt, premium in budget_rules.premium_curve()
         ],
         premium_floor=budget_rules.PREMIUM_FLOOR,
+        amendments=[
+            AmendmentLineDTO(abbr=abbr, amount=month.monthly(ratio))
+            for abbr, ratio in amendments
+        ],
+        amendments_amount=month.monthly(sum((r for _, r in amendments), ZERO)),
+        amendments_ratio=sum((r for _, r in amendments), ZERO),
     )
 
 
@@ -169,6 +180,7 @@ def measure_budget(
     today: date,
     effective: date,
     term_end: date | None,
+    amendments_on: Callable[[date], Decimal],
 ) -> BudgetEffectDTO:
     """O efeito da medida na conta, se ela passar e valer em `effective`."""
     change = budget_rules.measure_effect(policy_before, measure)
@@ -185,7 +197,12 @@ def measure_budget(
         end,
         change,
         effective,
-        timeline.with_measure(measure, effective).spending_on
+        (
+            lambda day: (
+                timeline.with_measure(measure, effective).spending_on(day)
+                + amendments_on(day)
+            )
+        )
         if measure.kind.is_spending
         else None,
     )
@@ -197,8 +214,10 @@ def measure_budget(
         revenue_change_amount=change * gdp,
         spending_change=outlay,
         spending_change_amount=outlay * gdp,
-        spending_before=timeline.spending_on(effective),
-        spending_after=timeline.spending_on(effective) + outlay,
+        spending_before=timeline.spending_on(effective) + amendments_on(effective),
+        spending_after=timeline.spending_on(effective)
+        + amendments_on(effective)
+        + outlay,
         tax_name=affected.name if affected else "",
         rate_before=before_row.rate if before_row else None,
         rate_after=after_row.rate if after_row else None,

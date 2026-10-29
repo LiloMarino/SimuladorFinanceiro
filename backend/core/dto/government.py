@@ -17,6 +17,7 @@ from backend.core.dto.promises import (
 )
 from backend.core.enum import (
     ApprovalFactorKind,
+    DealStatus,
     EffectPhase,
     ElectionPhase,
     GroupReading,
@@ -470,6 +471,8 @@ class BlocVoteDTO(BaseDTO):
     # O grupo do eleitorado da bancada que mais queria o voto contrário e quanto ele pesa nos eleitores dela, de 0 a 1
     cause: VoterGroup | None
     cause_share: Decimal | None
+    # A bancada tem acordo de apoio em vigor: orienta Sim pelo acordo
+    by_deal: bool
 
 
 class GuideScenarioDTO(BaseDTO):
@@ -497,6 +500,8 @@ class GuideDTO(BaseDTO):
     scenarios: list[GuideScenarioDTO]
     # Quanto orientar Sim move o perfil do partido dele; vazio no governo e nas medidas de gasto
     yes_moves: list[ValueMoveDTO]
+    # A bancada dele tem acordo em vigor: orientar Não numa medida do governo rompe o acordo
+    by_deal: bool
 
 
 class VoteDTO(BaseDTO):
@@ -542,6 +547,146 @@ class CongressDTO(BaseDTO):
     history: list[PastVoteDTO]
     # Meses seguidos abaixo do piso e quantos faltam para abrir o pedido
     low_streak: int
+
+
+# Base no Congresso
+
+
+class DealDTO(BaseDTO):
+    """Um acordo de apoio por emenda, da proposta ao fim."""
+
+    id: int
+    bloc_key: int
+    party_id: int | None
+    abbr: str
+    name: str
+    color: str | None
+    seats: int
+    status: DealStatus
+    # O líder do partido aliado, pelo apelido; nulo no partido do computador
+    leader: str | None
+    is_computer: bool
+    centrao: bool
+    # A emenda em fração do PIB por ano e em reais por mês
+    ratio: Decimal
+    monthly: Decimal
+    # Proposta: o prazo da resposta do partido de jogador
+    answer_by: date | None
+    # Em vigor: o último dia do acordo e quantos dias faltam
+    start: date | None
+    end: date | None
+    days_left: int | None
+    # Faltam no máximo 31 dias: o governo já pode propor de novo
+    renewable: bool
+    # Medidas do governo votadas durante o acordo e quantas a bancada orientou Sim
+    votes: int
+    yes: int
+    # As cadeiras da base depois da mudança: sem o acordo em vigor, ou com a proposta aceita
+    base_after: int
+    # Os grupos mais fortes do aliado (que recebem a emenda e, na quebra do governo, culpam o presidente) e os do governo (que, na saída do aliado, culpam o aliado)
+    ally_groups: list[VoterGroup]
+    government_groups: list[VoterGroup]
+
+
+class BaseBlocDTO(BaseDTO):
+    """Uma bancada no hemiciclo da base: a situação dela e o que impede propor."""
+
+    key: int
+    party_id: int | None
+    abbr: str
+    name: str
+    color: str | None
+    seats: int
+    is_computer: bool
+    centrao: bool
+    # O partido de jogador tem líder; o apelido dele
+    leader: str | None
+    # O partido do presidente
+    governing: bool
+    # Tem acordo em vigor
+    in_base: bool
+    # Espera a resposta de uma proposta
+    pending: bool
+    # A emenda em fração do PIB por ano e em reais por mês, pelo preço de hoje
+    ratio: Decimal
+    monthly: Decimal
+    # Por que não dá para propor agora e, quando é espera, o dia em que abre
+    blocker: str | None
+    retry_from: date | None
+    # O dia da última recusa; nulo sem recusa
+    declined_on: date | None
+
+
+class BaseVoteDTO(BaseDTO):
+    """A última votação de medida do governo e quantos deputados da base votaram contra a orientação."""
+
+    day: date
+    defected: int
+
+
+class AmendmentSummaryDTO(BaseDTO):
+    """O que os acordos em vigor pagam: em fração do PIB por ano e em reais por mês."""
+
+    ratio: Decimal
+    monthly: Decimal
+
+
+class CongressBaseDTO(BaseDTO):
+    """A base do governo no Congresso: o partido do presidente mais os aliados pagos com emenda."""
+
+    # O partido do presidente; nulo sem governo
+    governing_abbr: str | None
+    governing_seats: int
+    seats: int
+    majority: int
+    # Os votos Sim que tiram o presidente
+    impeachment_votes: int
+    # O presidente, pelo apelido
+    president: str | None
+    # Quem vê é o presidente
+    is_president: bool
+    # Quem vê é o líder de um partido aliado, e o acordo dele
+    my_deal: DealDTO | None
+    # A proposta que espera a resposta de quem vê
+    my_proposal: DealDTO | None
+    deals: list[DealDTO]
+    blocs: list[BaseBlocDTO]
+    amendments: AmendmentSummaryDTO
+    last_vote: BaseVoteDTO | None
+    # Sem permissão de propor para ninguém: o motivo (impeachment em votação)
+    blocker: str | None
+    # As propostas ao partido de jogador contam 15 dias, e o do computador responde no pregão seguinte
+    answer_days: int
+    term_months: int
+
+
+class DealPreviewDTO(BaseDTO):
+    """O que a proposta faz antes de enviar: o preço, a base, a dívida e a chance de aceitar."""
+
+    bloc_key: int
+    abbr: str
+    name: str
+    color: str | None
+    seats: int
+    leader: str | None
+    is_computer: bool
+    centrao: bool
+    ratio: Decimal
+    monthly: Decimal
+    start: date
+    end: date
+    base_before: int
+    base_after: int
+    # A dívida em fração do PIB no fim do mandato, sem e com o acordo, e o dia da conta
+    debt_before: Decimal | None
+    debt_after: Decimal | None
+    debt_end: date | None
+    # Os grupos do aliado: ganham apoio a ele com a emenda e, se o governo romper, somam rejeição ao partido do presidente
+    ally_groups: list[VoterGroup]
+    # O partido do computador deve aceitar; nulo no partido de jogador
+    likely: bool | None
+    shared_flags: int | None
+    blocker: str | None
 
 
 # Governo
@@ -899,6 +1044,16 @@ class GuidanceRequest(BaseDTO):
 
     measure_id: int | None = None
     yes: bool
+    # Orientar Não numa medida com acordo em vigor rompe o acordo: o líder confirma
+    break_deal: bool = False
+
+
+class ProposeDealRequest(BaseDTO):
+    bloc_key: int
+
+
+class AnswerDealRequest(BaseDTO):
+    accept: bool
 
 
 class GuidanceRuleRequest(BaseDTO):

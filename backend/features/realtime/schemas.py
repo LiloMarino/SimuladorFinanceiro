@@ -239,6 +239,10 @@ class GovernmentUpdateEventDTO(BaseDTO):
     campaign_action: CampaignActionKind | None = None
     group: VoterGroup | None = None
     rival_abbr: str | None = None
+    # Nos acordos de apoio: as cadeiras da base antes e depois, e se foi o aliado quem rompeu
+    seats_before: int | None = None
+    seats_after: int | None = None
+    broken_by_ally: bool | None = None
 
 
 class StrategyUpdateEventDTO(BaseDTO):

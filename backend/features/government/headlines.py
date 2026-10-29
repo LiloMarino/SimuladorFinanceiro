@@ -246,6 +246,53 @@ def expelled(member: str, abbr: str) -> Headline:
     return Headline(NewsType.PARTY_LIFE, f"{member} é expulso do {abbr}")
 
 
+def deal_broken(
+    president: str,
+    government_abbr: str,
+    ally_abbr: str,
+    by_ally: bool,
+    oriented_no: bool,
+    ally_seats: int,
+    base_seats: int,
+    majority: int,
+    groups: list[VoterGroup],
+) -> Headline:
+    """O acordo de apoio acabou na quebra: o aliado rompeu (ou orientou Não) ou o governo cortou as emendas."""
+    if by_ally and oriented_no:
+        title = f"{ally_abbr} orienta Não ao governo e rompe o acordo"
+    elif by_ally:
+        title = f"{ally_abbr} deixa a base do governo de {president}"
+    else:
+        title = f"{president} corta as emendas do {ally_abbr}"
+    position = (
+        f"A base cai para {base_seats} cadeiras, "
+        + ("abaixo" if base_seats < majority else "ainda acima")
+        + f" da maioria de {majority}."
+    )
+    loser = "o governo" if by_ally else ally_abbr
+    pain = (
+        f" A quebra pesa para {loser} {_among(groups[0])}"
+        + (f" e {GROUP_NAMES[groups[1]]}" if len(groups) > 1 else "")
+        + "."
+        if groups
+        else ""
+    )
+    return Headline(
+        NewsType.PARTY_LIFE,
+        title,
+        f"São {ally_seats} cadeiras que mudam de lado. {position}{pain}",
+    )
+
+
+def deals_ended(abbrs: list[str], new_congress: bool) -> Headline:
+    cause = "com a posse do novo Congresso" if new_congress else "pelo prazo"
+    return Headline(
+        NewsType.PARTY_LIFE,
+        f"Acabam os acordos de apoio com {_join(abbrs)}",
+        f"Os acordos terminaram {cause}, e as emendas deixam de ser pagas.",
+    )
+
+
 # Campanha
 
 # As linhas de apoio de cada tom; a ação escolhe uma pelo número dela

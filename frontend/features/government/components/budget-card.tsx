@@ -21,6 +21,7 @@ import {
   shareLabel,
   type BudgetUnit,
 } from "../lib/budget";
+import { monthlyLabel, yearShare } from "../lib/base";
 import { INTEREST, PRIMARY_RESULT, RESULT, REVENUE } from "../lib/government-metrics";
 
 type BudgetCardProps = { budget: Budget };
@@ -99,6 +100,15 @@ function ClosedMonth({ budget, unit }: { budget: Budget; unit: BudgetUnit }) {
           />
         </div>
       </div>
+
+      {/* Emendas à base dentro do gasto */}
+      {Number(budget.amendments_amount) > 0 && (
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <Badge variant="info">inclui {yearShare(budget.amendments_ratio)} de emendas à base</Badge>
+          {budget.amendments.map((line) => `${line.abbr} ${monthlyLabel(line.amount)}`).join(" + ")} em {monthName}. A
+          emenda é gasto como outro qualquer: soma ao déficit e vira dívida.
+        </div>
+      )}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {/* Primário */}

@@ -36,6 +36,8 @@ from backend.core.dto.fixed_income_projection import (
 )
 from backend.core.dto.goal import GoalProgressDTO, GoalRunnerDTO
 from backend.core.dto.government import (
+    CongressBaseDTO,
+    DealPreviewDTO,
     ElectionPanelDTO,
     FoundPartyRequest,
     GovernmentPanelDTO,
@@ -116,6 +118,10 @@ from backend.features.fixed_income.assistance import (
     build_quote,
 )
 from backend.features.fixed_income.liquidity import overdraft_cover, total_redeemable
+from backend.features.government.base_panel import build_base
+from backend.features.government.base_panel import (
+    build_preview as build_deal_preview,
+)
 from backend.features.government.budget_panel import build_budget
 from backend.features.government.campaign_panel import (
     build_campaign,
@@ -535,8 +541,54 @@ class Simulation:
         )
 
     @synchronized
-    def guide_bloc(self, user: UserDTO, measure_id: int | None, yes: bool) -> None:
-        self._ensure_government().guide(user, self._current_date, measure_id, yes)
+    def guide_bloc(
+        self,
+        user: UserDTO,
+        measure_id: int | None,
+        yes: bool,
+        break_deal: bool = False,
+    ) -> None:
+        self._ensure_government().guide(
+            user, self._current_date, measure_id, yes, break_deal
+        )
+
+    @synchronized
+    def get_base(self, user: UserDTO) -> CongressBaseDTO:
+        return build_base(
+            self._ensure_government(),
+            repository.simulation_player.participants(self.settings.id),
+            user,
+            self._current_date,
+        )
+
+    @synchronized
+    def preview_deal(self, bloc_key: int) -> DealPreviewDTO:
+        return build_deal_preview(
+            self._ensure_government(),
+            repository.simulation_player.participants(self.settings.id),
+            self._current_date,
+            bloc_key,
+        )
+
+    @synchronized
+    def propose_deal(self, user: UserDTO, bloc_key: int) -> None:
+        self._ensure_government().propose_deal(user, self._current_date, bloc_key)
+
+    @synchronized
+    def withdraw_deal(self, user: UserDTO, deal_id: int) -> None:
+        self._ensure_government().withdraw_deal(user, self._current_date, deal_id)
+
+    @synchronized
+    def answer_deal(self, user: UserDTO, accept: bool) -> None:
+        self._ensure_government().answer_deal(user, self._current_date, accept)
+
+    @synchronized
+    def break_deal(self, user: UserDTO, deal_id: int) -> None:
+        self._ensure_government().break_deal(user, self._current_date, deal_id)
+
+    @synchronized
+    def leave_base(self, user: UserDTO) -> None:
+        self._ensure_government().leave_base(user, self._current_date)
 
     @synchronized
     def set_guidance_rule(self, user: UserDTO, value: VoterValue, yes: bool) -> None:
@@ -597,6 +649,7 @@ class Simulation:
             book.policy(self._current_date),
             self._current_date,
             book.term_end(),
+            book.amendment_lines(self._current_date),
         )
 
     @synchronized
