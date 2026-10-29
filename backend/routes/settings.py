@@ -9,53 +9,68 @@ from backend.config.paths import app_files_dir
 from backend.core import repository
 from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.technical_indicators import IndicatorSettingsDTO
+from backend.core.enum import (
+    NewsLevel,
+    NewsPosition,
+    NewsSection,
+    NewsType,
+    ToastType,
+)
 from backend.core.exceptions.http_exceptions import ConflictError, ForbiddenError
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.file_manager import open_in_file_manager
+from backend.features.notifications import registry
 
 settings_router = APIRouter(prefix="/api/settings", tags=["Settings"])
 
 
-class OrderNotificationSettings(BaseModel):
-    executed: bool
-    partial: bool
+class NotificationSettings(BaseModel):
+    """Onde o jornal aparece, o nível de cada tipo de manchete e quais avisos sobem."""
+
+    news_position: NewsPosition = registry.DEFAULT_POSITION
+    news: dict[NewsType, NewsLevel] = {}
+    toasts: dict[ToastType, bool] = {}
 
 
-class PlayerNotificationSettings(BaseModel):
-    join_exit: bool
+class CompleteNotificationSettings(NotificationSettings):
+    # A resposta traz todos os tipos do registro, com o padrão onde o jogador não escolheu
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
 
 
 class SettingsRequest(BaseModel):
-    orders: OrderNotificationSettings
-    players: PlayerNotificationSettings
+    notifications: NotificationSettings = NotificationSettings()
     # O que o jogador liga no gráfico das ações; quem gravou antes dele nasce com o padrão
     indicators: IndicatorSettingsDTO = IndicatorSettingsDTO()
 
     model_config = ConfigDict(extra="allow")
 
 
-class SettingsResponse(SettingsRequest):
+class SettingsResponse(BaseModel):
     """As preferências do usuário mais o modo debug do servidor, só leitura."""
 
+    notifications: CompleteNotificationSettings
+    indicators: IndicatorSettingsDTO
     debug: bool
 
     # A resposta sempre traz todas as preferências: o schema de saída as marca como obrigatórias
-    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+    model_config = ConfigDict(
+        extra="allow", json_schema_serialization_defaults_required=True
+    )
 
 
-DEFAULT_SETTINGS = SettingsRequest(
-    orders=OrderNotificationSettings(
-        executed=True,
-        partial=True,
-    ),
-    players=PlayerNotificationSettings(join_exit=True),
-)
+DEFAULT_SETTINGS = SettingsRequest()
 
 
 def _with_debug(settings: dict[str, Any]) -> SettingsResponse:
-    """Sobrepõe o `debug` do config.toml, mesmo que o banco tenha um valor antigo."""
+    """Sobrepõe o `debug` do config.toml, mesmo que o banco tenha um valor antigo, e completa as notificações pelo registro."""
+    chosen = SettingsRequest.model_validate(settings).notifications
+    complete = CompleteNotificationSettings(
+        news_position=chosen.news_position,
+        news=registry.news_levels(chosen.news),
+        toasts=registry.toasts_on(chosen.toasts),
+    )
     return SettingsResponse.model_validate(
-        {**settings, "debug": config.toml.debug.enabled}
+        {**settings, "notifications": complete, "debug": config.toml.debug.enabled}
     )
 
 
@@ -75,7 +90,7 @@ def get_settings(client_id: ClientID):
     settings = repository.settings.get_by_user_id(UserManager.get_user_id(client_id))
     return _with_debug(
         {
-            **DEFAULT_SETTINGS.model_dump(),
+            **DEFAULT_SETTINGS.model_dump(mode="json"),
             **settings,
         }
     )
@@ -94,10 +109,82 @@ def update_settings(client_id: ClientID, data: SettingsRequest):
     user_id = UserManager.get_user_id(client_id)
 
     # O debug é do servidor: o cliente não o grava (`extra="allow"` deixaria passar)
-    repository.settings.update_by_user_id(user_id, data.model_dump(exclude={"debug"}))
+    repository.settings.update_by_user_id(
+        user_id, data.model_dump(mode="json", exclude={"debug"})
+    )
     settings = repository.settings.get_by_user_id(user_id)
 
     return _with_debug(settings)
+
+
+class NewsSectionInfo(BaseModel):
+    section: NewsSection
+    label: str
+    note: str | None
+
+
+class NewsTypeInfo(BaseModel):
+    type: NewsType
+    section: NewsSection
+    label: str
+    description: str
+    default_level: NewsLevel
+    fixed: bool
+
+
+class ToastTypeInfo(BaseModel):
+    type: ToastType
+    label: str
+    description: str
+    default_on: bool
+
+
+class NotificationCatalogResponse(BaseModel):
+    """O registro dos tipos de notificação; as listas vêm na ordem da importância."""
+
+    sections: list[NewsSectionInfo]
+    news: list[NewsTypeInfo]
+    toasts: list[ToastTypeInfo]
+    default_position: NewsPosition
+
+
+@settings_router.get(
+    "/notification-types",
+    response_model=NotificationCatalogResponse,
+    summary="Tipos de notificação",
+    description=(
+        "As seções do jornal, os tipos de manchete e os avisos do jogador, com o texto "
+        "da configuração e o padrão de cada um."
+    ),
+)
+def get_notification_types():
+    return NotificationCatalogResponse(
+        sections=[
+            NewsSectionInfo(section=s.section, label=s.label, note=s.note)
+            for s in registry.SECTIONS
+        ],
+        news=[
+            NewsTypeInfo(
+                type=n.type,
+                section=n.section,
+                label=n.label,
+                description=n.description,
+                default_level=n.default_level,
+                fixed=n.fixed,
+            )
+            for n in registry.NEWS
+        ],
+        toasts=[
+            ToastTypeInfo(
+                type=t.type,
+                label=t.label,
+                description=t.description,
+                default_on=t.default_on,
+            )
+            for t in registry.TOASTS
+        ],
+        default_position=registry.DEFAULT_POSITION,
+    )
 
 
 LOCAL_HOSTS = {"127.0.0.1", "::1"}

@@ -88,6 +88,9 @@
   --color-candle-up: var(--candle-up);
   --color-candle-down: var(--candle-down);
   --color-overlay: var(--overlay);
+  --color-paper: var(--paper);
+  --color-paper-border: var(--paper-border);
+  --animate-countdown: countdown 1s linear forwards;
   --color-toast: var(--toast);
   --color-toast-foreground: var(--toast-foreground);
   --color-toast-muted: var(--toast-muted);
@@ -184,6 +187,9 @@
   --candle-up: #26a69a;
   --candle-down: #ef5350;
   --overlay: rgb(15 23 41 / 0.45);
+  /* Papel do jornal da partida */
+  --paper: #fcfbf7;
+  --paper-border: #e2dccd;
   --toast: #0f1729;
   --toast-layer-1: #3a4560;
   --toast-layer-2: #26314a;
@@ -205,6 +211,16 @@
   /* Selo de ferramenta de diagnóstico (Debug) sobre o fundo escuro do menu */
   --sidebar-warning: #e8c27a;
   --sidebar-warning-soft: #2a2410;
+}
+
+/* A barra da janela do jornal esvazia durante o tempo em que ela fica aberta */
+@keyframes countdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
 }
 
 /* Pilha de avisos: as camadas de trás aparecem mais claras que o aviso da frente */

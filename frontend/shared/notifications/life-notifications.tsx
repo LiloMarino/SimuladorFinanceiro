@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useLifeStatus } from "@/shared/hooks/queries/useLifeStatus";
+import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { displayRatePercent } from "@/shared/lib/financial-independence";
@@ -19,6 +20,7 @@ export function LifeNotifications() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { simulation } = useSimulation();
+  const { isToastOn } = useNotificationPreferences();
   const { data: status } = useLifeStatus();
   const current = simulation?.active ? simulation.simulation : null;
   const simulationId = current?.id ?? 0;
@@ -41,6 +43,8 @@ export function LifeNotifications() {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.lifeHistoryAll(simulationId),
       });
+
+      if (!isToastOn("LIFE_EVENT")) return;
 
       // O imprevisto que corta o salário não tira dinheiro do caixa: o aviso fala do mês seguinte
       if (event.effect === "SKIP_NEXT_SALARY") {

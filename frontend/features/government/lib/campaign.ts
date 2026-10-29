@@ -240,8 +240,8 @@ export type CampaignToast = { tone: "info" | "warning"; title: string; descripti
 const capitalize = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
 
 /**
- * O aviso de uma ação de campanha para quem vê: o ataque contra o partido dele, qualquer ataque (é público)
- * e a ação de outro filiado do mesmo partido. As demais ações dos rivais ficam só com eles.
+ * O aviso de uma ação de campanha para quem vê: o ataque contra o partido dele e a ação de outro
+ * filiado do mesmo partido. O que é público (todo ataque, o viral e o desastre) sai no jornal da partida.
  */
 export function campaignToast(
   notice: GovernmentNotice,
@@ -260,11 +260,7 @@ export function campaignToast(
         description: `${where}. O efeito aparece no histórico da campanha.`,
       };
     }
-    return {
-      tone: "info",
-      title: `O ${abbr} partiu para o ataque contra o ${notice.rival_abbr}`,
-      description: `${where}.`,
-    };
+    return null;
   }
   if (mine && mine.abbr === abbr && notice.actor !== mine.nickname) {
     return {

@@ -7,10 +7,10 @@ from backend.core.repository.fixed_income import FixedIncomeRepository
 from backend.core.repository.generated_future import GeneratedFutureRepository
 from backend.core.repository.government import GovernmentRepository
 from backend.core.repository.import_settings import ImportSettingsRepository
-from backend.core.repository.inbox import InboxRepository
 from backend.core.repository.last_simulation_settings import (
     LastSimulationSettingsRepository,
 )
+from backend.core.repository.news import NewsRepository
 from backend.core.repository.portfolio import PortfolioRepository
 from backend.core.repository.preset import PresetRepository
 from backend.core.repository.settings import SettingsRepository
@@ -20,6 +20,7 @@ from backend.core.repository.snapshot import SnapshotRepository
 from backend.core.repository.statistics import StatisticsRepository
 from backend.core.repository.stock import StockRepository
 from backend.core.repository.strategy import StrategyRepository
+from backend.core.repository.summaries import SummaryRepository
 from backend.core.repository.user import UserRepository
 
 stock = StockRepository()
@@ -42,4 +43,5 @@ preset = PresetRepository()
 achievements = AchievementsRepository()
 strategy = StrategyRepository()
 candle_challenge = CandleChallengeRepository()
-inbox = InboxRepository()
+summaries = SummaryRepository()
+news = NewsRepository()

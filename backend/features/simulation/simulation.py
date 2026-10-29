@@ -120,7 +120,7 @@ from backend.features.government.promise_panel import (
     build_preview,
     build_promises_panel,
 )
-from backend.features.inbox.service import Inbox
+from backend.features.notifications import news
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     PortfolioUpdateEventDTO,
@@ -144,6 +144,7 @@ from backend.features.statistics.cache import ReportCache
 from backend.features.statistics.goal import goal_on, goal_reached
 from backend.features.statistics.report import build_overview_report
 from backend.features.strategy.runner import StrategyRunner
+from backend.features.summaries.service import SummaryDelivery
 from backend.features.tax_policy import TaxPolicy
 from backend.features.technical_analysis.summary import price_frame
 from backend.features.variable_income.entities.order import MarketOrder, Order
@@ -243,7 +244,13 @@ class Simulation:
 
         # Expansão Governo & Política: o estado político volta dos eventos gravados
         self._government = (
-            GovernmentBook(settings, self._engine, self._take_office, random_seed)
+            GovernmentBook(
+                settings,
+                self._engine,
+                self._take_office,
+                lambda day, headline: news.publish(settings.id, day, headline),
+                random_seed,
+            )
             if settings.government_enabled and backtest is None
             else None
         )
@@ -252,7 +259,7 @@ class Simulation:
         self.statistics = ReportCache()
 
         # O resumo do mês usa o ranking da aba Geral do mês que começa
-        self._inbox = Inbox(
+        self._summaries = SummaryDelivery(
             settings.id,
             settings.start_date,
             settings.starting_cash,
@@ -850,7 +857,7 @@ class Simulation:
 
         self._last_snapshots = {e.snapshot.user_id: e.snapshot for e in snapshots}
         if month_changed:
-            self._deliver_inbox(users)
+            self._deliver_summaries(users)
         self._unlock_achievements(
             users,
             lambda: self._achievements.on_tick(
@@ -959,15 +966,15 @@ class Simulation:
                     to=user.client_id,
                 )
 
-    def _deliver_inbox(self, users: list[UserDTO]) -> None:
+    def _deliver_summaries(self, users: list[UserDTO]) -> None:
         """
-        O resumo do mês sai depois dos snapshots do dia. A caixa de entrada é um
-        extra: um erro ao montá-la não interrompe a partida.
+        O resumo do mês sai depois dos snapshots do dia. O resumo é um extra:
+        um erro ao montá-lo não interrompe a partida.
         """
         try:
-            self._inbox.on_month_turn(users, self._current_date)
+            self._summaries.on_month_turn(users, self._current_date)
         except Exception:
-            logger.exception("Erro ao montar a caixa de entrada")
+            logger.exception("Erro ao montar o resumo do mês")
 
     def get_goal_progress(self) -> GoalProgressDTO | None:
         return self._goal_progress

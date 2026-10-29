@@ -23,8 +23,8 @@ from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.goal import GoalProgressDTO
-from backend.core.dto.inbox import InboxEntryDTO
 from backend.core.dto.life import LifeEventDTO
+from backend.core.dto.news import NewsDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.patrimonial_history import PortfolioHistoryPointDTO
 from backend.core.dto.portfolio import PortfolioDTO
@@ -33,6 +33,7 @@ from backend.core.dto.preset import PresetAppliedEventDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusResponse
 from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.dto.strategy import StrategyOrderLineDTO
+from backend.core.dto.summaries import SummaryDTO
 from backend.core.enum import (
     CampaignActionKind,
     CreditGrade,
@@ -294,7 +295,8 @@ class RealtimeEventCatalog(BaseDTO):
     order_book_snapshot: OrderBookSnapshotEventDTO
     future_recording_progress: FutureRecordingProgressEventDTO
     achievement_unlocked: AchievementUnlockedEventDTO
-    inbox_entry: InboxEntryDTO
+    summary_delivered: SummaryDTO
+    news_published: NewsDTO
     credit_installment_paid: CreditInstallmentPaidEventDTO
     credit_monthly_summary: CreditMonthlySummaryEventDTO
     credit_installment_late: CreditInstallmentLateEventDTO

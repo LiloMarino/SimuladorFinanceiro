@@ -87,11 +87,21 @@ export type CorrelationWindow = NonNullable<CorrelationQuery["window"]>;
 // Orders
 export type Order = components["schemas"]["OrderDTO"];
 
-// Notifications
-export type NotificationPreferences = Pick<components["schemas"]["SettingsRequest"], "orders" | "players">;
+// Configurações do jogador: notificações e o que ele deixou ligado no gráfico das ações
+export type UserSettings = components["schemas"]["SettingsResponse"];
 
-// Configurações do jogador, com o que ele deixou ligado no gráfico das ações
-export type UserSettings = components["schemas"]["SettingsRequest"];
+// Notificações: o registro de tipos (seções, manchetes e avisos) e a escolha do jogador
+export type NotificationSettings = UserSettings["notifications"];
+export type NotificationCatalog = components["schemas"]["NotificationCatalogResponse"];
+export type NewsTypeInfo = NotificationCatalog["news"][number];
+export type NewsSection = components["schemas"]["NewsSection"];
+export type NewsType = components["schemas"]["NewsType"];
+export type NewsLevel = components["schemas"]["NewsLevel"];
+export type NewsPosition = components["schemas"]["NewsPosition"];
+export type ToastType = components["schemas"]["ToastType"];
+
+// Jornal da partida
+export type News = components["schemas"]["NewsDTO"];
 
 // Indicadores técnicos
 export type IndicatorSettings = components["schemas"]["IndicatorSettingsDTO-Output"];
@@ -271,8 +281,7 @@ export type StrategyLogRow = StrategyLogPage["items"][number];
 export type StrategyLogKind = components["schemas"]["StrategyLogKind"];
 export type StrategyLogFilter = "all" | "orders" | "modes";
 
-// Caixa de entrada
-export type Inbox = components["schemas"]["InboxDTO"];
-export type InboxEntry = components["schemas"]["InboxEntryDTO"];
+// Resumos do mês e retrospectivas do ano
+export type Summary = components["schemas"]["SummaryDTO"];
 export type MonthSummary = components["schemas"]["MonthSummaryDTO"];
 export type YearReview = components["schemas"]["YearReviewDTO"];

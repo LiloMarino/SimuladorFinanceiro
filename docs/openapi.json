@@ -1337,6 +1337,48 @@
         ]
       }
     },
+    "/api/settings/notification-types": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Tipos de notificação",
+        "description": "As seções do jornal, os tipos de manchete e os avisos do jogador, com o texto da configuração e o padrão de cada um.",
+        "operationId": "get_notification_types_api_settings_notification_types_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationCatalogResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/settings/folders": {
       "get": {
         "tags": [
@@ -3706,21 +3748,25 @@
         ]
       }
     },
-    "/api/inbox": {
+    "/api/summaries": {
       "get": {
         "tags": [
-          "Inbox"
+          "Summaries"
         ],
-        "summary": "Caixa de entrada",
-        "description": "As entradas do jogador e as da sala na partida em andamento, da mais nova para a mais antiga, com quantas ainda não foram lidas.",
-        "operationId": "get_inbox_api_inbox_get",
+        "summary": "Resumos do jogador",
+        "description": "Os resumos do mês e as retrospectivas do ano do jogador na partida em andamento, do mais novo para o mais antigo.",
+        "operationId": "get_summaries_api_summaries_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InboxDTO"
+                  "items": {
+                    "$ref": "#/components/schemas/SummaryDTO"
+                  },
+                  "type": "array",
+                  "title": "Response Get Summaries Api Summaries Get"
                 }
               }
             }
@@ -3753,17 +3799,28 @@
         ]
       }
     },
-    "/api/inbox/read": {
-      "post": {
+    "/api/news": {
+      "get": {
         "tags": [
-          "Inbox"
+          "News"
         ],
-        "summary": "Marcar todas como lidas",
-        "description": "Marca como lidas todas as entradas do jogador na partida em andamento.",
-        "operationId": "mark_all_read_api_inbox_read_post",
+        "summary": "Jornal da partida",
+        "description": "Todas as manchetes da partida em andamento, da mais nova para a mais antiga.",
+        "operationId": "get_news_api_news_get",
         "responses": {
-          "204": {
-            "description": "Successful Response"
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NewsDTO"
+                  },
+                  "type": "array",
+                  "title": "Response Get News Api News Get"
+                }
+              }
+            }
           },
           "422": {
             "description": "Unprocessable Content",
@@ -3784,62 +3841,6 @@
                 }
               }
             }
-          }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ]
-      }
-    },
-    "/api/inbox/{entry_id}/read": {
-      "post": {
-        "tags": [
-          "Inbox"
-        ],
-        "summary": "Marcar uma entrada como lida",
-        "description": "Chamado ao abrir a entrada na caixa de entrada.",
-        "operationId": "mark_read_api_inbox__entry_id__read_post",
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "entry_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Entry Id"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorResponse"
-                }
-              }
-            },
-            "description": "Unprocessable Content"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Internal Server Error"
           }
         }
       }
@@ -10943,6 +10944,43 @@
         "title": "ClosingDTO",
         "description": "O que o último fechamento fez com o apoio e a rejeição do partido do presidente."
       },
+      "CompleteNotificationSettings": {
+        "properties": {
+          "news_position": {
+            "$ref": "#/components/schemas/NewsPosition",
+            "default": "BOTTOM_LEFT"
+          },
+          "news": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/NewsLevel"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/NewsType"
+            },
+            "type": "object",
+            "title": "News",
+            "default": {}
+          },
+          "toasts": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/ToastType"
+            },
+            "type": "object",
+            "title": "Toasts",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "news_position",
+          "news",
+          "toasts"
+        ],
+        "title": "CompleteNotificationSettings"
+      },
       "CompositionReportDTO": {
         "properties": {
           "player_grouping": {
@@ -14504,77 +14542,6 @@
         ],
         "title": "ImportYFinanceRequest"
       },
-      "InboxDTO": {
-        "properties": {
-          "entries": {
-            "items": {
-              "$ref": "#/components/schemas/InboxEntryDTO"
-            },
-            "type": "array",
-            "title": "Entries"
-          },
-          "unread": {
-            "type": "integer",
-            "title": "Unread"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "entries",
-          "unread"
-        ],
-        "title": "InboxDTO"
-      },
-      "InboxEntryDTO": {
-        "properties": {
-          "id": {
-            "type": "integer",
-            "title": "Id"
-          },
-          "game_date": {
-            "type": "string",
-            "format": "date",
-            "title": "Game Date"
-          },
-          "room": {
-            "type": "boolean",
-            "title": "Room"
-          },
-          "read": {
-            "type": "boolean",
-            "title": "Read"
-          },
-          "content": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/MonthSummaryDTO"
-              },
-              {
-                "$ref": "#/components/schemas/YearReviewDTO"
-              }
-            ],
-            "title": "Content",
-            "discriminator": {
-              "propertyName": "kind",
-              "mapping": {
-                "MONTH_SUMMARY": "#/components/schemas/MonthSummaryDTO",
-                "YEAR_REVIEW": "#/components/schemas/YearReviewDTO"
-              }
-            }
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "id",
-          "game_date",
-          "room",
-          "read",
-          "content"
-        ],
-        "title": "InboxEntryDTO"
-      },
       "IncomeTaxBracketDTO": {
         "properties": {
           "max_days": {
@@ -16645,6 +16612,167 @@
         "title": "MyViceDTO",
         "description": "A chapa em que quem vê foi indicado vice, de qualquer partido."
       },
+      "NewsDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "news_date": {
+            "type": "string",
+            "format": "date",
+            "title": "News Date"
+          },
+          "news_type": {
+            "$ref": "#/components/schemas/NewsType"
+          },
+          "headline": {
+            "type": "string",
+            "title": "Headline"
+          },
+          "dek": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dek"
+          },
+          "tickers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tickers"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "news_date",
+          "news_type",
+          "headline",
+          "dek",
+          "tickers"
+        ],
+        "title": "NewsDTO",
+        "description": "Uma manchete do jornal da partida; a seção e o nível vêm do tipo, no registro."
+      },
+      "NewsLevel": {
+        "type": "string",
+        "enum": [
+          "WINDOW",
+          "JOURNAL",
+          "HISTORY_ONLY",
+          "OFF"
+        ],
+        "title": "NewsLevel",
+        "description": "Como uma manchete chega a um jogador, escolhido por tipo."
+      },
+      "NewsPosition": {
+        "type": "string",
+        "enum": [
+          "BOTTOM_LEFT",
+          "BOTTOM_RIGHT",
+          "TOP_LEFT",
+          "STRIP"
+        ],
+        "title": "NewsPosition",
+        "description": "Onde o jornal aparece na tela; os toasts ficam embaixo, no lado oposto."
+      },
+      "NewsSection": {
+        "type": "string",
+        "enum": [
+          "ECONOMY",
+          "COMPANIES",
+          "POLITICS",
+          "HISTORY"
+        ],
+        "title": "NewsSection",
+        "description": "A seção do jornal da partida; a ordem é a da importância numa rajada."
+      },
+      "NewsSectionInfo": {
+        "properties": {
+          "section": {
+            "$ref": "#/components/schemas/NewsSection"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "section",
+          "label",
+          "note"
+        ],
+        "title": "NewsSectionInfo"
+      },
+      "NewsType": {
+        "type": "string",
+        "enum": [
+          "ELECTION_CALENDAR",
+          "ELECTION_RESULT",
+          "TERM_STARTED",
+          "MEASURE_PROPOSED",
+          "MEASURE_VOTED",
+          "PARTY_LIFE",
+          "CAMPAIGN"
+        ],
+        "title": "NewsType",
+        "description": "Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro."
+      },
+      "NewsTypeInfo": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/NewsType"
+          },
+          "section": {
+            "$ref": "#/components/schemas/NewsSection"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "default_level": {
+            "$ref": "#/components/schemas/NewsLevel"
+          },
+          "fixed": {
+            "type": "boolean",
+            "title": "Fixed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "section",
+          "label",
+          "description",
+          "default_level",
+          "fixed"
+        ],
+        "title": "NewsTypeInfo"
+      },
       "NextTaxDropDTO": {
         "properties": {
           "on": {
@@ -16664,6 +16792,76 @@
           "rate"
         ],
         "title": "NextTaxDropDTO"
+      },
+      "NotificationCatalogResponse": {
+        "properties": {
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/NewsSectionInfo"
+            },
+            "type": "array",
+            "title": "Sections"
+          },
+          "news": {
+            "items": {
+              "$ref": "#/components/schemas/NewsTypeInfo"
+            },
+            "type": "array",
+            "title": "News"
+          },
+          "toasts": {
+            "items": {
+              "$ref": "#/components/schemas/ToastTypeInfo"
+            },
+            "type": "array",
+            "title": "Toasts"
+          },
+          "default_position": {
+            "$ref": "#/components/schemas/NewsPosition"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sections",
+          "news",
+          "toasts",
+          "default_position"
+        ],
+        "title": "NotificationCatalogResponse",
+        "description": "O registro dos tipos de notificação; as listas vêm na ordem da importância."
+      },
+      "NotificationSettings": {
+        "properties": {
+          "news_position": {
+            "$ref": "#/components/schemas/NewsPosition",
+            "default": "BOTTOM_LEFT"
+          },
+          "news": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/NewsLevel"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/NewsType"
+            },
+            "type": "object",
+            "title": "News",
+            "default": {}
+          },
+          "toasts": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/ToastType"
+            },
+            "type": "object",
+            "title": "Toasts",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "title": "NotificationSettings",
+        "description": "Onde o jornal aparece, o nível de cada tipo de manchete e quais avisos sobem."
       },
       "OpenChallengeDTO": {
         "properties": {
@@ -16875,24 +17073,6 @@
           "quantity"
         ],
         "title": "OrderExecutedEventDTO"
-      },
-      "OrderNotificationSettings": {
-        "properties": {
-          "executed": {
-            "type": "boolean",
-            "title": "Executed"
-          },
-          "partial": {
-            "type": "boolean",
-            "title": "Partial"
-          }
-        },
-        "type": "object",
-        "required": [
-          "executed",
-          "partial"
-        ],
-        "title": "OrderNotificationSettings"
       },
       "OrderPartialExecutedEventDTO": {
         "properties": {
@@ -17998,19 +18178,6 @@
           "bot"
         ],
         "title": "PlayerNickname"
-      },
-      "PlayerNotificationSettings": {
-        "properties": {
-          "join_exit": {
-            "type": "boolean",
-            "title": "Join Exit"
-          }
-        },
-        "type": "object",
-        "required": [
-          "join_exit"
-        ],
-        "title": "PlayerNotificationSettings"
       },
       "PlayerOperationsDTO": {
         "properties": {
@@ -20560,8 +20727,11 @@
           "achievement_unlocked": {
             "$ref": "#/components/schemas/AchievementUnlockedEventDTO"
           },
-          "inbox_entry": {
-            "$ref": "#/components/schemas/InboxEntryDTO"
+          "summary_delivered": {
+            "$ref": "#/components/schemas/SummaryDTO"
+          },
+          "news_published": {
+            "$ref": "#/components/schemas/NewsDTO"
           },
           "credit_installment_paid": {
             "$ref": "#/components/schemas/CreditInstallmentPaidEventDTO"
@@ -20629,7 +20799,8 @@
           "order_book_snapshot",
           "future_recording_progress",
           "achievement_unlocked",
-          "inbox_entry",
+          "summary_delivered",
+          "news_published",
           "credit_installment_paid",
           "credit_monthly_summary",
           "credit_installment_late",
@@ -22026,11 +22197,13 @@
       },
       "SettingsRequest": {
         "properties": {
-          "orders": {
-            "$ref": "#/components/schemas/OrderNotificationSettings"
-          },
-          "players": {
-            "$ref": "#/components/schemas/PlayerNotificationSettings"
+          "notifications": {
+            "$ref": "#/components/schemas/NotificationSettings",
+            "default": {
+              "news_position": "BOTTOM_LEFT",
+              "news": {},
+              "toasts": {}
+            }
           },
           "indicators": {
             "$ref": "#/components/schemas/IndicatorSettingsDTO-Input",
@@ -22065,49 +22238,15 @@
         },
         "additionalProperties": true,
         "type": "object",
-        "required": [
-          "orders",
-          "players"
-        ],
         "title": "SettingsRequest"
       },
       "SettingsResponse": {
         "properties": {
-          "orders": {
-            "$ref": "#/components/schemas/OrderNotificationSettings"
-          },
-          "players": {
-            "$ref": "#/components/schemas/PlayerNotificationSettings"
+          "notifications": {
+            "$ref": "#/components/schemas/CompleteNotificationSettings"
           },
           "indicators": {
-            "$ref": "#/components/schemas/IndicatorSettingsDTO-Output",
-            "default": {
-              "visible": [],
-              "params": {
-                "atr_period": 14,
-                "averages": [
-                  {
-                    "kind": "sma",
-                    "period": 20
-                  },
-                  {
-                    "kind": "ema",
-                    "period": 50
-                  }
-                ],
-                "bollinger_deviations": 2.0,
-                "bollinger_period": 20,
-                "macd_fast": 12,
-                "macd_signal": 9,
-                "macd_slow": 26,
-                "rsi_overbought": 70,
-                "rsi_oversold": 30,
-                "rsi_period": 14,
-                "stochastic_d": 3,
-                "stochastic_k": 14
-              },
-              "patterns": true
-            }
+            "$ref": "#/components/schemas/IndicatorSettingsDTO-Output"
           },
           "debug": {
             "type": "boolean",
@@ -22117,8 +22256,7 @@
         "additionalProperties": true,
         "type": "object",
         "required": [
-          "orders",
-          "players",
+          "notifications",
           "indicators",
           "debug"
         ],
@@ -24355,6 +24493,46 @@
         ],
         "title": "SuggestionKind"
       },
+      "SummaryDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "game_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Game Date"
+          },
+          "content": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MonthSummaryDTO"
+              },
+              {
+                "$ref": "#/components/schemas/YearReviewDTO"
+              }
+            ],
+            "title": "Content",
+            "discriminator": {
+              "propertyName": "kind",
+              "mapping": {
+                "MONTH_SUMMARY": "#/components/schemas/MonthSummaryDTO",
+                "YEAR_REVIEW": "#/components/schemas/YearReviewDTO"
+              }
+            }
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "game_date",
+          "content"
+        ],
+        "title": "SummaryDTO",
+        "description": "Um resumo entregue a um jogador na virada do mês ou do ano."
+      },
       "SummaryVerdict": {
         "type": "string",
         "enum": [
@@ -25266,6 +25444,49 @@
           "candidate"
         ],
         "title": "TicketRequest"
+      },
+      "ToastType": {
+        "type": "string",
+        "enum": [
+          "ORDER_EXECUTED",
+          "ORDER_PARTIAL",
+          "STRATEGY_ORDERS",
+          "PLAYER_PRESENCE",
+          "CREDIT_PAYMENTS",
+          "CREDIT_RATING",
+          "LIFE_EVENT",
+          "MONTH_SUMMARY",
+          "VICE_ANSWER"
+        ],
+        "title": "ToastType",
+        "description": "Um aviso do que acontece com o próprio jogador, ligado ou desligado por tipo."
+      },
+      "ToastTypeInfo": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/ToastType"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "default_on": {
+            "type": "boolean",
+            "title": "Default On"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "label",
+          "description",
+          "default_on"
+        ],
+        "title": "ToastTypeInfo"
       },
       "TradeDTO": {
         "properties": {

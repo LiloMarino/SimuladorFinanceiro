@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { dayOrdersSummary, orderToastTitle } from "@/shared/lib/strategy-orders";
+import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayMoney } from "@/shared/lib/utils/display";
@@ -16,6 +17,7 @@ const INDIVIDUAL_TOAST_LIMIT = 2;
 export function StrategyNotifications() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { isToastOn } = useNotificationPreferences();
 
   const renew = () => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.myStrategy() });
@@ -26,6 +28,7 @@ export function StrategyNotifications() {
 
   useRealtime("strategy_orders", ({ orders }) => {
     renew();
+    if (!isToastOn("STRATEGY_ORDERS")) return;
     if (orders.length > INDIVIDUAL_TOAST_LIMIT) {
       toast.info(`A estratégia mandou ${orders.length} ordens hoje`, {
         description: dayOrdersSummary(orders),

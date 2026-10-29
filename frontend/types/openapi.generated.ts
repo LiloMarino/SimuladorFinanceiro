@@ -400,6 +400,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings/notification-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tipos de notificação
+         * @description As seções do jornal, os tipos de manchete e os avisos do jogador, com o texto da configuração e o padrão de cada um.
+         */
+        get: operations["get_notification_types_api_settings_notification_types_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings/folders": {
         parameters: {
             query?: never;
@@ -1292,7 +1312,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/inbox": {
+    "/api/summaries": {
         parameters: {
             query?: never;
             header?: never;
@@ -1300,10 +1320,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Caixa de entrada
-         * @description As entradas do jogador e as da sala na partida em andamento, da mais nova para a mais antiga, com quantas ainda não foram lidas.
+         * Resumos do jogador
+         * @description Os resumos do mês e as retrospectivas do ano do jogador na partida em andamento, do mais novo para o mais antigo.
          */
-        get: operations["get_inbox_api_inbox_get"];
+        get: operations["get_summaries_api_summaries_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1312,40 +1332,20 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/inbox/read": {
+    "/api/news": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
         /**
-         * Marcar todas como lidas
-         * @description Marca como lidas todas as entradas do jogador na partida em andamento.
+         * Jornal da partida
+         * @description Todas as manchetes da partida em andamento, da mais nova para a mais antiga.
          */
-        post: operations["mark_all_read_api_inbox_read_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/inbox/{entry_id}/read": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
+        get: operations["get_news_api_news_get"];
         put?: never;
-        /**
-         * Marcar uma entrada como lida
-         * @description Chamado ao abrir a entrada na caixa de entrada.
-         */
-        post: operations["mark_read_api_inbox__entry_id__read_post"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3815,6 +3815,25 @@ export interface components {
             /** Neutral */
             neutral: components["schemas"]["VoterGroup"][];
         };
+        /** CompleteNotificationSettings */
+        CompleteNotificationSettings: {
+            /** @default BOTTOM_LEFT */
+            news_position: components["schemas"]["NewsPosition"];
+            /**
+             * News
+             * @default {}
+             */
+            news: {
+                [key: string]: components["schemas"]["NewsLevel"];
+            };
+            /**
+             * Toasts
+             * @default {}
+             */
+            toasts: {
+                [key: string]: boolean;
+            };
+        };
         /** CompositionReportDTO */
         CompositionReportDTO: {
             player_grouping: components["schemas"]["PlayerGrouping"];
@@ -4994,29 +5013,6 @@ export interface components {
              */
             overwrite: boolean;
         };
-        /** InboxDTO */
-        InboxDTO: {
-            /** Entries */
-            entries: components["schemas"]["InboxEntryDTO"][];
-            /** Unread */
-            unread: number;
-        };
-        /** InboxEntryDTO */
-        InboxEntryDTO: {
-            /** Id */
-            id: number;
-            /**
-             * Game Date
-             * Format: date
-             */
-            game_date: string;
-            /** Room */
-            room: boolean;
-            /** Read */
-            read: boolean;
-            /** Content */
-            content: components["schemas"]["MonthSummaryDTO"] | components["schemas"]["YearReviewDTO"];
-        };
         /** IncomeTaxBracketDTO */
         IncomeTaxBracketDTO: {
             /** Max Days */
@@ -5863,6 +5859,70 @@ export interface components {
             party_id: number;
             phase: components["schemas"]["VicePhase"];
         };
+        /**
+         * NewsDTO
+         * @description Uma manchete do jornal da partida; a seção e o nível vêm do tipo, no registro.
+         */
+        NewsDTO: {
+            /** Id */
+            id: number;
+            /**
+             * News Date
+             * Format: date
+             */
+            news_date: string;
+            news_type: components["schemas"]["NewsType"];
+            /** Headline */
+            headline: string;
+            /** Dek */
+            dek: string | null;
+            /** Tickers */
+            tickers: string[];
+        };
+        /**
+         * NewsLevel
+         * @description Como uma manchete chega a um jogador, escolhido por tipo.
+         * @enum {string}
+         */
+        NewsLevel: "WINDOW" | "JOURNAL" | "HISTORY_ONLY" | "OFF";
+        /**
+         * NewsPosition
+         * @description Onde o jornal aparece na tela; os toasts ficam embaixo, no lado oposto.
+         * @enum {string}
+         */
+        NewsPosition: "BOTTOM_LEFT" | "BOTTOM_RIGHT" | "TOP_LEFT" | "STRIP";
+        /**
+         * NewsSection
+         * @description A seção do jornal da partida; a ordem é a da importância numa rajada.
+         * @enum {string}
+         */
+        NewsSection: "ECONOMY" | "COMPANIES" | "POLITICS" | "HISTORY";
+        /** NewsSectionInfo */
+        NewsSectionInfo: {
+            section: components["schemas"]["NewsSection"];
+            /** Label */
+            label: string;
+            /** Note */
+            note: string | null;
+        };
+        /**
+         * NewsType
+         * @description Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro.
+         * @enum {string}
+         */
+        NewsType: "ELECTION_CALENDAR" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN";
+        /** NewsTypeInfo */
+        NewsTypeInfo: {
+            type: components["schemas"]["NewsType"];
+            section: components["schemas"]["NewsSection"];
+            /** Label */
+            label: string;
+            /** Description */
+            description: string;
+            default_level: components["schemas"]["NewsLevel"];
+            /** Fixed */
+            fixed: boolean;
+        };
         /** NextTaxDropDTO */
         NextTaxDropDTO: {
             /**
@@ -5872,6 +5932,41 @@ export interface components {
             on: string;
             /** Rate */
             rate: string;
+        };
+        /**
+         * NotificationCatalogResponse
+         * @description O registro dos tipos de notificação; as listas vêm na ordem da importância.
+         */
+        NotificationCatalogResponse: {
+            /** Sections */
+            sections: components["schemas"]["NewsSectionInfo"][];
+            /** News */
+            news: components["schemas"]["NewsTypeInfo"][];
+            /** Toasts */
+            toasts: components["schemas"]["ToastTypeInfo"][];
+            default_position: components["schemas"]["NewsPosition"];
+        };
+        /**
+         * NotificationSettings
+         * @description Onde o jornal aparece, o nível de cada tipo de manchete e quais avisos sobem.
+         */
+        NotificationSettings: {
+            /** @default BOTTOM_LEFT */
+            news_position: components["schemas"]["NewsPosition"];
+            /**
+             * News
+             * @default {}
+             */
+            news: {
+                [key: string]: components["schemas"]["NewsLevel"];
+            };
+            /**
+             * Toasts
+             * @default {}
+             */
+            toasts: {
+                [key: string]: boolean;
+            };
         };
         /**
          * OpenChallengeDTO
@@ -5951,13 +6046,6 @@ export interface components {
             price: string;
             /** Quantity */
             quantity: string;
-        };
-        /** OrderNotificationSettings */
-        OrderNotificationSettings: {
-            /** Executed */
-            executed: boolean;
-            /** Partial */
-            partial: boolean;
         };
         /** OrderPartialExecutedEventDTO */
         OrderPartialExecutedEventDTO: {
@@ -6327,11 +6415,6 @@ export interface components {
             team: number | null;
             activity: components["schemas"]["PlayerActivity"] | null;
             bot: components["schemas"]["RoomBotDTO"] | null;
-        };
-        /** PlayerNotificationSettings */
-        PlayerNotificationSettings: {
-            /** Join Exit */
-            join_exit: boolean;
         };
         /** PlayerOperationsDTO */
         PlayerOperationsDTO: {
@@ -7187,7 +7270,8 @@ export interface components {
             order_book_snapshot: components["schemas"]["OrderBookSnapshotEventDTO"];
             future_recording_progress: components["schemas"]["FutureRecordingProgressEventDTO"];
             achievement_unlocked: components["schemas"]["AchievementUnlockedEventDTO"];
-            inbox_entry: components["schemas"]["InboxEntryDTO"];
+            summary_delivered: components["schemas"]["SummaryDTO"];
+            news_published: components["schemas"]["NewsDTO"];
             credit_installment_paid: components["schemas"]["CreditInstallmentPaidEventDTO"];
             credit_monthly_summary: components["schemas"]["CreditMonthlySummaryEventDTO"];
             credit_installment_late: components["schemas"]["CreditInstallmentLateEventDTO"];
@@ -7663,8 +7747,14 @@ export interface components {
         };
         /** SettingsRequest */
         SettingsRequest: {
-            orders: components["schemas"]["OrderNotificationSettings"];
-            players: components["schemas"]["PlayerNotificationSettings"];
+            /**
+             * @default {
+             *       "news_position": "BOTTOM_LEFT",
+             *       "news": {},
+             *       "toasts": {}
+             *     }
+             */
+            notifications: components["schemas"]["NotificationSettings"];
             /**
              * @default {
              *       "visible": [],
@@ -7703,37 +7793,7 @@ export interface components {
          * @description As preferências do usuário mais o modo debug do servidor, só leitura.
          */
         SettingsResponse: {
-            orders: components["schemas"]["OrderNotificationSettings"];
-            players: components["schemas"]["PlayerNotificationSettings"];
-            /**
-             * @default {
-             *       "visible": [],
-             *       "params": {
-             *         "atr_period": 14,
-             *         "averages": [
-             *           {
-             *             "kind": "sma",
-             *             "period": 20
-             *           },
-             *           {
-             *             "kind": "ema",
-             *             "period": 50
-             *           }
-             *         ],
-             *         "bollinger_deviations": 2,
-             *         "bollinger_period": 20,
-             *         "macd_fast": 12,
-             *         "macd_signal": 9,
-             *         "macd_slow": 26,
-             *         "rsi_overbought": 70,
-             *         "rsi_oversold": 30,
-             *         "rsi_period": 14,
-             *         "stochastic_d": 3,
-             *         "stochastic_k": 14
-             *       },
-             *       "patterns": true
-             *     }
-             */
+            notifications: components["schemas"]["CompleteNotificationSettings"];
             indicators: components["schemas"]["IndicatorSettingsDTO-Output"];
             /** Debug */
             debug: boolean;
@@ -8541,6 +8601,21 @@ export interface components {
          * @enum {string}
          */
         SuggestionKind: "PAYOFF" | "VOLATILITY" | "ON_TIME" | "RECOVER";
+        /**
+         * SummaryDTO
+         * @description Um resumo entregue a um jogador na virada do mês ou do ano.
+         */
+        SummaryDTO: {
+            /** Id */
+            id: number;
+            /**
+             * Game Date
+             * Format: date
+             */
+            game_date: string;
+            /** Content */
+            content: components["schemas"]["MonthSummaryDTO"] | components["schemas"]["YearReviewDTO"];
+        };
         /** @enum {string} */
         SummaryVerdict: "strong_buy" | "buy" | "neutral" | "sell" | "strong_sell";
         /** TaxRowDTO */
@@ -8806,6 +8881,22 @@ export interface components {
             candidate: string;
             /** Vice */
             vice?: string | null;
+        };
+        /**
+         * ToastType
+         * @description Um aviso do que acontece com o próprio jogador, ligado ou desligado por tipo.
+         * @enum {string}
+         */
+        ToastType: "ORDER_EXECUTED" | "ORDER_PARTIAL" | "STRATEGY_ORDERS" | "PLAYER_PRESENCE" | "CREDIT_PAYMENTS" | "CREDIT_RATING" | "LIFE_EVENT" | "MONTH_SUMMARY" | "VICE_ANSWER";
+        /** ToastTypeInfo */
+        ToastTypeInfo: {
+            type: components["schemas"]["ToastType"];
+            /** Label */
+            label: string;
+            /** Description */
+            description: string;
+            /** Default On */
+            default_on: boolean;
         };
         /**
          * TradeDTO
@@ -10118,6 +10209,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SettingsResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_notification_types_api_settings_notification_types_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationCatalogResponse"];
                 };
             };
             /** @description Unprocessable Content */
@@ -11985,7 +12114,7 @@ export interface operations {
             };
         };
     };
-    get_inbox_api_inbox_get: {
+    get_summaries_api_summaries_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -12000,7 +12129,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["InboxDTO"];
+                    "application/json": components["schemas"]["SummaryDTO"][];
                 };
             };
             /** @description Unprocessable Content */
@@ -12023,7 +12152,7 @@ export interface operations {
             };
         };
     };
-    mark_all_read_api_inbox_read_post: {
+    get_news_api_news_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -12033,49 +12162,13 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable Content */
-            422: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                    "application/json": components["schemas"]["NewsDTO"][];
                 };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    mark_read_api_inbox__entry_id__read_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                entry_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
             /** @description Unprocessable Content */
             422: {

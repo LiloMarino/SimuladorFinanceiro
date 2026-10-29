@@ -22,6 +22,7 @@ from backend.core.enum import (
     GovernmentNoticeKind,
     MeasureKind,
     MeasureStatus,
+    NewsType,
     PauseReason,
     VicePhase,
     VoterGroup,
@@ -41,6 +42,7 @@ from backend.features.government.campaign_panel import build_campaign, build_his
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_panel
 from backend.features.government.state import Party, replay
+from backend.features.notifications.news import Headline
 from backend.features.tax_policy import LossPool
 from tests.fakes import FakeSimulationEngine, client, simulation_settings
 
@@ -114,15 +116,25 @@ def engine() -> PoliticalEngine:
 
 
 @pytest.fixture
+def headlines() -> list[tuple[date, Headline]]:
+    """As manchetes que o livro mandou ao jornal, com o dia de cada uma."""
+    return []
+
+
+@pytest.fixture
 def office() -> list[int]:
     """Quem tomou posse: o livro avisa a partida a cada presidente jogador."""
     return []
 
 
 @pytest.fixture
-def book(engine, stored, notices, captured_events, office) -> GovernmentBook:
+def book(engine, stored, notices, captured_events, office, headlines) -> GovernmentBook:
     return GovernmentBook(
-        settings(), engine, lambda user, _day: office.append(user.id), SEED
+        settings(),
+        engine,
+        lambda user, _day: office.append(user.id),
+        lambda day, headline: headlines.append((day, headline)),
+        SEED,
     )
 
 
@@ -304,7 +316,9 @@ def test_campaign_opening_on_a_weekend_is_announced_on_the_next_tick(
     rules = settings().model_dump()
     # 1º turno numa segunda: a campanha abre num domingo
     rules.update(first_election=date(2021, 10, 4))
-    weekend = GovernmentBook(SimulationDTO(**rules), engine, lambda *_: None, SEED)
+    weekend = GovernmentBook(
+        SimulationDTO(**rules), engine, lambda *_: None, lambda *_: None, SEED
+    )
 
     weekend.on_tick(USERS, date(2020, 10, 1), False)
     assert weekend.on_tick(USERS, date(2020, 10, 2), False) is None
@@ -320,7 +334,9 @@ def test_campaign_that_opens_with_the_game_is_announced_on_the_first_day(
 ):
     rules = settings().model_dump()
     rules.update(first_election=date(2020, 6, 1))
-    early = GovernmentBook(SimulationDTO(**rules), engine, lambda *_: None, SEED)
+    early = GovernmentBook(
+        SimulationDTO(**rules), engine, lambda *_: None, lambda *_: None, SEED
+    )
 
     assert early.on_tick(USERS, date(2020, 1, 1), False) == PauseReason.CAMPAIGN_OPENED
     assert [notice["kind"] for notice in notices] == ["CAMPAIGN_OPENED"]
@@ -331,7 +347,9 @@ def test_resumed_game_does_not_repeat_the_campaign_opening(
 ):
     rules = settings().model_dump()
     rules.update(first_election=date(2020, 6, 1))
-    resumed = GovernmentBook(SimulationDTO(**rules), engine, lambda *_: None, SEED)
+    resumed = GovernmentBook(
+        SimulationDTO(**rules), engine, lambda *_: None, lambda *_: None, SEED
+    )
 
     assert resumed.on_tick(USERS, date(2020, 2, 3), False) is None
     assert notices == []
@@ -674,7 +692,7 @@ def test_resumed_book_starts_from_the_stored_events(
     found(book, ALICE, "AAA", RED, "10000")
     book.on_tick(USERS, date(2020, 11, 3), True)
 
-    resumed = GovernmentBook(settings(), engine, lambda *_: None, SEED)
+    resumed = GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
 
     assert party_of(resumed, ALICE).campaign == party_of(book, ALICE).campaign
     assert resumed.state.last_collection == date(2020, 11, 1)
@@ -1107,7 +1125,7 @@ def test_replay_rebuilds_measures_approval_and_policy(
     congress_says(monkeypatch, True)
     book.on_tick(USERS, FIRST_VOTE, False)
 
-    resumed = GovernmentBook(settings(), engine, lambda *_: None, SEED)
+    resumed = GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
 
     assert resumed.state.measures == book.state.measures
     assert resumed.state.approvals == book.state.approvals
@@ -1155,7 +1173,7 @@ def test_founder_of_a_party_without_flags_chooses_them_once(
     found(book, ALICE, "AAA", RED)
     founded = next(e for e in stored if e.payload.get("abbr") == "AAA")
     founded.payload.pop("flags")
-    resumed = GovernmentBook(settings(), engine, lambda *_: None, SEED)
+    resumed = GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
     party = party_of(resumed, ALICE)
     assert party.flags is None
     assert set(party.radar.values()) == {voters.RADAR_NEUTRAL}
@@ -1510,3 +1528,57 @@ def test_campaign_panel_lists_prices_history_and_received_attacks(
     assert received.rolls == [] and received.roll is None and received.price is None
     assert [e.kind for e in seen_by_rival.entries] == [CampaignEntryKind.ATTACK]
     assert seen_by_rival.entries[0].rolls == [10]
+
+
+# Jornal da partida
+
+
+def texts(headlines: list[tuple[date, Headline]], news_type: NewsType) -> list[str]:
+    return [h.text for _, h in headlines if h.news_type is news_type]
+
+
+def test_the_election_reaches_the_journal_from_the_campaign_to_the_inauguration(
+    book: GovernmentBook, engine, headlines
+):
+    govern(book, engine)
+
+    assert texts(headlines, NewsType.PARTY_LIFE)[0] == (
+        "Alice funda o AAA, Partido AAA"
+    )
+    [closed] = [
+        t for t in texts(headlines, NewsType.ELECTION_CALENDAR) if "fechadas" in t
+    ]
+    assert "Alice pelo AAA" in closed
+    results = texts(headlines, NewsType.ELECTION_RESULT)
+    assert results[-1].startswith("Alice (AAA) vence o 2º turno, com ")
+    [posse] = texts(headlines, NewsType.TERM_STARTED)
+    assert posse == "Alice toma posse; o mandato vai até 2025"
+    assert headlines[-1][0] == TERM_START
+
+
+def test_the_proposal_and_the_withdrawal_reach_the_journal(
+    book: GovernmentBook, engine, market, headlines
+):
+    govern(book, engine)
+    headlines.clear()
+
+    propose(book)
+    [measure_id] = book.state.measures
+    book.withdraw(ALICE, TERM_START, measure_id)
+
+    assert texts(headlines, NewsType.MEASURE_PROPOSED) == [
+        "Alice propõe: Ações: IR das vendas com lucro em 20%",
+        "Alice retira a proposta: Ações: IR das vendas com lucro em 20%",
+    ]
+
+
+def test_the_impeachment_names_the_president_who_falls(
+    book: GovernmentBook, engine, market, bleak, headlines
+):
+    govern(book, engine)
+
+    assert close_months(book, 18) == PauseReason.IMPEACHMENT
+
+    assert texts(headlines, NewsType.ELECTION_RESULT)[-1] == (
+        "Impeachment tira Alice (AAA) da Presidência"
+    )

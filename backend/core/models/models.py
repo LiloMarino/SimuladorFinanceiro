@@ -22,7 +22,7 @@ from sqlalchemy import (
     Uuid,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -979,7 +979,7 @@ class AchievementProgress(Base):
 
 
 class InboxEntries(Base):
-    """O que a partida conta aos jogadores, criado pelo motor e lido na caixa de entrada."""
+    """O resumo do mês e a retrospectiva do ano de cada jogador, criados pelo motor na virada."""
 
     __tablename__ = "inbox_entries"
     __table_args__ = (
@@ -1015,17 +1015,71 @@ class InboxEntries(Base):
         primary_key=True,
     )
     simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    # Nulo quando a entrada é da sala inteira
     user_id: Mapped[int | None] = mapped_column(Integer)
     game_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     kind: Mapped[str] = mapped_column(
         Enum("MONTH_SUMMARY", "YEAR_REVIEW", name="inbox_entry_kind"),
         nullable=False,
     )
-    # O formato de cada tipo mora no DTO de `InboxContent`
+    # O formato de cada tipo mora no DTO de `SummaryContent`
     content: Mapped[dict] = mapped_column(JSONB, nullable=False)
     read: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("false")
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
+
+
+class News(Base):
+    """As manchetes do jornal da partida, da sala inteira; o histórico é salvo com a partida."""
+
+    __tablename__ = "news"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="news_simulation_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="news_pkey"),
+        Index("news_simulation_date_idx", "simulation_id", "news_date"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    news_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    news_type: Mapped[str] = mapped_column(
+        Enum(
+            "ELECTION_CALENDAR",
+            "ELECTION_RESULT",
+            "TERM_STARTED",
+            "MEASURE_PROPOSED",
+            "MEASURE_VOTED",
+            "PARTY_LIFE",
+            "CAMPAIGN",
+            name="news_type",
+        ),
+        nullable=False,
+    )
+    headline: Mapped[str] = mapped_column(Text, nullable=False)
+    dek: Mapped[str | None] = mapped_column(Text)
+    # Os ativos de que a manchete fala, para o filtro "só minha carteira"
+    tickers: Mapped[list[str]] = mapped_column(
+        ARRAY(Text), nullable=False, server_default=text("'{}'::text[]")
     )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False

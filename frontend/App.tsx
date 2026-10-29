@@ -18,6 +18,7 @@ import {
   Gavel,
   GraduationCap,
   LineChart,
+  Newspaper,
 } from "lucide-react";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
@@ -37,7 +38,6 @@ import BacktestNewPage from "./features/backtest/pages/backtest-new";
 import BacktestRunningPage from "./features/backtest/pages/backtest-running";
 import ImportAssetsPage from "./features/import-assets/pages/import-assets";
 import { RealtimeProvider } from "@/shared/context/realtime";
-import { Toaster } from "@/shared/components/ui/sonner";
 import { PageLabelProvider } from "@/shared/context/page-label";
 import GoalPage from "./features/goal/pages/goal";
 import CreditPage from "./features/credit/pages/credit";
@@ -50,7 +50,9 @@ import { LoginPage } from "./features/auth/pages/login";
 import { AuthProvider } from "./shared/context/auth";
 import { ErrorPage } from "./pages/error";
 import { NotificationSettingsProvider } from "@/shared/context/notifications-settings";
-import { GlobalNotifications } from "./shared/notifications";
+import { AppToaster, GlobalNotifications } from "./shared/notifications";
+import { SummaryNotifications } from "./features/statistics/components/summary-notifications";
+import JournalPage from "./features/news/pages/journal";
 import { GovernmentNotifications } from "./features/government/components/government-notifications";
 import { SimulationProvider } from "./shared/context/simulation";
 import { TutorialProvider } from "./features/tutorial/context/TutorialProvider";
@@ -63,6 +65,7 @@ const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda variável", endpoint: "/variable-income", icon: TrendingUp, group: "Mercado" },
   { key: "fixed-income", label: "Renda fixa", endpoint: "/fixed-income", icon: Coins, group: "Mercado" },
   { key: "economy", label: "Economia", endpoint: "/economy", icon: LineChart, group: "Mercado" },
+  { key: "journal", label: "Jornal", endpoint: "/journal", icon: Newspaper, group: "Mercado" },
   { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: Wallet, group: "Você" },
   { key: "goal", label: "Meta", endpoint: "/goal", icon: Flag, group: "Você", goalOnly: true },
   { key: "credit", label: "Crédito", endpoint: "/credit", icon: Banknote, group: "Você", creditAlert: true },
@@ -130,6 +133,7 @@ export default function App() {
               {/* Listeners globais de notificações */}
               <GlobalNotifications />
               <GovernmentNotifications />
+              <SummaryNotifications />
               <DebugTools />
               <PageLabelProvider routeLabels={routeLabels}>
                 <SimulationProvider>
@@ -160,6 +164,7 @@ export default function App() {
                           <Route path="/credit" element={<CreditPage />} />
                           <Route path="/statistics" element={<StatisticsPage />} />
                           <Route path="/economy" element={<EconomyPage />} />
+                          <Route path="/journal" element={<JournalPage />} />
                           <Route path="/election" element={<ElectionPage />} />
                           <Route path="/government" element={<GovernmentPage />} />
                         </Route>
@@ -171,7 +176,7 @@ export default function App() {
                       {/* 404 */}
                       <Route path="*" element={<ErrorPage />} />
                     </Routes>
-                    <Toaster position="bottom-right" />
+                    <AppToaster />
                   </TutorialProvider>
                 </SimulationProvider>
               </PageLabelProvider>

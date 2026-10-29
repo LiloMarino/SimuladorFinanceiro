@@ -13,7 +13,7 @@ import { TopbarTutorialButton } from "@/features/tutorial/components/topbar-butt
 import { TopbarGoal } from "./topbar-goal";
 import { GoverningBanner } from "@/features/government/components/governing-banner";
 import { TopbarGovernment } from "@/features/government/components/topbar-government";
-import { TopbarInbox } from "@/features/inbox/components/topbar-inbox";
+import { NewsStrip } from "@/features/news/components/news-strip";
 import { hasGoal } from "@/shared/lib/game-types";
 import type { SimulationState } from "@/types";
 
@@ -80,9 +80,6 @@ export default function Topbar({ pageLabel }: TopbarProps) {
           {/* Expansão Governo & Política */}
           {match?.government_enabled && <TopbarGovernment />}
 
-          {/* Caixa de entrada */}
-          {match && <TopbarInbox simulationId={match.id} />}
-
           {/* Como jogar */}
           <TopbarTutorialButton />
 
@@ -131,6 +128,9 @@ export default function Topbar({ pageLabel }: TopbarProps) {
           <TopbarCash cash={simData?.cash} independence={match?.game_type === "FINANCIAL_INDEPENDENCE"} />
         </div>
       </div>
+
+      {/* Faixa de manchetes */}
+      <NewsStrip />
 
       {/* Aviso do presidente */}
       {match?.government_enabled && <GoverningBanner />}

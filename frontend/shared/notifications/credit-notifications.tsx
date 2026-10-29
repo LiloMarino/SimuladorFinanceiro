@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Clock, TrendingUp, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
+import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { displaySelicSpread, displayWholePercent, isDowngrade, payOverdueLink } from "@/shared/lib/credit";
 import { queryKeys } from "@/shared/lib/queryKeys";
@@ -14,6 +15,7 @@ import { displayDayMonth, displayMoney, displayMonthName } from "@/shared/lib/ut
 export function CreditNotifications() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { isToastOn } = useNotificationPreferences();
 
   const renew = () => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.credit() });
@@ -22,6 +24,7 @@ export function CreditNotifications() {
 
   useRealtime("credit_installment_paid", (event) => {
     renew();
+    if (!isToastOn("CREDIT_PAYMENTS")) return;
     toast.success("Parcela paga", {
       description: `Empréstimo ${event.loan_number} · ${displayMoney(event.amount)} · ${event.installment_number} de ${event.total_installments}`,
     });
@@ -29,6 +32,7 @@ export function CreditNotifications() {
 
   useRealtime("credit_monthly_summary", (event) => {
     renew();
+    if (!isToastOn("CREDIT_PAYMENTS")) return;
     toast.success(`Parcelas de ${displayMonthName(event.month)} pagas`, {
       description: `${event.installments} ${event.installments === 1 ? "parcela" : "parcelas"} · ${displayMoney(event.amount)}`,
     });
@@ -54,6 +58,7 @@ export function CreditNotifications() {
 
   useRealtime("credit_rating_changed", (event) => {
     renew();
+    if (!isToastOn("CREDIT_RATING")) return;
     const description =
       event.spread === null
         ? "Sem crédito novo nesta nota."
@@ -69,6 +74,7 @@ export function CreditNotifications() {
 
   useRealtime("credit_loan_paid_off", (event) => {
     renew();
+    if (!isToastOn("CREDIT_PAYMENTS")) return;
     const saved = Number(event.interest_saved);
     toast.success(`Empréstimo ${event.loan_number} quitado`, {
       description:

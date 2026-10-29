@@ -22,7 +22,7 @@ from backend.routes.error import (
 from backend.routes.frontend import register_frontend_routes
 from backend.routes.government import government_router
 from backend.routes.importer import import_router
-from backend.routes.inbox import inbox_router
+from backend.routes.news import news_router
 from backend.routes.operation import operation_router
 from backend.routes.portfolio import portfolio_router
 from backend.routes.presets import presets_router
@@ -31,6 +31,7 @@ from backend.routes.settings import settings_router
 from backend.routes.simulation import simulation_router
 from backend.routes.statistics import statistics_router
 from backend.routes.strategy import strategy_router
+from backend.routes.summaries import summaries_router
 from backend.routes.timespeed import timespeed_router
 from backend.routes.tunnel import tunnel_router
 from backend.routes.validation_messages import format_validation_errors, to_items
@@ -50,7 +51,8 @@ def register_routes(app: FastAPI):
     app.include_router(auth_router, responses=ERROR_RESPONSES)
     app.include_router(statistics_router, responses=ERROR_RESPONSES)
     app.include_router(achievements_router, responses=ERROR_RESPONSES)
-    app.include_router(inbox_router, responses=ERROR_RESPONSES)
+    app.include_router(summaries_router, responses=ERROR_RESPONSES)
+    app.include_router(news_router, responses=ERROR_RESPONSES)
     app.include_router(correlation_router, responses=ERROR_RESPONSES)
     app.include_router(credit_router, responses=ERROR_RESPONSES)
     app.include_router(government_router, responses=ERROR_RESPONSES)

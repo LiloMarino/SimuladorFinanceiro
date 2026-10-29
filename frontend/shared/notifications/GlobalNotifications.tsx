@@ -15,7 +15,7 @@ const ACHIEVEMENT_TOAST_MS = 6000;
 export function GlobalNotifications() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { preferences } = useNotificationPreferences();
+  const { isToastOn } = useNotificationPreferences();
   const { logout } = useAuth();
 
   useRealtime(
@@ -27,7 +27,7 @@ export function GlobalNotifications() {
         action: { label: "Ver", onClick: () => void navigate(`/variable-income/${event.ticker}`) },
       });
     },
-    preferences.orders.executed,
+    isToastOn("ORDER_EXECUTED"),
   );
 
   useRealtime(
@@ -39,7 +39,7 @@ export function GlobalNotifications() {
         action: { label: "Ver ordem", onClick: () => void navigate(`/variable-income/${event.ticker}`) },
       });
     },
-    preferences.orders.partial,
+    isToastOn("ORDER_PARTIAL"),
   );
 
   useRealtime(
@@ -47,7 +47,7 @@ export function GlobalNotifications() {
     ({ nickname }) => {
       toast.info(`${nickname} entrou na sala`, { icon: <Users className="size-4 text-toast-info" /> });
     },
-    preferences.players.join_exit,
+    isToastOn("PLAYER_PRESENCE"),
   );
 
   useRealtime(
@@ -55,7 +55,7 @@ export function GlobalNotifications() {
     ({ nickname }) => {
       toast.info(`${nickname} saiu da sala`);
     },
-    preferences.players.join_exit,
+    isToastOn("PLAYER_PRESENCE"),
   );
 
   // O host tirou este jogador da sala: o aviso conta o motivo e a sessão encerra, como no botão Sair

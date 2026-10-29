@@ -348,3 +348,40 @@ def test_revision_from_before_2_3_is_refused_untouched(
             connection.execute(text("SELECT ticker FROM stock")).scalar() == "PETR4.SA"
         )
     assert _backups(pg_url) == []
+
+
+BEFORE_NEWS = "f7b1d4c9e5a3"
+
+
+def test_turned_off_notices_stay_off_in_the_notification_registry(
+    pg_url: str, engine: Engine
+) -> None:
+    """As preferências de aviso de antes viram os avisos do registro, sem perder célula."""
+    alembic = alembic_config(pg_url)
+    command.upgrade(alembic, BEFORE_NEWS)
+    old = {
+        "orders": {"executed": False, "partial": True},
+        "players": {"join_exit": False},
+    }
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "INSERT INTO users (client_id, nickname, created_at, settings) "
+                "VALUES (gen_random_uuid(), 'Ana', now(), CAST(:settings AS jsonb))"
+            ),
+            {"settings": json.dumps(old)},
+        )
+    before = fingerprint(engine)
+
+    command.upgrade(alembic, "head")
+
+    assert_no_data_loss(before, fingerprint(engine))
+    with engine.connect() as connection:
+        settings = connection.execute(text("SELECT settings FROM users")).scalar_one()
+    assert settings["notifications"] == {
+        "toasts": {
+            "ORDER_EXECUTED": False,
+            "ORDER_PARTIAL": True,
+            "PLAYER_PRESENCE": False,
+        }
+    }

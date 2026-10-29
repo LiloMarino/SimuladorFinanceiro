@@ -1,3 +1,4 @@
+import { useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRealtime } from "@/shared/hooks/useRealtime";
@@ -10,6 +11,7 @@ export default function StatisticsPage() {
   const queryClient = useQueryClient();
   const { simulation } = useSimulation();
   const { user } = useAuth();
+  const [params, setParams] = useSearchParams();
 
   // O snapshot que as abas leem fecha o mês: todas as abas abertas refazem a busca
   useRealtime("statistics_snapshot_update", () => {
@@ -22,7 +24,13 @@ export default function StatisticsPage() {
   return (
     <section className="space-y-3">
       <UpdateNotice />
-      <StatisticsReport simulationIds={[simulationId]} currentPlayerName={user?.nickname} />
+      <StatisticsReport
+        simulationIds={[simulationId]}
+        currentPlayerName={user?.nickname}
+        summariesFor={simulationId}
+        tab={params.get("tab") ?? undefined}
+        onTabChange={(tab) => setParams({ tab })}
+      />
     </section>
   );
 }

@@ -667,8 +667,65 @@ class GroupReading(Enum):
     CAPITAL_GAINS_TAX = "CAPITAL_GAINS_TAX"
 
 
-class InboxEntryKind(Enum):
-    """O que a entrada da caixa de entrada conta."""
+class SummaryKind(Enum):
+    """O que o resumo entregue na virada do período conta."""
 
     MONTH_SUMMARY = "MONTH_SUMMARY"
     YEAR_REVIEW = "YEAR_REVIEW"
+
+
+class NewsSection(Enum):
+    """A seção do jornal da partida; a ordem é a da importância numa rajada."""
+
+    ECONOMY = "ECONOMY"
+    COMPANIES = "COMPANIES"
+    POLITICS = "POLITICS"
+    HISTORY = "HISTORY"
+
+
+class NewsType(Enum):
+    """Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro."""
+
+    ELECTION_CALENDAR = "ELECTION_CALENDAR"
+    # Resultado de turno e impeachment: a sala pausa e a janela abre para todos
+    ELECTION_RESULT = "ELECTION_RESULT"
+    TERM_STARTED = "TERM_STARTED"
+    MEASURE_PROPOSED = "MEASURE_PROPOSED"
+    MEASURE_VOTED = "MEASURE_VOTED"
+    PARTY_LIFE = "PARTY_LIFE"
+    CAMPAIGN = "CAMPAIGN"
+
+
+class NewsLevel(Enum):
+    """Como uma manchete chega a um jogador, escolhido por tipo."""
+
+    # No centro da tela, sem pausar, fechando sozinha
+    WINDOW = "WINDOW"
+    # No cartão do canto ou na faixa
+    JOURNAL = "JOURNAL"
+    HISTORY_ONLY = "HISTORY_ONLY"
+    OFF = "OFF"
+
+
+class NewsPosition(Enum):
+    """Onde o jornal aparece na tela; os toasts ficam embaixo, no lado oposto."""
+
+    BOTTOM_LEFT = "BOTTOM_LEFT"
+    BOTTOM_RIGHT = "BOTTOM_RIGHT"
+    TOP_LEFT = "TOP_LEFT"
+    # Faixa de manchetes abaixo da topbar
+    STRIP = "STRIP"
+
+
+class ToastType(Enum):
+    """Um aviso do que acontece com o próprio jogador, ligado ou desligado por tipo."""
+
+    ORDER_EXECUTED = "ORDER_EXECUTED"
+    ORDER_PARTIAL = "ORDER_PARTIAL"
+    STRATEGY_ORDERS = "STRATEGY_ORDERS"
+    PLAYER_PRESENCE = "PLAYER_PRESENCE"
+    CREDIT_PAYMENTS = "CREDIT_PAYMENTS"
+    CREDIT_RATING = "CREDIT_RATING"
+    LIFE_EVENT = "LIFE_EVENT"
+    MONTH_SUMMARY = "MONTH_SUMMARY"
+    VICE_ANSWER = "VICE_ANSWER"

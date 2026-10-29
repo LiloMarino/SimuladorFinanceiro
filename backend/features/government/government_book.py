@@ -47,6 +47,7 @@ from backend.features.government import (
     campaign,
     congress,
     election,
+    headlines,
     promises,
     second_round,
     voters,
@@ -64,6 +65,7 @@ from backend.features.government.state import (
     apply,
     replay,
 )
+from backend.features.notifications.news import Headline
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import GovernmentUpdateEventDTO
 from backend.features.simulation.simulation_engine import SimulationEngine
@@ -92,12 +94,17 @@ class GovernmentBook:
         settings: SimulationDTO,
         engine: SimulationEngine,
         on_office: Callable[[UserDTO, date], None],
+        on_news: Callable[[date, Headline], None],
         random_seed: int,
     ):
-        """`on_office` roda na posse de cada presidente jogador: a carteira dele congela."""
+        """
+        `on_office` roda na posse de cada presidente jogador: a carteira dele congela.
+        `on_news` publica no jornal da partida a manchete de cada fato político.
+        """
         self._settings = settings
         self._engine = engine
         self._on_office = on_office
+        self._on_news = on_news
         self._seed = random_seed
         self._first_election = required(settings.first_election)
         self._factor = settings.computer_difficulty.budget_factor
@@ -245,16 +252,28 @@ class GovernmentBook:
                 ticket_deadline=cycle.ticket_deadline,
                 first_round=cycle.first_round,
             )
+            self._on_news(
+                today,
+                headlines.campaign_opened(cycle.first_round, cycle.ticket_deadline),
+            )
             return True
         if previous < cycle.ticket_deadline + timedelta(days=1) <= today:
             self._notice(GovernmentNoticeKind.UPDATED)
+            self._on_news(
+                today,
+                headlines.tickets_closed(
+                    self._tickets(), (cycle.first_round - today).days
+                ),
+            )
         if previous < cycle.ticket_reminder <= today:
+            self._on_news(today, headlines.tickets_closing(cycle.ticket_deadline))
             self._notice(
                 GovernmentNoticeKind.TICKETS_CLOSING,
                 ticket_deadline=cycle.ticket_deadline,
                 first_round=cycle.first_round,
             )
         if previous < cycle.eve <= today:
+            self._on_news(today, headlines.election_eve(cycle.first_round))
             self._notice(
                 GovernmentNoticeKind.ELECTION_EVE,
                 ticket_deadline=cycle.ticket_deadline,
@@ -301,6 +320,7 @@ class GovernmentBook:
         )
         self._ensure_computers(today)
         self._notice(GovernmentNoticeKind.PARTY_FOUNDED, user, party_abbr=abbr)
+        self._on_news(today, headlines.party_founded(user.nickname, abbr, name))
 
     def set_flags(self, user: UserDTO, today: date, flags: list[VoterValue]) -> None:
         """O fundador do partido sem bandeiras escolhe as 3; depois elas não mudam mais."""
@@ -379,6 +399,7 @@ class GovernmentBook:
         self._notice(
             GovernmentNoticeKind.EXPELLED, founder, target=target, party_abbr=party.abbr
         )
+        self._on_news(today, headlines.expelled(target.nickname, party.abbr))
 
     def set_ticket(
         self,
@@ -505,6 +526,7 @@ class GovernmentBook:
             party_abbr=party.abbr,
             amount=amount,
         )
+        self._on_news(today, headlines.donation(user.nickname, party.abbr, amount))
 
     # 2º turno: declaração de apoio e contribuição única
 
@@ -536,6 +558,9 @@ class GovernmentBook:
             user,
             party_abbr=party.abbr,
             rival_abbr=self._party_abbr(endorsed_id),
+        )
+        self._on_news(
+            today, headlines.endorsement(party.abbr, self._party_abbr(endorsed_id))
         )
 
     def contribute_runoff(self, user: UserDTO, today: date, amount: Decimal) -> None:
@@ -716,7 +741,18 @@ class GovernmentBook:
             price=str(price),
             rolls=list(rolls),
         )
-        return self.state.actions[-1]
+        record = self.state.actions[-1]
+        headline = headlines.campaign_action(
+            record.id,
+            kind,
+            record.band,
+            party.abbr,
+            group,
+            rival.abbr if rival else None,
+        )
+        if headline is not None:
+            self._on_news(today, headline)
+        return record
 
     # Promessas de campanha
 
@@ -806,6 +842,7 @@ class GovernmentBook:
         final = self.draft_promises(user, today, items)
         if final == party.promises:
             raise ConflictError("As promessas não mudaram.")
+        had_promises = bool(party.promises)
         self._emit(
             GovernmentEventType.PROMISES_SET,
             today,
@@ -813,6 +850,9 @@ class GovernmentBook:
             promises=[promises.to_payload(p) for p in final],
         )
         self._notice(GovernmentNoticeKind.PROMISES_SET, user, party_abbr=party.abbr)
+        self._on_news(
+            today, headlines.promises_set(party.abbr, len(final), had_promises)
+        )
 
     def _build_promise(
         self, item: PromiseRequest, old: Promise | None, today: date
@@ -909,8 +949,10 @@ class GovernmentBook:
         if party is None or party.is_computer:
             return
         items = []
+        kept = 0
         for promise in term.promises:
             done = self.promise_progress(promise, day)
+            kept += done >= 1
             items.append(
                 {
                     "promise": promises.to_payload(promise),
@@ -928,6 +970,9 @@ class GovernmentBook:
             items=items,
         )
         self._notice(GovernmentNoticeKind.PROMISES_SETTLED, party_abbr=party.abbr)
+        self._on_news(
+            today, headlines.promises_settled(party.abbr, kept, len(term.promises))
+        )
 
     # Medidas do presidente
 
@@ -959,6 +1004,9 @@ class GovernmentBook:
             user,
             measure_title=rules.title(draft),
         )
+        self._on_news(
+            today, headlines.measure_proposed(user.nickname, rules.title(draft))
+        )
 
     def repropose(self, user: UserDTO, today: date, measure_id: int) -> None:
         self._ensure_president(user)
@@ -977,6 +1025,9 @@ class GovernmentBook:
             GovernmentNoticeKind.MEASURE_WITHDRAWN,
             user,
             measure_title=rules.title(measure),
+        )
+        self._on_news(
+            today, headlines.measure_withdrawn(user.nickname, rules.title(measure))
         )
 
     def preview(
@@ -1212,6 +1263,15 @@ class GovernmentBook:
                 effective=measure.effective,
                 tickers=self.tickers(measure),
             )
+            self._on_news(
+                today,
+                headlines.measure_voted(
+                    rules.title(measure),
+                    approved,
+                    measure.effective,
+                    self.tickers(measure),
+                ),
+            )
 
     def _impeach(self, today: date) -> None:
         """Assume o vice que segue na partida; sem ele, o computador governa sem propor medidas."""
@@ -1234,6 +1294,15 @@ class GovernmentBook:
             target=successor,
             party_abbr=self._party_abbr(term.party_id),
         )
+        if out is not None:
+            self._on_news(
+                today,
+                headlines.impeachment(
+                    out.nickname,
+                    self._party_abbr(term.party_id),
+                    successor.nickname if successor else None,
+                ),
+            )
 
     def _successor(self) -> UserDTO | None:
         term = required(self.state.term)
@@ -1260,6 +1329,12 @@ class GovernmentBook:
                     measure_title=rules.title(measure),
                     effective=measure.effective,
                     tickers=self.tickers(measure),
+                )
+                self._on_news(
+                    today,
+                    headlines.measure_in_force(
+                        rules.title(measure), self.tickers(measure)
+                    ),
                 )
 
     # Calendário: contribuição, apuração e posse
@@ -1443,12 +1518,16 @@ class GovernmentBook:
             if party.id not in self._eliminated():
                 continue
             finalists = {f: self.state.parties[f].radar for f in race.finalists}
+            endorsed = second_round.computer_endorsement(party.radar, finalists)
             self._emit(
                 GovernmentEventType.RUNOFF_ENDORSED,
                 today,
                 party_id=party.id,
                 user_id=None,
-                endorsed_id=second_round.computer_endorsement(party.radar, finalists),
+                endorsed_id=endorsed,
+            )
+            self._on_news(
+                today, headlines.endorsement(party.abbr, self._party_abbr(endorsed))
             )
             changed = True
         for finalist in race.finalists:
@@ -1556,6 +1635,25 @@ class GovernmentBook:
             round_number=round_number,
             winner_abbr=winner_party.abbr if winner_party else None,
         )
+        if winner_party is not None:
+            candidate, _ = election.effective_ticket(self.state, winner_party)
+            self._on_news(
+                today,
+                headlines.round_won(
+                    round_number,
+                    self._candidate_name(winner_party, candidate),
+                    winner_party.abbr,
+                    shares[winner_party.id],
+                ),
+            )
+        elif len(finalists) == 2:
+            self._on_news(
+                today,
+                headlines.runoff_called(
+                    [(self.state.parties[f].abbr, shares[f]) for f in finalists],
+                    cycle.runoff,
+                ),
+            )
 
     def _start_term(self, today: date, people: dict[int, UserDTO]) -> None:
         pending = required(self.state.pending_term)
@@ -1580,6 +1678,35 @@ class GovernmentBook:
             winner_abbr=party.abbr if party else None,
             winner_name=name,
         )
+        if name is not None:
+            self._on_news(
+                today,
+                headlines.term_started(
+                    name, party.abbr if party else None, self.term_end()
+                ),
+            )
+
+    def _candidate_name(self, party: Party, candidate_id: int | None) -> str:
+        """O nome na urna: o do computador vem da chapa, o do jogador é o apelido."""
+        person = self._people.get(candidate_id) if candidate_id is not None else None
+        if person is not None:
+            return person.nickname
+        return party.candidate_name or party.abbr
+
+    def _tickets(self) -> list[tuple[str, str, str | None]]:
+        """A chapa de cada partido que concorre: sigla, candidato e vice."""
+        tickets = []
+        for party in self.running_parties():
+            candidate, vice = election.effective_ticket(self.state, party)
+            vice_person = self._people.get(vice) if vice is not None else None
+            tickets.append(
+                (
+                    party.abbr,
+                    self._candidate_name(party, candidate),
+                    vice_person.nickname if vice_person else None,
+                )
+            )
+        return tickets
 
     def _running(self) -> list[Party]:
         return [p for p in self.state.parties.values() if election.runs(self.state, p)]

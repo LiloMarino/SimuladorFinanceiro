@@ -163,6 +163,13 @@ export function displayShortDate(date: Date | string) {
   return `${part("day")} ${part("month")} ${part("year")}`;
 }
 
+/** "2023-03-14" → "terça-feira, 14 de março de 2023", a data por extenso do cabeçalho do jornal. */
+export function displayWeekdayDate(isoDate: string) {
+  return new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(
+    parseLocalDate(isoDate),
+  );
+}
+
 /** "2023-03-14" → "14 mar", a data curta sem o ano, para vencimentos próximos. */
 export function displayDayMonth(isoDate: string) {
   const parts = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).formatToParts(

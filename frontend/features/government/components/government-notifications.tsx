@@ -3,17 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import { displayMoney } from "@/shared/lib/utils/display";
-import type { ElectionPanel, ElectionRound, GovernmentNotice, GovernmentPanel, PortfolioState } from "@/types";
-import { calendarToast } from "../lib/calendar-toast";
+import type { ElectionPanel, ElectionRound, GovernmentNotice, GovernmentPanel } from "@/types";
 import { campaignToast } from "../lib/campaign";
-import { inForceToast, monthClosedToast, votedToast, warningToast } from "../lib/measure-toast";
+import { monthClosedToast, warningToast } from "../lib/measure-toast";
 import type { ElectionShortcut } from "../lib/election";
-import { donationContext, roundToast } from "../lib/round-toast";
 import { useRenewElection } from "../hooks/mutations/useRenewElection";
-import { BalanceDialog } from "./balance-dialog";
 import { CampaignOpenedDialog } from "./campaign-opened-dialog";
 import { ImpeachmentDialog } from "./impeachment-dialog";
 import { RoundResultDialog } from "./round-result-dialog";
@@ -28,26 +25,17 @@ export function GovernmentNotifications() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isToastOn } = useNotificationPreferences();
   // O painel viaja com o turno: o diálogo mostra as datas e a doação do momento da apuração
   const [shown, setShown] = useState<{ result: ElectionRound; panel: ElectionPanel } | null>(null);
   const [impeachment, setImpeachment] = useState<GovernmentPanel | null>(null);
   const [campaign, setCampaign] = useState<GovernmentNotice | null>(null);
   const [viceInvite, setViceInvite] = useState(false);
-  const [balanceOpen, setBalanceOpen] = useState(false);
   const me = user?.nickname;
 
   const renew = useRenewElection();
 
   const openGovernment = () => void navigate("/government");
-  const showMeasure = (notice: {
-    tone: "success" | "info" | "warning" | "error";
-    title: string;
-    description: string;
-  }) =>
-    toast[notice.tone](notice.title, {
-      description: notice.description,
-      action: { label: "Ver medidas", onClick: openGovernment },
-    });
 
   useRealtime("government_update", (event) => {
     const abbr = event.party_abbr ?? "";
@@ -57,29 +45,6 @@ export function GovernmentNotifications() {
         // O diálogo lê do painel atualizado se quem vê já tem partido
         void queryClient.refetchQueries({ queryKey: queryKeys.election() }).then(() => setCampaign(event));
         break;
-      case "TICKETS_CLOSING":
-      case "ELECTION_EVE": {
-        const notice = calendarToast(event);
-        if (notice) {
-          toast[notice.tone](notice.title, {
-            description: notice.description,
-            action: { label: "Ver eleição", onClick: () => void navigate("/election") },
-          });
-        }
-        break;
-      }
-      case "PARTY_FOUNDED":
-        toast.info(`${event.actor} fundou o ${abbr}`);
-        break;
-      case "EXPELLED":
-        if (event.target === me) {
-          toast.error(`Você foi expulso do ${abbr}`, {
-            description: "A contribuição parou. Dá para se filiar a outro partido ou fundar o seu.",
-          });
-        } else {
-          toast.info(`${event.target} foi expulso do ${abbr}`);
-        }
-        break;
       case "VICE_INVITED":
         // O convite abre na tela de quem foi indicado, do partido que for, já com o painel atualizado
         if (event.target === me) {
@@ -87,17 +52,18 @@ export function GovernmentNotifications() {
         }
         break;
       case "VICE_ANSWERED":
-        if (event.target === me) {
+        if (event.target === me && isToastOn("VICE_ANSWER")) {
           toast[event.accepted ? "success" : "warning"](
             `${event.actor} ${event.accepted ? "aceitou" : "recusou"} ser seu vice no ${abbr}`,
           );
         }
         break;
-      case "DONATION":
-        toast.info(`${event.actor} doou ${displayMoney(event.amount ?? 0)} ao ${abbr}`, {
-          description:
-            donationContext(queryClient.getQueryData<ElectionPanel>(queryKeys.election()), abbr) ?? undefined,
-        });
+      case "EXPELLED":
+        if (event.target === me) {
+          toast.error(`Você foi expulso do ${abbr}`, {
+            description: "A contribuição parou. Dá para se filiar a outro partido ou fundar o seu.",
+          });
+        }
         break;
       case "ELECTION_RESULT":
         // O resultado só chega depois de o painel atualizar: o diálogo lê o turno apurado do cache
@@ -106,38 +72,7 @@ export function GovernmentNotifications() {
           const last = panel?.last_result;
           if (!panel || !last || last.round !== event.round) return;
           setShown({ result: last, panel });
-          const notice = roundToast(panel);
-          if (notice) {
-            toast[notice.tone](notice.title, {
-              description: notice.description,
-              action: notice.donate
-                ? { label: "Doar a um finalista", onClick: () => void navigate("/election") }
-                : undefined,
-            });
-          }
         });
-        break;
-      case "TERM_STARTED":
-        toast.success(`${event.winner_name ?? `O candidato do ${event.winner_abbr ?? "partido eleito"}`} toma posse`, {
-          description: "O mandato dura 4 anos, com uma reeleição possível.",
-          action: { label: "Ver", onClick: openGovernment },
-        });
-        break;
-      case "MEASURE_PROPOSED":
-        toast.info(`${event.actor} propôs: ${event.measure_title}`, {
-          action: { label: "Ver fila", onClick: openGovernment },
-        });
-        break;
-      case "MEASURE_WITHDRAWN":
-        toast.info(`${event.actor} retirou: ${event.measure_title}`);
-        break;
-      case "MEASURE_VOTED": {
-        const portfolio = queryClient.getQueryData<PortfolioState>(queryKeys.portfolio());
-        showMeasure(votedToast(event, portfolio?.variable_income.map((position) => position.ticker) ?? []));
-        break;
-      }
-      case "MEASURE_IN_FORCE":
-        showMeasure(inForceToast(event));
         break;
       case "IMPEACHMENT_WARNING":
         if (event.actor === me) {
@@ -179,25 +114,19 @@ export function GovernmentNotifications() {
         if (notice) toast[notice.tone](notice.title, { description: notice.description });
         break;
       }
+      // O jornal da partida conta estes fatos (news_published); aqui só renovam a tela
+      case "TICKETS_CLOSING":
+      case "ELECTION_EVE":
+      case "PARTY_FOUNDED":
+      case "DONATION":
+      case "TERM_STARTED":
+      case "MEASURE_PROPOSED":
+      case "MEASURE_WITHDRAWN":
+      case "MEASURE_VOTED":
+      case "MEASURE_IN_FORCE":
       case "PROMISES_SET":
-        toast.info(`${event.actor ?? "O fundador"} anunciou as promessas do ${abbr}`, {
-          action: { label: "Ver eleição", onClick: () => void navigate("/election") },
-        });
-        break;
-      case "ENDORSEMENT":
-        toast.info(
-          event.rival_abbr
-            ? `O ${abbr} declarou apoio ao ${event.rival_abbr} no 2º turno`
-            : `O ${abbr} declarou neutralidade no 2º turno`,
-          { action: { label: "Ver eleição", onClick: () => void navigate("/election") } },
-        );
-        break;
       case "PROMISES_SETTLED":
-        toast.info(`O mandato do ${abbr} fechou o balanço das promessas`, {
-          description: "Cumprida soma afinidade e repara rejeição; descumprida soma rejeição.",
-          action: { label: "Ver balanço", onClick: () => setBalanceOpen(true) },
-        });
-        break;
+      case "ENDORSEMENT":
       case "UPDATED":
         break;
     }
@@ -220,7 +149,6 @@ export function GovernmentNotifications() {
         onClose={() => setCampaign(null)}
         onShortcut={openShortcut}
       />
-      <BalanceDialog open={balanceOpen} onOpenChange={setBalanceOpen} />
       <ImpeachmentDialog panel={impeachment} onClose={() => setImpeachment(null)} />
       <RoundResultDialog
         result={shown?.result ?? null}

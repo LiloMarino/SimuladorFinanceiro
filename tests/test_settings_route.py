@@ -21,8 +21,11 @@ from backend.routes import settings as settings_route
 from backend.routes.settings import settings_router
 
 PREFERENCES = {
-    "orders": {"executed": False, "partial": True},
-    "players": {"join_exit": True},
+    "notifications": {
+        "news_position": "STRIP",
+        "news": {"TERM_STARTED": "WINDOW"},
+        "toasts": {"ORDER_EXECUTED": False},
+    },
 }
 
 
@@ -102,6 +105,55 @@ def test_server_value_wins_over_a_stale_stored_one(
     stored.stored = {**PREFERENCES, "debug": True}
 
     assert client.get("/api/settings").json()["debug"] is False
+
+
+def test_notifications_fill_every_type_with_the_registry_default(
+    client: TestClient, stored: _FakeSettingsRepository
+) -> None:
+    stored.stored = PREFERENCES
+
+    notifications = client.get("/api/settings").json()["notifications"]
+
+    assert notifications["news_position"] == "STRIP"
+    assert notifications["news"]["TERM_STARTED"] == "WINDOW"
+    assert notifications["news"]["PARTY_LIFE"] == "JOURNAL"
+    assert notifications["toasts"]["ORDER_EXECUTED"] is False
+    assert notifications["toasts"]["ORDER_PARTIAL"] is True
+
+
+def test_a_fixed_news_type_keeps_its_level(
+    client: TestClient, stored: _FakeSettingsRepository
+) -> None:
+    stored.stored = {"notifications": {"news": {"ELECTION_RESULT": "OFF"}}}
+
+    news = client.get("/api/settings").json()["notifications"]["news"]
+
+    assert news["ELECTION_RESULT"] == "WINDOW"
+
+
+def test_put_stores_the_notification_choices_as_json(
+    client: TestClient, stored: _FakeSettingsRepository
+) -> None:
+    client.put("/api/settings", json=PREFERENCES)
+
+    assert stored.stored["notifications"]["news"] == {"TERM_STARTED": "WINDOW"}
+    assert stored.stored["notifications"]["toasts"] == {"ORDER_EXECUTED": False}
+
+
+def test_notification_types_list_the_registry_in_importance_order(
+    client: TestClient,
+) -> None:
+    catalog = client.get("/api/settings/notification-types").json()
+
+    assert catalog["news"][0]["type"] == "ELECTION_RESULT"
+    assert catalog["news"][0]["fixed"] is True
+    assert [s["section"] for s in catalog["sections"]] == [
+        "ECONOMY",
+        "COMPANIES",
+        "POLITICS",
+        "HISTORY",
+    ]
+    assert catalog["default_position"] == "BOTTOM_LEFT"
 
 
 class _FolderOpener:

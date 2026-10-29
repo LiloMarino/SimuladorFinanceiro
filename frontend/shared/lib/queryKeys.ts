@@ -7,7 +7,8 @@ export const queryKeys = {
   presets: () => ["presets"] as const,
   goalProgress: (simulationId: number) => ["simulation", "goal-progress", simulationId] as const,
   lifeStatus: (simulationId: number) => ["simulation", "life", simulationId] as const,
-  inbox: (simulationId: number) => ["simulation", "inbox", simulationId] as const,
+  summaries: (simulationId: number) => ["simulation", "summaries", simulationId] as const,
+  news: (simulationId: number) => ["simulation", "news", simulationId] as const,
   lifeHistoryAll: (simulationId: number) => ["simulation", "life-history", simulationId] as const,
   lifeHistory: (simulationId: number, category: string, column = "date", direction = "desc") =>
     ["simulation", "life-history", simulationId, category, column, direction] as const,
@@ -59,6 +60,7 @@ export const queryKeys = {
   correlation: (tickers: string[], window: string, end: string | null) =>
     ["correlation", window, end, ...tickers] as const,
   userSettings: () => ["settings", "user"] as const,
+  notificationCatalog: () => ["settings", "notification-types"] as const,
   debugMode: () => ["settings", "debug"] as const,
   appFolders: () => ["settings", "folders"] as const,
   debugMetrics: () => ["debug", "metrics"] as const,

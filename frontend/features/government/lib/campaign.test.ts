@@ -194,9 +194,8 @@ describe("campaignToast", () => {
     expect(toast?.title).toBe("O FDS atacou o PRL");
   });
 
-  it("todo ataque é público, mesmo entre outros partidos", () => {
-    const toast = campaignToast(notice({ campaign_action: "ATTACK", party_abbr: "FDS", rival_abbr: "UPR" }), mine);
-    expect(toast?.title).toBe("O FDS partiu para o ataque contra o UPR");
+  it("o ataque entre outros partidos é só do jornal", () => {
+    expect(campaignToast(notice({ campaign_action: "ATTACK", party_abbr: "FDS", rival_abbr: "UPR" }), mine)).toBeNull();
   });
 
   it("conta ao partido a ação de outro filiado, e só a ela", () => {
