@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Bot, CalendarRange, CircleCheck, Handshake, TrendingUp, TriangleAlert, Users, Wallet } from "lucide-react";
+import { CardState } from "@/shared/components/card-state";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -12,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Kpi } from "@/shared/components/kpi";
 import { cn } from "@/shared/lib/utils";
 import { displayDayMonth, displayPercent } from "@/shared/lib/utils/display";
@@ -35,7 +37,7 @@ type NegotiateDialogProps = {
 /** Negociar apoio: o presidente clica numa bancada do hemiciclo, vê o preço e o efeito, e propõe. */
 export function NegotiateDialog({ open, onOpenChange, base, initialKey = null }: NegotiateDialogProps) {
   const [selectedKey, setSelectedKey] = useState<number | null>(initialKey);
-  const { data: preview, isPlaceholderData } = useDealPreview(selectedKey);
+  const { data: preview, isPlaceholderData, error, refetch } = useDealPreview(selectedKey);
   const propose = useProposeDeal();
   const selectable = base.blocs.filter((bloc) => !bloc.governing);
   const chosen = preview && preview.bloc_key === selectedKey ? preview : null;
@@ -94,6 +96,18 @@ export function NegotiateDialog({ open, onOpenChange, base, initialKey = null }:
             <div className={cn("grid min-w-0 content-start gap-3.5", isPlaceholderData && "opacity-60")}>
               {chosen ? (
                 <ProposalDetail preview={chosen} base={base} />
+              ) : selectedKey !== null ? (
+                <CardState
+                  label="Carregando a proposta"
+                  error={error}
+                  onRetry={() => void refetch()}
+                  errorTitle="Não deu para carregar a proposta."
+                  errorDescription="Nada foi proposto. Tente de novo ou escolha outra bancada."
+                >
+                  <Skeleton className="h-6 w-2/5" />
+                  <Skeleton className="h-32" />
+                  <Skeleton className="h-24" />
+                </CardState>
               ) : (
                 <div className="grid justify-items-center gap-2 rounded-xl border border-dashed p-8 text-center">
                   <Handshake className="size-6 text-muted-foreground" />

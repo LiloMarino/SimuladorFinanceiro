@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Flag, Lock, MailQuestion, UserPlus, HandCoins, Megaphone, PiggyBank, ScrollText } from "lucide-react";
+import { CardState } from "@/shared/components/card-state";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
@@ -19,7 +22,7 @@ import { FirstRoundCard } from "../components/first-round-card";
 import { EndorseDialog } from "../components/endorse-dialog";
 import { ElectionHeader } from "../components/election-header";
 import { ElectorateCard } from "../components/electorate-card";
-import { BeforeCampaignEmpty, ElectionError, ElectionSkeleton } from "../components/election-states";
+import { BeforeCampaignEmpty } from "../components/election-states";
 import { ExpelDialog } from "../components/expel-dialog";
 import { FoundPartyDialog } from "../components/found-party-dialog";
 import { JoinPartyDialog } from "../components/join-party-dialog";
@@ -47,7 +50,33 @@ export default function ElectionPage() {
   const state = location.state as { dialog?: ElectionShortcut; tab?: Tab } | null;
 
   if (!panel) {
-    return error ? <ElectionError onRetry={() => void refetch()} /> : <ElectionSkeleton />;
+    return (
+      <CardState
+        bare
+        label="Carregando a eleição"
+        error={error}
+        onRetry={() => void refetch()}
+        errorTitle="Não deu para carregar a eleição"
+        errorDescription="A conexão com a partida caiu. Partidos, contribuições e votos seguem valendo; nada mudou fora da data."
+      >
+        <Skeleton className="h-44" />
+        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="grid gap-5">
+            <Card>
+              <CardContent>
+                <div className="grid gap-3">
+                  <Skeleton className="h-3.5 w-2/5" />
+                  <Skeleton className="h-50" />
+                  <Skeleton className="h-3 w-[70%]" />
+                </div>
+              </CardContent>
+            </Card>
+            <Skeleton className="h-64" />
+          </div>
+          <Skeleton className="h-96" />
+        </div>
+      </CardState>
+    );
   }
 
   // Cada navegação remonta a página, e o atalho de quem chegou pelo aviso da campanha abre o diálogo

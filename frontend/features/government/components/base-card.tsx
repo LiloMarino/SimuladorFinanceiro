@@ -5,7 +5,9 @@ import { Kpi } from "@/shared/components/kpi";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { CardState } from "@/shared/components/card-state";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { BaseDeal, CongressBase } from "@/types";
@@ -24,7 +26,6 @@ import {
 } from "../lib/base";
 import { AMENDMENTS, BASE_DEFECTION, BASE_SEATS } from "../lib/government-metrics";
 import { blocColor } from "../lib/house";
-import { BaseError, BaseSkeleton } from "./base-states";
 import { BreakDealDialog } from "./break-deal-dialog";
 import { Hemicycle } from "./hemicycle";
 import { NegotiateDialog } from "./negotiate-dialog";
@@ -39,7 +40,25 @@ export function BaseCard() {
   const { data: base, error, refetch } = useBase();
 
   if (!base) {
-    return error ? <BaseError onRetry={() => void refetch()} /> : <BaseSkeleton />;
+    return (
+      <CardState
+        title="Base no Congresso"
+        label="Carregando a base do governo"
+        error={error}
+        onRetry={() => void refetch()}
+        errorTitle="Não deu para carregar a base."
+        errorDescription="O resto do Governo continua funcionando. Os acordos seguem valendo enquanto isso."
+      >
+        <div className="flex items-end gap-4">
+          <Skeleton className="h-25 w-50" />
+          <div className="grid flex-1 gap-2">
+            <Skeleton className="h-11.5" />
+            <Skeleton className="h-11.5" />
+          </div>
+        </div>
+        <Skeleton className="h-3.5 w-[70%]" />
+      </CardState>
+    );
   }
   return <BaseContent base={base} />;
 }

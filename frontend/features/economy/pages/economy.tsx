@@ -1,10 +1,11 @@
+import { CardState } from "@/shared/components/card-state";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import type { EconomyPanel } from "@/types";
 import { DebtCard } from "../components/debt-card";
 import { EconomyChart } from "../components/economy-chart";
 import { EffectsCard } from "../components/effects-card";
 import { EconomyKpis } from "../components/economy-kpis";
-import { EconomyError, EconomySkeleton } from "../components/economy-states";
 import { EconomyTable } from "../components/economy-table";
 import { GrowthCard } from "../components/growth-card";
 import { UnemploymentCard } from "../components/unemployment-card";
@@ -15,7 +16,23 @@ export default function EconomyPage() {
   const { data: panel, error, refetch } = useEconomyPanel();
 
   if (!panel) {
-    return error ? <EconomyError onRetry={() => void refetch()} /> : <EconomySkeleton />;
+    return (
+      <CardState
+        bare
+        label="Carregando a economia"
+        error={error}
+        onRetry={() => void refetch()}
+        errorTitle="Não deu para carregar a economia"
+        errorDescription="A conexão com a partida caiu. A SELIC e a inflação seguem valendo na partida."
+      >
+        <Skeleton className="h-28" />
+        <Skeleton className="h-96" />
+        <div className="grid gap-5 lg:grid-cols-2">
+          <Skeleton className="h-96" />
+          <Skeleton className="h-96" />
+        </div>
+      </CardState>
+    );
   }
 
   return <EconomyContent panel={panel} />;

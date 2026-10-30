@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { CardState } from "@/shared/components/card-state";
 import { Badge } from "@/shared/components/ui/badge";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useGovernment } from "@/shared/hooks/queries/useGovernment";
 import usePageLabel from "@/shared/hooks/usePageLabel";
@@ -11,7 +13,7 @@ import { FrozenPortfolioCard } from "../components/frozen-portfolio-card";
 import { GovernmentHeader } from "../components/government-header";
 import { ImpeachmentAlert } from "../components/impeachment-alert";
 import { CongressTab } from "../components/congress-tab";
-import { BeforeFirstTerm, GovernmentError, GovernmentSkeleton } from "../components/government-states";
+import { BeforeFirstTerm } from "../components/government-states";
 import { NewMeasureDialog } from "../components/new-measure-dialog";
 import { TermPromisesCard } from "../components/term-promises-card";
 import { unguidedCount } from "../lib/house";
@@ -21,7 +23,26 @@ export default function GovernmentPage() {
   const { data: panel, error, refetch } = useGovernment();
 
   if (!panel) {
-    return error ? <GovernmentError onRetry={() => void refetch()} /> : <GovernmentSkeleton />;
+    return (
+      <CardState
+        bare
+        label="Carregando o governo"
+        error={error}
+        onRetry={() => void refetch()}
+        errorTitle="Não deu para carregar o governo"
+        errorDescription="A conexão com a partida caiu. Impostos, medidas e votos seguem valendo; nada mudou fora da data."
+      >
+        <Skeleton className="h-24" />
+        <div className="grid gap-5 xl:grid-cols-2">
+          <Skeleton className="h-96" />
+          <Skeleton className="h-96" />
+        </div>
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
+          <Skeleton className="h-64" />
+          <Skeleton className="h-64" />
+        </div>
+      </CardState>
+    );
   }
 
   return <GovernmentContent panel={panel} />;
