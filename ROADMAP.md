@@ -97,10 +97,9 @@
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 🔍 |
 | [**F167**](#f167) | Notícias do ativo como marcadores no gráfico de preço | — | 💤 |
-| [**F168**](#f168) | Desafio da vela no lobby | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (35 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (36 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -139,6 +138,7 @@
 | [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ✅ |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | ✅ |
 | [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ✅ |
+| [**F168**](#f168) | Desafio da vela no lobby | — | ✅ |
 
 </details>
 
@@ -167,7 +167,6 @@
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 0 | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 0 | 🔍 |
-| [**F168**](#f168) | Desafio da vela no lobby | — | 0 | ⏳ |
 
 ---
 
@@ -352,7 +351,7 @@
 
 ### Sem marco
 
-> **Progresso:** 3/20 concluídas
+> **Progresso:** 4/20 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -372,15 +371,15 @@
 | [**F159**](#f159) | Conquista "Ordem com paciência" | [F44](#f44) | ⏳ |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | [F107](#f107) | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | [F128](#f128) | 🔍 |
-| [**F168**](#f168) | Desafio da vela no lobby | — | ⏳ |
 
-<details><summary>Concluído (3 itens)</summary>
+<details><summary>Concluído (4 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | ✅ |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ✅ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
+| [**F168**](#f168) | Desafio da vela no lobby | — | ✅ |
 
 </details>
 
@@ -423,7 +422,7 @@
 | **F154** | Negociar apoio com as bancadas, por emendas | N34 | D19 | M19 | [F153](#f153), [F128](#f128) | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F161** | Jornal da partida: notificações configuráveis por tipo | N31, N32 | — | M15 | — | Alto | Médio | Alto | Bom | ✅ Concluído |
 | **F166** | Pendências da partida: o que pede ação fica à vista até ser resolvido | N15 | — | M15 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
-| **F168** | Desafio da vela no lobby | N19, N23 | — | — | — | Alto | Médio | Médio | Bom | ⏳ Pendente |
+| **F168** | Desafio da vela no lobby | N19, N23 | — | — | — | Alto | Médio | Médio | Bom | ✅ Concluído |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -559,7 +558,7 @@ Ficou de fora: a conferência de propor, votar e ver o efeito no app rodando: no
 
 (6) **Fora das assistências:** não é ajuda dentro da partida, então não some no modo Especialista nem com "Esconder dicas de análise técnica".
 
-A tela do minijogo no lobby (onde ele fica, o gráfico, o placar, a revelação e o estado de quem entrou no meio) passa por uma rodada no canvas antes do código. Gatilho: depois do canvas.
+Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade por cima do lobby que minimiza num cartão no canto; 1 ponto por acerto, rodada de 10 perguntas com pódio e vitória dividida no empate, qualquer jogador começa e os outros recebem o convite, quem entra no meio assiste e joga da próxima, os votos só aparecem na revelação e, sozinho na sala, o recorde é a maior sequência de acertos. **Entregue:** o desafio saiu da partida (faixa, cartão do resultado, rotas e conferência no tick) e virou o minijogo do lobby. O servidor sorteia a pergunta (30 velas de um ativo e uma época da base, terminando num padrão com lado, equilibrando alta e baixa, com o eixo em % sem ativo nem data), cronometra a rodada numa thread (8 s de pergunta, 5 s de revelação) e a transmite pelo tempo real. A janela tem gráfico com a faixa "próximos 5", dica do padrão, cronômetro que fica vermelho nos 2 s finais, teclas ↑ e ↓, placar sem o lado de cada um até a revelação, pódio, tabela pergunta a pergunta, cartão minimizado onde dá para responder, convite, "Assistindo" para quem entrou no meio e estados de carregando e de erro. O host é avisado ao lado do botão de iniciar quando há um desafio rolando, e iniciar a partida descarta a rodada sem vencedor. Os acertos totais e o recorde ficam gravados por jogador (os acertos antigos de partidas foram somados na migração), e Primeira leitura e Leitor de velas contam esse total, com desbloqueio no lobby. **Ficou de fora:** a recusa do convite não é guardada no servidor: quem diz "Agora não" só deixa de ver o convite nesta rodada, na própria tela. **Decidido na implementação:** o texto da barra da janela diz "Minimize para configurar a partida" em vez de "o lobby segue atrás", porque a janela cobre o lobby; as vitórias da sala ficam só na memória do servidor.
 
 ---
 ## 2. Nice-to-have
