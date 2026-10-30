@@ -54,6 +54,7 @@ from backend.features.government.panel import build_panel
 from backend.features.government.state import Party, replay
 from backend.features.notifications.news import Headline
 from backend.features.tax_policy import LossPool
+from tests.conftest import SetIndicator
 from tests.fakes import FakeSimulationEngine, client, simulation_settings
 
 ALICE = UserDTO(id=1, client_id=client("alice"), nickname="Alice")
@@ -86,8 +87,10 @@ class PoliticalEngine(FakeSimulationEngine):
 
 
 @pytest.fixture
-def stored(monkeypatch: pytest.MonkeyPatch) -> list[GovernmentEventDTO]:
-    """O repositório em memória: o que o livro grava é o que a retomada devolve."""
+def stored(
+    monkeypatch: pytest.MonkeyPatch, indicators: SetIndicator
+) -> list[GovernmentEventDTO]:
+    """O repositório em memória: o que o livro grava é o que a retomada devolve, e as séries econômicas vêm vazias."""
     events: list[GovernmentEventDTO] = []
     monkeypatch.setattr(repository.government, "insert", events.append)
     monkeypatch.setattr(
