@@ -51,12 +51,12 @@
 | **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92), [F161](#f161) | — | — | — |
 | **N32** | Saber como foi o mês sem montar a conta | [F161](#f161) | — | — | — |
 | **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111) | — | — | — |
-| **N34** | Disputar o poder de mudar as regras da economia da partida | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154), [F163](#f163) | — | — | — |
+| **N34** | Disputar o poder de mudar as regras da economia da partida | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F143](#f143), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154), [F163](#f163) | — | — | — |
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — | — | — |
 | **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — |
 | **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F127](#f127) | — | — | — |
 | **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — | — | — |
-| **N39** | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | — | — | — |
+| **N39** | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | [F143](#f143) | — | — | — |
 | **N40** | Jogar partidas longas e na velocidade máxima sem a tela travar | — | — | — | — |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | — | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | Médio | Bom | ⏳ |
@@ -90,16 +90,19 @@
 | [**F139**](#f139) | Demonstração regravada com o jogo de hoje | — | Médio | Bom | ⏳ |
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | Alto | Bom | ⏳ |
 | [**F141**](#f141) | README com as features de hoje | — | Baixo | Excelente | ⏳ |
-| [**F143**](#f143) | Preparação de cada jogador no lobby | — | — | — | 🔍 |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | — | — | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | — | — | — | 🔍 |
 | [**F159**](#f159) | Conquista "Ordem com paciência" | — | Baixo | Bom | ⏳ |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | — | — | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | — | — | 🔍 |
 | [**F167**](#f167) | Notícias do ativo como marcadores no gráfico de preço | — | Baixo | Bom | 💤 |
+| [**F169**](#f169) | Contribuição de campanha na preparação do lobby | — | — | — | 🔍 |
+| [**F170**](#f170) | Modo automático ligado desde o 1º dia, pela preparação | — | — | — | 🔍 |
+| [**F171**](#f171) | Ordens de abertura na preparação do lobby | — | — | — | 🔍 |
+| [**F172**](#f172) | Meta pessoal na preparação do lobby | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (36 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (37 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -120,7 +123,7 @@
 | **D16** | Estratégias do app no host, personalização pela API | — | — | — | ✅ |
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | — | — | — | ✅ |
 | **D18** | Uma migration por versão; caminho antigo só cai numa major | — | — | — | ✅ |
-| **D19** | O eleitorado são grupos, cada um com apoio e rejeição por partido | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154) | — | — | ✅ |
+| **D19** | O eleitorado são grupos, cada um com apoio e rejeição por partido | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F143](#f143), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154) | — | — | ✅ |
 | [**F92**](#f92) | Noticiário da partida | — | Médio | Bom | ✅ |
 | [**F106**](#f106) | Governo & Política: medidas de gasto público | — | Alto | Bom | ✅ |
 | [**F107**](#f107) | Grupos de eleitores, com apoio e rejeição por partido | — | Alto | Bom | ✅ |
@@ -129,6 +132,7 @@
 | [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | — | Alto | Bom | ✅ |
 | [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | — | Médio | Bom | ✅ |
 | [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | — | Alto | Bom | ✅ |
+| [**F143**](#f143) | Preparação de cada jogador no lobby | — | Alto | — | ✅ |
 | [**F151**](#f151) | Segundo turno com disputa | — | Médio | Bom | ✅ |
 | [**F152**](#f152) | Promessas de campanha cobradas no mandato | — | Médio | Bom | ✅ |
 | [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | — | Alto | Bom | ✅ |
@@ -162,11 +166,14 @@
 | [**F131**](#f131) | Catálogo de padrões de vela | M11 | 0 | — | — | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | Médio | Bom | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | Baixo | Bom | ⏳ |
-| [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | — | — | 🔍 |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | — | — | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | — | — | 🔍 |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 0 | — | — | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 0 | — | — | 🔍 |
+| [**F169**](#f169) | Contribuição de campanha na preparação do lobby | — | 0 | — | — | 🔍 |
+| [**F170**](#f170) | Modo automático ligado desde o 1º dia, pela preparação | — | 0 | — | — | 🔍 |
+| [**F171**](#f171) | Ordens de abertura na preparação do lobby | — | 0 | — | — | 🔍 |
+| [**F172**](#f172) | Meta pessoal na preparação do lobby | — | 0 | — | — | 🔍 |
 
 ---
 
@@ -351,7 +358,7 @@
 
 ### Sem marco
 
-> **Progresso:** 4/20 concluídas
+> **Progresso:** 5/24 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -367,17 +374,21 @@
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
-| [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
 | [**F159**](#f159) | Conquista "Ordem com paciência" | [F44](#f44) | ⏳ |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | [F107](#f107) | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | [F128](#f128) | 🔍 |
+| [**F169**](#f169) | Contribuição de campanha na preparação do lobby | — | 🔍 |
+| [**F170**](#f170) | Modo automático ligado desde o 1º dia, pela preparação | — | 🔍 |
+| [**F171**](#f171) | Ordens de abertura na preparação do lobby | — | 🔍 |
+| [**F172**](#f172) | Meta pessoal na preparação do lobby | — | 🔍 |
 
-<details><summary>Concluído (4 itens)</summary>
+<details><summary>Concluído (5 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | ✅ |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ✅ |
+| [**F143**](#f143) | Preparação de cada jogador no lobby | — | ✅ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
 | [**F168**](#f168) | Desafio da vela no lobby | — | ✅ |
 
@@ -423,6 +434,7 @@
 | **F161** | Jornal da partida: notificações configuráveis por tipo | N31, N32 | — | M15 | — | Alto | Médio | Alto | Bom | ✅ Concluído |
 | **F166** | Pendências da partida: o que pede ação fica à vista até ser resolvido | N15 | — | M15 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F168** | Desafio da vela no lobby | N19, N23 | — | — | — | Alto | Médio | Médio | Bom | ✅ Concluído |
+| **F143** | Preparação de cada jogador no lobby | N39, N34 | D19 | — | — | Alto | — | — | — | ✅ Concluído |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -560,6 +572,9 @@ Ficou de fora: a conferência de propor, votar e ver o efeito no app rodando: no
 
 Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade por cima do lobby que minimiza num cartão no canto; 1 ponto por acerto, rodada de 10 perguntas com pódio e vitória dividida no empate, qualquer jogador começa e os outros recebem o convite, quem entra no meio assiste e joga da próxima, os votos só aparecem na revelação e, sozinho na sala, o recorde é a maior sequência de acertos. **Entregue:** o desafio saiu da partida (faixa, cartão do resultado, rotas e conferência no tick) e virou o minijogo do lobby. O servidor sorteia a pergunta (30 velas de um ativo e uma época da base, terminando num padrão com lado, equilibrando alta e baixa, com o eixo em % sem ativo nem data), cronometra a rodada numa thread (8 s de pergunta, 5 s de revelação) e a transmite pelo tempo real. A janela tem gráfico com a faixa "próximos 5", dica do padrão, cronômetro que fica vermelho nos 2 s finais, teclas ↑ e ↓, placar sem o lado de cada um até a revelação, pódio, tabela pergunta a pergunta, cartão minimizado onde dá para responder, convite, "Assistindo" para quem entrou no meio e estados de carregando e de erro. O host é avisado ao lado do botão de iniciar quando há um desafio rolando, e iniciar a partida descarta a rodada sem vencedor. Os acertos totais e o recorde ficam gravados por jogador (os acertos antigos de partidas foram somados na migração), e Primeira leitura e Leitor de velas contam esse total, com desbloqueio no lobby. **Ficou de fora:** a recusa do convite não é guardada no servidor: quem diz "Agora não" só deixa de ver o convite nesta rodada, na própria tela. **Decidido na implementação:** o texto da barra da janela diz "Minimize para configurar a partida" em vez de "o lobby segue atrás", porque a janela cobre o lobby; as vitórias da sala ficam só na memória do servidor.
 
+<a id="f143"></a>
+**F143 — Preparação de cada jogador no lobby.** Serve N39 e N34. O lobby prepara a partida pelas mãos do host; o que é de cada jogador só se fazia depois do início, com o relógio andando. Agora cada jogador tem o card "Minha preparação", com a expansão Governo & Política ligada numa partida nova. **Meu partido:** a identidade do partido (nome, sigla, cor e as 3 bandeiras) fica salva no perfil, no molde dos presets do host; o histórico do partido (D19) recomeça a cada partida. **O card:** fundar o Meu partido (com candidato e vice), entrar no partido que outro jogador preparou ou nada; o convidado para vice aceita ou recusa no próprio card. **Aplicação:** a preparação vive em memória na sala e vira um evento do livro do governo ao iniciar, então sobrevive a salvar e retomar antes da campanha; na abertura da campanha o partido nasce com contribuição zero, os filiados entram, a chapa é montada e o vice aceito vale. **Conflitos:** sigla, nome ou cor repetidos entre preparados, ou com os partidos do computador, avisam no lobby e bloqueiam o Iniciar do host. **Padrões:** quem não está na sala quando a partida começa não tem a preparação aplicada; o vice vale só para a partida; bots não têm preparação; com partida salva selecionada ou a expansão desligada o card fica travado.
+
 ---
 ## 2. Nice-to-have
 
@@ -606,11 +621,14 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 | **F105** | Gestoras: rendimentos mensais | Serve N23; falta a parte do lucro distribuída | M18 | [F44](#f44), [F100](#f100) | 🔍 Em avaliação |
 | **F123** | Redesenhar o aviso de conquista desbloqueada | Serve N22 e N15; falta escolher o desenho do aviso no canvas; liga à F122 | — | — | 🔍 Em avaliação |
 | **F131** | Catálogo de padrões de vela | Serve N19; tópico do Como jogar com cada padrão animado | M11 | — | 🔍 Em avaliação |
-| **F143** | Preparação de cada jogador no lobby | Serve N39 e N34; partido salvo no perfil escolhido; falta o resto | — | — | 🔍 Em avaliação |
 | **F157** | Velocidade x100 que quase não acelera | Serve N40 e N24; falta medir o tick no x100 com o painel de desempenho | M16 | — | 🔍 Em avaliação |
 | **F158** | Animações do Como jogar revistas | Serve N25; falta o visual numa rodada no canvas | M14 | — | 🔍 Em avaliação |
 | **F164** | Mapa do Brasil por região na eleição | Serve N34; depois do rework; falta a mistura de grupos por região | — | [F107](#f107) | 🔍 Em avaliação |
 | **F165** | Tela do Tesouro: títulos pelo risco do governo | Serve N34; depois do orçamento; falta o desenho | — | [F128](#f128) | 🔍 Em avaliação |
+| **F169** | Contribuição de campanha na preparação do lobby | Estende a preparação de cada jogador no lobby (F143) | — | — | 🔍 Em avaliação |
+| **F170** | Modo automático ligado desde o 1º dia, pela preparação | Estende a preparação de cada jogador no lobby (F143) | — | — | 🔍 Em avaliação |
+| **F171** | Ordens de abertura na preparação do lobby | Estende a preparação de cada jogador no lobby (F143) | — | — | 🔍 Em avaliação |
+| **F172** | Meta pessoal na preparação do lobby | Estende a preparação de cada jogador no lobby (F143) | — | — | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -654,9 +672,6 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 <a id="f131"></a>
 **F131 — Catálogo de padrões de vela.** Serve N19. Um tópico do "Como jogar" (F126) que lista todos os padrões que as dicas de análise técnica (F96) reconhecem, cada um com o ícone e o nome que aparecem no gráfico (o martelo com o símbolo dele, por exemplo). Navegar pelo catálogo mostra um padrão por vez, com a animação das velas se formando no molde dos roteiros do tutorial, o que o padrão costuma sugerir e o lembrete de que padrão não é garantia. Em aberto: se o catálogo é um tópico do tutorial ou uma tela própria, e se o card do padrão no gráfico ganha um "ver no catálogo". Gatilho: com as dicas de análise técnica e a janela "Como jogar" prontas.
 
-<a id="f143"></a>
-**F143 — Preparação de cada jogador no lobby.** Serve N39 e N34. Hoje o lobby prepara só a partida, pelas mãos do host; o que é de cada jogador só se faz depois do início, com o relógio andando, e os primeiros dias viram configuração. A ideia: um painel "Minha preparação" para cada jogador no lobby, salvo junto com o "Pronto" e aplicado no 1º dia da partida. **Escolhido:** o **partido** entra, com a expansão Governo & Política ligada: fundar (nome, sigla, cor e bandeiras da F107) ou pedir filiação ao partido de outro jogador, valendo na abertura da campanha, com o convite de vice (F145) no mesmo painel. O partido fica salvo no perfil do jogador como "Meu partido", no molde dos presets do host: nome, sigla, cor, bandeiras e os convites de sempre, aplicados no lobby sem refazer nada. A identidade é a única coisa salva; o histórico do partido (D19) recomeça a cada partida. Outros candidatos, do mais ao menos valioso: (2) **contribuição de campanha** do primeiro mês; (3) **modo automático:** a estratégia escolhida e ligada desde o 1º dia; (4) **ordens de abertura:** uma lista de compras executada no primeiro pregão; (5) **meta pessoal** no modo corrida à meta, se ela passar a ser de cada jogador. Falta definir: quais dos outros candidatos entram, e o que acontece numa partida salva com a preparação de quem não voltou.
-
 <a id="f157"></a>
 **F157 — Velocidade x100 que quase não acelera.** Serve N40 e N24. No playtest, o x100 andou quase como o x1, ou até mais lento. O loop dorme `1 / velocidade` segundos depois de cada tick (`simulation_loop.py:132` a `:156`): no x1 o dia leva o tick mais 1 s, no x100 o tick mais 10 ms. Quando o tick sozinho custa perto de 1 s (a medição da D4 deu de 0,6 a 0,95 s com carga), o x100 fica só umas duas vezes mais rápido que o x1. Falta medir, com o modo debug e o painel de desempenho, numa partida salva longa no x100: quanto custa o tick e em quê (snapshots, bots, eleição, emissão pelo Socket.IO), e se o navegador engasga com um evento por tick e redesenha a tela inteira. O resultado decide as otimizações (agrupar emissões, aliviar o trabalho de cada tick, redesenhar menos no front) e é o ponto de partida das otimizações gerais de desempenho.
 
@@ -668,3 +683,15 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 
 <a id="f165"></a>
 **F165 — Tela do Tesouro: títulos pelo risco do governo.** Serve N34. Com o prêmio de risco (F128), a taxa dos títulos passa a contar a história do governo: sobe quando a dívida cresce. Uma tela própria do Tesouro mostra os títulos à venda, a taxa de cada um ao longo da partida e a dívida pública ÷ PIB ao lado, para quem investe ler o risco do governo antes de comprar. Falta: o que a tela mostra além da renda fixa de hoje e o desenho, que passa pelo canvas.
+
+<a id="f169"></a>
+**F169 — Contribuição de campanha na preparação do lobby.** Serve N34. Hoje a preparação funda o partido com contribuição zero e o jogador ajusta depois. A ideia: o jogador preparar no lobby a contribuição do primeiro mês, e a abertura da campanha usar esse valor em vez de zero. Falta definir: o teto (o caixa inicial da partida ainda não existe no lobby) e o que acontece quando o valor passa do caixa no dia da abertura.
+
+<a id="f170"></a>
+**F170 — Modo automático ligado desde o 1º dia, pela preparação.** Serve N39. O jogador escolheria no lobby a estratégia do modo automático e ela começaria ligada no primeiro dia da partida. Falta definir: se a estratégia é a mesma lista de hoje e como o lobby valida os parâmetros dela antes de a partida existir.
+
+<a id="f171"></a>
+**F171 — Ordens de abertura na preparação do lobby.** Serve N39. Uma lista de compras preparada no lobby e executada no primeiro pregão da partida. Falta definir: como ela lida com ativo sem negociação no dia, falta de saldo e preço que muda do lobby ao pregão.
+
+<a id="f172"></a>
+**F172 — Meta pessoal na preparação do lobby.** Serve N39. No modo corrida à meta, cada jogador definiria a própria meta no lobby, se a meta passar a ser de cada jogador e não da partida. Depende dessa decisão de regra, ainda em aberto.
