@@ -26,7 +26,8 @@ import { MeasureBudgetEffect } from "./measure-budget-effect";
 import { MeasureInflationEffect } from "./measure-inflation-effect";
 import { MeasureReactions } from "./measure-reactions";
 import { SpendingForm } from "./spending-form";
-import { VALUE_INFO, signedPoints as signedProfilePoints } from "../lib/voters";
+import { VALUE_INFO } from "@/shared/lib/party-flags";
+import { signedPoints as signedProfilePoints } from "../lib/voters";
 import {
   GENERAL_KINDS,
   type GeneralKind,

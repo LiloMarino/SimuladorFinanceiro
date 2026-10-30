@@ -1213,6 +1213,116 @@
         ]
       }
     },
+    "/api/settings/party": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Obter o Meu partido",
+        "description": "A identidade do partido que o jogador funda nas partidas (nome, sigla, cor e 3 bandeiras); nulo enquanto não salvou um.",
+        "operationId": "get_my_party_api_settings_party_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PartyIdentityDTO"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get My Party Api Settings Party Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Salvar o Meu partido",
+        "description": "Grava a identidade do partido do jogador no perfil. As bandeiras seguem a regra de fundar um partido: 3 diferentes, sem Mercado livre com Justiça social.",
+        "operationId": "put_my_party_api_settings_party_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartyIdentityDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyIdentityDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/settings/notification-types": {
       "get": {
         "tags": [
@@ -7194,6 +7304,162 @@
         "responses": {
           "204": {
             "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/preparations": {
+      "get": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Preparação dos jogadores no lobby",
+        "description": "O que cada jogador da sala preparou para a campanha (fundar partido, filiar-se, chapa e vice), os conflitos de sigla, nome e cor e o motivo da trava, quando há.",
+        "operationId": "get_preparations_api_simulation_preparations_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparationsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/simulation/players/me/preparation": {
+      "put": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Preparar a campanha do jogador",
+        "description": "Escolhe o que o jogador faz quando a campanha abre: fundar o Meu partido (com a chapa e o vice), entrar no partido que outro jogador preparou ou nada. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.",
+        "operationId": "set_player_preparation_api_simulation_players_me_preparation_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreparationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparationsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/players/me/preparation/vice": {
+      "put": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Responder ao convite de vice",
+        "description": "O jogador convidado para vice na chapa que outro preparou aceita ou recusa. Recusa com 404 se não há convite.",
+        "operationId": "answer_preparation_vice_api_simulation_players_me_preparation_vice_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ViceAnswerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparationsDTO"
+                }
+              }
+            }
           },
           "422": {
             "description": "Unprocessable Content",
@@ -21096,6 +21362,44 @@
         ],
         "title": "PartyFlagsRequest"
       },
+      "PartyIdentityDTO": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "abbr": {
+            "type": "string",
+            "maxLength": 5,
+            "minLength": 2,
+            "title": "Abbr"
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$",
+            "title": "Color"
+          },
+          "flags": {
+            "items": {
+              "$ref": "#/components/schemas/VoterValue"
+            },
+            "type": "array",
+            "title": "Flags"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "abbr",
+          "color",
+          "flags"
+        ],
+        "title": "PartyIdentityDTO",
+        "description": "A identidade do partido que o jogador funda, guardada no perfil; o histórico recomeça a cada partida."
+      },
       "PartyMemberDTO": {
         "properties": {
           "nickname": {
@@ -21785,6 +22089,77 @@
           "monthly_volume"
         ],
         "title": "PlayerOperationsDTO"
+      },
+      "PlayerPreparationDTO": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PreparationKind"
+          },
+          "party": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartyIdentityDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "founder": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Founder"
+          },
+          "candidate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate"
+          },
+          "vice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vice"
+          },
+          "vice_accepted": {
+            "type": "boolean",
+            "title": "Vice Accepted",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "kind",
+          "party",
+          "founder",
+          "candidate",
+          "vice",
+          "vice_accepted"
+        ],
+        "title": "PlayerPreparationDTO"
       },
       "PlayerPresenceEventDTO": {
         "properties": {
@@ -22928,6 +23303,108 @@
         ],
         "title": "PremiumPointDTO",
         "description": "Um ponto da curva do prêmio de risco: a dívida em fração do PIB e o prêmio que ela cobra."
+      },
+      "PreparationKind": {
+        "type": "string",
+        "enum": [
+          "FOUND",
+          "JOIN",
+          "NONE"
+        ],
+        "title": "PreparationKind",
+        "description": "O que o jogador prepara no lobby para a campanha: fundar um partido, entrar no de outro ou nada."
+      },
+      "PreparationRequest": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/PreparationKind"
+          },
+          "founder": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Founder"
+          },
+          "candidate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate"
+          },
+          "vice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vice"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "PreparationRequest"
+      },
+      "PreparationsDTO": {
+        "properties": {
+          "players": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerPreparationDTO"
+            },
+            "type": "array",
+            "title": "Players"
+          },
+          "reserved": {
+            "items": {
+              "$ref": "#/components/schemas/ReservedPartyDTO"
+            },
+            "type": "array",
+            "title": "Reserved"
+          },
+          "conflicts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Conflicts"
+          },
+          "locked_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locked Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "players",
+          "reserved",
+          "conflicts",
+          "locked_reason"
+        ],
+        "title": "PreparationsDTO",
+        "description": "A preparação da sala: a de cada jogador, os avisos de conflito e se o painel está travado."
       },
       "PrepayLoanRequestDTO": {
         "properties": {
@@ -24251,6 +24728,9 @@
           "player_bot": {
             "$ref": "#/components/schemas/PlayerPresenceEventDTO"
           },
+          "preparations_update": {
+            "$ref": "#/components/schemas/PreparationsDTO"
+          },
           "simulation_selected": {
             "$ref": "#/components/schemas/SimulationSelectedEventDTO"
           },
@@ -24351,6 +24831,7 @@
           "player_team",
           "player_activity",
           "player_bot",
+          "preparations_update",
           "simulation_selected",
           "simulation_deleted",
           "simulation_settings_update",
@@ -24441,6 +24922,26 @@
         ],
         "title": "ReplacedGeneratedDTO",
         "description": "Os dias em que o real chegou e ocupou o lugar do gerado."
+      },
+      "ReservedPartyDTO": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "abbr"
+        ],
+        "title": "ReservedPartyDTO",
+        "description": "Um partido do computador, cujo nome e sigla ninguém repete."
       },
       "ReturnsReportDTO": {
         "properties": {

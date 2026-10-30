@@ -36,6 +36,7 @@ export type SimulationEvents = {
   player_team: RealtimeEventCatalog["player_team"];
   player_activity: RealtimeEventCatalog["player_activity"];
   player_bot: RealtimeEventCatalog["player_bot"];
+  preparations_update: RealtimeEventCatalog["preparations_update"];
   simulation_selected: RealtimeEventCatalog["simulation_selected"];
   simulation_deleted: RealtimeEventCatalog["simulation_deleted"];
   simulation_settings_update: RealtimeEventCatalog["simulation_settings_update"];

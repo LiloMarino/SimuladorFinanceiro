@@ -32,7 +32,8 @@ import {
   toRequest,
   weightedSupport,
 } from "../lib/promises";
-import { GROUP_INFO, VALUE_INFO } from "../lib/voters";
+import { VALUE_INFO } from "@/shared/lib/party-flags";
+import { GROUP_INFO } from "../lib/voters";
 import { PromiseEditor } from "./promise-editor";
 import { SignedDecimal } from "./signed-decimal";
 import { GroupIcon, ValueChip } from "./value-chip";

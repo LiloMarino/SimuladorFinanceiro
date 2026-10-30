@@ -8,6 +8,7 @@ from backend import config
 from backend.config.paths import app_files_dir
 from backend.core import repository
 from backend.core.dependencies import ClientID, HostVerified
+from backend.core.dto.preparation import PartyIdentityDTO
 from backend.core.dto.technical_indicators import IndicatorSettingsDTO
 from backend.core.enum import (
     NewsLevel,
@@ -16,9 +17,15 @@ from backend.core.enum import (
     NewsType,
     ToastType,
 )
-from backend.core.exceptions.http_exceptions import ConflictError, ForbiddenError
+from backend.core.exceptions.http_exceptions import (
+    ConflictError,
+    ForbiddenError,
+    UnprocessableEntityError,
+)
+from backend.core.repository.settings import MY_PARTY_KEY
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.file_manager import open_in_file_manager
+from backend.features.government import voters
 from backend.features.notifications import registry
 
 settings_router = APIRouter(prefix="/api/settings", tags=["Settings"])
@@ -111,13 +118,45 @@ def update_settings(client_id: ClientID, data: SettingsRequest):
     """
     user_id = UserManager.get_user_id(client_id)
 
-    # O debug é do servidor: o cliente não o grava (`extra="allow"` deixaria passar)
+    # O debug é do servidor: o cliente não o grava (`extra="allow"` deixaria passar);
+    # o Meu partido tem rota própria e atravessa a gravação das preferências
+    kept = {
+        key: value
+        for key, value in repository.settings.get_by_user_id(user_id).items()
+        if key == MY_PARTY_KEY
+    }
     repository.settings.update_by_user_id(
-        user_id, data.model_dump(mode="json", exclude={"debug"})
+        user_id, {**data.model_dump(mode="json", exclude={"debug"}), **kept}
     )
     settings = repository.settings.get_by_user_id(user_id)
 
     return _with_debug(settings)
+
+
+@settings_router.get(
+    "/party",
+    response_model=PartyIdentityDTO | None,
+    summary="Obter o Meu partido",
+    description="A identidade do partido que o jogador funda nas partidas (nome, sigla, cor e 3 bandeiras); nulo enquanto não salvou um.",
+)
+def get_my_party(client_id: ClientID):
+    return repository.settings.get_my_party(UserManager.get_user_id(client_id))
+
+
+@settings_router.put(
+    "/party",
+    response_model=PartyIdentityDTO,
+    summary="Salvar o Meu partido",
+    description="Grava a identidade do partido do jogador no perfil. As bandeiras seguem a regra de fundar um partido: 3 diferentes, sem Mercado livre com Justiça social.",
+)
+def put_my_party(client_id: ClientID, data: PartyIdentityDTO):
+    if not voters.is_valid_flags(data.flags):
+        raise UnprocessableEntityError(
+            "Escolha 3 bandeiras diferentes; Mercado livre e Justiça social não "
+            "andam juntas."
+        )
+    repository.settings.set_my_party(UserManager.get_user_id(client_id), data)
+    return data
 
 
 class NewsSectionInfo(BaseModel):

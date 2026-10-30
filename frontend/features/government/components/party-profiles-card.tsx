@@ -9,10 +9,9 @@ import { cn } from "@/shared/lib/utils";
 import { displayPercent, displayShortMonthYear } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty, VoterGroup, VoterGroupInfo } from "@/types";
 import { AFFINITY } from "../lib/election-metrics";
+import { VALUE_INFO, VOTER_VALUES } from "@/shared/lib/party-flags";
 import {
   GROUP_INFO,
-  VALUE_INFO,
-  VOTER_VALUES,
   distanceWord,
   groupScores,
   partyFill,

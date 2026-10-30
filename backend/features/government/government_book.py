@@ -73,6 +73,7 @@ from backend.features.government.computer_parties import (
     COMPUTER_PARTIES,
 )
 from backend.features.government.measures import PolicyTimeline
+from backend.features.government.preparation import Prepared
 from backend.features.government.promises import Promise
 from backend.features.government.spending import SpendingTimeline
 from backend.features.government.spending_effects import SpendingEconomy
@@ -502,6 +503,7 @@ class GovernmentBook:
                 today,
                 headlines.campaign_opened(cycle.first_round, cycle.ticket_deadline),
             )
+            self._apply_preparations(today)
             return True
         if previous < cycle.ticket_deadline + timedelta(days=1) <= today:
             self._notice(GovernmentNoticeKind.UPDATED)
@@ -526,6 +528,64 @@ class GovernmentBook:
                 first_round=cycle.first_round,
             )
         return False
+
+    def _apply_preparations(self, today: date) -> None:
+        """
+        Aplica o que cada jogador presente preparou no lobby, na ordem em que uma depende da
+        outra: fundar, filiar, chapa e vice aceito. Quem não está na partida não é aplicado.
+        Um pedido que a regra de hoje recusa é descartado sem travar o resto.
+        """
+        prepared = [Prepared.from_payload(d) for d in self.state.preparations]
+        if not prepared:
+            return
+        present = [p for p in prepared if p.user_id in self._people]
+
+        def attempt(action: Callable[[], None]) -> None:
+            try:
+                action()
+            except (ConflictError, NotFoundError, UnprocessableEntityError) as error:
+                logger.info("Preparação do lobby descartada: %s", error)
+
+        for item in (p for p in present if p.found is not None):
+            identity = required(item.found)
+            attempt(
+                lambda item=item, identity=identity: self.found_party(
+                    self._people[item.user_id],
+                    today,
+                    name=identity.name,
+                    abbr=identity.abbr,
+                    color=identity.color,
+                    flags=list(identity.flags),
+                    contribution=Decimal(0),
+                )
+            )
+        for item in (p for p in present if p.join_id is not None):
+            founded = self.state.party_of(required(item.join_id))
+            if founded is not None:
+                attempt(
+                    lambda item=item, founded=founded: self.join_party(
+                        self._people[item.user_id], today, founded.id, Decimal(0)
+                    )
+                )
+        users = list(self._people.values())
+        for item in (p for p in present if p.found is not None):
+            founder = self._people[item.user_id]
+            candidate = self._people.get(item.candidate_id or item.user_id)
+            vice = self._people.get(item.vice_id) if item.vice_id else None
+            if candidate is None or (candidate.id == founder.id and vice is None):
+                continue
+            attempt(
+                lambda founder=founder, candidate=candidate, vice=vice: self.set_ticket(
+                    founder,
+                    today,
+                    candidate.nickname,
+                    vice.nickname if vice else None,
+                    users,
+                )
+            )
+            if vice is not None and item.vice_accepted:
+                attempt(lambda vice=vice: self.answer_vice(vice, today, True))
+        self._emit(GovernmentEventType.PARTIES_PREPARED, today, players=[])
 
     # Ações dos jogadores
 

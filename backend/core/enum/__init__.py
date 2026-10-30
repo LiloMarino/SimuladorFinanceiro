@@ -289,6 +289,14 @@ class PlayerGrouping(Enum):
     TEAMS = "TEAMS"
 
 
+class PreparationKind(Enum):
+    """O que o jogador prepara no lobby para a campanha: fundar um partido, entrar no de outro ou nada."""
+
+    FOUND = "FOUND"
+    JOIN = "JOIN"
+    NONE = "NONE"
+
+
 class TeamNaming(Enum):
     """Como a equipe é chamada: pelo nome da cor (Índigo) ou pelo número."""
 
@@ -502,6 +510,8 @@ class GovernmentEventType(Enum):
     DEAL_WITHDRAWN = "DEAL_WITHDRAWN"
     # Um dos lados rompe o acordo em vigor
     DEAL_BROKEN = "DEAL_BROKEN"
+    # O que cada jogador preparou no lobby, guardado até a campanha abrir; lista vazia é "aplicado"
+    PARTIES_PREPARED = "PARTIES_PREPARED"
 
 
 class ElectionPhase(Enum):

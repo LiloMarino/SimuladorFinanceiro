@@ -11,6 +11,11 @@ from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.goal import GoalProgressDTO
 from backend.core.dto.life import LifeHistoryPageDTO, LifeStatusDTO
+from backend.core.dto.preparation import (
+    PreparationRequest,
+    PreparationsDTO,
+    ViceAnswerRequest,
+)
 from backend.core.dto.preset import AppliedPresetDTO, PresetAppliedEventDTO
 from backend.core.dto.simulation import (
     PriceImpactPointDTO,
@@ -35,6 +40,7 @@ from backend.core.enum import (
 )
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
+from backend.core.runtime.room_preparation import RoomPreparation
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
@@ -461,7 +467,13 @@ def remove_player(nickname: str, _: HostVerified):
     """
     Remove uma pessoa da sala.
     """
+    removed = next(
+        (p for p in UserManager.list_active_players() if p.nickname == nickname), None
+    )
     UserManager.remove_player(nickname)
+    if removed is not None:
+        RoomPreparation.drop(removed.id)
+        _notify_preparations()
 
 
 @simulation_router.put(
@@ -488,6 +500,72 @@ def set_player_team(payload: PlayerTeamRequest, client_id: ClientID):
     Escolhe a equipe do jogador na sala.
     """
     UserManager.set_team(client_id, payload.team)
+
+
+def _room_humans() -> list[UserDTO]:
+    return [p for p in UserManager.list_active_players() if not p.is_bot]
+
+
+def _notify_preparations() -> PreparationsDTO:
+    snapshot = RoomPreparation.snapshot(_room_humans())
+    notify("preparations_update", snapshot.to_json())
+    return snapshot
+
+
+@simulation_router.get(
+    "/preparations",
+    response_model=PreparationsDTO,
+    summary="Preparação dos jogadores no lobby",
+    description="O que cada jogador da sala preparou para a campanha (fundar partido, filiar-se, chapa e vice), os conflitos de sigla, nome e cor e o motivo da trava, quando há.",
+)
+def get_preparations():
+    """
+    Lista a preparação da sala.
+    """
+    return RoomPreparation.snapshot(_room_humans())
+
+
+@simulation_router.put(
+    "/players/me/preparation",
+    response_model=PreparationsDTO,
+    summary="Preparar a campanha do jogador",
+    description="Escolhe o que o jogador faz quando a campanha abre: fundar o Meu partido (com a chapa e o vice), entrar no partido que outro jogador preparou ou nada. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.",
+)
+def set_player_preparation(payload: PreparationRequest, client_id: ClientID):
+    """
+    Troca a preparação do jogador na sala.
+    """
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    identity = repository.settings.get_my_party(user.id)
+    RoomPreparation.choose(
+        user,
+        payload.kind,
+        _room_humans(),
+        identity=identity,
+        founder=payload.founder,
+        candidate=payload.candidate,
+        vice=payload.vice,
+    )
+    return _notify_preparations()
+
+
+@simulation_router.put(
+    "/players/me/preparation/vice",
+    response_model=PreparationsDTO,
+    summary="Responder ao convite de vice",
+    description="O jogador convidado para vice na chapa que outro preparou aceita ou recusa. Recusa com 404 se não há convite.",
+)
+def answer_preparation_vice(payload: ViceAnswerRequest, client_id: ClientID):
+    """
+    Aceita ou recusa o convite de vice do lobby.
+    """
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    RoomPreparation.answer_vice(user, payload.accept)
+    return _notify_preparations()
 
 
 @simulation_router.post(

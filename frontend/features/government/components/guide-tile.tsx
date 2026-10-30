@@ -8,7 +8,7 @@ import { useGuideBloc } from "../hooks/mutations/useGuideBloc";
 import { useBase } from "../hooks/queries/useBase";
 import { groupsLabel } from "../lib/base";
 import { causeLabel, orientationLabel, rangeLabel, type Vote } from "../lib/house";
-import { VALUE_INFO } from "../lib/voters";
+import { VALUE_INFO } from "@/shared/lib/party-flags";
 
 type Guide = NonNullable<Vote["guide"]>;
 

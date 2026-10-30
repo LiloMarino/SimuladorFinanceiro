@@ -44,6 +44,8 @@ import { useDistributeTeams } from "../hooks/mutations/useDistributeTeams";
 import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulationForm";
 import { toFormValues, toSettingsBody } from "../lib/simulation-form";
 import { checkTeams } from "../lib/teams-check";
+import { usePreparations } from "../hooks/queries/usePreparations";
+import { MyPreparationCard } from "./my-preparation-card";
 import { checkCoverage } from "../lib/coverage";
 import {
   calculatedGoal,
@@ -264,7 +266,17 @@ export function LobbyMatch({
   const teamsBlock = inTeams && !teams.ready;
   // Iniciar a partida encerra o desafio da vela que estiver rolando; o host é avisado antes
   const challengeQuestion = useRunningChallenge();
-  const canStart = isHost && !busy && !backtestRunning && !blockedByCoverage && form.formState.isValid && !teamsBlock;
+  // Partidos preparados que repetem sigla, nome ou cor bloqueiam o início, como as equipes
+  const { data: preparations } = usePreparations();
+  const preparationBlock = (preparations?.conflicts.length ?? 0) > 0;
+  const canStart =
+    isHost &&
+    !busy &&
+    !backtestRunning &&
+    !blockedByCoverage &&
+    form.formState.isValid &&
+    !teamsBlock &&
+    !preparationBlock;
 
   // Com partida selecionada o card mostra as regras dela, em só leitura; sem seleção, as da nova partida
   const rules = selectedSimulation ? toFormValues(selectedSimulation) : values;
@@ -520,6 +532,9 @@ export function LobbyMatch({
                 </AlertDescription>
               </Alert>
             )}
+
+            {/* Preparação do jogador para a campanha */}
+            {rules.governmentEnabled && <MyPreparationCard />}
 
             {/* Equipes: o que falta para iniciar e o atalho do host */}
             {inTeams && teamsBlock && (

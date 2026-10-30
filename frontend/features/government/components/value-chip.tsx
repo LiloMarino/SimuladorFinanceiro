@@ -2,8 +2,8 @@ import { Briefcase, ChartLine, HandHeart, HardHat, Store, Armchair, type LucideI
 import { Badge } from "@/shared/components/ui/badge";
 import { cn } from "@/shared/lib/utils";
 import type { VoterGroup, VoterValue } from "@/types";
-import { VALUE_ICONS, tintOf } from "../lib/value-style";
-import { VALUE_INFO } from "../lib/voters";
+import { VALUE_ICONS, tintOf } from "@/shared/lib/value-style";
+import { VALUE_INFO } from "@/shared/lib/party-flags";
 
 const GROUP_ICONS: Record<VoterGroup, LucideIcon> = {
   INVESTORS: ChartLine,

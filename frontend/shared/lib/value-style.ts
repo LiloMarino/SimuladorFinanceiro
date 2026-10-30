@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { Anchor, Factory, Landmark, PiggyBank, Scale, TrendingUp, type LucideIcon } from "lucide-react";
 import type { VoterValue } from "@/types";
-import { VALUE_INFO } from "./voters";
+import { VALUE_INFO } from "./party-flags";
 
 export const VALUE_ICONS: Record<VoterValue, LucideIcon> = {
   FREE_MARKET: TrendingUp,

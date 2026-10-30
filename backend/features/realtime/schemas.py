@@ -33,6 +33,7 @@ from backend.core.dto.order import OrderDTO
 from backend.core.dto.patrimonial_history import PortfolioHistoryPointDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
+from backend.core.dto.preparation import PreparationsDTO
 from backend.core.dto.preset import PresetAppliedEventDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusResponse
 from backend.core.dto.snapshot import SnapshotDTO
@@ -294,6 +295,7 @@ class RealtimeEventCatalog(BaseDTO):
     player_team: PlayerPresenceEventDTO
     player_activity: PlayerPresenceEventDTO
     player_bot: PlayerPresenceEventDTO
+    preparations_update: PreparationsDTO
     simulation_selected: SimulationSelectedEventDTO
     simulation_deleted: SimulationDeletedEventDTO
     simulation_settings_update: SimulationSettingsDTO

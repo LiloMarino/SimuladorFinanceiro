@@ -320,6 +320,22 @@ Com uma partida salva selecionada, o seletor fica desabilitado (as regras dela n
 
 ---
 
+### Minha preparação
+
+Com a expansão [Governo & Política](./governo.md) ligada numa partida nova, cada jogador vê o card **Minha preparação**. Ele diz o que você faz quando a campanha abre, sem precisar estar com o relógio andando:
+
+* **Fundar o meu partido** usa o **Meu partido**, que fica salvo no seu perfil: nome, sigla, cor e as 3 bandeiras. Você salva ao preparar e reaproveita em toda partida nova. Aqui também se escolhem o **candidato** (você ou alguém que entrou no seu partido) e o **vice**
+* **Entrar no partido de outro** lista os partidos que outros jogadores já prepararam; você se filia a ele na abertura da campanha
+* **Nada por enquanto** deixa tudo como hoje: você decide dentro da partida
+
+Quem foi convidado para vice vê **"X te convidou para vice"** com **Aceitar** e **Recusar**. O vice vale só para aquela partida e não fica no perfil.
+
+Tudo é aplicado sozinho na abertura da campanha, com contribuição zero (dá para ajustar depois, como sempre). Quem não estiver na sala quando a partida começar não tem a preparação aplicada, e bots não têm preparação.
+
+Se dois partidos preparados repetem **sigla, nome ou cor**, ou usam a sigla ou o nome de um partido do computador, o card avisa na hora e o **Iniciar** do host fica bloqueado até alguém trocar. Com uma partida salva selecionada, ou com a expansão desligada, o card fica travado e mostra o motivo.
+
+---
+
 ### Simulações salvas
 
 O card **Simulações salvas** lista as partidas salvas. Na sala, o host também tem **Escolher partida salva** (e **Trocar partida**, depois de escolher uma). Em cada partida da lista:

@@ -1,7 +1,7 @@
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import type { ElectionPanel } from "@/types";
 import { useSetGuidanceRule } from "../hooks/mutations/useSetGuidanceRule";
-import { VALUE_INFO } from "../lib/voters";
+import { VALUE_INFO } from "@/shared/lib/party-flags";
 
 type GuidanceRulesProps = {
   rules: NonNullable<ElectionPanel["my_party"]>["guidance"];

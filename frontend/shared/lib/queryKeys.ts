@@ -22,6 +22,8 @@ export const queryKeys = {
   trades: (ticker: string) => ["variable-income", ticker, "trades"] as const,
   priceImpactPreview: (k: number, decayDays: number) => ["simulation", "price-impact-preview", k, decayDays] as const,
   simulationPlayers: () => ["simulation", "players"] as const,
+  preparations: () => ["simulation", "preparations"] as const,
+  myParty: () => ["settings", "party"] as const,
   matchPlayers: () => ["simulation", "match-players"] as const,
   botStrategies: (startDate?: string) =>
     startDate === undefined

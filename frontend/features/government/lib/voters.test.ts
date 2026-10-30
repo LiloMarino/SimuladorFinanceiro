@@ -4,7 +4,6 @@ import {
   distanceWord,
   foundingAffinity,
   inTechnicalTie,
-  lockReason,
   marginRange,
   nextPollDate,
   pollPercent,
@@ -39,18 +38,6 @@ const investors: VoterGroupInfo = {
     PUBLIC_SERVICE: -6,
   }),
 };
-
-describe("lockReason", () => {
-  it("trava a bandeira que a escolhida exclui", () => {
-    expect(lockReason("SOCIAL_JUSTICE", ["FREE_MARKET"])).toBe("Exclui Mercado livre");
-  });
-
-  it("trava as outras quando já são 3, e solta as escolhidas", () => {
-    const chosen: VoterValue[] = ["FREE_MARKET", "STABILITY", "DEVELOPMENT"];
-    expect(lockReason("PUBLIC_SERVICE", chosen)).toBe("Já são 3: tire uma");
-    expect(lockReason("STABILITY", chosen)).toBeNull();
-  });
-});
 
 describe("foundingAffinity", () => {
   it("soma à base o que cada bandeira vale para o grupo", () => {

@@ -2,7 +2,8 @@ import { InfoHint } from "@/shared/components/info-hint";
 import { Badge } from "@/shared/components/ui/badge";
 import { cn } from "@/shared/lib/utils";
 import type { GroupReaction, MeasurePreview } from "@/types";
-import { GROUP_INFO, VALUE_INFO } from "../lib/voters";
+import { VALUE_INFO } from "@/shared/lib/party-flags";
+import { GROUP_INFO } from "../lib/voters";
 import { type SpendingKind } from "@/shared/lib/spending-kinds";
 import { reasonOf, splitReactions } from "../lib/spending";
 

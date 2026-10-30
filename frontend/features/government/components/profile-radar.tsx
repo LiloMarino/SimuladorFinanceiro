@@ -1,5 +1,5 @@
 import type { VoterValue } from "@/types";
-import { VALUE_INFO, VOTER_VALUES } from "../lib/voters";
+import { VALUE_INFO, VOTER_VALUES } from "@/shared/lib/party-flags";
 
 type RadarSeries = {
   key: string;

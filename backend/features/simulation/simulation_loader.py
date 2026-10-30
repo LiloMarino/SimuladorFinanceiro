@@ -11,10 +11,12 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.core.indicators import ensure_indicator_coverage
+from backend.core.runtime.room_preparation import RoomPreparation
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.candle_challenge.game import candle_game
+from backend.features.government import preparation
 from backend.features.realtime import notify
 from backend.features.simulation.saved_simulation import (
     is_finished,
@@ -40,6 +42,8 @@ class SimulationLoader:
         in_teams = settings.player_grouping is PlayerGrouping.TEAMS
         if in_teams:
             UserManager.ensure_teams_ready({})
+        humans = [p for p in UserManager.list_active_players() if not p.is_bot]
+        RoomPreparation.ensure_ready(humans)
         # As regras de agora valem para cada bot antes de a partida ser gravada
         UserManager.validate_bots(settings.start_date)
         bots = UserManager.room_bots()
@@ -56,6 +60,11 @@ class SimulationLoader:
             settings.start_date,
             settings.starting_cash,
         )
+        # A preparação do lobby vira evento da partida e é aplicada quando a campanha abre
+        preparation.record(
+            simulation_id, settings.start_date, RoomPreparation.prepared(humans)
+        )
+        RoomPreparation.clear()
         UserManager.release_bots()
         UserManager.release_saved_colors()
         UserManager.release_room_teams()
@@ -132,6 +141,7 @@ class SimulationLoader:
             resume_from or summary.start_date,
             summary.starting_cash,
         )
+        RoomPreparation.clear()
         UserManager.release_bots()
         UserManager.release_saved_colors()
         UserManager.release_room_teams()

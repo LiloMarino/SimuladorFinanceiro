@@ -457,6 +457,8 @@ class GovernmentState:
     next_deal_id: int = 1
     # O balanço das promessas de cada governo que acabou
     balances: list[Balance] = field(default_factory=list)
+    # A preparação de cada jogador no lobby, à espera da abertura da campanha; vazia depois
+    preparations: list[dict[str, object]] = field(default_factory=list)
 
     @property
     def satisfaction(self) -> dict[VoterGroup, Decimal]:
@@ -630,6 +632,8 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             if party is not None:
                 party.members[user_id] = _money(p, "contribution")
                 party.congress = {**party.congress, **_congress(p, user_id)}
+        case Event.PARTIES_PREPARED:
+            state.preparations = list(_list(p, "players"))  # type: ignore[arg-type]
         case Event.TICKET_SET:
             party = state.parties[_int(p, "party_id")]
             party.candidate_id = _int(p, "candidate_id")

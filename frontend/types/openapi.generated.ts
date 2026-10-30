@@ -376,6 +376,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings/party": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter o Meu partido
+         * @description A identidade do partido que o jogador funda nas partidas (nome, sigla, cor e 3 bandeiras); nulo enquanto não salvou um.
+         */
+        get: operations["get_my_party_api_settings_party_get"];
+        /**
+         * Salvar o Meu partido
+         * @description Grava a identidade do partido do jogador no perfil. As bandeiras seguem a regra de fundar um partido: 3 diferentes, sem Mercado livre com Justiça social.
+         */
+        put: operations["put_my_party_api_settings_party_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings/notification-types": {
         parameters: {
             query?: never;
@@ -2565,6 +2589,66 @@ export interface paths {
          * @description Escolhe a equipe do jogador na sala, quando a partida é em equipes. Equipe não tem dono nem limite de membros; quem já jogou a partida salva selecionada não troca.
          */
         put: operations["set_player_team_api_simulation_players_me_team_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/preparations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preparação dos jogadores no lobby
+         * @description O que cada jogador da sala preparou para a campanha (fundar partido, filiar-se, chapa e vice), os conflitos de sigla, nome e cor e o motivo da trava, quando há.
+         */
+        get: operations["get_preparations_api_simulation_preparations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/players/me/preparation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Preparar a campanha do jogador
+         * @description Escolhe o que o jogador faz quando a campanha abre: fundar o Meu partido (com a chapa e o vice), entrar no partido que outro jogador preparou ou nada. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.
+         */
+        put: operations["set_player_preparation_api_simulation_players_me_preparation_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/players/me/preparation/vice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Responder ao convite de vice
+         * @description O jogador convidado para vice na chapa que outro preparou aceita ou recusa. Recusa com 404 se não há convite.
+         */
+        put: operations["answer_preparation_vice_api_simulation_players_me_preparation_vice_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -7433,6 +7517,20 @@ export interface components {
             /** Flags */
             flags: components["schemas"]["VoterValue"][];
         };
+        /**
+         * PartyIdentityDTO
+         * @description A identidade do partido que o jogador funda, guardada no perfil; o histórico recomeça a cada partida.
+         */
+        PartyIdentityDTO: {
+            /** Name */
+            name: string;
+            /** Abbr */
+            abbr: string;
+            /** Color */
+            color: string;
+            /** Flags */
+            flags: components["schemas"]["VoterValue"][];
+        };
         /** PartyMemberDTO */
         PartyMemberDTO: {
             /** Nickname */
@@ -7684,6 +7782,24 @@ export interface components {
             impact_cost: string | null;
             /** Monthly Volume */
             monthly_volume: components["schemas"]["MonthlyVolumeDTO"][];
+        };
+        /** PlayerPreparationDTO */
+        PlayerPreparationDTO: {
+            /** Nickname */
+            nickname: string;
+            kind: components["schemas"]["PreparationKind"];
+            party: components["schemas"]["PartyIdentityDTO"] | null;
+            /** Founder */
+            founder: string | null;
+            /** Candidate */
+            candidate: string | null;
+            /** Vice */
+            vice: string | null;
+            /**
+             * Vice Accepted
+             * @default false
+             */
+            vice_accepted: boolean;
         };
         /**
          * PlayerPresenceEventDTO
@@ -8053,6 +8169,36 @@ export interface components {
             debt: string;
             /** Premium */
             premium: string;
+        };
+        /**
+         * PreparationKind
+         * @description O que o jogador prepara no lobby para a campanha: fundar um partido, entrar no de outro ou nada.
+         * @enum {string}
+         */
+        PreparationKind: "FOUND" | "JOIN" | "NONE";
+        /** PreparationRequest */
+        PreparationRequest: {
+            kind: components["schemas"]["PreparationKind"];
+            /** Founder */
+            founder?: string | null;
+            /** Candidate */
+            candidate?: string | null;
+            /** Vice */
+            vice?: string | null;
+        };
+        /**
+         * PreparationsDTO
+         * @description A preparação da sala: a de cada jogador, os avisos de conflito e se o painel está travado.
+         */
+        PreparationsDTO: {
+            /** Players */
+            players: components["schemas"]["PlayerPreparationDTO"][];
+            /** Reserved */
+            reserved: components["schemas"]["ReservedPartyDTO"][];
+            /** Conflicts */
+            conflicts: string[];
+            /** Locked Reason */
+            locked_reason: string | null;
         };
         /** PrepayLoanRequestDTO */
         PrepayLoanRequestDTO: {
@@ -8525,6 +8671,7 @@ export interface components {
             player_team: components["schemas"]["PlayerPresenceEventDTO"];
             player_activity: components["schemas"]["PlayerPresenceEventDTO"];
             player_bot: components["schemas"]["PlayerPresenceEventDTO"];
+            preparations_update: components["schemas"]["PreparationsDTO"];
             simulation_selected: components["schemas"]["SimulationSelectedEventDTO"];
             simulation_deleted: components["schemas"]["SimulationDeletedEventDTO"];
             simulation_settings_update: components["schemas"]["SimulationSettingsDTO"];
@@ -8577,6 +8724,16 @@ export interface components {
              * Format: date
              */
             end: string;
+        };
+        /**
+         * ReservedPartyDTO
+         * @description Um partido do computador, cujo nome e sigla ninguém repete.
+         */
+        ReservedPartyDTO: {
+            /** Name */
+            name: string;
+            /** Abbr */
+            abbr: string;
         };
         /** ReturnsReportDTO */
         ReturnsReportDTO: {
@@ -11467,6 +11624,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SettingsResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_my_party_api_settings_party_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartyIdentityDTO"] | null;
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    put_my_party_api_settings_party_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PartyIdentityDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartyIdentityDTO"];
                 };
             };
             /** @description Unprocessable Content */
@@ -16065,6 +16302,128 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_preparations_api_simulation_preparations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreparationsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_player_preparation_api_simulation_players_me_preparation_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreparationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreparationsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    answer_preparation_vice_api_simulation_players_me_preparation_vice_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ViceAnswerRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreparationsDTO"];
+                };
             };
             /** @description Unprocessable Content */
             422: {

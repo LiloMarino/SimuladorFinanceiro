@@ -11,7 +11,7 @@ import {
 } from "@/shared/components/ui/dialog";
 import type { ElectionPanel, ElectionParty, VoterValue } from "@/types";
 import { useSetPartyFlags } from "../hooks/mutations/useSetPartyFlags";
-import { FLAGS_PER_PARTY } from "../lib/voters";
+import { FLAGS_PER_PARTY } from "@/shared/lib/party-flags";
 import { FlagsPicker } from "./flags-picker";
 
 type ChooseFlagsDialogProps = {
