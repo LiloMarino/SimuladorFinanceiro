@@ -119,15 +119,20 @@ export type TechnicalSummary = TechnicalIndicators["summary"];
 export type TechnicalReading = TechnicalSummary["readings"][number];
 export type IndicatorPoint = components["schemas"]["IndicatorPointDTO"];
 
-// Padrões de vela e desafio da vela
+// Padrões de vela
 export type CandlePatterns = components["schemas"]["CandlePatternsDTO"];
 export type CandlePattern = CandlePatterns["patterns"][number];
 export type CandlePatternCode = CandlePattern["code"];
 export type PatternStats = components["schemas"]["PatternStatsDTO"];
-export type CandleChallenge = components["schemas"]["CandleChallengeDTO"];
-export type ChallengeAnswer = NonNullable<CandleChallenge["last"]>;
+
+// Desafio da vela do lobby
+export type CandleChallengeView = components["schemas"]["CandleChallengeViewDTO"];
+export type CandleChallengeState = CandleChallengeView["state"];
 export type ChallengeDirection = components["schemas"]["AnswerChallengeRequest"]["direction"];
-export type CandleChallengeRanking = components["schemas"]["CandleChallengeRankingDTO"];
+export type ChallengePlayer = CandleChallengeState["players"][number];
+export type ChallengeMark = NonNullable<ChallengePlayer["marks"][number]>;
+export type ChallengeBar = components["schemas"]["CandleBarDTO"];
+export type ChallengeReveal = NonNullable<CandleChallengeState["reveal"]>;
 
 // Pastas do app no computador do host (config.toml e logs)
 export type AppFolders = components["schemas"]["AppFoldersResponse"];

@@ -46,8 +46,7 @@ export const queryKeys = {
       ? (["variable-income", ticker, "indicators"] as const)
       : (["variable-income", ticker, "indicators", request] as const),
   candlePatterns: (ticker: string) => ["variable-income", ticker, "patterns"] as const,
-  candleChallenge: (ticker: string) => ["variable-income", ticker, "challenge"] as const,
-  candleChallengeRanking: (simulationIds: number[]) => ["statistics", "candle-challenge", ...simulationIds] as const,
+  candleChallenge: () => ["candle-challenge"] as const,
   variableIncomeOrders: (ticker: string) => ["variable-income", ticker, "orders"] as const,
   portfolio: () => ["portfolio"] as const,
   patrimonialHistory: () => ["portfolio", "history"] as const,

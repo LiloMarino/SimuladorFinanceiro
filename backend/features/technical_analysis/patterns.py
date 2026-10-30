@@ -8,7 +8,7 @@ regras, "corpo" é a distância entre abertura e fechamento, "sombra de cima" e
 que vem antes do padrão contra a média dos 5 fechamentos até ela: abaixo da média
 é queda, acima é alta.
 
-O gráfico, o desafio da vela e o "E se ele acertou?" leem estas mesmas regras, então
+O gráfico, o desafio da vela do lobby e o "E se ele acertou?" leem estas mesmas regras, então
 o padrão marcado na tela é o padrão conferido depois.
 """
 

@@ -21,6 +21,10 @@ from backend.core.dto.backtest import (
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.candle import CandleDTO
+from backend.core.dto.candle_challenge import (
+    CandleChallengeStateDTO,
+    ChallengeNoticeEventDTO,
+)
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.goal import GoalProgressDTO
 from backend.core.dto.life import LifeEventDTO
@@ -312,3 +316,5 @@ class RealtimeEventCatalog(BaseDTO):
     government_update: GovernmentUpdateEventDTO
     strategy_update: StrategyUpdateEventDTO
     strategy_orders: StrategyOrdersEventDTO
+    candle_challenge_state: CandleChallengeStateDTO
+    candle_challenge_notice: ChallengeNoticeEventDTO

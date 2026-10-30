@@ -202,9 +202,8 @@ def beyond_horizon(ctx: Context) -> Decimal:
 
 @metric("candle_challenge_hits", Trigger.TICK)
 def candle_challenge_hits(ctx: Context) -> Decimal:
-    """Acertos do jogador no desafio da vela nesta partida, entre as respostas já conferidas."""
-    hits, _ = repository.candle_challenge.score(ctx.settings.id, ctx.user_id)
-    return Decimal(hits)
+    """Acertos do jogador no desafio da vela do lobby, somando todas as rodadas."""
+    return Decimal(repository.candle_challenge.total_hits(ctx.user_id))
 
 
 # --------------------------------------------------

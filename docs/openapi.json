@@ -228,130 +228,6 @@
         }
       }
     },
-    "/api/variable-income/{asset}/challenge": {
-      "get": {
-        "tags": [
-          "Operations"
-        ],
-        "summary": "Desafio da vela de um ativo",
-        "description": "A pergunta de hoje (um padrão de vela que fechou no último pregão e ainda não foi respondido), a última resposta do jogador nesse ativo e o placar dele na partida. Recusa quando as dicas de análise técnica estão desligadas.",
-        "operationId": "get_candle_challenge_api_variable_income__asset__challenge_get",
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "asset",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Asset"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CandleChallengeDTO"
-                }
-              }
-            }
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorResponse"
-                }
-              }
-            },
-            "description": "Unprocessable Content"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Operations"
-        ],
-        "summary": "Responder ao desafio da vela",
-        "description": "Grava a resposta (sobe ou desce) ao padrão de hoje. Só vale enquanto o último pregão for o do padrão, uma vez por padrão; a conferência vem no fechamento do 5º pregão depois dele.",
-        "operationId": "answer_candle_challenge_api_variable_income__asset__challenge_post",
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "asset",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Asset"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AnswerChallengeRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CandleChallengeDTO"
-                }
-              }
-            }
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorResponse"
-                }
-              }
-            },
-            "description": "Unprocessable Content"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
     "/api/variable-income/{asset}/orders": {
       "post": {
         "tags": [
@@ -3016,63 +2892,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HighlightsDTO"
-                }
-              }
-            }
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorResponse"
-                }
-              }
-            },
-            "description": "Unprocessable Content"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/statistics/candle-challenge": {
-      "get": {
-        "tags": [
-          "Statistics"
-        ],
-        "summary": "Estatísticas: desafio da vela",
-        "description": "Quem mais acertou o desafio da vela nas simulações informadas. Conta só as respostas já conferidas; no empate de acertos, vence a maior taxa de acerto.",
-        "operationId": "get_candle_challenge_ranking_api_statistics_candle_challenge_get",
-        "parameters": [
-          {
-            "name": "simulation_ids",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "integer"
-              },
-              "minItems": 1,
-              "title": "Simulation Ids"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CandleChallengeRankingDTO"
                 }
               }
             }
@@ -8028,6 +7847,223 @@
         ]
       }
     },
+    "/api/candle-challenge": {
+      "get": {
+        "tags": [
+          "Candle challenge"
+        ],
+        "summary": "Desafio da vela da sala",
+        "description": "O estado do desafio da vela do lobby: a pergunta aberta ou a revelação, o placar da rodada e a resposta de quem pergunta à pergunta aberta.",
+        "operationId": "get_candle_challenge_api_candle_challenge_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandleChallengeViewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/candle-challenge/start": {
+      "post": {
+        "tags": [
+          "Candle challenge"
+        ],
+        "summary": "Começar o desafio da vela",
+        "description": "Abre uma rodada de 10 perguntas com quem pediu; os outros jogadores da sala recebem o convite. Vale também para jogar de novo depois do fim.",
+        "operationId": "start_candle_challenge_api_candle_challenge_start_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/candle-challenge/join": {
+      "post": {
+        "tags": [
+          "Candle challenge"
+        ],
+        "summary": "Entrar no desafio da vela",
+        "description": "Entra na rodada em andamento; quem entra joga a partir da próxima pergunta.",
+        "operationId": "join_candle_challenge_api_candle_challenge_join_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/candle-challenge/answer": {
+      "post": {
+        "tags": [
+          "Candle challenge"
+        ],
+        "summary": "Responder ao desafio da vela",
+        "description": "Grava sobe ou desce; dá para trocar a resposta até a pergunta fechar.",
+        "operationId": "answer_candle_challenge_api_candle_challenge_answer_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerChallengeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/candle-challenge/leave": {
+      "post": {
+        "tags": [
+          "Candle challenge"
+        ],
+        "summary": "Sair do desafio da vela",
+        "description": "Sai da rodada; quando não sobra ninguém, ela termina.",
+        "operationId": "leave_candle_challenge_api_candle_challenge_leave_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/backtest/setup": {
       "get": {
         "tags": [
@@ -12070,58 +12106,181 @@
         ],
         "title": "CancelOrderRequest"
       },
-      "CandleChallengeDTO": {
+      "CandleBarDTO": {
         "properties": {
           "open": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/OpenChallengeDTO"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "number",
+            "title": "Open"
           },
-          "last": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ChallengeAnswerDTO"
-              },
-              {
-                "type": "null"
-              }
-            ]
+          "high": {
+            "type": "number",
+            "title": "High"
           },
-          "score": {
-            "$ref": "#/components/schemas/ChallengeScoreDTO"
+          "low": {
+            "type": "number",
+            "title": "Low"
+          },
+          "close": {
+            "type": "number",
+            "title": "Close"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
           "open",
-          "last",
-          "score"
+          "high",
+          "low",
+          "close"
         ],
-        "title": "CandleChallengeDTO"
+        "title": "CandleBarDTO",
+        "description": "Uma vela em % desde a abertura da primeira vela do recorte: a escala de preço não aparece."
       },
-      "CandleChallengeRankingDTO": {
+      "CandleChallengeStateDTO": {
         "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ChallengeStatus"
+          },
+          "phase": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChallengePhase"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "round_id": {
+            "type": "integer",
+            "title": "Round Id"
+          },
+          "starter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starter"
+          },
+          "solo": {
+            "type": "boolean",
+            "title": "Solo"
+          },
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChallengeQuestionDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reveal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChallengeRevealDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "players": {
             "items": {
-              "$ref": "#/components/schemas/ChallengeRankEntryDTO"
+              "$ref": "#/components/schemas/ChallengePlayerDTO"
             },
             "type": "array",
             "title": "Players"
+          },
+          "final": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChallengeFinalDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "wins": {
+            "items": {
+              "$ref": "#/components/schemas/ChallengeWinsDTO"
+            },
+            "type": "array",
+            "title": "Wins"
+          },
+          "rounds": {
+            "type": "integer",
+            "title": "Rounds"
+          },
+          "streak": {
+            "type": "integer",
+            "title": "Streak"
+          },
+          "record": {
+            "type": "integer",
+            "title": "Record"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "players"
+          "status",
+          "phase",
+          "round_id",
+          "starter",
+          "solo",
+          "number",
+          "total",
+          "question",
+          "reveal",
+          "players",
+          "final",
+          "wins",
+          "rounds",
+          "streak",
+          "record"
         ],
-        "title": "CandleChallengeRankingDTO",
-        "description": "O placar da partida, por acertos; no empate decide o percentual de acerto."
+        "title": "CandleChallengeStateDTO",
+        "description": "O que a sala vê; o lado de cada resposta só aparece na revelação."
+      },
+      "CandleChallengeViewDTO": {
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/CandleChallengeStateDTO"
+          },
+          "direction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChallengeDirection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "state",
+          "direction"
+        ],
+        "title": "CandleChallengeViewDTO",
+        "description": "O estado da sala visto por quem pergunta, com a resposta dele à pergunta aberta."
       },
       "CandleDTO": {
         "properties": {
@@ -12314,39 +12473,83 @@
         ],
         "title": "CashUpdateEventDTO"
       },
-      "ChallengeAnswerDTO": {
+      "ChallengeDirection": {
+        "type": "string",
+        "enum": [
+          "up",
+          "down"
+        ]
+      },
+      "ChallengeFinalDTO": {
         "properties": {
-          "pattern_code": {
-            "$ref": "#/components/schemas/CandlePatternCode"
+          "winners": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Winners"
           },
-          "pattern_date": {
-            "type": "string",
-            "format": "date",
-            "title": "Pattern Date"
+          "best_streak": {
+            "type": "integer",
+            "title": "Best Streak"
           },
-          "status": {
-            "$ref": "#/components/schemas/ChallengeStatus"
+          "new_record": {
+            "type": "boolean",
+            "title": "New Record"
           },
-          "direction": {
+          "previous_record": {
+            "type": "integer",
+            "title": "Previous Record"
+          },
+          "previous_record_on": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ChallengeDirection"
+                "type": "string",
+                "format": "date"
               },
               {
                 "type": "null"
               }
-            ]
+            ],
+            "title": "Previous Record On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "winners",
+          "best_streak",
+          "new_record",
+          "previous_record",
+          "previous_record_on"
+        ],
+        "title": "ChallengeFinalDTO"
+      },
+      "ChallengeMark": {
+        "type": "string",
+        "enum": [
+          "hit",
+          "miss",
+          "none"
+        ]
+      },
+      "ChallengeNoticeEventDTO": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/ChallengeNoticeKind"
           },
-          "price": {
-            "type": "number",
-            "title": "Price"
+          "nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nickname"
           },
-          "settles_on": {
-            "type": "string",
-            "format": "date",
-            "title": "Settles On"
-          },
-          "sessions_left": {
+          "number": {
             "anyOf": [
               {
                 "type": "integer"
@@ -12355,68 +12558,56 @@
                 "type": "null"
               }
             ],
-            "title": "Sessions Left"
-          },
-          "current_price": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Current Price"
-          },
-          "change": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Change"
-          },
-          "stats": {
-            "$ref": "#/components/schemas/PatternStatsDTO"
+            "title": "Number"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "pattern_code",
-          "pattern_date",
-          "status",
-          "direction",
-          "price",
-          "settles_on",
-          "sessions_left",
-          "current_price",
-          "change",
-          "stats"
+          "kind",
+          "nickname",
+          "number"
         ],
-        "title": "ChallengeAnswerDTO"
+        "title": "ChallengeNoticeEventDTO"
       },
-      "ChallengeDirection": {
+      "ChallengeNoticeKind": {
+        "type": "string",
+        "enum": [
+          "joined",
+          "ended_by_match",
+          "unavailable"
+        ]
+      },
+      "ChallengeOutcome": {
         "type": "string",
         "enum": [
           "up",
-          "down"
+          "down",
+          "void"
         ]
       },
-      "ChallengeRankEntryDTO": {
+      "ChallengePhase": {
+        "type": "string",
+        "enum": [
+          "loading",
+          "question",
+          "reveal"
+        ]
+      },
+      "ChallengePlayerDTO": {
         "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
           "position": {
             "type": "integer",
-            "minimum": 1.0,
             "title": "Position"
           },
-          "player_nickname": {
-            "type": "string",
-            "title": "Player Nickname"
-          },
           "hits": {
             "type": "integer",
             "title": "Hits"
@@ -12424,47 +12615,209 @@
           "answered": {
             "type": "integer",
             "title": "Answered"
+          },
+          "joined_at": {
+            "type": "integer",
+            "title": "Joined At"
+          },
+          "replied": {
+            "type": "boolean",
+            "title": "Replied"
+          },
+          "last": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChallengeMark"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "marks": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ChallengeMark"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Marks"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
+          "nickname",
+          "color",
           "position",
-          "player_nickname",
           "hits",
-          "answered"
+          "answered",
+          "joined_at",
+          "replied",
+          "last",
+          "marks"
         ],
-        "title": "ChallengeRankEntryDTO"
+        "title": "ChallengePlayerDTO"
       },
-      "ChallengeScoreDTO": {
+      "ChallengeQuestionDTO": {
         "properties": {
-          "hits": {
+          "id": {
             "type": "integer",
-            "title": "Hits"
+            "title": "Id"
           },
-          "answered": {
+          "pattern_code": {
+            "$ref": "#/components/schemas/CandlePatternCode"
+          },
+          "bars": {
+            "items": {
+              "$ref": "#/components/schemas/CandleBarDTO"
+            },
+            "type": "array",
+            "title": "Bars"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/PatternStatsDTO"
+          },
+          "remaining_ms": {
             "type": "integer",
-            "title": "Answered"
+            "title": "Remaining Ms"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "title": "Duration Ms"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "hits",
-          "answered"
+          "id",
+          "pattern_code",
+          "bars",
+          "stats",
+          "remaining_ms",
+          "duration_ms"
         ],
-        "title": "ChallengeScoreDTO",
-        "description": "Acertos entre as respostas já conferidas; as anuladas e as que esperam ficam fora."
+        "title": "ChallengeQuestionDTO",
+        "description": "A pergunta aberta: o ativo, a data e o que vem depois ficam escondidos até a revelação."
+      },
+      "ChallengeRevealDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "title": "End"
+          },
+          "bars": {
+            "items": {
+              "$ref": "#/components/schemas/CandleBarDTO"
+            },
+            "type": "array",
+            "title": "Bars"
+          },
+          "bars_after": {
+            "items": {
+              "$ref": "#/components/schemas/CandleBarDTO"
+            },
+            "type": "array",
+            "title": "Bars After"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/ChallengeOutcome"
+          },
+          "change": {
+            "type": "number",
+            "title": "Change"
+          },
+          "votes": {
+            "items": {
+              "$ref": "#/components/schemas/ChallengeVoteDTO"
+            },
+            "type": "array",
+            "title": "Votes"
+          },
+          "remaining_ms": {
+            "type": "integer",
+            "title": "Remaining Ms"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "title": "Duration Ms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "start",
+          "end",
+          "bars",
+          "bars_after",
+          "outcome",
+          "change",
+          "votes",
+          "remaining_ms",
+          "duration_ms"
+        ],
+        "title": "ChallengeRevealDTO"
       },
       "ChallengeStatus": {
         "type": "string",
         "enum": [
-          "waiting",
-          "hit",
-          "miss",
-          "void",
-          "expired"
+          "idle",
+          "running",
+          "finished"
         ]
+      },
+      "ChallengeVoteDTO": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "direction": {
+            "$ref": "#/components/schemas/ChallengeDirection"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "direction"
+        ],
+        "title": "ChallengeVoteDTO"
+      },
+      "ChallengeWinsDTO": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "wins": {
+            "type": "integer",
+            "title": "Wins"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "wins"
+        ],
+        "title": "ChallengeWinsDTO"
       },
       "ClosingDTO": {
         "properties": {
@@ -19912,37 +20265,6 @@
         "title": "NotificationSettings",
         "description": "Onde o jornal aparece, o nível de cada tipo de manchete e quais avisos sobem."
       },
-      "OpenChallengeDTO": {
-        "properties": {
-          "pattern_code": {
-            "$ref": "#/components/schemas/CandlePatternCode"
-          },
-          "pattern_date": {
-            "type": "string",
-            "format": "date",
-            "title": "Pattern Date"
-          },
-          "price": {
-            "type": "number",
-            "title": "Price"
-          },
-          "settles_on": {
-            "type": "string",
-            "format": "date",
-            "title": "Settles On"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "pattern_code",
-          "pattern_date",
-          "price",
-          "settles_on"
-        ],
-        "title": "OpenChallengeDTO",
-        "description": "A pergunta de hoje: o padrão que fechou no último pregão e ainda não foi respondido."
-      },
       "OperationsReportDTO": {
         "properties": {
           "player_grouping": {
@@ -23994,6 +24316,12 @@
           },
           "strategy_orders": {
             "$ref": "#/components/schemas/StrategyOrdersEventDTO"
+          },
+          "candle_challenge_state": {
+            "$ref": "#/components/schemas/CandleChallengeStateDTO"
+          },
+          "candle_challenge_notice": {
+            "$ref": "#/components/schemas/ChallengeNoticeEventDTO"
           }
         },
         "additionalProperties": false,
@@ -24044,7 +24372,9 @@
           "credit_loan_paid_off",
           "government_update",
           "strategy_update",
-          "strategy_orders"
+          "strategy_orders",
+          "candle_challenge_state",
+          "candle_challenge_notice"
         ],
         "title": "RealtimeEventCatalog",
         "description": "Um campo por nome de evento realtime, tipado para o DTO do payload\ncorrespondente. Nunca é instanciado de verdade — só existe para que seu\nschema apareça em `/openapi.json` via a rota dev-only em `routes/realtime.py`."

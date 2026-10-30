@@ -7,6 +7,7 @@ from socketio import AsyncServer
 from backend.core.enum import PlayerActivity
 from backend.core.metrics import metrics
 from backend.core.runtime.user_manager import UserManager
+from backend.features.candle_challenge.game import candle_game
 from backend.features.realtime import get_socket_broker
 
 logger = logging.getLogger(__name__)
@@ -50,7 +51,10 @@ def register_ws_handlers(sio: AsyncServer):
         # O jogador sai da sala quando fecha a última aba: as outras seguem com ele dentro,
         # e o selo passa a ser o dessas
         if broker.remove_client(client_id, sid):
+            user = UserManager.get_user(client_id)
             UserManager.unregister(client_id)
+            if user is not None:
+                candle_game.leave(user.id)
             logger.debug("Cliente WS desconectado: %s (sid=%s)", client_id, sid)
         else:
             UserManager.drop_activity(client_id, sid)

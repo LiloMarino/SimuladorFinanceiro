@@ -290,7 +290,7 @@ Ajudas da interface que já dão a resposta. Ligar o **Modo Especialista** escon
 * **Modo Especialista:** o interruptor esconde todas as ajudas de uma vez. Em **Ajustar uma a uma**, cada ajuda tem o próprio interruptor; com só parte delas escondida, o modo aparece como **Personalizado**
 * **Esconder taxa equivalente:** some a coluna e o card **Equivale hoje** (a taxa por ano de cada título, já combinada com CDI e IPCA do dia). A lista de [Renda fixa](./investimentos/renda-fixa) passa a ser ordenada por vencimento
 * **Esconder projeção no vencimento:** some o bloco **Quanto R$ X viram no vencimento** e o **Resgate líquido** da boleta de investimento. Ficam a rentabilidade, o vencimento, o IR e a tabela de IR por prazo
-* **Esconder dicas de análise técnica:** somem os [padrões de vela](./investimentos/analise-tecnica#padrões-de-vela), o desafio da vela, as legendas dos indicadores e o cartão do fim da partida. Ficam o gráfico, os indicadores e o Resumo técnico
+* **Esconder dicas de análise técnica:** somem os [padrões de vela](./investimentos/analise-tecnica#padrões-de-vela) e as legendas dos indicadores. O [desafio da vela](#desafio-da-vela) do lobby não é ajuda de partida e continua disponível. Ficam o gráfico, os indicadores e o Resumo técnico
 
 Durante a partida, o menu lateral mostra o selo **Especialista** sob o nome da partida. Os números escondidos não saem do servidor, então abrir as ferramentas do navegador não os revela. As ajudas ficam gravadas na simulação, que é retomada com a mesma configuração.
 
@@ -347,9 +347,23 @@ O card **Central de dados** importa ações e atualiza os indicadores. Ver [Impo
 
 ---
 
+### Desafio da vela
+
+Um minijogo de **sobe ou desce?** para jogar com a sala enquanto a partida não começa. O cartão **Desafio da vela**, entre o cabeçalho e as colunas, deixa qualquer jogador **Começar**; os outros recebem o convite **Entrar** (ou **Agora não**).
+
+- **A pergunta:** um recorte de 30 velas de um ativo e uma época sorteados da base, que termina num padrão de vela com lado (o doji fica fora). Ativo, data e escala de preço ficam escondidos: o eixo mostra quanto o preço andou, em %, desde a primeira vela. Passar o mouse no nome do padrão abre o desenho, o que ele significa e quantas vezes acertou na base.
+- **A rodada:** 10 perguntas, cada uma aberta por uns 8 segundos. Dá para trocar a resposta até fechar, com os botões **▲ Sobe** e **▼ Desce** ou as teclas ↑ e ↓. Durante a pergunta o placar só mostra quem já respondeu; ao fechar, as 5 velas seguintes entram no gráfico, o resultado aparece em palavras, o ativo e a data são revelados e cada voto surge no placar.
+- **Pontos:** 1 por acerto. Preço igual ao do padrão anula a pergunta, que não conta entre as 10. Quem não responde não perde ponto, mas a pergunta conta no total dele. No fim, o pódio, a tabela com o acerto de cada pergunta e as vitórias da sala; empate divide a vitória. **Jogar de novo** vale para qualquer um.
+- **Entrar no meio:** quem chega com a pergunta aberta assiste e joga a partir da próxima.
+- **Minimizar:** a janela recolhe num cartão no canto, onde ainda dá para responder. O host precisa minimizá-la para configurar a partida.
+- **Sozinho na sala:** o desafio vira treino, com a sequência de acertos e o recorde.
+- **Iniciar a partida:** com um desafio rolando, o host vê um aviso ao lado do botão. Iniciar mesmo assim encerra a rodada sem vencedor, e os acertos já feitos contam para as conquistas.
+
+---
+
 ### Conquistas
 
-O botão **Conquistas** do cabeçalho abre a lista de [Conquistas](./conquistas), com o total já desbloqueado.
+O botão **Conquistas** do cabeçalho abre a lista de [Conquistas](./conquistas), com o total já desbloqueado. **Primeira leitura** (1 acerto) e **Leitor de velas** (10 acertos) contam os acertos do desafio da vela, somando todas as rodadas do lobby e as respostas que você já tinha gravadas em partidas.
 
 ---
 

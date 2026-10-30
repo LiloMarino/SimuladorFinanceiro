@@ -55,6 +55,8 @@ export type SimulationEvents = {
   government_update: RealtimeEventCatalog["government_update"];
   strategy_update: RealtimeEventCatalog["strategy_update"];
   strategy_orders: RealtimeEventCatalog["strategy_orders"];
+  candle_challenge_state: RealtimeEventCatalog["candle_challenge_state"];
+  candle_challenge_notice: RealtimeEventCatalog["candle_challenge_notice"];
   backtest_started: RealtimeEventCatalog["backtest_started"];
   backtest_progress: RealtimeEventCatalog["backtest_progress"];
   backtest_ended: RealtimeEventCatalog["backtest_ended"];

@@ -157,12 +157,7 @@ Embaixo do gráfico, a seção **Padrões neste período** lista cada padrão co
 
 ### Desafio da vela
 
-Quando um padrão com lado aparece no último pregão, uma faixa acima do gráfico pergunta **sobe ou desce?** até o fechamento do 5º pregão seguinte. Você responde com **▲ Sobe** ou **▼ Desce**, e a resposta vale até o pregão seguinte: sem resposta, o desafio passa e não conta.
-
-- **Acertou ou errou:** o resultado sai no fechamento do 5º pregão. Preço igual ao do padrão anula a pergunta.
-- **Placar:** a faixa mostra "acertos de respostas" na partida. O doji não gera desafio.
-- **Fim da partida:** o cartão **Desafio da vela** lista quem mais acertou. Ele não entra na nota nem no ranking.
-- **Conquistas:** **Primeira leitura** (1 acerto) e **Leitor de velas** (10 acertos).
+O desafio da vela virou um minijogo do [lobby](../lobby#desafio-da-vela), para jogar enquanto a partida não começa. Dentro da partida ficam os marcadores de padrão, o card **E se ele acertou?** e a lista de padrões.
 
 ## Legendas nos indicadores
 
