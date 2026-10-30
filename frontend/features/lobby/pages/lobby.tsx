@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { ErrorState } from "@/shared/components/error-state";
+import { CandleChallenge } from "@/features/candle-challenge/components/candle-challenge";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
@@ -73,6 +74,8 @@ function LobbyContent({ settings }: { settings: SimulationSettings }) {
       <LobbyHeader isHost={settings.is_host} hostNickname={settings.host_nickname} />
 
       <BacktestBanner />
+
+      <CandleChallenge />
 
       <div className="grid items-start gap-5 lg:grid-cols-[1.25fr_1fr]">
         <LobbyPlayersList

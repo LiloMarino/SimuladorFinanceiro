@@ -1,4 +1,6 @@
 from collections.abc import Callable
+from datetime import UTC, datetime
+from decimal import Decimal
 from functools import cache
 
 from backend.core import repository
@@ -112,6 +114,30 @@ class AchievementEvaluator:
         if user_id not in self._unlocked:
             self._unlocked[user_id] = repository.achievements.unlocked_codes(user_id)
         return self._unlocked[user_id]
+
+
+def unlock_from_lobby(user_id: int) -> list[Achievement]:
+    """
+    Avalia as conquistas do desafio da vela, que se ganham no lobby, fora de uma partida:
+    o progresso é guardado e só as que ainda estavam bloqueadas e chegaram à meta saem.
+    """
+    hits = Decimal(repository.candle_challenge.total_hits(user_id))
+    unlocked = repository.achievements.unlocked_codes(user_id)
+    locked = [
+        a
+        for a in CATALOG
+        if a.metric == "candle_challenge_hits" and a.code not in unlocked
+    ]
+    repository.achievements.save_progress(
+        user_id, {a.code: hits for a in locked if a.unit is not None}
+    )
+    new_codes = repository.achievements.unlock(
+        user_id,
+        [a.code for a in locked if hits >= a.goal],
+        None,
+        datetime.now(UTC).date(),
+    )
+    return [a for a in locked if a.code in new_codes]
 
 
 def match_result(

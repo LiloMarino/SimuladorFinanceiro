@@ -4,8 +4,6 @@ import { StockChart } from "./stock-chart";
 import { TechnicalSummary } from "./technical-summary";
 import { useStockIndicators } from "../hooks/queries/useStockIndicators";
 import { useUpdateIndicatorSettings } from "../hooks/mutations/useUpdateIndicatorSettings";
-import { useAnswerCandleChallenge } from "../hooks/mutations/useAnswerCandleChallenge";
-import { useCandleChallenge } from "../hooks/queries/useCandleChallenge";
 import { useCandlePatterns } from "../hooks/queries/useCandlePatterns";
 
 interface StockAnalysisProps {
@@ -20,11 +18,9 @@ export function StockAnalysis({ ticker, history, settings }: StockAnalysisProps)
   const updateSettings = useUpdateIndicatorSettings();
   const retry = () => void indicators.refetch();
 
-  // Com a ajuda desligada (Especialista) o gráfico nem pede padrões nem desafio
+  // Com a ajuda desligada (Especialista) o gráfico nem pede padrões
   const hintsOn = useSimulation().simulation?.simulation?.show_chart_hints ?? true;
   const patterns = useCandlePatterns(ticker, { enabled: hintsOn });
-  const challenge = useCandleChallenge(ticker, { enabled: hintsOn });
-  const answer = useAnswerCandleChallenge(ticker);
 
   return (
     <>
@@ -42,9 +38,6 @@ export function StockAnalysis({ ticker, history, settings }: StockAnalysisProps)
                 patterns: patterns.data,
                 patternsStatus: patterns.status,
                 onRetryPatterns: () => void patterns.refetch(),
-                challenge: challenge.data,
-                answering: answer.isPending,
-                onAnswer: (direction) => answer.mutate(direction),
               }
             : null
         }

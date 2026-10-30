@@ -8,6 +8,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from backend.routes.achievements import achievements_router
 from backend.routes.auth import auth_router
 from backend.routes.backtest import backtest_router
+from backend.routes.candle_challenge import candle_challenge_router
 from backend.routes.correlation import correlation_router
 from backend.routes.credit import credit_router
 from backend.routes.debug import debug_router
@@ -60,6 +61,7 @@ def register_routes(app: FastAPI):
     app.include_router(government_router, responses=ERROR_RESPONSES)
     app.include_router(strategy_router, responses=ERROR_RESPONSES)
     app.include_router(simulation_router, responses=ERROR_RESPONSES)
+    app.include_router(candle_challenge_router, responses=ERROR_RESPONSES)
     app.include_router(backtest_router, responses=ERROR_RESPONSES)
     app.include_router(presets_router, responses=ERROR_RESPONSES)
     app.include_router(tunnel_router, responses=ERROR_RESPONSES)

@@ -14,6 +14,7 @@ from backend.core.indicators import ensure_indicator_coverage
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
+from backend.features.candle_challenge.game import candle_game
 from backend.features.realtime import notify
 from backend.features.simulation.saved_simulation import (
     is_finished,
@@ -70,6 +71,8 @@ class SimulationLoader:
         for bot, config in bots:
             sim.set_my_strategy(bot, config.strategy_key, config.params)
         SettingsManager.clear()
+        # A partida começa: o desafio da vela do lobby, se rolava, é descartado
+        candle_game.abort()
         simulation_controller.start()
         notify(
             "simulation_started",
@@ -133,10 +136,9 @@ class SimulationLoader:
         UserManager.release_saved_colors()
         UserManager.release_room_teams()
 
-        # O registro das estratégias e as respostas do desafio da vela voltam ao último dia processado, como os eventos
+        # O registro das estratégias volta ao último dia processado, como os eventos
         if resume_from is not None:
             repository.strategy.rewind(summary.id, resume_from)
-            repository.candle_challenge.rewind(summary.id, resume_from)
 
         SimulationManager.clear_simulation()
         SimulationManager.set_simulation_id(summary.id)
@@ -150,6 +152,8 @@ class SimulationLoader:
         repository.simulation.touch_last_simulated(summary.id)
         SimulationManager.register_simulation(sim)
         SettingsManager.clear()
+        # A partida começa: o desafio da vela do lobby, se rolava, é descartado
+        candle_game.abort()
         simulation_controller.start()
         notify(
             "simulation_started",

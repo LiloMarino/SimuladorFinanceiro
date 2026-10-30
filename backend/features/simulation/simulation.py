@@ -9,8 +9,6 @@ from functools import wraps
 from typing import Concatenate, ParamSpec, TypeVar
 from uuid import UUID
 
-import pandas as pd
-
 from backend import config
 from backend.core import repository
 from backend.core.dto.budget import BudgetDTO
@@ -96,7 +94,6 @@ from backend.features.achievements.evaluator import (
     unlocked_event,
 )
 from backend.features.backtest.progress import BacktestProgress
-from backend.features.candle_challenge import service as candle_challenge
 from backend.features.credit.overview import (
     build_overview,
     build_prepayment_preview,
@@ -163,7 +160,6 @@ from backend.features.statistics.report import build_overview_report
 from backend.features.strategy.runner import StrategyRunner
 from backend.features.summaries.service import SummaryDelivery
 from backend.features.tax_policy import TaxPolicy
-from backend.features.technical_analysis.summary import price_frame
 from backend.features.variable_income.entities.order import MarketOrder, Order
 from backend.features.variable_income.price_impact import PriceImpact
 
@@ -944,8 +940,6 @@ class Simulation:
             self._record_backtest_day(users, month_changed)
             return
 
-        # As respostas do desafio da vela já conferem antes do snapshot e das conquistas do dia
-        self._settle_candle_challenges()
         snapshots = self._create_daily_snapshots(users, month_changed)
 
         # Emite notificações
@@ -1001,23 +995,6 @@ class Simulation:
             self._newsroom.on_tick(self._current_date, stocks)
         except Exception:
             logger.exception("Erro ao montar o noticiário do pregão")
-
-    def _settle_candle_challenges(self) -> None:
-        """
-        Confere as respostas que chegaram ao 5º pregão depois do padrão. O desafio é
-        um extra: um erro ao conferir não interrompe a partida.
-        """
-        if not self.settings.show_chart_hints:
-            return
-        try:
-            candle_challenge.settle(self.settings.id, self._price_frame)
-        except Exception:
-            logger.exception("Erro ao conferir o desafio da vela")
-
-    def _price_frame(self, ticker: str) -> pd.DataFrame | None:
-        """O histórico do ativo até hoje, com o impacto de preço, como o gráfico o vê."""
-        details = self.get_stock_details(ticker)
-        return price_frame(details.history) if details else None
 
     def _record_backtest_day(self, users: list[UserDTO], month_changed: bool) -> None:
         """

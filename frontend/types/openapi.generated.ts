@@ -84,30 +84,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/variable-income/{asset}/challenge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Desafio da vela de um ativo
-         * @description A pergunta de hoje (um padrão de vela que fechou no último pregão e ainda não foi respondido), a última resposta do jogador nesse ativo e o placar dele na partida. Recusa quando as dicas de análise técnica estão desligadas.
-         */
-        get: operations["get_candle_challenge_api_variable_income__asset__challenge_get"];
-        put?: never;
-        /**
-         * Responder ao desafio da vela
-         * @description Grava a resposta (sobe ou desce) ao padrão de hoje. Só vale enquanto o último pregão for o do padrão, uma vez por padrão; a conferência vem no fechamento do 5º pregão depois dele.
-         */
-        post: operations["answer_candle_challenge_api_variable_income__asset__challenge_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/variable-income/{asset}/orders": {
         parameters: {
             query?: never;
@@ -1044,26 +1020,6 @@ export interface paths {
          * @description Quem teve o maior retorno, a menor queda, mais negócios e mais IR pago, e o melhor mês de quem pede.
          */
         get: operations["get_highlights_api_statistics_highlights_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/statistics/candle-challenge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Estatísticas: desafio da vela
-         * @description Quem mais acertou o desafio da vela nas simulações informadas. Conta só as respostas já conferidas; no empate de acertos, vence a maior taxa de acerto.
-         */
-        get: operations["get_candle_challenge_ranking_api_statistics_candle_challenge_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2820,6 +2776,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/candle-challenge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Desafio da vela da sala
+         * @description O estado do desafio da vela do lobby: a pergunta aberta ou a revelação, o placar da rodada e a resposta de quem pergunta à pergunta aberta.
+         */
+        get: operations["get_candle_challenge_api_candle_challenge_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/candle-challenge/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Começar o desafio da vela
+         * @description Abre uma rodada de 10 perguntas com quem pediu; os outros jogadores da sala recebem o convite. Vale também para jogar de novo depois do fim.
+         */
+        post: operations["start_candle_challenge_api_candle_challenge_start_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/candle-challenge/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Entrar no desafio da vela
+         * @description Entra na rodada em andamento; quem entra joga a partir da próxima pergunta.
+         */
+        post: operations["join_candle_challenge_api_candle_challenge_join_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/candle-challenge/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Responder ao desafio da vela
+         * @description Grava sobe ou desce; dá para trocar a resposta até a pergunta fechar.
+         */
+        post: operations["answer_candle_challenge_api_candle_challenge_answer_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/candle-challenge/leave": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sair do desafio da vela
+         * @description Sai da rodada; quando não sobra ninguém, ela termina.
+         */
+        post: operations["leave_candle_challenge_api_candle_challenge_leave_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/backtest/setup": {
         parameters: {
             query?: never;
@@ -4243,19 +4299,58 @@ export interface components {
             /** Order Id */
             order_id: string;
         };
-        /** CandleChallengeDTO */
-        CandleChallengeDTO: {
-            open: components["schemas"]["OpenChallengeDTO"] | null;
-            last: components["schemas"]["ChallengeAnswerDTO"] | null;
-            score: components["schemas"]["ChallengeScoreDTO"];
+        /**
+         * CandleBarDTO
+         * @description Uma vela em % desde a abertura da primeira vela do recorte: a escala de preço não aparece.
+         */
+        CandleBarDTO: {
+            /** Open */
+            open: number;
+            /** High */
+            high: number;
+            /** Low */
+            low: number;
+            /** Close */
+            close: number;
         };
         /**
-         * CandleChallengeRankingDTO
-         * @description O placar da partida, por acertos; no empate decide o percentual de acerto.
+         * CandleChallengeStateDTO
+         * @description O que a sala vê; o lado de cada resposta só aparece na revelação.
          */
-        CandleChallengeRankingDTO: {
+        CandleChallengeStateDTO: {
+            status: components["schemas"]["ChallengeStatus"];
+            phase: components["schemas"]["ChallengePhase"] | null;
+            /** Round Id */
+            round_id: number;
+            /** Starter */
+            starter: string | null;
+            /** Solo */
+            solo: boolean;
+            /** Number */
+            number: number;
+            /** Total */
+            total: number;
+            question: components["schemas"]["ChallengeQuestionDTO"] | null;
+            reveal: components["schemas"]["ChallengeRevealDTO"] | null;
             /** Players */
-            players: components["schemas"]["ChallengeRankEntryDTO"][];
+            players: components["schemas"]["ChallengePlayerDTO"][];
+            final: components["schemas"]["ChallengeFinalDTO"] | null;
+            /** Wins */
+            wins: components["schemas"]["ChallengeWinsDTO"][];
+            /** Rounds */
+            rounds: number;
+            /** Streak */
+            streak: number;
+            /** Record */
+            record: number;
+        };
+        /**
+         * CandleChallengeViewDTO
+         * @description O estado da sala visto por quem pergunta, com a resposta dele à pergunta aberta.
+         */
+        CandleChallengeViewDTO: {
+            state: components["schemas"]["CandleChallengeStateDTO"];
+            direction: components["schemas"]["ChallengeDirection"] | null;
         };
         /** CandleDTO */
         CandleDTO: {
@@ -4327,56 +4422,116 @@ export interface components {
             /** Cash */
             cash: string;
         };
-        /** ChallengeAnswerDTO */
-        ChallengeAnswerDTO: {
-            pattern_code: components["schemas"]["CandlePatternCode"];
-            /**
-             * Pattern Date
-             * Format: date
-             */
-            pattern_date: string;
-            status: components["schemas"]["ChallengeStatus"];
-            direction: components["schemas"]["ChallengeDirection"] | null;
-            /** Price */
-            price: number;
-            /**
-             * Settles On
-             * Format: date
-             */
-            settles_on: string;
-            /** Sessions Left */
-            sessions_left: number | null;
-            /** Current Price */
-            current_price: number | null;
-            /** Change */
-            change: number | null;
-            stats: components["schemas"]["PatternStatsDTO"];
-        };
         /** @enum {string} */
         ChallengeDirection: "up" | "down";
-        /** ChallengeRankEntryDTO */
-        ChallengeRankEntryDTO: {
-            /** Position */
-            position: number;
-            /** Player Nickname */
-            player_nickname: string;
-            /** Hits */
-            hits: number;
-            /** Answered */
-            answered: number;
-        };
-        /**
-         * ChallengeScoreDTO
-         * @description Acertos entre as respostas já conferidas; as anuladas e as que esperam ficam fora.
-         */
-        ChallengeScoreDTO: {
-            /** Hits */
-            hits: number;
-            /** Answered */
-            answered: number;
+        /** ChallengeFinalDTO */
+        ChallengeFinalDTO: {
+            /** Winners */
+            winners: string[];
+            /** Best Streak */
+            best_streak: number;
+            /** New Record */
+            new_record: boolean;
+            /** Previous Record */
+            previous_record: number;
+            /** Previous Record On */
+            previous_record_on: string | null;
         };
         /** @enum {string} */
-        ChallengeStatus: "waiting" | "hit" | "miss" | "void" | "expired";
+        ChallengeMark: "hit" | "miss" | "none";
+        /** ChallengeNoticeEventDTO */
+        ChallengeNoticeEventDTO: {
+            kind: components["schemas"]["ChallengeNoticeKind"];
+            /** Nickname */
+            nickname: string | null;
+            /** Number */
+            number: number | null;
+        };
+        /** @enum {string} */
+        ChallengeNoticeKind: "joined" | "ended_by_match" | "unavailable";
+        /** @enum {string} */
+        ChallengeOutcome: "up" | "down" | "void";
+        /** @enum {string} */
+        ChallengePhase: "loading" | "question" | "reveal";
+        /** ChallengePlayerDTO */
+        ChallengePlayerDTO: {
+            /** Nickname */
+            nickname: string;
+            /** Color */
+            color: string;
+            /** Position */
+            position: number;
+            /** Hits */
+            hits: number;
+            /** Answered */
+            answered: number;
+            /** Joined At */
+            joined_at: number;
+            /** Replied */
+            replied: boolean;
+            last: components["schemas"]["ChallengeMark"] | null;
+            /** Marks */
+            marks: (components["schemas"]["ChallengeMark"] | null)[];
+        };
+        /**
+         * ChallengeQuestionDTO
+         * @description A pergunta aberta: o ativo, a data e o que vem depois ficam escondidos até a revelação.
+         */
+        ChallengeQuestionDTO: {
+            /** Id */
+            id: number;
+            pattern_code: components["schemas"]["CandlePatternCode"];
+            /** Bars */
+            bars: components["schemas"]["CandleBarDTO"][];
+            stats: components["schemas"]["PatternStatsDTO"];
+            /** Remaining Ms */
+            remaining_ms: number;
+            /** Duration Ms */
+            duration_ms: number;
+        };
+        /** ChallengeRevealDTO */
+        ChallengeRevealDTO: {
+            /** Ticker */
+            ticker: string;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Bars */
+            bars: components["schemas"]["CandleBarDTO"][];
+            /** Bars After */
+            bars_after: components["schemas"]["CandleBarDTO"][];
+            outcome: components["schemas"]["ChallengeOutcome"];
+            /** Change */
+            change: number;
+            /** Votes */
+            votes: components["schemas"]["ChallengeVoteDTO"][];
+            /** Remaining Ms */
+            remaining_ms: number;
+            /** Duration Ms */
+            duration_ms: number;
+        };
+        /** @enum {string} */
+        ChallengeStatus: "idle" | "running" | "finished";
+        /** ChallengeVoteDTO */
+        ChallengeVoteDTO: {
+            /** Nickname */
+            nickname: string;
+            direction: components["schemas"]["ChallengeDirection"];
+        };
+        /** ChallengeWinsDTO */
+        ChallengeWinsDTO: {
+            /** Nickname */
+            nickname: string;
+            /** Wins */
+            wins: number;
+        };
         /**
          * ClosingDTO
          * @description O que o último fechamento fez com o apoio e a rejeição do partido do presidente.
@@ -7016,25 +7171,6 @@ export interface components {
                 [key: string]: boolean;
             };
         };
-        /**
-         * OpenChallengeDTO
-         * @description A pergunta de hoje: o padrão que fechou no último pregão e ainda não foi respondido.
-         */
-        OpenChallengeDTO: {
-            pattern_code: components["schemas"]["CandlePatternCode"];
-            /**
-             * Pattern Date
-             * Format: date
-             */
-            pattern_date: string;
-            /** Price */
-            price: number;
-            /**
-             * Settles On
-             * Format: date
-             */
-            settles_on: string;
-        };
         /** OperationsReportDTO */
         OperationsReportDTO: {
             player_grouping: components["schemas"]["PlayerGrouping"];
@@ -8411,6 +8547,8 @@ export interface components {
             government_update: components["schemas"]["GovernmentUpdateEventDTO"];
             strategy_update: components["schemas"]["StrategyUpdateEventDTO"];
             strategy_orders: components["schemas"]["StrategyOrdersEventDTO"];
+            candle_challenge_state: components["schemas"]["CandleChallengeStateDTO"];
+            candle_challenge_notice: components["schemas"]["ChallengeNoticeEventDTO"];
         };
         /** RedeemFixedIncomeRequest */
         RedeemFixedIncomeRequest: {
@@ -10661,90 +10799,6 @@ export interface operations {
             };
         };
     };
-    get_candle_challenge_api_variable_income__asset__challenge_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                asset: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CandleChallengeDTO"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ValidationErrorResponse"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    answer_candle_challenge_api_variable_income__asset__challenge_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                asset: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AnswerChallengeRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CandleChallengeDTO"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ValidationErrorResponse"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
     list_order_book_api_variable_income__asset__orders_get: {
         parameters: {
             query?: never;
@@ -12785,46 +12839,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HighlightsDTO"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ValidationErrorResponse"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    get_candle_challenge_ranking_api_statistics_candle_challenge_get: {
-        parameters: {
-            query: {
-                simulation_ids: number[];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CandleChallengeRankingDTO"];
                 };
             };
             /** @description Unprocessable Content */
@@ -16478,6 +16492,192 @@ export interface operations {
                 "application/json": components["schemas"]["JoinMatchRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_candle_challenge_api_candle_challenge_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandleChallengeViewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    start_candle_challenge_api_candle_challenge_start_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    join_candle_challenge_api_candle_challenge_join_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    answer_candle_challenge_api_candle_challenge_answer_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnswerChallengeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    leave_candle_challenge_api_candle_challenge_leave_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             204: {

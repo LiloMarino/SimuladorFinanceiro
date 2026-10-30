@@ -843,45 +843,29 @@ class StrategyLog(Base):
     detail: Mapped[str | None] = mapped_column(Text)
 
 
-class CandleChallenges(Base):
-    __tablename__ = "candle_challenges"
+class CandleChallengeStats(Base):
+    """Os acertos do jogador no desafio da vela do lobby e a maior sequência dele."""
+
+    __tablename__ = "candle_challenge_stats"
     __table_args__ = (
-        ForeignKeyConstraint(
-            ["simulation_id"],
-            ["simulations.id"],
-            ondelete="CASCADE",
-            onupdate="CASCADE",
-            name="candle_challenges_simulation_id_fkey",
-        ),
         ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],
             ondelete="CASCADE",
             onupdate="CASCADE",
-            name="candle_challenges_user_id_fkey",
+            name="candle_challenge_stats_user_id_fkey",
         ),
-        PrimaryKeyConstraint(
-            "simulation_id",
-            "user_id",
-            "ticker",
-            "pattern_date",
-            name="candle_challenges_pkey",
-        ),
-        Index("candle_challenges_open_idx", "simulation_id", "result"),
+        PrimaryKeyConstraint("user_id", name="candle_challenge_stats_pkey"),
     )
 
-    simulation_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    ticker: Mapped[str] = mapped_column(Text, primary_key=True)
-    # Último dia do padrão: a pergunta vale até o pregão seguinte a ele
-    pattern_date: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
-    pattern_code: Mapped[str] = mapped_column(Text, nullable=False)
-    # O que o jogador respondeu: up ou down
-    direction: Mapped[str] = mapped_column(Text, nullable=False)
-    answered_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)
-    # hit, miss ou void; nulo enquanto espera o 5º pregão depois do padrão
-    result: Mapped[str | None] = mapped_column(Text)
-    settled_on: Mapped[datetime.date | None] = mapped_column(Date)
+    # Total de acertos, somando todas as rodadas
+    hits: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    # A maior sequência de acertos seguidos numa rodada e o dia em que ela saiu
+    best_streak: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default=text("0")
+    )
+    best_streak_on: Mapped[datetime.date | None] = mapped_column(Date)
 
 
 class Snapshots(Base):

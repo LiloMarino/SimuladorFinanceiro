@@ -357,3 +357,55 @@ def test_summaries_keep_their_rows_after_the_rename(
     assert schema_diff(engine) == []
     columns = {column["name"] for column in inspect(engine).get_columns("summaries")}
     assert "read" not in columns
+
+
+BEFORE_LOBBY_CHALLENGE = "e9b4c6d8f0a2"
+
+
+def test_hits_in_matches_become_the_lobby_total(pg_url: str, engine: Engine) -> None:
+    """Quem já acertou desafios nas partidas não perde o progresso: o total é o de acertos."""
+    alembic = alembic_config(pg_url)
+    command.upgrade(alembic, BEFORE_LOBBY_CHALLENGE)
+    answers = [("hit", 1), ("hit", 1), ("miss", 1), ("void", 1), ("hit", 2)]
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "INSERT INTO users (client_id, nickname, created_at) "
+                "VALUES (gen_random_uuid(), 'Ana', now()), (gen_random_uuid(), 'Bia', now())"
+            )
+        )
+        connection.execute(
+            text(
+                "INSERT INTO simulations (name, rules, random_seed, created_at, "
+                "last_simulated_at) VALUES ('Partida', CAST(:rules AS jsonb), 7, now(), now())"
+            ),
+            {"rules": json.dumps(encode_rules(simulation_settings()))},
+        )
+        for day, (result, user) in enumerate(answers, start=1):
+            connection.execute(
+                text(
+                    "INSERT INTO candle_challenges (simulation_id, user_id, ticker, "
+                    "pattern_date, pattern_code, direction, answered_on, result) "
+                    "SELECT s.id, u.id, 'PETR4', make_date(2024, 1, :day), 'hammer', 'up', "
+                    "make_date(2024, 1, :day), :result FROM simulations s, users u "
+                    "WHERE u.nickname = :nickname"
+                ),
+                {
+                    "day": day,
+                    "result": result,
+                    "nickname": "Ana" if user == 1 else "Bia",
+                },
+            )
+
+    command.upgrade(alembic, "head")
+
+    with engine.connect() as connection:
+        totals = dict(
+            connection.execute(
+                text(
+                    "SELECT u.nickname, c.hits FROM candle_challenge_stats c "
+                    "JOIN users u ON u.id = c.user_id"
+                )
+            ).all()
+        )
+    assert totals == {"Ana": 2, "Bia": 1}

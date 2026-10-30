@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
-import type { CandlePattern, ChallengeAnswer } from "@/types";
+import type { CandlePattern } from "@/types";
 import {
   displayPatternDays,
   hitRate,
-  isAnswerFresh,
   nextScaleWithPatterns,
   patternOn,
   patternsSince,
@@ -55,13 +54,5 @@ describe("pattern view", () => {
     expect(displayPatternDays({ start: "2024-01-14", end: "2024-01-14" })).toBe("14 jan");
     expect(displayPatternDays({ start: "2023-12-26", end: "2023-12-27" })).toBe("26–27 dez");
     expect(displayPatternDays({ start: "2023-12-29", end: "2024-01-02" })).toBe("29 dez – 02 jan");
-  });
-
-  it("mantém na faixa a resposta que espera e a conferida há pouco", () => {
-    const answer = (status: ChallengeAnswer["status"], settles_on: string) =>
-      ({ status, settles_on }) as ChallengeAnswer;
-    expect(isAnswerFresh(answer("waiting", "2024-03-21"), "2024-03-14")).toBe(true);
-    expect(isAnswerFresh(answer("hit", "2024-03-21"), "2024-03-25")).toBe(true);
-    expect(isAnswerFresh(answer("hit", "2024-03-21"), "2024-04-30")).toBe(false);
   });
 });

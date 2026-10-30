@@ -36,6 +36,8 @@ import type {
   TeamNaming,
   VictoryCriterion,
 } from "@/types";
+import { ChallengeStartWarning } from "@/features/candle-challenge/components/challenge-start-warning";
+import { useRunningChallenge } from "@/features/candle-challenge/hooks/queries/useRunningChallenge";
 import { useContinueSimulation } from "../hooks/mutations/useContinueSimulation";
 import { useCreateSimulation } from "../hooks/mutations/useCreateSimulation";
 import { useDistributeTeams } from "../hooks/mutations/useDistributeTeams";
@@ -260,6 +262,8 @@ export function LobbyMatch({
   const inTeams = (selectedSimulation?.player_grouping ?? values.playerGrouping) === "TEAMS";
   const teams = checkTeams(roomPlayers ?? [], savedPlayers, selectedSimulation?.team_naming ?? values.teamNaming);
   const teamsBlock = inTeams && !teams.ready;
+  // Iniciar a partida encerra o desafio da vela que estiver rolando; o host é avisado antes
+  const challengeQuestion = useRunningChallenge();
   const canStart = isHost && !busy && !backtestRunning && !blockedByCoverage && form.formState.isValid && !teamsBlock;
 
   // Com partida selecionada o card mostra as regras dela, em só leitura; sem seleção, as da nova partida
@@ -538,15 +542,24 @@ export function LobbyMatch({
             {isHost ? (
               selectedSimulation ? (
                 <div className="grid gap-2">
-                  <Button
-                    size="xl"
-                    className="min-w-0"
-                    disabled={busy || teamsBlock || backtestRunning}
-                    onClick={() => continueSimulation()}
-                  >
-                    {continuing ? <Spinner /> : <Play />}
-                    <span className="min-w-0 truncate">Continuar {selectedSimulation.name}</span>
-                  </Button>
+                  {challengeQuestion !== null ? (
+                    <ChallengeStartWarning
+                      question={challengeQuestion}
+                      pending={continuing}
+                      disabled={busy || teamsBlock || backtestRunning}
+                      onConfirm={() => continueSimulation()}
+                    />
+                  ) : (
+                    <Button
+                      size="xl"
+                      className="min-w-0"
+                      disabled={busy || teamsBlock || backtestRunning}
+                      onClick={() => continueSimulation()}
+                    >
+                      {continuing ? <Spinner /> : <Play />}
+                      <span className="min-w-0 truncate">Continuar {selectedSimulation.name}</span>
+                    </Button>
+                  )}
                   <Button variant="outline" disabled={busy} onClick={onOpenSaved}>
                     <RefreshCw />
                     Trocar partida
@@ -554,10 +567,19 @@ export function LobbyMatch({
                 </div>
               ) : (
                 <>
-                  <Button size="xl" disabled={!canStart} onClick={() => createSimulation(createSimulationBody)}>
-                    {creating ? <Spinner /> : <Zap />}
-                    Iniciar nova simulação
-                  </Button>
+                  {challengeQuestion !== null ? (
+                    <ChallengeStartWarning
+                      question={challengeQuestion}
+                      pending={creating}
+                      disabled={!canStart}
+                      onConfirm={() => createSimulation(createSimulationBody)}
+                    />
+                  ) : (
+                    <Button size="xl" disabled={!canStart} onClick={() => createSimulation(createSimulationBody)}>
+                      {creating ? <Spinner /> : <Zap />}
+                      Iniciar nova simulação
+                    </Button>
+                  )}
                   {/* Sem partida salva não há o que escolher */}
                   {savedSimulations && savedSimulations.length > 0 && (
                     <Button variant="outline" disabled={busy} onClick={onOpenSaved}>

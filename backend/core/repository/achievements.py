@@ -46,7 +46,7 @@ class AchievementsRepository:
         session: Session,
         user_id: int,
         codes: list[str],
-        simulation_id: int,
+        simulation_id: int | None,
         game_date: date,
     ) -> list[str]:
         """Grava as conquistas; devolve só as que não existiam, que são as que saíram agora."""

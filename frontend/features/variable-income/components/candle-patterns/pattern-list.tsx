@@ -10,15 +10,13 @@ import { displayPatternDays, periodScore } from "../../lib/pattern-view";
 
 interface PatternListProps {
   patterns: CandlePattern[];
-  /** O dia do padrão com desafio aberto, quando há. */
-  openDay: string | null;
   /** O dia final do padrão em destaque (o que o card mostra). */
   activeDay: string | null;
   onSelect: (pattern: CandlePattern) => void;
 }
 
 /** Os padrões do período, em seção recolhível embaixo do gráfico. */
-export function PatternList({ patterns, openDay, activeDay, onSelect }: PatternListProps) {
+export function PatternList({ patterns, activeDay, onSelect }: PatternListProps) {
   const [open, setOpen] = useState(loadListOpen);
   const score = periodScore(patterns);
   const scoreText =
@@ -67,7 +65,7 @@ export function PatternList({ patterns, openDay, activeDay, onSelect }: PatternL
                     </Badge>
                     <span className="truncate">{PATTERN_INFO[pattern.code].name}</span>
                   </span>
-                  <Outcome pattern={pattern} challengeOpen={pattern.end === openDay} />
+                  <Outcome pattern={pattern} />
                 </button>
               </li>
             ))}
@@ -88,14 +86,7 @@ function chipVariant(side: CandlePattern["direction"]) {
   return "secondary";
 }
 
-function Outcome({ pattern, challengeOpen }: { pattern: CandlePattern; challengeOpen: boolean }) {
-  if (challengeOpen) {
-    return (
-      <Badge variant="info" size="sm">
-        Desafio aberto
-      </Badge>
-    );
-  }
+function Outcome({ pattern }: { pattern: CandlePattern }) {
   if (pattern.change_5d === null) {
     return <span className="text-right text-xs text-muted-foreground">confere em breve</span>;
   }

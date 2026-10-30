@@ -14,14 +14,12 @@ interface PatternCardProps {
   stats: PatternStats;
   /** O padrão fecha hoje; o dia vem escrito como "Hoje". */
   today: boolean;
-  /** O desafio deste padrão ainda espera resposta. */
-  challengeOpen: boolean;
   className?: string;
   style?: CSSProperties;
 }
 
 /** O que o padrão é, o que sugere e quanto o histórico do ativo deu razão a ele. */
-export function PatternCard({ ticker, pattern, stats, today, challengeOpen, className, style }: PatternCardProps) {
+export function PatternCard({ ticker, pattern, stats, today, className, style }: PatternCardProps) {
   const info = PATTERN_INFO[pattern.code];
   const side = SIDE_LABEL[pattern.direction];
   const days = displayPatternDays(pattern);
@@ -53,7 +51,7 @@ export function PatternCard({ ticker, pattern, stats, today, challengeOpen, clas
       {/* Desta vez */}
       <div className="flex items-center justify-between border-t pt-2">
         <span className="text-xs font-medium text-muted-foreground">Desta vez</span>
-        <ThisTime pattern={pattern} challengeOpen={challengeOpen} />
+        <ThisTime pattern={pattern} />
       </div>
     </div>
   );
@@ -130,13 +128,7 @@ function HistoryBlock({ ticker, stats, side }: HistoryBlockProps) {
 
 const displayCount = (value: number) => new Intl.NumberFormat("pt-BR").format(value);
 
-function ThisTime({ pattern, challengeOpen }: { pattern: CandlePattern; challengeOpen: boolean }) {
-  if (challengeOpen)
-    return (
-      <Badge variant="info" size="sm">
-        Desafio aberto · responda acima
-      </Badge>
-    );
+function ThisTime({ pattern }: { pattern: CandlePattern }) {
   if (pattern.change_5d === null) {
     return <span className="text-xs text-muted-foreground">ainda faltam pregões para conferir</span>;
   }

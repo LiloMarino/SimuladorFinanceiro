@@ -30,10 +30,8 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { displayCompactNumber, displayMoney, displayNumber, parseLocalDate } from "@/shared/lib/utils/display";
 import type {
-  CandleChallenge,
   CandlePattern,
   CandlePatterns,
-  ChallengeDirection,
   IndicatorKey,
   IndicatorPoint,
   IndicatorSettings,
@@ -41,7 +39,6 @@ import type {
   TechnicalIndicators,
 } from "@/types";
 import { IndicatorSelector, Swatch } from "./indicator-selector";
-import { ChallengeStrip } from "./candle-patterns/challenge-strip";
 import { PatternCard } from "./candle-patterns/pattern-card";
 import { PatternNotice, PatternSwitch, type PatternNoticeProps } from "./candle-patterns/pattern-controls";
 import { PatternList } from "./candle-patterns/pattern-list";
@@ -55,7 +52,7 @@ import {
   rsiShapes,
   type AnnotationColors,
 } from "../lib/chart-annotations";
-import { isAnswerFresh, nextScaleWithPatterns, patternOn, patternsSince, statsOf } from "../lib/pattern-view";
+import { nextScaleWithPatterns, patternOn, patternsSince, statsOf } from "../lib/pattern-view";
 import {
   averageColor,
   INDICATOR_BY_KEY,
@@ -149,9 +146,6 @@ interface ChartHints {
   patterns: CandlePatterns | undefined;
   patternsStatus: "pending" | "error" | "success";
   onRetryPatterns: () => void;
-  challenge: CandleChallenge | undefined;
-  answering: boolean;
-  onAnswer: (direction: ChallengeDirection) => void;
 }
 
 interface StockChartProps {
@@ -582,8 +576,6 @@ export function StockChart({
     setSelectorOpen(true);
   };
   const todayPattern = [...periodPatterns].reverse().find((pattern) => pattern.end === lastDay);
-  const freshAnswer =
-    hints?.challenge?.last && lastDay && isAnswerFresh(hints.challenge.last, lastDay) ? hints.challenge.last : null;
   const notice = patternNotice();
   const turnOnFirstAverage = () =>
     onSettingsChange(toggled(withParams(settings, { averages: [{ kind: "sma", period: 20 }] }), "averages", true));
@@ -736,15 +728,7 @@ export function StockChart({
             </div>
           </div>
 
-          {/* Desafio da vela e avisos dos padrões */}
-          {hints?.challenge && (hints.challenge.open || freshAnswer) && (
-            <ChallengeStrip
-              challenge={hints.challenge}
-              answer={freshAnswer}
-              pending={hints.answering}
-              onAnswer={hints.onAnswer}
-            />
-          )}
+          {/* Avisos dos padrões */}
           {notice && <PatternNotice {...notice} />}
 
           {/* Gráfico, com o nome e o valor de cada painel no canto */}
@@ -802,7 +786,6 @@ export function StockChart({
                   pattern={activePattern}
                   stats={statsOf(hints.patterns, activePattern.code)}
                   today={activePattern.end === lastDay}
-                  challengeOpen={hints.challenge?.open?.pattern_date === activePattern.end}
                 />
               )}
               {/* Quadro do dia apontado pela mira */}
@@ -844,12 +827,7 @@ export function StockChart({
 
           {/* Lista dos padrões do período */}
           {hasHistory && candleMode && showPatterns && periodPatterns.length > 0 && (
-            <PatternList
-              patterns={periodPatterns}
-              openDay={hints.challenge?.open?.pattern_date ?? null}
-              activeDay={activePattern?.end ?? null}
-              onSelect={focusPattern}
-            />
+            <PatternList patterns={periodPatterns} activeDay={activePattern?.end ?? null} onSelect={focusPattern} />
           )}
 
           {/* Erro dos indicadores: o preço segue atualizado */}

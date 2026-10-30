@@ -15,8 +15,7 @@ export const ASSISTANCES = [
   {
     field: "showChartHints",
     label: "Esconder dicas de análise técnica",
-    description:
-      "Esconde os padrões de vela, as legendas dos indicadores e o desafio da vela: você lê o gráfico sozinho.",
+    description: "Esconde os padrões de vela e as legendas dos indicadores: você lê o gráfico sozinho.",
     scope: "Renda variável · gráfico",
   },
 ] as const;

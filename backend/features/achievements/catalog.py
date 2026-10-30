@@ -70,7 +70,7 @@ CATALOG: tuple[Achievement, ...] = (
     Achievement(
         "first_candle_read",
         "Primeira leitura",
-        "Acertou um desafio da vela.",
+        "Acertou um desafio da vela no lobby.",
         Icon.CHART_CANDLESTICK,
         Category.FIRST_STEPS,
         "candle_challenge_hits",
@@ -181,7 +181,7 @@ CATALOG: tuple[Achievement, ...] = (
     Achievement(
         "candle_reader",
         "Leitor de velas",
-        "Acertou 10 desafios da vela numa partida.",
+        "Acertou 10 desafios da vela no lobby.",
         Icon.CHART_CANDLESTICK,
         Category.MARKET,
         "candle_challenge_hits",

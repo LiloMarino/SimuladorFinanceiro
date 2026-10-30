@@ -15,7 +15,6 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import { BacktestResultView } from "../components/backtest-result/backtest-result-view";
 import { HighlightsRow, HighlightsSkeleton } from "../components/match-result/highlights-row";
-import { CandleChallengeCard } from "../components/match-result/candle-challenge-card";
 import { MatchAchievements } from "../components/match-result/match-achievements";
 import { MatchHero, MatchHeroSkeleton } from "../components/match-result/match-hero";
 import { TeamPullers } from "../components/match-result/team-pullers";
@@ -61,8 +60,6 @@ function MatchResult({ simulationId }: { simulationId: number }) {
   const { user } = useAuth();
   const { data: overview, error, refetch } = useStatisticsReport("overview", [simulationId]);
   const { data: simulations } = useSimulationList();
-  // Sem as dicas de análise técnica na partida, o desafio da vela não existiu
-  const hintsOn = simulations?.find((s) => s.id === simulationId)?.show_chart_hints ?? true;
 
   if (error && !overview) {
     return (
@@ -137,14 +134,11 @@ function MatchResult({ simulationId }: { simulationId: number }) {
       )}
 
       {/* Relatório da partida: as mesmas abas das Estatísticas, congeladas no último dia */}
-      <div className={hintsOn ? "grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_300px]" : undefined}>
-        <StatisticsReport
-          title="Relatório da partida"
-          simulationIds={[simulationId]}
-          currentPlayerName={user?.nickname}
-        />
-        {hintsOn && <CandleChallengeCard simulationId={simulationId} currentPlayerName={user?.nickname} />}
-      </div>
+      <StatisticsReport
+        title="Relatório da partida"
+        simulationIds={[simulationId]}
+        currentPlayerName={user?.nickname}
+      />
     </div>
   );
 }

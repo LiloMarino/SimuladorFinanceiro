@@ -78,7 +78,7 @@ class SimulationSettingsDTO(BaseDTO):
     # Ajudas da renda fixa: desligadas, o servidor omite os campos que dão a resposta
     show_equivalent_rate: bool = True
     show_maturity_projection: bool = True
-    # Dicas de análise técnica no gráfico: padrões de vela, legendas e o desafio da vela
+    # Dicas de análise técnica no gráfico: padrões de vela e legendas dos indicadores
     show_chart_hints: bool = True
     # Expansão Governo & Política: trava quando a partida começa
     government_enabled: bool = False

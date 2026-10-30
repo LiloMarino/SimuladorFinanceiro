@@ -1,12 +1,6 @@
-import type { CandlePattern, CandlePatterns, ChallengeAnswer, PatternStats } from "@/types";
+import type { CandlePattern, CandlePatterns, PatternStats } from "@/types";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import { MIN_SAMPLE } from "./candle-patterns";
-
-/** O resultado do desafio fica na faixa por esta quantidade de dias corridos depois da conferência. */
-const RESULT_VISIBLE_DAYS = 7;
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-const asTime = (isoDay: string) => new Date(`${isoDay}T00:00:00Z`).getTime();
 
 /** Os padrões que terminam dentro do período (de `from` em diante; sem `from`, todos). */
 export function patternsSince(patterns: CandlePattern[], from: string | null) {
@@ -55,11 +49,3 @@ export function displayPatternDays(pattern: Pick<CandlePattern, "start" | "end">
   const [, endMonth] = end.split(" ");
   return startMonth === endMonth ? `${startDay}–${end}` : `${start} – ${end}`;
 }
-
-/** A resposta ainda interessa: espera a conferência, ou foi conferida há pouco. */
-export function isAnswerFresh(answer: ChallengeAnswer, today: string) {
-  if (answer.status === "waiting" || answer.status === "expired") return true;
-  return (asTime(today) - asTime(answer.settles_on)) / DAY_MS <= RESULT_VISIBLE_DAYS;
-}
-
-export const sideWord = (side: "up" | "down") => (side === "up" ? "alta" : "baixa");
