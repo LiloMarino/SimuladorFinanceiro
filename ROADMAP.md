@@ -10,135 +10,135 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-30):** Registrado o desafio da vela no lobby: o "sobe ou desce?" sai da partida e vira minijogo em tempo real enquanto a sala espera (30/out)
+> **Última mudança (2026-10-30):** Glossário e Livre pra pegar mostram o esforço e o custo-benefício de cada feature.
 
 ## Glossário
 
 > Descrição completa de cada `N#`/`D#` em `DECISIONS.md`; `F#` é espelho do kanban abaixo. "Condiciona" é derivado dos cards: as `F#` que citam aquele `N#`/`D#`.
 
-| ID | Resumo | Condiciona (F#) | Status |
-| --- | --- | --- | --- |
-| **N1** | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — |
-| **N2** | Jogar com amigos pela internet sem que cada um instale uma VPN | [F6](#f6) | — |
-| **N3** | Confiar que os números do simulador são exatos e reprodutíveis | [F22](#f22), [F100](#f100) | — |
-| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F110](#f110), [F111](#f111), [F127](#f127) | — |
-| **N5** | Saber quanto risco foi corrido para chegar num resultado | — | — |
-| **N6** | Comparar resultados de simulações diferentes | — | — |
-| **N7** | Que o simulador cobre os custos de operar do mercado real | [F22](#f22), [F100](#f100) | — |
-| **N8** | Jogar contra oponentes controlados pelo computador | — | — |
-| **N9** | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — |
-| **N10** | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | — | — |
-| **N11** | Que o cenário econômico simulado seja o histórico real | — | — |
-| **N12** | Continuar jogando depois do último dia com dado real | — | — |
-| **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
-| **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F120](#f120), [F160](#f160), [F162](#f162), [F166](#f166) | — |
-| **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
-| **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
-| **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
-| **N19** | Analisar um ativo com as ferramentas de um trader | [F168](#f168) | — |
-| **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — |
-| **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | — | — |
-| **N22** | Ter objetivos para buscar além de vencer a partida | [F159](#f159) | — |
-| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F101](#f101), [F168](#f168) | — |
-| **N24** | Saber onde está a lentidão durante uma partida | — | — |
-| **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141) | — |
-| **N26** | Achar a causa de um erro sem vasculhar o log inteiro | — | — |
-| **N27** | Entrar numa partida que já começou | — | — |
-| **N28** | Liberar uma vaga sem depender de o jogador sair | — | — |
-| **N29** | Saber o que cada jogador está fazendo enquanto a partida não começa | — | — |
-| **N30** | Repetir uma configuração de partida sem montá-la de novo | — | — |
-| **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92), [F161](#f161) | — |
-| **N32** | Saber como foi o mês sem montar a conta | [F161](#f161) | — |
-| **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111) | — |
-| **N34** | Disputar o poder de mudar as regras da economia da partida | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154), [F163](#f163) | — |
-| **N35** | Tirar da lista as partidas que não interessam mais | — | — |
-| **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — |
-| **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F127](#f127) | — |
-| **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — |
-| **N39** | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | — |
-| **N40** | Jogar partidas longas e na velocidade máxima sem a tela travar | — | — |
-| [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
-| [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
-| [**F14**](#f14) | Janela desktop nativa | — | 💤 |
-| [**F22**](#f22) | Preço ajustado e proventos | — | ⏳ |
-| [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
-| [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
-| [**F37**](#f37) | Tema escuro | — | 💤 |
-| [**F44**](#f44) | Expansão Gestoras: fundar a gestora e abrir capital | — | 🔍 |
-| [**F55**](#f55) | Modo aquisição hostil | — | 🔍 |
-| [**F56**](#f56) | Novidades no app | — | ⏳ |
-| [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 💤 |
-| [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 💤 |
-| [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
-| [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
-| [**F90**](#f90) | Cenários | — | 🔍 |
-| [**F93**](#f93) | Rumores antecipados | — | 🔍 |
-| [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
-| [**F100**](#f100) | Proventos na carteira e nas telas | — | ⏳ |
-| [**F101**](#f101) | Carteira separada do jogador | — | 💤 |
-| [**F102**](#f102) | Gestoras: emissão de novas cotas e recompra | — | 🔍 |
-| [**F103**](#f103) | Gestoras: troca de gestor pela assembleia | — | 🔍 |
-| [**F104**](#f104) | Gestoras: co-gestores | — | 🔍 |
-| [**F105**](#f105) | Gestoras: rendimentos mensais | — | 🔍 |
-| [**F110**](#f110) | Combinar estratégias | — | 💤 |
-| [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
-| [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
-| [**F131**](#f131) | Catálogo de padrões de vela | — | 🔍 |
-| [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | — | ⏳ |
-| [**F133**](#f133) | Tópicos de conceitos do Como jogar | — | ⏳ |
-| [**F139**](#f139) | Demonstração regravada com o jogo de hoje | — | ⏳ |
-| [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | ⏳ |
-| [**F141**](#f141) | README com as features de hoje | — | ⏳ |
-| [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
-| [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
-| [**F158**](#f158) | Animações do Como jogar revistas | — | 🔍 |
-| [**F159**](#f159) | Conquista "Ordem com paciência" | — | ⏳ |
-| [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 🔍 |
-| [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 🔍 |
-| [**F167**](#f167) | Notícias do ativo como marcadores no gráfico de preço | — | 💤 |
+| ID | Resumo | Condiciona (F#) | Esforço | Custo-benefício | Status |
+| --- | --- | --- | --- | --- | --- |
+| **N1** | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — | — | — |
+| **N2** | Jogar com amigos pela internet sem que cada um instale uma VPN | [F6](#f6) | — | — | — |
+| **N3** | Confiar que os números do simulador são exatos e reprodutíveis | [F22](#f22), [F100](#f100) | — | — | — |
+| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F110](#f110), [F111](#f111), [F127](#f127) | — | — | — |
+| **N5** | Saber quanto risco foi corrido para chegar num resultado | — | — | — | — |
+| **N6** | Comparar resultados de simulações diferentes | — | — | — | — |
+| **N7** | Que o simulador cobre os custos de operar do mercado real | [F22](#f22), [F100](#f100) | — | — | — |
+| **N8** | Jogar contra oponentes controlados pelo computador | — | — | — | — |
+| **N9** | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — | — | — |
+| **N10** | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | — | — | — | — |
+| **N11** | Que o cenário econômico simulado seja o histórico real | — | — | — | — |
+| **N12** | Continuar jogando depois do último dia com dado real | — | — | — | — |
+| **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — |
+| **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — | — | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F120](#f120), [F160](#f160), [F162](#f162), [F166](#f166) | — | — | — |
+| **N16** | Ver a carteira e o mercado por setor e segmento | — | — | — | — |
+| **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — | — | — |
+| **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — | — | — |
+| **N19** | Analisar um ativo com as ferramentas de um trader | [F168](#f168) | — | — | — |
+| **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — | — | — |
+| **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | — | — | — | — |
+| **N22** | Ter objetivos para buscar além de vencer a partida | [F159](#f159) | — | — | — |
+| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F101](#f101), [F168](#f168) | — | — | — |
+| **N24** | Saber onde está a lentidão durante uma partida | — | — | — | — |
+| **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141) | — | — | — |
+| **N26** | Achar a causa de um erro sem vasculhar o log inteiro | — | — | — | — |
+| **N27** | Entrar numa partida que já começou | — | — | — | — |
+| **N28** | Liberar uma vaga sem depender de o jogador sair | — | — | — | — |
+| **N29** | Saber o que cada jogador está fazendo enquanto a partida não começa | — | — | — | — |
+| **N30** | Repetir uma configuração de partida sem montá-la de novo | — | — | — | — |
+| **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92), [F161](#f161) | — | — | — |
+| **N32** | Saber como foi o mês sem montar a conta | [F161](#f161) | — | — | — |
+| **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111) | — | — | — |
+| **N34** | Disputar o poder de mudar as regras da economia da partida | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154), [F163](#f163) | — | — | — |
+| **N35** | Tirar da lista as partidas que não interessam mais | — | — | — | — |
+| **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — |
+| **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F127](#f127) | — | — | — |
+| **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — | — | — |
+| **N39** | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | — | — | — |
+| **N40** | Jogar partidas longas e na velocidade máxima sem a tela travar | — | — | — | — |
+| [**F5**](#f5) | Spike: provider de túnel pela internet | — | — | — | 🔍 |
+| [**F6**](#f6) | Link de convite pela internet no lobby | — | Médio | Bom | ⏳ |
+| [**F14**](#f14) | Janela desktop nativa | — | Baixo | Bom | 💤 |
+| [**F22**](#f22) | Preço ajustado e proventos | — | Alto | Bom | ⏳ |
+| [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | — | — | 🔍 |
+| [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | — | — | 🔍 |
+| [**F37**](#f37) | Tema escuro | — | Médio | Médio | 💤 |
+| [**F44**](#f44) | Expansão Gestoras: fundar a gestora e abrir capital | — | — | — | 🔍 |
+| [**F55**](#f55) | Modo aquisição hostil | — | — | — | 🔍 |
+| [**F56**](#f56) | Novidades no app | — | Baixo | Bom | ⏳ |
+| [**F60**](#f60) | Modo servidor dedicado (--headless) | — | Baixo | Bom | 💤 |
+| [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | Médio | Bom | 💤 |
+| [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | Médio | Bom | 💤 |
+| [**F81**](#f81) | CORS restrito à mesma origem | — | Baixo | Médio | 💤 |
+| [**F90**](#f90) | Cenários | — | — | — | 🔍 |
+| [**F93**](#f93) | Rumores antecipados | — | — | — | 🔍 |
+| [**F97**](#f97) | SELIC nas mãos do governo | — | — | — | 🔍 |
+| [**F100**](#f100) | Proventos na carteira e nas telas | — | Médio | Bom | ⏳ |
+| [**F101**](#f101) | Carteira separada do jogador | — | Alto | Médio | 💤 |
+| [**F102**](#f102) | Gestoras: emissão de novas cotas e recompra | — | — | — | 🔍 |
+| [**F103**](#f103) | Gestoras: troca de gestor pela assembleia | — | — | — | 🔍 |
+| [**F104**](#f104) | Gestoras: co-gestores | — | — | — | 🔍 |
+| [**F105**](#f105) | Gestoras: rendimentos mensais | — | — | — | 🔍 |
+| [**F110**](#f110) | Combinar estratégias | — | Médio | Bom | 💤 |
+| [**F111**](#f111) | Crédito para estratégias e bots | — | Baixo | Bom | 💤 |
+| [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | — | — | 🔍 |
+| [**F131**](#f131) | Catálogo de padrões de vela | — | — | — | 🔍 |
+| [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | — | Médio | Bom | ⏳ |
+| [**F133**](#f133) | Tópicos de conceitos do Como jogar | — | Baixo | Bom | ⏳ |
+| [**F139**](#f139) | Demonstração regravada com o jogo de hoje | — | Médio | Bom | ⏳ |
+| [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | Alto | Bom | ⏳ |
+| [**F141**](#f141) | README com as features de hoje | — | Baixo | Excelente | ⏳ |
+| [**F143**](#f143) | Preparação de cada jogador no lobby | — | — | — | 🔍 |
+| [**F157**](#f157) | Velocidade x100 que quase não acelera | — | — | — | 🔍 |
+| [**F158**](#f158) | Animações do Como jogar revistas | — | — | — | 🔍 |
+| [**F159**](#f159) | Conquista "Ordem com paciência" | — | Baixo | Bom | ⏳ |
+| [**F164**](#f164) | Mapa do Brasil por região na eleição | — | — | — | 🔍 |
+| [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | — | — | 🔍 |
+| [**F167**](#f167) | Notícias do ativo como marcadores no gráfico de preço | — | Baixo | Bom | 💤 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (36 itens — clique pra expandir)</strong></summary>
 
-| ID | Resumo | Condiciona (F#) | Status |
-| --- | --- | --- | --- |
-| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F22](#f22), [F100](#f100), [F159](#f159) | ✅ |
-| **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | — | ✅ |
-| **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F22](#f22), [F100](#f100), [F127](#f127) | ✅ |
-| **D4** | Banco de dados embarcado no executável | — | ✅ |
-| **D6** | A retomada continua no dia seguinte ao último evento | — | ✅ |
-| **D7** | O simulador lê as séries sem saber a origem | [F22](#f22), [F92](#f92), [F100](#f100) | ✅ |
-| **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F110](#f110), [F111](#f111) | ✅ |
-| **D9** | De onde nasce uma mudança de schema | [F101](#f101) | ✅ |
-| **D10** | Como a nota geral é calculada | — | ✅ |
-| **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | ✅ |
-| **D12** | Como numerar as versões | — | ✅ |
-| **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
-| **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | [F106](#f106), [F128](#f128) | ✅ |
-| **D15** | Lint com oxlint, formatação com oxfmt e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
-| **D16** | Estratégias do app no host, personalização pela API | — | ✅ |
-| **D17** | Os tópicos do tutorial se animam em código, com o motion | — | ✅ |
-| **D18** | Uma migration por versão; caminho antigo só cai numa major | — | ✅ |
-| **D19** | O eleitorado são grupos, cada um com apoio e rejeição por partido | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154) | ✅ |
-| [**F92**](#f92) | Noticiário da partida | — | ✅ |
-| [**F106**](#f106) | Governo & Política: medidas de gasto público | — | ✅ |
-| [**F107**](#f107) | Grupos de eleitores, com apoio e rejeição por partido | — | ✅ |
-| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | ✅ |
-| [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ✅ |
-| [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | — | ✅ |
-| [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | — | ✅ |
-| [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | — | ✅ |
-| [**F151**](#f151) | Segundo turno com disputa | — | ✅ |
-| [**F152**](#f152) | Promessas de campanha cobradas no mandato | — | ✅ |
-| [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | — | ✅ |
-| [**F154**](#f154) | Negociar apoio com as bancadas, por emendas | — | ✅ |
-| [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
-| [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | ✅ |
-| [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ✅ |
-| [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | ✅ |
-| [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ✅ |
-| [**F168**](#f168) | Desafio da vela no lobby | — | ✅ |
+| ID | Resumo | Condiciona (F#) | Esforço | Custo-benefício | Status |
+| --- | --- | --- | --- | --- | --- |
+| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F22](#f22), [F100](#f100), [F159](#f159) | — | — | ✅ |
+| **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | — | — | — | ✅ |
+| **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F22](#f22), [F100](#f100), [F127](#f127) | — | — | ✅ |
+| **D4** | Banco de dados embarcado no executável | — | — | — | ✅ |
+| **D6** | A retomada continua no dia seguinte ao último evento | — | — | — | ✅ |
+| **D7** | O simulador lê as séries sem saber a origem | [F22](#f22), [F92](#f92), [F100](#f100) | — | — | ✅ |
+| **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F110](#f110), [F111](#f111) | — | — | ✅ |
+| **D9** | De onde nasce uma mudança de schema | [F101](#f101) | — | — | ✅ |
+| **D10** | Como a nota geral é calculada | — | — | — | ✅ |
+| **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | — | — | ✅ |
+| **D12** | Como numerar as versões | — | — | — | ✅ |
+| **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | — | — | ✅ |
+| **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | [F106](#f106), [F128](#f128) | — | — | ✅ |
+| **D15** | Lint com oxlint, formatação com oxfmt e o TypeScript 7 com a API do 6 ao lado | — | — | — | ✅ |
+| **D16** | Estratégias do app no host, personalização pela API | — | — | — | ✅ |
+| **D17** | Os tópicos do tutorial se animam em código, com o motion | — | — | — | ✅ |
+| **D18** | Uma migration por versão; caminho antigo só cai numa major | — | — | — | ✅ |
+| **D19** | O eleitorado são grupos, cada um com apoio e rejeição por partido | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154) | — | — | ✅ |
+| [**F92**](#f92) | Noticiário da partida | — | Médio | Bom | ✅ |
+| [**F106**](#f106) | Governo & Política: medidas de gasto público | — | Alto | Bom | ✅ |
+| [**F107**](#f107) | Grupos de eleitores, com apoio e rejeição por partido | — | Alto | Bom | ✅ |
+| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | Médio | Bom | ✅ |
+| [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | Médio | Regular | ✅ |
+| [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | — | Alto | Bom | ✅ |
+| [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | — | Médio | Bom | ✅ |
+| [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | — | Alto | Bom | ✅ |
+| [**F151**](#f151) | Segundo turno com disputa | — | Médio | Bom | ✅ |
+| [**F152**](#f152) | Promessas de campanha cobradas no mandato | — | Médio | Bom | ✅ |
+| [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | — | Alto | Bom | ✅ |
+| [**F154**](#f154) | Negociar apoio com as bancadas, por emendas | — | Médio | Bom | ✅ |
+| [**F160**](#f160) | Imprevistos no fim da partida de independência | — | Baixo | Bom | ✅ |
+| [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | Alto | Bom | ✅ |
+| [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | Baixo | Excelente | ✅ |
+| [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | Baixo | Bom | ✅ |
+| [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | Médio | Bom | ✅ |
+| [**F168**](#f168) | Desafio da vela no lobby | — | Alto | Bom | ✅ |
 
 </details>
 
@@ -148,25 +148,25 @@
 
 > Derivado do grafo de dependências: as `F#` que podem ser pegas agora — toda dependência já ✅. "Destrava" é quantas `F#` em aberto esperam por ela, direta ou indiretamente; é por aí que a tabela está ordenada. 💤 (sem prioridade) e 🚫 não entram.
 
-| ID | Resumo | Marco | Destrava | Status |
-| --- | --- | --- | --- | --- |
-| [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
-| [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
-| [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
-| [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
-| [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
-| [**F90**](#f90) | Cenários | — | 0 | 🔍 |
-| [**F93**](#f93) | Rumores antecipados | M15 | 0 | 🔍 |
-| [**F97**](#f97) | SELIC nas mãos do governo | — | 0 | 🔍 |
-| [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
-| [**F131**](#f131) | Catálogo de padrões de vela | M11 | 0 | 🔍 |
-| [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
-| [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | ⏳ |
-| [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | 🔍 |
-| [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | 🔍 |
-| [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
-| [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 0 | 🔍 |
-| [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 0 | 🔍 |
+| ID | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | — | — | 🔍 |
+| [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | Alto | Bom | ⏳ |
+| [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | — | — | 🔍 |
+| [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | — | — | 🔍 |
+| [**F56**](#f56) | Novidades no app | — | 0 | Baixo | Bom | ⏳ |
+| [**F90**](#f90) | Cenários | — | 0 | — | — | 🔍 |
+| [**F93**](#f93) | Rumores antecipados | M15 | 0 | — | — | 🔍 |
+| [**F97**](#f97) | SELIC nas mãos do governo | — | 0 | — | — | 🔍 |
+| [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | — | — | 🔍 |
+| [**F131**](#f131) | Catálogo de padrões de vela | M11 | 0 | — | — | 🔍 |
+| [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | Médio | Bom | ⏳ |
+| [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | Baixo | Bom | ⏳ |
+| [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | — | — | 🔍 |
+| [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | — | — | 🔍 |
+| [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | — | — | 🔍 |
+| [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 0 | — | — | 🔍 |
+| [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 0 | — | — | 🔍 |
 
 ---
 
