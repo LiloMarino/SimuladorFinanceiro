@@ -572,7 +572,7 @@ class GovernmentBook:
             founder = self._people[item.user_id]
             candidate = self._people.get(item.candidate_id or item.user_id)
             vice = self._people.get(item.vice_id) if item.vice_id else None
-            if candidate is None or (candidate.id == founder.id and vice is None):
+            if candidate is None:
                 continue
             attempt(
                 lambda founder=founder, candidate=candidate, vice=vice: self.set_ticket(

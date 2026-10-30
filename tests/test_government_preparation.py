@@ -69,6 +69,17 @@ def test_campaign_opening_founds_joins_and_sets_the_ticket(book, engine, stored)
     assert prepared.state.preparations == []
 
 
+def test_founder_without_vice_is_the_candidate(book, engine, stored):
+    prepared = prepare(
+        engine, Prepared(ALICE.id, found=IDENTITY, candidate_id=ALICE.id)
+    )
+
+    open_campaign(prepared)
+
+    party = party_of(prepared, ALICE)
+    assert (party.candidate_id, party.vice_id) == (ALICE.id, None)
+
+
 def test_player_absent_from_the_match_is_not_applied(book, engine, stored):
     stranger = Prepared(99, found=PartyIdentity("Fora", "FOR", RED, tuple(FLAGS)))
     prepared = prepare(engine, stranger)
