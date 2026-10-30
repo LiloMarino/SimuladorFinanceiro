@@ -4,6 +4,26 @@ Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais anti
 O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
 deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
+## 3.2.0 Orçamento e Congresso (29/10/2026)
+
+O governo passa a ter contas: a receita vem das alíquotas, o gasto e os juros pesam no resultado, a dívida cresce com o déficit e o prêmio de risco encarece os títulos novos do Tesouro. As medidas de gasto público mexem na inflação, na SELIC e na bolsa, e o painel da economia ganha PIB, desemprego e dívida. O Congresso é eleito por cadeiras, cada bancada segue a orientação do líder do partido, o impeachment é votado e o governo negocia apoio por emendas clicando no hemiciclo. A campanha e o segundo turno ganham avisos, toasts e resultado por grupo; o jornal ganha manchetes do Congresso e dos acordos; o partido do computador que assume sem vice passa a propor medidas; e os cartões de Governo, Eleição e Economia mostram esqueleto e erro próprios.
+
+Suas partidas salvas e o `config.toml` continuam valendo.
+
+
+### Novidades
+
+- Adicionados o orçamento do governo, a dívida pública, o prêmio de risco do Tesouro e o PIB e o desemprego no painel da economia
+- Adicionadas as medidas de gasto público com o efeito na inflação, na SELIC e na bolsa
+- Adicionados o Congresso eleito por cadeiras, as bancadas orientadas pelo líder e o impeachment votado
+- Adicionados os acordos de apoio por emenda com as bancadas, negociados pelo hemiciclo
+- Adicionado o governo do partido do computador que assume sem vice e propõe medidas pelos eleitores dele
+- Adicionadas as manchetes da posse do Congresso, do acordo fechado, da medida de gasto, da virada e da volta atrás, a janela do jornal limitada a uma por pregão e o aviso de caixa negativo só como pendência
+- Adicionados os avisos de apoio e da véspera, os toasts dos resultados, o cabeçalho e o cartão do 1º turno e o resultado do 2º turno com barra, selo, virada e grupos
+- Adicionados o passo do rival desabilitado, o alcance da TV, a linha dos extremos do comício, o alerta de repetição com quem fez a 1ª, o cartão de quem não é filiado e o botão Ver nos toasts da campanha
+- Adicionados os pontos de aviso de Governo e Eleição no menu, a explicação de quando cada pendência some, o aviso do acordo na aba Congresso e o botão Ver nos toasts dos acordos
+- Adicionado o cartão com esqueleto e erro próprios, aplicado à base, às contas, às ações de campanha e à proposta de acordo
+
 ## 3.1.0 Eleição disputada (29/10/2026)
 
 A eleição agora é uma disputa de verdade: o eleitorado se divide em grupos, cada um com a sua opinião sobre os partidos, e a campanha tem ações (TV, evento, comício e ataque) decididas com o dado. As promessas de campanha são cobradas no fim do mandato, o segundo turno tem disputa com virada possível, e a aprovação do governo passa a depender da satisfação de cada grupo. O painel da economia mostra a SELIC, o IPCA e a meta de inflação, e o jornal da partida traz manchetes de economia, empresas e marcos históricos, com as pendências ao lado do menu. Também entram a evolução do patrimônio redesenhada, a compra de cripto em fração para estratégias e bots, o filtro Na carteira na renda fixa e o selo de partida pausada.

@@ -1,6 +1,6 @@
 [project]
 name = "simulador-financeiro"
-version = "3.1.0"
+version = "3.2.0"
 requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.20.0",
