@@ -14,10 +14,10 @@ import {
 import { displayDayMonth, displayShortDate, displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import { useGovernment } from "@/shared/hooks/queries/useGovernment";
 import type { ElectionPanel, ElectionRound } from "@/types";
-import { GROUP_INFO, pollPoints } from "../lib/voters";
 import { ElectedHouse } from "./elected-house";
 import { PartyMark, PersonMark } from "./party-mark";
 import { PromiseBadges } from "./promise-badges";
+import { RunoffResult } from "./runoff-result";
 
 type RoundResultDialogProps = {
   result: ElectionRound | null;
@@ -56,51 +56,32 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
 
             <DialogBody>
               <div className="grid gap-3.5">
-                <div className="grid gap-2">
-                  {ranked.map((party) => (
-                    <div
-                      key={party.party_id}
-                      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-[13px]"
-                    >
-                      <span className="flex min-w-0 items-center gap-2">
-                        <PartyMark abbr={party.abbr} color={party.color} size="sm" />
-                        {party.candidate && <PersonMark person={party.candidate} />}
-                        <span className="truncate">{party.candidate?.name ?? party.name}</span>
-                      </span>
-                      <span className="font-mono font-semibold">{displayPercent(party.share, 1)}</span>
-                      <span className="relative col-span-2 h-2 rounded-full bg-muted">
-                        <span
-                          className="absolute inset-y-0 left-0 rounded-full"
-                          style={{
-                            width: `${Number(party.share) * 100}%`,
-                            backgroundColor: party.color ?? "var(--muted-foreground)",
-                          }}
-                        />
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {result.round === 2 && (
-                  <div className="grid gap-1.5 text-xs text-muted-foreground">
-                    <span className="text-sm font-medium text-foreground">
-                      Por grupo de eleitores · não votaram {Number(result.not_voted).toFixed(1).replace(".", ",")}% do
-                      eleitorado
-                    </span>
-                    {result.groups.map((group) => {
-                      const points = pollPoints(group.entries);
-                      return (
-                        <span key={group.group} className="flex flex-wrap justify-between gap-x-3">
-                          <span>{GROUP_INFO[group.group].label}</span>
-                          <span className="font-mono">
-                            {finalists
-                              .map((party) => `${party.abbr} ${Math.round(points.get(party.party_id) ?? 0)}`)
-                              .join(" · ")}
-                            {` · indecisos ${Math.round(Number(group.undecided))}`}
-                          </span>
+                {result.round === 2 && panel ? (
+                  <RunoffResult result={result} results={panel.results} />
+                ) : (
+                  <div className="grid gap-2">
+                    {ranked.map((party) => (
+                      <div
+                        key={party.party_id}
+                        className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-[13px]"
+                      >
+                        <span className="flex min-w-0 items-center gap-2">
+                          <PartyMark abbr={party.abbr} color={party.color} size="sm" />
+                          {party.candidate && <PersonMark person={party.candidate} />}
+                          <span className="truncate">{party.candidate?.name ?? party.name}</span>
                         </span>
-                      );
-                    })}
+                        <span className="font-mono font-semibold">{displayPercent(party.share, 1)}</span>
+                        <span className="relative col-span-2 h-2 rounded-full bg-muted">
+                          <span
+                            className="absolute inset-y-0 left-0 rounded-full"
+                            style={{
+                              width: `${Number(party.share) * 100}%`,
+                              backgroundColor: party.color ?? "var(--muted-foreground)",
+                            }}
+                          />
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 )}
 
@@ -171,7 +152,7 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
               <Button variant="outline" onClick={onClose}>
                 Fechar
               </Button>
-              <Button onClick={onOpenPage}>Ver a página da eleição</Button>
+              <Button onClick={onOpenPage}>{result.round === 2 ? "Ver por grupo" : "Ver a página da eleição"}</Button>
             </DialogFooter>
           </>
         )}

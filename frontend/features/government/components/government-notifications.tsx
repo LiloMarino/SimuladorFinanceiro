@@ -10,6 +10,7 @@ import type { ElectionPanel, ElectionRound, GovernmentPanel } from "@/types";
 import { campaignToast } from "../lib/campaign";
 import { dealAnsweredToast, dealBrokenToast, dealEndedToast } from "../lib/deal-toast";
 import { impeachmentToast, measureVotedToast, monthClosedToast } from "../lib/measure-toast";
+import { endorsementToast, roundResultToast } from "../lib/runoff-toast";
 import { useRenewElection } from "../hooks/mutations/useRenewElection";
 import { useRenewBase } from "../hooks/mutations/useRenewBase";
 import { useDealDialog } from "../hooks/useDealDialog";
@@ -67,8 +68,15 @@ export function GovernmentNotifications() {
           const last = panel?.last_result;
           if (!panel || !last || last.round !== event.round) return;
           setShown({ result: last, panel });
+          const notice = roundResultToast(panel, last);
+          toast[notice.tone](notice.title, { description: notice.description });
         });
         break;
+      case "ENDORSEMENT": {
+        const notice = endorsementToast(event);
+        toast[notice.tone](notice.title, { description: notice.description });
+        break;
+      }
       case "MONTH_CLOSED": {
         // O fechamento conta o que mudou no apoio só aos filiados do partido do governo
         const election = queryClient.getQueryData<ElectionPanel>(queryKeys.election());
@@ -150,7 +158,6 @@ export function GovernmentNotifications() {
       case "HOUSE_ELECTED":
       case "PROMISES_SET":
       case "PROMISES_SETTLED":
-      case "ENDORSEMENT":
       case "UPDATED":
         break;
     }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { RunoffRace, RunoffTransfer } from "@/types";
-import { dayAfter, followTotal, runoffLeaderId, sentTo } from "./runoff";
+import type { ElectionRound, RunoffRace, RunoffTransfer } from "@/types";
+import { dayAfter, firstRoundBefore, followTotal, runoffLeaderId, sentTo, turnaroundGap, undecidedNow } from "./runoff";
 
 describe("dayAfter", () => {
   it("passa para o dia seguinte, virando o mês", () => {
@@ -53,5 +53,82 @@ describe("transferência", () => {
       ["WELFARE", "0.15"],
     ]);
     expect(followTotal(transfer, weights)).toBeCloseTo(1);
+  });
+});
+
+describe("undecidedNow", () => {
+  it("soma os indecisos de cada grupo pelo peso dele", () => {
+    const transfer = {
+      groups: [
+        { group: "RETIREES", undecided_now: "10" },
+        { group: "INVESTORS", undecided_now: "5" },
+      ],
+    } as unknown as RunoffTransfer;
+    const weights = new Map([
+      ["RETIREES", "0.2"],
+      ["INVESTORS", "0.1"],
+    ]);
+    expect(undecidedNow(transfer, weights)).toBeCloseTo(2.5);
+  });
+});
+
+describe("turnaroundGap", () => {
+  const round = (number: number, date: string, shares: [number, string][], winner: number | null) =>
+    ({
+      round: number,
+      date,
+      winner,
+      finalists: [1, 2],
+      parties: shares.map(([party_id, share]) => ({ party_id, share })),
+    }) as unknown as ElectionRound;
+  const first = round(
+    1,
+    "2022-10-02",
+    [
+      [1, "0.387"],
+      [2, "0.347"],
+      [3, "0.266"],
+    ],
+    null,
+  );
+
+  it("mede a distância quando o vencedor terminou o 1º turno atrás", () => {
+    expect(
+      turnaroundGap(
+        first,
+        round(
+          2,
+          "2022-10-23",
+          [
+            [2, "0.507"],
+            [1, "0.493"],
+          ],
+          2,
+        ),
+      ),
+    ).toBeCloseTo(4);
+  });
+
+  it("não há virada quando o líder do 1º turno vence", () => {
+    expect(
+      turnaroundGap(
+        first,
+        round(
+          2,
+          "2022-10-23",
+          [
+            [1, "0.52"],
+            [2, "0.48"],
+          ],
+          1,
+        ),
+      ),
+    ).toBeNull();
+  });
+
+  it("acha o 1º turno anterior ao 2º", () => {
+    const runoff = round(2, "2022-10-23", [], 2);
+    const older = round(1, "2018-10-07", [], null);
+    expect(firstRoundBefore([older, first, runoff], runoff)).toBe(first);
   });
 });

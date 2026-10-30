@@ -1,5 +1,5 @@
 import { parseLocalDate } from "@/shared/lib/utils/display";
-import type { RunoffRace, RunoffTransfer } from "@/types";
+import type { ElectionRound, RunoffRace, RunoffTransfer } from "@/types";
 
 /** O dia seguinte a uma data ISO: de onde a contagem das ações do 2º turno recomeça. */
 export function dayAfter(isoDate: string) {
@@ -30,3 +30,32 @@ export function followTotal(transfer: RunoffTransfer, weights: Map<string, strin
     0,
   );
 }
+
+/** Os indecisos que ainda sobram do partido que saiu, somados pelo peso de cada grupo (em pontos do eleitorado). */
+export function undecidedNow(transfer: RunoffTransfer, weights: Map<string, string>) {
+  return transfer.groups.reduce(
+    (sum, group) => sum + Number(weights.get(group.group) ?? 0) * Number(group.undecided_now),
+    0,
+  );
+}
+
+/** O 1º turno que levou ao 2º: o último 1º turno apurado antes dele. */
+export function firstRoundBefore(results: ElectionRound[], runoff: ElectionRound) {
+  return results.filter((result) => result.round === 1 && result.date < runoff.date).at(-1);
+}
+
+/** A virada: o vencedor do 2º turno terminou o 1º atrás do outro finalista; devolve a distância em pontos de voto válido. */
+export function turnaroundGap(first: ElectionRound | undefined, runoff: ElectionRound) {
+  if (!first || runoff.winner === null) return null;
+  const shares = runoff.finalists.map((id) => ({
+    id,
+    share: Number(first.parties.find((party) => party.party_id === id)?.share ?? 0),
+  }));
+  const leader = shares.reduce((best, item) => (item.share > best.share ? item : best));
+  if (leader.id === runoff.winner) return null;
+  const winner = shares.find((item) => item.id === runoff.winner);
+  return winner ? (leader.share - winner.share) * 100 : null;
+}
+
+/** A parte dos votos do 2º turno em que a barra ganha a linha dos 50%. */
+export const RUNOFF_MAJORITY = 50;

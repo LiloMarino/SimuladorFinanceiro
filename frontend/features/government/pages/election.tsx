@@ -8,12 +8,13 @@ import usePageLabel from "@/shared/hooks/usePageLabel";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { displayDayMonth } from "@/shared/lib/utils/display";
-import type { ElectionPanel } from "@/types";
+import type { ElectionPanel, ElectionParty } from "@/types";
 import { CampaignOpenedDialog } from "../components/campaign-opened-dialog";
 import { CampaignSection } from "../components/campaign-section";
 import { ChooseFlagsDialog } from "../components/choose-flags-dialog";
 import { ContributionDialog } from "../components/contribution-dialog";
 import { DonateDialog } from "../components/donate-dialog";
+import { FirstRoundCard } from "../components/first-round-card";
 import { EndorseDialog } from "../components/endorse-dialog";
 import { ElectionHeader } from "../components/election-header";
 import { ElectorateCard } from "../components/electorate-card";
@@ -29,6 +30,8 @@ import { PollCard } from "../components/poll-card";
 import { PromisesDialog } from "../components/promises-dialog";
 import { RankingCard } from "../components/ranking-card";
 import { RunoffContributionDialog } from "../components/runoff-contribution-dialog";
+import { RunoffGroupsCard } from "../components/runoff-groups-card";
+import { RunoffNotices } from "../components/runoff-notices";
 import { RunoffPollCard } from "../components/runoff-poll-card";
 import { TermCard } from "../components/term-card";
 import { TicketDialog } from "../components/ticket-dialog";
@@ -98,10 +101,22 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
   // A disputa do 2º turno, quando há
   const runoffRace = panel.runoff_race;
 
+  const runoffFinalists = (runoffRace?.finalists ?? [])
+    .map((id) => panel.parties.find((candidate) => candidate.id === id))
+    .filter((candidate): candidate is ElectionParty => candidate !== undefined);
+
+  // O 2º turno já apurado, que a página guarda por grupo até a próxima campanha
+  const runoffResult =
+    (panel.phase === "AWAITING_TERM" || panel.phase === "TERM") && panel.last_result?.round === 2
+      ? panel.last_result
+      : null;
+
   // A corrida é pública: quem não é filiado vê só ela, sem a barra de abas
   const race = (
     <div className="grid gap-5">
       {panel.runoff_race && <RunoffPollCard panel={panel} race={panel.runoff_race} />}
+      {panel.runoff_race && <FirstRoundCard panel={panel} race={panel.runoff_race} finalists={runoffFinalists} />}
+      {runoffResult && <RunoffGroupsCard panel={panel} result={runoffResult} />}
       {campaignOpen && <PollCard panel={panel} />}
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
         <div className="grid min-w-0 gap-5">
@@ -153,6 +168,8 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
           </AlertAction>
         </Alert>
       )}
+
+      {runoffRace && <RunoffNotices panel={panel} race={runoffRace} />}
 
       {panel.can_donate && (
         <Alert variant="info">

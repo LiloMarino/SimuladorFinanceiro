@@ -4,7 +4,13 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
 import { cn } from "@/shared/lib/utils";
-import { displayList, displayMoneyWhole, displayShortDate, displayMonthShort } from "@/shared/lib/utils/display";
+import {
+  displayList,
+  displayMoneyWhole,
+  displayPercent,
+  displayShortDate,
+  displayMonthShort,
+} from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionPhase } from "@/types";
 import { useToday } from "../hooks/useToday";
 import { countdownLabel, phaseLabel } from "../lib/election";
@@ -43,8 +49,40 @@ function viewerBadge(panel: ElectionPanel) {
   const mine = panel.my_party;
   const party = mine && panel.parties.find((p) => p.id === mine.party_id);
   if (!mine || !party) return null;
-  const role = mine.is_candidate ? "Você concorre pelo" : "Você é filiado ao";
+  const inRunoff = panel.runoff_race?.finalists.includes(party.id) ?? false;
+  const role = mine.is_candidate
+    ? inRunoff
+      ? "Você disputa o 2º turno pelo"
+      : "Você concorre pelo"
+    : "Você é filiado ao";
   return { role, party };
+}
+
+/** Entre os turnos, a linha que troca a contagem de partidos: os finalistas frente a frente e quem ficou de fora. */
+function runoffMatchup(panel: ElectionPanel) {
+  const race = panel.runoff_race;
+  const result = panel.last_result?.round === 1 ? panel.last_result : undefined;
+  if (panel.phase !== "BETWEEN_ROUNDS" || !race || !result) return null;
+  const finalists = race.finalists
+    .map((id) => panel.parties.find((party) => party.id === id))
+    .filter((party): party is NonNullable<typeof party> => party !== undefined);
+  const out = result.parties.filter((party) => !result.finalists.includes(party.party_id));
+  const [first, second] = finalists;
+  if (!first || !second) return null;
+  const [only] = out;
+  const outText =
+    only && out.length === 1
+      ? `o ${only.abbr} ficou de fora com ${displayPercent(only.share, 1)}`
+      : `${displayList(out.map((party) => party.abbr))} ficaram de fora`;
+
+  return (
+    <span className="flex flex-wrap items-center gap-1.5 text-[13px] text-muted-foreground">
+      <PartyMark abbr={first.abbr} color={first.color} size="sm" />
+      {first.candidate?.name ?? first.name} contra
+      <PartyMark abbr={second.abbr} color={second.color} size="sm" />
+      {second.candidate?.name ?? second.name} · {outText}
+    </span>
+  );
 }
 
 /** O vice responde pela chapa que o indicou, mesmo de outro partido ou sem partido. */
@@ -77,6 +115,7 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
   const choosing = phase !== "BEFORE_CAMPAIGN" && !panel.my_party && panel.can_found_or_join;
   const runoffSkipped = phase === "AWAITING_TERM" && panel.last_result?.round === 1;
   const current = CURRENT_STEP[phase];
+  const matchup = runoffMatchup(panel);
 
   const steps = [
     {
@@ -119,13 +158,15 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
                   </Badge>
                 )}
               </div>
-              <span className="text-[13px] text-muted-foreground">
-                {choosing
-                  ? `Você ainda não tem partido · inscrição de chapas até ${displayShortDate(dates.ticket_deadline)}`
-                  : panel.parties.length === 0
-                    ? "Ainda sem partidos. Quando a candidatura abrir, é aqui que eles aparecem."
-                    : `${panel.parties.length} ${panel.parties.length === 1 ? "partido" : "partidos"}: ${players} de jogadores e ${computers} do computador, que completa as vagas até 3 · mandato de 4 anos, com uma reeleição`}
-              </span>
+              {matchup ?? (
+                <span className="text-[13px] text-muted-foreground">
+                  {choosing
+                    ? `Você ainda não tem partido · inscrição de chapas até ${displayShortDate(dates.ticket_deadline)}`
+                    : panel.parties.length === 0
+                      ? "Ainda sem partidos. Quando a candidatura abrir, é aqui que eles aparecem."
+                      : `${panel.parties.length} ${panel.parties.length === 1 ? "partido" : "partidos"}: ${players} de jogadores e ${computers} do computador, que completa as vagas até 3 · mandato de 4 anos, com uma reeleição`}
+                </span>
+              )}
             </div>
             {choosing && (
               <div className="flex gap-2">

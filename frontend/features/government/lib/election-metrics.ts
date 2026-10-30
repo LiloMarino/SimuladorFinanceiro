@@ -45,6 +45,16 @@ export const UNDECIDED: MetricInfo = {
   format: (value) => Number(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 }),
 };
 
+export const NOT_VOTED: MetricInfo = {
+  label: "Não votaram",
+  description: "Eleitores que continuavam indecisos no dia do 2º turno",
+  definition:
+    "Quem votou no partido que saiu e não foi convencido por nenhum finalista até a votação se abstém. Esses eleitores não entram na conta: o vencedor sai só dos votos dados aos dois finalistas.",
+  example: "Ex.: 6 de cada 100 de quem depende de auxílio não votaram; eles não contam para nenhum dos dois.",
+  reading: "Muita abstenção num grupo indica que ele gostava pouco dos dois finalistas.",
+  format: (value) => Number(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 }),
+};
+
 export const TRUST: MetricInfo = {
   label: "Confiança no partido",
   description: "O quanto o grupo segue a recomendação do partido que saiu",

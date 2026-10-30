@@ -8,13 +8,12 @@ import { GROUP_INFO, inTechnicalTie, marginRange, partyFill, pollPercent, pollPo
 import { GroupPollBar } from "./group-poll-bar";
 import { PartyMark, PersonMark } from "./party-mark";
 import { PollLegend } from "./poll-legend";
-import { RunoffTransferCards } from "./runoff-transfer-cards";
 
 const ROW = "grid grid-cols-[minmax(0,220px)_90px_1fr_auto] items-center gap-3";
 
 type RunoffPollCardProps = { panel: ElectionPanel; race: RunoffRace };
 
-/** A pesquisa semanal do 2º turno e, abaixo, para onde foram os votos de cada partido que ficou de fora. */
+/** A pesquisa semanal do 2º turno, no total e por grupo de eleitores. */
 export function RunoffPollCard({ panel, race }: RunoffPollCardProps) {
   const finalists = race.finalists
     .map((id) => panel.parties.find((party) => party.id === id))
@@ -53,8 +52,6 @@ export function RunoffPollCard({ panel, race }: RunoffPollCardProps) {
               </span>
             </div>
           )}
-
-          <RunoffTransferCards panel={panel} race={race} finalists={finalists} />
         </div>
       </CardContent>
     </Card>
