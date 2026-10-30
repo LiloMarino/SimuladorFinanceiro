@@ -11,6 +11,7 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from backend.core.enum import MeasureKind, MeasureStatus
 from backend.core.utils import required
+from backend.features.government.promises import Promise
 from backend.features.government.state import Measure
 from backend.features.tax_policy import (
     DEFAULT_TAX_POLICY,
@@ -155,6 +156,23 @@ def title(measure: Measure) -> str:
             return f"Aposentadorias: reajuste de {percent(value)} acima da inflação"
         case MeasureKind.PUBLIC_WORKS:
             return f"Obras: {percent(value)} do PIB"
+
+
+def promise_title(promise: Promise) -> str:
+    """A promessa escrita como a medida que ela vira se for proposta."""
+    return title(
+        Measure(
+            id=0,
+            kind=promise.kind,
+            value=promise.target,
+            before=promise.baseline,
+            sector=promise.sector,
+            segment=promise.segment,
+            proposer_id=0,
+            term_start=promise.announced,
+            proposed=promise.announced,
+        )
+    )
 
 
 def target_name(measure: Measure) -> str:

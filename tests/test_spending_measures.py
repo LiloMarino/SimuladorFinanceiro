@@ -12,7 +12,13 @@ import pytest
 
 from backend.core import repository
 from backend.core.dto.promises import PromiseRequest
-from backend.core.enum import EffectPhase, MeasureKind, MeasureStatus, VoterGroup
+from backend.core.enum import (
+    EffectPhase,
+    MeasureKind,
+    MeasureStatus,
+    NewsType,
+    VoterGroup,
+)
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     UnprocessableEntityError,
@@ -554,3 +560,35 @@ def test_a_promise_above_the_limit_of_the_measure_is_refused(
         ALICE, CAMPAIGN_OPEN, [PromiseRequest(kind=AUX, target=Decimal("0.03"))]
     )
     assert (kept.target, kept.baseline) == (Decimal("0.03"), Decimal("0.015"))
+
+
+def test_the_spending_vote_and_the_start_reach_the_journal_with_their_own_text(
+    book: GovernmentBook, engine, market, monkeypatch, headlines
+):
+    govern(book, engine)
+    propose(book, AUX, "0.02")
+    headlines.clear()
+
+    effective = approve_first(book, monkeypatch)
+    book.on_tick(USERS, effective + timedelta(days=1), False)
+
+    voted, in_force = [h for _, h in headlines if h.news_type is NewsType.MEASURE_VOTED]
+    assert voted.text.startswith("Casa aprova mais gasto com auxílio por ")
+    assert voted.dek is not None and "O IPCA deve subir até" in voted.dek
+    assert in_force.text.startswith("Passa a valer: Auxílio")
+    assert in_force.dek is not None and "cheio em 6 meses" in in_force.dek
+
+
+def test_a_rejected_spending_measure_is_barred_in_the_journal(
+    book: GovernmentBook, engine, market, monkeypatch, headlines
+):
+    govern(book, engine)
+    propose(book, WORKS, "0.01")
+    headlines.clear()
+
+    congress_says(monkeypatch, False)
+    book.on_tick(USERS, FIRST_VOTE, False)
+
+    [barred] = [h for _, h in headlines if h.news_type is NewsType.MEASURE_VOTED]
+    assert barred.text.startswith("Casa barra mais gasto com obras por ")
+    assert barred.dek is not None and barred.dek.endswith("Nada muda.")

@@ -603,3 +603,33 @@ def test_computer_parties_promise_by_rule_and_are_not_charged(
     if term is not None and term.party_id in {c.id for c in computers}:
         book.on_tick(USERS, date(2025, 12, 31), False)
         assert book.state.balances == []
+
+
+def test_going_back_on_a_promise_reaches_the_journal_naming_what_was_given_up(
+    book: GovernmentBook, headlines
+):
+    found(book, ALICE, "AAA", RED)
+    announce(book, request("0.10"), request("0.05", MeasureKind.DAY_TRADE_RATE))
+    headlines.clear()
+
+    announce(book, request("0.10"))
+    announce(book, request("0.12"))
+
+    dropped, lowered = [h for _, h in headlines]
+    assert dropped.text == "AAA volta atrás em uma promessa de campanha"
+    assert dropped.dek is not None and "IR do day trade" in dropped.dek
+    assert lowered.text == "AAA volta atrás em uma promessa de campanha"
+    assert lowered.dek is not None and "IR das vendas com lucro em 10%" in lowered.dek
+
+
+def test_raising_the_target_is_a_revision_and_not_a_step_back(
+    book: GovernmentBook, headlines
+):
+    found(book, ALICE, "AAA", RED)
+    announce(book, request("0.10"))
+    headlines.clear()
+
+    announce(book, request("0.05"))
+
+    [revised] = [h for _, h in headlines]
+    assert revised.text == "AAA revê as promessas de campanha"

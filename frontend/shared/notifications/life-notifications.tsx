@@ -1,19 +1,15 @@
-import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useLifeStatus } from "@/shared/hooks/queries/useLifeStatus";
 import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useSimulation } from "@/shared/hooks/useSimulation";
-import { displayRatePercent } from "@/shared/lib/financial-independence";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayMonthName, displaySignedMoney } from "@/shared/lib/utils/display";
-import type { SimulationState } from "@/types";
 
 /**
  * Dono único da vida financeira em tempo real: renova a vida financeira e o histórico
- * quando o caixa muda (cash_update) ou um imprevisto cai (life_event) e avisa de cada um.
+ * quando o caixa muda (cash_update) ou um imprevisto cai (life_event) e avisa de cada imprevisto.
  * A renovação acompanha os eventos que mexem no caixa, não o ritmo dos pregões.
  */
 export function LifeNotifications() {
@@ -21,13 +17,9 @@ export function LifeNotifications() {
   const navigate = useNavigate();
   const { simulation } = useSimulation();
   const { isToastOn } = useNotificationPreferences();
-  const { data: status } = useLifeStatus();
   const current = simulation?.active ? simulation.simulation : null;
   const simulationId = current?.id ?? 0;
   const independence = current?.game_type === "FINANCIAL_INDEPENDENCE";
-
-  // O caixa do evento anterior; o primeiro evento parte do que a vida financeira já mostrava
-  const lastCash = useRef<number | null>(null);
 
   const showHistory = (highlightDate: string) => ({
     label: "Ver histórico",
@@ -62,27 +54,12 @@ export function LifeNotifications() {
     independence,
   );
 
+  // O caixa negativo avisa pela pendência; aqui o caixa só renova a vida financeira
   useRealtime(
     "cash_update",
-    ({ cash }) => {
-      const now = Number(cash);
-      const wasNegative =
-        lastCash.current === null ? Number(status?.overdraft_daily_interest ?? 0) > 0 : lastCash.current < 0;
-      lastCash.current = now;
-
+    () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.lifeStatus(simulationId),
-      });
-      if (wasNegative || now >= 0) return;
-
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.lifeHistoryAll(simulationId),
-      });
-      const today = queryClient.getQueryData<SimulationState>(queryKeys.simulationState())?.current_date;
-      const rate = status ? `${displayRatePercent(status.overdraft_monthly_rate)} ao mês` : "juros";
-      toast.error(`Caixa negativo: ${displaySignedMoney(now)}`, {
-        description: `Cheque especial cobra ${rate} até você cobrir`,
-        action: today ? showHistory(today) : undefined,
       });
     },
     independence,

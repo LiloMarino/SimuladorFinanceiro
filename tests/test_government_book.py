@@ -1627,9 +1627,10 @@ def test_the_election_reaches_the_journal_from_the_campaign_to_the_inauguration(
     ]
     assert "Alice pelo AAA" in closed
     results = texts(headlines, NewsType.ELECTION_RESULT)
-    assert results[-1].startswith("Alice (AAA) vence o 2º turno, com ")
-    [posse] = texts(headlines, NewsType.TERM_STARTED)
+    assert results[-1].startswith("Virada: Alice (AAA) vence o 2º turno, com ")
+    posse, house_seated = texts(headlines, NewsType.TERM_STARTED)
     assert posse == "Alice toma posse; o mandato vai até 2025"
+    assert house_seated.startswith("Novo Congresso toma posse: ")
     assert headlines[-1][0] == TERM_START
 
 
@@ -1706,3 +1707,17 @@ def test_queue_budget_sums_the_queued_measures_on_the_current_policy(
 
     assert queue.total > 0
     assert queue.result_if_passes == queue.result_now + queue.total
+
+
+def test_the_runoff_headline_calls_a_turnaround_when_the_first_round_leader_loses(
+    book: GovernmentBook, engine, headlines
+):
+    govern(book, engine)
+    first = next(r for r in book.state.results if r.round == 1)
+    finalists = first.finalists
+    leader = max(finalists, key=lambda f: (first.points[f], -f))
+    other = next(f for f in finalists if f != leader)
+
+    assert book._turned_from(2, finalists, leader) is None
+    assert book._turned_from(2, finalists, other) == book.state.parties[leader].abbr
+    assert book._turned_from(1, finalists, other) is None

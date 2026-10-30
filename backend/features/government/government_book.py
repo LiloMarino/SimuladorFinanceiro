@@ -61,6 +61,7 @@ from backend.features.government import (
     promises,
     second_round,
     spending,
+    spending_effects,
     spending_panel,
     voters,
 )
@@ -973,6 +974,24 @@ class GovernmentBook:
             seats_before=before,
             seats_after=self.base_seats(today),
         )
+        if accept:
+            self._announce_deal_made(deal, today, end)
+
+    def _announce_deal_made(self, deal: deals.Deal, today: date, end: date) -> None:
+        """O acordo fechado vai ao jornal com o tamanho da base que ele deixa."""
+        bloc = self.state.house_on(today).bloc(deal.bloc_key)
+        proposer = self._people.get(deal.proposer_id)
+        self._on_news(
+            today,
+            headlines.deal_made(
+                proposer.nickname if proposer else "o presidente",
+                deal.abbr,
+                bloc.seats if bloc else deal.seats,
+                self.base_seats(today),
+                house.MAJORITY,
+                end,
+            ),
+        )
 
     def break_deal(self, user: UserDTO, today: date, deal_id: int) -> None:
         """O governo para de pagar: os grupos do aliado somam rejeição ao partido do presidente."""
@@ -1576,6 +1595,12 @@ class GovernmentBook:
         if final == party.promises:
             raise ConflictError("As promessas não mudaram.")
         had_promises = bool(party.promises)
+        kept = {p.key: p for p in final}
+        retreated = [
+            rules.promise_title(old)
+            for old in party.promises
+            if promises.backs_down(old, kept.get(old.key))
+        ]
         self._emit(
             GovernmentEventType.PROMISES_SET,
             today,
@@ -1584,7 +1609,8 @@ class GovernmentBook:
         )
         self._notice(GovernmentNoticeKind.PROMISES_SET, user, party_abbr=party.abbr)
         self._on_news(
-            today, headlines.promises_set(party.abbr, len(final), had_promises)
+            today,
+            headlines.promises_set(party.abbr, len(final), had_promises, retreated),
         )
 
     def _build_promise(
@@ -2144,18 +2170,33 @@ class GovernmentBook:
                 effective=measure.effective,
                 tickers=self.tickers(measure),
             )
-            self._on_news(
-                today,
-                headlines.measure_voted(
-                    rules.title(measure),
-                    approved,
-                    measure.effective,
-                    self.tickers(measure),
-                    tally.yes,
-                    tally.no,
-                    tally.defected,
-                ),
+            self._on_news(today, self._voted_headline(measure, approved, tally))
+
+    def _voted_headline(
+        self, measure: Measure, approved: bool, tally: house.Tally
+    ) -> Headline:
+        """A medida de gasto tem manchete própria, com o que ela faz à inflação; as de imposto citam os ativos."""
+        if measure.kind.is_spending:
+            return headlines.spending_voted(
+                measure.kind,
+                rules.title(measure),
+                approved,
+                measure.effective,
+                spending_panel.peak_inflation(measure),
+                int(spending_effects.DELAY_MONTHS),
+                tally.yes,
+                tally.no,
+                tally.defected,
             )
+        return headlines.measure_voted(
+            rules.title(measure),
+            approved,
+            measure.effective,
+            self.tickers(measure),
+            tally.yes,
+            tally.no,
+            tally.defected,
+        )
 
     def _impeach(self, today: date, tally: house.Tally) -> None:
         """
@@ -2285,12 +2326,17 @@ class GovernmentBook:
                     effective=measure.effective,
                     tickers=self.tickers(measure),
                 )
-                self._on_news(
-                    today,
-                    headlines.measure_in_force(
+                if measure.kind.is_spending:
+                    news = headlines.spending_in_force(
+                        rules.title(measure),
+                        spending_panel.peak_inflation(measure),
+                        int(spending_effects.DELAY_MONTHS),
+                    )
+                else:
+                    news = headlines.measure_in_force(
                         rules.title(measure), self.tickers(measure)
-                    ),
-                )
+                    )
+                self._on_news(today, news)
 
     # Calendário: contribuição, apuração e posse
 
@@ -2695,6 +2741,7 @@ class GovernmentBook:
                     self._candidate_name(winner_party, candidate),
                     winner_party.abbr,
                     shares[winner_party.id],
+                    self._turned_from(round_number, finalists, winner_party.id),
                 ),
             )
         elif len(finalists) == 2:
@@ -2705,6 +2752,17 @@ class GovernmentBook:
                     cycle.runoff,
                 ),
             )
+
+    def _turned_from(
+        self, round_number: int, finalists: list[int], winner: int
+    ) -> str | None:
+        """Num 2º turno virado, a sigla de quem liderou o 1º turno e perdeu; nulo quando o líder venceu."""
+        first = next((r for r in reversed(self.state.results) if r.round == 1), None)
+        if round_number != 2 or len(finalists) != 2 or first is None:
+            return None
+        first_round = first.points
+        leader = max(finalists, key=lambda f: (first_round.get(f, Decimal(0)), -f))
+        return self._party_abbr(leader) if leader != winner else None
 
     def _start_term(self, today: date, people: dict[int, UserDTO]) -> None:
         pending = required(self.state.pending_term)
@@ -2736,6 +2794,28 @@ class GovernmentBook:
                     name, party.abbr if party else None, self.term_end()
                 ),
             )
+        self._announce_house_seated(today, party)
+
+    def _announce_house_seated(self, today: date, government: Party | None) -> None:
+        """O Congresso eleito toma posse com o governo: a manchete diz quem tem a maior bancada e quanto o governo tem."""
+        if not any(e.takes_office <= today for e in self.state.houses):
+            return
+        seated = self.state.house_on(today).seated
+        if not seated:
+            return
+        biggest = max(seated, key=lambda b: (b.seats, -b.key))
+        own = self.governing_bloc(today)
+        self._on_news(
+            today,
+            headlines.house_seated(
+                (biggest.abbr, biggest.seats),
+                sum(b.seats for b in seated),
+                (government.abbr, own.seats)
+                if government is not None and own is not None
+                else None,
+                house.MAJORITY,
+            ),
+        )
 
     def _candidate_name(self, party: Party, candidate_id: int | None) -> str:
         """O nome na urna: o do computador vem da chapa, o do jogador é o apelido."""

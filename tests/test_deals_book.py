@@ -509,3 +509,28 @@ def test_the_preview_prices_the_proposal_and_tells_whether_the_computer_accepts(
     assert liked.debt_before is not None and liked.debt_after is not None
     assert liked.debt_after > liked.debt_before
     assert liked.ratio == deals.price("MNV", liked.seats)
+
+
+def test_the_accepted_deal_reaches_the_journal_with_the_size_of_the_base(
+    book: GovernmentBook, engine, market, headlines
+):
+    govern(book, engine)
+    headlines.clear()
+
+    ally_deal(book, UPR)
+
+    [made] = [h for _, h in headlines if h.text.startswith("UPR entra na base")]
+    assert made.text == "UPR entra na base do governo de Alice"
+    assert made.dek is not None
+    assert f"São {seats_of(book, UPR)} cadeiras" in made.dek
+    assert f"a base vai a {book.base_seats(NEXT_DAY)}" in made.dek
+
+
+def test_a_declined_deal_is_not_news(book: GovernmentBook, engine, market, headlines):
+    govern(book, engine)
+    headlines.clear()
+
+    book.propose_deal(ALICE, TERM_START, ACI)
+    book.on_tick(USERS, NEXT_DAY, False)
+
+    assert not [h for _, h in headlines if "entra na base" in h.text]

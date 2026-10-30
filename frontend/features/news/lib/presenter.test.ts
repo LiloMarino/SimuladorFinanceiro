@@ -50,16 +50,28 @@ describe("presenterReducer", () => {
     expect(arrive(state, news(3), "JOURNAL", 0).expanded).toBe(true);
   });
 
-  it("abre uma janela por vez: a segunda espera e a terceira vai para o cartão", () => {
+  it("abre uma janela por vez: a de outro pregão espera a aberta fechar", () => {
     let state = arrive(INITIAL_PRESENTER, news(1), "WINDOW");
-    state = arrive(state, news(2), "WINDOW");
-    state = arrive(state, news(3), "WINDOW");
+    state = arrive(state, news(2, "2016-03-15"), "WINDOW");
     expect(state.window?.id).toBe(1);
     expect(state.waiting?.id).toBe(2);
-    expect(state.lead?.news.id).toBe(3);
 
     state = presenterReducer(state, { type: "window_closed" });
     expect(state.window?.id).toBe(2);
     expect(state.waiting).toBeNull();
+  });
+
+  it("no máximo uma janela por pregão: as outras do mesmo dia vão para o cartão", () => {
+    let state = arrive(INITIAL_PRESENTER, news(1), "WINDOW");
+    state = arrive(state, news(2), "WINDOW");
+    expect(state.window?.id).toBe(1);
+    expect(state.waiting).toBeNull();
+    expect(state.lead?.news.id).toBe(2);
+
+    // Fechada a janela, outra manchete do mesmo pregão continua sem janela
+    state = presenterReducer(state, { type: "window_closed" });
+    state = arrive(state, news(3), "WINDOW");
+    expect(state.window).toBeNull();
+    expect(state.count).toBe(2);
   });
 });

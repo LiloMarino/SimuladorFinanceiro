@@ -282,6 +282,7 @@ class Simulation:
                 settings.id,
                 lambda: self._engine.classification,
                 lambda day, headline: news.publish(settings.id, day, headline),
+                self._spending_inflation,
             )
             if backtest is None
             else None
@@ -985,6 +986,12 @@ class Simulation:
                 self._human_snapshots(users), month_changed
             ),
         )
+
+    def _spending_inflation(self, day: date) -> float:
+        """Os pontos de IPCA que as medidas de gasto aprovadas somam à série no dia; zero sem o governo."""
+        if self._government is None:
+            return 0.0
+        return self._government.economy().inflation_points(day)
 
     def _publish_newsroom(self, stocks: list[CandleDTO]) -> None:
         """As manchetes do pregão; uma falha do noticiário não para a partida."""

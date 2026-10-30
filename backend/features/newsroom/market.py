@@ -3,8 +3,8 @@ O pregão como o noticiário o lê: as cotações do dia, os fechamentos anterio
 ativo e as séries de indicadores. As regras só leem este retrato, sem tocar no banco.
 """
 
-from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass, field
 from datetime import date
 
 from backend.core.enum import AssetClass
@@ -22,6 +22,11 @@ class Quote:
     close: float
 
 
+def no_spending(day: date) -> float:
+    """Sem medida de gasto aprovada, a inflação não leva nenhum ponto a mais."""
+    return 0.0
+
+
 @dataclass(frozen=True)
 class MarketDay:
     day: date
@@ -37,3 +42,5 @@ class MarketDay:
     # O último dia com dado real; depois dele o mercado é gerado. Nulo sem dado real.
     real_until: date | None
     simulation_id: int
+    # Os pontos de IPCA em 12 meses que as medidas de gasto aprovadas somam à série em cada dia
+    spending_inflation: Callable[[date], float] = field(default=no_spending)

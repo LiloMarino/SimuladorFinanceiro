@@ -30,7 +30,6 @@ from backend.features.government.promises import GroupEffects, Promise
 from backend.features.government.state import (
     VIGENCE_DAYS,
     Balance,
-    Measure,
     Party,
     PromiseRecord,
 )
@@ -42,7 +41,7 @@ ONE = Decimal(1)
 def promise_dto(promise: Promise) -> PromiseDTO:
     return PromiseDTO(
         kind=promise.kind,
-        title=_title(promise),
+        title=rules.promise_title(promise),
         target=promise.target,
         baseline=promise.baseline,
         sector=promise.sector,
@@ -56,23 +55,6 @@ def record_dto(record: PromiseRecord) -> PromiseRecordDTO:
         election_year=record.year,
         elected=record.elected,
         promises=[promise_dto(p) for p in record.promises],
-    )
-
-
-def _title(promise: Promise) -> str:
-    """A promessa escrita como a medida que ela vira se for proposta."""
-    return rules.title(
-        Measure(
-            id=0,
-            kind=promise.kind,
-            value=promise.target,
-            before=promise.baseline,
-            sector=promise.sector,
-            segment=promise.segment,
-            proposer_id=0,
-            term_start=promise.announced,
-            proposed=promise.announced,
-        )
     )
 
 

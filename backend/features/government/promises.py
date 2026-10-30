@@ -210,6 +210,11 @@ def retreat(old: Promise, new: Promise | None) -> dict[VoterGroup, Decimal]:
     }
 
 
+def backs_down(old: Promise, new: Promise | None) -> bool:
+    """Se a lista nova abandona parte da promessa já anunciada: retirar, trocar ou baixar o alvo."""
+    return _dropped(old, new) is not None
+
+
 def _dropped(
     old: Promise, new: Promise | None
 ) -> tuple[Decimal | None, Decimal | None] | None:

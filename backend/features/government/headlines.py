@@ -6,9 +6,16 @@ na terceira pessoa; os números de campanha (dado, pontos de apoio) ficam com o 
 from datetime import date
 from decimal import Decimal
 
-from backend.core.enum import CampaignActionKind, DiceBand, NewsType, VoterGroup
+from backend.core.enum import (
+    CampaignActionKind,
+    DiceBand,
+    MeasureKind,
+    NewsType,
+    VoterGroup,
+)
 from backend.core.utils import format_money
 from backend.features.government.measures import MONTHS, number
+from backend.features.newsroom.text import number as precise_number
 from backend.features.notifications.news import Headline
 
 GROUP_NAMES: dict[VoterGroup, str] = {
@@ -21,6 +28,14 @@ GROUP_NAMES: dict[VoterGroup, str] = {
 }
 
 HUNDRED = Decimal(100)
+
+# O que cada medida de gasto paga, como a manchete a chama
+SPENDING_NOUNS: dict[MeasureKind, str] = {
+    MeasureKind.WELFARE_SPENDING: "auxílio",
+    MeasureKind.SERVANT_RAISE: "servidores",
+    MeasureKind.RETIREE_RAISE: "aposentadorias",
+    MeasureKind.PUBLIC_WORKS: "obras",
+}
 
 
 def _day_month(day: date) -> str:
@@ -105,9 +120,23 @@ def election_eve(first_round: date) -> Headline:
 # Resultado do turno e impeachment
 
 
-def round_won(round_number: int, candidate: str, abbr: str, share: Decimal) -> Headline:
+def round_won(
+    round_number: int,
+    candidate: str,
+    abbr: str,
+    share: Decimal,
+    turned_from: str | None = None,
+) -> Headline:
+    """`turned_from` é a sigla de quem liderou o 1º turno e perdeu o 2º: a virada."""
     where = "no 1º turno" if round_number == 1 else "o 2º turno"
     verb = "vence a eleição" if round_number == 1 else "vence"
+    if turned_from:
+        return Headline(
+            NewsType.ELECTION_RESULT,
+            f"Virada: {candidate} ({abbr}) vence o 2º turno, com {_share(share)} dos votos válidos",
+            f"O {turned_from} tinha liderado o 1º turno e perdeu a eleição. "
+            "A posse é em 1º de janeiro.",
+        )
     return Headline(
         NewsType.ELECTION_RESULT,
         f"{candidate} ({abbr}) {verb} {where}, com {_share(share)} dos votos válidos",
@@ -187,6 +216,29 @@ def term_started(president: str, abbr: str | None, term_end: date | None) -> Hea
     )
 
 
+def house_seated(
+    leader: tuple[str, int],
+    seats: int,
+    government: tuple[str, int] | None,
+    majority: int,
+) -> Headline:
+    """O Congresso eleito toma posse: a maior bancada (sigla, cadeiras) e a do governo, se há."""
+    abbr, held = leader
+    dek = None
+    if government is not None:
+        party, own = government
+        position = "na maioria" if own >= majority else "abaixo da maioria"
+        dek = (
+            f"A bancada do governo ({party}) começa com {own} cadeiras, {position} "
+            f"de {majority}."
+        )
+    return Headline(
+        NewsType.TERM_STARTED,
+        f"Novo Congresso toma posse: {abbr} é a maior bancada, com {held} das {seats} cadeiras",
+        dek,
+    )
+
+
 def measure_proposed(president: str, title: str) -> Headline:
     return Headline(
         NewsType.MEASURE_PROPOSED,
@@ -233,6 +285,62 @@ def measure_voted(
     )
 
 
+def _points(peak: Decimal) -> str:
+    """Pontos de IPCA em módulo, com a vírgula e a unidade no singular até 1."""
+    value = abs(peak)
+    unit = "ponto" if value <= 1 else "pontos"
+    return f"{precise_number(value)} {unit}"
+
+
+def spending_voted(
+    kind: MeasureKind,
+    title: str,
+    approved: bool,
+    effective: date | None,
+    peak: Decimal,
+    months_to_peak: int,
+    yes: int,
+    no: int,
+    defected: int,
+) -> Headline:
+    """A votação de uma medida de gasto: a manchete diz se o gasto sobe ou cai e o dek, o que a inflação faz."""
+    noun = SPENDING_NOUNS[kind]
+    raises = peak >= 0
+    score = f"{yes} a {no}" + (
+        f", com {defected} que desobedeceram" if defected else ""
+    )
+    if not approved:
+        what = f"mais gasto com {noun}" if raises else f"o corte em {noun}"
+        return Headline(
+            NewsType.MEASURE_VOTED,
+            f"Casa barra {what} por {no} a {yes}: {title}",
+            f"Placar {score}. Nada muda.",
+        )
+    what = f"mais gasto com {noun}" if raises else f"corte em {noun}"
+    when = (
+        f" Vale a partir de {effective.day:02d}/{effective.month:02d}/{effective.year}."
+        if effective
+        else ""
+    )
+    direction = "subir" if raises else "ceder"
+    return Headline(
+        NewsType.MEASURE_VOTED,
+        f"Casa aprova {what} por {yes} a {no}: {title}",
+        f"Placar {score}.{when} O IPCA deve {direction} até {_points(peak)} "
+        f"em {months_to_peak} meses.",
+    )
+
+
+def spending_in_force(title: str, peak: Decimal, months_to_peak: int) -> Headline:
+    direction = "soma" if peak >= 0 else "tira"
+    return Headline(
+        NewsType.MEASURE_VOTED,
+        f"Passa a valer: {title}",
+        f"O efeito na inflação chega cheio em {months_to_peak} meses: a medida "
+        f"{direction} até {_points(peak)} do IPCA em 12 meses.",
+    )
+
+
 def measure_in_force(title: str, tickers: list[str]) -> Headline:
     return Headline(
         NewsType.MEASURE_VOTED, f"Passa a valer: {title}", None, tuple(tickers)
@@ -256,6 +364,25 @@ def donation(donor: str, abbr: str, amount: Decimal) -> Headline:
 
 def expelled(member: str, abbr: str) -> Headline:
     return Headline(NewsType.PARTY_LIFE, f"{member} é expulso do {abbr}")
+
+
+def deal_made(
+    president: str,
+    ally_abbr: str,
+    ally_seats: int,
+    base_seats: int,
+    majority: int,
+    end: date,
+) -> Headline:
+    """O acordo de apoio fechado: o aliado entra na base e a manchete diz em que pé a base fica."""
+    position = "na maioria" if base_seats >= majority else "abaixo da maioria"
+    return Headline(
+        NewsType.PARTY_LIFE,
+        f"{ally_abbr} entra na base do governo de {president}",
+        f"São {ally_seats} cadeiras: a base vai a {base_seats}, {position} de {majority}. "
+        f"O acordo vale até {end.day:02d}/{end.month:02d}/{end.year}, com emendas "
+        "pagas todo mês.",
+    )
 
 
 def deal_broken(
@@ -384,7 +511,25 @@ def campaign_action(
     return None
 
 
-def promises_set(abbr: str, count: int, had_promises: bool) -> Headline:
+def promises_set(
+    abbr: str, count: int, had_promises: bool, retreated: list[str] | None = None
+) -> Headline:
+    """`retreated` traz as promessas já anunciadas que a nova lista abandonou (retirou, trocou ou baixou)."""
+    if retreated:
+        dek = (
+            f"Deixou de prometer: {_join(retreated)}. Voltar atrás soma rejeição "
+            "entre quem queria a medida."
+        )
+        if count == 0:
+            return Headline(
+                NewsType.CAMPAIGN, f"{abbr} retira as promessas de campanha", dek
+            )
+        text = (
+            f"{abbr} volta atrás em uma promessa de campanha"
+            if len(retreated) == 1
+            else f"{abbr} volta atrás em {len(retreated)} promessas de campanha"
+        )
+        return Headline(NewsType.CAMPAIGN, text, dek)
     if count == 0:
         return Headline(NewsType.CAMPAIGN, f"{abbr} retira as promessas de campanha")
     noun = "promessa" if count == 1 else "promessas"

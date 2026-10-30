@@ -20,6 +20,8 @@ export type PresenterState = {
   /** A janela aberta e a que espera ela fechar */
   window: News | null;
   waiting: News | null;
+  /** O pregão da última janela que abriu ou entrou na espera */
+  windowDay: string | null;
 };
 
 export type PresenterAction =
@@ -34,12 +36,14 @@ export const INITIAL_PRESENTER: PresenterState = {
   expanded: false,
   window: null,
   waiting: null,
+  windowDay: null,
 };
 
 /**
- * Janela, cartão ou nada, conforme o nível do tipo. A janela é uma por vez: a segunda espera a
- * primeira fechar e a terceira vai para o cartão. No cartão, cada pregão é uma rajada: sobe a
- * manchete mais importante, e as outras entram na contagem "+N neste pregão".
+ * Janela, cartão ou nada, conforme o nível do tipo. Cada pregão tem no máximo uma janela: a
+ * primeira manchete de nível Janela do pregão abre (ou espera a janela de um pregão anterior
+ * fechar) e as outras do mesmo pregão vão para o cartão. No cartão, cada pregão é uma rajada: sobe
+ * a manchete mais importante, e as outras entram na contagem "+N neste pregão".
  */
 export function presenterReducer(state: PresenterState, action: PresenterAction): PresenterState {
   switch (action.type) {
@@ -47,9 +51,9 @@ export function presenterReducer(state: PresenterState, action: PresenterAction)
       const { news, level, rank } = action;
       if (level !== "WINDOW" && level !== "JOURNAL") return state;
 
-      if (level === "WINDOW") {
-        if (state.window === null) return { ...state, window: news };
-        if (state.waiting === null) return { ...state, waiting: news };
+      if (level === "WINDOW" && state.windowDay !== news.news_date) {
+        if (state.window === null) return { ...state, window: news, windowDay: news.news_date };
+        if (state.waiting === null) return { ...state, waiting: news, windowDay: news.news_date };
       }
 
       if (state.day !== news.news_date) {

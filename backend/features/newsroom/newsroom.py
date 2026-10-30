@@ -20,7 +20,7 @@ from backend.features.newsroom.macro import (
     copom_decision,
     monthly_inflation,
 )
-from backend.features.newsroom.market import MarketDay, Quote
+from backend.features.newsroom.market import MarketDay, Quote, no_spending
 from backend.features.notifications.news import Headline
 
 type Rule = Callable[[MarketDay], list[Headline]]
@@ -37,10 +37,12 @@ class Newsroom:
         simulation_id: int,
         classification: Callable[[], dict[str, StockSegmentDTO]],
         publish: Callable[[date, Headline], None],
+        spending_inflation: Callable[[date], float] = no_spending,
     ) -> None:
         self._simulation_id = simulation_id
         self._classification = classification
         self._publish = publish
+        self._spending_inflation = spending_inflation
         # Da mais importante para a menos: é a ordem em que as manchetes saem num pregão
         self._rules: tuple[Rule, ...] = (
             copom_decision,
@@ -94,6 +96,7 @@ class Newsroom:
             ibov=economic.get_history(IndicatorSeries.IBOV),
             real_until=self._real_end,
             simulation_id=self._simulation_id,
+            spending_inflation=self._spending_inflation,
         )
 
     def _window(self, previous: date) -> dict[str, list[float]]:
