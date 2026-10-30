@@ -1,5 +1,6 @@
 import type { GovernmentPanel } from "@/types";
 import { HouseCard } from "./house-card";
+import { BaseProposalNotice } from "./proposal-notice";
 import { ImpeachmentRequestCard } from "./impeachment-request-card";
 import { QueueCard } from "./queue-card";
 import { VoteHistoryCard } from "./vote-history-card";
@@ -10,6 +11,7 @@ export function CongressTab({ panel }: { panel: GovernmentPanel }) {
 
   return (
     <div className="grid gap-5 pt-3">
+      <BaseProposalNotice />
       {congress.impeachment_request && <ImpeachmentRequestCard request={congress.impeachment_request} />}
       <HouseCard house={congress.house} />
       <QueueCard panel={panel} />

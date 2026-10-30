@@ -280,6 +280,7 @@ def pending(
         severity=spec.severity,
         title=spec.label,
         detail=detail,
+        resolves=spec.resolves,
         loan_id=loan_id,
     )
 

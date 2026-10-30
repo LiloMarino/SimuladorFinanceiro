@@ -8,7 +8,7 @@ type PendingRowProps = {
   onAct: (item: Pending) => void;
 };
 
-/** Uma pendência: título, o que a causa e o botão da ação que a resolve. */
+/** Uma pendência: título, o que a causa, quando ela some e o botão da ação que a resolve. */
 export function PendingRow({ item, onAct }: PendingRowProps) {
   const target = pendingTarget(item);
 
@@ -24,6 +24,7 @@ export function PendingRow({ item, onAct }: PendingRowProps) {
         <span className="truncate text-xs text-muted-foreground" title={item.detail}>
           {item.detail}
         </span>
+        <span className="text-[11px] text-muted-foreground/80">{item.resolves}</span>
       </div>
       <Button variant="outline" size="xs" onClick={() => onAct(item)}>
         {target.label}

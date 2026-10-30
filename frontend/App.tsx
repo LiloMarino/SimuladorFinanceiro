@@ -85,6 +85,7 @@ const navItems: NavItem[] = [
     icon: Landmark,
     group: "Expansões",
     expansion: "government",
+    pendingTypes: ["VICE_INVITE", "CAMPAIGN_OPEN"],
   },
   {
     key: "government",
@@ -93,6 +94,7 @@ const navItems: NavItem[] = [
     icon: Gavel,
     group: "Expansões",
     expansion: "government",
+    pendingTypes: ["IMPEACHMENT_RISK", "UNGUIDED_VOTE", "DEAL_PROPOSAL"],
   },
   { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3, group: "Ferramentas" },
   { key: "tutorial", label: "Como jogar", endpoint: "", icon: GraduationCap, group: "Ferramentas", tutorial: true },
@@ -103,6 +105,7 @@ const navItems: NavItem[] = [
     icon: Bot,
     group: "Ferramentas",
     strategyStatus: true,
+    pendingTypes: ["STRATEGY_ERROR"],
   },
   {
     key: "performance",

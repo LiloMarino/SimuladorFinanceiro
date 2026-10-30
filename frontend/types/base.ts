@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import type { PendingType } from "./api";
 
 /** Item de navegação (menu lateral, abas etc.) */
 
@@ -19,8 +20,10 @@ export interface NavItem {
   achievementTally?: boolean;
   /** Ponto vermelho no item enquanto há parcela em atraso ou sem caixa para cobrir */
   creditAlert?: boolean;
-  /** O selo mostra o modo do jogador (Ligada/Desligada), com um ponto vermelho quando a estratégia deu erro e o erro não foi visto */
+  /** O selo mostra o modo do jogador (Ligada/Desligada), com o ponto da pendência de estratégia desligada por erro */
   strategyStatus?: boolean;
+  /** Ponto no item enquanto há pendência de um destes tipos: vermelho se alguma é grave, âmbar se são só avisos */
+  pendingTypes?: PendingType[];
   /** Abre a janela Como jogar em vez de navegar; só aparece quando o jogador escolheu o acesso pelo menu */
   tutorial?: boolean;
   /** Só aparece nas partidas com a expansão ligada */

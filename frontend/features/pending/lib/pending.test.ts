@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Pending } from "@/types";
-import { bornSince, pendingTarget, severeCount, severeLabel } from "./pending";
+import { bornSince, menuDotSeverity, pendingTarget, severeCount, severeLabel } from "./pending";
 
 function pending(overrides: Partial<Pending>): Pending {
   return {
@@ -9,6 +9,7 @@ function pending(overrides: Partial<Pending>): Pending {
     severity: "WARNING",
     title: "Caixa não cobre a próxima parcela",
     detail: "Faltam R$ 920,00 até 05/04",
+    resolves: "Some quando o caixa cobre; no vencimento, vira atraso",
     loan_id: null,
     ...overrides,
   };
@@ -50,5 +51,22 @@ describe("bornSince", () => {
     const items = [pending({ key: "a" }), pending({ key: "b" })];
 
     expect(bornSince(new Set(["a"]), items).map((item) => item.key)).toEqual(["b"]);
+  });
+});
+
+describe("menuDotSeverity", () => {
+  const items = [
+    pending({ key: "a", type: "VICE_INVITE", severity: "WARNING" }),
+    pending({ key: "b", type: "IMPEACHMENT_RISK", severity: "SEVERE" }),
+  ];
+
+  it("some sem pendência dos tipos do item", () => {
+    expect(menuDotSeverity(items, ["STRATEGY_ERROR"])).toBeUndefined();
+    expect(menuDotSeverity(undefined, ["VICE_INVITE"])).toBeUndefined();
+  });
+
+  it("é âmbar quando só há avisos e vermelho quando alguma é grave", () => {
+    expect(menuDotSeverity(items, ["VICE_INVITE", "CAMPAIGN_OPEN"])).toBe("WARNING");
+    expect(menuDotSeverity(items, ["IMPEACHMENT_RISK", "VICE_INVITE"])).toBe("SEVERE");
   });
 });

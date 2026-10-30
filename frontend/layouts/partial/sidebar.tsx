@@ -30,6 +30,9 @@ import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSetti
 import { hasGoal } from "@/shared/lib/game-types";
 import { TutorialMenuItem } from "@/features/tutorial/components/menu-item";
 import { PendingMenuItem } from "@/features/pending/components/pending-menu-item";
+import { PendingDot } from "@/features/pending/components/pending-dot";
+import { usePending } from "@/features/pending/hooks/queries/usePending";
+import { menuDotSeverity } from "@/features/pending/lib/pending";
 
 interface SidebarProps {
   navItems: NavItem[];
@@ -47,6 +50,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const tally = useAchievementTally();
   const { data: portfolio } = usePortfolio();
   const { data: myStrategy } = useMyStrategy();
+  const { data: pending } = usePending();
 
   const debug = useDebugMode();
 
@@ -88,7 +92,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
         {/* Pendências da partida */}
         <SidebarGroup>
           <SidebarMenu>
-            <PendingMenuItem />
+            <PendingMenuItem items={pending} />
           </SidebarMenu>
         </SidebarGroup>
         {NAV_GROUPS.filter((group) => navItems.some((item) => item.group === group && isVisible(item))).map((group) => (
@@ -97,8 +101,9 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
             <SidebarMenu>
               {navItems
                 .filter((item) => item.group === group && isVisible(item))
-                .map((item) =>
-                  item.tutorial ? (
+                .map((item) => {
+                  const dot = item.pendingTypes ? menuDotSeverity(pending, item.pendingTypes) : undefined;
+                  return item.tutorial ? (
                     <TutorialMenuItem key={item.key} label={item.label} icon={item.icon} />
                   ) : (
                     <SidebarMenuItem key={item.key}>
@@ -118,6 +123,11 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
                           />
                         </SidebarMenuBadge>
                       )}
+                      {dot && !item.strategyStatus && (
+                        <SidebarMenuBadge>
+                          <PendingDot severity={dot} label="Pendência pedindo atenção" />
+                        </SidebarMenuBadge>
+                      )}
                       {item.strategyStatus && myStrategy && (
                         <SidebarMenuBadge tone="plain">
                           {myStrategy.active ? (
@@ -125,13 +135,10 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
                               <span className="size-2 rounded-full bg-toast-success" />
                               Ligada
                             </span>
-                          ) : myStrategy.error && !myStrategy.error.seen && activePage !== item.key ? (
-                            <span className="inline-flex items-center gap-1.5 text-toast-error">
+                          ) : dot ? (
+                            <span className="inline-flex items-center gap-1.5 text-toast-warning">
                               Desligada
-                              <span
-                                aria-label="A estratégia deu erro"
-                                className="size-2 rounded-full bg-destructive ring-2 ring-sidebar"
-                              />
+                              <PendingDot severity={dot} label="A estratégia deu erro" />
                             </span>
                           ) : (
                             <span className="text-sidebar-muted">Desligada</span>
@@ -149,8 +156,8 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
                         </SidebarMenuBadge>
                       )}
                     </SidebarMenuItem>
-                  ),
-                )}
+                  );
+                })}
             </SidebarMenu>
           </SidebarGroup>
         ))}

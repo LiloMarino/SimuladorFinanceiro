@@ -43,6 +43,7 @@ export function GovernmentNotifications() {
   const dealDialog = useDealDialog();
 
   const openGovernment = () => void navigate("/government");
+  const openBase = () => void navigate("/government?tab=accounts");
   const openCampaign = () => void navigate("/election", { state: { tab: "campaign" } });
 
   useRealtime("government_update", (event) => {
@@ -144,14 +145,20 @@ export function GovernmentNotifications() {
       case "DEAL_ANSWERED":
         if (event.target === me) {
           const notice = dealAnsweredToast(event);
-          toast[notice.tone](notice.title, { description: notice.description });
+          toast[notice.tone](notice.title, {
+            description: notice.description,
+            action: { label: "Ver", onClick: openBase },
+          });
         }
         break;
       case "DEAL_BROKEN":
         // Avisa o lado que sofreu a quebra; quem rompeu já viu o diálogo
         if (event.target === me) {
           const notice = dealBrokenToast(event);
-          toast[notice.tone](notice.title, { description: notice.description });
+          toast[notice.tone](notice.title, {
+            description: notice.description,
+            action: { label: "Ver", onClick: openBase },
+          });
         }
         break;
       case "DEAL_ENDED": {
@@ -159,7 +166,10 @@ export function GovernmentNotifications() {
         const panel = queryClient.getQueryData<GovernmentPanel>(queryKeys.government());
         if (panel?.is_president) {
           const notice = dealEndedToast(event);
-          toast[notice.tone](notice.title, { description: notice.description });
+          toast[notice.tone](notice.title, {
+            description: notice.description,
+            action: { label: "Ver", onClick: openBase },
+          });
         }
         break;
       }

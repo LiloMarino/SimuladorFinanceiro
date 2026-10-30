@@ -11,7 +11,6 @@ import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { BaseDeal, CongressBase } from "@/types";
 import { useWithdrawDeal } from "../hooks/mutations/useWithdrawDeal";
 import { useBase } from "../hooks/queries/useBase";
-import { useDealDialog } from "../hooks/useDealDialog";
 import {
   daysLeftLabel,
   dealsInForce,
@@ -30,6 +29,7 @@ import { BreakDealDialog } from "./break-deal-dialog";
 import { Hemicycle } from "./hemicycle";
 import { NegotiateDialog } from "./negotiate-dialog";
 import { PartyMark } from "./party-mark";
+import { ProposalNotice } from "./proposal-notice";
 
 type Breaking = { deal: BaseDeal; side: "government" | "ally" };
 type Negotiating = { round: number; key: number | null };
@@ -47,7 +47,6 @@ export function BaseCard() {
 function BaseContent({ base }: { base: CongressBase }) {
   const [breaking, setBreaking] = useState<Breaking | null>(null);
   const [negotiating, setNegotiating] = useState<Negotiating | null>(null);
-  const { setOpen: openProposal } = useDealDialog();
   const withdraw = useWithdrawDeal();
 
   const active = dealsInForce(base);
@@ -92,24 +91,7 @@ function BaseContent({ base }: { base: CongressBase }) {
           )}
 
           {/* Avisos fixos: a proposta que espera o líder, o acordo do aliado e as renovações */}
-          {base.my_proposal && base.my_proposal.answer_by !== null && (
-            <Alert variant="warning">
-              <TriangleAlert />
-              <AlertTitle>
-                O governo {base.president} espera sua resposta sobre a base · até{" "}
-                {displayDayMonth(base.my_proposal.answer_by)}
-              </AlertTitle>
-              <AlertDescription>
-                Emenda de {monthlyLabel(base.my_proposal.monthly)} por mês ao {base.my_proposal.abbr}, por{" "}
-                {base.term_months} meses, em troca de orientar Sim.
-              </AlertDescription>
-              <AlertAction>
-                <Button size="xs" onClick={() => openProposal(true)}>
-                  Ver a proposta
-                </Button>
-              </AlertAction>
-            </Alert>
-          )}
+          <ProposalNotice base={base} />
           {base.my_deal && base.my_deal.status === "ACTIVE" && base.my_deal.end && (
             <Alert variant="info">
               <Handshake />

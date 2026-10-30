@@ -21100,6 +21100,10 @@
             "type": "string",
             "title": "Detail"
           },
+          "resolves": {
+            "type": "string",
+            "title": "Resolves"
+          },
           "loan_id": {
             "anyOf": [
               {
@@ -21121,6 +21125,7 @@
           "severity",
           "title",
           "detail",
+          "resolves",
           "loan_id"
         ],
         "title": "PendingDTO",

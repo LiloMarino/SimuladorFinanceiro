@@ -41,3 +41,10 @@ export function severeLabel(count: number): string {
 export function bornSince(before: ReadonlySet<string>, items: Pending[]): Pending[] {
   return items.filter((item) => !before.has(item.key));
 }
+
+/** A gravidade que o ponto do item do menu mostra: a pior entre as pendências dos tipos dele, ou nenhuma. */
+export function menuDotSeverity(items: Pending[] | undefined, types: PendingType[]): Pending["severity"] | undefined {
+  const mine = (items ?? []).filter((item) => types.includes(item.type));
+  if (mine.length === 0) return undefined;
+  return mine.some((item) => item.severity === "SEVERE") ? "SEVERE" : "WARNING";
+}

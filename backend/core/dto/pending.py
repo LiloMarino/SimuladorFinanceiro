@@ -13,5 +13,7 @@ class PendingDTO(BaseDTO):
     severity: PendingSeverity
     title: str
     detail: str
+    # Quando ela some, em palavras: vem do registro, igual para todas do tipo
+    resolves: str
     # Presente na parcela em atraso: o empréstimo que a ação paga
     loan_id: UUID | None

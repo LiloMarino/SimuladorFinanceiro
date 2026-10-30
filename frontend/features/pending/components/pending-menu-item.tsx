@@ -5,17 +5,19 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from "@/shared/components/ui/sidebar";
 import type { Pending } from "@/types";
-import { usePending } from "../hooks/queries/usePending";
 import { usePendingToasts } from "../hooks/usePendingToasts";
 import { pendingTarget, severeCount, severeLabel } from "../lib/pending";
 import { PendingRow } from "./pending-row";
+
+type PendingMenuItemProps = {
+  items: Pending[] | undefined;
+};
 
 /**
  * A linha Pendências no topo do menu lateral: mostra a contagem (vermelha se alguma é grave) e
  * abre a lista numa janela ao lado, sem pausar a partida. Sem pendência, a linha não existe.
  */
-export function PendingMenuItem() {
-  const { data: items } = usePending();
+export function PendingMenuItem({ items }: PendingMenuItemProps) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -54,6 +56,9 @@ export function PendingMenuItem() {
             </Badge>
           )}
         </div>
+        <p className="px-4 pb-2.5 text-xs text-muted-foreground">
+          Vermelha quando já custa dinheiro, âmbar quando ainda dá tempo.
+        </p>
         <ul>
           {items.map((item) => (
             <PendingRow key={item.key} item={item} onAct={goTo} />

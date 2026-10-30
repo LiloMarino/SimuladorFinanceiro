@@ -7440,6 +7440,8 @@ export interface components {
             title: string;
             /** Detail */
             detail: string;
+            /** Resolves */
+            resolves: string;
             /** Loan Id */
             loan_id: string | null;
         };

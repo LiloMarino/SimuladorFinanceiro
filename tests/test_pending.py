@@ -47,6 +47,14 @@ def test_every_pending_type_is_registered_once():
     assert set(registry.PENDING_BY_TYPE) == set(PendingType)
 
 
+def test_every_pending_carries_when_it_goes_away():
+    for spec in registry.PENDING:
+        item = registry.pending(spec.type, "x")
+
+        assert item.resolves == spec.resolves
+        assert item.resolves.startswith(("Some ", "Só para"))
+
+
 def test_severe_ones_come_before_the_warnings_in_the_registry_order():
     severities = [spec.severity for spec in registry.PENDING]
 
