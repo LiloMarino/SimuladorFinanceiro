@@ -68,7 +68,7 @@ def build_governance(
     def dto(measure: Measure) -> MeasureDTO:
         return _measure(
             measure,
-            people,
+            _nickname(people, measure.proposer_id) or book.proposer_name(measure),
             today,
             house_panel.vote_dto(book, viewer, today, measure),
             is_president,
@@ -193,7 +193,7 @@ def _retried(rejected: Measure, measures: list[Measure]) -> bool:
 
 def _measure(
     measure: Measure,
-    people: dict[int, UserDTO],
+    proposer: str | None,
     today: date,
     vote: VoteDTO | None,
     is_president: bool,
@@ -214,7 +214,7 @@ def _measure(
         sector=measure.sector,
         segment=measure.segment,
         value=measure.value,
-        proposer=_nickname(people, measure.proposer_id) or "?",
+        proposer=proposer or "?",
         proposed=measure.proposed,
         status=measure.status,
         vote_date=congress.next_vote_date(today) if queued else measure.decided,

@@ -293,7 +293,7 @@ class TermDTO(BaseDTO):
     vice: PartyCandidateDTO | None
     start: date
     consecutive: int
-    # O vice assumiu depois de um impeachment
+    # Assumiu depois de um impeachment: o vice ou, sem ele, o partido do computador
     succession: bool
     # As promessas da chapa, cobradas no fim do mandato
     promises: list[PromiseDTO]

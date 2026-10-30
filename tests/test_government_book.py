@@ -39,13 +39,16 @@ from backend.features.government import approval as approval_rules
 from backend.features.government import (
     budget_panel,
     campaign,
+    caretaker,
     congress,
     election,
     house,
+    promises,
     voters,
 )
 from backend.features.government.calendar import election_cycle
 from backend.features.government.campaign_panel import build_campaign, build_history
+from backend.features.government.governance import build_governance
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_panel
 from backend.features.government.state import Party, replay
@@ -1069,23 +1072,70 @@ def test_impeachment_hands_the_office_to_a_vice_from_another_party(
     assert book.state.party_of(CARLA.id) is None
 
 
-def test_impeachment_without_a_vice_leaves_a_neutral_computer_government(
-    book: GovernmentBook, engine, market, bleak, monkeypatch
+def test_impeachment_without_a_vice_hands_the_office_to_the_largest_computer_bloc(
+    book: GovernmentBook, engine, market, bleak, headlines, monkeypatch
 ):
     govern(book, engine)
 
     assert close_months(book, 19) == PauseReason.IMPEACHMENT
 
-    term = book.state.term
-    assert term is not None
-    assert (term.president_id, term.party_id) == (None, None)
+    day = date(2023, 7, 31)
+    heir = required(
+        caretaker.successor(
+            book.state.house_on(day), {p.id for p in book.state.computer_parties()}
+        )
+    )
+    term = required(book.state.term)
+    assert (term.president_id, term.party_id) == (None, heir.party_id)
+    assert required(book.caretaker()).abbr == heir.abbr
+    assert headlines[-1][1].text.endswith(f"{heir.abbr} assume o governo")
+    # A carteira de quem saiu volta a operar, e jogador nenhum propõe no lugar do computador
     book.ensure_can_trade(ALICE.client_id)
     with pytest.raises(ForbiddenError):
         propose(book, "0.25")
-    # Sem presidente ninguém é aprovado: os grupos ficam onde estavam
-    assert book.approval(date(2023, 7, 31)) is None
-    assert close_months(book, 3, date(2023, 7, 31)) is None
-    assert book.state.approvals == []
+
+
+def test_computer_government_proposes_by_its_voters_and_the_house_votes(
+    book: GovernmentBook, engine, market, bleak, stored, monkeypatch
+):
+    govern(book, engine)
+    close_months(book, 19)
+    party = required(book.caretaker())
+
+    # No pregão seguinte o computador leva à fila a medida que os eleitores dele mais querem
+    book.on_tick(USERS, date(2023, 8, 1), False)
+    [first] = book._queue()
+    assert (first.proposer_id, first.party_id) == (None, party.id)
+    assert book.proposer_name(first) == party.candidate_name
+    bloc = required(book.state.house_on(date(2023, 8, 1)).of_party(party.id))
+    baselines = {
+        kind: required(book.latest_value(kind)) for kind in promises.GENERAL_KINDS
+    }
+    choice = required(caretaker.pick(bloc.mix, baselines, set()))
+    assert (first.kind, first.value) == (choice.kind, choice.value)
+    # A bancada do partido que governa vota Sim na medida dele
+    orientations, _, _ = book.measure_orientations(first, date(2023, 8, 1))
+    assert orientations[bloc.key] is True
+    # A sala vê a medida na fila em nome do candidato do computador, e a aprovação corre
+    panel = build_governance(book, engine, USERS, ALICE, date(2023, 8, 1))
+    assert [m.proposer for m in panel.queue] == [party.candidate_name]
+    assert panel.approval is not None
+    assert not panel.is_president
+
+    # A casa vota no fechamento; a aprovação anda, e o piso não conta para o computador
+    congress_says(monkeypatch, True)
+    assert close_months(book, 3, date(2023, 8, 31)) is None
+    assert book.state.measures[first.id].status is MeasureStatus.APPROVED
+    assert len(book.state.approvals) == 3
+    assert book.state.low_streak == 0
+    assert book.state.request is None
+    # Cada tipo de medida anda um passo por governo: a seguinte é de outro tipo
+    kinds = [m.kind for m in book.state.measures.values() if book.is_current(m)]
+    assert len(kinds) == len(set(kinds)) >= 3
+
+    rebuilt = replay(stored)
+    assert rebuilt.measures == book.state.measures
+    assert rebuilt.term == book.state.term
 
 
 def test_a_closing_above_the_floor_resets_the_streak(

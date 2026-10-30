@@ -5,7 +5,7 @@ import { useElection } from "@/shared/hooks/queries/useElection";
 import type { GovernmentPanel } from "@/types";
 import { useToday } from "../hooks/useToday";
 import { countdownLabel } from "../lib/election";
-import { monthYear } from "../lib/government";
+import { isComputerGovernment, monthYear } from "../lib/government";
 import { PartyMark, PersonMark } from "./party-mark";
 import { ValueChips } from "./value-chip";
 
@@ -29,7 +29,12 @@ export function GovernmentHeader({ panel }: GovernmentHeaderProps) {
           <div className="grid min-w-0 flex-1 gap-1">
             <div className="flex flex-wrap items-center gap-2.5">
               <b className="text-xl">{president ? `Governo ${president.name}` : "Governo neutro do computador"}</b>
-              {president && <Badge variant="info">{term.consecutive}º mandato</Badge>}
+              {president &&
+                (isComputerGovernment(term) ? (
+                  <Badge variant="secondary">computador</Badge>
+                ) : (
+                  <Badge variant="info">{term.consecutive}º mandato</Badge>
+                ))}
               {party && <PartyMark abbr={party.abbr} color={party.color} />}
               {term.vice && (
                 <Badge variant="secondary">

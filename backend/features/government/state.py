@@ -354,10 +354,13 @@ class Measure:
     before: Decimal | None
     sector: str | None
     segment: str | None
-    proposer_id: int
+    # Nulo quando quem propôs é o partido do computador que governa
+    proposer_id: int | None
     # Início do governo que propôs: a marca e o efeito na aprovação contam por governo
     term_start: date
     proposed: date
+    # O partido que governava no dia da proposta
+    party_id: int | None = None
     status: MeasureStatus = MeasureStatus.QUEUED
     decided: date | None = None
     # Como a casa votou: nula na medida da fila ou votada antes da casa existir
@@ -695,9 +698,10 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 before=_opt_money(p, "before"),
                 sector=_opt_str(p, "sector"),
                 segment=_opt_str(p, "segment"),
-                proposer_id=_int(p, "proposer_id"),
+                proposer_id=_opt_int(p, "proposer_id"),
                 term_start=required(state.term).start,
                 proposed=day,
+                party_id=required(state.term).party_id,
             )
             state.next_measure_id = max(state.next_measure_id, measure_id + 1)
         case Event.MEASURE_WITHDRAWN:
@@ -776,8 +780,13 @@ def _apply_impeachment(state: GovernmentState, event: GovernmentEventDTO) -> Non
             successor_id=successor,
         )
     )
+    # Sem vice, governa o partido do computador com mais cadeiras; nulo, o governo neutro
     state.term = Term(
-        party_id=term.party_id if successor is not None else None,
+        party_id=(
+            term.party_id
+            if successor is not None
+            else _opt_int(event.payload, "party_id")
+        ),
         president_id=successor,
         vice_id=None,
         start=event.event_date,

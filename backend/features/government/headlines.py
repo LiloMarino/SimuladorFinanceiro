@@ -147,14 +147,26 @@ def impeachment_rejected(
 
 
 def impeachment(
-    president: str, abbr: str | None, successor: str | None, yes: int, no: int
+    president: str,
+    abbr: str | None,
+    successor: str | None,
+    yes: int,
+    no: int,
+    heir: str | None = None,
 ) -> Headline:
+    """`heir` é a sigla do partido do computador que assume quando não há vice."""
     party = f" ({abbr})" if abbr else ""
     if successor:
         return Headline(
             NewsType.ELECTION_RESULT,
             f"Casa tira {president}{party} da Presidência por {yes} a {no}; {successor} assume",
             "A aprovação ficou abaixo do piso por meses seguidos.",
+        )
+    if heir:
+        return Headline(
+            NewsType.ELECTION_RESULT,
+            f"Casa tira {president}{party} da Presidência por {yes} a {no}; {heir} assume o governo",
+            f"Sem vice, governa até o fim do mandato o partido do computador com mais cadeiras ({heir}), propondo medidas pelos eleitores dele.",
         )
     return Headline(
         NewsType.ELECTION_RESULT,

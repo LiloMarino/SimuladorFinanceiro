@@ -52,6 +52,7 @@ from backend.features.government import budget as budget_rules
 from backend.features.government import (
     budget_panel,
     campaign,
+    caretaker,
     congress,
     deals,
     election,
@@ -221,6 +222,35 @@ class GovernmentBook:
             return None
         return self._people.get(term.president_id)
 
+    def caretaker(self) -> Party | None:
+        """O partido do computador que governa depois de um impeachment sem vice."""
+        term = self.state.term
+        if term is None or not term.succession or term.president_id is not None:
+            return None
+        party = self.state.parties.get(term.party_id) if term.party_id else None
+        return party if party is not None and party.is_computer else None
+
+    def governs(self) -> bool:
+        """Se alguém governa de fato: o presidente jogador ou o partido do computador que assumiu."""
+        term = self.state.term
+        if term is None:
+            return False
+        return term.president_id is not None or self.caretaker() is not None
+
+    def proposer_party(self, measure: Measure) -> Party | None:
+        """O partido de quem propôs: o do presidente jogador ou o do computador que governava."""
+        if measure.proposer_id is not None:
+            return self.state.party_of(measure.proposer_id)
+        return self.state.parties.get(measure.party_id) if measure.party_id else None
+
+    def proposer_name(self, measure: Measure) -> str | None:
+        """Quem propôs, como aparece na fila: o apelido do jogador ou o candidato do computador."""
+        if measure.proposer_id is not None:
+            person = self._people.get(measure.proposer_id)
+            return person.nickname if person else None
+        party = self.proposer_party(measure)
+        return (party.candidate_name or party.abbr) if party else None
+
     def ensure_can_trade(self, client_id: UUID) -> None:
         """A carteira do presidente fica congelada até o fim do mandato."""
         president = self.president()
@@ -233,9 +263,9 @@ class GovernmentBook:
         )
 
     def approval(self, today: date) -> approval_rules.Approval | None:
-        """A satisfação de hoje e o alvo de cada grupo; só existe sob um presidente jogador."""
+        """A satisfação de hoje e o alvo de cada grupo; existe enquanto alguém governa de fato."""
         term = self.state.term
-        if term is None or term.president_id is None:
+        if term is None or not self.governs():
             return None
         return approval_rules.assess(
             term,
@@ -433,6 +463,7 @@ class GovernmentBook:
 
         if self._close_month(today):
             return PauseReason.IMPEACHMENT
+        self._propose_as_caretaker(today)
 
         if self.state.runoff is not None:
             if today >= cycle.runoff:
@@ -722,7 +753,7 @@ class GovernmentBook:
         """Por bancada da casa em exercício: a orientação, se o líder a deu e o que os eleitores querem."""
         effects = self.effects_of(measure)
         by_group = house.reactions(effects)
-        proposer = self.state.party_of(measure.proposer_id)
+        proposer = self.proposer_party(measure)
         orientations, guided, wanted = {}, {}, {}
         for bloc in self.state.house_on(day).seated:
             # A bancada com acordo em vigor orienta Sim em tudo o que o governo propõe
@@ -1905,7 +1936,7 @@ class GovernmentBook:
         month = today.replace(day=1)
         if (
             term is None
-            or term.president_id is None
+            or not self.governs()
             or not congress.is_vote_day(today)
             or self.state.last_measured == month
         ):
@@ -1923,8 +1954,11 @@ class GovernmentBook:
             for g, t in before.targets.items()
         }
         value = approval_rules.rounded(approval_rules.overall(satisfaction))
+        # O governo do computador fica até o fim do mandato: o piso não conta para ele
         below = (
-            not approval_rules.in_grace(term, month) and value < approval_rules.FLOOR
+            term.president_id is not None
+            and not approval_rules.in_grace(term, month)
+            and value < approval_rules.FLOOR
         )
         streak = self.state.low_streak + 1 if below else 0
         self._emit(
@@ -2099,7 +2133,9 @@ class GovernmentBook:
                 self._economy.update(self.state.measures.values())
             self._notice(
                 GovernmentNoticeKind.MEASURE_VOTED,
-                self._people.get(measure.proposer_id),
+                self._people.get(measure.proposer_id)
+                if measure.proposer_id is not None
+                else None,
                 accepted=approved,
                 measure_title=rules.title(measure),
                 yes=tally.yes,
@@ -2122,10 +2158,21 @@ class GovernmentBook:
             )
 
     def _impeach(self, today: date, tally: house.Tally) -> None:
-        """Assume o vice que segue na partida; sem ele, o computador governa sem propor medidas."""
+        """
+        Assume o vice que segue na partida; sem ele, o partido do computador com mais
+        cadeiras governa até o fim do mandato, propondo medidas pelos grupos dele.
+        """
         term = required(self.state.term)
         out = self.president()
         successor = self._successor()
+        heir = (
+            caretaker.successor(
+                self.state.house_on(today),
+                {p.id for p in self.state.computer_parties()},
+            )
+            if successor is None
+            else None
+        )
         # Sem vice o mandato acaba aqui, e o que não foi cumprido vira rejeição
         if successor is None:
             self._settle_promises(today, today, impeached=True)
@@ -2133,6 +2180,7 @@ class GovernmentBook:
             GovernmentEventType.IMPEACHED,
             today,
             successor_id=successor.id if successor else None,
+            party_id=heir.party_id if heir else None,
         )
         if successor is not None:
             self._on_office(successor, today)
@@ -2151,8 +2199,65 @@ class GovernmentBook:
                     successor.nickname if successor else None,
                     tally.yes,
                     tally.no,
+                    heir.abbr if heir else None,
                 ),
             )
+
+    def _propose_as_caretaker(self, today: date) -> None:
+        """
+        O partido do computador que governa propõe, com a fila vazia, a medida que os
+        eleitores da bancada dele mais querem; ela vai à votação do mês como qualquer outra.
+        """
+        party = self.caretaker()
+        if party is None or self._queue():
+            return
+        bloc = self.state.house_on(today).of_party(party.id)
+        if bloc is None:
+            return
+        baselines = {
+            kind: value
+            for kind in promises.GENERAL_KINDS
+            if (value := self.latest_value(kind)) is not None
+        }
+        tried = {m.kind for m in self.state.measures.values() if self.is_current(m)}
+        choice = caretaker.pick(bloc.mix, baselines, tried)
+        if choice is None:
+            return
+        term = required(self.state.term)
+        draft = Measure(
+            id=self.state.next_measure_id,
+            kind=choice.kind,
+            value=choice.value,
+            before=choice.before,
+            sector=None,
+            segment=None,
+            proposer_id=None,
+            term_start=term.start,
+            proposed=today,
+            party_id=party.id,
+        )
+        self._emit(
+            GovernmentEventType.MEASURE_PROPOSED,
+            today,
+            measure_id=draft.id,
+            kind=draft.kind.value,
+            value=str(choice.value),
+            before=str(choice.before),
+            sector=None,
+            segment=None,
+            proposer_id=None,
+        )
+        self._notice(
+            GovernmentNoticeKind.MEASURE_PROPOSED,
+            party_abbr=party.abbr,
+            measure_title=rules.title(draft),
+        )
+        self._on_news(
+            today,
+            headlines.measure_proposed(
+                party.candidate_name or party.abbr, rules.title(draft)
+            ),
+        )
 
     def _successor(self) -> UserDTO | None:
         term = required(self.state.term)

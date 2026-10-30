@@ -138,7 +138,7 @@ A **marca do governo** é a média das faixas das medidas aprovadas. Ex.: um par
 
 ### Impeachment
 
-Se a aprovação fechar **3 meses seguidos abaixo de 25%**, o presidente sofre impeachment. A partir do primeiro mês abaixo do piso o presidente recebe um aviso. Quem assume é o **vice**, se ainda estiver na partida, e governa até o fim do mandato; sem vice, um governo neutro do computador conduz o país até a próxima eleição. A carteira de quem saiu volta a operar.
+Se a aprovação fechar **3 meses seguidos abaixo de 25%**, o presidente sofre impeachment. A partir do primeiro mês abaixo do piso o presidente recebe um aviso. Quem assume é o **vice**, se ainda estiver na partida, e governa até o fim do mandato; sem vice, assume o partido do computador com mais cadeiras na casa, que governa até o fim do mandato propondo medidas pelos grupos de eleitores dele. A carteira de quem saiu volta a operar.
 
 ### A carteira do presidente
 

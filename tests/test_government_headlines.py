@@ -80,3 +80,13 @@ def test_the_promises_headline_follows_the_list():
     revised = headlines.promises_set("AAA", 1, True)
     assert revised.text == "AAA revê as promessas de campanha"
     assert revised.dek is not None and revised.dek.startswith("São 1 promessa,")
+
+
+def test_impeachment_without_a_vice_names_the_computer_party_that_takes_office():
+    ousted = headlines.impeachment("Bia", "FDS", None, 70, 31, "UPR")
+
+    assert (
+        ousted.text
+        == "Casa tira Bia (FDS) da Presidência por 70 a 31; UPR assume o governo"
+    )
+    assert ousted.dek is not None and "(UPR)" in ousted.dek

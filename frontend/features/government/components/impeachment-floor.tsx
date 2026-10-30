@@ -3,7 +3,7 @@ import { InfoHint } from "@/shared/components/info-hint";
 import { cn } from "@/shared/lib/utils";
 import type { GovernmentPanel } from "@/types";
 import { remainingMonths, streakMonths } from "../lib/approval";
-import { monthYear, successionLabel } from "../lib/government";
+import { isComputerGovernment, monthYear, successionLabel } from "../lib/government";
 
 type StreakPipsProps = {
   approval: NonNullable<GovernmentPanel["approval"]>;
@@ -59,7 +59,8 @@ type ImpeachmentFloorProps = { panel: GovernmentPanel };
 /** O piso do impeachment no card de aprovação: público, com a contagem para todos os jogadores. */
 export function ImpeachmentFloor({ panel }: ImpeachmentFloorProps) {
   const approval = panel.approval;
-  if (!approval) return null;
+  // O partido do computador governa até o fim do mandato, sem piso
+  if (!approval || isComputerGovernment(panel.term)) return null;
 
   return (
     <div className="flex items-center justify-between gap-3 border-t pt-3">

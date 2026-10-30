@@ -148,10 +148,15 @@ export function lowStreakLabel(approval: Pick<GovernmentApproval, "low_streak" |
   return `${approval.low_streak} de ${approval.impeachment_months} meses seguidos abaixo de ${approval.floor}%`;
 }
 
-/** Quem assume se o impeachment vier: o vice, ou um governo neutro do computador. */
+/** Quem assume se o impeachment vier: o vice, ou o partido do computador com mais cadeiras. */
 export function successionLabel(panel: Pick<GovernmentPanel, "term">) {
   const vice = panel.term?.vice;
-  return vice ? `${vice.name}, a vice, assume` : "o governo passa a um computador neutro";
+  return vice ? `${vice.name}, a vice, assume` : "assume o partido do computador com mais cadeiras";
+}
+
+/** O governo do partido do computador: quem governa não é jogador, e o piso do impeachment não vale. */
+export function isComputerGovernment(term: GovernmentPanel["term"]) {
+  return !!term?.president && term.president.nickname === null;
 }
 
 /** A carteira como fração do total: 0.34 → "34%". */

@@ -79,7 +79,7 @@ def vote_dto(
     if measure.status is MeasureStatus.QUEUED:
         orientations, guided, wanted = book.measure_orientations(measure, today)
         effects = book.effects_of(measure)
-        proposer = book.state.party_of(measure.proposer_id)
+        proposer = book.proposer_party(measure)
         proposer_party = proposer.id if proposer is not None else None
         moves = (
             [

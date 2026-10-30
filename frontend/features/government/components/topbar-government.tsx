@@ -6,7 +6,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/shared/componen
 import { useGovernment } from "@/shared/hooks/queries/useGovernment";
 import { cn } from "@/shared/lib/utils";
 import { displayDayMonth } from "@/shared/lib/utils/display";
-import { approvalArrow, approvalTone } from "../lib/government";
+import { approvalArrow, approvalTone, isComputerGovernment } from "../lib/government";
 import { ApprovalChart } from "./approval-chart";
 import { PersonMark } from "./party-mark";
 
@@ -70,7 +70,9 @@ export function TopbarGovernment() {
               : "Nenhuma medida na fila."}
           </span>
           <Link to="/government" className="text-[13px] font-medium text-primary hover:text-primary-hover">
-            Ver impostos, fila e a carteira de {president.name}
+            {isComputerGovernment(panel.term)
+              ? "Ver impostos e a fila do computador"
+              : `Ver impostos, fila e a carteira de ${president.name}`}
           </Link>
         </HoverCardContent>
       </HoverCard>
