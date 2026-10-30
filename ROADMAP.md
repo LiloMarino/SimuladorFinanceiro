@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-27):** Fechadas as regras do governo das versões 3.1 e 3.2: os nove cards do rework passaram a pendentes, com os números marcados para o protótipo (27/out)
+> **Última mudança (2026-10-30):** Registrado o desafio da vela no lobby: o "sobe ou desce?" sai da partida e vira minijogo em tempo real enquanto a sala espera (30/out)
 
 ## Glossário
 
@@ -36,11 +36,11 @@
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
-| **N19** | Analisar um ativo com as ferramentas de um trader | — | — |
+| **N19** | Analisar um ativo com as ferramentas de um trader | [F168](#f168) | — |
 | **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — |
 | **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | — | — |
 | **N22** | Ter objetivos para buscar além de vencer a partida | [F159](#f159) | — |
-| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F101](#f101) | — |
+| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F101](#f101), [F168](#f168) | — |
 | **N24** | Saber onde está a lentidão durante uma partida | — | — |
 | **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141) | — |
 | **N26** | Achar a causa de um erro sem vasculhar o log inteiro | — | — |
@@ -97,6 +97,7 @@
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 🔍 |
 | [**F167**](#f167) | Notícias do ativo como marcadores no gráfico de preço | — | 💤 |
+| [**F168**](#f168) | Desafio da vela no lobby | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (35 itens — clique pra expandir)</strong></summary>
@@ -166,6 +167,7 @@
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 0 | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 0 | 🔍 |
+| [**F168**](#f168) | Desafio da vela no lobby | — | 0 | ⏳ |
 
 ---
 
@@ -350,7 +352,7 @@
 
 ### Sem marco
 
-> **Progresso:** 3/19 concluídas
+> **Progresso:** 3/20 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -370,6 +372,7 @@
 | [**F159**](#f159) | Conquista "Ordem com paciência" | [F44](#f44) | ⏳ |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | [F107](#f107) | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | [F128](#f128) | 🔍 |
+| [**F168**](#f168) | Desafio da vela no lobby | — | ⏳ |
 
 <details><summary>Concluído (3 itens)</summary>
 
@@ -420,6 +423,7 @@
 | **F154** | Negociar apoio com as bancadas, por emendas | N34 | D19 | M19 | [F153](#f153), [F128](#f128) | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F161** | Jornal da partida: notificações configuráveis por tipo | N31, N32 | — | M15 | — | Alto | Médio | Alto | Bom | ✅ Concluído |
 | **F166** | Pendências da partida: o que pede ação fica à vista até ser resolvido | N15 | — | M15 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
+| **F168** | Desafio da vela no lobby | N19, N23 | — | — | — | Alto | Médio | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -539,6 +543,23 @@ Ficou de fora: a conferência de propor, votar e ver o efeito no app rodando: no
 
 <a id="f166"></a>
 **F166 — Pendências da partida.** Separada do jornal da partida (F161) em 27/out: notícia é passageira, e o que pede ação fica à vista até ser resolvido, como os alertas do Victoria 3. Tipos: parcela em atraso, caixa que não cobre a próxima parcela, caixa negativo, estratégia desligada por erro, risco de impeachment (só o presidente), convite de vice e campanha aberta sem filiação; a votação sem orientação do líder (F153) entra quando existir. Cada uma traz a ação que a resolve e some quando a condição acaba. Ao nascer, sobe um toast uma vez; depois ela fica no lugar dela. Campanha aberta e convite de vice deixam de abrir diálogo sozinhos: clicar na pendência abre o mesmo diálogo de hoje. Pendência não se desliga. Lugar na tela, escolhido no canvas em 28/out (janela ao lado): Pendências é uma linha no topo do menu lateral, com a contagem (vermelha se alguma é grave); clicar abre a lista numa janela ao lado, com a ação de cada pendência, que fecha fora dela ou no Esc, sem pausar o jogo. As graves vêm primeiro, e a janela rola por dentro se a lista passar da tela. A topbar fica fora, por falta de espaço no pior caso. **Entregue:** Pendências é uma linha no topo do menu lateral, com a contagem (vermelha se alguma é grave, âmbar se são só avisos) e sem aparecer quando não há nenhuma. Clicar abre a lista numa janela ao lado, com a ação de cada pendência; ela fecha fora ou no Esc, sem pausar o jogo, e rola por dentro. A lista é calculada no servidor a cada consulta (nada fica guardado) e some item a item quando a condição acaba; ela se renova com os eventos de caixa, parcela, estratégia e governo e depois de qualquer ação do jogador. Os sete tipos entraram: parcela em atraso e caixa negativo (graves), risco de impeachment, caixa que não cobre a próxima parcela, estratégia desligada por erro, convite de vice e campanha aberta sem filiação (avisos). Ao nascer, sobe um toast "Nova pendência" uma vez, com a ação; os toasts de atraso, de parcela sem caixa e de estratégia desligada saíram. Pagar leva ao pagamento da parcela, e religar, à estratégia. Campanha aberta e convite de vice não abrem mais diálogo sozinhos: a ação leva à Eleição e abre o mesmo diálogo (o da campanha ganhou lugar na página, com as datas e os atalhos). A barra lateral ganhou o selo vermelho para a contagem grave. **Ficou de fora:** a linha verde "resolvida" que ficaria 2 s na lista e o aviso "Role para ver mais N" do desenho; a votação sem orientação do líder, que entra com o Congresso. **Decidido na implementação:** o risco de impeachment aparece para o presidente com a aprovação até 10 pontos acima do piso ou com fechamentos seguidos abaixo dele, e só depois do período de carência; a estratégia desligada por erro fica na lista até o jogador ligar uma estratégia de novo; a abertura da campanha continua pausando a sala, embora o diálogo não abra mais sozinho.
+
+<a id="f168"></a>
+**F168 — Desafio da vela no lobby.** Serve N19 e N23. O "sobe ou desce?" deixa a partida e vira um minijogo do lobby, no estilo das Atividades do Discord: todos respondem a mesma pergunta ao mesmo tempo, com placar ao vivo, enquanto o host configura e os outros entram. Na partida, o desafio disputava atenção com ordens e eventos, a pergunta passava sem ser vista e o resultado só saía 5 pregões depois; no lobby o tempo está parado e o resultado sai na hora.
+
+(1) **Sai da partida:** a faixa "sobe ou desce?" (`challenge-strip.tsx`), o placar e o cartão "Desafio da vela" do resultado (`candle-challenge-card.tsx`, `useCandleChallengeRanking`), com as rotas e o acerto no tick (`settle`) que só existiam para eles. Ficam os marcadores de padrão, o card "E se ele acertou?" e a lista de padrões. O texto das Assistências e da página de análise técnica perde o desafio.
+
+(2) **Pergunta:** um recorte aleatório de qualquer período e ativo da base, de umas 30 velas, que termina num padrão com lado (o doji fica fora), detectado pelas mesmas regras de `technical_analysis/patterns.py`. O sorteio equilibra padrões de alta e de baixa. A tela esconde o ativo, a data e a escala de preço (eixo em % a partir da primeira vela), então o recorte não diz nada sobre a partida que vai começar.
+
+(3) **Rodada:** a pergunta fica aberta ~8 s; ao fechar, as 5 velas seguintes entram animadas no gráfico, o acerto de cada um aparece e o ativo e a data são revelados ("Era PETR4, março de 2015"). Preço igual ao do padrão anula a pergunta, como hoje. Segue a próxima. O servidor sorteia e cronometra a rodada e a transmite pelo tempo real que o lobby já usa (`realtime_broker`); quem entra no meio joga a partir da próxima; o host iniciar a partida descarta a rodada em andamento. O placar é da sessão do lobby.
+
+(4) **Sozinho:** no lobby solo o minijogo continua, como treino contra o próprio recorde.
+
+(5) **Conquistas:** Primeira leitura (1 acerto) e Leitor de velas (10 acertos) passam a contar os acertos do lobby; a métrica `candle_challenge_hits` deixa de ser por partida e soma o total do jogador, incluindo as respostas já gravadas em partidas, então quem já tem acertos não perde o progresso. Conquista desbloqueada continua desbloqueada.
+
+(6) **Fora das assistências:** não é ajuda dentro da partida, então não some no modo Especialista nem com "Esconder dicas de análise técnica".
+
+A tela do minijogo no lobby (onde ele fica, o gráfico, o placar, a revelação e o estado de quem entrou no meio) passa por uma rodada no canvas antes do código. Gatilho: depois do canvas.
 
 ---
 ## 2. Nice-to-have
