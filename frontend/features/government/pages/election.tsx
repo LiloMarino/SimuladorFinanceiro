@@ -11,6 +11,7 @@ import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty } from "@/types";
 import { CampaignOpenedDialog } from "../components/campaign-opened-dialog";
 import { CampaignSection } from "../components/campaign-section";
+import { CampaignNotMember } from "../components/campaign-states";
 import { ChooseFlagsDialog } from "../components/choose-flags-dialog";
 import { ContributionDialog } from "../components/contribution-dialog";
 import { DonateDialog } from "../components/donate-dialog";
@@ -43,14 +44,21 @@ export default function ElectionPage() {
   usePageLabel("Eleição");
   const { data: panel, error, refetch } = useElection();
   const location = useLocation();
-  const shortcut = (location.state as { dialog?: ElectionShortcut } | null)?.dialog;
+  const state = location.state as { dialog?: ElectionShortcut; tab?: Tab } | null;
 
   if (!panel) {
     return error ? <ElectionError onRetry={() => void refetch()} /> : <ElectionSkeleton />;
   }
 
   // Cada navegação remonta a página, e o atalho de quem chegou pelo aviso da campanha abre o diálogo
-  return <ElectionContent key={location.key} panel={panel} initialDialog={shortcut ?? null} />;
+  return (
+    <ElectionContent
+      key={location.key}
+      panel={panel}
+      initialDialog={state?.dialog ?? null}
+      initialTab={state?.tab ?? "race"}
+    />
+  );
 }
 
 type Dialog =
@@ -68,13 +76,15 @@ type Dialog =
   | "runoff-contribution";
 type Tab = "race" | "campaign";
 
-function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initialDialog: Dialog | null }) {
+type ElectionContentProps = { panel: ElectionPanel; initialDialog: Dialog | null; initialTab: Tab };
+
+function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentProps) {
   const { user } = useAuth();
   const { data: portfolio } = usePortfolio();
   const [dialog, setDialog] = useState<Dialog | null>(initialDialog);
   const [joinPartyId, setJoinPartyId] = useState<number | undefined>();
   const [expelling, setExpelling] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>("race");
+  const [tab, setTab] = useState<Tab>(initialTab);
 
   const cash = portfolio?.cash;
   const nickname = user?.nickname ?? "";
@@ -298,7 +308,16 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
             </TabsContent>
           </Tabs>
         ) : (
-          race
+          <div className="grid gap-5">
+            {panel.can_found_or_join && (
+              <CampaignNotMember
+                canJoin={playerParties.length > 0}
+                onJoin={() => openJoin()}
+                onFound={() => setDialog("found")}
+              />
+            )}
+            {race}
+          </div>
         ))}
 
       {/* Diálogos */}

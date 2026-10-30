@@ -519,6 +519,28 @@ class GovernmentState:
         for party in self.parties.values():
             party.decay_to(day)
 
+    def month_actions(
+        self,
+        party_id: int,
+        kind: CampaignActionKind,
+        group: VoterGroup | None,
+        day: date,
+    ) -> list[CampaignRecord]:
+        """
+        As vezes que o partido fez a mesma ação no mesmo grupo no mês de `day`, da mais antiga
+        à mais nova; a contagem recomeça no dia seguinte ao 1º turno.
+        """
+        since = date(day.year, day.month, 1)
+        if self.race_started is not None:
+            since = max(since, self.race_started + timedelta(days=1))
+        return [
+            a
+            for a in self.actions
+            if (a.party_id, a.kind, a.group) == (party_id, kind, group)
+            and (a.day.year, a.day.month) == (day.year, day.month)
+            and a.day >= since
+        ]
+
     def uses(
         self,
         party_id: int,
@@ -526,20 +548,8 @@ class GovernmentState:
         group: VoterGroup | None,
         day: date,
     ) -> int:
-        """
-        Quantas vezes o partido fez a mesma ação no mesmo grupo no mês de `day`; a contagem
-        recomeça no dia seguinte ao 1º turno.
-        """
-        since = date(day.year, day.month, 1)
-        if self.race_started is not None:
-            since = max(since, self.race_started + timedelta(days=1))
-        return sum(
-            1
-            for a in self.actions
-            if (a.party_id, a.kind, a.group) == (party_id, kind, group)
-            and (a.day.year, a.day.month) == (day.year, day.month)
-            and a.day >= since
-        )
+        """Quantas vezes o partido fez a mesma ação no mesmo grupo no mês de `day`."""
+        return len(self.month_actions(party_id, kind, group, day))
 
     def runoff_total(self, party_id: int) -> Decimal:
         """Quanto o partido já contribuiu no 2º turno."""

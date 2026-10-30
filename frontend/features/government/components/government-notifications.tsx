@@ -7,10 +7,11 @@ import { useNotificationPreferences } from "@/shared/hooks/useNotificationPrefer
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { ElectionPanel, ElectionRound, GovernmentPanel } from "@/types";
-import { campaignToast } from "../lib/campaign";
+import { campaignToast, toastEffect } from "../lib/campaign";
 import { dealAnsweredToast, dealBrokenToast, dealEndedToast } from "../lib/deal-toast";
 import { impeachmentToast, measureVotedToast, monthClosedToast } from "../lib/measure-toast";
 import { endorsementToast, roundResultToast } from "../lib/runoff-toast";
+import { campaignQuery } from "../hooks/queries/useCampaign";
 import { useRenewElection } from "../hooks/mutations/useRenewElection";
 import { useRenewBase } from "../hooks/mutations/useRenewBase";
 import { useDealDialog } from "../hooks/useDealDialog";
@@ -42,6 +43,7 @@ export function GovernmentNotifications() {
   const dealDialog = useDealDialog();
 
   const openGovernment = () => void navigate("/government");
+  const openCampaign = () => void navigate("/election", { state: { tab: "campaign" } });
 
   useRealtime("government_update", (event) => {
     const abbr = event.party_abbr ?? "";
@@ -114,7 +116,25 @@ export function GovernmentNotifications() {
         const election = queryClient.getQueryData<ElectionPanel>(queryKeys.election());
         const mine = election?.parties.find((party) => party.id === election.my_party?.party_id);
         const notice = campaignToast(event, mine && me ? { abbr: mine.abbr, nickname: me } : undefined);
-        if (notice) toast[notice.tone](notice.title, { description: notice.description });
+        if (notice && mine) {
+          // O efeito vem da linha do histórico do próprio partido: o aviso público não carrega o dado
+          void queryClient
+            .query({ ...campaignQuery(), staleTime: 0 })
+            .then((campaign) =>
+              campaign.recent.find((entry) =>
+                event.rival_abbr === mine.abbr
+                  ? entry.kind === "ATTACK_RECEIVED" && entry.party_abbr === event.party_abbr
+                  : entry.nickname === event.actor && entry.kind === event.campaign_action,
+              ),
+            )
+            .catch(() => undefined)
+            .then((entry) => {
+              toast[notice.tone](notice.title, {
+                description: entry ? toastEffect(entry, mine.abbr) : notice.description,
+                action: { label: "Ver", onClick: openCampaign },
+              });
+            });
+        }
         break;
       }
       case "DEAL_PROPOSED":

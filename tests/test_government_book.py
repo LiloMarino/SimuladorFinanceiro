@@ -1384,6 +1384,28 @@ def test_any_member_acts_and_the_return_halves_for_the_whole_party(
     assert second.user_id == CARLA.id
 
 
+def test_the_card_names_who_made_the_first_action_of_the_month(
+    book: GovernmentBook, dice
+):
+    mine, _ = two_parties(book)
+    book.join_party(CARLA, CAMPAIGN_OPEN, mine.id, Decimal(0))
+    dice(10)
+    book.campaign_action(ALICE, ACTION_DAY, CampaignActionKind.EVENT, RETIREES, None)
+    book.campaign_action(
+        CARLA, ACTION_DAY + timedelta(days=1), CampaignActionKind.EVENT, RETIREES, None
+    )
+
+    panel = build_campaign(book, [ALICE, CARLA], CARLA, ACTION_DAY + timedelta(days=2))
+
+    event = next(a for a in panel.actions if a.action is CampaignActionKind.EVENT)
+    by_group = {t.group: t for t in event.targets}
+    assert by_group[RETIREES].uses_this_month == 2
+    assert by_group[RETIREES].first_by == ALICE.nickname
+    assert by_group[RETIREES].first_day == ACTION_DAY
+    assert by_group[WORKERS].first_by is None
+    assert by_group[WORKERS].first_day is None
+
+
 def test_tv_reaches_every_group_with_the_higher_of_two_dice(
     book: GovernmentBook, monkeypatch: pytest.MonkeyPatch
 ):

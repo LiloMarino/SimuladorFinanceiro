@@ -4221,6 +4221,10 @@ export interface components {
             uses_this_month: number;
             /** Rate */
             rate: string;
+            /** First By */
+            first_by: string | null;
+            /** First Day */
+            first_day: string | null;
             /** Repair Left */
             repair_left: string;
             /** Repair Limit */

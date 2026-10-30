@@ -237,6 +237,34 @@ export function headline(entry: CampaignEntry) {
 
 export type CampaignToast = { tone: "info" | "warning"; title: string; description: string };
 
+/** "o 2º" ou "a 2ª": a vez da ação no mês, concordando com o nome dela (a TV é feminina). */
+export function nthOf(kind: CampaignActionKind, count: number) {
+  return kind === "TV" ? `a ${count}ª` : `o ${count}º`;
+}
+
+/** Como o comício dobra os extremos: o desastre perde 4 vezes o ganho normal e o viral rende 6. */
+export function rallyExtremes(band: DiceBand, support: number | string, normal: number | string) {
+  if (band !== "DISASTER" && band !== "VIRAL") return null;
+  const times = band === "DISASTER" ? 4 : 6;
+  return {
+    label: `Comício dobra os extremos: ${band === "DISASTER" ? "perde" : "rende"} ${times}× o normal`,
+    value: `${times} × ${Math.abs(Number(normal)).toLocaleString("pt-BR", { maximumFractionDigits: 2 })} = ${signed(support)}`,
+  };
+}
+
+/** O grupo, entre os que ainda não receberam a ação no mês, onde ela rende mais (100%), com o ganho normal. */
+export function freshGroup(targets: CampaignTarget[]) {
+  const fresh = targets.filter((target) => target.group !== null && target.uses_this_month === 0);
+  const gain = (target: CampaignTarget) =>
+    Math.abs(Number(target.bands.find((band) => band.band === "NORMAL")?.support ?? 0));
+  const best = fresh.reduce<CampaignTarget | undefined>(
+    (top, target) => (top === undefined || gain(target) > gain(top) ? target : top),
+    undefined,
+  );
+  const normal = best?.bands.find((band) => band.band === "NORMAL");
+  return best?.group && normal ? { group: best.group, effect: bandEffect(normal) } : null;
+}
+
 const capitalize = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
 
 /**
@@ -248,26 +276,47 @@ export function campaignToast(
   mine: { abbr: string; nickname: string } | undefined,
 ): CampaignToast | null {
   const kind = notice.campaign_action;
-  if (!kind) return null;
+  if (!kind || !mine) return null;
   const abbr = notice.party_abbr ?? "";
-  const where = capitalize(notice.group ? `entre ${groupWord(notice.group)}` : "em todos os grupos");
+  const group = notice.group ? groupWord(notice.group) : null;
 
-  if (kind === "ATTACK") {
-    if (mine && notice.rival_abbr === mine.abbr) {
-      return {
-        tone: "warning",
-        title: `O ${abbr} atacou o ${mine.abbr}`,
-        description: `${where}. O efeito aparece no histórico da campanha.`,
-      };
-    }
-    return null;
-  }
-  if (mine && mine.abbr === abbr && notice.actor !== mine.nickname) {
+  if (notice.rival_abbr === mine.abbr && kind === "ATTACK") {
     return {
-      tone: "info",
-      title: `${notice.actor} fez ${ACTION_INFO[kind].noun.toLowerCase()} no ${abbr}`,
-      description: `${where}. O resultado do dado está no histórico.`,
+      tone: "warning",
+      title: `O ${abbr} atacou o ${mine.abbr}${group ? ` entre ${group}` : ""}`,
+      description: "O efeito aparece no histórico da campanha.",
     };
   }
-  return null;
+  if (mine.abbr !== abbr || notice.actor === mine.nickname) return null;
+
+  const did = {
+    TV: "fez TV para todos os grupos",
+    EVENT: `fez um evento com ${group}`,
+    RALLY: `fez um comício com ${group}`,
+    ATTACK: `atacou o ${notice.rival_abbr ?? "rival"} entre ${group}`,
+  }[kind];
+  return {
+    tone: "info",
+    title: `${notice.actor} ${did}`,
+    description: "O resultado do dado está no histórico da campanha.",
+  };
+}
+
+/**
+ * A linha do efeito de uma ação que o toast mostra, lida da linha do histórico:
+ * "Viralizou (20): +18 de apoio ao PRL" para quem agiu, "−5 de apoio ao PRL no grupo" para o atacado.
+ */
+export function toastEffect(entry: CampaignEntry, mineAbbr: string) {
+  const support = Number(entry.support);
+  const rejection = Number(entry.rejection);
+  const target = entry.kind === "ATTACK" ? (entry.rival_abbr ?? "rival") : mineAbbr;
+  const parts: string[] = [];
+  if (support !== 0) {
+    const where = entry.group === null ? " em cada grupo" : entry.kind === "ATTACK_RECEIVED" ? " no grupo" : "";
+    parts.push(`${signed(support)} de apoio ao ${target}${where}`);
+  }
+  if (rejection !== 0) parts.push(`${signed(rejection)} de rejeição`);
+  const text = parts.length > 0 ? parts.join(" · ") : `o apoio ao ${target} não muda`;
+  if (entry.kind === "ATTACK_RECEIVED" || entry.band === null) return capitalize(text);
+  return `${BAND_INFO[entry.band].label}${entry.roll === null ? "" : ` (${entry.roll})`}: ${text}`;
 }

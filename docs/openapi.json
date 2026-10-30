@@ -11974,6 +11974,29 @@
             "type": "string",
             "title": "Rate"
           },
+          "first_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First By"
+          },
+          "first_day": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Day"
+          },
           "repair_left": {
             "type": "string",
             "title": "Repair Left"
@@ -12022,6 +12045,8 @@
           "group",
           "uses_this_month",
           "rate",
+          "first_by",
+          "first_day",
           "repair_left",
           "repair_limit",
           "support",

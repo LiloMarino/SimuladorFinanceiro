@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { CampaignBand, CampaignEntry, CampaignRoll, GovernmentNotice } from "@/types";
+import type { CampaignBand, CampaignEntry, CampaignRoll, CampaignTarget, GovernmentNotice } from "@/types";
 import {
   bandEffect,
   bandOf,
@@ -8,10 +8,14 @@ import {
   chancePercent,
   effectText,
   entryTitle,
+  freshGroup,
   headline,
+  nthOf,
+  rallyExtremes,
   ratePercent,
   resultTitle,
   signed,
+  toastEffect,
 } from "./campaign";
 
 const band = (partial: Partial<CampaignBand>): CampaignBand => ({
@@ -196,7 +200,7 @@ describe("campaignToast", () => {
   it("avisa o partido atacado", () => {
     const toast = campaignToast(notice({ campaign_action: "ATTACK", party_abbr: "FDS", rival_abbr: "PRL" }), mine);
     expect(toast?.tone).toBe("warning");
-    expect(toast?.title).toBe("O FDS atacou o PRL");
+    expect(toast?.title).toBe("O FDS atacou o PRL entre aposentados");
   });
 
   it("o ataque entre outros partidos é só do jornal", () => {
@@ -204,9 +208,79 @@ describe("campaignToast", () => {
   });
 
   it("conta ao partido a ação de outro filiado, e só a ela", () => {
-    expect(campaignToast(notice({}), mine)?.title).toBe("Duda fez evento no PRL");
+    expect(campaignToast(notice({}), mine)?.title).toBe("Duda fez um evento com aposentados");
+    expect(campaignToast(notice({ campaign_action: "TV", group: null }), mine)?.title).toBe(
+      "Duda fez TV para todos os grupos",
+    );
+    expect(campaignToast(notice({ campaign_action: "ATTACK", rival_abbr: "FDS" }), mine)?.title).toBe(
+      "Duda atacou o FDS entre aposentados",
+    );
     expect(campaignToast(notice({ actor: "Lilo" }), mine)).toBeNull();
     expect(campaignToast(notice({ party_abbr: "FDS" }), mine)).toBeNull();
     expect(campaignToast(notice({}), undefined)).toBeNull();
+  });
+});
+
+describe("toastEffect", () => {
+  it("conta ao filiado a faixa e o efeito no partido dele", () => {
+    expect(toastEffect(entry({ band: "VIRAL", roll: 20, support: "18", rejection: "0" }), "PRL")).toBe(
+      "Viralizou (20): +18 de apoio ao PRL",
+    );
+    expect(toastEffect(entry({ kind: "TV", group: null, support: "3", rejection: "0" }), "PRL")).toBe(
+      "Normal (11): +3 de apoio ao PRL em cada grupo",
+    );
+  });
+
+  it("conta ao atacado o efeito, sem o dado", () => {
+    const received = entry({
+      kind: "ATTACK_RECEIVED",
+      party_abbr: "FDS",
+      band: null,
+      roll: null,
+      rolls: [],
+      support: "-5",
+      rejection: "0",
+    });
+    expect(toastEffect(received, "PRL")).toBe("−5 de apoio ao PRL no grupo");
+  });
+});
+
+describe("rallyExtremes", () => {
+  it("explica os extremos dobrados do comício", () => {
+    expect(rallyExtremes("DISASTER", "-16", "4")).toEqual({
+      label: "Comício dobra os extremos: perde 4× o normal",
+      value: "4 × 4 = −16",
+    });
+    expect(rallyExtremes("VIRAL", "24", "4")?.value).toBe("6 × 4 = +24");
+    expect(rallyExtremes("NORMAL", "4", "4")).toBeNull();
+  });
+});
+
+describe("nthOf", () => {
+  it("concorda com o nome da ação", () => {
+    expect(nthOf("EVENT", 2)).toBe("o 2º");
+    expect(nthOf("TV", 3)).toBe("a 3ª");
+  });
+});
+
+describe("freshGroup", () => {
+  const target = (group: CampaignTarget["group"], uses: number, support: string): CampaignTarget => ({
+    group,
+    uses_this_month: uses,
+    rate: "1",
+    first_by: null,
+    first_day: null,
+    repair_left: "0",
+    repair_limit: "0",
+    support: "10",
+    rejection: "10",
+    bands: [band({ support })],
+    average: "0",
+  });
+
+  it("escolhe o grupo ainda sem uso onde o ganho normal é maior", () => {
+    const targets = [target("RETIREES", 1, "9"), target("PUBLIC_SERVANTS", 0, "6"), target("FORMAL_WORKERS", 0, "3")];
+    expect(freshGroup(targets)).toEqual({ group: "PUBLIC_SERVANTS", effect: "+6" });
+    expect(freshGroup([target("RETIREES", 2, "9")])).toBeNull();
   });
 });

@@ -57,7 +57,8 @@ def build_campaign(
             else Decimal(1)
         ),
         actions=[
-            _action(book, party, kind, today, cash) for kind in CampaignActionKind
+            _action(book, users, party, kind, today, cash)
+            for kind in CampaignActionKind
         ],
         rivals=[
             CampaignRivalDTO(party_id=p.id, abbr=p.abbr, name=p.name, color=p.color)
@@ -132,15 +133,24 @@ def _people(users: list[UserDTO]) -> dict[int, UserDTO]:
 
 def _action(
     book: GovernmentBook,
+    users: list[UserDTO],
     party: Party,
     kind: CampaignActionKind,
     today: date,
     cash: Decimal,
 ) -> CampaignActionDTO:
     price = book.action_price(kind, today)
+    people = _people(users)
     targets = []
     for group in campaign.eligible_groups(kind):
-        uses = book.state.uses(party.id, kind, group, today)
+        month = book.state.month_actions(party.id, kind, group, today)
+        uses = len(month)
+        first = month[0] if month else None
+        first_user = (
+            people.get(first.user_id)
+            if first is not None and first.user_id is not None
+            else None
+        )
         repair_left = (
             campaign.EVENT_REPAIR_LIMIT - party.repaired[group]
             if group is not None and kind is CampaignActionKind.EVENT
@@ -153,6 +163,8 @@ def _action(
                 group=group,
                 uses_this_month=uses,
                 rate=campaign.repeat_rate(uses),
+                first_by=first_user.nickname if first_user else None,
+                first_day=first.day if first else None,
                 repair_left=repair_left,
                 repair_limit=(
                     campaign.EVENT_REPAIR_LIMIT

@@ -4,6 +4,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/aler
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { Progress } from "@/shared/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
@@ -21,7 +22,9 @@ import {
   bandEffect,
   bandOf,
   chancePercent,
+  freshGroup,
   groupWord,
+  nthOf,
   monthLabel,
   nextMonthLabel,
   ratePercent,
@@ -194,7 +197,6 @@ function ActionBody({
   const rival = campaign.rivals.find((candidate) => candidate.party_id === rivalId);
   const price = Number(action.price);
   const short = missing(action);
-  const steps = isTv ? 1 : isAttack ? 3 : 2;
 
   const ready = !!target && short === 0 && (!isAttack || rivalId !== null);
 
@@ -220,8 +222,11 @@ function ActionBody({
           </div>
         </div>
 
+        {/* TV: atinge todos os grupos */}
+        {isTv && <TvReach weights={weights} />}
+
         {/* Passo 2: o grupo */}
-        {steps >= 2 && (
+        {!isTv && (
           <div className="grid gap-2">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
               <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
@@ -245,13 +250,19 @@ function ActionBody({
           </div>
         )}
 
-        {/* Passo 3: o rival */}
-        {steps === 3 && (
+        {/* Passo 3: o rival, só no ataque */}
+        {!isTv && (
           <div className="grid gap-2">
             <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
               3 · Rival
             </span>
-            {campaign.rivals.length === 0 ? (
+            {!isAttack ? (
+              <Select disabled value={null} items={{}}>
+                <SelectTrigger className="w-70" aria-label="Rival">
+                  <SelectValue placeholder="Só no ataque ao rival" />
+                </SelectTrigger>
+              </Select>
+            ) : campaign.rivals.length === 0 ? (
               <span className="text-[13px] text-muted-foreground">
                 Sem rival: o {campaign.party_abbr} é o único partido na eleição.
               </span>
@@ -309,6 +320,30 @@ function ActionBody({
                   : `Sai da sua carteira: ${displayMoney(cash)} → ${displayMoney(cash - price)}`}
           </span>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** A TV não escolhe grupo: o ganho vai a todos, na proporção do peso de cada um. */
+function TvReach({ weights }: { weights: Map<VoterGroup, string> }) {
+  const rows = [...weights].sort((a, b) => Number(b[1]) - Number(a[1]));
+  const top = Number(rows[0]?.[1] ?? 1);
+
+  return (
+    <div className="grid gap-3 rounded-[10px] border bg-subtle p-4">
+      <div className="flex items-center gap-2.5 text-sm font-semibold">
+        <ActionIcon kind="TV" />
+        Atinge todos os grupos, pelo peso de cada um
+      </div>
+      <div className="grid gap-2">
+        {rows.map(([group, weight]) => (
+          <div key={group} className="grid grid-cols-[190px_minmax(0,1fr)_36px] items-center gap-2.5 text-[12.5px]">
+            <span className="truncate">{GROUP_INFO[group].label}</span>
+            <Progress value={(Number(weight) / top) * 100} size="sm" aria-label={GROUP_INFO[group].label} />
+            <span className="text-right font-mono">{displayPercent(weight, 0)}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -502,6 +537,8 @@ function SummaryBody({ campaign, kind, group, target, rival }: SummaryBodyProps)
   const atVote = Math.round(Number(campaign.share_at_vote) * 100);
   const repeat = target.uses_this_month > 0;
   const full = kind === "EVENT" && Number(target.repair_left) === 0;
+  // O grupo ainda sem uso onde a mesma ação renderia 100%
+  const fresh = freshGroup(campaign.actions.find((candidate) => candidate.action === kind)?.targets ?? []);
 
   const subject =
     kind === "TV"
@@ -516,11 +553,12 @@ function SummaryBody({ campaign, kind, group, target, rival }: SummaryBodyProps)
         <Alert variant="warning">
           <Info />
           <AlertTitle>
-            Rende {ratePercent(target.rate)}: é a {target.uses_this_month + 1}ª {ACTION_INFO[kind].noun.toLowerCase()}
+            Rende {ratePercent(target.rate)}: é {nthOf(kind, target.uses_this_month + 1)}{" "}
+            {kind === "TV" ? "TV" : ACTION_INFO[kind].noun.toLowerCase()}
             {kind === "TV" ? "" : ` com ${groupWord(group)}`} em {monthLabel(campaign.today)}
           </AlertTitle>
           <AlertDescription>
-            {kind === "TV" ? "Em" : "Num grupo novo rende 100%; em"} {nextMonthLabel(campaign.today)} volta a 100%.
+            {[...repeatNote(kind, target, fresh), `Em ${nextMonthLabel(campaign.today)} volta a 100%.`].join(" ")}
           </AlertDescription>
         </Alert>
       )}
@@ -576,6 +614,14 @@ function SummaryBody({ campaign, kind, group, target, rival }: SummaryBodyProps)
       </div>
     </>
   );
+}
+
+/** "Duda fez o 1º em 3 ago." e "Num grupo novo rende 100%: com servidores, +6."; a TV não tem grupo novo. */
+function repeatNote(kind: CampaignActionKind, target: CampaignTarget, fresh: ReturnType<typeof freshGroup>) {
+  if (kind === "TV" || !target.first_day) return [];
+  const notes = [`${target.first_by ?? "O partido"} fez ${nthOf(kind, 1)} em ${displayDayMonth(target.first_day)}.`];
+  if (fresh) notes.push(`Num grupo novo rende 100%: com ${groupWord(fresh.group)}, ${fresh.effect}.`);
+  return notes;
 }
 
 function SummaryRow({ label, tone, children }: { label: string; tone?: "up" | "down"; children: React.ReactNode }) {

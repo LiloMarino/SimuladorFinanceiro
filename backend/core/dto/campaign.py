@@ -36,6 +36,9 @@ class CampaignTargetDTO(BaseDTO):
     # Quantas vezes o partido já fez a ação nesse grupo no mês e quanto ela rende agora
     uses_this_month: int
     rate: Decimal
+    # Quem fez a 1ª vez do mês e em que dia; nulos sem uso, ou quando foi o computador
+    first_by: str | None
+    first_day: date | None
     # Quanto do limite de reparação da campanha ainda cabe no grupo e o limite inteiro
     repair_left: Decimal
     repair_limit: Decimal

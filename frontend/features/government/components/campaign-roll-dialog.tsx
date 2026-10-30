@@ -15,7 +15,17 @@ import {
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { CampaignAction, CampaignActionRequest, CampaignRoll, CampaignTarget } from "@/types";
 import { useCampaignAction } from "../hooks/mutations/useCampaignAction";
-import { BAND_INFO, bandOf, bandRange, groupWord, headline, repairUsed, resultTitle, signed } from "../lib/campaign";
+import {
+  BAND_INFO,
+  bandOf,
+  bandRange,
+  groupWord,
+  headline,
+  rallyExtremes,
+  repairUsed,
+  resultTitle,
+  signed,
+} from "../lib/campaign";
 import { ActionIcon } from "./campaign-action-icon";
 import { BandsTable, D20 } from "./campaign-dice";
 
@@ -210,6 +220,10 @@ function RollResult({ roll, target, partyAbbr, rivalAbbr, onClose, onAnother }: 
   const repaired = Number(entry.rejection) < 0 ? -Number(entry.rejection) : 0;
   // O dado que vale (o maior, na TV) vem por último e maior; o descartado fica apagado
   const chosen = dice.indexOf(entry.roll ?? -1);
+  const extremes =
+    entry.kind === "RALLY"
+      ? rallyExtremes(band, entry.support, target.bands.find((item) => item.band === "NORMAL")?.support ?? 0)
+      : null;
   const diceOrder = dice.map((_, index) => index).sort((a, b) => Number(a === chosen) - Number(b === chosen));
 
   return (
@@ -241,6 +255,7 @@ function RollResult({ roll, target, partyAbbr, rivalAbbr, onClose, onAnother }: 
           </div>
 
           <dl className="grid text-[13px]">
+            {extremes && <ResultRow label={extremes.label} value={extremes.value} />}
             {dice.length > 1 && (
               <ResultRow label="Dois dados, vale o maior" value={`${dice.join(" e ")} → ${entry.roll}`} />
             )}
