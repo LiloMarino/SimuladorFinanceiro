@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/shared/com
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { TeamBadge } from "@/shared/components/team-badge";
+import { plural } from "@/shared/lib/strategy-orders";
 import { teamColor, teamName } from "@/shared/lib/teams";
 import {
   displayMoney,
@@ -222,7 +223,8 @@ function TradesBar({ buys, sells, most }: { buys: number; sells: number; most: n
         )}
       </span>
       <span className="text-xs text-muted-foreground">
-        <span className="text-success">{buys} compras</span> · <span className="text-destructive">{sells} vendas</span>
+        <span className="text-success">{plural(buys, "compra", "compras")}</span> ·{" "}
+        <span className="text-destructive">{plural(sells, "venda", "vendas")}</span>
       </span>
     </div>
   );
@@ -354,7 +356,7 @@ function VolumeHeatmap({
                                 {displayMonthSlashYear(month)}
                                 <br />
                                 {entry && volume
-                                  ? `${displayMoney(volume)} · ${entry.buy_count} compras, ${entry.sell_count} vendas`
+                                  ? `${displayMoney(volume)} · ${plural(entry.buy_count, "compra", "compras")}, ${plural(entry.sell_count, "venda", "vendas")}`
                                   : "Sem negócios"}
                               </TooltipContent>
                             </Tooltip>
