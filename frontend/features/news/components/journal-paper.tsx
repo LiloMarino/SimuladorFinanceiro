@@ -7,9 +7,9 @@ import { Label } from "@/shared/components/ui/label";
 import { Switch } from "@/shared/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useNotificationCatalog } from "@/shared/hooks/queries/useNotificationCatalog";
+import { useNotificationSettings } from "@/shared/hooks/queries/useNotificationSettings";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
-import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { displayWeekdayDate } from "@/shared/lib/utils/display";
 import type { NewsSection } from "@/types";
 import { useNews } from "../hooks/queries/useNews";
@@ -26,12 +26,12 @@ type JournalPaperProps = { simulationId: number };
 export function JournalPaper({ simulationId }: JournalPaperProps) {
   const news = useNews(simulationId);
   const { data: catalog, error: catalogError, refetch: refetchCatalog } = useNotificationCatalog();
-  const { preferences } = useNotificationPreferences();
+  const { data: preferences, error: preferencesError, refetch: refetchPreferences } = useNotificationSettings();
   const { data: portfolio } = usePortfolio();
   const { data: state } = useSimulationState();
   const [filter, setFilter] = useState<JournalFilter>({ query: "", section: null, onlyMine: false });
 
-  const failed = news.error ?? catalogError;
+  const failed = news.error ?? catalogError ?? preferencesError;
   const held = new Set((portfolio?.variable_income ?? []).map((position) => position.ticker));
 
   return (
@@ -92,7 +92,7 @@ export function JournalPaper({ simulationId }: JournalPaperProps) {
             title="Não deu para carregar as notícias"
             description="A partida segue normal. Tente de novo em instantes."
             error={failed}
-            onRetry={() => void Promise.all([news.refetch(), refetchCatalog()])}
+            onRetry={() => void Promise.all([news.refetch(), refetchCatalog(), refetchPreferences()])}
           />
         ) : !news.data || !catalog || !preferences ? (
           <JournalSkeleton />
