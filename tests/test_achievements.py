@@ -12,6 +12,7 @@ from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.enum import (
     AchievementCategory,
     AchievementIcon,
+    GameType,
     IndicatorSeries,
     PlayerGrouping,
 )
@@ -471,3 +472,21 @@ def test_match_end_metrics_for_expert_mode_and_teams():
     assert value("won_as_team", teams, won) == Decimal(1)
     assert value("won_as_team", SETTINGS, won) == Decimal(0)
     assert value("won_as_team", teams, lost) == Decimal(0)
+
+
+def test_goal_race_win_requires_the_goal_to_end_the_match():
+    by_goal = MatchResult(frozenset({1}), players_count=3, ended_by_goal=True)
+    by_date = MatchResult(frozenset({1}), players_count=3, ended_by_goal=False)
+    lost = MatchResult(frozenset({2}), players_count=3, ended_by_goal=True)
+    race = settings_with(game_type=GameType.GOAL_RACE)
+    classic = settings_with(game_type=GameType.CLASSIC)
+
+    def value(name: str, settings: SimulationDTO, match: MatchResult) -> Decimal:
+        return context(snapshot(), match, settings).value(name)
+
+    assert value("won_goal_race", race, by_goal) == Decimal(1)
+    assert value("won_goal_race", race, by_date) == Decimal(0)
+    assert value("won_goal_race", race, lost) == Decimal(0)
+    assert value("won_goal_race", classic, by_goal) == Decimal(0)
+    assert value("finished_to_end", race, by_date) == Decimal(1)
+    assert value("finished_to_end", race, by_goal) == Decimal(0)
