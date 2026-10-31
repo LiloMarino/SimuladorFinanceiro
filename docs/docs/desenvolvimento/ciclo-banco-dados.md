@@ -48,7 +48,7 @@ O schema nasce dos models em `backend/core/models/models.py`, e cada mudança vi
 
    O autogenerate compara os models com o banco do `.env` e escreve a revisão. A descrição é em inglês e vira o nome do arquivo.
 3. 🔍 **Revisar o arquivo gerado** — ele é um ponto de partida, não o resultado final
-4. ✅ **Rodar `pnpm test`** — o `tests/test_migrations.py` confere que as migrations chegam exatamente no schema dos models e que toda revisão desce e sobe de volta
+4. ✅ **Rodar `pnpm test`** — o `tests/test_migrations.py` confere que as migrations chegam exatamente no schema dos models
 
 O [Diagrama do Banco de Dados](./diagrama-banco-dados.mdx) é gerado dos models a cada `pnpm start` e `pnpm build` dos docs, sem passo manual.
 

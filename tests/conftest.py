@@ -342,27 +342,6 @@ def market_copy(pg_server: URL, market_template: URL) -> Iterator[WorkingCopy]:
 
 
 @pytest.fixture
-def pg_url(pg_server: URL) -> Iterator[str]:
-    """Banco vazio e descartável no mesmo servidor do .env, apagado no fim."""
-    url = _scratch_url(pg_server)
-    try:
-        ensure_database(url)
-    except OperationalError:
-        pytest.skip("PostgreSQL indisponível")
-    yield url.render_as_string(hide_password=False)
-    drop_databases(url, [str(url.database)])
-
-
-@pytest.fixture
-def engine(pg_url: str) -> Iterator[Engine]:
-    # Sem pool: os testes de migration copiam o banco, e a cópia exige que
-    # nenhuma conexão fique aberta nele.
-    engine = create_engine(pg_url, poolclass=NullPool)
-    yield engine
-    engine.dispose()
-
-
-@pytest.fixture
 def database(
     migrated_copy: WorkingCopy, monkeypatch: pytest.MonkeyPatch
 ) -> Iterator[Engine]:
