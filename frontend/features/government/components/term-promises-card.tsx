@@ -102,8 +102,10 @@ export function TermPromisesCard({ promises, termEnd }: TermPromisesCardProps) {
             <div className="grid gap-2">
               <b className="text-sm">Se o mandato acabasse hoje</b>
               <span className="text-xs text-muted-foreground">
-                O que as {promises.items.length} promessas deixariam no {promises.party_abbr}. Só o{" "}
-                {promises.party_abbr} vê.
+                {promises.items.length === 1
+                  ? "O que a promessa deixaria"
+                  : `O que as ${promises.items.length} promessas deixariam`}{" "}
+                no {promises.party_abbr}. Só o {promises.party_abbr} vê.
               </span>
               <div className="overflow-hidden rounded-lg border">
                 <Table>
