@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-30):** Glossário e Livre pra pegar mostram o esforço e o custo-benefício de cada feature.
+> **Última mudança (2026-10-31):** Fechados para a versão 3.3 o partido desde o 1º dia, a preparação salva no perfil, o x100, a SELIC nas mãos do governo, o mapa por região e a tela do Tesouro; registrada a conferência visual de tudo o que mudou desde a 3.0.
 
 ## Glossário
 
@@ -32,7 +32,7 @@
 | **N12** | Continuar jogando depois do último dia com dado real | — | — | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — | — | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F120](#f120), [F160](#f160), [F162](#f162), [F166](#f166) | — | — | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F120](#f120), [F160](#f160), [F162](#f162), [F166](#f166), [F178](#f178) | — | — | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — | — | — |
@@ -41,7 +41,7 @@
 | **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | — | — | — | — |
 | **N22** | Ter objetivos para buscar além de vencer a partida | [F159](#f159) | — | — | — |
 | **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F101](#f101), [F168](#f168) | — | — | — |
-| **N24** | Saber onde está a lentidão durante uma partida | — | — | — | — |
+| **N24** | Saber onde está a lentidão durante uma partida | [F157](#f157) | — | — | — |
 | **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141) | — | — | — |
 | **N26** | Achar a causa de um erro sem vasculhar o log inteiro | — | — | — | — |
 | **N27** | Entrar numa partida que já começou | — | — | — | — |
@@ -51,13 +51,13 @@
 | **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92), [F161](#f161) | — | — | — |
 | **N32** | Saber como foi o mês sem montar a conta | [F161](#f161) | — | — | — |
 | **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111) | — | — | — |
-| **N34** | Disputar o poder de mudar as regras da economia da partida | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F143](#f143), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154), [F163](#f163) | — | — | — |
+| **N34** | Disputar o poder de mudar as regras da economia da partida | [F97](#f97), [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F143](#f143), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154), [F163](#f163), [F164](#f164), [F165](#f165), [F169](#f169), [F173](#f173), [F176](#f176), [F177](#f177) | — | — | — |
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — | — | — |
 | **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — |
 | **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F127](#f127) | — | — | — |
 | **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — | — | — |
-| **N39** | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | [F143](#f143) | — | — | — |
-| **N40** | Jogar partidas longas e na velocidade máxima sem a tela travar | — | — | — | — |
+| **N39** | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | [F143](#f143), [F169](#f169), [F170](#f170), [F173](#f173) | — | — | — |
+| **N40** | Jogar partidas longas e na velocidade máxima sem a tela travar | [F157](#f157) | — | — | — |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | — | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | Médio | Bom | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | Baixo | Bom | 💤 |
@@ -74,7 +74,7 @@
 | [**F81**](#f81) | CORS restrito à mesma origem | — | Baixo | Médio | 💤 |
 | [**F90**](#f90) | Cenários | — | — | — | 🔍 |
 | [**F93**](#f93) | Rumores antecipados | — | — | — | 🔍 |
-| [**F97**](#f97) | SELIC nas mãos do governo | — | — | — | 🔍 |
+| [**F97**](#f97) | SELIC nas mãos do governo | — | Alto | Bom | ⏳ |
 | [**F100**](#f100) | Proventos na carteira e nas telas | — | Médio | Bom | ⏳ |
 | [**F101**](#f101) | Carteira separada do jogador | — | Alto | Médio | 💤 |
 | [**F102**](#f102) | Gestoras: emissão de novas cotas e recompra | — | — | — | 🔍 |
@@ -90,19 +90,24 @@
 | [**F139**](#f139) | Demonstração regravada com o jogo de hoje | — | Médio | Bom | ⏳ |
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | Alto | Bom | ⏳ |
 | [**F141**](#f141) | README com as features de hoje | — | Baixo | Excelente | ⏳ |
-| [**F157**](#f157) | Velocidade x100 que quase não acelera | — | — | — | 🔍 |
+| [**F157**](#f157) | Velocidade x100 que quase não acelera | — | Médio | Excelente | ⏳ |
 | [**F158**](#f158) | Animações do Como jogar revistas | — | — | — | 🔍 |
 | [**F159**](#f159) | Conquista "Ordem com paciência" | — | Baixo | Bom | ⏳ |
-| [**F164**](#f164) | Mapa do Brasil por região na eleição | — | — | — | 🔍 |
-| [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | — | — | 🔍 |
+| [**F164**](#f164) | Mapa do Brasil por região na eleição | — | Médio | Bom | ⏳ |
+| [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | Médio | Bom | ⏳ |
 | [**F167**](#f167) | Notícias do ativo como marcadores no gráfico de preço | — | Baixo | Bom | 💤 |
-| [**F169**](#f169) | Contribuição de campanha na preparação do lobby | — | — | — | 🔍 |
-| [**F170**](#f170) | Modo automático ligado desde o 1º dia, pela preparação | — | — | — | 🔍 |
-| [**F171**](#f171) | Ordens de abertura na preparação do lobby | — | — | — | 🔍 |
-| [**F172**](#f172) | Meta pessoal na preparação do lobby | — | — | — | 🔍 |
+| [**F169**](#f169) | Contribuição de campanha salva no perfil | — | Baixo | Bom | ⏳ |
+| [**F170**](#f170) | Parâmetros das estratégias salvos no perfil | — | Médio | Excelente | ⏳ |
+| [**F173**](#f173) | Partido desde o 1º dia | — | Médio | Bom | ⏳ |
+| [**F174**](#f174) | Preparação do lobby redesenhada | — | — | — | 🔍 |
+| [**F175**](#f175) | Federações partidárias | — | — | — | 🔍 |
+| [**F176**](#f176) | Cadeiras do Congresso por região | — | Médio | Médio | 💤 |
+| [**F177**](#f177) | Marcação a mercado do Tesouro | — | Médio | Bom | 💤 |
+| [**F178**](#f178) | Conferência visual de tudo o que mudou desde a 3.0 | — | Alto | Excelente | ⏳ |
+| [**F179**](#f179) | Topbar que cabe com a corrida e o governo | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (37 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (39 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -118,12 +123,12 @@
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | — | — | ✅ |
 | **D12** | Como numerar as versões | — | — | — | ✅ |
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | — | — | ✅ |
-| **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | [F106](#f106), [F128](#f128) | — | — | ✅ |
+| **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | [F97](#f97), [F106](#f106), [F128](#f128) | — | — | ✅ |
 | **D15** | Lint com oxlint, formatação com oxfmt e o TypeScript 7 com a API do 6 ao lado | — | — | — | ✅ |
 | **D16** | Estratégias do app no host, personalização pela API | — | — | — | ✅ |
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | — | — | — | ✅ |
 | **D18** | Uma migration por versão; caminho antigo só cai numa major | — | — | — | ✅ |
-| **D19** | O eleitorado são grupos, cada um com apoio e rejeição por partido | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F143](#f143), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154) | — | — | ✅ |
+| **D19** | O eleitorado são grupos, cada um com apoio e rejeição por partido | [F97](#f97), [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F143](#f143), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154), [F164](#f164), [F173](#f173), [F176](#f176) | — | — | ✅ |
 | [**F92**](#f92) | Noticiário da partida | — | Médio | Bom | ✅ |
 | [**F106**](#f106) | Governo & Política: medidas de gasto público | — | Alto | Bom | ✅ |
 | [**F107**](#f107) | Grupos de eleitores, com apoio e rejeição por partido | — | Alto | Bom | ✅ |
@@ -143,6 +148,8 @@
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | Baixo | Bom | ✅ |
 | [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | Médio | Bom | ✅ |
 | [**F168**](#f168) | Desafio da vela no lobby | — | Alto | Bom | ✅ |
+| [**F171**](#f171) | Ordens de abertura na preparação do lobby | — | — | — | 🚫 |
+| [**F172**](#f172) | Meta pessoal na preparação do lobby | — | — | — | 🚫 |
 
 </details>
 
@@ -156,24 +163,25 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | — | — | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | Alto | Bom | ⏳ |
+| [**F174**](#f174) | Preparação do lobby redesenhada | — | 2 | — | — | 🔍 |
+| [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 1 | Médio | Bom | ⏳ |
+| [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 1 | Médio | Bom | ⏳ |
+| [**F173**](#f173) | Partido desde o 1º dia | — | 1 | Médio | Bom | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | — | — | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | — | — | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | Baixo | Bom | ⏳ |
 | [**F90**](#f90) | Cenários | — | 0 | — | — | 🔍 |
 | [**F93**](#f93) | Rumores antecipados | M15 | 0 | — | — | 🔍 |
-| [**F97**](#f97) | SELIC nas mãos do governo | — | 0 | — | — | 🔍 |
+| [**F97**](#f97) | SELIC nas mãos do governo | — | 0 | Alto | Bom | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | — | — | 🔍 |
 | [**F131**](#f131) | Catálogo de padrões de vela | M11 | 0 | — | — | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | Médio | Bom | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | Baixo | Bom | ⏳ |
-| [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | — | — | 🔍 |
+| [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | Médio | Excelente | ⏳ |
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | — | — | 🔍 |
-| [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 0 | — | — | 🔍 |
-| [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 0 | — | — | 🔍 |
-| [**F169**](#f169) | Contribuição de campanha na preparação do lobby | — | 0 | — | — | 🔍 |
-| [**F170**](#f170) | Modo automático ligado desde o 1º dia, pela preparação | — | 0 | — | — | 🔍 |
-| [**F171**](#f171) | Ordens de abertura na preparação do lobby | — | 0 | — | — | 🔍 |
-| [**F172**](#f172) | Meta pessoal na preparação do lobby | — | 0 | — | — | 🔍 |
+| [**F175**](#f175) | Federações partidárias | — | 0 | — | — | 🔍 |
+| [**F178**](#f178) | Conferência visual de tudo o que mudou desde a 3.0 | — | 0 | Alto | Excelente | ⏳ |
+| [**F179**](#f179) | Topbar que cabe com a corrida e o governo | — | 0 | — | — | 🔍 |
 
 ---
 
@@ -280,7 +288,7 @@
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
+| [**F157**](#f157) | Velocidade x100 que quase não acelera | — | ⏳ |
 
 <details><summary>Concluído (1 item)</summary>
 
@@ -358,7 +366,7 @@
 
 ### Sem marco
 
-> **Progresso:** 5/24 concluídas
+> **Progresso:** 5/29 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -370,17 +378,22 @@
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
 | [**F90**](#f90) | Cenários | — | 🔍 |
-| [**F97**](#f97) | SELIC nas mãos do governo | [F106](#f106), [F128](#f128) | 🔍 |
+| [**F97**](#f97) | SELIC nas mãos do governo | [F106](#f106), [F128](#f128) | ⏳ |
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F159**](#f159) | Conquista "Ordem com paciência" | [F44](#f44) | ⏳ |
-| [**F164**](#f164) | Mapa do Brasil por região na eleição | [F107](#f107) | 🔍 |
-| [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | [F128](#f128) | 🔍 |
-| [**F169**](#f169) | Contribuição de campanha na preparação do lobby | — | 🔍 |
-| [**F170**](#f170) | Modo automático ligado desde o 1º dia, pela preparação | — | 🔍 |
-| [**F171**](#f171) | Ordens de abertura na preparação do lobby | — | 🔍 |
-| [**F172**](#f172) | Meta pessoal na preparação do lobby | — | 🔍 |
+| [**F164**](#f164) | Mapa do Brasil por região na eleição | [F107](#f107) | ⏳ |
+| [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | [F128](#f128) | ⏳ |
+| [**F169**](#f169) | Contribuição de campanha salva no perfil | [F173](#f173), [F174](#f174) | ⏳ |
+| [**F170**](#f170) | Parâmetros das estratégias salvos no perfil | [F174](#f174) | ⏳ |
+| [**F173**](#f173) | Partido desde o 1º dia | — | ⏳ |
+| [**F174**](#f174) | Preparação do lobby redesenhada | — | 🔍 |
+| [**F175**](#f175) | Federações partidárias | — | 🔍 |
+| [**F176**](#f176) | Cadeiras do Congresso por região | [F164](#f164) | 💤 |
+| [**F177**](#f177) | Marcação a mercado do Tesouro | [F165](#f165) | 💤 |
+| [**F178**](#f178) | Conferência visual de tudo o que mudou desde a 3.0 | — | ⏳ |
+| [**F179**](#f179) | Topbar que cabe com a corrida e o governo | — | 🔍 |
 
 <details><summary>Concluído (5 itens)</summary>
 
@@ -435,6 +448,16 @@
 | **F166** | Pendências da partida: o que pede ação fica à vista até ser resolvido | N15 | — | M15 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F168** | Desafio da vela no lobby | N19, N23 | — | — | — | Alto | Médio | Médio | Bom | ✅ Concluído |
 | **F143** | Preparação de cada jogador no lobby | N39, N34 | D19 | — | — | Alto | — | — | — | ✅ Concluído |
+| **F173** | Partido desde o 1º dia | N39, N34 | D19 | — | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
+| **F169** | Contribuição de campanha salva no perfil | N34, N39 | — | — | [F173](#f173), [F174](#f174) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F170** | Parâmetros das estratégias salvos no perfil | N39 | — | — | [F174](#f174) | Médio | Baixo | Alto | Excelente | ⏳ Pendente |
+| **F157** | Velocidade x100 que quase não acelera | N40, N24 | — | M16 | — | Médio | Médio | Alto | Excelente | ⏳ Pendente |
+| **F97** | SELIC nas mãos do governo | N34 | D19, D14 | — | [F106](#f106), [F128](#f128) | Alto | Alto | Alto | Bom | ⏳ Pendente |
+| **F164** | Mapa do Brasil por região na eleição | N34 | D19 | — | [F107](#f107) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F165** | Tela do Tesouro: títulos pelo risco do governo | N34 | — | — | [F128](#f128) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F176** | Cadeiras do Congresso por região | N34 | D19 | — | [F164](#f164) | Médio | Médio | Médio | Médio | 💤 Registrado, sem prioridade |
+| **F177** | Marcação a mercado do Tesouro | N34 | — | — | [F165](#f165) | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
+| **F178** | Conferência visual de tudo o que mudou desde a 3.0 | N15 | — | — | — | Alto | Baixo | Alto | Excelente | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -575,6 +598,44 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 <a id="f143"></a>
 **F143 — Preparação de cada jogador no lobby.** Serve N39 e N34. O lobby prepara a partida pelas mãos do host; o que é de cada jogador só se fazia depois do início, com o relógio andando. Agora cada jogador tem o card "Minha preparação", com a expansão Governo & Política ligada numa partida nova. **Meu partido:** a identidade do partido (nome, sigla, cor e as 3 bandeiras) fica salva no perfil, no molde dos presets do host; o histórico do partido (D19) recomeça a cada partida. **O card:** fundar o Meu partido (com candidato e vice), entrar no partido que outro jogador preparou ou nada; o convidado para vice aceita ou recusa no próprio card. **Aplicação:** a preparação vive em memória na sala e vira um evento do livro do governo ao iniciar, então sobrevive a salvar e retomar antes da campanha; na abertura da campanha o partido nasce com contribuição zero, os filiados entram, a chapa é montada e o vice aceito vale. **Conflitos:** sigla, nome ou cor repetidos entre preparados, ou com os partidos do computador, avisam no lobby e bloqueiam o Iniciar do host. **Padrões:** quem não está na sala quando a partida começa não tem a preparação aplicada; o vice vale só para a partida; bots não têm preparação; com partida salva selecionada ou a expansão desligada o card fica travado.
 
+<a id="f173"></a>
+**F173 — Partido desde o 1º dia.** Serve N39 e N34; condicionada pela D19. Hoje fundar e filiar-se só abrem com a campanha, um ano antes do 1º turno (`_ensure_campaign_open` em `government_book.py`), e a preparação do lobby espera a abertura para virar partido. Como no Brasil, onde o partido existe o tempo todo e o que tem prazo é a filiação de quem concorre, a regra passa a ser: **fundar, filiar-se e sair ficam livres desde o 1º dia**; a **filiação para concorrer** fecha 6 meses antes do 1º turno (Lei 9.504/97, art. 9): quem entra depois disso é filiado, mas não pode ser candidato nem vice naquela eleição; a **chapa, as ações de campanha e a cobrança da contribuição** continuam só na janela da campanha (a cobrança mensal pula os meses antes da abertura). **A preparação do lobby é aplicada no 1º dia da partida**, e não mais na abertura da campanha: os partidos preparados nascem com os filiados, e a chapa e o vice preparados ficam guardados no partido até a campanha abrir. Entre os turnos, filiação e saída continuam travadas. Partido de jogador fundado no meio do mandato não tem cadeira até a eleição seguinte. A preparação ainda não saiu em versão, então não há partida salva com o evento antigo para manter. Gatilho: antes do redesenho da preparação (F174), que mostra os partidos já existentes.
+
+<a id="f169"></a>
+**F169 — Contribuição de campanha salva no perfil.** Serve N34 e N39. A contribuição mensal de cada filiado fica salva no perfil do jogador (`Users.settings`, chave própria, ao lado do Meu partido), e vale para quem funda e para quem se filia: o partido em que ele entra começa a cobrá-la quando a campanha abre, em vez de começar com zero. Quem nunca salvou continua com zero. A cobrança mensal já pula quem não tem caixa (`government_book.py`, coleta do 1º dia útil); o que muda é que **o mês pulado abre uma pendência** ("sua contribuição de R$ X não foi paga em março, por falta de caixa"), resolvida quando a contribuição seguinte é paga ou quando o jogador muda o valor. Mudar a contribuição dentro da partida também grava o valor no perfil. O campo da preparação mora na tela redesenhada (F174).
+
+<a id="f170"></a>
+**F170 — Parâmetros das estratégias salvos no perfil.** Serve N39. Quem ajusta uma estratégia do modo automático (os dias das médias, o ativo, a divisão do rebalanceamento) precisa lembrar e redigitar os valores a cada partida. Os parâmetros passam a ficar no perfil, por estratégia (`Users.settings`, chave `strategy_params`: `{chave_da_estratégia: {parâmetro: valor}}`), por dois caminhos: (1) **o último valor usado**: ao ligar o automático numa partida, os parâmetros escolhidos se gravam no perfil daquela estratégia; (2) **a preparação**: a aba Estratégias da tela redesenhada (F174) lista as estratégias com os parâmetros de cada uma, para ajustar antes de jogar. Ao ligar o automático, o formulário nasce com os valores do perfil, ou com o padrão da estratégia onde o jogador não salvou nada. A validação é a mesma dos bots do lobby (`validate` da estratégia: tipo, mínimo e máximo); o ticker salvo que não existe na partida cai no padrão da estratégia, com aviso no formulário. O automático continua sendo ligado pelo jogador dentro da partida, que nasce pausada no 1º dia.
+
+<a id="f157"></a>
+**F157 — Velocidade x100 que quase não acelera.** Serve N40 e N24. No playtest, o x100 andou quase como o x1, ou até mais lento. O loop dorme `1 / velocidade` segundos depois de cada tick (`simulation_loop.py:132` a `:156`): no x1 o dia leva o tick mais 1 s, no x100 o tick mais 10 ms, e com o tick perto de 1 s (a medição da D4 deu de 0,6 a 0,95 s com carga) o x100 fica só umas duas vezes mais rápido que o x1. A correção: (1) **medir por dentro do tick**, com uma medida do modo debug para cada etapa (snapshots, bots, eleição, emissão pelo Socket.IO), lida no painel de desempenho numa partida salva longa no x100, junto de se o navegador engasga com um evento por tick; (2) **dormir pela cadência**, `1 / velocidade` menos o que o tick já gastou, nunca abaixo de zero; (3) **agrupar as emissões em velocidade alta**, os dias do mesmo intervalo num evento só, com o front redesenhando uma vez por lote; (4) corrigir o gargalo que a medição apontar. É o ponto de partida das otimizações gerais de desempenho.
+
+**Aceite:** numa partida salva longa, com bots e a expansão "Governo & Política" ligada, um dia no x100 custa no máximo 100 ms (uns 10 dias por segundo).
+
+<a id="f97"></a>
+**F97 — SELIC nas mãos do governo.** Ligado à N34; uma opção da expansão "Governo & Política" (F95), no lugar do Banco Central autônomo, que continua sendo o padrão. (1) **Ritmo do Copom:** o governo decide a SELIC em reuniões a cada 45 dias, como o Copom, que se reúne 8 vezes por ano desde 2006; entre reuniões ela não muda. (2) **Teto por reunião, pelo que aconteceu de verdade.** Das 150 mudanças da meta da SELIC entre 2000 e outubro de 2026 (série do Banco Central): 34 foram de 0,25 ponto, 67 de 0,5, 19 de 0,75, 19 de 1, 7 de 1,5, uma de 2, uma de 2,5 e duas de 3; desde 2006, nunca passou de 1,5. O teto vem do IPCA de 12 meses: 0,75 ponto em tempo normal (80% das mudanças reais), 1,5 com o IPCA acima do teto da meta (a meta mais a tolerância de 1,5 ponto), como em 2021 e 2022, e 3 com o IPCA acima de 15%, o que só aconteceu em 2002 e 2003. (3) **O efeito vem do juro real, contínuo e sem faixa morta.** Juro real é a SELIC menos o IPCA de 12 meses; o juro neutro, que nem aquece nem esfria, é 5%, perto da estimativa do Banco Central. A distância até o neutro age pelo mecanismo de efeito por cima das séries da F106: cada ponto abaixo do neutro, mantido por um ano, sobe o IPCA em uns 0,3 ponto ao longo dos 4 trimestres seguintes, com o pico no 2º e no 3º (o modelo Samba do Banco Central), e cada ponto acima o derruba na mesma medida. Abaixo do neutro o crescimento aquece na hora; acima, esfria e a bolsa cai pelo coeficiente da D14. Como o efeito é contínuo, nenhuma faixa de juro sai de graça. Os limites de 2% e 7% de juro real servem só para os avisos e para a reação dos grupos (D19): abaixo de 2%, aposentados e quem vive de investimento perdem apoio; acima de 7%, quem trabalha e empreende. (4) **Credibilidade.** Cada reunião que deixa o juro real abaixo do neutro com o IPCA acima da meta gasta credibilidade; cada reunião que aperta devolve um pouco, devagar. Com pouca credibilidade a inflação reage mais rápido ao juro baixo, porque o mercado já espera que ela suba, e o prêmio de risco dos títulos (F128) sobe: o governo que usou a SELIC para ganhar a eleição herda uma inflação que não cede. A tela mostra a credibilidade com uma dica do que ela mede e do que a move. O 0,3 é ordem de grandeza dos modelos semiestruturais e se calibra no playtest; não se mede no histórico do banco, porque a SELIC reage à inflação e a regressão direta sai com o sinal trocado. Fontes: [Relatório de Inflação de junho de 2013, box do Samba](https://www.bcb.gov.br/content/ri/relatorioinflacao/201306/RELINF201306-ri201306b6p.pdf); [um modelo semiestrutural simples](https://coolassessor.substack.com/p/um-modelo-semiestrutural-simples); [Blog do IBRE sobre o efeito da SELIC](https://blogdoibre.fgv.br/posts/deve-o-bc-reduzir-selic-replica-jose-julio-senna).
+
+**Aceite:** com o resto parado, o juro real 3 pontos abaixo do neutro por um ano sobe o IPCA de 12 meses em 0,6 a 1,2 ponto no ano seguinte, e a mesma decisão com credibilidade baixa sobe mais.
+
+<a id="f164"></a>
+**F164 — Mapa do Brasil por região na eleição.** Serve N34. Um mapa pintado pela cor do partido que lidera cada região, e o resultado dito por região ("você ganhou mais eleitores no Sudeste"). Pelo modelo da D19, uma região é uma mistura de grupos de eleitores, então o voto por região sai do voto por grupo sem mudar o modelo, e o mapa é uma camada visual por cima; o Congresso continua nacional. O peso de cada região é o eleitorado do TSE de 2022: Sudeste 42,6%, Nordeste 27,1%, Sul 14,7%, Norte 8,1%, Centro-Oeste 7,5%. A mistura de grupos de cada região vem de dados públicos: beneficiários do Bolsa Família (quem depende de auxílio), benefícios do INSS (aposentados), PNAD Contínua do IBGE (trabalhadores formais e servidores) e investidores da B3 por região (quem vive de investimento), com a fonte de quem empreende escolhida na implementação e citada no código. As misturas moram ao lado de `voters.WEIGHTS`, e a soma delas pesada pelo eleitorado fecha os pesos nacionais. O desenho começa registrando no canvas as telas e os estados: antes da eleição, apuração, 2º turno e expansão desligada. O upgrade seguinte são as cadeiras por região (F176) e, se valer, ações de campanha por região ("comício no Nordeste") na F130.
+
+**Aceite:** a soma das misturas regionais pesada pelo eleitorado bate com os pesos nacionais com erro de até 0,005 por grupo, num teste.
+
+<a id="f165"></a>
+**F165 — Tela do Tesouro: títulos pelo risco do governo.** Serve N34. Com o prêmio de risco (F128), a taxa dos títulos conta a história do governo: sobe quando a dívida cresce. Hoje o Tesouro sai misturado na vitrine mensal da renda fixa, com o prêmio somado à taxa (`fixed_income/factory/__init__.py`). Uma tela própria do Tesouro mostra: (1) **os títulos à venda** (Selic, Prefixado e IPCA+), com a taxa aberta em "taxa base + prêmio de risco do país" e a compra dali mesmo; (2) **a taxa de cada tipo ao longo da partida**, com a dívida pública ÷ PIB no mesmo eixo de tempo, para ver a taxa subir junto com a dívida; (3) **o termômetro do risco**: o prêmio atual, a dívida ÷ PIB e quanto falta para o próximo degrau do prêmio. Cada métrica tem uma descrição curta e uma dica com a definição e como ler. Para o gráfico, o backend guarda a taxa de cada tipo e o prêmio em cada vitrine mensal. O desenho começa registrando no canvas as telas e os estados: expansão desligada, dívida abaixo de 50% do PIB sem prêmio e prêmio alto. A marcação a mercado é o card seguinte (F177).
+
+<a id="f176"></a>
+**F176 — Cadeiras do Congresso por região.** Serve N34; upgrade do mapa por região (F164). Na Câmara real nenhum estado tem menos de 8 nem mais de 70 deputados, e o Norte e o Centro-Oeste valem mais em cadeiras do que em eleitores: o Norte tem 65 de 513 cadeiras (12,7%) com 8,1% do eleitorado, e o Sudeste 179 (34,9%) com 42,6%. As 101 cadeiras se repartem na proporção das 513: Sudeste 35, Nordeste 30, Sul 15, Norte 13, Centro-Oeste 8. Cada região reparte as dela pelo D'Hondt de `house.distribute` com o voto da região; a barreira continua nacional. Ganhar o Norte passa a valer mais no Congresso do que na urna, uma decisão de campanha real. Fica depois do mapa porque mexe no modelo das cadeiras.
+
+<a id="f177"></a>
+**F177 — Marcação a mercado do Tesouro.** Serve N34; upgrade da tela do Tesouro (F165). Na vida real, quem compra um Prefixado e vê as taxas subirem perde dinheiro se vender antes do vencimento: um título de 12% ao ano vale menos quando o mercado paga 15%, porque ninguém paga o mesmo preço por 12% podendo ter 15%. Os títulos do Tesouro ganham resgate antes do vencimento: o Selic pelo valor acumulado, o Prefixado e o IPCA+ pelo preço unitário de hoje, o valor no vencimento trazido a valor presente pela taxa atual do mesmo tipo (taxa base mais o prêmio de risco de hoje). A carteira mostra o ganho ou a perda da marcação ao lado do rendimento. O risco do governo fica palpável para quem investe, e o presidente com Prefixado na carteira perde com a própria gastança. Fica separado porque mexe na renda fixa toda (`liquidity.py`, `fixed_broker.redeem`), que hoje só resgata antes do vencimento o que tem liquidez diária.
+
+<a id="f178"></a>
+**F178 — Conferência visual de tudo o que mudou desde a 3.0.** Serve N15. A última conferência em tela foi na 3.0; da 3.1 à 3.3 as features saíram conferidas por teste e `tsc`, e o app aberto mostra overflow, texto pequeno e cartões desalinhados. Só o visual: o comportamento o jogador pega jogando, e bug de backend entra só se for óbvio na passada. (1) **Roteiro:** um subagente Haiku lista, do `git diff --name-only v3.0.0 HEAD -- frontend` (uns 290 componentes: 94 no governo, 40 compartilhados, 25 nas estatísticas, 15 no desafio de velas, 14 no lobby, 11 no noticiário e o resto espalhado) e dos cards ✅ desde a 3.0, cada tela e o estado final dela, na ordem de uma partida: lobby, mercado, carteira, renda fixa, crédito, estatísticas, economia, jornal e pendências, campanha, 1º e 2º turnos, Congresso, contas do governo, conquistas, Como jogar e configurações. Estado intermediário que não existe mais (a votação antes do Congresso, por exemplo) fica de fora: confere-se o estado de hoje. (2) **Passada:** o app no banco de teste, com a expansão do governo e a corrida pela meta ligadas (o pior caso da topbar), aberto pelo `chrome-devtools` em 1366×768 e 1920×1080, com a captura de cada tela e estado do roteiro; a partida chega aos estados pelo x100 ou por uma partida salva do banco de teste. (3) **O que se olha em cada tela:** elemento passando da borda do cartão ou rolagem horizontal; texto cortado sem dica; texto abaixo de 12 px; contraste baixo (texto colorido claro sobre branco); cartões irmãos desalinhados ou de alturas que não batem; espaço vazio grande; peça feita à mão no lugar do componente do design system. (4) **Entrega:** a lista de achados por tela, com a captura e o problema, como artifact; o usuário prioriza. Correção pequena e óbvia sai como `fix:` (cada uma um patch da 3.2.1); a que pede outro desenho vai para o canvas. Primeiro achado, no cartão "Partidos na disputa" da Eleição em três colunas: o selo "Computador" passa da borda, o nome do partido corta ("Movimento N…"), as promessas passam da largura do cartão, os rótulos do radar cortam nas bordas ("erviço público", "Estabilidade"), o radar muda de tamanho e de altura de um cartão para o outro conforme o número de bandeiras, os rótulos do radar são pequenos e claros demais, e a legenda mostra "Na fundação", uma linha que não aparece quando o perfil não mudou.
+
+**Aceite:** toda tela do roteiro, em 1366×768, sem rolagem horizontal nem elemento passando da borda, e sem texto abaixo de 12 px.
+
 ---
 ## 2. Nice-to-have
 
@@ -600,7 +661,16 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 ---
 ## 3. Descartada
 
-> Nenhum item nesta categoria atualmente.
+| ID | Resumo | N# | Status |
+| --- | --- | --- | --- |
+| **F171** | Ordens de abertura na preparação do lobby | — | 🚫 Descartado |
+| **F172** | Meta pessoal na preparação do lobby | — | 🚫 Descartado |
+
+<a id="f171"></a>
+**F171 — Descartado.** 🚫 A partida nasce pausada no 1º dia: ligar o automático, com os parâmetros salvos no perfil (F170), ou comprar na mão custa um clique antes de soltar o relógio. Executar pelo lobby exigiria guardar a escolha na partida, aplicá-la no 1º pregão e tratar quem saiu da sala, só para economizar esse clique.
+
+<a id="f172"></a>
+**F172 — Descartado.** 🚫 A meta é da partida. Com meta por jogador, numa corrida à meta ganha quem escolhe a menor; e a preparação do lobby existe para tirar o que o jogador refaz igual a cada partida, não para mudar a regra da vitória.
 
 ---
 ## 4. Incerta / exploratória
@@ -614,21 +684,16 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 | **F55** | Modo aquisição hostil | Serve N23; faltam parte mínima no mercado e o destino do incorporado | M18 | [F103](#f103) | 🔍 Em avaliação |
 | **F90** | Cenários | Serve N22; um preset com objetivo | — | — | 🔍 Em avaliação |
 | **F93** | Rumores antecipados | N31; opção da partida | M15 | [F92](#f92) | 🔍 Em avaliação |
-| **F97** | SELIC nas mãos do governo | N34; opção, depois do rework do governo | — | [F106](#f106), [F128](#f128) | 🔍 Em avaliação |
 | **F102** | Gestoras: emissão de novas cotas e recompra | Serve N23; falta o prazo da preferência e o preço da emissão | M18 | [F44](#f44) | 🔍 Em avaliação |
 | **F103** | Gestoras: troca de gestor pela assembleia | Serve N23; falta como a assembleia escolhe o novo gestor | M18 | [F44](#f44) | 🔍 Em avaliação |
 | **F104** | Gestoras: co-gestores | Serve N23; falta a divisão das taxas | M18 | [F44](#f44) | 🔍 Em avaliação |
 | **F105** | Gestoras: rendimentos mensais | Serve N23; falta a parte do lucro distribuída | M18 | [F44](#f44), [F100](#f100) | 🔍 Em avaliação |
 | **F123** | Redesenhar o aviso de conquista desbloqueada | Serve N22 e N15; falta escolher o desenho do aviso no canvas; liga à F122 | — | — | 🔍 Em avaliação |
 | **F131** | Catálogo de padrões de vela | Serve N19; tópico do Como jogar com cada padrão animado | M11 | — | 🔍 Em avaliação |
-| **F157** | Velocidade x100 que quase não acelera | Serve N40 e N24; falta medir o tick no x100 com o painel de desempenho | M16 | — | 🔍 Em avaliação |
 | **F158** | Animações do Como jogar revistas | Serve N25; falta o visual numa rodada no canvas | M14 | — | 🔍 Em avaliação |
-| **F164** | Mapa do Brasil por região na eleição | Serve N34; depois do rework; falta a mistura de grupos por região | — | [F107](#f107) | 🔍 Em avaliação |
-| **F165** | Tela do Tesouro: títulos pelo risco do governo | Serve N34; depois do orçamento; falta o desenho | — | [F128](#f128) | 🔍 Em avaliação |
-| **F169** | Contribuição de campanha na preparação do lobby | Estende a preparação de cada jogador no lobby (F143) | — | — | 🔍 Em avaliação |
-| **F170** | Modo automático ligado desde o 1º dia, pela preparação | Estende a preparação de cada jogador no lobby (F143) | — | — | 🔍 Em avaliação |
-| **F171** | Ordens de abertura na preparação do lobby | Estende a preparação de cada jogador no lobby (F143) | — | — | 🔍 Em avaliação |
-| **F172** | Meta pessoal na preparação do lobby | Estende a preparação de cada jogador no lobby (F143) | — | — | 🔍 Em avaliação |
+| **F174** | Preparação do lobby redesenhada | Serve N39 e N34; retrabalho da F143; falta a rodada no canvas | — | — | 🔍 Em avaliação |
+| **F175** | Federações partidárias | Serve N34; falta quando se forma e como a bancada federada decide | — | — | 🔍 Em avaliação |
+| **F179** | Topbar que cabe com a corrida e o governo | Serve N15; falta escolher o desenho no canvas | — | — | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -641,6 +706,7 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 
 <a id="f44"></a>
 **F44 — Expansão "Gestoras": fundar a gestora e abrir capital.** Serve N23. Inspiração: o Capitalism Lab (oferta pública, emissão de novas ações, recompra, compra de ações dos concorrentes), o OpenTTD e o Software Inc. Lá cada jogador é uma empresa que fabrica ou transporta; aqui tudo é finanças, então a empresa de cada jogador é uma gestora, e o que ela vende é o próprio desempenho. **Como expansão:** ligável por partida numa **aba própria "Expansões"** no lobby, com banner, emblema e "o que muda", como a loja de DLC dos jogos da Paradox; é enfeite visual, o sistema é o mesmo ligado ou não. **A gestora** tem nome e ticker de 4 letras mais 11, como cota de FII na B3 (o servidor recusa letras que já existam entre os ativos importados), e no livro de ofertas a linha leva a cor e a sigla do jogador, para não se confundir com ativo real. O jogador a funda levando **caixa, ações e títulos** da carteira em troca de cotas, e a opera por um **modo na topbar** ("Operando: Aurora Gestão"), que troca a conta de todas as telas de mercado, com uma faixa verde-petróleo e o caixa da gestora dizendo qual conta está ativa. **É um fundo fechado listado, como um FII:** (1) **oferta pública** quando o gestor quiser — cotas novas ao preço do patrimônio por cota (patrimônio de R$ 100 mil em 1.000 cotas dá R$ 100), e o dinheiro de quem compra entra na gestora: é investir no amigo; (2) **mercado** — depois da oferta, as cotas são negociadas no livro de ofertas que a renda variável já tem, e o preço sai da oferta e da procura, acima do patrimônio por cota (ágio) quando a sala acredita no gestor e abaixo (deságio) quando não; (3) **liquidez** — a liquidez de fundo do livro nasce dos candles de cada ativo, e a cota não tem candle, então um formador de mercado sintético põe ordens de compra e venda em volta do patrimônio por cota, numa faixa de 20% para cima e para baixo recalculada todo dia; dentro da faixa, o preço sai dos jogadores, e o livro tem contraparte até numa sala de 2; (4) **taxas** — a gestora paga aos gestores taxa de administração todo mês sobre o patrimônio e taxa de performance a cada 6 meses sobre o que passar do CDI, com teto na partida de **2% ao ano de administração e 20% de performance**, e cada gestor escolhe até o teto. A performance respeita a **marca d'água**, o maior patrimônio por cota sobre o qual a taxa já foi cobrada: se a cota cai de R$ 100 para 80 e volta a 100, a recuperação não paga performance. **O lucro fica dentro da gestora** e valoriza a cota. **Por que abrir capital, e quando:** as taxas são sobre o dinheiro dos outros, e com ágio as cotas do próprio gestor valem mais no ranking; o custo é ficar exposto, porque vender mais da metade abre a porta para perder o controle (F103). Abrir cedo, sem histórico, tende a sair com pouca procura; abrir depois de um bom ano tende a sair com ágio. **O gestor e a própria gestora:** o gestor negocia com a gestora pelo livro como qualquer jogador; a linha leva a sigla dele, então a negociação fica à vista, e quem cobra é a sala, vendendo a cota (deságio) ou trocando o gestor (F103). **Regras para o cálculo fechar:** só pessoas compram cotas, nunca gestoras, o que impede a participação cruzada (A com cotas da B, que tem cotas da A). No ranking, cada jogador soma a carteira pessoal, as taxas recebidas e as cotas que tem pelo **preço de ranking**: a média dos negócios dos últimos 20 pregões, ponderada pelo volume e limitada a 30% acima ou abaixo do patrimônio por cota; sem negócio no período, vale o patrimônio por cota. Um ágio de até 30% conta, e um negócio forçado a R$ 1.000 numa cota de R$ 100 conta no máximo como R$ 130. A carteira da gestora só conta através das cotas, sem contar o mesmo dinheiro duas vezes. **Estrutura:** a carteira própria da gestora é a F101; a cota é um ativo no livro de ofertas, com o patrimônio por cota publicado a cada dia. **Com a expansão Governo & Política (F95):** quando o gestor vence a eleição, na posse ele deixa de operar a gestora e de receber as taxas, porque a carteira do presidente fica congelada; um co-gestor (F104) assume e, sem co-gestor, a gestora congela até o fim do mandato; as cotas que ele tem continuam dele. A F95 sai antes, então a carteira congelada do presidente já existe quando a gestora for implementada: cabe a esta feature estender o congelamento à gestora. **Nas features seguintes:** emissão de novas cotas e recompra (F102), troca de gestor pela assembleia (F103), co-gestores (F104) e rendimentos mensais (F105). Falta: um protótipo do preço da cota no livro, com o formador sintético e jogadores comprando e vendendo, para calibrar a faixa de 20%.
+ **Na preparação do lobby:** a identidade da gestora (nome e ticker) fica salva no perfil, no molde do Meu partido, e entra numa aba própria da preparação (F174); a gestora preparada é fundada no 1º dia, vazia, e o jogador leva para ela o que quiser da carteira.
 
 <a id="f55"></a>
 **F55 — Modo aquisição hostil.** Serve N23. Um modo de jogo da expansão "Gestoras" (F44) em que perder o controle tira o jogador da partida. Todo o patrimônio de cada jogador está na própria gestora, e quem juntar mais da metade das cotas de outra a incorpora: o dono anterior sai da partida e a gestora dele passa a ser controlada pelo comprador. Vence quem sobrar, ou quem tiver o maior patrimônio na data final. **Carência:** nos primeiros meses (padrão 12) ninguém pode passar de metade de outra gestora, para que abrir capital cedo não seja suicídio. **Ninguém fica invulnerável:** sem oferta pública, a gestora seria impossível de comprar, então no fim da carência todas precisam ter uma parte mínima das cotas no mercado (padrão 50%); quem não abriu capital entra numa oferta automática pelo patrimônio por cota. **Defesa:** recompra de cotas com o caixa da gestora e compra com as taxas recebidas, como uma empresa que recompra ações para não ser comprada. Falta decidir: a parte mínima no mercado; se o incorporado sai da partida ou vira co-gestor do comprador (como numa fusão); e se há um preço mínimo por cota durante a tentativa de aquisição, como nas ofertas públicas de aquisição reais.
@@ -650,9 +716,6 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 
 <a id="f93"></a>
 **F93 — Rumores antecipados.** Ligado à N31; uma opção da partida, desligada por padrão. O simulador já sabe o futuro: as séries até a data final estão no banco antes de a partida começar, sejam reais ou geradas. O rumor usa isso e chega antes do fato, ao contrário do noticiário (F92): dias antes de um movimento grande (queda forte de um setor, mudança da SELIC), aparece na caixa de entrada algo como "analistas veem risco no varejo". O valor do rumor é obrigar o jogador a pensar: pode acontecer ou não, e a frase pede interpretação. Por isso só uma parte dos rumores se confirma, outra parte é alarme falso sorteado onde nada vai acontecer, e alguns não dizem a direção ("mudanças na diretoria da X"). Falta definir: a taxa de acerto e a antecedência; quão vago o rumor é (setor ou ativo, com ou sem direção); se é da sala inteira ou informação de um jogador só (comprada, como um informante); e se vale no modo Especialista.
-
-<a id="f97"></a>
-**F97 — SELIC nas mãos do governo.** Ligado à N34; uma opção da expansão "Governo & Política" (F95), no lugar do Banco Central autônomo, que continua sendo o padrão. (1) **Ritmo do Copom:** o governo decide a SELIC em reuniões a cada 45 dias, como o Copom, que se reúne 8 vezes por ano desde 2006; entre reuniões ela não muda. (2) **Teto por reunião, pelo que aconteceu de verdade.** Das 150 mudanças da meta da SELIC entre 2000 e outubro de 2026 (série do Banco Central): 34 foram de 0,25 ponto, 67 de 0,5, 19 de 0,75, 19 de 1, 7 de 1,5, uma de 2, uma de 2,5 (cortes de 2003) e duas de 3 (as altas da crise de 2002); desde 2006, nunca passou de 1,5. O teto acompanha isso: até 0,75 ponto por reunião em tempo normal (80% das mudanças reais), 1,5 com a inflação bem acima da meta, como em 2021 e 2022, e 3 só com a inflação explodindo, como em 2002. (3) **O preço vem do juro real,** a SELIC menos a inflação (SELIC de 10% com IPCA de 4% dá juro real de 6%). Juro real negativo ou perto de zero aquece a economia na hora e acelera a inflação meses depois, pelo mesmo mecanismo de efeito por cima das séries da F106: aposentados e quem vive de investimento perdem apoio (D19), e o prêmio de risco dos títulos sobe (F128). Juro real muito alto, acima de uns 7%, esfria o crescimento e derruba a bolsa pelo coeficiente da D14, e quem trabalha e empreende perde apoio. Falta definir: quanto a inflação reage à SELIC e com quanto atraso (medir no histórico, como a D14 mediu a reação da SELIC à inflação), os limites de juro real que começam a cobrar e os de inflação que liberam cada degrau do teto. Fica para depois do rework do governo da versão 3.1.
 
 <a id="f102"></a>
 **F102 — Gestoras: emissão de novas cotas e recompra.** Serve N23; amplia a expansão Gestoras (F44). (1) **Emissão:** depois da oferta pública, o gestor emite cotas novas com preferência para quem já é cotista, na proporção das cotas de cada um, para ninguém ser diluído sem escolher; o dinheiro entra na gestora. (2) **Recompra:** a gestora compra as próprias cotas no livro com o caixa dela; vale quando a cota está com deságio (pagar R$ 80 por R$ 100 de patrimônio valoriza a cota de quem fica) e é a defesa contra a troca de gestor (F103). Falta decidir: quanto tempo dura a preferência, e se o preço da emissão é o patrimônio por cota ou o preço de mercado (com ágio, emitir a mercado traz mais dinheiro por cota).
@@ -672,26 +735,14 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 <a id="f131"></a>
 **F131 — Catálogo de padrões de vela.** Serve N19. Um tópico do "Como jogar" (F126) que lista todos os padrões que as dicas de análise técnica (F96) reconhecem, cada um com o ícone e o nome que aparecem no gráfico (o martelo com o símbolo dele, por exemplo). Navegar pelo catálogo mostra um padrão por vez, com a animação das velas se formando no molde dos roteiros do tutorial, o que o padrão costuma sugerir e o lembrete de que padrão não é garantia. Em aberto: se o catálogo é um tópico do tutorial ou uma tela própria, e se o card do padrão no gráfico ganha um "ver no catálogo". Gatilho: com as dicas de análise técnica e a janela "Como jogar" prontas.
 
-<a id="f157"></a>
-**F157 — Velocidade x100 que quase não acelera.** Serve N40 e N24. No playtest, o x100 andou quase como o x1, ou até mais lento. O loop dorme `1 / velocidade` segundos depois de cada tick (`simulation_loop.py:132` a `:156`): no x1 o dia leva o tick mais 1 s, no x100 o tick mais 10 ms. Quando o tick sozinho custa perto de 1 s (a medição da D4 deu de 0,6 a 0,95 s com carga), o x100 fica só umas duas vezes mais rápido que o x1. Falta medir, com o modo debug e o painel de desempenho, numa partida salva longa no x100: quanto custa o tick e em quê (snapshots, bots, eleição, emissão pelo Socket.IO), e se o navegador engasga com um evento por tick e redesenha a tela inteira. O resultado decide as otimizações (agrupar emissões, aliviar o trabalho de cada tick, redesenhar menos no front) e é o ponto de partida das otimizações gerais de desempenho.
-
 <a id="f158"></a>
 **F158 — Animações do Como jogar revistas.** Serve N25; retrabalho da F126. No playtest, o tutorial pareceu estranho: o estilo das animações ficou parecido com o do Create, e o número do passo que aparece no meio da animação, num círculo ao lado do alvo (`StepMarker` em `tutorial/stage/stage-kit.tsx:144`, número vindo de `topic-illustration.tsx:57`, usado em `buy-stock.tsx` e `order-types.tsx`), polui a cena. O salto para o trecho do passo ao clicar numa etapa funciona bem e fica como está. Falta escolher o visual numa rodada no canvas: comparar as animações atuais com as primeiras, feitas no canvas a partir das Dicas e truques do Factorio, decidir se o número sai da cena (o passo ativo já fica destacado na lista) e o que muda no cursor e no destaque.
 
-<a id="f164"></a>
-**F164 — Mapa do Brasil por região na eleição.** Serve N34. Um mapa pintado pela cor do partido que lidera cada região, e o resultado dito por região ("você ganhou mais eleitores no Sudeste"). Pelo modelo da D19, uma região é uma mistura de grupos de eleitores (o Sudeste com mais quem vive de investimento, o Nordeste com mais quem depende de auxílio), então o voto por região sai do voto por grupo sem mudar o modelo, e o mapa é uma camada visual por cima. O upgrade seguinte, se valer, são ações de campanha por região ("comício no Nordeste") na F130. Falta: a mistura de grupos de cada região e o desenho do mapa, que passa pelo canvas.
+<a id="f174"></a>
+**F174 — Preparação do lobby redesenhada.** Serve N39 e N34; retrabalho da F143. O card "Minha preparação" ficou ruim na tela, e a preparação vai crescer (partido, parâmetros das estratégias, gestora), o que um card no lobby não comporta. A preparação existe para tirar do jogador o que ele refaz igual a cada partida. Falta escolher o desenho numa rodada no canvas, com três variantes: (a) um botão "Minha preparação" no lobby que abre um dialog largo com abas (Partido, Estratégias e, com a expansão, Gestora), no molde do Como jogar e do gerador de futuro; (b) um botão fixo no canto, como o do Como jogar dentro da partida; (c) uma **visão geral dos partidos à vista no lobby**, para todos: sigla, cor, filiados, chapa e vice de outro partido, que é onde a sala negocia quem entra com quem. A rodada cobre os estados expansão desligada, partida salva selecionada (travado), conflito de sigla ou cor e convite de vice pendente. Sai daqui para Pendente com a variante escolhida.
 
-<a id="f165"></a>
-**F165 — Tela do Tesouro: títulos pelo risco do governo.** Serve N34. Com o prêmio de risco (F128), a taxa dos títulos passa a contar a história do governo: sobe quando a dívida cresce. Uma tela própria do Tesouro mostra os títulos à venda, a taxa de cada um ao longo da partida e a dívida pública ÷ PIB ao lado, para quem investe ler o risco do governo antes de comprar. Falta: o que a tela mostra além da renda fixa de hoje e o desenho, que passa pelo canvas.
+<a id="f175"></a>
+**F175 — Federações partidárias.** Serve N34. Desde 2021 dois ou mais partidos podem se federar por 4 anos e atuar como um partido só no Congresso. No jogo seria a coalizão de verdade: dois partidos de jogadores somam as bancadas e passam a ter força para aprovar ou barrar medidas, mas ficam presos um ao outro pelo mandato inteiro, mesmo quando um dos dois governa mal. Falta definir: quando a federação se forma (antes da eleição, para valer nas cadeiras, ou depois), como a bancada federada decide a orientação quando os líderes discordam, se a federação lança uma chapa só para presidente e o que acontece com a rejeição de um partido que traiu um grupo (contamina o outro?).
 
-<a id="f169"></a>
-**F169 — Contribuição de campanha na preparação do lobby.** Serve N34. Hoje a preparação funda o partido com contribuição zero e o jogador ajusta depois. A ideia: o jogador preparar no lobby a contribuição do primeiro mês, e a abertura da campanha usar esse valor em vez de zero. Falta definir: o teto (o caixa inicial da partida ainda não existe no lobby) e o que acontece quando o valor passa do caixa no dia da abertura.
-
-<a id="f170"></a>
-**F170 — Modo automático ligado desde o 1º dia, pela preparação.** Serve N39. O jogador escolheria no lobby a estratégia do modo automático e ela começaria ligada no primeiro dia da partida. Falta definir: se a estratégia é a mesma lista de hoje e como o lobby valida os parâmetros dela antes de a partida existir.
-
-<a id="f171"></a>
-**F171 — Ordens de abertura na preparação do lobby.** Serve N39. Uma lista de compras preparada no lobby e executada no primeiro pregão da partida. Falta definir: como ela lida com ativo sem negociação no dia, falta de saldo e preço que muda do lobby ao pregão.
-
-<a id="f172"></a>
-**F172 — Meta pessoal na preparação do lobby.** Serve N39. No modo corrida à meta, cada jogador definiria a própria meta no lobby, se a meta passar a ser de cada jogador e não da partida. Depende dessa decisão de regra, ainda em aberto.
+<a id="f179"></a>
+**F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: o selo de pausa leva o motivo inteiro ("Pausado: resultado do 1º turno"), depois vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Falta escolher o desenho no canvas, comparando: (a) a velocidade num botão só ("10×") que abre as opções; (b) o selo só com "Pausado" e o motivo numa dica ou na faixa abaixo da topbar, onde já mora o aviso do presidente; (c) a corrida e o governo como selos compactos, com o detalhe ao passar o mouse; (d) a topbar em duas linhas abaixo de uma largura. O pior caso é o estado de referência: 1366 px, corrida e governo ligados, pausa com o motivo mais longo e o x100 destacado. Sai daqui para Pendente com a variante escolhida.
