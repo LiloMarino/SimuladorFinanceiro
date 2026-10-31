@@ -90,9 +90,6 @@ export function partyOrder(parties: ElectionParty[]) {
   return [...parties].sort((a, b) => Number(b.intention_points) - Number(a.intention_points) || a.id - b.id);
 }
 
-/** A cor do partido nos gráficos; o do computador, sem cor própria, fica cinza. */
-export const partyFill = (party: Pick<ElectionParty, "color">) => party.color ?? "var(--muted-foreground)";
-
 export type GroupSort = "weight" | "balance";
 
 /** As linhas do eleitorado, do maior grupo ao menor ou do melhor saldo ao pior. */

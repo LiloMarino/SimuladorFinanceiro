@@ -1,5 +1,6 @@
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { cn } from "@/shared/lib/utils";
+import { partyColor } from "@/shared/lib/party-colors";
 import { playerInitials } from "@/shared/lib/player-initials";
 import type { PartyCandidate } from "@/types";
 
@@ -11,21 +12,20 @@ const ABBR_SIZES = {
 
 type PartyMarkProps = {
   abbr: string;
-  /** #RRGGBB escolhido pela fundadora; nulo no partido do computador */
+  /** #RRGGBB escolhido pela fundadora; nulo no partido do computador, que tem a cor fixa da sigla */
   color: string | null;
   size?: keyof typeof ABBR_SIZES;
 };
 
-/** A sigla do partido na cor dele; a do computador é cinza e tracejada. */
+/** A sigla do partido na cor dele. */
 export function PartyMark({ abbr, color, size = "md" }: PartyMarkProps) {
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-[5px] font-bold tracking-[.03em]",
+        "inline-flex shrink-0 items-center justify-center rounded-[5px] font-bold tracking-[.03em] text-white",
         ABBR_SIZES[size],
-        color ? "text-white" : "border-[1.5px] border-dashed border-faint-foreground bg-card text-muted-foreground",
       )}
-      style={color ? { backgroundColor: color } : undefined}
+      style={{ backgroundColor: partyColor({ abbr, color }) }}
     >
       {abbr}
     </span>

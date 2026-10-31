@@ -5,9 +5,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { displayShortDate } from "@/shared/lib/utils/display";
 import { BARRIER, DHONDT } from "../lib/government-metrics";
-import { blocColor, partySeats, seatChange, type House } from "../lib/house";
+import { partySeats, seatChange, type House } from "../lib/house";
 import { Hemicycle } from "./hemicycle";
 import { PartyMark } from "./party-mark";
+import { partyColor } from "@/shared/lib/party-colors";
 
 const decimal = (value: number, digits: number) => value.toFixed(digits).replace(".", ",");
 
@@ -50,7 +51,7 @@ export function ElectedHouse({ house }: { house: House }) {
             return (
               <TableRow key={bloc.key} variant={bloc.is_mine ? "current" : "default"}>
                 <TableCell>
-                  <PartyMark abbr={bloc.abbr} color={blocColor(bloc)} />
+                  <PartyMark abbr={bloc.abbr} color={partyColor(bloc)} />
                 </TableCell>
                 <TableCell numeric>{decimal(Number(bloc.votes), 1)}%</TableCell>
                 <TableCell numeric>

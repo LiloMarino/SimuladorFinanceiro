@@ -2,9 +2,9 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { displayList, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty, RunoffRace } from "@/types";
-import { partyFill } from "../lib/voters";
 import { PartyMark, PersonMark } from "./party-mark";
 import { RunoffTransferCards } from "./runoff-transfer-cards";
+import { partyColor } from "@/shared/lib/party-colors";
 
 type FirstRoundCardProps = { panel: ElectionPanel; race: RunoffRace; finalists: ElectionParty[] };
 
@@ -48,7 +48,7 @@ export function FirstRoundCard({ panel, race, finalists }: FirstRoundCardProps) 
                   <span className="relative h-2.5 rounded-xs bg-muted">
                     <span
                       className="absolute inset-y-0 left-0 rounded-xs opacity-85"
-                      style={{ width: `${Number(party.share) * 100}%`, backgroundColor: partyFill(party) }}
+                      style={{ width: `${Number(party.share) * 100}%`, backgroundColor: partyColor(party) }}
                     />
                   </span>
                   <Badge variant={runs ? "success" : "secondary"} size="sm">

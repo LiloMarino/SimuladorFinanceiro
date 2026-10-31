@@ -1,5 +1,5 @@
 import type { ElectionParty } from "@/types";
-import { partyFill } from "../lib/voters";
+import { partyColor } from "@/shared/lib/party-colors";
 
 /** A legenda das barras da pesquisa: um quadrado na cor de cada partido e o dos indecisos. */
 export function PollLegend({ parties }: { parties: ElectionParty[] }) {
@@ -7,7 +7,7 @@ export function PollLegend({ parties }: { parties: ElectionParty[] }) {
     <div className="flex flex-wrap gap-3.5 text-xs text-muted-foreground">
       {parties.map((party) => (
         <span key={party.id} className="inline-flex items-center gap-1.5">
-          <span className="size-2.5 rounded-xs" style={{ backgroundColor: partyFill(party) }} />
+          <span className="size-2.5 rounded-xs" style={{ backgroundColor: partyColor(party) }} />
           {party.abbr}
           {party.candidate && ` · ${party.candidate.name}`}
         </span>

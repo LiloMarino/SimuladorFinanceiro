@@ -17,6 +17,7 @@ import type { ElectionPanel, ElectionRound } from "@/types";
 import { ElectedHouse } from "./elected-house";
 import { PartyMark, PersonMark } from "./party-mark";
 import { PromiseBadges } from "./promise-badges";
+import { partyColor } from "@/shared/lib/party-colors";
 import { RunoffResult } from "./runoff-result";
 
 type RoundResultDialogProps = {
@@ -76,7 +77,7 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
                             className="absolute inset-y-0 left-0 rounded-full"
                             style={{
                               width: `${Number(party.share) * 100}%`,
-                              backgroundColor: party.color ?? "var(--muted-foreground)",
+                              backgroundColor: partyColor(party),
                             }}
                           />
                         </span>

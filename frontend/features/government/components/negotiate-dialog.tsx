@@ -22,9 +22,9 @@ import { useProposeDeal } from "../hooks/mutations/useProposeDeal";
 import { useDealPreview } from "../hooks/queries/useDealPreview";
 import { baseOutlook, baseSeats, blocStatus, groupsLabel, monthlyLabel, yearShare } from "../lib/base";
 import { AMENDMENTS } from "../lib/government-metrics";
-import { blocColor } from "../lib/house";
 import { Hemicycle } from "./hemicycle";
 import { PartyMark } from "./party-mark";
+import { partyColor } from "@/shared/lib/party-colors";
 
 type NegotiateDialogProps = {
   open: boolean;
@@ -78,7 +78,7 @@ export function NegotiateDialog({ open, onOpenChange, base, initialKey = null }:
                       bloc.key === selectedKey ? "border-primary bg-info-soft text-info" : "bg-card hover:bg-subtle",
                     )}
                   >
-                    <PartyMark abbr={bloc.abbr} color={blocColor(bloc)} size="sm" />
+                    <PartyMark abbr={bloc.abbr} color={partyColor(bloc)} size="sm" />
                     {bloc.seats}
                     {blocStatus(bloc) === "in_base" && " · na base"}
                     {blocStatus(bloc) === "pending" && " · esperando"}
@@ -151,7 +151,7 @@ function ProposalDetail({ preview, base }: { preview: DealPreview; base: Congres
   return (
     <>
       <div className="flex items-center gap-2.5">
-        <PartyMark abbr={preview.abbr} color={blocColor(preview)} size="lg" />
+        <PartyMark abbr={preview.abbr} color={partyColor(preview)} size="lg" />
         <span className="grid">
           <b>{preview.name}</b>
           <span className="text-xs text-muted-foreground">{description}</span>

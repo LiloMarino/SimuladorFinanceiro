@@ -7,8 +7,8 @@ import { displayNumber, displayPercent, displayShortDate } from "@/shared/lib/ut
 import type { ElectionRound } from "@/types";
 import { NOT_VOTED } from "../lib/election-metrics";
 import { RUNOFF_MAJORITY, firstRoundBefore, turnaroundGap } from "../lib/runoff";
-import { partyFill } from "../lib/voters";
 import { PartyMark, PersonMark } from "./party-mark";
+import { partyColor } from "@/shared/lib/party-colors";
 
 type RunoffResultProps = {
   result: ElectionRound;
@@ -48,7 +48,7 @@ export function RunoffResult({ result, results }: RunoffResultProps) {
             <span className="relative h-2.5 rounded-xs bg-muted">
               <span
                 className="absolute inset-y-0 left-0 rounded-xs"
-                style={{ width: `${Number(party.share) * 100}%`, backgroundColor: partyFill(party) }}
+                style={{ width: `${Number(party.share) * 100}%`, backgroundColor: partyColor(party) }}
               />
               <span
                 aria-hidden
@@ -72,7 +72,7 @@ export function RunoffResult({ result, results }: RunoffResultProps) {
             ...finalists.map((party) => ({
               key: String(party.party_id),
               fraction: Number(party.points) / 100,
-              fill: partyFill(party),
+              fill: partyColor(party),
             })),
             { key: "not-voted", fraction: notVoted / 100, color: "bg-faint-foreground/40" },
           ]}

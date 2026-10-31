@@ -5,8 +5,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { displayNumber, displayPercent } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionRound } from "@/types";
 import { NOT_VOTED } from "../lib/election-metrics";
-import { GROUP_INFO, partyFill, pollPoints } from "../lib/voters";
+import { GROUP_INFO, pollPoints } from "../lib/voters";
 import { GroupIcon } from "./value-chip";
+import { partyColor } from "@/shared/lib/party-colors";
 
 type RunoffGroupsCardProps = { panel: ElectionPanel; result: ElectionRound };
 
@@ -44,7 +45,7 @@ export function RunoffGroupsCard({ panel, result }: RunoffGroupsCardProps) {
                   <TableHead>Grupo</TableHead>
                   {finalists.map((party) => (
                     <TableHead key={party.party_id} numeric>
-                      <span style={{ color: partyFill(party) }}>{party.abbr}</span>
+                      <span style={{ color: partyColor(party) }}>{party.abbr}</span>
                     </TableHead>
                   ))}
                   <TableHead numeric>
@@ -81,7 +82,7 @@ export function RunoffGroupsCard({ panel, result }: RunoffGroupsCardProps) {
                       <TableCell numeric>{Math.round(Number(group.undecided))}</TableCell>
                       <TableCell>
                         <Badge variant="secondary" size="sm">
-                          <span style={{ color: partyFill(leader) }}>{leader.abbr}</span>
+                          <span style={{ color: partyColor(leader) }}>{leader.abbr}</span>
                         </Badge>
                       </TableCell>
                     </TableRow>

@@ -12,6 +12,7 @@ import {
 import type { ElectionPanel, ElectionParty, VoterValue } from "@/types";
 import { useSetPartyFlags } from "../hooks/mutations/useSetPartyFlags";
 import { FLAGS_PER_PARTY } from "@/shared/lib/party-flags";
+import { partyColor } from "@/shared/lib/party-colors";
 import { FlagsPicker } from "./flags-picker";
 
 type ChooseFlagsDialogProps = {
@@ -49,7 +50,7 @@ export function ChooseFlagsDialog({ open, onOpenChange, panel, party }: ChooseFl
             panel={panel}
             value={flags}
             onChange={setFlags}
-            color={party.color ?? "var(--muted-foreground)"}
+            color={partyColor(party)}
             error={tried && missing ? `Escolha mais uma bandeira: o partido precisa de ${FLAGS_PER_PARTY}.` : undefined}
           />
         </DialogBody>

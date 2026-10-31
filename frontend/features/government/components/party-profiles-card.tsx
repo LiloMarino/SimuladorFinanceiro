@@ -10,20 +10,12 @@ import { displayPercent, displayShortMonthYear } from "@/shared/lib/utils/displa
 import type { ElectionPanel, ElectionParty, VoterGroup, VoterGroupInfo } from "@/types";
 import { AFFINITY } from "../lib/election-metrics";
 import { VALUE_INFO, VOTER_VALUES } from "@/shared/lib/party-flags";
-import {
-  GROUP_INFO,
-  distanceWord,
-  groupScores,
-  partyFill,
-  partyOrder,
-  signedPoints,
-  topWants,
-  valueScores,
-} from "../lib/voters";
+import { GROUP_INFO, distanceWord, groupScores, partyOrder, signedPoints, topWants, valueScores } from "../lib/voters";
 import { PartyMark } from "./party-mark";
 import { ProfileRadar } from "./profile-radar";
 import { PromiseBadges } from "./promise-badges";
 import { ValueChips } from "./value-chip";
+import { partyColor } from "@/shared/lib/party-colors";
 
 const FOUNDING_COLOR = "var(--muted-foreground)";
 const DISTANCE_TONE = { up: "text-success", wa: "text-warning", dn: "text-destructive" } as const;
@@ -109,13 +101,13 @@ function PartyTile({ party, selected, onCompare }: PartyTileProps) {
           label={`Perfil do ${party.abbr}, hoje e na fundação`}
           series={[
             { key: "founding", scores: valueScores(party.founding_radar), color: FOUNDING_COLOR, dashed: true },
-            { key: "today", scores: valueScores(party.radar), color: partyFill(party) },
+            { key: "today", scores: valueScores(party.radar), color: partyColor(party) },
           ]}
         />
       </div>
       <div className="flex justify-center gap-3.5 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
-          <span className="w-3.5 border-t-2" style={{ borderColor: partyFill(party) }} />
+          <span className="w-3.5 border-t-2" style={{ borderColor: partyColor(party) }} />
           Hoje
         </span>
         <span className="inline-flex items-center gap-1.5">
@@ -225,12 +217,12 @@ function GroupComparison({ party, group, groups, onGroupChange, onClose }: Group
             label={`Perfil do ${party.abbr} contra o que os ${groupLabel} querem`}
             series={[
               { key: "wants", scores: wants, color: FOUNDING_COLOR, dashed: true },
-              { key: "profile", scores: profile, color: partyFill(party) },
+              { key: "profile", scores: profile, color: partyColor(party) },
             ]}
           />
           <div className="flex gap-3.5 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-3.5 border-t-2" style={{ borderColor: partyFill(party) }} />
+              <span className="w-3.5 border-t-2" style={{ borderColor: partyColor(party) }} />
               Perfil do {party.abbr}
             </span>
             <span className="inline-flex items-center gap-1.5">

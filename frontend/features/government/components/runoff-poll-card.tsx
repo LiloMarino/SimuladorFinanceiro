@@ -4,10 +4,11 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { displayDayMonth, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty, ElectionPoll, RunoffRace } from "@/types";
 import { RUNOFF, UNDECIDED } from "../lib/election-metrics";
-import { GROUP_INFO, inTechnicalTie, marginRange, partyFill, pollPercent, pollPoints } from "../lib/voters";
+import { GROUP_INFO, inTechnicalTie, marginRange, pollPercent, pollPoints } from "../lib/voters";
 import { GroupPollBar } from "./group-poll-bar";
 import { PartyMark, PersonMark } from "./party-mark";
 import { PollLegend } from "./poll-legend";
+import { partyColor } from "@/shared/lib/party-colors";
 
 const ROW = "grid grid-cols-[minmax(0,220px)_90px_1fr_auto] items-center gap-3";
 
@@ -91,12 +92,12 @@ function RunoffPollBody({ panel, poll, finalists }: RunoffPollBodyProps) {
                 {margin > 0 && (
                   <span
                     className="absolute inset-y-0 rounded-xs opacity-25"
-                    style={{ left: `${low}%`, width: `${high - low}%`, backgroundColor: partyFill(party) }}
+                    style={{ left: `${low}%`, width: `${high - low}%`, backgroundColor: partyColor(party) }}
                   />
                 )}
                 <span
                   className="absolute inset-y-0 left-0 rounded-xs opacity-85"
-                  style={{ width: `${own}%`, backgroundColor: partyFill(party) }}
+                  style={{ width: `${own}%`, backgroundColor: partyColor(party) }}
                 />
               </span>
               {inTechnicalTie(own, others, margin) ? (
@@ -152,7 +153,7 @@ function RunoffPollBody({ panel, poll, finalists }: RunoffPollBodyProps) {
                     <span
                       key={party.id}
                       className="w-7 text-right font-mono text-xs font-semibold"
-                      style={{ color: partyFill(party) }}
+                      style={{ color: partyColor(party) }}
                     >
                       {Math.round(groupPoints.get(party.id) ?? 0)}
                     </span>

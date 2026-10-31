@@ -25,12 +25,12 @@ import {
   yearShare,
 } from "../lib/base";
 import { AMENDMENTS, BASE_DEFECTION, BASE_SEATS } from "../lib/government-metrics";
-import { blocColor } from "../lib/house";
 import { BreakDealDialog } from "./break-deal-dialog";
 import { Hemicycle } from "./hemicycle";
 import { NegotiateDialog } from "./negotiate-dialog";
 import { PartyMark } from "./party-mark";
 import { ProposalNotice } from "./proposal-notice";
+import { partyColor } from "@/shared/lib/party-colors";
 
 type Breaking = { deal: BaseDeal; side: "government" | "ally" };
 type Negotiating = { round: number; key: number | null };
@@ -185,7 +185,7 @@ function BaseContent({ base }: { base: CongressBase }) {
               <div className="flex flex-wrap justify-center gap-x-3.5 gap-y-1.5 text-xs text-muted-foreground">
                 {base.blocs.map((bloc) => (
                   <span key={bloc.key} className="inline-flex items-center gap-1.5">
-                    <i className="inline-block size-2.5 rounded-full" style={{ backgroundColor: blocColor(bloc) }} />
+                    <i className="inline-block size-2.5 rounded-full" style={{ backgroundColor: partyColor(bloc) }} />
                     {bloc.abbr} {bloc.seats}
                   </span>
                 ))}
@@ -251,7 +251,7 @@ function BaseContent({ base }: { base: CongressBase }) {
                     <TableRow variant="current">
                       <TableCell>
                         <span className="flex items-center gap-2">
-                          <PartyMark abbr={governing.abbr} color={blocColor(governing)} />
+                          <PartyMark abbr={governing.abbr} color={partyColor(governing)} />
                           <span className="text-xs text-muted-foreground">· governo</span>
                         </span>
                       </TableCell>
@@ -274,7 +274,7 @@ function BaseContent({ base }: { base: CongressBase }) {
                     <TableRow key={deal.id}>
                       <TableCell>
                         <span className="flex min-w-0 items-center gap-2">
-                          <PartyMark abbr={deal.abbr} color={blocColor(deal)} />
+                          <PartyMark abbr={deal.abbr} color={partyColor(deal)} />
                           {deal.centrao && (
                             <Badge variant="secondary" size="sm">
                               centrão
@@ -316,7 +316,7 @@ function BaseContent({ base }: { base: CongressBase }) {
                     <TableRow key={deal.id}>
                       <TableCell>
                         <span className="flex min-w-0 items-center gap-2">
-                          <PartyMark abbr={deal.abbr} color={blocColor(deal)} />
+                          <PartyMark abbr={deal.abbr} color={partyColor(deal)} />
                           {deal.centrao && (
                             <Badge variant="secondary" size="sm">
                               centrão

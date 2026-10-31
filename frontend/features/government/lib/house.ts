@@ -1,4 +1,5 @@
 import type { GovernmentPanel } from "@/types";
+import { partyColor } from "@/shared/lib/party-colors";
 import { GROUP_INFO } from "./voters";
 
 type Congress = GovernmentPanel["congress"];
@@ -16,18 +17,6 @@ export type HemicycleSeat = {
   blocKey?: number;
   title?: string;
 };
-
-/** Os partidos do computador não escolhem cor: a casa os pinta com uma paleta fixa. */
-const COMPUTER_COLORS: Record<string, string> = {
-  UPR: "#7D879B",
-  ACI: "#0369A1",
-  MNV: "#A16207",
-};
-
-/** A cor da bancada: a escolhida pela fundadora ou, no partido do computador, a da paleta fixa. */
-export function blocColor(bloc: { abbr: string; color: string | null }): string {
-  return bloc.color ?? COMPUTER_COLORS[bloc.abbr] ?? "#7D879B";
-}
 
 /** "Sim" ou "Não" */
 export const orientationLabel = (yes: boolean) => (yes ? "Sim" : "Não");
@@ -88,7 +77,7 @@ const SEAT_TOTAL = 101;
 /** O hemiciclo por partido: cada bancada ocupa uma cunha, em ordem de tamanho. */
 export function partySeats(blocs: Bloc[]): HemicycleSeat[] {
   const seats = bySeats(blocs).flatMap((bloc) =>
-    Array.from({ length: bloc.seats }, (): HemicycleSeat => ({ color: blocColor(bloc), tone: "solid" })),
+    Array.from({ length: bloc.seats }, (): HemicycleSeat => ({ color: partyColor(bloc), tone: "solid" })),
   );
   return pad(seats);
 }

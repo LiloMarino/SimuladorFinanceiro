@@ -1,7 +1,8 @@
 import { StackedBar } from "@/shared/components/stacked-bar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import type { ElectionParty, ElectionPoll } from "@/types";
-import { marginRange, partyFill, pollPercent, pollPoints } from "../lib/voters";
+import { marginRange, pollPercent, pollPoints } from "../lib/voters";
+import { partyColor } from "@/shared/lib/party-colors";
 
 type GroupPoll = ElectionPoll["groups"][number];
 
@@ -22,7 +23,7 @@ export function GroupPollBar({ poll, parties, title, className }: GroupPollBarPr
     ...parties.map((party) => ({
       key: String(party.id),
       fraction: (points.get(party.id) ?? 0) / 100,
-      fill: partyFill(party),
+      fill: partyColor(party),
     })),
     { key: "undecided", fraction: undecided / 100, color: "bg-faint-foreground/40" },
   ];

@@ -6,9 +6,10 @@ import { displayDayMonth, displayPercent } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty, RunoffRace, RunoffTransfer } from "@/types";
 import { TRUST, UNDECIDED } from "../lib/election-metrics";
 import { sentTo } from "../lib/runoff";
-import { GROUP_INFO, partyFill } from "../lib/voters";
+import { GROUP_INFO } from "../lib/voters";
 import { PartyMark } from "./party-mark";
 import { GroupIcon } from "./value-chip";
+import { partyColor } from "@/shared/lib/party-colors";
 
 type RunoffTransferCardsProps = { panel: ElectionPanel; race: RunoffRace; finalists: ElectionParty[] };
 
@@ -70,7 +71,7 @@ function TransferCard({ panel, race, transfer, finalists }: TransferCardProps) {
               <TableHead numeric>Votaram no {party.abbr}</TableHead>
               {finalists.map((finalist) => (
                 <TableHead key={finalist.id} numeric>
-                  <span style={{ color: partyFill(finalist) }}>Foram ao {finalist.abbr}</span>
+                  <span style={{ color: partyColor(finalist) }}>Foram ao {finalist.abbr}</span>
                 </TableHead>
               ))}
               <TableHead numeric>

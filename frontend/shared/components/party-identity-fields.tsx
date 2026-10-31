@@ -87,7 +87,7 @@ export function PartyIdentityFields({ control, takenColors, idPrefix }: PartyIde
                 );
               })}
             </div>
-            <FieldDescription>Cada partido tem uma cor; o cinza é dos partidos do computador.</FieldDescription>
+            <FieldDescription>Cada partido tem uma cor própria.</FieldDescription>
           </Field>
         )}
       />

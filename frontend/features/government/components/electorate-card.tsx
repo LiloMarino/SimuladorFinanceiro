@@ -26,6 +26,7 @@ import {
 } from "../lib/voters";
 import { GroupPollBar } from "./group-poll-bar";
 import { PollLegend } from "./poll-legend";
+import { partyColor } from "@/shared/lib/party-colors";
 import { GroupIcon, ValueChip } from "./value-chip";
 
 type View = "cards" | "table";
@@ -175,7 +176,7 @@ function GroupCard({ row, group, poll, party, parties }: GroupCardProps) {
           <span className="text-muted-foreground">Pesquisa no grupo</span>
           {poll && own !== null ? (
             <span className="font-mono">
-              <b style={{ color: party.color ?? undefined }}>
+              <b style={{ color: partyColor(party) }}>
                 {party.abbr} {pollPercent(own, poll.margin)}
               </b>
               {poll.margin > 0 && <span className="text-faint-foreground"> ±{poll.margin}</span>}

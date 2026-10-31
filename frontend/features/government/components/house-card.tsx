@@ -6,9 +6,10 @@ import { MetricLabel } from "@/shared/components/metric-hint";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import { DEFECTION_RATE, WITH_GOVERNMENT } from "../lib/government-metrics";
-import { blocColor, bySeats, partySeats, seatChange, shareOfVotes, type House } from "../lib/house";
+import { bySeats, partySeats, seatChange, shareOfVotes, type House } from "../lib/house";
 import { Hemicycle } from "./hemicycle";
 import { PartyMark } from "./party-mark";
+import { partyColor } from "@/shared/lib/party-colors";
 
 type HouseCardProps = { house: House };
 
@@ -52,7 +53,7 @@ export function HouseCard({ house }: HouseCardProps) {
               <div className="flex flex-wrap justify-center gap-x-3.5 gap-y-1.5 text-xs text-muted-foreground">
                 {blocs.map((bloc) => (
                   <span key={bloc.key} className="inline-flex items-center gap-1.5">
-                    <i className="inline-block size-2.5 rounded-full" style={{ backgroundColor: blocColor(bloc) }} />
+                    <i className="inline-block size-2.5 rounded-full" style={{ backgroundColor: partyColor(bloc) }} />
                     {bloc.abbr} {bloc.seats}
                   </span>
                 ))}
@@ -85,7 +86,7 @@ export function HouseCard({ house }: HouseCardProps) {
                     <TableRow key={bloc.key} variant={bloc.is_mine ? "current" : "default"}>
                       <TableCell>
                         <span className="flex min-w-0 items-center gap-2">
-                          <PartyMark abbr={bloc.abbr} color={blocColor(bloc)} />
+                          <PartyMark abbr={bloc.abbr} color={partyColor(bloc)} />
                           <span className="truncate text-[13px]" title={bloc.name}>
                             {bloc.is_computer ? "computador" : bloc.name}
                           </span>

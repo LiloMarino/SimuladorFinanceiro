@@ -1,7 +1,8 @@
 import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { displayDate, displayShortMonthYear, parseLocalDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel } from "@/types";
-import { marginRange, partyFill } from "../lib/voters";
+import { marginRange } from "../lib/voters";
+import { partyColor } from "@/shared/lib/party-colors";
 
 const TICK = { fontSize: 10.5, fill: "var(--faint-foreground)" };
 const UNDECIDED_KEY = "undecided";
@@ -92,7 +93,7 @@ export function PollChart({ panel, height = 220 }: PollChartProps) {
             key={`band-${party.id}`}
             dataKey={bandKey(party.id)}
             type="linear"
-            fill={partyFill(party)}
+            fill={partyColor(party)}
             fillOpacity={0.12}
             stroke="none"
             activeDot={false}
@@ -104,7 +105,7 @@ export function PollChart({ panel, height = 220 }: PollChartProps) {
             key={party.id}
             dataKey={partyKey(party.id)}
             type="linear"
-            stroke={partyFill(party)}
+            stroke={partyColor(party)}
             strokeWidth={2}
             strokeDasharray={party.is_computer ? "5 4" : "none"}
             dot={false}

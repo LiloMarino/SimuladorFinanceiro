@@ -2,9 +2,10 @@ import { Bot, Handshake } from "lucide-react";
 import { MetricLabel } from "@/shared/components/metric-hint";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { DEFIANCE, FORECAST } from "../lib/government-metrics";
-import { blocColor, causeLabel, rangeLabel, type BlocVote, type Vote } from "../lib/house";
+import { causeLabel, rangeLabel, type BlocVote, type Vote } from "../lib/house";
 import { OrientationBadge } from "./orientation-badge";
 import { PartyMark } from "./party-mark";
+import { partyColor } from "@/shared/lib/party-colors";
 
 type VoteTableProps = {
   vote: Vote;
@@ -50,7 +51,7 @@ export function VoteTable({ vote, subject, mineKey }: VoteTableProps) {
           <TableRow key={bloc.key} variant={bloc.key === mineKey ? "current" : "default"}>
             <TableCell>
               <span className="inline-flex items-center gap-2">
-                <PartyMark abbr={bloc.abbr} color={blocColor(bloc)} />
+                <PartyMark abbr={bloc.abbr} color={partyColor(bloc)} />
                 <span className="font-mono">{bloc.seats}</span>
               </span>
             </TableCell>

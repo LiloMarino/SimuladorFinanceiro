@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  blocColor,
   causeLabel,
   outlook,
   outlookLabel,
@@ -104,14 +103,6 @@ describe("seatChange", () => {
     expect(seatChange({ seats: 28, previous_seats: 31 })).toBe("-3");
     expect(seatChange({ seats: 11, previous_seats: 11 })).toBe("0");
     expect(seatChange({ seats: 11, previous_seats: null })).toBeNull();
-  });
-});
-
-describe("blocColor", () => {
-  it("usa a cor do partido de jogador e a paleta fixa no do computador", () => {
-    expect(blocColor({ abbr: "PRL", color: "#15803D" })).toBe("#15803D");
-    expect(blocColor({ abbr: "UPR", color: null })).toBe("#7D879B");
-    expect(blocColor({ abbr: "ACI", color: null })).toBe("#0369A1");
   });
 });
 

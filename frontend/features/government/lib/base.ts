@@ -1,7 +1,8 @@
 import type { BaseBloc, BaseDeal, CongressBase, VoterGroup } from "@/types";
 import { displayDayMonth, displayMoneyLarge } from "@/shared/lib/utils/display";
-import { blocColor, pad, type HemicycleSeat } from "./house";
+import { pad, type HemicycleSeat } from "./house";
 import { GROUP_INFO } from "./voters";
+import { partyColor } from "@/shared/lib/party-colors";
 
 /** Reais por mês na escala do orçamento: "R$ 2,54 bi". */
 export const monthlyLabel = (amount: string | number) => displayMoneyLarge(amount);
@@ -77,7 +78,7 @@ export function baseSeats(blocs: BaseBloc[], selectedKey?: number | null): Hemic
       const inside = bloc.governing || bloc.in_base;
       const selected = bloc.key === selectedKey;
       return Array.from({ length: bloc.seats }, (): HemicycleSeat => ({
-        color: blocColor(bloc),
+        color: partyColor(bloc),
         tone: inside || selected ? "solid" : "light",
         ring: selected,
         blocKey: bloc.key,

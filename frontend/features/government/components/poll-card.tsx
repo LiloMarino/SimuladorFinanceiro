@@ -10,7 +10,6 @@ import {
   inTechnicalTie,
   marginRange,
   nextPollDate,
-  partyFill,
   partyOrder,
   pollPercent,
   pollPoints,
@@ -20,6 +19,7 @@ import { PartyMark } from "./party-mark";
 import { PollChart } from "./poll-chart";
 import { PollLegend } from "./poll-legend";
 import { PromiseBadges } from "./promise-badges";
+import { partyColor } from "@/shared/lib/party-colors";
 
 /** A barra de hoje vai até 50 pontos: quem passa disso enche a barra. */
 const BAR_SCALE = 50;
@@ -172,7 +172,7 @@ function TodayRow({ party, points, margin, tie }: TodayRowProps) {
           {pollPercent(points, margin)}
           {margin > 0 && <span className="font-normal text-faint-foreground"> ±{margin}</span>}
         </span>
-        <RangeBar points={points} margin={margin} color={partyFill(party)} />
+        <RangeBar points={points} margin={margin} color={partyColor(party)} />
         <span>
           {tie && (
             <Badge variant="warning" size="sm">
@@ -253,7 +253,7 @@ function GroupBreakdown({ panel, poll, parties }: PollBodyProps) {
                   <span
                     key={party.id}
                     className="w-7 text-right font-mono text-xs font-semibold"
-                    style={{ color: partyFill(party) }}
+                    style={{ color: partyColor(party) }}
                   >
                     {Math.round(points.get(party.id) ?? 0)}
                   </span>
