@@ -5868,6 +5868,11 @@ export interface components {
              * Format: date
              */
             next_election: string;
+            /**
+             * Next Inauguration
+             * Format: date
+             */
+            next_inauguration: string;
             congress: components["schemas"]["CongressDTO"];
             approval: components["schemas"]["ApprovalDTO"] | null;
             /** Taxes */

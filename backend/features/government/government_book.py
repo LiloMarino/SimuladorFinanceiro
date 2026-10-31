@@ -1164,7 +1164,9 @@ class GovernmentBook:
         if not ended:
             return
         abbrs = [d.abbr for d in sorted(ended, key=lambda d: d.id)]
-        new_congress = self.state.term is not None and today == self.state.term.start
+        term = self.state.term
+        # O Congresso novo senta no primeiro dia simulado a partir da posse
+        new_congress = term is not None and previous < term.start <= today
         self._notice(
             GovernmentNoticeKind.DEAL_ENDED,
             party_abbr=", ".join(abbrs),

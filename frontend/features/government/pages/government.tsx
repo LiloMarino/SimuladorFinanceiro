@@ -63,7 +63,7 @@ function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
   const tab = tabFrom(params.get("tab"));
   const unguided = unguidedCount(panel.congress, panel.queue);
 
-  if (panel.computer_until_inauguration) return <BeforeFirstTerm />;
+  if (panel.computer_until_inauguration) return <BeforeFirstTerm inauguration={panel.next_inauguration} />;
 
   return (
     <div className="grid gap-5">

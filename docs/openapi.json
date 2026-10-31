@@ -16794,6 +16794,11 @@
             "format": "date",
             "title": "Next Election"
           },
+          "next_inauguration": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Inauguration"
+          },
           "congress": {
             "$ref": "#/components/schemas/CongressDTO"
           },
@@ -16890,6 +16895,7 @@
           "is_president",
           "term_end",
           "next_election",
+          "next_inauguration",
           "congress",
           "approval",
           "taxes",

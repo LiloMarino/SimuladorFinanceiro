@@ -104,6 +104,7 @@ def build_governance(
         is_president=is_president,
         term_end=end,
         next_election=book.cycle().first_round,
+        next_inauguration=book.cycle().inauguration,
         congress=house_panel.build_congress(book, viewer, today, people),
         approval=_approval(book, current, viewer, today),
         taxes=[

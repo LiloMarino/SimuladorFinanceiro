@@ -474,6 +474,8 @@ def test_two_rounds_end_with_the_term_starting_in_january(
     assert book.on_tick(USERS, TERM_START, False) is None
     assert book.state.term is not None
     assert book.state.term.consecutive == 1
+    # A posse é 1º de janeiro, mesmo que o primeiro pregão do ano seja o dia 3
+    assert book.state.term.start == date(2022, 1, 1)
     posse = notices[-1]
     assert posse["kind"] == GovernmentNoticeKind.TERM_STARTED.value
     # O aviso da posse diz quem governa: sigla do partido eleito e nome do presidente

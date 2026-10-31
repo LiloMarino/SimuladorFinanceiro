@@ -908,6 +908,8 @@ class GovernmentPanelDTO(BaseDTO):
     # Fim do mandato: a carteira do presidente congelada vai até aqui
     term_end: date | None
     next_election: date
+    # A posse da próxima eleição: 1º de janeiro do ano seguinte ao 1º turno
+    next_inauguration: date
     congress: CongressDTO
     approval: ApprovalDTO | None
     taxes: list[TaxRowDTO]

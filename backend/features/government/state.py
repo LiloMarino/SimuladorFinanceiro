@@ -696,7 +696,8 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 party_id=_opt_int(p, "party_id"),
                 president_id=_opt_int(p, "president_id"),
                 vice_id=_opt_int(p, "vice_id"),
-                start=day,
+                # O mandato começa na data da posse (1º de janeiro), mesmo que o primeiro pregão seja depois
+                start=pending.start if pending else day,
                 consecutive=_int(p, "consecutive"),
                 satisfaction=dict(pending.satisfaction) if pending else {},
                 promises=pending.promises if pending else (),
