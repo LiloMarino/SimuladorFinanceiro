@@ -39,6 +39,12 @@ export function undecidedNow(transfer: RunoffTransfer, weights: Map<string, stri
   );
 }
 
+/** Os indecisos em pontos inteiros, concordando com o número: "1 ponto segue indeciso", "3 pontos seguem indecisos". */
+export function undecidedPointsText(points: number) {
+  const whole = Math.round(points);
+  return whole === 1 ? "1 ponto segue indeciso" : `${whole} pontos seguem indecisos`;
+}
+
 /** O 1º turno que levou ao 2º: o último 1º turno apurado antes dele. */
 export function firstRoundBefore(results: ElectionRound[], runoff: ElectionRound) {
   return results.filter((result) => result.round === 1 && result.date < runoff.date).at(-1);

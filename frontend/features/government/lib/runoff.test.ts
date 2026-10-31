@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import type { ElectionRound, RunoffRace, RunoffTransfer } from "@/types";
-import { dayAfter, firstRoundBefore, followTotal, runoffLeaderId, sentTo, turnaroundGap, undecidedNow } from "./runoff";
+import {
+  dayAfter,
+  firstRoundBefore,
+  followTotal,
+  runoffLeaderId,
+  sentTo,
+  turnaroundGap,
+  undecidedNow,
+  undecidedPointsText,
+} from "./runoff";
 
 describe("dayAfter", () => {
   it("passa para o dia seguinte, virando o mês", () => {
@@ -69,6 +78,18 @@ describe("undecidedNow", () => {
       ["INVESTORS", "0.1"],
     ]);
     expect(undecidedNow(transfer, weights)).toBeCloseTo(2.5);
+  });
+});
+
+describe("undecidedPointsText", () => {
+  it("usa o singular só para 1 ponto", () => {
+    expect(undecidedPointsText(1)).toBe("1 ponto segue indeciso");
+    expect(undecidedPointsText(0.6)).toBe("1 ponto segue indeciso");
+  });
+
+  it("usa o plural para zero e para mais de um", () => {
+    expect(undecidedPointsText(0)).toBe("0 pontos seguem indecisos");
+    expect(undecidedPointsText(7.4)).toBe("7 pontos seguem indecisos");
   });
 });
 

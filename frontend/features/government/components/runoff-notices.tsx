@@ -3,7 +3,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/aler
 import { displayDayMonth, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, RunoffRace, RunoffTransfer } from "@/types";
 import { useToday } from "../hooks/useToday";
-import { undecidedNow } from "../lib/runoff";
+import { undecidedNow, undecidedPointsText } from "../lib/runoff";
 import { groupList } from "../lib/voters";
 
 /** Confiança a partir da qual um grupo segue a indicação do partido que saiu. */
@@ -61,8 +61,8 @@ function DeclarationNotice({ panel, race, transfer, weights }: DeclarationNotice
         <AlertTitle>O {party.abbr} ainda não declarou apoio</AlertTitle>
         <AlertDescription>
           {leader} declarar até {displayDayMonth(panel.dates.donation_deadline)}. Enquanto não declara,{" "}
-          {Math.round(undecidedNow(transfer, weights))} pontos seguem indecisos: quanto mais espera, mais deles as ações
-          dos dois finalistas levam.
+          {undecidedPointsText(undecidedNow(transfer, weights))}: quanto mais espera, mais deles as ações dos dois
+          finalistas levam.
         </AlertDescription>
       </Alert>
     );
