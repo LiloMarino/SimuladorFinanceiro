@@ -22,11 +22,11 @@ function DayRange({ quote }: { quote: MarketQuote }) {
   const span = quote.high - quote.low;
   const position = span > 0 ? ((quote.close - quote.low) / span) * 100 : 50;
   return (
-    <div className="grid w-32 gap-1">
+    <div className="grid min-w-32 gap-1">
       <div className="relative h-1.5 rounded-full bg-muted">
         <span className="absolute -top-0.5 h-2.5 w-0.5 rounded-full bg-foreground" style={{ left: `${position}%` }} />
       </div>
-      <div className="flex justify-between font-mono text-[11px] text-faint-foreground">
+      <div className="flex justify-between gap-2 font-mono text-[11px] whitespace-nowrap text-faint-foreground">
         <span>{displayMoney(quote.low)}</span>
         <span>{displayMoney(quote.high)}</span>
       </div>
