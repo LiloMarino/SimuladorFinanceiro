@@ -6,6 +6,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { cn } from "@/shared/lib/utils";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { TermPromises } from "@/types";
 import { useBalances } from "../hooks/queries/useBalances";
@@ -68,7 +69,12 @@ export function TermPromisesCard({ promises, termEnd }: TermPromisesCardProps) {
           )}
 
           {/* Promessas */}
-          <div className="grid gap-px overflow-hidden rounded-lg border bg-border md:grid-cols-3">
+          <div
+            className={cn(
+              "grid gap-px overflow-hidden rounded-lg border bg-border",
+              promises.items.length >= 3 ? "md:grid-cols-3" : promises.items.length === 2 && "md:grid-cols-2",
+            )}
+          >
             {promises.items.map((item) => (
               <div key={item.promise.title} className="grid content-start gap-1.5 bg-card p-3.5">
                 <div className="flex items-start justify-between gap-2">
