@@ -8,7 +8,7 @@ from decimal import Decimal
 
 import pandas as pd
 import pytest
-from sqlalchemy import Engine, create_engine, text
+from sqlalchemy import Connection, Engine, create_engine, text
 from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker
@@ -173,20 +173,18 @@ def _store_market() -> None:
         )
 
 
-SEED_SCHEMA = "_seed"
-
-
 @dataclass(frozen=True)
 class WorkingCopy:
     """
     Cópia do modelo que serve a sessão inteira e volta ao estado do modelo depois de
-    cada teste: esvaziar as tabelas e regravar as linhas guardadas sai bem mais barato
-    que criar e apagar um banco por teste.
+    cada teste. Um gatilho por tabela anota em `_seed.dirty` onde o teste escreveu, e
+    o reset esvazia e regrava só essas tabelas e as que apontam para elas.
     """
 
     engine: Engine
     tables: tuple[str, ...]
-    seeded: tuple[str, ...]
+    seeded: frozenset[str]
+    referenced_by: dict[str, frozenset[str]]
     sequences: tuple[tuple[str, int, bool], ...]
 
     def reset(self) -> None:
@@ -200,32 +198,51 @@ class WorkingCopy:
                     "WHERE datname = current_database() AND pid <> pg_backend_pid()"
                 )
             )
-            tables = ", ".join(f'"{table}"' for table in self.tables)
-            connection.execute(text(f"TRUNCATE {tables} CASCADE"))
-            # As linhas voltam com os ids originais, inclusive nas colunas de identidade.
-            for table in self.seeded:
+            dirty = set(
+                connection.execute(text("SELECT name FROM _seed.dirty")).scalars()
+            )
+            if dirty:
+                self._restore(connection, self._with_dependents(dirty))
+        self.engine.dispose()
+
+    def _with_dependents(self, dirty: set[str]) -> list[str]:
+        """As tabelas sujas e, por chave estrangeira, todas as que apontam para elas."""
+        pending, closure = list(dirty), set(dirty)
+        while pending:
+            for child in self.referenced_by.get(pending.pop(), frozenset()):
+                if child not in closure:
+                    closure.add(child)
+                    pending.append(child)
+        return [table for table in self.tables if table in closure]
+
+    def _restore(self, connection: Connection, tables: list[str]) -> None:
+        # Sem CASCADE: a lista já fecha as chaves estrangeiras, e o Postgres recusa o
+        # TRUNCATE se faltar alguma tabela que aponta para outra da lista.
+        quoted = ", ".join(f'"{table}"' for table in tables)
+        connection.execute(text(f"TRUNCATE {quoted}"))
+        # As linhas voltam na ordem das chaves estrangeiras e com os ids originais,
+        # inclusive nas colunas de identidade.
+        for table in tables:
+            if table in self.seeded:
                 seed = (
                     f'INSERT INTO "{table}" OVERRIDING SYSTEM VALUE '  # noqa: S608
-                    f'SELECT * FROM {SEED_SCHEMA}."{table}"'
+                    f'SELECT * FROM _seed."{table}"'
                 )
                 connection.execute(text(seed))
-            for sequence, last_value, is_called in self.sequences:
-                connection.execute(
-                    text("SELECT setval(:sequence, :value, :called)"),
-                    {
-                        "sequence": f'"{sequence}"',
-                        "value": last_value,
-                        "called": is_called,
-                    },
-                )
-        self.engine.dispose()
+        for sequence, last_value, is_called in self.sequences:
+            connection.execute(
+                text("SELECT setval(:sequence, :value, :called)"),
+                {"sequence": f'"{sequence}"', "value": last_value, "called": is_called},
+            )
+        # O próprio reset dispara os gatilhos; a anotação zera por último.
+        connection.execute(text("TRUNCATE _seed.dirty"))
 
 
 def _working_copy_of(template: URL, server: URL) -> Iterator[WorkingCopy]:
     """
-    Copia o modelo uma vez e guarda, num schema à parte, as linhas que ele já traz
-    e a posição de cada sequência. As tabelas com linhas voltam na ordem das chaves
-    estrangeiras dos models.
+    Copia o modelo uma vez e guarda, num schema à parte, as linhas que ele já traz,
+    a posição de cada sequência e as chaves estrangeiras entre as tabelas. Cada
+    tabela ganha o gatilho que anota as escritas.
     """
     url = _scratch_url(server)
     copy_database(template, str(url.database))
@@ -244,15 +261,25 @@ def _working_copy_of(template: URL, server: URL) -> Iterator[WorkingCopy]:
                 t.name for t in Base.metadata.sorted_tables if t.name in existing
             ]
             tables = tuple(ordered + sorted(existing - set(ordered)))
-            connection.execute(text(f"CREATE SCHEMA {SEED_SCHEMA}"))
-            seeded: list[str] = []
+            connection.execute(text("CREATE SCHEMA _seed"))
+            seeded: set[str] = set()
             for table in tables:
                 has_rows = f'SELECT EXISTS (SELECT 1 FROM "{table}")'  # noqa: S608
                 if connection.execute(text(has_rows)).scalar():
                     connection.execute(
-                        text(f'CREATE TABLE {SEED_SCHEMA}."{table}" AS TABLE "{table}"')
+                        text(f'CREATE TABLE _seed."{table}" AS TABLE "{table}"')
                     )
-                    seeded.append(table)
+                    seeded.add(table)
+            referenced_by: dict[str, set[str]] = {}
+            for child, parent in connection.execute(
+                text(
+                    "SELECT child.relname, parent.relname FROM pg_constraint fk "
+                    "JOIN pg_class child ON child.oid = fk.conrelid "
+                    "JOIN pg_class parent ON parent.oid = fk.confrelid "
+                    "WHERE fk.contype = 'f' AND fk.connamespace = 'public'::regnamespace"
+                )
+            ):
+                referenced_by.setdefault(parent, set()).add(child)
             sequences = tuple(
                 (name, int(value), bool(called))
                 for name, value, called in connection.execute(
@@ -262,10 +289,36 @@ def _working_copy_of(template: URL, server: URL) -> Iterator[WorkingCopy]:
                     )
                 )
             )
-        yield WorkingCopy(engine, tables, tuple(seeded), sequences)
+            _install_dirty_triggers(connection, tables)
+        yield WorkingCopy(
+            engine,
+            tables,
+            frozenset(seeded),
+            {parent: frozenset(children) for parent, children in referenced_by.items()},
+            sequences,
+        )
     finally:
         engine.dispose()
         drop_databases(url, [str(url.database)])
+
+
+def _install_dirty_triggers(connection: Connection, tables: tuple[str, ...]) -> None:
+    connection.execute(text("CREATE TABLE _seed.dirty (name text PRIMARY KEY)"))
+    connection.execute(
+        text(
+            "CREATE FUNCTION _seed.mark_dirty() RETURNS trigger "
+            "LANGUAGE plpgsql AS $$ BEGIN "
+            "INSERT INTO _seed.dirty VALUES (TG_TABLE_NAME) ON CONFLICT DO NOTHING; "
+            "RETURN NULL; END $$"
+        )
+    )
+    for table in tables:
+        connection.execute(
+            text(
+                f'CREATE TRIGGER mark_dirty AFTER INSERT OR UPDATE OR DELETE OR TRUNCATE ON "{table}" '
+                f"FOR EACH STATEMENT EXECUTE FUNCTION _seed.mark_dirty()"
+            )
+        )
 
 
 def _serve(copy: WorkingCopy, monkeypatch: pytest.MonkeyPatch) -> Iterator[Engine]:
