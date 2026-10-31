@@ -1,7 +1,7 @@
 import { MetricHint } from "@/shared/components/metric-hint";
 import { Kpi } from "@/shared/components/kpi";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { LEVERAGE } from "@/shared/lib/credit-metrics";
+import { LEVERAGE, displayLeverage } from "@/shared/lib/credit-metrics";
 import { displayDayMonth, displayMoney, displayMonthName, displaySignedMoney } from "@/shared/lib/utils/display";
 import type { CreditOverview } from "@/types";
 
@@ -51,7 +51,7 @@ export function CreditSummary({ overview }: CreditSummaryProps) {
                 <MetricHint metric={LEVERAGE} />
               </>
             }
-            value={overview.leverage === null ? "—" : LEVERAGE.format(overview.leverage)}
+            value={displayLeverage(overview.leverage)}
             note="Entra na nota de risco"
           />
 

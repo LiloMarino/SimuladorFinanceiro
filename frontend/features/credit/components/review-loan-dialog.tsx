@@ -13,7 +13,7 @@ import {
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { displayPercent, displayMoney, displayMonthName } from "@/shared/lib/utils/display";
-import { LEVERAGE } from "@/shared/lib/credit-metrics";
+import { displayLeverage } from "@/shared/lib/credit-metrics";
 import type { CreditOverview, LoanQuote } from "@/types";
 import { useContractLoan } from "../hooks/mutations/useContractLoan";
 import { InstallmentsTable } from "./installments-table";
@@ -25,8 +25,6 @@ type ReviewLoanDialogProps = {
   quote: LoanQuote;
   rating: CreditOverview["rating"];
 };
-
-const leverageLabel = (value: LoanQuote["leverage_after"]) => (value === null ? "—" : LEVERAGE.format(value));
 
 /** "Revisar o empréstimo": o custo inteiro à vista antes da assinatura. */
 export function ReviewLoanDialog({ open, onOpenChange, quote, rating }: ReviewLoanDialogProps) {
@@ -65,7 +63,7 @@ export function ReviewLoanDialog({ open, onOpenChange, quote, rating }: ReviewLo
             <div>
               <KeyValueRow
                 label="Alavancagem"
-                value={`${leverageLabel(quote.leverage_before)} → ${leverageLabel(quote.leverage_after)}`}
+                value={`${displayLeverage(quote.leverage_before)} → ${displayLeverage(quote.leverage_after)}`}
               />
               <KeyValueRow
                 label={`Nota no fim de ${displayMonthName(rating.next_review)}`}

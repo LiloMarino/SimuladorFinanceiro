@@ -13,6 +13,9 @@ export const LEVERAGE: MetricInfo = {
   topic: "leverage",
 };
 
+/** Alavancagem é dívida ÷ patrimônio: sem patrimônio positivo a razão não existe. */
+export const displayLeverage = (value: string | null) => (value === null ? "sem patrimônio" : LEVERAGE.format(value));
+
 export const VOLATILITY: MetricInfo = {
   label: "Volatilidade",
   description: "O quanto o patrimônio balança",

@@ -2,7 +2,7 @@ import { MetricLabel } from "@/shared/components/metric-hint";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Progress } from "@/shared/components/ui/progress";
 import { displaySelicSpread, displaySpread, displayWholePercent } from "@/shared/lib/credit";
-import { LATE_PAYMENTS, LEVERAGE, RISK_RATING, VOLATILITY } from "@/shared/lib/credit-metrics";
+import { LATE_PAYMENTS, LEVERAGE, RISK_RATING, VOLATILITY, displayLeverage } from "@/shared/lib/credit-metrics";
 import { cn } from "@/shared/lib/utils";
 import { displayDayMonth, displayPercent } from "@/shared/lib/utils/display";
 import type { CreditLadderTier, CreditRating } from "@/types";
@@ -24,7 +24,7 @@ export function RiskRatingCard({ rating }: RiskRatingCardProps) {
     {
       key: "leverage",
       name: <MetricLabel metric={LEVERAGE} />,
-      value: rating.leverage.value === null ? "—" : LEVERAGE.format(rating.leverage.value),
+      value: displayLeverage(rating.leverage.value),
       part: rating.leverage,
       description: "Sem dívida vale 40; cada 10% tira 4.",
     },
