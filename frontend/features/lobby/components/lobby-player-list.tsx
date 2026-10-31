@@ -116,13 +116,13 @@ export function LobbyPlayersList({
                   "flex items-center gap-3 rounded-[10px] border p-3",
                   isYou ? "border-info-border bg-info-soft" : bot ? "border-border bg-subtle" : "border-border bg-card",
                   inTeams && player.team && "border-l-[3px] border-l-(--team)",
-                  inTeams && isYou && "col-span-2",
+                  isYou && "col-span-2",
                 )}
               >
                 <PlayerAvatar nickname={player.nickname} color={player.color} bot={!!bot} size="lg" />
                 <div className="grid min-w-0 flex-1 gap-0.5">
                   <span className="flex min-w-0 items-center gap-1.5">
-                    <span className="min-w-0 truncate font-semibold">
+                    <span className="min-w-0 truncate font-semibold" title={player.nickname}>
                       {player.nickname}
                       {isYou && <span className="font-normal text-secondary-foreground"> (você)</span>}
                     </span>
@@ -143,7 +143,9 @@ export function LobbyPlayersList({
                     )}
                   </span>
                   {bot ? (
-                    <span className="truncate text-xs text-muted-foreground">{bot.strategy_name}</span>
+                    <span className="truncate text-xs text-muted-foreground" title={bot.strategy_name}>
+                      {bot.strategy_name}
+                    </span>
                   ) : (
                     <PlayerActivityStatus activity={player.activity} />
                   )}
@@ -193,7 +195,9 @@ export function LobbyPlayersList({
                 <PlayerAvatar nickname={player.nickname} color={player.color} size="lg" />
               </span>
               <div className="grid min-w-0 flex-1">
-                <span className="truncate font-semibold text-muted-foreground">{player.nickname}</span>
+                <span className="truncate font-semibold text-muted-foreground" title={player.nickname}>
+                  {player.nickname}
+                </span>
                 <Status status="offline">Offline</Status>
               </div>
               {inTeams && <TeamBadge team={player.team} naming={naming} />}
