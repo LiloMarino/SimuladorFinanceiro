@@ -81,14 +81,17 @@ export function PartyProfilesCard({ panel }: PartyProfilesCardProps) {
 type PartyTileProps = { party: ElectionParty; selected: boolean; onCompare: () => void };
 
 function PartyTile({ party, selected, onCompare }: PartyTileProps) {
+  const candidateLabel = party.candidate?.name ?? party.founder ?? "sem candidato";
   return (
     <div className={cn("grid content-start gap-2.5 rounded-lg border p-4", selected && "border-primary")}>
       <div className="flex items-center gap-2">
         <PartyMark abbr={party.abbr} color={party.color} size="md" />
         <div className="grid min-w-0 flex-1">
-          <b className="truncate text-sm font-semibold">{party.name}</b>
-          <span className="truncate text-xs text-muted-foreground">
-            {party.candidate?.name ?? party.founder ?? "sem candidato"}
+          <b className="truncate text-sm font-semibold" title={party.name}>
+            {party.name}
+          </b>
+          <span className="truncate text-xs text-muted-foreground" title={candidateLabel}>
+            {candidateLabel}
           </span>
         </div>
         {party.is_computer && (
