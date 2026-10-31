@@ -40,7 +40,7 @@ body = """
 Suas partidas salvas e o `config.toml` continuam valendo.
 {% endif %}
 {% for group, group_commits in commits | group_by(attribute="group") %}\
-{% if group != "<!-- 2 -->Interno" %}\
+{% if group != "<!-- 3 -->Interno" %}\
 {% set visible = group_commits | filter(attribute="breaking", value=false) %}\
 {% if visible | length > 0 %}
 ### {{ group | striptags | trim }}
@@ -63,11 +63,12 @@ sort_commits = "oldest"
 # Só as tags de versão (v1.0.0, v2.1.0, ...) delimitam as releases
 tag_pattern = "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
 # Tipos que mexem no número mas não aparecem nas notas ficam no grupo "Interno".
-# O comentário numérico ordena os grupos (Novidades, Correções, Interno) e sai no striptags.
+# O comentário numérico ordena os grupos (Novidades, Correções, Desempenho, Interno) e sai no striptags.
 commit_parsers = [
   { message = "^feat", group = "<!-- 0 -->Novidades" },
   { message = "^fix", group = "<!-- 1 -->Correções" },
-  { message = "^(docs|chore|refactor|build|test|ci|perf|style)", group = "<!-- 2 -->Interno" },
+  { message = "^perf", group = "<!-- 2 -->Desempenho" },
+  { message = "^(docs|chore|refactor|build|test|ci|style)", group = "<!-- 3 -->Interno" },
 ]
 
 [bump]
