@@ -11,7 +11,7 @@ from alembic.autogenerate import compare_metadata
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 from alembic.script import ScriptDirectory
-from sqlalchemy import Engine, create_engine, inspect, text
+from sqlalchemy import Connection, Engine, Enum, create_engine, inspect, text
 from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.pool import NullPool
@@ -59,7 +59,34 @@ def schema_diff(engine: Engine) -> list:
     """Diferenças entre o schema do banco e o que os models declaram."""
     with engine.connect() as connection:
         context = MigrationContext.configure(connection, opts={"compare_type": True})
-        return compare_metadata(context, Base.metadata)
+        return compare_metadata(context, Base.metadata) + _enum_diff(connection)
+
+
+def _enum_diff(connection: Connection) -> list:
+    """Os tipos enum cujos valores no banco diferem dos declarados nos models.
+
+    O `compare_metadata` compara só o nome do tipo; os valores ficam por conta daqui.
+    """
+    rows = connection.execute(
+        text(
+            "SELECT t.typname, e.enumlabel FROM pg_type t "
+            "JOIN pg_enum e ON e.enumtypid = t.oid"
+        )
+    )
+    stored: dict[str, set[str]] = {}
+    for name, label in rows:
+        stored.setdefault(name, set()).add(label)
+    declared = {
+        column.type.name: set(column.type.enums)
+        for table in Base.metadata.tables.values()
+        for column in table.columns
+        if isinstance(column.type, Enum) and column.type.name
+    }
+    return [
+        ("enum_values", name, sorted(stored.get(name, set()) ^ values))
+        for name, values in sorted(declared.items())
+        if stored.get(name, set()) != values
+    ]
 
 
 def backups_to_drop(backups: list[str], keep: int = BACKUPS_KEPT) -> list[str]:

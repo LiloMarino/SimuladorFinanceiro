@@ -16,7 +16,7 @@ from backend.core.migration import (
 
 
 def test_schema_matches_models(migrated_template: URL) -> None:
-    """O banco modelo da sessão subiu até o head, e o `compare_metadata` não acha diferença."""
+    """O banco modelo da sessão subiu até o head, e o `schema_diff` não acha diferença."""
     # Sem pool: o modelo só aceita ser copiado sem nenhuma conexão aberta nele.
     engine = create_engine(migrated_template, poolclass=NullPool)
     try:
