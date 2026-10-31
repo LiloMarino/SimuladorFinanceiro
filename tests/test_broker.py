@@ -73,6 +73,7 @@ def _limit(
     client_id, action: OrderAction, price: float, size: Decimal | int
 ) -> LimitOrder:
     return LimitOrder(
+        placed_on=date(2020, 1, 2),
         client_id=client_id,
         ticker="ABCD",
         price=price,
@@ -83,7 +84,11 @@ def _limit(
 
 def _market(client_id, action: OrderAction, size: Decimal | int) -> MarketOrder:
     return MarketOrder(
-        client_id=client_id, ticker="ABCD", size=Decimal(size), action=action
+        placed_on=date(2020, 1, 2),
+        client_id=client_id,
+        ticker="ABCD",
+        size=Decimal(size),
+        action=action,
     )
 
 
@@ -427,6 +432,7 @@ def test_market_buy_by_amount_never_spends_more_than_the_amount(
     matching = MatchingEngine(broker)
     _book(matching, (10, 30), (12, 100))
     order = MarketOrder(
+        placed_on=date(2020, 1, 2),
         client_id=BUYER,
         ticker="ABCD",
         size=Decimal(50),

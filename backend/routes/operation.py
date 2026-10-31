@@ -182,6 +182,7 @@ def submit_order(
     size = payload.quantity if payload.quantity is not None else Decimal(0)
     if order_type_enum == OrderType.MARKET:
         order = MarketOrder(
+            placed_on=simulation.get_current_date(),
             client_id=client_id,
             ticker=asset,
             size=size,
@@ -195,6 +196,7 @@ def submit_order(
                 "limit_price é obrigatório para ordem limitada"
             )
         order = LimitOrder(
+            placed_on=simulation.get_current_date(),
             client_id=client_id,
             ticker=asset,
             size=size,

@@ -1,7 +1,7 @@
 import uuid
 from abc import ABC
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 
 from backend.core.dto.order import OrderDTO
@@ -20,6 +20,8 @@ class Order(ABC):
     ticker: str
     size: Decimal
     action: OrderAction
+    # O dia da partida em que a ordem nasceu; created_at é o relógio real e só ordena a fila
+    placed_on: date
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     remaining: Decimal = field(init=False)
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
@@ -53,7 +55,7 @@ class Order(ABC):
             size=self.size,
             remaining=self.remaining,
             status=self.status,
-            created_at=self.created_at,
+            placed_on=self.placed_on,
             synthetic=synthetic,
         )
 

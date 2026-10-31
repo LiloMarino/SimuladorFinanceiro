@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 
 from backend.core.enum import OrderAction
-from backend.features.variable_income.entities.order import LimitOrder
+from backend.features.variable_income.entities.order import MARKET_CLIENT_ID, LimitOrder
 from backend.features.variable_income.order_book import OrderBook
 
 T0 = datetime(2020, 1, 6, tzinfo=UTC)
@@ -19,6 +19,7 @@ def _limit(
     seconds: int = 0,
 ) -> LimitOrder:
     return LimitOrder(
+        placed_on=date(2020, 1, 2),
         client_id=uuid.uuid4(),
         ticker=ticker,
         price=price,
@@ -95,3 +96,17 @@ def test_get_orders_lists_both_sides_of_one_ticker():
 
     assert book.get_orders("ABCD") == [buy, sell]
     assert book.find(buy.id) is buy
+
+
+def test_order_dto_carries_the_game_day_of_creation():
+    """O "quando" da ordem é o dia da partida, não o relógio real."""
+    order = LimitOrder(
+        placed_on=date(2023, 5, 17),
+        client_id=MARKET_CLIENT_ID,
+        ticker="ABCD",
+        price=10,
+        size=Decimal(1),
+        action=OrderAction.BUY,
+    )
+
+    assert order.to_dto().placed_on == date(2023, 5, 17)

@@ -78,7 +78,7 @@ const sellOrder = (id: string, size: string, price: number): Order => ({
   size,
   remaining: size,
   limit_price: price,
-  created_at: "2023-03-14T10:00:00",
+  placed_on: "2023-03-14",
   synthetic: true,
 });
 
@@ -100,6 +100,6 @@ export const STAGE_MY_LIMIT_ORDER: Order = {
   size: "100",
   remaining: "100",
   limit_price: 37.5,
-  created_at: "2023-03-14T10:05:00",
+  placed_on: "2023-03-14",
   synthetic: false,
 };

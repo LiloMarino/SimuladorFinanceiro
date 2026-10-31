@@ -96,6 +96,7 @@ class MarketLiquidity:
 
             orders.append(
                 LimitOrder(
+                    placed_on=candle.price_date,
                     client_id=MARKET_CLIENT_ID,
                     ticker=candle.ticker,
                     price=level.price,
@@ -121,6 +122,7 @@ class MarketLiquidity:
 
         return [
             LimitOrder(
+                placed_on=candle.price_date,
                 client_id=MARKET_CLIENT_ID,
                 ticker=candle.ticker,
                 price=price - tick,
@@ -128,6 +130,7 @@ class MarketLiquidity:
                 action=OrderAction.BUY,
             ),
             LimitOrder(
+                placed_on=candle.price_date,
                 client_id=MARKET_CLIENT_ID,
                 ticker=candle.ticker,
                 price=price + tick,

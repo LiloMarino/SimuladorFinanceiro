@@ -20644,10 +20644,10 @@
             ],
             "title": "Limit Price"
           },
-          "created_at": {
+          "placed_on": {
             "type": "string",
-            "format": "date-time",
-            "title": "Created At"
+            "format": "date",
+            "title": "Placed On"
           },
           "synthetic": {
             "type": "boolean",
@@ -20666,7 +20666,7 @@
           "size",
           "remaining",
           "limit_price",
-          "created_at",
+          "placed_on",
           "synthetic"
         ],
         "title": "OrderDTO"

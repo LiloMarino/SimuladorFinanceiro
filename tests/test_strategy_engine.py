@@ -155,6 +155,7 @@ def test_the_manual_ticket_is_locked_while_the_automatic_is_on(match):
     with pytest.raises(ConflictError, match="automático"):
         sim.create_order(
             MarketOrder(
+                placed_on=date(2020, 1, 2),
                 client_id=ana.client_id,
                 ticker="BANK_A",
                 size=Decimal(1),
@@ -168,6 +169,7 @@ def test_the_manual_ticket_is_locked_while_the_automatic_is_on(match):
 def test_going_back_to_manual_unlocks_the_ticket_and_cancels_open_orders(match):
     sim, ana, _ = match
     limit = LimitOrder(
+        placed_on=date(2020, 1, 2),
         client_id=ana.client_id,
         ticker="BANK_A",
         size=Decimal(1),
@@ -184,6 +186,7 @@ def test_going_back_to_manual_unlocks_the_ticket_and_cancels_open_orders(match):
     assert sim.get_my_strategy(ana).active is None
     sim.create_order(
         MarketOrder(
+            placed_on=date(2020, 1, 2),
             client_id=ana.client_id,
             ticker="BANK_A",
             size=Decimal(1),
@@ -211,6 +214,7 @@ def test_an_error_in_the_strategy_returns_the_player_to_manual_with_the_cause(ma
     assert sim.get_my_strategy(bia).active is not None
     sim.create_order(
         MarketOrder(
+            placed_on=date(2020, 1, 2),
             client_id=ana.client_id,
             ticker="BANK_A",
             size=Decimal(1),

@@ -7297,10 +7297,10 @@ export interface components {
             /** Limit Price */
             limit_price: number | null;
             /**
-             * Created At
-             * Format: date-time
+             * Placed On
+             * Format: date
              */
-            created_at: string;
+            placed_on: string;
             /** Synthetic */
             synthetic: boolean;
         };

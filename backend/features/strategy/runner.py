@@ -479,6 +479,7 @@ class StrategyRunner:
                     raise ValueError("Compra e venda precisam de ativo e quantidade")
                 order: Order = (
                     LimitOrder(
+                        placed_on=engine.current_date,
                         client_id=user.client_id,
                         ticker=intent.ticker,
                         size=intent.quantity,
@@ -488,6 +489,7 @@ class StrategyRunner:
                     )
                     if intent.limit is not None
                     else MarketOrder(
+                        placed_on=engine.current_date,
                         client_id=user.client_id,
                         ticker=intent.ticker,
                         size=intent.quantity,

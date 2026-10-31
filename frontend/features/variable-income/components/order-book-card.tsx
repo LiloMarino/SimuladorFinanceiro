@@ -21,10 +21,6 @@ import { sortNumber } from "@/shared/lib/table-sort";
 
 type Tab = "OPEN" | "HISTORY";
 
-// Hora da ordem, no relógio de quem olha
-const displayTime = (isoDateTime: string) =>
-  new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(new Date(isoDateTime));
-
 function Player({
   nickname,
   color,
@@ -71,7 +67,7 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
 
   const { data: trades } = useTrades(ticker, { enabled: tab === "HISTORY" });
   const openSort = useTableSort(open, {
-    date: (o) => o.created_at,
+    date: (o) => o.placed_on,
     player: (o) => o.player_nickname,
     side: (o) => (o.action === "buy" ? "Compra" : "Venda"),
     quantity: (o) => Number(o.size),
@@ -153,7 +149,9 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
                 return (
                   <TableRow key={o.id} variant={o.synthetic ? "subtle" : "default"}>
                     <TableCell>
-                      <span className="font-mono text-xs text-muted-foreground">{displayTime(o.created_at)}</span>
+                      <span className="font-mono text-xs text-muted-foreground">
+                        {displayDate(parseLocalDate(o.placed_on))}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <Player nickname={o.player_nickname} color={o.player_color} isYou={mine} market={o.synthetic} />

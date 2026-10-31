@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date
 from decimal import Decimal
 
 from backend.core.dto.base import BaseDTO
@@ -18,6 +18,7 @@ class OrderDTO(BaseDTO):
     size: Decimal
     remaining: Decimal
     limit_price: float | None
-    created_at: datetime
+    # O dia da partida em que a ordem foi criada
+    placed_on: date
     # Liquidez do mercado simulado, não de um jogador
     synthetic: bool
