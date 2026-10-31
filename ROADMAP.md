@@ -152,9 +152,9 @@
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **F143** | feature | Preparação de cada jogador no lobby | — | ✅ arquivado |
-| 2 | **F168** | feature | Desafio da vela no lobby | — | ✅ arquivado |
-| 3 | **F178** | feature | Conferência visual de tudo o que mudou desde a 3.0 | — | ✅ arquivado |
+| 1 | **F143** | feature | Preparação de cada jogador no lobby | — | 📦 Arquivado |
+| 2 | **F168** | feature | Desafio da vela no lobby | — | 📦 Arquivado |
+| 3 | **F178** | feature | Conferência visual de tudo o que mudou desde a 3.0 | — | 📦 Arquivado |
 | 4 | [**F184**](#f184) | correção | Correções da 3.3 | — | ⏳ Pendente |
 | 5 | [**F180**](#f180) | manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | — | ⏳ Pendente |
 | 6 | [**F181**](#f181) | melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | [F180](#f180) | 🔍 Em avaliação |
