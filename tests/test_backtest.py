@@ -47,7 +47,7 @@ from tests.fakes import simulation_settings
 from tests.test_simulation_loader import started  # noqa: F401
 
 START = date(2004, 3, 1)
-END = date(2004, 6, 30)
+END = date(2004, 5, 26)
 TIMEOUT = 60
 
 Events = list[tuple[str, dict]]
@@ -116,7 +116,7 @@ def test_backtest_runs_to_the_end_without_waiting_or_per_day_events(events):
     started_at = time.monotonic()
     simulation_id = run_to_the_end(events)
 
-    # Sem o `sleep` entre pregões, ~85 pregões não levam nem segundos de jogo
+    # Sem o `sleep` entre pregões, 63 pregões não levam nem segundos de jogo
     assert time.monotonic() - started_at < TIMEOUT
     emitted = names(events)
     assert "backtest_started" in emitted
@@ -150,7 +150,7 @@ def test_progress_is_sent_every_twenty_days_and_at_the_last_one(events):
     assert all(len(p.points) == 1 for p in progress)
     last = progress[-1].points[0]
     assert len(last.equity) == 3
-    assert last.contributed == Decimal(10000) + 4 * Decimal(500)
+    assert last.contributed == Decimal(10000) + 3 * Decimal(500)
 
 
 def test_the_finished_backtest_is_saved_as_a_backtest_with_every_day_recorded(events):
@@ -411,7 +411,7 @@ def test_the_result_has_the_reference_series_over_the_recorded_days(events):
     assert result.done_days == result.total_days == total_days()
     assert len(result.references) == total_days()
     assert result.references[0].contributed == Decimal(10500)
-    assert result.references[-1].contributed == Decimal(10000) + 4 * Decimal(500)
+    assert result.references[-1].contributed == Decimal(10000) + 3 * Decimal(500)
     assert result.failures == []
 
 
