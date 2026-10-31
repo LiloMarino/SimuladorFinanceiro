@@ -90,7 +90,7 @@
 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | — | — | Médio | Bom | ⏳ |
 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | — | — | Alto | Bom | ⏳ |
 | [**F141**](#f141) | Docs | README com as features de hoje | — | — | Baixo | Excelente | ⏳ |
-| [**F157**](#f157) | Correção | Velocidade x100 que quase não acelera | M20 · 3.3 | — | Médio | Excelente | ⏳ |
+| [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 | — | Médio | Excelente | ⏳ |
 | [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | — | — | — | — | 🔍 |
 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | — | — | Baixo | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 | — | Médio | Bom | ⏳ |
@@ -162,7 +162,7 @@
 | 8 | [**F182**](#f182) | Melhoria | Eleição redesenhada como um conjunto | [F180](#f180) | 🔍 Em avaliação |
 | 9 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | [F180](#f180) | 🔍 Em avaliação |
 | 10 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | — | 🔍 Em avaliação |
-| 11 | [**F157**](#f157) | Correção | Velocidade x100 que quase não acelera | — | ⏳ Pendente |
+| 11 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ⏳ Pendente |
 
 ### 3.4 — Juros e Tesouro (M21)
 
@@ -236,7 +236,7 @@
 | [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 · 4º | 0 | Médio | Bom | ⏳ |
 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 · 5º | 4 | Alto | Bom | ⏳ |
 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 10º | 2 | — | — | 🔍 |
-| [**F157**](#f157) | Correção | Velocidade x100 que quase não acelera | M20 · 3.3 · 11º | 0 | Médio | Excelente | ⏳ |
+| [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 · 11º | 0 | Médio | Excelente | ⏳ |
 | [**F173**](#f173) | Feature | Partido desde o 1º dia | M21 · 3.4 · 1º | 2 | Médio | Bom | ⏳ |
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 4º | 0 | Alto | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 · 5º | 1 | Médio | Bom | ⏳ |
@@ -270,7 +270,7 @@
 | **F139** | Docs | Demonstração regravada com o jogo de hoje | N25 | — | — | [F44](#f44) | Médio | Baixo | Alto | Bom |
 | **F140** | Docs | Docs reorganizada por tipo de leitor | N25 | — | — | [F44](#f44) | Alto | Baixo | Alto | Bom |
 | **F141** | Docs | README com as features de hoje | N25 | — | — | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
-| **F157** | Correção | Velocidade x100 que quase não acelera | N40, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Excelente |
+| **F157** | Performance | Velocidade x100 que quase não acelera | N40, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Excelente |
 | **F159** | Feature | Conquista "Ordem com paciência" | N22 | D1 | — | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
 | **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
