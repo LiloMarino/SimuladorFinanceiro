@@ -4,7 +4,7 @@ import { Progress } from "@/shared/components/ui/progress";
 import { displaySelicSpread, displaySpread, displayWholePercent } from "@/shared/lib/credit";
 import { LATE_PAYMENTS, LEVERAGE, RISK_RATING, VOLATILITY, displayLeverage } from "@/shared/lib/credit-metrics";
 import { cn } from "@/shared/lib/utils";
-import { displayDayMonth, displayPercent } from "@/shared/lib/utils/display";
+import { displayDayMonth, displayNumber, displayPercent } from "@/shared/lib/utils/display";
 import type { CreditLadderTier, CreditRating } from "@/types";
 import { CreditGradeMark } from "./credit-grade-mark";
 
@@ -97,7 +97,7 @@ export function RiskRatingCard({ rating }: RiskRatingCardProps) {
                   aria-label={`Pontos de ${factor.key}`}
                 />
                 <span className="text-right font-mono font-semibold">
-                  {Number(factor.part.points)}
+                  {displayNumber(factor.part.points, 0)}
                   <span className="font-normal text-muted-foreground">/{Number(factor.part.max_points)}</span>
                 </span>
                 <span className="col-span-full text-xs text-muted-foreground">{factor.description}</span>
