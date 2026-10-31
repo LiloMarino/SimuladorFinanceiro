@@ -36,6 +36,8 @@ export function useStatisticsReport<T extends StatisticsTab>(tab: T, simulationI
     queryKey: queryKeys.statisticsReport(tab, simulationIds),
     queryFn: ({ signal }) => apiFetch<StatisticsReports[T]>(`/api/statistics/${tab}?${params}`, { signal }),
     enabled: simulationIds.length > 0,
+    // A 100× cinco minutos reais são anos de jogo: todo retorno à tela busca o relatório de novo
+    refetchOnMount: "always",
     placeholderData: keepPreviousData,
     select: (report) =>
       onlyPlayer && !Array.isArray(report) && "players" in report
