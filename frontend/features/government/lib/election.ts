@@ -51,6 +51,11 @@ export function remainingCollections(today: string, firstRound: string) {
   return count;
 }
 
+/** A campanha acaba com a apuração do último turno: da espera pela posse em diante, não há mais pesquisa. */
+export function campaignEnded(phase: ElectionPhase) {
+  return phase === "AWAITING_TERM" || phase === "TERM";
+}
+
 /** O selo da fase no topo da página. */
 export function phaseLabel(phase: ElectionPhase) {
   switch (phase) {

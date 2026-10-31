@@ -3,6 +3,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { displayList, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty, ElectionPoll } from "@/types";
+import { campaignEnded } from "../lib/election";
 import { INTENTION, POLL_MARGIN, VALID_SHARE } from "../lib/election-metrics";
 import {
   GROUP_INFO,
@@ -58,6 +59,16 @@ export function PollCard({ panel }: PollCardProps) {
 }
 
 function FirstPollPending({ panel }: { panel: ElectionPanel }) {
+  if (campaignEnded(panel.phase)) {
+    return (
+      <div className="grid justify-items-center gap-1 rounded-lg border border-dashed px-6 py-8 text-center">
+        <b className="text-[15px] font-semibold">Campanha encerrada</b>
+        <span className="max-w-md text-[13px] text-muted-foreground">
+          A campanha acabou sem nenhuma pesquisa. O eleitorado mostra onde cada partido começou em cada grupo.
+        </span>
+      </div>
+    );
+  }
   return (
     <div className="grid justify-items-center gap-1 rounded-lg border border-dashed px-6 py-8 text-center">
       <span className="text-xs text-muted-foreground">

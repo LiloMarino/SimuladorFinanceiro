@@ -40,7 +40,7 @@ import { RunoffPollCard } from "../components/runoff-poll-card";
 import { TermCard } from "../components/term-card";
 import { TicketDialog } from "../components/ticket-dialog";
 import { ViceInviteDialog } from "../components/vice-invite-dialog";
-import type { ElectionShortcut } from "../lib/election";
+import { campaignEnded, type ElectionShortcut } from "../lib/election";
 import { useElection } from "@/shared/hooks/queries/useElection";
 
 export default function ElectionPage() {
@@ -144,10 +144,7 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
     .filter((candidate): candidate is ElectionParty => candidate !== undefined);
 
   // O 2º turno já apurado, que a página guarda por grupo até a próxima campanha
-  const runoffResult =
-    (panel.phase === "AWAITING_TERM" || panel.phase === "TERM") && panel.last_result?.round === 2
-      ? panel.last_result
-      : null;
+  const runoffResult = campaignEnded(panel.phase) && panel.last_result?.round === 2 ? panel.last_result : null;
 
   // A corrida é pública: quem não é filiado vê só ela, sem a barra de abas
   const race = (

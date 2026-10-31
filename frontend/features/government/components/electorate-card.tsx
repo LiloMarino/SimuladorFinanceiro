@@ -9,6 +9,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { cn } from "@/shared/lib/utils";
 import { displayPercent, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty, ElectionPoll, ElectorateRow, VoterGroupInfo } from "@/types";
+import { campaignEnded } from "../lib/election";
 import { BALANCE, REJECTION, SUPPORT } from "../lib/election-metrics";
 import {
   GROUP_INFO,
@@ -97,8 +98,9 @@ export function ElectorateCard({ panel, party }: ElectorateCardProps) {
 
           {!latest && (
             <span className="text-xs text-muted-foreground">
-              A primeira pesquisa sai em {displayShortDate(nextPollDate(panel.today))}. Até lá, os grupos mostram onde o{" "}
-              {party.abbr} começa.
+              {campaignEnded(panel.phase)
+                ? `Campanha encerrada, sem pesquisa. Os grupos mostram onde o ${party.abbr} começou.`
+                : `A primeira pesquisa sai em ${displayShortDate(nextPollDate(panel.today))}. Até lá, os grupos mostram onde o ${party.abbr} começa.`}
             </span>
           )}
 
