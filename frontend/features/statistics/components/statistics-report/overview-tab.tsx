@@ -12,6 +12,7 @@ import { GOAL_PERCENT, GOAL_REMAINING } from "@/shared/lib/goal-metrics";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber, displaySignedMoney, displaySignedPercent } from "@/shared/lib/utils/display";
 import type { OverviewReport, Player, PlayerRef } from "@/types";
+import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import {
   criterionLabel,
@@ -36,6 +37,10 @@ import { TeamScore } from "./team-score";
 export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("overview", simulationIds, onlyPlayer);
   const [botLog, setBotLog] = useState<PlayerRef | null>(null);
+  const { data: simulations } = useSimulationList();
+  // Partida encerrada: o topo fala do que ficou, não do que falta
+  const finished =
+    simulationIds.length === 1 && simulations?.find((s) => s.id === simulationIds[0])?.status === "FINISHED";
   if (!data)
     return (
       <TabStatus
@@ -54,7 +59,9 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
   if (data.player_grouping === "TEAMS") {
     return (
       <div className="grid gap-5">
-        {data.teams.length > 0 && <TeamHeadline report={data} currentPlayerName={currentPlayerName} />}
+        {data.teams.length > 0 && (
+          <TeamHeadline report={data} currentPlayerName={currentPlayerName} finished={finished} />
+        )}
         <TeamRanking
           report={data}
           currentPlayerName={currentPlayerName}
@@ -86,7 +93,7 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
   return (
     <div className="grid gap-5">
       {simulationIds.length === 1 && data.players.length > 0 && (
-        <Headline report={data} currentPlayerName={currentPlayerName} />
+        <Headline report={data} currentPlayerName={currentPlayerName} finished={finished} />
       )}
       <Ranking
         report={data}
@@ -195,7 +202,15 @@ function YouVersusYou({
 }
 
 /** Topo: a sua colocação, quanto falta pro líder e o eixo mais fraco; ao lado, a sala em números. */
-function Headline({ report, currentPlayerName }: { report: OverviewReport; currentPlayerName: string }) {
+function Headline({
+  report,
+  currentPlayerName,
+  finished,
+}: {
+  report: OverviewReport;
+  currentPlayerName: string;
+  finished: boolean;
+}) {
   const { players, average_return, min_score_days, goal_net_worth } = report;
   const measure = rankingMeasure(report);
   const you = players.find((p) => p.player_nickname === currentPlayerName);
@@ -259,19 +274,47 @@ function Headline({ report, currentPlayerName }: { report: OverviewReport; curre
               )}
               {you && measure === "GOAL" && goal_net_worth && (
                 <span className="text-[13px] text-muted-foreground">
-                  Faltam{" "}
-                  <b className="font-mono text-foreground">
-                    {displayRemainingToGoal(you.criterion_value, goal_net_worth)}
-                  </b>{" "}
-                  para a meta
-                  {you.position > 1 && (
+                  {finished ? (
                     <>
-                      {" "}
-                      e{" "}
+                      {Number(you.criterion_value) >= 1 ? (
+                        "Chegou à meta"
+                      ) : (
+                        <>
+                          Ficou{" "}
+                          <b className="font-mono text-foreground">
+                            {displayRemainingToGoal(you.criterion_value, goal_net_worth)}
+                          </b>{" "}
+                          abaixo da meta
+                        </>
+                      )}
+                      {you.position > 1 && (
+                        <>
+                          {" "}
+                          e{" "}
+                          <b className="font-mono text-foreground">
+                            {displayCriterionGap(measure, you.leader_gap, goal_net_worth)}
+                          </b>{" "}
+                          atrás de {leader.player_nickname} (1º)
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      Faltam{" "}
                       <b className="font-mono text-foreground">
-                        {displayCriterionGap(measure, you.leader_gap, goal_net_worth)}
+                        {displayRemainingToGoal(you.criterion_value, goal_net_worth)}
                       </b>{" "}
-                      para passar {leader.player_nickname} (1º)
+                      para a meta
+                      {you.position > 1 && (
+                        <>
+                          {" "}
+                          e{" "}
+                          <b className="font-mono text-foreground">
+                            {displayCriterionGap(measure, you.leader_gap, goal_net_worth)}
+                          </b>{" "}
+                          para passar {leader.player_nickname} (1º)
+                        </>
+                      )}
                     </>
                   )}
                   . A meta é a mesma para todos, então quem tem mais patrimônio está mais perto.
@@ -279,8 +322,9 @@ function Headline({ report, currentPlayerName }: { report: OverviewReport; curre
               )}
               {you && measure !== "GOAL" && you.position > 1 && (
                 <span className="text-[13px] text-muted-foreground">
-                  Faltam <b className="text-foreground">{displayCriterionGap(measure, you.leader_gap)}</b> pra passar{" "}
-                  {leader.player_nickname} (1º).
+                  {finished ? "Ficou" : "Faltam"}{" "}
+                  <b className="text-foreground">{displayCriterionGap(measure, you.leader_gap)}</b>{" "}
+                  {finished ? "atrás de" : "pra passar"} {leader.player_nickname} (1º).
                   {you.weakest_axis && (
                     <>
                       {" "}

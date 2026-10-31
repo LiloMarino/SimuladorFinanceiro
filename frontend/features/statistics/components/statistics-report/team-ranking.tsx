@@ -35,7 +35,15 @@ function daysOf(members: Player[]) {
 const MEMBER_PLURAL = (count: number) => `${count} ${count === 1 ? "jogador" : "jogadores"}`;
 
 /** Topo: a colocação da sua equipe, a distância para a líder e a sua parte na média; ao lado, a sala em números. */
-export function TeamHeadline({ report, currentPlayerName }: { report: OverviewReport; currentPlayerName: string }) {
+export function TeamHeadline({
+  report,
+  currentPlayerName,
+  finished,
+}: {
+  report: OverviewReport;
+  currentPlayerName: string;
+  finished: boolean;
+}) {
   const { players, teams, average_return, team_naming, goal_net_worth } = report;
   const measure = rankingMeasure(report);
   const you = players.find((p) => p.player_nickname === currentPlayerName);
@@ -98,11 +106,11 @@ export function TeamHeadline({ report, currentPlayerName }: { report: OverviewRe
                 )}
                 {next && subject.position > 1 && (
                   <>
-                    Faltam{" "}
+                    {finished ? "Ficou" : "Faltam"}{" "}
                     <b className="text-foreground">
                       {displayCriterionGap(measure, subject.leader_gap, goal_net_worth)}
                     </b>{" "}
-                    pra passar a {teamName(next.team, team_naming)} (1ª).{" "}
+                    {finished ? "atrás da" : "pra passar a"} {teamName(next.team, team_naming)} (1ª).{" "}
                   </>
                 )}
                 {mine && you && you.team_contribution !== null && Number(you.team_contribution) !== 0 && (
