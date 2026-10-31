@@ -8,6 +8,8 @@ import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
 import { EdgeTab } from "@/features/tutorial/components/edge-tab";
 import { NewsPresenterProvider } from "@/features/news/context/NewsPresenterProvider";
 import { NewsOverlay } from "@/features/news/components/news-overlay";
+import { PausedRoundResult } from "@/features/government/components/paused-round-result";
+import { useSimulation } from "@/shared/hooks/useSimulation";
 
 interface LayoutProps {
   navItems: NavItem[];
@@ -16,6 +18,7 @@ interface LayoutProps {
 export default function MainLayout({ navItems }: LayoutProps) {
   const activePage = useActivePage();
   const { label: pageLabel } = usePageLabel();
+  const { simulation } = useSimulation();
 
   return (
     <NewsPresenterProvider>
@@ -32,6 +35,7 @@ export default function MainLayout({ navItems }: LayoutProps) {
         </SidebarInset>
         <EdgeTab />
         <NewsOverlay />
+        {simulation?.simulation?.government_enabled && <PausedRoundResult />}
       </SidebarProvider>
     </NewsPresenterProvider>
   );

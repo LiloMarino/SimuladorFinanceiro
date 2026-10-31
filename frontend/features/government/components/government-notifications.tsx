@@ -6,7 +6,7 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import type { ElectionPanel, ElectionRound, GovernmentPanel } from "@/types";
+import type { ElectionPanel, GovernmentPanel } from "@/types";
 import { campaignToast, toastEffect } from "../lib/campaign";
 import { dealAnsweredToast, dealBrokenToast, dealEndedToast } from "../lib/deal-toast";
 import { impeachmentToast, measureVotedToast, monthClosedToast } from "../lib/measure-toast";
@@ -17,7 +17,6 @@ import { useRenewBase } from "../hooks/mutations/useRenewBase";
 import { useDealDialog } from "../hooks/useDealDialog";
 import { DealProposalDialog } from "./deal-proposal-dialog";
 import { ImpeachmentDialog } from "./impeachment-dialog";
-import { RoundResultDialog } from "./round-result-dialog";
 
 // Votos Sim para a casa tirar o presidente
 const IMPEACHMENT_VOTES = 68;
@@ -25,7 +24,7 @@ const IMPEACHMENT_VOTES = 68;
 /**
  * Dono único dos avisos da eleição em tempo real: cada evento renova a página da eleição
  * e a carteira (contribuição e doação saem do caixa) e conta o que aconteceu.
- * O resultado de um turno e o impeachment abrem um diálogo para todos, ao vivo, com a partida pausada.
+ * O impeachment abre um diálogo para todos, ao vivo, com a partida pausada; o do resultado de um turno é o `PausedRoundResult`.
  * A abertura da campanha e o convite de vice são pendências: o diálogo abre pela lista.
  */
 export function GovernmentNotifications() {
@@ -33,8 +32,6 @@ export function GovernmentNotifications() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isToastOn } = useNotificationPreferences();
-  // O painel viaja com o turno: o diálogo mostra as datas e a doação do momento da apuração
-  const [shown, setShown] = useState<{ result: ElectionRound; panel: ElectionPanel } | null>(null);
   const [impeachment, setImpeachment] = useState<GovernmentPanel | null>(null);
   const me = user?.nickname;
 
@@ -65,12 +62,11 @@ export function GovernmentNotifications() {
         }
         break;
       case "ELECTION_RESULT":
-        // O resultado só chega depois de o painel atualizar: o diálogo lê o turno apurado do cache
+        // O resultado só chega depois de o painel atualizar: o aviso lê o turno apurado do cache
         void queryClient.refetchQueries({ queryKey: queryKeys.election() }).then(() => {
           const panel = queryClient.getQueryData<ElectionPanel>(queryKeys.election());
           const last = panel?.last_result;
           if (!panel || !last || last.round !== event.round) return;
-          setShown({ result: last, panel });
           const notice = roundResultToast(panel, last);
           toast[notice.tone](notice.title, { description: notice.description });
         });
@@ -199,15 +195,6 @@ export function GovernmentNotifications() {
     <>
       <DealProposalDialog open={dealDialog.open} onOpenChange={dealDialog.setOpen} />
       <ImpeachmentDialog panel={impeachment} onClose={() => setImpeachment(null)} />
-      <RoundResultDialog
-        result={shown?.result ?? null}
-        panel={shown?.panel}
-        onClose={() => setShown(null)}
-        onOpenPage={() => {
-          setShown(null);
-          void navigate("/election");
-        }}
-      />
     </>
   );
 }
