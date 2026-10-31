@@ -31,7 +31,7 @@ export function CandleChart({ bars, after, box, className }: CandleChartProps) {
   return (
     <svg
       viewBox={`0 0 ${box.width} ${box.height}`}
-      className={cn("block h-auto w-full", className)}
+      className={cn("block h-auto max-h-[calc(100svh-29rem)] min-h-60 w-full", className)}
       role="img"
       aria-label={
         after
