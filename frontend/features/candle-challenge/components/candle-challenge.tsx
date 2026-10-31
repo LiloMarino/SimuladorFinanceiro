@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { CardState } from "@/shared/components/card-state";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useCandleChallenge, useCandleChallengeSync } from "../hooks/queries/useCandleChallenge";
 import { useCandleChallengeNotices } from "../hooks/useCandleChallengeNotices";
@@ -28,7 +30,25 @@ export function CandleChallenge() {
   const answer = useAnswerCandleChallenge();
   const [choice, setChoice] = useState<WindowChoice | null>(null);
 
-  if (!query.data) return null;
+  if (!query.data) {
+    return (
+      <CardState
+        label="Carregando o desafio da vela"
+        error={query.error}
+        onRetry={() => void query.refetch()}
+        errorTitle="Não deu para carregar o desafio"
+      >
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3.5">
+          <Skeleton className="size-11" />
+          <div className="grid gap-1.5">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-3.5 w-full max-w-md" />
+          </div>
+          <Skeleton className="h-9 w-24" />
+        </div>
+      </CardState>
+    );
+  }
   const { state, direction } = query.data;
   const joined = !!findPlayer(state, me);
   const mode = windowMode(choice, state);
