@@ -28,8 +28,8 @@ export function ChallengeHeader({ state, watching, onMinimize, onClose }: Challe
             "Rodada terminada"
           ) : (
             <>
-              Pergunta de {state.total} · 1 ponto por acerto ·{" "}
-              <b className="font-mono text-foreground">{Math.min(state.number, state.total)}</b>
+              Pergunta <b className="font-mono text-foreground">{Math.min(state.number, state.total)}</b> de{" "}
+              {state.total} · 1 ponto por acerto
             </>
           )}
         </span>
