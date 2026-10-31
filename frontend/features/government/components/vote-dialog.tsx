@@ -48,7 +48,8 @@ export function VoteDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col sm:max-w-250">
+      {/* O diálogo abre sem foco em nenhum controle: a tabela começa na primeira coluna e nenhuma dica abre sozinha */}
+      <DialogContent initialFocus={false} className="flex max-h-[calc(100dvh-2rem)] flex-col sm:max-w-250">
         <DialogHeader variant="divided">
           <div className="flex flex-wrap items-center justify-between gap-3 pr-8">
             <DialogTitle>{title}</DialogTitle>
