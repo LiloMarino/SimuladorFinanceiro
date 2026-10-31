@@ -292,6 +292,24 @@ def test_grade_d_blocks_new_credit(engine):
         engine.credit_book.contract(PLAYER, Decimal(100), 12)
 
 
+def test_unpaid_overdue_installment_weighs_on_the_rating_at_any_age(engine):
+    book = engine.credit_book
+    loan = book.contract(PLAYER, Decimal(5000), 12)
+    engine.cash[PLAYER] = Decimal(0)
+    run_until(engine, loan.state.next_due)
+    client = book.client(PLAYER)
+    late_day = loan.overdue[0].due_date
+
+    assert client.recent_late(late_day) == 1
+    # Passada a janela de 12 meses, a parcela que segue vencida continua contando
+    assert client.recent_late(late_day + timedelta(days=800)) == 1
+
+    # Quitada, a parcela sai da conta quando a janela passa
+    engine.add_cash(PLAYER, Decimal(100000))
+    book.pay_overdue(PLAYER, loan.loan_id)
+    assert client.recent_late(late_day + timedelta(days=800)) == 0
+
+
 def test_pay_overdue_charges_fee_and_late_interest(engine):
     book = engine.credit_book
     loan = book.contract(PLAYER, Decimal(5000), 12)

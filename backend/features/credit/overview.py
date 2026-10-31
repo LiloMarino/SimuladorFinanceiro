@@ -42,7 +42,6 @@ from backend.features.credit.price import (
 )
 from backend.features.credit.rating import (
     RatingScore,
-    count_recent_late,
     leverage,
     leverage_points,
     payment_points,
@@ -229,7 +228,7 @@ def _rating(book: CreditBook, client_id: UUID, day: date) -> RatingDTO:
     score = book.score(client_id, day)
     closed = client.rating
     previous = client.previous
-    late = count_recent_late(client.late_dates(), day)
+    late = client.recent_late(day)
     return RatingDTO(
         grade=score.grade,
         points=score.points,
@@ -346,7 +345,7 @@ def build_quote(
 
     # A nota do fim do mês: a alavancagem com o empréstimo, a volatilidade de hoje
     live = book.closing(client_id, add_months(day.replace(day=1), 1))
-    late = count_recent_late(book.client(client_id).late_dates(), day)
+    late = book.client(client_id).recent_late(day)
     projected = RatingScore(
         leverage_points=leverage_points(after),
         volatility_points=volatility_points(live.volatility, live.sample_size),

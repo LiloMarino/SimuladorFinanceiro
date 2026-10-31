@@ -13,7 +13,6 @@ from backend.features.credit.credit_book import ClientCredit, Loan, close_rating
 from backend.features.credit.price import ZERO
 from backend.features.credit.rating import (
     RatingScore,
-    count_recent_late,
     leverage,
     payment_points,
 )
@@ -53,7 +52,7 @@ def credit_standing(
 
     day = last.snapshot_date
     closed = close_rating(history, day)
-    late = count_recent_late(client.late_dates(), day)
+    late = client.recent_late(day)
     score = RatingScore(
         leverage_points=closed.leverage_points,
         volatility_points=closed.volatility_points,

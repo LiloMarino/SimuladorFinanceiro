@@ -71,10 +71,16 @@ def payment_points(late_installments: int) -> Decimal:
     return max(PAYMENT_MAX_POINTS - PAYMENT_PENALTY * late_installments, ZERO)
 
 
-def count_recent_late(late_dates: list[date], today: date) -> int:
-    """Parcelas que atrasaram na janela de 12 meses que termina em `today`."""
+def count_recent_late(
+    late_dates: list[date], open_due_dates: list[date], today: date
+) -> int:
+    """
+    Parcelas que pesam na nota: as que atrasaram na janela de 12 meses que termina em
+    `today` e, de qualquer idade, as que seguem vencidas e sem pagar.
+    """
     start = add_months(today, -LATE_WINDOW_MONTHS)
-    return sum(1 for day in late_dates if start < day <= today)
+    in_window = sum(1 for day in late_dates if start < day <= today)
+    return in_window + sum(1 for due in open_due_dates if due <= start)
 
 
 def score(

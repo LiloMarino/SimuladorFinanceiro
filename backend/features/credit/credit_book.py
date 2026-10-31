@@ -177,6 +177,13 @@ class ClientCredit:
             if e.event_type is CreditEventType.INSTALLMENT_LATE
         ]
 
+    def open_due_dates(self) -> list[date]:
+        """Os vencimentos das parcelas atrasadas que seguem sem pagar."""
+        return [o.due_date for loan in self.loans.values() for o in loan.overdue]
+
+    def recent_late(self, day: date) -> int:
+        return count_recent_late(self.late_dates(), self.open_due_dates(), day)
+
     def apply(self, event: CreditEventDTO) -> None:
         """
         Aplica um evento ao estado: cada parcela (paga ou atrasada) avança o ciclo,
@@ -329,7 +336,7 @@ class CreditBook:
 
     def _score(self, client: ClientCredit, day: date) -> RatingScore:
         closed = client.rating
-        late = count_recent_late(client.late_dates(), day)
+        late = client.recent_late(day)
         return RatingScore(
             leverage_points=closed.leverage_points if closed else leverage_points(ZERO),
             volatility_points=(

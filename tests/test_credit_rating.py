@@ -87,7 +87,18 @@ def test_late_installments_cost_ten_points_each():
 def test_recent_late_window_is_twelve_months():
     today = date(2020, 4, 11)
     late = [date(2019, 4, 11), date(2019, 4, 12), date(2020, 4, 5)]
-    assert count_recent_late(late, today) == 2
+    assert count_recent_late(late, [], today) == 2
+
+
+def test_open_late_installment_counts_at_any_age():
+    today = date(2024, 4, 11)
+    old = date(2020, 4, 11)
+    # Atraso antigo já quitado sai da conta; o que segue vencido pesa sempre
+    assert count_recent_late([old, old], [], today) == 0
+    assert count_recent_late([old, old], [old, old], today) == 2
+    # Atraso aberto dentro da janela é contado uma vez, pelo evento
+    recent = date(2024, 3, 1)
+    assert count_recent_late([recent], [recent], today) == 1
 
 
 def test_payoff_to_next_grade_matches_board():
