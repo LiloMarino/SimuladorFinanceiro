@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { displayPeriod, ordinal, pointsText, verdictText } from "./text";
+import { displayPeriod, finalBand, ordinal, pointsText, verdictText } from "./text";
 
 describe("período da revelação", () => {
   it("escreve o mês quando começa e termina nele", () => {
@@ -26,5 +26,21 @@ describe("textos do placar", () => {
     expect(verdictText("up", "hit")).toBe("Você disse que sobe: acertou.");
     expect(verdictText("down", "miss")).toBe("Você disse que desce: errou.");
     expect(verdictText(undefined, "none")).toBe("Você não respondeu a tempo.");
+  });
+});
+
+describe("faixa do fim da rodada", () => {
+  it("de 0 a 3 acertos avisa que o gráfico é traiçoeiro, sem comemorar", () => {
+    for (const hits of [0, 3]) {
+      expect(finalBand(hits)).toEqual({ title: "Gráfico é traiçoeiro: veja as respostas", celebrate: false });
+    }
+  });
+
+  it("de 4 a 7 acertos fica na média, sem comemorar", () => {
+    for (const hits of [4, 7]) expect(finalBand(hits)).toEqual({ title: "Na média", celebrate: false });
+  });
+
+  it("de 8 a 10 acertos é leitura afiada e só aí comemora", () => {
+    for (const hits of [8, 10]) expect(finalBand(hits)).toEqual({ title: "Leitura afiada", celebrate: true });
   });
 });

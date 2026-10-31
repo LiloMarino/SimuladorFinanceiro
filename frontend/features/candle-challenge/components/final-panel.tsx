@@ -1,4 +1,4 @@
-import { RotateCcw, Trophy } from "lucide-react";
+import { ChartCandlestick, RotateCcw, Trophy } from "lucide-react";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -8,7 +8,7 @@ import { cn } from "@/shared/lib/utils";
 import { displayShortDate } from "@/shared/lib/utils/display";
 import type { CandleChallengeState, ChallengePlayer } from "@/types";
 import { displayList } from "@/shared/lib/utils/display";
-import { ordinal, pointsText } from "../lib/text";
+import { finalBand, ordinal, pointsText } from "../lib/text";
 import { MarkDots } from "./mark-dots";
 
 interface FinalPanelProps {
@@ -38,21 +38,29 @@ export function FinalPanel({ state, me, starting, onBack, onPlayAgain }: FinalPa
 
   if (state.solo) {
     const previous = final.previous_record_on ? `, de ${displayShortDate(final.previous_record_on)}` : "";
+    const band = finalBand(mine?.hits ?? 0);
     return (
       <div className="grid justify-items-center gap-3 px-6 py-10 text-center">
         <span className="text-[11px] font-semibold tracking-wider text-faint-foreground uppercase">
           Fim das {state.total} perguntas · treino
         </span>
-        <span className="grid size-12 place-items-center rounded-full bg-warning-soft text-warning">
-          <Trophy className="size-6" />
+        {/* Só a faixa de leitura afiada comemora */}
+        <span
+          className={cn(
+            "grid size-12 place-items-center rounded-full",
+            band.celebrate ? "bg-warning-soft text-warning" : "bg-muted text-muted-foreground",
+          )}
+        >
+          {band.celebrate ? <Trophy className="size-6" /> : <ChartCandlestick className="size-6" />}
         </span>
-        <b className="text-2xl">
-          {final.new_record
-            ? `Novo recorde: ${final.best_streak} seguidas`
-            : `Melhor sequência: ${final.best_streak} seguidas`}
-        </b>
+        <b className="text-2xl">{band.title}</b>
+        {mine && <MarkDots marks={mine.marks} total={state.total} />}
         <span className="text-[13px] text-muted-foreground">
-          {mine?.hits ?? 0} de {state.total} nesta partida.{" "}
+          {mine?.hits ?? 0} de {state.total} nesta partida ·{" "}
+          {final.new_record
+            ? `novo recorde: ${final.best_streak} seguidas`
+            : `melhor sequência: ${final.best_streak} seguidas`}
+          .{" "}
           {final.previous_record > 0
             ? `O recorde ${final.new_record ? "antigo" : "continua"} ${final.new_record ? "era" : "sendo"} ${final.previous_record} seguidas${previous}.`
             : "É a primeira vez que você joga: esse é o recorde para bater."}

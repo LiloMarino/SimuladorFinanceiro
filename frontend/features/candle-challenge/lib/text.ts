@@ -44,3 +44,12 @@ export function verdictText(direction: ChallengeDirection | undefined, mark: Cha
 export function pointsText(hits: number) {
   return `${hits} ${hits === 1 ? "acerto" : "acertos"}`;
 }
+
+export type FinalBand = { title: string; celebrate: boolean };
+
+/** O recado do fim da rodada solo pela faixa de acertos: 0 a 3, 4 a 7 e 8 ou mais; só a última comemora. */
+export function finalBand(hits: number): FinalBand {
+  if (hits <= 3) return { title: "Gráfico é traiçoeiro: veja as respostas", celebrate: false };
+  if (hits <= 7) return { title: "Na média", celebrate: false };
+  return { title: "Leitura afiada", celebrate: true };
+}
