@@ -3,6 +3,7 @@ import { Clock, X } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
+import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import type { News } from "@/types";
 import { WINDOW_MS } from "../lib/presenter";
 import { NewsKicker, NewsMasthead } from "./news-parts";
@@ -17,6 +18,9 @@ type NewsWindowProps = {
  * A barra esvazia durante os WINDOW_MS em que ela fica aberta.
  */
 export function NewsWindow({ news, onClose }: NewsWindowProps) {
+  const { data: state } = useSimulationState();
+  const paused = state?.speed === 0;
+
   return (
     <Card
       variant="paper"
@@ -43,7 +47,8 @@ export function NewsWindow({ news, onClose }: NewsWindowProps) {
       <div className="flex items-center gap-2.5 px-5.5 pt-3.5 pb-4">
         <div className="grid flex-1 gap-1">
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Clock className="size-3.5" />O tempo continua correndo · fecha sozinha em {WINDOW_MS / 1000} s
+            <Clock className="size-3.5" />
+            {paused ? "Fecha" : "O tempo continua correndo · fecha"} sozinha em {WINDOW_MS / 1000} s
           </span>
           <span className="h-1.5 w-56 overflow-hidden rounded-full bg-muted">
             <span
