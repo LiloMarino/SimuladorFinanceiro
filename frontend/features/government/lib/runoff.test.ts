@@ -4,6 +4,7 @@ import {
   dayAfter,
   firstRoundBefore,
   followTotal,
+  roundByLargestRemainder,
   runoffLeaderId,
   sentTo,
   turnaroundGap,
@@ -151,5 +152,17 @@ describe("turnaroundGap", () => {
     const runoff = round(2, "2022-10-23", [], 2);
     const older = round(1, "2018-10-07", [], null);
     expect(firstRoundBefore([older, first, runoff], runoff)).toBe(first);
+  });
+});
+
+describe("roundByLargestRemainder", () => {
+  it("fecha as partes no total arredondado, dando o ponto que falta à maior fração", () => {
+    expect(roundByLargestRemainder([13.7, 13.7, 13.6])).toEqual([14, 14, 13]);
+    expect(roundByLargestRemainder([20.5, 20.5, 0])).toEqual([21, 20, 0]);
+    expect(roundByLargestRemainder([4.5, 4.5, 3])).toEqual([5, 4, 3]);
+  });
+
+  it("deixa inteiros como estão", () => {
+    expect(roundByLargestRemainder([10, 20, 5])).toEqual([10, 20, 5]);
   });
 });

@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { displayDayMonth, displayPercent } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty, RunoffRace, RunoffTransfer } from "@/types";
 import { TRUST, UNDECIDED } from "../lib/election-metrics";
-import { sentTo } from "../lib/runoff";
+import { roundByLargestRemainder, sentTo } from "../lib/runoff";
 import { GROUP_INFO } from "../lib/voters";
 import { PartyMark } from "./party-mark";
 import { GroupIcon } from "./value-chip";
@@ -89,29 +89,36 @@ function TransferCard({ panel, race, transfer, finalists }: TransferCardProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {transfer.groups.map((group) => (
-              <TableRow key={group.group}>
-                <TableCell>
-                  <span className="flex items-center gap-2.5">
-                    <GroupIcon group={group.group} className="size-7" />
-                    <span className="grid gap-px">
-                      <b className="text-[13px] font-semibold">{GROUP_INFO[group.group].label}</b>
-                      <span className="text-xs text-muted-foreground">
-                        {displayPercent(weights.get(group.group) ?? 0, 0)} do eleitorado
+            {transfer.groups.map((group) => {
+              // As partes de cada linha somam o "N de 100" mostrado
+              const [undecided, ...sent] = roundByLargestRemainder([
+                Number(group.undecided_now),
+                ...finalists.map((finalist) => sentTo(group, finalist.id)),
+              ]);
+              return (
+                <TableRow key={group.group}>
+                  <TableCell>
+                    <span className="flex items-center gap-2.5">
+                      <GroupIcon group={group.group} className="size-7" />
+                      <span className="grid gap-px">
+                        <b className="text-[13px] font-semibold">{GROUP_INFO[group.group].label}</b>
+                        <span className="text-xs text-muted-foreground">
+                          {displayPercent(weights.get(group.group) ?? 0, 0)} do eleitorado
+                        </span>
                       </span>
                     </span>
-                  </span>
-                </TableCell>
-                <TableCell numeric>{Math.round(Number(group.voted))} de 100</TableCell>
-                {finalists.map((finalist) => (
-                  <TableCell key={finalist.id} numeric>
-                    {Math.round(sentTo(group, finalist.id))}
                   </TableCell>
-                ))}
-                <TableCell numeric>{Math.round(Number(group.undecided_now))}</TableCell>
-                <TableCell numeric>{displayPercent(group.trust, 0)}</TableCell>
-              </TableRow>
-            ))}
+                  <TableCell numeric>{Math.round(Number(group.voted))} de 100</TableCell>
+                  {finalists.map((finalist, index) => (
+                    <TableCell key={finalist.id} numeric>
+                      {sent[index]}
+                    </TableCell>
+                  ))}
+                  <TableCell numeric>{undecided}</TableCell>
+                  <TableCell numeric>{displayPercent(group.trust, 0)}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>

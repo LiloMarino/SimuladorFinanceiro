@@ -23,6 +23,17 @@ export function sentTo(group: RunoffTransfer["groups"][number], finalistId: numb
   return Number(group.sent.find((entry) => entry.party_id === finalistId)?.points ?? 0);
 }
 
+/** Arredonda as partes para inteiros que somam o total arredondado delas: o ponto que falta vai a quem tem a maior fração. */
+export function roundByLargestRemainder(values: number[]) {
+  const floors = values.map(Math.floor);
+  const missing = Math.round(values.reduce((sum, value) => sum + value, 0)) - floors.reduce((sum, v) => sum + v, 0);
+  const byFraction = values
+    .map((value, index) => ({ index, fraction: value - Math.floor(value) }))
+    .sort((a, b) => b.fraction - a.fraction || a.index - b.index);
+  byFraction.slice(0, Math.max(missing, 0)).forEach(({ index }) => (floors[index] = (floors[index] ?? 0) + 1));
+  return floors;
+}
+
 /** Os indecisos que a declaração leva ao finalista apoiado, somados pelo peso de cada grupo (em pontos do eleitorado). */
 export function followTotal(transfer: RunoffTransfer, weights: Map<string, string>) {
   return transfer.groups.reduce(
