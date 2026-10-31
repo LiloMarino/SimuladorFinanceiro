@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-31):** Fechados para a versão 3.3 o partido desde o 1º dia, a preparação salva no perfil, o x100, a SELIC nas mãos do governo, o mapa por região e a tela do Tesouro; registrada a conferência visual de tudo o que mudou desde a 3.0.
+> **Última mudança (2026-10-31):** Concluída a conferência visual; cadastrados o retrato das telas no canvas e as rodadas de redesenho das regras visuais, da Eleição e do Como jogar.
 
 ## Glossário
 
@@ -32,7 +32,7 @@
 | **N12** | Continuar jogando depois do último dia com dado real | — | — | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — | — | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F120](#f120), [F160](#f160), [F162](#f162), [F166](#f166), [F178](#f178) | — | — | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F120](#f120), [F160](#f160), [F162](#f162), [F166](#f166), [F178](#f178), [F180](#f180) | — | — | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — | — | — |
@@ -103,11 +103,14 @@
 | [**F175**](#f175) | Federações partidárias | — | Alto | Bom | ⏳ |
 | [**F176**](#f176) | Cadeiras do Congresso por região | — | Médio | Médio | 💤 |
 | [**F177**](#f177) | Marcação a mercado do Tesouro | — | Médio | Bom | 💤 |
-| [**F178**](#f178) | Conferência visual de tudo o que mudou desde a 3.0 | — | Alto | Excelente | ⏳ |
 | [**F179**](#f179) | Topbar que cabe com a corrida e o governo | — | — | — | 🔍 |
+| [**F180**](#f180) | Retrato no canvas das telas que mudaram desde a 3.0 | — | Alto | Bom | ⏳ |
+| [**F181**](#f181) | Regras visuais do conjunto: texto, tabelas, grade e eixos | — | — | — | 🔍 |
+| [**F182**](#f182) | Eleição redesenhada como um conjunto | — | — | — | 🔍 |
+| [**F183**](#f183) | Como jogar sem cobrir a tela | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (39 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (40 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -150,6 +153,7 @@
 | [**F168**](#f168) | Desafio da vela no lobby | — | Alto | Bom | ✅ |
 | [**F171**](#f171) | Ordens de abertura na preparação do lobby | — | — | — | 🚫 |
 | [**F172**](#f172) | Meta pessoal na preparação do lobby | — | — | — | 🚫 |
+| [**F178**](#f178) | Conferência visual de tudo o que mudou desde a 3.0 | — | Alto | Excelente | ✅ |
 
 </details>
 
@@ -161,6 +165,7 @@
 
 | ID | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- |
+| [**F180**](#f180) | Retrato no canvas das telas que mudaram desde a 3.0 | — | 4 | Alto | Bom | ⏳ |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | — | — | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | Alto | Bom | ⏳ |
 | [**F173**](#f173) | Partido desde o 1º dia | — | 2 | Médio | Bom | ⏳ |
@@ -179,8 +184,6 @@
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | Baixo | Bom | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | Médio | Excelente | ⏳ |
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | — | — | 🔍 |
-| [**F178**](#f178) | Conferência visual de tudo o que mudou desde a 3.0 | — | 0 | Alto | Excelente | ⏳ |
-| [**F179**](#f179) | Topbar que cabe com a corrida e o governo | — | 0 | — | — | 🔍 |
 
 ---
 
@@ -365,7 +368,7 @@
 
 ### Sem marco
 
-> **Progresso:** 5/29 concluídas
+> **Progresso:** 6/33 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -391,10 +394,13 @@
 | [**F175**](#f175) | Federações partidárias | [F173](#f173) | ⏳ |
 | [**F176**](#f176) | Cadeiras do Congresso por região | [F164](#f164) | 💤 |
 | [**F177**](#f177) | Marcação a mercado do Tesouro | [F165](#f165) | 💤 |
-| [**F178**](#f178) | Conferência visual de tudo o que mudou desde a 3.0 | — | ⏳ |
-| [**F179**](#f179) | Topbar que cabe com a corrida e o governo | — | 🔍 |
+| [**F179**](#f179) | Topbar que cabe com a corrida e o governo | [F180](#f180) | 🔍 |
+| [**F180**](#f180) | Retrato no canvas das telas que mudaram desde a 3.0 | — | ⏳ |
+| [**F181**](#f181) | Regras visuais do conjunto: texto, tabelas, grade e eixos | [F180](#f180) | 🔍 |
+| [**F182**](#f182) | Eleição redesenhada como um conjunto | [F180](#f180) | 🔍 |
+| [**F183**](#f183) | Como jogar sem cobrir a tela | [F180](#f180) | 🔍 |
 
-<details><summary>Concluído (5 itens)</summary>
+<details><summary>Concluído (6 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -403,6 +409,7 @@
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | ✅ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
 | [**F168**](#f168) | Desafio da vela no lobby | — | ✅ |
+| [**F178**](#f178) | Conferência visual de tudo o que mudou desde a 3.0 | — | ✅ |
 
 </details>
 
@@ -456,8 +463,9 @@
 | **F165** | Tela do Tesouro: títulos pelo risco do governo | N34 | — | — | [F128](#f128) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F176** | Cadeiras do Congresso por região | N34 | D19 | — | [F164](#f164) | Médio | Médio | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F177** | Marcação a mercado do Tesouro | N34 | — | — | [F165](#f165) | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
-| **F178** | Conferência visual de tudo o que mudou desde a 3.0 | N15 | — | — | — | Alto | Baixo | Alto | Excelente | ⏳ Pendente |
+| **F178** | Conferência visual de tudo o que mudou desde a 3.0 | N15 | — | — | — | Alto | Baixo | Alto | Excelente | ✅ Concluído |
 | **F175** | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom | ⏳ Pendente |
+| **F180** | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | — | — | Alto | Baixo | Alto | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -636,8 +644,47 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 
 **Aceite:** toda tela do roteiro, em 1366×768, sem rolagem horizontal nem elemento passando da borda, e sem texto abaixo de 12 px.
 
+**Entregue:**
+- o roteiro de 199 linhas de tela × estado;
+- a passada em 1366 e 1920 no banco de teste, com a lista de achados por tela e as capturas;
+- uma passada complementar dos estados de carregando, erro e vazio.
+
+Os consertos pequenos saíram como `fix:`, um por conserto:
+- o enum do 2º turno;
+- o crescimento do PIB;
+- 22 consertos de tela;
+- 11 decisões de jogo e de texto.
+
+O que pede outro desenho ganhou card próprio:
+- o retrato no canvas (F180);
+- as regras visuais do conjunto (F181), que herdam o aceite desta;
+- a Eleição (F182);
+- o Como jogar (F183);
+- a topbar (F179);
+- a preparação do lobby (F174).
+
 <a id="f175"></a>
 **F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), inclusive ao partido do computador; a proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173). (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato, fica preso pelo mandato e herda, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** a federação aparece no cartão dos partidos da Eleição, no hemiciclo do Congresso e no jornal (formada, desfeita); o desenho começa registrando as telas e os estados no canvas: proposta pendente, federação formada, federação desfeita antes do prazo e expansão desligada.
+
+<a id="f180"></a>
+**F180 — Retrato no canvas das telas que mudaram desde a 3.0.** Serve N15. Da 3.1 à 3.3, cada tela foi desenhada sozinha no canvas e implementada sem conferência na tela. Juntas, elas quebram a topbar, fazem tabelas rolarem de lado e desalinham cartões (conferência visual, F178). Os boards do governo e da eleição mostram o desenho aprovado de cada feature isolada, não o app de hoje. Esta feature põe no canvas o app como ele está, para as rodadas de redesenho (F179, F181, F182, F183) comentarem sobre o conjunto e para comparar o que foi aprovado com o que foi implementado.
+
+(1) **Limpeza.** As linhas das features implementadas até a 3.0 vão para uma página nova do Arquivo, mudando só a página do board. Ficam no canvas:
+- as linhas das features ainda não implementadas, inclusive as variantes à espera de escolha;
+- as linhas do governo e da eleição, até o retrato substituí-las;
+- um board de identidade visual, de onde a skill `design-canvas` copia o `<helmet>` (fonte, cores e classes) para os boards novos.
+
+(2) **Retrato.** Uma captura em 1366×768 de cada tela e estado que mudou desde a 3.0, seguindo o roteiro da conferência visual (199 linhas de tela × estado). As capturas são tiradas depois dos consertos do hotfix, no banco de teste, com o governo e a corrida ligados. Cada captura vira um board de imagem do lado do antes, com uma linha por área: lobby, mercado e carteira, crédito, estatísticas, eleição, governo, jornal, Como jogar e configurações. É imagem, e não réplica em HTML: a réplica seria uma terceira versão da tela, cara de fazer e com as próprias divergências.
+
+(3) **Post-its.**
+- Ao lado da captura, os achados da conferência que ficaram para o canvas.
+- Onde a tela difere do board aprovado da feature, o post-it "implementado diferente do aprovado", com a diferença. A comparação é texto contra texto: a spec do board (`extract_spec.py`) contra a árvore da tela no devtools, por um Haiku por área, com a captura para o layout.
+
+(4) **Notas.** O canvas comporta 200 notas, e a limpeza libera as das linhas arquivadas.
+
+**Como roda:** sessão Sonnet, sem decisão de design: o que pede escolha vira post-it para as rodadas de redesenho. Pede, na mesma sessão, o app rodando com o `chrome-devtools` e escrita no canvas original. Sem escrita no original, a sessão para e avisa.
+
+**Aceite:** toda tela do roteiro que mudou desde a 3.0 tem captura no canvas, e o canvas fica com até 185 notas.
 
 ---
 ## 2. Nice-to-have
@@ -695,7 +742,10 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 | **F131** | Catálogo de padrões de vela | Serve N19; tópico do Como jogar com cada padrão animado | M11 | — | 🔍 Em avaliação |
 | **F158** | Animações do Como jogar revistas | Serve N25; falta o visual numa rodada no canvas | M14 | — | 🔍 Em avaliação |
 | **F174** | Preparação do lobby redesenhada | Serve N39 e N34; retrabalho da F143; falta a rodada no canvas | — | — | 🔍 Em avaliação |
-| **F179** | Topbar que cabe com a corrida e o governo | Serve N15; falta escolher o desenho no canvas | — | — | 🔍 Em avaliação |
+| **F179** | Topbar que cabe com a corrida e o governo | Serve N15; falta escolher o desenho no canvas | — | [F180](#f180) | 🔍 Em avaliação |
+| **F181** | Regras visuais do conjunto: texto, tabelas, grade e eixos | Serve N15; falta a rodada no canvas sobre os retratos | — | [F180](#f180) | 🔍 Em avaliação |
+| **F182** | Eleição redesenhada como um conjunto | Serve N15 e N34; falta a rodada no canvas sobre os retratos | — | [F180](#f180) | 🔍 Em avaliação |
+| **F183** | Como jogar sem cobrir a tela | Serve N15 e N25; falta a rodada no canvas sobre os retratos | — | [F180](#f180) | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -745,3 +795,49 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 
 <a id="f179"></a>
 **F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: o selo de pausa leva o motivo inteiro ("Pausado: resultado do 1º turno"), depois vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Falta escolher o desenho no canvas, comparando: (a) a velocidade num botão só ("10×") que abre as opções; (b) o selo só com "Pausado" e o motivo numa dica ou na faixa abaixo da topbar, onde já mora o aviso do presidente; (c) a corrida e o governo como selos compactos, com o detalhe ao passar o mouse; (d) a topbar em duas linhas abaixo de uma largura. O pior caso é o estado de referência: 1366 px, corrida e governo ligados, pausa com o motivo mais longo e o x100 destacado. Sai daqui para Pendente com a variante escolhida.
+
+<a id="f181"></a>
+**F181 — Regras visuais do conjunto: texto, tabelas, grade e eixos.** Serve N15. A conferência visual (F178) achou problemas que se repetem pelo app inteiro:
+- 125 usos de texto abaixo de 12 px;
+- rótulos com contraste de 3,4 a 3,6:1, abaixo dos 4,5:1 que a recomendação de acessibilidade (WCAG AA) pede para texto comum;
+- tabelas que rolam de lado dentro do cartão: Renda fixa, Contas, votação, Comparar, Central de dados e Rentabilidade;
+- página sem largura máxima em 1920;
+- cartões do mesmo nível com alturas diferentes: Crédito, Carteira, Estatísticas e Comparar;
+- vazios grandes ao lado de colunas altas: Governo neutro, Eleição, Configurações e Detalhe da renda variável;
+- eixos de gráfico com rótulos repetidos ou arredondados com erro: Economia, dívida e prêmio, Mandato.
+
+São regras, desenhadas uma vez e aplicadas em todo lugar. Uma rodada no canvas, sobre os retratos da F180, decide:
+- a escala de texto e a cor dos rótulos no design system;
+- o que a tabela larga faz em 1366: esconder colunas, virar cartão por linha ou fixar a primeira coluna;
+- a largura máxima da página;
+- a regra de altura dos cartões irmãos e o que preenche o vazio;
+- o formato dos eixos.
+
+Cada regra aparece num antes e depois de uma tela real. A implementação aplica as regras nos componentes do design system, como variantes e tokens, e nas telas listadas.
+
+**Como roda:** rodada de design em Opus, com o usuário, numa sessão. Se não couber numa sessão, divide-se em cards. A implementação é Sonnet.
+
+**Aceite:** as telas do roteiro da conferência, em 1366×768, sem rolagem lateral, sem elemento passando da borda e sem texto abaixo de 12 px.
+
+<a id="f182"></a>
+**F182 — Eleição redesenhada como um conjunto.** Serve N15 e N34. A página da Eleição empilha telas de features desenhadas separadamente (F107, F130, F151, F152). Na conferência visual:
+- o Ranking sobrepõe outro cartão;
+- o "Partidos na disputa" sobra sozinho na linha;
+- o radar sai do painel;
+- entre os turnos, três faixas se empilham;
+- no "Partidos na disputa" em três colunas:
+  - o selo "Computador" passa da borda;
+  - o nome do partido corta;
+  - as promessas passam da largura;
+  - os rótulos do radar cortam;
+  - o radar muda de tamanho entre cartões;
+  - a legenda mostra "Na fundação" mesmo quando o perfil não mudou.
+
+Uma rodada no canvas, sobre os retratos da Eleição (F180), redesenha a página como um conjunto, em três momentos: na campanha, entre os turnos e no resultado.
+
+**Como roda:** rodada de design em Opus, com o usuário, numa sessão. A implementação é Sonnet.
+
+<a id="f183"></a>
+**F183 — Como jogar sem cobrir a tela.** Serve N15 e N25. A aba "Como jogar" sobrepõe os cantos dos cartões em várias telas, e o balão "Tópico sobre esta tela" cobre a boleta e campos de formulário. Uma rodada no canvas, sobre os retratos (F180), decide onde a aba e o balão moram. Algumas saídas possíveis: dentro da topbar, junto da F179; um canto que nenhuma tela usa; o balão só ao passar o mouse.
+
+**Como roda:** rodada de design em Opus, com o usuário, que pode ir junto da F179 se a aba for para a topbar. A implementação é Sonnet.
