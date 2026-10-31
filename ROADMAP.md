@@ -51,7 +51,7 @@
 | **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92), [F161](#f161) | — | — | — |
 | **N32** | Saber como foi o mês sem montar a conta | [F161](#f161) | — | — | — |
 | **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111) | — | — | — |
-| **N34** | Disputar o poder de mudar as regras da economia da partida | [F97](#f97), [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F143](#f143), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154), [F163](#f163), [F164](#f164), [F165](#f165), [F169](#f169), [F173](#f173), [F176](#f176), [F177](#f177) | — | — | — |
+| **N34** | Disputar o poder de mudar as regras da economia da partida | [F97](#f97), [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F143](#f143), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154), [F163](#f163), [F164](#f164), [F165](#f165), [F169](#f169), [F173](#f173), [F175](#f175), [F176](#f176), [F177](#f177) | — | — | — |
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — | — | — |
 | **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — |
 | **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F127](#f127) | — | — | — |
@@ -100,7 +100,7 @@
 | [**F170**](#f170) | Parâmetros das estratégias salvos no perfil | — | Médio | Excelente | ⏳ |
 | [**F173**](#f173) | Partido desde o 1º dia | — | Médio | Bom | ⏳ |
 | [**F174**](#f174) | Preparação do lobby redesenhada | — | — | — | 🔍 |
-| [**F175**](#f175) | Federações partidárias | — | — | — | 🔍 |
+| [**F175**](#f175) | Federações partidárias | — | Alto | Bom | ⏳ |
 | [**F176**](#f176) | Cadeiras do Congresso por região | — | Médio | Médio | 💤 |
 | [**F177**](#f177) | Marcação a mercado do Tesouro | — | Médio | Bom | 💤 |
 | [**F178**](#f178) | Conferência visual de tudo o que mudou desde a 3.0 | — | Alto | Excelente | ⏳ |
@@ -128,7 +128,7 @@
 | **D16** | Estratégias do app no host, personalização pela API | — | — | — | ✅ |
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | — | — | — | ✅ |
 | **D18** | Uma migration por versão; caminho antigo só cai numa major | — | — | — | ✅ |
-| **D19** | O eleitorado são grupos, cada um com apoio e rejeição por partido | [F97](#f97), [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F143](#f143), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154), [F164](#f164), [F173](#f173), [F176](#f176) | — | — | ✅ |
+| **D19** | O eleitorado são grupos, cada um com apoio e rejeição por partido | [F97](#f97), [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F143](#f143), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154), [F164](#f164), [F173](#f173), [F175](#f175), [F176](#f176) | — | — | ✅ |
 | [**F92**](#f92) | Noticiário da partida | — | Médio | Bom | ✅ |
 | [**F106**](#f106) | Governo & Política: medidas de gasto público | — | Alto | Bom | ✅ |
 | [**F107**](#f107) | Grupos de eleitores, com apoio e rejeição por partido | — | Alto | Bom | ✅ |
@@ -163,10 +163,10 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | — | — | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | Alto | Bom | ⏳ |
+| [**F173**](#f173) | Partido desde o 1º dia | — | 2 | Médio | Bom | ⏳ |
 | [**F174**](#f174) | Preparação do lobby redesenhada | — | 2 | — | — | 🔍 |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 1 | Médio | Bom | ⏳ |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 1 | Médio | Bom | ⏳ |
-| [**F173**](#f173) | Partido desde o 1º dia | — | 1 | Médio | Bom | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | — | — | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | — | — | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | Baixo | Bom | ⏳ |
@@ -179,7 +179,6 @@
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | Baixo | Bom | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | Médio | Excelente | ⏳ |
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | — | — | 🔍 |
-| [**F175**](#f175) | Federações partidárias | — | 0 | — | — | 🔍 |
 | [**F178**](#f178) | Conferência visual de tudo o que mudou desde a 3.0 | — | 0 | Alto | Excelente | ⏳ |
 | [**F179**](#f179) | Topbar que cabe com a corrida e o governo | — | 0 | — | — | 🔍 |
 
@@ -389,7 +388,7 @@
 | [**F170**](#f170) | Parâmetros das estratégias salvos no perfil | [F174](#f174) | ⏳ |
 | [**F173**](#f173) | Partido desde o 1º dia | — | ⏳ |
 | [**F174**](#f174) | Preparação do lobby redesenhada | — | 🔍 |
-| [**F175**](#f175) | Federações partidárias | — | 🔍 |
+| [**F175**](#f175) | Federações partidárias | [F173](#f173) | ⏳ |
 | [**F176**](#f176) | Cadeiras do Congresso por região | [F164](#f164) | 💤 |
 | [**F177**](#f177) | Marcação a mercado do Tesouro | [F165](#f165) | 💤 |
 | [**F178**](#f178) | Conferência visual de tudo o que mudou desde a 3.0 | — | ⏳ |
@@ -458,6 +457,7 @@
 | **F176** | Cadeiras do Congresso por região | N34 | D19 | — | [F164](#f164) | Médio | Médio | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F177** | Marcação a mercado do Tesouro | N34 | — | — | [F165](#f165) | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F178** | Conferência visual de tudo o que mudou desde a 3.0 | N15 | — | — | — | Alto | Baixo | Alto | Excelente | ⏳ Pendente |
+| **F175** | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -636,6 +636,9 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 
 **Aceite:** toda tela do roteiro, em 1366×768, sem rolagem horizontal nem elemento passando da borda, e sem texto abaixo de 12 px.
 
+<a id="f175"></a>
+**F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), inclusive ao partido do computador; a proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173). (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato, fica preso pelo mandato e herda, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** a federação aparece no cartão dos partidos da Eleição, no hemiciclo do Congresso e no jornal (formada, desfeita); o desenho começa registrando as telas e os estados no canvas: proposta pendente, federação formada, federação desfeita antes do prazo e expansão desligada.
+
 ---
 ## 2. Nice-to-have
 
@@ -692,7 +695,6 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 | **F131** | Catálogo de padrões de vela | Serve N19; tópico do Como jogar com cada padrão animado | M11 | — | 🔍 Em avaliação |
 | **F158** | Animações do Como jogar revistas | Serve N25; falta o visual numa rodada no canvas | M14 | — | 🔍 Em avaliação |
 | **F174** | Preparação do lobby redesenhada | Serve N39 e N34; retrabalho da F143; falta a rodada no canvas | — | — | 🔍 Em avaliação |
-| **F175** | Federações partidárias | Serve N34; falta quando se forma e como a bancada federada decide | — | — | 🔍 Em avaliação |
 | **F179** | Topbar que cabe com a corrida e o governo | Serve N15; falta escolher o desenho no canvas | — | — | 🔍 Em avaliação |
 
 <a id="f5"></a>
@@ -740,9 +742,6 @@ Decidido no canvas em 30/out: a tela é a variante B, uma janela de atividade po
 
 <a id="f174"></a>
 **F174 — Preparação do lobby redesenhada.** Serve N39 e N34; retrabalho da F143. O card "Minha preparação" ficou ruim na tela, e a preparação vai crescer (partido, parâmetros das estratégias, gestora), o que um card no lobby não comporta. A preparação existe para tirar do jogador o que ele refaz igual a cada partida. Falta escolher o desenho numa rodada no canvas, com três variantes: (a) um botão "Minha preparação" no lobby que abre um dialog largo com abas (Partido, Estratégias e, com a expansão, Gestora), no molde do Como jogar e do gerador de futuro; (b) um botão fixo no canto, como o do Como jogar dentro da partida; (c) uma **visão geral dos partidos à vista no lobby**, para todos: sigla, cor, filiados, chapa e vice de outro partido, que é onde a sala negocia quem entra com quem. A rodada cobre os estados expansão desligada, partida salva selecionada (travado), conflito de sigla ou cor e convite de vice pendente. Sai daqui para Pendente com a variante escolhida.
-
-<a id="f175"></a>
-**F175 — Federações partidárias.** Serve N34. Desde 2021 dois ou mais partidos podem se federar por 4 anos e atuar como um partido só no Congresso. No jogo seria a coalizão de verdade: dois partidos de jogadores somam as bancadas e passam a ter força para aprovar ou barrar medidas, mas ficam presos um ao outro pelo mandato inteiro, mesmo quando um dos dois governa mal. Falta definir: quando a federação se forma (antes da eleição, para valer nas cadeiras, ou depois), como a bancada federada decide a orientação quando os líderes discordam, se a federação lança uma chapa só para presidente e o que acontece com a rejeição de um partido que traiu um grupo (contamina o outro?).
 
 <a id="f179"></a>
 **F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: o selo de pausa leva o motivo inteiro ("Pausado: resultado do 1º turno"), depois vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Falta escolher o desenho no canvas, comparando: (a) a velocidade num botão só ("10×") que abre as opções; (b) o selo só com "Pausado" e o motivo numa dica ou na faixa abaixo da topbar, onde já mora o aviso do presidente; (c) a corrida e o governo como selos compactos, com o detalhe ao passar o mouse; (d) a topbar em duas linhas abaixo de uma largura. O pior caso é o estado de referência: 1366 px, corrida e governo ligados, pausa com o motivo mais longo e o x100 destacado. Sai daqui para Pendente com a variante escolhida.
