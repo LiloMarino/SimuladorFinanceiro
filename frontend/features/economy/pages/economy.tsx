@@ -23,7 +23,6 @@ export default function EconomyPage() {
         error={error}
         onRetry={() => void refetch()}
         errorTitle="Não deu para carregar a economia"
-        errorDescription="A conexão com a partida caiu. A SELIC e a inflação seguem valendo na partida."
       >
         <Skeleton className="h-28" />
         <Skeleton className="h-96" />

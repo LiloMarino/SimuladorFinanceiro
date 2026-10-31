@@ -13,7 +13,8 @@ type CardStateProps = {
   error: ApiError | null | undefined;
   onRetry: () => void;
   errorTitle: string;
-  errorDescription: string;
+  /** Sem texto próprio, vale a mensagem do erro da API */
+  errorDescription?: string;
   /** Sem cartão em volta no carregamento: o esqueleto traz o próprio formato (a tela inteira) */
   bare?: boolean;
   /** O formato do cartão carregado, em esqueleto */
@@ -40,7 +41,7 @@ export function CardState({
             <Alert variant="destructive">
               <TriangleAlert />
               <AlertTitle>{errorTitle}</AlertTitle>
-              <AlertDescription>{errorDescription}</AlertDescription>
+              <AlertDescription>{errorDescription ?? error.message}</AlertDescription>
               <AlertAction>
                 <Button size="xs" variant="outline" onClick={onRetry}>
                   <RefreshCw />

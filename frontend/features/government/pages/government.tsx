@@ -30,7 +30,6 @@ export default function GovernmentPage() {
         error={error}
         onRetry={() => void refetch()}
         errorTitle="Não deu para carregar o governo"
-        errorDescription="A conexão com a partida caiu. Impostos, medidas e votos seguem valendo; nada mudou fora da data."
       >
         <Skeleton className="h-24" />
         <div className="grid gap-5 xl:grid-cols-2">

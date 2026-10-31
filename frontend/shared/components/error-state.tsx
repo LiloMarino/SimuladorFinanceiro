@@ -12,7 +12,8 @@ import type ApiError from "@/shared/lib/models/ApiError";
 
 interface ErrorStateProps {
   title: string;
-  description: string;
+  /** Sem texto próprio, vale a mensagem do erro da API */
+  description?: string;
   error?: ApiError | null | undefined;
   onRetry?: (() => void) | undefined;
   children?: React.ReactNode;
@@ -27,7 +28,7 @@ export function ErrorState({ title, description, error, onRetry, children }: Err
           <CircleAlert />
         </EmptyMedia>
         <EmptyTitle>{title}</EmptyTitle>
-        <EmptyDescription>{description}</EmptyDescription>
+        <EmptyDescription>{description ?? error?.message}</EmptyDescription>
         {error && <p className="font-mono text-[11px] text-faint-foreground">{error.statusLine}</p>}
       </EmptyHeader>
       {(onRetry || children) && (

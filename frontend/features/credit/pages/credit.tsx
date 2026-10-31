@@ -26,12 +26,7 @@ export default function CreditPage() {
     return error ? (
       <Card>
         <CardContent>
-          <ErrorState
-            title="Não deu para carregar o crédito"
-            description="A conexão com a partida caiu. Empréstimos e parcelas seguem valendo; nada foi debitado fora da data."
-            error={error}
-            onRetry={() => void refetch()}
-          />
+          <ErrorState title="Não deu para carregar o crédito" error={error} onRetry={() => void refetch()} />
         </CardContent>
       </Card>
     ) : (

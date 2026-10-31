@@ -57,7 +57,6 @@ export default function ElectionPage() {
         error={error}
         onRetry={() => void refetch()}
         errorTitle="Não deu para carregar a eleição"
-        errorDescription="A conexão com a partida caiu. Partidos, contribuições e votos seguem valendo; nada mudou fora da data."
       >
         <Skeleton className="h-44" />
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
