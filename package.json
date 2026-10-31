@@ -11,7 +11,7 @@
     "lint:fix": "uv run ruff check --fix",
     "format": "uv run ruff format && pnpm --dir frontend run format",
     "typecheck": "uv run pyright",
-    "test": "uv run pytest",
+    "test": "uv run pytest -n 4",
     "db:revision": "uv run alembic revision --autogenerate -m",
     "db:erd": "uv run python -m scripts.erd",
     "db:changelog": "uv run python -m scripts.changelog_page",
