@@ -58,57 +58,57 @@
 | **N38** | — | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — | — | — | — |
 | **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F169](#f169), [F170](#f170), [F173](#f173), [F174](#f174) | — | — | — |
 | **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F157](#f157) | — | — | — |
-| [**F5**](#f5) | spike | Spike: provider de túnel pela internet | — | — | — | — | 🔍 |
-| [**F6**](#f6) | feature | Link de convite pela internet no lobby | — | — | Médio | Bom | ⏳ |
-| [**F14**](#f14) | feature | Janela desktop nativa | — | — | Baixo | Bom | 💤 |
-| [**F22**](#f22) | feature | Preço ajustado e proventos | — | — | Alto | Bom | ⏳ |
-| [**F28**](#f28) | feature | Muitos futuros (Monte Carlo) | — | — | — | — | 🔍 |
-| [**F34**](#f34) | feature | Gráfico de ações em tela cheia, com ferramentas de trader | — | — | — | — | 🔍 |
-| [**F37**](#f37) | feature | Tema escuro | — | — | Médio | Médio | 💤 |
-| [**F44**](#f44) | feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.0 | — | — | — | 🔍 |
-| [**F55**](#f55) | feature | Modo aquisição hostil | M18 · 4.0 | — | — | — | 🔍 |
-| [**F56**](#f56) | feature | Novidades no app | — | — | Baixo | Bom | ⏳ |
-| [**F60**](#f60) | feature | Modo servidor dedicado (--headless) | — | — | Baixo | Bom | 💤 |
-| [**F69**](#f69) | feature | Imprevistos configuráveis e tipos novos | — | — | Médio | Bom | 💤 |
-| [**F72**](#f72) | manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | — | — | Médio | Bom | 💤 |
-| [**F81**](#f81) | manutenção | CORS restrito à mesma origem | — | — | Baixo | Médio | 💤 |
-| [**F90**](#f90) | feature | Cenários | — | — | — | — | 🔍 |
-| [**F93**](#f93) | feature | Rumores antecipados | — | — | — | — | 🔍 |
-| [**F97**](#f97) | feature | SELIC nas mãos do governo | M21 · 3.4 | — | Alto | Bom | ⏳ |
-| [**F100**](#f100) | feature | Proventos na carteira e nas telas | — | — | Médio | Bom | ⏳ |
-| [**F101**](#f101) | feature | Carteira separada do jogador | M18 · 4.0 | — | Alto | Médio | 💤 |
-| [**F102**](#f102) | feature | Gestoras: emissão de novas cotas e recompra | M18 · 4.0 | — | — | — | 🔍 |
-| [**F103**](#f103) | feature | Gestoras: troca de gestor pela assembleia | M18 · 4.0 | — | — | — | 🔍 |
-| [**F104**](#f104) | feature | Gestoras: co-gestores | M18 · 4.0 | — | — | — | 🔍 |
-| [**F105**](#f105) | feature | Gestoras: rendimentos mensais | M18 · 4.0 | — | — | — | 🔍 |
-| [**F110**](#f110) | feature | Combinar estratégias | — | — | Médio | Bom | 💤 |
-| [**F111**](#f111) | feature | Crédito para estratégias e bots | — | — | Baixo | Bom | 💤 |
-| [**F123**](#f123) | melhoria | Redesenhar o aviso de conquista desbloqueada | — | — | — | — | 🔍 |
-| [**F131**](#f131) | feature | Catálogo de padrões de vela | — | — | — | — | 🔍 |
-| [**F132**](#f132) | feature | Tópicos de "como se joga" do Como jogar | — | — | Médio | Bom | ⏳ |
-| [**F133**](#f133) | feature | Tópicos de conceitos do Como jogar | — | — | Baixo | Bom | ⏳ |
-| [**F139**](#f139) | docs | Demonstração regravada com o jogo de hoje | — | — | Médio | Bom | ⏳ |
-| [**F140**](#f140) | docs | Docs reorganizada por tipo de leitor | — | — | Alto | Bom | ⏳ |
-| [**F141**](#f141) | docs | README com as features de hoje | — | — | Baixo | Excelente | ⏳ |
-| [**F157**](#f157) | correção | Velocidade x100 que quase não acelera | M20 · 3.3 | — | Médio | Excelente | ⏳ |
-| [**F158**](#f158) | melhoria | Animações do Como jogar revistas | — | — | — | — | 🔍 |
-| [**F159**](#f159) | feature | Conquista "Ordem com paciência" | — | — | Baixo | Bom | ⏳ |
-| [**F164**](#f164) | feature | Mapa do Brasil por região na eleição | M21 · 3.4 | — | Médio | Bom | ⏳ |
-| [**F165**](#f165) | feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 | — | Médio | Bom | ⏳ |
-| [**F167**](#f167) | feature | Notícias do ativo como marcadores no gráfico de preço | — | — | Baixo | Bom | 💤 |
-| [**F169**](#f169) | feature | Contribuição de campanha salva no perfil | M21 · 3.4 | — | Baixo | Bom | ⏳ |
-| [**F170**](#f170) | feature | Parâmetros das estratégias salvos no perfil | M21 · 3.4 | — | Médio | Excelente | ⏳ |
-| [**F173**](#f173) | feature | Partido desde o 1º dia | M21 · 3.4 | — | Médio | Bom | ⏳ |
-| [**F174**](#f174) | melhoria | Preparação do lobby redesenhada | M20 · 3.3 | — | — | — | 🔍 |
-| [**F175**](#f175) | feature | Federações partidárias | — | — | Alto | Bom | ⏳ |
-| [**F176**](#f176) | feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
-| [**F177**](#f177) | feature | Marcação a mercado do Tesouro | — | — | Médio | Bom | 💤 |
-| [**F179**](#f179) | melhoria | Topbar que cabe com a corrida e o governo | M20 · 3.3 | — | — | — | 🔍 |
-| [**F180**](#f180) | manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 | — | Alto | Bom | ⏳ |
-| [**F181**](#f181) | melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | M20 · 3.3 | — | — | — | 🔍 |
-| [**F182**](#f182) | melhoria | Eleição redesenhada como um conjunto | M20 · 3.3 | — | — | — | 🔍 |
-| [**F183**](#f183) | melhoria | Como jogar sem cobrir a tela | M20 · 3.3 | — | — | — | 🔍 |
-| [**F184**](#f184) | correção | Correções da 3.3 | M20 · 3.3 | — | Médio | Bom | ⏳ |
+| [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | — | — | — | — | 🔍 |
+| [**F6**](#f6) | Feature | Link de convite pela internet no lobby | — | — | Médio | Bom | ⏳ |
+| [**F14**](#f14) | Feature | Janela desktop nativa | — | — | Baixo | Bom | 💤 |
+| [**F22**](#f22) | Feature | Preço ajustado e proventos | — | — | Alto | Bom | ⏳ |
+| [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | — | — | — | — | 🔍 |
+| [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | — | — | — | — | 🔍 |
+| [**F37**](#f37) | Feature | Tema escuro | — | — | Médio | Médio | 💤 |
+| [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.0 | — | — | — | 🔍 |
+| [**F55**](#f55) | Feature | Modo aquisição hostil | M18 · 4.0 | — | — | — | 🔍 |
+| [**F56**](#f56) | Feature | Novidades no app | — | — | Baixo | Bom | ⏳ |
+| [**F60**](#f60) | Feature | Modo servidor dedicado (--headless) | — | — | Baixo | Bom | 💤 |
+| [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | — | — | Médio | Bom | 💤 |
+| [**F72**](#f72) | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | — | — | Médio | Bom | 💤 |
+| [**F81**](#f81) | Manutenção | CORS restrito à mesma origem | — | — | Baixo | Médio | 💤 |
+| [**F90**](#f90) | Feature | Cenários | — | — | — | — | 🔍 |
+| [**F93**](#f93) | Feature | Rumores antecipados | — | — | — | — | 🔍 |
+| [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 | — | Alto | Bom | ⏳ |
+| [**F100**](#f100) | Feature | Proventos na carteira e nas telas | — | — | Médio | Bom | ⏳ |
+| [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.0 | — | Alto | Médio | 💤 |
+| [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | M18 · 4.0 | — | — | — | 🔍 |
+| [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | M18 · 4.0 | — | — | — | 🔍 |
+| [**F104**](#f104) | Feature | Gestoras: co-gestores | M18 · 4.0 | — | — | — | 🔍 |
+| [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | M18 · 4.0 | — | — | — | 🔍 |
+| [**F110**](#f110) | Feature | Combinar estratégias | — | — | Médio | Bom | 💤 |
+| [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | — | Baixo | Bom | 💤 |
+| [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | — | — | — | — | 🔍 |
+| [**F131**](#f131) | Feature | Catálogo de padrões de vela | — | — | — | — | 🔍 |
+| [**F132**](#f132) | Feature | Tópicos de "como se joga" do Como jogar | — | — | Médio | Bom | ⏳ |
+| [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | — | — | Baixo | Bom | ⏳ |
+| [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | — | — | Médio | Bom | ⏳ |
+| [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | — | — | Alto | Bom | ⏳ |
+| [**F141**](#f141) | Docs | README com as features de hoje | — | — | Baixo | Excelente | ⏳ |
+| [**F157**](#f157) | Correção | Velocidade x100 que quase não acelera | M20 · 3.3 | — | Médio | Excelente | ⏳ |
+| [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | — | — | — | — | 🔍 |
+| [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | — | — | Baixo | Bom | ⏳ |
+| [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 | — | Médio | Bom | ⏳ |
+| [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 | — | Médio | Bom | ⏳ |
+| [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | Baixo | Bom | 💤 |
+| [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | M21 · 3.4 | — | Baixo | Bom | ⏳ |
+| [**F170**](#f170) | Feature | Parâmetros das estratégias salvos no perfil | M21 · 3.4 | — | Médio | Excelente | ⏳ |
+| [**F173**](#f173) | Feature | Partido desde o 1º dia | M21 · 3.4 | — | Médio | Bom | ⏳ |
+| [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 | — | — | — | 🔍 |
+| [**F175**](#f175) | Feature | Federações partidárias | — | — | Alto | Bom | ⏳ |
+| [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
+| [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | — | — | Médio | Bom | 💤 |
+| [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M20 · 3.3 | — | — | — | 🔍 |
+| [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 | — | Alto | Bom | ⏳ |
+| [**F181**](#f181) | Melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | M20 · 3.3 | — | — | — | 🔍 |
+| [**F182**](#f182) | Melhoria | Eleição redesenhada como um conjunto | M20 · 3.3 | — | — | — | 🔍 |
+| [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | M20 · 3.3 | — | — | — | 🔍 |
+| [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 | — | Médio | Bom | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
@@ -152,17 +152,17 @@
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **F143** | feature | Preparação de cada jogador no lobby | — | 📦 Arquivado |
-| 2 | **F168** | feature | Desafio da vela no lobby | — | 📦 Arquivado |
-| 3 | **F178** | feature | Conferência visual de tudo o que mudou desde a 3.0 | — | 📦 Arquivado |
-| 4 | [**F184**](#f184) | correção | Correções da 3.3 | — | ⏳ Pendente |
-| 5 | [**F180**](#f180) | manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | — | ⏳ Pendente |
-| 6 | [**F181**](#f181) | melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | [F180](#f180) | 🔍 Em avaliação |
-| 7 | [**F179**](#f179) | melhoria | Topbar que cabe com a corrida e o governo | [F180](#f180) | 🔍 Em avaliação |
-| 8 | [**F182**](#f182) | melhoria | Eleição redesenhada como um conjunto | [F180](#f180) | 🔍 Em avaliação |
-| 9 | [**F183**](#f183) | melhoria | Como jogar sem cobrir a tela | [F180](#f180) | 🔍 Em avaliação |
-| 10 | [**F174**](#f174) | melhoria | Preparação do lobby redesenhada | — | 🔍 Em avaliação |
-| 11 | [**F157**](#f157) | correção | Velocidade x100 que quase não acelera | — | ⏳ Pendente |
+| 1 | **F143** | Feature | Preparação de cada jogador no lobby | — | 📦 Arquivado |
+| 2 | **F168** | Feature | Desafio da vela no lobby | — | 📦 Arquivado |
+| 3 | **F178** | Feature | Conferência visual de tudo o que mudou desde a 3.0 | — | 📦 Arquivado |
+| 4 | [**F184**](#f184) | Correção | Correções da 3.3 | — | ⏳ Pendente |
+| 5 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | — | ⏳ Pendente |
+| 6 | [**F181**](#f181) | Melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | [F180](#f180) | 🔍 Em avaliação |
+| 7 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | [F180](#f180) | 🔍 Em avaliação |
+| 8 | [**F182**](#f182) | Melhoria | Eleição redesenhada como um conjunto | [F180](#f180) | 🔍 Em avaliação |
+| 9 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | [F180](#f180) | 🔍 Em avaliação |
+| 10 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | — | 🔍 Em avaliação |
+| 11 | [**F157**](#f157) | Correção | Velocidade x100 que quase não acelera | — | ⏳ Pendente |
 
 ### 3.4 — Juros e Tesouro (M21)
 
@@ -174,12 +174,12 @@
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [**F173**](#f173) | feature | Partido desde o 1º dia | — | ⏳ Pendente |
-| 2 | [**F169**](#f169) | feature | Contribuição de campanha salva no perfil | [F173](#f173), [F174](#f174) | ⏳ Pendente |
-| 3 | [**F170**](#f170) | feature | Parâmetros das estratégias salvos no perfil | [F174](#f174) | ⏳ Pendente |
-| 4 | [**F97**](#f97) | feature | SELIC nas mãos do governo | — | ⏳ Pendente |
-| 5 | [**F164**](#f164) | feature | Mapa do Brasil por região na eleição | — | ⏳ Pendente |
-| 6 | [**F165**](#f165) | feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
+| 1 | [**F173**](#f173) | Feature | Partido desde o 1º dia | — | ⏳ Pendente |
+| 2 | [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | [F173](#f173), [F174](#f174) | ⏳ Pendente |
+| 3 | [**F170**](#f170) | Feature | Parâmetros das estratégias salvos no perfil | [F174](#f174) | ⏳ Pendente |
+| 4 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ⏳ Pendente |
+| 5 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | — | ⏳ Pendente |
+| 6 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
 
 ### 4.0 — Expansão Gestoras (M18)
 
@@ -191,13 +191,39 @@
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [**F101**](#f101) | feature | Carteira separada do jogador | — | 💤 Sem prioridade |
-| 2 | [**F44**](#f44) | feature | Expansão Gestoras: fundar a gestora e abrir capital | [F101](#f101) | 🔍 Em avaliação |
-| 3 | [**F102**](#f102) | feature | Gestoras: emissão de novas cotas e recompra | [F44](#f44) | 🔍 Em avaliação |
-| 4 | [**F103**](#f103) | feature | Gestoras: troca de gestor pela assembleia | [F44](#f44) | 🔍 Em avaliação |
-| 5 | [**F55**](#f55) | feature | Modo aquisição hostil | [F103](#f103) | 🔍 Em avaliação |
-| 6 | [**F104**](#f104) | feature | Gestoras: co-gestores | [F44](#f44) | 🔍 Em avaliação |
-| 7 | [**F105**](#f105) | feature | Gestoras: rendimentos mensais | [F44](#f44), [F100](#f100) | 🔍 Em avaliação |
+| 1 | [**F101**](#f101) | Feature | Carteira separada do jogador | — | 💤 Sem prioridade |
+| 2 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | [F101](#f101) | 🔍 Em avaliação |
+| 3 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | [F44](#f44) | 🔍 Em avaliação |
+| 4 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | [F44](#f44) | 🔍 Em avaliação |
+| 5 | [**F55**](#f55) | Feature | Modo aquisição hostil | [F103](#f103) | 🔍 Em avaliação |
+| 6 | [**F104**](#f104) | Feature | Gestoras: co-gestores | [F44](#f44) | 🔍 Em avaliação |
+| 7 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | [F44](#f44), [F100](#f100) | 🔍 Em avaliação |
+
+### Sem versão
+
+> Os itens ⏳ e 🔍 que ainda não entraram em nenhuma versão, do que mais destrava trabalho para o que menos ("Destrava" é quantos itens em aberto esperam por aquele). É daqui que sai a próxima versão; os 💤 ficam só no kanban.
+
+| ID | Tipo | Resumo | Serve | Depende de | Destrava | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | N2 | — | 2 | 🔍 Em avaliação |
+| [**F22**](#f22) | Feature | Preço ajustado e proventos | N3, N7 | — | 2 | ⏳ Pendente |
+| [**F6**](#f6) | Feature | Link de convite pela internet no lobby | N2 | [F5](#f5) | 1 | ⏳ Pendente |
+| [**F100**](#f100) | Feature | Proventos na carteira e nas telas | N3, N7 | [F22](#f22) | 1 | ⏳ Pendente |
+| [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | N25 | [F44](#f44) | 1 | ⏳ Pendente |
+| [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | N10 | — | 0 | 🔍 Em avaliação |
+| [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | N19 | — | 0 | 🔍 Em avaliação |
+| [**F56**](#f56) | Feature | Novidades no app | N14 | — | 0 | ⏳ Pendente |
+| [**F90**](#f90) | Feature | Cenários | N22 | — | 0 | 🔍 Em avaliação |
+| [**F93**](#f93) | Feature | Rumores antecipados | N31 | — | 0 | 🔍 Em avaliação |
+| [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | N22, N15 | — | 0 | 🔍 Em avaliação |
+| [**F131**](#f131) | Feature | Catálogo de padrões de vela | N19 | — | 0 | 🔍 Em avaliação |
+| [**F132**](#f132) | Feature | Tópicos de "como se joga" do Como jogar | N25 | — | 0 | ⏳ Pendente |
+| [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | N25 | — | 0 | ⏳ Pendente |
+| [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | N25 | [F44](#f44) | 0 | ⏳ Pendente |
+| [**F141**](#f141) | Docs | README com as features de hoje | N25 | [F139](#f139) | 0 | ⏳ Pendente |
+| [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | N25 | — | 0 | 🔍 Em avaliação |
+| [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | N22 | [F44](#f44) | 0 | ⏳ Pendente |
+| [**F175**](#f175) | Feature | Federações partidárias | N34 | [F173](#f173) | 0 | ⏳ Pendente |
 
 ---
 
@@ -207,26 +233,26 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F184**](#f184) | correção | Correções da 3.3 | M20 · 3.3 · 4º | 0 | Médio | Bom | ⏳ |
-| [**F180**](#f180) | manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 · 5º | 4 | Alto | Bom | ⏳ |
-| [**F174**](#f174) | melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 10º | 2 | — | — | 🔍 |
-| [**F157**](#f157) | correção | Velocidade x100 que quase não acelera | M20 · 3.3 · 11º | 0 | Médio | Excelente | ⏳ |
-| [**F173**](#f173) | feature | Partido desde o 1º dia | M21 · 3.4 · 1º | 2 | Médio | Bom | ⏳ |
-| [**F97**](#f97) | feature | SELIC nas mãos do governo | M21 · 3.4 · 4º | 0 | Alto | Bom | ⏳ |
-| [**F164**](#f164) | feature | Mapa do Brasil por região na eleição | M21 · 3.4 · 5º | 1 | Médio | Bom | ⏳ |
-| [**F165**](#f165) | feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 6º | 1 | Médio | Bom | ⏳ |
-| [**F5**](#f5) | spike | Spike: provider de túnel pela internet | — | 2 | — | — | 🔍 |
-| [**F22**](#f22) | feature | Preço ajustado e proventos | — | 2 | Alto | Bom | ⏳ |
-| [**F28**](#f28) | feature | Muitos futuros (Monte Carlo) | — | 0 | — | — | 🔍 |
-| [**F34**](#f34) | feature | Gráfico de ações em tela cheia, com ferramentas de trader | — | 0 | — | — | 🔍 |
-| [**F56**](#f56) | feature | Novidades no app | — | 0 | Baixo | Bom | ⏳ |
-| [**F90**](#f90) | feature | Cenários | — | 0 | — | — | 🔍 |
-| [**F93**](#f93) | feature | Rumores antecipados | — | 0 | — | — | 🔍 |
-| [**F123**](#f123) | melhoria | Redesenhar o aviso de conquista desbloqueada | — | 0 | — | — | 🔍 |
-| [**F131**](#f131) | feature | Catálogo de padrões de vela | — | 0 | — | — | 🔍 |
-| [**F132**](#f132) | feature | Tópicos de "como se joga" do Como jogar | — | 0 | Médio | Bom | ⏳ |
-| [**F133**](#f133) | feature | Tópicos de conceitos do Como jogar | — | 0 | Baixo | Bom | ⏳ |
-| [**F158**](#f158) | melhoria | Animações do Como jogar revistas | — | 0 | — | — | 🔍 |
+| [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 · 4º | 0 | Médio | Bom | ⏳ |
+| [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 · 5º | 4 | Alto | Bom | ⏳ |
+| [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 10º | 2 | — | — | 🔍 |
+| [**F157**](#f157) | Correção | Velocidade x100 que quase não acelera | M20 · 3.3 · 11º | 0 | Médio | Excelente | ⏳ |
+| [**F173**](#f173) | Feature | Partido desde o 1º dia | M21 · 3.4 · 1º | 2 | Médio | Bom | ⏳ |
+| [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 4º | 0 | Alto | Bom | ⏳ |
+| [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 · 5º | 1 | Médio | Bom | ⏳ |
+| [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 6º | 1 | Médio | Bom | ⏳ |
+| [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | — | 2 | — | — | 🔍 |
+| [**F22**](#f22) | Feature | Preço ajustado e proventos | — | 2 | Alto | Bom | ⏳ |
+| [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | — | 0 | — | — | 🔍 |
+| [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | — | 0 | — | — | 🔍 |
+| [**F56**](#f56) | Feature | Novidades no app | — | 0 | Baixo | Bom | ⏳ |
+| [**F90**](#f90) | Feature | Cenários | — | 0 | — | — | 🔍 |
+| [**F93**](#f93) | Feature | Rumores antecipados | — | 0 | — | — | 🔍 |
+| [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | — | 0 | — | — | 🔍 |
+| [**F131**](#f131) | Feature | Catálogo de padrões de vela | — | 0 | — | — | 🔍 |
+| [**F132**](#f132) | Feature | Tópicos de "como se joga" do Como jogar | — | 0 | Médio | Bom | ⏳ |
+| [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | — | 0 | Baixo | Bom | ⏳ |
+| [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | — | 0 | — | — | 🔍 |
 
 ---
 
@@ -234,26 +260,26 @@
 
 | ID | Tipo | Resumo | Serve | D# | Marco | Depende de | Esforço | Risco | Valor | Custo-benefício |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **F6** | feature | Link de convite pela internet no lobby | N2 | — | — | [F5](#f5) | Médio | Médio | Alto | Bom |
-| **F22** | feature | Preço ajustado e proventos | N3, N7 | D1, D3, D7 | — | — | Alto | Alto | Alto | Bom |
-| **F56** | feature | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom |
-| **F97** | feature | SELIC nas mãos do governo | N34 | D19, D14 | M21 · 3.4 | — | Alto | Alto | Alto | Bom |
-| **F100** | feature | Proventos na carteira e nas telas | N3, N7 | D1, D3, D7 | — | [F22](#f22) | Médio | Médio | Médio | Bom |
-| **F132** | feature | Tópicos de "como se joga" do Como jogar | N25 | — | — | — | Médio | Baixo | Alto | Bom |
-| **F133** | feature | Tópicos de conceitos do Como jogar | N25 | — | — | — | Baixo | Baixo | Médio | Bom |
-| **F139** | docs | Demonstração regravada com o jogo de hoje | N25 | — | — | [F44](#f44) | Médio | Baixo | Alto | Bom |
-| **F140** | docs | Docs reorganizada por tipo de leitor | N25 | — | — | [F44](#f44) | Alto | Baixo | Alto | Bom |
-| **F141** | docs | README com as features de hoje | N25 | — | — | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
-| **F157** | correção | Velocidade x100 que quase não acelera | N40, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Excelente |
-| **F159** | feature | Conquista "Ordem com paciência" | N22 | D1 | — | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
-| **F164** | feature | Mapa do Brasil por região na eleição | N34 | D19 | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
-| **F165** | feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
-| **F169** | feature | Contribuição de campanha salva no perfil | N34, N39 | — | M21 · 3.4 | [F173](#f173), [F174](#f174) | Baixo | Baixo | Médio | Bom |
-| **F170** | feature | Parâmetros das estratégias salvos no perfil | N39 | — | M21 · 3.4 | [F174](#f174) | Médio | Baixo | Alto | Excelente |
-| **F173** | feature | Partido desde o 1º dia | N39, N34 | D19 | M21 · 3.4 | — | Médio | Médio | Alto | Bom |
-| **F175** | feature | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom |
-| **F180** | manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 | — | Alto | Baixo | Alto | Bom |
-| **F184** | correção | Correções da 3.3 | — | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
+| **F6** | Feature | Link de convite pela internet no lobby | N2 | — | — | [F5](#f5) | Médio | Médio | Alto | Bom |
+| **F22** | Feature | Preço ajustado e proventos | N3, N7 | D1, D3, D7 | — | — | Alto | Alto | Alto | Bom |
+| **F56** | Feature | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom |
+| **F97** | Feature | SELIC nas mãos do governo | N34 | D19, D14 | M21 · 3.4 | — | Alto | Alto | Alto | Bom |
+| **F100** | Feature | Proventos na carteira e nas telas | N3, N7 | D1, D3, D7 | — | [F22](#f22) | Médio | Médio | Médio | Bom |
+| **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | — | — | — | Médio | Baixo | Alto | Bom |
+| **F133** | Feature | Tópicos de conceitos do Como jogar | N25 | — | — | — | Baixo | Baixo | Médio | Bom |
+| **F139** | Docs | Demonstração regravada com o jogo de hoje | N25 | — | — | [F44](#f44) | Médio | Baixo | Alto | Bom |
+| **F140** | Docs | Docs reorganizada por tipo de leitor | N25 | — | — | [F44](#f44) | Alto | Baixo | Alto | Bom |
+| **F141** | Docs | README com as features de hoje | N25 | — | — | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
+| **F157** | Correção | Velocidade x100 que quase não acelera | N40, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Excelente |
+| **F159** | Feature | Conquista "Ordem com paciência" | N22 | D1 | — | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
+| **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
+| **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
+| **F169** | Feature | Contribuição de campanha salva no perfil | N34, N39 | — | M21 · 3.4 | [F173](#f173), [F174](#f174) | Baixo | Baixo | Médio | Bom |
+| **F170** | Feature | Parâmetros das estratégias salvos no perfil | N39 | — | M21 · 3.4 | [F174](#f174) | Médio | Baixo | Alto | Excelente |
+| **F173** | Feature | Partido desde o 1º dia | N39, N34 | D19 | M21 · 3.4 | — | Médio | Médio | Alto | Bom |
+| **F175** | Feature | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom |
+| **F180** | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 | — | Alto | Baixo | Alto | Bom |
+| **F184** | Correção | Correções da 3.3 | — | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -353,25 +379,25 @@ Falta a triagem das notas da próxima partida de playtest: cada nota vira conser
 
 | ID | Tipo | Resumo | Serve | D# | Marco | Depende de | Falta |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **F5** | spike | Spike: provider de túnel pela internet | N2 | — | — | — | Escolhe o provider da F6 |
-| **F28** | feature | Muitos futuros (Monte Carlo) | N10 | — | — | — | Revisa ou confirma a D7 |
-| **F34** | feature | Gráfico de ações em tela cheia, com ferramentas de trader | N19 | — | — | — | Escolhe a biblioteca de gráfico |
-| **F44** | feature | Expansão Gestoras: fundar a gestora e abrir capital | N23 | — | M18 · 4.0 | [F101](#f101) | O protótipo do preço da cota com o formador sintético |
-| **F55** | feature | Modo aquisição hostil | N23 | — | M18 · 4.0 | [F103](#f103) | Parte mínima no mercado e o destino do incorporado |
-| **F90** | feature | Cenários | N22 | — | — | — | Um preset com objetivo |
-| **F93** | feature | Rumores antecipados | N31 | — | — | — | Opção da partida |
-| **F102** | feature | Gestoras: emissão de novas cotas e recompra | N23 | — | M18 · 4.0 | [F44](#f44) | O prazo da preferência e o preço da emissão |
-| **F103** | feature | Gestoras: troca de gestor pela assembleia | N23 | — | M18 · 4.0 | [F44](#f44) | Como a assembleia escolhe o novo gestor |
-| **F104** | feature | Gestoras: co-gestores | N23 | — | M18 · 4.0 | [F44](#f44) | A divisão das taxas |
-| **F105** | feature | Gestoras: rendimentos mensais | N23 | — | M18 · 4.0 | [F44](#f44), [F100](#f100) | A parte do lucro distribuída |
-| **F123** | melhoria | Redesenhar o aviso de conquista desbloqueada | N22, N15 | — | — | — | Escolher o desenho do aviso no canvas; liga à F122 |
-| **F131** | feature | Catálogo de padrões de vela | N19 | — | — | — | Tópico do Como jogar com cada padrão animado |
-| **F158** | melhoria | Animações do Como jogar revistas | N25 | — | — | — | O visual numa rodada no canvas |
-| **F174** | melhoria | Preparação do lobby redesenhada | N39, N34 | — | M20 · 3.3 | — | Retrabalho da F143; falta a rodada no canvas |
-| **F179** | melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M20 · 3.3 | [F180](#f180) | Escolher o desenho no canvas |
-| **F181** | melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | N15 | — | M20 · 3.3 | [F180](#f180) | A rodada no canvas sobre os retratos |
-| **F182** | melhoria | Eleição redesenhada como um conjunto | N15, N34 | — | M20 · 3.3 | [F180](#f180) | A rodada no canvas sobre os retratos |
-| **F183** | melhoria | Como jogar sem cobrir a tela | N15, N25 | — | M20 · 3.3 | [F180](#f180) | A rodada no canvas sobre os retratos |
+| **F5** | Spike | Spike: provider de túnel pela internet | N2 | — | — | — | Escolhe o provider da F6 |
+| **F28** | Feature | Muitos futuros (Monte Carlo) | N10 | — | — | — | Revisa ou confirma a D7 |
+| **F34** | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | N19 | — | — | — | Escolhe a biblioteca de gráfico |
+| **F44** | Feature | Expansão Gestoras: fundar a gestora e abrir capital | N23 | — | M18 · 4.0 | [F101](#f101) | O protótipo do preço da cota com o formador sintético |
+| **F55** | Feature | Modo aquisição hostil | N23 | — | M18 · 4.0 | [F103](#f103) | Parte mínima no mercado e o destino do incorporado |
+| **F90** | Feature | Cenários | N22 | — | — | — | Um preset com objetivo |
+| **F93** | Feature | Rumores antecipados | N31 | — | — | — | Opção da partida |
+| **F102** | Feature | Gestoras: emissão de novas cotas e recompra | N23 | — | M18 · 4.0 | [F44](#f44) | O prazo da preferência e o preço da emissão |
+| **F103** | Feature | Gestoras: troca de gestor pela assembleia | N23 | — | M18 · 4.0 | [F44](#f44) | Como a assembleia escolhe o novo gestor |
+| **F104** | Feature | Gestoras: co-gestores | N23 | — | M18 · 4.0 | [F44](#f44) | A divisão das taxas |
+| **F105** | Feature | Gestoras: rendimentos mensais | N23 | — | M18 · 4.0 | [F44](#f44), [F100](#f100) | A parte do lucro distribuída |
+| **F123** | Melhoria | Redesenhar o aviso de conquista desbloqueada | N22, N15 | — | — | — | Escolher o desenho do aviso no canvas; liga à F122 |
+| **F131** | Feature | Catálogo de padrões de vela | N19 | — | — | — | Tópico do Como jogar com cada padrão animado |
+| **F158** | Melhoria | Animações do Como jogar revistas | N25 | — | — | — | O visual numa rodada no canvas |
+| **F174** | Melhoria | Preparação do lobby redesenhada | N39, N34 | — | M20 · 3.3 | — | Retrabalho da F143; falta a rodada no canvas |
+| **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M20 · 3.3 | [F180](#f180) | Escolher o desenho no canvas |
+| **F181** | Melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | N15 | — | M20 · 3.3 | [F180](#f180) | A rodada no canvas sobre os retratos |
+| **F182** | Melhoria | Eleição redesenhada como um conjunto | N15, N34 | — | M20 · 3.3 | [F180](#f180) | A rodada no canvas sobre os retratos |
+| **F183** | Melhoria | Como jogar sem cobrir a tela | N15, N25 | — | M20 · 3.3 | [F180](#f180) | A rodada no canvas sobre os retratos |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -474,18 +500,18 @@ Uma rodada no canvas, sobre os retratos da Eleição (F180), redesenha a página
 
 | ID | Tipo | Resumo | Serve | D# | Marco | Depende de | Esforço | Risco | Valor | Custo-benefício |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **F14** | feature | Janela desktop nativa | — | — | — | — | Baixo | Baixo | Baixo | Bom |
-| **F37** | feature | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio |
-| **F60** | feature | Modo servidor dedicado (--headless) | — | — | — | — | Baixo | Baixo | Baixo | Bom |
-| **F69** | feature | Imprevistos configuráveis e tipos novos | N23 | — | — | — | Médio | Baixo | Médio | Bom |
-| **F72** | manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom |
-| **F81** | manutenção | CORS restrito à mesma origem | — | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio |
-| **F101** | feature | Carteira separada do jogador | N23 | D9 | M18 · 4.0 | — | Alto | Alto | Médio | Médio |
-| **F110** | feature | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom |
-| **F111** | feature | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom |
-| **F167** | feature | Notícias do ativo como marcadores no gráfico de preço | — | — | — | — | Baixo | Baixo | Médio | Bom |
-| **F176** | feature | Cadeiras do Congresso por região | N34 | D19 | — | [F164](#f164) | Médio | Médio | Médio | Médio |
-| **F177** | feature | Marcação a mercado do Tesouro | N34 | — | — | [F165](#f165) | Médio | Médio | Médio | Bom |
+| **F14** | Feature | Janela desktop nativa | — | — | — | — | Baixo | Baixo | Baixo | Bom |
+| **F37** | Feature | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio |
+| **F60** | Feature | Modo servidor dedicado (--headless) | — | — | — | — | Baixo | Baixo | Baixo | Bom |
+| **F69** | Feature | Imprevistos configuráveis e tipos novos | N23 | — | — | — | Médio | Baixo | Médio | Bom |
+| **F72** | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom |
+| **F81** | Manutenção | CORS restrito à mesma origem | — | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio |
+| **F101** | Feature | Carteira separada do jogador | N23 | D9 | M18 · 4.0 | — | Alto | Alto | Médio | Médio |
+| **F110** | Feature | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom |
+| **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom |
+| **F167** | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | — | — | Baixo | Baixo | Médio | Bom |
+| **F176** | Feature | Cadeiras do Congresso por região | N34 | D19 | — | [F164](#f164) | Médio | Médio | Médio | Médio |
+| **F177** | Feature | Marcação a mercado do Tesouro | N34 | — | — | [F165](#f165) | Médio | Médio | Médio | Bom |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
