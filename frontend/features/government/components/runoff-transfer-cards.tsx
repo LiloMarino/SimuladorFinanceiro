@@ -44,7 +44,7 @@ function TransferCard({ panel, race, transfer, finalists }: TransferCardProps) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="flex items-center gap-2 text-xs font-medium">
           <PartyMark abbr={party.abbr} color={party.color} size="sm" />
-          Para onde foram os votos do {party.abbr}
+          Estimativa: para onde foram os votos do {party.abbr}
           <span className="font-normal text-muted-foreground">
             · {Number(transfer.voted).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} pontos do eleitorado
           </span>

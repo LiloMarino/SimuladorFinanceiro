@@ -25,7 +25,7 @@ export function FirstRoundCard({ panel, race, finalists }: FirstRoundCardProps) 
               <span className="max-w-3xl text-[13px] text-muted-foreground">
                 {displayShortDate(result.date)} · votos válidos, exatos.
                 {eliminated.length > 0 &&
-                  ` Abaixo, para onde foram os votos do ${displayList(eliminated.map((party) => party.abbr))}: cada grupo divide esses votos pela afinidade com os finalistas, e quem não gosta de nenhum dos dois fica indeciso.`}
+                  ` Abaixo, uma estimativa de para onde foram os votos do ${displayList(eliminated.map((party) => party.abbr))}: cada grupo divide esses votos pela afinidade com os finalistas, e quem não gosta de nenhum dos dois fica indeciso.`}
               </span>
             </div>
             <Badge variant="info">Pública · com margem</Badge>
