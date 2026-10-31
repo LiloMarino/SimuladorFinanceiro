@@ -12,6 +12,7 @@ import {
 } from "@/shared/components/ui/empty";
 import { ErrorState } from "@/shared/components/error-state";
 import { useAuth } from "@/shared/hooks/useAuth";
+import type ApiError from "@/shared/lib/models/ApiError";
 import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import { BacktestResultView } from "../components/backtest-result/backtest-result-view";
 import { HighlightsRow, HighlightsSkeleton } from "../components/match-result/highlights-row";
@@ -31,8 +32,20 @@ export default function MatchResultPage() {
 
 /** Backtest e partida fecham de jeitos diferentes: o tipo vem da lista de salvas. */
 function ResultKind({ simulationId }: { simulationId: number }) {
-  const { data: simulations, isPending, isFetching } = useSimulationList({ refetchOnMount: "always" });
+  const { data: simulations, isPending, isFetching, error, refetch } = useSimulationList({ refetchOnMount: "always" });
   const simulation = simulations?.find((s) => s.id === simulationId);
+
+  // O erro vem antes do esqueleto: sem a lista não há como saber o tipo da partida
+  if (error && !simulations) {
+    return (
+      <ResultErrorCard
+        title="Não conseguimos abrir a partida"
+        description="A lista de partidas salvas não respondeu. Tente de novo ou volte ao lobby."
+        error={error}
+        onRetry={() => void refetch()}
+      />
+    );
+  }
 
   // Uma simulação recém-salva ainda não está na lista em cache: espera a busca trazê-la
   if (isPending || (!simulation && isFetching)) {
@@ -55,6 +68,28 @@ const backToLobby = (
   </Button>
 );
 
+function ResultErrorCard({
+  title,
+  description,
+  error,
+  onRetry,
+}: {
+  title: string;
+  description: string;
+  error: ApiError;
+  onRetry: () => void;
+}) {
+  return (
+    <Card>
+      <CardContent>
+        <ErrorState title={title} description={description} error={error} onRetry={onRetry}>
+          {backToLobby}
+        </ErrorState>
+      </CardContent>
+    </Card>
+  );
+}
+
 /** Fechamento da partida: o vencedor e o pódio, os destaques e o relatório da partida inteira. */
 function MatchResult({ simulationId }: { simulationId: number }) {
   const { user } = useAuth();
@@ -63,18 +98,12 @@ function MatchResult({ simulationId }: { simulationId: number }) {
 
   if (error && !overview) {
     return (
-      <Card>
-        <CardContent>
-          <ErrorState
-            title="Não conseguimos carregar o resultado"
-            description="A partida terminou e está salva. Tente de novo ou volte ao lobby: o resultado fica em “Simulações salvas”."
-            error={error}
-            onRetry={() => void refetch()}
-          >
-            {backToLobby}
-          </ErrorState>
-        </CardContent>
-      </Card>
+      <ResultErrorCard
+        title="Não conseguimos carregar o resultado"
+        description="A partida terminou e está salva. Tente de novo ou volte ao lobby: o resultado fica em “Simulações salvas”."
+        error={error}
+        onRetry={() => void refetch()}
+      />
     );
   }
 
