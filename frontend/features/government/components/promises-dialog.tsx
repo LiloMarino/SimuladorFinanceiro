@@ -15,6 +15,7 @@ import {
 } from "@/shared/components/ui/dialog";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { isConnectionFailure } from "@/shared/lib/models/ApiError";
 import { cn } from "@/shared/lib/utils";
 import { displayDayMonth, displayPercent } from "@/shared/lib/utils/display";
 import type { PromisesPanel, PromisesPreview, VoterGroupInfo } from "@/types";
@@ -242,14 +243,33 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
                     disabled={locked || selected < fixedCount}
                     onChange={update}
                   />
-                  {preview.isError && (
-                    <Alert variant="destructive">
-                      <TriangleAlert />
-                      <AlertTitle>Essa lista de promessas não dá para anunciar</AlertTitle>
-                      <AlertDescription>{preview.error.message}</AlertDescription>
-                    </Alert>
+                  {preview.isError &&
+                    (isConnectionFailure(preview.error.status) ? (
+                      <Alert variant="destructive">
+                        <TriangleAlert />
+                        <AlertTitle>Não deu para calcular o que as promessas rendem</AlertTitle>
+                        <AlertDescription>{preview.error.message}</AlertDescription>
+                        <AlertAction>
+                          <Button size="sm" variant="outline" onClick={() => void preview.refetch()}>
+                            <RefreshCw />
+                            Tentar de novo
+                          </Button>
+                        </AlertAction>
+                      </Alert>
+                    ) : (
+                      <Alert variant="destructive">
+                        <TriangleAlert />
+                        <AlertTitle>Essa lista de promessas não dá para anunciar</AlertTitle>
+                        <AlertDescription>{preview.error.message}</AlertDescription>
+                      </Alert>
+                    ))}
+                  {isComplete(current, panel.options) ? (
+                    <PromiseEffects item={previewOf(current)} groups={groups} abbr={panel.party_abbr} />
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Defina o alvo para ver o que a promessa faz em cada grupo.
+                    </p>
                   )}
-                  <PromiseEffects item={previewOf(current)} groups={groups} abbr={panel.party_abbr} />
                 </>
               ) : (
                 <p className="rounded-lg bg-subtle px-3 py-6 text-center text-sm text-muted-foreground">
@@ -292,7 +312,7 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
           Cancelar
         </Button>
         <Button
-          disabled={locked || hasIncomplete || !changed || setPromises.isPending}
+          disabled={locked || hasIncomplete || preview.isError || !changed || setPromises.isPending}
           onClick={() => request && setPromises.mutate(request, { onSuccess: onClose })}
         >
           {retreat.length > 0 ? "Anunciar e pagar o custo" : "Anunciar promessas"}
@@ -310,9 +330,7 @@ type PromiseEffectsProps = {
 
 /** O que a promessa faz no perfil do partido e em cada grupo de eleitores. */
 function PromiseEffects({ item, groups, abbr }: PromiseEffectsProps) {
-  if (!item) {
-    return <p className="text-xs text-muted-foreground">Defina o alvo para ver o que a promessa faz em cada grupo.</p>;
-  }
+  if (!item) return null;
   const weights = new Map(groups.map((info) => [info.group, info.weight]));
   const total = weightedSupport(item.rows, groups);
 

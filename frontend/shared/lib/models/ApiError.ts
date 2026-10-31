@@ -21,9 +21,12 @@ const HTTP_STATUS_TEXT: Record<number, string> = {
 /** Status 0 é a requisição que não chegou a ter resposta: servidor desligado ou fora da rede. */
 export const NETWORK_ERROR_STATUS = 0;
 
+/** Falha do servidor ou da rede: o pedido em si pode estar certo e valer de novo. */
+export const isConnectionFailure = (status: number) => status === NETWORK_ERROR_STATUS || status >= 500;
+
 /** O que dizer ao jogador quando a API não manda mensagem própria. */
 export function defaultErrorMessage(status: number): string {
-  if (status === NETWORK_ERROR_STATUS || status >= 500) return "O servidor não respondeu";
+  if (isConnectionFailure(status)) return "O servidor não respondeu";
   if (status === 400 || status === 422) return "Os dados enviados não são válidos";
   if (status === 401) return "Sua sessão expirou";
   if (status === 403) return "Você não tem permissão para isso";
