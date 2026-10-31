@@ -20,11 +20,14 @@ TREND = Decimal("0.02")
 # Cada ponto de juro real acima do neutro tira 0,4 ponto do alvo de crescimento
 NEUTRAL_REAL_RATE = Decimal("0.05")
 REAL_RATE_WEIGHT = Decimal("0.4")
-# Cada ponto de alta do Ibovespa em 12 meses acima de 5% soma 5 pontos ao alvo
+# Cada 10 pontos de alta do Ibovespa em 12 meses acima de 5% somam meio ponto ao alvo
 NEUTRAL_STOCKS = Decimal("0.05")
-STOCKS_WEIGHT = Decimal(5)
-# O crescimento anda 1/4 do caminho até o alvo a cada fechamento
+STOCKS_WEIGHT = Decimal("0.05")
+# O crescimento anda 1/4 do caminho até o alvo a cada fechamento, dentro da faixa
+# que o PIB do Brasil já viu (de -4% em 1990 a +7,5% em 2010) com folga
 GROWTH_STEP = Decimal("0.25")
+MIN_GROWTH = Decimal("-0.06")
+MAX_GROWTH = Decimal("0.08")
 # Lei de Okun: cada ponto de crescimento acima da tendência baixa o desemprego em meio ponto ao ano
 OKUN = Decimal("0.5")
 NEUTRAL_UNEMPLOYMENT = Decimal("0.09")
@@ -95,6 +98,7 @@ def next_month(
     """O fechamento seguinte: o crescimento anda 1/4 até o alvo e o desemprego segue o Okun."""
     aim = growth_aim(month_end, spending)
     growth = previous.growth + GROWTH_STEP * (aim.value - previous.growth)
+    growth = max(MIN_GROWTH, min(MAX_GROWTH, growth))
     unemployment = previous.unemployment - OKUN * (growth - TREND) / MONTHS_PER_YEAR
     return MacroMonth(
         month_end=month_end,

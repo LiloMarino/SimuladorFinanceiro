@@ -68,9 +68,9 @@ def test_high_real_rate_pulls_the_aim_down_and_stocks_push_it_up(
 
     # Juro real de ~10,4%: bem acima do neutro de 5%
     assert aim.real_rate_part < 0
-    # Bolsa em +20% em 12 meses: 15 pontos acima do neutro de 5%, a 5 pontos de crescimento cada
+    # Bolsa em +20% em 12 meses: 15 pontos acima do neutro de 5% somam 0,75 ponto
     assert aim.stocks == Decimal("0.2")
-    assert aim.stocks_part == Decimal("0.75")
+    assert aim.stocks_part == Decimal("0.0075")
 
 
 def test_month_closes_only_on_its_last_day(flat_economy: None):
@@ -156,3 +156,21 @@ def test_works_add_their_part_to_the_aim_and_the_growth_climbs_toward_it(
         built.latest(date(2020, 12, 31)).growth
         > plain.latest(date(2020, 12, 31)).growth
     )
+
+
+def test_growth_stays_inside_the_clamp_when_stocks_crash(indicators: SetIndicator):
+    """Ibovespa caindo pela metade todo ano com juro real altíssimo: o PIB para no piso."""
+    indicators(
+        IndicatorSeries.SELIC, daily_series(date(2018, 1, 1), date(2030, 1, 1), "0.1")
+    )
+    indicators(IndicatorSeries.IPCA, monthly_series(date(2018, 1, 1), 144, "0.1"))
+    indicators(
+        IndicatorSeries.IBOV,
+        {date(2018 + year, 1, 1): Decimal(100000) / 2**year for year in range(12)},
+    )
+    course = MacroCourse(START)
+
+    months = course.months_until(date(2028, 12, 31))
+
+    assert months[-1].aim.value < growth.MIN_GROWTH
+    assert min(m.growth for m in months) == growth.MIN_GROWTH
