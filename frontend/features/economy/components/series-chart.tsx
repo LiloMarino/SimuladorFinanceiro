@@ -20,11 +20,11 @@ type SeriesChartProps = {
 function SeriesTooltip({
   active,
   payload,
-  label,
+  seriesName,
 }: {
   active?: boolean;
   payload?: { payload: EconomyRow; value: number | null }[];
-  label: string;
+  seriesName: string;
 }) {
   const entry = payload?.[0];
   if (!active || !entry || entry.value === null) return null;
@@ -32,7 +32,7 @@ function SeriesTooltip({
     <div className="grid gap-1 rounded-lg border bg-popover px-2.5 py-2 text-xs shadow-md">
       <span className="text-muted-foreground">{displayDate(new Date(entry.payload.time))}</span>
       <span className="flex items-center justify-between gap-6">
-        <span>{label}</span>
+        <span>{seriesName}</span>
         <span className="font-mono font-semibold">{displayPercent(entry.value, 1)}</span>
       </span>
     </div>
@@ -76,7 +76,7 @@ export function SeriesChart({ rows, dataKey, label, color, reference, height = 1
         />
         <Tooltip
           cursor={{ stroke: "var(--foreground)", strokeOpacity: 0.4 }}
-          content={<SeriesTooltip label={label} />}
+          content={<SeriesTooltip seriesName={label} />}
         />
         {reference && (
           <ReferenceLine
