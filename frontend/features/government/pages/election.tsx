@@ -152,7 +152,8 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
       {panel.runoff_race && <RunoffPollCard panel={panel} race={panel.runoff_race} />}
       {panel.runoff_race && <FirstRoundCard panel={panel} race={panel.runoff_race} finalists={runoffFinalists} />}
       {runoffResult && <RunoffGroupsCard panel={panel} result={runoffResult} />}
-      {campaignOpen && <PollCard panel={panel} />}
+      {/* Entre os turnos a pesquisa vigente é a do 2º turno; a do 1º volta ao ar depois da apuração final */}
+      {campaignOpen && !panel.runoff_race && <PollCard panel={panel} />}
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
         <div className="grid min-w-0 gap-5">
           {panel.parties.length > 0 && <PartyProfilesCard panel={panel} />}
