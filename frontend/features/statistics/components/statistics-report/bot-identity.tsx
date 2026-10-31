@@ -47,7 +47,11 @@ export function BotIdentity({ player, label, simulationIds, onOpenLog }: BotIden
             Bot
           </Badge>
         </span>
-        {report && <span className="truncate text-xs text-muted-foreground">{report.strategy_name}</span>}
+        {report && (
+          <span className="truncate text-xs text-muted-foreground" title={report.strategy_name}>
+            {report.strategy_name}
+          </span>
+        )}
       </span>
     </span>
   );
