@@ -111,6 +111,8 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
   const request = locked ? null : { promises: complete.map(toRequest) };
   const preview = usePromisesPreview(request);
   const data = preview.isError ? undefined : preview.data;
+  // Com a lista mudada, a prévia em tela ainda é a da lista anterior até a nova chegar
+  const recalculating = preview.isPlaceholderData;
 
   const current: PromiseDraft | undefined = drafts[selected];
   const taken = new Set(drafts.filter((_, index) => index !== selected).map((draft) => draft.kind));
@@ -176,7 +178,7 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
                       <b className="truncate text-[13px]" title={item?.promise.title}>
                         {item?.promise.title ?? "Defina o alvo"}
                       </b>
-                      <span className="text-xs text-muted-foreground">
+                      <span className={cn("text-xs text-muted-foreground", recalculating && "opacity-50")}>
                         {total === null ? "sem prévia" : "no total"}{" "}
                         {total !== null && (
                           <span
@@ -264,7 +266,12 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
                       </Alert>
                     ))}
                   {isComplete(current, panel.options) ? (
-                    <PromiseEffects item={previewOf(current)} groups={groups} abbr={panel.party_abbr} />
+                    <PromiseEffects
+                      item={previewOf(current)}
+                      groups={groups}
+                      abbr={panel.party_abbr}
+                      stale={recalculating}
+                    />
                   ) : (
                     <p className="text-xs text-muted-foreground">
                       Defina o alvo para ver o que a promessa faz em cada grupo.
@@ -312,7 +319,7 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
           Cancelar
         </Button>
         <Button
-          disabled={locked || hasIncomplete || preview.isError || !changed || setPromises.isPending}
+          disabled={locked || hasIncomplete || preview.isError || recalculating || !changed || setPromises.isPending}
           onClick={() => request && setPromises.mutate(request, { onSuccess: onClose })}
         >
           {retreat.length > 0 ? "Anunciar e pagar o custo" : "Anunciar promessas"}
@@ -326,16 +333,18 @@ type PromiseEffectsProps = {
   item: PromisesPreview["items"][number] | undefined;
   groups: VoterGroupInfo[];
   abbr: string;
+  /** A prévia é a da lista anterior: números esmaecidos até a nova chegar */
+  stale: boolean;
 };
 
 /** O que a promessa faz no perfil do partido e em cada grupo de eleitores. */
-function PromiseEffects({ item, groups, abbr }: PromiseEffectsProps) {
+function PromiseEffects({ item, groups, abbr, stale }: PromiseEffectsProps) {
   if (!item) return null;
   const weights = new Map(groups.map((info) => [info.group, info.weight]));
   const total = weightedSupport(item.rows, groups);
 
   return (
-    <div className="grid gap-4">
+    <div className={cn("grid gap-4", stale && "opacity-50")}>
       {item.values.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground">Move o perfil do {abbr}:</span>
