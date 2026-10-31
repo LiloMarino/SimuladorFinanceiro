@@ -250,10 +250,12 @@ def unemployment_factor(group: VoterGroup, market: Market) -> Factor:
 
 def premium_factor(group: VoterGroup, market: Market) -> Factor:
     points = min(_pp(market.premium), PREMIUM_CAP)
+    premium = rules.number(_pp(market.premium))
+    unit = "ponto" if premium == "1" else "pontos"
     return Factor(
         ApprovalFactorKind.RISK_PREMIUM,
         -PREMIUM_WEIGHT[group] * points,
-        f"Prêmio de risco de {rules.number(_pp(market.premium))} ponto(s) nos títulos novos do Tesouro",
+        f"Prêmio de risco de {premium} {unit} nos títulos novos do Tesouro",
     )
 
 

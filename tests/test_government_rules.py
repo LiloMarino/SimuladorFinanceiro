@@ -300,6 +300,21 @@ def test_risk_premium_has_no_effect_at_zero_and_is_capped_at_six_points():
     assert huge.points == -12
 
 
+def test_risk_premium_text_uses_the_singular_only_for_one_point():
+    texts = [
+        approval_rules.premium_factor(
+            VoterGroup.INVESTORS, market(premium=premium)
+        ).description
+        for premium in ("0", "0.01", "0.02")
+    ]
+
+    assert texts == [
+        "Prêmio de risco de 0 pontos nos títulos novos do Tesouro",
+        "Prêmio de risco de 1 ponto nos títulos novos do Tesouro",
+        "Prêmio de risco de 2 pontos nos títulos novos do Tesouro",
+    ]
+
+
 def test_the_same_result_pleases_one_group_and_irritates_another():
     high_rate = market(selic="0.16")
 
