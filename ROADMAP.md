@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-31):** Concluída a conferência visual; cadastrados o retrato das telas no canvas e as rodadas de redesenho das regras visuais, da Eleição e do Como jogar.
+> **Última mudança (2026-11-01):** Triado o playtest de 31/out: consertos no lote da 3.3, retoques de interface, desempenho do dia e das Estatísticas, log por boot e contagem do Socket.IO na 3.3; economia interligada e acordo de base na 3.4.
 
 ## Glossário
 
@@ -21,29 +21,29 @@
 | **N1** | — | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — | — | — | — |
 | **N2** | — | Jogar com amigos pela internet sem que cada um instale uma VPN | — | [F5](#f5), [F6](#f6) | — | — | — |
 | **N3** | — | Confiar que os números do simulador são exatos e reprodutíveis | — | [F22](#f22), [F100](#f100) | — | — | — |
-| **N4** | — | Testar uma estratégia de investimento automática e ver como ela se sai | — | [F110](#f110), [F111](#f111) | — | — | — |
+| **N4** | — | Testar uma estratégia de investimento automática e ver como ela se sai | — | [F110](#f110), [F111](#f111), [F197](#f197) | — | — | — |
 | **N5** | — | Saber quanto risco foi corrido para chegar num resultado | — | — | — | — | — |
 | **N6** | — | Comparar resultados de simulações diferentes | — | — | — | — | — |
 | **N7** | — | Que o simulador cobre os custos de operar do mercado real | — | [F22](#f22), [F100](#f100) | — | — | — |
 | **N8** | — | Jogar contra oponentes controlados pelo computador | — | — | — | — | — |
 | **N9** | — | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — | — | — | — |
 | **N10** | — | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | — | [F28](#f28) | — | — | — |
-| **N11** | — | Que o cenário econômico simulado seja o histórico real | — | — | — | — | — |
-| **N12** | — | Continuar jogando depois do último dia com dado real | — | — | — | — | — |
+| **N11** | — | Que o cenário econômico simulado seja o histórico real | — | [F194](#f194) | — | — | — |
+| **N12** | — | Continuar jogando depois do último dia com dado real | — | [F192](#f192) | — | — | — |
 | **N13** | — | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — | — |
 | **N14** | — | Atualizar para uma versão nova sem perder as partidas salvas | — | [F56](#f56) | — | — | — |
-| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F180](#f180), [F181](#f181), [F182](#f182), [F183](#f183) | — | — | — |
-| **N16** | — | Ver a carteira e o mercado por setor e segmento | — | — | — | — | — |
+| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F180](#f180), [F181](#f181), [F182](#f182), [F183](#f183), [F189](#f189), [F190](#f190) | — | — | — |
+| **N16** | — | Ver a carteira e o mercado por setor e segmento | — | [F196](#f196) | — | — | — |
 | **N17** | — | Enxergar a estrutura do banco e esboçar mudanças nela | — | — | — | — | — |
 | **N18** | — | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — | — | — | — |
-| **N19** | — | Analisar um ativo com as ferramentas de um trader | — | [F34](#f34), [F131](#f131) | — | — | — |
+| **N19** | — | Analisar um ativo com as ferramentas de um trader | — | [F34](#f34), [F131](#f131), [F193](#f193) | — | — | — |
 | **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — | — | — | — |
-| **N21** | — | Jogar "na unha", sem a interface apontar a melhor escolha | — | — | — | — | — |
+| **N21** | — | Jogar "na unha", sem a interface apontar a melhor escolha | — | [F189](#f189) | — | — | — |
 | **N22** | — | Ter objetivos para buscar além de vencer a partida | — | [F90](#f90), [F123](#f123), [F159](#f159) | — | — | — |
 | **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F44](#f44), [F55](#f55), [F69](#f69), [F101](#f101), [F102](#f102), [F103](#f103), [F104](#f104), [F105](#f105) | — | — | — |
-| **N24** | — | Saber onde está a lentidão durante uma partida | — | [F157](#f157) | — | — | — |
-| **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F183](#f183) | — | — | — |
-| **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | — | — | — | — |
+| **N24** | — | Saber onde está a lentidão durante uma partida | — | [F157](#f157), [F185](#f185), [F186](#f186), [F188](#f188) | — | — | — |
+| **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F183](#f183), [F193](#f193) | — | — | — |
+| **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | [F187](#f187) | — | — | — |
 | **N27** | — | Entrar numa partida que já começou | — | — | — | — | — |
 | **N28** | — | Liberar uma vaga sem depender de o jogador sair | — | — | — | — | — |
 | **N29** | — | Saber o que cada jogador está fazendo enquanto a partida não começa | — | — | — | — | — |
@@ -51,13 +51,13 @@
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93) | — | — | — |
 | **N32** | — | Saber como foi o mês sem montar a conta | — | — | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F97](#f97), [F164](#f164), [F165](#f165), [F169](#f169), [F173](#f173), [F174](#f174), [F175](#f175), [F176](#f176), [F177](#f177), [F182](#f182) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F97](#f97), [F164](#f164), [F165](#f165), [F169](#f169), [F173](#f173), [F174](#f174), [F175](#f175), [F176](#f176), [F177](#f177), [F182](#f182), [F190](#f190), [F191](#f191), [F194](#f194), [F195](#f195) | — | — | — |
 | **N35** | — | Tirar da lista as partidas que não interessam mais | — | — | — | — | — |
 | **N36** | — | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — | — |
 | **N37** | — | Comprar bitcoin do jeito que dá na vida real, em frações | — | — | — | — | — |
-| **N38** | — | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — | — | — | — |
+| **N38** | — | Saber quando as estatísticas vão mudar, sem achar que travaram | — | [F186](#f186) | — | — | — |
 | **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F169](#f169), [F170](#f170), [F173](#f173), [F174](#f174) | — | — | — |
-| **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F157](#f157) | — | — | — |
+| **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F157](#f157), [F185](#f185) | — | — | — |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | — | — | — | — | 🔍 |
 | [**F6**](#f6) | Feature | Link de convite pela internet no lobby | — | — | Médio | Bom | ⏳ |
 | [**F14**](#f14) | Feature | Janela desktop nativa | — | — | Baixo | Bom | 💤 |
@@ -109,6 +109,19 @@
 | [**F182**](#f182) | Melhoria | Eleição redesenhada como um conjunto | M20 · 3.3 | — | — | — | 🔍 |
 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | M20 · 3.3 | — | — | — | 🔍 |
 | [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 | — | Médio | Bom | ⏳ |
+| [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 | — | Médio | Excelente | ⏳ |
+| [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 | — | Médio | Bom | ⏳ |
+| [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 | — | Baixo | Bom | ⏳ |
+| [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | M20 · 3.3 | — | Baixo | Bom | ⏳ |
+| [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 | — | Médio | Bom | ⏳ |
+| [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 | — | — | — | 🔍 |
+| [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | 🔍 |
+| [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | — | — | — | 🔍 |
+| [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | — | — | — | — | 🔍 |
+| [**F194**](#f194) | Feature | Dólar e ativos internacionais | — | — | — | — | 🔍 |
+| [**F195**](#f195) | Feature | Acordo de base com prazo | M21 · 3.4 | — | — | — | 🔍 |
+| [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | Baixo | Bom | ⏳ |
+| [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | — | Médio | Bom | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
@@ -146,9 +159,9 @@
 
 > **Objetivo:** Cada jogador chega à partida já preparado no lobby, e as telas que mudaram desde a 3.0 voltam a formar um conjunto.
 >
-> **Serve:** N39, N15, N40
+> **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 3/11 concluídos
+> **Progresso:** 3/17 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -156,13 +169,19 @@
 | 2 | **F168** | Feature | Desafio da vela no lobby | — | 📦 Arquivado |
 | 3 | **F178** | Feature | Conferência visual de tudo o que mudou desde a 3.0 | — | 📦 Arquivado |
 | 4 | [**F184**](#f184) | Correção | Correções da 3.3 | — | ⏳ Pendente |
-| 5 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | — | ⏳ Pendente |
-| 6 | [**F181**](#f181) | Melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | [F180](#f180) | 🔍 Em avaliação |
-| 7 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | [F180](#f180) | 🔍 Em avaliação |
-| 8 | [**F182**](#f182) | Melhoria | Eleição redesenhada como um conjunto | [F180](#f180) | 🔍 Em avaliação |
-| 9 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | [F180](#f180) | 🔍 Em avaliação |
-| 10 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | — | 🔍 Em avaliação |
-| 11 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ⏳ Pendente |
+| 5 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | — | ⏳ Pendente |
+| 6 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | — | ⏳ Pendente |
+| 7 | [**F181**](#f181) | Melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | [F180](#f180) | 🔍 Em avaliação |
+| 8 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | [F180](#f180) | 🔍 Em avaliação |
+| 9 | [**F182**](#f182) | Melhoria | Eleição redesenhada como um conjunto | [F180](#f180) | 🔍 Em avaliação |
+| 10 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | [F180](#f180) | 🔍 Em avaliação |
+| 11 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | [F180](#f180) | 🔍 Em avaliação |
+| 12 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | — | 🔍 Em avaliação |
+| 13 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | — | ⏳ Pendente |
+| 14 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | — | ⏳ Pendente |
+| 15 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ⏳ Pendente |
+| 16 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | — | ⏳ Pendente |
+| 17 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | — | ⏳ Pendente |
 
 ### 3.4 — Juros e Tesouro (M21)
 
@@ -170,16 +189,18 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 0/6 concluídos
+> **Progresso:** 0/8 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F173**](#f173) | Feature | Partido desde o 1º dia | — | ⏳ Pendente |
 | 2 | [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | [F173](#f173), [F174](#f174) | ⏳ Pendente |
 | 3 | [**F170**](#f170) | Feature | Parâmetros das estratégias salvos no perfil | [F174](#f174) | ⏳ Pendente |
-| 4 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ⏳ Pendente |
-| 5 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | — | ⏳ Pendente |
-| 6 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
+| 4 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | — | 🔍 Em avaliação |
+| 5 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ⏳ Pendente |
+| 6 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | — | ⏳ Pendente |
+| 7 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
+| 8 | [**F195**](#f195) | Feature | Acordo de base com prazo | — | 🔍 Em avaliação |
 
 ### 4.0 — Expansão Gestoras (M18)
 
@@ -210,6 +231,7 @@
 | [**F6**](#f6) | Feature | Link de convite pela internet no lobby | N2 | [F5](#f5) | 1 | ⏳ Pendente |
 | [**F100**](#f100) | Feature | Proventos na carteira e nas telas | N3, N7 | [F22](#f22) | 1 | ⏳ Pendente |
 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | N25 | [F44](#f44) | 1 | ⏳ Pendente |
+| [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | N25 | — | 1 | 🔍 Em avaliação |
 | [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | N10 | — | 0 | 🔍 Em avaliação |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | N19 | — | 0 | 🔍 Em avaliação |
 | [**F56**](#f56) | Feature | Novidades no app | N14 | — | 0 | ⏳ Pendente |
@@ -221,9 +243,13 @@
 | [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | N25 | — | 0 | ⏳ Pendente |
 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | N25 | [F44](#f44) | 0 | ⏳ Pendente |
 | [**F141**](#f141) | Docs | README com as features de hoje | N25 | [F139](#f139) | 0 | ⏳ Pendente |
-| [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | N25 | — | 0 | 🔍 Em avaliação |
 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | N22 | [F44](#f44) | 0 | ⏳ Pendente |
 | [**F175**](#f175) | Feature | Federações partidárias | N34 | [F173](#f173) | 0 | ⏳ Pendente |
+| [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | N12 | — | 0 | 🔍 Em avaliação |
+| [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | [F158](#f158) | 0 | 🔍 Em avaliação |
+| [**F194**](#f194) | Feature | Dólar e ativos internacionais | N34, N11 | [F191](#f191) | 0 | 🔍 Em avaliação |
+| [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | 0 | ⏳ Pendente |
+| [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | 0 | ⏳ Pendente |
 
 ---
 
@@ -234,15 +260,23 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 · 4º | 0 | Médio | Bom | ⏳ |
-| [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 · 5º | 4 | Alto | Bom | ⏳ |
-| [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 10º | 2 | — | — | 🔍 |
-| [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 · 11º | 0 | Médio | Excelente | ⏳ |
+| [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 · 5º | 0 | Médio | Bom | ⏳ |
+| [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 · 6º | 5 | Alto | Bom | ⏳ |
+| [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 12º | 2 | — | — | 🔍 |
+| [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | M20 · 3.3 · 13º | 0 | Baixo | Bom | ⏳ |
+| [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 · 14º | 0 | Baixo | Bom | ⏳ |
+| [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 · 15º | 0 | Médio | Excelente | ⏳ |
+| [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 · 16º | 0 | Médio | Excelente | ⏳ |
+| [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 · 17º | 0 | Médio | Bom | ⏳ |
 | [**F173**](#f173) | Feature | Partido desde o 1º dia | M21 · 3.4 · 1º | 2 | Médio | Bom | ⏳ |
-| [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 4º | 0 | Alto | Bom | ⏳ |
-| [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 · 5º | 1 | Médio | Bom | ⏳ |
-| [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 6º | 1 | Médio | Bom | ⏳ |
+| [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 · 4º | 1 | — | — | 🔍 |
+| [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 5º | 0 | Alto | Bom | ⏳ |
+| [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 · 6º | 1 | Médio | Bom | ⏳ |
+| [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 7º | 1 | Médio | Bom | ⏳ |
+| [**F195**](#f195) | Feature | Acordo de base com prazo | M21 · 3.4 · 8º | 0 | — | — | 🔍 |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | — | 2 | — | — | 🔍 |
 | [**F22**](#f22) | Feature | Preço ajustado e proventos | — | 2 | Alto | Bom | ⏳ |
+| [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | — | 1 | — | — | 🔍 |
 | [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | — | 0 | — | — | 🔍 |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | — | 0 | — | — | 🔍 |
 | [**F56**](#f56) | Feature | Novidades no app | — | 0 | Baixo | Bom | ⏳ |
@@ -252,7 +286,9 @@
 | [**F131**](#f131) | Feature | Catálogo de padrões de vela | — | 0 | — | — | 🔍 |
 | [**F132**](#f132) | Feature | Tópicos de "como se joga" do Como jogar | — | 0 | Médio | Bom | ⏳ |
 | [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | — | 0 | Baixo | Bom | ⏳ |
-| [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | — | 0 | — | — | 🔍 |
+| [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | 0 | — | — | 🔍 |
+| [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | 0 | Baixo | Bom | ⏳ |
+| [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | 0 | Médio | Bom | ⏳ |
 
 ---
 
@@ -280,6 +316,13 @@
 | **F175** | Feature | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom |
 | **F180** | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 | — | Alto | Baixo | Alto | Bom |
 | **F184** | Correção | Correções da 3.3 | — | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
+| **F185** | Performance | Dia da partida que fica mais lento ao longo da partida | N40, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Excelente |
+| **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
+| **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
+| **F188** | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | N24 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
+| **F189** | Melhoria | Retoques de interface do playtest de outubro | N15, N21 | — | M20 · 3.3 | — | Médio | Baixo | Médio | Bom |
+| **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
+| **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -352,7 +395,7 @@
 - as linhas do governo e da eleição, até o retrato substituí-las;
 - um board de identidade visual, de onde a skill `design-canvas` copia o `<helmet>` (fonte, cores e classes) para os boards novos.
 
-(2) **Retrato.** Uma captura em 1366×768 de cada tela e estado que mudou desde a 3.0, seguindo o roteiro da conferência visual (199 linhas de tela × estado). As capturas são tiradas depois dos consertos do hotfix, no banco de teste, com o governo e a corrida ligados. Cada captura vira um board de imagem do lado do antes, com uma linha por área: lobby, mercado e carteira, crédito, estatísticas, eleição, governo, jornal, Como jogar e configurações. É imagem, e não réplica em HTML: a réplica seria uma terceira versão da tela, cara de fazer e com as próprias divergências.
+(2) **Retrato.** Uma captura em 1920 de largura, a janela que o jogo usa (navegador maximizado num monitor 1920×1080), de cada tela e estado que mudou desde a 3.0, seguindo o roteiro da conferência visual (199 linhas de tela × estado). As capturas são tiradas depois dos consertos do hotfix, no banco de teste, com o governo e a corrida ligados. Cada captura vira um board de imagem do lado do antes, com uma linha por área: lobby, mercado e carteira, crédito, estatísticas, eleição, governo, jornal, Como jogar e configurações. É imagem, e não réplica em HTML: a réplica seria uma terceira versão da tela, cara de fazer e com as próprias divergências.
 
 (3) **Post-its.**
 - Ao lado da captura, os achados da conferência que ficaram para o canvas.
@@ -361,6 +404,8 @@
 (4) **Notas.** O canvas comporta 200 notas, e a limpeza libera as das linhas arquivadas.
 
 **Como roda:** sessão Sonnet, sem decisão de design: o que pede escolha vira post-it para as rodadas de redesenho. Pede, na mesma sessão, o app rodando com o `chrome-devtools` e escrita no canvas original. Sem escrita no original, a sessão para e avisa.
+
+Na mesma passada, a sessão confere os estados que o playtest não provocou (lista no fim da F184).
 
 **Aceite:** toda tela do roteiro que mudou desde a 3.0 tem captura no canvas, e o canvas fica com até 185 notas.
 
@@ -371,7 +416,65 @@
 - **Estados de erro e carregamento:** a tela de resultado, o jornal e o cartão do desafio da vela, que ficavam no esqueleto ou sumiam; a mensagem de erro das páginas de Governo, Eleição, Economia e Crédito; o ranking velho das Estatísticas; o diálogo do resultado do turno depois de recarregar.
 - **Textos e corte:** plurais e concordâncias (compras e vendas, promessas, pontos, prêmio de risco); nomes cortados sem dica no lobby, nos partidos e nas estatísticas; a faixa do dia da renda variável; a janela do desafio da vela acima de 768 px; o painel final do desafio, que comemorava com 0 acertos; o relatório final; a coluna Quando das ordens abertas; a janela de notícias com a partida pausada.
 
-Falta a triagem das notas da próxima partida de playtest: cada nota vira conserto neste lote, ou card próprio quando pede desenho. Vai a ✅ quando a triagem fechar.
+Triados do playtest de 31/out, a consertar:
+- **Estatísticas e backtest:** o tooltip do backtest que diz "cdi contributed"; clicar no Ibovespa durante o backtest não desenha o gráfico; no Comparar, o cartão Risco cola a nota e a coluna Pts na borda direita (a tabela é mais larga que o cartão), e o mesmo cartão aparece nas outras telas de nota; o retorno das Estatísticas (2,27%) diferente do da Carteira e da Evolução (1,06% e 1,1% sobre o aportado) na mesma data: conferir se é métrica diferente ou dado de outra data, e, se for métrica, dizer qual no rótulo.
+- **Partido e eleição:** encerrar a conta e entrar de novo com o mesmo nome deixa a página do partido dizendo "Você não está em nenhum partido" com o resto da tela como filiado; o partido fundado por outra conta não aparece no diário dela (aparece no histórico do jornal), com a partida pausada no 1º dia; selecionar as bancadas em "Selecionar apoio" faz o diálogo piscar.
+- **Governo:** o diálogo de nova medida passa da altura da tela em todos os tipos de medida, e o seletor "Mudança" tem um vão à direita de "Isentar", como se faltasse uma terceira opção; o botão "Sair da base" e o botão do alerta de erro ficam soltos dentro do alerta: o `Alert` do design system ganha o lugar da ação, em vez de cada tela encaixar o botão.
+- **Visual:** na barra lateral, os selos de Pendências, Conquistas, Eleição, Debug e estratégia desligada ficam descentrados na vertical, e o ponto da Eleição sai oval; os números do jornal na fonte serifada descem da linha (algarismos de estilo antigo: `font-variant-numeric: lining-nums`); "Restaurar padrão" é menor que "Ligar esta estratégia" (`strategy-detail.tsx`, `size="sm"` contra o tamanho padrão); o "i" de Padrões de vela não abre a dica (o gatilho é um svg solto, sem elemento que receba o foco).
+- **Gerador de futuro:** o campo "até quando" aceita qualquer ano e dispara a prévia a cada dígito (21000 por engano): o backend recusa horizonte acima do limite enquanto o campo não vira seletor de ano.
+
+Ficam para a sessão do retrato (F180), que roda o app com o devtools, os estados que não deu para provocar no playtest: Crédito com parcela atrasada, o esqueleto e o erro do cartão do desafio da vela (forçados bloqueando a requisição) e o diálogo do resultado numa pausa real.
+
+Vai a ✅ quando a lista acima estiver em main.
+
+<a id="f185"></a>
+**F185 — Dia da partida que fica mais lento ao longo da partida.** Serve N40 e N24. No playtest de 31/out, com 17 ativos e 7 a 8 jogadores do começo ao fim, o passo "Processar um dia" do `slow.log` subiu de 576 ms de mediana no primeiro terço da sessão para 757 e 940 ms nos seguintes (+63%), com picos de 2,7 s. No backtest de 10 anos com 5 bots, a previsão de tempo não caía com o progresso: cada dia custava mais que o anterior. Os endpoints lidos durante a partida (pendências, governo, carteira, padrões de vela) subiram na mesma proporção, de ~650 para ~1.050 ms, o que aponta para o dia disputando o processo com as leituras ou para consultas que leem o histórico inteiro.
+
+**Como medir:** numa partida salva longa do banco de teste, o perfil (pyinstrument) de 50 dias no começo e de 50 dias depois de 1.000 dias, com o mesmo número de ativos e jogadores, junto da medida por etapa do dia que a F157 põe no modo debug; o backtest se mede pelo tempo total de 10 anos com 5 bots, três rodadas. **O que muda:** as etapas cujo custo cresce com o número de dias (consulta sem limite de data, snapshot ou estatística recalculada sobre o histórico inteiro, lista que só cresce em memória) passam a ler uma janela ou a somar de forma incremental; o comportamento do jogo não muda.
+
+**Aceite:** a mediana do dia depois de 1.000 dias fica a até 10% da mediana dos primeiros 50, e a previsão do backtest de 10 anos com 5 bots cai de forma contínua até o fim.
+
+<a id="f186"></a>
+**F186 — Estatísticas lentas numa partida longa.** Serve N38 e N24. Medido no playtest de 31/out, numa partida de alguns anos com 7 a 8 jogadores: `GET /api/statistics/operations` com 8,2 s de mediana (até 14 s), `score-history` e `overview` com 3,1 s (até 12 e 9 s), `bots` com 2,8 s e `risk` perto de 1 s. As linhas saem em pares, a milissegundos uma da outra: cada abertura da tela pede cada leitura duas vezes.
+
+**Como medir:** cada endpoint na partida salva longa do banco de teste, com cProfile e o log de SQL do modo debug, separando o tempo de banco do tempo de Python, três rodadas. **O que muda:** (1) as estatísticas fecham no mês (F115), então o resultado de cada mês fechado fica guardado e a leitura recalcula só o mês corrente, em vez de refazer tudo a partir de todas as operações; (2) a leitura dupla vira uma só (duas montagens do componente ou duas chaves de query para o mesmo dado). Os números da tela não mudam: um teste compara o resultado guardado com o recalculado do zero.
+
+**Aceite:** cada endpoint de estatística abaixo de 500 ms (o limite do `slow.log`) na partida salva longa, e uma requisição por endpoint ao abrir a tela.
+
+<a id="f187"></a>
+**F187 — Um log por boot do servidor.** Serve N26. Hoje cada arquivo da pasta de logs (app, error, database, import, realtime, simulation e slow) tem o próprio `RotatingFileHandler`, de 10 MB com 5 cópias (`backend/core/logger.py:103`): cada arquivo gira sozinho quando enche, sem perder nada até passar de 60 MB, mas as sessões se emendam no mesmo arquivo, e achar o log de um playtest é procurar pelo horário.
+
+**O que muda por dentro:** no boot, antes de abrir qualquer handler, os arquivos da sessão anterior vão para `logs/anteriores/<data e hora daquele boot>/`, e ficam os 10 últimos boots, como nos jogos que separam o log da sessão atual dos anteriores. Dentro de um boot, a rotação por tamanho continua como rede de segurança. A primeira linha de cada arquivo diz a versão, se o modo debug está ligado e a hora do boot. No Windows não se renomeia arquivo aberto, por isso o giro roda só no processo principal e antes dos handlers, nunca no processo filho do reload. **O que não muda por fora:** a pasta que as Configurações abrem é a mesma, e os arquivos têm os mesmos nomes. **Como se confere:** um teste do logger gira a pasta num diretório temporário duas vezes e acha os arquivos inteiros em `anteriores/`; dois boots seguidos do app fazem o mesmo.
+
+<a id="f188"></a>
+**F188 — Eventos do Socket.IO no modo debug, com contagem e tamanho.** Serve N24. Hoje o cartão "O que vai para o navegador" do painel de desempenho (`features/performance/components/traffic-table.tsx`) mostra só uma janela recente, que no playtest de 31/out se esvaziou sozinha, e o `realtime.log` registra só conexão, inscrição e desconexão. Um evento pesado some antes de ser visto.
+
+**O que muda:** (1) conferir se o cartão esvaziar é a janela andando com a partida pausada ou um bug, e consertar se for bug; (2) o backend acumula, por nome de evento e desde o boot, quantas vezes ele saiu, quantos por minuto, o total de bytes, o tamanho típico e o tamanho dos 5% maiores (p95: 95 de cada 100 envios cabem nesse tamanho), e a hora do último envio; (3) a tela mostra esse acumulado numa tabela ordenável, com um botão de zerar e a dica de como ler cada coluna, e a janela recente continua ao lado, dizendo quantos segundos ela cobre. Serve à medição da F157, que agrupa as emissões em velocidade alta.
+
+<a id="f189"></a>
+**F189 — Retoques de interface do playtest de outubro.** Serve N15 e N21. Mudanças pequenas, sem rodada no canvas, que o playtest de 31/out pediu:
+- **Log das ordens do bot** num drawer lateral, como as configurações do lobby, no lugar do cartão que abre embaixo da listagem e obriga a rolar a página; o cartão de hoje se adapta à largura do drawer, o "Ver mais" continua no `useInfiniteQuery` que já existe (`useBotLog`, `useStrategyLog`) e fechar o drawer fecha o log.
+- **Seletor do vice** com o avatar e o nome de cada jogador, como no resto do app.
+- **Filtro "Na carteira"** na renda variável, igual ao da renda fixa.
+- **Período do backtest** com o mesmo seletor de intervalo da sala.
+- **Correlação** sem a ordenação pelos cabeçalhos (`correlation-matrix.tsx:74`): a matriz fica na ordem em que os ativos foram escolhidos.
+- **Selos "a sala vê" e "a sala vê na fila"** saem; fica só o "a sala não vê", com ícone, como na estratégia.
+- **"Quem tem esses ativos"** sai do diálogo de nova medida: a mesa não aponta quem a medida machuca, e quem quiser saber descobre olhando os outros jogadores (N21).
+- **Curvas internas fora da tela:** o gráfico do prêmio de risco pela dívida e o da escala do investimento da eleição saem das telas; a explicação passa para o tópico de conceito do Como jogar, quando houver.
+- **Configurações** com os cartões reordenados: a zona de perigo por último, e o Como jogar ao lado da configuração irmã e no mesmo layout dela.
+- **Aviso de atualização das Estatísticas** (`update-notice.tsx`) também com a partida pausada, dizendo a data da última atualização; a contagem até a próxima aparece só com a partida andando.
+
+Cada item sai num commit `feat:` próprio.
+
+<a id="f196"></a>
+**F196 — Evolução do patrimônio por tipo de renda variável.** Serve N16. Hoje a evolução do patrimônio (`portfolio/components/networth-chart.tsx`) tem as visões "Ganho" e "Por classe", que separa renda fixa, renda variável e caixa, um painel por classe. O playtest de 31/out pediu ver a renda variável aberta por tipo.
+
+**O que muda:** uma visão "Por tipo", ao lado de "Por classe", com um painel por tipo de renda variável (Ações, FII, ETF, BDR e Cripto) no mesmo estilo dos painéis de hoje; o tipo que a carteira nunca teve não ganha painel. O backend soma a série da carteira pelo tipo do ativo, que já está no cadastro, no mesmo endpoint da visão por classe. Sem rodada no canvas: o layout é o da visão por classe.
+
+<a id="f197"></a>
+**F197 — Rebalanceamento por meta com várias classes.** Serve N4. Hoje o `TargetRebalance` (`backend/features/strategy/rebalance.py:55`) divide só entre um ativo de ações (BOVA11 por padrão) e a renda fixa de liquidez diária: a meta em ações vai de 10% a 90% (padrão 60%), e o desvio máximo, de 1 a 20 pontos (padrão 5). O playtest de 31/out pediu configurar a meta de cada classe.
+
+**O que muda:** os parâmetros viram uma lista de alvos (um ativo ou uma classe e a porcentagem), que soma 100%, com a faixa de desvio de cada alvo; a estratégia vende o que passou da faixa antes de comprar o que ficou abaixo, como hoje. O formulário da estratégia mostra a lista com o total e recusa o que não soma 100%. O padrão continua 60% em BOVA11 e 40% em renda fixa com 5 pontos, então partidas salvas e backtests antigos dão o mesmo resultado; um teste compara os dois. Os parâmetros salvos no perfil (F170) passam a guardar a lista.
 
 ---
 
@@ -398,6 +501,12 @@ Falta a triagem das notas da próxima partida de playtest: cada nota vira conser
 | **F181** | Melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | N15 | — | M20 · 3.3 | [F180](#f180) | A rodada no canvas sobre os retratos |
 | **F182** | Melhoria | Eleição redesenhada como um conjunto | N15, N34 | — | M20 · 3.3 | [F180](#f180) | A rodada no canvas sobre os retratos |
 | **F183** | Melhoria | Como jogar sem cobrir a tela | N15, N25 | — | M20 · 3.3 | [F180](#f180) | A rodada no canvas sobre os retratos |
+| **F190** | Melhoria | Contas do governo redesenhadas | N15, N34 | — | M20 · 3.3 | [F180](#f180) | A rodada no canvas: separar a conta do país da ação política, o destino do cartão 'Quem lê a conta' e o desenho dos gráficos da conta. |
+| **F191** | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | N34 | — | M21 · 3.4 | — | Sessão de desenho em Opus com o usuário: quais ligações entram, como camada de efeito com coeficientes ancorados em dado real (BCB, IBGE); série própria de desemprego (PNAD); freio do laço dívida → prêmio; a taxa média da dívida; como o painel mostra a cadeia; encaixe com a F97 e a F165. Antes, reproduzir a dívida ÷ PIB com a série da partida. |
+| **F192** | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | N12 | — | — | — | A forma dos controles de regime, a reprodutibilidade pela semente, o teto medido do horizonte e a relação com a economia interligada (F191). |
+| **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | — | — | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
+| **F194** | Feature | Dólar e ativos internacionais | N34, N11 | — | — | [F191](#f191) | Como o dólar do jogo reage (desconfiança, juro real), a camada pelo desvio sobre BDR e IVVB11 e onde o seletor de origem aparece. |
+| **F195** | Feature | Acordo de base com prazo | N34 | — | M21 · 3.4 | — | Escolher entre (a) prazo na negociação, (b) renovação automática e (c) acordo até o fim do mandato com saída por aprovação baixa; recomendação (c). |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -446,7 +555,7 @@ Falta a triagem das notas da próxima partida de playtest: cada nota vira conser
 **F174 — Preparação do lobby redesenhada.** Serve N39 e N34; retrabalho da F143. O card "Minha preparação" ficou ruim na tela, e a preparação vai crescer (partido, parâmetros das estratégias, gestora), o que um card no lobby não comporta. A preparação existe para tirar do jogador o que ele refaz igual a cada partida. Falta escolher o desenho numa rodada no canvas, com três variantes: (a) um botão "Minha preparação" no lobby que abre um dialog largo com abas (Partido, Estratégias e, com a expansão, Gestora), no molde do Como jogar e do gerador de futuro; (b) um botão fixo no canto, como o do Como jogar dentro da partida; (c) uma **visão geral dos partidos à vista no lobby**, para todos: sigla, cor, filiados, chapa e vice de outro partido, que é onde a sala negocia quem entra com quem. A rodada cobre os estados expansão desligada, partida salva selecionada (travado), conflito de sigla ou cor e convite de vice pendente. Sai daqui para Pendente com a variante escolhida.
 
 <a id="f179"></a>
-**F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: o selo de pausa leva o motivo inteiro ("Pausado: resultado do 1º turno"), depois vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Falta escolher o desenho no canvas, comparando: (a) a velocidade num botão só ("10×") que abre as opções; (b) o selo só com "Pausado" e o motivo numa dica ou na faixa abaixo da topbar, onde já mora o aviso do presidente; (c) a corrida e o governo como selos compactos, com o detalhe ao passar o mouse; (d) a topbar em duas linhas abaixo de uma largura. O pior caso é o estado de referência: 1366 px, corrida e governo ligados, pausa com o motivo mais longo e o x100 destacado. Sai daqui para Pendente com a variante escolhida.
+**F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: o selo de pausa leva o motivo inteiro ("Pausado: resultado do 1º turno"), depois vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Falta escolher o desenho no canvas, comparando: (a) a velocidade num botão só ("10×") que abre as opções; (b) o selo só com "Pausado" e o motivo numa dica ou na faixa abaixo da topbar, onde já mora o aviso do presidente; (c) a corrida e o governo como selos compactos, com o detalhe ao passar o mouse; (d) a topbar em duas linhas abaixo de uma largura. A referência é 1920 de largura, e em 1366 nada pode quebrar; o estado de teste é corrida e governo ligados, pausa com o motivo mais longo e o x100 destacado. No playtest de 31/out o motivo da pausa ("Pausado: campanha aberta") pesou de novo, o que reforça a (b). Sai daqui para Pendente com a variante escolhida.
 
 <a id="f181"></a>
 **F181 — Regras visuais do conjunto: texto, tabelas, grade e eixos.** Serve N15. A conferência visual (F178) achou problemas que se repetem pelo app inteiro:
@@ -456,20 +565,23 @@ Falta a triagem das notas da próxima partida de playtest: cada nota vira conser
 - página sem largura máxima em 1920;
 - cartões do mesmo nível com alturas diferentes: Crédito, Carteira, Estatísticas e Comparar;
 - vazios grandes ao lado de colunas altas: Governo neutro, Eleição, Configurações e Detalhe da renda variável;
-- eixos de gráfico com rótulos repetidos ou arredondados com erro: Economia, dívida e prêmio, Mandato.
+- eixos de gráfico com rótulos repetidos ou arredondados com erro: Economia, dívida e prêmio, Mandato;
+- a tabela de Partidos da Eleição e o Gasto público rolam de lado com espaço sobrando na tela (playtest de 31/out);
+- a paleta tem 10 cores (`index.css`, `chart-1` a `chart-10`) para até 10 jogadores e 3 partidos do computador, e o laranja (`chart-5`) e o marrom (`chart-10`) se confundem.
 
 São regras, desenhadas uma vez e aplicadas em todo lugar. Uma rodada no canvas, sobre os retratos da F180, decide:
 - a escala de texto e a cor dos rótulos no design system;
 - o que a tabela larga faz em 1366: esconder colunas, virar cartão por linha ou fixar a primeira coluna;
 - a largura máxima da página;
 - a regra de altura dos cartões irmãos e o que preenche o vazio;
-- o formato dos eixos.
+- o formato dos eixos;
+- a paleta de jogadores e partidos com pelo menos 13 cores distinguíveis entre si, sem o vermelho e o verde puros, que destoam do resto do visual.
 
 Cada regra aparece num antes e depois de uma tela real. A implementação aplica as regras nos componentes do design system, como variantes e tokens, e nas telas listadas.
 
 **Como roda:** rodada de design em Opus, com o usuário, numa sessão. Se não couber numa sessão, divide-se em cards. A implementação é Sonnet.
 
-**Aceite:** as telas do roteiro da conferência, em 1366×768, sem rolagem lateral, sem elemento passando da borda e sem texto abaixo de 12 px.
+**Aceite:** as telas do roteiro da conferência, desenhadas em 1920 de largura, sem rolagem lateral, sem elemento passando da borda e sem texto abaixo de 12 px; em 1366×768 vale só que nada passe da borda nem role de lado, sem desenho próprio.
 
 <a id="f182"></a>
 **F182 — Eleição redesenhada como um conjunto.** Serve N15 e N34. A página da Eleição empilha telas de features desenhadas separadamente (F107, F130, F151, F152). Na conferência visual:
@@ -485,6 +597,8 @@ Cada regra aparece num antes e depois de uma tela real. A implementação aplica
   - o radar muda de tamanho entre cartões;
   - a legenda mostra "Na fundação" mesmo quando o perfil não mudou.
 
+No playtest de 31/out, o diálogo de fundar partido também: no "Como o eleitorado recebe", os rótulos do radar ("Serviço público", "Justiça social") passam do cartão, os nomes dos grupos cortam ("Trabalhadores com c…") e o texto é pequeno; o Ranking da partida sobrepõe a coluna do patrimônio do partido à lista individual.
+
 Uma rodada no canvas, sobre os retratos da Eleição (F180), redesenha a página como um conjunto, em três momentos: na campanha, entre os turnos e no resultado.
 
 **Como roda:** rodada de design em Opus, com o usuário, numa sessão. A implementação é Sonnet.
@@ -493,6 +607,41 @@ Uma rodada no canvas, sobre os retratos da Eleição (F180), redesenha a página
 **F183 — Como jogar sem cobrir a tela.** Serve N15 e N25. A aba "Como jogar" sobrepõe os cantos dos cartões em várias telas, e o balão "Tópico sobre esta tela" cobre a boleta e campos de formulário. Uma rodada no canvas, sobre os retratos (F180), decide onde a aba e o balão moram. Algumas saídas possíveis: dentro da topbar, junto da F179; um canto que nenhuma tela usa; o balão só ao passar o mouse.
 
 **Como roda:** rodada de design em Opus, com o usuário, que pode ir junto da F179 se a aba for para a topbar. A implementação é Sonnet.
+
+<a id="f190"></a>
+**F190 — Contas do governo redesenhadas.** Serve N15 e N34. No playtest de 31/out, a página do Governo confundiu: muita informação, o painel das contas misturado com o Congresso e as medidas, o cartão "Quem lê a conta" sem dizer para que serve, os gráficos de barra da conta do país difíceis de ler e o Gasto público rolando de lado. O que funcionou e serve de molde: a explicação "inclui 2,3 de prêmio", com o gráfico e a soma que monta a taxa de hoje.
+
+Uma rodada no canvas, sobre os retratos do Governo (F180), separa a conta do país da ação política, decide se o "Quem lê a conta" fica e redesenha os gráficos da conta. **Como roda:** rodada de design em Opus, com o usuário; a implementação é Sonnet.
+
+<a id="f191"></a>
+**F191 — Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida.** Serve N34. Hoje as ligações são poucas e quase todas saem do gasto do governo: medida de gasto → IPCA → SELIC (1,5 vez a alta do IPCA) → bolsa (−2,9% por ponto de SELIC na média de 3 meses, pelo beta de cada ação); obras → crescimento; juro real e alta da bolsa → crescimento; crescimento → desemprego (lei de Okun: crescer acima de 2% derruba o desemprego, que vai de 4% a 18% com neutro em 9%); dívida → prêmio de risco, sem teto → juro da dívida e títulos novos do Tesouro; e IPCA, SELIC, bolsa, desemprego e prêmio → aprovação (`government/spending_effects.py`, `economy/growth.py`, `government/budget.py`). SELIC, IPCA e Ibovespa são as séries históricas, e só se mexem pela camada de efeito do gasto.
+
+Faltam: dívida → inflação, juro e bolsa (o risco fiscal); PIB → lucro das empresas e preço de todas as ações; PIB → arrecadação pelo ciclo; desemprego → inflação (curva de Phillips: desemprego baixo aquece os salários e a inflação) e → gasto (seguro-desemprego); prêmio de risco → CDI, crédito e bolsa; impostos do jogo → crescimento e bolsa.
+
+Falta também conferir a dívida ÷ PIB. Numa salva velha, o resultado do mês deu −R$ 285 bi enquanto a dívida subiu só de 74% para 92% do PIB em 4,5 anos. A conta mensal (`budget.py`) é a de livro-texto (a dívida cresce pelo juro, encolhe pelo crescimento nominal do PIB e muda pelo resultado primário) e só fecha com esses números se a SELIC média do período foi bem menor que a do mês olhado: isso se reproduz com a série da própria partida. Duas suspeitas: toda a dívida bruta paga SELIC + prêmio, o que superestima o juro (a dívida real é em parte prefixada e atrelada ao IPCA, com taxa média abaixo da SELIC); e a F128 registra o peso da bolsa no crescimento como 5 onde o código usa 0,05.
+
+A F97 (SELIC do governo) e a F165 (Tesouro) se apoiam no resultado.
+
+<a id="f192"></a>
+**F192 — Gerador de futuro: inflação por regime e horizonte em anos.** Serve N12. Hoje o choque de inflação é um pulso: sobe em seis meses e cai pela metade a cada ano, então no máximo faz um pico no começo do futuro gerado; o playtest de 31/out esperava um controle da inflação do futuro inteiro. O "Começar em", que só decide onde o gerado encaixa no real, pesa pouco. E o "até quando" é um campo de data livre: apagar ou errar um dígito já dispara a prévia, e milhares de anos travam (o limite no backend vai no lote de correções, F184).
+
+A direção do playtest: (1) o choque vira regime, com um controle do nível (a inflação média do futuro inteiro sobe ou desce, com a SELIC e a bolsa reagindo pelos coeficientes de hoje) e outro dos ciclos (com que frequência e intensidade vêm os períodos de inflação alta); (2) o "Começar em" sai; (3) o "até quando" vira escolha de ano, com teto medido e aviso a partir do ponto em que a prévia fica lenta.
+
+<a id="f193"></a>
+**F193 — Indicadores técnicos e padrões de vela explicados no Como jogar.** Serve N25 e N19. Hoje cada indicador técnico diz Compra, Venda ou Neutro, com um "i" de texto curto que não ensina a ler, e o "i" dos padrões de vela nem abre. A ideia do playtest de 31/out: um tópico por indicador no Como jogar, em fases: o que é e como se calcula; por que ele aponta compra ou venda; um caso em que acerta; as ressalvas, quando ele engana. O "i" do indicador abre o tópico na aba dele. O mesmo molde serve aos padrões de vela, junto do catálogo (F131). As ordens a mercado e limitada já têm o tópico "Ordem a mercado e limitada" (`tutorial/topics/order-types.tsx`), que mostra a limitada esperando o preço chegar ao limite, e ficam como estão.
+
+<a id="f194"></a>
+**F194 — Dólar e ativos internacionais.** Serve N34 e N11. Ideia do playtest de 31/out: a cotação do dólar no jogo, subindo com a desconfiança na moeda e caindo com o juro real alto, e os ativos internacionais andando junto. Na Central de dados, cada ativo ganha a origem, Nacional ou Internacional, num seletor de dois com bandeirinha, que aparece também na listagem.
+
+Ponto de realismo: BDR e ETF de índice de fora (IVVB11) já carregam o dólar no preço histórico. O câmbio do jogo só pode entrar como camada por cima, a diferença entre o dólar da partida e o dólar real daquele dia, senão o câmbio conta duas vezes. A série real é a PTAX do Banco Central (série 1 do SGS), desde 1994.
+
+<a id="f195"></a>
+**F195 — Acordo de base com prazo.** Serve N34. Hoje o apoio de cada bancada vale até uma data ("O PP está na base do governo até 02 fev") e se renova à mão, várias vezes por mandato; no playtest de 31/out isso virou tarefa repetida. Três saídas:
+- (a) o prazo escolhido na negociação, até o fim do mandato, com o preço por mês fixado no acordo;
+- (b) renovação automática, com aviso nas Pendências e o preço reajustado;
+- (c) acordo até o fim do mandato, mas a bancada pede reajuste ou sai quando a aprovação do governo cai abaixo de um limite, como as bancadas que deixaram o governo em 2015 e 2016.
+
+Recomendação: a (c). Ela tira a tarefa repetida e mantém uma consequência que volta depois: governo fraco perde a base no meio do mandato.
 
 ---
 
