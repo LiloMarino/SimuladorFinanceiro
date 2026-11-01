@@ -22,7 +22,7 @@
     "generate:api": "docusaurus clean-api-docs api && docusaurus gen-api-docs api"
   },
   "dependencies": {
-    "@dineug/erd-editor": "^4.0.0",
+    "@dineug/erd-editor": "^4.2.0",
     "@docusaurus/core": "3.10.2",
     "@docusaurus/preset-classic": "3.10.2",
     "@docusaurus/theme-common": "3.10.2",
@@ -31,7 +31,7 @@
     "clsx": "^2.0.0",
     "docusaurus-plugin-openapi-docs": "^5.2.0",
     "docusaurus-theme-openapi-docs": "^5.2.0",
-    "katex": "^0.19.0",
+    "katex": "^0.19.1",
     "prism-react-renderer": "^2.3.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
