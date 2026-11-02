@@ -4,8 +4,10 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@/shared/components/ui/empty";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
+import { Label } from "@/shared/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Switch } from "@/shared/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { ErrorState } from "@/shared/components/error-state";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
@@ -13,7 +15,7 @@ import { useVariableIncomeStocks } from "@/shared/hooks/queries/useVariableIncom
 import { MarketTable } from "../components/market-table";
 import type { AssetClass } from "@/types";
 
-type Filter = "ALL" | "HELD" | AssetClass;
+type Filter = "ALL" | AssetClass;
 // Um botão por classe da API: classe nova sem rótulo não compila
 const CLASS_FILTER_LABELS: Record<AssetClass, string> = {
   STOCK: "Ações",
@@ -30,12 +32,14 @@ export default function VariableIncomePage() {
   const { data: portfolio } = usePortfolio();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("ALL");
+  const [onlyHeld, setOnlyHeld] = useState(false);
   const [sector, setSector] = useState(ALL_SECTORS);
 
   const holdings = new Map((portfolio?.variable_income ?? []).map((p) => [p.ticker, p.size]));
   const all = quotes ?? [];
   const sectors = [...new Set(all.map((q) => q.sector).filter((s): s is string => !!s))].sort();
   const withoutSector = all.filter((q) => !q.sector).length;
+  const heldCount = all.filter((q) => holdings.has(q.ticker)).length;
   // O menu mostra a contagem de cada setor; "Sem setor" fecha a lista
   const sectorItems = [
     { value: ALL_SECTORS, label: `Todos · ${all.length}` },
@@ -48,12 +52,14 @@ export default function VariableIncomePage() {
   const visible = all.filter(
     (q) =>
       (!term || q.ticker.toLowerCase().includes(term) || q.name.toLowerCase().includes(term)) &&
-      (filter === "ALL" || (filter === "HELD" ? holdings.has(q.ticker) : q.asset_class === filter)) &&
+      (filter === "ALL" || q.asset_class === filter) &&
+      (!onlyHeld || holdings.has(q.ticker)) &&
       (sector === ALL_SECTORS || (sector === NO_SECTOR ? !q.sector : q.sector === sector)),
   );
   const clearFilters = () => {
     setSearch("");
     setFilter("ALL");
+    setOnlyHeld(false);
     setSector(ALL_SECTORS);
   };
 
@@ -123,37 +129,42 @@ export default function VariableIncomePage() {
             onValueChange={(values) => values[0] && setFilter(values[0] as Filter)}
           >
             <ToggleGroupItem value="ALL">Todos · {all.length}</ToggleGroupItem>
-            <ToggleGroupItem value="HELD">Na carteira · {holdings.size}</ToggleGroupItem>
             {(Object.entries(CLASS_FILTER_LABELS) as [AssetClass, string][]).map(([value, label]) => (
               <ToggleGroupItem key={value} value={value}>
                 {label}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
-          {/* Sempre visível: sem setores na base, fica desabilitado */}
-          <Select
-            items={sectorItems}
-            value={sector}
-            disabled={sectors.length === 0}
-            onValueChange={(value) => setSector(value ?? ALL_SECTORS)}
-          >
-            <SelectTrigger size="lg" aria-label="Filtrar por setor" className="ml-auto">
-              <SelectValue>
-                {(value: string) => (
-                  <>
-                    <span className="text-muted-foreground">Setor:</span> {sectorName(value)}
-                  </>
-                )}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {sectorItems.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="ml-auto flex items-center gap-3">
+            <div className="flex h-10 items-center gap-2 rounded-lg border border-input px-3">
+              <Switch id="only-held" checked={onlyHeld} onCheckedChange={setOnlyHeld} />
+              <Label htmlFor="only-held">Na carteira · {heldCount}</Label>
+            </div>
+            {/* Sempre visível: sem setores na base, fica desabilitado */}
+            <Select
+              items={sectorItems}
+              value={sector}
+              disabled={sectors.length === 0}
+              onValueChange={(value) => setSector(value ?? ALL_SECTORS)}
+            >
+              <SelectTrigger size="lg" aria-label="Filtrar por setor">
+                <SelectValue>
+                  {(value: string) => (
+                    <>
+                      <span className="text-muted-foreground">Setor:</span> {sectorName(value)}
+                    </>
+                  )}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {sectorItems.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </CardHeader>
       {renderBody()}
