@@ -1,9 +1,9 @@
-import { AlertCircle, ChartCandlestick, Info } from "lucide-react";
+import { AlertCircle, ChartCandlestick } from "lucide-react";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
+import { InfoHint } from "@/shared/components/info-hint";
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
 import { Switch } from "@/shared/components/ui/switch";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { CandlePatternCode } from "@/types";
 import { PATTERN_INFO } from "../../lib/candle-patterns";
@@ -19,14 +19,9 @@ export function PatternSwitch({ checked, onCheckedChange }: PatternSwitchProps) 
     <div className="inline-flex h-8 items-center gap-2 whitespace-nowrap rounded-lg border border-input bg-card px-2.5 text-[13px] font-medium">
       <Label htmlFor="candle-patterns-switch">Padrões de vela</Label>
       <Switch id="candle-patterns-switch" size="sm" checked={checked} onCheckedChange={onCheckedChange} />
-      <span className="inline-flex text-faint-foreground">
-        <Tooltip>
-          <TooltipTrigger render={<Info className="size-3.5" aria-label="O que são padrões de vela" />} />
-          <TooltipContent>
-            Formas de vela que costumam anteceder uma alta ou uma baixa. São dicas do histórico, não promessas.
-          </TooltipContent>
-        </Tooltip>
-      </span>
+      <InfoHint label="O que são padrões de vela">
+        Formas de vela que costumam anteceder uma alta ou uma baixa. São dicas do histórico, não promessas.
+      </InfoHint>
     </div>
   );
 }
