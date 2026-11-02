@@ -42,7 +42,7 @@ export function JournalPaper({ simulationId }: JournalPaperProps) {
           <span className="font-mono text-xs text-muted-foreground first-letter:uppercase">
             {state?.current_date ? displayWeekdayDate(state.current_date) : ""}
           </span>
-          <h2 className="font-serif text-4xl font-bold tracking-tight">Diário do Pregão</h2>
+          <h2 className="font-serif lining-nums text-4xl font-bold tracking-tight">Diário do Pregão</h2>
           <span className="text-right font-mono text-xs text-muted-foreground">A partida inteira</span>
         </div>
         <div className="flex flex-wrap items-center gap-4">

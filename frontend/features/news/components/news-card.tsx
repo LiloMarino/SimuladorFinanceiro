@@ -17,7 +17,7 @@ export function NewsCard({ news, others }: NewsCardProps) {
       <NewsMasthead date={news.news_date} />
       <div className="grid gap-1 px-3.5 pt-2.5 pb-3">
         <NewsKicker type={news.news_type} />
-        <p className="line-clamp-2 font-serif text-[17px] leading-snug font-semibold">{news.headline}</p>
+        <p className="line-clamp-2 font-serif lining-nums text-[17px] leading-snug font-semibold">{news.headline}</p>
         {news.dek && <p className="line-clamp-2 text-[13px] text-muted-foreground">{news.dek}</p>}
       </div>
       <div className="flex items-center justify-between border-t border-paper-border px-3.5 py-1.5 text-xs">

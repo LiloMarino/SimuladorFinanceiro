@@ -34,7 +34,7 @@ type NewsMastheadProps = {
 export function NewsMasthead({ date, children }: NewsMastheadProps) {
   return (
     <div className="flex items-baseline justify-between gap-3 border-b-[3px] border-double border-foreground px-3.5 pt-2 pb-1.5">
-      <b className="font-serif text-[15px] font-bold tracking-tight">Diário do Pregão</b>
+      <b className="font-serif lining-nums text-[15px] font-bold tracking-tight">Diário do Pregão</b>
       {children ?? <span className="font-mono text-[11px] text-muted-foreground">{displayShortDate(date)}</span>}
     </div>
   );

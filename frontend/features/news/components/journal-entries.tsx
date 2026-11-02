@@ -41,7 +41,7 @@ export function JournalEntries({ items, total, filter, onClear, held }: JournalE
           {group.items.map((item) => (
             <article key={item.id} className="grid gap-1">
               <NewsKicker type={item.news_type} />
-              <h4 className="font-serif text-xl leading-snug font-semibold">{item.headline}</h4>
+              <h4 className="font-serif lining-nums text-xl leading-snug font-semibold">{item.headline}</h4>
               {item.dek && <p className="text-sm text-muted-foreground">{item.dek}</p>}
               {item.tickers.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-1">

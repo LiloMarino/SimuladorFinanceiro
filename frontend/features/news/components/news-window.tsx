@@ -41,7 +41,7 @@ export function NewsWindow({ news, onClose }: NewsWindowProps) {
       </NewsMasthead>
       <div className="grid gap-2 px-5.5 pt-4.5 pb-1.5">
         <NewsKicker type={news.news_type} />
-        <p className="font-serif text-2xl leading-tight font-semibold">{news.headline}</p>
+        <p className="font-serif lining-nums text-2xl leading-tight font-semibold">{news.headline}</p>
         {news.dek && <p className="text-sm text-muted-foreground">{news.dek}</p>}
       </div>
       <div className="flex items-center gap-2.5 px-5.5 pt-3.5 pb-4">

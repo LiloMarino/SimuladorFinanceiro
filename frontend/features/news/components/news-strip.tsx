@@ -45,7 +45,7 @@ function Strip({ simulationId, live, others }: StripProps) {
 
   return (
     <div className="flex h-10 items-center gap-3.5 border-t border-paper-border bg-paper px-7">
-      <b className="border-r-[3px] border-double border-foreground pr-3.5 font-serif text-sm whitespace-nowrap">
+      <b className="border-r-[3px] border-double border-foreground pr-3.5 font-serif lining-nums text-sm whitespace-nowrap">
         Diário do Pregão
       </b>
       {shown && catalog ? (
@@ -53,7 +53,7 @@ function Strip({ simulationId, live, others }: StripProps) {
           <NewsKicker type={shown.news_type} />
           <span
             className={cn(
-              "min-w-0 flex-1 truncate font-serif text-sm",
+              "min-w-0 flex-1 truncate font-serif lining-nums text-sm",
               live ? "font-semibold" : "text-muted-foreground",
             )}
           >
@@ -61,7 +61,9 @@ function Strip({ simulationId, live, others }: StripProps) {
           </span>
         </>
       ) : (
-        <span className="min-w-0 flex-1 truncate font-serif text-sm text-muted-foreground">Sem manchetes ainda</span>
+        <span className="min-w-0 flex-1 truncate font-serif lining-nums text-sm text-muted-foreground">
+          Sem manchetes ainda
+        </span>
       )}
       {live && others > 0 && (
         <span className="text-xs whitespace-nowrap text-muted-foreground">+{others} neste pregão</span>
