@@ -84,3 +84,6 @@ secret.key
 *.db
 postgres_dist/
 .cache/
+
+# Perfis do cProfile (modo debug)
+profiles/

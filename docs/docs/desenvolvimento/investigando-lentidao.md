@@ -4,7 +4,7 @@ sidebar_position: 9
 
 # Investigando lentidão
 
-Quando a partida trava ou o tempo anda mais devagar que o pedido, o caminho é: **ligar o modo debug**, achar **qual ponto** gasta o tempo no painel Desempenho e, só então, olhar **dentro** dele com o `py-spy`. Nada disso muda código nem manda dados para fora da máquina.
+Quando a partida trava ou o tempo anda mais devagar que o pedido, o caminho é: **ligar o modo debug**, achar **qual ponto** gasta o tempo no painel Desempenho e, só então, olhar **dentro** dele com um perfil (rota, motor ou `py-spy`). Nada disso muda código nem manda dados para fora da máquina.
 
 ## 1. Ligar o modo debug
 
@@ -54,23 +54,63 @@ Cada evento que o servidor envia pesa em três lugares: no servidor, que monta a
 - **`logs/slow.log`**: qualquer chamada acima de 500 ms (HTTP, evento ou dia do motor) vai para esse arquivo, com a rota e o tempo.
 - **`logs/app.log`** e os arquivos por área ganham o `DEBUG` do app no modo debug (veja [Logs](./logs.md)). O SQL só entra com `sql = true` em `[debug]`, no `database.log`.
 
-## 4. Olhando dentro do ponto caro com o py-spy
+## 4. Olhando dentro do ponto caro
 
-O [`py-spy`](https://github.com/benfred/py-spy) grava o que o processo Python está fazendo **enquanto roda**, sem alterar o código, e gera um **gráfico de chamas**.
+O painel diz **qual** ponto gasta o tempo; as ferramentas abaixo dizem **qual função, dentro dele**. Todas valem só com o modo debug ligado.
 
-1. Instale (uma vez): `uv tool install py-spy` ou `pip install py-spy`.
+### Perfil de uma rota (`?profile=1`)
+
+Acrescente `?profile=1` à URL de uma rota da API (na aba **Rede** do navegador, "Copiar como cURL" e troque a URL) e a chamada grava um perfil do `cProfile` em `profiles/<método>-<rota>-<hora>.prof`. O perfil cobre só o handler da rota: o que a rota chama (`build_*`, consultas) aparece, o uvicorn não.
+
+Abra o arquivo no `snakeviz`, que mostra o tempo de cada função em blocos clicáveis:
+
+```bash
+pnpm profile:view profiles/get-api-stats-2026....prof
+```
+
+### Perfil do motor (botão no painel)
+
+O cartão **Perfil do motor** do painel liga o `cProfile` por quanto tempo você quiser e grava `profiles/engine-<hora>.prof` ao parar. Deixe a partida rodando alguns dias no ritmo que trava e pare.
+
+:::note O perfil enxerga o programa inteiro
+No Python 3.12+ o `cProfile` é do interpretador inteiro: enquanto está ligado, conta também o event loop e as rotas, não só o motor. No `snakeviz`, o tempo do motor está na árvore de chamadas de `next_tick`. Só um perfil fica ligado por vez; o botão e o `?profile=1` se recusam enquanto outro está gravando.
+:::
+
+**Como ler o perfil:** o `cProfile` registra cada chamada de função e por isso **atrasa o programa**, em geral algumas vezes. As **proporções** entre as funções valem (se `build_snapshot` ocupa 40% do perfil, ele pesa perto disso no jogo), mas os **milissegundos** não: para tempo real, use o painel ou o `pnpm profile:match`.
+
+### O py-spy
+
+O [`py-spy`](https://github.com/benfred/py-spy) grava o que o processo Python está fazendo **enquanto roda**, sem alterar o código, e gera um **gráfico de chamas**. Ele custa muito menos que o `cProfile` e separa as threads (`--threads`), mas só amostra: funções muito rápidas podem não aparecer.
+
+1. Ele já vem no grupo de desenvolvimento (`uv sync`): rode com `uv run py-spy`.
 2. Pegue o número do processo. O cartão "Achou o ponto caro?" do painel já traz o comando pronto com o PID certo (botão **Copiar**):
 
    ```bash
-   py-spy record --pid 18432 -o perfil.svg
+   uv run py-spy record --pid 18432 --threads -o perfil.svg
    ```
 
 3. Repita a lentidão por uns 30 s no jogo e pare com `Ctrl+C`.
 4. Abra o `perfil.svg` no navegador. **Quanto mais larga a barra, mais tempo a função gastou**; o que está em cima chama o que está embaixo.
 
 :::note Permissões
-No Linux o `py-spy` pode pedir `sudo` (ou `kernel.yama.ptrace_scope = 0`) para anexar a um processo que já roda. No Windows, rode o terminal como administrador se ele recusar. Se o `py-spy` não reconhecer o interpretador dentro do executável, rode o app pelo código-fonte (`uv run python main.py --debug`) e anexe a esse processo.
+No Windows o `py-spy` anexou a um processo do mesmo usuário sem precisar de administrador. No Linux ele pode pedir `sudo` (ou `kernel.yama.ptrace_scope = 0`). Se ele não reconhecer o interpretador dentro do executável, rode o app pelo código-fonte (`uv run python main.py --debug`) e anexe a esse processo.
 :::
+
+## 5. Medindo uma partida longa sem abrir o jogo
+
+`pnpm profile:match` roda os dias do motor direto, sem dormir entre eles e sem Socket.IO, numa partida de rascunho que apaga ao fim. É o antes e o depois repetível de uma mudança de desempenho.
+
+```bash
+pnpm profile:match --days 1000 --bots 5
+```
+
+Como grava no banco, o padrão é o **banco de teste** (`POSTGRES_TEST_DATABASE_URL` no `.env`); `--database current` usa o banco do ambiente. `--source <nome ou id>` copia as regras, os jogadores e as estratégias de uma partida salva (sem tocá-la), e `--cprofile` grava também o perfil em `profiles/`.
+
+A saída traz, para cada etapa do dia, a **mediana** e o **p95** dos primeiros e dos últimos dias (50 de cada, por padrão) e a **razão** entre as duas medianas:
+
+- **Mediana**: o valor do meio. Com dias de 10, 11, 12, 900 e 10,5 ms, a mediana é 11 ms: o dia travado de 900 ms não a distorce, ao contrário da média.
+- **p95**: o tempo que 95% dos dias não passam (veja [O que é o p95](#o-que-é-o-p95)).
+- **Razão**: mediana do fim dividida pela do começo. Perto de **1,0** o dia custa o mesmo no dia 1.000 que no dia 1: bom. **3,0** quer dizer que o dia ficou três vezes mais lento com o passar da partida, e é o sinal de que alguma etapa cresce com o histórico.
 
 ## Próximos Passos
 
