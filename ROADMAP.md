@@ -110,7 +110,6 @@
 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | M20 · 3.3 | — | — | — | 🔍 |
 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 | — | Médio | Excelente | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 | — | Médio | Bom | ⏳ |
-| [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 | — | — | — | 🔍 |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | 🔍 |
@@ -122,7 +121,7 @@
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -145,6 +144,7 @@
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F173](#f173), [F175](#f175), [F176](#f176) | — | — | ✅ |
 | [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 | — | — | — | ✅ |
+| [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 | — | — | — | ✅ |
 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 | — | — | — | ✅ |
 
 </details>
@@ -161,7 +161,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 5/17 concluídos
+> **Progresso:** 6/17 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -178,7 +178,7 @@
 | 11 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | [F180](#f180) | 🔍 Em avaliação |
 | 12 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | — | 🔍 Em avaliação |
 | 13 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | — | ⏳ Pendente |
-| 14 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | — | ⏳ Pendente |
+| 14 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | — | ✅ Concluído |
 | 15 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ⏳ Pendente |
 | 16 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | — | ⏳ Pendente |
 | 17 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | — | ⏳ Pendente |
@@ -262,7 +262,6 @@
 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 · 6º | 5 | Alto | Bom | ⏳ |
 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 12º | 2 | — | — | 🔍 |
 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | M20 · 3.3 · 13º | 0 | Baixo | Bom | ⏳ |
-| [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 · 14º | 0 | Baixo | Bom | ⏳ |
 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 · 15º | 0 | Médio | Excelente | ⏳ |
 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 · 16º | 0 | Médio | Excelente | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 · 17º | 0 | Médio | Bom | ⏳ |
@@ -315,7 +314,6 @@
 | **F180** | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 | — | Alto | Baixo | Alto | Bom |
 | **F185** | Performance | Dia da partida que fica mais lento ao longo da partida | N40, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Excelente |
 | **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
-| **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
 | **F188** | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | N24 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
@@ -418,11 +416,6 @@ Na mesma passada, a sessão confere os estados que o playtest não provocou (lis
 **Como medir:** cada endpoint na partida salva longa do banco de teste, com cProfile e o log de SQL do modo debug, separando o tempo de banco do tempo de Python, três rodadas. **O que muda:** (1) as estatísticas fecham no mês (F115), então o resultado de cada mês fechado fica guardado e a leitura recalcula só o mês corrente, em vez de refazer tudo a partir de todas as operações; (2) a leitura dupla vira uma só (duas montagens do componente ou duas chaves de query para o mesmo dado). Os números da tela não mudam: um teste compara o resultado guardado com o recalculado do zero.
 
 **Aceite:** cada endpoint de estatística abaixo de 500 ms (o limite do `slow.log`) na partida salva longa, e uma requisição por endpoint ao abrir a tela.
-
-<a id="f187"></a>
-**F187 — Um log por boot do servidor.** Serve N26. Hoje cada arquivo da pasta de logs (app, error, database, import, realtime, simulation e slow) tem o próprio `RotatingFileHandler`, de 10 MB com 5 cópias (`backend/core/logger.py:103`): cada arquivo gira sozinho quando enche, sem perder nada até passar de 60 MB, mas as sessões se emendam no mesmo arquivo, e achar o log de um playtest é procurar pelo horário.
-
-**O que muda por dentro:** no boot, antes de abrir qualquer handler, os arquivos da sessão anterior vão para `logs/anteriores/<data e hora daquele boot>/`, e ficam os 10 últimos boots, como nos jogos que separam o log da sessão atual dos anteriores. Dentro de um boot, a rotação por tamanho continua como rede de segurança. A primeira linha de cada arquivo diz a versão, se o modo debug está ligado e a hora do boot. No Windows não se renomeia arquivo aberto, por isso o giro roda só no processo principal e antes dos handlers, nunca no processo filho do reload. **O que não muda por fora:** a pasta que as Configurações abrem é a mesma, e os arquivos têm os mesmos nomes. **Como se confere:** um teste do logger gira a pasta num diretório temporário duas vezes e acha os arquivos inteiros em `anteriores/`; dois boots seguidos do app fazem o mesmo.
 
 <a id="f188"></a>
 **F188 — Eventos do Socket.IO no modo debug, com contagem e tamanho.** Serve N24. Hoje o cartão "O que vai para o navegador" do painel de desempenho (`features/performance/components/traffic-table.tsx`) mostra só uma janela recente, que no playtest de 31/out se esvaziou sozinha, e o `realtime.log` registra só conexão, inscrição e desconexão. Um evento pesado some antes de ser visto.
@@ -677,6 +670,7 @@ Recomendação: a (c). Ela tira a tarefa repetida e mantém uma consequência qu
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F184** | Correção | Correções da 3.3 | — | — | M20 · 3.3 |
+| **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 |
 | **F189** | Melhoria | Retoques de interface do playtest de outubro | N15, N21 | — | M20 · 3.3 |
 
 <a id="f184"></a>
@@ -694,6 +688,13 @@ Segundo lote, triado do playtest de 31/out e conferido em tela com o banco de te
 - **Gerador de futuro:** o campo "até quando" aceita qualquer ano e dispara a prévia a cada dígito (21000 por engano): o campo virou seletor de ano, com teto de 30 anos além do último dado real, e o backend recusa o que passar disso.
 
 Ficam para a sessão do retrato (F180), que roda o app com o devtools, os estados que não deu para provocar no playtest: Crédito com parcela atrasada, o esqueleto e o erro do cartão do desafio da vela (forçados bloqueando a requisição) e o diálogo do resultado numa pausa real.
+
+<a id="f187"></a>
+**F187 — Um log por boot do servidor.** Serve N26. Cada arquivo da pasta de logs tinha o próprio `RotatingFileHandler`, de 10 MB com 5 cópias, e as sessões se emendavam no mesmo arquivo: achar o log de um playtest era procurar pelo horário.
+
+Agora a pasta segue a estrutura do Victoria 3. `app.log` é o boot atual, `app.1.log` é o boot anterior, e assim até `app.5.log`. O mesmo vale para `error`, `database`, `import`, `realtime`, `simulation` e `slow`. No boot, antes de abrir cada arquivo, o logger empurra a fila uma casa e descarta o mais antigo (`_shift_previous_boots` em `backend/core/logger.py`). Não há mais rotação por tamanho: cada arquivo guarda um boot inteiro. A primeira linha de cada arquivo diz a versão, se o modo debug está ligado e a hora do boot, no mesmo formato das outras linhas. O giro roda uma vez, no único processo do servidor, que sobe com `reload=False`.
+
+A pasta que as Configurações abrem e os nomes dos arquivos atuais continuam os mesmos. Para conferir, os testes do logger fazem dois e oito boots seguidos numa pasta temporária, e dois boots do app contra o banco de teste deixaram `app.1.log` com o primeiro boot inteiro.
 
 <a id="f189"></a>
 **F189 — Retoques de interface do playtest de outubro.** Serve N15 e N21. Mudanças pequenas, sem rodada no canvas, que o playtest de 31/out pediu:
