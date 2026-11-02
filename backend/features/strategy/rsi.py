@@ -241,6 +241,6 @@ def _crossings(
     """O IFR e os dias em que ele cruzou o nível de compra para baixo e o de venda para cima."""
     rsi = indicators.rsi(close, period)
     before = rsi.shift(1)
-    dipped = (before >= buy_below) & (rsi < buy_below)
-    rallied = (before <= sell_above) & (rsi > sell_above)
+    dipped = cast(pd.Series, (before >= buy_below) & (rsi < buy_below))
+    rallied = cast(pd.Series, (before <= sell_above) & (rsi > sell_above))
     return rsi, dipped, rallied

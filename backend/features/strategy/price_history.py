@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 
+import numpy as np
 import pandas as pd
 
 from backend.core import repository
@@ -30,7 +31,7 @@ class PriceHistory:
     def window(self, ticker: str, today: date, days: int) -> pd.DataFrame:
         """Os últimos `days` pregões do ativo até `today`, do mais antigo ao mais novo."""
         frame = self._frame(ticker)
-        end = int((frame.index <= pd.Timestamp(today)).sum())
+        end = int(np.count_nonzero(frame.index <= pd.Timestamp(today)))
         window = frame.iloc[max(0, end - days) : end]
         if window.empty:
             return window

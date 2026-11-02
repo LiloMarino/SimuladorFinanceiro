@@ -222,6 +222,6 @@ def _crossings(
     long_avg = indicators.sma(close, long_)
     gap = cast(pd.Series, short_avg - long_avg)
     before = gap.shift(1)
-    up = (before <= 0) & (gap > 0)
-    down = (before >= 0) & (gap < 0)
+    up = cast(pd.Series, (before <= 0) & (gap > 0))
+    down = cast(pd.Series, (before >= 0) & (gap < 0))
     return short_avg, long_avg, up, down
