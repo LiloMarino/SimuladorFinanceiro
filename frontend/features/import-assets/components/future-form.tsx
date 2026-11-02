@@ -8,7 +8,6 @@ import { CalendarDays, CircleX, Dices, ExternalLink, Sparkles, TriangleAlert } f
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { DateField } from "@/shared/components/date-field";
 import { MarkedSlider } from "@/shared/components/marked-slider";
 import { DialogBody, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import {
@@ -22,11 +21,11 @@ import {
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Progress } from "@/shared/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { cn } from "@/shared/lib/utils";
-import { dateFieldError } from "@/shared/lib/utils/date-field";
 import { displayIsoDate, displayNumber } from "@/shared/lib/utils/display";
 import type {
   FutureParams,
@@ -45,6 +44,7 @@ import {
   drawSeed,
   endOfYearAhead,
   FIRST_YEAR_VOLATILITY,
+  futureEndDates,
   FUTURE_DOCS_URL,
   INFLATION_SHOCK,
   INFLATION_SHOCK_MARKS,
@@ -67,16 +67,11 @@ const SEED_DIGITS = 15;
 
 const futureFormSchema = (lastRealIso: string | null) =>
   z.object({
-    // O campo guarda ISO quando a data está completa e real; o texto em digitação é recusado aqui
+    // O seletor guarda o 31/12 de um ano; a gravação anterior pode ter outra data, que o seletor também mostra
     until: z
       .string()
       .min(1, "Escolha até quando gerar")
       .superRefine((value, ctx) => {
-        const message = dateFieldError(value);
-        if (message) {
-          ctx.addIssue({ code: "custom", message });
-          return;
-        }
         if (lastRealIso && value <= lastRealIso) {
           ctx.addIssue({
             code: "custom",
@@ -140,6 +135,12 @@ export function FutureForm({ future, coverage, redrawSeed, onClose, onRecordingC
   const ibovRealEnd = coverage.find((s) => s.key === "IBOV")?.real_end ?? null;
   const stocks = coverage.filter((s) => s.kind === "STOCK");
   const tickers = stocks.slice(0, PREVIEW_TICKERS).map((s) => s.key);
+
+  // O valor já gravado entra na lista mesmo fora do 31/12, para o seletor mostrá-lo
+  const untilOptions = useMemo(() => {
+    const dates = ibovRealEnd ? futureEndDates(ibovRealEnd) : [];
+    return future && !dates.includes(future.until) ? [future.until, ...dates] : dates;
+  }, [ibovRealEnd, future]);
 
   const schema = useMemo(() => futureFormSchema(ibovRealEnd), [ibovRealEnd]);
   const [defaults] = useState(() => initialValues(future, redrawSeed));
@@ -309,14 +310,28 @@ export function FutureForm({ future, coverage, redrawSeed, onClose, onRecordingC
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="future-until">Até quando</FieldLabel>
-                    <DateField
-                      id="future-until"
+                    <Select
                       value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      invalid={fieldState.invalid}
+                      items={Object.fromEntries(untilOptions.map((iso) => [iso, displayIsoDate(iso)]))}
+                      onValueChange={(value) => value && field.onChange(value)}
                       disabled={recording}
-                    />
+                    >
+                      <SelectTrigger
+                        id="future-until"
+                        className="w-full"
+                        aria-invalid={fieldState.invalid}
+                        onBlur={field.onBlur}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {untilOptions.map((iso) => (
+                          <SelectItem key={iso} value={iso}>
+                            {displayIsoDate(iso)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <div className="flex flex-wrap gap-1.5">
                       {SHORTCUT_YEARS.map((years) => (
                         <Button

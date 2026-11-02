@@ -233,3 +233,13 @@ def test_preview_generates_without_recording(base: Engine):
 
     with pytest.raises(BadRequestError):
         future.preview(request.model_copy(update={"until": LAST_REAL}))
+
+
+def test_horizon_stops_thirty_years_after_the_last_real_day(base: Engine):
+    last_year = LAST_REAL.year + future.MAX_FUTURE_YEARS
+    request = FuturePreviewRequest(
+        until=date(last_year + 1, 1, 2), seed=7, temperature=1, inflation_shock=0
+    )
+
+    with pytest.raises(BadRequestError, match=f"31/12/{last_year}"):
+        future.preview(request)

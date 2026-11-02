@@ -56,6 +56,9 @@ logger = logging.getLogger(__name__)
 # diária e para a mensal
 PREVIEW_REAL_MONTHS = 24
 IPCA_WINDOW_MONTHS = 12
+# O horizonte vai até o fim do ano que fica tantos anos depois do último dado real
+# do Ibovespa; o seletor de ano do gerador usa o mesmo limite
+MAX_FUTURE_YEARS = 30
 
 _generator_lock = Lock()
 _generator: tuple[tuple, SeriesGenerator] | None = None
@@ -120,6 +123,12 @@ def _generate(
         raise BadRequestError(
             f"Escolha uma data depois de {ibov_end:%d/%m/%Y}, "
             "o último dado real do Ibovespa."
+        )
+    last_year = ibov_end.year + MAX_FUTURE_YEARS
+    if params.until.year > last_year:
+        raise BadRequestError(
+            f"Escolha uma data até 31/12/{last_year}, "
+            f"{MAX_FUTURE_YEARS} anos depois do último dado real do Ibovespa."
         )
     regime = Regime[params.start_regime.value] if params.start_regime else None
     return generator.generate(

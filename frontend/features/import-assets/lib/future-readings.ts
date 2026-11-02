@@ -144,5 +144,15 @@ export const displayShock = (shock: number) => `${signedShock(shock)} ${Math.abs
 export const endOfYearAhead = (years: number) =>
   format(new Date(new Date().getFullYear() + years, 11, 31), "yyyy-MM-dd");
 
+/** Quantos anos depois do último dado real o gerador aceita: o mesmo limite do servidor. */
+const MAX_FUTURE_YEARS = 30;
+
+/** Os 31/12 que o seletor "Até quando" oferece, do primeiro depois do último dado real até o limite. */
+export const futureEndDates = (lastRealIso: string): string[] => {
+  const lastYear = Number(lastRealIso.slice(0, 4));
+  const first = `${lastYear}-12-31` > lastRealIso ? lastYear : lastYear + 1;
+  return Array.from({ length: lastYear + MAX_FUTURE_YEARS - first + 1 }, (_, index) => `${first + index}-12-31`);
+};
+
 /** Semente sorteada: inteiro de até 9 dígitos, curto o bastante para digitar e anotar. */
 export const drawSeed = () => String(Math.floor(Math.random() * 10 ** 9));
