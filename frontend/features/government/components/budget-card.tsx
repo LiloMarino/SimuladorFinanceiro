@@ -230,12 +230,7 @@ export function BudgetCard({ budget }: BudgetCardProps) {
         <div className="grid min-w-0 gap-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="grid gap-1">
-              <div className="flex items-center gap-2">
-                <h2 className="text-[15px] font-semibold">A conta do país</h2>
-                <Badge variant="secondary" size="sm">
-                  a sala vê
-                </Badge>
-              </div>
+              <h2 className="text-[15px] font-semibold">A conta do país</h2>
               <span className="text-[13px] text-muted-foreground">
                 O que entra e o que sai do governo, em % do PIB por ano. A barra de cima é o que entra; a de baixo, o
                 que sai: gasto mais juros.

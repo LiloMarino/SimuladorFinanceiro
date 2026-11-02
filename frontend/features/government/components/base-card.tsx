@@ -92,13 +92,11 @@ function BaseContent({ base }: { base: CongressBase }) {
                 emenda. A emenda é gasto como outro qualquer.
               </span>
             </div>
-            {base.is_president ? (
+            {base.is_president && (
               <Button size="sm" disabled={base.blocker !== null} onClick={() => negotiate(null)}>
                 <Handshake />
                 Negociar apoio
               </Button>
-            ) : (
-              <Badge variant="secondary">a sala vê</Badge>
             )}
           </div>
 

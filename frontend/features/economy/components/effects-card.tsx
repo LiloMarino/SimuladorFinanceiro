@@ -4,7 +4,6 @@ import { EffectSpark } from "@/shared/components/effect-spark";
 import { InfoHint } from "@/shared/components/info-hint";
 import { SpendingIcon } from "@/shared/components/spending-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
-import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/shared/components/ui/empty";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
@@ -33,17 +32,12 @@ export function EffectsCard({ panel, effects }: EffectsCardProps) {
     <Card>
       <CardContent>
         <div className="grid min-w-0 content-start gap-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="grid gap-1">
-              <h2 className="text-[15px] font-semibold">Efeitos das medidas de gasto</h2>
-              <span className="text-[13px] text-muted-foreground">
-                Quanto cada medida aprovada soma hoje à inflação, à SELIC e à bolsa. O efeito chega depois de a medida
-                valer, fica cheio por um tempo e cai pela metade a cada 12 meses.
-              </span>
-            </div>
-            <Badge variant="secondary" size="sm">
-              a sala vê
-            </Badge>
+          <div className="grid gap-1">
+            <h2 className="text-[15px] font-semibold">Efeitos das medidas de gasto</h2>
+            <span className="text-[13px] text-muted-foreground">
+              Quanto cada medida aprovada soma hoje à inflação, à SELIC e à bolsa. O efeito chega depois de a medida
+              valer, fica cheio por um tempo e cai pela metade a cada 12 meses.
+            </span>
           </div>
 
           {effects.length === 0 ? <NoEffects /> : <EffectsBody panel={panel} effects={effects} />}

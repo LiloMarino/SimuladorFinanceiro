@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Badge } from "@/shared/components/ui/badge";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { cn } from "@/shared/lib/utils";
 import { displayPercent } from "@/shared/lib/utils/display";
@@ -46,9 +45,6 @@ export function MeasureInflationEffect({ effect }: MeasureInflationEffectProps) 
           {INFLATION_EXPECTED.label}
           <MetricHint metric={INFLATION_EXPECTED} />
         </span>
-        <Badge variant="secondary" size="sm">
-          a sala vê na fila
-        </Badge>
       </div>
 
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">

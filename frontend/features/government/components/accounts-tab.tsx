@@ -1,5 +1,4 @@
 import { CardState } from "@/shared/components/card-state";
-import { Badge } from "@/shared/components/ui/badge";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import type { GovernmentPanel, MeasureKind } from "@/types";
 import { useBudget } from "@/shared/hooks/queries/useBudget";
@@ -44,12 +43,7 @@ export function AccountsTab({ panel, onPropose }: AccountsTabProps) {
         <BudgetCard budget={budget} />
       ) : (
         pending(
-          <span className="flex items-center gap-2">
-            A conta do país
-            <Badge variant="secondary" size="sm">
-              a sala vê
-            </Badge>
-          </span>,
+          "A conta do país",
           "Carregando a conta do país",
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }, (_, index) => (

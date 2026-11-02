@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LayoutGrid, List } from "lucide-react";
+import { EyeOff, LayoutGrid, List } from "lucide-react";
 import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -65,7 +65,10 @@ export function ElectorateCard({ panel, party }: ElectorateCardProps) {
               </span>
             </div>
             <div className="flex shrink-0 items-center gap-3">
-              <Badge variant="secondary">Só o seu partido vê apoio e rejeição</Badge>
+              <Badge variant="secondary">
+                <EyeOff />
+                Só o seu partido vê apoio e rejeição
+              </Badge>
               <ToggleGroup
                 variant="segmented"
                 aria-label="Ver o eleitorado como"

@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { InfoHint } from "@/shared/components/info-hint";
-import { Badge } from "@/shared/components/ui/badge";
 import { cn } from "@/shared/lib/utils";
 import { displayMonthSlashYear, displayPercent } from "@/shared/lib/utils/display";
 import type { BudgetEffect } from "@/types";
@@ -54,9 +53,6 @@ export function MeasureBudgetEffect({ effect, spending = false }: MeasureBudgetE
             </div>
           </InfoHint>
         </span>
-        <Badge variant="secondary" size="sm">
-          a sala vê na fila
-        </Badge>
       </div>
 
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
