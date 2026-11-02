@@ -67,7 +67,7 @@ type NewMeasureDialogProps = {
 export function NewMeasureDialog({ open, onOpenChange, panel, initialKind }: NewMeasureDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-120">
+      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col sm:max-w-120">
         <DialogHeader variant="divided">
           <DialogTitle>Nova medida</DialogTitle>
           <DialogDescription>Entra na fila do Congresso; a sala vê a fila.</DialogDescription>
@@ -315,11 +315,16 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
                   <ToggleGroup
                     variant="segmented"
                     aria-label="Mudança"
+                    className="w-full"
                     value={[change]}
                     onValueChange={pick<SectorChange>(setChange)}
                   >
-                    <ToggleGroupItem value="tax">Taxar a mais</ToggleGroupItem>
-                    <ToggleGroupItem value="exempt">Isentar</ToggleGroupItem>
+                    <ToggleGroupItem value="tax" className="flex-1">
+                      Taxar a mais
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="exempt" className="flex-1">
+                      Isentar
+                    </ToggleGroupItem>
                   </ToggleGroup>
                 </Field>
                 <Field>
