@@ -145,6 +145,8 @@ export type DebugMode = components["schemas"]["SettingsResponse"]["debug"];
 export type MetricsData = components["schemas"]["MetricsResponse"];
 export type MetricItem = components["schemas"]["MetricItem"];
 export type TrafficItem = components["schemas"]["TrafficItem"];
+export type EngineProfileStatus = components["schemas"]["EngineProfileStatus"];
+export type EngineProfileSaved = components["schemas"]["EngineProfileSaved"];
 
 // Simulation
 export type SimulationState = Partial<components["schemas"]["SimulationStateResponse"]>;

@@ -9240,6 +9240,140 @@
           }
         ]
       }
+    },
+    "/api/debug/profile/engine": {
+      "get": {
+        "tags": [
+          "Debug"
+        ],
+        "summary": "Estado da gravação do perfil do motor",
+        "description": "Diz se um perfil está sendo gravado agora.",
+        "operationId": "get_engine_profile_api_debug_profile_engine_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineProfileStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/debug/profile/engine/start": {
+      "post": {
+        "tags": [
+          "Debug"
+        ],
+        "summary": "Começar a gravar o perfil do motor",
+        "description": "Liga o cProfile: ele conta o tempo de cada função de todas as threads (o dia, o event loop e as rotas) até a gravação parar. Só um perfil por vez.",
+        "operationId": "start_engine_profile_api_debug_profile_engine_start_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/debug/profile/engine/stop": {
+      "post": {
+        "tags": [
+          "Debug"
+        ],
+        "summary": "Parar e gravar o perfil do motor",
+        "description": "Desliga o cProfile e grava o arquivo `.prof` na pasta `profiles/`.",
+        "operationId": "stop_engine_profile_api_debug_profile_engine_stop_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineProfileSaved"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -15551,6 +15685,32 @@
           "budget_ms"
         ],
         "title": "EngineInfo"
+      },
+      "EngineProfileSaved": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "EngineProfileSaved"
+      },
+      "EngineProfileStatus": {
+        "properties": {
+          "recording": {
+            "type": "boolean",
+            "title": "Recording"
+          }
+        },
+        "type": "object",
+        "required": [
+          "recording"
+        ],
+        "title": "EngineProfileStatus"
       },
       "ErrorResponse": {
         "properties": {

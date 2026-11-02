@@ -7,8 +7,9 @@ from pydantic import BaseModel
 
 from backend import config
 from backend.core.dependencies import HostVerified
-from backend.core.exceptions.http_exceptions import NotFoundError
+from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.metrics import metrics
+from backend.core.profiling import profiler
 from backend.core.runtime.user_manager import UserManager
 
 
@@ -140,3 +141,47 @@ def get_metrics(_debug: DebugOnly, _host: HostVerified) -> MetricsResponse:
 )
 def reset_metrics(_debug: DebugOnly, _host: HostVerified) -> None:
     metrics.reset()
+
+
+class EngineProfileStatus(BaseModel):
+    recording: bool
+
+
+class EngineProfileSaved(BaseModel):
+    # Caminho do .prof, para abrir com `pnpm profile:view <arquivo>`
+    file: str
+
+
+@debug_router.get(
+    "/profile/engine",
+    summary="Estado da gravação do perfil do motor",
+    description="Diz se um perfil está sendo gravado agora.",
+)
+def get_engine_profile(_debug: DebugOnly, _host: HostVerified) -> EngineProfileStatus:
+    return EngineProfileStatus(recording=profiler.active)
+
+
+@debug_router.post(
+    "/profile/engine/start",
+    status_code=204,
+    summary="Começar a gravar o perfil do motor",
+    description=(
+        "Liga o cProfile: ele conta o tempo de cada função de todas as threads (o dia, "
+        "o event loop e as rotas) até a gravação parar. Só um perfil por vez."
+    ),
+)
+def start_engine_profile(_debug: DebugOnly, _host: HostVerified) -> None:
+    if not profiler.start("motor"):
+        raise ConflictError("Já há um perfil sendo gravado.")
+
+
+@debug_router.post(
+    "/profile/engine/stop",
+    summary="Parar e gravar o perfil do motor",
+    description="Desliga o cProfile e grava o arquivo `.prof` na pasta `profiles/`.",
+)
+def stop_engine_profile(_debug: DebugOnly, _host: HostVerified) -> EngineProfileSaved:
+    path = profiler.stop()
+    if path is None:
+        raise ConflictError("Nenhum perfil está sendo gravado.")
+    return EngineProfileSaved(file=path.as_posix())

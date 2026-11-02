@@ -9,6 +9,7 @@ import type ApiError from "@/shared/lib/models/ApiError";
 import { ErrorState } from "@/shared/components/error-state";
 import { displayDuration } from "@/shared/lib/utils/display";
 import { ControlsBar } from "../components/controls-bar";
+import { EngineProfileCard } from "../components/engine-profile-card";
 import { KpiCards } from "../components/kpi-cards";
 import { PySpyCard } from "../components/pyspy-card";
 import { PerformanceDebugOff, PerformanceEmpty, PerformanceHostOnly, PerformanceLoading } from "../components/states";
@@ -111,6 +112,7 @@ export default function PerformancePage() {
           />
           <TimeTable id={TABLE_ID} rows={rows} />
           <TrafficTable traffic={data.traffic} windowSeconds={data.traffic_window_s} />
+          <EngineProfileCard />
           <PySpyCard pid={data.pid} />
         </>
       )}
