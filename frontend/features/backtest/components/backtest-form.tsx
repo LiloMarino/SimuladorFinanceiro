@@ -3,7 +3,7 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LayoutGrid, List, Play, Plus, TriangleAlert } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
@@ -276,14 +276,12 @@ function StartError({ error, onRetry }: StartErrorProps) {
     <Alert variant="destructive">
       <TriangleAlert />
       <AlertTitle>Não deu para começar o backtest</AlertTitle>
-      <AlertDescription>
-        {error.message} Nada foi salvo e a configuração continua aqui.
-        <div className="mt-2">
-          <Button type="button" size="sm" onClick={onRetry}>
-            Tentar de novo
-          </Button>
-        </div>
-      </AlertDescription>
+      <AlertDescription>{error.message} Nada foi salvo e a configuração continua aqui.</AlertDescription>
+      <AlertAction>
+        <Button type="button" size="sm" onClick={onRetry}>
+          Tentar de novo
+        </Button>
+      </AlertAction>
     </Alert>
   );
 }

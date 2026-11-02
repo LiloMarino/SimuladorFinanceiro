@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CircleAlert, Copy, Terminal } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { displayDayMonth } from "@/shared/lib/utils/display";
@@ -26,20 +26,22 @@ export function ErrorBanner({ error, canRetry, onEditParams, onTurnOnAgain }: Er
 
   return (
     <div className="grid gap-3.5">
-      <Alert variant="destructive" className="grid-cols-[auto_1fr_auto]">
+      <Alert variant="destructive">
         <CircleAlert />
         <AlertTitle>Voltou ao manual em {displayDayMonth(error.error_date)}: a estratégia deu erro</AlertTitle>
+        <AlertDescription>{error.message}</AlertDescription>
         {canRetry && (
-          <div className="row-span-2 flex items-center gap-2 self-center">
-            <Button variant="outline" size="sm" onClick={onEditParams}>
-              Mudar parâmetros
-            </Button>
-            <Button size="sm" onClick={onTurnOnAgain}>
-              Ligar de novo
-            </Button>
-          </div>
+          <AlertAction>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={onEditParams}>
+                Mudar parâmetros
+              </Button>
+              <Button size="sm" onClick={onTurnOnAgain}>
+                Ligar de novo
+              </Button>
+            </div>
+          </AlertAction>
         )}
-        <AlertDescription className="col-start-2">{error.message}</AlertDescription>
       </Alert>
 
       {error.traceback && (

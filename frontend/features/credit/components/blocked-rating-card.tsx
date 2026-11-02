@@ -1,5 +1,5 @@
 import { Lightbulb } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { displayWholePercent } from "@/shared/lib/credit";
@@ -43,24 +43,24 @@ export function BlockedRatingCard({ overview, onPayOverdue }: BlockedRatingCardP
           </div>
 
           {recover && (
-            <Alert variant="info" className="has-[>svg]:grid-cols-[auto_1fr_auto]">
+            <Alert variant="info">
               <Lightbulb />
               <AlertTitle>
                 Para voltar a ter crédito ({recover.target_grade}
                 {recoverTier ? `, ${recoverTier.min_points} pontos` : ""})
               </AlertTitle>
-              {onPayOverdue && (
-                <span className="row-span-2 self-center">
-                  <Button size="sm" onClick={onPayOverdue}>
-                    Pagar o atraso
-                  </Button>
-                </span>
-              )}
               <AlertDescription>
                 {onPayOverdue ? "Pague a parcela em atraso e quite" : "Quite"}{" "}
                 {displayMoneyCompact(recover.amount ?? 0)}: a alavancagem cai para{" "}
                 {displayWholePercent(recover.leverage_after ?? 0)}. A nota muda no fim do mês.
               </AlertDescription>
+              {onPayOverdue && (
+                <AlertAction>
+                  <Button size="sm" onClick={onPayOverdue}>
+                    Pagar o atraso
+                  </Button>
+                </AlertAction>
+              )}
             </Alert>
           )}
         </div>

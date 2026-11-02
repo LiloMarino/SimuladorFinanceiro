@@ -652,10 +652,10 @@ export function StockChart({
             <Alert variant="info">
               <Sparkles />
               <AlertDescription>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="flex-1 text-foreground">
-                    <b>Novo: indicadores técnicos.</b> Linhas e painéis que resumem a tendência e a força do preço.
-                  </span>
+                <b>Novo: indicadores técnicos.</b> Linhas e painéis que resumem a tendência e a força do preço.
+              </AlertDescription>
+              <AlertAction>
+                <div className="flex items-center gap-2">
                   <Button size="sm" onClick={turnOnFirstAverage}>
                     Ligar a média de 20
                   </Button>
@@ -663,7 +663,7 @@ export function StockChart({
                     Ver todos
                   </Button>
                 </div>
-              </AlertDescription>
+              </AlertAction>
             </Alert>
           )}
 

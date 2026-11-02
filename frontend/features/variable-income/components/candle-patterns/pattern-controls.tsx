@@ -1,5 +1,5 @@
 import { AlertCircle, ChartCandlestick } from "lucide-react";
-import { Alert, AlertDescription } from "@/shared/components/ui/alert";
+import { Alert, AlertAction, AlertDescription } from "@/shared/components/ui/alert";
 import { InfoHint } from "@/shared/components/info-hint";
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
@@ -43,14 +43,12 @@ export function PatternNotice(props: PatternNoticeProps) {
     return (
       <Alert variant="warning">
         <AlertCircle />
-        <AlertDescription>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="flex-1">Não deu para carregar os padrões de vela.</span>
-            <Button variant="outline" size="sm" onClick={props.onRetry}>
-              Tentar de novo
-            </Button>
-          </div>
-        </AlertDescription>
+        <AlertDescription>Não deu para carregar os padrões de vela.</AlertDescription>
+        <AlertAction>
+          <Button variant="outline" size="sm" onClick={props.onRetry}>
+            Tentar de novo
+          </Button>
+        </AlertAction>
       </Alert>
     );
   }

@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { TriangleAlert } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
@@ -80,14 +80,12 @@ function StillFrame({ topic, attempt, onRetry }: { topic: Topic; attempt: number
       <Alert variant="warning" className="absolute inset-x-3 bottom-3 z-40 w-auto">
         <TriangleAlert />
         <AlertTitle>A animação não carregou</AlertTitle>
-        <AlertDescription>
-          <div className="flex items-center justify-between gap-2">
-            Ficou a imagem parada.
-            <Button variant="outline" size="xs" onClick={onRetry}>
-              Tentar de novo
-            </Button>
-          </div>
-        </AlertDescription>
+        <AlertDescription>Ficou a imagem parada.</AlertDescription>
+        <AlertAction>
+          <Button variant="outline" size="sm" onClick={onRetry}>
+            Tentar de novo
+          </Button>
+        </AlertAction>
       </Alert>
     </>
   );

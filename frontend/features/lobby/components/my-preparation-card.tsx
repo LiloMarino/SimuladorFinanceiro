@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Flag, Lock, TriangleAlert } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -204,7 +204,9 @@ function ViceInvite({ owner, disabled, onAnswer }: ViceInviteProps) {
         <p>
           Na chapa do {owner.party?.abbr}, com {owner.candidate} de candidato.
         </p>
-        <div className="mt-2 flex gap-2">
+      </AlertDescription>
+      <AlertAction>
+        <div className="flex items-center gap-2">
           <Button size="sm" disabled={disabled} onClick={() => onAnswer(true)}>
             Aceitar
           </Button>
@@ -212,7 +214,7 @@ function ViceInvite({ owner, disabled, onAnswer }: ViceInviteProps) {
             Recusar
           </Button>
         </div>
-      </AlertDescription>
+      </AlertAction>
     </Alert>
   );
 }
