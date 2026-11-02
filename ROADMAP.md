@@ -108,7 +108,6 @@
 | [**F181**](#f181) | Melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | M20 · 3.3 | — | — | — | 🔍 |
 | [**F182**](#f182) | Melhoria | Eleição redesenhada como um conjunto | M20 · 3.3 | — | — | — | 🔍 |
 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | M20 · 3.3 | — | — | — | 🔍 |
-| [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 | — | Médio | Excelente | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 | — | Baixo | Bom | ⏳ |
@@ -124,7 +123,7 @@
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -146,6 +145,7 @@
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F173](#f173), [F175](#f175), [F176](#f176) | — | — | ✅ |
+| [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 | — | — | — | ✅ |
 
 </details>
 
@@ -161,14 +161,14 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 3/17 concluídos
+> **Progresso:** 4/17 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | **F143** | Feature | Preparação de cada jogador no lobby | — | 📦 Arquivado |
 | 2 | **F168** | Feature | Desafio da vela no lobby | — | 📦 Arquivado |
 | 3 | **F178** | Feature | Conferência visual de tudo o que mudou desde a 3.0 | — | 📦 Arquivado |
-| 4 | [**F184**](#f184) | Correção | Correções da 3.3 | — | ⏳ Pendente |
+| 4 | [**F184**](#f184) | Correção | Correções da 3.3 | — | ✅ Concluído |
 | 5 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | — | ⏳ Pendente |
 | 6 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | — | ⏳ Pendente |
 | 7 | [**F181**](#f181) | Melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | [F180](#f180) | 🔍 Em avaliação |
@@ -259,7 +259,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 · 4º | 0 | Médio | Bom | ⏳ |
 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 · 5º | 0 | Médio | Bom | ⏳ |
 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 · 6º | 5 | Alto | Bom | ⏳ |
 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 12º | 2 | — | — | 🔍 |
@@ -315,7 +314,6 @@
 | **F173** | Feature | Partido desde o 1º dia | N39, N34 | D19 | M21 · 3.4 | — | Médio | Médio | Alto | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom |
 | **F180** | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 | — | Alto | Baixo | Alto | Bom |
-| **F184** | Correção | Correções da 3.3 | — | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 | **F185** | Performance | Dia da partida que fica mais lento ao longo da partida | N40, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Excelente |
 | **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
 | **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
@@ -408,24 +406,6 @@
 Na mesma passada, a sessão confere os estados que o playtest não provocou (lista no fim da F184).
 
 **Aceite:** toda tela do roteiro que mudou desde a 3.0 tem captura no canvas, e o canvas fica com até 185 notas.
-
-<a id="f184"></a>
-**F184 — Correções da 3.3.** Lote dos consertos achados desde a 3.2. Já em main, em 37 commits `fix:`:
-- **Eleição e Governo:** a leitura dos eventos do 2º turno, que quebrava o resumo do mês, as estatísticas e as conquistas; a pesquisa do 1º turno ao lado da do 2º; a tabela de transferência do 2º turno (estimativa chamada de exata, partes que não somavam o total); a cor dos partidos do computador; a chapa do fundador sem vice; os diálogos de promessas e da votação; a data da posse; os cartões de pesquisa, eleitorado e promessas.
-- **Economia e crédito:** o crescimento do PIB, que derrubava partidas longas; a nota de crédito, que ignorava parcela vencida; a alavancagem sem patrimônio; os pontos da nota de risco; o tooltip das séries da Economia.
-- **Estados de erro e carregamento:** a tela de resultado, o jornal e o cartão do desafio da vela, que ficavam no esqueleto ou sumiam; a mensagem de erro das páginas de Governo, Eleição, Economia e Crédito; o ranking velho das Estatísticas; o diálogo do resultado do turno depois de recarregar.
-- **Textos e corte:** plurais e concordâncias (compras e vendas, promessas, pontos, prêmio de risco); nomes cortados sem dica no lobby, nos partidos e nas estatísticas; a faixa do dia da renda variável; a janela do desafio da vela acima de 768 px; o painel final do desafio, que comemorava com 0 acertos; o relatório final; a coluna Quando das ordens abertas; a janela de notícias com a partida pausada.
-
-Triados do playtest de 31/out, a consertar:
-- **Estatísticas e backtest:** o tooltip do backtest que diz "cdi contributed"; clicar no Ibovespa durante o backtest não desenha o gráfico; no Comparar, o cartão Risco cola a nota e a coluna Pts na borda direita (a tabela é mais larga que o cartão), e o mesmo cartão aparece nas outras telas de nota; o retorno das Estatísticas (2,27%) diferente do da Carteira e da Evolução (1,06% e 1,1% sobre o aportado) na mesma data: conferir se é métrica diferente ou dado de outra data, e, se for métrica, dizer qual no rótulo.
-- **Partido e eleição:** encerrar a conta e entrar de novo com o mesmo nome deixa a página do partido dizendo "Você não está em nenhum partido" com o resto da tela como filiado; o partido fundado por outra conta não aparece no diário dela (aparece no histórico do jornal), com a partida pausada no 1º dia; selecionar as bancadas em "Selecionar apoio" faz o diálogo piscar.
-- **Governo:** o diálogo de nova medida passa da altura da tela em todos os tipos de medida, e o seletor "Mudança" tem um vão à direita de "Isentar", como se faltasse uma terceira opção; o botão "Sair da base" e o botão do alerta de erro ficam soltos dentro do alerta: o `Alert` do design system ganha o lugar da ação, em vez de cada tela encaixar o botão.
-- **Visual:** na barra lateral, os selos de Pendências, Conquistas, Eleição, Debug e estratégia desligada ficam descentrados na vertical, e o ponto da Eleição sai oval; os números do jornal na fonte serifada descem da linha (algarismos de estilo antigo: `font-variant-numeric: lining-nums`); "Restaurar padrão" é menor que "Ligar esta estratégia" (`strategy-detail.tsx`, `size="sm"` contra o tamanho padrão); o "i" de Padrões de vela não abre a dica (o gatilho é um svg solto, sem elemento que receba o foco).
-- **Gerador de futuro:** o campo "até quando" aceita qualquer ano e dispara a prévia a cada dígito (21000 por engano): o backend recusa horizonte acima do limite enquanto o campo não vira seletor de ano.
-
-Ficam para a sessão do retrato (F180), que roda o app com o devtools, os estados que não deu para provocar no playtest: Crédito com parcela atrasada, o esqueleto e o erro do cartão do desafio da vela (forçados bloqueando a requisição) e o diálogo do resultado numa pausa real.
-
-Vai a ✅ quando a lista acima estiver em main.
 
 <a id="f185"></a>
 **F185 — Dia da partida que fica mais lento ao longo da partida.** Serve N40 e N24. No playtest de 31/out, com 17 ativos e 7 a 8 jogadores do começo ao fim, o passo "Processar um dia" do `slow.log` subiu de 576 ms de mediana no primeiro terço da sessão para 757 e 940 ms nos seguintes (+63%), com picos de 2,7 s. No backtest de 10 anos com 5 bots, a previsão de tempo não caía com o progresso: cada dia custava mais que o anterior. Os endpoints lidos durante a partida (pendências, governo, carteira, padrões de vela) subiram na mesma proporção, de ~650 para ~1.050 ms, o que aponta para o dia disputando o processo com as leituras ou para consultas que leem o histórico inteiro.
@@ -711,7 +691,25 @@ Recomendação: a (c). Ela tira a tarefa repetida e mantém uma consequência qu
 
 ## ✅ Concluído
 
-> Nenhum item neste status.
+| ID | Tipo | Resumo | Serve | D# | Marco |
+| --- | --- | --- | --- | --- | --- |
+| **F184** | Correção | Correções da 3.3 | — | — | M20 · 3.3 |
+
+<a id="f184"></a>
+**F184 — Correções da 3.3.** Lote dos consertos achados desde a 3.2. Tudo em main, em `fix:`. Primeiro lote, 37 commits:
+- **Eleição e Governo:** a leitura dos eventos do 2º turno, que quebrava o resumo do mês, as estatísticas e as conquistas; a pesquisa do 1º turno ao lado da do 2º; a tabela de transferência do 2º turno (estimativa chamada de exata, partes que não somavam o total); a cor dos partidos do computador; a chapa do fundador sem vice; os diálogos de promessas e da votação; a data da posse; os cartões de pesquisa, eleitorado e promessas.
+- **Economia e crédito:** o crescimento do PIB, que derrubava partidas longas; a nota de crédito, que ignorava parcela vencida; a alavancagem sem patrimônio; os pontos da nota de risco; o tooltip das séries da Economia.
+- **Estados de erro e carregamento:** a tela de resultado, o jornal e o cartão do desafio da vela, que ficavam no esqueleto ou sumiam; a mensagem de erro das páginas de Governo, Eleição, Economia e Crédito; o ranking velho das Estatísticas; o diálogo do resultado do turno depois de recarregar.
+- **Textos e corte:** plurais e concordâncias (compras e vendas, promessas, pontos, prêmio de risco); nomes cortados sem dica no lobby, nos partidos e nas estatísticas; a faixa do dia da renda variável; a janela do desafio da vela acima de 768 px; o painel final do desafio, que comemorava com 0 acertos; o relatório final; a coluna Quando das ordens abertas; a janela de notícias com a partida pausada.
+
+Segundo lote, triado do playtest de 31/out e conferido em tela com o banco de teste:
+- **Estatísticas e backtest:** o tooltip do backtest que diz "cdi contributed"; clicar no Ibovespa durante o backtest não desenha o gráfico; no Comparar, o cartão Risco cola a nota e a coluna Pts na borda direita (a tabela é mais larga que o cartão), e o mesmo cartão aparece nas outras telas de nota; o retorno das Estatísticas (2,27%) diferente do da Carteira e da Evolução (1,06% e 1,1% sobre o aportado) na mesma data: conferir se é métrica diferente ou dado de outra data, e, se for métrica, dizer qual no rótulo.
+- **Partido e eleição:** encerrar a conta e entrar de novo com o mesmo nome deixa a página do partido dizendo "Você não está em nenhum partido" com o resto da tela como filiado; o partido fundado por outra conta no diário dela, que não deu para reproduzir: com duas contas na mesma sala o fundador aparece na faixa do Diário e no jornal na hora; selecionar as bancadas em "Selecionar apoio" faz o diálogo piscar.
+- **Governo:** o diálogo de nova medida passa da altura da tela em todos os tipos de medida, e o seletor "Mudança" tem um vão à direita de "Isentar", como se faltasse uma terceira opção; o botão "Sair da base" e o botão do alerta de erro ficam soltos dentro do alerta: o `Alert` do design system ganha o lugar da ação, em vez de cada tela encaixar o botão.
+- **Visual:** na barra lateral, os selos de Pendências, Conquistas, Eleição, Debug e estratégia desligada ficam descentrados na vertical, e o ponto da Eleição sai oval; os números do jornal na fonte serifada descem da linha (algarismos de estilo antigo: `font-variant-numeric: lining-nums`); "Restaurar padrão" é menor que "Ligar esta estratégia" (`strategy-detail.tsx`, `size="sm"` contra o tamanho padrão); o "i" de Padrões de vela não abre a dica (o gatilho é um svg solto, sem elemento que receba o foco).
+- **Gerador de futuro:** o campo "até quando" aceita qualquer ano e dispara a prévia a cada dígito (21000 por engano): o campo virou seletor de ano, com teto de 30 anos além do último dado real, e o backend recusa o que passar disso.
+
+Ficam para a sessão do retrato (F180), que roda o app com o devtools, os estados que não deu para provocar no playtest: Crédito com parcela atrasada, o esqueleto e o erro do cartão do desafio da vela (forçados bloqueando a requisição) e o diálogo do resultado numa pausa real.
 
 ---
 
