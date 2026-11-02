@@ -1,6 +1,5 @@
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { InfoHint } from "@/shared/components/info-hint";
-import { PremiumCurveChart } from "@/shared/components/premium-curve-chart";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { DEBT_GDP, RISK_PREMIUM } from "@/shared/lib/budget-metrics";
 import { displayDate, displayPercent, displayShortMonthYear } from "@/shared/lib/utils/display";
@@ -97,13 +96,6 @@ export function DebtPremiumCard({ budget }: DebtPremiumCardProps) {
               Dívida ÷ PIB, com a projeção até o fim do mandato
             </span>
             <DebtChart budget={budget} />
-          </div>
-
-          <div className="grid gap-1">
-            <span className="text-xs font-medium text-muted-foreground">
-              Prêmio de risco pela dívida (pontos ao ano, pela dívida em % do PIB)
-            </span>
-            <PremiumCurveChart budget={budget} height={200} />
           </div>
 
           <p className="rounded-md bg-subtle px-2.5 py-1.5 text-xs text-muted-foreground">

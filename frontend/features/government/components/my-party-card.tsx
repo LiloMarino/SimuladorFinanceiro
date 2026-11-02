@@ -12,7 +12,6 @@ import { GuidanceRules } from "./guidance-rules";
 import { PartyMark } from "./party-mark";
 import { PromiseBadges } from "./promise-badges";
 import { ValueChips } from "./value-chip";
-import { YieldChart } from "./yield-chart";
 
 type MyPartyCardProps = {
   panel: ElectionPanel;
@@ -154,7 +153,6 @@ export function MyPartyCard({
             <span className="text-sm font-medium">
               <MetricLabel metric={VOTE_YIELD} />
             </span>
-            <YieldChart budget={budget} color={party.color} />
             <span className="text-xs text-muted-foreground">
               {VOTE_YIELD.description}.
               {budget > 0

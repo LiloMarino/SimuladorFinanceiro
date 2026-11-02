@@ -13,19 +13,6 @@ export function monthlyYield(monthlySpend: number) {
   return Math.sqrt(Math.max(monthlySpend, 0)) / VOTE_DIVISOR;
 }
 
-/** A curva "quanto a verba rende": cada gasto mensal de 0 até o teto e os pontos que ele compra. */
-export function yieldCurve(maxSpend: number, steps = 20) {
-  return Array.from({ length: steps + 1 }, (_, index) => {
-    const spend = (maxSpend * index) / steps;
-    return { spend, points: monthlyYield(spend) };
-  });
-}
-
-/** O gasto mensal que a curva mostra: o dobro da verba atual, com piso para o gráfico não nascer vazio. */
-export function curveCeiling(budget: number) {
-  return Math.max(budget * 2, 10_000);
-}
-
 /** "6 meses e 23 dias": o tempo de `from` até `to`, em meses cheios e dias. */
 export function countdownLabel(from: string, to: string) {
   const start = parseLocalDate(from);
