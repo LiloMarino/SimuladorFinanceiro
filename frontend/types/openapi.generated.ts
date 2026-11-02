@@ -3257,7 +3257,7 @@ export interface paths {
         };
         /**
          * Medições de desempenho
-         * @description Tempo gasto pelas requisições HTTP, pelos eventos Socket.IO recebidos e pelo motor, e o volume enviado ao navegador, sobre as últimas 1.000 medições de cada item. Só com o modo debug ligado e só para o host.
+         * @description Tempo gasto pelas requisições HTTP, pelos eventos Socket.IO recebidos e pelo motor, sobre as últimas 1.000 medições de cada item, e os eventos enviados ao navegador: a taxa recente e a contagem acumulada desde o último reset. Só com o modo debug ligado e só para o host.
          */
         get: operations["get_metrics_api_debug_metrics_get"];
         put?: never;
@@ -7014,6 +7014,8 @@ export interface components {
             overall: components["schemas"]["OverallItem"][];
             /** Traffic */
             traffic: components["schemas"]["TrafficItem"][];
+            /** Traffic Window S */
+            traffic_window_s: number;
         };
         /** MonthPaymentsDTO */
         MonthPaymentsDTO: {
@@ -10399,8 +10401,20 @@ export interface components {
             msgs_per_s: number;
             /** Bytes Per S */
             bytes_per_s: number;
-            /** Bytes Per Msg */
-            bytes_per_msg: number;
+            /** Sends */
+            sends: number;
+            /** Unheard */
+            unheard: number;
+            /** Total Bytes */
+            total_bytes: number;
+            /** Typical Bytes */
+            typical_bytes: number | null;
+            /** P95 Bytes */
+            p95_bytes: number | null;
+            /** Queue P95 Ms */
+            queue_p95_ms: number | null;
+            /** Last Sent At */
+            last_sent_at: string | null;
         };
         /**
          * TransferDTO

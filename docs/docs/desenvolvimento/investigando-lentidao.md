@@ -18,7 +18,7 @@ O app mede sozinho e guarda as **últimas 1.000 medições de cada item**, em me
 | --- | --- |
 | **HTTP** | Cada requisição, agrupada pela rota declarada (`/api/stocks/{ticker}`, não o ticker). |
 | **Socket.IO** | Quanto o servidor leva para tratar cada evento recebido do navegador. |
-| **Motor** | Quanto leva para processar **um dia** da partida. |
+| **Motor** | Quanto leva para processar **um dia** da partida e, dentro dele, para **publicar o dia** (montar e enviar os eventos do fim do dia). |
 
 A tabela mostra, para cada linha: chamadas, tempo total, médio, **p95** e máximo. Ela vem ordenada pelo **tempo total**, porque o que mais soma tempo é o que vale investigar primeiro.
 
@@ -33,9 +33,20 @@ A tabela mostra, para cada linha: chamadas, tempo total, médio, **p95** e máxi
 
 Na velocidade `N×` cada dia tem `1000 / N` ms para ser processado (a 10×, 100 ms). Se o motor leva mais que isso, a partida **não roda na velocidade pedida**: o cartão fica vermelho e diz a velocidade real, por exemplo "roda a ~22×".
 
+A linha **Publicar o dia (parte de Processar um dia)** é o pedaço do dia gasto montando e enviando os eventos para os jogadores. Ela já está dentro do tempo do dia, por isso não entra na soma da coluna de fatia: se o dia leva 400 ms e publicar leva 100 ms, publicar é um quarto do dia.
+
 ### O que vai para o navegador
 
-Eventos enviados pelo servidor não gastam tempo dele, gastam **volume**: mensagens por segundo, KB por segundo e tamanho de cada mensagem. É o que pesa no navegador em velocidade alta, porque a 100× o volume fica 10 vezes maior. Uma mensagem pesada e frequente (como `stocks_update`) é a primeira suspeita.
+Cada evento que o servidor envia pesa em três lugares: no servidor, que monta a mensagem (a linha **Publicar o dia** acima); na fila de saída, onde a mensagem espera o servidor ter tempo de entregá-la; e no navegador, que recebe e redesenha. A tabela tem uma linha por evento (`stock_update:PETR4` e `stock_update:VALE3` viram `stock_update:*`), em dois grupos de colunas:
+
+- **Agora** (últimos 10 s): mensagens e bytes por segundo. Com a partida pausada nada sai e elas mostram "—", mas a linha continua.
+- **Desde que zerou**: fica até reiniciar o app ou clicar **Zerar medições**.
+  - **Envios**: quantas vezes o servidor publicou o evento. Um envio vira uma mensagem para cada jogador inscrito.
+  - **Sem ninguém**: envios que ninguém recebeu, com o percentual sobre a coluna Envios ("120 · 3%" de 4.330 envios). O servidor montou a mensagem à toa; perto de 0% está bom.
+  - **Total**: bytes somados de todos os jogadores. É a coluna que diz qual evento mais pesa no navegador.
+  - **Típico** e **p95** do tamanho, sobre os últimos 1.000 envios. Típico é a mediana: metade das mensagens é menor. Acima de 100 KB, saindo ao menos uma vez por segundo, fica em laranja: é a primeira suspeita de tela travando.
+  - **Atraso p95**: quanto 95% das mensagens esperam entre o servidor decidir enviar e a entrega à conexão do jogador, sobre as últimas 1.000. Até umas dezenas de ms está ótimo; na casa das centenas, a tela fica para trás da partida.
+  - **Último**: a hora em que o evento saiu pela última vez.
 
 ## 3. Outras pistas
 

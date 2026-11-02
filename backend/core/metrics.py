@@ -2,18 +2,20 @@
 Painel de desempenho: medições em memória de onde o tempo vai numa partida.
 
 Três origens alimentam o coletor: as requisições HTTP (o `MetricsMiddleware`, agrupadas
-pela rota declarada), o Socket.IO (o tempo de cada evento recebido e o volume dos
-enviados) e o motor (quanto leva para processar um dia). Só mede com o modo debug
-ligado: desligado, `enabled` é falso, o middleware nem é instalado e nada é guardado.
+pela rota declarada), o Socket.IO (o tempo de cada evento recebido e, dos enviados, a
+contagem, o tamanho e o atraso na fila) e o motor (quanto leva para processar um dia).
+Só mede com o modo debug ligado: desligado, `enabled` é falso, o middleware nem é
+instalado e nada é guardado.
 """
 
 import inspect
 import logging
 import math
+import statistics
 import threading
 import time
 from collections import defaultdict, deque
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from functools import wraps
 from typing import Any, Literal
@@ -30,6 +32,9 @@ WINDOW_SIZE = 1000  # medições guardadas por item
 SLOW_MS = 500.0  # uma chamada acima disso vai para o slow.log
 TRAFFIC_WINDOW_SECONDS = 10.0  # janela das taxas de mensagens enviadas
 ENGINE_DAY = "Processar um dia"
+ENGINE_PUBLISH = (
+    "Publicar o dia"  # parte do ENGINE_DAY: monta e envia os eventos do dia
+)
 
 # O debug não se mede a si mesmo
 _IGNORED_PREFIXES = ("/api/debug",)
@@ -49,9 +54,18 @@ class Stat:
 @dataclass(frozen=True)
 class Traffic:
     event: str
+    # Taxas da janela recente
     msgs_per_s: float
     bytes_per_s: float
-    bytes_per_msg: float
+    # Acumulado desde o boot ou o último reset
+    sends: int
+    unheard: int
+    total_bytes: int
+    # Sobre as últimas WINDOW_SIZE amostras; vazio enquanto ninguém recebeu o evento
+    typical_bytes: float | None
+    p95_bytes: float | None
+    queue_p95_ms: float | None
+    last_sent_at: float | None
 
 
 @dataclass(frozen=True)
@@ -61,9 +75,11 @@ class Snapshot:
     # p95 de todas as chamadas de cada origem juntas (o p95 por item não se soma)
     overall_p95: dict[Kind, float]
     engine_speed: float
+    # Segundos que as taxas de `traffic` cobrem
+    traffic_window_s: float
 
 
-def percentile_95(values: list[float]) -> float:
+def percentile_95(values: Iterable[float]) -> float:
     """Posto mais próximo: 95% das medições levam até esse tempo."""
     ordered = sorted(values)
     return ordered[math.ceil(0.95 * len(ordered)) - 1]
@@ -75,6 +91,20 @@ def _traffic_event(event: str) -> str:
     return f"{base}:*" if separator else event
 
 
+class _SentLog:
+    """Tudo o que se sabe de um evento enviado; a janela esvazia, o resto fica."""
+
+    def __init__(self) -> None:
+        # (instante, mensagens, bytes) de cada envio dentro da janela
+        self.window: deque[tuple[float, int, int]] = deque()
+        self.sends = 0
+        self.unheard = 0
+        self.total_bytes = 0
+        self.sizes: deque[float] = deque(maxlen=WINDOW_SIZE)
+        self.lags: deque[float] = deque(maxlen=WINDOW_SIZE)
+        self.last_sent_at: float | None = None
+
+
 class Metrics:
     def __init__(self) -> None:
         self.enabled = False
@@ -82,8 +112,7 @@ class Metrics:
         self._durations: dict[tuple[Kind, str], deque[float]] = defaultdict(
             lambda: deque(maxlen=WINDOW_SIZE)
         )
-        # event -> (instante, mensagens, bytes) de cada envio dentro da janela
-        self._sent: dict[str, deque[tuple[float, int, int]]] = defaultdict(deque)
+        self._sent: dict[str, _SentLog] = defaultdict(_SentLog)
         self._sent_since: float | None = None
         self._engine_speed = 0.0
 
@@ -104,17 +133,34 @@ class Metrics:
             )
 
     def record_sent(self, event: str, messages: int, bytes_each: int) -> None:
-        """Um envio de `messages` cópias de `bytes_each` bytes (uma por destinatário)."""
-        if not self.enabled or messages <= 0:
+        """
+        Um envio de `messages` cópias de `bytes_each` bytes (uma por destinatário).
+        Zero cópias é um envio que ninguém assinava: conta só como envio sem ninguém.
+        """
+        if not self.enabled:
             return
         now = time.monotonic()
         with self._lock:
+            log = self._sent[_traffic_event(event)]
+            log.sends += 1
+            if messages <= 0:
+                log.unheard += 1
+                return
             if self._sent_since is None:
                 self._sent_since = now
-            self._sent[_traffic_event(event)].append(
-                (now, messages, messages * bytes_each)
-            )
+            size = messages * bytes_each
+            log.window.append((now, messages, size))
+            log.total_bytes += size
+            log.sizes.append(bytes_each)
+            log.last_sent_at = time.time()
             self._prune(now)
+
+    def record_queue(self, event: str, lag_ms: float) -> None:
+        """Tempo entre o `notify` e a mensagem entregue ao socket de um destinatário."""
+        if not self.enabled:
+            return
+        with self._lock:
+            self._sent[_traffic_event(event)].lags.append(lag_ms)
 
     def set_engine_speed(self, speed: float) -> None:
         self._engine_speed = speed
@@ -170,20 +216,18 @@ class Metrics:
                 by_kind[kind].extend(window)
             elapsed = self._traffic_elapsed(now)
             traffic = [
-                _traffic(event, sends, elapsed)
-                for event, sends in self._sent.items()
-                if sends
+                _traffic(event, log, elapsed) for event, log in self._sent.items()
             ]
         overall: dict[Kind, float] = {
             kind: percentile_95(values) for kind, values in by_kind.items() if values
         }
-        return Snapshot(stats, traffic, overall, self._engine_speed)
+        return Snapshot(stats, traffic, overall, self._engine_speed, elapsed)
 
     def _prune(self, now: float) -> None:
         limit = now - TRAFFIC_WINDOW_SECONDS
-        for sends in self._sent.values():
-            while sends and sends[0][0] < limit:
-                sends.popleft()
+        for log in self._sent.values():
+            while log.window and log.window[0][0] < limit:
+                log.window.popleft()
 
     def _traffic_elapsed(self, now: float) -> float:
         # Nos primeiros segundos a janela ainda não encheu: divide pelo que já passou
@@ -232,16 +276,20 @@ def _stat(kind: Kind, name: str, window: list[float]) -> Stat:
     )
 
 
-def _traffic(
-    event: str, sends: deque[tuple[float, int, int]], elapsed: float
-) -> Traffic:
-    messages = sum(count for _, count, _ in sends)
-    size = sum(total for _, _, total in sends)
+def _traffic(event: str, log: _SentLog, elapsed: float) -> Traffic:
+    messages = sum(count for _, count, _ in log.window)
+    size = sum(total for _, _, total in log.window)
     return Traffic(
         event=event,
         msgs_per_s=messages / elapsed,
         bytes_per_s=size / elapsed,
-        bytes_per_msg=size / messages,
+        sends=log.sends,
+        unheard=log.unheard,
+        total_bytes=log.total_bytes,
+        typical_bytes=statistics.median(log.sizes) if log.sizes else None,
+        p95_bytes=percentile_95(log.sizes) if log.sizes else None,
+        queue_p95_ms=percentile_95(log.lags) if log.lags else None,
+        last_sent_at=log.last_sent_at,
     )
 
 

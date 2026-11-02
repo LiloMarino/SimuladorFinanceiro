@@ -7,6 +7,8 @@ export const SLOW_P95_MS = 500;
 const STALL_RATIO = 10;
 export const PAGE_SIZE = 10;
 export const ENGINE_DAY = "Processar um dia";
+/** Medido por dentro do ENGINE_DAY: já está no tempo dele. */
+const ENGINE_PUBLISH = "Publicar o dia";
 /** Mensagem pesada e frequente é o que pesa no navegador em velocidade alta. */
 const HEAVY_MESSAGE_BYTES = 100_000;
 
@@ -36,13 +38,24 @@ export interface Row extends MetricItem {
   label: string;
 }
 
+function isNested(item: MetricItem): boolean {
+  return item.kind === "engine" && item.name === ENGINE_PUBLISH;
+}
+
+function labelOf(item: MetricItem): string {
+  if (item.kind === "socket") return `${item.name} (recebido)`;
+  if (isNested(item)) return `${item.name} (parte de ${ENGINE_DAY})`;
+  return item.name;
+}
+
+/** A fatia de cada linha é sobre o tempo total, que conta uma vez só o que é medido por dentro de outra linha. */
 export function buildRows(items: MetricItem[]): Row[] {
-  const total = items.reduce((sum, item) => sum + item.total_ms, 0);
+  const total = items.reduce((sum, item) => (isNested(item) ? sum : sum + item.total_ms), 0);
   return items.map((item) => ({
     ...item,
     share: total > 0 ? item.total_ms / total : 0,
     flag: flagOf(item),
-    label: item.kind === "socket" ? `${item.name} (recebido)` : item.name,
+    label: labelOf(item),
   }));
 }
 
@@ -124,5 +137,5 @@ export function trafficSummary(traffic: TrafficItem[]): TrafficSummary {
 }
 
 export function isHeavy(item: TrafficItem): boolean {
-  return item.bytes_per_msg >= HEAVY_MESSAGE_BYTES && item.msgs_per_s >= 1;
+  return (item.typical_bytes ?? 0) >= HEAVY_MESSAGE_BYTES && item.msgs_per_s >= 1;
 }

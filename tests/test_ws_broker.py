@@ -7,6 +7,7 @@ from uuid import uuid4
 import pytest
 from socketio import AsyncServer
 
+from backend.core.metrics import Metrics
 from backend.features.realtime import ws_broker
 from backend.features.realtime.ws_broker import SocketBroker
 
@@ -90,3 +91,38 @@ def test_targeted_event_skips_other_players(broker):
     socket_broker.notify("portfolio_update", {}, to=bia)
 
     assert server.sent == [("portfolio_update", "bia")]
+
+
+@pytest.fixture
+def collector(monkeypatch: pytest.MonkeyPatch) -> Metrics:
+    collector = Metrics()
+    collector.enabled = True
+    monkeypatch.setattr(ws_broker, "metrics", collector)
+    return collector
+
+
+def test_debug_records_each_send_and_its_queue_lag(broker, collector: Metrics):
+    socket_broker, server = broker
+    lilo, bia = uuid4(), uuid4()
+    socket_broker.register_client(lilo, "lilo")
+    socket_broker.register_client(bia, "bia")
+    socket_broker.update_subscription("lilo", ["stocks_update"])
+    socket_broker.update_subscription("bia", ["stocks_update"])
+
+    socket_broker.notify("stocks_update", {"stocks": []})
+
+    (traffic,) = collector.snapshot().traffic
+    assert len(server.sent) == 2
+    assert (traffic.sends, traffic.unheard) == (1, 0)
+    assert traffic.total_bytes == 2 * len('{"stocks": []}')
+    assert traffic.queue_p95_ms is not None
+
+
+def test_debug_counts_a_send_nobody_subscribed(broker, collector: Metrics):
+    socket_broker, server = broker
+
+    socket_broker.notify("news_published", {"title": "x"})
+
+    (traffic,) = collector.snapshot().traffic
+    assert server.sent == []
+    assert (traffic.sends, traffic.unheard, traffic.total_bytes) == (1, 1, 0)

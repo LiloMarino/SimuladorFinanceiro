@@ -9160,7 +9160,7 @@
           "Debug"
         ],
         "summary": "Medições de desempenho",
-        "description": "Tempo gasto pelas requisições HTTP, pelos eventos Socket.IO recebidos e pelo motor, e o volume enviado ao navegador, sobre as últimas 1.000 medições de cada item. Só com o modo debug ligado e só para o host.",
+        "description": "Tempo gasto pelas requisições HTTP, pelos eventos Socket.IO recebidos e pelo motor, sobre as últimas 1.000 medições de cada item, e os eventos enviados ao navegador: a taxa recente e a contagem acumulada desde o último reset. Só com o modo debug ligado e só para o host.",
         "operationId": "get_metrics_api_debug_metrics_get",
         "responses": {
           "200": {
@@ -19880,6 +19880,10 @@
             },
             "type": "array",
             "title": "Traffic"
+          },
+          "traffic_window_s": {
+            "type": "number",
+            "title": "Traffic Window S"
           }
         },
         "type": "object",
@@ -19889,7 +19893,8 @@
           "engine",
           "items",
           "overall",
-          "traffic"
+          "traffic",
+          "traffic_window_s"
         ],
         "title": "MetricsResponse"
       },
@@ -29757,9 +29762,62 @@
             "type": "number",
             "title": "Bytes Per S"
           },
-          "bytes_per_msg": {
-            "type": "number",
-            "title": "Bytes Per Msg"
+          "sends": {
+            "type": "integer",
+            "title": "Sends"
+          },
+          "unheard": {
+            "type": "integer",
+            "title": "Unheard"
+          },
+          "total_bytes": {
+            "type": "integer",
+            "title": "Total Bytes"
+          },
+          "typical_bytes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typical Bytes"
+          },
+          "p95_bytes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P95 Bytes"
+          },
+          "queue_p95_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Queue P95 Ms"
+          },
+          "last_sent_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sent At"
           }
         },
         "type": "object",
@@ -29767,7 +29825,13 @@
           "event",
           "msgs_per_s",
           "bytes_per_s",
-          "bytes_per_msg"
+          "sends",
+          "unheard",
+          "total_bytes",
+          "typical_bytes",
+          "p95_bytes",
+          "queue_p95_ms",
+          "last_sent_at"
         ],
         "title": "TrafficItem"
       },

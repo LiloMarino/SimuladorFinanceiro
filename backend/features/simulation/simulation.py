@@ -78,6 +78,7 @@ from backend.core.enum import (
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
+from backend.core.metrics import ENGINE_PUBLISH, metrics
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
@@ -950,25 +951,26 @@ class Simulation:
             len(stocks),
             len(users),
         )
-        for stock in stocks:
-            ticker = stock.ticker
+        with metrics.measure("engine", ENGINE_PUBLISH):
+            for stock in stocks:
+                ticker = stock.ticker
+                notify(
+                    f"stock_update:{ticker}",
+                    StockUpdateEventDTO(stock=stock).to_json(),
+                )
             notify(
-                f"stock_update:{ticker}",
-                StockUpdateEventDTO(stock=stock).to_json(),
+                "simulation_update",
+                SimulationTickUpdateEventDTO(current_date=self._current_date).to_json(),
             )
-        notify(
-            "simulation_update",
-            SimulationTickUpdateEventDTO(current_date=self._current_date).to_json(),
-        )
-        notify("stocks_update", StocksUpdateEventDTO(stocks=stocks).to_json())
-        for player in UserManager.list_active_players():
-            notify(
-                "portfolio_update",
-                PortfolioUpdateEventDTO(
-                    portfolio=self.get_portfolio(player.client_id)
-                ).to_json(),
-                to=player.client_id,
-            )
+            notify("stocks_update", StocksUpdateEventDTO(stocks=stocks).to_json())
+            for player in UserManager.list_active_players():
+                notify(
+                    "portfolio_update",
+                    PortfolioUpdateEventDTO(
+                        portfolio=self.get_portfolio(player.client_id)
+                    ).to_json(),
+                    to=player.client_id,
+                )
         if self.settings.game_type.has_goal:
             self._track_goal(snapshots)
 

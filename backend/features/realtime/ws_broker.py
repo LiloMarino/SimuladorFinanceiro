@@ -1,5 +1,6 @@
 import asyncio
 import json
+import time
 from collections import defaultdict
 from collections.abc import Iterable
 from threading import Lock
@@ -89,11 +90,26 @@ class SocketBroker(RealtimeBroker):
         if self._loop is None:
             raise RuntimeError("Event loop não está vinculado ao SocketBroker")
 
-        if metrics.enabled:
-            metrics.record_sent(event, len(targets), len(json.dumps(payload)))
+        if not metrics.enabled:
+            for sid in targets:
+                asyncio.run_coroutine_threadsafe(
+                    self.sio.emit(event, payload, to=sid),
+                    self._loop,
+                )
+            return
 
+        size = len(json.dumps(payload)) if targets else 0
+        metrics.record_sent(event, len(targets), size)
+        queued_at = time.perf_counter()
         for sid in targets:
             asyncio.run_coroutine_threadsafe(
-                self.sio.emit(event, payload, to=sid),
+                self._emit_measured(event, payload, sid, queued_at),
                 self._loop,
             )
+
+    async def _emit_measured(
+        self, event: Event, payload: JSONValue, sid: SID, queued_at: float
+    ) -> None:
+        """O atraso conta a espera na fila do event loop e a entrega ao socket."""
+        await self.sio.emit(event, payload, to=sid)
+        metrics.record_queue(event, (time.perf_counter() - queued_at) * 1000)

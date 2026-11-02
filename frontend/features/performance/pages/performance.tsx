@@ -110,10 +110,8 @@ export default function PerformancePage() {
             onSeeTable={() => document.getElementById(TABLE_ID)?.scrollIntoView({ behavior: "smooth" })}
           />
           <TimeTable id={TABLE_ID} rows={rows} />
-          <div className="grid items-start gap-5 lg:grid-cols-[1.35fr_1fr]">
-            <TrafficTable traffic={data.traffic} />
-            <PySpyCard pid={data.pid} />
-          </div>
+          <TrafficTable traffic={data.traffic} windowSeconds={data.traffic_window_s} />
+          <PySpyCard pid={data.pid} />
         </>
       )}
     </div>

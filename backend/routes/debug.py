@@ -1,4 +1,5 @@
 import os
+from datetime import UTC, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends
@@ -34,9 +35,18 @@ class MetricItem(BaseModel):
 
 class TrafficItem(BaseModel):
     event: str
+    # Taxas dos últimos `traffic_window_s` segundos
     msgs_per_s: float
     bytes_per_s: float
-    bytes_per_msg: float
+    # Desde o boot ou o último reset; um envio vira uma mensagem por destinatário
+    sends: int
+    unheard: int
+    total_bytes: int
+    # Sobre os últimos 1.000 envios; vazios enquanto ninguém recebeu o evento
+    typical_bytes: float | None
+    p95_bytes: float | None
+    queue_p95_ms: float | None
+    last_sent_at: datetime | None
 
 
 class OverallItem(BaseModel):
@@ -57,6 +67,11 @@ class MetricsResponse(BaseModel):
     items: list[MetricItem]
     overall: list[OverallItem]
     traffic: list[TrafficItem]
+    traffic_window_s: float
+
+
+def _round(value: float | None, digits: int) -> float | None:
+    return round(value, digits) if value is not None else None
 
 
 @debug_router.get(
@@ -64,8 +79,9 @@ class MetricsResponse(BaseModel):
     summary="Medições de desempenho",
     description=(
         "Tempo gasto pelas requisições HTTP, pelos eventos Socket.IO recebidos e pelo "
-        "motor, e o volume enviado ao navegador, sobre as últimas 1.000 medições de "
-        "cada item. Só com o modo debug ligado e só para o host."
+        "motor, sobre as últimas 1.000 medições de cada item, e os eventos enviados ao "
+        "navegador: a taxa recente e a contagem acumulada desde o último reset. Só com "
+        "o modo debug ligado e só para o host."
     ),
 )
 def get_metrics(_debug: DebugOnly, _host: HostVerified) -> MetricsResponse:
@@ -88,7 +104,17 @@ def get_metrics(_debug: DebugOnly, _host: HostVerified) -> MetricsResponse:
             event=item.event,
             msgs_per_s=round(item.msgs_per_s, 2),
             bytes_per_s=round(item.bytes_per_s, 1),
-            bytes_per_msg=round(item.bytes_per_msg, 1),
+            sends=item.sends,
+            unheard=item.unheard,
+            total_bytes=item.total_bytes,
+            typical_bytes=_round(item.typical_bytes, 1),
+            p95_bytes=_round(item.p95_bytes, 1),
+            queue_p95_ms=_round(item.queue_p95_ms, 2),
+            last_sent_at=(
+                datetime.fromtimestamp(item.last_sent_at, UTC)
+                if item.last_sent_at is not None
+                else None
+            ),
         )
         for item in snapshot.traffic
     ]
@@ -102,6 +128,7 @@ def get_metrics(_debug: DebugOnly, _host: HostVerified) -> MetricsResponse:
             for kind, p95 in snapshot.overall_p95.items()
         ],
         traffic=traffic,
+        traffic_window_s=round(snapshot.traffic_window_s, 1),
     )
 
 

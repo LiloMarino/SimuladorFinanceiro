@@ -118,14 +118,18 @@ function HttpCard({ data }: EngineCardProps) {
 
 function TrafficCard({ data }: EngineCardProps) {
   const { msgsPerSecond, bytesPerSecond, top } = trafficSummary(data.traffic);
+  const sending = msgsPerSecond > 0;
+  const idleNote = data.traffic.length
+    ? `Nada nos últimos ${displayNumber(data.traffic_window_s, 0)} s`
+    : "Nada enviado ainda";
   return (
     <Kpi
       label="Enviado ao navegador · Socket.IO"
-      value={data.traffic.length ? `${displayBytes(bytesPerSecond)}/s` : "—"}
+      value={sending ? `${displayBytes(bytesPerSecond)}/s` : "—"}
       note={
-        data.traffic.length
+        sending
           ? `${displayNumber(msgsPerSecond, 0)} mensagens por segundo, para ${data.players} ${data.players === 1 ? "jogador" : "jogadores"}`
-          : "Nada enviado ainda"
+          : idleNote
       }
     >
       {top && (

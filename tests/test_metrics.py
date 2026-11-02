@@ -17,6 +17,7 @@ from backend.core.dependencies import get_current_user
 from backend.core.dto.user import UserDTO
 from backend.core.metrics import (
     SLOW_MS,
+    TRAFFIC_WINDOW_SECONDS,
     WINDOW_SIZE,
     Metrics,
     MetricsMiddleware,
@@ -86,6 +87,7 @@ def test_nothing_is_kept_while_disabled() -> None:
 def test_reset_clears_everything(collector: Metrics) -> None:
     collector.record("http", "GET /api/x", 5.0)
     collector.record_sent("event", 1, 10)
+    collector.record_queue("event", 3.0)
 
     collector.reset()
 
@@ -101,9 +103,60 @@ def test_sent_traffic_is_per_recipient_and_groups_dynamic_events(
 
     (traffic,) = collector.snapshot().traffic
     assert traffic.event == "stock_update:*"
-    assert traffic.bytes_per_msg == 1000
+    assert (traffic.sends, traffic.total_bytes, traffic.typical_bytes) == (
+        2,
+        8000,
+        1000,
+    )
     # 8 mensagens e 8.000 bytes sobre a janela mínima de 1 s
     assert (traffic.msgs_per_s, traffic.bytes_per_s) == (8.0, 8000.0)
+
+
+def test_sent_event_stays_after_the_window_passes(
+    collector: Metrics, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    clock = [100.0]
+    monkeypatch.setattr(metrics_module.time, "monotonic", lambda: clock[0])
+    collector.record_sent("stocks_update", 2, 500)
+
+    clock[0] += TRAFFIC_WINDOW_SECONDS + 1
+    (traffic,) = collector.snapshot().traffic
+
+    assert (traffic.msgs_per_s, traffic.bytes_per_s) == (0.0, 0.0)
+    assert (traffic.sends, traffic.total_bytes) == (1, 1000)
+    assert traffic.last_sent_at is not None
+
+
+def test_a_send_nobody_subscribed_counts_as_unheard(collector: Metrics) -> None:
+    collector.record_sent("news_published", 0, 0)
+    collector.record_sent("news_published", 1, 300)
+
+    (traffic,) = collector.snapshot().traffic
+    assert (traffic.sends, traffic.unheard, traffic.total_bytes) == (2, 1, 300)
+    assert traffic.typical_bytes == traffic.p95_bytes == 300
+
+
+def test_unheard_only_event_has_no_size_yet(collector: Metrics) -> None:
+    collector.record_sent("news_published", 0, 0)
+
+    (traffic,) = collector.snapshot().traffic
+    assert (traffic.typical_bytes, traffic.p95_bytes) == (None, None)
+    assert traffic.last_sent_at is None
+
+
+def test_sizes_and_queue_lag_use_the_last_thousand_samples(
+    collector: Metrics,
+) -> None:
+    collector.record_sent("stocks_update", 1, 10**6)
+    for size in range(1, WINDOW_SIZE + 1):
+        collector.record_sent("stocks_update", 1, size)
+    for lag in range(1, 101):
+        collector.record_queue("stock_update:PETR4", float(lag))
+
+    by_event = {t.event: t for t in collector.snapshot().traffic}
+    assert by_event["stocks_update"].p95_bytes == 950
+    assert by_event["stocks_update"].typical_bytes == 500.5
+    assert by_event["stock_update:*"].queue_p95_ms == 95.0
 
 
 def test_measure_records_even_when_the_block_raises(collector: Metrics) -> None:
@@ -239,6 +292,26 @@ def test_metrics_endpoint_describes_the_measurements(
         }
     ]
     assert body["pid"] > 0
+    assert body["traffic_window_s"] == 1.0
+
+
+def test_metrics_endpoint_describes_the_sent_events(
+    debug_client: TestClient, live: Metrics
+) -> None:
+    live.record_sent("stocks_update", 2, 500)
+    live.record_queue("stocks_update", 4.0)
+
+    (traffic,) = debug_client.get("/api/debug/metrics").json()["traffic"]
+
+    assert traffic["event"] == "stocks_update"
+    assert (traffic["sends"], traffic["unheard"], traffic["total_bytes"]) == (
+        1,
+        0,
+        1000,
+    )
+    assert (traffic["typical_bytes"], traffic["p95_bytes"]) == (500, 500)
+    assert traffic["queue_p95_ms"] == 4.0
+    assert traffic["last_sent_at"] is not None
 
 
 def test_paused_engine_has_no_budget(debug_client: TestClient) -> None:

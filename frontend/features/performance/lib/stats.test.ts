@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { MetricItem, MetricsData } from "@/types";
+import type { MetricItem, MetricsData, TrafficItem } from "@/types";
 import {
   buildRows,
   countByKind,
@@ -24,6 +24,20 @@ const metric = (overrides: Partial<MetricItem>): MetricItem => ({
   ...overrides,
 });
 
+const traffic = (overrides: Partial<TrafficItem>): TrafficItem => ({
+  event: "x",
+  msgs_per_s: 0,
+  bytes_per_s: 0,
+  sends: 1,
+  unheard: 0,
+  total_bytes: 0,
+  typical_bytes: null,
+  p95_bytes: null,
+  queue_p95_ms: null,
+  last_sent_at: null,
+  ...overrides,
+});
+
 const metrics = (overrides: Partial<MetricsData>): MetricsData => ({
   pid: 1,
   players: 1,
@@ -31,6 +45,7 @@ const metrics = (overrides: Partial<MetricsData>): MetricsData => ({
   items: [],
   overall: [],
   traffic: [],
+  traffic_window_s: 10,
   ...overrides,
 });
 
@@ -58,6 +73,17 @@ describe("linhas da tabela", () => {
       ["GET /a", 0.75],
       ["join (recebido)", 0.25],
       [ENGINE_DAY, 0],
+    ]);
+  });
+
+  it("publicar o dia já está dentro de processar um dia e fica fora do total", () => {
+    const nested = buildRows([
+      metric({ kind: "engine", name: ENGINE_DAY, total_ms: 400 }),
+      metric({ kind: "engine", name: "Publicar o dia", total_ms: 100 }),
+    ]);
+    expect(nested.map((r) => [r.label, r.share])).toEqual([
+      [ENGINE_DAY, 1],
+      [`Publicar o dia (parte de ${ENGINE_DAY})`, 0.25],
     ]);
   });
 
@@ -111,16 +137,17 @@ describe("resumos", () => {
 
   it("o tráfego soma tudo e aponta o evento mais pesado", () => {
     const summary = trafficSummary([
-      { event: "tick", msgs_per_s: 2, bytes_per_s: 300, bytes_per_msg: 150 },
-      { event: "chat", msgs_per_s: 1, bytes_per_s: 100, bytes_per_msg: 100 },
+      traffic({ event: "tick", msgs_per_s: 2, bytes_per_s: 300 }),
+      traffic({ event: "chat", msgs_per_s: 1, bytes_per_s: 100 }),
     ]);
     expect(summary).toEqual({ msgsPerSecond: 3, bytesPerSecond: 400, top: { event: "tick", share: 0.75 } });
     expect(trafficSummary([])).toEqual({ msgsPerSecond: 0, bytesPerSecond: 0, top: null });
   });
 
   it("mensagem pesada tem 100 KB ou mais e chega ao menos uma vez por segundo", () => {
-    expect(isHeavy({ event: "x", msgs_per_s: 1, bytes_per_s: 100_000, bytes_per_msg: 100_000 })).toBe(true);
-    expect(isHeavy({ event: "x", msgs_per_s: 1, bytes_per_s: 99_999, bytes_per_msg: 99_999 })).toBe(false);
-    expect(isHeavy({ event: "x", msgs_per_s: 0.5, bytes_per_s: 50_000, bytes_per_msg: 100_000 })).toBe(false);
+    expect(isHeavy(traffic({ msgs_per_s: 1, typical_bytes: 100_000 }))).toBe(true);
+    expect(isHeavy(traffic({ msgs_per_s: 1, typical_bytes: 99_999 }))).toBe(false);
+    expect(isHeavy(traffic({ msgs_per_s: 0.5, typical_bytes: 100_000 }))).toBe(false);
+    expect(isHeavy(traffic({ msgs_per_s: 1, typical_bytes: null }))).toBe(false);
   });
 });
