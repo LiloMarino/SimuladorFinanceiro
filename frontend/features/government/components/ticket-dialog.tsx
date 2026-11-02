@@ -14,6 +14,7 @@ import {
 import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { KeyValueRow } from "@/shared/components/key-value-row";
+import { PlayerOption } from "@/shared/components/player-option";
 import { displayDayMonth, displayMoney } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty } from "@/types";
 import { useSetTicket } from "../hooks/mutations/useSetTicket";
@@ -40,7 +41,12 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
   const viceOptions = panel.vice_options.filter((option) => option.nickname !== candidate);
   const viceItems = {
     [NO_VICE]: "Sem vice",
-    ...Object.fromEntries(viceOptions.map((option) => [option.nickname, option.nickname])),
+    ...Object.fromEntries(
+      viceOptions.map((option) => [
+        option.nickname,
+        <PlayerOption key={option.nickname} nickname={option.nickname} color={option.color} />,
+      ]),
+    ),
   };
   const effectiveVice = vice === candidate ? NO_VICE : vice;
 
@@ -91,7 +97,7 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
                   <SelectItem value={NO_VICE}>Sem vice</SelectItem>
                   {viceOptions.map((option) => (
                     <SelectItem key={option.nickname} value={option.nickname} disabled={!!option.blocked}>
-                      {option.nickname}
+                      <PlayerOption nickname={option.nickname} color={option.color} />
                       <span className="text-xs text-muted-foreground">
                         {option.blocked ?? (option.party_abbr ? `do ${option.party_abbr}` : "sem partido")}
                       </span>

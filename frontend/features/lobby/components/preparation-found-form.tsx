@@ -3,6 +3,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FlagCards } from "@/shared/components/flag-cards";
 import { PartyIdentityFields } from "@/shared/components/party-identity-fields";
+import { PlayerOption } from "@/shared/components/player-option";
 import { Button } from "@/shared/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Field, FieldLabel } from "@/shared/components/ui/field";
@@ -52,7 +53,7 @@ export function PreparationFoundForm({
   const busy = save.isPending || prepare.isPending;
 
   const candidates = [nickname, ...members];
-  const viceOptions = humans.map((p) => p.nickname).filter((name) => name !== candidate);
+  const viceOptions = humans.filter((player) => player.nickname !== candidate);
   // O vice sai da chapa quando vira o candidato
   const viceValue = vice === candidate ? NO_VICE : vice;
 
@@ -104,7 +105,15 @@ export function PreparationFoundForm({
           <FieldLabel>Vice</FieldLabel>
           <Select
             value={viceValue}
-            items={{ [NO_VICE]: "Sem vice", ...Object.fromEntries(viceOptions.map((name) => [name, name])) }}
+            items={{
+              [NO_VICE]: "Sem vice",
+              ...Object.fromEntries(
+                viceOptions.map((player) => [
+                  player.nickname,
+                  <PlayerOption key={player.nickname} nickname={player.nickname} color={player.color} />,
+                ]),
+              ),
+            }}
             onValueChange={(value) => value && setVice(value)}
           >
             <SelectTrigger className="w-full" aria-label="Vice">
@@ -112,9 +121,9 @@ export function PreparationFoundForm({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={NO_VICE}>Sem vice</SelectItem>
-              {viceOptions.map((name) => (
-                <SelectItem key={name} value={name}>
-                  {name}
+              {viceOptions.map((player) => (
+                <SelectItem key={player.nickname} value={player.nickname}>
+                  <PlayerOption nickname={player.nickname} color={player.color} />
                 </SelectItem>
               ))}
             </SelectContent>
