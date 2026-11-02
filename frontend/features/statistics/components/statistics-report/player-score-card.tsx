@@ -46,13 +46,13 @@ export function PlayerScoreCard({
         <CardAction>{action}</CardAction>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
           {player.score.axes.map((axis) => {
             const points = Number(axis.points ?? 0);
             const leaderPoints = leader?.score?.axes.find((a) => a.axis === axis.axis)?.points;
             const belowLeader = leaderPoints !== null && leaderPoints !== undefined && points < Number(leaderPoints);
             return (
-              <div key={axis.axis} className="grid content-start gap-3 rounded-[10px] border border-border p-4">
+              <div key={axis.axis} className="grid min-w-0 content-start gap-3 rounded-[10px] border border-border p-4">
                 <div className="grid gap-0.5">
                   <span className="flex items-baseline justify-between">
                     <span className="font-semibold">{SCORE_AXES[axis.axis].label}</span>
