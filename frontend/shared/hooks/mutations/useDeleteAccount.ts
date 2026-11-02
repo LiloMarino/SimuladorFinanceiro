@@ -7,6 +7,10 @@ export function useDeleteAccount() {
 
   return useMutation({
     mutationFn: () => apiFetch<void>("/api/user", { method: "DELETE" }),
-    onSuccess: () => queryClient.setQueryData(queryKeys.authSession(), null),
+    // Os dados em cache pertencem à conta que saiu: a próxima sessão busca tudo de novo
+    onSuccess: () => {
+      queryClient.clear();
+      queryClient.setQueryData(queryKeys.authSession(), null);
+    },
   });
 }
