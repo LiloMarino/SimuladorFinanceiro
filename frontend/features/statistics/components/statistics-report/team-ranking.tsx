@@ -24,7 +24,7 @@ import {
   displayRemainingToGoal,
   rankingMeasure,
 } from "../../lib/criterion";
-import { SCORE, SCORE_AXES, displayMetric } from "../../lib/metrics";
+import { RANKING_RETURN, SCORE, SCORE_AXES, displayMetric } from "../../lib/metrics";
 import { membersOf } from "../../lib/teams";
 
 /** Quanto tempo cabe de pregões: a equipe tem tantos pregões quanto o membro que mais jogou. */
@@ -226,7 +226,12 @@ export function TeamRanking({
               hint={<MetricHint metric={goalRace ? GOAL_PERCENT : SCORE} />}
             />
             <SortableTableHead label={"Patrimônio"} {...sorting.header("wealth")} numeric />
-            <SortableTableHead label={"Retorno"} {...sorting.header("return")} numeric />
+            <SortableTableHead
+              label={"Retorno"}
+              {...sorting.header("return")}
+              numeric
+              hint={<MetricHint metric={RANKING_RETURN} />}
+            />
             <SortableTableHead label={"Pregões"} {...sorting.header("days")} numeric />
             <SortableTableHead
               label={goalRace && report.goal_net_worth ? GOAL_REMAINING.label : "Distância do líder"}

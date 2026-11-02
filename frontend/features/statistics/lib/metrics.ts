@@ -289,6 +289,18 @@ export function displayMetric(metric: MetricInfo, value: string | number | null 
   return value === null || value === undefined ? "—" : metric.format(value);
 }
 
+/** A coluna "Retorno" dos rankings: o patrimônio do último pregão registrado contra o que tinha entrado até ali. */
+export const RANKING_RETURN: MetricInfo = {
+  label: "Retorno sobre o aportado",
+  description: "Quanto o patrimônio rendeu sobre o dinheiro que entrou até o último pregão registrado",
+  definition:
+    "Patrimônio do último pregão menos tudo o que tinha sido posto na carteira até ali (saldo inicial mais aportes), dividido por esse total. Aportes feitos depois desse pregão ainda não contam, por isso o número pode diferir do da Carteira, que soma os aportes até hoje.",
+  example: "Ex.: entraram R$ 100.000 e o patrimônio é R$ 102.270 → +2,27%.",
+  reading:
+    "Acima de 0% a carteira ganhou dinheiro; abaixo, vale menos do que foi posto. Não é anualizado: o 'Retorno anual' da nota é outra conta.",
+  format: (value) => displaySignedPercent(value, 2),
+};
+
 /** O retorno do backtest: o patrimônio contra todo o dinheiro que entrou, aportes incluídos. */
 export const BACKTEST_RETURN: MetricInfo = {
   label: "Retorno sobre o aportado",

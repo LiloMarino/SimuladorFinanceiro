@@ -22,7 +22,7 @@ import {
   displayRemainingToGoal,
   rankingMeasure,
 } from "../../lib/criterion";
-import { AXIS_SCALE, SCORE, SCORE_AXES, displayMetric } from "../../lib/metrics";
+import { AXIS_SCALE, RANKING_RETURN, SCORE, SCORE_AXES, displayMetric } from "../../lib/metrics";
 import { SimulationLetter } from "../compare/simulation-letter";
 import { simulationColor, simulationLetter, labelColors } from "../../lib/player-label";
 import { playerKey, playerLabel } from "../../lib/player-label";
@@ -465,7 +465,12 @@ function Ranking({
                 hint={<MetricHint metric={GOAL_REMAINING} />}
               />
             )}
-            <SortableTableHead label={goalRace ? "Rentabilidade" : "Retorno"} {...sorting.header("return")} numeric />
+            <SortableTableHead
+              label={goalRace ? "Rentabilidade" : "Retorno"}
+              {...sorting.header("return")}
+              numeric
+              hint={<MetricHint metric={RANKING_RETURN} />}
+            />
             {!goalRace && <SortableTableHead label={"Pregões"} {...sorting.header("days")} numeric />}
             {!comparing && !goalRace && (
               <SortableTableHead label={"Distância do líder"} {...sorting.header("gap")} numeric />
