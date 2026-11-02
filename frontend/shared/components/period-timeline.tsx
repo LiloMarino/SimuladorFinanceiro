@@ -15,7 +15,7 @@ import {
   type DataEnds,
   type DataFloor,
   type TimelineZone,
-} from "../lib/period";
+} from "@/shared/lib/period";
 
 const ZONE_STYLES: Record<TimelineZone["kind"], string> = {
   "no-data": "bg-[repeating-linear-gradient(135deg,var(--border)_0_4px,var(--background)_4px_8px)]",

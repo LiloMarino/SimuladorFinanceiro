@@ -44,6 +44,7 @@ import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
 import { displayDecimal, toCentsString } from "@/shared/lib/utils/display";
 import { LIFE_DEFAULTS, withdrawalRateToField } from "@/shared/lib/financial-independence";
 import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
+import { PeriodPicker } from "@/shared/components/period-picker";
 import { EXPANSIONS } from "@/shared/lib/expansions";
 import { BASE_GAME_TYPE_OPTIONS, POLITICAL_GAME_TYPE } from "@/shared/lib/game-types";
 import { DEFAULT_GOAL_MULTIPLE, GOAL_SHORTCUTS } from "@/shared/lib/goal";
@@ -62,7 +63,6 @@ import { AssistanceFields } from "./assistance-fields";
 import { CoverageAlerts } from "./coverage-alerts";
 import { ExpansionFields } from "./expansion-fields";
 import { LifeFields } from "./life-fields";
-import { PeriodPicker } from "./period-picker";
 import type { SimulationFormValues } from "./lobby-match";
 import { PresetBar } from "./preset-bar";
 import { PriceImpactExample } from "./price-impact-example";
@@ -256,7 +256,7 @@ export function RulesSheet({
                   </Field>
                 )}
               />
-              <PeriodPicker form={form} readOnly={readOnly} coverageCheck={coverageCheck} />
+              <PeriodPicker form={form} readOnly={readOnly} startUncovered={coverageCheck.missingAtStart.length > 0} />
               <CoverageAlerts check={coverageCheck} startDate={startDate} />
               <div className="grid grid-cols-2 gap-3">
                 {(

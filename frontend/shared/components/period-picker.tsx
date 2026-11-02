@@ -8,7 +8,6 @@ import type { RangeBarDrag } from "@/shared/components/ui/slider";
 import { DateField } from "@/shared/components/date-field";
 import { useSeriesCoverage } from "@/shared/hooks/queries/useSeriesCoverage";
 import { isIsoDate, todayIso } from "@/shared/lib/utils/date-field";
-import type { CoverageCheck } from "../lib/coverage";
 import {
   activeShortcut,
   buildShortcuts,
@@ -25,20 +24,31 @@ import {
   stopMessage,
   type Period,
   type PeriodShortcut,
-} from "../lib/period";
-import type { SimulationFormValues } from "./lobby-match";
+} from "@/shared/lib/period";
 import { PeriodTimeline, type TimelineTip } from "./period-timeline";
 
-type PeriodPickerProps = {
-  form: UseFormReturn<SimulationFormValues>;
+/** Os dois campos que o seletor lê e escreve; o formulário de quem usa pode ter outros */
+export type PeriodFormValues = {
+  startDate: string;
+  endDate: string;
+};
+
+type PeriodPickerProps<T extends PeriodFormValues> = {
+  form: UseFormReturn<T>;
   /** Sem edição: convidado ou regras de uma partida salva */
   readOnly: boolean;
-  /** O mesmo conferido pelo aviso de cobertura: início sem dado pinta o campo de erro */
-  coverageCheck: CoverageCheck;
+  /** Início sem dado de cobertura pinta o campo de erro */
+  startUncovered: boolean;
 };
 
 /** Início e fim da partida: atalhos, linha do tempo com alças e barra, e os campos para o dia exato. */
-export function PeriodPicker({ form, readOnly, coverageCheck }: PeriodPickerProps) {
+export function PeriodPicker<T extends PeriodFormValues>({
+  form: callerForm,
+  readOnly,
+  startUncovered,
+}: PeriodPickerProps<T>) {
+  // O seletor só toca em startDate e endDate, que todo T traz
+  const form = callerForm as unknown as UseFormReturn<PeriodFormValues>;
   const [startDate, endDate] = useWatch({ control: form.control, name: ["startDate", "endDate"] });
   const { data: coverage, isPending: loading } = useSeriesCoverage();
   const floor = coverage ? dataFloor(coverage) : undefined;
@@ -50,7 +60,6 @@ export function PeriodPicker({ form, readOnly, coverageCheck }: PeriodPickerProp
   const period = parsePeriod(startDate, endDate);
   const range = bothDates ? periodRange({ start: startDate, end: endDate }) : null;
   const active = activeShortcut(period, shortcuts);
-  const startUncovered = coverageCheck.missingAtStart.length > 0;
 
   // A dica sob a linha vale enquanto a pessoa segura uma alça ou a barra, ou com o foco numa alça
   const [engaged, setEngaged] = useState(false);

@@ -1,7 +1,7 @@
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
 import { Info, TriangleAlert } from "lucide-react";
 import { CoverageBar } from "@/shared/components/coverage-bar";
-import { DateField } from "@/shared/components/date-field";
+import { PeriodPicker } from "@/shared/components/period-picker";
 import { InfoHint } from "@/shared/components/info-hint";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -51,33 +51,6 @@ export function PeriodCard({ form, coverage, layout }: PeriodCardProps) {
       )}
     />
   );
-
-  const dates = (["startDate", "endDate"] as const).map((fieldName) => (
-    <Controller
-      key={fieldName}
-      control={form.control}
-      name={fieldName}
-      render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid} className="min-w-0">
-          <FieldLabel htmlFor={`backtest-${fieldName}`}>{fieldName === "startDate" ? "Início" : "Fim"}</FieldLabel>
-          <DateField
-            id={`backtest-${fieldName}`}
-            value={field.value}
-            onChange={(value) => {
-              field.onChange(value);
-              // Início e fim se validam juntos
-              void form.trigger(["startDate", "endDate"]);
-            }}
-            onBlur={field.onBlur}
-            invalid={fieldState.invalid}
-            dataEnds={{ realEnd: coverage.real_end ?? undefined, generatedEnd: coverage.generated_end ?? undefined }}
-            period={window}
-          />
-          <FieldError errors={[fieldState.error]} />
-        </Field>
-      )}
-    />
-  ));
 
   const money = (
     [
@@ -138,6 +111,8 @@ export function PeriodCard({ form, coverage, layout }: PeriodCardProps) {
     />
   );
 
+  const period = <PeriodPicker form={form} readOnly={false} startUncovered={false} />;
+
   const futureNote = generated && futureStart && (
     <FieldDescription>
       De {displayMonthSlashYear(futureStart)} em diante o mercado é gerado, sorteado de trechos do histórico. Serve para
@@ -164,12 +139,12 @@ export function PeriodCard({ form, coverage, layout }: PeriodCardProps) {
         <div className="grid gap-4">
           {wide ? (
             <>
-              <div className="grid grid-cols-[1.4fr_140px_140px_170px_170px_auto] items-start gap-3">
+              <div className="grid grid-cols-[1.4fr_170px_170px_auto] items-start gap-3">
                 {name}
-                {dates}
                 {money}
                 {impact}
               </div>
+              {period}
               <div className="grid grid-cols-[minmax(0,1fr)_380px] items-center gap-5">
                 <CoverageBar coverage={coverage} window={window} />
                 <div className="grid gap-2">
@@ -181,7 +156,7 @@ export function PeriodCard({ form, coverage, layout }: PeriodCardProps) {
           ) : (
             <>
               {name}
-              <div className="grid grid-cols-2 gap-2.5">{dates}</div>
+              {period}
               <CoverageBar coverage={coverage} window={window} />
               {futureNote}
               <div className="grid grid-cols-2 gap-2.5">{money}</div>
