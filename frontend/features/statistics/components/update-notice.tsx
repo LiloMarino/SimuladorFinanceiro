@@ -2,25 +2,26 @@ import { differenceInCalendarDays } from "date-fns";
 import { InfoHint } from "@/shared/components/info-hint";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { useStatisticsNextUpdate } from "@/shared/hooks/queries/useStatisticsNextUpdate";
-import { parseLocalDate } from "@/shared/lib/utils/display";
+import { displayIsoDate, parseLocalDate } from "@/shared/lib/utils/display";
 
-/** Avisa que as estatísticas fecham uma vez por mês de jogo e quantos dias da partida faltam para o próximo fechamento. */
+/** Avisa que as estatísticas fecham uma vez por mês de jogo: o dia da última atualização e, com a partida andando, quantos dias faltam para a próxima. */
 export function UpdateNotice() {
   const { data: nextUpdate } = useStatisticsNextUpdate();
   const { data: state } = useSimulationState();
 
-  // Pausada, o relógio da partida não anda: não há contagem a mostrar
-  const running = (state?.speed ?? 0) > 0;
-  if (!running || !state?.current_date || !nextUpdate?.next_update_date) return null;
+  if (!state?.current_date || !nextUpdate) return null;
 
-  const days = differenceInCalendarDays(
-    parseLocalDate(nextUpdate.next_update_date),
-    parseLocalDate(state.current_date),
-  );
+  // Pausada, o relógio da partida não anda: não há contagem a mostrar
+  const running = (state.speed ?? 0) > 0;
+  const days = nextUpdate.next_update_date
+    ? differenceInCalendarDays(parseLocalDate(nextUpdate.next_update_date), parseLocalDate(state.current_date))
+    : null;
 
   return (
     <p className="flex items-center gap-1 text-sm text-muted-foreground">
-      Atualizadas uma vez por mês de jogo · próxima atualização em {days} {days === 1 ? "dia" : "dias"}
+      Atualizadas uma vez por mês de jogo
+      {nextUpdate.last_update_date && ` · última atualização em ${displayIsoDate(nextUpdate.last_update_date)}`}
+      {running && days !== null && ` · próxima atualização em ${days} ${days === 1 ? "dia" : "dias"}`}
       <InfoHint label="Por que as estatísticas atualizam por mês">
         <div className="space-y-1 text-left">
           <p>

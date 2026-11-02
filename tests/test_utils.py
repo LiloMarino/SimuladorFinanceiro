@@ -7,6 +7,7 @@ from backend.core.utils import (
     business_days_between,
     format_percent,
     is_business_day,
+    last_month_turn,
     next_business_day,
     next_month_turn,
     ratio,
@@ -42,6 +43,14 @@ def test_next_month_turn_is_first_business_day_of_next_month():
     assert next_month_turn(date(2020, 1, 31)) == date(2020, 2, 3)
     assert next_month_turn(date(2020, 2, 3)) == date(2020, 3, 2)
     assert next_month_turn(date(2020, 12, 10)) == date(2021, 1, 1)
+
+
+def test_last_month_turn_is_first_business_day_of_the_current_month():
+    """A última virada é o primeiro dia útil do mês de `d`; antes dele, a do mês anterior."""
+    assert last_month_turn(date(2020, 1, 15)) == date(2020, 1, 1)
+    assert last_month_turn(date(2020, 2, 3)) == date(2020, 2, 3)
+    assert last_month_turn(date(2020, 2, 28)) == date(2020, 2, 3)
+    assert last_month_turn(date(2020, 3, 1)) == date(2020, 2, 3)
 
 
 def test_business_days_between_skips_weekends():

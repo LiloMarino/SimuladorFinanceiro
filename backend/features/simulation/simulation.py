@@ -83,6 +83,7 @@ from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import (
     format_money,
+    last_month_turn,
     next_business_day,
     next_month_turn,
     required,
@@ -1205,6 +1206,12 @@ class Simulation:
         """Dia em que as estatísticas fecham o mês de novo; nulo quando a partida acaba antes."""
         turn = next_month_turn(self._current_date)
         return turn if turn <= self.settings.end_date else None
+
+    @synchronized
+    def last_statistics_update(self) -> date | None:
+        """Dia em que as estatísticas fecharam o mês pela última vez; nulo antes da primeira virada da partida."""
+        turn = last_month_turn(self._current_date)
+        return turn if turn > self.settings.start_date else None
 
     def get_current_date_formatted(self) -> str:
         return self._current_date.strftime("%d/%m/%Y")

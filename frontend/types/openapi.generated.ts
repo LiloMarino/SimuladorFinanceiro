@@ -1201,7 +1201,7 @@ export interface paths {
         };
         /**
          * Estatísticas: próxima atualização
-         * @description Dia da partida em que as estatísticas fecham o mês de novo; nulo quando a partida termina antes.
+         * @description Dias da partida em que as estatísticas fecharam o mês pela última vez e em que fecham de novo. A última é nula antes da primeira virada; a próxima, quando a partida termina antes.
          */
         get: operations["get_next_update_api_statistics_next_update_get"];
         put?: never;
@@ -9702,9 +9702,11 @@ export interface components {
         };
         /**
          * StatisticsNextUpdateDTO
-         * @description Quando as estatísticas fecham o mês de novo; nulo se a partida termina antes.
+         * @description Quando as estatísticas fecharam o mês pela última vez e quando fecham de novo.
          */
         StatisticsNextUpdateDTO: {
+            /** Last Update Date */
+            last_update_date: string | null;
             /** Next Update Date */
             next_update_date: string | null;
         };

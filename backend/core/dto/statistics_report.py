@@ -409,8 +409,11 @@ class BestMonthDTO(BaseDTO):
 
 
 class StatisticsNextUpdateDTO(BaseDTO):
-    """Quando as estatísticas fecham o mês de novo; nulo se a partida termina antes."""
+    """Quando as estatísticas fecharam o mês pela última vez e quando fecham de novo."""
 
+    # Nulo antes da primeira virada de mês da partida
+    last_update_date: date | None
+    # Nulo se a partida termina antes
     next_update_date: date | None
 
 

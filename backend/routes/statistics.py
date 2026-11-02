@@ -154,10 +154,13 @@ def get_bot_log(
     "/statistics/next-update",
     response_model=StatisticsNextUpdateDTO,
     summary="Estatísticas: próxima atualização",
-    description="Dia da partida em que as estatísticas fecham o mês de novo; nulo quando a partida termina antes.",
+    description="Dias da partida em que as estatísticas fecharam o mês pela última vez e em que fecham de novo. A última é nula antes da primeira virada; a próxima, quando a partida termina antes.",
 )
 def get_next_update(simulation: ActiveSimulation):
-    return StatisticsNextUpdateDTO(next_update_date=simulation.next_statistics_update())
+    return StatisticsNextUpdateDTO(
+        last_update_date=simulation.last_statistics_update(),
+        next_update_date=simulation.next_statistics_update(),
+    )
 
 
 @statistics_router.get(
