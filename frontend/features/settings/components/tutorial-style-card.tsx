@@ -41,7 +41,7 @@ export function TutorialStyleCard() {
   const { state, setStyle } = useTutorial();
 
   return (
-    <Card className="lg:col-span-2">
+    <Card>
       <CardHeader>
         <CardTitle>Tutorial</CardTitle>
         <CardDescription>Como o “Como jogar” aparece durante a partida. Vale só para você.</CardDescription>
@@ -55,7 +55,7 @@ export function TutorialStyleCard() {
           onValueChange={(value) => setStyle(value as TutorialStyle)}
           aria-label="Como o Como jogar aparece"
           spacious
-          className="grid-cols-2 lg:grid-cols-4"
+          className="grid-cols-2"
         >
           {OPTIONS.map((option) => (
             <label

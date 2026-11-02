@@ -24,10 +24,13 @@ export default function SettingsPage() {
       <div className="grid gap-5">
         <ProfileCard nickname={user.nickname} />
         <NewsPositionCard />
+        <TutorialStyleCard />
         <NotificationsCard />
+      </div>
+      {/* Zona de perigo */}
+      <div className="col-span-2">
         <DangerZoneCard nickname={user.nickname} />
       </div>
-      <TutorialStyleCard />
     </div>
   );
 }
