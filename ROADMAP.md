@@ -112,7 +112,6 @@
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | M20 · 3.3 | — | Baixo | Bom | ⏳ |
-| [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 | — | — | — | 🔍 |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | 🔍 |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | — | — | — | 🔍 |
@@ -123,7 +122,7 @@
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -146,6 +145,7 @@
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F173](#f173), [F175](#f175), [F176](#f176) | — | — | ✅ |
 | [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 | — | — | — | ✅ |
+| [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 | — | — | — | ✅ |
 
 </details>
 
@@ -161,7 +161,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 4/17 concluídos
+> **Progresso:** 5/17 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -169,7 +169,7 @@
 | 2 | **F168** | Feature | Desafio da vela no lobby | — | 📦 Arquivado |
 | 3 | **F178** | Feature | Conferência visual de tudo o que mudou desde a 3.0 | — | 📦 Arquivado |
 | 4 | [**F184**](#f184) | Correção | Correções da 3.3 | — | ✅ Concluído |
-| 5 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | — | ⏳ Pendente |
+| 5 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | — | ✅ Concluído |
 | 6 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | — | ⏳ Pendente |
 | 7 | [**F181**](#f181) | Melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | [F180](#f180) | 🔍 Em avaliação |
 | 8 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | [F180](#f180) | 🔍 Em avaliação |
@@ -259,7 +259,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 · 5º | 0 | Médio | Bom | ⏳ |
 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 · 6º | 5 | Alto | Bom | ⏳ |
 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 12º | 2 | — | — | 🔍 |
 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | M20 · 3.3 · 13º | 0 | Baixo | Bom | ⏳ |
@@ -318,7 +317,6 @@
 | **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
 | **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
 | **F188** | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | N24 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
-| **F189** | Melhoria | Retoques de interface do playtest de outubro | N15, N21 | — | M20 · 3.3 | — | Médio | Baixo | Médio | Bom |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
 
@@ -430,21 +428,6 @@ Na mesma passada, a sessão confere os estados que o playtest não provocou (lis
 **F188 — Eventos do Socket.IO no modo debug, com contagem e tamanho.** Serve N24. Hoje o cartão "O que vai para o navegador" do painel de desempenho (`features/performance/components/traffic-table.tsx`) mostra só uma janela recente, que no playtest de 31/out se esvaziou sozinha, e o `realtime.log` registra só conexão, inscrição e desconexão. Um evento pesado some antes de ser visto.
 
 **O que muda:** (1) conferir se o cartão esvaziar é a janela andando com a partida pausada ou um bug, e consertar se for bug; (2) o backend acumula, por nome de evento e desde o boot, quantas vezes ele saiu, quantos por minuto, o total de bytes, o tamanho típico e o tamanho dos 5% maiores (p95: 95 de cada 100 envios cabem nesse tamanho), e a hora do último envio; (3) a tela mostra esse acumulado numa tabela ordenável, com um botão de zerar e a dica de como ler cada coluna, e a janela recente continua ao lado, dizendo quantos segundos ela cobre. Serve à medição da F157, que agrupa as emissões em velocidade alta.
-
-<a id="f189"></a>
-**F189 — Retoques de interface do playtest de outubro.** Serve N15 e N21. Mudanças pequenas, sem rodada no canvas, que o playtest de 31/out pediu:
-- **Log das ordens do bot** num drawer lateral, como as configurações do lobby, no lugar do cartão que abre embaixo da listagem e obriga a rolar a página; o cartão de hoje se adapta à largura do drawer, o "Ver mais" continua no `useInfiniteQuery` que já existe (`useBotLog`, `useStrategyLog`) e fechar o drawer fecha o log.
-- **Seletor do vice** com o avatar e o nome de cada jogador, como no resto do app.
-- **Filtro "Na carteira"** na renda variável, igual ao da renda fixa.
-- **Período do backtest** com o mesmo seletor de intervalo da sala.
-- **Correlação** sem a ordenação pelos cabeçalhos (`correlation-matrix.tsx:74`): a matriz fica na ordem em que os ativos foram escolhidos.
-- **Selos "a sala vê" e "a sala vê na fila"** saem; fica só o "a sala não vê", com ícone, como na estratégia.
-- **"Quem tem esses ativos"** sai do diálogo de nova medida: a mesa não aponta quem a medida machuca, e quem quiser saber descobre olhando os outros jogadores (N21).
-- **Curvas internas fora da tela:** o gráfico do prêmio de risco pela dívida e o da escala do investimento da eleição saem das telas; a explicação passa para o tópico de conceito do Como jogar, quando houver.
-- **Configurações** com os cartões reordenados: a zona de perigo por último, e o Como jogar ao lado da configuração irmã e no mesmo layout dela.
-- **Aviso de atualização das Estatísticas** (`update-notice.tsx`) também com a partida pausada, dizendo a data da última atualização; a contagem até a próxima aparece só com a partida andando.
-
-Cada item sai num commit `feat:` próprio.
 
 <a id="f196"></a>
 **F196 — Evolução do patrimônio por tipo de renda variável.** Serve N16. Hoje a evolução do patrimônio (`portfolio/components/networth-chart.tsx`) tem as visões "Ganho" e "Por classe", que separa renda fixa, renda variável e caixa, um painel por classe. O playtest de 31/out pediu ver a renda variável aberta por tipo.
@@ -694,6 +677,7 @@ Recomendação: a (c). Ela tira a tarefa repetida e mantém uma consequência qu
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F184** | Correção | Correções da 3.3 | — | — | M20 · 3.3 |
+| **F189** | Melhoria | Retoques de interface do playtest de outubro | N15, N21 | — | M20 · 3.3 |
 
 <a id="f184"></a>
 **F184 — Correções da 3.3.** Lote dos consertos achados desde a 3.2. Tudo em main, em `fix:`. Primeiro lote, 37 commits:
@@ -710,6 +694,21 @@ Segundo lote, triado do playtest de 31/out e conferido em tela com o banco de te
 - **Gerador de futuro:** o campo "até quando" aceita qualquer ano e dispara a prévia a cada dígito (21000 por engano): o campo virou seletor de ano, com teto de 30 anos além do último dado real, e o backend recusa o que passar disso.
 
 Ficam para a sessão do retrato (F180), que roda o app com o devtools, os estados que não deu para provocar no playtest: Crédito com parcela atrasada, o esqueleto e o erro do cartão do desafio da vela (forçados bloqueando a requisição) e o diálogo do resultado numa pausa real.
+
+<a id="f189"></a>
+**F189 — Retoques de interface do playtest de outubro.** Serve N15 e N21. Mudanças pequenas, sem rodada no canvas, que o playtest de 31/out pediu:
+- **Log das ordens do bot** num drawer lateral, como as configurações do lobby, no lugar do cartão que abre embaixo da listagem e obriga a rolar a página; o cartão de hoje se adapta à largura do drawer, o "Ver mais" continua no `useInfiniteQuery` que já existe (`useBotLog`, `useStrategyLog`) e fechar o drawer fecha o log.
+- **Seletor do vice** com o avatar e o nome de cada jogador, como no resto do app.
+- **Filtro "Na carteira"** na renda variável, igual ao da renda fixa.
+- **Período do backtest** com o mesmo seletor de intervalo da sala.
+- **Correlação** sem a ordenação pelos cabeçalhos (`correlation-matrix.tsx:74`): a matriz fica na ordem em que os ativos foram escolhidos.
+- **Selos "a sala vê" e "a sala vê na fila"** saem; fica só o "a sala não vê", com ícone, como na estratégia.
+- **"Quem tem esses ativos"** sai do diálogo de nova medida: a mesa não aponta quem a medida machuca, e quem quiser saber descobre olhando os outros jogadores (N21).
+- **Curvas internas fora da tela:** o gráfico do prêmio de risco pela dívida e o da escala do investimento da eleição saem das telas; a explicação passa para o tópico de conceito do Como jogar, quando houver.
+- **Configurações** com os cartões reordenados: a zona de perigo por último, e o Como jogar ao lado da configuração irmã e no mesmo layout dela.
+- **Aviso de atualização das Estatísticas** (`update-notice.tsx`) também com a partida pausada, dizendo a data da última atualização; a contagem até a próxima aparece só com a partida andando.
+
+Cada item sai num commit `feat:` próprio.
 
 ---
 
