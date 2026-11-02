@@ -43,7 +43,7 @@ export function CardState({
               <AlertTitle>{errorTitle}</AlertTitle>
               <AlertDescription>{errorDescription ?? error.message}</AlertDescription>
               <AlertAction>
-                <Button size="xs" variant="outline" onClick={onRetry}>
+                <Button size="sm" variant="outline" onClick={onRetry}>
                   <RefreshCw />
                   Tentar de novo
                 </Button>

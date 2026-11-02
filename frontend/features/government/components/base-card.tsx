@@ -121,7 +121,7 @@ function BaseContent({ base }: { base: CongressBase }) {
                 Você recebe {monthlyLabel(base.my_deal.monthly)} por mês de emenda e orienta Sim nas medidas do governo.
               </AlertDescription>
               <AlertAction>
-                <Button size="xs" variant="outline" onClick={() => setBreaking({ deal: base.my_deal!, side: "ally" })}>
+                <Button size="sm" variant="outline" onClick={() => setBreaking({ deal: base.my_deal!, side: "ally" })}>
                   Sair da base
                 </Button>
               </AlertAction>
