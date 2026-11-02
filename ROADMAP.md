@@ -110,7 +110,6 @@
 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | M20 · 3.3 | — | — | — | 🔍 |
 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 | — | Médio | Excelente | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 | — | Médio | Bom | ⏳ |
-| [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 | — | — | — | 🔍 |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | 🔍 |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | — | — | — | 🔍 |
@@ -121,7 +120,7 @@
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -145,6 +144,7 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F173](#f173), [F175](#f175), [F176](#f176) | — | — | ✅ |
 | [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 | — | — | — | ✅ |
 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 | — | — | — | ✅ |
+| [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | M20 · 3.3 | — | — | — | ✅ |
 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 | — | — | — | ✅ |
 
 </details>
@@ -161,7 +161,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 6/17 concluídos
+> **Progresso:** 7/17 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -177,7 +177,7 @@
 | 10 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | [F180](#f180) | 🔍 Em avaliação |
 | 11 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | [F180](#f180) | 🔍 Em avaliação |
 | 12 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | — | 🔍 Em avaliação |
-| 13 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | — | ⏳ Pendente |
+| 13 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | — | ✅ Concluído |
 | 14 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | — | ✅ Concluído |
 | 15 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ⏳ Pendente |
 | 16 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | — | ⏳ Pendente |
@@ -261,7 +261,6 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 · 6º | 5 | Alto | Bom | ⏳ |
 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 12º | 2 | — | — | 🔍 |
-| [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | M20 · 3.3 · 13º | 0 | Baixo | Bom | ⏳ |
 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 · 15º | 0 | Médio | Excelente | ⏳ |
 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 · 16º | 0 | Médio | Excelente | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 · 17º | 0 | Médio | Bom | ⏳ |
@@ -314,7 +313,6 @@
 | **F180** | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 | — | Alto | Baixo | Alto | Bom |
 | **F185** | Performance | Dia da partida que fica mais lento ao longo da partida | N40, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Excelente |
 | **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
-| **F188** | Melhoria | Eventos do Socket.IO no modo debug, com contagem e tamanho | N24 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
 
@@ -416,11 +414,6 @@ Na mesma passada, a sessão confere os estados que o playtest não provocou (lis
 **Como medir:** cada endpoint na partida salva longa do banco de teste, com cProfile e o log de SQL do modo debug, separando o tempo de banco do tempo de Python, três rodadas. **O que muda:** (1) as estatísticas fecham no mês (F115), então o resultado de cada mês fechado fica guardado e a leitura recalcula só o mês corrente, em vez de refazer tudo a partir de todas as operações; (2) a leitura dupla vira uma só (duas montagens do componente ou duas chaves de query para o mesmo dado). Os números da tela não mudam: um teste compara o resultado guardado com o recalculado do zero.
 
 **Aceite:** cada endpoint de estatística abaixo de 500 ms (o limite do `slow.log`) na partida salva longa, e uma requisição por endpoint ao abrir a tela.
-
-<a id="f188"></a>
-**F188 — Eventos do Socket.IO no modo debug, com contagem e tamanho.** Serve N24. Hoje o cartão "O que vai para o navegador" do painel de desempenho (`features/performance/components/traffic-table.tsx`) mostra só uma janela recente, que no playtest de 31/out se esvaziou sozinha, e o `realtime.log` registra só conexão, inscrição e desconexão. Um evento pesado some antes de ser visto.
-
-**O que muda:** (1) conferir se o cartão esvaziar é a janela andando com a partida pausada ou um bug, e consertar se for bug; (2) o backend acumula, por nome de evento e desde o boot, quantas vezes ele saiu, quantos por minuto, o total de bytes, o tamanho típico e o tamanho dos 5% maiores (p95: 95 de cada 100 envios cabem nesse tamanho), e a hora do último envio; (3) a tela mostra esse acumulado numa tabela ordenável, com um botão de zerar e a dica de como ler cada coluna, e a janela recente continua ao lado, dizendo quantos segundos ela cobre. Serve à medição da F157, que agrupa as emissões em velocidade alta.
 
 <a id="f196"></a>
 **F196 — Evolução do patrimônio por tipo de renda variável.** Serve N16. Hoje a evolução do patrimônio (`portfolio/components/networth-chart.tsx`) tem as visões "Ganho" e "Por classe", que separa renda fixa, renda variável e caixa, um painel por classe. O playtest de 31/out pediu ver a renda variável aberta por tipo.
@@ -671,6 +664,7 @@ Recomendação: a (c). Ela tira a tarefa repetida e mantém uma consequência qu
 | --- | --- | --- | --- | --- | --- |
 | **F184** | Correção | Correções da 3.3 | — | — | M20 · 3.3 |
 | **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 |
+| **F188** | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | N24 | — | M20 · 3.3 |
 | **F189** | Melhoria | Retoques de interface do playtest de outubro | N15, N21 | — | M20 · 3.3 |
 
 <a id="f184"></a>
@@ -695,6 +689,11 @@ Ficam para a sessão do retrato (F180), que roda o app com o devtools, os estado
 Agora a pasta segue a estrutura do Victoria 3. `app.log` é o boot atual, `app.1.log` é o boot anterior, e assim até `app.5.log`. O mesmo vale para `error`, `database`, `import`, `realtime`, `simulation` e `slow`. No boot, antes de abrir cada arquivo, o logger empurra a fila uma casa e descarta o mais antigo (`_shift_previous_boots` em `backend/core/logger.py`). Não há mais rotação por tamanho: cada arquivo guarda um boot inteiro. A primeira linha de cada arquivo diz a versão, se o modo debug está ligado e a hora do boot, no mesmo formato das outras linhas. O giro roda uma vez, no único processo do servidor, que sobe com `reload=False`.
 
 A pasta que as Configurações abrem e os nomes dos arquivos atuais continuam os mesmos. Para conferir, os testes do logger fazem dois e oito boots seguidos numa pasta temporária, e dois boots do app contra o banco de teste deixaram `app.1.log` com o primeiro boot inteiro.
+
+<a id="f188"></a>
+**F188 — Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso.** Serve N24. O cartão "O que vai para o navegador" do painel de desempenho mostrava só uma janela de 10 s, que esvaziava com a partida pausada (não era bug: a janela andava sem emissões), e a aba Socket.IO da tabela de tempo tem só os 4 eventos que o navegador manda. Um evento pesado sumia antes de ser visto, e o custo dos eventos enviados ficava escondido em "Processar um dia".
+
+**O que mudou:** o coletor (`backend/core/metrics.py`) guarda, por evento enviado e desde o boot ou o último "Zerar medições", os envios, os envios sem ninguém inscrito, o total de bytes, o tamanho típico (mediana) e o p95 sobre os últimos 1.000 envios, o atraso p95 na fila de saída (do `notify` à entrega ao socket, medido no `ws_broker`) e a hora do último envio; a janela de 10 s continua como "Agora". O bloco que publica o fim do dia virou a medição "Publicar o dia", dentro de "Processar um dia" e fora da soma da fatia. A tela tem uma tabela única, ordenável, com as colunas "Agora" e "Desde que zerou" e a dica de cada coluna; pausado, a linha fica e o "Agora" mostra "—". O primeiro uso já mostrou `stock_update:*` e `order_book_snapshot:*` com 100% dos envios sem ninguém.
 
 <a id="f189"></a>
 **F189 — Retoques de interface do playtest de outubro.** Serve N15 e N21. Mudanças pequenas, sem rodada no canvas, que o playtest de 31/out pediu:
