@@ -7,9 +7,16 @@ from pathlib import Path
 
 import pytest
 
-from backend.core.logger import LIBRARY_LEVELS, TERMINAL, setup_logging
+from backend.core.logger import (
+    LIBRARY_LEVELS,
+    PREVIOUS_BOOTS_KEPT,
+    TERMINAL,
+    setup_logging,
+)
 
 Setup = Callable[..., Path]  # setup(debug=False, sql=False)
+
+TEST_VERSION = "0.0.0-teste"
 
 # Loggers cujo nível o `setup_logging` mexe; voltam ao que eram depois do teste
 _TOUCHED_LOGGERS = ("backend", "uvicorn.access", "sqlalchemy.engine", *LIBRARY_LEVELS)
@@ -25,9 +32,15 @@ def setup(tmp_path: Path) -> Iterator[Setup]:
     root.handlers = []
 
     def run(*, debug: bool = False, sql: bool = False) -> Path:
-        # O pytest põe handlers de captura no raiz ao iniciar o teste
+        # Cada `run` é um boot: os arquivos do anterior fecham para poderem girar. O
+        # pytest põe handlers de captura no raiz ao iniciar o teste, e esses ficam.
+        for handler in root.handlers:
+            if handler not in saved_handlers:
+                handler.close()
         root.handlers = []
-        setup_logging(logs_path=str(tmp_path), debug=debug, sql=sql)
+        setup_logging(
+            version=TEST_VERSION, logs_path=str(tmp_path), debug=debug, sql=sql
+        )
         return tmp_path
 
     yield run
@@ -57,9 +70,62 @@ def console(logs: Path) -> io.StringIO:
     return stream
 
 
+def header(logs: Path, name: str) -> str:
+    """A primeira linha do arquivo, que identifica o boot."""
+    return (logs / name).read_text(encoding="utf-8").splitlines()[0]
+
+
 def read(logs: Path, name: str) -> str:
+    """O que o boot escreveu no arquivo, depois do cabeçalho."""
     path = logs / name
-    return path.read_text(encoding="utf-8") if path.exists() else ""
+    if not path.exists():
+        return ""
+    return path.read_text(encoding="utf-8").split("\n", 1)[1]
+
+
+@pytest.mark.parametrize("name", ["app.log", "error.log", "simulation.log"])
+def test_first_line_identifies_the_boot(setup: Setup, name: str) -> None:
+    logs = setup(debug=True)
+
+    assert f"Boot da versão {TEST_VERSION}, modo debug ligado" in header(logs, name)
+
+
+def test_header_says_when_debug_is_off(logs: Path) -> None:
+    assert "modo debug desligado" in header(logs, "app.log")
+
+
+def test_header_stays_out_of_the_console(logs: Path, console: io.StringIO) -> None:
+    assert console.getvalue() == ""
+
+
+def test_first_boot_has_no_previous_files(logs: Path) -> None:
+    assert not list(logs.glob("*.1.log"))
+
+
+def test_previous_boot_moves_to_numbered_file(setup: Setup) -> None:
+    setup()
+    logging.getLogger("backend.routes").warning("do primeiro boot")
+    logs = setup()
+
+    assert "do primeiro boot" in read(logs, "app.1.log")
+    assert "do primeiro boot" not in read(logs, "app.log")
+    assert "Boot da versão" in header(logs, "app.log")
+
+
+def test_keeps_the_last_previous_boots(setup: Setup) -> None:
+    for boot in range(1, PREVIOUS_BOOTS_KEPT + 3):
+        setup()
+        logging.getLogger("backend.routes").warning("boot %d", boot)
+    logs = setup()
+
+    last = PREVIOUS_BOOTS_KEPT + 2
+    assert f"boot {last}" in read(logs, "app.1.log")
+    assert f"boot {last - PREVIOUS_BOOTS_KEPT + 1}" in read(
+        logs, f"app.{PREVIOUS_BOOTS_KEPT}.log"
+    )
+    assert not (logs / f"app.{PREVIOUS_BOOTS_KEPT + 1}.log").exists()
+    every_file = "".join(path.read_text(encoding="utf-8") for path in logs.iterdir())
+    assert "boot 1\n" not in every_file
 
 
 def test_exception_leaves_traceback_in_error_log(logs: Path) -> None:

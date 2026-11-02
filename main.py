@@ -21,6 +21,7 @@ import argparse
 from backend import config
 from backend.config.paths import app_files_dir
 from backend.core.logger import TERMINAL, setup_logging
+from backend.core.version import get_version
 
 # O modo debug se decide no boot: `--debug` força o que o config.toml deixou desligado
 if __name__ == "__main__":
@@ -34,6 +35,7 @@ if __name__ == "__main__":
         config.toml.debug.enabled = True
 
 setup_logging(
+    version=get_version(),
     debug=config.toml.debug.enabled,
     sql=config.toml.debug.sql,
     logs_path=app_files_dir() / config.toml.logging.logs_path,

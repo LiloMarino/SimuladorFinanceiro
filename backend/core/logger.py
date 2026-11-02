@@ -1,6 +1,8 @@
 import logging
-from logging.handlers import RotatingFileHandler
 from pathlib import Path
+
+# Cada arquivo guarda o boot atual e os anteriores, numerados: `app.log`, `app.1.log`...
+PREVIOUS_BOOTS_KEPT = 5
 
 # Arquivo da área → prefixos de logger que escrevem nele. Área nova é uma linha.
 # Cada linha vai ao app.log e, se a área tiver arquivo, também a ele.
@@ -100,19 +102,29 @@ class _ConsoleFormatter(logging.Formatter):
         return line
 
 
-def _file_handler(path: Path, formatter: logging.Formatter) -> RotatingFileHandler:
-    handler = RotatingFileHandler(
-        path,
-        maxBytes=10_000_000,  # ~10MB por arquivo
-        backupCount=5,  # mantém 5 arquivos circulares
-        encoding="utf-8",
-    )
+def _shift_previous_boots(path: Path) -> None:
+    """Empurra a fila de boots: `app.log` vira `app.1.log`, que vira `app.2.log`..."""
+
+    def numbered(boot: int) -> Path:
+        return path if boot == 0 else path.with_name(f"{path.stem}.{boot}{path.suffix}")
+
+    numbered(PREVIOUS_BOOTS_KEPT).unlink(missing_ok=True)
+    for boot in range(PREVIOUS_BOOTS_KEPT - 1, -1, -1):
+        if numbered(boot).exists():
+            numbered(boot).rename(numbered(boot + 1))
+
+
+def _file_handler(path: Path, formatter: logging.Formatter) -> logging.FileHandler:
+    # O arquivo do boot anterior sai antes de este abrir: no Windows, aberto não se renomeia
+    _shift_previous_boots(path)
+    handler = logging.FileHandler(path, mode="w", encoding="utf-8")
     handler.setFormatter(formatter)
     return handler
 
 
 def setup_logging(
     *,
+    version: str,
     debug: bool = False,
     sql: bool = False,
     logs_path: str | Path = "logs",
@@ -125,6 +137,8 @@ def setup_logging(
     O raiz fica em INFO. No modo debug só o código do app (`backend.*`) sobe para DEBUG,
     e apenas os arquivos o recebem: o terminal nunca mostra DEBUG. `sql` (válido só com
     o debug ligado) liga a consulta do SQLAlchemy, que vai só ao `database.log`.
+
+    Cada boot abre arquivos novos, e os dos boots anteriores ficam numerados ao lado.
     """
     log_dir = Path(logs_path)
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -184,3 +198,18 @@ def setup_logging(
         area_handler = _file_handler(log_dir / file_name, formatter)
         area_handler.addFilter(_PrefixFilter(prefixes))
         root_logger.addHandler(area_handler)
+
+    # A primeira linha de cada arquivo identifica o boot: `emit` passa por cima do nível
+    # e dos filtros, então até o error.log e as áreas a recebem
+    header = root_logger.makeRecord(
+        __name__,
+        logging.INFO,
+        __file__,
+        0,
+        "Boot da versão %s, modo debug %s",
+        (version, "ligado" if debug else "desligado"),
+        None,
+    )
+    for handler in root_logger.handlers:
+        if isinstance(handler, logging.FileHandler):
+            handler.emit(header)

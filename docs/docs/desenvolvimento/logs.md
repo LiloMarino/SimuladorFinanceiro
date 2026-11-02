@@ -17,7 +17,7 @@ O terminal **nunca** mostra `DEBUG` nem SQL, nem no modo debug.
 
 ## Arquivos de log
 
-Ficam na pasta de logs (`logs_path` em `[logging]` do `config.toml`). Cada linha vai ao `app.log` e, se for de uma área, também ao arquivo dela. Cada arquivo roda a 10 MB e guarda 5 cópias.
+Ficam na pasta de logs (`logs_path` em `[logging]` do `config.toml`). Cada linha vai ao `app.log` e, se for de uma área, também ao arquivo dela. Cada boot do servidor abre arquivos novos, e a primeira linha de cada um diz a versão, se o modo debug está ligado e a hora do boot. Os arquivos dos 5 boots anteriores ficam ao lado, numerados do mais recente ao mais antigo: `app.1.log` é o boot passado, `app.5.log` o de cinco boots atrás.
 
 | Arquivo | O que guarda |
 | --- | --- |
