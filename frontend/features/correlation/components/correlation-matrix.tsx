@@ -1,6 +1,4 @@
-import { SortableTableHead } from "@/shared/components/sortable-table-head";
-import { useTableSort } from "@/shared/hooks/useTableSort";
-import { sortNumber, type SortColumns } from "@/shared/lib/table-sort";
+import { TableHead } from "@/shared/components/ui/table";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
 import type { CorrelationMatrix } from "@/types";
@@ -24,16 +22,8 @@ interface CorrelationMatrixGridProps {
 export function CorrelationMatrixGrid({ matrix, pinned, onPin }: CorrelationMatrixGridProps) {
   const { labels, rows } = matrix;
   const reference = labels.indexOf(REFERENCE);
-  const columns: SortColumns<string> = { asset: (ticker) => ticker };
-  for (const label of labels) {
-    columns[`correlation:${label}`] = (ticker) =>
-      sortNumber(rows[labels.indexOf(ticker)]?.[labels.indexOf(label)]?.correlation);
-  }
-  const sorting = useTableSort(
-    labels.filter((l) => l !== REFERENCE),
-    columns,
-  );
-  const tickers = sorting.rows;
+  // A matriz segue a ordem em que os ativos foram escolhidos; o Ibovespa fica numa linha à parte
+  const tickers = labels.filter((l) => l !== REFERENCE);
 
   const cell = (row: number, column: number) => {
     const pair = rows[row]?.[column];
@@ -70,14 +60,15 @@ export function CorrelationMatrixGrid({ matrix, pinned, onPin }: CorrelationMatr
     <div className="grid gap-4">
       <div className="overflow-x-auto">
         <table className="w-full border-separate border-spacing-0">
-          <caption className="pb-2 text-left text-xs text-muted-foreground">
-            Clique nos cabeçalhos para ordenar por ativo ou correlação. Os dois eixos acompanham a ordem.
-          </caption>
           <thead>
             <tr>
-              <SortableTableHead label="Ativo" {...sorting.header("asset")} variant="matrix" />
+              <TableHead scope="col" variant="matrix">
+                Ativo
+              </TableHead>
               {tickers.map((t) => (
-                <SortableTableHead key={t} label={t} {...sorting.header(`correlation:${t}`)} variant="matrix" />
+                <TableHead key={t} scope="col" variant="matrix">
+                  {t}
+                </TableHead>
               ))}
             </tr>
           </thead>
@@ -98,19 +89,7 @@ export function CorrelationMatrixGrid({ matrix, pinned, onPin }: CorrelationMatr
             {/* Ibovespa */}
             <tr>
               <th scope="row" className="pt-3 pr-2 text-right text-xs font-semibold">
-                <button
-                  type="button"
-                  onClick={sorting.header(`correlation:${REFERENCE}`).onSort}
-                  aria-label={`Ordenar pela correlação com Ibovespa, ordem ${sorting.sort?.column === `correlation:${REFERENCE}` && sorting.sort.direction === "asc" ? "decrescente" : "crescente"}`}
-                  className="inline-flex min-h-9 items-center gap-1 rounded-sm focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  Ibovespa{" "}
-                  {sorting.sort?.column === `correlation:${REFERENCE}`
-                    ? sorting.sort.direction === "asc"
-                      ? "↑"
-                      : "↓"
-                    : "↕"}
-                </button>
+                Ibovespa
               </th>
               {tickers.map((t) => cell(reference, labels.indexOf(t)))}
             </tr>
