@@ -240,13 +240,12 @@ export function StrategyDetail({
             <div className="flex gap-2">
               {strategy.params.length > 0 &&
                 (previewing ? (
-                  <Button variant="outline" size="sm" onClick={() => onDraftChange(toDraft(saved))}>
+                  <Button variant="outline" onClick={() => onDraftChange(toDraft(saved))}>
                     Descartar
                   </Button>
                 ) : (
                   <Button
                     variant="outline"
-                    size="sm"
                     disabled={values !== null && sameValues(values, defaults)}
                     onClick={() => onDraftChange(toDraft(defaults))}
                   >
@@ -255,7 +254,7 @@ export function StrategyDetail({
                 ))}
               {active ? (
                 strategy.params.length > 0 && (
-                  <Button size="sm" disabled={!valid || !changed || saving} onClick={() => values && onSave(values)}>
+                  <Button disabled={!valid || !changed || saving} onClick={() => values && onSave(values)}>
                     Salvar parâmetros
                   </Button>
                 )
