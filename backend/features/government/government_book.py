@@ -15,7 +15,6 @@ from backend.core import repository
 from backend.core.dto.events.government import GovernmentEventDTO
 from backend.core.dto.government import (
     PARTY_ABBR_PATTERN,
-    MeasureHoldingDTO,
     MeasurePreviewDTO,
     ValueMoveDTO,
 )
@@ -1875,7 +1874,6 @@ class GovernmentBook:
             vote_date=vote,
             effective=vote + timedelta(days=VIGENCE_DAYS),
             assets=len(tickers) if draft.kind.is_sector else None,
-            holdings=self._holdings(tickers) if draft.kind.is_sector else [],
             budget=budget_panel.measure_budget(
                 self._budget,
                 self._timeline.latest,
@@ -1889,30 +1887,6 @@ class GovernmentBook:
             inflation=spending_panel.inflation_effect(draft, today),
             reactions=spending_panel.reactions(draft),
         )
-
-    def _holdings(self, tickers: list[str]) -> list[MeasureHoldingDTO]:
-        """Quanto cada jogador tem nos ativos que a medida atinge."""
-        covered = set(tickers)
-        holdings = []
-        for person in self._people.values():
-            portfolio = self._engine.get_portfolio(person.client_id)
-            value = sum(
-                (
-                    p.current_value
-                    for p in portfolio.variable_income
-                    if p.ticker in covered
-                ),
-                Decimal(0),
-            )
-            if value > 0 and portfolio.assets_value > 0:
-                holdings.append(
-                    MeasureHoldingDTO(
-                        nickname=person.nickname,
-                        share=value / portfolio.assets_value,
-                        value=value,
-                    )
-                )
-        return sorted(holdings, key=lambda h: h.value, reverse=True)
 
     def _draft(
         self,

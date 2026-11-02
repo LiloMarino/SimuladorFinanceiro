@@ -5,7 +5,6 @@ import {
   approvalTone,
   daysUntil,
   generalToday,
-  holdingLabel,
   impactSentence,
   lowStreakLabel,
   nextStep,
@@ -124,13 +123,6 @@ describe("aprovação", () => {
     expect(lowStreakLabel({ low_streak: 5, floor: 25, impeachment_months: 6 })).toBe(
       "5 de 6 meses seguidos abaixo de 25%",
     );
-  });
-});
-
-describe("holdingLabel", () => {
-  it("mostra o próprio jogador em % e os outros em reais", () => {
-    expect(holdingLabel({ nickname: "Bia", share: "0.21", value: "100000" }, "Bia")).toBe("você 21%");
-    expect(holdingLabel({ nickname: "Lilo", share: "0.1", value: "40000" }, "Bia")).toBe("Lilo R$ 40,0 mil");
   });
 });
 

@@ -15,7 +15,6 @@ import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/fiel
 import { Input } from "@/shared/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { useAuth } from "@/shared/hooks/useAuth";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { displayDayMonth, displayList } from "@/shared/lib/utils/display";
 import { formatMoney } from "@/shared/lib/utils/format";
@@ -32,7 +31,6 @@ import {
   GENERAL_KINDS,
   type GeneralKind,
   generalLabel,
-  holdingLabel,
   impactSentence,
   isGeneral,
   percentLabel,
@@ -85,7 +83,6 @@ type MeasureFormProps = {
 };
 
 function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
-  const { user } = useAuth();
   const propose = useProposeMeasure();
   const pendingKinds = new Set(panel.taxes.filter((row) => row.pending).map((row) => row.kind));
   const firstFree = GENERAL_KINDS.find((kind) => !pendingKinds.has(kind)) ?? GENERAL_KINDS[0];
@@ -360,13 +357,6 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
             <>
               {mode !== "spending" && (
                 <dl className="grid divide-y rounded-lg border px-3 text-[13px]">
-                  {mode === "sector" && (
-                    <Row label="Quem tem esses ativos">
-                      {data.holdings.length > 0
-                        ? data.holdings.map((holding) => holdingLabel(holding, user?.nickname)).join(" · ")
-                        : "ninguém"}
-                    </Row>
-                  )}
                   <Row label="Alvo da aprovação, ao valer">{signedPoints(data.impact)}</Row>
                   <Row label="Perfil do partido, se aprovada">
                     {data.profile_moves.length > 0

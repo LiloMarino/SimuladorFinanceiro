@@ -164,13 +164,6 @@ export function shareLabel(share: string | number) {
   return `${Math.round(Number(share) * 100)}%`;
 }
 
-/** Quem tem os ativos da medida: o próprio jogador em %, os outros em reais. */
-export function holdingLabel(holding: { nickname: string; share: string; value: string }, me: string | undefined) {
-  return holding.nickname === me
-    ? `você ${shareLabel(holding.share)}`
-    : `${holding.nickname} ${displayMoneyCompact(holding.value)}`;
-}
-
 /** O valor que o jogador digitou em %, como a fração que a API recebe: "22,5" → "0.225". */
 export function rateToFraction(text: string) {
   const value = Number(text.replace(",", "."));

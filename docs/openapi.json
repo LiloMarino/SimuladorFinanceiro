@@ -19696,30 +19696,6 @@
         ],
         "title": "MeasureDTO"
       },
-      "MeasureHoldingDTO": {
-        "properties": {
-          "nickname": {
-            "type": "string",
-            "title": "Nickname"
-          },
-          "share": {
-            "type": "string",
-            "title": "Share"
-          },
-          "value": {
-            "type": "string",
-            "title": "Value"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "nickname",
-          "share",
-          "value"
-        ],
-        "title": "MeasureHoldingDTO"
-      },
       "MeasureKind": {
         "type": "string",
         "enum": [
@@ -19776,13 +19752,6 @@
             ],
             "title": "Assets"
           },
-          "holdings": {
-            "items": {
-              "$ref": "#/components/schemas/MeasureHoldingDTO"
-            },
-            "type": "array",
-            "title": "Holdings"
-          },
           "budget": {
             "$ref": "#/components/schemas/BudgetEffectDTO"
           },
@@ -19813,7 +19782,6 @@
           "vote_date",
           "effective",
           "assets",
-          "holdings",
           "budget",
           "inflation",
           "reactions"

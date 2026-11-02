@@ -960,13 +960,6 @@ class ProposeMeasureRequest(BaseDTO):
     segment: str | None = None
 
 
-class MeasureHoldingDTO(BaseDTO):
-    nickname: str
-    # Fatia do patrimônio dele no setor (0 a 1) e o valor em reais
-    share: Decimal
-    value: Decimal
-
-
 class InflationCurvePointDTO(BaseDTO):
     month: int
     points: Decimal
@@ -1005,7 +998,6 @@ class MeasurePreviewDTO(BaseDTO):
     vote_date: date
     effective: date
     assets: int | None
-    holdings: list[MeasureHoldingDTO]
     # O que a medida faz com a conta do governo, estimado
     budget: BudgetEffectDTO
     # A inflação, a SELIC e a bolsa esperadas; só nas medidas de gasto

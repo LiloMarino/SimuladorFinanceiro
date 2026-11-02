@@ -6945,15 +6945,6 @@ export interface components {
             /** Can Repropose */
             can_repropose: boolean;
         };
-        /** MeasureHoldingDTO */
-        MeasureHoldingDTO: {
-            /** Nickname */
-            nickname: string;
-            /** Share */
-            share: string;
-            /** Value */
-            value: string;
-        };
         /**
          * MeasureKind
          * @description O que uma medida muda: um imposto geral, a regra de um setor ou segmento ou um gasto público.
@@ -6980,8 +6971,6 @@ export interface components {
             effective: string;
             /** Assets */
             assets: number | null;
-            /** Holdings */
-            holdings: components["schemas"]["MeasureHoldingDTO"][];
             budget: components["schemas"]["BudgetEffectDTO"];
             inflation: components["schemas"]["InflationEffectDTO"] | null;
             /** Reactions */
