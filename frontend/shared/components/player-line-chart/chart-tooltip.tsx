@@ -5,9 +5,11 @@ import type { ChartAxis, LineChartRow } from "./utils";
 interface Props extends TooltipContentProps {
   format: (value: string) => string;
   axis: ChartAxis;
+  /** Rótulo de cada série, pela chave que a linha usa no gráfico */
+  labels: Record<string, string>;
 }
 
-export function LineChartTooltip({ active, payload, label, format, axis }: Props) {
+export function LineChartTooltip({ active, payload, label, format, axis, labels }: Props) {
   if (!active || !payload.length || label === undefined) return null;
 
   const entries = payload as unknown as Array<{ name?: string; color?: string; payload?: LineChartRow }>;
@@ -26,7 +28,9 @@ export function LineChartTooltip({ active, payload, label, format, axis }: Props
             <div key={entry.name} className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
-                <span className="text-sm text-muted-foreground">{entry.name}</span>
+                <span className="text-sm text-muted-foreground">
+                  {(entry.name && labels[entry.name]) ?? entry.name}
+                </span>
               </div>
 
               <span className="text-sm font-semibold text-foreground">{value ? format(value) : "--"}</span>

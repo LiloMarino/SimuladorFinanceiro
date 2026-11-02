@@ -41,6 +41,7 @@ export function PlayerLineChart({
 }: PlayerLineChartProps) {
   const { visible, toggle } = useStaticChartVisibility(series);
   const data = buildChartData(series, axis);
+  const labels = Object.fromEntries(series.map((s) => [s.key, s.label]));
 
   const firstRow = data[0];
   const lastRow = data.at(-1);
@@ -106,7 +107,7 @@ export function PlayerLineChart({
               tickLine={false}
             />
 
-            <Tooltip content={(props) => <LineChartTooltip {...props} format={format} axis={axis} />} />
+            <Tooltip content={(props) => <LineChartTooltip {...props} format={format} axis={axis} labels={labels} />} />
 
             {series
               .filter((s) => s.area)
