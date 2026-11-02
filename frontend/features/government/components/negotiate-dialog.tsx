@@ -40,6 +40,7 @@ export function NegotiateDialog({ open, onOpenChange, base, initialKey = null }:
   const { data: preview, isPlaceholderData, error, refetch } = useDealPreview(selectedKey);
   const propose = useProposeDeal();
   const selectable = base.blocs.filter((bloc) => !bloc.governing);
+  // A proposta da bancada anterior fica à vista, esmaecida, até a nova chegar; só a da bancada clicada pode ser enviada
   const chosen = preview && preview.bloc_key === selectedKey ? preview : null;
 
   const send = () =>
@@ -94,8 +95,8 @@ export function NegotiateDialog({ open, onOpenChange, base, initialKey = null }:
 
             {/* A proposta à bancada escolhida */}
             <div className={cn("grid min-w-0 content-start gap-3.5", isPlaceholderData && "opacity-60")}>
-              {chosen ? (
-                <ProposalDetail preview={chosen} base={base} />
+              {preview ? (
+                <ProposalDetail preview={preview} base={base} />
               ) : selectedKey !== null ? (
                 <CardState
                   label="Carregando a proposta"
