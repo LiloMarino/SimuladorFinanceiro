@@ -32,9 +32,20 @@ WINDOW_SIZE = 1000  # medições guardadas por item
 SLOW_MS = 500.0  # uma chamada acima disso vai para o slow.log
 TRAFFIC_WINDOW_SECONDS = 10.0  # janela das taxas de mensagens enviadas
 ENGINE_DAY = "Processar um dia"
-ENGINE_PUBLISH = (
-    "Publicar o dia"  # parte do ENGINE_DAY: monta e envia os eventos do dia
-)
+# Etapas do ENGINE_DAY: cada uma mede um bloco do tick e já está dentro do tempo do dia
+ENGINE_PRICES = "Preços e impacto"
+ENGINE_FIXED_INCOME = "Renda fixa"
+ENGINE_BOTS = "Bots e estratégias"
+ENGINE_CONTRIBUTION = "Aporte e crédito"
+ENGINE_GOVERNMENT = "Governo e eleição"
+ENGINE_TAXES = "Imposto e caixa"
+ENGINE_NEWS = "Notícias"
+ENGINE_BACKTEST_DAY = "Dia do backtest"
+ENGINE_SNAPSHOTS = "Snapshots do dia"
+ENGINE_PUBLISH = "Publicar o dia"  # monta e envia os eventos do dia
+ENGINE_GOAL = "Meta"
+ENGINE_SUMMARIES = "Resumos do mês"
+ENGINE_ACHIEVEMENTS = "Conquistas"
 
 # O debug não se mede a si mesmo
 _IGNORED_PREFIXES = ("/api/debug",)

@@ -78,7 +78,22 @@ from backend.core.enum import (
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
-from backend.core.metrics import ENGINE_PUBLISH, metrics
+from backend.core.metrics import (
+    ENGINE_ACHIEVEMENTS,
+    ENGINE_BACKTEST_DAY,
+    ENGINE_BOTS,
+    ENGINE_CONTRIBUTION,
+    ENGINE_FIXED_INCOME,
+    ENGINE_GOAL,
+    ENGINE_GOVERNMENT,
+    ENGINE_NEWS,
+    ENGINE_PRICES,
+    ENGINE_PUBLISH,
+    ENGINE_SNAPSHOTS,
+    ENGINE_SUMMARIES,
+    ENGINE_TAXES,
+    metrics,
+)
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
@@ -902,47 +917,58 @@ class Simulation:
 
         # O impacto é lido dos eventos no banco: o flush leva antes as ordens que
         # chegaram por HTTP depois do último tick, ainda datadas do dia anterior
-        EventManager.flush()
-        self._price_impact.refresh(self._current_date)
+        with metrics.measure("engine", ENGINE_PRICES):
+            EventManager.flush()
+            self._price_impact.refresh(self._current_date)
 
-        # O matching pode executar ordens antigas durante a atualização do book.
-        # Elas já pertencem ao dia novo, assim como os juros e as consultas.
-        self._engine.current_date = self._current_date
-        # Obtém os dados do dia atual e atualiza o buffer
-        stocks = self.get_stocks()
-        self._engine.update_market_data(stocks)
+            # O matching pode executar ordens antigas durante a atualização do book.
+            # Elas já pertencem ao dia novo, assim como os juros e as consultas.
+            self._engine.current_date = self._current_date
+            # Obtém os dados do dia atual e atualiza o buffer
+            stocks = self.get_stocks()
+            self._engine.update_market_data(stocks)
 
-        # Só quem estava na sala ao iniciar participa: é quem tem depósito e cor
-        users = repository.simulation_player.participants(self.settings.id)
+            # Só quem estava na sala ao iniciar participa: é quem tem depósito e cor
+            users = repository.simulation_player.participants(self.settings.id)
 
         # Juros da renda fixa e, em seguida, as estratégias ligadas operam o dia
-        self._engine.next(self._current_date)
-        self._strategies.run(users, self._current_date)
+        with metrics.measure("engine", ENGINE_FIXED_INCOME):
+            self._engine.next(self._current_date)
+        with metrics.measure("engine", ENGINE_BOTS):
+            self._strategies.run(users, self._current_date)
         month_changed = self._has_month_changed()
 
         # O aporte (ou o salário, a despesa e o imprevisto) e o DARF que vence hoje
         # entram nos eventos antes do flush, para o snapshot do dia já contá-los; o
         # juro do cheque especial vem por último, sobre o caixa que sobrou do dia
-        if self._life is not None:
-            self._live(self._life, users, month_changed)
-        elif month_changed:
-            self._apply_monthly_contributions(users)
-        self._settle_credit(users, month_changed)
-        if self._government is not None and (
-            reason := self._government.on_tick(users, self._current_date, month_changed)
-        ):
-            self._pause_for_result(reason)
-        self._collect_income_tax(users)
-        if self._life is not None:
-            self._charge_overdraft(users)
-        EventManager.flush()
-        self._publish_newsroom(stocks)
+        with metrics.measure("engine", ENGINE_CONTRIBUTION):
+            if self._life is not None:
+                self._live(self._life, users, month_changed)
+            elif month_changed:
+                self._apply_monthly_contributions(users)
+            self._settle_credit(users, month_changed)
+        if self._government is not None:
+            with metrics.measure("engine", ENGINE_GOVERNMENT):
+                reason = self._government.on_tick(
+                    users, self._current_date, month_changed
+                )
+            if reason:
+                self._pause_for_result(reason)
+        with metrics.measure("engine", ENGINE_TAXES):
+            self._collect_income_tax(users)
+            if self._life is not None:
+                self._charge_overdraft(users)
+            EventManager.flush()
+        with metrics.measure("engine", ENGINE_NEWS):
+            self._publish_newsroom(stocks)
 
         if self.backtest is not None:
-            self._record_backtest_day(users, month_changed)
+            with metrics.measure("engine", ENGINE_BACKTEST_DAY):
+                self._record_backtest_day(users, month_changed)
             return
 
-        snapshots = self._create_daily_snapshots(users, month_changed)
+        with metrics.measure("engine", ENGINE_SNAPSHOTS):
+            snapshots = self._create_daily_snapshots(users, month_changed)
 
         # Emite notificações
         logger.debug(
@@ -972,17 +998,20 @@ class Simulation:
                     to=player.client_id,
                 )
         if self.settings.game_type.has_goal:
-            self._track_goal(snapshots)
+            with metrics.measure("engine", ENGINE_GOAL):
+                self._track_goal(snapshots)
 
         self._last_snapshots = {e.snapshot.user_id: e.snapshot for e in snapshots}
         if month_changed:
-            self._deliver_summaries(users)
-        self._unlock_achievements(
-            users,
-            lambda: self._achievements.on_tick(
-                self._human_snapshots(users), month_changed
-            ),
-        )
+            with metrics.measure("engine", ENGINE_SUMMARIES):
+                self._deliver_summaries(users)
+        with metrics.measure("engine", ENGINE_ACHIEVEMENTS):
+            self._unlock_achievements(
+                users,
+                lambda: self._achievements.on_tick(
+                    self._human_snapshots(users), month_changed
+                ),
+            )
 
     def _spending_inflation(self, day: date) -> float:
         """Os pontos de IPCA que as medidas de gasto aprovadas somam à série no dia; zero sem o governo."""

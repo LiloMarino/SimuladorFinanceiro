@@ -76,14 +76,16 @@ describe("linhas da tabela", () => {
     ]);
   });
 
-  it("publicar o dia já está dentro de processar um dia e fica fora do total", () => {
+  it("as etapas já estão dentro de processar um dia e ficam fora do total", () => {
     const nested = buildRows([
       metric({ kind: "engine", name: ENGINE_DAY, total_ms: 400 }),
       metric({ kind: "engine", name: "Publicar o dia", total_ms: 100 }),
+      metric({ kind: "engine", name: "Bots e estratégias", total_ms: 200 }),
     ]);
     expect(nested.map((r) => [r.label, r.share])).toEqual([
       [ENGINE_DAY, 1],
       [`Publicar o dia (parte de ${ENGINE_DAY})`, 0.25],
+      [`Bots e estratégias (parte de ${ENGINE_DAY})`, 0.5],
     ]);
   });
 

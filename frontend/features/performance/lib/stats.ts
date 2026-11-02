@@ -7,8 +7,6 @@ export const SLOW_P95_MS = 500;
 const STALL_RATIO = 10;
 export const PAGE_SIZE = 10;
 export const ENGINE_DAY = "Processar um dia";
-/** Medido por dentro do ENGINE_DAY: já está no tempo dele. */
-const ENGINE_PUBLISH = "Publicar o dia";
 /** Mensagem pesada e frequente é o que pesa no navegador em velocidade alta. */
 const HEAVY_MESSAGE_BYTES = 100_000;
 
@@ -38,8 +36,9 @@ export interface Row extends MetricItem {
   label: string;
 }
 
+/** Toda medida do motor além do dia inteiro é uma etapa dele: já está no tempo do dia. */
 function isNested(item: MetricItem): boolean {
-  return item.kind === "engine" && item.name === ENGINE_PUBLISH;
+  return item.kind === "engine" && item.name !== ENGINE_DAY;
 }
 
 function labelOf(item: MetricItem): string {
