@@ -27,7 +27,7 @@ import { SimulationLetter } from "../compare/simulation-letter";
 import { simulationColor, simulationLetter, labelColors } from "../../lib/player-label";
 import { playerKey, playerLabel } from "../../lib/player-label";
 import { visibleRankingRows } from "../../lib/ranking-scope";
-import { BotLogCard } from "./bot-log-card";
+import { BotLogSheet } from "./bot-log-sheet";
 import { PlayerScoreCard } from "./player-score-card";
 import { ScoreHistoryCard } from "./score-history-card";
 import { PlayerCell, PlayerToggle, TabStatus, type ReportProps } from "./shared";
@@ -53,7 +53,7 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
     );
 
   const colorOf = labelColors(data.players, simulationIds, currentPlayerName);
-  const botLogCard = botLog && <BotLogCard bot={botLog} onClose={() => setBotLog(null)} />;
+  const botLogSheet = botLog && <BotLogSheet bot={botLog} onClose={() => setBotLog(null)} />;
 
   // Partida em equipes: o ranking, a nota e os membros são da equipe, com os jogadores abaixo
   if (data.player_grouping === "TEAMS") {
@@ -77,7 +77,7 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
             />
           )}
         />
-        {botLogCard}
+        {botLogSheet}
         {simulationIds.length === 1 && (
           <ScoreHistoryCard
             simulationIds={simulationIds}
@@ -101,7 +101,7 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
         simulationIds={simulationIds}
         onOpenBotLog={setBotLog}
       />
-      {botLogCard}
+      {botLogSheet}
       {simulationIds.length === 1 && (
         <ScoreHistoryCard simulationIds={simulationIds} currentPlayerName={currentPlayerName} onlyPlayer={onlyPlayer} />
       )}
