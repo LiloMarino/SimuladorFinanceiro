@@ -94,10 +94,10 @@ export function LoansTable({ loans, onPrepay, onPayOverdue }: LoansTableProps) {
                       </Button>
                     ) : (
                       <>
-                        <Button variant="outline" size="xs" onClick={() => onPrepay(loan, "part")}>
+                        <Button variant="outline" size="sm" onClick={() => onPrepay(loan, "part")}>
                           Amortizar
                         </Button>
-                        <Button variant="outline" size="xs" onClick={() => onPrepay(loan, "all")}>
+                        <Button variant="outline" size="sm" onClick={() => onPrepay(loan, "all")}>
                           Quitar
                         </Button>
                       </>

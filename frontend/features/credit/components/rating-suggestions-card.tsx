@@ -45,7 +45,7 @@ export function RatingSuggestionsCard({ overview, onAmortize }: RatingSuggestion
                   icon={<Lightbulb />}
                   title={`Quitar ${displayMoneyCompact(amount)}`}
                   action={
-                    <Button variant="outline" size="xs" onClick={() => onAmortize(amount)}>
+                    <Button variant="outline" size="sm" onClick={() => onAmortize(amount)}>
                       Amortizar
                     </Button>
                   }

@@ -34,8 +34,9 @@ O "+ 3", "+ 5" e os demais são pontos percentuais por ano somados à SELIC. Ex.
 ## Contratar um empréstimo
 
 1. Digite o **valor** (até o limite que a sua nota permite) e escolha o **prazo**, de 6 a 60 parcelas.
-2. A tela mostra a **parcela**, o **juro total** e o rendimento da renda fixa mais cara no mesmo prazo, para você comparar.
-3. Clique em **Revisar e assinar**. O dinheiro cai no caixa e o juro fica travado até o fim do contrato.
+2. A tela mostra a **parcela**, o **juro total** e um aviso comparando o juro com o que a sua carteira rendeu em 12 meses.
+3. O bloco **Se você assinar** mostra, de hoje para depois do empréstimo, a **dívida**, as **parcelas por mês**, a **alavancagem** (dívida dividida pelo patrimônio) e a **sobra do limite**, com a barra do limite logo abaixo. Ex.: com R$ 30.000 de dívida, um empréstimo de R$ 50.000 leva a dívida a R$ 80.000.
+4. Clique em **Revisar e assinar**. O dinheiro cai no caixa e o juro fica travado até o fim do contrato.
 
 As parcelas seguem a **Tabela Price**: o valor é sempre o mesmo, mas no começo a maior parte é juro e, a cada mês, o juro cai e a parte que abate a dívida cresce. Ex.: R$ 50.000 em 24 parcelas a 9,25% ao ano dá parcela de **R$ 2.281,48** e **R$ 4.755,40** de juro no total.
 

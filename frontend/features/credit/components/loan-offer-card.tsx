@@ -1,22 +1,24 @@
+import { CircleCheck, Info, TriangleAlert } from "lucide-react";
 import { useDeferredValue, useState } from "react";
 import { Kpi } from "@/shared/components/kpi";
 import { MarkedSlider } from "@/shared/components/marked-slider";
 import { MetricHint } from "@/shared/components/metric-hint";
-import { StackedBar } from "@/shared/components/stacked-bar";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
-import { displaySelicSpread, displayWholePercent, gradeTone, monthlyEquivalent } from "@/shared/lib/credit";
+import { displaySelicSpread, gradeTone, monthlyEquivalent } from "@/shared/lib/credit";
 import { PRICE_TABLE, SELIC_RATE, SPREAD } from "@/shared/lib/credit-metrics";
-import { cn, normalizeNumberString } from "@/shared/lib/utils";
+import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { displayMoney, displayPercent, toCentsString } from "@/shared/lib/utils/display";
 import type { CreditOverview } from "@/types";
 import { useLoanQuote } from "../hooks/queries/useLoanQuote";
 import { InstallmentsDialog } from "./installments-dialog";
 import { ReviewLoanDialog } from "./review-loan-dialog";
+import { SignImpact } from "./sign-impact";
 
 const MIN_TERM = 6;
 const MAX_TERM = 60;
@@ -58,11 +60,13 @@ export function LoanOfferCard({ overview, spread, annualRate: annualRateText, am
   const annualRate = Number(annualRateText);
   const spreadRate = Number(offer.selic) + Number(spread);
   const floorApplied = annualRate > spreadRate + 1e-9;
-  const debtLimitAmount = Number(offer.debt_limit_amount);
-  const currentDebt = Number(overview.debt);
-  const thisLoan = Math.min(amount, Math.max(debtLimitAmount - currentDebt, 0));
-  const spare = Math.max(debtLimitAmount - currentDebt - thisLoan, 0);
   const portfolioReturn = overview.portfolio_return_12m;
+  const returnAlert =
+    portfolioReturn === null
+      ? ({ variant: "muted", Icon: Info } as const)
+      : Number(portfolioReturn) >= annualRate
+        ? ({ variant: "success", Icon: CircleCheck } as const)
+        : ({ variant: "warning", Icon: TriangleAlert } as const);
 
   const setAmount = (value: string) => {
     setTouched(true);
@@ -163,7 +167,7 @@ export function LoanOfferCard({ overview, spread, annualRate: annualRateText, am
           </div>
 
           {/* O custo */}
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             <Kpi
               label={
                 <>
@@ -178,51 +182,21 @@ export function LoanOfferCard({ overview, spread, annualRate: annualRateText, am
               value={quoteReady ? displayMoney(quote.total_interest) : "—"}
               note={quoteReady ? `Você devolve ${displayMoney(quote.total_paid)}` : undefined}
             />
-            <Kpi
-              label="A carteira precisa render"
-              value={`> ${displayPercent(annualRate)} a.a.`}
-              note={
-                portfolioReturn === null ? (
-                  "Menos de 12 meses de histórico"
-                ) : (
-                  <>
-                    Sua carteira rendeu{" "}
-                    <b
-                      className={cn(
-                        "font-mono",
-                        Number(portfolioReturn) >= annualRate ? "text-success" : "text-destructive",
-                      )}
-                    >
-                      {displayPercent(portfolioReturn, 1)}
-                    </b>{" "}
-                    em 12 meses
-                  </>
-                )
-              }
-            />
           </div>
 
-          {/* Limite de dívida */}
-          <div className="grid gap-1.5">
-            <div className="flex justify-between gap-3 text-[13px]">
-              <span className="font-medium">Limite de dívida</span>
-              <span className="font-mono text-muted-foreground">
-                {displayMoney(debtLimitAmount)} · {displayWholePercent(offer.debt_limit)} do patrimônio
-              </span>
-            </div>
-            <StackedBar
-              segments={[
-                { key: "today", fraction: fractionOf(currentDebt, debtLimitAmount), color: "bg-primary" },
-                { key: "loan", fraction: fractionOf(thisLoan, debtLimitAmount), color: "bg-info-border" },
-                { key: "spare", fraction: fractionOf(spare, debtLimitAmount), color: "bg-transparent" },
-              ]}
-            />
-            <ul className="flex flex-wrap gap-x-3.5 gap-y-1 text-xs text-muted-foreground">
-              <LimitLegend color="bg-primary" label="Dívida de hoje" value={currentDebt} />
-              <LimitLegend color="bg-info-border" label="Este empréstimo" value={amount} />
-              <LimitLegend color="bg-muted" label="Sobra" value={Math.max(maxAmount - amount, 0)} />
-            </ul>
-          </div>
+          {/* A carteira contra o juro */}
+          <Alert variant={returnAlert.variant}>
+            <returnAlert.Icon />
+            <AlertTitle>A carteira precisa render mais de {displayPercent(annualRate)} ao ano</AlertTitle>
+            <AlertDescription>
+              {portfolioReturn === null
+                ? "Menos de 12 meses de histórico para comparar."
+                : `Sua carteira rendeu ${displayPercent(portfolioReturn, 1)} em 12 meses.`}
+            </AlertDescription>
+          </Alert>
+
+          {/* O que a assinatura muda */}
+          <SignImpact overview={overview} amount={amount} quote={quoteReady ? quote : undefined} />
 
           {/* Ações */}
           <div className="flex justify-end gap-2">
@@ -243,18 +217,5 @@ export function LoanOfferCard({ overview, spread, annualRate: annualRateText, am
         </>
       )}
     </Card>
-  );
-}
-
-function fractionOf(part: number, whole: number) {
-  return whole > 0 ? Math.min(part / whole, 1) : 0;
-}
-
-function LimitLegend({ color, label, value }: { color: string; label: string; value: number }) {
-  return (
-    <li className="flex items-center gap-1.5">
-      <span className={cn("size-2.5 rounded-[3px]", color)} aria-hidden="true" />
-      {label} <span className="font-mono">{displayMoney(value)}</span>
-    </li>
   );
 }
