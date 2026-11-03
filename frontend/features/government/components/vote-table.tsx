@@ -1,7 +1,7 @@
 import { Bot, Handshake } from "lucide-react";
 import { MetricLabel } from "@/shared/components/metric-hint";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { DEFIANCE, FORECAST } from "../lib/government-metrics";
+import { DEFIANCE } from "../lib/government-metrics";
 import { causeLabel, rangeLabel, type BlocVote, type Vote } from "../lib/house";
 import { OrientationBadge } from "./orientation-badge";
 import { PartyMark } from "./party-mark";
@@ -21,26 +21,25 @@ export function VoteTable({ vote, subject, mineKey }: VoteTableProps) {
   const rows = [...vote.blocs].sort((a, b) => b.seats - a.seats || a.key - b.key);
 
   return (
-    <Table>
+    <Table className="table-fixed">
       <TableHeader>
         <TableRow>
-          <TableHead>Bancada</TableHead>
+          <TableHead className="w-24">Bancada</TableHead>
           {voted ? (
             <>
               <TableHead>Orientou</TableHead>
               <TableHead numeric>Sim</TableHead>
               <TableHead numeric>Não</TableHead>
-              <TableHead>Contra a orientação</TableHead>
+              <TableHead className="whitespace-normal">Contra a orientação</TableHead>
             </>
           ) : (
             <>
-              <TableHead>Orientação</TableHead>
-              <TableHead>Quem orientou</TableHead>
+              <TableHead>Orientação · quem orientou</TableHead>
               <TableHead>
                 <MetricLabel metric={DEFIANCE} />
               </TableHead>
-              <TableHead numeric>
-                <MetricLabel metric={FORECAST} />
+              <TableHead numeric className="w-20">
+                Placar
               </TableHead>
             </>
           )}
@@ -55,9 +54,11 @@ export function VoteTable({ vote, subject, mineKey }: VoteTableProps) {
                 <span className="font-mono">{bloc.seats}</span>
               </span>
             </TableCell>
-            <TableCell>
-              <OrientationBadge yes={bloc.orientation} />
-            </TableCell>
+            {voted ? (
+              <TableCell>
+                <OrientationBadge yes={bloc.orientation} />
+              </TableCell>
+            ) : null}
             {voted ? <VotedCells bloc={bloc} /> : <OpenCells bloc={bloc} subject={subject} />}
           </TableRow>
         ))}
@@ -104,26 +105,29 @@ function OpenCells({ bloc, subject }: { bloc: BlocVote; subject: string }) {
   const why = causeLabel(bloc, subject);
   return (
     <>
-      <TableCell>
-        <span className="inline-flex items-center gap-1.5 text-[13px]">
-          {bloc.by_deal ? (
-            <>
-              <Handshake className="size-3.5 text-primary" />
-              Acordo com o governo
-            </>
-          ) : bloc.guided ? (
-            "O líder"
-          ) : (
-            <>
-              <Bot className="size-3.5 text-muted-foreground" />
-              {bloc.key < 0 ? "Computador, pelos valores dele" : "Orientação padrão"}
-            </>
-          )}
-        </span>
+      <TableCell className="whitespace-normal">
+        <div className="grid justify-items-start gap-1">
+          <OrientationBadge yes={bloc.orientation} />
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            {bloc.by_deal ? (
+              <>
+                <Handshake className="size-3.5 text-primary" />
+                Acordo com o governo
+              </>
+            ) : bloc.guided ? (
+              "O líder"
+            ) : (
+              <>
+                <Bot className="size-3.5" />
+                {bloc.key < 0 ? "Computador, pelos valores dele" : "Orientação padrão"}
+              </>
+            )}
+          </span>
+        </div>
       </TableCell>
       <TableCell className="whitespace-normal">
         <b className="font-mono">{bloc.may_defect === 0 ? "0" : `até ${bloc.may_defect}`}</b>
-        {why && <div className="max-w-60 text-xs text-muted-foreground">{why}</div>}
+        {why && <div className="text-xs leading-4 text-muted-foreground">{why}</div>}
       </TableCell>
       <TableCell numeric>
         <b>{rangeLabel(low, high)}</b>

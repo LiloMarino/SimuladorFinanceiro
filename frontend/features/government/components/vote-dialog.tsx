@@ -12,6 +12,7 @@ import {
 import { outlook, outlookLabel, resultLabel, type Vote, voteSeats } from "../lib/house";
 import { GuideTile } from "./guide-tile";
 import { Hemicycle } from "./hemicycle";
+import { VoteScoreboard } from "./vote-scoreboard";
 import { VoteTable } from "./vote-table";
 
 type VoteDialogProps = {
@@ -68,10 +69,14 @@ export function VoteDialog({
         </DialogHeader>
 
         <DialogBody>
-          <div className="grid gap-5 lg:grid-cols-[420px_minmax(0,1fr)]">
+          <div className="grid gap-5 lg:grid-cols-[400px_minmax(0,1fr)]">
             {/* Hemiciclo da votação */}
             <div className="grid content-start justify-items-center gap-2.5">
-              <Hemicycle seats={voteSeats(vote)} label={`Hemiciclo da votação, ${vote.needed} votos Sim para passar`} />
+              <Hemicycle
+                seats={voteSeats(vote)}
+                marks={[{ at: vote.needed, label: `${vote.needed}` }]}
+                label={`Hemiciclo da votação, ${vote.needed} votos Sim para passar`}
+              />
               <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 text-xs text-muted-foreground">
                 <Legend tone="solid" label={voted ? "cheia: votou Sim" : "cheia: Sim pela orientação"} />
                 <Legend tone="light" label={voted ? "clara: votou Não" : "clara: Não"} />
@@ -83,6 +88,7 @@ export function VoteDialog({
 
             {/* Bancadas e orientação do líder */}
             <div className="grid min-w-0 content-start gap-3.5">
+              <VoteScoreboard vote={vote} />
               <VoteTable vote={vote} subject={subject} mineKey={mineKey ?? vote.guide?.bloc_key} />
               {voted && (vote.defected ?? 0) > 0 && (
                 <Alert variant="warning">

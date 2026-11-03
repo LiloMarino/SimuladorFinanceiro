@@ -7,6 +7,7 @@ import {
   rangeLabel,
   resultLabel,
   seatChange,
+  seatShare,
   shareOfVotes,
   unguidedCount,
   voteSeats,
@@ -94,6 +95,19 @@ describe("resultLabel", () => {
   it("põe o lado vencedor primeiro", () => {
     expect(resultLabel({ yes: 54, no: 47 }, true)).toBe("Aprovada por 54 a 47");
     expect(resultLabel({ yes: 44, no: 57 }, false)).toBe("Rejeitada por 57 a 44");
+  });
+});
+
+describe("seatShare", () => {
+  it("põe os votos na barra em % das 101 cadeiras", () => {
+    expect(seatShare(0)).toBe(0);
+    expect(seatShare(101)).toBe(100);
+    expect(seatShare(51)).toBeCloseTo(50.5);
+  });
+
+  it("segura a barra entre 0 e 100", () => {
+    expect(seatShare(-3)).toBe(0);
+    expect(seatShare(120)).toBe(100);
   });
 });
 

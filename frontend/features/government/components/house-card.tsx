@@ -1,12 +1,15 @@
 import { Info } from "lucide-react";
+import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { MetricLabel } from "@/shared/components/metric-hint";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import { DEFECTION_RATE, WITH_GOVERNMENT } from "../lib/government-metrics";
 import { bySeats, partySeats, seatChange, shareOfVotes, type House } from "../lib/house";
+import { ElectedHouseDialog } from "./elected-house-dialog";
 import { Hemicycle } from "./hemicycle";
 import { PartyMark } from "./party-mark";
 import { partyColor } from "@/shared/lib/party-colors";
@@ -15,6 +18,7 @@ type HouseCardProps = { house: House };
 
 /** O plenário: o hemiciclo por partido e a tabela das bancadas, com o histórico de votos de cada uma. */
 export function HouseCard({ house }: HouseCardProps) {
+  const [showElection, setShowElection] = useState(false);
   const blocs = bySeats(house.blocs);
   const computerOnly = house.elected === null;
 
@@ -24,9 +28,16 @@ export function HouseCard({ house }: HouseCardProps) {
         <div className="grid min-w-0 content-start gap-3.5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-[15px] font-semibold">Congresso · {house.seats} cadeiras</h2>
-            <Badge variant="secondary">
-              {house.majority} votos aprovam uma medida · {house.impeachment_votes} derrubam o presidente
-            </Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              {!computerOnly && (
+                <Button variant="link" size="sm" onClick={() => setShowElection(true)}>
+                  Como a casa foi eleita ›
+                </Button>
+              )}
+              <Badge variant="secondary">
+                {house.majority} votos aprovam uma medida · {house.impeachment_votes} derrubam o presidente
+              </Badge>
+            </div>
           </div>
 
           {computerOnly && (
@@ -123,6 +134,7 @@ export function HouseCard({ house }: HouseCardProps) {
           </div>
         </div>
       </CardContent>
+      {!computerOnly && <ElectedHouseDialog open={showElection} onOpenChange={setShowElection} house={house} />}
     </Card>
   );
 }

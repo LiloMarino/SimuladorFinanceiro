@@ -22,10 +22,14 @@ import { outlook, outlookLabel, resultLabel } from "../lib/house";
 import { MeasureSteps } from "./measure-steps";
 import { VoteDialog } from "./vote-dialog";
 
-type QueueCardProps = { panel: GovernmentPanel };
+type QueueCardProps = {
+  panel: GovernmentPanel;
+  /** Rola até o histórico de votações; ausente quando a casa ainda não votou nada */
+  onHistory?: (() => void) | undefined;
+};
 
 /** A fila pública do Congresso: o que o presidente propôs, o que espera para valer e o que caiu. */
-export function QueueCard({ panel }: QueueCardProps) {
+export function QueueCard({ panel, onHistory }: QueueCardProps) {
   const today = useToday(panel);
   const withdraw = useWithdrawMeasure();
   const repropose = useReproposeMeasure();
@@ -42,7 +46,14 @@ export function QueueCard({ panel }: QueueCardProps) {
         <div className="grid min-w-0 content-start gap-3.5">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-[15px] font-semibold">Medidas a caminho</h2>
-            <Badge variant="secondary">Próxima votação: {displayDayMonth(panel.next_vote)}</Badge>
+            <div className="flex items-center gap-2">
+              {onHistory && (
+                <Button variant="link" size="sm" onClick={onHistory}>
+                  Ver votações anteriores ›
+                </Button>
+              )}
+              <Badge variant="secondary">Próxima votação: {displayDayMonth(panel.next_vote)}</Badge>
+            </div>
           </div>
 
           {panel.queue.length === 0 ? (

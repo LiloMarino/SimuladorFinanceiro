@@ -72,7 +72,12 @@ export function seatChange(bloc: Pick<Bloc, "seats" | "previous_seats">): string
   return change > 0 ? `+${change}` : `${change}`;
 }
 
-const SEAT_TOTAL = 101;
+export const SEAT_TOTAL = 101;
+
+/** Onde um número de votos Sim cai na barra do placar, em % das cadeiras (0 a 100). */
+export function seatShare(votes: number): number {
+  return Math.min(100, Math.max(0, (votes / SEAT_TOTAL) * 100));
+}
 
 /** O hemiciclo por partido: cada bancada ocupa uma cunha, em ordem de tamanho. */
 export function partySeats(blocs: Bloc[]): HemicycleSeat[] {
