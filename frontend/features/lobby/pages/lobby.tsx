@@ -71,7 +71,12 @@ function LobbyContent({ settings }: { settings: SimulationSettings }) {
 
   return (
     <div className="mx-auto flex max-w-280 flex-col gap-5 px-7 py-10">
-      <LobbyHeader isHost={settings.is_host} hostNickname={settings.host_nickname} />
+      <LobbyHeader
+        isHost={settings.is_host}
+        hostNickname={settings.host_nickname}
+        rules={settings.simulation}
+        selectedSimulationId={settings.selected_simulation_id}
+      />
 
       <BacktestBanner />
 
@@ -85,6 +90,7 @@ function LobbyContent({ settings }: { settings: SimulationSettings }) {
           selectedSimulationId={settings.selected_simulation_id}
           grouping={grouping}
           naming={naming}
+          governmentEnabled={settings.simulation.government_enabled}
         />
         <LobbyMatch
           simulationData={settings.simulation}

@@ -2687,7 +2687,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * O que da preparação só o jogador vê
+         * @description O convite de vice que o jogador recebeu e o que ele enviou, enquanto sem resposta, e o partido em que ele entrou e que saiu da preparação. Quem fundou na última sala e chega a uma sala nova volta fundando o Meu partido.
+         */
+        get: operations["get_my_preparation_api_simulation_players_me_preparation_get"];
         /**
          * Preparar a campanha do jogador
          * @description Escolhe o que o jogador faz no começo da partida: fundar o Meu partido (com a chapa e o vice), entrar no partido que outro jogador preparou ou nada. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.
@@ -7220,6 +7224,17 @@ export interface components {
             /** Seats */
             seats: number;
         };
+        /**
+         * MyPreparationDTO
+         * @description O que da preparação só o próprio jogador vê.
+         */
+        MyPreparationDTO: {
+            invite: components["schemas"]["ViceInviteDTO"] | null;
+            /** Invited */
+            invited: string | null;
+            /** Left Party */
+            left_party: string | null;
+        };
         /** MyStrategyDTO */
         MyStrategyDTO: {
             active: components["schemas"]["StrategyActiveDTO"] | null;
@@ -8303,6 +8318,11 @@ export interface components {
             reserved: components["schemas"]["ReservedPartyDTO"][];
             /** Conflicts */
             conflicts: string[];
+            /**
+             * Pending Invites
+             * @default 0
+             */
+            pending_invites: number;
             /** Locked Reason */
             locked_reason: string | null;
         };
@@ -8824,13 +8844,15 @@ export interface components {
         };
         /**
          * ReservedPartyDTO
-         * @description Um partido do computador, cujo nome e sigla ninguém repete.
+         * @description Um partido do computador, cujo nome e sigla ninguém repete, com as bandeiras fixas dele.
          */
         ReservedPartyDTO: {
             /** Name */
             name: string;
             /** Abbr */
             abbr: string;
+            /** Flags */
+            flags: components["schemas"]["VoterValue"][];
         };
         /** ReturnsReportDTO */
         ReturnsReportDTO: {
@@ -10823,6 +10845,18 @@ export interface components {
         ViceAnswerRequest: {
             /** Accept */
             accept: boolean;
+        };
+        /**
+         * ViceInviteDTO
+         * @description Um convite de vice sem resposta: quem convidou, para a chapa de qual partido e de qual candidato.
+         */
+        ViceInviteDTO: {
+            /** Owner */
+            owner: string;
+            /** Abbr */
+            abbr: string;
+            /** Candidate */
+            candidate: string;
         };
         /**
          * ViceOptionDTO
@@ -16664,6 +16698,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PreparationsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_my_preparation_api_simulation_players_me_preparation_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyPreparationDTO"];
                 };
             };
             /** @description Unprocessable Content */

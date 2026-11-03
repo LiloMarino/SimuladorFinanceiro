@@ -9,6 +9,8 @@ import { useAchievementTally } from "@/shared/hooks/queries/useAchievementTally"
 import { useTunnelStatus } from "../hooks/queries/useTunnelStatus";
 import { useStartTunnel } from "../hooks/mutations/useStartTunnel";
 import { LobbyTutorialButton } from "@/features/tutorial/components/lobby-button";
+import type { SimulationSettings } from "@/types";
+import { PreparationButton } from "./preparation/preparation-button";
 
 const FIREWALL_DOCS_URL =
   "https://lilomarino.github.io/SimuladorFinanceiro/como-usar/multiplayer#amigos-não-conseguem-entrar";
@@ -16,10 +18,12 @@ const FIREWALL_DOCS_URL =
 type LobbyHeaderProps = {
   isHost: boolean;
   hostNickname: string;
+  rules: SimulationSettings["simulation"];
+  selectedSimulationId: SimulationSettings["selected_simulation_id"];
 };
 
 /** Topo do lobby: de quem é a sala e o link para chamar os outros. */
-export function LobbyHeader({ isHost, hostNickname }: LobbyHeaderProps) {
+export function LobbyHeader({ isHost, hostNickname, rules, selectedSimulationId }: LobbyHeaderProps) {
   const { data: tunnelStatus } = useTunnelStatus();
   const { mutate: startTunnel, isPending: tunnelLoading } = useStartTunnel();
   const [copyFailed, setCopyFailed] = useState(false);
@@ -61,6 +65,7 @@ export function LobbyHeader({ isHost, hostNickname }: LobbyHeaderProps) {
           )}
           {tally?.hasNew && <span aria-label="Conquista nova" className="size-1.5 rounded-full bg-toast-warning" />}
         </Button>
+        <PreparationButton rules={rules} selectedSimulationId={selectedSimulationId} />
         <LobbyTutorialButton />
       </div>
 

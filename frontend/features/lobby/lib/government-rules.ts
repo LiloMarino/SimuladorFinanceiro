@@ -1,4 +1,4 @@
-import { addYears, format } from "date-fns";
+import { addMonths, addYears, format } from "date-fns";
 import { displayPremiumPoints } from "@/shared/lib/budget-metrics";
 import { displayMoneyLarge, displayPercent, parseLocalDate } from "@/shared/lib/utils/display";
 import { isIsoDate } from "@/shared/lib/utils/date-field";
@@ -61,6 +61,13 @@ export function campaignOpening(start: string, firstElection: string) {
   if (!isIsoDate(firstElection)) return null;
   const opening = format(addYears(parseLocalDate(firstElection), -1), "yyyy-MM-dd");
   return isIsoDate(start) && opening < start ? start : opening;
+}
+
+/** Quem se filia até 6 meses antes do 1º turno concorre nessa eleição; o prazo nunca cai antes do início da partida. */
+export function affiliationDeadline(start: string, firstElection: string) {
+  if (!isIsoDate(firstElection)) return null;
+  const deadline = format(addMonths(parseLocalDate(firstElection), -6), "yyyy-MM-dd");
+  return isIsoDate(start) && deadline < start ? start : deadline;
 }
 
 type GovernmentRuleInput = { start: string; end: string; firstElection: string };

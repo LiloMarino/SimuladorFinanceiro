@@ -8,7 +8,7 @@ import { cn } from "@/shared/lib/utils";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import { approvalArrow, approvalTone, isComputerGovernment } from "../lib/government";
 import { ApprovalChart } from "./approval-chart";
-import { PersonMark } from "./party-mark";
+import { PersonMark } from "@/shared/components/party-mark";
 
 const TONES = { success: "text-success", warning: "text-warning", destructive: "text-destructive" } as const;
 

@@ -4,7 +4,7 @@ import { Input } from "@/shared/components/ui/input";
 import { displayMoneyCompact } from "@/shared/lib/utils/display";
 import { formatMoney } from "@/shared/lib/utils/format";
 import type { ReactNode } from "react";
-import { contributionAmount, contributionText } from "../lib/contribution";
+import { contributionAmount, contributionText } from "@/shared/lib/contribution";
 
 const SHORTCUTS = [0, 2000, 5000, 10000];
 

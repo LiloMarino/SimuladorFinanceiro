@@ -15,7 +15,7 @@ import { PROMISE_STATE, promiseValue, stateLabel, stateSummary } from "../lib/pr
 import { GROUP_INFO } from "../lib/voters";
 import { BalanceDialog } from "./balance-dialog";
 import { SignedDecimal } from "./signed-decimal";
-import { GroupIcon } from "./value-chip";
+import { GroupIcon } from "@/shared/components/value-chip";
 
 type TermPromisesCardProps = { promises: TermPromises; termEnd: string | null };
 

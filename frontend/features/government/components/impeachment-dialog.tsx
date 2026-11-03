@@ -9,7 +9,7 @@ import { parseLocalDate } from "@/shared/lib/utils/display";
 import type { GovernmentPanel } from "@/types";
 import { monthsSpan } from "../lib/approval";
 import { monthYear } from "../lib/government";
-import { PartyMark } from "./party-mark";
+import { PartyMark } from "@/shared/components/party-mark";
 
 type ImpeachmentDialogProps = {
   /** O governo logo depois do impeachment; nulo mantém o diálogo fechado */

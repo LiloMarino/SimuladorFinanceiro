@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { displayList, displayMoneyWhole } from "@/shared/lib/utils/display";
 import type { ElectionPanel } from "@/types";
 import { PARTY_NETWORTH } from "../lib/election-metrics";
-import { PartyMark } from "./party-mark";
+import { PartyMark } from "@/shared/components/party-mark";
 
 const ROW = "grid h-11 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 border-b text-[13px]";
 const HEADER = "flex items-center gap-2 border-b pb-1.5 text-xs font-medium text-muted-foreground";

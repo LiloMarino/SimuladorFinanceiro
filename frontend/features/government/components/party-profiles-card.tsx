@@ -22,10 +22,10 @@ import {
   topWants,
   valueScores,
 } from "../lib/voters";
-import { PartyMark, PersonMark } from "./party-mark";
+import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 import { ProfileRadar } from "./profile-radar";
 import { PromiseBadges } from "./promise-badges";
-import { ValueChips } from "./value-chip";
+import { ValueChips } from "@/shared/components/value-chip";
 import { partyColor } from "@/shared/lib/party-colors";
 
 const FOUNDING_COLOR = "var(--muted-foreground)";

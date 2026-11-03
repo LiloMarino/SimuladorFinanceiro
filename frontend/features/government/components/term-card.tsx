@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty } from "@/types";
-import { PartyMark, PersonMark } from "./party-mark";
+import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 
 type TermCardProps = { panel: ElectionPanel };
 

@@ -15,7 +15,7 @@ import { displayDayMonth, displayShortDate, displayMoney, displayPercent } from 
 import { useGovernment } from "@/shared/hooks/queries/useGovernment";
 import type { ElectionPanel, ElectionRound } from "@/types";
 import { ElectedHouse } from "./elected-house";
-import { PartyMark, PersonMark } from "./party-mark";
+import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 import { PromiseBadges } from "./promise-badges";
 import { partyColor } from "@/shared/lib/party-colors";
 import { RunoffResult } from "./runoff-result";

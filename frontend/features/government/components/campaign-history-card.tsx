@@ -17,8 +17,8 @@ import { useCampaignHistory } from "../hooks/queries/useCampaignHistory";
 import { BAND_INFO, effectText, entryTitle, signed } from "../lib/campaign";
 import { GROUP_INFO } from "../lib/voters";
 import { D20 } from "./campaign-dice";
-import { PartyMark } from "./party-mark";
-import { GroupIcon } from "./value-chip";
+import { PartyMark } from "@/shared/components/party-mark";
+import { GroupIcon } from "@/shared/components/value-chip";
 
 const PAGE = 10;
 

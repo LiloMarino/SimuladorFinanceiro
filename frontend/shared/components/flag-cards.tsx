@@ -10,11 +10,15 @@ type FlagCardsProps = {
   onChange: (value: VoterValue[]) => void;
   /** Linha extra de cada bandeira, como os grupos que ela agrada */
   note?: (flag: VoterValue) => string;
+  /** Selo no alto da bandeira, como o partido que também a defende */
+  tag?: (flag: VoterValue) => string | null;
+  /** Em espaço estreito as bandeiras ficam em duas colunas */
+  columns?: 2 | 3;
   error?: string | undefined;
 };
 
 /** As 6 bandeiras para escolher 3, com a contagem e o bloqueio das que se excluem. */
-export function FlagCards({ value, onChange, note, error }: FlagCardsProps) {
+export function FlagCards({ value, onChange, note, tag, columns = 3, error }: FlagCardsProps) {
   const toggle = (flag: VoterValue) =>
     onChange(value.includes(flag) ? value.filter((item) => item !== flag) : [...value, flag]);
   return (
@@ -33,7 +37,11 @@ export function FlagCards({ value, onChange, note, error }: FlagCardsProps) {
       <span className="text-xs text-muted-foreground">
         As bandeiras ficam para sempre. O perfil do partido parte delas e depois se move com o que ele faz no governo.
       </span>
-      <div role="group" aria-label="Bandeiras do partido" className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+      <div
+        role="group"
+        aria-label="Bandeiras do partido"
+        className={cn("grid grid-cols-2 gap-2.5", columns === 3 && "sm:grid-cols-3")}
+      >
         {VOTER_VALUES.map((flag) => (
           <FlagCard
             key={flag}
@@ -41,6 +49,7 @@ export function FlagCards({ value, onChange, note, error }: FlagCardsProps) {
             selected={value.includes(flag)}
             locked={lockReason(flag, value)}
             note={note?.(flag) ?? ""}
+            tag={tag?.(flag) ?? null}
             onToggle={() => toggle(flag)}
           />
         ))}
@@ -55,10 +64,11 @@ type FlagCardProps = {
   selected: boolean;
   locked: string | null;
   note: string;
+  tag: string | null;
   onToggle: () => void;
 };
 
-function FlagCard({ flag, selected, locked, note, onToggle }: FlagCardProps) {
+function FlagCard({ flag, selected, locked, note, tag, onToggle }: FlagCardProps) {
   const Icon = VALUE_ICONS[flag];
   const info = VALUE_INFO[flag];
   return (
@@ -75,6 +85,11 @@ function FlagCard({ flag, selected, locked, note, onToggle }: FlagCardProps) {
         locked !== null && "cursor-not-allowed opacity-60",
       )}
     >
+      {tag && (
+        <Badge variant="warning" size="tag" className="absolute -top-2 left-3">
+          {tag}
+        </Badge>
+      )}
       <span className="inline-flex size-7.5 items-center justify-center rounded-md bg-[color-mix(in_srgb,var(--tint)_12%,transparent)] text-(--tint)">
         <Icon className="size-4" />
       </span>

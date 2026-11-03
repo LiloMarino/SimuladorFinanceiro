@@ -10,9 +10,9 @@ import { BUDGET, SPENT, VOTE_YIELD } from "../lib/election-metrics";
 import { signed } from "../lib/campaign";
 import { monthlyYield, monthYear } from "../lib/election";
 import { GuidanceRules } from "./guidance-rules";
-import { PartyMark } from "./party-mark";
+import { PartyMark } from "@/shared/components/party-mark";
 import { PromiseBadges } from "./promise-badges";
-import { ValueChips } from "./value-chip";
+import { ValueChips } from "@/shared/components/value-chip";
 
 type MyPartyCardProps = {
   panel: ElectionPanel;

@@ -12,8 +12,9 @@ import {
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { ElectionParty } from "@/types";
 import { useSetContribution } from "../hooks/mutations/useSetContribution";
-import { congressAmount, congressShare, contributionAmount, contributionText } from "../lib/contribution";
-import { ContributionField } from "./contribution-field";
+import { congressAmount, congressShare } from "../lib/contribution";
+import { contributionAmount, contributionText } from "@/shared/lib/contribution";
+import { ContributionField } from "@/shared/components/contribution-field";
 import { ContributionSplit } from "./contribution-split";
 
 type ContributionDialogProps = {

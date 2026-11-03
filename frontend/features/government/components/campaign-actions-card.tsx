@@ -40,8 +40,8 @@ import { GROUP_INFO, pollPercent, pollPoints } from "../lib/voters";
 import { ActionIcon } from "./campaign-action-icon";
 import { BandsTable } from "./campaign-dice";
 import { CampaignRollDialog } from "./campaign-roll-dialog";
-import { PartyMark } from "./party-mark";
-import { GroupIcon } from "./value-chip";
+import { PartyMark } from "@/shared/components/party-mark";
+import { GroupIcon } from "@/shared/components/value-chip";
 
 type CampaignActionsCardProps = {
   campaign: CampaignPanel;

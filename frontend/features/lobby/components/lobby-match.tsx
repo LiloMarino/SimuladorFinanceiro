@@ -45,7 +45,7 @@ import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulatio
 import { toFormValues, toSettingsBody } from "../lib/simulation-form";
 import { checkTeams } from "../lib/teams-check";
 import { usePreparations } from "../hooks/queries/usePreparations";
-import { MyPreparationCard } from "./my-preparation-card";
+import { PendingInvitesStart, RoomPreparationSummary } from "./preparation/room-preparation";
 import { checkCoverage } from "../lib/coverage";
 import {
   calculatedGoal,
@@ -269,6 +269,7 @@ export function LobbyMatch({
   // Partidos preparados que repetem sigla, nome ou cor bloqueiam o início, como as equipes
   const { data: preparations } = usePreparations();
   const preparationBlock = (preparations?.conflicts.length ?? 0) > 0;
+  const pendingInvites = preparations?.pending_invites ?? 0;
   const canStart =
     isHost &&
     !busy &&
@@ -533,8 +534,10 @@ export function LobbyMatch({
               </Alert>
             )}
 
-            {/* Preparação do jogador para a campanha */}
-            {rules.governmentEnabled && <MyPreparationCard />}
+            {/* Preparação da sala */}
+            {isHost && rules.governmentEnabled && !selectedSimulation && preparations && (
+              <RoomPreparationSummary preparations={preparations} />
+            )}
 
             {/* Equipes: o que falta para iniciar e o atalho do host */}
             {inTeams && teamsBlock && (
@@ -585,6 +588,13 @@ export function LobbyMatch({
                   {challengeQuestion !== null ? (
                     <ChallengeStartWarning
                       question={challengeQuestion}
+                      pending={creating}
+                      disabled={!canStart}
+                      onConfirm={() => createSimulation(createSimulationBody)}
+                    />
+                  ) : rules.governmentEnabled && pendingInvites > 0 ? (
+                    <PendingInvitesStart
+                      count={pendingInvites}
                       pending={creating}
                       disabled={!canStart}
                       onConfirm={() => createSimulation(createSimulationBody)}

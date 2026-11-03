@@ -15,7 +15,7 @@ import {
   pollPoints,
 } from "../lib/voters";
 import { GroupPollRows } from "./group-poll-rows";
-import { PartyMark } from "./party-mark";
+import { PartyMark } from "@/shared/components/party-mark";
 import { PollChart } from "./poll-chart";
 import { PollLegend } from "./poll-legend";
 import { PromiseBadges } from "./promise-badges";

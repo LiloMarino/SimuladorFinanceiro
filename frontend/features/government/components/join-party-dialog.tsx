@@ -16,10 +16,11 @@ import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayMoneyWhole } from "@/shared/lib/utils/display";
 import type { ElectionParty } from "@/types";
 import { useJoinParty } from "../hooks/mutations/useJoinParty";
-import { congressAmount, contributionAmount } from "../lib/contribution";
-import { ContributionField } from "./contribution-field";
+import { congressAmount } from "../lib/contribution";
+import { contributionAmount } from "@/shared/lib/contribution";
+import { ContributionField } from "@/shared/components/contribution-field";
 import { ContributionSplit } from "./contribution-split";
-import { PartyMark } from "./party-mark";
+import { PartyMark } from "@/shared/components/party-mark";
 
 type JoinPartyDialogProps = {
   open: boolean;

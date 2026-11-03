@@ -28,7 +28,7 @@ import { AMENDMENTS, BASE_DEFECTION, BASE_SEATS } from "../lib/government-metric
 import { BreakDealDialog } from "./break-deal-dialog";
 import { Hemicycle } from "./hemicycle";
 import { NegotiateDialog } from "./negotiate-dialog";
-import { PartyMark } from "./party-mark";
+import { PartyMark } from "@/shared/components/party-mark";
 import { ProposalNotice } from "./proposal-notice";
 import { partyColor } from "@/shared/lib/party-colors";
 

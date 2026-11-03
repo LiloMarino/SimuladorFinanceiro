@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DEFIANCE } from "../lib/government-metrics";
 import { causeLabel, rangeLabel, type BlocVote, type Vote } from "../lib/house";
 import { OrientationBadge } from "./orientation-badge";
-import { PartyMark } from "./party-mark";
+import { PartyMark } from "@/shared/components/party-mark";
 import { partyColor } from "@/shared/lib/party-colors";
 
 type VoteTableProps = {

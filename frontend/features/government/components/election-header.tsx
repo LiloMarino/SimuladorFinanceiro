@@ -8,7 +8,7 @@ import { displayList, displayMoneyWhole, displayPercent, displayShortDate } from
 import type { ElectionPanel, ElectionPhase } from "@/types";
 import { useToday } from "../hooks/useToday";
 import { affiliationNote, countdownLabel, monthYear, phaseLabel } from "../lib/election";
-import { PartyMark } from "./party-mark";
+import { PartyMark } from "@/shared/components/party-mark";
 
 type StepState = "done" | "current" | "pending";
 

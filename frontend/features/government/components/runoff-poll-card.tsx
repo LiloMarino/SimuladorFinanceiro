@@ -6,7 +6,7 @@ import type { ElectionPanel, ElectionParty, ElectionPoll, RunoffRace } from "@/t
 import { RUNOFF, UNDECIDED } from "../lib/election-metrics";
 import { inTechnicalTie, marginRange, pollPercent, pollPoints } from "../lib/voters";
 import { GroupPollRows } from "./group-poll-rows";
-import { PartyMark, PersonMark } from "./party-mark";
+import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 import { PollLegend } from "./poll-legend";
 import { partyColor } from "@/shared/lib/party-colors";
 

@@ -9,7 +9,7 @@ import type { GroupVerdict, Selection } from "../lib/approval";
 import { SATISFACTION, TARGET } from "../lib/government-metrics";
 import { shareLabel } from "../lib/government";
 import { GROUP_INFO } from "../lib/voters";
-import { GroupIcon } from "./value-chip";
+import { GroupIcon } from "@/shared/components/value-chip";
 
 const VERDICT_ICON = { APPROVES: Check, NEUTRAL: Minus, REPROVES: TrendingDown } as const;
 

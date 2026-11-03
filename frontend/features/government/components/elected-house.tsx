@@ -7,7 +7,7 @@ import { displayShortDate } from "@/shared/lib/utils/display";
 import { BARRIER, DHONDT } from "../lib/government-metrics";
 import { partySeats, seatChange, type House } from "../lib/house";
 import { Hemicycle } from "./hemicycle";
-import { PartyMark } from "./party-mark";
+import { PartyMark } from "@/shared/components/party-mark";
 import { partyColor } from "@/shared/lib/party-colors";
 
 const decimal = (value: number, digits: number) => value.toFixed(digits).replace(".", ",");

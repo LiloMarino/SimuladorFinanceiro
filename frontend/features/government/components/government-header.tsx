@@ -6,8 +6,8 @@ import type { GovernmentPanel } from "@/types";
 import { useToday } from "../hooks/useToday";
 import { countdownLabel } from "../lib/election";
 import { isComputerGovernment, monthYear } from "../lib/government";
-import { PartyMark, PersonMark } from "./party-mark";
-import { ValueChips } from "./value-chip";
+import { PartyMark, PersonMark } from "@/shared/components/party-mark";
+import { ValueChips } from "@/shared/components/value-chip";
 
 type GovernmentHeaderProps = { panel: GovernmentPanel };
 

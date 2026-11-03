@@ -1,4 +1,4 @@
-"""Preparação da sala no lobby: travas, ligações que caem com quem sai e conflitos no Iniciar."""
+"""Preparação da sala no lobby: travas, ligações que caem com quem sai, convite privado, a última escolha e conflitos no Iniciar."""
 
 from __future__ import annotations
 
@@ -41,6 +41,7 @@ def lobby(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(SettingsManager, "_selected_simulation_id", None)
     monkeypatch.setattr(SimulationManager, "_active_simulation", None)
     monkeypatch.setattr(RoomPreparation, "_entries", {})
+    monkeypatch.setattr(RoomPreparation, "_left", {})
 
 
 def choose(
@@ -98,7 +99,24 @@ def test_ticket_candidate_is_the_founder_or_a_member():
     ana = next(
         p for p in RoomPreparation.snapshot(HUMANS).players if p.nickname == "Ana"
     )
-    assert (ana.candidate, ana.vice, ana.vice_accepted) == ("Bia", "Caio", False)
+    assert ana.candidate == "Bia"
+    assert RoomPreparation.mine(ANA, HUMANS).invited == "Caio"
+
+
+def test_the_pending_invite_is_seen_only_by_the_two_players():
+    choose(ANA, PreparationKind.FOUND, identity=party(), vice="Caio")
+
+    snapshot = RoomPreparation.snapshot(HUMANS)
+    assert (snapshot.players[0].vice, snapshot.pending_invites) == (None, 1)
+    invite = RoomPreparation.mine(CAIO, HUMANS).invite
+    assert invite is not None
+    assert (invite.owner, invite.abbr, invite.candidate) == ("Ana", "ALF", "Ana")
+    assert RoomPreparation.mine(BIA, HUMANS).invite is None
+
+    RoomPreparation.answer_vice(CAIO, True)
+    snapshot = RoomPreparation.snapshot(HUMANS)
+    assert (snapshot.players[0].vice, snapshot.pending_invites) == ("Caio", 0)
+    assert RoomPreparation.mine(ANA, HUMANS).invited is None
 
 
 def test_invited_vice_accepts_and_refuses():
@@ -151,6 +169,40 @@ def test_leaving_the_room_drops_memberships_and_invites():
 
     RoomPreparation.drop(ANA.id)
     assert RoomPreparation.snapshot(HUMANS).players == []
+
+
+def test_the_member_learns_the_party_left_until_the_next_choice():
+    choose(ANA, PreparationKind.FOUND, identity=party())
+    choose(BIA, PreparationKind.JOIN, founder="Ana")
+
+    choose(ANA, PreparationKind.NONE)
+    assert RoomPreparation.mine(BIA, HUMANS).left_party == "ALF"
+
+    choose(BIA, PreparationKind.NONE)
+    assert RoomPreparation.mine(BIA, HUMANS).left_party is None
+
+
+def test_the_founder_of_the_last_room_comes_back_founding():
+    assert RoomPreparation.restore(ANA, HUMANS, party()) is True
+    ana = RoomPreparation.snapshot(HUMANS).players[0]
+    assert (ana.kind, ana.candidate, ana.vice) == (PreparationKind.FOUND, "Ana", None)
+
+    assert RoomPreparation.restore(ANA, HUMANS, party("OUT")) is False
+    assert RoomPreparation.snapshot(HUMANS).players[0].party == party()
+
+
+def test_the_member_whose_party_left_is_not_put_back_founding():
+    choose(ANA, PreparationKind.FOUND, identity=party())
+    choose(BIA, PreparationKind.JOIN, founder="Ana")
+    RoomPreparation.drop(ANA.id)
+
+    assert RoomPreparation.restore(BIA, HUMANS, party("BET")) is False
+
+
+def test_computer_parties_carry_their_flags():
+    reserved = RoomPreparation.snapshot(HUMANS).reserved
+
+    assert all(len(p.flags) > 0 for p in reserved)
 
 
 def test_absent_player_is_left_out_of_the_match():

@@ -21,9 +21,9 @@ import type { ElectionPanel } from "@/types";
 import { useDonate } from "../hooks/mutations/useDonate";
 import { useToday } from "../hooks/useToday";
 import { countdownLabel, monthlyYield } from "../lib/election";
-import { contributionText } from "../lib/contribution";
+import { contributionText } from "@/shared/lib/contribution";
 import { runoffLeaderId } from "../lib/runoff";
-import { PartyMark, PersonMark } from "./party-mark";
+import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 
 type DonateDialogProps = {
   open: boolean;

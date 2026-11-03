@@ -14,9 +14,9 @@ import {
 import { displayDayMonth, displayMoney } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty, RunoffRace } from "@/types";
 import { useContributeRunoff } from "../hooks/mutations/useContributeRunoff";
-import { contributionAmount } from "../lib/contribution";
+import { contributionAmount } from "@/shared/lib/contribution";
 import { monthlyYield } from "../lib/election";
-import { ContributionField } from "./contribution-field";
+import { ContributionField } from "@/shared/components/contribution-field";
 
 type RunoffContributionDialogProps = {
   open: boolean;

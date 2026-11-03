@@ -6,7 +6,7 @@ import { displayNumber, displayPercent } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionRound } from "@/types";
 import { NOT_VOTED } from "../lib/election-metrics";
 import { GROUP_INFO, pollPoints } from "../lib/voters";
-import { GroupIcon } from "./value-chip";
+import { GroupIcon } from "@/shared/components/value-chip";
 import { partyColor } from "@/shared/lib/party-colors";
 
 type RunoffGroupsCardProps = { panel: ElectionPanel; result: ElectionRound };

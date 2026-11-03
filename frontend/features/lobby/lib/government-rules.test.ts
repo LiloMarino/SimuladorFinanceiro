@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  affiliationDeadline,
   campaignOpening,
   defaultFirstElection,
   difficultyExample,
@@ -45,6 +46,16 @@ describe("campaignOpening", () => {
 
   it("não abre antes do início da partida", () => {
     expect(campaignOpening("2010-06-01", "2011-03-01")).toBe("2010-06-01");
+  });
+});
+
+describe("affiliationDeadline", () => {
+  it("fecha 6 meses antes do 1º turno", () => {
+    expect(affiliationDeadline("2017-01-01", "2018-10-07")).toBe("2018-04-07");
+  });
+
+  it("nunca fecha antes do início da partida", () => {
+    expect(affiliationDeadline("2018-06-01", "2018-10-07")).toBe("2018-06-01");
   });
 });
 

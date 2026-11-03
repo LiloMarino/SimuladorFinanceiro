@@ -50,15 +50,17 @@ class PlayerPreparationDTO(BaseDTO):
     # O fundador do partido em que o jogador entra
     founder: str | None = None
     candidate: str | None = None
+    # O vice que aceitou o convite; o convite sem resposta só os dois enxergam
     vice: str | None = None
     vice_accepted: bool = False
 
 
 class ReservedPartyDTO(BaseDTO):
-    """Um partido do computador, cujo nome e sigla ninguém repete."""
+    """Um partido do computador, cujo nome e sigla ninguém repete, com as bandeiras fixas dele."""
 
     name: str
     abbr: str
+    flags: list[VoterValue]
 
 
 class PreparationsDTO(BaseDTO):
@@ -68,5 +70,26 @@ class PreparationsDTO(BaseDTO):
     reserved: list[ReservedPartyDTO]
     # Sigla, nome ou cor repetidos entre os preparados e com os partidos do computador
     conflicts: list[str]
+    # Convites de vice ainda sem resposta na sala, sem dizer de quem
+    pending_invites: int = 0
     # Por que a preparação está travada (expansão desligada, partida salva ou em andamento); nulo quando aberta
     locked_reason: str | None = None
+
+
+class ViceInviteDTO(BaseDTO):
+    """Um convite de vice sem resposta: quem convidou, para a chapa de qual partido e de qual candidato."""
+
+    owner: str
+    abbr: str
+    candidate: str
+
+
+class MyPreparationDTO(BaseDTO):
+    """O que da preparação só o próprio jogador vê."""
+
+    # O convite de vice que o jogador recebeu e ainda não respondeu
+    invite: ViceInviteDTO | None = None
+    # Quem o jogador convidou para vice e ainda não respondeu
+    invited: str | None = None
+    # A sigla do partido em que o jogador entrou e que saiu da preparação; some na próxima escolha
+    left_party: str | None = None

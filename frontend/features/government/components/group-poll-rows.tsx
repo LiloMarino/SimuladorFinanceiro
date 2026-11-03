@@ -5,7 +5,7 @@ import type { ElectionParty, ElectionPoll, VoterGroupInfo } from "@/types";
 import { POLL_MARGIN } from "../lib/election-metrics";
 import { GROUP_INFO, pollPoints } from "../lib/voters";
 import { GroupPollBar } from "./group-poll-bar";
-import { PartyMark } from "./party-mark";
+import { PartyMark } from "@/shared/components/party-mark";
 
 type GroupPollRowsProps = {
   groups: VoterGroupInfo[];

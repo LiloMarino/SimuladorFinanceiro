@@ -7622,6 +7622,51 @@
       }
     },
     "/api/simulation/players/me/preparation": {
+      "get": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "O que da preparação só o jogador vê",
+        "description": "O convite de vice que o jogador recebeu e o que ele enviou, enquanto sem resposta, e o partido em que ele entrou e que saiu da preparação. Quem fundou na última sala e chega a uma sala nova volta fundando o Meu partido.",
+        "operationId": "get_my_preparation_api_simulation_players_me_preparation_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPreparationDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      },
       "put": {
         "tags": [
           "Simulation"
@@ -20460,6 +20505,51 @@
         ],
         "title": "MyPartyDTO"
       },
+      "MyPreparationDTO": {
+        "properties": {
+          "invite": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ViceInviteDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "invited": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invited"
+          },
+          "left_party": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left Party"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "invite",
+          "invited",
+          "left_party"
+        ],
+        "title": "MyPreparationDTO",
+        "description": "O que da preparação só o próprio jogador vê."
+      },
       "MyStrategyDTO": {
         "properties": {
           "active": {
@@ -23670,6 +23760,11 @@
             "type": "array",
             "title": "Conflicts"
           },
+          "pending_invites": {
+            "type": "integer",
+            "title": "Pending Invites",
+            "default": 0
+          },
           "locked_reason": {
             "anyOf": [
               {
@@ -23688,6 +23783,7 @@
           "players",
           "reserved",
           "conflicts",
+          "pending_invites",
           "locked_reason"
         ],
         "title": "PreparationsDTO",
@@ -25188,16 +25284,24 @@
           "abbr": {
             "type": "string",
             "title": "Abbr"
+          },
+          "flags": {
+            "items": {
+              "$ref": "#/components/schemas/VoterValue"
+            },
+            "type": "array",
+            "title": "Flags"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
           "name",
-          "abbr"
+          "abbr",
+          "flags"
         ],
         "title": "ReservedPartyDTO",
-        "description": "Um partido do computador, cujo nome e sigla ninguém repete."
+        "description": "Um partido do computador, cujo nome e sigla ninguém repete, com as bandeiras fixas dele."
       },
       "ReturnsReportDTO": {
         "properties": {
@@ -30856,6 +30960,31 @@
           "accept"
         ],
         "title": "ViceAnswerRequest"
+      },
+      "ViceInviteDTO": {
+        "properties": {
+          "owner": {
+            "type": "string",
+            "title": "Owner"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "candidate": {
+            "type": "string",
+            "title": "Candidate"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "owner",
+          "abbr",
+          "candidate"
+        ],
+        "title": "ViceInviteDTO",
+        "description": "Um convite de vice sem resposta: quem convidou, para a chapa de qual partido e de qual candidato."
       },
       "ViceOptionDTO": {
         "properties": {

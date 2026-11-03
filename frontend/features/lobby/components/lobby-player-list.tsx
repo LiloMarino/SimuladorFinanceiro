@@ -1,6 +1,7 @@
 import { useState, type CSSProperties } from "react";
 import { Info, Plus, TriangleAlert } from "lucide-react";
 import { GroupingBadge } from "@/shared/components/grouping-badge";
+import { PartyMark } from "@/shared/components/party-mark";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
@@ -16,7 +17,9 @@ import { teamColor } from "@/shared/lib/teams";
 import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import { cn } from "@/shared/lib/utils";
 import type { PlayerGrouping, RoomPlayer, TeamNaming } from "@/types";
+import { usePreparations } from "../hooks/queries/usePreparations";
 import { useApplyColorPreference } from "../hooks/useApplyColorPreference";
+import { partyOf } from "../lib/preparation";
 import { checkTeams } from "../lib/teams-check";
 import { joinNames } from "../lib/join-names";
 import { LobbyBotDialog } from "./lobby-bot-dialog";
@@ -35,6 +38,8 @@ type LobbyPlayersListProps = {
   /** Como a sala joga e como as equipes se chamam */
   grouping: PlayerGrouping;
   naming: TeamNaming;
+  /** Governo & Política ligada: cada cartão mostra o partido preparado */
+  governmentEnabled: boolean;
 };
 
 /** Jogadores da sala em cartões, com as vagas livres à vista. */
@@ -45,9 +50,13 @@ export function LobbyPlayersList({
   selectedSimulationId,
   grouping,
   naming,
+  governmentEnabled,
 }: LobbyPlayersListProps) {
   const { user } = useAuth();
   const { data: players } = useRoomPlayers();
+  const { data: preparations } = usePreparations();
+  // A partida salva já tem os partidos dela: a preparação vale só para a nova
+  const showParties = governmentEnabled && selectedSimulationId === null && !!preparations;
   const { data: savedSimulations } = useSimulationList();
   const simulationName = savedSimulations?.find((s) => s.id === selectedSimulationId)?.name;
 
@@ -108,6 +117,7 @@ export function LobbyPlayersList({
             const isRoomHost = player.nickname === hostNickname;
             const isNew = savedPlayers.length > 0 && !savedPlayers.some((p) => p.nickname === player.nickname);
             const bot = player.bot;
+            const party = preparations ? partyOf(preparations, player.nickname) : null;
             return (
               <div
                 key={player.nickname}
@@ -150,6 +160,21 @@ export function LobbyPlayersList({
                     <PlayerActivityStatus activity={player.activity} />
                   )}
                 </div>
+                {/* Partido preparado */}
+                {showParties && (
+                  <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                    {bot ? (
+                      "robô não prepara"
+                    ) : party ? (
+                      <>
+                        <PartyMark abbr={party.party.abbr} color={party.party.color} size="sm" />
+                        {party.candidate && "candidato"}
+                      </>
+                    ) : (
+                      "sem partido"
+                    )}
+                  </span>
+                )}
                 {isYou ? (
                   <div className="flex items-center gap-1.5">
                     <LobbyColorPicker

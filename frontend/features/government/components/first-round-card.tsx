@@ -2,7 +2,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { displayList, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty, RunoffRace } from "@/types";
-import { PartyMark, PersonMark } from "./party-mark";
+import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 import { RunoffTransferCards } from "./runoff-transfer-cards";
 import { partyColor } from "@/shared/lib/party-colors";
 

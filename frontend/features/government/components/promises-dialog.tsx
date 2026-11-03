@@ -37,7 +37,7 @@ import { VALUE_INFO } from "@/shared/lib/party-flags";
 import { GROUP_INFO } from "../lib/voters";
 import { PromiseEditor } from "./promise-editor";
 import { SignedDecimal } from "./signed-decimal";
-import { GroupIcon, ValueChip } from "./value-chip";
+import { GroupIcon, ValueChip } from "@/shared/components/value-chip";
 
 type PromisesDialogProps = {
   open: boolean;

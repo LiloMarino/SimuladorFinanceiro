@@ -7,8 +7,8 @@ import type { ElectionPanel, ElectionParty, RunoffRace, RunoffTransfer } from "@
 import { TRUST, UNDECIDED } from "../lib/election-metrics";
 import { roundByLargestRemainder, sentTo } from "../lib/runoff";
 import { GROUP_INFO } from "../lib/voters";
-import { PartyMark } from "./party-mark";
-import { GroupIcon } from "./value-chip";
+import { PartyMark } from "@/shared/components/party-mark";
+import { GroupIcon } from "@/shared/components/value-chip";
 import { partyColor } from "@/shared/lib/party-colors";
 
 type RunoffTransferCardsProps = { panel: ElectionPanel; race: RunoffRace; finalists: ElectionParty[] };

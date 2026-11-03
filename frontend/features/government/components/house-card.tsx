@@ -11,7 +11,7 @@ import { DEFECTION_RATE, WITH_GOVERNMENT } from "../lib/government-metrics";
 import { bySeats, partySeats, seatChange, shareOfVotes, type House } from "../lib/house";
 import { ElectedHouseDialog } from "./elected-house-dialog";
 import { Hemicycle } from "./hemicycle";
-import { PartyMark } from "./party-mark";
+import { PartyMark } from "@/shared/components/party-mark";
 import { partyColor } from "@/shared/lib/party-colors";
 
 type HouseCardProps = { house: House };

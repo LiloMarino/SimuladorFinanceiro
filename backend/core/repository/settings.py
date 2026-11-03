@@ -6,14 +6,18 @@ from sqlalchemy.orm import Session
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.preparation import PartyIdentityDTO
 from backend.core.dto.strategy import StrategyParamValue
+from backend.core.enum import PreparationKind
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.models.models import Users
 
 MY_PARTY_KEY = "my_party"
 PARTY_CONTRIBUTION_KEY = "party_contribution"
 STRATEGY_PARAMS_KEY = "strategy_params"
+PREPARATION_CHOICE_KEY = "preparation_choice"
 # As chaves que o jogador grava pelas rotas próprias do perfil, e que as preferências atravessam
-PROFILE_KEYS = frozenset({MY_PARTY_KEY, PARTY_CONTRIBUTION_KEY, STRATEGY_PARAMS_KEY})
+PROFILE_KEYS = frozenset(
+    {MY_PARTY_KEY, PARTY_CONTRIBUTION_KEY, STRATEGY_PARAMS_KEY, PREPARATION_CHOICE_KEY}
+)
 
 
 class SettingsRepository:
@@ -65,6 +69,18 @@ class SettingsRepository:
     ) -> None:
         saved = self.get_strategy_params(user_id)
         self._set_key(user_id, STRATEGY_PARAMS_KEY, {**saved, key: params})
+
+    def get_preparation_choice(self, user_id: int) -> PreparationKind:
+        """A última escolha da preparação; quem entrou no partido de outro volta sem partido."""
+        raw = self.get_by_user_id(user_id).get(PREPARATION_CHOICE_KEY)
+        return (
+            PreparationKind.FOUND
+            if raw == PreparationKind.FOUND.value
+            else PreparationKind.NONE
+        )
+
+    def set_preparation_choice(self, user_id: int, kind: PreparationKind) -> None:
+        self._set_key(user_id, PREPARATION_CHOICE_KEY, kind.value)
 
     def _set_key(self, user_id: int, key: str, value: object) -> None:
         settings = self.get_by_user_id(user_id)

@@ -2,7 +2,8 @@
 A preparação de cada jogador no lobby, só em memória, no molde das equipes: fundar um
 partido (com a identidade do Meu partido), entrar no de outro jogador, escolher a chapa e
 convidar o vice. Sobrevive à desconexão (quem recarrega a página volta ao que preparou);
-só entra na partida quem está na sala quando ela começa.
+só entra na partida quem está na sala quando ela começa. O convite de vice sem resposta é
+privado: só quem convidou e quem foi convidado o enxergam.
 """
 
 from dataclasses import replace
@@ -10,10 +11,12 @@ from threading import Lock
 from typing import ClassVar
 
 from backend.core.dto.preparation import (
+    MyPreparationDTO,
     PartyIdentityDTO,
     PlayerPreparationDTO,
     PreparationsDTO,
     ReservedPartyDTO,
+    ViceInviteDTO,
 )
 from backend.core.dto.user import UserDTO
 from backend.core.enum import PreparationKind
@@ -32,6 +35,8 @@ from backend.features.government.preparation import PartyIdentity, Prepared
 class RoomPreparation:
     # user_id -> o que o jogador preparou; quem não preparou nada não tem entrada
     _entries: ClassVar[dict[int, Prepared]] = {}
+    # user_id -> a sigla do partido que saiu da preparação levando a filiação do jogador
+    _left: ClassVar[dict[int, str]] = {}
     _lock = Lock()
 
     @classmethod
@@ -63,6 +68,8 @@ class RoomPreparation:
             raise ConflictError(reason)
         by_name = {u.nickname: u for u in humans}
         with cls._lock:
+            cls._left.pop(me.id, None)
+            abbrs = cls._abbrs()
             if kind is PreparationKind.NONE:
                 cls._entries.pop(me.id, None)
             elif kind is PreparationKind.JOIN:
@@ -79,7 +86,21 @@ class RoomPreparation:
                 cls._entries[me.id] = cls._ticket(
                     me, identity, by_name, candidate, vice
                 )
-            cls._prune({u.id for u in humans})
+            cls._prune({u.id for u in humans}, abbrs)
+
+    @classmethod
+    def restore(
+        cls, me: UserDTO, humans: list[UserDTO], identity: PartyIdentityDTO
+    ) -> bool:
+        """Quem fundou na última sala volta fundando, candidato e sem vice; diz se recriou."""
+        if cls.locked_reason() is not None:
+            return False
+        by_name = {u.nickname: u for u in humans}
+        with cls._lock:
+            if me.id in cls._entries or me.id in cls._left:
+                return False
+            cls._entries[me.id] = cls._ticket(me, identity, by_name, None, None)
+        return True
 
     @classmethod
     def _ticket(
@@ -163,23 +184,34 @@ class RoomPreparation:
     def drop(cls, user_id: int) -> None:
         """O jogador saiu da sala de vez: some a preparação dele e o que dependia dela."""
         with cls._lock:
+            abbrs = cls._abbrs()
             cls._entries.pop(user_id, None)
+            cls._left.pop(user_id, None)
             for uid, entry in list(cls._entries.items()):
                 if entry.vice_id == user_id:
                     cls._entries[uid] = replace(
                         entry, vice_id=None, vice_accepted=False
                     )
-            cls._prune(None)
+            cls._prune(None, abbrs)
 
     @classmethod
     def clear(cls) -> None:
         """A partida começou: a próxima sala começa sem preparação."""
         with cls._lock:
             cls._entries.clear()
+            cls._left.clear()
 
     @classmethod
-    def _prune(cls, present: set[int] | None) -> None:
-        """Solta filiação sem fundador, candidato fora da chapa e vice que saiu da sala."""
+    def _abbrs(cls) -> dict[int, str]:
+        """A sigla de cada partido preparado, pelo fundador."""
+        return {uid: e.found.abbr for uid, e in cls._entries.items() if e.found}
+
+    @classmethod
+    def _prune(cls, present: set[int] | None, abbrs: dict[int, str]) -> None:
+        """
+        Solta filiação sem fundador, candidato fora da chapa e vice que saiu da sala.
+        `abbrs` são as siglas de antes da mudança: quem perde o partido guarda a dele.
+        """
         changed = True
         while changed:
             changed = False
@@ -187,6 +219,8 @@ class RoomPreparation:
                 fixed = cls._fixed(entry, present)
                 if fixed is None:
                     del cls._entries[uid]
+                    if entry.join_id in abbrs:
+                        cls._left[uid] = abbrs[entry.join_id]
                     changed = True
                 elif fixed != entry:
                     cls._entries[uid] = fixed
@@ -235,7 +269,7 @@ class RoomPreparation:
                 ),
                 founder=name(e.join_id),
                 candidate=name(e.candidate_id or (e.user_id if e.found else None)),
-                vice=name(e.vice_id),
+                vice=name(e.vice_id) if e.vice_accepted else None,
                 vice_accepted=e.vice_accepted,
             )
             for e in entries
@@ -243,11 +277,45 @@ class RoomPreparation:
         return PreparationsDTO(
             players=players,
             reserved=[
-                ReservedPartyDTO(name=p.name, abbr=p.abbr) for p in COMPUTER_PARTIES
+                ReservedPartyDTO(name=p.name, abbr=p.abbr, flags=list(p.flags))
+                for p in COMPUTER_PARTIES
             ],
             conflicts=_conflicts(entries, present),
+            pending_invites=sum(
+                1 for e in entries if e.vice_id in present and not e.vice_accepted
+            ),
             locked_reason=cls.locked_reason(),
         )
+
+    @classmethod
+    def mine(cls, me: UserDTO, humans: list[UserDTO]) -> MyPreparationDTO:
+        """Os convites de vice sem resposta de `me`, o recebido e o enviado, e o partido que saiu."""
+        present = {u.id: u for u in humans}
+        with cls._lock:
+            own = cls._entries.get(me.id)
+            owner = next(
+                (
+                    e
+                    for uid, e in cls._entries.items()
+                    if uid in present and e.vice_id == me.id and not e.vice_accepted
+                ),
+                None,
+            )
+            left = cls._left.get(me.id)
+
+        invite = None
+        if owner is not None and owner.found is not None:
+            candidate = present.get(owner.candidate_id or owner.user_id)
+            invite = ViceInviteDTO(
+                owner=present[owner.user_id].nickname,
+                abbr=owner.found.abbr,
+                candidate=candidate.nickname if candidate else "",
+            )
+        invited = None
+        if own is not None and own.vice_id is not None and not own.vice_accepted:
+            vice = present.get(own.vice_id)
+            invited = vice.nickname if vice else None
+        return MyPreparationDTO(invite=invite, invited=invited, left_party=left)
 
     @classmethod
     def ensure_ready(cls, humans: list[UserDTO]) -> None:

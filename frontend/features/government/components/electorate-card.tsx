@@ -27,7 +27,7 @@ import {
 import { GroupPollBar } from "./group-poll-bar";
 import { PollLegend } from "./poll-legend";
 import { partyColor } from "@/shared/lib/party-colors";
-import { GroupIcon, ValueChip } from "./value-chip";
+import { GroupIcon, ValueChip } from "@/shared/components/value-chip";
 
 type View = "cards" | "table";
 

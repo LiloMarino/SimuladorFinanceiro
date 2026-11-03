@@ -12,6 +12,7 @@ from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.goal import GoalProgressDTO
 from backend.core.dto.life import LifeHistoryPageDTO, LifeStatusDTO
 from backend.core.dto.preparation import (
+    MyPreparationDTO,
     PreparationRequest,
     PreparationsDTO,
     ViceAnswerRequest,
@@ -35,6 +36,7 @@ from backend.core.enum import (
     LifeHistorySort,
     PlayerActivity,
     PlayerGrouping,
+    PreparationKind,
     TeamNaming,
     VictoryCriterion,
 )
@@ -525,6 +527,33 @@ def get_preparations():
     return RoomPreparation.snapshot(_room_humans())
 
 
+@simulation_router.get(
+    "/players/me/preparation",
+    response_model=MyPreparationDTO,
+    summary="O que da preparação só o jogador vê",
+    description="O convite de vice que o jogador recebeu e o que ele enviou, enquanto sem resposta, e o partido em que ele entrou e que saiu da preparação. Quem fundou na última sala e chega a uma sala nova volta fundando o Meu partido.",
+)
+def get_my_preparation(client_id: ClientID):
+    """
+    Lê a preparação privada do jogador, recriando a fundação da última sala.
+    """
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    humans = _room_humans()
+    identity = repository.settings.get_my_party(user.id)
+    founds = (
+        repository.settings.get_preparation_choice(user.id) is PreparationKind.FOUND
+    )
+    if (
+        founds
+        and identity is not None
+        and RoomPreparation.restore(user, humans, identity)
+    ):
+        _notify_preparations()
+    return RoomPreparation.mine(user, humans)
+
+
 @simulation_router.put(
     "/players/me/preparation",
     response_model=PreparationsDTO,
@@ -548,6 +577,13 @@ def set_player_preparation(payload: PreparationRequest, client_id: ClientID):
         candidate=payload.candidate,
         vice=payload.vice,
     )
+    # Entrar no partido de outro volta, na próxima sala, como sem partido
+    remembered = (
+        PreparationKind.FOUND
+        if payload.kind is PreparationKind.FOUND
+        else PreparationKind.NONE
+    )
+    repository.settings.set_preparation_choice(user.id, remembered)
     return _notify_preparations()
 
 

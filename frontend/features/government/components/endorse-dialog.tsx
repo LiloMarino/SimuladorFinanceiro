@@ -15,7 +15,7 @@ import { cn } from "@/shared/lib/utils";
 import type { ElectionPanel, ElectionParty, RunoffRace } from "@/types";
 import { useEndorse } from "../hooks/mutations/useEndorse";
 import { followTotal } from "../lib/runoff";
-import { PartyMark, PersonMark } from "./party-mark";
+import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 
 type EndorseDialogProps = {
   open: boolean;

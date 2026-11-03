@@ -20,9 +20,9 @@ import { useBalances } from "../hooks/queries/useBalances";
 import { AFFINITY, REJECTION } from "../lib/election-metrics";
 import { PROMISE_STATE, stateLabel } from "../lib/promises";
 import { GROUP_INFO } from "../lib/voters";
-import { PartyMark } from "./party-mark";
+import { PartyMark } from "@/shared/components/party-mark";
 import { SignedDecimal } from "./signed-decimal";
-import { GroupIcon } from "./value-chip";
+import { GroupIcon } from "@/shared/components/value-chip";
 
 type BalanceDialogProps = { open: boolean; onOpenChange: (open: boolean) => void };
 

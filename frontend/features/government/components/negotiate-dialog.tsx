@@ -23,7 +23,7 @@ import { useDealPreview } from "../hooks/queries/useDealPreview";
 import { baseOutlook, baseSeats, blocStatus, groupsLabel, monthlyLabel, yearShare } from "../lib/base";
 import { AMENDMENTS } from "../lib/government-metrics";
 import { Hemicycle } from "./hemicycle";
-import { PartyMark } from "./party-mark";
+import { PartyMark } from "@/shared/components/party-mark";
 import { partyColor } from "@/shared/lib/party-colors";
 
 type NegotiateDialogProps = {

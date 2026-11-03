@@ -1,5 +1,5 @@
-import { Activity, Layers } from "lucide-react";
 import { InfoHint } from "@/shared/components/info-hint";
+import { StrategyGroupIcon } from "@/shared/components/strategy-group-icon";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
 import type { StrategyGroup, StrategyInfo } from "@/types";
@@ -25,7 +25,6 @@ export function StrategyList({ strategies, selectedKey, activeKey, onSelect }: S
           {GROUPS.map((group) => {
             const items = strategies.filter((strategy) => strategy.group === group);
             if (items.length === 0) return null;
-            const Icon = group === "reference" ? Layers : Activity;
             return (
               <div key={group} className="grid gap-0.5">
                 {/* Título do grupo */}
@@ -50,14 +49,7 @@ export function StrategyList({ strategies, selectedKey, activeKey, onSelect }: S
                         selected ? "border-primary bg-info-soft ring-1 ring-primary" : "hover:bg-subtle",
                       )}
                     >
-                      <span
-                        className={cn(
-                          "row-span-2 flex size-9 items-center justify-center rounded-[9px]",
-                          group === "reference" ? "bg-muted text-secondary-foreground" : "bg-info-soft text-primary",
-                        )}
-                      >
-                        <Icon className="size-[18px]" />
-                      </span>
+                      <StrategyGroupIcon group={group} />
                       <span className={cn("min-w-0 text-sm", selected ? "font-semibold" : "font-medium")}>
                         {strategy.name}
                       </span>

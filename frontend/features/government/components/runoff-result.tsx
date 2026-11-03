@@ -7,7 +7,7 @@ import { displayNumber, displayPercent, displayShortDate } from "@/shared/lib/ut
 import type { ElectionRound } from "@/types";
 import { NOT_VOTED } from "../lib/election-metrics";
 import { RUNOFF_MAJORITY, firstRoundBefore, turnaroundGap } from "../lib/runoff";
-import { PartyMark, PersonMark } from "./party-mark";
+import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 import { partyColor } from "@/shared/lib/party-colors";
 
 type RunoffResultProps = {

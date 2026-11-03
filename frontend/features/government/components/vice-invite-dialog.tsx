@@ -12,8 +12,8 @@ import {
 import { displayDayMonth, displayMoney, displayMonthShort } from "@/shared/lib/utils/display";
 import type { ElectionPanel } from "@/types";
 import { useAnswerVice } from "../hooks/mutations/useAnswerVice";
-import { PartyMark } from "./party-mark";
-import { ValueChips } from "./value-chip";
+import { PartyMark } from "@/shared/components/party-mark";
+import { ValueChips } from "@/shared/components/value-chip";
 
 type ViceInviteDialogProps = {
   open: boolean;

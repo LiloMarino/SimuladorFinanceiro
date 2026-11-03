@@ -4,7 +4,7 @@ import { factorPoints, projectionSentence } from "../lib/approval";
 import type { GroupApproval } from "../lib/approval";
 import { shareLabel } from "../lib/government";
 import { GROUP_INFO, READING_LABEL } from "../lib/voters";
-import { GroupIcon } from "./value-chip";
+import { GroupIcon } from "@/shared/components/value-chip";
 
 type ApprovalReasonsProps = {
   group: GroupApproval;
