@@ -14,3 +14,5 @@ class NewsDTO(BaseDTO):
     # A linha de apoio abaixo da manchete
     dek: str | None
     tickers: list[str]
+    # Variação do dia do ativo, em pontos percentuais com sinal (-5,2 para "recua 5,2%"); vazia nas manchetes sem ativo
+    change_pct: float | None = None

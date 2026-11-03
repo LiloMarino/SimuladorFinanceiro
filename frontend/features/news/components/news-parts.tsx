@@ -1,3 +1,4 @@
+import { Badge } from "@/shared/components/ui/badge";
 import { useNotificationCatalog } from "@/shared/hooks/queries/useNotificationCatalog";
 import { cn } from "@/shared/lib/utils";
 import { displayShortDate } from "@/shared/lib/utils/display";
@@ -22,6 +23,40 @@ export function NewsKicker({ type, suffix, className }: NewsKickerProps) {
       {sectionLabel(catalog, section)}
       {suffix}
     </span>
+  );
+}
+
+type TickerChipProps = {
+  ticker: string;
+  held: boolean;
+};
+
+/** O ativo de uma manchete; em azul, com o aviso, quando está na carteira. */
+export function TickerChip({ ticker, held }: TickerChipProps) {
+  return (
+    <Badge variant={held ? "info" : "secondary"}>
+      {ticker}
+      {held && <i className="font-normal not-italic opacity-85">· na carteira</i>}
+    </Badge>
+  );
+}
+
+type DayHeadingProps = {
+  children: React.ReactNode;
+  className?: string;
+};
+
+/** O título de um dia ou bloco do jornal, em mono maiúsculo sobre um fio escuro. */
+export function DayHeading({ children, className }: DayHeadingProps) {
+  return (
+    <h3
+      className={cn(
+        "border-b border-foreground pt-4.5 pb-2 font-mono text-xs font-semibold tracking-wide text-muted-foreground uppercase",
+        className,
+      )}
+    >
+      {children}
+    </h3>
   );
 }
 

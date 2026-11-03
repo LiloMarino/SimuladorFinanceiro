@@ -14,6 +14,8 @@ class Headline:
     text: str
     dek: str | None = None
     tickers: tuple[str, ...] = ()
+    # Variação do dia do ativo, em pontos percentuais com sinal
+    change_pct: float | None = None
 
 
 def publish(simulation_id: int, day: date, headline: Headline) -> None:
@@ -25,5 +27,6 @@ def publish(simulation_id: int, day: date, headline: Headline) -> None:
         headline.text,
         headline.dek,
         list(headline.tickers),
+        headline.change_pct,
     )
     notify("news_published", news.to_json())

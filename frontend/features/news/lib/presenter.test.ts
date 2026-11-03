@@ -9,6 +9,7 @@ const news = (id: number, day = "2016-03-14"): News => ({
   headline: `Manchete ${id}`,
   dek: null,
   tickers: [],
+  change_pct: null,
 });
 
 const arrive = (state: PresenterState, item: News, level: NewsLevel, rank = 0) =>

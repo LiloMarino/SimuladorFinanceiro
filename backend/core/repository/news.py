@@ -20,6 +20,7 @@ class NewsRepository:
         headline: str,
         dek: str | None,
         tickers: list[str],
+        change_pct: float | None = None,
     ) -> NewsDTO:
         row = session.scalars(
             insert(News)
@@ -30,6 +31,7 @@ class NewsRepository:
                 headline=headline,
                 dek=dek,
                 tickers=tickers,
+                change_pct=change_pct,
                 created_at=datetime.now(UTC),
             )
             .returning(News)
@@ -37,11 +39,23 @@ class NewsRepository:
         return NewsDTO.model_validate(row)
 
     @transactional
-    def of_simulation(self, session: Session, simulation_id: int) -> list[NewsDTO]:
-        """Da mais nova para a mais antiga; no mesmo dia, a última publicada primeiro."""
+    def of_month(
+        self, session: Session, simulation_id: int, month: date
+    ) -> list[NewsDTO]:
+        """As manchetes do mês de `month`, da mais nova para a mais antiga; no mesmo dia, a última publicada primeiro."""
+        first = month.replace(day=1)
+        following = (
+            first.replace(year=first.year + 1, month=1)
+            if first.month == 12
+            else first.replace(month=first.month + 1)
+        )
         rows = session.scalars(
             select(News)
-            .where(News.simulation_id == simulation_id)
+            .where(
+                News.simulation_id == simulation_id,
+                News.news_date >= first,
+                News.news_date < following,
+            )
             .order_by(News.news_date.desc(), News.id.desc())
         )
         return [NewsDTO.model_validate(row) for row in rows]

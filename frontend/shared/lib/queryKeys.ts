@@ -9,7 +9,11 @@ export const queryKeys = {
   goalProgress: (simulationId: number) => ["simulation", "goal-progress", simulationId] as const,
   lifeStatus: (simulationId: number) => ["simulation", "life", simulationId] as const,
   summaries: (simulationId: number) => ["simulation", "summaries", simulationId] as const,
-  news: (simulationId: number) => ["simulation", "news", simulationId] as const,
+  newsMonth: (simulationId: number, month: string) => ["simulation", "news", simulationId, "month", month] as const,
+  newsHistory: (simulationId: number, fromMonth?: string) =>
+    fromMonth === undefined
+      ? (["simulation", "news", simulationId, "history"] as const)
+      : (["simulation", "news", simulationId, "history", fromMonth] as const),
   lifeHistoryAll: (simulationId: number) => ["simulation", "life-history", simulationId] as const,
   lifeHistory: (simulationId: number, category: string, column = "date", direction = "desc") =>
     ["simulation", "life-history", simulationId, category, column, direction] as const,

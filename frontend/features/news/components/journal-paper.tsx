@@ -1,120 +1,139 @@
 import { useState } from "react";
-import { Search } from "lucide-react";
 import { ErrorState } from "@/shared/components/error-state";
 import { Card } from "@/shared/components/ui/card";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
-import { Label } from "@/shared/components/ui/label";
-import { Switch } from "@/shared/components/ui/switch";
-import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useNotificationCatalog } from "@/shared/hooks/queries/useNotificationCatalog";
 import { useNotificationSettings } from "@/shared/hooks/queries/useNotificationSettings";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
-import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { displayWeekdayDate } from "@/shared/lib/utils/display";
-import type { NewsSection } from "@/types";
-import { useNews } from "../hooks/queries/useNews";
-import { filterNews, levelFor, type JournalFilter } from "../lib/filter";
+import type { News } from "@/types";
+import { useNewsHistory } from "../hooks/queries/useNewsHistory";
+import { useNewsMonth } from "../hooks/queries/useNewsMonth";
 import { sectionOf } from "../lib/catalog";
-import { JournalEntries } from "./journal-entries";
+import { filterNews, levelFor, type JournalFilter } from "../lib/filter";
+import { monthOf, type Month } from "../lib/months";
+import { pickToday } from "../lib/today";
+import { JournalArchive } from "./journal-archive";
+import { JournalEmpty } from "./journal-empty";
+import { JournalFilters } from "./journal-filters";
+import { JournalHistory } from "./journal-history";
 import { JournalSkeleton } from "./journal-skeleton";
+import { JournalToday } from "./journal-today";
 
-const ALL = "ALL";
+const NO_FILTER: JournalFilter = { query: "", section: null, onlyMine: false };
 
-type JournalPaperProps = { simulationId: number };
+type JournalPaperProps = {
+  simulationId: number;
+  startDate: string;
+  currentDate: string;
+};
 
-/** O histórico da partida inteira em página de jornal: busca, seções, só minha carteira e as manchetes por dia. */
-export function JournalPaper({ simulationId }: JournalPaperProps) {
-  const news = useNews(simulationId);
+/**
+ * O jornal da partida em página de jornal: a edição de "Hoje" e o arquivo ficam fixos, e só a lista
+ * dos dias anteriores rola, um mês por vez.
+ */
+export function JournalPaper({ simulationId, startDate, currentDate }: JournalPaperProps) {
+  const startMonth = monthOf(startDate);
+  const currentMonth = monthOf(currentDate);
+  // O mês em que a lista foi reaberta pelo arquivo; sem escolha, ela abre no mês atual
+  const [picked, setPicked] = useState<Month | null>(null);
+  const fromMonth = picked ?? currentMonth;
+  const [filter, setFilter] = useState<JournalFilter>(NO_FILTER);
+
+  const monthNews = useNewsMonth(simulationId, currentMonth);
+  const history = useNewsHistory(simulationId, startMonth, fromMonth);
   const { data: catalog, error: catalogError, refetch: refetchCatalog } = useNotificationCatalog();
   const { data: preferences, error: preferencesError, refetch: refetchPreferences } = useNotificationSettings();
   const { data: portfolio } = usePortfolio();
-  const { data: state } = useSimulationState();
-  const [filter, setFilter] = useState<JournalFilter>({ query: "", section: null, onlyMine: false });
 
-  const failed = news.error ?? catalogError ?? preferencesError;
+  const failed = monthNews.error ?? history.error ?? catalogError ?? preferencesError;
   const held = new Set((portfolio?.variable_income ?? []).map((position) => position.ticker));
+  const visible = (items: News[]) =>
+    catalog && preferences
+      ? filterNews(items, filter, {
+          sectionOf: (type) => sectionOf(catalog, type),
+          levelOf: (item) =>
+            levelFor(
+              preferences.news[item.news_type],
+              preferences.news_held_only[item.news_type] ?? false,
+              item.tickers,
+              held,
+            ),
+          held,
+        })
+      : [];
+
+  const today = pickToday(visible(monthNews.data ?? []).filter((item) => item.news_date === currentDate));
+  const earlier = visible(history.data?.items ?? []).filter((item) => item.news_date !== currentDate);
+  const ready = Boolean(catalog && preferences && monthNews.data && history.data);
+  const nothing = ready && today.length === 0 && earlier.length === 0 && !history.hasNextPage;
 
   return (
-    <Card variant="paper" size="flush" className="min-h-[calc(100svh-9rem)]">
+    <Card variant="paper" size="flush" className="h-[calc(100svh-9rem)] min-h-136">
       {/* Cabeçalho do jornal */}
       <div className="grid gap-3 border-b-[3px] border-double border-foreground px-7 pt-4 pb-3">
         <div className="grid grid-cols-[1fr_auto_1fr] items-end">
           <span className="font-mono text-xs text-muted-foreground first-letter:uppercase">
-            {state?.current_date ? displayWeekdayDate(state.current_date) : ""}
+            {displayWeekdayDate(currentDate)}
           </span>
           <h2 className="font-serif lining-nums text-4xl font-bold tracking-tight">Diário do Pregão</h2>
           <span className="text-right font-mono text-xs text-muted-foreground">A partida inteira</span>
         </div>
-        <div className="flex flex-wrap items-center gap-4">
-          <InputGroup size="lg" className="w-85">
-            <InputGroupAddon>
-              <Search />
-            </InputGroupAddon>
-            <InputGroupInput
-              value={filter.query}
-              onChange={(e) => setFilter({ ...filter, query: e.target.value })}
-              placeholder="Buscar manchete, empresa ou ticker"
-              aria-label="Buscar no jornal"
-            />
-          </InputGroup>
-          {catalog && (
-            <Tabs
-              value={filter.section ?? ALL}
-              onValueChange={(value) =>
-                setFilter({ ...filter, section: value === ALL ? null : (value as NewsSection) })
-              }
-            >
-              <TabsList variant="line">
-                <TabsTrigger value={ALL}>Tudo</TabsTrigger>
-                {catalog.sections.map((section) => (
-                  <TabsTrigger key={section.section} value={section.section}>
-                    {section.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          )}
-          <div className="ml-auto flex items-center gap-2">
-            <Switch
-              id="journal-only-mine"
-              checked={filter.onlyMine}
-              onCheckedChange={(onlyMine) => setFilter({ ...filter, onlyMine })}
-            />
-            <Label htmlFor="journal-only-mine">Só minha carteira</Label>
-          </div>
-        </div>
+        <JournalFilters filter={filter} onChange={setFilter} catalog={catalog} />
       </div>
 
-      {/* Manchetes */}
-      <div className="px-7 pb-6">
-        {failed ? (
-          <ErrorState
-            title="Não deu para carregar as notícias"
-            description="A partida segue normal. Tente de novo em instantes."
-            error={failed}
-            onRetry={() => void Promise.all([news.refetch(), refetchCatalog(), refetchPreferences()])}
-          />
-        ) : !news.data || !catalog || !preferences ? (
-          <JournalSkeleton />
-        ) : (
-          <JournalEntries
-            items={filterNews(news.data, filter, {
-              sectionOf: (type) => sectionOf(catalog, type),
-              levelOf: (item) =>
-                levelFor(
-                  preferences.news[item.news_type],
-                  preferences.news_held_only[item.news_type] ?? false,
-                  item.tickers,
-                  held,
-                ),
-              held,
-            })}
-            total={news.data.length}
-            filter={filter}
-            onClear={() => setFilter({ query: "", section: null, onlyMine: false })}
-            held={held}
-          />
-        )}
+      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_300px]">
+        {/* Hoje e lista dos dias anteriores */}
+        <div className="flex min-h-0 flex-col">
+          {failed ? (
+            <div className="px-7">
+              <ErrorState
+                title="Não deu para carregar as notícias"
+                description="A partida segue normal. Tente de novo em instantes."
+                error={failed}
+                onRetry={() =>
+                  void Promise.all([monthNews.refetch(), history.refetch(), refetchCatalog(), refetchPreferences()])
+                }
+              />
+            </div>
+          ) : (
+            <>
+              <div className="px-7">
+                <JournalToday date={currentDate} items={today} held={held} />
+              </div>
+              {/* A lista nasce de novo a cada mês escolhido no arquivo e volta ao topo */}
+              <div key={fromMonth} className="min-h-0 flex-1 overflow-y-auto px-7">
+                {!ready || !history.data ? (
+                  <JournalSkeleton />
+                ) : nothing ? (
+                  <JournalEmpty
+                    total={history.data.items.length}
+                    filter={filter}
+                    onClear={() => setFilter(NO_FILTER)}
+                  />
+                ) : (
+                  <JournalHistory
+                    items={earlier}
+                    held={held}
+                    lastMonth={history.data.months.at(-1) ?? fromMonth}
+                    loadedMonths={history.data.months.length}
+                    hasNextPage={history.hasNextPage}
+                    isFetchingNextPage={history.isFetchingNextPage}
+                    fetchNextPage={history.fetchNextPage}
+                  />
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Arquivo da partida */}
+        <JournalArchive
+          startMonth={startMonth}
+          currentMonth={currentMonth}
+          selected={fromMonth}
+          onSelect={setPicked}
+          onReset={() => setPicked(null)}
+        />
       </div>
     </Card>
   );

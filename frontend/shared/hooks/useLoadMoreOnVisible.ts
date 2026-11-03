@@ -4,6 +4,8 @@ type UseLoadMoreOnVisibleOptions = {
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   fetchNextPage: () => unknown;
+  /** Muda a cada página acrescentada; as páginas que vêm do cache chegam sem `isFetchingNextPage` virar */
+  pageCount?: number;
 };
 
 /**
@@ -12,7 +14,12 @@ type UseLoadMoreOnVisibleOptions = {
  * O observador nasce de novo a cada página que termina de carregar: se o sentinela
  * ainda estiver à vista, a página seguinte vem logo, até a lista passar da altura da tela.
  */
-export function useLoadMoreOnVisible({ hasNextPage, isFetchingNextPage, fetchNextPage }: UseLoadMoreOnVisibleOptions) {
+export function useLoadMoreOnVisible({
+  hasNextPage,
+  isFetchingNextPage,
+  fetchNextPage,
+  pageCount,
+}: UseLoadMoreOnVisibleOptions) {
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,7 +35,7 @@ export function useLoadMoreOnVisible({ hasNextPage, isFetchingNextPage, fetchNex
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, pageCount]);
 
   return sentinelRef;
 }

@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
 import { useNotificationCatalog } from "@/shared/hooks/queries/useNotificationCatalog";
+import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { cn } from "@/shared/lib/utils";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { News } from "@/types";
-import { useNews } from "../hooks/queries/useNews";
+import { useNewsMonth } from "../hooks/queries/useNewsMonth";
 import { useNewsPresenter } from "../hooks/useNewsPresenter";
+import { type Month, monthOf } from "../lib/months";
 import { NewsKicker } from "./news-parts";
 
 /**
@@ -16,23 +18,31 @@ import { NewsKicker } from "./news-parts";
 export function NewsStrip() {
   const { position, state } = useNewsPresenter();
   const { simulation } = useSimulation();
+  const { data: simulationState } = useSimulationState();
   const simulationId = simulation?.simulation?.id;
-  if (position !== "STRIP" || simulationId === undefined) return null;
+  if (position !== "STRIP" || simulationId === undefined || !simulationState?.current_date) return null;
 
   return (
-    <Strip simulationId={simulationId} live={state.expanded ? state.lead?.news : undefined} others={state.count - 1} />
+    <Strip
+      simulationId={simulationId}
+      month={monthOf(simulationState.current_date)}
+      live={state.expanded ? state.lead?.news : undefined}
+      others={state.count - 1}
+    />
   );
 }
 
 type StripProps = {
   simulationId: number;
+  /** O mês da partida: a faixa mostra a última manchete dele */
+  month: Month;
   /** A manchete nova do pregão, enquanto ela é novidade */
   live: News | undefined;
   others: number;
 };
 
-function Strip({ simulationId, live, others }: StripProps) {
-  const { data: items } = useNews(simulationId);
+function Strip({ simulationId, month, live, others }: StripProps) {
+  const { data: items } = useNewsMonth(simulationId, month);
   const { data: catalog } = useNotificationCatalog();
   const { preferences } = useNotificationPreferences();
 

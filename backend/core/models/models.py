@@ -1082,6 +1082,8 @@ class News(Base):
     tickers: Mapped[list[str]] = mapped_column(
         ARRAY(Text), nullable=False, server_default=text("'{}'::text[]")
     )
+    # Variação do dia do ativo da manchete, em pontos percentuais com sinal; vazia nas demais
+    change_pct: Mapped[decimal.Decimal | None] = mapped_column(Numeric(8, 2))
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )

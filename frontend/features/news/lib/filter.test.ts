@@ -9,6 +9,7 @@ const item = (id: number, partial: Partial<News>): News => ({
   headline: "Congresso aprova corte no IR",
   dek: null,
   tickers: [],
+  change_pct: null,
   ...partial,
 });
 

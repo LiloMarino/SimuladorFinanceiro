@@ -1321,7 +1321,7 @@ export interface paths {
         };
         /**
          * Jornal da partida
-         * @description Todas as manchetes da partida em andamento, da mais nova para a mais antiga.
+         * @description As manchetes de um mês da partida em andamento, da mais nova para a mais antiga.
          */
         get: operations["get_news_api_news_get"];
         put?: never;
@@ -7215,6 +7215,8 @@ export interface components {
             dek: string | null;
             /** Tickers */
             tickers: string[];
+            /** Change Pct */
+            change_pct: number | null;
         };
         /**
          * NewsLevel
@@ -13692,7 +13694,10 @@ export interface operations {
     };
     get_news_api_news_get: {
         parameters: {
-            query?: never;
+            query: {
+                /** @description O mês das manchetes, no formato AAAA-MM. */
+                month: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;

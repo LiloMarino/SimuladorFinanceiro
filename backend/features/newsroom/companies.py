@@ -62,6 +62,7 @@ def strong_moves(market: MarketDay) -> list[Headline]:
                 f"{quote.ticker} fecha a {price(quote.close)}. "
                 f"O mercado atribui {'a alta' if rising else 'a queda'} a {cause}.",
                 (quote.ticker,),
+                round(change * 100, 2),
             )
         )
     return headlines
@@ -69,18 +70,18 @@ def strong_moves(market: MarketDay) -> list[Headline]:
 
 def week_highs(market: MarketDay) -> list[Headline]:
     """Os ativos que fecham acima de tudo o que fecharam nas últimas 52 semanas."""
-    highs: list[tuple[float, Quote]] = []
+    highs: list[tuple[float, float, Quote]] = []
     for quote in market.quotes:
         closes = _before(market, quote)[-YEAR_SESSIONS:]
         if len(closes) < MIN_SESSIONS:
             continue
         top = max(closes)
-        if quote.close > top > 0:
-            highs.append((quote.close / top - 1, quote))
+        if quote.close > top > 0 and closes[-1] > 0:
+            highs.append((quote.close / top - 1, quote.close / closes[-1] - 1, quote))
     highs.sort(key=lambda high: high[0], reverse=True)
 
     headlines = []
-    for margin, quote in highs[:MAX_PER_DAY]:
+    for margin, change, quote in highs[:MAX_PER_DAY]:
         name = short_name(quote.name, quote.ticker)
         text = pick(
             (
@@ -98,6 +99,7 @@ def week_highs(market: MarketDay) -> list[Headline]:
                 f"{quote.ticker} fecha a {price(quote.close)}, "
                 f"{number(margin * 100, 1)}% acima da máxima anterior.",
                 (quote.ticker,),
+                round(change * 100, 2),
             )
         )
     return headlines

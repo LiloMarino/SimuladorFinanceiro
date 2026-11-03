@@ -197,6 +197,7 @@ def test_a_strong_move_carries_the_cause_for_the_sector_and_direction():
 
     assert headline.news_type is NewsType.STRONG_MOVE
     assert headline.tickers == ("WEGE3",)
+    assert headline.change_pct == 10.0
     assert headline.text.startswith("WEG ") and headline.text.endswith(" 10%")
     assert headline.dek is not None
     assert headline.dek.startswith(
@@ -259,6 +260,8 @@ def test_a_52_week_high_needs_a_close_above_the_whole_year():
     )
 
     assert headline.news_type is NewsType.WEEK_HIGH
+    # 41,00 contra o último fechamento do ano, 39,95
+    assert headline.change_pct == 2.63
     assert headline.text in (
         "WEG atinge o maior preço em um ano",
         "WEG renova a máxima de 52 semanas",
