@@ -1452,13 +1452,13 @@ class Simulation:
 
     def _snapshot_user(self, user: UserDTO) -> StatisticsSnapshotEntryDTO:
         """Grava o snapshot do dia de `user`, avisa a carteira dele e devolve a linha das Estatísticas."""
-        portfolio = self.get_portfolio(user.client_id)
+        equity, fixed, _, debt = self._engine.balance_sheet(user.client_id)
         snapshot = repository.snapshot.create_snapshot(
             user_id=user.id,
             snapshot_date=self._current_date,
-            total_equity=portfolio.variable_income_value,
-            total_fixed=portfolio.fixed_income_value,
-            total_debt=portfolio.debt,
+            total_equity=equity,
+            total_fixed=fixed,
+            total_debt=debt,
         )
 
         notify(
