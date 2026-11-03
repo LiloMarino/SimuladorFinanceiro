@@ -58,29 +58,29 @@ Cada evento que o servidor envia pesa em três lugares: no servidor, que monta a
 
 O painel diz **qual** ponto gasta o tempo; as ferramentas abaixo dizem **qual função, dentro dele**. Todas valem só com o modo debug ligado.
 
-### Perfil de uma rota (`?profile=1`)
+### Perfil das rotas (interruptor no painel)
 
-Acrescente `?profile=1` à URL de uma rota da API (na aba **Rede** do navegador, "Copiar como cURL" e troque a URL) e a chamada grava um perfil do `cProfile` em `profiles/<método>-<rota>-<hora>.prof`. O perfil cobre só o handler da rota: o que a rota chama (`build_*`, consultas) aparece, o uvicorn não.
+Ligue o interruptor do cartão **Perfil das rotas** e use o jogo normalmente: cada requisição às rotas da API vira um perfil do [`yappi`](https://github.com/sumerc/yappi), gravado em `profiles/<método>-<rota>-<hora>.prof`. O cartão lista os 20 mais recentes, com a rota, a duração e o comando para abrir cada um. As rotas do próprio painel (`/api/debug/...`) ficam de fora, para não ocuparem a lista. O perfil cobre só o handler da rota: o que a rota chama (`build_*`, consultas) aparece, o uvicorn não.
 
 Abra o arquivo no `snakeviz`, que mostra o tempo de cada função em blocos clicáveis:
 
 ```bash
-pnpm profile:view profiles/get-api-stats-2026....prof
+pnpm profile:view profiles/get-api-stats-....prof
 ```
 
 ### Perfil do motor (botão no painel)
 
-O cartão **Perfil do motor** do painel liga o `cProfile` por quanto tempo você quiser e grava `profiles/engine-<hora>.prof` ao parar. Deixe a partida rodando alguns dias no ritmo que trava e pare.
+O cartão **Perfil do motor** grava o motor por quanto tempo você quiser e salva `profiles/motor-<hora>.prof` ao parar. Deixe a partida rodando alguns dias no ritmo que trava e pare. Com a partida pausada nenhum dia roda, e o painel avisa que não há o que gravar.
 
-:::note O perfil enxerga o programa inteiro
-No Python 3.12+ o `cProfile` é do interpretador inteiro: enquanto está ligado, conta também o event loop e as rotas, não só o motor. No `snakeviz`, o tempo do motor está na árvore de chamadas de `next_tick`. Só um perfil fica ligado por vez; o botão e o `?profile=1` se recusam enquanto outro está gravando.
+:::note Cada perfil tem só o que é dele
+O servidor roda o motor, as rotas e o event loop no mesmo processo, e o `yappi` conta as funções de todos eles. Cada chamada sai carimbada com uma etiqueta: a da requisição perfilada, a da thread do motor enquanto grava ou nenhuma. O perfil de uma rota guarda só as chamadas daquela requisição, e o do motor só as do motor. Por isso dá para gravar o motor e as rotas ao mesmo tempo, e duas requisições simultâneas não se misturam.
 :::
 
-**Como ler o perfil:** o `cProfile` registra cada chamada de função e por isso **atrasa o programa**, em geral algumas vezes. As **proporções** entre as funções valem (se `build_snapshot` ocupa 40% do perfil, ele pesa perto disso no jogo), mas os **milissegundos** não: para tempo real, use o painel ou o `pnpm profile:match`.
+**Como ler o perfil:** o relógio é o **de parede**: o tempo que a função levou de verdade, inclusive esperando o banco responder. Uma rota de 800 ms que espera 700 ms pelo SQL mostra esses 700 ms dentro da consulta, que é onde estão. O `yappi` registra cada chamada de função e por isso **atrasa o programa**, em geral algumas vezes. As **proporções** entre as funções valem (se `build_snapshot` ocupa 40% do perfil, ele pesa perto disso no jogo), mas os **milissegundos** não: para tempo real, use o painel ou o `pnpm profile:match`.
 
 ### O py-spy
 
-O [`py-spy`](https://github.com/benfred/py-spy) grava o que o processo Python está fazendo **enquanto roda**, sem alterar o código, e gera um **gráfico de chamas**. Ele custa muito menos que o `cProfile` e separa as threads (`--threads`), mas só amostra: funções muito rápidas podem não aparecer.
+O [`py-spy`](https://github.com/benfred/py-spy) grava o que o processo Python está fazendo **enquanto roda**, sem alterar o código, e gera um **gráfico de chamas**. Ele custa muito menos que o `yappi` e separa as threads (`--threads`), mas só amostra: funções muito rápidas podem não aparecer.
 
 1. Ele já vem no grupo de desenvolvimento (`uv sync`): rode com `uv run py-spy`.
 2. Pegue o número do processo. O cartão "Achou o ponto caro?" do painel já traz o comando pronto com o PID certo (botão **Copiar**):
@@ -104,7 +104,7 @@ No Windows o `py-spy` anexou a um processo do mesmo usuário sem precisar de adm
 pnpm profile:match --days 1000 --bots 5
 ```
 
-Como grava no banco, o padrão é o **banco de teste** (`POSTGRES_TEST_DATABASE_URL` no `.env`); `--database current` usa o banco do ambiente. `--source <nome ou id>` copia as regras, os jogadores e as estratégias de uma partida salva (sem tocá-la), e `--cprofile` grava também o perfil em `profiles/`.
+Como grava no banco, o padrão é o **banco de teste** (`POSTGRES_TEST_DATABASE_URL` no `.env`); `--database current` usa o banco do ambiente. `--source <nome ou id>` copia as regras, os jogadores e as estratégias de uma partida salva (sem tocá-la), e `--profile` grava também o perfil do motor em `profiles/`.
 
 A saída traz, para cada etapa do dia, a **mediana** e o **p95** dos primeiros e dos últimos dias (50 de cada, por padrão) e a **razão** entre as duas medianas:
 

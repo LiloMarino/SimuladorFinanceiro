@@ -58,7 +58,7 @@ from backend.core.database import get_engine
 from backend.core.embedded_postgres import EmbeddedPostgresError, resolve_database_url
 from backend.core.metrics import MetricsMiddleware, metrics
 from backend.core.migration import MigrationError, migrate
-from backend.core.profiling import ProfileRequestMiddleware, profile_routes
+from backend.core.profiling import profile_routes
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.tunnel_manager import TunnelManager
 from backend.core.version import get_version
@@ -155,7 +155,6 @@ def create_api() -> FastAPI:
     if config.toml.debug.enabled:
         metrics.enabled = True
         profile_routes(app)
-        app.add_middleware(ProfileRequestMiddleware)
         app.add_middleware(MetricsMiddleware)
 
     return app

@@ -1,7 +1,5 @@
-import { useState } from "react";
-import { Check, Copy } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { CopyButton } from "./copy-button";
 
 const DOCS_URL = "https://lilomarino.github.io/SimuladorFinanceiro/desenvolvimento/investigando-lentidao";
 
@@ -11,18 +9,7 @@ interface PySpyCardProps {
 
 /** O caminho depois de achar o ponto caro: o gráfico de chamas do processo em execução. */
 export function PySpyCard({ pid }: PySpyCardProps) {
-  const [copied, setCopied] = useState(false);
   const command = `py-spy record --pid ${pid} -o perfil.svg`;
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(command);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Sem permissão para a área de transferência: o comando segue visível para copiar à mão
-    }
-  }
 
   return (
     <Card>
@@ -43,10 +30,7 @@ export function PySpyCard({ pid }: PySpyCardProps) {
                 <code className="min-w-0 truncate">
                   py-spy record --pid <span className="text-primary-foreground/90">{pid}</span> -o perfil.svg
                 </code>
-                <Button variant="inverse" size="xs" onClick={() => void copy()}>
-                  {copied ? <Check /> : <Copy />}
-                  {copied ? "Copiado" : "Copiar"}
-                </Button>
+                <CopyButton text={command} />
               </div>
             </div>
           </li>

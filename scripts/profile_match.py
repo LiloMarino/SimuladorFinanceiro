@@ -11,7 +11,7 @@ usa o que o ambiente aponta.
 
 A saída tem a mediana e o p95 (o tempo que 95% dos dias não passam) de cada etapa nos
 primeiros e nos últimos dias, e a razão entre as duas: perto de 1,0 o dia não cresce com
-a partida. `--cprofile` grava o perfil em `profiles/`; no cProfile as proporções valem e
+a partida. `--profile` grava o perfil do yappi em `profiles/`; nele as proporções valem e
 os milissegundos não, porque ele mesmo custa tempo.
 """
 
@@ -39,7 +39,7 @@ from backend.core.dto.simulation import SimulationDTO, SimulationSettingsDTO
 from backend.core.enum import BacktestPriceImpact
 from backend.core.metrics import ENGINE_DAY, metrics
 from backend.core.player_colors import PLAYER_COLORS
-from backend.core.profiling import Profiler, profiler
+from backend.core.profiling import mark_engine_thread, profiler
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
@@ -77,7 +77,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--window", type=int, default=DEFAULT_WINDOW)
     parser.add_argument("--checkpoint", type=int, default=DEFAULT_CHECKPOINT)
     parser.add_argument("--database", choices=DATABASE_CHOICES, default="test")
-    parser.add_argument("--cprofile", action="store_true")
+    parser.add_argument("--profile", action="store_true")
     return parser.parse_args(argv)
 
 
@@ -133,6 +133,8 @@ class SilentBroker(RealtimeBroker):
 
 def main(argv: list[str]) -> None:
     args = parse_args(argv)
+    # A saída redirecionada para arquivo vai em UTF-8, também no Windows
+    sys.stdout.reconfigure(encoding="utf-8")  # pyright: ignore[reportAttributeAccessIssue]
     select_database(args.database)
     logging.disable(logging.WARNING - 1)
 
@@ -182,7 +184,8 @@ def main(argv: list[str]) -> None:
                 sim.set_my_strategy(user, player.strategy_key, player.params)
         durations.clear()
 
-        with cprofile_for(args.cprofile, profiler):
+        mark_engine_thread()
+        with profile_for(args.profile):
             run_days(sim, args.days, durations, ENGINE_DAY, args.checkpoint)
     finally:
         SimulationManager.clear_simulation()
@@ -269,11 +272,11 @@ def record(
 
 
 @contextmanager
-def cprofile_for(enabled: bool, profiler: Profiler) -> Generator[None]:
+def profile_for(enabled: bool) -> Generator[None]:
     if not enabled:
         yield
         return
-    with profiler.capture("profile-match"):
+    with profiler.capture_engine("profile-match"):
         yield
 
 

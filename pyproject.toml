@@ -16,6 +16,7 @@ dependencies = [
     "starlette>=1.10.0",
     "toml>=0.10.2",
     "uvicorn[standard]>=0.54.0",
+    "yappi>=1.7.6",
     "yfinance>=1.4.1",
 ]
 

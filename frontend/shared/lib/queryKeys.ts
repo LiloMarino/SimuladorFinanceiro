@@ -67,6 +67,7 @@ export const queryKeys = {
   appFolders: () => ["settings", "folders"] as const,
   debugMetrics: () => ["debug", "metrics"] as const,
   debugEngineProfile: () => ["debug", "engine-profile"] as const,
+  debugRouteProfiles: () => ["debug", "route-profiles"] as const,
   seriesCoverage: () => ["import-assets", "coverage"] as const,
   sectors: () => ["import-assets", "sectors"] as const,
   importSettings: () => ["import-assets", "settings"] as const,

@@ -12,6 +12,7 @@ import { ControlsBar } from "../components/controls-bar";
 import { EngineProfileCard } from "../components/engine-profile-card";
 import { KpiCards } from "../components/kpi-cards";
 import { PySpyCard } from "../components/pyspy-card";
+import { RouteProfilesCard } from "../components/route-profiles-card";
 import { PerformanceDebugOff, PerformanceEmpty, PerformanceHostOnly, PerformanceLoading } from "../components/states";
 import { TimeTable } from "../components/time-table";
 import { TrafficTable } from "../components/traffic-table";
@@ -112,6 +113,7 @@ export default function PerformancePage() {
           />
           <TimeTable id={TABLE_ID} rows={rows} />
           <TrafficTable traffic={data.traffic} windowSeconds={data.traffic_window_s} />
+          <RouteProfilesCard />
           <EngineProfileCard />
           <PySpyCard pid={data.pid} />
         </>

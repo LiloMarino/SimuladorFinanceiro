@@ -143,22 +143,81 @@ def reset_metrics(_debug: DebugOnly, _host: HostVerified) -> None:
     metrics.reset()
 
 
+class RouteProfileItem(BaseModel):
+    id: int
+    route: str
+    created_at: datetime
+    duration_ms: float
+    # Caminho do .prof, para abrir com `pnpm profile:view <arquivo>`
+    file: str
+
+
+class RouteProfilesResponse(BaseModel):
+    enabled: bool
+    # Os últimos perfis, do mais novo para o mais antigo
+    items: list[RouteProfileItem]
+
+
+class RouteProfilesToggle(BaseModel):
+    enabled: bool
+
+
+@debug_router.get(
+    "/profile/routes",
+    summary="Perfis das rotas",
+    description=(
+        "Diz se o perfil das rotas está ligado e lista os últimos 20 perfis gravados, "
+        "um por requisição às rotas da API (as do modo debug ficam de fora)."
+    ),
+)
+def get_route_profiles(_debug: DebugOnly, _host: HostVerified) -> RouteProfilesResponse:
+    return RouteProfilesResponse(
+        enabled=profiler.routes_enabled,
+        items=[
+            RouteProfileItem(
+                id=entry.id,
+                route=entry.route,
+                created_at=entry.created_at,
+                duration_ms=round(entry.duration_ms, 2),
+                file=entry.file.as_posix(),
+            )
+            for entry in profiler.route_profiles()
+        ],
+    )
+
+
+@debug_router.put(
+    "/profile/routes",
+    status_code=204,
+    summary="Ligar ou desligar o perfil das rotas",
+    description=(
+        "Ligado, cada requisição às rotas da API grava um perfil do yappi com só o que "
+        "ela executou, na pasta `profiles/`. Enquanto ligado, o servidor fica mais lento."
+    ),
+)
+def set_route_profiles(
+    payload: RouteProfilesToggle, _debug: DebugOnly, _host: HostVerified
+) -> None:
+    profiler.set_routes_enabled(payload.enabled)
+
+
 class EngineProfileStatus(BaseModel):
     recording: bool
 
 
 class EngineProfileSaved(BaseModel):
-    # Caminho do .prof, para abrir com `pnpm profile:view <arquivo>`
-    file: str
+    # Caminho do .prof, para abrir com `pnpm profile:view <arquivo>`; vazio quando
+    # nenhum dia rodou durante a gravação
+    file: str | None
 
 
 @debug_router.get(
     "/profile/engine",
     summary="Estado da gravação do perfil do motor",
-    description="Diz se um perfil está sendo gravado agora.",
+    description="Diz se o perfil do motor está sendo gravado agora.",
 )
 def get_engine_profile(_debug: DebugOnly, _host: HostVerified) -> EngineProfileStatus:
-    return EngineProfileStatus(recording=profiler.active)
+    return EngineProfileStatus(recording=profiler.engine_recording)
 
 
 @debug_router.post(
@@ -166,22 +225,25 @@ def get_engine_profile(_debug: DebugOnly, _host: HostVerified) -> EngineProfileS
     status_code=204,
     summary="Começar a gravar o perfil do motor",
     description=(
-        "Liga o cProfile: ele conta o tempo de cada função de todas as threads (o dia, "
-        "o event loop e as rotas) até a gravação parar. Só um perfil por vez."
+        "Liga o yappi para a thread do motor: ele conta o tempo de cada função do dia "
+        "até a gravação parar, sem as rotas nem o event loop."
     ),
 )
 def start_engine_profile(_debug: DebugOnly, _host: HostVerified) -> None:
-    if not profiler.start("motor"):
-        raise ConflictError("Já há um perfil sendo gravado.")
+    if not profiler.start_engine():
+        raise ConflictError("O perfil do motor já está sendo gravado.")
 
 
 @debug_router.post(
     "/profile/engine/stop",
     summary="Parar e gravar o perfil do motor",
-    description="Desliga o cProfile e grava o arquivo `.prof` na pasta `profiles/`.",
+    description=(
+        "Para a gravação e grava o arquivo `.prof` na pasta `profiles/`. Sem arquivo "
+        "quando nenhum dia rodou durante a gravação (a partida pausada)."
+    ),
 )
 def stop_engine_profile(_debug: DebugOnly, _host: HostVerified) -> EngineProfileSaved:
-    path = profiler.stop()
-    if path is None:
-        raise ConflictError("Nenhum perfil está sendo gravado.")
-    return EngineProfileSaved(file=path.as_posix())
+    if not profiler.engine_recording:
+        raise ConflictError("O perfil do motor não está sendo gravado.")
+    path = profiler.stop_engine()
+    return EngineProfileSaved(file=path.as_posix() if path else None)

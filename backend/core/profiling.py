@@ -1,144 +1,225 @@
 """
-Perfis do cProfile para o modo debug: o tempo de cada função, gravado em `profiles/`
-para abrir no snakeviz (`pnpm profile:view profiles/<arquivo>.prof`).
+Perfis do yappi para o modo debug: o tempo de cada função, gravado em `profiles/` para
+abrir no snakeviz (`pnpm profile:view profiles/<arquivo>.prof`).
 
-Dois perfis usam o mesmo `Profiler`: o de uma requisição (`?profile=1` numa rota) e o do
-motor (gravado por um botão do painel de desempenho). No Python 3.12+ o cProfile é do
-interpretador inteiro: enquanto um perfil está ligado, ele conta as funções de todas as
-threads (o motor, o event loop e as rotas), e só um perfil fica ligado por vez. O tempo
-medido inclui o custo do próprio cProfile: o perfil dá as proporções entre as funções,
-e a medida em milissegundos fica com o painel de desempenho.
+Dois perfis usam o mesmo `Profiler`: o das rotas (um interruptor no painel; ligado, cada
+requisição às rotas da API vira um perfil) e o do motor (gravado por um botão do painel).
+No Python 3.12+ o yappi conta as funções de todas as threads; o que separa cada perfil é
+a etiqueta (tag) que o yappi carimba em cada chamada, lida de uma ContextVar: a de uma
+requisição perfilada, a da thread do motor enquanto grava ou 0 para todo o resto. O
+relógio é o de parede: a espera pelo banco entra no tempo da função que a fez.
 """
 
-import cProfile
 import inspect
 import logging
 import re
 import threading
+import time
+from collections import deque
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from contextvars import ContextVar
+from dataclasses import dataclass
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
 from typing import Any
-from urllib.parse import parse_qs
 
+import yappi
 from fastapi import FastAPI
 from fastapi.routing import APIRoute, RouteContext, iter_route_contexts
-from starlette.types import ASGIApp, Receive, Scope, Send
 
 logger = logging.getLogger(__name__)
 
 PROFILES_DIR = Path("profiles")
+MAX_ROUTE_PROFILES = 20
+# As rotas do painel se consultam a cada 2 s e ocupariam a lista sozinhas
+UNPROFILED_PREFIX = "/api/debug/"
+
+# A etiqueta das chamadas da thread em curso: a da requisição perfilada, o marcador da
+# thread do motor ou 0
+_UNTAGGED = 0
+_ENGINE_THREAD = -1
+_tag: ContextVar[int] = ContextVar("profile_tag", default=_UNTAGGED)
+
+
+@dataclass(frozen=True)
+class RouteProfile:
+    id: int
+    route: str
+    created_at: datetime
+    duration_ms: float
+    file: Path
 
 
 class Profiler:
-    """Um cProfile por vez, gravado em `PROFILES_DIR/<nome>-<hora>.prof` ao parar."""
+    """O yappi fica ligado enquanto o perfil das rotas ou a gravação do motor estiver."""
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
-        self._profile: cProfile.Profile | None = None
-        self._name = ""
+        self._routes = False
+        # Etiqueta da gravação do motor em curso; 0 sem gravação
+        self._engine_tag = _UNTAGGED
+        self._next_tag = 1
+        self._entries: deque[RouteProfile] = deque(maxlen=MAX_ROUTE_PROFILES)
 
     @property
-    def active(self) -> bool:
-        return self._profile is not None
+    def routes_enabled(self) -> bool:
+        return self._routes
 
-    def start(self, name: str) -> bool:
-        """Liga o perfil; falso quando outro já está ligado."""
+    @property
+    def engine_recording(self) -> bool:
+        return self._engine_tag != _UNTAGGED
+
+    def route_profiles(self) -> list[RouteProfile]:
         with self._lock:
-            if self._profile is not None:
+            return list(reversed(self._entries))
+
+    def _current_tag(self) -> int:
+        tag = _tag.get()
+        return self._engine_tag if tag == _ENGINE_THREAD else tag
+
+    def _reserve_tag(self) -> int:
+        tag = self._next_tag
+        self._next_tag += 1
+        return tag
+
+    def _ensure_running(self) -> None:
+        if yappi.is_running():
+            return
+        yappi.clear_stats()
+        yappi.set_clock_type("wall")
+        yappi.set_tag_callback(self._current_tag)
+        yappi.start(builtins=True)
+
+    def _release(self) -> None:
+        if not self._routes and self._engine_tag == _UNTAGGED:
+            yappi.stop()
+            yappi.clear_stats()
+
+    def set_routes_enabled(self, enabled: bool) -> None:
+        with self._lock:
+            self._routes = enabled
+            if enabled:
+                self._ensure_running()
+            else:
+                self._release()
+
+    def start_engine(self) -> bool:
+        """Começa a gravar o motor; falso quando já está gravando."""
+        with self._lock:
+            if self._engine_tag != _UNTAGGED:
                 return False
-            profile = cProfile.Profile()
-            try:
-                profile.enable()
-            except ValueError:
-                # Outra ferramenta (ex.: `python -m cProfile`) já tem o perfil do interpretador
-                return False
-            self._profile = profile
-            self._name = name
+            self._ensure_running()
+            self._engine_tag = self._reserve_tag()
             return True
 
-    def stop(self) -> Path | None:
-        """Desliga o perfil e grava o arquivo; vazio quando não havia perfil ligado."""
+    def stop_engine(self, name: str = "motor") -> Path | None:
+        """
+        Para a gravação do motor e grava o arquivo; vazio quando não estava gravando ou
+        quando nenhum dia rodou durante a gravação (a partida pausada).
+        """
         with self._lock:
-            profile, name = self._profile, self._name
-            if profile is None:
+            tag = self._engine_tag
+            if tag == _UNTAGGED:
                 return None
-            profile.disable()
-            self._profile = None
-        PROFILES_DIR.mkdir(exist_ok=True)
-        path = PROFILES_DIR / f"{name}-{datetime.now().astimezone():%Y%m%d-%H%M%S}.prof"
-        profile.dump_stats(path)
-        logger.info("Perfil gravado em %s", path)
+            self._engine_tag = _UNTAGGED
+            path = self._save(tag, name)
+            self._release()
         return path
 
     @contextmanager
-    def capture(self, name: str) -> Generator[None]:
-        """Perfila o bloco, se nenhum outro perfil estiver ligado."""
-        if not self.start(name):
+    def capture_engine(self, name: str) -> Generator[None]:
+        """Grava o motor durante o bloco, se ninguém estiver gravando."""
+        if not self.start_engine():
             yield
             return
         try:
             yield
         finally:
-            self.stop()
+            self.stop_engine(name)
+
+    def _save(self, tag: int, name: str) -> Path | None:
+        """Grava as chamadas da etiqueta; vazio quando ela não tem nenhuma."""
+        stats = yappi.get_func_stats(tag=tag)
+        if stats.empty():
+            return None
+        PROFILES_DIR.mkdir(exist_ok=True)
+        path = (
+            PROFILES_DIR
+            / f"{name}-{datetime.now().astimezone():%Y%m%d-%H%M%S}-{tag}.prof"
+        )
+        stats.save(str(path), type="pstat")
+        logger.info("Perfil gravado em %s", path)
+        return path
+
+    def begin_request(self) -> int:
+        """A etiqueta de uma requisição a perfilar; 0 com o perfil das rotas desligado."""
+        with self._lock:
+            return self._reserve_tag() if self._routes else _UNTAGGED
+
+    def finish_request(self, tag: int, route: str, duration_ms: float) -> None:
+        with self._lock:
+            # Desligado no meio da requisição, o yappi já descartou as chamadas dela
+            path = self._save(tag, _slug(route)) if yappi.is_running() else None
+            if path is None:
+                return
+            if len(self._entries) == self._entries.maxlen:
+                self._entries[0].file.unlink(missing_ok=True)
+            self._entries.append(
+                RouteProfile(tag, route, datetime.now().astimezone(), duration_ms, path)
+            )
 
 
 profiler = Profiler()
 
-# Verdadeiro nas requisições que pediram `?profile=1`; vale na thread do handler
-# porque o FastAPI roda o handler sync numa thread com uma cópia do contexto.
-_profile_requested: ContextVar[bool] = ContextVar("profile_requested", default=False)
+
+def mark_engine_thread() -> None:
+    """As chamadas da thread em curso entram no perfil do motor enquanto ele grava."""
+    _tag.set(_ENGINE_THREAD)
 
 
-class ProfileRequestMiddleware:
-    """ASGI puro: marca as requisições com `?profile=1` para o handler da rota se perfilar."""
-
-    def __init__(self, app: ASGIApp) -> None:
-        self.app = app
-
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] != "http":
-            await self.app(scope, receive, send)
-            return
-        query = parse_qs(scope.get("query_string", b"").decode())
-        token = _profile_requested.set("1" in query.get("profile", []))
-        try:
-            await self.app(scope, receive, send)
-        finally:
-            _profile_requested.reset(token)
+def _slug(route: str) -> str:
+    return re.sub(r"\W+", "-", route.lower()).strip("-")
 
 
-def _route_slug(route: RouteContext) -> str:
-    method = min(route.methods or {"GET"}).lower()
-    return re.sub(r"\W+", "-", f"{method}{route.path}").strip("-")
+def _route_label(route: RouteContext) -> str:
+    return f"{min(route.methods or {'GET'})} {route.path}"
 
 
-def _profiled(function: Callable[..., Any], name: str) -> Callable[..., Any]:
+def _profiled(function: Callable[..., Any], route: str) -> Callable[..., Any]:
     @wraps(function)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        if not _profile_requested.get():
+        tag = profiler.begin_request()
+        if not tag:
             return function(*args, **kwargs)
-        with profiler.capture(name):
+        # A etiqueta vale antes da chamada: o yappi carimba cada função ao entrar nela
+        token = _tag.set(tag)
+        started = time.perf_counter()
+        try:
             return function(*args, **kwargs)
+        finally:
+            _tag.reset(token)
+            profiler.finish_request(tag, route, (time.perf_counter() - started) * 1000)
 
     return wrapper
 
 
 def profile_routes(app: FastAPI) -> None:
     """
-    Faz cada handler `def` da API gravar o perfil quando a requisição traz `?profile=1`.
-    O perfil cobre só a chamada do handler: o `build_*` da rota aparece, o uvicorn não.
+    Faz cada handler `def` da API gravar o perfil com o perfil das rotas ligado. O perfil
+    cobre só a chamada do handler: o `build_*` da rota aparece, o uvicorn não.
     """
     # `app.routes` traz as rotas dos routers incluídos agrupadas; o contexto de cada uma
     # carrega o `dependant` que a requisição executa
     for route in iter_route_contexts(app.routes):
         if not isinstance(route.original_route, APIRoute) or route.dependant is None:
             continue
-        # A API é de handlers `def`; os `async def` (o túnel) ficam sem `?profile=1`
-        if (route.path or "").startswith("/api/") and not inspect.iscoroutinefunction(
-            route.dependant.call
+        path = route.path or ""
+        # A API é de handlers `def`; os `async def` (o túnel) ficam sem perfil
+        if (
+            path.startswith("/api/")
+            and not path.startswith(UNPROFILED_PREFIX)
+            and not inspect.iscoroutinefunction(route.dependant.call)
         ):
-            route.dependant.call = _profiled(route.dependant.call, _route_slug(route))
+            route.dependant.call = _profiled(route.dependant.call, _route_label(route))

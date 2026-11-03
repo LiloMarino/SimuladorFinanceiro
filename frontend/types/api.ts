@@ -147,6 +147,7 @@ export type MetricItem = components["schemas"]["MetricItem"];
 export type TrafficItem = components["schemas"]["TrafficItem"];
 export type EngineProfileStatus = components["schemas"]["EngineProfileStatus"];
 export type EngineProfileSaved = components["schemas"]["EngineProfileSaved"];
+export type RouteProfilesData = components["schemas"]["RouteProfilesResponse"];
 
 // Simulation
 export type SimulationState = Partial<components["schemas"]["SimulationStateResponse"]>;

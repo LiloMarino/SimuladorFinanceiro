@@ -9241,13 +9241,108 @@
         ]
       }
     },
+    "/api/debug/profile/routes": {
+      "get": {
+        "tags": [
+          "Debug"
+        ],
+        "summary": "Perfis das rotas",
+        "description": "Diz se o perfil das rotas está ligado e lista os últimos 20 perfis gravados, um por requisição às rotas da API (as do modo debug ficam de fora).",
+        "operationId": "get_route_profiles_api_debug_profile_routes_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteProfilesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Debug"
+        ],
+        "summary": "Ligar ou desligar o perfil das rotas",
+        "description": "Ligado, cada requisição às rotas da API grava um perfil do yappi com só o que ela executou, na pasta `profiles/`. Enquanto ligado, o servidor fica mais lento.",
+        "operationId": "set_route_profiles_api_debug_profile_routes_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RouteProfilesToggle"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/debug/profile/engine": {
       "get": {
         "tags": [
           "Debug"
         ],
         "summary": "Estado da gravação do perfil do motor",
-        "description": "Diz se um perfil está sendo gravado agora.",
+        "description": "Diz se o perfil do motor está sendo gravado agora.",
         "operationId": "get_engine_profile_api_debug_profile_engine_get",
         "responses": {
           "200": {
@@ -9294,7 +9389,7 @@
           "Debug"
         ],
         "summary": "Começar a gravar o perfil do motor",
-        "description": "Liga o cProfile: ele conta o tempo de cada função de todas as threads (o dia, o event loop e as rotas) até a gravação parar. Só um perfil por vez.",
+        "description": "Liga o yappi para a thread do motor: ele conta o tempo de cada função do dia até a gravação parar, sem as rotas nem o event loop.",
         "operationId": "start_engine_profile_api_debug_profile_engine_start_post",
         "responses": {
           "204": {
@@ -9334,7 +9429,7 @@
           "Debug"
         ],
         "summary": "Parar e gravar o perfil do motor",
-        "description": "Desliga o cProfile e grava o arquivo `.prof` na pasta `profiles/`.",
+        "description": "Para a gravação e grava o arquivo `.prof` na pasta `profiles/`. Sem arquivo quando nenhum dia rodou durante a gravação (a partida pausada).",
         "operationId": "stop_engine_profile_api_debug_profile_engine_stop_post",
         "responses": {
           "200": {
@@ -15689,7 +15784,14 @@
       "EngineProfileSaved": {
         "properties": {
           "file": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "File"
           }
         },
@@ -25414,6 +25516,74 @@
           "donations"
         ],
         "title": "RoundResultDTO"
+      },
+      "RouteProfileItem": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "route": {
+            "type": "string",
+            "title": "Route"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "duration_ms": {
+            "type": "number",
+            "title": "Duration Ms"
+          },
+          "file": {
+            "type": "string",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "route",
+          "created_at",
+          "duration_ms",
+          "file"
+        ],
+        "title": "RouteProfileItem"
+      },
+      "RouteProfilesResponse": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RouteProfileItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled",
+          "items"
+        ],
+        "title": "RouteProfilesResponse"
+      },
+      "RouteProfilesToggle": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "title": "RouteProfilesToggle"
       },
       "RunoffContributionDTO": {
         "properties": {

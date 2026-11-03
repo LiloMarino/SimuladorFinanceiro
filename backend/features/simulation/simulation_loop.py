@@ -11,6 +11,7 @@ from backend.core.dto.backtest import BacktestEndedEventDTO
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import ServiceUnavailableError
 from backend.core.metrics import ENGINE_DAY, metrics
+from backend.core.profiling import mark_engine_thread
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.realtime import notify
@@ -115,6 +116,7 @@ class SimulationLoopController:
             )
 
     def _run(self):
+        mark_engine_thread()
         try:
             simulation = SimulationManager.get_active_simulation()
         except NoActiveSimulationError:

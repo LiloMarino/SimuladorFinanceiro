@@ -3288,6 +3288,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/debug/profile/routes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Perfis das rotas
+         * @description Diz se o perfil das rotas está ligado e lista os últimos 20 perfis gravados, um por requisição às rotas da API (as do modo debug ficam de fora).
+         */
+        get: operations["get_route_profiles_api_debug_profile_routes_get"];
+        /**
+         * Ligar ou desligar o perfil das rotas
+         * @description Ligado, cada requisição às rotas da API grava um perfil do yappi com só o que ela executou, na pasta `profiles/`. Enquanto ligado, o servidor fica mais lento.
+         */
+        put: operations["set_route_profiles_api_debug_profile_routes_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/debug/profile/engine": {
         parameters: {
             query?: never;
@@ -3297,7 +3321,7 @@ export interface paths {
         };
         /**
          * Estado da gravação do perfil do motor
-         * @description Diz se um perfil está sendo gravado agora.
+         * @description Diz se o perfil do motor está sendo gravado agora.
          */
         get: operations["get_engine_profile_api_debug_profile_engine_get"];
         put?: never;
@@ -3319,7 +3343,7 @@ export interface paths {
         put?: never;
         /**
          * Começar a gravar o perfil do motor
-         * @description Liga o cProfile: ele conta o tempo de cada função de todas as threads (o dia, o event loop e as rotas) até a gravação parar. Só um perfil por vez.
+         * @description Liga o yappi para a thread do motor: ele conta o tempo de cada função do dia até a gravação parar, sem as rotas nem o event loop.
          */
         post: operations["start_engine_profile_api_debug_profile_engine_start_post"];
         delete?: never;
@@ -3339,7 +3363,7 @@ export interface paths {
         put?: never;
         /**
          * Parar e gravar o perfil do motor
-         * @description Desliga o cProfile e grava o arquivo `.prof` na pasta `profiles/`.
+         * @description Para a gravação e grava o arquivo `.prof` na pasta `profiles/`. Sem arquivo quando nenhum dia rodou durante a gravação (a partida pausada).
          */
         post: operations["stop_engine_profile_api_debug_profile_engine_stop_post"];
         delete?: never;
@@ -5527,7 +5551,7 @@ export interface components {
         /** EngineProfileSaved */
         EngineProfileSaved: {
             /** File */
-            file: string;
+            file: string | null;
         };
         /** EngineProfileStatus */
         EngineProfileStatus: {
@@ -8905,6 +8929,34 @@ export interface components {
             not_voted: string;
             /** Donations */
             donations: components["schemas"]["RoundDonationDTO"][];
+        };
+        /** RouteProfileItem */
+        RouteProfileItem: {
+            /** Id */
+            id: number;
+            /** Route */
+            route: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Duration Ms */
+            duration_ms: number;
+            /** File */
+            file: string;
+        };
+        /** RouteProfilesResponse */
+        RouteProfilesResponse: {
+            /** Enabled */
+            enabled: boolean;
+            /** Items */
+            items: components["schemas"]["RouteProfileItem"][];
+        };
+        /** RouteProfilesToggle */
+        RouteProfilesToggle: {
+            /** Enabled */
+            enabled: boolean;
         };
         /** RunoffContributionDTO */
         RunoffContributionDTO: {
@@ -17821,6 +17873,84 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_route_profiles_api_debug_profile_routes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteProfilesResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_route_profiles_api_debug_profile_routes_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RouteProfilesToggle"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             204: {
