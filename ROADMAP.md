@@ -120,7 +120,6 @@
 | [**F204**](#f204) | Melhoria | Congresso: votação com placar e casa eleita | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F205**](#f205) | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F206**](#f206) | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | M20 · 3.3 | — | Baixo | Bom | ⏳ |
-| [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F208**](#f208) | Melhoria | Empréstimo: o custo inteiro antes de assinar | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | — | — | — | 🔍 |
@@ -130,7 +129,7 @@
 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -159,6 +158,7 @@
 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 | — | — | — | ✅ |
 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | M20 · 3.3 | — | — | — | ✅ |
 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 | — | — | — | ✅ |
+| [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | M20 · 3.3 | — | — | — | ✅ |
 | [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | M20 · 3.3 | — | — | — | ✅ |
 
 </details>
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 10/27 concluídos
+> **Progresso:** 11/27 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -188,7 +188,7 @@
 | 7 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | — | ✅ Concluído |
 | 8 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | — | ✅ Concluído |
 | 9 | [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | — | ✅ Concluído |
-| 10 | [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | — | ⏳ Pendente |
+| 10 | [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | — | ✅ Concluído |
 | 11 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | — | ⏳ Pendente |
 | 12 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | — | ⏳ Pendente |
 | 13 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | — | ⏳ Pendente |
@@ -286,7 +286,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | M20 · 3.3 · 10º | 0 | Baixo | Bom | ⏳ |
 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | M20 · 3.3 · 11º | 0 | Baixo | Bom | ⏳ |
 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | M20 · 3.3 · 12º | 0 | Médio | Bom | ⏳ |
 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | M20 · 3.3 · 13º | 0 | Baixo | Bom | ⏳ |
@@ -361,7 +360,6 @@
 | **F204** | Melhoria | Congresso: votação com placar e casa eleita | N15, N34 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 | **F205** | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | N15, N31 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 | **F206** | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | N15 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
-| **F207** | Correção | Placar da vela com os votos de cada jogador | N15, N22 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
 | **F208** | Melhoria | Empréstimo: o custo inteiro antes de assinar | N15, N33 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
 | **F210** | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | N6, N15 | — | M20 · 3.3 | — | Baixo | Baixo | Alto | Bom |
 | **F213** | Melhoria | Pendências: consequência inteira e Pagar em destaque | N15 | — | M20 · 3.3 | — | Baixo | Baixo | Alto | Bom |
@@ -536,18 +534,6 @@
 - **Carteira vazia:** a mensagem "O gráfico começa no próximo pregão" que o desenho aprovado tem e o app não (`networth-chart.tsx`, componente `Empty`).
 
 **Aceite:** a carteira com patrimônio de 7% da meta mostra o gráfico em escala útil, e os cartões de setor e imposto de renda saem com a mesma altura.
-
-<a id="f207"></a>
-**F207 — Placar da vela com os votos de cada jogador.** Serve N15 e N22. A conferência de 02/11 comparou o desafio da vela com o desenho aprovado, e o usuário confirmou que faltam o placar com os votos e a posição do jogador. O que o código mostra hoje: `scoreboard.tsx` só entra na janela (`challenge-window.tsx:94`) fora da sala solo e mostra contadores ("N disseram sobe", "N disseram desce") e o ✓/✗ de acerto; o backend já manda a direção de cada voto (`ChallengeVoteDTO`, em `core/dto/candle_challenge.py`), que a tela não usa; e o "Você 2º" só existe no dock minimizado (`challenge-dock.tsx:61`) e no fim (`final-panel.tsx:91`).
-
-**O que muda:**
-- Na revelação (`reveal-panel.tsx` e `scoreboard.tsx`), cada jogador aparece com o lado em que votou (sobe ou desce) ao lado do ✓/✗, como no desenho aprovado; o texto de `scoreboard.tsx:56` ("✓ e ✗ ao lado de cada nome") passa a dizer o que a tela mostra.
-- Na pergunta, o placar continua mostrando só quem já respondeu (sem revelar o lado).
-- A posição do jogador ("Você 2º") aparece no cabeçalho da janela (`challenge-header.tsx`) nas duas fases, e não só no dock.
-- A legenda da linha do gráfico (`candle-chart.tsx`) segue o desenho aprovado.
-- Passo de conferência antes de codar: abrir o desafio numa sala com dois jogadores e confirmar se o placar aparece também na pergunta e na revelação (nas capturas de 02/11 ele não apareceu, e a sala solo o esconde de propósito).
-
-**Aceite:** numa sala com dois jogadores, a revelação mostra o voto de cada um e a posição do jogador aparece nas duas fases.
 
 <a id="f208"></a>
 **F208 — Empréstimo: o custo inteiro antes de assinar.** Serve N15 e N33. Na simulação de empréstimo (`features/credit/components/loan-offer-card.tsx`), quem decide não vê o que a assinatura muda na dívida e na nota. O usuário aprovou em 03/11 o desenho do canvas, pequeno, para sair junto da 3.3.
@@ -823,6 +809,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 |
 | **F188** | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | N24 | — | M20 · 3.3 |
 | **F189** | Melhoria | Retoques de interface do playtest de outubro | N15, N21 | — | M20 · 3.3 |
+| **F207** | Correção | Placar da vela com os votos de cada jogador | N15, N22 | — | M20 · 3.3 |
 | **F209** | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | N33, N15 | — | M20 · 3.3 |
 
 <a id="f180"></a>
@@ -898,6 +885,18 @@ A pasta que as Configurações abrem e os nomes dos arquivos atuais continuam os
 - **Aviso de atualização das Estatísticas** (`update-notice.tsx`) também com a partida pausada, dizendo a data da última atualização; a contagem até a próxima aparece só com a partida andando.
 
 Cada item sai num commit `feat:` próprio.
+
+<a id="f207"></a>
+**F207 — Placar da vela com os votos de cada jogador.** Serve N15 e N22. A conferência de 02/11 comparou o desafio da vela com o desenho aprovado, e o usuário confirmou que faltam o placar com os votos e a posição do jogador. O que o código mostra hoje: `scoreboard.tsx` só entra na janela (`challenge-window.tsx:94`) fora da sala solo e mostra contadores ("N disseram sobe", "N disseram desce") e o ✓/✗ de acerto; o backend já manda a direção de cada voto (`ChallengeVoteDTO`, em `core/dto/candle_challenge.py`), que a tela não usa; e o "Você 2º" só existe no dock minimizado (`challenge-dock.tsx:61`) e no fim (`final-panel.tsx:91`).
+
+**O que muda:**
+- Na revelação (`reveal-panel.tsx` e `scoreboard.tsx`), cada jogador aparece com o lado em que votou (sobe ou desce) ao lado do ✓/✗, como no desenho aprovado; o texto de `scoreboard.tsx:56` ("✓ e ✗ ao lado de cada nome") passa a dizer o que a tela mostra.
+- Na pergunta, o placar continua mostrando só quem já respondeu (sem revelar o lado).
+- A posição do jogador ("Você 2º") aparece no cabeçalho da janela (`challenge-header.tsx`) nas duas fases, e não só no dock.
+- A legenda da linha do gráfico (`candle-chart.tsx`) segue o desenho aprovado.
+- Passo de conferência antes de codar: abrir o desafio numa sala com dois jogadores e confirmar se o placar aparece também na pergunta e na revelação (nas capturas de 02/11 ele não apareceu, e a sala solo o esconde de propósito).
+
+**Aceite:** numa sala com dois jogadores, a revelação mostra o voto de cada um e a posição do jogador aparece nas duas fases.
 
 <a id="f209"></a>
 **F209 — Crédito em atraso: valor do diálogo, nota do mês e aviso no topo.** Serve N33 e N15. Na conferência de 02/11 o usuário estranhou a tela de atraso: o jogador tinha caixa e a parcela não foi descontada, e os valores do diálogo pareciam divergir (botão "Pagar" em R$ 1.565,60 contra R$ 45,60 de multa e mora). O código mostra o seguinte:
