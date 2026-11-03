@@ -173,7 +173,6 @@ from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.simulation.simulation_loop import simulation_controller
 from backend.features.statistics.cache import ReportCache
 from backend.features.statistics.goal import goal_on, goal_reached
-from backend.features.statistics.report import build_overview_report
 from backend.features.strategy.runner import StrategyRunner
 from backend.features.summaries.service import SummaryDelivery
 from backend.features.tax_policy import TaxPolicy
@@ -304,15 +303,8 @@ class Simulation:
         # As abas das Estatísticas desta partida, montadas uma vez por mês
         self.statistics = ReportCache()
 
-        # O resumo do mês usa o ranking da aba Geral do mês que começa
         self._summaries = SummaryDelivery(
-            settings.id,
-            settings.start_date,
-            settings.starting_cash,
-            lambda: self.statistics.report(
-                "overview", lambda: build_overview_report([settings.id])
-            ),
-            lambda: {ticker: s.name for ticker, s in self._engine.stocks.items()},
+            settings.id, settings.start_date, settings.starting_cash
         )
 
         # Fora da Clássica: onde cada um está na meta e se alguém já chegou
@@ -1002,7 +994,7 @@ class Simulation:
                 self._track_goal(snapshots)
 
         self._last_snapshots = {e.snapshot.user_id: e.snapshot for e in snapshots}
-        if month_changed:
+        if month_changed and self._current_date.month == 1:
             with metrics.measure("engine", ENGINE_SUMMARIES):
                 self._deliver_summaries(users)
         with metrics.measure("engine", ENGINE_ACHIEVEMENTS):
@@ -1114,13 +1106,13 @@ class Simulation:
 
     def _deliver_summaries(self, users: list[UserDTO]) -> None:
         """
-        O resumo do mês sai depois dos snapshots do dia. O resumo é um extra:
-        um erro ao montá-lo não interrompe a partida.
+        A retrospectiva sai depois dos snapshots do dia. Ela é um extra:
+        um erro ao montá-la não interrompe a partida.
         """
         try:
-            self._summaries.on_month_turn(users, self._current_date)
+            self._summaries.on_year_turn(users, self._current_date)
         except Exception:
-            logger.exception("Erro ao montar o resumo do mês")
+            logger.exception("Erro ao montar a retrospectiva do ano")
 
     def get_goal_progress(self) -> GoalProgressDTO | None:
         return self._goal_progress

@@ -3683,7 +3683,7 @@
           "Summaries"
         ],
         "summary": "Resumos do jogador",
-        "description": "Os resumos do mês e as retrospectivas do ano do jogador na partida em andamento, do mais novo para o mais antigo.",
+        "description": "As retrospectivas do ano do jogador na partida em andamento, do mais novo para o mais antigo.",
         "operationId": "get_summaries_api_summaries_get",
         "responses": {
           "200": {
@@ -20190,115 +20190,6 @@
         ],
         "title": "MonthPaymentsDTO"
       },
-      "MonthSummaryDTO": {
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "MONTH_SUMMARY",
-            "title": "Kind",
-            "default": "MONTH_SUMMARY"
-          },
-          "month": {
-            "type": "string",
-            "format": "date",
-            "title": "Month"
-          },
-          "networth_start": {
-            "type": "string",
-            "title": "Networth Start"
-          },
-          "networth_end": {
-            "type": "string",
-            "title": "Networth End"
-          },
-          "return_pct": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Return Pct"
-          },
-          "cdi_pct": {
-            "type": "string",
-            "title": "Cdi Pct"
-          },
-          "ibov_pct": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ibov Pct"
-          },
-          "best_position": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/PositionResultDTO"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "worst_position": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/PositionResultDTO"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "dividends": {
-            "type": "string",
-            "title": "Dividends"
-          },
-          "income_tax": {
-            "type": "string",
-            "title": "Income Tax"
-          },
-          "contributions": {
-            "type": "string",
-            "title": "Contributions"
-          },
-          "ranking": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/RankingMoveDTO"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "kind",
-          "month",
-          "networth_start",
-          "networth_end",
-          "return_pct",
-          "cdi_pct",
-          "ibov_pct",
-          "best_position",
-          "worst_position",
-          "dividends",
-          "income_tax",
-          "contributions",
-          "ranking"
-        ],
-        "title": "MonthSummaryDTO"
-      },
       "MonthlyReturnDTO": {
         "properties": {
           "month": {
@@ -23475,43 +23366,6 @@
         ],
         "title": "PositionDTO"
       },
-      "PositionResultDTO": {
-        "properties": {
-          "ticker": {
-            "type": "string",
-            "title": "Ticker"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "result": {
-            "type": "string",
-            "title": "Result"
-          },
-          "result_pct": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Result Pct"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "ticker",
-          "name",
-          "result",
-          "result_pct"
-        ],
-        "title": "PositionResultDTO",
-        "description": "O que uma posição de renda variável rendeu no período, em reais e sobre o capital dela."
-      },
       "PositionUpdateEventDTO": {
         "properties": {
           "position": {
@@ -24606,37 +24460,6 @@
         ],
         "title": "QueueBudgetDTO",
         "description": "A fila inteira do Congresso, se passar: o que muda no resultado do governo."
-      },
-      "RankingMoveDTO": {
-        "properties": {
-          "position": {
-            "type": "integer",
-            "title": "Position"
-          },
-          "players": {
-            "type": "integer",
-            "title": "Players"
-          },
-          "change": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Change"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "position",
-          "players",
-          "change"
-        ],
-        "title": "RankingMoveDTO"
       },
       "RankingRowDTO": {
         "properties": {
@@ -29070,22 +28893,7 @@
             "title": "Game Date"
           },
           "content": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/MonthSummaryDTO"
-              },
-              {
-                "$ref": "#/components/schemas/YearReviewDTO"
-              }
-            ],
-            "title": "Content",
-            "discriminator": {
-              "propertyName": "kind",
-              "mapping": {
-                "MONTH_SUMMARY": "#/components/schemas/MonthSummaryDTO",
-                "YEAR_REVIEW": "#/components/schemas/YearReviewDTO"
-              }
-            }
+            "$ref": "#/components/schemas/YearReviewDTO"
           }
         },
         "additionalProperties": false,
@@ -29096,7 +28904,7 @@
           "content"
         ],
         "title": "SummaryDTO",
-        "description": "Um resumo entregue a um jogador na virada do mês ou do ano."
+        "description": "Uma retrospectiva entregue a um jogador na virada do ano."
       },
       "SummaryVerdict": {
         "type": "string",
@@ -30020,7 +29828,7 @@
           "CREDIT_PAYMENTS",
           "CREDIT_RATING",
           "LIFE_EVENT",
-          "MONTH_SUMMARY",
+          "YEAR_REVIEW",
           "VICE_ANSWER"
         ],
         "title": "ToastType",

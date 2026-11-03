@@ -977,7 +977,7 @@ class AchievementProgress(Base):
 
 
 class Summaries(Base):
-    """O resumo do mês e a retrospectiva do ano de cada jogador, criados pelo motor na virada."""
+    """A retrospectiva do ano de cada jogador, criada pelo motor na virada do ano."""
 
     __tablename__ = "summaries"
     __table_args__ = (
@@ -1016,10 +1016,10 @@ class Summaries(Base):
     user_id: Mapped[int | None] = mapped_column(Integer)
     game_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     kind: Mapped[str] = mapped_column(
-        Enum("MONTH_SUMMARY", "YEAR_REVIEW", name="summary_kind"),
+        Enum("YEAR_REVIEW", name="summary_kind"),
         nullable=False,
     )
-    # O formato de cada tipo mora no DTO de `SummaryContent`
+    # O formato do conteúdo mora em `YearReviewDTO`
     content: Mapped[dict] = mapped_column(JSONB, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False

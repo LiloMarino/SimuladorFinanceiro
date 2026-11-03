@@ -44,7 +44,7 @@ ENGINE_BACKTEST_DAY = "Dia do backtest"
 ENGINE_SNAPSHOTS = "Snapshots do dia"
 ENGINE_PUBLISH = "Publicar o dia"  # monta e envia os eventos do dia
 ENGINE_GOAL = "Meta"
-ENGINE_SUMMARIES = "Resumos do mês"
+ENGINE_SUMMARIES = "Retrospectiva do ano"
 ENGINE_ACHIEVEMENTS = "Conquistas"
 
 # O debug não se mede a si mesmo

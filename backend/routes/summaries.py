@@ -11,7 +11,7 @@ summaries_router = APIRouter(prefix="/api/summaries", tags=["Summaries"])
     "",
     response_model=list[SummaryDTO],
     summary="Resumos do jogador",
-    description="Os resumos do mês e as retrospectivas do ano do jogador na partida em andamento, do mais novo para o mais antigo.",
+    description="As retrospectivas do ano do jogador na partida em andamento, do mais novo para o mais antigo.",
 )
 def get_summaries(simulation: ActiveSimulation, user: CurrentUser):
     return repository.summaries.of_player(simulation.settings.id, user.id)

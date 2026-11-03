@@ -764,7 +764,6 @@ class GroupReading(Enum):
 class SummaryKind(Enum):
     """O que o resumo entregue na virada do período conta."""
 
-    MONTH_SUMMARY = "MONTH_SUMMARY"
     YEAR_REVIEW = "YEAR_REVIEW"
 
 
@@ -848,5 +847,5 @@ class ToastType(Enum):
     CREDIT_PAYMENTS = "CREDIT_PAYMENTS"
     CREDIT_RATING = "CREDIT_RATING"
     LIFE_EVENT = "LIFE_EVENT"
-    MONTH_SUMMARY = "MONTH_SUMMARY"
+    YEAR_REVIEW = "YEAR_REVIEW"
     VICE_ANSWER = "VICE_ANSWER"

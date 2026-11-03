@@ -1301,7 +1301,7 @@ export interface paths {
         };
         /**
          * Resumos do jogador
-         * @description Os resumos do mês e as retrospectivas do ano do jogador na partida em andamento, do mais novo para o mais antigo.
+         * @description As retrospectivas do ano do jogador na partida em andamento, do mais novo para o mais antigo.
          */
         get: operations["get_summaries_api_summaries_get"];
         put?: never;
@@ -7125,38 +7125,6 @@ export interface components {
             /** Late */
             late: number;
         };
-        /** MonthSummaryDTO */
-        MonthSummaryDTO: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            kind: "MONTH_SUMMARY";
-            /**
-             * Month
-             * Format: date
-             */
-            month: string;
-            /** Networth Start */
-            networth_start: string;
-            /** Networth End */
-            networth_end: string;
-            /** Return Pct */
-            return_pct: string | null;
-            /** Cdi Pct */
-            cdi_pct: string;
-            /** Ibov Pct */
-            ibov_pct: string | null;
-            best_position: components["schemas"]["PositionResultDTO"] | null;
-            worst_position: components["schemas"]["PositionResultDTO"] | null;
-            /** Dividends */
-            dividends: string;
-            /** Income Tax */
-            income_tax: string;
-            /** Contributions */
-            contributions: string;
-            ranking: components["schemas"]["RankingMoveDTO"] | null;
-        };
         /** MonthlyReturnDTO */
         MonthlyReturnDTO: {
             /**
@@ -8232,20 +8200,6 @@ export interface components {
             /** Return Pct */
             return_pct: string;
         };
-        /**
-         * PositionResultDTO
-         * @description O que uma posição de renda variável rendeu no período, em reais e sobre o capital dela.
-         */
-        PositionResultDTO: {
-            /** Ticker */
-            ticker: string;
-            /** Name */
-            name: string;
-            /** Result */
-            result: string;
-            /** Result Pct */
-            result_pct: string | null;
-        };
         /** PositionUpdateEventDTO */
         PositionUpdateEventDTO: {
             position: components["schemas"]["PositionDTO"];
@@ -8637,15 +8591,6 @@ export interface components {
             result_now: string;
             /** Result If Passes */
             result_if_passes: string;
-        };
-        /** RankingMoveDTO */
-        RankingMoveDTO: {
-            /** Position */
-            position: number;
-            /** Players */
-            players: number;
-            /** Change */
-            change: number | null;
         };
         /** RankingRowDTO */
         RankingRowDTO: {
@@ -10204,7 +10149,7 @@ export interface components {
         SuggestionKind: "PAYOFF" | "VOLATILITY" | "ON_TIME" | "RECOVER";
         /**
          * SummaryDTO
-         * @description Um resumo entregue a um jogador na virada do mês ou do ano.
+         * @description Uma retrospectiva entregue a um jogador na virada do ano.
          */
         SummaryDTO: {
             /** Id */
@@ -10214,8 +10159,7 @@ export interface components {
              * Format: date
              */
             game_date: string;
-            /** Content */
-            content: components["schemas"]["MonthSummaryDTO"] | components["schemas"]["YearReviewDTO"];
+            content: components["schemas"]["YearReviewDTO"];
         };
         /** @enum {string} */
         SummaryVerdict: "strong_buy" | "buy" | "neutral" | "sell" | "strong_sell";
@@ -10488,7 +10432,7 @@ export interface components {
          * @description Um aviso do que acontece com o próprio jogador, ligado ou desligado por tipo.
          * @enum {string}
          */
-        ToastType: "ORDER_EXECUTED" | "ORDER_PARTIAL" | "STRATEGY_ORDERS" | "PLAYER_PRESENCE" | "CREDIT_PAYMENTS" | "CREDIT_RATING" | "LIFE_EVENT" | "MONTH_SUMMARY" | "VICE_ANSWER";
+        ToastType: "ORDER_EXECUTED" | "ORDER_PARTIAL" | "STRATEGY_ORDERS" | "PLAYER_PRESENCE" | "CREDIT_PAYMENTS" | "CREDIT_RATING" | "LIFE_EVENT" | "YEAR_REVIEW" | "VICE_ANSWER";
         /** ToastTypeInfo */
         ToastTypeInfo: {
             type: components["schemas"]["ToastType"];
@@ -10899,8 +10843,9 @@ export interface components {
         /** YearReviewDTO */
         YearReviewDTO: {
             /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
+             * Kind
+             * @default YEAR_REVIEW
+             * @constant
              */
             kind: "YEAR_REVIEW";
             /** Year */

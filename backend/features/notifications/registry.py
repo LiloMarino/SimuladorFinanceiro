@@ -194,9 +194,9 @@ TOASTS: tuple[ToastSpec, ...] = (
         ToastType.LIFE_EVENT, "Imprevisto", "Conta inesperada da vida financeira"
     ),
     ToastSpec(
-        ToastType.MONTH_SUMMARY,
-        "Resumo do mês e retrospectiva",
-        "Na virada do mês, com o atalho para abrir",
+        ToastType.YEAR_REVIEW,
+        "Retrospectiva do ano",
+        "Na virada do ano, com o atalho para abrir",
     ),
     ToastSpec(
         ToastType.VICE_ANSWER, "Resposta do vice", "Aceitou ou recusou o seu convite"

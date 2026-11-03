@@ -316,7 +316,6 @@ export type StrategyLogRow = StrategyLogPage["items"][number];
 export type StrategyLogKind = components["schemas"]["StrategyLogKind"];
 export type StrategyLogFilter = "all" | "orders" | "modes";
 
-// Resumos do mês e retrospectivas do ano
+// Retrospectivas do ano
 export type Summary = components["schemas"]["SummaryDTO"];
-export type MonthSummary = components["schemas"]["MonthSummaryDTO"];
 export type YearReview = components["schemas"]["YearReviewDTO"];

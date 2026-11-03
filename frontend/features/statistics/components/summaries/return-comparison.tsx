@@ -3,12 +3,12 @@ import { Kpi } from "@/shared/components/kpi";
 import { MetricLabel } from "@/shared/components/metric-hint";
 import type { MetricInfo } from "@/shared/lib/metric-info";
 import { displayMoney, displaySignedPercent } from "@/shared/lib/utils/display";
-import type { MonthSummary } from "@/types";
-import { MONTH_CDI, MONTH_IBOV } from "../../lib/summary-metrics";
+import type { YearReview } from "@/types";
+import { YEAR_CDI, YEAR_IBOV } from "../../lib/summary-metrics";
 
 type NetworthChangeProps = {
-  start: MonthSummary["networth_start"];
-  end: MonthSummary["networth_end"];
+  start: YearReview["networth_start"];
+  end: YearReview["networth_end"];
 };
 
 /** Patrimônio no início e no fim do período. */
@@ -27,9 +27,9 @@ export function NetworthChange({ start, end }: NetworthChangeProps) {
 
 type ReturnComparisonProps = {
   metric: MetricInfo;
-  value: MonthSummary["return_pct"];
-  cdi: MonthSummary["cdi_pct"];
-  ibov: MonthSummary["ibov_pct"];
+  value: YearReview["return_pct"];
+  cdi: YearReview["cdi_pct"];
+  ibov: YearReview["ibov_pct"];
 };
 
 /** A rentabilidade do jogador ao lado do CDI e do Ibovespa do mesmo período. */
@@ -43,9 +43,9 @@ export function ReturnComparison({ metric, value, cdi, ibov }: ReturnComparisonP
         note={value === null ? "Sem pregão para medir" : undefined}
         tone={tone}
       />
-      <Kpi label={<MetricLabel metric={MONTH_CDI} />} value={displaySignedPercent(cdi)} />
+      <Kpi label={<MetricLabel metric={YEAR_CDI} />} value={displaySignedPercent(cdi)} />
       <Kpi
-        label={<MetricLabel metric={MONTH_IBOV} />}
+        label={<MetricLabel metric={YEAR_IBOV} />}
         value={ibov === null ? "—" : displaySignedPercent(ibov)}
         note={ibov === null ? "Sem a série do índice" : undefined}
       />

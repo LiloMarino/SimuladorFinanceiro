@@ -17,7 +17,7 @@ const TABS = [
   { value: "operations", label: "Operações", Content: OperationsTab },
 ] as const;
 
-const SUMMARIES_TAB = { value: "summaries", label: "Resumos" } as const;
+const SUMMARIES_TAB = { value: "summaries", label: "Retrospectivas" } as const;
 
 /**
  * Relatório de desempenho em abas, como o fim de partida de um RTS. Serve a partida em
@@ -38,7 +38,7 @@ export function StatisticsReport({
   title?: string;
   /** O conteúdo da aba Geral, para quem tem um Geral próprio (o backtest) */
   overview?: ComponentType<ReportProps>;
-  /** A partida cujos resumos do mês e do ano ganham a aba Resumos; sem ela, a aba não existe */
+  /** A partida cujas retrospectivas do ano ganham a aba Resumos; sem ela, a aba não existe */
   summariesFor?: number;
   /** A aba aberta, quando quem usa o relatório a controla (por exemplo, pela URL) */
   tab?: string | undefined;

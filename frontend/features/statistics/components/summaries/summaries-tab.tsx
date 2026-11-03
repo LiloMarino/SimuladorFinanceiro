@@ -9,12 +9,11 @@ import { displayIsoDate, displaySignedPercent } from "@/shared/lib/utils/display
 import type { Summary } from "@/types";
 import { useSummaries } from "../../hooks/queries/useSummaries";
 import { summaryTitle } from "../../lib/summary";
-import { MonthSummaryView } from "./month-summary";
 import { YearReviewView } from "./year-review";
 
 type SummariesTabProps = { simulationId: number };
 
-/** Os resumos do mês e as retrospectivas do ano que o jogador recebeu na partida, abertos um por vez. */
+/** As retrospectivas do ano que o jogador recebeu na partida, abertos um por vez. */
 export function SummariesTab({ simulationId }: SummariesTabProps) {
   const { data: summaries, isPending, error, refetch } = useSummaries(simulationId);
   const [expanded, setExpanded] = useState<Summary["id"] | null>(null);
@@ -35,7 +34,7 @@ export function SummariesTab({ simulationId }: SummariesTabProps) {
   if (!summaries) {
     return (
       <ErrorState
-        title="Não deu para carregar os resumos"
+        title="Não deu para carregar as retrospectivas"
         description="A partida segue normal. Tente de novo em instantes."
         error={error}
         onRetry={() => void refetch()}
@@ -46,10 +45,8 @@ export function SummariesTab({ simulationId }: SummariesTabProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Resumos</CardTitle>
-        <CardDescription>
-          O resumo de cada mês chega na virada do mês, e a retrospectiva do ano na virada do ano.
-        </CardDescription>
+        <CardTitle>Retrospectivas</CardTitle>
+        <CardDescription>A retrospectiva de cada ano chega na virada do ano.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid content-start gap-2">
@@ -60,7 +57,7 @@ export function SummariesTab({ simulationId }: SummariesTabProps) {
                   <FileText />
                 </EmptyMedia>
                 <EmptyTitle>Nada por aqui ainda</EmptyTitle>
-                <EmptyDescription>O resumo do primeiro mês chega no primeiro pregão do mês seguinte.</EmptyDescription>
+                <EmptyDescription>A primeira retrospectiva chega no primeiro pregão do ano seguinte.</EmptyDescription>
               </EmptyHeader>
             </Empty>
           ) : (
@@ -87,7 +84,6 @@ type SummaryRowProps = {
 
 function SummaryRow({ summary, open, onToggle }: SummaryRowProps) {
   const content = summary.content;
-  const Icon = content.kind === "YEAR_REVIEW" ? CalendarRange : FileText;
   const result = content.return_pct === null ? null : Number(content.return_pct);
 
   return (
@@ -98,7 +94,7 @@ function SummaryRow({ summary, open, onToggle }: SummaryRowProps) {
         className="flex w-full items-center gap-3 px-3.5 py-3 text-left"
         onClick={onToggle}
       >
-        <Icon className="size-4 shrink-0 text-muted-foreground" />
+        <CalendarRange className="size-4 shrink-0 text-muted-foreground" />
         <span className="grid min-w-0 flex-1">
           <span className="truncate text-sm font-medium">{summaryTitle(content)}</span>
           <span className="text-xs text-muted-foreground">{displayIsoDate(summary.game_date)}</span>
@@ -120,11 +116,7 @@ function SummaryRow({ summary, open, onToggle }: SummaryRowProps) {
       </button>
       {open && (
         <div className="border-t border-border px-3.5 py-3">
-          {content.kind === "YEAR_REVIEW" ? (
-            <YearReviewView review={content} />
-          ) : (
-            <MonthSummaryView summary={content} />
-          )}
+          <YearReviewView review={content} />
         </div>
       )}
     </article>

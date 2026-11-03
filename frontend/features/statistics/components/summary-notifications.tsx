@@ -4,7 +4,7 @@ import { useNotificationPreferences } from "@/shared/hooks/useNotificationPrefer
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { summaryTitle } from "../lib/summary";
 
-/** O resumo do mês e a retrospectiva do ano chegam como aviso, com o atalho para a aba Resumos das estatísticas. */
+/** A retrospectiva do ano chega como aviso, com o atalho para a aba Resumos das estatísticas. */
 export function SummaryNotifications() {
   const navigate = useNavigate();
   const { isToastOn } = useNotificationPreferences();
@@ -16,7 +16,7 @@ export function SummaryNotifications() {
         action: { label: "Abrir", onClick: () => void navigate("/statistics?tab=summaries") },
       });
     },
-    isToastOn("MONTH_SUMMARY"),
+    isToastOn("YEAR_REVIEW"),
   );
 
   return null;

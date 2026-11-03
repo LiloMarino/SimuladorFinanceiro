@@ -4,7 +4,7 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { Summary } from "@/types";
 
-/** Os resumos do mês e as retrospectivas do ano do jogador, do mais novo para o mais antigo. */
+/** As retrospectivas do ano do jogador, do mais novo para o mais antigo. */
 export function useSummaries(simulationId: number) {
   const queryClient = useQueryClient();
 
