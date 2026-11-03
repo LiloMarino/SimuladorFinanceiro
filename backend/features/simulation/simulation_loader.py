@@ -1,3 +1,5 @@
+from dataclasses import replace
+
 from backend.core import repository
 from backend.core.dto.simulation import (
     SimulationDTO,
@@ -60,9 +62,17 @@ class SimulationLoader:
             settings.start_date,
             settings.starting_cash,
         )
-        # A preparação do lobby vira evento da partida e é aplicada quando a campanha abre
+        # A preparação do lobby vira evento da partida, cada jogador com a contribuição do perfil
         preparation.record(
-            simulation_id, settings.start_date, RoomPreparation.prepared(humans)
+            simulation_id,
+            settings.start_date,
+            [
+                replace(
+                    p,
+                    contribution=repository.settings.get_party_contribution(p.user_id),
+                )
+                for p in RoomPreparation.prepared(humans)
+            ],
         )
         RoomPreparation.clear()
         UserManager.release_bots()

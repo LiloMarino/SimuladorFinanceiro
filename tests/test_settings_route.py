@@ -1,4 +1,4 @@
-"""`/api/settings` mostra o modo debug do servidor e nunca o grava no usuário."""
+"""`/api/settings` mostra o modo debug do servidor e nunca o grava no usuário; o perfil atravessa as preferências."""
 
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ from backend.config.paths import app_files_dir
 from backend.core import repository
 from backend.core.dependencies import get_client_id, get_current_user, verify_host
 from backend.core.dto.user import UserDTO
+from backend.core.repository.settings import SettingsRepository
 from backend.core.runtime.user_manager import UserManager
 from backend.routes import settings as settings_route
 from backend.routes.settings import settings_router
@@ -29,14 +30,14 @@ PREFERENCES = {
 }
 
 
-class _FakeSettingsRepository:
+class _FakeSettingsRepository(SettingsRepository):
     def __init__(self) -> None:
         self.stored: dict[str, Any] = {}
 
-    def get_by_user_id(self, _user_id: int) -> dict[str, Any]:
+    def get_by_user_id(self, _user_id: int) -> dict[str, Any]:  # type: ignore[override]
         return self.stored
 
-    def update_by_user_id(self, _user_id: int, settings: dict[str, Any]) -> None:
+    def update_by_user_id(self, _user_id: int, settings: dict[str, Any]) -> None:  # type: ignore[override]
         self.stored = settings
 
 
@@ -105,6 +106,26 @@ def test_server_value_wins_over_a_stale_stored_one(
     stored.stored = {**PREFERENCES, "debug": True}
 
     assert client.get("/api/settings").json()["debug"] is False
+
+
+def test_contribution_starts_at_zero_and_keeps_the_saved_amount(
+    client: TestClient,
+) -> None:
+    assert client.get("/api/settings/party/contribution").json() == {"amount": "0"}
+
+    client.put("/api/settings/party/contribution", json={"amount": "2500"})
+
+    assert client.get("/api/settings/party/contribution").json() == {"amount": "2500"}
+
+
+def test_put_of_the_preferences_keeps_the_profile(
+    client: TestClient, stored: _FakeSettingsRepository
+) -> None:
+    client.put("/api/settings/party/contribution", json={"amount": "2500"})
+
+    client.put("/api/settings", json=PREFERENCES)
+
+    assert stored.stored["party_contribution"] == "2500"
 
 
 def test_notifications_fill_every_type_with_the_registry_default(

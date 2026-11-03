@@ -461,6 +461,8 @@ class GovernmentState:
     balances: list[Balance] = field(default_factory=list)
     # A preparação de cada jogador no lobby, à espera da abertura da campanha; vazia depois
     preparations: list[dict[str, object]] = field(default_factory=list)
+    # Quem a última cobrança não conseguiu cobrar: o mês e o valor que faltou
+    unpaid: dict[int, tuple[date, Decimal]] = field(default_factory=dict)
 
     @property
     def satisfaction(self) -> dict[VoterGroup, Decimal]:
@@ -636,6 +638,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             if party is not None:
                 party.members[user_id] = _money(p, "contribution")
                 party.congress = {**party.congress, **_congress(p, user_id)}
+            state.unpaid.pop(user_id, None)
         case Event.PARTIES_PREPARED:
             state.preparations = list(_list(p, "players"))  # type: ignore[arg-type]
         case Event.TICKET_SET:
@@ -667,6 +670,10 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                     party.spent += amount
                     party.add_house_campaign(amount)
             state.last_collection = date.fromisoformat(_str(p, "month"))
+            state.unpaid = {
+                user_id: (state.last_collection, amount)
+                for user_id, amount in _money_map(p, "unpaid").items()
+            }
             state.polls.append(
                 Poll(
                     day,
@@ -897,6 +904,7 @@ def _apply_deal_broken(state: GovernmentState, event: GovernmentEventDTO) -> Non
 
 
 def _remove_member(state: GovernmentState, user_id: int) -> None:
+    state.unpaid.pop(user_id, None)
     party = state.party_of(user_id)
     if party is None:
         return

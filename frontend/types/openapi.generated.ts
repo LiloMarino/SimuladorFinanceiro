@@ -400,6 +400,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings/party/contribution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter a contribuição salva
+         * @description A contribuição mensal que o jogador leva a cada partido em que funda ou entra; zero enquanto não salvou uma.
+         */
+        get: operations["get_party_contribution_api_settings_party_contribution_get"];
+        /**
+         * Salvar a contribuição
+         * @description Grava no perfil a contribuição mensal ao partido. Mudar a contribuição dentro da partida também grava aqui.
+         */
+        put: operations["put_party_contribution_api_settings_party_contribution_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings/notification-types": {
         parameters: {
             query?: never;
@@ -1547,7 +1571,7 @@ export interface paths {
         put?: never;
         /**
          * Fundar um partido
-         * @description Funda um partido com nome, sigla de 2 a 8 letras, cor, 3 bandeiras diferentes (Mercado livre e Justiça social não andam juntas) e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.
+         * @description Funda um partido com nome, sigla de 2 a 8 letras, cor, 3 bandeiras diferentes (Mercado livre e Justiça social não andam juntas) e a contribuição mensal de quem funda, que pode ser zero e fica salva no perfil. Desde o 1º dia da partida, menos entre os turnos; um partido por jogador.
          */
         post: operations["found_party_api_government_parties_post"];
         delete?: never;
@@ -1587,7 +1611,7 @@ export interface paths {
         put?: never;
         /**
          * Filiar-se a um partido
-         * @description Entra no partido escolhendo quanto contribui por mês, que pode ser zero. Um partido por vez.
+         * @description Entra no partido escolhendo quanto contribui por mês, que pode ser zero e fica salva no perfil. Um partido por vez.
          */
         post: operations["join_party_api_government_parties__party_id__members_post"];
         delete?: never;
@@ -1626,7 +1650,7 @@ export interface paths {
         get?: never;
         /**
          * Mudar a contribuição
-         * @description Troca a contribuição mensal ao partido; vale a partir do próximo dia 1º. Pode ser zero.
+         * @description Troca a contribuição mensal ao partido; vale a partir do próximo dia 1º e fica salva no perfil. Pode ser zero.
          */
         put: operations["set_contribution_api_government_membership_contribution_put"];
         post?: never;
@@ -7501,6 +7525,22 @@ export interface components {
             /** Color */
             color: string | null;
         };
+        /**
+         * PartyContributionDTO
+         * @description A contribuição mensal que o jogador leva a cada partido em que funda ou entra.
+         */
+        "PartyContributionDTO-Input": {
+            /** Amount */
+            amount: number | string;
+        };
+        /**
+         * PartyContributionDTO
+         * @description A contribuição mensal que o jogador leva a cada partido em que funda ou entra.
+         */
+        "PartyContributionDTO-Output": {
+            /** Amount */
+            amount: string;
+        };
         /** PartyDTO */
         PartyDTO: {
             /** Id */
@@ -7730,7 +7770,7 @@ export interface components {
          * @description Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar.
          * @enum {string}
          */
-        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNGUIDED_VOTE" | "DEAL_PROPOSAL";
+        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "DEAL_PROPOSAL";
         /**
          * PlayerActivity
          * @description O que o jogador está fazendo na sala: a tela em que está, ou fora da aba do jogo.
@@ -11776,6 +11816,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PartyIdentityDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_party_contribution_api_settings_party_contribution_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartyContributionDTO-Output"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    put_party_contribution_api_settings_party_contribution_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PartyContributionDTO-Input"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartyContributionDTO-Output"];
                 };
             };
             /** @description Unprocessable Content */

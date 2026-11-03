@@ -8,7 +8,7 @@ from backend import config
 from backend.config.paths import app_files_dir
 from backend.core import repository
 from backend.core.dependencies import ClientID, HostVerified
-from backend.core.dto.preparation import PartyIdentityDTO
+from backend.core.dto.preparation import PartyContributionDTO, PartyIdentityDTO
 from backend.core.dto.technical_indicators import IndicatorSettingsDTO
 from backend.core.enum import (
     NewsLevel,
@@ -22,7 +22,7 @@ from backend.core.exceptions.http_exceptions import (
     ForbiddenError,
     UnprocessableEntityError,
 )
-from backend.core.repository.settings import MY_PARTY_KEY
+from backend.core.repository.settings import PROFILE_KEYS
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.file_manager import open_in_file_manager
 from backend.features.government import voters
@@ -119,11 +119,11 @@ def update_settings(client_id: ClientID, data: SettingsRequest):
     user_id = UserManager.get_user_id(client_id)
 
     # O debug é do servidor: o cliente não o grava (`extra="allow"` deixaria passar);
-    # o Meu partido tem rota própria e atravessa a gravação das preferências
+    # as chaves do perfil têm rotas próprias e atravessam a gravação das preferências
     kept = {
         key: value
         for key, value in repository.settings.get_by_user_id(user_id).items()
-        if key == MY_PARTY_KEY
+        if key in PROFILE_KEYS
     }
     repository.settings.update_by_user_id(
         user_id, {**data.model_dump(mode="json", exclude={"debug"}), **kept}
@@ -156,6 +156,32 @@ def put_my_party(client_id: ClientID, data: PartyIdentityDTO):
             "andam juntas."
         )
     repository.settings.set_my_party(UserManager.get_user_id(client_id), data)
+    return data
+
+
+@settings_router.get(
+    "/party/contribution",
+    response_model=PartyContributionDTO,
+    summary="Obter a contribuição salva",
+    description="A contribuição mensal que o jogador leva a cada partido em que funda ou entra; zero enquanto não salvou uma.",
+)
+def get_party_contribution(client_id: ClientID):
+    amount = repository.settings.get_party_contribution(
+        UserManager.get_user_id(client_id)
+    )
+    return PartyContributionDTO(amount=amount)
+
+
+@settings_router.put(
+    "/party/contribution",
+    response_model=PartyContributionDTO,
+    summary="Salvar a contribuição",
+    description="Grava no perfil a contribuição mensal ao partido. Mudar a contribuição dentro da partida também grava aqui.",
+)
+def put_party_contribution(client_id: ClientID, data: PartyContributionDTO):
+    repository.settings.set_party_contribution(
+        UserManager.get_user_id(client_id), data.amount
+    )
     return data
 
 

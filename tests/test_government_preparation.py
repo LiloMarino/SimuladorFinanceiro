@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from datetime import date
+from decimal import Decimal
 
 from backend.core.enum import GovernmentEventType, VoterValue
 from backend.features.government import preparation
@@ -73,6 +74,27 @@ def test_campaign_opening_founds_joins_and_sets_the_ticket(book, engine, stored)
     assert party.candidate_id == BOB.id
     assert (party.vice_id, party.vice_accepted) == (CARLA.id, True)
     assert prepared.state.preparations == []
+
+
+def test_parties_are_born_with_the_contribution_saved_in_the_profile(
+    book, engine, stored
+):
+    prepared = prepare(
+        engine,
+        Prepared(ALICE.id, found=IDENTITY, contribution=Decimal(3000)),
+        Prepared(BOB.id, join_id=ALICE.id, contribution=Decimal(500)),
+    )
+
+    start_match(prepared)
+
+    assert party_of(prepared, ALICE).members == {ALICE.id: 3000, BOB.id: 500}
+
+
+def test_payload_without_contribution_reads_as_zero():
+    payload = Prepared(ALICE.id, found=IDENTITY).to_payload()
+    del payload["contribution"]
+
+    assert Prepared.from_payload(payload).contribution == 0
 
 
 def test_founder_without_vice_is_the_candidate(book, engine, stored):

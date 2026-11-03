@@ -5,7 +5,7 @@ import type { Pending, PendingType } from "@/types";
 export type PendingTarget = {
   label: string;
   to: string;
-  state?: { dialog: "vice" | "campaign" };
+  state?: { dialog: "vice" | "campaign" | "contribution" };
 };
 
 const TARGETS: Record<PendingType, (item: Pending) => PendingTarget> = {
@@ -21,6 +21,7 @@ const TARGETS: Record<PendingType, (item: Pending) => PendingTarget> = {
   VICE_INVITE: () => ({ label: "Responder", to: "/election", state: { dialog: "vice" } }),
   DEAL_PROPOSAL: () => ({ label: "Responder", to: "/government?tab=accounts&deal=answer" }),
   CAMPAIGN_OPEN: () => ({ label: "Ver eleição", to: "/election", state: { dialog: "campaign" } }),
+  UNPAID_CONTRIBUTION: () => ({ label: "Mudar valor", to: "/election", state: { dialog: "contribution" } }),
 };
 
 export function pendingTarget(item: Pending): PendingTarget {

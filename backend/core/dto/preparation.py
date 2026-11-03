@@ -5,7 +5,12 @@ from typing import Annotated
 from pydantic import StringConstraints
 
 from backend.core.dto.base import BaseDTO
-from backend.core.dto.government import PARTY_COLOR_PATTERN, PartyAbbr, PartyName
+from backend.core.dto.government import (
+    PARTY_COLOR_PATTERN,
+    Contribution,
+    PartyAbbr,
+    PartyName,
+)
 from backend.core.enum import PreparationKind, VoterValue
 
 
@@ -16,6 +21,12 @@ class PartyIdentityDTO(BaseDTO):
     abbr: PartyAbbr
     color: Annotated[str, StringConstraints(pattern=PARTY_COLOR_PATTERN)]
     flags: list[VoterValue]
+
+
+class PartyContributionDTO(BaseDTO):
+    """A contribuição mensal que o jogador leva a cada partido em que funda ou entra."""
+
+    amount: Contribution
 
 
 class PreparationRequest(BaseDTO):

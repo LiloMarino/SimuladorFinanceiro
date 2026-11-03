@@ -1,10 +1,12 @@
 """
 A preparação que cada jogador deixa no lobby: fundar um partido, filiar-se ao de outro jogador,
-a chapa e o vice. Ela vira um evento da partida e é aplicada quando a campanha abre.
+a chapa e o vice. Ela vira um evento da partida: os partidos nascem no 1º dia, e a chapa entra
+quando a campanha abre.
 """
 
 from dataclasses import dataclass
 from datetime import date
+from decimal import Decimal
 
 from backend.core import repository
 from backend.core.dto.events.government import GovernmentEventDTO
@@ -32,6 +34,8 @@ class Prepared:
     candidate_id: int | None = None
     vice_id: int | None = None
     vice_accepted: bool = False
+    # A contribuição mensal salva no perfil, com que o jogador nasce no partido
+    contribution: Decimal = Decimal(0)
 
     def to_payload(self) -> dict[str, object]:
         return {
@@ -48,6 +52,7 @@ class Prepared:
             "candidate_id": self.candidate_id,
             "vice_id": self.vice_id,
             "vice_accepted": self.vice_accepted,
+            "contribution": str(self.contribution),
         }
 
     @classmethod
@@ -67,6 +72,7 @@ class Prepared:
             candidate_id=_opt(data, "candidate_id"),
             vice_id=_opt(data, "vice_id"),
             vice_accepted=bool(data.get("vice_accepted", False)),
+            contribution=Decimal(str(data.get("contribution", "0"))),
         )
 
 

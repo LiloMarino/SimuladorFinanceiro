@@ -44,7 +44,7 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
-from backend.core.utils import next_business_day, required
+from backend.core.utils import format_money, next_business_day, required
 from backend.features.economy.growth import MacroCourse
 from backend.features.government import approval as approval_rules
 from backend.features.government import budget as budget_rules
@@ -85,6 +85,7 @@ from backend.features.government.state import (
     apply,
     replay,
 )
+from backend.features.newsroom.text import MONTH_NAMES
 from backend.features.notifications import registry
 from backend.features.notifications.news import Headline
 from backend.features.realtime import notify
@@ -281,13 +282,18 @@ class GovernmentBook:
         )
 
     def pending(self, user: UserDTO, today: date) -> list[PendingDTO]:
-        """Risco de impeachment (só o presidente), convite de vice e campanha aberta sem filiação."""
+        """
+        Risco de impeachment (só o presidente), acordo, votações sem orientação, contribuição
+        não paga, convite de vice e campanha aberta sem filiação.
+        """
         items: list[PendingDTO] = []
         if risk := self._impeachment_risk(user, today):
             items.append(risk)
         if proposal := self._deal_proposal(user):
             items.append(proposal)
         items.extend(self._unguided_votes(user, today))
+        if unpaid := self._unpaid_contribution(user, today):
+            items.append(unpaid)
         if not self._ticket_open(today):
             return items
         party = next(
@@ -314,6 +320,18 @@ class GovernmentBook:
                 )
             )
         return items
+
+    def _unpaid_contribution(self, user: UserDTO, today: date) -> PendingDTO | None:
+        """A contribuição que a última cobrança da campanha não conseguiu tirar do caixa."""
+        missed = self.state.unpaid.get(user.id)
+        cycle = self.cycle()
+        if missed is None or not cycle.campaign_start <= today < cycle.first_round:
+            return None
+        month, amount = missed
+        return registry.pending(
+            PendingType.UNPAID_CONTRIBUTION,
+            f"Sua contribuição de {format_money(amount)} não foi paga em {MONTH_NAMES[month.month - 1]}, por falta de caixa",
+        )
 
     def _deal_proposal(self, user: UserDTO) -> PendingDTO | None:
         """A proposta de acordo que espera a resposta do líder do partido."""
@@ -560,7 +578,7 @@ class GovernmentBook:
                     abbr=identity.abbr,
                     color=identity.color,
                     flags=list(identity.flags),
-                    contribution=Decimal(0),
+                    contribution=item.contribution,
                 )
             )
         for item in (p for p in present if p.join_id is not None):
@@ -568,7 +586,10 @@ class GovernmentBook:
             if founded is not None:
                 self._attempt(
                     lambda item=item, founded=founded: self.join_party(
-                        self._people[item.user_id], today, founded.id, Decimal(0)
+                        self._people[item.user_id],
+                        today,
+                        founded.id,
+                        item.contribution,
                     )
                 )
 
@@ -2412,7 +2433,8 @@ class GovernmentBook:
     def _collect(self, people: dict[int, UserDTO], today: date) -> None:
         """
         No 1º dia útil do mês cada filiado paga a contribuição que escolheu, se o caixa
-        cobre; o partido do computador gasta a verba da dificuldade.
+        cobre, e quem não pôde pagar fica anotado; o partido do computador gasta a verba da
+        dificuldade.
         """
         month = today.replace(day=1)
         if self.state.last_collection == month:
@@ -2422,6 +2444,7 @@ class GovernmentBook:
 
         spent: dict[str, str] = {}
         to_house: dict[str, str] = {}
+        unpaid: dict[str, str] = {}
         for party in self.state.player_parties():
             total = Decimal(0)
             house_total = Decimal(0)
@@ -2429,11 +2452,10 @@ class GovernmentBook:
             runs = election.runs(self.state, party)
             for user_id, contribution in party.members.items():
                 user = people.get(user_id)
-                if (
-                    user is None
-                    or contribution <= 0
-                    or self._engine.get_cash(user.client_id) < contribution
-                ):
+                if user is None or contribution <= 0:
+                    continue
+                if self._engine.get_cash(user.client_id) < contribution:
+                    unpaid[str(user_id)] = str(contribution)
                     continue
                 self._engine.pay_campaign(
                     user.client_id,
@@ -2459,6 +2481,7 @@ class GovernmentBook:
             month=month.isoformat(),
             spent=spent,
             house=to_house,
+            unpaid=unpaid,
         )
         self._notice(GovernmentNoticeKind.UPDATED)
 

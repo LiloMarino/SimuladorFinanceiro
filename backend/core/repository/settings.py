@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -8,6 +9,9 @@ from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.models.models import Users
 
 MY_PARTY_KEY = "my_party"
+PARTY_CONTRIBUTION_KEY = "party_contribution"
+# As chaves que o jogador grava pelas rotas próprias do perfil, e que as preferências atravessam
+PROFILE_KEYS = frozenset({MY_PARTY_KEY, PARTY_CONTRIBUTION_KEY})
 
 
 class SettingsRepository:
@@ -37,7 +41,17 @@ class SettingsRepository:
         return None if raw is None else PartyIdentityDTO.model_validate(raw)
 
     def set_my_party(self, user_id: int, party: PartyIdentityDTO) -> None:
-        settings = self.get_by_user_id(user_id)
-        self.update_by_user_id(
-            user_id, {**settings, MY_PARTY_KEY: party.model_dump(mode="json")}
+        self._set_key(user_id, MY_PARTY_KEY, party.model_dump(mode="json"))
+
+    def get_party_contribution(self, user_id: int) -> Decimal:
+        """A contribuição mensal que o jogador leva a cada partido; zero enquanto não salvou uma."""
+        return Decimal(
+            str(self.get_by_user_id(user_id).get(PARTY_CONTRIBUTION_KEY, "0"))
         )
+
+    def set_party_contribution(self, user_id: int, amount: Decimal) -> None:
+        self._set_key(user_id, PARTY_CONTRIBUTION_KEY, str(amount))
+
+    def _set_key(self, user_id: int, key: str, value: object) -> None:
+        settings = self.get_by_user_id(user_id)
+        self.update_by_user_id(user_id, {**settings, key: value})

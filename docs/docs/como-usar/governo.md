@@ -30,7 +30,7 @@ Só se concorre por partido, e o partido existe desde o 1º dia da partida:
 
 - **Fundar:** nome, sigla de 2 a 8 letras, cor, **promessa** na régua (veja abaixo) e a contribuição mensal. Nome, sigla e cor não podem repetir os de outro partido. Quem funda é o **fundador**.
 - **Filiar-se:** escolhe um partido de jogadores e quanto contribui por mês. Cada jogador está em um partido só; para trocar, é preciso sair antes.
-- **Contribuir:** cada filiado define a própria contribuição mensal, que pode ser **zero**. A **verba** do partido é a soma das contribuições.
+- **Contribuir:** cada filiado define a própria contribuição mensal, que pode ser **zero**. A **verba** do partido é a soma das contribuições. O valor fica salvo no perfil: ao fundar ou entrar num partido, inclusive pela preparação do lobby, o jogador começa com a última contribuição que escolheu.
 - **Sair** e **expulsar:** quem sai para de contribuir na hora, e o que já saiu do caixa não volta. Só o fundador expulsa, e a expulsão é pública. Bots não entram em partido.
 
 Fundar, filiar-se e sair valem desde o 1º dia da partida; entre os turnos só se doa. Três coisas esperam a campanha abrir:
@@ -76,7 +76,7 @@ e o resultado é quantos eleitores, em cada 100, passam a votar no partido. Exem
 
 Os pontos de cada mês de campanha se somam. Por isso muitos contribuintes pequenos rendem mais votos por real do que um só doador grande.
 
-A contribuição de cada filiado é debitada do caixa no **1º dia útil de cada mês** de campanha. Se faltar caixa naquele mês, a contribuição é **pulada** (não vira dívida).
+A contribuição de cada filiado é debitada do caixa no **1º dia útil de cada mês** de campanha. Se faltar caixa naquele mês, a contribuição é **pulada** (não vira dívida) e vira uma pendência, "Sua contribuição de R$ 2.000,00 não foi paga em março, por falta de caixa", que some quando a contribuição seguinte é paga ou quando você muda o valor.
 
 O que falta para 100 são os **indecisos**: eleitores que ainda não escolheram ninguém. A **pesquisa de intenção** mostra os pontos de cada partido e os indecisos de hoje.
 

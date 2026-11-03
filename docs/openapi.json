@@ -1323,6 +1323,108 @@
         ]
       }
     },
+    "/api/settings/party/contribution": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Obter a contribuição salva",
+        "description": "A contribuição mensal que o jogador leva a cada partido em que funda ou entra; zero enquanto não salvou uma.",
+        "operationId": "get_party_contribution_api_settings_party_contribution_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyContributionDTO-Output"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Salvar a contribuição",
+        "description": "Grava no perfil a contribuição mensal ao partido. Mudar a contribuição dentro da partida também grava aqui.",
+        "operationId": "put_party_contribution_api_settings_party_contribution_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartyContributionDTO-Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartyContributionDTO-Output"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/settings/notification-types": {
       "get": {
         "tags": [
@@ -4443,7 +4545,7 @@
           "Government"
         ],
         "summary": "Fundar um partido",
-        "description": "Funda um partido com nome, sigla de 2 a 8 letras, cor, 3 bandeiras diferentes (Mercado livre e Justiça social não andam juntas) e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.",
+        "description": "Funda um partido com nome, sigla de 2 a 8 letras, cor, 3 bandeiras diferentes (Mercado livre e Justiça social não andam juntas) e a contribuição mensal de quem funda, que pode ser zero e fica salva no perfil. Desde o 1º dia da partida, menos entre os turnos; um partido por jogador.",
         "operationId": "found_party_api_government_parties_post",
         "requestBody": {
           "content": {
@@ -4543,7 +4645,7 @@
           "Government"
         ],
         "summary": "Filiar-se a um partido",
-        "description": "Entra no partido escolhendo quanto contribui por mês, que pode ser zero. Um partido por vez.",
+        "description": "Entra no partido escolhendo quanto contribui por mês, que pode ser zero e fica salva no perfil. Um partido por vez.",
         "operationId": "join_party_api_government_parties__party_id__members_post",
         "security": [
           {
@@ -4644,7 +4746,7 @@
           "Government"
         ],
         "summary": "Mudar a contribuição",
-        "description": "Troca a contribuição mensal ao partido; vale a partir do próximo dia 1º. Pode ser zero.",
+        "description": "Troca a contribuição mensal ao partido; vale a partir do próximo dia 1º e fica salva no perfil. Pode ser zero.",
         "operationId": "set_contribution_api_government_membership_contribution_put",
         "requestBody": {
           "content": {
@@ -21219,6 +21321,44 @@
         "title": "PartyCandidateDTO",
         "description": "Quem vai à urna pelo partido; o do computador não é jogador."
       },
+      "PartyContributionDTO-Input": {
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "amount"
+        ],
+        "title": "PartyContributionDTO",
+        "description": "A contribuição mensal que o jogador leva a cada partido em que funda ou entra."
+      },
+      "PartyContributionDTO-Output": {
+        "properties": {
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "amount"
+        ],
+        "title": "PartyContributionDTO",
+        "description": "A contribuição mensal que o jogador leva a cada partido em que funda ou entra."
+      },
       "PartyDTO": {
         "properties": {
           "id": {
@@ -21839,6 +21979,7 @@
           "STRATEGY_ERROR",
           "VICE_INVITE",
           "CAMPAIGN_OPEN",
+          "UNPAID_CONTRIBUTION",
           "UNGUIDED_VOTE",
           "DEAL_PROPOSAL"
         ],

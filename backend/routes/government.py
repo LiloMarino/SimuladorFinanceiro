@@ -2,6 +2,7 @@ from datetime import date
 
 from fastapi import APIRouter, status
 
+from backend.core import repository
 from backend.core.dependencies import ActiveSimulation, CurrentUser
 from backend.core.dto.budget import BudgetDTO, InitialAccountDTO
 from backend.core.dto.campaign import (
@@ -53,12 +54,13 @@ def get_election(simulation: ActiveSimulation, user: CurrentUser):
     "/parties",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Fundar um partido",
-    description="Funda um partido com nome, sigla de 2 a 8 letras, cor, 3 bandeiras diferentes (Mercado livre e Justiça social não andam juntas) e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.",
+    description="Funda um partido com nome, sigla de 2 a 8 letras, cor, 3 bandeiras diferentes (Mercado livre e Justiça social não andam juntas) e a contribuição mensal de quem funda, que pode ser zero e fica salva no perfil. Desde o 1º dia da partida, menos entre os turnos; um partido por jogador.",
 )
 def found_party(
     simulation: ActiveSimulation, user: CurrentUser, payload: FoundPartyRequest
 ):
     simulation.found_party(user, payload)
+    repository.settings.set_party_contribution(user.id, payload.contribution)
 
 
 @government_router.put(
@@ -77,7 +79,7 @@ def set_party_flags(
     "/parties/{party_id}/members",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Filiar-se a um partido",
-    description="Entra no partido escolhendo quanto contribui por mês, que pode ser zero. Um partido por vez.",
+    description="Entra no partido escolhendo quanto contribui por mês, que pode ser zero e fica salva no perfil. Um partido por vez.",
 )
 def join_party(
     simulation: ActiveSimulation,
@@ -86,6 +88,7 @@ def join_party(
     payload: JoinPartyRequest,
 ):
     simulation.join_party(user, party_id, payload.contribution, payload.congress)
+    repository.settings.set_party_contribution(user.id, payload.contribution)
 
 
 @government_router.delete(
@@ -102,12 +105,13 @@ def leave_party(simulation: ActiveSimulation, user: CurrentUser):
     "/membership/contribution",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Mudar a contribuição",
-    description="Troca a contribuição mensal ao partido; vale a partir do próximo dia 1º. Pode ser zero.",
+    description="Troca a contribuição mensal ao partido; vale a partir do próximo dia 1º e fica salva no perfil. Pode ser zero.",
 )
 def set_contribution(
     simulation: ActiveSimulation, user: CurrentUser, payload: ContributionRequest
 ):
     simulation.set_contribution(user, payload.contribution, payload.congress)
+    repository.settings.set_party_contribution(user.id, payload.contribution)
 
 
 @government_router.put(

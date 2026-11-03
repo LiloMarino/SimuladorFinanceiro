@@ -248,6 +248,12 @@ PENDING: tuple[PendingSpec, ...] = (
         "Some ao se filiar ou quando as chapas fecham",
     ),
     PendingSpec(
+        PendingType.UNPAID_CONTRIBUTION,
+        PendingSeverity.WARNING,
+        "Contribuição não paga",
+        "Some quando a contribuição seguinte for paga ou você mudar o valor",
+    ),
+    PendingSpec(
         PendingType.UNGUIDED_VOTE,
         PendingSeverity.WARNING,
         "Votação sem orientação",

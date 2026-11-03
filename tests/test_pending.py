@@ -132,6 +132,54 @@ def test_a_player_in_another_party_still_gets_the_vice_invite(book: GovernmentBo
     assert types(book.pending(BOB, CAMPAIGN_OPEN)) == [PendingType.VICE_INVITE]
 
 
+def test_a_month_without_cash_for_the_contribution_is_a_pending(
+    book: GovernmentBook, engine
+):
+    found(book, ALICE, "AAA", RED, "10000")
+    engine.cash[ALICE.client_id] = Decimal(500)
+
+    book.on_tick(USERS, date(2020, 11, 3), True)
+
+    [pending] = book.pending(ALICE, date(2020, 11, 4))
+    assert pending.type is PendingType.UNPAID_CONTRIBUTION
+    assert pending.severity is PendingSeverity.WARNING
+    assert (
+        pending.detail
+        == "Sua contribuição de R$ 10.000,00 não foi paga em novembro, por falta de caixa"
+    )
+
+
+def test_the_next_paid_month_closes_the_unpaid_contribution(
+    book: GovernmentBook, engine
+):
+    found(book, ALICE, "AAA", RED, "10000")
+    engine.cash[ALICE.client_id] = Decimal(500)
+    book.on_tick(USERS, date(2020, 11, 3), True)
+
+    engine.cash[ALICE.client_id] = Decimal(50000)
+    book.on_tick(USERS, date(2020, 12, 1), True)
+
+    assert book.pending(ALICE, date(2020, 12, 2)) == []
+
+
+def test_changing_the_contribution_closes_the_unpaid_one(book: GovernmentBook, engine):
+    found(book, ALICE, "AAA", RED, "10000")
+    engine.cash[ALICE.client_id] = Decimal(500)
+    book.on_tick(USERS, date(2020, 11, 3), True)
+
+    book.set_contribution(ALICE, date(2020, 11, 4), Decimal(200))
+
+    assert book.pending(ALICE, date(2020, 11, 4)) == []
+
+
+def test_the_unpaid_contribution_ends_with_the_campaign(book: GovernmentBook, engine):
+    found(book, ALICE, "AAA", RED, "10000")
+    engine.cash[ALICE.client_id] = Decimal(500)
+    book.on_tick(USERS, date(2020, 11, 3), True)
+
+    assert book.pending(ALICE, book.cycle().first_round) == []
+
+
 def test_impeachment_risk_starts_after_the_grace_and_only_for_the_president(
     book: GovernmentBook, engine, market, bleak
 ):
