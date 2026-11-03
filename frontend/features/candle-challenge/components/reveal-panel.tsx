@@ -37,7 +37,12 @@ export function RevealPanel({ state, me, myVote, chartHeight = 300 }: RevealPane
         <Verdict reveal={reveal} me={watching ? undefined : me} myVote={myVote} period={period} />
       )}
       <div className="rounded-xl border py-1.5">
-        <CandleChart bars={reveal.bars} after={reveal.bars_after} box={{ width: 770, height: chartHeight }} />
+        <CandleChart
+          bars={reveal.bars}
+          after={reveal.bars_after}
+          patternCode={reveal.pattern_code}
+          box={{ width: 770, height: chartHeight }}
+        />
       </div>
       {state.solo && state.streak > 0 && <StreakAlert streak={state.streak} record={state.record} />}
     </div>

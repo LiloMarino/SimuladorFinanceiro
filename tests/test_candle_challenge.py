@@ -382,6 +382,7 @@ def test_reveal_shows_the_asset_the_votes_and_marks_each_player(room: Room):
     assert state.phase == "reveal"
     assert state.reveal is not None
     assert state.reveal.ticker == "PETR4"
+    assert state.reveal.pattern_code == "hammer"
     assert state.reveal.outcome == "up"
     assert {v.nickname: v.direction for v in state.reveal.votes} == {
         "Ana": "up",

@@ -1,5 +1,6 @@
+import { PATTERN_INFO } from "@/features/variable-income/lib/candle-patterns";
 import { cn } from "@/shared/lib/utils";
-import type { ChallengeBar } from "@/types";
+import type { CandlePatternCode, ChallengeBar } from "@/types";
 import {
   axisTicks,
   chartPadding,
@@ -17,12 +18,15 @@ interface CandleChartProps {
   bars: ChallengeBar[];
   /** As 5 velas que entram na revelação, uma a uma; antes dela, a faixa fica reservada e tracejada. */
   after?: ChallengeBar[] | undefined;
+  /** O padrão em que o recorte terminou; só a revelação o nomeia. */
+  patternCode?: CandlePatternCode | undefined;
   box: ChartBox;
   className?: string | undefined;
 }
 
 /** O recorte em velas, com o eixo em % desde a abertura da primeira: o preço em si não aparece. */
-export function CandleChart({ bars, after, box, className }: CandleChartProps) {
+export function CandleChart({ bars, after, patternCode, box, className }: CandleChartProps) {
+  const pattern = patternCode && PATTERN_INFO[patternCode];
   const scale = chartScale([...bars, ...(after ?? [])], box);
   const ticks = axisTicks(scale.min, scale.max);
   const slotsLeft = scale.x(SHOWN_CANDLES) - scale.step / 2;
@@ -100,6 +104,21 @@ export function CandleChart({ bars, after, box, className }: CandleChartProps) {
           <Candle bar={bar} x={scale.x(SHOWN_CANDLES + index)} width={scale.step * 0.62} y={scale.y} />
         </g>
       ))}
+
+      {/* Nome do padrão sob as velas em que o recorte terminou */}
+      {pattern && (
+        <text
+          x={(scale.x(SHOWN_CANDLES - pattern.candles.length) + scale.x(SHOWN_CANDLES - 1)) / 2}
+          y={box.height - 6}
+          textAnchor="middle"
+          fontSize={11}
+          fontWeight={600}
+          fill="currentColor"
+          className="text-info"
+        >
+          {pattern.name}
+        </text>
+      )}
     </svg>
   );
 }

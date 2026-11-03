@@ -2,19 +2,21 @@ import { ChartCandlestick, Flame, Minus, X } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { DialogTitle } from "@/shared/components/ui/dialog";
-import type { CandleChallengeState } from "@/types";
+import type { CandleChallengeState, ChallengePlayer } from "@/types";
 import { useCountdown } from "../hooks/useCountdown";
 import { secondsLeft } from "../lib/countdown";
+import { ordinal } from "../lib/text";
 
 interface ChallengeHeaderProps {
   state: CandleChallengeState;
+  player: ChallengePlayer | undefined;
   watching: boolean;
   onMinimize: () => void;
   onClose: () => void;
 }
 
-/** A barra da janela: o nome, a pergunta em que está e, na ponta, o que importa na fase. */
-export function ChallengeHeader({ state, watching, onMinimize, onClose }: ChallengeHeaderProps) {
+/** A barra da janela: o nome, a pergunta em que está e, na ponta, a posição do jogador e o que importa na fase. */
+export function ChallengeHeader({ state, player, watching, onMinimize, onClose }: ChallengeHeaderProps) {
   const finished = state.status === "finished";
   return (
     <header className="flex items-center gap-3 border-b px-4 py-3">
@@ -34,6 +36,11 @@ export function ChallengeHeader({ state, watching, onMinimize, onClose }: Challe
           )}
         </span>
       </div>
+      {!finished && !watching && !state.solo && player && (
+        <span className="text-[13px] text-muted-foreground">
+          Você <b className="font-mono text-foreground">{ordinal(player.position)}</b>
+        </span>
+      )}
       <Tail state={state} watching={watching} />
       {!finished && (
         <Button variant="ghost" size="icon-sm" aria-label="Minimizar" title="Minimizar" onClick={onMinimize}>

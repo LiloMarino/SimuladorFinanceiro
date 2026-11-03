@@ -9,7 +9,7 @@ export interface ChartBox {
   height: number;
 }
 
-const PAD = { top: 14, right: 12, bottom: 14, left: 52 };
+const PAD = { top: 14, right: 12, bottom: 28, left: 52 };
 
 /** Folga acima da máxima e abaixo da mínima, em fração da amplitude. */
 const MARGIN = 0.1;

@@ -70,7 +70,7 @@ export function ChallengeWindow({
           finished ? "sm:max-w-225" : "sm:max-w-280",
         )}
       >
-        <ChallengeHeader state={state} watching={watching} onMinimize={onMinimize} onClose={onClose} />
+        <ChallengeHeader state={state} player={player} watching={watching} onMinimize={onMinimize} onClose={onClose} />
         {error ? (
           <ErrorState
             title="Perdemos a conexão com o desafio"

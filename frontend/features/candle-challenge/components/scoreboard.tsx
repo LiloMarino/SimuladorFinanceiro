@@ -2,7 +2,7 @@ import { Check, Clock, X } from "lucide-react";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { cn } from "@/shared/lib/utils";
-import type { CandleChallengeState, ChallengePlayer } from "@/types";
+import type { CandleChallengeState, ChallengeDirection, ChallengePlayer } from "@/types";
 import { isWatching, repliedCount } from "../lib/view";
 
 interface ScoreboardProps {
@@ -33,7 +33,13 @@ export function Scoreboard({ state, me }: ScoreboardProps) {
 
       <ol className="grid gap-1">
         {state.players.map((player) => (
-          <Row key={player.nickname} player={player} state={state} mine={player.nickname === me} />
+          <Row
+            key={player.nickname}
+            player={player}
+            state={state}
+            mine={player.nickname === me}
+            vote={reveal?.votes.find((item) => item.nickname === player.nickname)?.direction}
+          />
         ))}
       </ol>
 
@@ -53,19 +59,30 @@ export function Scoreboard({ state, me }: ScoreboardProps) {
       )}
       {reveal && watchers.length === 0 && (
         <p className="mx-3 mt-2 text-xs text-muted-foreground">
-          Os votos aparecem agora, com o resultado: ✓ e ✗ ao lado de cada nome.
+          Cada nome mostra o lado em que votou, com ✓ se acertou e ✗ se errou.
         </p>
       )}
     </aside>
   );
 }
 
-function Row({ player, state, mine }: { player: ChallengePlayer; state: CandleChallengeState; mine: boolean }) {
+interface RowProps {
+  player: ChallengePlayer;
+  state: CandleChallengeState;
+  mine: boolean;
+  /** O lado em que o jogador votou; só existe na revelação. */
+  vote: ChallengeDirection | undefined;
+}
+
+function Row({ player, state, mine, vote }: RowProps) {
   const watching = isWatching(state, player);
   return (
     <li
       className={cn(
-        "grid grid-cols-[18px_28px_minmax(0,1fr)_auto_20px] items-center gap-2 rounded-lg px-3 py-1.5 text-[13px]",
+        "grid items-center gap-2 rounded-lg px-3 py-1.5 text-[13px]",
+        state.phase === "reveal"
+          ? "grid-cols-[18px_28px_minmax(0,1fr)_auto_64px_20px]"
+          : "grid-cols-[18px_28px_minmax(0,1fr)_auto_20px]",
         mine && "bg-info-soft",
       )}
     >
@@ -79,6 +96,12 @@ function Row({ player, state, mine }: { player: ChallengePlayer; state: CandleCh
         {player.hits}
         <span className="font-normal text-muted-foreground"> de {player.answered}</span>
       </span>
+      {state.phase === "reveal" &&
+        (vote ? (
+          <Badge variant={vote === "up" ? "success" : "destructive"}>{vote === "up" ? "▲ sobe" : "▼ desce"}</Badge>
+        ) : (
+          <span />
+        ))}
       {watching ? <span /> : <Status state={state} player={player} />}
     </li>
   );

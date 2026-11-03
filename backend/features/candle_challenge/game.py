@@ -326,6 +326,7 @@ class CandleGame:
             rnd.deadline = time.monotonic() + rnd.duration
             rnd.reveal = ChallengeRevealDTO(
                 ticker=question.ticker,
+                pattern_code=question.pattern_code,
                 start=question.start,
                 end=question.end,
                 bars=question.bars,

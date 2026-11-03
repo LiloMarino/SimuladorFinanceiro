@@ -60,6 +60,8 @@ class ChallengeVoteDTO(BaseDTO):
 
 class ChallengeRevealDTO(BaseDTO):
     ticker: str
+    # O padrão em que o recorte terminou, nomeado sob as velas dele no gráfico
+    pattern_code: CandlePatternCode
     # Primeiro pregão do recorte e o 5º pregão depois do padrão
     start: date
     end: date

@@ -13206,6 +13206,9 @@
             "type": "string",
             "title": "Ticker"
           },
+          "pattern_code": {
+            "$ref": "#/components/schemas/CandlePatternCode"
+          },
           "start": {
             "type": "string",
             "format": "date",
@@ -13257,6 +13260,7 @@
         "type": "object",
         "required": [
           "ticker",
+          "pattern_code",
           "start",
           "end",
           "bars",

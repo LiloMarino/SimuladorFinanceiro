@@ -4661,6 +4661,7 @@ export interface components {
         ChallengeRevealDTO: {
             /** Ticker */
             ticker: string;
+            pattern_code: components["schemas"]["CandlePatternCode"];
             /**
              * Start
              * Format: date
