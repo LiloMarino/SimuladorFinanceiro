@@ -516,7 +516,7 @@ def _notify_preparations() -> PreparationsDTO:
     "/preparations",
     response_model=PreparationsDTO,
     summary="Preparação dos jogadores no lobby",
-    description="O que cada jogador da sala preparou para a campanha (fundar partido, filiar-se, chapa e vice), os conflitos de sigla, nome e cor e o motivo da trava, quando há.",
+    description="O que cada jogador da sala preparou para a partida (fundar partido, filiar-se, chapa e vice), os conflitos de sigla, nome e cor e o motivo da trava, quando há.",
 )
 def get_preparations():
     """
@@ -529,7 +529,7 @@ def get_preparations():
     "/players/me/preparation",
     response_model=PreparationsDTO,
     summary="Preparar a campanha do jogador",
-    description="Escolhe o que o jogador faz quando a campanha abre: fundar o Meu partido (com a chapa e o vice), entrar no partido que outro jogador preparou ou nada. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.",
+    description="Escolhe o que o jogador faz no começo da partida: fundar o Meu partido (com a chapa e o vice), entrar no partido que outro jogador preparou ou nada. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.",
 )
 def set_player_preparation(payload: PreparationRequest, client_id: ClientID):
     """

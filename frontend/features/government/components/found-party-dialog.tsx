@@ -19,6 +19,7 @@ import { displayMoney } from "@/shared/lib/utils/display";
 import { useFoundParty } from "../hooks/mutations/useFoundParty";
 import { PARTY_COLORS } from "@/shared/lib/party-colors";
 import { congressAmount, contributionAmount } from "../lib/contribution";
+import { collectionNote } from "../lib/election";
 import { ContributionField } from "./contribution-field";
 import { ContributionSplit } from "./contribution-split";
 import type { ElectionPanel, PartyIdentity } from "@/types";
@@ -100,7 +101,7 @@ export function FoundPartyDialog({ panel, open, onOpenChange, takenColors, cash 
               value={contribution}
               onChange={setContribution}
               error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}
-              note="Pode ser zero. Sai do seu caixa todo dia 1º e não volta; a verba do partido é a soma das contribuições."
+              note={`Pode ser zero. Sai do seu caixa todo dia 1º e não volta; a verba do partido é a soma das contribuições.${collectionNote(panel)}`}
             />
             <ContributionSplit share={share} onShare={setShare} monthly={monthly} runs />
 

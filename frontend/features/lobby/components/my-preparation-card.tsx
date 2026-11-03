@@ -16,7 +16,7 @@ import { PreparationFoundForm } from "./preparation-found-form";
 
 type Choice = PreparationRequest["kind"];
 
-/** "Minha preparação": o que o jogador faz quando a campanha abre (fundar, filiar-se ou nada). */
+/** "Minha preparação": o que o jogador faz no começo da partida (fundar, filiar-se ou nada). */
 export function MyPreparationCard() {
   const { data: saved, isPending: partyPending } = useMyParty();
   const { data: preparations } = usePreparations();
@@ -73,8 +73,8 @@ function PreparationPanel({ saved, preparations, nickname, humans }: Preparation
           </span>
         </CardTitle>
         <CardDescription>
-          Vale na abertura da campanha, com contribuição zero. Quem não estiver na sala quando a partida começar fica de
-          fora.
+          O partido vale no 1º dia da partida, com contribuição zero, e a chapa quando a campanha abre. Quem não estiver
+          na sala quando a partida começar fica de fora.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -88,7 +88,7 @@ function PreparationPanel({ saved, preparations, nickname, humans }: Preparation
             <>
               <ToggleGroup
                 variant="segmented"
-                aria-label="O que fazer na abertura da campanha"
+                aria-label="O que fazer no começo da partida"
                 value={[mode]}
                 onValueChange={(values) => values[0] && pick(values[0] as Choice)}
                 className="w-full"

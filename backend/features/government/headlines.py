@@ -75,7 +75,7 @@ def campaign_opened(first_round: date, ticket_deadline: date) -> Headline:
         NewsType.ELECTION_CALENDAR,
         f"Começa a campanha para a eleição de {_month_year(first_round)}",
         f"As chapas fecham em {_day_month(ticket_deadline)} e o 1º turno é em "
-        f"{_day_month(first_round)}. Já dá para fundar partido, fazer comício, evento "
+        f"{_day_month(first_round)}. Já dá para inscrever a chapa, fazer comício, evento "
         "e propaganda na TV.",
     )
 

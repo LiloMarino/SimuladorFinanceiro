@@ -2605,7 +2605,7 @@ export interface paths {
         };
         /**
          * Preparação dos jogadores no lobby
-         * @description O que cada jogador da sala preparou para a campanha (fundar partido, filiar-se, chapa e vice), os conflitos de sigla, nome e cor e o motivo da trava, quando há.
+         * @description O que cada jogador da sala preparou para a partida (fundar partido, filiar-se, chapa e vice), os conflitos de sigla, nome e cor e o motivo da trava, quando há.
          */
         get: operations["get_preparations_api_simulation_preparations_get"];
         put?: never;
@@ -2626,7 +2626,7 @@ export interface paths {
         get?: never;
         /**
          * Preparar a campanha do jogador
-         * @description Escolhe o que o jogador faz quando a campanha abre: fundar o Meu partido (com a chapa e o vice), entrar no partido que outro jogador preparou ou nada. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.
+         * @description Escolhe o que o jogador faz no começo da partida: fundar o Meu partido (com a chapa e o vice), entrar no partido que outro jogador preparou ou nada. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.
          */
         put: operations["set_player_preparation_api_simulation_players_me_preparation_put"];
         post?: never;
@@ -5403,6 +5403,11 @@ export interface components {
              */
             campaign_start: string;
             /**
+             * Affiliation Deadline
+             * Format: date
+             */
+            affiliation_deadline: string;
+            /**
              * Ticket Deadline
              * Format: date
              */
@@ -7148,6 +7153,8 @@ export interface components {
             congress: string;
             /** Guidance */
             guidance: components["schemas"]["GuidanceRuleDTO"][];
+            /** Seats */
+            seats: number;
         };
         /** MyStrategyDTO */
         MyStrategyDTO: {

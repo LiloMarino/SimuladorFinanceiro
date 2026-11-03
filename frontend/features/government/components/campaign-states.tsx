@@ -5,12 +5,14 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 type CampaignNotMemberProps = {
   /** Há partido de jogador para se filiar */
   canJoin: boolean;
+  /** O prazo de filiação de quem quer concorrer */
+  deadline: string;
   onJoin: () => void;
   onFound: () => void;
 };
 
 /** Quem não é filiado: as ações são dos filiados, e a pessoa acompanha pela pesquisa e pelo jornal. */
-export function CampaignNotMember({ canJoin, onJoin, onFound }: CampaignNotMemberProps) {
+export function CampaignNotMember({ canJoin, deadline, onJoin, onFound }: CampaignNotMemberProps) {
   return (
     <Empty variant="dashed">
       <EmptyHeader>
@@ -19,7 +21,8 @@ export function CampaignNotMember({ canJoin, onJoin, onFound }: CampaignNotMembe
         </EmptyMedia>
         <EmptyTitle>Filie-se para fazer campanha</EmptyTitle>
         <EmptyDescription>
-          As ações são dos filiados, pagas da própria carteira. Sem partido, você acompanha pela pesquisa e pelo jornal.
+          As ações são dos filiados, pagas da própria carteira. Sem partido, você acompanha pela pesquisa e pelo jornal.{" "}
+          {deadline}
         </EmptyDescription>
       </EmptyHeader>
       <div className="flex gap-2">

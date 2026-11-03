@@ -72,7 +72,6 @@ def build_panel(
     ]
     latest = published[-1] if published else None
 
-    in_campaign = phase is ElectionPhase.CAMPAIGN
     mine = state.party_of(viewer.id)
     is_founder = mine is not None and mine.founder_id == viewer.id
 
@@ -82,6 +81,7 @@ def build_panel(
         election_year=cycle.first_round.year,
         dates=ElectionDatesDTO(
             campaign_start=cycle.campaign_start,
+            affiliation_deadline=cycle.affiliation_deadline,
             ticket_deadline=cycle.ticket_deadline,
             first_round=cycle.first_round,
             runoff=cycle.runoff,
@@ -126,17 +126,22 @@ def build_panel(
                 contribution=mine.members[viewer.id],
                 congress=mine.congress.get(viewer.id, Decimal(0)),
                 guidance=guidance_rules(mine),
+                seats=_seats(state, mine, today),
             )
             if mine is not None
             else None
         ),
         my_vice=_my_vice(state, viewer.id),
         vice_options=_vice_options(state, mine, users) if is_founder else [],
-        can_found_or_join=in_campaign and mine is None and not viewer.is_bot,
+        can_found_or_join=(
+            phase is not ElectionPhase.BETWEEN_ROUNDS
+            and mine is None
+            and not viewer.is_bot
+        ),
         can_edit_ticket=(
             is_founder
             and phase is not ElectionPhase.BETWEEN_ROUNDS
-            and today <= cycle.ticket_deadline
+            and cycle.campaign_start <= today <= cycle.ticket_deadline
         ),
         can_donate=(
             phase is ElectionPhase.BETWEEN_ROUNDS
@@ -231,6 +236,11 @@ def _phase(state: GovernmentState, cycle: ElectionCycle, today: date) -> Electio
     if state.term is not None:
         return ElectionPhase.TERM
     return ElectionPhase.BEFORE_CAMPAIGN
+
+
+def _seats(state: GovernmentState, party: Party, today: date) -> int:
+    bloc = state.house_on(today).of_party(party.id)
+    return bloc.seats if bloc is not None else 0
 
 
 def _nickname(people: dict[int, UserDTO], user_id: int | None) -> str:

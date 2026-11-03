@@ -32,7 +32,7 @@ type PreparationFoundFormProps = {
   onError: (message: string | null) => void;
 };
 
-/** Fundar o Meu partido na abertura da campanha: identidade, bandeiras, candidato e vice. */
+/** Fundar o Meu partido no 1º dia da partida: identidade, bandeiras e a chapa que entra com a campanha. */
 export function PreparationFoundForm({
   saved,
   nickname,

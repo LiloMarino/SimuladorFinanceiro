@@ -7353,7 +7353,7 @@
           "Simulation"
         ],
         "summary": "Preparação dos jogadores no lobby",
-        "description": "O que cada jogador da sala preparou para a campanha (fundar partido, filiar-se, chapa e vice), os conflitos de sigla, nome e cor e o motivo da trava, quando há.",
+        "description": "O que cada jogador da sala preparou para a partida (fundar partido, filiar-se, chapa e vice), os conflitos de sigla, nome e cor e o motivo da trava, quando há.",
         "operationId": "get_preparations_api_simulation_preparations_get",
         "responses": {
           "200": {
@@ -7395,7 +7395,7 @@
           "Simulation"
         ],
         "summary": "Preparar a campanha do jogador",
-        "description": "Escolhe o que o jogador faz quando a campanha abre: fundar o Meu partido (com a chapa e o vice), entrar no partido que outro jogador preparou ou nada. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.",
+        "description": "Escolhe o que o jogador faz no começo da partida: fundar o Meu partido (com a chapa e o vice), entrar no partido que outro jogador preparou ou nada. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.",
         "operationId": "set_player_preparation_api_simulation_players_me_preparation_put",
         "requestBody": {
           "content": {
@@ -15319,6 +15319,11 @@
             "format": "date",
             "title": "Campaign Start"
           },
+          "affiliation_deadline": {
+            "type": "string",
+            "format": "date",
+            "title": "Affiliation Deadline"
+          },
           "ticket_deadline": {
             "type": "string",
             "format": "date",
@@ -15349,6 +15354,7 @@
         "type": "object",
         "required": [
           "campaign_start",
+          "affiliation_deadline",
           "ticket_deadline",
           "first_round",
           "runoff",
@@ -20213,6 +20219,10 @@
             },
             "type": "array",
             "title": "Guidance"
+          },
+          "seats": {
+            "type": "integer",
+            "title": "Seats"
           }
         },
         "additionalProperties": false,
@@ -20223,7 +20233,8 @@
           "is_candidate",
           "contribution",
           "congress",
-          "guidance"
+          "guidance",
+          "seats"
         ],
         "title": "MyPartyDTO"
       },

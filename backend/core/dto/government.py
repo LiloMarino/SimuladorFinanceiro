@@ -319,6 +319,8 @@ class PartyStandingDTO(BaseDTO):
 
 class ElectionDatesDTO(BaseDTO):
     campaign_start: date
+    # Quem se filia depois deste dia é filiado, mas não concorre nesta eleição
+    affiliation_deadline: date
     ticket_deadline: date
     first_round: date
     runoff: date
@@ -342,6 +344,8 @@ class MyPartyDTO(BaseDTO):
     congress: Decimal
     # A orientação padrão da bancada, um valor por vez; só o líder muda
     guidance: list[GuidanceRuleDTO]
+    # As cadeiras do partido na casa de hoje; o partido fundado no mandato espera a eleição
+    seats: int
 
 
 class MyViceDTO(BaseDTO):

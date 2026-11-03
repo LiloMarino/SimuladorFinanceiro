@@ -8,7 +8,7 @@ import { displayDayMonth, displayMoney, displayMoneyWhole, displayMonthShort } f
 import type { CampaignPanel, ElectionPanel, ElectionParty } from "@/types";
 import { BUDGET, SPENT, VOTE_YIELD } from "../lib/election-metrics";
 import { signed } from "../lib/campaign";
-import { monthlyYield } from "../lib/election";
+import { monthlyYield, monthYear } from "../lib/election";
 import { GuidanceRules } from "./guidance-rules";
 import { PartyMark } from "./party-mark";
 import { PromiseBadges } from "./promise-badges";
@@ -70,6 +70,7 @@ export function MyPartyCard({
                 <span className="text-xs text-muted-foreground">
                   {mine?.is_founder ? "Você fundou o partido" : `Fundado por ${party.founder}`} · em{" "}
                   {displayMonthShort(party.founded)} {party.founded.slice(0, 4)}
+                  {mine?.seats === 0 && ` · Sem cadeira até a eleição de ${monthYear(panel.dates.first_round)}`}
                 </span>
               </span>
             </div>

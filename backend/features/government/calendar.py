@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 
 from backend.core.utils import is_business_day, next_business_day
+from backend.features.government.deals import add_months
 
 TERM_YEARS = 4
 CAMPAIGN_YEARS = 1
@@ -14,6 +15,8 @@ CAMPAIGN_YEARS = 1
 RUNOFF_DAYS = 21
 # O lembrete das chapas sai 7 dias antes de a inscrição fechar
 TICKET_REMINDER_DAYS = 7
+# Quem concorre está filiado 6 meses antes do 1º turno (Lei 9.504/97, art. 9)
+AFFILIATION_MONTHS = 6
 
 
 @dataclass(frozen=True)
@@ -22,6 +25,8 @@ class ElectionCycle:
 
     index: int
     campaign_start: date
+    # Último dia em que a filiação ainda vale para concorrer a esta eleição
+    affiliation_deadline: date
     ticket_deadline: date
     first_round: date
     runoff: date
@@ -52,11 +57,17 @@ def election_cycle(first_election: date, index: int, start_date: date) -> Electi
     )
     runoff = _on_or_after_business_day(first_round + timedelta(days=RUNOFF_DAYS))
     campaign_start = max(_add_years(first_round, -CAMPAIGN_YEARS), start_date)
+    # Numa partida que já nasce depois do prazo, quem se filia no 1º dia concorre
+    affiliation_deadline = max(
+        add_months(first_round, -AFFILIATION_MONTHS),
+        _on_or_after_business_day(start_date),
+    )
     # A inscrição das chapas fecha no último dia do mês anterior ao do 1º turno
     ticket_deadline = first_round.replace(day=1) - timedelta(days=1)
     return ElectionCycle(
         index=index,
         campaign_start=campaign_start,
+        affiliation_deadline=affiliation_deadline,
         ticket_deadline=ticket_deadline,
         first_round=first_round,
         runoff=runoff,

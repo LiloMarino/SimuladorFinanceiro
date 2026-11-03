@@ -1,4 +1,4 @@
-"""Preparação do lobby no livro do governo: aplicada na abertura da campanha, só a quem está na partida."""
+"""Preparação do lobby no livro do governo: partidos no 1º dia, chapa na abertura da campanha, só a quem está na partida."""
 
 # As fixtures do livro vêm do módulo dos testes dele e entram como parâmetro de cada teste
 # ruff: noqa: F401, F811
@@ -32,6 +32,7 @@ from tests.test_government_book import (
 )
 
 IDENTITY = PartyIdentity("Partido Alfa", "ALF", RED, tuple(FLAGS))
+FIRST_DAY = date(2020, 1, 1)
 
 
 def prepare(engine, *players: Prepared) -> GovernmentBook:
@@ -40,7 +41,12 @@ def prepare(engine, *players: Prepared) -> GovernmentBook:
     return GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
 
 
+def start_match(book: GovernmentBook) -> None:
+    book.on_tick(USERS, FIRST_DAY, False)
+
+
 def open_campaign(book: GovernmentBook) -> None:
+    start_match(book)
     book.on_tick(USERS, date(2020, 10, 6), False)
     book.on_tick(USERS, CAMPAIGN_OPEN, False)
 
@@ -106,17 +112,27 @@ def test_refused_request_does_not_block_the_rest(book, engine, stored):
     assert prepared.state.party_of(BOB.id) is None
 
 
-def test_preparation_waits_for_the_campaign_and_survives_a_resume(book, engine, stored):
-    prepared = prepare(engine, Prepared(ALICE.id, found=IDENTITY))
+def test_parties_on_the_first_day_ticket_at_the_campaign_across_a_resume(
+    book, engine, stored
+):
+    prepared = prepare(
+        engine,
+        Prepared(ALICE.id, found=IDENTITY, candidate_id=BOB.id),
+        Prepared(BOB.id, join_id=ALICE.id),
+    )
 
-    prepared.on_tick(USERS, date(2020, 5, 4), False)
-    assert prepared.state.player_parties() == []
+    start_match(prepared)
+    party = party_of(prepared, ALICE)
+    assert party.members == {ALICE.id: 0, BOB.id: 0}
+    assert party.joined == {ALICE.id: FIRST_DAY, BOB.id: FIRST_DAY}
+    assert party.candidate_id is None
     resumed = GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
-    assert len(resumed.state.preparations) == 1
+    assert len(resumed.state.preparations) == 2
 
-    open_campaign(resumed)
+    resumed.on_tick(USERS, date(2020, 10, 6), False)
+    resumed.on_tick(USERS, CAMPAIGN_OPEN, False)
 
-    assert party_of(resumed, ALICE).abbr == "ALF"
+    assert party_of(resumed, ALICE).candidate_id == BOB.id
     assert replay(stored).preparations == []
 
 

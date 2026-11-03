@@ -482,7 +482,8 @@ class GovernmentBook:
         """
         Avisa a sala dos marcos do calendário: a abertura da campanha (que pausa a partida),
         os lembretes das chapas e da véspera do 1º turno e a página que renova quando as
-        chapas fecham. Devolve se a campanha abriu hoje.
+        chapas fecham. No 1º dia de uma partida nova, os partidos preparados no lobby nascem.
+        Devolve se a campanha abriu hoje.
         """
         if previous is None:
             # Numa partida nova o primeiro dia simulado é o primeiro dia útil da data inicial,
@@ -491,6 +492,7 @@ class GovernmentBook:
             if today != first_day:
                 return False
             previous = self._settings.start_date - timedelta(days=1)
+            self._apply_prepared_parties(today)
 
         if previous < cycle.campaign_start <= today:
             self._notice(
@@ -502,7 +504,7 @@ class GovernmentBook:
                 today,
                 headlines.campaign_opened(cycle.first_round, cycle.ticket_deadline),
             )
-            self._apply_preparations(today)
+            self._apply_prepared_tickets(today)
             return True
         if previous < cycle.ticket_deadline + timedelta(days=1) <= today:
             self._notice(GovernmentNoticeKind.UPDATED)
@@ -528,26 +530,29 @@ class GovernmentBook:
             )
         return False
 
-    def _apply_preparations(self, today: date) -> None:
-        """
-        Aplica o que cada jogador presente preparou no lobby, na ordem em que uma depende da
-        outra: fundar, filiar, chapa e vice aceito. Quem não está na partida não é aplicado.
-        Um pedido que a regra de hoje recusa é descartado sem travar o resto.
-        """
-        prepared = [Prepared.from_payload(d) for d in self.state.preparations]
-        if not prepared:
-            return
-        present = [p for p in prepared if p.user_id in self._people]
+    def _prepared(self) -> list[Prepared]:
+        """O que os jogadores presentes prepararam no lobby; quem não está na partida fica de fora."""
+        prepared = (Prepared.from_payload(d) for d in self.state.preparations)
+        return [p for p in prepared if p.user_id in self._people]
 
-        def attempt(action: Callable[[], None]) -> None:
-            try:
-                action()
-            except (ConflictError, NotFoundError, UnprocessableEntityError) as error:
-                logger.info("Preparação do lobby descartada: %s", error)
+    def _attempt(self, action: Callable[[], None]) -> None:
+        """Um pedido da preparação que a regra de hoje recusa é descartado sem travar o resto."""
+        try:
+            action()
+        except (
+            ConflictError,
+            ForbiddenError,
+            NotFoundError,
+            UnprocessableEntityError,
+        ) as error:
+            logger.info("Preparação do lobby descartada: %s", error)
 
+    def _apply_prepared_parties(self, today: date) -> None:
+        """No 1º dia da partida, os partidos preparados nascem: fundações e depois filiações."""
+        present = self._prepared()
         for item in (p for p in present if p.found is not None):
             identity = required(item.found)
-            attempt(
+            self._attempt(
                 lambda item=item, identity=identity: self.found_party(
                     self._people[item.user_id],
                     today,
@@ -561,11 +566,20 @@ class GovernmentBook:
         for item in (p for p in present if p.join_id is not None):
             founded = self.state.party_of(required(item.join_id))
             if founded is not None:
-                attempt(
+                self._attempt(
                     lambda item=item, founded=founded: self.join_party(
                         self._people[item.user_id], today, founded.id, Decimal(0)
                     )
                 )
+
+    def _apply_prepared_tickets(self, today: date) -> None:
+        """
+        Na abertura da campanha, cada fundador inscreve a chapa que preparou no lobby, e o vice
+        que já aceitou na sala fica aceito. Depois disso a preparação se encerra.
+        """
+        if not self.state.preparations:
+            return
+        present = self._prepared()
         users = list(self._people.values())
         for item in (p for p in present if p.found is not None):
             founder = self._people[item.user_id]
@@ -573,7 +587,7 @@ class GovernmentBook:
             vice = self._people.get(item.vice_id) if item.vice_id else None
             if candidate is None:
                 continue
-            attempt(
+            self._attempt(
                 lambda founder=founder, candidate=candidate, vice=vice: self.set_ticket(
                     founder,
                     today,
@@ -583,7 +597,7 @@ class GovernmentBook:
                 )
             )
             if vice is not None and item.vice_accepted:
-                attempt(lambda vice=vice: self.answer_vice(vice, today, True))
+                self._attempt(lambda vice=vice: self.answer_vice(vice, today, True))
         self._emit(GovernmentEventType.PARTIES_PREPARED, today, players=[])
 
     # Ações dos jogadores
@@ -601,7 +615,7 @@ class GovernmentBook:
         congress: Decimal = Decimal(0),
     ) -> None:
         self._ensure_person(user)
-        self._ensure_campaign_open(today)
+        self._ensure_membership_open()
         self._ensure_without_party(user)
         self._ensure_valid_flags(flags)
         self._ensure_split(contribution, congress)
@@ -660,7 +674,7 @@ class GovernmentBook:
         congress: Decimal = Decimal(0),
     ) -> None:
         self._ensure_person(user)
-        self._ensure_campaign_open(today)
+        self._ensure_membership_open()
         self._ensure_without_party(user)
         self._ensure_split(contribution, congress)
         party = self._party(party_id)
@@ -1224,12 +1238,19 @@ class GovernmentBook:
     ) -> None:
         self._ensure_membership_open()
         party = self._founded_party(founder)
-        if today > self.cycle().ticket_deadline:
+        cycle = self.cycle()
+        if today < cycle.campaign_start:
+            raise ConflictError(
+                f"A chapa se inscreve na campanha, a partir de "
+                f"{rules.short_date(cycle.campaign_start)}."
+            )
+        if today > cycle.ticket_deadline:
             raise ConflictError("A inscrição de chapas já fechou.")
         members = {u.nickname: u for u in users if u.id in party.members}
         candidate_user = members.get(candidate)
         if candidate_user is None:
             raise NotFoundError("O candidato precisa ser filiado ao partido.")
+        self._ensure_affiliated_in_time(candidate_user, cycle)
         if not election.is_eligible(self.state, candidate_user.id):
             raise ConflictError(
                 f"{candidate} cumpriu dois mandatos seguidos e não concorre de novo."
@@ -1264,6 +1285,17 @@ class GovernmentBook:
         else:
             self._notice(GovernmentNoticeKind.UPDATED, founder, party_abbr=party.abbr)
 
+    def _ensure_affiliated_in_time(self, user: UserDTO, cycle: ElectionCycle) -> None:
+        """Quem concorre, como candidato ou vice, se filiou até o prazo desta eleição."""
+        party = self.state.party_of(user.id)
+        joined = party.joined.get(user.id) if party is not None else None
+        if joined is not None and joined > cycle.affiliation_deadline:
+            raise ConflictError(
+                f"{user.nickname} se filiou depois de "
+                f"{rules.short_date(cycle.affiliation_deadline)}: é filiado, mas não "
+                "concorre nesta eleição."
+            )
+
     def _pick_vice(
         self,
         party: Party,
@@ -1282,6 +1314,7 @@ class GovernmentBook:
         blocker = election.vice_blocker(self.state, party, person.id)
         if blocker is not None:
             raise ConflictError(f"{nickname} não pode ser vice: {blocker}.")
+        self._ensure_affiliated_in_time(person, self.cycle())
         return person
 
     def answer_vice(self, user: UserDTO, today: date, accept: bool) -> None:
@@ -2912,15 +2945,6 @@ class GovernmentBook:
     def _ensure_without_party(self, user: UserDTO) -> None:
         if self.state.party_of(user.id) is not None:
             raise ConflictError("Você já está em um partido. Saia dele antes.")
-
-    def _ensure_campaign_open(self, today: date) -> None:
-        cycle = self.cycle()
-        if self.state.runoff is not None:
-            raise ConflictError("Entre os turnos só dá para doar.")
-        if not cycle.campaign_start <= today < cycle.first_round:
-            raise ConflictError(
-                "Partidos só abrem na campanha, um ano antes do 1º turno."
-            )
 
     def _ensure_membership_open(self) -> None:
         if self.state.runoff is not None:

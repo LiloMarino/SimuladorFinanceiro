@@ -26,14 +26,22 @@ Os dois turnos **pausam a partida** quando o resultado sai: todos veem o diálog
 
 ## Partidos
 
-Só se concorre por partido, e todo partido nasce na candidatura:
+Só se concorre por partido, e o partido existe desde o 1º dia da partida:
 
 - **Fundar:** nome, sigla de 2 a 8 letras, cor, **promessa** na régua (veja abaixo) e a contribuição mensal. Nome, sigla e cor não podem repetir os de outro partido. Quem funda é o **fundador**.
 - **Filiar-se:** escolhe um partido de jogadores e quanto contribui por mês. Cada jogador está em um partido só; para trocar, é preciso sair antes.
 - **Contribuir:** cada filiado define a própria contribuição mensal, que pode ser **zero**. A **verba** do partido é a soma das contribuições.
 - **Sair** e **expulsar:** quem sai para de contribuir na hora, e o que já saiu do caixa não volta. Só o fundador expulsa, e a expulsão é pública. Bots não entram em partido.
 
-Fundar e filiar-se só abrem durante a campanha, antes do 1º turno; entre os turnos só se doa.
+Fundar, filiar-se e sair valem desde o 1º dia da partida; entre os turnos só se doa. Três coisas esperam a campanha abrir:
+
+- **A chapa** se inscreve só com a campanha aberta, até o fim da inscrição de chapas.
+- **A contribuição** começa a ser cobrada no 1º dia do mês seguinte à abertura; antes disso, o valor fica marcado e nada sai do caixa.
+- **As ações de campanha** (comício, evento, propaganda na TV) também.
+
+Para concorrer, como candidato ou vice, é preciso estar filiado **6 meses antes do 1º turno**, como manda a lei eleitoral. Quem se filia depois do prazo é filiado normal, contribui e vota com o partido, mas só entra numa chapa na eleição seguinte. Numa partida que já começa depois do prazo, vale quem se filiou no 1º dia.
+
+Um partido fundado no meio do mandato fica **sem cadeira** no Congresso até a eleição seguinte.
 
 Quem joga sozinho fundou um partido de um filiado: vale igual.
 

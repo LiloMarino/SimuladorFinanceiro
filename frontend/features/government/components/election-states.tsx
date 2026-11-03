@@ -7,7 +7,7 @@ import type { ElectionPanel } from "@/types";
 import { useToday } from "../hooks/useToday";
 import { countdownLabel } from "../lib/election";
 
-/** Antes de a candidatura abrir: a página diz quando a eleição começa e quanto falta. */
+/** Antes de a campanha abrir, para quem não funda nem se filia: a página diz quando a eleição começa e quanto falta. */
 export function BeforeCampaignEmpty({ panel }: { panel: ElectionPanel }) {
   const today = useToday(panel);
   return (
@@ -16,11 +16,10 @@ export function BeforeCampaignEmpty({ panel }: { panel: ElectionPanel }) {
         <Empty>
           <ExpansionEmblem expansion="government" size="lg" />
           <EmptyHeader>
-            <EmptyTitle>A candidatura abre em {displayShortDate(panel.dates.campaign_start)}</EmptyTitle>
+            <EmptyTitle>A campanha abre em {displayShortDate(panel.dates.campaign_start)}</EmptyTitle>
             <EmptyDescription>
-              Um ano antes da eleição de {displayShortDate(panel.dates.first_round)}. Aí dá para fundar um partido ou
-              filiar-se a um; até lá, o governo é do computador e não muda impostos. Começar a campanha cedo rende mais
-              votos por real gasto.
+              Um ano antes da eleição de {displayShortDate(panel.dates.first_round)}. Aí os partidos inscrevem as chapas
+              e fazem campanha; até lá, o governo é do computador e não muda impostos.
             </EmptyDescription>
           </EmptyHeader>
           <Badge variant="secondary">Faltam {countdownLabel(today, panel.dates.campaign_start)}</Badge>

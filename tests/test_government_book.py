@@ -199,17 +199,86 @@ def test_computer_parties_come_back_when_a_player_party_dissolves(book: Governme
     assert len(book.state.computer_parties()) == 1
 
 
-def test_party_opens_only_during_the_campaign_year(book: GovernmentBook):
+def test_party_opens_from_the_first_day_of_the_match(
+    book: GovernmentBook, engine: PoliticalEngine
+):
+    early = date(2020, 1, 2)
+    book.found_party(
+        ALICE,
+        early,
+        name="Cedo",
+        abbr="CED",
+        color=RED,
+        flags=FLAGS,
+        contribution=Decimal(10000),
+    )
+    book.join_party(BOB, early, party_of(book, ALICE).id, Decimal(0))
+    book.leave_party(BOB, date(2020, 3, 2))
+
+    # A contribuição só se cobra com a campanha aberta
+    book.on_tick(USERS, date(2020, 2, 3), True)
+    assert engine.get_cash(ALICE.client_id) == Decimal(100000)
+    assert book.state.party_of(BOB.id) is None
+
+
+def test_ticket_waits_for_the_campaign(book: GovernmentBook):
+    book.found_party(
+        ALICE,
+        date(2020, 1, 2),
+        name="Cedo",
+        abbr="CED",
+        color=RED,
+        flags=FLAGS,
+        contribution=Decimal(0),
+    )
+
     with pytest.raises(ConflictError, match="campanha"):
-        book.found_party(
-            ALICE,
-            date(2020, 6, 1),
-            name="Cedo",
-            abbr="CED",
-            color=RED,
-            flags=FLAGS,
-            contribution=Decimal(0),
-        )
+        book.set_ticket(ALICE, date(2020, 6, 1), "Alice", None, USERS)
+    book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", None, USERS)
+
+
+def test_member_who_joins_after_the_deadline_does_not_run(book: GovernmentBook):
+    found(book, ALICE, "AAA", RED)
+    party_id = party_of(book, ALICE).id
+    # O 1º turno é 07/10/2021: a filiação para concorrer fecha em 07/04/2021
+    late = date(2021, 4, 8)
+    book.join_party(BOB, late, party_id, Decimal(0))
+    book.join_party(CARLA, date(2021, 4, 7), party_id, Decimal(0))
+
+    with pytest.raises(ConflictError, match="não concorre"):
+        book.set_ticket(ALICE, late, "Bob", None, USERS)
+    with pytest.raises(ConflictError, match="não concorre"):
+        book.set_ticket(ALICE, late, "Alice", "Bob", USERS)
+    book.set_ticket(ALICE, late, "Carla", None, USERS)
+
+
+def test_match_born_after_the_deadline_lets_first_day_members_run(
+    engine, stored, notices, captured_events
+):
+    rules = settings().model_dump()
+    rules.update(start_date=date(2021, 6, 1), end_date=date(2026, 12, 31))
+    late_book = GovernmentBook(
+        SimulationDTO(**rules), engine, lambda *_: None, lambda *_: None, SEED
+    )
+    first_day = date(2021, 6, 1)
+    late_book.found_party(
+        ALICE,
+        first_day,
+        name="Tarde",
+        abbr="TAR",
+        color=RED,
+        flags=FLAGS,
+        contribution=Decimal(0),
+    )
+    late_book.join_party(BOB, first_day, party_of(late_book, ALICE).id, Decimal(0))
+    late_book.join_party(
+        CARLA, date(2021, 6, 2), party_of(late_book, ALICE).id, Decimal(0)
+    )
+
+    assert late_book.cycle().affiliation_deadline == first_day
+    late_book.set_ticket(ALICE, date(2021, 6, 2), "Bob", None, USERS)
+    with pytest.raises(ConflictError, match="não concorre"):
+        late_book.set_ticket(ALICE, date(2021, 6, 2), "Carla", None, USERS)
 
 
 def test_party_abbr_takes_two_to_eight_letters(book: GovernmentBook):

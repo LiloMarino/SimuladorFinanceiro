@@ -28,10 +28,19 @@ type JoinPartyDialogProps = {
   parties: ElectionParty[];
   initialPartyId?: number | undefined;
   cash: string | undefined;
+  /** Quando a cobrança começa, se ainda não começou */
+  collectionNote: string;
 };
 
 /** Filiar-se: escolhe o partido e quanto contribui por mês, que pode ser zero. */
-export function JoinPartyDialog({ open, onOpenChange, parties, initialPartyId, cash }: JoinPartyDialogProps) {
+export function JoinPartyDialog({
+  open,
+  onOpenChange,
+  parties,
+  initialPartyId,
+  cash,
+  collectionNote,
+}: JoinPartyDialogProps) {
   const [partyId, setPartyId] = useState(initialPartyId ?? parties[0]?.id);
   const [contribution, setContribution] = useState("");
   const [share, setShare] = useState(0);
@@ -86,7 +95,7 @@ export function JoinPartyDialog({ open, onOpenChange, parties, initialPartyId, c
                   value={contribution}
                   onChange={setContribution}
                   error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}
-                  note={`Pode ser zero; dá para mudar todo mês. Com ${displayMoney(monthly)}, a verba do ${party.abbr} vai a ${displayMoneyWhole(Number(party.budget) + monthly)}/mês.`}
+                  note={`Pode ser zero; dá para mudar todo mês. Com ${displayMoney(monthly)}, a verba do ${party.abbr} vai a ${displayMoneyWhole(Number(party.budget) + monthly)}/mês.${collectionNote}`}
                 />
                 <ContributionSplit share={share} onShare={setShare} monthly={monthly} runs={party.candidate !== null} />
 

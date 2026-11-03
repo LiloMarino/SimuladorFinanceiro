@@ -25,6 +25,8 @@ type ContributionDialogProps = {
   /** A parte de `current` que vai ao Congresso, em reais */
   currentCongress: string;
   cash: string | undefined;
+  /** Quando a cobrança começa, se ainda não começou */
+  collectionNote: string;
 };
 
 /** Mudar a contribuição mensal; vale a partir do próximo dia 1º. */
@@ -35,6 +37,7 @@ export function ContributionDialog({
   current,
   currentCongress,
   cash,
+  collectionNote,
 }: ContributionDialogProps) {
   const [text, setText] = useState(() => contributionText(current));
   const [share, setShare] = useState(() => congressShare(current, currentCongress));
@@ -47,7 +50,7 @@ export function ContributionDialog({
       <DialogContent className="sm:max-w-110">
         <DialogHeader variant="divided">
           <DialogTitle>Contribuição mensal ao {party.abbr}</DialogTitle>
-          <DialogDescription>Vale a partir do próximo dia 1º; pode ser zero.</DialogDescription>
+          <DialogDescription>Vale a partir do próximo dia 1º; pode ser zero.{collectionNote}</DialogDescription>
         </DialogHeader>
         <DialogBody>
           <ContributionField

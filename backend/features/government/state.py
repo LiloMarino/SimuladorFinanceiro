@@ -73,6 +73,8 @@ class Party:
     candidate_name: str | None = None
     # Filiados na ordem de entrada e a contribuição mensal de cada um
     members: dict[int, Decimal] = field(default_factory=dict)
+    # O dia em que cada filiado entrou: decide quem ainda concorre na eleição em curso
+    joined: dict[int, date] = field(default_factory=dict)
     # Quanto de cada contribuição vai para a campanha do Congresso; o resto é da presidência
     congress: dict[int, Decimal] = field(default_factory=dict)
     candidate_id: int | None = None
@@ -598,6 +600,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 is_computer=False,
                 founded=day,
                 members={founder: _money(p, "contribution")},
+                joined={founder: day},
                 congress=_congress(p, founder),
             )
             state.next_party_id = max(state.next_party_id, party_id + 1)
@@ -623,6 +626,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             party = state.parties[_int(p, "party_id")]
             user_id = _int(p, "user_id")
             party.members[user_id] = _money(p, "contribution")
+            party.joined[user_id] = day
             party.congress = {**party.congress, **_congress(p, user_id)}
         case Event.PARTY_LEFT | Event.MEMBER_EXPELLED:
             _remove_member(state, _int(p, "user_id"))
@@ -904,6 +908,7 @@ def _remove_member(state: GovernmentState, user_id: int) -> None:
     if party.founder_id == user_id:
         party.founder_id = next(iter(party.members))
     party.congress.pop(user_id, None)
+    party.joined.pop(user_id, None)
     if party.candidate_id == user_id:
         party.candidate_id = None
     if party.vice_id == user_id:

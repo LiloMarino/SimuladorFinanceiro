@@ -40,9 +40,9 @@ export function CampaignOpenedDialog({ open, onOpenChange, panel, onShortcut }: 
             <Flag />
             <AlertTitle>1º turno em {displayShortDate(panel.dates.first_round)}</AlertTitle>
             <AlertDescription>
-              As chapas fecham em {displayShortDate(panel.dates.ticket_deadline)}. Até lá dá para fundar um partido,
-              filiar-se a um e escolher quanto contribuir por mês: a contribuição mensal compra votos para o partido, e
-              quem começa cedo acumula mais.
+              As chapas fecham em {displayShortDate(panel.dates.ticket_deadline)}, e a contribuição mensal passa a ser
+              cobrada: ela compra votos para o partido, e quem começa cedo acumula mais. Filiado depois de{" "}
+              {displayShortDate(panel.dates.affiliation_deadline)} não entra na chapa desta eleição.
             </AlertDescription>
           </Alert>
         </DialogBody>

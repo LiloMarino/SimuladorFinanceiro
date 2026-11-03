@@ -38,7 +38,7 @@ import { RunoffPollCard } from "../components/runoff-poll-card";
 import { TermCard } from "../components/term-card";
 import { TicketDialog } from "../components/ticket-dialog";
 import { ViceInviteDialog } from "../components/vice-invite-dialog";
-import { campaignEnded, type ElectionShortcut } from "../lib/election";
+import { affiliationNote, campaignEnded, collectionNote, type ElectionShortcut } from "../lib/election";
 import { useElection } from "@/shared/hooks/queries/useElection";
 
 export default function ElectionPage() {
@@ -290,9 +290,10 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
         </Alert>
       )}
 
-      {!campaignOpen && !hasTerm && <BeforeCampaignEmpty panel={panel} />}
+      {/* O partido existe desde o 1º dia: antes da campanha, a página já serve a quem tem ou pode ter partido */}
+      {!campaignOpen && !hasTerm && !mine && !panel.can_found_or_join && <BeforeCampaignEmpty panel={panel} />}
 
-      {(campaignOpen || hasTerm) &&
+      {(campaignOpen || hasTerm || mine || panel.can_found_or_join) &&
         (party && mine ? (
           <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
             <TabsList variant="line">
@@ -319,6 +320,7 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
             {panel.can_found_or_join && (
               <CampaignNotMember
                 canJoin={playerParties.length > 0}
+                deadline={affiliationNote(panel)}
                 onJoin={() => openJoin()}
                 onFound={() => setDialog("found")}
               />
@@ -341,6 +343,7 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
         parties={playerParties}
         initialPartyId={joinPartyId}
         cash={cash}
+        collectionNote={collectionNote(panel)}
       />
       {party && mine && (
         <>
@@ -351,6 +354,7 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
             current={mine.contribution}
             currentCongress={mine.congress}
             cash={cash}
+            collectionNote={collectionNote(panel)}
           />
           <TicketDialog open={dialog === "ticket"} onOpenChange={close} party={party} panel={panel} cash={cash} />
           {mine.is_founder && (

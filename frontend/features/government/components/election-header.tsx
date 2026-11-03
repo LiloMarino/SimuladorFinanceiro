@@ -4,16 +4,10 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
 import { cn } from "@/shared/lib/utils";
-import {
-  displayList,
-  displayMoneyWhole,
-  displayPercent,
-  displayShortDate,
-  displayMonthShort,
-} from "@/shared/lib/utils/display";
+import { displayList, displayMoneyWhole, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionPhase } from "@/types";
 import { useToday } from "../hooks/useToday";
-import { countdownLabel, phaseLabel } from "../lib/election";
+import { affiliationNote, countdownLabel, monthYear, phaseLabel } from "../lib/election";
 import { PartyMark } from "./party-mark";
 
 type StepState = "done" | "current" | "pending";
@@ -26,8 +20,6 @@ const CURRENT_STEP: Record<ElectionPhase, number> = {
   AWAITING_TERM: 3,
   TERM: -1,
 };
-
-const monthYear = (isoDate: string) => `${displayMonthShort(isoDate)} ${isoDate.slice(0, 4)}`;
 
 /** Para onde a contagem regressiva aponta em cada fase. */
 function nextMilestone(panel: ElectionPanel) {
@@ -112,7 +104,7 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
   const computers = panel.parties.filter((party) => party.is_computer).length;
   const players = panel.parties.length - computers;
   const openParties = panel.parties.filter((party) => !party.is_computer);
-  const choosing = phase !== "BEFORE_CAMPAIGN" && !panel.my_party && panel.can_found_or_join;
+  const choosing = !panel.my_party && panel.can_found_or_join;
   const runoffSkipped = phase === "AWAITING_TERM" && panel.last_result?.round === 1;
   const current = CURRENT_STEP[phase];
   const matchup = runoffMatchup(panel);
@@ -121,7 +113,7 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
     {
       title: "Campanha",
       date: `${monthYear(dates.campaign_start)} → ${monthYear(dates.ticket_deadline)}`,
-      note: "Partidos, chapas e verba abertos",
+      note: "Chapas, ações e cobrança da verba abertas",
     },
     { title: "1º turno", date: displayShortDate(dates.first_round), note: "Mais de 50% dos votos válidos leva" },
     {
@@ -161,9 +153,9 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
               {matchup ?? (
                 <span className="text-[13px] text-muted-foreground">
                   {choosing
-                    ? `Você ainda não tem partido · inscrição de chapas até ${displayShortDate(dates.ticket_deadline)}`
+                    ? `Você ainda não tem partido · ${affiliationNote(panel)}`
                     : panel.parties.length === 0
-                      ? "Ainda sem partidos. Quando a candidatura abrir, é aqui que eles aparecem."
+                      ? "Ainda sem partidos. Os que forem fundados aparecem aqui."
                       : `${panel.parties.length} ${panel.parties.length === 1 ? "partido" : "partidos"}: ${players} de jogadores e ${computers} do computador, que completa as vagas até 3 · mandato de 4 anos, com uma reeleição`}
                 </span>
               )}
