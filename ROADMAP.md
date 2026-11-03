@@ -105,7 +105,6 @@
 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | — | — | Médio | Bom | 💤 |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.0 | — | — | — | 🔍 |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 | — | Médio | Bom | ⏳ |
-| [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | 🔍 |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | — | — | — | 🔍 |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | — | — | — | — | 🔍 |
@@ -119,7 +118,7 @@
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (37 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (38 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -150,6 +149,7 @@
 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 | — | — | — | ✅ |
 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | M20 · 3.3 | — | — | — | ✅ |
 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 | — | — | — | ✅ |
+| [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 | — | — | — | ✅ |
 | [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | M20 · 3.3 | — | — | — | ✅ |
 | [**F204**](#f204) | Melhoria | Congresso: votação com placar e casa eleita | M20 · 3.3 | — | — | — | ✅ |
 | [**F205**](#f205) | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | M20 · 3.3 | — | — | — | ✅ |
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 21/27 concluídos
+> **Progresso:** 22/27 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -195,7 +195,7 @@
 | 14 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | — | ✅ Concluído |
 | 15 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | — | ✅ Concluído |
 | 16 | [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | — | ✅ Concluído |
-| 17 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | — | ⏳ Pendente |
+| 17 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | — | ✅ Concluído |
 | 18 | [**F204**](#f204) | Melhoria | Congresso: votação com placar e casa eleita | — | ✅ Concluído |
 | 19 | [**F205**](#f205) | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | — | ✅ Concluído |
 | 20 | [**F206**](#f206) | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | — | ✅ Concluído |
@@ -286,7 +286,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 · 17º | 0 | Médio | Bom | ⏳ |
 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | M20 · 3.3 · 22º | 0 | Baixo | Bom | ⏳ |
 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 23º | 2 | — | — | 🔍 |
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 · 24º | 0 | — | — | 🔍 |
@@ -341,7 +340,6 @@
 | **F173** | Feature | Partido desde o 1º dia | N39, N34 | D19 | M21 · 3.4 | — | Médio | Médio | Alto | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom |
 | **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
-| **F190** | Melhoria | Contas do governo redesenhadas | N15, N34 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
 | **F210** | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | N6, N15 | — | M20 · 3.3 | — | Baixo | Baixo | Alto | Bom |
@@ -415,20 +413,6 @@
 **Como medir:** cada endpoint na partida salva longa do banco de teste, com cProfile e o log de SQL do modo debug, separando o tempo de banco do tempo de Python, três rodadas. **O que muda:** (1) as estatísticas fecham no mês (F115), então o resultado de cada mês fechado fica guardado e a leitura recalcula só o mês corrente, em vez de refazer tudo a partir de todas as operações; (2) a leitura dupla vira uma só (duas montagens do componente ou duas chaves de query para o mesmo dado). Os números da tela não mudam: um teste compara o resultado guardado com o recalculado do zero.
 
 **Aceite:** cada endpoint de estatística abaixo de 500 ms (o limite do `slow.log`) na partida salva longa, e uma requisição por endpoint ao abrir a tela.
-
-<a id="f190"></a>
-**F190 — Contas do governo redesenhadas.** Serve N15 e N34. No playtest de 31/out, a página do Governo confundiu: muita informação, o painel das contas misturado com o Congresso e as medidas, os gráficos de barra da conta do país difíceis de ler e o Gasto público rolando de lado. O que funcionou e serve de molde: a explicação "inclui 2,3 de prêmio", com a soma que monta a taxa de hoje. O desenho foi aprovado no canvas em 03/11 (board "governo-contas").
-
-**O que existe:** a aba "Contas" (`features/government/components/accounts-tab.tsx`) monta `taxes-card.tsx` (Impostos), `revenue-card.tsx` (De onde vem a receita), `spending-card.tsx` (Gasto público), `budget-card.tsx` (A conta do país), `debt-premium-card.tsx` (Dívida e prêmio de risco) e `budget-readers-card.tsx` (Quem lê a conta).
-
-**O que muda:**
-- **Uma coluna só**, na ordem da conta: Base, A conta do país, o que Entra, o que Sai, e a Dívida.
-- **Impostos e receita viram uma tabela só** (`taxes-card.tsx` absorve `revenue-card.tsx`): alíquota de hoje, padrão (a regra de antes da expansão) e quanto arrecada, lado a lado. A isenção de R$ 20 mil vira nota na linha "Ações · vendas com lucro".
-- **Gasto público** (`spending-card.tsx`) na largura toda, sem rolagem lateral, com o nome da medida numa linha e a descrição embaixo.
-- **Dívida:** o título e o texto de "prêmio de risco" saem, porque descreviam um gráfico que já foi removido; o eixo do gráfico continua o automático do Recharts.
-- **"Quem lê a conta"** (`budget-readers-card.tsx`) não aparece no desenho e sai da aba.
-
-**Aceite:** a aba "Contas" em 1920 de largura sem rolagem lateral e sem cartão que repita número de outro.
 
 <a id="f196"></a>
 **F196 — Evolução do patrimônio por tipo de renda variável.** Serve N16. Hoje a evolução do patrimônio (`portfolio/components/networth-chart.tsx`) tem as visões "Ganho" e "Por classe", que separa renda fixa, renda variável e caixa, um painel por classe. O playtest de 31/out pediu ver a renda variável aberta por tipo.
@@ -670,6 +654,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 |
 | **F188** | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | N24 | — | M20 · 3.3 |
 | **F189** | Melhoria | Retoques de interface do playtest de outubro | N15, N21 | — | M20 · 3.3 |
+| **F190** | Melhoria | Contas do governo redesenhadas | N15, N34 | — | M20 · 3.3 |
 | **F203** | Melhoria | Eleição: aba da campanha reorganizada | N15, N34 | — | M20 · 3.3 |
 | **F204** | Melhoria | Congresso: votação com placar e casa eleita | N15, N34 | — | M20 · 3.3 |
 | **F205** | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | N15, N31 | — | M20 · 3.3 |
@@ -787,6 +772,20 @@ A pasta que as Configurações abrem e os nomes dos arquivos atuais continuam os
 - **Aviso de atualização das Estatísticas** (`update-notice.tsx`) também com a partida pausada, dizendo a data da última atualização; a contagem até a próxima aparece só com a partida andando.
 
 Cada item sai num commit `feat:` próprio.
+
+<a id="f190"></a>
+**F190 — Contas do governo redesenhadas.** Serve N15 e N34. No playtest de 31/out, a página do Governo confundiu: muita informação, o painel das contas misturado com o Congresso e as medidas, os gráficos de barra da conta do país difíceis de ler e o Gasto público rolando de lado. O que funcionou e serve de molde: a explicação "inclui 2,3 de prêmio", com a soma que monta a taxa de hoje. O desenho foi aprovado no canvas em 03/11 (board "governo-contas").
+
+**O que existe:** a aba "Contas" (`features/government/components/accounts-tab.tsx`) monta `taxes-card.tsx` (Impostos), `revenue-card.tsx` (De onde vem a receita), `spending-card.tsx` (Gasto público), `budget-card.tsx` (A conta do país), `debt-premium-card.tsx` (Dívida e prêmio de risco) e `budget-readers-card.tsx` (Quem lê a conta).
+
+**O que muda:**
+- **Uma coluna só**, na ordem da conta: Base, A conta do país, o que Entra, o que Sai, e a Dívida.
+- **Impostos e receita viram uma tabela só** (`taxes-card.tsx` absorve `revenue-card.tsx`): alíquota de hoje, padrão (a regra de antes da expansão) e quanto arrecada, lado a lado. A isenção de R$ 20 mil vira nota na linha "Ações · vendas com lucro".
+- **Gasto público** (`spending-card.tsx`) na largura toda, sem rolagem lateral, com o nome da medida numa linha e a descrição embaixo.
+- **Dívida:** o título e o texto de "prêmio de risco" saem, porque descreviam um gráfico que já foi removido; o eixo do gráfico continua o automático do Recharts.
+- **"Quem lê a conta"** (`budget-readers-card.tsx`) não aparece no desenho e sai da aba.
+
+**Aceite:** a aba "Contas" em 1920 de largura sem rolagem lateral e sem cartão que repita número de outro.
 
 <a id="f203"></a>
 **F203 — Eleição: aba da campanha reorganizada.** Serve N15 e N34. Na aba "Campanha do {sigla}" (`features/government/components/campaign-section.tsx`), o playtest e a conferência de 02/11 acharam a tela confusa: a mesma informação mora em mais de um lugar (Eleitorado, Últimas ações e Histórico, Verba de base). O desenho foi aprovado no canvas em 03/11, com uma ressalva: o cartão "Ações de campanha" (`campaign-actions-card.tsx`) fica exatamente como está, porque já foi bem desenhado e não é o problema da página.
