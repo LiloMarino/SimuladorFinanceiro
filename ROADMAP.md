@@ -104,7 +104,6 @@
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | — | — | Médio | Bom | 💤 |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.0 | — | — | — | 🔍 |
-| [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 | — | Alto | Bom | ⏳ |
 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 | — | Médio | Bom | ⏳ |
@@ -132,7 +131,7 @@
 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -154,6 +153,7 @@
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F173](#f173), [F175](#f175), [F176](#f176) | — | — | ✅ |
+| [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 | — | — | — | ✅ |
 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | — | — | — | — | 🚫 |
 | [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 | — | — | — | ✅ |
 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 | — | — | — | ✅ |
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 8/27 concluídos
+> **Progresso:** 9/27 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -205,7 +205,7 @@
 | 24 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | — | 🔍 Em avaliação |
 | 25 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ⏳ Pendente |
 | 26 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | — | ⏳ Pendente |
-| 27 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | — | ⏳ Pendente |
+| 27 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | — | ✅ Concluído |
 
 ### 3.4 — Juros e Tesouro (M21)
 
@@ -304,7 +304,6 @@
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 · 24º | 0 | — | — | 🔍 |
 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 · 25º | 0 | Médio | Excelente | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 · 26º | 0 | Médio | Bom | ⏳ |
-| [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 · 27º | 0 | Alto | Bom | ⏳ |
 | [**F173**](#f173) | Feature | Partido desde o 1º dia | M21 · 3.4 · 1º | 2 | Médio | Bom | ⏳ |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 · 4º | 1 | — | — | 🔍 |
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 5º | 0 | Alto | Bom | ⏳ |
@@ -353,7 +352,6 @@
 | **F170** | Feature | Parâmetros das estratégias salvos no perfil | N39 | — | M21 · 3.4 | [F174](#f174) | Médio | Baixo | Alto | Excelente |
 | **F173** | Feature | Partido desde o 1º dia | N39, N34 | D19 | M21 · 3.4 | — | Médio | Médio | Alto | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom |
-| **F180** | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 | — | Alto | Baixo | Alto | Bom |
 | **F181** | Melhoria | Tabelas que cabem na tela e texto legível | N15 | — | M20 · 3.3 | — | Médio | Baixo | Médio | Bom |
 | **F182** | Melhoria | Eleição: corrida entre partidos redesenhada | N15, N34 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 | **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
@@ -434,28 +432,6 @@
 
 <a id="f175"></a>
 **F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), inclusive ao partido do computador; a proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173). (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato, fica preso pelo mandato e herda, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** a federação aparece no cartão dos partidos da Eleição, no hemiciclo do Congresso e no jornal (formada, desfeita); o desenho começa registrando as telas e os estados no canvas: proposta pendente, federação formada, federação desfeita antes do prazo e expansão desligada.
-
-<a id="f180"></a>
-**F180 — Retrato no canvas das telas que mudaram desde a 3.0.** Serve N15. Da 3.1 à 3.3, cada tela foi desenhada sozinha no canvas e implementada sem conferência na tela. Juntas, elas quebram a topbar, fazem tabelas rolarem de lado e desalinham cartões (conferência visual, F178). Os boards do governo e da eleição mostram o desenho aprovado de cada feature isolada, não o app de hoje. Esta feature põe no canvas o app como ele está, para as rodadas de redesenho (F179, F181, F182, F183) comentarem sobre o conjunto e para comparar o que foi aprovado com o que foi implementado.
-
-(1) **Limpeza.** As linhas das features implementadas até a 3.0 vão para uma página nova do Arquivo, mudando só a página do board. Ficam no canvas:
-- as linhas das features ainda não implementadas, inclusive as variantes à espera de escolha;
-- as linhas do governo e da eleição, até o retrato substituí-las;
-- um board de identidade visual, de onde a skill `design-canvas` copia o `<helmet>` (fonte, cores e classes) para os boards novos.
-
-(2) **Retrato.** Uma captura em 1920 de largura, a janela que o jogo usa (navegador maximizado num monitor 1920×1080), de cada tela e estado que mudou desde a 3.0, seguindo o roteiro da conferência visual (199 linhas de tela × estado). As capturas são tiradas depois dos consertos do hotfix, no banco de teste, com o governo e a corrida ligados. Cada captura vira um board de imagem do lado do antes, com uma linha por área: lobby, mercado e carteira, crédito, estatísticas, eleição, governo, jornal, Como jogar e configurações. É imagem, e não réplica em HTML: a réplica seria uma terceira versão da tela, cara de fazer e com as próprias divergências.
-
-(3) **Post-its.**
-- Ao lado da captura, os achados da conferência que ficaram para o canvas.
-- Onde a tela difere do board aprovado da feature, o post-it "implementado diferente do aprovado", com a diferença. A comparação é texto contra texto: a spec do board (`extract_spec.py`) contra a árvore da tela no devtools, por um Haiku por área, com a captura para o layout.
-
-(4) **Notas.** O canvas comporta 200 notas, e a limpeza libera as das linhas arquivadas.
-
-**Como roda:** sessão Sonnet, sem decisão de design: o que pede escolha vira post-it para as rodadas de redesenho. Pede, na mesma sessão, o app rodando com o `chrome-devtools` e escrita no canvas original. Sem escrita no original, a sessão para e avisa.
-
-Na mesma passada, a sessão confere os estados que o playtest não provocou (lista no fim da F184).
-
-**Aceite:** toda tela do roteiro que mudou desde a 3.0 tem captura no canvas, e o canvas fica com até 185 notas.
 
 <a id="f181"></a>
 **F181 — Tabelas que cabem na tela e texto legível.** Serve N15. A conferência visual (F178) e o playtest acharam problemas que se repetem pelo app inteiro; nesta rodada o usuário confirmou que a **rolagem lateral dentro de tabela é um problema** em várias telas. Sem rodada no canvas: a regra é uma só e o aceite é objetivo.
@@ -856,11 +832,34 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
+| **F180** | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 |
 | **F184** | Correção | Correções da 3.3 | — | — | M20 · 3.3 |
 | **F185** | Performance | Dia da partida que fica mais lento ao longo da partida | N40, N24 | — | M20 · 3.3 |
 | **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 |
 | **F188** | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | N24 | — | M20 · 3.3 |
 | **F189** | Melhoria | Retoques de interface do playtest de outubro | N15, N21 | — | M20 · 3.3 |
+
+<a id="f180"></a>
+**F180 — Retrato no canvas das telas que mudaram desde a 3.0.** Serve N15. Da 3.1 à 3.3, cada tela foi desenhada sozinha no canvas e implementada sem conferência na tela. Juntas, elas quebram a topbar, fazem tabelas rolarem de lado e desalinham cartões (conferência visual, F178). Os boards do governo e da eleição mostram o desenho aprovado de cada feature isolada, não o app de hoje. Esta feature põe no canvas o app como ele está, para as rodadas de redesenho (F179, F181, F182, F183) comentarem sobre o conjunto e para comparar o que foi aprovado com o que foi implementado.
+
+(1) **Limpeza.** As linhas das features implementadas até a 3.0 vão para uma página nova do Arquivo, mudando só a página do board. Ficam no canvas:
+- as linhas das features ainda não implementadas, inclusive as variantes à espera de escolha;
+- as linhas do governo e da eleição, até o retrato substituí-las;
+- um board de identidade visual, de onde a skill `design-canvas` copia o `<helmet>` (fonte, cores e classes) para os boards novos.
+
+(2) **Retrato.** Uma captura em 1920 de largura, a janela que o jogo usa (navegador maximizado num monitor 1920×1080), de cada tela e estado que mudou desde a 3.0, seguindo o roteiro da conferência visual (199 linhas de tela × estado). As capturas são tiradas depois dos consertos do hotfix, no banco de teste, com o governo e a corrida ligados. Cada captura vira um board de imagem do lado do antes, com uma linha por área: lobby, mercado e carteira, crédito, estatísticas, eleição, governo, jornal, Como jogar e configurações. É imagem, e não réplica em HTML: a réplica seria uma terceira versão da tela, cara de fazer e com as próprias divergências.
+
+(3) **Post-its.**
+- Ao lado da captura, os achados da conferência que ficaram para o canvas.
+- Onde a tela difere do board aprovado da feature, o post-it "implementado diferente do aprovado", com a diferença. A comparação é texto contra texto: a spec do board (`extract_spec.py`) contra a árvore da tela no devtools, por um Haiku por área, com a captura para o layout.
+
+(4) **Notas.** O canvas comporta 200 notas, e a limpeza libera as das linhas arquivadas.
+
+**Como roda:** sessão Sonnet, sem decisão de design: o que pede escolha vira post-it para as rodadas de redesenho. Pede, na mesma sessão, o app rodando com o `chrome-devtools` e escrita no canvas original. Sem escrita no original, a sessão para e avisa.
+
+Na mesma passada, a sessão confere os estados que o playtest não provocou (lista no fim da F184).
+
+**Aceite:** toda tela do roteiro que mudou desde a 3.0 tem captura no canvas, e o canvas fica com até 185 notas.
 
 <a id="f184"></a>
 **F184 — Correções da 3.3.** Lote dos consertos achados desde a 3.2. Tudo em main, em `fix:`. Primeiro lote, 37 commits:
