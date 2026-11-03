@@ -27,7 +27,7 @@
 | **N7** | — | Que o simulador cobre os custos de operar do mercado real | — | [F22](#f22), [F100](#f100) | — | — | — |
 | **N8** | — | Jogar contra oponentes controlados pelo computador | — | — | — | — | — |
 | **N9** | — | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — | — | — | — |
-| **N10** | — | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | — | [F28](#f28) | — | — | — |
+| **N10** | — | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | — | [F28](#f28), [F202](#f202) | — | — | — |
 | **N11** | — | Que o cenário econômico simulado seja o histórico real | — | [F194](#f194) | — | — | — |
 | **N12** | — | Continuar jogando depois do último dia com dado real | — | [F192](#f192) | — | — | — |
 | **N13** | — | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — | — |
@@ -108,7 +108,6 @@
 | [**F181**](#f181) | Melhoria | Regras visuais do conjunto: texto, tabelas, grade e eixos | M20 · 3.3 | — | — | — | 🔍 |
 | [**F182**](#f182) | Melhoria | Eleição redesenhada como um conjunto | M20 · 3.3 | — | — | — | 🔍 |
 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | M20 · 3.3 | — | — | — | 🔍 |
-| [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 | — | Médio | Excelente | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 | — | — | — | 🔍 |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | 🔍 |
@@ -118,9 +117,10 @@
 | [**F195**](#f195) | Feature | Acordo de base com prazo | M21 · 3.4 | — | — | — | 🔍 |
 | [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | Baixo | Bom | ⏳ |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | — | Médio | Bom | ⏳ |
+| [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -130,7 +130,7 @@
 | **D4** | — | Banco de dados embarcado no executável | — | — | — | — | ✅ |
 | **D6** | — | A retomada continua no dia seguinte ao último evento | — | — | — | — | ✅ |
 | **D7** | — | O simulador lê as séries sem saber a origem | — | [F22](#f22), [F100](#f100) | — | — | ✅ |
-| **D8** | — | Bot, modo automático e backtest são o mesmo mecanismo | — | [F110](#f110), [F111](#f111) | — | — | ✅ |
+| **D8** | — | Bot, modo automático e backtest são o mesmo mecanismo | — | [F110](#f110), [F111](#f111), [F202](#f202) | — | — | ✅ |
 | **D9** | — | De onde nasce uma mudança de schema | — | [F101](#f101) | — | — | ✅ |
 | **D10** | — | Como a nota geral é calculada | — | — | — | — | ✅ |
 | **D11** | — | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | — | — | — | ✅ |
@@ -143,6 +143,7 @@
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F173](#f173), [F175](#f175), [F176](#f176) | — | — | ✅ |
 | [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 | — | — | — | ✅ |
+| [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 | — | — | — | ✅ |
 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 | — | — | — | ✅ |
 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | M20 · 3.3 | — | — | — | ✅ |
 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 | — | — | — | ✅ |
@@ -161,7 +162,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 7/17 concluídos
+> **Progresso:** 8/17 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -180,7 +181,7 @@
 | 13 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | — | ✅ Concluído |
 | 14 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | — | ✅ Concluído |
 | 15 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ⏳ Pendente |
-| 16 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | — | ⏳ Pendente |
+| 16 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | — | ✅ Concluído |
 | 17 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | — | ⏳ Pendente |
 
 ### 3.4 — Juros e Tesouro (M21)
@@ -250,6 +251,7 @@
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | N34, N11 | [F191](#f191) | 0 | 🔍 Em avaliação |
 | [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | 0 | ⏳ Pendente |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | 0 | ⏳ Pendente |
+| [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | N10 | — | 0 | 🔍 Em avaliação |
 
 ---
 
@@ -262,7 +264,6 @@
 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 · 6º | 5 | Alto | Bom | ⏳ |
 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 12º | 2 | — | — | 🔍 |
 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 · 15º | 0 | Médio | Excelente | ⏳ |
-| [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 · 16º | 0 | Médio | Excelente | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 · 17º | 0 | Médio | Bom | ⏳ |
 | [**F173**](#f173) | Feature | Partido desde o 1º dia | M21 · 3.4 · 1º | 2 | Médio | Bom | ⏳ |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 · 4º | 1 | — | — | 🔍 |
@@ -285,6 +286,7 @@
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | 0 | — | — | 🔍 |
 | [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | 0 | Baixo | Bom | ⏳ |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | 0 | Médio | Bom | ⏳ |
+| [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | 0 | — | — | 🔍 |
 
 ---
 
@@ -311,7 +313,6 @@
 | **F173** | Feature | Partido desde o 1º dia | N39, N34 | D19 | M21 · 3.4 | — | Médio | Médio | Alto | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom |
 | **F180** | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 | — | Alto | Baixo | Alto | Bom |
-| **F185** | Performance | Dia da partida que fica mais lento ao longo da partida | N40, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Excelente |
 | **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
@@ -401,13 +402,6 @@ Na mesma passada, a sessão confere os estados que o playtest não provocou (lis
 
 **Aceite:** toda tela do roteiro que mudou desde a 3.0 tem captura no canvas, e o canvas fica com até 185 notas.
 
-<a id="f185"></a>
-**F185 — Dia da partida que fica mais lento ao longo da partida.** Serve N40 e N24. No playtest de 31/out, com 17 ativos e 7 a 8 jogadores do começo ao fim, o passo "Processar um dia" do `slow.log` subiu de 576 ms de mediana no primeiro terço da sessão para 757 e 940 ms nos seguintes (+63%), com picos de 2,7 s. No backtest de 10 anos com 5 bots, a previsão de tempo não caía com o progresso: cada dia custava mais que o anterior. Os endpoints lidos durante a partida (pendências, governo, carteira, padrões de vela) subiram na mesma proporção, de ~650 para ~1.050 ms, o que aponta para o dia disputando o processo com as leituras ou para consultas que leem o histórico inteiro.
-
-**Como medir:** numa partida salva longa do banco de teste, o perfil (pyinstrument) de 50 dias no começo e de 50 dias depois de 1.000 dias, com o mesmo número de ativos e jogadores, junto da medida por etapa do dia que a F157 põe no modo debug; o backtest se mede pelo tempo total de 10 anos com 5 bots, três rodadas. **O que muda:** as etapas cujo custo cresce com o número de dias (consulta sem limite de data, snapshot ou estatística recalculada sobre o histórico inteiro, lista que só cresce em memória) passam a ler uma janela ou a somar de forma incremental; o comportamento do jogo não muda.
-
-**Aceite:** a mediana do dia depois de 1.000 dias fica a até 10% da mediana dos primeiros 50, e a previsão do backtest de 10 anos com 5 bots cai de forma contínua até o fim.
-
 <a id="f186"></a>
 **F186 — Estatísticas lentas numa partida longa.** Serve N38 e N24. Medido no playtest de 31/out, numa partida de alguns anos com 7 a 8 jogadores: `GET /api/statistics/operations` com 8,2 s de mediana (até 14 s), `score-history` e `overview` com 3,1 s (até 12 e 9 s), `bots` com 2,8 s e `risk` perto de 1 s. As linhas saem em pares, a milissegundos uma da outra: cada abertura da tela pede cada leitura duas vezes.
 
@@ -456,6 +450,7 @@ Na mesma passada, a sessão confere os estados que o playtest não provocou (lis
 | **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | — | — | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
 | **F194** | Feature | Dólar e ativos internacionais | N34, N11 | — | — | [F191](#f191) | Como o dólar do jogo reage (desconfiança, juro real), a camada pelo desvio sobre BDR e IVVB11 e onde o seletor de origem aparece. |
 | **F195** | Feature | Acordo de base com prazo | N34 | — | M21 · 3.4 | — | Escolher entre (a) prazo na negociação, (b) renovação automática e (c) acordo até o fim do mandato com saída por aprovação baixa; recomendação (c). |
+| **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | — | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -592,6 +587,15 @@ Ponto de realismo: BDR e ETF de índice de fora (IVVB11) já carregam o dólar n
 
 Recomendação: a (c). Ela tira a tarefa repetida e mantém uma consequência que volta depois: governo fraco perde a base no meio do mandato.
 
+<a id="f202"></a>
+**F202 — Backtest que corre mais rápido que a partida comum.** Serve N10; segue a D8. Depois da correção do dia que crescia, o backtest de 10 anos com 5 bots já fica mais rápido a cada pregão, mas ainda corre no ritmo de uma partida comum na velocidade máxima. Pelo `profile:match`, com 7 bots o dia custa ~90 ms: os ~2.500 pregões de 10 anos levam perto de 4 minutos. Um backtest não tem ninguém olhando cada pregão, então tudo o que o dia faz para a tela e para retomar a partida no meio é custo sem retorno.
+
+O backtest já pula os avisos por pregão e o governo e grava os snapshots em lote (`_record_backtest_day`, `flush_backtest`). O que continua igual à partida comum, e é candidato a sair do caminho do dia: gravar no banco os eventos de cada pregão no `flush` em vez de acumular em memória e gravar em lote, ler do banco o que o próprio motor acabou de escrever (fluxos de ordens no fator de impacto, preços do dia), a trava do motor tomada a cada pregão, e o cálculo do imposto e do caixa por dia. Pela D8 o executor rápido é o mesmo motor com as mesmas estratégias e as mesmas regras do dia: muda só onde o dado mora enquanto o backtest corre e quando ele vai para o banco.
+
+**Como medir:** o tempo total do backtest de 10 anos com 5 bots, três rodadas no banco de teste, junto da medida por etapa do dia do modo debug e de um perfil do motor (yappi) de 200 pregões, antes e depois. Para conferir que o resultado não mudou, o mesmo backtest com a mesma semente dá o mesmo patrimônio final de cada bot, centavo por centavo.
+
+**Aceite:** o backtest de 10 anos com 5 bots leva no máximo metade do tempo de 2.500 dias de partida comum com os mesmos bots, e o patrimônio final de cada bot sai igual ao de antes da mudança com a mesma semente.
+
 ---
 
 ## 💤 Sem prioridade
@@ -663,6 +667,7 @@ Recomendação: a (c). Ela tira a tarefa repetida e mantém uma consequência qu
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F184** | Correção | Correções da 3.3 | — | — | M20 · 3.3 |
+| **F185** | Performance | Dia da partida que fica mais lento ao longo da partida | N40, N24 | — | M20 · 3.3 |
 | **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 |
 | **F188** | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | N24 | — | M20 · 3.3 |
 | **F189** | Melhoria | Retoques de interface do playtest de outubro | N15, N21 | — | M20 · 3.3 |
@@ -682,6 +687,15 @@ Segundo lote, triado do playtest de 31/out e conferido em tela com o banco de te
 - **Gerador de futuro:** o campo "até quando" aceita qualquer ano e dispara a prévia a cada dígito (21000 por engano): o campo virou seletor de ano, com teto de 30 anos além do último dado real, e o backend recusa o que passar disso.
 
 Ficam para a sessão do retrato (F180), que roda o app com o devtools, os estados que não deu para provocar no playtest: Crédito com parcela atrasada, o esqueleto e o erro do cartão do desafio da vela (forçados bloqueando a requisição) e o diálogo do resultado numa pausa real.
+
+<a id="f185"></a>
+**F185 — Dia da partida que fica mais lento ao longo da partida.** Serve N40 e N24. No playtest de 31/out o passo "Processar um dia" subiu de 576 ms de mediana no primeiro terço da sessão para 757 e 940 ms nos seguintes, e no backtest de 10 anos com 5 bots a previsão de tempo não caía com o progresso.
+
+A medição apontou o fator de impacto de preço no histórico que os bots pedem: a cada pedido, o fator de cada dia da janela era refeito de todos os fluxos de ordens desde o começo da partida. O fator de um dia passado passou a ser calculado uma vez e guardado, só com as ordens ainda dentro do decaimento; um teste confere que ele sai igual ao recálculo completo. O snapshot do dia passou a gravar só o balanço (ações, renda fixa, dívida), sem montar a carteira da tela, que segue saindo só para quem está conectado.
+
+Em `pnpm profile:match --days 1000 --bots 7`, três rodadas: o dia no fim da partida caiu de 190–201 ms para 89–95 ms de mediana, a razão fim ÷ início de 1,51–1,65 para 1,07–1,13, e os 1.000 dias de ~163 s para ~93 s. O que ainda cresce é o envio da carteira (imposto refeito sobre todas as operações e duas somas no banco), medido com os 8 jogadores tratados como conectados; na partida real só os humanos recebem. A previsão do backtest de 10 anos passou a cair, conferida na tela.
+
+**Aceite:** a mediana do dia depois de 1.000 dias fica a até 10% da mediana dos primeiros 50, e a previsão do backtest de 10 anos com 5 bots cai de forma contínua até o fim.
 
 <a id="f187"></a>
 **F187 — Um log por boot do servidor.** Serve N26. Cada arquivo da pasta de logs tinha o próprio `RotatingFileHandler`, de 10 MB com 5 cópias, e as sessões se emendavam no mesmo arquivo: achar o log de um playtest era procurar pelo horário.
