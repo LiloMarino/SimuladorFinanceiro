@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { StrategyInfo } from "@/types";
-import { paramPills } from "./strategy-params";
+import { paramPills, profileValues } from "./strategy-params";
 
 const strategy = {
   key: "moving_average",
@@ -34,5 +34,33 @@ describe("paramPills", () => {
   it("compara a lista de ações pela ordem e pelo conteúdo", () => {
     const pills = paramPills(strategy, { short: 50, share: 20, tickers: ["VALE3", "PETR4"] });
     expect(pills[2]?.changed).toBe(true);
+  });
+});
+
+describe("profileValues", () => {
+  const tickers = ["PETR4", "VALE3", "ITUB4"];
+
+  it("abre no padrão quando o perfil não tem nada salvo", () => {
+    expect(profileValues(strategy, undefined, tickers)).toEqual({
+      values: { short: 50, share: 20, tickers: ["PETR4", "VALE3"] },
+      missing: [],
+    });
+  });
+
+  it("usa o salvo e completa com o padrão o que falta", () => {
+    const { values } = profileValues(strategy, { short: 20, tickers: ["ITUB4"] }, tickers);
+    expect(values).toEqual({ short: 20, share: 20, tickers: ["ITUB4"] });
+  });
+
+  it("tira as ações que a partida não tem e as devolve para o aviso", () => {
+    const { values, missing } = profileValues(strategy, { tickers: ["ITUB4", "XPTO3"] }, tickers);
+    expect(values.tickers).toEqual(["ITUB4"]);
+    expect(missing).toEqual(["XPTO3"]);
+  });
+
+  it("volta ao padrão quando nenhuma ação salva existe na partida", () => {
+    const { values, missing } = profileValues(strategy, { tickers: ["XPTO3"] }, tickers);
+    expect(values.tickers).toEqual(["PETR4", "VALE3"]);
+    expect(missing).toEqual(["XPTO3"]);
   });
 });

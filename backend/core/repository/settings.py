@@ -5,13 +5,15 @@ from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.preparation import PartyIdentityDTO
+from backend.core.dto.strategy import StrategyParamValue
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.models.models import Users
 
 MY_PARTY_KEY = "my_party"
 PARTY_CONTRIBUTION_KEY = "party_contribution"
+STRATEGY_PARAMS_KEY = "strategy_params"
 # As chaves que o jogador grava pelas rotas próprias do perfil, e que as preferências atravessam
-PROFILE_KEYS = frozenset({MY_PARTY_KEY, PARTY_CONTRIBUTION_KEY})
+PROFILE_KEYS = frozenset({MY_PARTY_KEY, PARTY_CONTRIBUTION_KEY, STRATEGY_PARAMS_KEY})
 
 
 class SettingsRepository:
@@ -51,6 +53,18 @@ class SettingsRepository:
 
     def set_party_contribution(self, user_id: int, amount: Decimal) -> None:
         self._set_key(user_id, PARTY_CONTRIBUTION_KEY, str(amount))
+
+    def get_strategy_params(
+        self, user_id: int
+    ) -> dict[str, dict[str, StrategyParamValue]]:
+        """Os últimos parâmetros de cada estratégia, pela chave dela; só as que o jogador já ajustou."""
+        return self.get_by_user_id(user_id).get(STRATEGY_PARAMS_KEY, {})
+
+    def set_strategy_params(
+        self, user_id: int, key: str, params: dict[str, StrategyParamValue]
+    ) -> None:
+        saved = self.get_strategy_params(user_id)
+        self._set_key(user_id, STRATEGY_PARAMS_KEY, {**saved, key: params})
 
     def _set_key(self, user_id: int, key: str, value: object) -> None:
         settings = self.get_by_user_id(user_id)

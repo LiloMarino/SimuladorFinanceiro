@@ -1425,6 +1425,136 @@
         ]
       }
     },
+    "/api/settings/strategy-params": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Obter os parâmetros salvos das estratégias",
+        "description": "Os últimos parâmetros de cada estratégia, pela chave dela; só as que o jogador já ajustou. O formulário do automático nasce com eles.",
+        "operationId": "get_strategy_params_api_settings_strategy_params_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/StrategyParamValue"
+                    },
+                    "type": "object"
+                  },
+                  "type": "object",
+                  "title": "Response Get Strategy Params Api Settings Strategy Params Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/settings/strategy-params/{key}": {
+      "put": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Salvar os parâmetros de uma estratégia",
+        "description": "Grava no perfil os parâmetros de uma estratégia, validados pela faixa de cada um e contra as ações cadastradas. Ligar o automático na partida também grava aqui.",
+        "operationId": "put_strategy_params_api_settings_strategy_params__key__put",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/StrategyParamValue"
+                },
+                "title": "Params"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/StrategyParamValue"
+                  },
+                  "title": "Response Put Strategy Params Api Settings Strategy Params  Key  Put"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/settings/notification-types": {
       "get": {
         "tags": [
@@ -6350,7 +6480,7 @@
           "Strategy"
         ],
         "summary": "Ligar, ajustar ou desligar a estratégia",
-        "description": "Liga a estratégia com os parâmetros, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. Ligar, trocar e desligar cancelam as ordens abertas do jogador.",
+        "description": "Liga a estratégia com os parâmetros, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. Ligar, trocar e desligar cancelam as ordens abertas do jogador. Os parâmetros aceitos ficam salvos no perfil e abrem o formulário da estratégia nas próximas partidas.",
         "operationId": "set_my_strategy_api_strategies_me_put",
         "requestBody": {
           "content": {
@@ -7697,13 +7827,8 @@
           "Simulation"
         ],
         "summary": "Listar as estratégias para os bots",
-        "description": "As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. Apenas o host pode executar.",
+        "description": "As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. Serve também à preparação de cada jogador no lobby.",
         "operationId": "list_bot_strategies_api_simulation_bots_strategies_get",
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ],
         "parameters": [
           {
             "name": "start_date",
@@ -7767,7 +7892,7 @@
           "Simulation"
         ],
         "summary": "Listar as ações que um bot pode operar",
-        "description": "Os tickers cadastrados, em ordem alfabética, para escolher as ações de uma estratégia antes de a partida começar. Apenas o host pode executar.",
+        "description": "Os tickers cadastrados, em ordem alfabética, para escolher as ações de uma estratégia antes de a partida começar.",
         "operationId": "list_bot_tickers_api_simulation_bots_tickers_get",
         "responses": {
           "200": {
@@ -7804,12 +7929,7 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ]
+        }
       }
     },
     "/api/simulation/bots": {

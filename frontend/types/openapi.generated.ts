@@ -424,6 +424,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings/strategy-params": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter os parâmetros salvos das estratégias
+         * @description Os últimos parâmetros de cada estratégia, pela chave dela; só as que o jogador já ajustou. O formulário do automático nasce com eles.
+         */
+        get: operations["get_strategy_params_api_settings_strategy_params_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/strategy-params/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Salvar os parâmetros de uma estratégia
+         * @description Grava no perfil os parâmetros de uma estratégia, validados pela faixa de cada um e contra as ações cadastradas. Ligar o automático na partida também grava aqui.
+         */
+        put: operations["put_strategy_params_api_settings_strategy_params__key__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings/notification-types": {
         parameters: {
             query?: never;
@@ -2258,7 +2298,7 @@ export interface paths {
         get: operations["get_my_strategy_api_strategies_me_get"];
         /**
          * Ligar, ajustar ou desligar a estratégia
-         * @description Liga a estratégia com os parâmetros, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. Ligar, trocar e desligar cancelam as ordens abertas do jogador.
+         * @description Liga a estratégia com os parâmetros, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. Ligar, trocar e desligar cancelam as ordens abertas do jogador. Os parâmetros aceitos ficam salvos no perfil e abrem o formulário da estratégia nas próximas partidas.
          */
         put: operations["set_my_strategy_api_strategies_me_put"];
         post?: never;
@@ -2729,7 +2769,7 @@ export interface paths {
         };
         /**
          * Listar as estratégias para os bots
-         * @description As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. Apenas o host pode executar.
+         * @description As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. Serve também à preparação de cada jogador no lobby.
          */
         get: operations["list_bot_strategies_api_simulation_bots_strategies_get"];
         put?: never;
@@ -2749,7 +2789,7 @@ export interface paths {
         };
         /**
          * Listar as ações que um bot pode operar
-         * @description Os tickers cadastrados, em ordem alfabética, para escolher as ações de uma estratégia antes de a partida começar. Apenas o host pode executar.
+         * @description Os tickers cadastrados, em ordem alfabética, para escolher as ações de uma estratégia antes de a partida começar.
          */
         get: operations["list_bot_tickers_api_simulation_bots_tickers_get"];
         put?: never;
@@ -11896,6 +11936,96 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PartyContributionDTO-Output"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_strategy_params_api_settings_strategy_params_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: {
+                            [key: string]: components["schemas"]["StrategyParamValue"];
+                        };
+                    };
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    put_strategy_params_api_settings_strategy_params__key__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: components["schemas"]["StrategyParamValue"];
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: components["schemas"]["StrategyParamValue"];
+                    };
                 };
             };
             /** @description Unprocessable Content */

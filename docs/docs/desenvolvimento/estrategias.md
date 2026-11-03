@@ -53,6 +53,8 @@ Cada parâmetro é um `ParamSpec` com `key`, `label`, `kind`, `hint` (a dica da 
 
 `TICKER` e `TICKERS` não têm padrão fixo: o catálogo ([catalog.py](https://github.com/LiloMarino/SimuladorFinanceiro/blob/main/backend/features/strategy/catalog.py)) calcula o padrão para a partida ao ligar. Em `TICKERS` são as 10 ações de maior volume financeiro dos últimos 60 pregões; em `TICKER`, o `default` é o ativo preferido e cede à ação mais negociada quando a partida não o tem.
 
+Os parâmetros com que o jogador liga uma estratégia ficam salvos no perfil (`strategy_params`, gravado também por `PUT /api/settings/strategy-params/{key}`) e abrem o formulário dela nas próximas partidas; o padrão completa o que não foi salvo, e as ações salvas que a partida não tem saem da lista com um aviso.
+
 ### Métodos
 
 | Método | Para que serve |

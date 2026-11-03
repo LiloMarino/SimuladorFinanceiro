@@ -8,6 +8,31 @@ export function defaultValues(strategy: StrategyInfo): ParamValues {
   return Object.fromEntries(strategy.params.map((param) => [param.key, param.default]));
 }
 
+/**
+ * Os valores com que o formulário nasce: os salvos no perfil, e o padrão onde não há nada salvo.
+ * As ações salvas que a partida não tem saem da lista e voltam em `missing`, para o aviso.
+ */
+export function profileValues(strategy: StrategyInfo, saved: ParamValues | undefined, tickers: string[]) {
+  const known = new Set(tickers);
+  const values = defaultValues(strategy);
+  const missing: string[] = [];
+  for (const param of strategy.params) {
+    const value = saved?.[param.key];
+    if (value === undefined) continue;
+    if (Array.isArray(value)) {
+      const kept = value.filter((ticker) => known.has(ticker));
+      missing.push(...value.filter((ticker) => !known.has(ticker)));
+      if (kept.length > 0) values[param.key] = kept;
+    } else if (param.kind === "ticker" && typeof value === "string") {
+      if (known.has(value)) values[param.key] = value;
+      else missing.push(value);
+    } else {
+      values[param.key] = value;
+    }
+  }
+  return { values, missing };
+}
+
 export function toDraft(values: ParamValues): ParamDraft {
   return Object.fromEntries(
     Object.entries(values).map(([key, value]) => [key, typeof value === "number" ? String(value) : value]),

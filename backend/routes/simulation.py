@@ -612,9 +612,9 @@ def get_match_players():
     "/bots/strategies",
     response_model=list[StrategyInfoDTO],
     summary="Listar as estratégias para os bots",
-    description="As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. Apenas o host pode executar.",
+    description="As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. Serve também à preparação de cada jogador no lobby.",
 )
-def list_bot_strategies(_: HostVerified, start_date: date | None = None):
+def list_bot_strategies(start_date: date | None = None):
     """
     Lista as estratégias que um bot pode jogar.
     """
@@ -627,9 +627,9 @@ def list_bot_strategies(_: HostVerified, start_date: date | None = None):
     "/bots/tickers",
     response_model=list[str],
     summary="Listar as ações que um bot pode operar",
-    description="Os tickers cadastrados, em ordem alfabética, para escolher as ações de uma estratégia antes de a partida começar. Apenas o host pode executar.",
+    description="Os tickers cadastrados, em ordem alfabética, para escolher as ações de uma estratégia antes de a partida começar.",
 )
-def list_bot_tickers(_: HostVerified):
+def list_bot_tickers():
     """
     Lista as ações que um bot da sala pode operar.
     """

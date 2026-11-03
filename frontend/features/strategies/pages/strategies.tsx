@@ -6,9 +6,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/aler
 import { Card, CardContent } from "@/shared/components/ui/card";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
+import { useSavedStrategyParams } from "@/shared/hooks/queries/useSavedStrategyParams";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { useVariableIncomeStocks } from "@/shared/hooks/queries/useVariableIncomeStocks";
-import type { MyStrategy, StrategyInfo } from "@/types";
+import type { MyStrategy, SavedStrategyParams, StrategyInfo } from "@/types";
 import { ConfirmDialog, type ModeChange } from "../components/confirm-dialog";
 import { ErrorBanner } from "../components/error-banner";
 import { ModeCard, type Mode } from "../components/mode-card";
@@ -19,15 +20,17 @@ import { StrategyLog } from "../components/strategy-log";
 import { useMarkStrategyErrorSeen } from "../hooks/mutations/useMarkStrategyErrorSeen";
 import { useSetMyStrategy } from "@/shared/hooks/mutations/useSetMyStrategy";
 import { useStrategies } from "../hooks/queries/useStrategies";
-import { defaultValues, fromDraft, toDraft, type ParamDraft, type ParamValues } from "@/shared/lib/strategy-params";
+import { fromDraft, profileValues, toDraft, type ParamDraft, type ParamValues } from "@/shared/lib/strategy-params";
 
 export default function StrategiesPage() {
   usePageLabel("Estratégias");
   const strategies = useStrategies();
   const mine = useMyStrategy();
+  const saved = useSavedStrategyParams();
+  const quotes = useVariableIncomeStocks();
 
-  if (!strategies.data || !mine.data) {
-    const error = strategies.error ?? mine.error;
+  if (!strategies.data || !mine.data || !saved.data || !quotes.data) {
+    const error = strategies.error ?? mine.error ?? saved.error ?? quotes.error;
     return error ? (
       <Card>
         <CardContent>
@@ -38,6 +41,8 @@ export default function StrategiesPage() {
             onRetry={() => {
               void strategies.refetch();
               void mine.refetch();
+              void saved.refetch();
+              void quotes.refetch();
             }}
           />
         </CardContent>
@@ -47,17 +52,26 @@ export default function StrategiesPage() {
     );
   }
 
-  return <StrategiesWorkspace strategies={strategies.data} mine={mine.data} />;
+  return (
+    <StrategiesWorkspace
+      strategies={strategies.data}
+      mine={mine.data}
+      saved={saved.data}
+      tickerOptions={quotes.data.map((quote) => quote.ticker)}
+    />
+  );
 }
 
 type WorkspaceProps = {
   strategies: StrategyInfo[];
   mine: MyStrategy;
+  saved: SavedStrategyParams;
+  /** As ações da partida: as opções do "Escolher" e o filtro das ações salvas no perfil */
+  tickerOptions: string[];
 };
 
-function StrategiesWorkspace({ strategies, mine }: WorkspaceProps) {
+function StrategiesWorkspace({ strategies, mine, saved, tickerOptions }: WorkspaceProps) {
   const { data: state } = useSimulationState();
-  const { data: quotes } = useVariableIncomeStocks();
   const setStrategy = useSetMyStrategy();
   const { mutate: markErrorSeen } = useMarkStrategyErrorSeen();
 
@@ -71,7 +85,6 @@ function StrategiesWorkspace({ strategies, mine }: WorkspaceProps) {
   const selected =
     strategies.find((strategy) => strategy.key === (pickedKey ?? mine.active?.key ?? errorKey)) ?? strategies[0];
   const activeStrategy = strategies.find((strategy) => strategy.key === mine.active?.key);
-  const tickerOptions = quotes?.map((quote) => quote.ticker) ?? [];
 
   const errorUnseen = !!mine.error && !mine.error.seen;
   // Abrir a página é ver o erro: o ponto vermelho do menu sai
@@ -81,15 +94,22 @@ function StrategiesWorkspace({ strategies, mine }: WorkspaceProps) {
 
   if (!selected) return null;
 
+  // Sem rascunho, a estratégia abre nos parâmetros com que está ligada ou, desligada, nos salvos no perfil
+  const initialValues = (strategy: StrategyInfo) =>
+    mine.active?.key === strategy.key
+      ? { values: mine.active.params, missing: [] }
+      : profileValues(strategy, saved[strategy.key], tickerOptions);
+
   const activeHere = mine.active?.key === selected.key ? mine.active : null;
-  const draft = drafts[selected.key] ?? toDraft(activeHere ? activeHere.params : defaultValues(selected));
+  const initial = initialValues(selected);
+  const draft = drafts[selected.key] ?? toDraft(initial.values);
 
   const clearDraft = (key: string) =>
     setDrafts((current) => Object.fromEntries(Object.entries(current).filter(([draftKey]) => draftKey !== key)));
 
   // Valores do rascunho da estratégia; nulo enquanto algum campo não é um número inteiro
   const valuesOf = (strategy: StrategyInfo): ParamValues | null =>
-    fromDraft(strategy.params, drafts[strategy.key] ?? toDraft(defaultValues(strategy)));
+    fromDraft(strategy.params, drafts[strategy.key] ?? toDraft(initialValues(strategy).values));
 
   const requestTurnOn = (strategy: StrategyInfo, params: ParamValues) =>
     setChange({ kind: mine.active ? "switch" : "turn-on", key: strategy.key, params });
@@ -172,6 +192,7 @@ function StrategiesWorkspace({ strategies, mine }: WorkspaceProps) {
             strategy={selected}
             active={activeHere}
             draft={draft}
+            missingTickers={drafts[selected.key] ? [] : initial.missing}
             cash={state?.cash ?? "0"}
             currentDate={state?.current_date}
             tickerOptions={tickerOptions}

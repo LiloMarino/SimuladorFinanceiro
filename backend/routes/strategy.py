@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query, status
 
+from backend.core import repository
 from backend.core.dependencies import ActiveSimulation, CurrentUser
 from backend.core.dto.strategy import (
     MyStrategyDTO,
@@ -42,12 +43,14 @@ def get_my_strategy(simulation: ActiveSimulation, user: CurrentUser):
     "/me",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Ligar, ajustar ou desligar a estratégia",
-    description="Liga a estratégia com os parâmetros, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. Ligar, trocar e desligar cancelam as ordens abertas do jogador.",
+    description="Liga a estratégia com os parâmetros, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. Ligar, trocar e desligar cancelam as ordens abertas do jogador. Os parâmetros aceitos ficam salvos no perfil e abrem o formulário da estratégia nas próximas partidas.",
 )
 def set_my_strategy(
     simulation: ActiveSimulation, user: CurrentUser, payload: SetStrategyRequestDTO
 ):
     simulation.set_my_strategy(user, payload.key, payload.params)
+    if payload.key is not None:
+        repository.settings.set_strategy_params(user.id, payload.key, payload.params)
 
 
 @strategy_router.post(

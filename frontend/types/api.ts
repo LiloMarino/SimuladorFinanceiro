@@ -305,6 +305,8 @@ export type MyStrategy = components["schemas"]["MyStrategyDTO"];
 export type StrategyPanel = NonNullable<MyStrategy["panel"]>;
 export type StrategyError = NonNullable<MyStrategy["error"]>;
 export type SetStrategyRequest = components["schemas"]["SetStrategyRequestDTO"];
+export type SavedStrategyParams =
+  operations["get_strategy_params_api_settings_strategy_params_get"]["responses"]["200"]["content"]["application/json"];
 export type StrategySignal = components["schemas"]["SignalDTO"];
 export type StrategyViewKind = components["schemas"]["StrategyView"];
 export type StrategyViewData = components["schemas"]["StrategyViewDTO"];

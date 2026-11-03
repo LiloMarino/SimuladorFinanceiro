@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 from uuid import uuid4
 
@@ -17,7 +19,9 @@ from backend.core import repository
 from backend.core.dependencies import get_client_id, get_current_user, verify_host
 from backend.core.dto.user import UserDTO
 from backend.core.repository.settings import SettingsRepository
+from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.user_manager import UserManager
+from backend.features.strategy import catalog
 from backend.routes import settings as settings_route
 from backend.routes.settings import settings_router
 
@@ -119,13 +123,58 @@ def test_contribution_starts_at_zero_and_keeps_the_saved_amount(
 
 
 def test_put_of_the_preferences_keeps_the_profile(
-    client: TestClient, stored: _FakeSettingsRepository
+    client: TestClient, stored: _FakeSettingsRepository, market: None
 ) -> None:
     client.put("/api/settings/party/contribution", json={"amount": "2500"})
+    client.put("/api/settings/strategy-params/moving_average_cross", json=CROSS)
 
     client.put("/api/settings", json=PREFERENCES)
 
     assert stored.stored["party_contribution"] == "2500"
+    assert stored.stored["strategy_params"] == {"moving_average_cross": CROSS}
+
+
+CROSS = {"short_window": 20, "long_window": 100, "cash_pct": 30, "tickers": ["PETR4"]}
+
+
+@pytest.fixture
+def market(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(catalog, "known_tickers", lambda: {"PETR4", "VALE3"})
+    monkeypatch.setattr(
+        SettingsManager,
+        "get",
+        classmethod(lambda _cls: SimpleNamespace(start_date=date(2015, 1, 2))),
+    )
+
+
+def test_strategy_params_keep_the_last_saved_of_each_strategy(
+    client: TestClient, market: None
+) -> None:
+    assert client.get("/api/settings/strategy-params").json() == {}
+
+    client.put("/api/settings/strategy-params/moving_average_cross", json=CROSS)
+    client.put("/api/settings/strategy-params/cdi_100", json={})
+
+    assert client.get("/api/settings/strategy-params").json() == {
+        "moving_average_cross": CROSS,
+        "cdi_100": {},
+    }
+
+
+@pytest.mark.parametrize(
+    "params",
+    [{**CROSS, "short_window": 1}, {**CROSS, "tickers": ["XPTO3"]}],
+    ids=["fora da faixa", "ação que não existe"],
+)
+def test_strategy_params_out_of_the_rules_are_refused(
+    client: TestClient, stored: _FakeSettingsRepository, market: None, params
+) -> None:
+    answer = client.put(
+        "/api/settings/strategy-params/moving_average_cross", json=params
+    )
+
+    assert answer.status_code == 422
+    assert "strategy_params" not in stored.stored
 
 
 def test_notifications_fill_every_type_with_the_registry_default(

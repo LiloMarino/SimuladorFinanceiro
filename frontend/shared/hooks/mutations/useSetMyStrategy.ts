@@ -15,6 +15,7 @@ export function useSetMyStrategy() {
         queryClient.invalidateQueries({ queryKey: queryKeys.strategies() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.variableIncome() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.savedStrategyParams() }),
       ]),
     onError: (err) => toastApiError(err),
   });

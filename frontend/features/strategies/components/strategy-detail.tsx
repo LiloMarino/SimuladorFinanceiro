@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { Power } from "lucide-react";
+import { Power, TriangleAlert } from "lucide-react";
 import { InfoHint } from "@/shared/components/info-hint";
+import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Separator } from "@/shared/components/ui/separator";
-import { displayDayMonth } from "@/shared/lib/utils/display";
+import { displayDayMonth, displayList } from "@/shared/lib/utils/display";
 import type { MyStrategy, StrategyInfo } from "@/types";
 import { useStrategySignal } from "../hooks/queries/useStrategySignal";
 import { useStrategyView } from "../hooks/queries/useStrategyView";
@@ -31,6 +32,8 @@ type StrategyDetailProps = {
   /** A configuração ligada desta estratégia; nulo se ela está desligada */
   active: MyStrategy["active"];
   draft: ParamDraft;
+  /** Ações salvas no perfil que esta partida não tem; o formulário abriu sem elas */
+  missingTickers: string[];
   /** Caixa de hoje, em reais */
   cash: string;
   /** Dia da partida; o gráfico acompanha */
@@ -47,6 +50,7 @@ export function StrategyDetail({
   strategy,
   active,
   draft,
+  missingTickers,
   cash,
   currentDate,
   tickerOptions,
@@ -217,6 +221,16 @@ export function StrategyDetail({
       {/* Parâmetros */}
       <CardContent>
         <div className="grid gap-4">
+          {missingTickers.length > 0 && (
+            <Alert variant="warning">
+              <TriangleAlert />
+              <AlertDescription>
+                {displayList(missingTickers)} {missingTickers.length === 1 ? "estava salva" : "estavam salvas"} no seu
+                perfil, mas não {missingTickers.length === 1 ? "existe" : "existem"} nesta partida: o formulário abriu
+                sem {missingTickers.length === 1 ? "ela" : "elas"}.
+              </AlertDescription>
+            </Alert>
+          )}
           {strategy.params.length > 0 ? (
             <StrategyParamsForm
               strategy={strategy}

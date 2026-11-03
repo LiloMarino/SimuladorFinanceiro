@@ -28,6 +28,7 @@ export const queryKeys = {
   simulationPlayers: () => ["simulation", "players"] as const,
   preparations: () => ["simulation", "preparations"] as const,
   myParty: () => ["settings", "party"] as const,
+  savedStrategyParams: () => ["settings", "strategy-params"] as const,
   matchPlayers: () => ["simulation", "match-players"] as const,
   botStrategies: (startDate?: string) =>
     startDate === undefined

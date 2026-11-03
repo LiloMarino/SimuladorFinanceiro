@@ -9,6 +9,7 @@ from backend.config.paths import app_files_dir
 from backend.core import repository
 from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.preparation import PartyContributionDTO, PartyIdentityDTO
+from backend.core.dto.strategy import StrategyParamValue
 from backend.core.dto.technical_indicators import IndicatorSettingsDTO
 from backend.core.enum import (
     NewsLevel,
@@ -23,10 +24,13 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.core.repository.settings import PROFILE_KEYS
+from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.file_manager import open_in_file_manager
 from backend.features.government import voters
 from backend.features.notifications import registry
+from backend.features.strategy import catalog
+from backend.features.strategy.registry import get_strategy
 
 settings_router = APIRouter(prefix="/api/settings", tags=["Settings"])
 
@@ -183,6 +187,39 @@ def put_party_contribution(client_id: ClientID, data: PartyContributionDTO):
         UserManager.get_user_id(client_id), data.amount
     )
     return data
+
+
+@settings_router.get(
+    "/strategy-params",
+    response_model=dict[str, dict[str, StrategyParamValue]],
+    summary="Obter os parâmetros salvos das estratégias",
+    description="Os últimos parâmetros de cada estratégia, pela chave dela; só as que o jogador já ajustou. O formulário do automático nasce com eles.",
+)
+def get_strategy_params(client_id: ClientID):
+    return repository.settings.get_strategy_params(UserManager.get_user_id(client_id))
+
+
+@settings_router.put(
+    "/strategy-params/{key}",
+    response_model=dict[str, StrategyParamValue],
+    summary="Salvar os parâmetros de uma estratégia",
+    description="Grava no perfil os parâmetros de uma estratégia, validados pela faixa de cada um e contra as ações cadastradas. Ligar o automático na partida também grava aqui.",
+)
+def put_strategy_params(
+    client_id: ClientID, key: str, params: dict[str, StrategyParamValue]
+):
+    cls = get_strategy(key)
+    known = catalog.known_tickers()
+    resolved = catalog.with_defaults(
+        cls, params, SettingsManager.get().start_date, None, known
+    )
+    errors = cls.validate(resolved, known)
+    if errors:
+        raise UnprocessableEntityError(" ".join(errors.values()))
+    repository.settings.set_strategy_params(
+        UserManager.get_user_id(client_id), key, params
+    )
+    return params
 
 
 class NewsSectionInfo(BaseModel):
