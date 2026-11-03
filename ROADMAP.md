@@ -96,7 +96,6 @@
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 | — | Médio | Bom | ⏳ |
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 | — | Médio | Bom | ⏳ |
 | [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | Baixo | Bom | 💤 |
-| [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F170**](#f170) | Feature | Parâmetros das estratégias salvos no perfil | M20 · 3.3 | — | Médio | Excelente | ⏳ |
 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 | — | Alto | Bom | ⏳ |
 | [**F175**](#f175) | Feature | Federações partidárias | — | — | Alto | Bom | ⏳ |
@@ -116,7 +115,7 @@
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (40 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (41 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -138,6 +137,7 @@
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F173](#f173), [F175](#f175), [F176](#f176) | — | — | ✅ |
+| [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | M20 · 3.3 | — | — | — | ✅ |
 | [**F173**](#f173) | Feature | Partido desde o 1º dia | M20 · 3.3 | — | — | — | ✅ |
 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 | — | — | — | ✅ |
 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | M20 · 3.3 | — | — | — | ✅ |
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 24/30 concluídos
+> **Progresso:** 25/30 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -203,7 +203,7 @@
 | 22 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | — | ✅ Concluído |
 | 23 | [**F173**](#f173) | Feature | Partido desde o 1º dia | — | ✅ Concluído |
 | 24 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | — | ⏳ Pendente |
-| 25 | [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | [F173](#f173), [F174](#f174) | ⏳ Pendente |
+| 25 | [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | — | ✅ Concluído |
 | 26 | [**F170**](#f170) | Feature | Parâmetros das estratégias salvos no perfil | [F174](#f174) | ⏳ Pendente |
 | 27 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | — | 🔍 Em avaliação |
 | 28 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ⏳ Pendente |
@@ -286,7 +286,7 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 24º | 2 | Alto | Bom | ⏳ |
+| [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 24º | 1 | Alto | Bom | ⏳ |
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 · 27º | 0 | — | — | 🔍 |
 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 · 28º | 0 | Médio | Excelente | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 · 29º | 0 | Médio | Bom | ⏳ |
@@ -334,7 +334,6 @@
 | **F159** | Feature | Conquista "Ordem com paciência" | N22 | D1 | — | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
 | **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
-| **F169** | Feature | Contribuição de campanha salva no perfil | N34, N39 | — | M20 · 3.3 | [F173](#f173), [F174](#f174) | Baixo | Baixo | Médio | Bom |
 | **F170** | Feature | Parâmetros das estratégias salvos no perfil | N39 | — | M20 · 3.3 | [F174](#f174) | Médio | Baixo | Alto | Excelente |
 | **F174** | Melhoria | Preparação do lobby redesenhada | N39, N34 | — | M20 · 3.3 | — | Alto | Médio | Alto | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom |
@@ -392,9 +391,6 @@
 
 <a id="f165"></a>
 **F165 — Tela do Tesouro: títulos pelo risco do governo.** Serve N34. Com o prêmio de risco (F128), a taxa dos títulos conta a história do governo: sobe quando a dívida cresce. Hoje o Tesouro sai misturado na vitrine mensal da renda fixa, com o prêmio somado à taxa (`fixed_income/factory/__init__.py`). Uma tela própria do Tesouro mostra: (1) **os títulos à venda** (Selic, Prefixado e IPCA+), com a taxa aberta em "taxa base + prêmio de risco do país" e a compra dali mesmo; (2) **a taxa de cada tipo ao longo da partida**, com a dívida pública ÷ PIB no mesmo eixo de tempo, para ver a taxa subir junto com a dívida; (3) **o termômetro do risco**: o prêmio atual, a dívida ÷ PIB e quanto falta para o próximo degrau do prêmio. Cada métrica tem uma descrição curta e uma dica com a definição e como ler. Para o gráfico, o backend guarda a taxa de cada tipo e o prêmio em cada vitrine mensal. O desenho começa registrando no canvas as telas e os estados: expansão desligada, dívida abaixo de 50% do PIB sem prêmio e prêmio alto. A marcação a mercado é o card seguinte (F177).
-
-<a id="f169"></a>
-**F169 — Contribuição de campanha salva no perfil.** Serve N34 e N39. A contribuição mensal de cada filiado fica salva no perfil do jogador (`Users.settings`, chave própria, ao lado do Meu partido), e vale para quem funda e para quem se filia: o partido em que ele entra começa a cobrá-la quando a campanha abre, em vez de começar com zero. Quem nunca salvou continua com zero. A cobrança mensal já pula quem não tem caixa (`government_book.py`, coleta do 1º dia útil); o que muda é que **o mês pulado abre uma pendência** ("sua contribuição de R$ X não foi paga em março, por falta de caixa"), resolvida quando a contribuição seguinte é paga ou quando o jogador muda o valor. Mudar a contribuição dentro da partida também grava o valor no perfil. O campo da preparação mora na tela redesenhada (F174).
 
 <a id="f170"></a>
 **F170 — Parâmetros das estratégias salvos no perfil.** Serve N39. Quem ajusta uma estratégia do modo automático (os dias das médias, o ativo, a divisão do rebalanceamento) precisa lembrar e redigitar os valores a cada partida. Os parâmetros passam a ficar no perfil, por estratégia (`Users.settings`, chave `strategy_params`: `{chave_da_estratégia: {parâmetro: valor}}`), por dois caminhos: (1) **o último valor usado**: ao ligar o automático numa partida, os parâmetros escolhidos se gravam no perfil daquela estratégia; (2) **a preparação**: a aba Estratégias da tela redesenhada (F174) lista as estratégias com os parâmetros de cada uma, para ajustar antes de jogar. Ao ligar o automático, o formulário nasce com os valores do perfil, ou com o padrão da estratégia onde o jogador não salvou nada. A validação é a mesma dos bots do lobby (`validate` da estratégia: tipo, mínimo e máximo); o ticker salvo que não existe na partida cai no padrão da estratégia, com aviso no formulário. O automático continua sendo ligado pelo jogador dentro da partida, que nasce pausada no 1º dia.
@@ -632,6 +628,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
+| **F169** | Feature | Contribuição de campanha salva no perfil | N34, N39 | — | M20 · 3.3 |
 | **F173** | Feature | Partido desde o 1º dia | N39, N34 | D19 | M20 · 3.3 |
 | **F180** | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 |
 | **F181** | Melhoria | Tabelas que cabem na tela e texto legível | N15 | — | M20 · 3.3 |
@@ -653,6 +650,9 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F213** | Melhoria | Pendências: consequência inteira e Pagar em destaque | N15 | — | M20 · 3.3 |
 | **F214** | Melhoria | Central de dados: tabela que cabe no cartão | N15 | — | M20 · 3.3 |
 | **F215** | Melhoria | Backtest: formulário do período sem estouro | N15 | — | M20 · 3.3 |
+
+<a id="f169"></a>
+**F169 — Contribuição de campanha salva no perfil.** Serve N34 e N39. A contribuição mensal de cada filiado fica salva no perfil do jogador (`Users.settings`, chave própria, ao lado do Meu partido), e vale para quem funda e para quem se filia: o partido em que ele entra começa a cobrá-la quando a campanha abre, em vez de começar com zero. Quem nunca salvou continua com zero. A cobrança mensal já pula quem não tem caixa (`government_book.py`, coleta do 1º dia útil); o que muda é que **o mês pulado abre uma pendência** ("sua contribuição de R$ X não foi paga em março, por falta de caixa"), resolvida quando a contribuição seguinte é paga ou quando o jogador muda o valor. Mudar a contribuição dentro da partida também grava o valor no perfil. O campo da preparação mora na tela redesenhada (F174).
 
 <a id="f173"></a>
 **F173 — Partido desde o 1º dia.** Serve N39 e N34; condicionada pela D19. Hoje fundar e filiar-se só abrem com a campanha, um ano antes do 1º turno (`_ensure_campaign_open` em `government_book.py`), e a preparação do lobby espera a abertura para virar partido. Como no Brasil, onde o partido existe o tempo todo e o que tem prazo é a filiação de quem concorre, a regra passa a ser: **fundar, filiar-se e sair ficam livres desde o 1º dia**; a **filiação para concorrer** fecha 6 meses antes do 1º turno (Lei 9.504/97, art. 9): quem entra depois disso é filiado, mas não pode ser candidato nem vice naquela eleição; a **chapa, as ações de campanha e a cobrança da contribuição** continuam só na janela da campanha (a cobrança mensal pula os meses antes da abertura). **A preparação do lobby é aplicada no 1º dia da partida**, e não mais na abertura da campanha: os partidos preparados nascem com os filiados, e a chapa e o vice preparados ficam guardados no partido até a campanha abrir. Entre os turnos, filiação e saída continuam travadas. Partido de jogador fundado no meio do mandato não tem cadeira até a eleição seguinte. A preparação ainda não saiu em versão, então não há partida salva com o evento antigo para manter. Gatilho: antes do redesenho da preparação (F174), que mostra os partidos já existentes.
