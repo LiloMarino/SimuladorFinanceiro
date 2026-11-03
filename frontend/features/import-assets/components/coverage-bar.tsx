@@ -22,7 +22,7 @@ export function CoverageBar({ series, range }: CoverageBarProps) {
   return (
     <Tooltip>
       <TooltipTrigger render={<div />}>
-        <div className="relative h-2.5 min-w-40 rounded-full bg-muted">
+        <div className="relative h-2.5 w-full rounded-full bg-muted">
           {/* Dado real */}
           <span
             className="absolute inset-y-0 rounded-full bg-primary"

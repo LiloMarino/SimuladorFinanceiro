@@ -43,7 +43,8 @@ export default function ImportAssetsPage() {
           <CardContent>
             <div className="grid gap-4">
               {Array.from({ length: 5 }, (_, i) => (
-                <div key={i} className="grid grid-cols-[120px_200px_1fr_90px] gap-4">
+                <div key={i} className="grid grid-cols-[24fr_18fr_1fr_176px_176px] gap-4">
+                  <Skeleton className="h-4" />
                   <Skeleton className="h-4" />
                   <Skeleton className="h-4" />
                   <Skeleton className="h-4" />

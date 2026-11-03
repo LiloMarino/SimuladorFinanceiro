@@ -28,6 +28,7 @@ import { ClassifyRow } from "./classify-row";
 import { CorrectedDaysBadge } from "./corrected-days-badge";
 import { CoverageBar } from "./coverage-bar";
 import { DeleteStockButton } from "./delete-stock-button";
+import { TruncatedText } from "./truncated-text";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
 
@@ -118,12 +119,12 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
         </CardAction>
       </CardHeader>
 
-      <Table>
+      <Table className="table-fixed">
         <TableHeader>
           <TableRow>
-            <SortableTableHead label="Série" {...sorting.header("series")} />
-            <SortableTableHead label="Setor · segmento" {...sorting.header("sector")} />
-            <SortableTableHead label="Dados reais até" {...sorting.header("end")} className="w-full min-w-56">
+            <SortableTableHead label="Série" {...sorting.header("series")} className="w-[24%]" />
+            <SortableTableHead label="Setor · segmento" {...sorting.header("sector")} className="w-[18%]" />
+            <SortableTableHead label="Dados reais até" {...sorting.header("end")}>
               {/* Eixo comum da linha do tempo */}
               <div className="relative h-4">
                 {ticks.map((tick) => (
@@ -138,8 +139,8 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                 <span className="absolute right-0">hoje</span>
               </div>
             </SortableTableHead>
-            <SortableTableHead label="Situação" {...sorting.header("status")} />
-            <TableHead>
+            <SortableTableHead label="Situação" {...sorting.header("status")} className="w-44" />
+            <TableHead className="w-44">
               <span className="sr-only">Ações</span>
             </TableHead>
           </TableRow>
@@ -163,16 +164,16 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                 const stale = isOutdatedStock(item);
                 return (
                   <Fragment key={`${item.kind}-${item.key}`}>
-                    <TableRow variant={stale ? "warning" : "default"}>
+                    <TableRow variant={stale ? "warning" : "default"} className="h-15.5">
                       {/* Série */}
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <div className="grid">
-                            <span className={cn("font-mono font-semibold", stale && "text-destructive")}>
+                          <div className="grid min-w-0 flex-1">
+                            <TruncatedText className={cn("font-mono font-semibold", stale && "text-destructive")}>
                               {item.key}
-                            </span>
+                            </TruncatedText>
                             {item.name !== item.key && (
-                              <span className="text-xs whitespace-normal text-muted-foreground">{item.name}</span>
+                              <TruncatedText className="text-xs text-muted-foreground">{item.name}</TruncatedText>
                             )}
                           </div>
                           <CorrectedDaysBadge days={item.corrected_days} />
@@ -208,11 +209,13 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                           <button
                             type="button"
                             onClick={() => onClassify(item.key)}
-                            className="flex items-start gap-1.5 text-left whitespace-normal"
+                            className="flex max-w-full items-start gap-1.5 text-left"
                           >
-                            <span className="grid">
-                              <span className="text-[13px]">{item.segment.sector}</span>
-                              <span className="text-xs text-muted-foreground">{item.segment.segment}</span>
+                            <span className="grid min-w-0">
+                              <TruncatedText className="text-[13px]">{item.segment.sector}</TruncatedText>
+                              <TruncatedText className="text-xs text-muted-foreground">
+                                {item.segment.segment}
+                              </TruncatedText>
                             </span>
                             <ChevronDown className="mt-0.5 size-3.5 shrink-0 text-faint-foreground" />
                           </button>
@@ -252,7 +255,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                         <div className="flex items-center gap-1">
                           {/* Só a linha desatualizada pede a ação por extenso */}
                           {stale ? (
-                            <Button size="sm" disabled={busy} onClick={() => refreshOne.mutate(item)}>
+                            <Button variant="outline" size="sm" disabled={busy} onClick={() => refreshOne.mutate(item)}>
                               {updatingThis(item) ? <Spinner /> : <RefreshCw />}
                               Atualizar
                             </Button>
