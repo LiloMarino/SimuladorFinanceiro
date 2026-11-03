@@ -122,7 +122,6 @@
 | [**F206**](#f206) | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F208**](#f208) | Melhoria | Empréstimo: o custo inteiro antes de assinar | M20 · 3.3 | — | Baixo | Bom | ⏳ |
-| [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | — | — | — | 🔍 |
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
@@ -131,7 +130,7 @@
 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -160,6 +159,7 @@
 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 | — | — | — | ✅ |
 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | M20 · 3.3 | — | — | — | ✅ |
 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 | — | — | — | ✅ |
+| [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | M20 · 3.3 | — | — | — | ✅ |
 
 </details>
 
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 9/27 concluídos
+> **Progresso:** 10/27 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -187,7 +187,7 @@
 | 6 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | — | ✅ Concluído |
 | 7 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | — | ✅ Concluído |
 | 8 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | — | ✅ Concluído |
-| 9 | [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | — | ⏳ Pendente |
+| 9 | [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | — | ✅ Concluído |
 | 10 | [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | — | ⏳ Pendente |
 | 11 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | — | ⏳ Pendente |
 | 12 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | — | ⏳ Pendente |
@@ -286,7 +286,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | M20 · 3.3 · 9º | 0 | Médio | Bom | ⏳ |
 | [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | M20 · 3.3 · 10º | 0 | Baixo | Bom | ⏳ |
 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | M20 · 3.3 · 11º | 0 | Baixo | Bom | ⏳ |
 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | M20 · 3.3 · 12º | 0 | Médio | Bom | ⏳ |
@@ -364,7 +363,6 @@
 | **F206** | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | N15 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
 | **F207** | Correção | Placar da vela com os votos de cada jogador | N15, N22 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
 | **F208** | Melhoria | Empréstimo: o custo inteiro antes de assinar | N15, N33 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
-| **F209** | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | N33, N15 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
 | **F210** | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | N6, N15 | — | M20 · 3.3 | — | Baixo | Baixo | Alto | Bom |
 | **F213** | Melhoria | Pendências: consequência inteira e Pagar em destaque | N15 | — | M20 · 3.3 | — | Baixo | Baixo | Alto | Bom |
 | **F214** | Melhoria | Central de dados: tabela que cabe no cartão | N15 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
@@ -562,19 +560,6 @@
 - Decidido em 02/11: empréstimo novo com parcela em atraso continua liberado (a tela só avisa o atraso e o estado "bloqueado" da proposta sai); o bloco projeta só a alavancagem depois do empréstimo.
 
 **Aceite:** a simulação mostra a alavancagem de depois sem o jogador fazer conta.
-
-<a id="f209"></a>
-**F209 — Crédito em atraso: valor do diálogo, nota do mês e aviso no topo.** Serve N33 e N15. Na conferência de 02/11 o usuário estranhou a tela de atraso: o jogador tinha caixa e a parcela não foi descontada, e os valores do diálogo pareciam divergir (botão "Pagar" em R$ 1.565,60 contra R$ 45,60 de multa e mora). O código mostra o seguinte:
-- **O débito automático só olha o caixa no dia do vencimento** (`credit_book.py:494-531`, `_settle_due`): se o caixa cobre a parcela naquele dia, ela é descontada; se não cobre, a parcela vira atraso e nada é vendido, nem o cheque especial entra. Caixa que chega depois do vencimento não paga a parcela sozinho; só o botão "Pagar" paga.
-- **O botão e a linha "Total" usam o mesmo número** (`overdue_charges` em `price.py:131`, somado em `pay-overdue-dialog.tsx:34`); o servidor recalcula no dia do pagamento (`credit_book.py:699`). Com o diálogo aberto e o dia do jogo avançando, o valor na tela fica velho até recarregar, e a multa e a mora do dia novo não são as mostradas.
-- **A alavancagem de 0,0% na nota** vem do fechamento do mês (`overview.py:238`, `close_rating`): um empréstimo contratado neste mês só entra na nota quando o mês fecha, enquanto o resumo do topo (`credit-summary.tsx`) usa o valor ao vivo.
-
-**O que fazer:**
-1. Reproduzir no banco de teste: empréstimo com parcela vencida sem caixa, depois com caixa; abrir o diálogo, avançar o dia e comparar o "Total" com o valor cobrado. Escrever um teste do backend para o valor cobrado no dia seguinte e do front para o diálogo recarregar o valor a cada dia (`pay-overdue-dialog.tsx`), e corrigir o que o teste mostrar (`fix:`).
-2. A nota mostra, ao lado da alavancagem, que ela é a do último fechamento ("fechamento de <mês>"), e o texto "muda no fim do mês" fica visível quando há empréstimo novo (`risk-rating-card.tsx`).
-3. Aviso do desenho aprovado em 03/11 (`feat:`): um aviso vermelho no topo da página diz qual parcela atrasou, há quanto tempo e quanto já custou de multa, e traz o botão Pagar; o cartão de parcelas do topo soma o atraso; a lista Pagamentos abre com a parcela atrasada; o mês atrasado no histórico ganha rótulo vermelho além da cor.
-
-**Aceite:** o valor do botão "Pagar" é o mesmo cobrado, em qualquer dia, e a página de crédito com parcela em atraso mostra o aviso no topo.
 
 <a id="f210"></a>
 **F210 — Comparar partidas: eixos em grade e Risco inteiro.** Serve N6 e N15. A página de comparação (`features/statistics/pages/compare-simulations.tsx`) tem o cartão de nota por eixo (`statistics-report/player-score-card.tsx`) estreito demais: o "0" do cartão Risco continua colado na borda em 1920 de largura, mesmo depois da correção de 02/11, e o ranking corta a coluna Pregões. O usuário aprovou em 03/11 o desenho do canvas.
@@ -838,6 +823,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 |
 | **F188** | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | N24 | — | M20 · 3.3 |
 | **F189** | Melhoria | Retoques de interface do playtest de outubro | N15, N21 | — | M20 · 3.3 |
+| **F209** | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | N33, N15 | — | M20 · 3.3 |
 
 <a id="f180"></a>
 **F180 — Retrato no canvas das telas que mudaram desde a 3.0.** Serve N15. Da 3.1 à 3.3, cada tela foi desenhada sozinha no canvas e implementada sem conferência na tela. Juntas, elas quebram a topbar, fazem tabelas rolarem de lado e desalinham cartões (conferência visual, F178). Os boards do governo e da eleição mostram o desenho aprovado de cada feature isolada, não o app de hoje. Esta feature põe no canvas o app como ele está, para as rodadas de redesenho (F179, F181, F182, F183) comentarem sobre o conjunto e para comparar o que foi aprovado com o que foi implementado.
@@ -912,6 +898,19 @@ A pasta que as Configurações abrem e os nomes dos arquivos atuais continuam os
 - **Aviso de atualização das Estatísticas** (`update-notice.tsx`) também com a partida pausada, dizendo a data da última atualização; a contagem até a próxima aparece só com a partida andando.
 
 Cada item sai num commit `feat:` próprio.
+
+<a id="f209"></a>
+**F209 — Crédito em atraso: valor do diálogo, nota do mês e aviso no topo.** Serve N33 e N15. Na conferência de 02/11 o usuário estranhou a tela de atraso: o jogador tinha caixa e a parcela não foi descontada, e os valores do diálogo pareciam divergir (botão "Pagar" em R$ 1.565,60 contra R$ 45,60 de multa e mora). O código mostra o seguinte:
+- **O débito automático só olha o caixa no dia do vencimento** (`credit_book.py:494-531`, `_settle_due`): se o caixa cobre a parcela naquele dia, ela é descontada; se não cobre, a parcela vira atraso e nada é vendido, nem o cheque especial entra. Caixa que chega depois do vencimento não paga a parcela sozinho; só o botão "Pagar" paga.
+- **O botão e a linha "Total" usam o mesmo número** (`overdue_charges` em `price.py:131`, somado em `pay-overdue-dialog.tsx:34`); o servidor recalcula no dia do pagamento (`credit_book.py:699`). Com o diálogo aberto e o dia do jogo avançando, o valor na tela fica velho até recarregar, e a multa e a mora do dia novo não são as mostradas.
+- **A alavancagem de 0,0% na nota** vem do fechamento do mês (`overview.py:238`, `close_rating`): um empréstimo contratado neste mês só entra na nota quando o mês fecha, enquanto o resumo do topo (`credit-summary.tsx`) usa o valor ao vivo.
+
+**O que fazer:**
+1. Reproduzir no banco de teste: empréstimo com parcela vencida sem caixa, depois com caixa; abrir o diálogo, avançar o dia e comparar o "Total" com o valor cobrado. Escrever um teste do backend para o valor cobrado no dia seguinte e do front para o diálogo recarregar o valor a cada dia (`pay-overdue-dialog.tsx`), e corrigir o que o teste mostrar (`fix:`).
+2. A nota mostra, ao lado da alavancagem, que ela é a do último fechamento ("fechamento de <mês>"), e o texto "muda no fim do mês" fica visível quando há empréstimo novo (`risk-rating-card.tsx`).
+3. Aviso do desenho aprovado em 03/11 (`feat:`): um aviso vermelho no topo da página diz qual parcela atrasou, há quanto tempo e quanto já custou de multa, e traz o botão Pagar; o cartão de parcelas do topo soma o atraso; a lista Pagamentos abre com a parcela atrasada; o mês atrasado no histórico ganha rótulo vermelho além da cor.
+
+**Aceite:** o valor do botão "Pagar" é o mesmo cobrado, em qualquer dia, e a página de crédito com parcela em atraso mostra o aviso no topo.
 
 ---
 
