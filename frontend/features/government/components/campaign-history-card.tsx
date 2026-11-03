@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Newspaper } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -8,6 +8,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { Kpi } from "@/shared/components/kpi";
+import { useLoadMoreOnVisible } from "@/shared/hooks/useLoadMoreOnVisible";
 import { cn } from "@/shared/lib/utils";
 import { displayDayMonth, displayMoney } from "@/shared/lib/utils/display";
 import type { CampaignEntry, CampaignPanel, ElectionParty } from "@/types";
@@ -52,6 +53,14 @@ export function CampaignHistoryCard({ campaign, party, nickname }: CampaignHisto
   const entries = (data?.entries ?? []).filter(
     (entry) => matchesKind(entry, kind) && (who === "all" || entry.nickname === nickname),
   );
+
+  // A lista já está toda no cliente: "próxima página" é mostrar mais PAGE linhas
+  const showMore = useCallback(() => setShown((count) => count + PAGE), []);
+  const sentinelRef = useLoadMoreOnVisible({
+    hasNextPage: shown < entries.length,
+    isFetchingNextPage: false,
+    fetchNextPage: showMore,
+  });
 
   return (
     <Card>
@@ -183,12 +192,9 @@ export function CampaignHistoryCard({ campaign, party, nickname }: CampaignHisto
                 <span className="text-[12.5px] text-muted-foreground">
                   Mostrando {Math.min(shown, entries.length)} de {entries.length}
                 </span>
-                {shown < entries.length && (
-                  <Button variant="outline" size="sm" onClick={() => setShown(shown + PAGE)}>
-                    Carregar mais
-                  </Button>
-                )}
               </div>
+              {/* Sentinela: mais linhas aparecem quando ele entra na área visível */}
+              {shown < entries.length && <div ref={sentinelRef} aria-hidden className="h-px" />}
             </>
           )}
 

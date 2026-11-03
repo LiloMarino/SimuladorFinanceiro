@@ -4,8 +4,8 @@ import type ApiError from "@/shared/lib/models/ApiError";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { StrategyLogPage } from "@/types";
 
-/** Linhas por página; "Carregar mais" abre a seguinte na mesma tela. */
-const BOT_LOG_PAGE_SIZE = 6;
+/** Linhas por página; a rolagem do painel pede a seguinte sozinha. */
+const BOT_LOG_PAGE_SIZE = 20;
 
 /** As ordens de um bot na partida, da mais recente à mais antiga, uma página por vez. */
 export function useBotLog(simulationId: number, nickname: string) {

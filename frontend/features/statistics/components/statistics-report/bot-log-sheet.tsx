@@ -14,7 +14,9 @@ import {
   SheetTitle,
 } from "@/shared/components/ui/sheet";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Spinner } from "@/shared/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { useLoadMoreOnVisible } from "@/shared/hooks/useLoadMoreOnVisible";
 import { ACTION_TONE, actionLabel, plural, rowPrice, rowQuantity } from "@/shared/lib/strategy-orders";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { PlayerRef } from "@/types";
@@ -36,6 +38,8 @@ export function BotLogSheet({ bot, onClose }: BotLogSheetProps) {
     hasNextPage,
     isFetchingNextPage,
   } = useBotLog(bot.simulation_id, bot.player_nickname);
+
+  const sentinelRef = useLoadMoreOnVisible({ hasNextPage, isFetchingNextPage, fetchNextPage });
 
   const rows = pages?.flatMap((page) => page.items) ?? [];
   const total = pages?.at(-1)?.total ?? 0;
@@ -123,17 +127,18 @@ export function BotLogSheet({ bot, onClose }: BotLogSheetProps) {
               </TableBody>
             </Table>
           )}
+          {/* Sentinela: a próxima página vem quando ele entra na área rolável */}
+          {hasNextPage && <div ref={sentinelRef} aria-hidden className="h-px" />}
         </div>
 
         <SheetFooter>
           <div className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
             Mostrando {rows.length} de {total}
-            {hasNextPage && (
+            {isFetchingNextPage && (
               <>
                 <span>·</span>
-                <Button variant="link" size="sm" disabled={isFetchingNextPage} onClick={() => void fetchNextPage()}>
-                  Carregar mais
-                </Button>
+                <Spinner className="size-3.5" />
+                Carregando mais
               </>
             )}
           </div>

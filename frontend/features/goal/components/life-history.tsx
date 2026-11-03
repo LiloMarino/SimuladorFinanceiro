@@ -3,7 +3,6 @@ import { useLocation } from "react-router-dom";
 import { History } from "lucide-react";
 import { ErrorState } from "@/shared/components/error-state";
 import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/shared/components/ui/empty";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -22,6 +21,7 @@ import { unexpectedLabel } from "@/shared/lib/financial-independence";
 import { displayDate, displaySignedMoney, parseLocalDate } from "@/shared/lib/utils/display";
 import type { LifeHistoryCategory, LifeHistoryPage, LifeStatus, LifeHistorySort } from "@/types";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useLoadMoreOnVisible } from "@/shared/hooks/useLoadMoreOnVisible";
 import { useTableSortState } from "@/shared/hooks/useTableSort";
 import { useLifeHistory } from "../hooks/queries/useLifeHistory";
 import { LIFE_HISTORY_KINDS, lifeRowIcon, lifeRowText } from "../lib/life-history";
@@ -59,6 +59,7 @@ export function LifeHistory({ life }: LifeHistoryProps) {
     isFetchingNextPage,
     isFetching,
   } = useLifeHistory(filter === "ALL" ? null : filter, sorting.sort!);
+  const sentinelRef = useLoadMoreOnVisible({ hasNextPage, isFetchingNextPage, fetchNextPage });
   // O aviso que levou até aqui marca a linha do evento
   const highlightDate = (useLocation().state as { highlightDate?: string } | null)?.highlightDate;
 
@@ -182,13 +183,14 @@ export function LifeHistory({ life }: LifeHistoryProps) {
         </Table>
       )}
 
-      {/* Mais linhas */}
+      {/* Mais linhas: a próxima página vem quando o sentinela entra na área visível */}
       {hasNextPage && (
-        <div className="flex justify-center border-t border-muted px-5 pt-4">
-          <Button variant="outline" size="sm" disabled={isFetching} onClick={() => void fetchNextPage()}>
-            {isFetchingNextPage && <Spinner />}
-            Mostrar mais · {remaining} {remaining === 1 ? "anterior" : "anteriores"}
-          </Button>
+        <div
+          ref={sentinelRef}
+          className="flex items-center justify-center gap-2 border-t border-muted px-5 pt-4 text-[13px] text-muted-foreground"
+        >
+          {isFetchingNextPage && <Spinner />}
+          {remaining} {remaining === 1 ? "anterior" : "anteriores"}
         </div>
       )}
     </Card>
