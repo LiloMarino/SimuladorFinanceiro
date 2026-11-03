@@ -1,4 +1,5 @@
 import math
+from bisect import bisect_left
 from collections import defaultdict
 from datetime import date
 from decimal import Decimal
@@ -61,6 +62,10 @@ class PriceImpact:
         self.k = k
         self.decay_days = decay_days
         self._factors: dict[str, float] = {}
+        # O fator de um dia só depende das ordens dos dias anteriores, que o flush grava
+        # antes do refresh: calculado uma vez, ele vale pelo resto da partida
+        self._factors_by_day: dict[date, dict[str, float]] = {}
+        self._earlier_days: dict[str, dict[date, float]] = {}
         self._average_volumes: dict[tuple[str, date], float] = {}
 
     def refresh(self, today: date) -> None:
@@ -77,6 +82,7 @@ class PriceImpact:
             ticker: self._factor_on(flows, today)
             for ticker, flows in flows_by_ticker.items()
         }
+        self._factors_by_day[today] = self._factors
 
     def apply(self, candle: CandleRow) -> CandleRow:
         """Candle do dia corrente com o fator calculado no último `refresh` e o efeito do governo na bolsa."""
@@ -94,14 +100,30 @@ class PriceImpact:
 
     def factors_on(self, ticker: str, days: list[date]) -> dict[date, float]:
         """Fator do ativo em cada um dos `days`, reconstruído dos eventos persistidos."""
-        flows = (
-            repository.event.get_daily_equity_flow(self.simulation_id, ticker=ticker)
-            if self.enabled
-            else []
-        )
+        orders = self._orders_factors(ticker, days)
+        return {day: orders[day] * self._market(ticker, day) for day in days}
+
+    def _orders_factors(self, ticker: str, days: list[date]) -> dict[date, float]:
+        """Só o efeito das ordens: os dias sem refresh saem dos eventos, uma vez cada."""
+        if not self.enabled:
+            return dict.fromkeys(days, 1.0)
+
+        earlier = self._earlier_days.setdefault(ticker, {})
+        missing = [
+            day
+            for day in days
+            if day not in self._factors_by_day and day not in earlier
+        ]
+        if missing:
+            flows = repository.event.get_daily_equity_flow(
+                self.simulation_id, ticker=ticker
+            )
+            for day in missing:
+                earlier[day] = self._factor_on(flows, day) if flows else 1.0
         return {
-            day: (self._factor_on(flows, day) if flows else 1.0)
-            * self._market(ticker, day)
+            day: self._factors_by_day[day].get(ticker, 1.0)
+            if day in self._factors_by_day
+            else earlier[day]
             for day in days
         }
 
@@ -110,8 +132,18 @@ class PriceImpact:
         return repository.economic.stock_factor(self.simulation_id, ticker, day)
 
     def _factor_on(self, flows: list[DailyEquityFlowDTO], on: date) -> float:
+        # Os fluxos vêm em ordem de data: os ativos em `on` são os T pregões logo antes
+        # dele, e somá-los na mesma ordem dá o mesmo fator que percorrer todos
+        end = bisect_left(flows, on, key=lambda flow: flow.flow_date)
+        start = end
+        while (
+            start > 0
+            and business_days_between(flows[start - 1].flow_date, on) <= self.decay_days
+        ):
+            start -= 1
+
         total = 0.0
-        for flow in flows:
+        for flow in flows[start:end]:
             # O primeiro pregão depois da ordem tem idade 0
             remaining = decay(
                 business_days_between(flow.flow_date, on) - 1, self.decay_days

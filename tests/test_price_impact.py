@@ -10,6 +10,10 @@ from backend.core.dto.candle import CandleDTO
 from backend.core.dto.daily_equity_flow import DailyEquityFlowDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
 from backend.core.enum import AssetClass
+from backend.core.utils import (
+    business_days_between,
+    next_business_day,
+)
 from backend.features.variable_income.price_impact import (
     MIN_FACTOR,
     PriceImpact,
@@ -271,3 +275,70 @@ def test_the_history_carries_the_government_effect_of_each_day(market_effect):
     [scaled] = _impact(enabled=False).apply_history("ABCD", [row])
 
     assert scaled.close == round(10.5 * 0.95, 2)
+
+
+def _full_factor(flows: list[DailyEquityFlowDTO], on: date) -> float:
+    """O fator refeito de todos os fluxos da partida, um por um."""
+    total = 0.0
+    for flow in flows:
+        remaining = decay(business_days_between(flow.flow_date, on) - 1, DECAY_DAYS)
+        if remaining > 0:
+            total += impact(flow.quantity, AVERAGE_VOLUME, K) * remaining
+    return max(1 + total, MIN_FACTOR)
+
+
+def _match_flows(days: int) -> list[DailyEquityFlowDTO]:
+    """Compras e vendas de tamanhos variados em quase todo pregão, com alguns dias sem ordem."""
+    flows = []
+    day = MONDAY
+    for n in range(days):
+        if n % 7 != 3:
+            quantity = (n * 7919) % 200_000 - 90_000
+            flows.append(_flow(quantity or 1, day))
+        day = next_business_day(day)
+    return flows
+
+
+def test_the_window_of_each_day_matches_the_full_recalculation(
+    flows: list[DailyEquityFlowDTO], monkeypatch: pytest.MonkeyPatch
+):
+    """Dia a dia, como o motor: o fator da janela é o mesmo de refazer tudo, e cada dia é lido do banco uma vez."""
+    match = _match_flows(300)
+    price_impact = _impact()
+    reads = 0
+    stored_flows = repository.event.get_daily_equity_flow
+
+    def _counted(simulation_id, since=None, ticker=None):
+        nonlocal reads
+        reads += ticker is not None
+        return stored_flows(simulation_id, since, ticker)
+
+    monkeypatch.setattr(repository.event, "get_daily_equity_flow", _counted)
+
+    # Retomada no meio da partida: a primeira janela pega dias de antes do primeiro refresh
+    played = [f.flow_date for f in match[:85]]
+    day = next_business_day(played[-1])
+    while day <= match[-1].flow_date:
+        flows[:] = [f for f in match if f.flow_date < day]
+        price_impact.refresh(day)
+        played.append(day)
+        window = played[-60:]
+
+        factors = price_impact.factors_on("ABCD", window)
+
+        assert factors == {d: _full_factor(match, d) for d in window}
+        day = next_business_day(day)
+
+    assert reads == 1
+
+
+def test_days_before_the_first_refresh_come_from_the_events(
+    flows: list[DailyEquityFlowDTO],
+):
+    """Um histórico inteiro pedido de uma vez bate com o recálculo completo em todo dia."""
+    flows.extend(_match_flows(300))
+    days = [f.flow_date for f in flows] + [next_business_day(flows[-1].flow_date)]
+
+    factors = _impact().factors_on("ABCD", days)
+
+    assert factors == {d: _full_factor(flows, d) for d in days}
