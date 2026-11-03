@@ -474,6 +474,26 @@ def test_the_tax_card_keeps_only_taxes_and_the_spending_card_has_the_four_measur
     assert panel.spending.rest == spending.REST_SPENDING
 
 
+def test_each_tax_row_carries_the_default_value_and_the_revenue(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+
+    panel = build_governance(book, engine, USERS, ALICE, TERM_START)
+
+    rows = {row.kind: row for row in panel.taxes}
+    # Sem medida aprovada, o que vale hoje é o padrão e nada difere dele
+    assert all(row.value == row.default_value for row in rows.values())
+    stock = rows[MeasureKind.STOCK_PROFIT_RATE]
+    assert stock.revenue is not None and stock.revenue > 0
+    assert stock.difference == 0
+    # O teto da isenção não tem receita própria
+    exemption = rows[MeasureKind.STOCK_EXEMPTION]
+    assert exemption.revenue is None and exemption.difference is None
+    table = rows[MeasureKind.FIXED_INCOME_TABLE]
+    assert table.top_value is not None and table.default_top_value == table.top_value
+
+
 def test_the_queue_shows_the_inflation_and_the_result_of_each_measure(
     book: GovernmentBook, engine, market
 ):

@@ -228,7 +228,6 @@ export type ProposeDealRequest = components["schemas"]["ProposeDealRequest"];
 export type AnswerDealRequest = components["schemas"]["AnswerDealRequest"];
 export type Budget = components["schemas"]["BudgetDTO"];
 export type BudgetMonth = components["schemas"]["BudgetMonthDTO"];
-export type BudgetTax = components["schemas"]["BudgetTaxDTO"];
 export type BudgetEffect = components["schemas"]["BudgetEffectDTO"];
 export type SpendingRow = GovernmentPanel["spending"]["rows"][number];
 export type InflationEffect = NonNullable<MeasurePreview["inflation"]>;

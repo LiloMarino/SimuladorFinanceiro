@@ -27,6 +27,7 @@ from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import GroupVerdict, MeasureKind, MeasureStatus, VoterGroup
 from backend.features.government import approval as approval_rules
+from backend.features.government import budget as budget_rules
 from backend.features.government import (
     budget_panel,
     congress,
@@ -36,6 +37,7 @@ from backend.features.government import (
     voters,
 )
 from backend.features.government import measures as rules
+from backend.features.government.budget import TaxRow
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_term
 from backend.features.government.promise_panel import build_term_promises
@@ -45,6 +47,45 @@ from backend.features.government.state import (
     Measure,
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
+from backend.features.tax_policy import DEFAULT_TAX_POLICY, TaxPolicy
+
+
+def _tax_value(policy: TaxPolicy, kind: MeasureKind) -> tuple[Decimal, Decimal | None]:
+    """O valor em vigor de um imposto geral e, na renda fixa, o topo da tabela."""
+    if kind is MeasureKind.FIXED_INCOME_TABLE:
+        return policy.fixed_income_floor, policy.fixed_income_top_rate
+    return rules.general_value(policy, kind) or Decimal(0), None
+
+
+def _tax_row(
+    kind: MeasureKind,
+    policy: TaxPolicy,
+    pending: MeasureDTO | None,
+    promised: bool,
+    tax_rows: list[TaxRow],
+) -> TaxRowDTO:
+    """Uma linha de imposto: o valor de hoje e o padrão, a arrecadação e a medida na fila."""
+    value, top_value = _tax_value(policy, kind)
+    default_value, default_top_value = _tax_value(DEFAULT_TAX_POLICY, kind)
+    # O teto da isenção divide a linha de receita com a alíquota das vendas com lucro
+    row = (
+        None
+        if kind is MeasureKind.STOCK_EXEMPTION
+        else next(
+            (r for r in tax_rows if r.key == budget_panel.ROW_OF_KIND[kind]), None
+        )
+    )
+    return TaxRowDTO(
+        kind=kind,
+        value=value,
+        top_value=top_value,
+        default_value=default_value,
+        default_top_value=default_top_value,
+        revenue=row.revenue if row else None,
+        difference=row.difference if row else None,
+        pending=pending,
+        promised=promised,
+    )
 
 
 def build_governance(
@@ -92,6 +133,7 @@ def build_governance(
         and not _retried(m, measures)
     ]
     policy = book.policy(today)
+    tax_rows = budget_rules.tax_rows(policy)
     end = book.term_end()
     impeachment = state.impeachments[-1] if state.impeachments else None
     # O voto que aprovou o impeachment mais recente
@@ -108,22 +150,12 @@ def build_governance(
         congress=house_panel.build_congress(book, viewer, today, people),
         approval=_approval(book, current, viewer, today),
         taxes=[
-            TaxRowDTO(
-                kind=kind,
-                value=(
-                    policy.fixed_income_floor
-                    if kind is MeasureKind.FIXED_INCOME_TABLE
-                    else rules.general_value(policy, kind) or Decimal(0)
-                ),
-                top_value=(
-                    policy.fixed_income_top_rate
-                    if kind is MeasureKind.FIXED_INCOME_TABLE
-                    else None
-                ),
-                pending=next(
-                    (dto(m) for m in reversed(pending) if m.kind is kind), None
-                ),
-                promised=any(key[0] is kind for key in promised),
+            _tax_row(
+                kind,
+                policy,
+                next((dto(m) for m in reversed(pending) if m.kind is kind), None),
+                any(key[0] is kind for key in promised),
+                tax_rows,
             )
             for kind in promises.TAX_KINDS
         ],

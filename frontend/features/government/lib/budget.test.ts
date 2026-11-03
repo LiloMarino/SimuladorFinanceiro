@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { BudgetMonth, BudgetTax } from "@/types";
+import type { BudgetMonth } from "@/types";
 import {
   accountBars,
   amountLabel,
@@ -10,12 +10,10 @@ import {
   spendingHeadline,
   rateChangeLabel,
   relativeChange,
-  defaultRateLabel,
   premiumNote,
   resultTone,
   shareLabel,
   signedShareLabel,
-  todayRateLabel,
 } from "./budget";
 
 const month = (debt: string, premium = "0", closed = true): BudgetMonth => ({
@@ -113,41 +111,6 @@ describe("debtTone", () => {
     expect(debtTone(month("0.4"))).toBe("default");
     expect(debtTone(month("0.8", "0.01"))).toBe("warning");
     expect(debtTone(month("1.2", "0.09"))).toBe("destructive");
-  });
-});
-
-describe("alíquotas", () => {
-  const fixedIncome: BudgetTax = {
-    key: "FIXED_INCOME",
-    name: "Renda fixa · tabela",
-    rate: "0.175",
-    default_rate: "0.175",
-    revenue: "0.0046",
-    difference: "0",
-    top_rate: "0.225",
-    floor_rate: "0.1",
-    default_top_rate: "0.225",
-    default_floor_rate: "0.15",
-  };
-
-  it("na renda fixa mostra a faixa de hoje e a padrão", () => {
-    expect(todayRateLabel(fixedIncome)).toBe("22,5% → 10%");
-    expect(defaultRateLabel(fixedIncome)).toBe("22,5% → 15%");
-  });
-
-  it("imposto isento aparece como isenta", () => {
-    const exempt: BudgetTax = {
-      ...fixedIncome,
-      key: "SECTOR",
-      rate: null,
-      top_rate: null,
-      floor_rate: null,
-      default_top_rate: null,
-      default_floor_rate: null,
-    };
-
-    expect(todayRateLabel(exempt)).toBe("isenta");
-    expect(defaultRateLabel(exempt)).toBe("17,5%");
   });
 });
 

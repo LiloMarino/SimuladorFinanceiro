@@ -1,8 +1,7 @@
 import { endOfMonth, format } from "date-fns";
 import { displayPoints, displayPremiumPoints } from "@/shared/lib/budget-metrics";
 import { displayMoneyLarge, displayPercent, parseLocalDate } from "@/shared/lib/utils/display";
-import type { Budget, BudgetEffect, BudgetMonth, BudgetTax } from "@/types";
-import type { ApprovalFactor, GroupApproval } from "./approval";
+import type { Budget, BudgetEffect, BudgetMonth } from "@/types";
 import { percentLabel } from "./government";
 
 const MINUS = "−";
@@ -84,28 +83,6 @@ export function debtTone(month: Pick<BudgetMonth, "debt" | "premium">): "destruc
   return Number(month.premium) > 0 ? "warning" : "default";
 }
 
-/** Alíquota do imposto na tabela: "15%", "isenta" ou, na renda fixa, a faixa "22,5% → 15%". */
-function taxRateLabel(rate: string | null, top: string | null, floor: string | null) {
-  if (top !== null && floor !== null && top !== floor) return `${percentLabel(top)} → ${percentLabel(floor)}`;
-  if (rate === null || Number(rate) === 0) return "isenta";
-  return percentLabel(rate);
-}
-
-/** A alíquota de hoje do imposto. */
-export function todayRateLabel(tax: BudgetTax) {
-  return taxRateLabel(tax.rate, tax.top_rate, tax.floor_rate);
-}
-
-/** A alíquota da política padrão, na mesma escrita da de hoje. */
-export function defaultRateLabel(tax: BudgetTax) {
-  return taxRateLabel(tax.default_rate, tax.default_top_rate, tax.default_floor_rate);
-}
-
-/** Receita de um imposto; sem arrecadação, traço. */
-export function taxRevenueLabel(tax: Pick<BudgetTax, "revenue">) {
-  return Number(tax.revenue) === 0 ? "—" : shareLabel(tax.revenue);
-}
-
 export type DebtRow = { time: number; history?: number; projection?: number };
 
 /** A dívida em fração do PIB mês a mês: os fechamentos já feitos e, a partir do último, a projeção se nada mais mudar. */
@@ -122,14 +99,6 @@ export function debtSeries(budget: Pick<Budget, "month" | "history" | "projectio
   if (rows.length > 0) rows[rows.length - 1] = { ...rows[rows.length - 1], ...anchor };
   else rows.push(anchor);
   return [...rows, ...projected];
-}
-
-/** Os fatores do grupo que vêm da conta do país: o desemprego e o prêmio de risco. */
-export function budgetFactors(group: { factors: GroupApproval["factors"] }) {
-  return group.factors.filter(
-    (factor): factor is ApprovalFactor & { kind: "UNEMPLOYMENT" | "RISK_PREMIUM" } =>
-      factor.kind === "UNEMPLOYMENT" || factor.kind === "RISK_PREMIUM",
-  );
 }
 
 /** Abaixo disso a medida mal pesa na receita do país e o número vira "≈ 0,00%". */

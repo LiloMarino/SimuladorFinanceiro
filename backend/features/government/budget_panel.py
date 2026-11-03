@@ -13,7 +13,6 @@ from backend.core.dto.budget import (
     BudgetDTO,
     BudgetEffectDTO,
     BudgetMonthDTO,
-    BudgetTaxDTO,
     InitialAccountDTO,
     InitialAccountOptionDTO,
     PremiumPointDTO,
@@ -57,21 +56,6 @@ def month_dto(month: BudgetMonth) -> BudgetMonthDTO:
     )
 
 
-def tax_dto(row: TaxRow) -> BudgetTaxDTO:
-    return BudgetTaxDTO(
-        key=row.key,
-        name=row.name,
-        rate=row.rate,
-        default_rate=row.default_rate,
-        revenue=row.revenue,
-        difference=row.difference,
-        top_rate=row.top_rate,
-        floor_rate=row.floor_rate,
-        default_top_rate=row.default_top_rate,
-        default_floor_rate=row.default_floor_rate,
-    )
-
-
 def projection_end(term_end: date | None, today: date) -> date:
     return term_end if term_end is not None else today + FALLBACK_PROJECTION
 
@@ -96,7 +80,6 @@ def build_budget(
             result=month.monthly(month.result),
             debt=month.debt * month.gdp,
         ),
-        taxes=[tax_dto(row) for row in budget_rules.tax_rows(policy)],
         fixed_revenue=course.fixed_revenue(),
         total_revenue=course.fixed_revenue() + budget_rules.game_revenue(policy),
         total_difference=(

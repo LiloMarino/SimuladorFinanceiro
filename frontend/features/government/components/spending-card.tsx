@@ -3,17 +3,17 @@ import { EffectSpark } from "@/shared/components/effect-spark";
 import { SpendingIcon } from "@/shared/components/spending-icon";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { inflationTone, PHASE_SHORT, signedIpca } from "@/shared/lib/effects";
-import { displayDayMonth, displayMoneyLarge } from "@/shared/lib/utils/display";
+import { displayMoneyLarge } from "@/shared/lib/utils/display";
 import type { GovernmentPanel, MeasureKind, SpendingRow } from "@/types";
 import { shareLabel, signedShareLabel } from "../lib/budget";
 import { SPENDING_INFLATION_NOW, SPENDING_COST } from "../lib/government-metrics";
 import { monthYear } from "../lib/government";
 import { isSpending, SPENDING_LABEL, type SpendingKind } from "@/shared/lib/spending-kinds";
 import { pointsOf } from "../lib/spending";
+import { MeasureAction } from "./measure-action";
 
 const SUBTITLE: Record<SpendingKind, string> = {
   WELFARE_SPENDING: "Transferência para quem depende dele",
@@ -41,12 +41,19 @@ export function SpendingCard({ panel, onPropose }: SpendingCardProps) {
     <Card>
       <CardContent>
         <div className="grid min-w-0 content-start gap-3.5">
-          <div className="grid gap-0.5">
-            <h2 className="text-[15px] font-semibold">Gasto público</h2>
-            <span className="text-xs text-muted-foreground">
-              Gasto mexe em preço: o dinheiro a mais vira consumo, a inflação sobe uns meses depois e o Banco Central
-              responde com a SELIC.
-            </span>
+          {/* Cabeçalho */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="grid gap-1">
+              <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">Sai</span>
+              <h2 className="text-[15px] font-semibold">Gasto público</h2>
+              <span className="text-[13px] text-muted-foreground">
+                Gasto mexe em preço: o dinheiro a mais vira consumo, a inflação sobe uns meses depois e o Banco Central
+                responde com a SELIC.
+              </span>
+            </div>
+            <Link to="/economy" className="mt-4.5 text-[13px] whitespace-nowrap text-info hover:underline">
+              No painel da economia ›
+            </Link>
           </div>
 
           <Table>
@@ -100,11 +107,7 @@ export function SpendingCard({ panel, onPropose }: SpendingCardProps) {
                 <TableCell numeric className={TONE_CLASS[inflationTone(spending.inflation)]}>
                   {signedIpca(spending.inflation)}
                 </TableCell>
-                <TableCell numeric>
-                  <Link to="/economy" className="font-sans text-[13px] font-normal text-info hover:underline">
-                    No painel da economia ›
-                  </Link>
-                </TableCell>
+                <TableCell />
               </TableRow>
             </TableBody>
           </Table>
@@ -176,19 +179,7 @@ function SpendingRowView({ row, isPresident, onPropose }: SpendingRowViewProps) 
         <InflationNow row={row} />
       </TableCell>
       <TableCell numeric>
-        {row.pending ? (
-          <Badge variant="warning" size="sm">
-            {row.pending.status === "QUEUED" || !row.pending.effective
-              ? "na fila"
-              : `vale em ${displayDayMonth(row.pending.effective)}`}
-          </Badge>
-        ) : (
-          isPresident && (
-            <Button size="xs" variant="outline" onClick={() => onPropose(kind)}>
-              Mudar
-            </Button>
-          )
-        )}
+        <MeasureAction pending={row.pending} isPresident={isPresident} onPropose={() => onPropose(kind)} />
       </TableCell>
     </TableRow>
   );

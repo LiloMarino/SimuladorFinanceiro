@@ -4,24 +4,6 @@ from decimal import Decimal
 from backend.core.dto.base import BaseDTO
 
 
-class BudgetTaxDTO(BaseDTO):
-    """Um imposto do jogo: a alíquota de hoje e a padrão, o que arrecada e a diferença contra a padrão."""
-
-    key: str
-    name: str
-    # Nula quando o imposto é isento
-    rate: Decimal | None
-    default_rate: Decimal | None
-    # Em fração do PIB por ano
-    revenue: Decimal
-    difference: Decimal
-    # Na renda fixa, a alíquota do prazo mais curto e a do mais longo, hoje e na política padrão
-    top_rate: Decimal | None
-    floor_rate: Decimal | None
-    default_top_rate: Decimal | None
-    default_floor_rate: Decimal | None
-
-
 class BudgetMonthDTO(BaseDTO):
     """
     O orçamento no fim de um mês, em fração do PIB por ano (0.0183 = 1,83%). Antes do
@@ -74,7 +56,6 @@ class BudgetDTO(BaseDTO):
     # O último fechamento de mês, ou o ponto de partida antes do primeiro
     month: BudgetMonthDTO
     amounts: BudgetAmountsDTO
-    taxes: list[BudgetTaxDTO]
     # O resto da arrecadação do país, fixo, e a receita total com os impostos de hoje
     fixed_revenue: Decimal
     total_revenue: Decimal

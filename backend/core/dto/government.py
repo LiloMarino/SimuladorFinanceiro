@@ -805,6 +805,12 @@ class TaxRowDTO(BaseDTO):
     value: Decimal
     # Na renda fixa, a alíquota do prazo mais curto
     top_value: Decimal | None
+    # O mesmo valor e o mesmo topo na política padrão, a de antes da expansão
+    default_value: Decimal
+    default_top_value: Decimal | None
+    # O que o imposto arrecada e quanto isso difere da política padrão, em fração do PIB por ano; nulos no teto da isenção, que não é um imposto com receita própria
+    revenue: Decimal | None
+    difference: Decimal | None
     # A medida da fila ou esperando a vigência que muda esta linha
     pending: MeasureDTO | None
     # A chapa que governa prometeu mexer nesta linha

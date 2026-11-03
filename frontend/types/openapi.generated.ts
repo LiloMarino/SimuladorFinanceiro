@@ -4139,8 +4139,6 @@ export interface components {
             today: string;
             month: components["schemas"]["BudgetMonthDTO"];
             amounts: components["schemas"]["BudgetAmountsDTO"];
-            /** Taxes */
-            taxes: components["schemas"]["BudgetTaxDTO"][];
             /** Fixed Revenue */
             fixed_revenue: string;
             /** Total Revenue */
@@ -4238,32 +4236,6 @@ export interface components {
             gdp: string;
             /** Closed */
             closed: boolean;
-        };
-        /**
-         * BudgetTaxDTO
-         * @description Um imposto do jogo: a alíquota de hoje e a padrão, o que arrecada e a diferença contra a padrão.
-         */
-        BudgetTaxDTO: {
-            /** Key */
-            key: string;
-            /** Name */
-            name: string;
-            /** Rate */
-            rate: string | null;
-            /** Default Rate */
-            default_rate: string | null;
-            /** Revenue */
-            revenue: string;
-            /** Difference */
-            difference: string;
-            /** Top Rate */
-            top_rate: string | null;
-            /** Floor Rate */
-            floor_rate: string | null;
-            /** Default Top Rate */
-            default_top_rate: string | null;
-            /** Default Floor Rate */
-            default_floor_rate: string | null;
         };
         /** BuyFixedIncomeRequest */
         BuyFixedIncomeRequest: {
@@ -10173,6 +10145,14 @@ export interface components {
             value: string;
             /** Top Value */
             top_value: string | null;
+            /** Default Value */
+            default_value: string;
+            /** Default Top Value */
+            default_top_value: string | null;
+            /** Revenue */
+            revenue: string | null;
+            /** Difference */
+            difference: string | null;
             pending: components["schemas"]["MeasureDTO"] | null;
             /** Promised */
             promised: boolean;

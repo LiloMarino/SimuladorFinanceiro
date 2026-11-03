@@ -11579,13 +11579,6 @@
           "amounts": {
             "$ref": "#/components/schemas/BudgetAmountsDTO"
           },
-          "taxes": {
-            "items": {
-              "$ref": "#/components/schemas/BudgetTaxDTO"
-            },
-            "type": "array",
-            "title": "Taxes"
-          },
           "fixed_revenue": {
             "type": "string",
             "title": "Fixed Revenue"
@@ -11650,7 +11643,6 @@
           "today",
           "month",
           "amounts",
-          "taxes",
           "fixed_revenue",
           "total_revenue",
           "total_difference",
@@ -11830,108 +11822,6 @@
         ],
         "title": "BudgetMonthDTO",
         "description": "O orçamento no fim de um mês, em fração do PIB por ano (0.0183 = 1,83%). Antes do\nprimeiro fechamento, `closed` é falso e juros e resultado ainda não existem."
-      },
-      "BudgetTaxDTO": {
-        "properties": {
-          "key": {
-            "type": "string",
-            "title": "Key"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "rate": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Rate"
-          },
-          "default_rate": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Default Rate"
-          },
-          "revenue": {
-            "type": "string",
-            "title": "Revenue"
-          },
-          "difference": {
-            "type": "string",
-            "title": "Difference"
-          },
-          "top_rate": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Top Rate"
-          },
-          "floor_rate": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Floor Rate"
-          },
-          "default_top_rate": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Default Top Rate"
-          },
-          "default_floor_rate": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Default Floor Rate"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "key",
-          "name",
-          "rate",
-          "default_rate",
-          "revenue",
-          "difference",
-          "top_rate",
-          "floor_rate",
-          "default_top_rate",
-          "default_floor_rate"
-        ],
-        "title": "BudgetTaxDTO",
-        "description": "Um imposto do jogo: a alíquota de hoje e a padrão, o que arrecada e a diferença contra a padrão."
       },
       "BuyFixedIncomeRequest": {
         "properties": {
@@ -28966,6 +28856,43 @@
             ],
             "title": "Top Value"
           },
+          "default_value": {
+            "type": "string",
+            "title": "Default Value"
+          },
+          "default_top_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Top Value"
+          },
+          "revenue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revenue"
+          },
+          "difference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Difference"
+          },
           "pending": {
             "anyOf": [
               {
@@ -28987,6 +28914,10 @@
           "kind",
           "value",
           "top_value",
+          "default_value",
+          "default_top_value",
+          "revenue",
+          "difference",
           "pending",
           "promised"
         ],

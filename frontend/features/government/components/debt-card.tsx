@@ -1,7 +1,7 @@
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { InfoHint } from "@/shared/components/info-hint";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { DEBT_GDP, RISK_PREMIUM } from "@/shared/lib/budget-metrics";
+import { DEBT_GDP } from "@/shared/lib/budget-metrics";
 import { displayDate, displayPercent, displayShortMonthYear } from "@/shared/lib/utils/display";
 import type { Budget } from "@/types";
 import { debtSeries, type DebtRow } from "../lib/budget";
@@ -9,7 +9,7 @@ import { debtSeries, type DebtRow } from "../lib/budget";
 const TICK = { fontSize: 10.5, fill: "var(--faint-foreground)" };
 const DEBT_COLOR = "var(--chart-5)";
 
-type DebtPremiumCardProps = { budget: Budget };
+type DebtCardProps = { budget: Budget };
 
 function DebtTooltip({ active, payload }: { active?: boolean; payload?: { payload: DebtRow }[] }) {
   const row = payload?.[0]?.payload;
@@ -46,7 +46,6 @@ function DebtChart({ budget }: { budget: Budget }) {
           tickLine={false}
         />
         <YAxis
-          domain={[(min: number) => Math.min(0.4, min), (max: number) => Math.max(0.6, max)]}
           tickFormatter={(value: number) => displayPercent(value, 0)}
           tick={TICK}
           axisLine={false}
@@ -74,21 +73,26 @@ function DebtChart({ budget }: { budget: Budget }) {
   );
 }
 
-/** Dívida e prêmio de risco: o caminho da dívida até o fim do mandato e o quanto cada nível dela encarece o Tesouro. */
-export function DebtPremiumCard({ budget }: DebtPremiumCardProps) {
+/** A dívida: o caminho dela até o fim do mandato, que o déficit de cada mês engorda. */
+export function DebtCard({ budget }: DebtCardProps) {
   return (
     <Card>
       <CardContent>
         <div className="grid min-w-0 content-start gap-3.5">
-          <div className="flex items-center gap-1.5">
-            <h2 className="text-[15px] font-semibold">Dívida e prêmio de risco</h2>
-            <InfoHint label="Como ler a dívida e o prêmio">
-              <div className="space-y-1 text-left">
-                <p>{RISK_PREMIUM.definition}</p>
-                <p>{RISK_PREMIUM.example}</p>
-                <p>{RISK_PREMIUM.reading}</p>
-              </div>
-            </InfoHint>
+          <div className="grid gap-1">
+            <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
+              O déficit vira dívida
+            </span>
+            <div className="flex items-center gap-1.5">
+              <h2 className="text-[15px] font-semibold">Dívida</h2>
+              <InfoHint label="Como ler a dívida">
+                <div className="space-y-1 text-left">
+                  <p>{DEBT_GDP.definition}</p>
+                  <p>{DEBT_GDP.example}</p>
+                  <p>{DEBT_GDP.reading}</p>
+                </div>
+              </InfoHint>
+            </div>
           </div>
 
           <div className="grid gap-1">
@@ -97,10 +101,6 @@ export function DebtPremiumCard({ budget }: DebtPremiumCardProps) {
             </span>
             <DebtChart budget={budget} />
           </div>
-
-          <p className="rounded-md bg-subtle px-2.5 py-1.5 text-xs text-muted-foreground">
-            O prêmio soma à taxa dos títulos novos do Tesouro na renda fixa e ao juro que a própria dívida paga.
-          </p>
         </div>
       </CardContent>
     </Card>

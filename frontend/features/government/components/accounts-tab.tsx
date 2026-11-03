@@ -3,10 +3,8 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import type { GovernmentPanel, MeasureKind } from "@/types";
 import { useBudget } from "@/shared/hooks/queries/useBudget";
 import { BaseCard } from "./base-card";
-import { BudgetReadersCard } from "./budget-readers-card";
 import { BudgetCard } from "./budget-card";
-import { DebtPremiumCard } from "./debt-premium-card";
-import { RevenueCard } from "./revenue-card";
+import { DebtCard } from "./debt-card";
 import { SpendingCard } from "./spending-card";
 import { TaxesCard } from "./taxes-card";
 
@@ -15,11 +13,11 @@ type AccountsTabProps = {
   onPropose: (kind?: MeasureKind) => void;
 };
 
-/** A aba Contas: o orçamento do país, de onde vem a receita, a dívida com o prêmio e os impostos e o gasto público em vigor. */
+/** A aba Contas, em uma coluna na ordem da conta: a base no Congresso, a conta do país, o que entra (impostos e receita), o que sai (gasto público) e a dívida. */
 export function AccountsTab({ panel, onPropose }: AccountsTabProps) {
   const { data: budget, error, refetch } = useBudget();
 
-  // Cada cartão que lê o orçamento carrega e falha sozinho; base, impostos e gasto seguem na aba
+  // Cada cartão que lê o orçamento carrega e falha sozinho; a base e o gasto seguem na aba
   const pending = (title: React.ReactNode, label: string, skeleton: React.ReactNode) => (
     <CardState
       title={title}
@@ -53,28 +51,18 @@ export function AccountsTab({ panel, onPropose }: AccountsTabProps) {
         )
       )}
 
-      {/* Impostos e gasto público em vigor, e a dívida com o prêmio */}
-      <div className="grid items-start gap-5 xl:grid-cols-2">
-        <div className="grid gap-5">
-          <TaxesCard panel={panel} onPropose={onPropose} />
-          <SpendingCard panel={panel} onPropose={onPropose} />
-        </div>
-        {budget ? (
-          <DebtPremiumCard budget={budget} />
-        ) : (
-          pending("Dívida e prêmio de risco", "Carregando a dívida e o prêmio", <Skeleton className="h-64" />)
-        )}
-      </div>
-
-      {/* De onde vem a receita */}
+      {/* Entra: impostos e receita */}
       {budget ? (
-        <RevenueCard budget={budget} />
+        <TaxesCard panel={panel} budget={budget} onPropose={onPropose} />
       ) : (
-        pending("De onde vem a receita", "Carregando a receita", <Skeleton className="h-40" />)
+        pending("Impostos e receita", "Carregando os impostos e a receita", <Skeleton className="h-64" />)
       )}
 
-      {/* Quem lê a conta */}
-      {panel.approval && <BudgetReadersCard approval={panel.approval} />}
+      {/* Sai: gasto público */}
+      <SpendingCard panel={panel} onPropose={onPropose} />
+
+      {/* A dívida */}
+      {budget ? <DebtCard budget={budget} /> : pending("Dívida", "Carregando a dívida", <Skeleton className="h-64" />)}
     </div>
   );
 }
