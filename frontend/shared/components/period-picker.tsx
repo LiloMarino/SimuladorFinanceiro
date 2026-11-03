@@ -174,7 +174,7 @@ export function PeriodPicker<T extends PeriodFormValues>({
       </div>
 
       {/* Atalhos */}
-      <div className="grid grid-cols-[4fr_2fr] gap-2.5">
+      <div className="grid gap-2.5">
         {shortcutGroup("past", "Até hoje")}
         {shortcutGroup("future", "Pra frente")}
       </div>

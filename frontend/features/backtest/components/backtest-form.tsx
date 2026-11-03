@@ -118,7 +118,7 @@ export function BacktestForm({ setup, strategies, values, startDate }: BacktestF
 
   return (
     <form onSubmit={(event) => void submit(event)} className="grid gap-5">
-      <div className={wide ? "grid gap-5" : "grid grid-cols-[360px_minmax(0,1fr)] items-start gap-5"}>
+      <div className={wide ? "grid gap-5" : "grid grid-cols-[440px_minmax(0,1fr)] items-start gap-5"}>
         <PeriodCard form={form} coverage={setup.coverage} layout={wide ? "wide" : "side"} />
 
         {/* Estratégias participantes */}
