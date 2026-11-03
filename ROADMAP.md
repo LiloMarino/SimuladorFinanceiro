@@ -115,13 +115,12 @@
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | — | — | — | 🔍 |
 | [**F206**](#f206) | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | M20 · 3.3 | — | Baixo | Bom | ⏳ |
-| [**F208**](#f208) | Melhoria | Empréstimo: o custo inteiro antes de assinar | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | — | — | — | 🔍 |
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (35 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (36 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -156,6 +155,7 @@
 | [**F204**](#f204) | Melhoria | Congresso: votação com placar e casa eleita | M20 · 3.3 | — | — | — | ✅ |
 | [**F205**](#f205) | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | M20 · 3.3 | — | — | — | ✅ |
 | [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | M20 · 3.3 | — | — | — | ✅ |
+| [**F208**](#f208) | Melhoria | Empréstimo: o custo inteiro antes de assinar | M20 · 3.3 | — | — | — | ✅ |
 | [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | M20 · 3.3 | — | — | — | ✅ |
 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | M20 · 3.3 | — | — | — | ✅ |
 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | M20 · 3.3 | — | — | — | ✅ |
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 19/27 concluídos
+> **Progresso:** 20/27 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -199,7 +199,7 @@
 | 18 | [**F204**](#f204) | Melhoria | Congresso: votação com placar e casa eleita | — | ✅ Concluído |
 | 19 | [**F205**](#f205) | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | — | ✅ Concluído |
 | 20 | [**F206**](#f206) | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | — | ⏳ Pendente |
-| 21 | [**F208**](#f208) | Melhoria | Empréstimo: o custo inteiro antes de assinar | — | ⏳ Pendente |
+| 21 | [**F208**](#f208) | Melhoria | Empréstimo: o custo inteiro antes de assinar | — | ✅ Concluído |
 | 22 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | — | ⏳ Pendente |
 | 23 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | — | 🔍 Em avaliação |
 | 24 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | — | 🔍 Em avaliação |
@@ -288,7 +288,6 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 · 17º | 0 | Médio | Bom | ⏳ |
 | [**F206**](#f206) | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | M20 · 3.3 · 20º | 0 | Baixo | Bom | ⏳ |
-| [**F208**](#f208) | Melhoria | Empréstimo: o custo inteiro antes de assinar | M20 · 3.3 · 21º | 0 | Baixo | Bom | ⏳ |
 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | M20 · 3.3 · 22º | 0 | Baixo | Bom | ⏳ |
 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 23º | 2 | — | — | 🔍 |
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 · 24º | 0 | — | — | 🔍 |
@@ -347,7 +346,6 @@
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
 | **F206** | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | N15 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
-| **F208** | Melhoria | Empréstimo: o custo inteiro antes de assinar | N15, N33 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
 | **F210** | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | N6, N15 | — | M20 · 3.3 | — | Baixo | Baixo | Alto | Bom |
 
 <a id="f6"></a>
@@ -452,18 +450,6 @@
 - **Carteira vazia:** a mensagem "O gráfico começa no próximo pregão" que o desenho aprovado tem e o app não (`networth-chart.tsx`, componente `Empty`).
 
 **Aceite:** a carteira com patrimônio de 7% da meta mostra o gráfico em escala útil, e os cartões de setor e imposto de renda saem com a mesma altura.
-
-<a id="f208"></a>
-**F208 — Empréstimo: o custo inteiro antes de assinar.** Serve N15 e N33. Na simulação de empréstimo (`features/credit/components/loan-offer-card.tsx`), quem decide não vê o que a assinatura muda na dívida e na nota. O usuário aprovou em 03/11 o desenho do canvas, pequeno, para sair junto da 3.3.
-
-**O que muda:**
-- Um bloco **"Se você assinar"** no resultado, com hoje e depois: dívida, parcelas por mês, alavancagem (dívida dividida pelo patrimônio) e sobra do limite.
-- A comparação entre o juro e o rendimento vira um aviso amarelo com os dois números lado a lado.
-- A barra do limite engrossa e diz quanto sobra.
-- Os textos da escada de notas (`risk-rating-card.tsx`) sobem para 12 px, e os botões Amortizar e Quitar (`loans-table.tsx`) ganham 32 px de altura.
-- Decidido em 02/11: empréstimo novo com parcela em atraso continua liberado (a tela só avisa o atraso e o estado "bloqueado" da proposta sai); o bloco projeta só a alavancagem depois do empréstimo.
-
-**Aceite:** a simulação mostra a alavancagem de depois sem o jogador fazer conta.
 
 <a id="f210"></a>
 **F210 — Comparar partidas: eixos em grade e Risco inteiro.** Serve N6 e N15. A página de comparação (`features/statistics/pages/compare-simulations.tsx`) tem o cartão de nota por eixo (`statistics-report/player-score-card.tsx`) estreito demais: o "0" do cartão Risco continua colado na borda em 1920 de largura, mesmo depois da correção de 02/11, e o ranking corta a coluna Pregões. O usuário aprovou em 03/11 o desenho do canvas.
@@ -699,6 +685,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F204** | Melhoria | Congresso: votação com placar e casa eleita | N15, N34 | — | M20 · 3.3 |
 | **F205** | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | N15, N31 | — | M20 · 3.3 |
 | **F207** | Correção | Placar da vela com os votos de cada jogador | N15, N22 | — | M20 · 3.3 |
+| **F208** | Melhoria | Empréstimo: o custo inteiro antes de assinar | N15, N33 | — | M20 · 3.3 |
 | **F209** | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | N33, N15 | — | M20 · 3.3 |
 | **F213** | Melhoria | Pendências: consequência inteira e Pagar em destaque | N15 | — | M20 · 3.3 |
 | **F214** | Melhoria | Central de dados: tabela que cabe no cartão | N15 | — | M20 · 3.3 |
@@ -857,6 +844,18 @@ Cada item sai num commit `feat:` próprio.
 - Passo de conferência antes de codar: abrir o desafio numa sala com dois jogadores e confirmar se o placar aparece também na pergunta e na revelação (nas capturas de 02/11 ele não apareceu, e a sala solo o esconde de propósito).
 
 **Aceite:** numa sala com dois jogadores, a revelação mostra o voto de cada um e a posição do jogador aparece nas duas fases.
+
+<a id="f208"></a>
+**F208 — Empréstimo: o custo inteiro antes de assinar.** Serve N15 e N33. Na simulação de empréstimo (`features/credit/components/loan-offer-card.tsx`), quem decide não vê o que a assinatura muda na dívida e na nota. O usuário aprovou em 03/11 o desenho do canvas, pequeno, para sair junto da 3.3.
+
+**O que muda:**
+- Um bloco **"Se você assinar"** no resultado, com hoje e depois: dívida, parcelas por mês, alavancagem (dívida dividida pelo patrimônio) e sobra do limite.
+- A comparação entre o juro e o rendimento vira um aviso amarelo com os dois números lado a lado.
+- A barra do limite engrossa e diz quanto sobra.
+- Os textos da escada de notas (`risk-rating-card.tsx`) sobem para 12 px, e os botões Amortizar e Quitar (`loans-table.tsx`) ganham 32 px de altura.
+- Decidido em 02/11: empréstimo novo com parcela em atraso continua liberado (a tela só avisa o atraso e o estado "bloqueado" da proposta sai); o bloco projeta só a alavancagem depois do empréstimo.
+
+**Aceite:** a simulação mostra a alavancagem de depois sem o jogador fazer conta.
 
 <a id="f209"></a>
 **F209 — Crédito em atraso: valor do diálogo, nota do mês e aviso no topo.** Serve N33 e N15. Na conferência de 02/11 o usuário estranhou a tela de atraso: o jogador tinha caixa e a parcela não foi descontada, e os valores do diálogo pareciam divergir (botão "Pagar" em R$ 1.565,60 contra R$ 45,60 de multa e mora). O código mostra o seguinte:
