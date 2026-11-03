@@ -124,10 +124,9 @@
 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | — | — | — | 🔍 |
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
-| [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (30 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -160,6 +159,7 @@
 | [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | M20 · 3.3 | — | — | — | ✅ |
 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | M20 · 3.3 | — | — | — | ✅ |
 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | M20 · 3.3 | — | — | — | ✅ |
+| [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | M20 · 3.3 | — | — | — | ✅ |
 
 </details>
 
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 13/27 concluídos
+> **Progresso:** 14/27 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -191,7 +191,7 @@
 | 10 | [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | — | ✅ Concluído |
 | 11 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | — | ✅ Concluído |
 | 12 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | — | ✅ Concluído |
-| 13 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | — | ⏳ Pendente |
+| 13 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | — | ✅ Concluído |
 | 14 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | — | ⏳ Pendente |
 | 15 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | — | ⏳ Pendente |
 | 16 | [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | — | ⏳ Pendente |
@@ -286,7 +286,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | M20 · 3.3 · 13º | 0 | Baixo | Bom | ⏳ |
 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | M20 · 3.3 · 14º | 0 | Médio | Bom | ⏳ |
 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | M20 · 3.3 · 15º | 0 | Médio | Bom | ⏳ |
 | [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | M20 · 3.3 · 16º | 0 | Médio | Bom | ⏳ |
@@ -360,7 +359,6 @@
 | **F206** | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | N15 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
 | **F208** | Melhoria | Empréstimo: o custo inteiro antes de assinar | N15, N33 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
 | **F210** | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | N6, N15 | — | M20 · 3.3 | — | Baixo | Baixo | Alto | Bom |
-| **F215** | Melhoria | Backtest: formulário do período sem estouro | N15 | — | M20 · 3.3 | — | Baixo | Baixo | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -553,17 +551,6 @@
 - Nada mais muda de ordem.
 
 **Aceite:** a comparação em 1920 de largura sem valor colado na borda nem coluna cortada.
-
-<a id="f215"></a>
-**F215 — Backtest: formulário do período sem estouro.** Serve N15. No formulário do backtest em modo lista (`features/backtest/components/backtest-form.tsx`), a coluna do período e dinheiro (`period-card.tsx`, com o `period-picker.tsx` compartilhado) estoura: os atalhos e as datas passam da borda. O usuário viu o estouro ao testar o backtest em 03/11. O desenho foi aprovado no canvas em 03/11.
-
-**O que muda:**
-- **Coluna do período com 440 px** (hoje `grid-cols-[360px_minmax(0,1fr)]`), as estratégias (`participant-list.tsx`) ocupam o resto.
-- **Atalhos em duas linhas** no `period-picker.tsx` (hoje `grid-cols-[4fr_2fr]`), e **datas Início e Fim lado a lado**.
-- **Campos inteiros:** nome, saldo inicial e aporte mensal cabem sem corte.
-- O seletor de período é compartilhado: a mudança vale também para onde ele é usado.
-
-**Aceite:** `/backtest/new` em modo lista, em 1920 de largura, sem texto cortado nem rolagem lateral na coluna do período.
 
 ---
 
@@ -786,6 +773,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F209** | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | N33, N15 | — | M20 · 3.3 |
 | **F213** | Melhoria | Pendências: consequência inteira e Pagar em destaque | N15 | — | M20 · 3.3 |
 | **F214** | Melhoria | Central de dados: tabela que cabe no cartão | N15 | — | M20 · 3.3 |
+| **F215** | Melhoria | Backtest: formulário do período sem estouro | N15 | — | M20 · 3.3 |
 
 <a id="f180"></a>
 **F180 — Retrato no canvas das telas que mudaram desde a 3.0.** Serve N15. Da 3.1 à 3.3, cada tela foi desenhada sozinha no canvas e implementada sem conferência na tela. Juntas, elas quebram a topbar, fazem tabelas rolarem de lado e desalinham cartões (conferência visual, F178). Os boards do governo e da eleição mostram o desenho aprovado de cada feature isolada, não o app de hoje. Esta feature põe no canvas o app como ele está, para as rodadas de redesenho (F179, F181, F182, F183) comentarem sobre o conjunto e para comparar o que foi aprovado com o que foi implementado.
@@ -908,6 +896,17 @@ Cada item sai num commit `feat:` próprio.
 - **Selo "Parou em …"** (o `Badge` de aviso da coluna Situação) mantido e alinhado à coluna, sem quebrar a linha.
 
 **Aceite:** a página `/import-assets` em 1920 de largura sem rolagem lateral e com uma única ação em azul cheio.
+
+<a id="f215"></a>
+**F215 — Backtest: formulário do período sem estouro.** Serve N15. No formulário do backtest em modo lista (`features/backtest/components/backtest-form.tsx`), a coluna do período e dinheiro (`period-card.tsx`, com o `period-picker.tsx` compartilhado) estoura: os atalhos e as datas passam da borda. O usuário viu o estouro ao testar o backtest em 03/11. O desenho foi aprovado no canvas em 03/11.
+
+**O que muda:**
+- **Coluna do período com 440 px** (hoje `grid-cols-[360px_minmax(0,1fr)]`), as estratégias (`participant-list.tsx`) ocupam o resto.
+- **Atalhos em duas linhas** no `period-picker.tsx` (hoje `grid-cols-[4fr_2fr]`), e **datas Início e Fim lado a lado**.
+- **Campos inteiros:** nome, saldo inicial e aporte mensal cabem sem corte.
+- O seletor de período é compartilhado: a mudança vale também para onde ele é usado.
+
+**Aceite:** `/backtest/new` em modo lista, em 1920 de largura, sem texto cortado nem rolagem lateral na coluna do período.
 
 ---
 
