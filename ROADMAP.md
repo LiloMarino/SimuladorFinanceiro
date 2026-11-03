@@ -104,7 +104,6 @@
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | — | — | Médio | Bom | 💤 |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.0 | — | — | — | 🔍 |
-| [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | 🔍 |
@@ -124,7 +123,7 @@
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (32 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (33 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -148,6 +147,7 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F173](#f173), [F175](#f175), [F176](#f176) | — | — | ✅ |
 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 | — | — | — | ✅ |
 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | M20 · 3.3 | — | — | — | ✅ |
+| [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | M20 · 3.3 | — | — | — | ✅ |
 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | — | — | — | — | 🚫 |
 | [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 | — | — | — | ✅ |
 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 | — | — | — | ✅ |
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 16/27 concluídos
+> **Progresso:** 17/27 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -193,7 +193,7 @@
 | 12 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | — | ✅ Concluído |
 | 13 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | — | ✅ Concluído |
 | 14 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | — | ✅ Concluído |
-| 15 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | — | ⏳ Pendente |
+| 15 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | — | ✅ Concluído |
 | 16 | [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | — | ✅ Concluído |
 | 17 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | — | ⏳ Pendente |
 | 18 | [**F204**](#f204) | Melhoria | Congresso: votação com placar e casa eleita | — | ⏳ Pendente |
@@ -286,7 +286,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | M20 · 3.3 · 15º | 0 | Médio | Bom | ⏳ |
 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 · 17º | 0 | Médio | Bom | ⏳ |
 | [**F204**](#f204) | Melhoria | Congresso: votação com placar e casa eleita | M20 · 3.3 · 18º | 0 | Médio | Bom | ⏳ |
 | [**F205**](#f205) | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | M20 · 3.3 · 19º | 0 | Médio | Bom | ⏳ |
@@ -345,7 +344,6 @@
 | **F170** | Feature | Parâmetros das estratégias salvos no perfil | N39 | — | M21 · 3.4 | [F174](#f174) | Médio | Baixo | Alto | Excelente |
 | **F173** | Feature | Partido desde o 1º dia | N39, N34 | D19 | M21 · 3.4 | — | Médio | Médio | Alto | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom |
-| **F182** | Melhoria | Eleição: corrida entre partidos redesenhada | N15, N34 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 | **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
 | **F190** | Melhoria | Contas do governo redesenhadas | N15, N34 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
@@ -418,23 +416,6 @@
 
 <a id="f175"></a>
 **F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), inclusive ao partido do computador; a proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173). (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato, fica preso pelo mandato e herda, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** a federação aparece no cartão dos partidos da Eleição, no hemiciclo do Congresso e no jornal (formada, desfeita); o desenho começa registrando as telas e os estados no canvas: proposta pendente, federação formada, federação desfeita antes do prazo e expansão desligada.
-
-<a id="f182"></a>
-**F182 — Eleição: corrida entre partidos redesenhada.** Serve N15 e N34. A página (`features/government/pages/election.tsx`) empilha telas de features desenhadas separadamente e, na conferência visual e no playtest de 31/out, quebrou em vários pontos: o Ranking sobrepõe outro cartão e o texto dele sai desalinhado, o "Partidos na disputa" tem o selo "Computador" passando da borda, o nome do partido cortado, as promessas fora da largura, o radar de tamanho diferente entre cartões e rótulos pequenos demais, e a legenda mostra "Na fundação" mesmo quando o perfil não mudou. O desenho foi aprovado no canvas em 03/11 (board da corrida, com os ajustes abaixo).
-
-**O que existe:** `party-profiles-card.tsx` (bloco "Partidos na disputa", com o radar de `profile-radar.tsx`), a tabela "Partidos", `ranking-card.tsx`, a faixa por grupo do `electorate-card.tsx` e, no diálogo de fundar partido (`found-party-dialog.tsx`), o bloco "Como o eleitorado recebe" de `flags-picker.tsx`.
-
-**O que muda:**
-- **Um bloco só por partido** em `party-profiles-card.tsx`: cada card ganha chapa, filiados, verba por mês e gasto, e a tabela "Partidos" sai porque passa a repetir o card. O selo "Computador" vai para a linha do nome, que não trunca mais.
-- **Badges das bandeiras com o mini-ícone** que o app já usa nelas; o badge "chapa padrão" sai.
-- **Radar** (`profile-radar.tsx`) com rótulos de pelo menos 12 px, dentro do painel e do mesmo tamanho em todos os cartões; a legenda "Na fundação" só aparece quando o perfil mudou.
-- **Ranking da partida** (`ranking-card.tsx`) na largura toda, com "Individual" e "Patrimônio do partido" em colunas iguais, sem sobrepor a coluna vizinha.
-- **Faixa por grupo** com cabeçalho: UPR, MNV, PTD e Margem. A Margem ganha dica: quanto a pesquisa pode errar para mais ou para menos (31% com margem de 3 pontos quer dizer entre 28% e 34%).
-- **Diálogo de fundar partido:** só o bloco "Como o eleitorado recebe" muda (rótulos do radar dentro do cartão, nomes dos grupos sem corte, texto de pelo menos 12 px); o resto do diálogo fica como está.
-
-**Não muda:** os dados, a ordem das seções e o gráfico da série.
-
-**Aceite:** a Eleição em 1920 de largura, nas três fases (campanha, entre os turnos e resultado), sem elemento passando da borda nem rolagem lateral, e o Ranking sem sobrepor nada.
 
 <a id="f186"></a>
 **F186 — Estatísticas lentas numa partida longa.** Serve N38 e N24. Medido no playtest de 31/out, numa partida de alguns anos com 7 a 8 jogadores: `GET /api/statistics/operations` com 8,2 s de mediana (até 14 s), `score-history` e `overview` com 3,1 s (até 12 e 9 s), `bots` com 2,8 s e `risk` perto de 1 s. As linhas saem em pares, a milissegundos uma da outra: cada abertura da tela pede cada leitura duas vezes.
@@ -734,6 +715,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | --- | --- | --- | --- | --- | --- |
 | **F180** | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 |
 | **F181** | Melhoria | Tabelas que cabem na tela e texto legível | N15 | — | M20 · 3.3 |
+| **F182** | Melhoria | Eleição: corrida entre partidos redesenhada | N15, N34 | — | M20 · 3.3 |
 | **F184** | Correção | Correções da 3.3 | — | — | M20 · 3.3 |
 | **F185** | Performance | Dia da partida que fica mais lento ao longo da partida | N40, N24 | — | M20 · 3.3 |
 | **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 |
@@ -783,6 +765,23 @@ Na mesma passada, a sessão confere os estados que o playtest não provocou (lis
 **Fora deste card:** eixos de gráfico (o Recharts decide), largura máxima da página e o preenchimento de vazios, que ninguém apontou como problema, e a paleta de cores (F212).
 
 **Aceite:** as telas acima em 1920 de largura sem rolagem lateral e sem texto abaixo de 12 px.
+
+<a id="f182"></a>
+**F182 — Eleição: corrida entre partidos redesenhada.** Serve N15 e N34. A página (`features/government/pages/election.tsx`) empilha telas de features desenhadas separadamente e, na conferência visual e no playtest de 31/out, quebrou em vários pontos: o Ranking sobrepõe outro cartão e o texto dele sai desalinhado, o "Partidos na disputa" tem o selo "Computador" passando da borda, o nome do partido cortado, as promessas fora da largura, o radar de tamanho diferente entre cartões e rótulos pequenos demais, e a legenda mostra "Na fundação" mesmo quando o perfil não mudou. O desenho foi aprovado no canvas em 03/11 (board da corrida, com os ajustes abaixo).
+
+**O que existe:** `party-profiles-card.tsx` (bloco "Partidos na disputa", com o radar de `profile-radar.tsx`), a tabela "Partidos", `ranking-card.tsx`, a faixa por grupo do `electorate-card.tsx` e, no diálogo de fundar partido (`found-party-dialog.tsx`), o bloco "Como o eleitorado recebe" de `flags-picker.tsx`.
+
+**O que muda:**
+- **Um bloco só por partido** em `party-profiles-card.tsx`: cada card ganha chapa, filiados, verba por mês e gasto, e a tabela "Partidos" sai porque passa a repetir o card. O selo "Computador" vai para a linha do nome, que não trunca mais.
+- **Badges das bandeiras com o mini-ícone** que o app já usa nelas; o badge "chapa padrão" sai.
+- **Radar** (`profile-radar.tsx`) com rótulos de pelo menos 12 px, dentro do painel e do mesmo tamanho em todos os cartões; a legenda "Na fundação" só aparece quando o perfil mudou.
+- **Ranking da partida** (`ranking-card.tsx`) na largura toda, com "Individual" e "Patrimônio do partido" em colunas iguais, sem sobrepor a coluna vizinha.
+- **Faixa por grupo** com cabeçalho: UPR, MNV, PTD e Margem. A Margem ganha dica: quanto a pesquisa pode errar para mais ou para menos (31% com margem de 3 pontos quer dizer entre 28% e 34%).
+- **Diálogo de fundar partido:** só o bloco "Como o eleitorado recebe" muda (rótulos do radar dentro do cartão, nomes dos grupos sem corte, texto de pelo menos 12 px); o resto do diálogo fica como está.
+
+**Não muda:** os dados, a ordem das seções e o gráfico da série.
+
+**Aceite:** a Eleição em 1920 de largura, nas três fases (campanha, entre os turnos e resultado), sem elemento passando da borda nem rolagem lateral, e o Ranking sem sobrepor nada.
 
 <a id="f184"></a>
 **F184 — Correções da 3.3.** Lote dos consertos achados desde a 3.2. Tudo em main, em `fix:`. Primeiro lote, 37 commits:
