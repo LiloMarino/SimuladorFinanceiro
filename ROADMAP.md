@@ -115,7 +115,6 @@
 | [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | Baixo | Bom | ⏳ |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | — | — | — | 🔍 |
-| [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F204**](#f204) | Melhoria | Congresso: votação com placar e casa eleita | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F205**](#f205) | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F206**](#f206) | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | M20 · 3.3 | — | Baixo | Bom | ⏳ |
@@ -125,7 +124,7 @@
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (31 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (32 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -155,6 +154,7 @@
 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 | — | — | — | ✅ |
 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | M20 · 3.3 | — | — | — | ✅ |
 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 | — | — | — | ✅ |
+| [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | M20 · 3.3 | — | — | — | ✅ |
 | [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | M20 · 3.3 | — | — | — | ✅ |
 | [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | M20 · 3.3 | — | — | — | ✅ |
 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | M20 · 3.3 | — | — | — | ✅ |
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 15/27 concluídos
+> **Progresso:** 16/27 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -194,7 +194,7 @@
 | 13 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | — | ✅ Concluído |
 | 14 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | — | ✅ Concluído |
 | 15 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | — | ⏳ Pendente |
-| 16 | [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | — | ⏳ Pendente |
+| 16 | [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | — | ✅ Concluído |
 | 17 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | — | ⏳ Pendente |
 | 18 | [**F204**](#f204) | Melhoria | Congresso: votação com placar e casa eleita | — | ⏳ Pendente |
 | 19 | [**F205**](#f205) | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | — | ⏳ Pendente |
@@ -287,7 +287,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | M20 · 3.3 · 15º | 0 | Médio | Bom | ⏳ |
-| [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | M20 · 3.3 · 16º | 0 | Médio | Bom | ⏳ |
 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 · 17º | 0 | Médio | Bom | ⏳ |
 | [**F204**](#f204) | Melhoria | Congresso: votação com placar e casa eleita | M20 · 3.3 · 18º | 0 | Médio | Bom | ⏳ |
 | [**F205**](#f205) | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | M20 · 3.3 · 19º | 0 | Médio | Bom | ⏳ |
@@ -351,7 +350,6 @@
 | **F190** | Melhoria | Contas do governo redesenhadas | N15, N34 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
-| **F203** | Melhoria | Eleição: aba da campanha reorganizada | N15, N34 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 | **F204** | Melhoria | Congresso: votação com placar e casa eleita | N15, N34 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 | **F205** | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | N15, N31 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 | **F206** | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | N15 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
@@ -468,17 +466,6 @@
 **F197 — Rebalanceamento por meta com várias classes.** Serve N4. Hoje o `TargetRebalance` (`backend/features/strategy/rebalance.py:55`) divide só entre um ativo de ações (BOVA11 por padrão) e a renda fixa de liquidez diária: a meta em ações vai de 10% a 90% (padrão 60%), e o desvio máximo, de 1 a 20 pontos (padrão 5). O playtest de 31/out pediu configurar a meta de cada classe.
 
 **O que muda:** os parâmetros viram uma lista de alvos (um ativo ou uma classe e a porcentagem), que soma 100%, com a faixa de desvio de cada alvo; a estratégia vende o que passou da faixa antes de comprar o que ficou abaixo, como hoje. O formulário da estratégia mostra a lista com o total e recusa o que não soma 100%. O padrão continua 60% em BOVA11 e 40% em renda fixa com 5 pontos, então partidas salvas e backtests antigos dão o mesmo resultado; um teste compara os dois. Os parâmetros salvos no perfil (F170) passam a guardar a lista.
-
-<a id="f203"></a>
-**F203 — Eleição: aba da campanha reorganizada.** Serve N15 e N34. Na aba "Campanha do {sigla}" (`features/government/components/campaign-section.tsx`), o playtest e a conferência de 02/11 acharam a tela confusa: a mesma informação mora em mais de um lugar (Eleitorado, Últimas ações e Histórico, Verba de base). O desenho foi aprovado no canvas em 03/11, com uma ressalva: o cartão "Ações de campanha" (`campaign-actions-card.tsx`) fica exatamente como está, porque já foi bem desenhado e não é o problema da página.
-
-**O que muda** (cada coisa num lugar só):
-- **Pesquisa no grupo:** o passo 2 das ações ganha a coluna "Pesquisa no grupo" (por exemplo, PTD 0% com margem de 11 pontos), que mostra também o líder do grupo; o Eleitorado (`electorate-card.tsx`) sobe para logo abaixo das ações, onde a escolha acontece.
-- **Últimas ações e Histórico** (`campaign-recent-card.tsx`, `campaign-history-card.tsx`) viram um cartão só, com um único estado vazio; o "Histórico ›" rola até esse bloco.
-- **Verba de base** (`campaign-base-card.tsx`) entra no cartão "Seu partido", com um botão "Mudar". "Seu partido" ocupa a largura toda em três colunas: verba e filiados, promessas e bandeiras, orientação da bancada.
-- **Ícones:** os ícones dos grupos (Investidores e os demais), das ações (Comício e as outras) e das bandeiras ficam como estão hoje no app. O board é um esboço sem eles; na implementação a referência é a tela atual.
-
-**Aceite:** a aba em 1920 de largura, com a campanha aberta e sem campanha, e sem informação repetida entre cartões.
 
 <a id="f204"></a>
 **F204 — Congresso: votação com placar e casa eleita.** Serve N15 e N34. Na aba "Congresso" do Governo (`features/government/components/congress-tab.tsx`), a tabela da votação (`vote-table.tsx`, usada pelo `vote-dialog.tsx`) rola de lado e não mostra o placar da medida em andamento; e a conferência de 02/11 achou duas coisas do desenho aprovado que o app não tem: o acesso a "Como a casa foi eleita" e a "Ver votações anteriores". O desenho da votação foi aprovado no canvas em 03/11.
@@ -752,6 +739,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 |
 | **F188** | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | N24 | — | M20 · 3.3 |
 | **F189** | Melhoria | Retoques de interface do playtest de outubro | N15, N21 | — | M20 · 3.3 |
+| **F203** | Melhoria | Eleição: aba da campanha reorganizada | N15, N34 | — | M20 · 3.3 |
 | **F207** | Correção | Placar da vela com os votos de cada jogador | N15, N22 | — | M20 · 3.3 |
 | **F209** | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | N33, N15 | — | M20 · 3.3 |
 | **F213** | Melhoria | Pendências: consequência inteira e Pagar em destaque | N15 | — | M20 · 3.3 |
@@ -847,6 +835,17 @@ A pasta que as Configurações abrem e os nomes dos arquivos atuais continuam os
 - **Aviso de atualização das Estatísticas** (`update-notice.tsx`) também com a partida pausada, dizendo a data da última atualização; a contagem até a próxima aparece só com a partida andando.
 
 Cada item sai num commit `feat:` próprio.
+
+<a id="f203"></a>
+**F203 — Eleição: aba da campanha reorganizada.** Serve N15 e N34. Na aba "Campanha do {sigla}" (`features/government/components/campaign-section.tsx`), o playtest e a conferência de 02/11 acharam a tela confusa: a mesma informação mora em mais de um lugar (Eleitorado, Últimas ações e Histórico, Verba de base). O desenho foi aprovado no canvas em 03/11, com uma ressalva: o cartão "Ações de campanha" (`campaign-actions-card.tsx`) fica exatamente como está, porque já foi bem desenhado e não é o problema da página.
+
+**O que muda** (cada coisa num lugar só):
+- **Pesquisa no grupo:** o passo 2 das ações ganha a coluna "Pesquisa no grupo" (por exemplo, PTD 0% com margem de 11 pontos), que mostra também o líder do grupo; o Eleitorado (`electorate-card.tsx`) sobe para logo abaixo das ações, onde a escolha acontece.
+- **Últimas ações e Histórico** (`campaign-recent-card.tsx`, `campaign-history-card.tsx`) viram um cartão só, com um único estado vazio; o "Histórico ›" rola até esse bloco.
+- **Verba de base** (`campaign-base-card.tsx`) entra no cartão "Seu partido", com um botão "Mudar". "Seu partido" ocupa a largura toda em três colunas: verba e filiados, promessas e bandeiras, orientação da bancada.
+- **Ícones:** os ícones dos grupos (Investidores e os demais), das ações (Comício e as outras) e das bandeiras ficam como estão hoje no app. O board é um esboço sem eles; na implementação a referência é a tela atual.
+
+**Aceite:** a aba em 1920 de largura, com a campanha aberta e sem campanha, e sem informação repetida entre cartões.
 
 <a id="f207"></a>
 **F207 — Placar da vela com os votos de cada jogador.** Serve N15 e N22. A conferência de 02/11 comparou o desafio da vela com o desenho aprovado, e o usuário confirmou que faltam o placar com os votos e a posição do jogador. O que o código mostra hoje: `scoreboard.tsx` só entra na janela (`challenge-window.tsx:94`) fora da sala solo e mostra contadores ("N disseram sobe", "N disseram desce") e o ✓/✗ de acerto; o backend já manda a direção de cada voto (`ChallengeVoteDTO`, em `core/dto/candle_challenge.py`), que a tela não usa; e o "Você 2º" só existe no dock minimizado (`challenge-dock.tsx:61`) e no fim (`final-panel.tsx:91`).
