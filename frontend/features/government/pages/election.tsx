@@ -21,13 +21,11 @@ import { DonateDialog } from "../components/donate-dialog";
 import { FirstRoundCard } from "../components/first-round-card";
 import { EndorseDialog } from "../components/endorse-dialog";
 import { ElectionHeader } from "../components/election-header";
-import { ElectorateCard } from "../components/electorate-card";
 import { BeforeCampaignEmpty } from "../components/election-states";
 import { ExpelDialog } from "../components/expel-dialog";
 import { FoundPartyDialog } from "../components/found-party-dialog";
 import { JoinPartyDialog } from "../components/join-party-dialog";
 import { LeavePartyDialog } from "../components/leave-party-dialog";
-import { MyPartyCard } from "../components/my-party-card";
 import { PartiesCard } from "../components/parties-card";
 import { PartyProfilesCard } from "../components/party-profiles-card";
 import { PollCard } from "../components/poll-card";
@@ -307,30 +305,17 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
             </TabsList>
             <TabsContent value="race">{race}</TabsContent>
             <TabsContent value="campaign">
-              <div className="grid gap-5">
-                <CampaignSection
-                  panel={panel}
-                  party={party}
-                  cash={cash}
-                  nickname={nickname}
-                  onChangeContribution={() => setDialog("contribution")}
-                />
-                <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-                  <div className="grid min-w-0 gap-5">
-                    {panel.electorate.length > 0 && <ElectorateCard panel={panel} party={party} />}
-                  </div>
-                  <MyPartyCard
-                    panel={panel}
-                    party={party}
-                    nickname={nickname}
-                    onEditTicket={() => setDialog("ticket")}
-                    onEditPromises={() => setDialog("promises")}
-                    onChangeContribution={() => setDialog("contribution")}
-                    onExpel={setExpelling}
-                    onLeave={() => setDialog("leave")}
-                  />
-                </div>
-              </div>
+              <CampaignSection
+                panel={panel}
+                party={party}
+                cash={cash}
+                nickname={nickname}
+                onEditTicket={() => setDialog("ticket")}
+                onEditPromises={() => setDialog("promises")}
+                onChangeContribution={() => setDialog("contribution")}
+                onExpel={setExpelling}
+                onLeave={() => setDialog("leave")}
+              />
             </TabsContent>
           </Tabs>
         ) : (

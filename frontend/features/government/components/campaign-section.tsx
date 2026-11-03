@@ -3,21 +3,36 @@ import { CardState } from "@/shared/components/card-state";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import type { ElectionPanel, ElectionParty } from "@/types";
 import { useCampaign } from "../hooks/queries/useCampaign";
+import { partyOrder } from "../lib/voters";
 import { CampaignActionsCard } from "./campaign-actions-card";
-import { CampaignBaseCard } from "./campaign-base-card";
 import { CampaignHistoryCard } from "./campaign-history-card";
-import { CampaignRecentCard } from "./campaign-recent-card";
+import { ElectorateCard } from "./electorate-card";
+import { MyPartyCard } from "./my-party-card";
 
 type CampaignSectionProps = {
   panel: ElectionPanel;
   party: ElectionParty;
   cash: string | undefined;
   nickname: string;
+  onEditTicket: () => void;
+  onEditPromises: () => void;
   onChangeContribution: () => void;
+  onExpel: (nickname: string) => void;
+  onLeave: () => void;
 };
 
-/** As ações avulsas da campanha do partido: o cartão das ações, as últimas, a verba de base e o histórico. */
-export function CampaignSection({ panel, party, cash, nickname, onChangeContribution }: CampaignSectionProps) {
+/** A aba da campanha, cada informação num cartão só: ações, eleitorado, histórico e o partido. */
+export function CampaignSection({
+  panel,
+  party,
+  cash,
+  nickname,
+  onEditTicket,
+  onEditPromises,
+  onChangeContribution,
+  onExpel,
+  onLeave,
+}: CampaignSectionProps) {
   const { data: campaign, error, refetch } = useCampaign();
   const history = useRef<HTMLDivElement>(null);
 
@@ -51,23 +66,30 @@ export function CampaignSection({ panel, party, cash, nickname, onChangeContribu
 
   return (
     <div className="grid gap-5">
-      <CampaignActionsCard campaign={campaign} groups={panel.groups} cash={cash} />
-      <div className="grid items-start gap-5 lg:grid-cols-2">
-        <CampaignRecentCard
-          campaign={campaign}
-          party={party}
-          onHistory={() => history.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
-        />
-        <CampaignBaseCard
-          campaign={campaign}
-          party={party}
-          nickname={nickname}
-          onChangeContribution={onChangeContribution}
-        />
-      </div>
+      <CampaignActionsCard
+        campaign={campaign}
+        groups={panel.groups}
+        cash={cash}
+        party={party}
+        parties={partyOrder(panel.parties)}
+        poll={panel.polls.at(-1)}
+        onHistory={() => history.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+      />
+      {panel.electorate.length > 0 && <ElectorateCard panel={panel} party={party} />}
       <div ref={history} className="scroll-mt-4">
         <CampaignHistoryCard campaign={campaign} party={party} nickname={nickname} />
       </div>
+      <MyPartyCard
+        panel={panel}
+        party={party}
+        campaign={campaign}
+        nickname={nickname}
+        onEditTicket={onEditTicket}
+        onEditPromises={onEditPromises}
+        onChangeContribution={onChangeContribution}
+        onExpel={onExpel}
+        onLeave={onLeave}
+      />
     </div>
   );
 }

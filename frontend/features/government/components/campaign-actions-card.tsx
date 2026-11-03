@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Progress } from "@/shared/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
+import { partyColor } from "@/shared/lib/party-colors";
 import { cn } from "@/shared/lib/utils";
 import { displayDayMonth, displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import type {
@@ -14,6 +15,8 @@ import type {
   CampaignActionKind,
   CampaignPanel,
   CampaignTarget,
+  ElectionParty,
+  ElectionPoll,
   VoterGroup,
   VoterGroupInfo,
 } from "@/types";
@@ -33,7 +36,7 @@ import {
   targetOf,
 } from "../lib/campaign";
 import { dayAfter } from "../lib/runoff";
-import { GROUP_INFO } from "../lib/voters";
+import { GROUP_INFO, pollPercent, pollPoints } from "../lib/voters";
 import { ActionIcon } from "./campaign-action-icon";
 import { BandsTable } from "./campaign-dice";
 import { CampaignRollDialog } from "./campaign-roll-dialog";
@@ -46,10 +49,24 @@ type CampaignActionsCardProps = {
   groups: VoterGroupInfo[];
   /** O caixa de quem vê, de onde a ação é paga na hora */
   cash: string | undefined;
+  /** O partido de quem vê e os da corrida: a pesquisa no grupo compara o primeiro com o líder */
+  party: ElectionParty;
+  parties: ElectionParty[];
+  /** A pesquisa mais recente, ainda ausente antes da primeira */
+  poll: ElectionPoll | undefined;
+  onHistory: () => void;
 };
 
 /** As quatro ações avulsas de campanha em passos (ação, grupo, rival), com o resumo do dado sempre à vista. */
-export function CampaignActionsCard({ campaign, groups, cash }: CampaignActionsCardProps) {
+export function CampaignActionsCard({
+  campaign,
+  groups,
+  cash,
+  party,
+  parties,
+  poll,
+  onHistory,
+}: CampaignActionsCardProps) {
   const [kind, setKind] = useState<CampaignActionKind>("EVENT");
   const [group, setGroup] = useState<VoterGroup>("RETIREES");
   const [chosenRival, setChosenRival] = useState<number | null>(null);
@@ -83,10 +100,15 @@ export function CampaignActionsCard({ campaign, groups, cash }: CampaignActionsC
                 {campaign.party_abbr} vê.
               </span>
             </div>
-            <Badge variant="secondary">
-              <Lock />
-              Só o {campaign.party_abbr} vê
-            </Badge>
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary">
+                <Lock />
+                Só o {campaign.party_abbr} vê
+              </Badge>
+              <Button variant="link" size="sm" onClick={onHistory}>
+                Histórico ›
+              </Button>
+            </div>
           </div>
 
           {!campaign.open || !action ? (
@@ -108,6 +130,9 @@ export function CampaignActionsCard({ campaign, groups, cash }: CampaignActionsC
               weights={weights}
               undecided={undecided}
               cash={cashNumber}
+              party={party}
+              parties={parties}
+              poll={poll}
               missing={missing}
               onRoll={() => setRolling(true)}
             />
@@ -172,6 +197,9 @@ type ActionBodyProps = {
   weights: Map<VoterGroup, string>;
   undecided: Map<VoterGroup, string | null> | null;
   cash: number | null;
+  party: ElectionParty;
+  parties: ElectionParty[];
+  poll: ElectionPoll | undefined;
   missing: (action: CampaignAction) => number;
   onRoll: () => void;
 };
@@ -188,6 +216,9 @@ function ActionBody({
   weights,
   undecided,
   cash,
+  party,
+  parties,
+  poll,
   missing,
   onRoll,
 }: ActionBodyProps) {
@@ -244,6 +275,9 @@ function ActionBody({
               weights={weights}
               undecided={undecided}
               today={campaign.today}
+              party={party}
+              parties={parties}
+              poll={poll}
             />
           </div>
         )}
@@ -417,21 +451,40 @@ type GroupChoicesProps = {
   weights: Map<VoterGroup, string>;
   undecided: Map<VoterGroup, string | null> | null;
   today: string;
+  party: ElectionParty;
+  parties: ElectionParty[];
+  poll: ElectionPoll | undefined;
 };
 
 const GROUP_ROW = "grid grid-cols-[16px_28px_minmax(0,1fr)_54px_64px_92px_74px] items-center gap-3";
+const GROUP_ROW_POLL = "grid grid-cols-[16px_28px_minmax(0,1fr)_54px_64px_112px_92px_74px] items-center gap-3";
 
-function GroupChoices({ action, kind, group, onGroup, weights, undecided, today }: GroupChoicesProps) {
+function GroupChoices({
+  action,
+  kind,
+  group,
+  onGroup,
+  weights,
+  undecided,
+  today,
+  party,
+  parties,
+  poll,
+}: GroupChoicesProps) {
+  // A pesquisa no grupo é do 1º turno: no 2º, o Voto e os Indecisos ocupam o lugar dela
+  const showPoll = !undecided;
+  const rowClass = showPoll ? GROUP_ROW_POLL : GROUP_ROW;
   return (
     <div role="radiogroup" aria-label="Grupo" className="grid gap-0.5">
       <div
-        className={cn(GROUP_ROW, "px-2 pb-0.5 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase")}
+        className={cn(rowClass, "px-2 pb-0.5 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase")}
       >
         <span />
         <span />
         <span>Grupo</span>
         <span className="text-right">{undecided ? "Voto" : "Apoio"}</span>
         <span className="text-right">{undecided ? "Indecisos" : "Rejeição"}</span>
+        {showPoll && <span className="text-right">Pesquisa no grupo</span>}
         <span>
           {ACTION_INFO[kind].plural}
           {undecided ? " no 2º turno" : ` em ${monthLabel(today)}`}
@@ -450,7 +503,7 @@ function GroupChoices({ action, kind, group, onGroup, weights, undecided, today 
             aria-checked={selected}
             onClick={() => onGroup(target.group!)}
             className={cn(
-              GROUP_ROW,
+              rowClass,
               "rounded-lg border border-transparent px-2 py-1.5 text-left text-[13px] outline-none hover:bg-subtle focus-visible:ring-3 focus-visible:ring-ring/50",
               selected && "border-primary bg-info-soft/40",
             )}
@@ -477,6 +530,13 @@ function GroupChoices({ action, kind, group, onGroup, weights, undecided, today 
                 ? Math.round(Number(undecided.get(target.group) ?? 0))
                 : Math.round(Number(target.rejection ?? 0))}
             </span>
+            {showPoll && (
+              <GroupPollCell
+                poll={poll?.groups.find((item) => item.group === target.group)}
+                party={party}
+                parties={parties}
+              />
+            )}
             <span className="flex items-center gap-1.5">
               <span className="flex gap-0.5" aria-hidden>
                 {[0, 1, 2].map((pip) => (
@@ -511,6 +571,41 @@ function GroupChoices({ action, kind, group, onGroup, weights, undecided, today 
         );
       })}
     </div>
+  );
+}
+
+type GroupPollCellProps = {
+  poll: ElectionPoll["groups"][number] | undefined;
+  party: ElectionParty;
+  parties: ElectionParty[];
+};
+
+/** A intenção de voto do partido no grupo, com a margem de erro; se outro partido lidera, o líder vem embaixo. */
+function GroupPollCell({ poll, party, parties }: GroupPollCellProps) {
+  if (!poll) return <span className="text-right text-xs text-faint-foreground">sem pesquisa</span>;
+
+  const points = pollPoints(poll.entries);
+  const own = points.get(party.id) ?? 0;
+  const leader = parties.reduce<ElectionParty | null>(
+    (best, candidate) => (!best || (points.get(candidate.id) ?? 0) > (points.get(best.id) ?? 0) ? candidate : best),
+    null,
+  );
+  const leaderPoints = leader ? (points.get(leader.id) ?? 0) : 0;
+
+  return (
+    <span className="grid justify-items-end">
+      <span className="font-mono">
+        <b style={{ color: partyColor(party) }}>
+          {party.abbr} {pollPercent(own, poll.margin)}
+        </b>
+        {poll.margin > 0 && <span className="text-faint-foreground"> ±{poll.margin}</span>}
+      </span>
+      {leader && leader.id !== party.id && leaderPoints > own && (
+        <span className="font-mono text-xs text-faint-foreground">
+          líder {leader.abbr} {pollPercent(leaderPoints, poll.margin)}
+        </span>
+      )}
+    </span>
   );
 }
 
