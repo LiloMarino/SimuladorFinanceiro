@@ -46,7 +46,7 @@ export function PendingMenuItem({ items }: PendingMenuItemProps) {
         align="start"
         sideOffset={8}
         variant="flush"
-        className="max-h-[calc(100svh-6rem)] w-80"
+        className="max-h-[calc(100svh-6rem)] w-100"
       >
         <div className="flex items-center gap-2 px-4 pt-3.5 pb-2.5">
           <b className="text-[15px] font-semibold">Pendências</b>
@@ -56,14 +56,14 @@ export function PendingMenuItem({ items }: PendingMenuItemProps) {
             </Badge>
           )}
         </div>
-        <p className="px-4 pb-2.5 text-xs text-muted-foreground">
-          Vermelha quando já custa dinheiro, âmbar quando ainda dá tempo.
-        </p>
         <ul>
           {items.map((item) => (
             <PendingRow key={item.key} item={item} onAct={goTo} />
           ))}
         </ul>
+        <p className="border-t px-4 py-2.5 text-xs text-foreground/80">
+          Vermelha quando já custa dinheiro, âmbar quando ainda dá tempo.
+        </p>
       </PopoverContent>
     </Popover>
   );
