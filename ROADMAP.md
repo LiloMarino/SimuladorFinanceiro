@@ -96,7 +96,6 @@
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 | — | Médio | Bom | ⏳ |
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 | — | Médio | Bom | ⏳ |
 | [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | Baixo | Bom | 💤 |
-| [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 | — | Alto | Bom | ⏳ |
 | [**F175**](#f175) | Feature | Federações partidárias | — | — | Alto | Bom | ⏳ |
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | — | — | Médio | Bom | 💤 |
@@ -114,7 +113,7 @@
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (42 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (43 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -139,6 +138,7 @@
 | [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | M20 · 3.3 | — | — | — | ✅ |
 | [**F170**](#f170) | Feature | Parâmetros das estratégias salvos no perfil | M20 · 3.3 | — | — | — | ✅ |
 | [**F173**](#f173) | Feature | Partido desde o 1º dia | M20 · 3.3 | — | — | — | ✅ |
+| [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 | — | — | — | ✅ |
 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 | — | — | — | ✅ |
 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | M20 · 3.3 | — | — | — | ✅ |
 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | M20 · 3.3 | — | — | — | ✅ |
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 26/30 concluídos
+> **Progresso:** 27/30 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -202,7 +202,7 @@
 | 21 | [**F208**](#f208) | Melhoria | Empréstimo: o custo inteiro antes de assinar | — | ✅ Concluído |
 | 22 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | — | ✅ Concluído |
 | 23 | [**F173**](#f173) | Feature | Partido desde o 1º dia | — | ✅ Concluído |
-| 24 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | — | ⏳ Pendente |
+| 24 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | — | ✅ Concluído |
 | 25 | [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | — | ✅ Concluído |
 | 26 | [**F170**](#f170) | Feature | Parâmetros das estratégias salvos no perfil | — | ✅ Concluído |
 | 27 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | — | 🔍 Em avaliação |
@@ -286,7 +286,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 24º | 0 | Alto | Bom | ⏳ |
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 · 27º | 0 | — | — | 🔍 |
 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 · 28º | 0 | Médio | Excelente | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 · 29º | 0 | Médio | Bom | ⏳ |
@@ -334,7 +333,6 @@
 | **F159** | Feature | Conquista "Ordem com paciência" | N22 | D1 | — | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
 | **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
-| **F174** | Melhoria | Preparação do lobby redesenhada | N39, N34 | — | M20 · 3.3 | — | Alto | Médio | Alto | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom |
 | **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
@@ -390,21 +388,6 @@
 
 <a id="f165"></a>
 **F165 — Tela do Tesouro: títulos pelo risco do governo.** Serve N34. Com o prêmio de risco (F128), a taxa dos títulos conta a história do governo: sobe quando a dívida cresce. Hoje o Tesouro sai misturado na vitrine mensal da renda fixa, com o prêmio somado à taxa (`fixed_income/factory/__init__.py`). Uma tela própria do Tesouro mostra: (1) **os títulos à venda** (Selic, Prefixado e IPCA+), com a taxa aberta em "taxa base + prêmio de risco do país" e a compra dali mesmo; (2) **a taxa de cada tipo ao longo da partida**, com a dívida pública ÷ PIB no mesmo eixo de tempo, para ver a taxa subir junto com a dívida; (3) **o termômetro do risco**: o prêmio atual, a dívida ÷ PIB e quanto falta para o próximo degrau do prêmio. Cada métrica tem uma descrição curta e uma dica com a definição e como ler. Para o gráfico, o backend guarda a taxa de cada tipo e o prêmio em cada vitrine mensal. O desenho começa registrando no canvas as telas e os estados: expansão desligada, dívida abaixo de 50% do PIB sem prêmio e prêmio alto. A marcação a mercado é o card seguinte (F177).
-
-<a id="f174"></a>
-**F174 — Preparação do lobby redesenhada.** Serve N39 e N34; retrabalho da F143. O card "Minha preparação" ficou ruim na tela, e a preparação vai crescer (partido, parâmetros das estratégias, gestora), o que um card no lobby não comporta. A rodada no canvas foi feita e o usuário escolheu em 03/11 a **variante A: um dialog largo com abas** (Partido, Estratégias e, com a expansão, Gestora), aberto por um botão "Minha preparação" no cabeçalho do lobby, ao lado de Copiar link e Sair. A variante dos partidos à vista no lobby polui a sala e foi descartada; o desenho da sala do host, que redesenhava só o card, também. O desenho já mostra a contribuição salva no perfil (F169), os parâmetros das estratégias (F170) e o partido que existe desde o 1º dia (F173), que vêm juntos na 3.3.
-
-**Decidido em 03/11:**
-- a aba Gestora vale, por já nascer pronta para a expansão;
-- a aba Estratégias segue a tela dos bots: ícones por estratégia e seções separadas como lá; o selo "ajustada" sai (estilo e minúsculas) e a indicação de parâmetro alterado usa o padrão visual dos bots;
-- os cartões do dialog levam os ícones e o estilo dos que já existem no app.
-
-**Decidido em 03/11 (2ª rodada):**
-- entrar num partido é direto, sem pedido nem aprovação do fundador;
-- os partidos do computador não aparecem no "Entrar": ali só os partidos preparados na sala;
-- o partido, os membros e a chapa confirmada são públicos na sala; o convite de vice pendente só aparece para quem convidou e para quem foi convidado, e o host vê só a contagem;
-- convite de vice ainda sem resposta quando a partida começa entra nela como convite comum;
-- a última escolha volta marcada na próxima sala: "Fundar" volta como Fundar, e "Entrar" volta como Sem partido, porque o partido de outro jogador pode não estar na sala nova.
 
 <a id="f175"></a>
 **F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), inclusive ao partido do computador; a proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173). (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato, fica preso pelo mandato e herda, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** a federação aparece no cartão dos partidos da Eleição, no hemiciclo do Congresso e no jornal (formada, desfeita); o desenho começa registrando as telas e os estados no canvas: proposta pendente, federação formada, federação desfeita antes do prazo e expansão desligada.
@@ -627,6 +610,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F169** | Feature | Contribuição de campanha salva no perfil | N34, N39 | — | M20 · 3.3 |
 | **F170** | Feature | Parâmetros das estratégias salvos no perfil | N39 | — | M20 · 3.3 |
 | **F173** | Feature | Partido desde o 1º dia | N39, N34 | D19 | M20 · 3.3 |
+| **F174** | Melhoria | Preparação do lobby redesenhada | N39, N34 | — | M20 · 3.3 |
 | **F180** | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 |
 | **F181** | Melhoria | Tabelas que cabem na tela e texto legível | N15 | — | M20 · 3.3 |
 | **F182** | Melhoria | Eleição: corrida entre partidos redesenhada | N15, N34 | — | M20 · 3.3 |
@@ -656,6 +640,21 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 <a id="f173"></a>
 **F173 — Partido desde o 1º dia.** Serve N39 e N34; condicionada pela D19. Hoje fundar e filiar-se só abrem com a campanha, um ano antes do 1º turno (`_ensure_campaign_open` em `government_book.py`), e a preparação do lobby espera a abertura para virar partido. Como no Brasil, onde o partido existe o tempo todo e o que tem prazo é a filiação de quem concorre, a regra passa a ser: **fundar, filiar-se e sair ficam livres desde o 1º dia**; a **filiação para concorrer** fecha 6 meses antes do 1º turno (Lei 9.504/97, art. 9): quem entra depois disso é filiado, mas não pode ser candidato nem vice naquela eleição; a **chapa, as ações de campanha e a cobrança da contribuição** continuam só na janela da campanha (a cobrança mensal pula os meses antes da abertura). **A preparação do lobby é aplicada no 1º dia da partida**, e não mais na abertura da campanha: os partidos preparados nascem com os filiados, e a chapa e o vice preparados ficam guardados no partido até a campanha abrir. Entre os turnos, filiação e saída continuam travadas. Partido de jogador fundado no meio do mandato não tem cadeira até a eleição seguinte. A preparação ainda não saiu em versão, então não há partida salva com o evento antigo para manter. Gatilho: antes do redesenho da preparação (F174), que mostra os partidos já existentes.
+
+<a id="f174"></a>
+**F174 — Preparação do lobby redesenhada.** Serve N39 e N34; retrabalho da F143. O card "Minha preparação" ficou ruim na tela, e a preparação vai crescer (partido, parâmetros das estratégias, gestora), o que um card no lobby não comporta. A rodada no canvas foi feita e o usuário escolheu em 03/11 a **variante A: um dialog largo com abas** (Partido, Estratégias e, com a expansão, Gestora), aberto por um botão "Minha preparação" no cabeçalho do lobby, ao lado de Copiar link e Sair. A variante dos partidos à vista no lobby polui a sala e foi descartada; o desenho da sala do host, que redesenhava só o card, também. O desenho já mostra a contribuição salva no perfil (F169), os parâmetros das estratégias (F170) e o partido que existe desde o 1º dia (F173), que vêm juntos na 3.3.
+
+**Decidido em 03/11:**
+- a aba Gestora vale, por já nascer pronta para a expansão;
+- a aba Estratégias segue a tela dos bots: ícones por estratégia e seções separadas como lá; o selo "ajustada" sai (estilo e minúsculas) e a indicação de parâmetro alterado usa o padrão visual dos bots;
+- os cartões do dialog levam os ícones e o estilo dos que já existem no app.
+
+**Decidido em 03/11 (2ª rodada):**
+- entrar num partido é direto, sem pedido nem aprovação do fundador;
+- os partidos do computador não aparecem no "Entrar": ali só os partidos preparados na sala;
+- o partido, os membros e a chapa confirmada são públicos na sala; o convite de vice pendente só aparece para quem convidou e para quem foi convidado, e o host vê só a contagem;
+- convite de vice ainda sem resposta quando a partida começa entra nela como convite comum;
+- a última escolha volta marcada na próxima sala: "Fundar" volta como Fundar, e "Entrar" volta como Sem partido, porque o partido de outro jogador pode não estar na sala nova.
 
 <a id="f180"></a>
 **F180 — Retrato no canvas das telas que mudaram desde a 3.0.** Serve N15. Da 3.1 à 3.3, cada tela foi desenhada sozinha no canvas e implementada sem conferência na tela. Juntas, elas quebram a topbar, fazem tabelas rolarem de lado e desalinham cartões (conferência visual, F178). Os boards do governo e da eleição mostram o desenho aprovado de cada feature isolada, não o app de hoje. Esta feature põe no canvas o app como ele está, para as rodadas de redesenho (F179, F181, F182, F183) comentarem sobre o conjunto e para comparar o que foi aprovado com o que foi implementado.
