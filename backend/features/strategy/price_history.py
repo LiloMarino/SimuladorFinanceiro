@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import date
 
 import numpy as np
@@ -9,6 +10,26 @@ from backend.core import repository
 from backend.features.variable_income.price_impact import PriceImpact
 
 PRICE_COLUMNS = ["open", "high", "low", "close"]
+
+
+@dataclass(frozen=True)
+class _Series:
+    """O histórico de um ativo em arrays, para fatiar uma janela sem passar pelo pandas."""
+
+    index: pd.DatetimeIndex
+    days: np.ndarray
+    prices: np.ndarray
+    volume: np.ndarray
+
+    @classmethod
+    def of(cls, frame: pd.DataFrame) -> _Series:
+        index = pd.DatetimeIndex(frame.index)
+        return cls(
+            index=index,
+            days=index.date,
+            prices=frame[PRICE_COLUMNS].to_numpy(),
+            volume=frame["volume"].to_numpy(),
+        )
 
 
 class PriceHistory:
@@ -26,31 +47,26 @@ class PriceHistory:
         self._simulation_id = simulation_id
         self._end_date = end_date
         self._price_impact = price_impact
-        self._frames: dict[str, pd.DataFrame] = {}
+        self._series: dict[str, _Series] = {}
 
     def window(self, ticker: str, today: date, days: int) -> pd.DataFrame:
         """Os últimos `days` pregões do ativo até `today`, do mais antigo ao mais novo."""
-        frame = self._frame(ticker)
-        end = int(np.count_nonzero(frame.index <= pd.Timestamp(today)))
-        window = frame.iloc[max(0, end - days) : end]
-        if window.empty:
-            return window
-        factors = self._price_impact.factors_on(
-            ticker, [day.date() for day in window.index]
-        )
-        scaled = window.copy()
-        scaled[PRICE_COLUMNS] = (
-            window[PRICE_COLUMNS]
-            .mul(pd.Series(list(factors.values()), index=window.index), axis=0)
-            .round(2)
-        )
-        return scaled
+        series = self._load(ticker)
+        end = int(series.index.searchsorted(np.datetime64(today, "ns"), side="right"))
+        start = max(0, end - days)
+        factors = self._price_impact.factors_on(ticker, series.days[start:end].tolist())
+        scaled = (
+            series.prices[start:end]
+            * np.fromiter(factors.values(), dtype=float, count=end - start)[:, None]
+        ).round(2)
+        columns = {name: scaled[:, i] for i, name in enumerate(PRICE_COLUMNS)}
+        columns["volume"] = series.volume[start:end]
+        return pd.DataFrame(columns, index=series.index[start:end])
 
-    def _frame(self, ticker: str) -> pd.DataFrame:
-        if ticker not in self._frames:
-            self._frames.update(
-                repository.stock.get_price_frame(
-                    [ticker], self._end_date, self._simulation_id
-                )
+    def _load(self, ticker: str) -> _Series:
+        if ticker not in self._series:
+            frames = repository.stock.get_price_frame(
+                [ticker], self._end_date, self._simulation_id
             )
-        return self._frames[ticker]
+            self._series.update({t: _Series.of(f) for t, f in frames.items()})
+        return self._series[ticker]
