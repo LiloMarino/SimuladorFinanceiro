@@ -111,7 +111,18 @@ export function splitGainLoss(points: Run): { gains: Run[]; losses: Run[] } {
   return { gains: only("gain"), losses: only("loss") };
 }
 
-/** Escala do eixo Y: parte do menor valor (dívida ou patrimônio negativo) e cobre o maior, meta incluída. */
+// Fração da meta que o patrimônio precisa alcançar para a meta entrar na escala do eixo Y
+const GOAL_SCALE_THRESHOLD = 0.1;
+
+/** A meta cabe na escala quando o maior patrimônio da janela chega a 10% da maior meta; sem meta, não há o que decidir. */
+export function goalOnScale(points: NetworthPoint[]) {
+  const goals = points.flatMap((p) => (p.goal === undefined ? [] : [p.goal]));
+  if (goals.length === 0) return true;
+  const peak = Math.max(...points.map((p) => p.networth));
+  return peak >= Math.max(...goals) * GOAL_SCALE_THRESHOLD;
+}
+
+/** Escala do eixo Y: parte do menor valor (dívida ou patrimônio negativo) e cobre o maior. */
 export function valueScale(values: number[]) {
   const low = Math.min(0, ...values);
   const high = Math.max(0, ...values);

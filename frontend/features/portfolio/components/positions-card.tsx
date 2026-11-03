@@ -8,10 +8,21 @@ import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { DailyLiquidityBadge } from "@/shared/components/daily-liquidity-badge";
+import { InfoHint } from "@/shared/components/info-hint";
 import { displayMoney, displayPercent, displayQuantity, displayRateLabel } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
+
+/** A base da coluna "% do investido": renda variável e renda fixa, sem o caixa. */
+const investedShareHint = (
+  <InfoHint label="Como ler o % do investido">
+    <div className="grid gap-1 text-left text-xs leading-snug">
+      <span>Quanto da sua carteira investida (ações e renda fixa) está nesta posição. O caixa fica de fora.</span>
+      <span>Ex.: R$ 10.000 numa posição, de R$ 40.000 investidos, são 25%.</span>
+    </div>
+  </InfoHint>
+);
 
 /** Resultado com sinal e cor: verde ganhando, vermelho perdendo. */
 function Result({ value, pct }: { value: string; pct: string }) {
@@ -128,7 +139,12 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
                   <SortableTableHead {...stockSort.header("average")} label="Preço médio" numeric />
                   <SortableTableHead {...stockSort.header("price")} label="Preço atual" numeric />
                   <SortableTableHead {...stockSort.header("value")} label="Valor" numeric />
-                  <SortableTableHead {...stockSort.header("share")} label="% carteira" numeric />
+                  <SortableTableHead
+                    {...stockSort.header("share")}
+                    label="% do investido"
+                    numeric
+                    hint={investedShareHint}
+                  />
                   <SortableTableHead {...stockSort.header("result")} label="Resultado" numeric />
                   <TableHead>
                     <span className="sr-only">Abrir</span>
@@ -178,7 +194,12 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
                   <SortableTableHead {...bondSort.header("applied")} label="Aplicado" numeric />
                   <SortableTableHead {...bondSort.header("value")} label="Valor atual" numeric />
                   <SortableTableHead {...bondSort.header("rate")} label="Taxa" />
-                  <SortableTableHead {...bondSort.header("share")} label="% carteira" numeric />
+                  <SortableTableHead
+                    {...bondSort.header("share")}
+                    label="% do investido"
+                    numeric
+                    hint={investedShareHint}
+                  />
                   <SortableTableHead {...bondSort.header("result")} label="Resultado" numeric />
                   <TableHead>
                     <span className="sr-only">Abrir</span>

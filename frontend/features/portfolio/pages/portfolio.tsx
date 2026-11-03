@@ -46,7 +46,7 @@ export default function PortfolioPage() {
       <NetworthChart portfolio={portfolio} />
       <AllocationDonut portfolio={portfolio} />
 
-      <div className="grid items-start gap-5 lg:grid-cols-[1.6fr_1fr]">
+      <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
         <SectorAllocationCard portfolio={portfolio} />
         <IncomeTaxCard portfolio={portfolio} />
       </div>

@@ -3,6 +3,7 @@ import {
   axisTicks,
   displaySignedThousands,
   displayThousands,
+  goalOnScale,
   isPeriodAvailable,
   pointsInPeriod,
   splitGainLoss,
@@ -116,6 +117,31 @@ describe("valueScale", () => {
 
   it("sem nenhum valor a escala é de 0 a 1", () => {
     expect(valueScale([0, 0])).toEqual({ ticks: [0, 1], floor: 0, ceiling: 1 });
+  });
+});
+
+describe("goalOnScale", () => {
+  const withGoal = (networth: number, goal: number | undefined): NetworthPoint => ({
+    ...point("2022-01-03", networth),
+    goal,
+  });
+
+  it("a meta só entra na escala quando o patrimônio chega a 10% dela", () => {
+    // Meta de 100 mil: 7 mil são 7% (fora), 10 mil são 10% (dentro)
+    expect(goalOnScale([withGoal(7_000, 100_000)])).toBe(false);
+    expect(goalOnScale([withGoal(10_000, 100_000)])).toBe(true);
+    expect(goalOnScale([withGoal(50_000, 100_000)])).toBe(true);
+  });
+
+  it("usa o maior patrimônio e a maior meta da janela", () => {
+    // O pico de 12 mil passa de 10% da meta de 100 mil, mesmo que o último dia esteja em 5 mil
+    expect(goalOnScale([withGoal(12_000, 100_000), withGoal(5_000, 100_000)])).toBe(true);
+    // A meta reajustada para 150 mil faz os mesmos 12 mil valerem 8%
+    expect(goalOnScale([withGoal(12_000, 100_000), withGoal(5_000, 150_000)])).toBe(false);
+  });
+
+  it("sem meta na janela não há o que deixar de fora", () => {
+    expect(goalOnScale([withGoal(100, undefined)])).toBe(true);
   });
 });
 

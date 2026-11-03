@@ -29,10 +29,13 @@ const closedPath = (forward: Coord[], back: Coord[]) =>
     .join(" ")} Z`;
 
 /** A geometria do gráfico: depende só dos pontos e da largura, não do ponteiro. */
-function buildShape(points: NetworthPoint[], width: number) {
+function buildShape(points: NetworthPoint[], width: number, showGoal: boolean) {
   const plotWidth = width - LEFT - RIGHT;
   const plotHeight = HEIGHT - TOP - BOTTOM;
-  const { ticks, floor, ceiling } = valueScale(points.flatMap((p) => [p.networth, p.provided, -p.debt, p.goal ?? 0]));
+  // A meta só puxa a escala quando é desenhada
+  const { ticks, floor, ceiling } = valueScale(
+    points.flatMap((p) => [p.networth, p.provided, -p.debt, showGoal ? (p.goal ?? 0) : 0]),
+  );
   const xOf = (index: number) => LEFT + (points.length > 1 ? (index / (points.length - 1)) * plotWidth : 0);
   const yOf = (value: number) => TOP + ((ceiling - value) / (ceiling - floor || 1)) * plotHeight;
   const zeroY = yOf(0);
@@ -53,7 +56,9 @@ function buildShape(points: NetworthPoint[], width: number) {
     );
 
   // A meta em degraus: mantém o valor até o dia do reajuste
-  const goalSteps = points.flatMap((p, i) => (p.goal === undefined ? [] : [{ x: xOf(i), y: yOf(p.goal) }]));
+  const goalSteps = points.flatMap((p, i) =>
+    !showGoal || p.goal === undefined ? [] : [{ x: xOf(i), y: yOf(p.goal) }],
+  );
   const goalPath = goalSteps
     .map((c, i) => {
       const before = goalSteps[i - 1];
@@ -81,9 +86,17 @@ function buildShape(points: NetworthPoint[], width: number) {
 }
 
 /** Patrimônio e aportado em linhas; entre elas, verde onde o dinheiro rendeu e vermelho onde encolheu. */
-export function NetworthGainChart({ points, width }: { points: NetworthPoint[]; width: number }) {
+export function NetworthGainChart({
+  points,
+  width,
+  showGoal,
+}: {
+  points: NetworthPoint[];
+  width: number;
+  showGoal: boolean;
+}) {
   const [hover, setHover] = useState<number | null>(null);
-  const shape = useMemo(() => buildShape(points, width), [points, width]);
+  const shape = useMemo(() => buildShape(points, width, showGoal), [points, width, showGoal]);
   const xTicks = useMemo(
     () =>
       axisTicks(

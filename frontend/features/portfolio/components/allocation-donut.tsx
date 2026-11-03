@@ -41,8 +41,11 @@ export function AllocationDonut({ portfolio }: { portfolio: PortfolioState }) {
             Distribuição do patrimônio
             <InfoHint label="Como ler a distribuição">
               <div className="grid gap-1 text-left text-xs leading-snug">
-                <span>O anel divide o que você tem hoje (caixa, renda fixa e ações), sem descontar a dívida.</span>
-                <span>Ex.: R$ 50.000 em ações, de R$ 200.000 que você tem, são 25%.</span>
+                <span>
+                  Os ativos são o que você tem hoje (caixa, renda fixa e ações), sem descontar a dívida. Cada % é a
+                  fatia sobre esse total.
+                </span>
+                <span>Ex.: R$ 50.000 em ações, de R$ 200.000 em ativos, são 25%.</span>
               </div>
             </InfoHint>
           </span>
@@ -68,9 +71,12 @@ export function AllocationDonut({ portfolio }: { portfolio: PortfolioState }) {
             <Ring portfolio={portfolio} slices={slices} hovered={hovered} onHover={setHovered} />
 
             <div className="grid content-start gap-1.5">
-              <span className="pb-0.5 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
-                Por classe
-              </span>
+              <div className="flex justify-between pb-0.5">
+                <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
+                  Por classe
+                </span>
+                <span className="text-xs text-muted-foreground">% dos ativos</span>
+              </div>
               {slices.map((slice) => (
                 <ClassRow key={slice.key} slice={slice} active={hovered === slice.key} onHover={setHovered} />
               ))}
@@ -192,7 +198,7 @@ function AssetList({ assets }: { assets: AssetRow[] }) {
     <div className="grid min-w-0 content-start gap-1">
       <div className="flex justify-between pb-0.5">
         <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">Maiores ativos</span>
-        <span className="text-xs text-muted-foreground">% do que você tem</span>
+        <span className="text-xs text-muted-foreground">% dos ativos</span>
       </div>
       <ul
         className="grid grid-flow-col grid-cols-2 gap-x-10 gap-y-1"

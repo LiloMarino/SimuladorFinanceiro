@@ -9,10 +9,12 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { useGoalSteps } from "@/shared/hooks/queries/useGoalSteps";
 import { usePatrimonialHistory } from "@/shared/hooks/queries/usePatrimonialHistory";
+import { displayGoalPercent, goalFraction } from "@/shared/lib/goal";
 import { displayMoney, displayPercent, displaySignedMoney } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
 import { useElementWidth } from "../hooks/useElementWidth";
 import {
+  goalOnScale,
   isPeriodAvailable,
   PERIODS,
   pointsInPeriod,
@@ -97,6 +99,8 @@ export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
   }
 
   const hasChart = all.length >= 2;
+  const showGoal = goalOnScale(points);
+  const currentGoal = points.at(-1)?.goal;
   const returnValue = Number(portfolio.total_return_value);
   const positive = returnValue >= 0;
   const sign = positive ? "+" : "−";
@@ -157,6 +161,23 @@ export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
                 {displayPercent(Math.abs(Number(portfolio.total_return_pct)), 1)} sobre o aportado
               </Badge>
             )}
+            {hasChart && mode === "gain" && !showGoal && currentGoal !== undefined && (
+              <span className="flex items-center gap-1.5">
+                <Badge variant="secondary" numeric>
+                  Meta fora da escala · você está em{" "}
+                  {displayGoalPercent(goalFraction(portfolio.total_networth, currentGoal))} dela
+                </Badge>
+                <InfoHint label="Por que a meta saiu do gráfico">
+                  <div className="grid gap-1 text-left text-xs leading-snug">
+                    <span>
+                      A meta ({displayMoney(currentGoal)}) só aparece no gráfico quando o seu patrimônio passa de 10%
+                      dela. Abaixo disso, a escala cresceria até a meta e a sua linha ficaria colada no zero.
+                    </span>
+                    <span>Ex.: R$ 7.000 de patrimônio, numa meta de R$ 100.000, são 7% dela.</span>
+                  </div>
+                </InfoHint>
+              </span>
+            )}
           </div>
 
           {hasChart ? (
@@ -164,8 +185,8 @@ export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
               {width > 0 &&
                 (mode === "gain" ? (
                   <>
-                    <NetworthGainChart points={points} width={width} />
-                    <GainLegend points={points} />
+                    <NetworthGainChart points={points} width={width} showGoal={showGoal} />
+                    <GainLegend points={points} showGoal={showGoal} />
                   </>
                 ) : (
                   <NetworthClassPanels points={points} width={width} />
@@ -188,9 +209,9 @@ export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
   );
 }
 
-function GainLegend({ points }: { points: NetworthPoint[] }) {
+function GainLegend({ points, showGoal }: { points: NetworthPoint[]; showGoal: boolean }) {
   const hasDebt = points.some((p) => p.debt > 0);
-  const hasGoal = points.some((p) => p.goal !== undefined);
+  const hasGoal = showGoal && points.some((p) => p.goal !== undefined);
 
   return (
     <ul className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-xs text-muted-foreground">

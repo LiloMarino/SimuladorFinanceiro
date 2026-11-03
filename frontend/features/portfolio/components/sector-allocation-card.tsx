@@ -1,3 +1,4 @@
+import { InfoHint } from "@/shared/components/info-hint";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { displayMoney, displayNumber, displayPercent } from "@/shared/lib/utils/display";
@@ -42,6 +43,17 @@ export function SectorAllocationCard({ portfolio }: { portfolio: PortfolioState 
                 />
               ))}
             </div>
+            <div className="-mb-2 flex items-center justify-end gap-1 text-xs text-muted-foreground">
+              % da renda variável
+              <InfoHint label="Como ler o % da renda variável">
+                <div className="grid gap-1 text-left text-xs leading-snug">
+                  <span>
+                    Cada % é a fatia do setor sobre o total que você tem em ações. Caixa e renda fixa ficam de fora.
+                  </span>
+                  <span>Ex.: R$ 10.000 em bancos, de R$ 40.000 em ações, são 25%.</span>
+                </div>
+              </InfoHint>
+            </div>
             <ul className="grid gap-2.5 text-[13px]">
               {sectors.map((s, i) => (
                 <li key={s.sector ?? "none"} className="grid gap-1">
@@ -57,16 +69,18 @@ export function SectorAllocationCard({ portfolio }: { portfolio: PortfolioState 
                       {displayPercent(s.fraction)}
                     </span>
                   </div>
-                  {s.segments.map((seg) => (
-                    <div
-                      key={seg.segment ?? "none"}
-                      className="flex items-center gap-2 pl-4.5 text-xs text-muted-foreground"
-                    >
-                      <span className="flex-1">{seg.segment ?? "Sem segmento"}</span>
-                      <span className="font-mono">{displayMoney(seg.value)}</span>
-                      <span className="w-16 text-right font-mono">{displayPercent(seg.fraction)}</span>
-                    </div>
-                  ))}
+                  {/* Um segmento só repetiria a linha do setor */}
+                  {s.segments.length > 1 &&
+                    s.segments.map((seg) => (
+                      <div
+                        key={seg.segment ?? "none"}
+                        className="flex items-center gap-2 pl-4.5 text-xs text-muted-foreground"
+                      >
+                        <span className="flex-1">{seg.segment ?? "Sem segmento"}</span>
+                        <span className="font-mono">{displayMoney(seg.value)}</span>
+                        <span className="w-16 text-right font-mono">{displayPercent(seg.fraction)}</span>
+                      </div>
+                    ))}
                 </li>
               ))}
             </ul>
