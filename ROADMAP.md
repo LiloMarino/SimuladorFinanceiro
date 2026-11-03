@@ -104,7 +104,6 @@
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | — | — | Médio | Bom | 💤 |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.0 | — | — | — | 🔍 |
-| [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 | — | Médio | Bom | ⏳ |
@@ -126,7 +125,7 @@
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (30 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (31 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -149,6 +148,7 @@
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F173](#f173), [F175](#f175), [F176](#f176) | — | — | ✅ |
 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 | — | — | — | ✅ |
+| [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | M20 · 3.3 | — | — | — | ✅ |
 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | — | — | — | — | 🚫 |
 | [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 | — | — | — | ✅ |
 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 | — | — | — | ✅ |
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 14/27 concluídos
+> **Progresso:** 15/27 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -192,7 +192,7 @@
 | 11 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | — | ✅ Concluído |
 | 12 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | — | ✅ Concluído |
 | 13 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | — | ✅ Concluído |
-| 14 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | — | ⏳ Pendente |
+| 14 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | — | ✅ Concluído |
 | 15 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | — | ⏳ Pendente |
 | 16 | [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | — | ⏳ Pendente |
 | 17 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | — | ⏳ Pendente |
@@ -286,7 +286,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | M20 · 3.3 · 14º | 0 | Médio | Bom | ⏳ |
 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | M20 · 3.3 · 15º | 0 | Médio | Bom | ⏳ |
 | [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | M20 · 3.3 · 16º | 0 | Médio | Bom | ⏳ |
 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 · 17º | 0 | Médio | Bom | ⏳ |
@@ -347,7 +346,6 @@
 | **F170** | Feature | Parâmetros das estratégias salvos no perfil | N39 | — | M21 · 3.4 | [F174](#f174) | Médio | Baixo | Alto | Excelente |
 | **F173** | Feature | Partido desde o 1º dia | N39, N34 | D19 | M21 · 3.4 | — | Médio | Médio | Alto | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom |
-| **F181** | Melhoria | Tabelas que cabem na tela e texto legível | N15 | — | M20 · 3.3 | — | Médio | Baixo | Médio | Bom |
 | **F182** | Melhoria | Eleição: corrida entre partidos redesenhada | N15, N34 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 | **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
 | **F190** | Melhoria | Contas do governo redesenhadas | N15, N34 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
@@ -422,22 +420,6 @@
 
 <a id="f175"></a>
 **F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), inclusive ao partido do computador; a proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173). (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato, fica preso pelo mandato e herda, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** a federação aparece no cartão dos partidos da Eleição, no hemiciclo do Congresso e no jornal (formada, desfeita); o desenho começa registrando as telas e os estados no canvas: proposta pendente, federação formada, federação desfeita antes do prazo e expansão desligada.
-
-<a id="f181"></a>
-**F181 — Tabelas que cabem na tela e texto legível.** Serve N15. A conferência visual (F178) e o playtest acharam problemas que se repetem pelo app inteiro; nesta rodada o usuário confirmou que a **rolagem lateral dentro de tabela é um problema** em várias telas. Sem rodada no canvas: a regra é uma só e o aceite é objetivo.
-
-**Regra das tabelas:** em 1920 de largura nenhuma tabela rola de lado; em 1366 vale só que nada passe da borda. Rolagem lateral fica permitida apenas para uma tabela que é larga por natureza (matriz de correlação entre muitos ativos), e nunca para resumo ou lista. Para caber, a tabela esconde a coluna secundária (a informação vai para o hover), junta duas colunas numa (valor e variação) ou quebra o texto em duas linhas, nessa ordem de preferência. A mudança vai no `shared/components/ui/table.tsx` quando for comum e na tela quando for específica.
-
-**Telas com rolagem lateral hoje** (Gasto público, a votação do Congresso, a Central de dados e o Backtest vão nos cards próprios, com desenho aprovado: F190, F204, F214 e F215):
-- Renda fixa, lista (`features/fixed-income/pages/fixed-income.tsx`);
-- Estatísticas: Rentabilidade (`statistics-report/returns-tab.tsx`) e "Quando cada um negociou" (`operations-tab.tsx`, wrapper com `overflow-x-auto` na linha 291);
-- Comparar partidas (F210);
-
-**Texto e contraste:** 125 usos de texto abaixo de 12 px viram 12 px, e os rótulos com contraste de 3,4 a 3,6 para 1 sobem para 4,5 para 1 (o mínimo da recomendação de acessibilidade WCAG AA para texto comum); a mudança é nos tokens do design system (`index.css`) e nas classes `text-[10px]` e `text-[11px]`, por substituição em lote.
-
-**Fora deste card:** eixos de gráfico (o Recharts decide), largura máxima da página e o preenchimento de vazios, que ninguém apontou como problema, e a paleta de cores (F212).
-
-**Aceite:** as telas acima em 1920 de largura sem rolagem lateral e sem texto abaixo de 12 px.
 
 <a id="f182"></a>
 **F182 — Eleição: corrida entre partidos redesenhada.** Serve N15 e N34. A página (`features/government/pages/election.tsx`) empilha telas de features desenhadas separadamente e, na conferência visual e no playtest de 31/out, quebrou em vários pontos: o Ranking sobrepõe outro cartão e o texto dele sai desalinhado, o "Partidos na disputa" tem o selo "Computador" passando da borda, o nome do partido cortado, as promessas fora da largura, o radar de tamanho diferente entre cartões e rótulos pequenos demais, e a legenda mostra "Na fundação" mesmo quando o perfil não mudou. O desenho foi aprovado no canvas em 03/11 (board da corrida, com os ajustes abaixo).
@@ -764,6 +746,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F180** | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 |
+| **F181** | Melhoria | Tabelas que cabem na tela e texto legível | N15 | — | M20 · 3.3 |
 | **F184** | Correção | Correções da 3.3 | — | — | M20 · 3.3 |
 | **F185** | Performance | Dia da partida que fica mais lento ao longo da partida | N40, N24 | — | M20 · 3.3 |
 | **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 |
@@ -796,6 +779,22 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 Na mesma passada, a sessão confere os estados que o playtest não provocou (lista no fim da F184).
 
 **Aceite:** toda tela do roteiro que mudou desde a 3.0 tem captura no canvas, e o canvas fica com até 185 notas.
+
+<a id="f181"></a>
+**F181 — Tabelas que cabem na tela e texto legível.** Serve N15. A conferência visual (F178) e o playtest acharam problemas que se repetem pelo app inteiro; nesta rodada o usuário confirmou que a **rolagem lateral dentro de tabela é um problema** em várias telas. Sem rodada no canvas: a regra é uma só e o aceite é objetivo.
+
+**Regra das tabelas:** em 1920 de largura nenhuma tabela rola de lado; em 1366 vale só que nada passe da borda. Rolagem lateral fica permitida apenas para uma tabela que é larga por natureza (matriz de correlação entre muitos ativos), e nunca para resumo ou lista. Para caber, a tabela esconde a coluna secundária (a informação vai para o hover), junta duas colunas numa (valor e variação) ou quebra o texto em duas linhas, nessa ordem de preferência. A mudança vai no `shared/components/ui/table.tsx` quando for comum e na tela quando for específica.
+
+**Telas com rolagem lateral hoje** (Gasto público, a votação do Congresso, a Central de dados e o Backtest vão nos cards próprios, com desenho aprovado: F190, F204, F214 e F215):
+- Renda fixa, lista (`features/fixed-income/pages/fixed-income.tsx`);
+- Estatísticas: Rentabilidade (`statistics-report/returns-tab.tsx`) e "Quando cada um negociou" (`operations-tab.tsx`, wrapper com `overflow-x-auto` na linha 291);
+- Comparar partidas (F210);
+
+**Texto e contraste:** 125 usos de texto abaixo de 12 px viram 12 px, e os rótulos com contraste de 3,4 a 3,6 para 1 sobem para 4,5 para 1 (o mínimo da recomendação de acessibilidade WCAG AA para texto comum); a mudança é nos tokens do design system (`index.css`) e nas classes `text-[10px]` e `text-[11px]`, por substituição em lote.
+
+**Fora deste card:** eixos de gráfico (o Recharts decide), largura máxima da página e o preenchimento de vazios, que ninguém apontou como problema, e a paleta de cores (F212).
+
+**Aceite:** as telas acima em 1920 de largura sem rolagem lateral e sem texto abaixo de 12 px.
 
 <a id="f184"></a>
 **F184 — Correções da 3.3.** Lote dos consertos achados desde a 3.2. Tudo em main, em `fix:`. Primeiro lote, 37 commits:
