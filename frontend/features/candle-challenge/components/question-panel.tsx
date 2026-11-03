@@ -56,7 +56,11 @@ export function QuestionPanel({ state, me, direction, onVote, chartHeight = 380 
       )}
 
       <div className="rounded-xl border py-1.5">
-        <CandleChart bars={question.bars} box={{ width: 770, height: chartHeight }} />
+        <CandleChart
+          bars={question.bars}
+          patternCode={question.pattern_code}
+          box={{ width: 770, height: chartHeight }}
+        />
       </div>
 
       <TimerBar key={question.id} remainingMs={question.remaining_ms} durationMs={question.duration_ms} />

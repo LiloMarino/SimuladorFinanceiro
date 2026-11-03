@@ -18,7 +18,7 @@ interface CandleChartProps {
   bars: ChallengeBar[];
   /** As 5 velas que entram na revelação, uma a uma; antes dela, a faixa fica reservada e tracejada. */
   after?: ChallengeBar[] | undefined;
-  /** O padrão em que o recorte terminou; só a revelação o nomeia. */
+  /** O padrão em que o recorte terminou; o nome fica sob as velas que o formam, na pergunta e na revelação. */
   patternCode?: CandlePatternCode | undefined;
   box: ChartBox;
   className?: string | undefined;
