@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pstats
 import threading
-from collections import deque
+import time
 from collections.abc import Iterator
 from pathlib import Path
 from uuid import uuid4
@@ -68,7 +68,8 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     router = APIRouter(prefix="/api")
 
     @router.get("/report/{name}")
-    def report(name: str) -> int:
+    def report(name: str, wait: float = 0) -> int:
+        time.sleep(wait)
         return heavy_report()
 
     app.include_router(router)
@@ -81,7 +82,7 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
 
 
 def route_profiles(client: TestClient) -> list[dict]:
-    return client.get("/api/debug/profile/routes").json()["items"]
+    return client.get("/api/debug/profile/routes").json()["routes"]
 
 
 def test_route_profile_has_only_the_request(client: TestClient) -> None:
@@ -93,8 +94,9 @@ def test_route_profile_has_only_the_request(client: TestClient) -> None:
     client.get("/api/report/a")
     run_in_thread(bystander)
 
-    (entry,) = route_profiles(client)
-    assert entry["route"] == "GET /api/report/{name}"
+    (group,) = route_profiles(client)
+    assert group["route"] == "GET /api/report/{name}"
+    (entry,) = group["profiles"]
     names = functions_in(entry["file"])
     assert "heavy_report" in names
     assert "bystander" not in names
@@ -106,25 +108,25 @@ def test_routes_off_records_nothing(client: TestClient, profiles_dir: Path) -> N
 
     assert client.get("/api/debug/profile/routes").json() == {
         "enabled": False,
-        "items": [],
+        "routes": [],
     }
     assert not profiles_dir.exists()
 
 
-def test_route_list_keeps_the_latest(
-    client: TestClient, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    monkeypatch.setattr(profiling.profiler, "_entries", deque(maxlen=2))
+def test_each_route_keeps_its_slowest_requests(client: TestClient) -> None:
     client.put("/api/debug/profile/routes", json={"enabled": True})
 
-    for name in ("a", "b", "c"):
-        client.get(f"/api/report/{name}")
+    # O relógio é o de parede: a espera do sleep conta na duração
+    for wait in (0.01, 0.06, 0.03, 0.05, 0.02):
+        client.get(f"/api/report/a?wait={wait}")
 
-    entries = route_profiles(client)
-    assert len(entries) == 2
-    # O mais antigo sai da lista e do disco
-    assert entries[0]["id"] > entries[1]["id"]
-    assert len(list(profiling.PROFILES_DIR.glob("*.prof"))) == 2
+    (group,) = route_profiles(client)
+    durations = [entry["duration_ms"] for entry in group["profiles"]]
+    assert len(durations) == 3
+    assert durations == sorted(durations, reverse=True)
+    assert durations[-1] >= 30
+    # As que saíram da lista saem também do disco
+    assert len(list(profiling.PROFILES_DIR.glob("*.prof"))) == 3
 
 
 def test_engine_profile_has_only_the_engine_thread(client: TestClient) -> None:
@@ -150,8 +152,8 @@ def test_engine_and_routes_record_side_by_side(client: TestClient) -> None:
     saved = client.post("/api/debug/profile/engine/stop").json()["file"]
 
     assert "heavy_report" not in functions_in(saved)
-    (entry,) = route_profiles(client)
-    assert "engine_tick" not in functions_in(entry["file"])
+    (group,) = route_profiles(client)
+    assert "engine_tick" not in functions_in(group["profiles"][0]["file"])
 
 
 def test_engine_start_twice_and_stop_without_recording_are_refused(

@@ -60,7 +60,7 @@ O painel diz **qual** ponto gasta o tempo; as ferramentas abaixo dizem **qual fu
 
 ### Perfil das rotas (interruptor no painel)
 
-Ligue o interruptor do cartão **Perfil das rotas** e use o jogo normalmente: cada requisição às rotas da API vira um perfil do [`yappi`](https://github.com/sumerc/yappi), gravado em `profiles/<método>-<rota>-<hora>.prof`. O cartão lista os 20 mais recentes, com a rota, a duração e o comando para abrir cada um. As rotas do próprio painel (`/api/debug/...`) ficam de fora, para não ocuparem a lista. O perfil cobre só o handler da rota: o que a rota chama (`build_*`, consultas) aparece, o uvicorn não.
+Ligue o interruptor do cartão **Perfil das rotas** e use o jogo normalmente: cada requisição às rotas da API vira um perfil do [`yappi`](https://github.com/sumerc/yappi), gravado em `profiles/<método>-<rota>-<hora>.prof`. Cada rota guarda as **3 requisições mais lentas**: uma requisição rápida nunca empurra uma lenta para fora, e a que fica abaixo das 3 nem chega ao disco. O cartão mostra uma linha por rota, da mais lenta em diante, com a média dessas 3 e, para cada uma, a duração e o comando para abrir o perfil. Essa média é a do pior caso da rota; o tempo de sempre dela está na tabela **Tempo gasto por rota ou evento**. As rotas do próprio painel (`/api/debug/...`) ficam de fora, para não ocuparem a lista. O perfil cobre só o handler da rota: o que a rota chama (`build_*`, consultas) aparece, o uvicorn não.
 
 Abra o arquivo no `snakeviz`, que mostra o tempo de cada função em blocos clicáveis:
 

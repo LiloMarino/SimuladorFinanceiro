@@ -145,17 +145,22 @@ def reset_metrics(_debug: DebugOnly, _host: HostVerified) -> None:
 
 class RouteProfileItem(BaseModel):
     id: int
-    route: str
     created_at: datetime
     duration_ms: float
     # Caminho do .prof, para abrir com `pnpm profile:view <arquivo>`
     file: str
 
 
+class RouteProfileGroup(BaseModel):
+    route: str
+    # As requisições mais lentas da rota, da mais lenta para a mais rápida
+    profiles: list[RouteProfileItem]
+
+
 class RouteProfilesResponse(BaseModel):
     enabled: bool
-    # Os últimos perfis, do mais novo para o mais antigo
-    items: list[RouteProfileItem]
+    # Da rota com a requisição mais lenta em diante
+    routes: list[RouteProfileGroup]
 
 
 class RouteProfilesToggle(BaseModel):
@@ -166,22 +171,27 @@ class RouteProfilesToggle(BaseModel):
     "/profile/routes",
     summary="Perfis das rotas",
     description=(
-        "Diz se o perfil das rotas está ligado e lista os últimos 20 perfis gravados, "
-        "um por requisição às rotas da API (as do modo debug ficam de fora)."
+        "Diz se o perfil das rotas está ligado e lista, por rota da API, os perfis das "
+        "3 requisições mais lentas (as rotas do modo debug ficam de fora)."
     ),
 )
 def get_route_profiles(_debug: DebugOnly, _host: HostVerified) -> RouteProfilesResponse:
     return RouteProfilesResponse(
         enabled=profiler.routes_enabled,
-        items=[
-            RouteProfileItem(
-                id=entry.id,
-                route=entry.route,
-                created_at=entry.created_at,
-                duration_ms=round(entry.duration_ms, 2),
-                file=entry.file.as_posix(),
+        routes=[
+            RouteProfileGroup(
+                route=kept[0].route,
+                profiles=[
+                    RouteProfileItem(
+                        id=entry.id,
+                        created_at=entry.created_at,
+                        duration_ms=round(entry.duration_ms, 2),
+                        file=entry.file.as_posix(),
+                    )
+                    for entry in kept
+                ],
             )
-            for entry in profiler.route_profiles()
+            for kept in profiler.route_profiles()
         ],
     )
 
@@ -191,8 +201,9 @@ def get_route_profiles(_debug: DebugOnly, _host: HostVerified) -> RouteProfilesR
     status_code=204,
     summary="Ligar ou desligar o perfil das rotas",
     description=(
-        "Ligado, cada requisição às rotas da API grava um perfil do yappi com só o que "
-        "ela executou, na pasta `profiles/`. Enquanto ligado, o servidor fica mais lento."
+        "Ligado, as requisições às rotas da API gravam um perfil do yappi com só o que "
+        "cada uma executou, na pasta `profiles/`; cada rota guarda as 3 mais lentas. "
+        "Enquanto ligado, o servidor fica mais lento."
     ),
 )
 def set_route_profiles(

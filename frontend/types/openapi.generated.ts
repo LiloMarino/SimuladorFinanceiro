@@ -3297,12 +3297,12 @@ export interface paths {
         };
         /**
          * Perfis das rotas
-         * @description Diz se o perfil das rotas está ligado e lista os últimos 20 perfis gravados, um por requisição às rotas da API (as do modo debug ficam de fora).
+         * @description Diz se o perfil das rotas está ligado e lista, por rota da API, os perfis das 3 requisições mais lentas (as rotas do modo debug ficam de fora).
          */
         get: operations["get_route_profiles_api_debug_profile_routes_get"];
         /**
          * Ligar ou desligar o perfil das rotas
-         * @description Ligado, cada requisição às rotas da API grava um perfil do yappi com só o que ela executou, na pasta `profiles/`. Enquanto ligado, o servidor fica mais lento.
+         * @description Ligado, as requisições às rotas da API gravam um perfil do yappi com só o que cada uma executou, na pasta `profiles/`; cada rota guarda as 3 mais lentas. Enquanto ligado, o servidor fica mais lento.
          */
         put: operations["set_route_profiles_api_debug_profile_routes_put"];
         post?: never;
@@ -8930,12 +8930,17 @@ export interface components {
             /** Donations */
             donations: components["schemas"]["RoundDonationDTO"][];
         };
+        /** RouteProfileGroup */
+        RouteProfileGroup: {
+            /** Route */
+            route: string;
+            /** Profiles */
+            profiles: components["schemas"]["RouteProfileItem"][];
+        };
         /** RouteProfileItem */
         RouteProfileItem: {
             /** Id */
             id: number;
-            /** Route */
-            route: string;
             /**
              * Created At
              * Format: date-time
@@ -8950,8 +8955,8 @@ export interface components {
         RouteProfilesResponse: {
             /** Enabled */
             enabled: boolean;
-            /** Items */
-            items: components["schemas"]["RouteProfileItem"][];
+            /** Routes */
+            routes: components["schemas"]["RouteProfileGroup"][];
         };
         /** RouteProfilesToggle */
         RouteProfilesToggle: {

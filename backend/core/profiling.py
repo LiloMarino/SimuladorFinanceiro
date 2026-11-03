@@ -15,7 +15,6 @@ import logging
 import re
 import threading
 import time
-from collections import deque
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -32,7 +31,8 @@ from fastapi.routing import APIRoute, RouteContext, iter_route_contexts
 logger = logging.getLogger(__name__)
 
 PROFILES_DIR = Path("profiles")
-MAX_ROUTE_PROFILES = 20
+# Por rota, as requisições mais lentas; a média delas mostra o pior caso da rota
+MAX_PROFILES_PER_ROUTE = 3
 # As rotas do painel se consultam a cada 2 s e ocupariam a lista sozinhas
 UNPROFILED_PREFIX = "/api/debug/"
 
@@ -61,7 +61,8 @@ class Profiler:
         # Etiqueta da gravação do motor em curso; 0 sem gravação
         self._engine_tag = _UNTAGGED
         self._next_tag = 1
-        self._entries: deque[RouteProfile] = deque(maxlen=MAX_ROUTE_PROFILES)
+        # Por rota, da requisição mais lenta para a mais rápida
+        self._entries: dict[str, list[RouteProfile]] = {}
 
     @property
     def routes_enabled(self) -> bool:
@@ -71,9 +72,14 @@ class Profiler:
     def engine_recording(self) -> bool:
         return self._engine_tag != _UNTAGGED
 
-    def route_profiles(self) -> list[RouteProfile]:
+    def route_profiles(self) -> list[list[RouteProfile]]:
+        """As requisições guardadas de cada rota, da rota com a mais lenta em diante."""
         with self._lock:
-            return list(reversed(self._entries))
+            return sorted(
+                (list(kept) for kept in self._entries.values()),
+                key=lambda kept: kept[0].duration_ms,
+                reverse=True,
+            )
 
     def _current_tag(self) -> int:
         tag = _tag.get()
@@ -160,15 +166,24 @@ class Profiler:
 
     def finish_request(self, tag: int, route: str, duration_ms: float) -> None:
         with self._lock:
+            kept = self._entries.get(route, [])
+            # Mais rápida que todas as guardadas da rota, a requisição nem vai ao disco
+            if (
+                len(kept) == MAX_PROFILES_PER_ROUTE
+                and duration_ms <= kept[-1].duration_ms
+            ):
+                return
             # Desligado no meio da requisição, o yappi já descartou as chamadas dela
             path = self._save(tag, _slug(route)) if yappi.is_running() else None
             if path is None:
                 return
-            if len(self._entries) == self._entries.maxlen:
-                self._entries[0].file.unlink(missing_ok=True)
-            self._entries.append(
+            kept.append(
                 RouteProfile(tag, route, datetime.now().astimezone(), duration_ms, path)
             )
+            kept.sort(key=lambda entry: entry.duration_ms, reverse=True)
+            for dropped in kept[MAX_PROFILES_PER_ROUTE:]:
+                dropped.file.unlink(missing_ok=True)
+            self._entries[route] = kept[:MAX_PROFILES_PER_ROUTE]
 
 
 profiler = Profiler()

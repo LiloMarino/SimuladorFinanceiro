@@ -9247,7 +9247,7 @@
           "Debug"
         ],
         "summary": "Perfis das rotas",
-        "description": "Diz se o perfil das rotas está ligado e lista os últimos 20 perfis gravados, um por requisição às rotas da API (as do modo debug ficam de fora).",
+        "description": "Diz se o perfil das rotas está ligado e lista, por rota da API, os perfis das 3 requisições mais lentas (as rotas do modo debug ficam de fora).",
         "operationId": "get_route_profiles_api_debug_profile_routes_get",
         "responses": {
           "200": {
@@ -9292,7 +9292,7 @@
           "Debug"
         ],
         "summary": "Ligar ou desligar o perfil das rotas",
-        "description": "Ligado, cada requisição às rotas da API grava um perfil do yappi com só o que ela executou, na pasta `profiles/`. Enquanto ligado, o servidor fica mais lento.",
+        "description": "Ligado, as requisições às rotas da API gravam um perfil do yappi com só o que cada uma executou, na pasta `profiles/`; cada rota guarda as 3 mais lentas. Enquanto ligado, o servidor fica mais lento.",
         "operationId": "set_route_profiles_api_debug_profile_routes_put",
         "requestBody": {
           "content": {
@@ -25517,15 +25517,32 @@
         ],
         "title": "RoundResultDTO"
       },
+      "RouteProfileGroup": {
+        "properties": {
+          "route": {
+            "type": "string",
+            "title": "Route"
+          },
+          "profiles": {
+            "items": {
+              "$ref": "#/components/schemas/RouteProfileItem"
+            },
+            "type": "array",
+            "title": "Profiles"
+          }
+        },
+        "type": "object",
+        "required": [
+          "route",
+          "profiles"
+        ],
+        "title": "RouteProfileGroup"
+      },
       "RouteProfileItem": {
         "properties": {
           "id": {
             "type": "integer",
             "title": "Id"
-          },
-          "route": {
-            "type": "string",
-            "title": "Route"
           },
           "created_at": {
             "type": "string",
@@ -25544,7 +25561,6 @@
         "type": "object",
         "required": [
           "id",
-          "route",
           "created_at",
           "duration_ms",
           "file"
@@ -25557,18 +25573,18 @@
             "type": "boolean",
             "title": "Enabled"
           },
-          "items": {
+          "routes": {
             "items": {
-              "$ref": "#/components/schemas/RouteProfileItem"
+              "$ref": "#/components/schemas/RouteProfileGroup"
             },
             "type": "array",
-            "title": "Items"
+            "title": "Routes"
           }
         },
         "type": "object",
         "required": [
           "enabled",
-          "items"
+          "routes"
         ],
         "title": "RouteProfilesResponse"
       },
