@@ -113,12 +113,11 @@
 | [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | Baixo | Bom | ⏳ |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | — | — | — | 🔍 |
-| [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | — | — | — | 🔍 |
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (38 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (39 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -157,6 +156,7 @@
 | [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | M20 · 3.3 | — | — | — | ✅ |
 | [**F208**](#f208) | Melhoria | Empréstimo: o custo inteiro antes de assinar | M20 · 3.3 | — | — | — | ✅ |
 | [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | M20 · 3.3 | — | — | — | ✅ |
+| [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | M20 · 3.3 | — | — | — | ✅ |
 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | M20 · 3.3 | — | — | — | ✅ |
 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | M20 · 3.3 | — | — | — | ✅ |
 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | M20 · 3.3 | — | — | — | ✅ |
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 22/27 concluídos
+> **Progresso:** 23/27 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -200,7 +200,7 @@
 | 19 | [**F205**](#f205) | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | — | ✅ Concluído |
 | 20 | [**F206**](#f206) | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | — | ✅ Concluído |
 | 21 | [**F208**](#f208) | Melhoria | Empréstimo: o custo inteiro antes de assinar | — | ✅ Concluído |
-| 22 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | — | ⏳ Pendente |
+| 22 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | — | ✅ Concluído |
 | 23 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | — | 🔍 Em avaliação |
 | 24 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | — | 🔍 Em avaliação |
 | 25 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ⏳ Pendente |
@@ -286,7 +286,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | M20 · 3.3 · 22º | 0 | Baixo | Bom | ⏳ |
 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 · 23º | 2 | — | — | 🔍 |
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 · 24º | 0 | — | — | 🔍 |
 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 · 25º | 0 | Médio | Excelente | ⏳ |
@@ -342,7 +341,6 @@
 | **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
-| **F210** | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | N6, N15 | — | M20 · 3.3 | — | Baixo | Baixo | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -423,17 +421,6 @@
 **F197 — Rebalanceamento por meta com várias classes.** Serve N4. Hoje o `TargetRebalance` (`backend/features/strategy/rebalance.py:55`) divide só entre um ativo de ações (BOVA11 por padrão) e a renda fixa de liquidez diária: a meta em ações vai de 10% a 90% (padrão 60%), e o desvio máximo, de 1 a 20 pontos (padrão 5). O playtest de 31/out pediu configurar a meta de cada classe.
 
 **O que muda:** os parâmetros viram uma lista de alvos (um ativo ou uma classe e a porcentagem), que soma 100%, com a faixa de desvio de cada alvo; a estratégia vende o que passou da faixa antes de comprar o que ficou abaixo, como hoje. O formulário da estratégia mostra a lista com o total e recusa o que não soma 100%. O padrão continua 60% em BOVA11 e 40% em renda fixa com 5 pontos, então partidas salvas e backtests antigos dão o mesmo resultado; um teste compara os dois. Os parâmetros salvos no perfil (F170) passam a guardar a lista.
-
-<a id="f210"></a>
-**F210 — Comparar partidas: eixos em grade e Risco inteiro.** Serve N6 e N15. A página de comparação (`features/statistics/pages/compare-simulations.tsx`) tem o cartão de nota por eixo (`statistics-report/player-score-card.tsx`) estreito demais: o "0" do cartão Risco continua colado na borda em 1920 de largura, mesmo depois da correção de 02/11, e o ranking corta a coluna Pregões. O usuário aprovou em 03/11 o desenho do canvas.
-
-**O que muda:**
-- Título e explicação da nota em linha inteira; os seletores de jogador numa linha própria abaixo (o título vira "Nota de <jogador>" ao escolher outro).
-- Os eixos numa grade 2×2 de uns 500 px cada, onde cada métrica cabe numa linha; isso resolve o Risco, que no layout de 4 colunas não tem espaço.
-- O ranking tira a barra de retorno e fica com o número colorido, o que libera espaço para mostrar Pregões (dias de pregão jogados) sem corte.
-- Nada mais muda de ordem.
-
-**Aceite:** a comparação em 1920 de largura sem valor colado na borda nem coluna cortada.
 
 ---
 
@@ -662,6 +649,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F207** | Correção | Placar da vela com os votos de cada jogador | N15, N22 | — | M20 · 3.3 |
 | **F208** | Melhoria | Empréstimo: o custo inteiro antes de assinar | N15, N33 | — | M20 · 3.3 |
 | **F209** | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | N33, N15 | — | M20 · 3.3 |
+| **F210** | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | N6, N15 | — | M20 · 3.3 |
 | **F213** | Melhoria | Pendências: consequência inteira e Pagar em destaque | N15 | — | M20 · 3.3 |
 | **F214** | Melhoria | Central de dados: tabela que cabe no cartão | N15 | — | M20 · 3.3 |
 | **F215** | Melhoria | Backtest: formulário do período sem estouro | N15 | — | M20 · 3.3 |
@@ -867,6 +855,17 @@ Cada item sai num commit `feat:` próprio.
 3. Aviso do desenho aprovado em 03/11 (`feat:`): um aviso vermelho no topo da página diz qual parcela atrasou, há quanto tempo e quanto já custou de multa, e traz o botão Pagar; o cartão de parcelas do topo soma o atraso; a lista Pagamentos abre com a parcela atrasada; o mês atrasado no histórico ganha rótulo vermelho além da cor.
 
 **Aceite:** o valor do botão "Pagar" é o mesmo cobrado, em qualquer dia, e a página de crédito com parcela em atraso mostra o aviso no topo.
+
+<a id="f210"></a>
+**F210 — Comparar partidas: eixos em grade e Risco inteiro.** Serve N6 e N15. A página de comparação (`features/statistics/pages/compare-simulations.tsx`) tem o cartão de nota por eixo (`statistics-report/player-score-card.tsx`) estreito demais: o "0" do cartão Risco continua colado na borda em 1920 de largura, mesmo depois da correção de 02/11, e o ranking corta a coluna Pregões. O usuário aprovou em 03/11 o desenho do canvas.
+
+**O que muda:**
+- Título e explicação da nota em linha inteira; os seletores de jogador numa linha própria abaixo (o título vira "Nota de <jogador>" ao escolher outro).
+- Os eixos numa grade 2×2 de uns 500 px cada, onde cada métrica cabe numa linha; isso resolve o Risco, que no layout de 4 colunas não tem espaço.
+- O ranking tira a barra de retorno e fica com o número colorido, o que libera espaço para mostrar Pregões (dias de pregão jogados) sem corte.
+- Nada mais muda de ordem.
+
+**Aceite:** a comparação em 1920 de largura sem valor colado na borda nem coluna cortada.
 
 <a id="f213"></a>
 **F213 — Pendências: consequência inteira e Pagar em destaque.** Serve N15. A lista de pendências (popover da barra lateral, `features/pending/components/pending-menu-item.tsx`, com `pending-row.tsx` por item) corta a consequência de cada item, a gravidade só se distingue pela cor da borda e a dica tem texto pequeno e apagado. O desenho da lista foi aprovado no canvas em 03/11.
