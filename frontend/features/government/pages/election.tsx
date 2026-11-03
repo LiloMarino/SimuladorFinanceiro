@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Flag, Lock, MailQuestion, UserPlus, HandCoins, Megaphone, PiggyBank, ScrollText } from "lucide-react";
 import { CardState } from "@/shared/components/card-state";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -26,7 +27,6 @@ import { ExpelDialog } from "../components/expel-dialog";
 import { FoundPartyDialog } from "../components/found-party-dialog";
 import { JoinPartyDialog } from "../components/join-party-dialog";
 import { LeavePartyDialog } from "../components/leave-party-dialog";
-import { PartiesCard } from "../components/parties-card";
 import { PartyProfilesCard } from "../components/party-profiles-card";
 import { PollCard } from "../components/poll-card";
 import { PromisesDialog } from "../components/promises-dialog";
@@ -152,16 +152,12 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
       {runoffResult && <RunoffGroupsCard panel={panel} result={runoffResult} />}
       {/* Entre os turnos a pesquisa vigente é a do 2º turno; a do 1º volta ao ar depois da apuração final */}
       {campaignOpen && !panel.runoff_race && <PollCard panel={panel} />}
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="grid min-w-0 gap-5">
-          {panel.parties.length > 0 && <PartyProfilesCard panel={panel} />}
-          {campaignOpen && <PartiesCard panel={panel} />}
-        </div>
-        <div className="grid gap-5">
-          <TermCard panel={panel} />
-          <RankingCard panel={panel} />
-        </div>
+      {/* Com mandato, o cartão dele fica ao lado dos partidos; sem, os partidos usam a largura toda */}
+      <div className={cn("grid items-start gap-5", hasTerm && "xl:grid-cols-[minmax(0,1fr)_380px]")}>
+        <div className="min-w-0">{panel.parties.length > 0 && <PartyProfilesCard panel={panel} />}</div>
+        <TermCard panel={panel} />
       </div>
+      <RankingCard panel={panel} />
     </div>
   );
 

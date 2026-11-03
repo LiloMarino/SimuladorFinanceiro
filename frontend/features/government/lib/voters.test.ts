@@ -7,6 +7,7 @@ import {
   marginRange,
   nextPollDate,
   pollPercent,
+  profileMoved,
   signedPoints,
   sortElectorate,
   topWants,
@@ -71,6 +72,18 @@ describe("margem de erro", () => {
   it("mostra inteiro com margem e uma casa sem ela", () => {
     expect(pollPercent(30.4, 3)).toBe("30%");
     expect(pollPercent(30.4, 0)).toBe("30,4%");
+  });
+});
+
+describe("profileMoved", () => {
+  const founding = scores({ FREE_MARKET: 80, STABILITY: 50 });
+
+  it("é falso quando o perfil de hoje é o da fundação", () => {
+    expect(profileMoved({ radar: founding, founding_radar: founding })).toBe(false);
+  });
+
+  it("é verdadeiro quando algum valor andou", () => {
+    expect(profileMoved({ radar: scores({ FREE_MARKET: 83, STABILITY: 50 }), founding_radar: founding })).toBe(true);
   });
 });
 

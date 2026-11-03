@@ -11,17 +11,23 @@ type RadarSeries = {
 };
 
 const RINGS = [0.25, 0.5, 0.75, 1];
-const LABEL_GAP = 18;
+/** A distância do rótulo à ponta do eixo, por ponto de fonte */
+const LABEL_GAP_PER_PX = 1.6;
 
 type ProfileRadarProps = {
   series: RadarSeries[];
   width: number;
   height: number;
   label: string;
+  /** Tamanho do rótulo dos eixos, em px */
+  labelSize?: number;
+  /** Valores com o rótulo em negrito (as bandeiras escolhidas) */
+  highlighted?: VoterValue[];
 };
 
 /** O perfil em seis eixos, um por valor, de 0 no centro a 100 na ponta; a última série fica por cima. */
-export function ProfileRadar({ series, width, height, label }: ProfileRadarProps) {
+export function ProfileRadar({ series, width, height, label, labelSize = 12, highlighted = [] }: ProfileRadarProps) {
+  const labelGap = labelSize * LABEL_GAP_PER_PX;
   const radius = height * 0.4;
   const cx = width / 2;
   const cy = height / 2;
@@ -44,7 +50,7 @@ export function ProfileRadar({ series, width, height, label }: ProfileRadarProps
       viewBox={`0 0 ${width} ${height}`}
       width={width}
       height={height}
-      className="block max-w-full overflow-visible"
+      className="block h-auto max-w-full overflow-visible"
     >
       {/* Grade */}
       {RINGS.map((ring) => (
@@ -84,10 +90,10 @@ export function ProfileRadar({ series, width, height, label }: ProfileRadarProps
         return (
           <text
             key={value}
-            x={x + dx * LABEL_GAP * 0.7}
-            y={y + dy * LABEL_GAP + 4}
-            fontSize={11}
-            fontWeight={500}
+            x={x + dx * labelGap * 0.7}
+            y={y + dy * labelGap + labelSize / 3}
+            fontSize={labelSize}
+            fontWeight={highlighted.includes(value) ? 700 : 500}
             textAnchor={anchor}
             fill={VALUE_INFO[value].color}
           >

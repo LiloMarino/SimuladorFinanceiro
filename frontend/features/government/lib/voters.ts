@@ -90,6 +90,12 @@ export function partyOrder(parties: ElectionParty[]) {
   return [...parties].sort((a, b) => Number(b.intention_points) - Number(a.intention_points) || a.id - b.id);
 }
 
+/** O perfil de hoje difere do da fundação em algum valor (o radar só ganha a referência tracejada nesse caso). */
+export function profileMoved(party: Pick<ElectionParty, "radar" | "founding_radar">) {
+  const founding = valueScores(party.founding_radar);
+  return party.radar.some((item) => Math.abs(Number(item.score) - founding[item.value]) >= 0.05);
+}
+
 export type GroupSort = "weight" | "balance";
 
 /** As linhas do eleitorado, do maior grupo ao menor ou do melhor saldo ao pior. */

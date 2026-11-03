@@ -25,7 +25,7 @@ export function FlagsPicker({ panel, value, onChange, color, error }: FlagsPicke
   ) as Record<VoterValue, number>;
 
   return (
-    <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_290px]">
+    <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_340px]">
       {/* Bandeiras */}
       <FlagCards
         value={value}
@@ -44,8 +44,10 @@ export function FlagsPicker({ panel, value, onChange, color, error }: FlagsPicke
         </span>
         <div className="flex justify-center">
           <ProfileRadar
-            width={236}
-            height={176}
+            width={308}
+            height={188}
+            labelSize={12}
+            highlighted={value}
             label="Perfil de partida do partido"
             series={[{ key: "profile", scores: radar, color }]}
           />
@@ -63,7 +65,7 @@ export function FlagsPicker({ panel, value, onChange, color, error }: FlagsPicke
             />
           ))}
         </div>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs leading-4 text-muted-foreground">
           A afinidade é o ponto de partida do apoio: todo partido parte de {affinityBase} em cada grupo, e cada bandeira
           soma o quanto o grupo quer aquele valor. A campanha soma apoio por cima.
         </span>
@@ -76,8 +78,8 @@ export function FlagsPicker({ panel, value, onChange, color, error }: FlagsPicke
 function AffinityRow({ label, change }: { label: string; change: number }) {
   const width = Math.min(Math.abs(change), 50);
   return (
-    <div className="grid grid-cols-[1fr_84px_34px] items-center gap-2 text-xs">
-      <span className="truncate">{label}</span>
+    <div className="grid grid-cols-[1fr_72px_32px] items-center gap-2 text-[13px]">
+      <span>{label}</span>
       <span className="relative h-2 rounded-xs bg-muted">
         <span
           className={cn(

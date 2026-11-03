@@ -14,7 +14,7 @@ import {
   pollPercent,
   pollPoints,
 } from "../lib/voters";
-import { GroupPollBar } from "./group-poll-bar";
+import { GroupPollRows } from "./group-poll-rows";
 import { PartyMark } from "./party-mark";
 import { PollChart } from "./poll-chart";
 import { PollLegend } from "./poll-legend";
@@ -214,7 +214,6 @@ function RangeBar({ points, margin, color }: { points: number; margin: number; c
 }
 
 function GroupBreakdown({ panel, poll, parties }: PollBodyProps) {
-  const groups = new Map(panel.groups.map((group) => [group.group, group]));
   const bySize = [...panel.groups].sort((a, b) => Number(b.weight) - Number(a.weight));
   const largest = bySize[0];
   const smallest = bySize.at(-1);
@@ -234,38 +233,7 @@ function GroupBreakdown({ panel, poll, parties }: PollBodyProps) {
           </span>
         )}
       </div>
-      <div className="grid gap-2.5">
-        {poll.groups.map((groupPoll) => {
-          const group = groups.get(groupPoll.group);
-          if (!group) return null;
-          const label = GROUP_INFO[groupPoll.group].label;
-          const weight = displayPercent(group.weight, 0);
-          const points = pollPoints(groupPoll.entries);
-          return (
-            <div key={groupPoll.group} className="grid grid-cols-[minmax(0,210px)_1fr_auto_40px] items-center gap-3">
-              <span className="flex min-w-0 items-center gap-2">
-                <span className="truncate text-[13px] font-medium">{label}</span>
-                <span className="font-mono text-xs text-faint-foreground">{weight}</span>
-              </span>
-              <GroupPollBar poll={groupPoll} parties={parties} title={`${label} · ${weight} do eleitorado`} />
-              <span className="flex justify-end gap-2.5">
-                {parties.map((party) => (
-                  <span
-                    key={party.id}
-                    className="w-7 text-right font-mono text-xs font-semibold"
-                    style={{ color: partyColor(party) }}
-                  >
-                    {Math.round(points.get(party.id) ?? 0)}
-                  </span>
-                ))}
-              </span>
-              <span className="font-mono text-xs text-faint-foreground">
-                {groupPoll.margin > 0 ? `±${groupPoll.margin}` : ""}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+      <GroupPollRows groups={panel.groups} polls={poll.groups} parties={parties} />
     </div>
   );
 }

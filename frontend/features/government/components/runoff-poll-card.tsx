@@ -1,11 +1,11 @@
 import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { displayDayMonth, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
+import { displayDayMonth, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty, ElectionPoll, RunoffRace } from "@/types";
 import { RUNOFF, UNDECIDED } from "../lib/election-metrics";
-import { GROUP_INFO, inTechnicalTie, marginRange, pollPercent, pollPoints } from "../lib/voters";
-import { GroupPollBar } from "./group-poll-bar";
+import { inTechnicalTie, marginRange, pollPercent, pollPoints } from "../lib/voters";
+import { GroupPollRows } from "./group-poll-rows";
 import { PartyMark, PersonMark } from "./party-mark";
 import { PollLegend } from "./poll-legend";
 import { partyColor } from "@/shared/lib/party-colors";
@@ -64,7 +64,6 @@ type RunoffPollBodyProps = { panel: ElectionPanel; poll: ElectionPoll; finalists
 function RunoffPollBody({ panel, poll, finalists }: RunoffPollBodyProps) {
   const points = pollPoints(poll.entries);
   const margin = poll.margin;
-  const weights = new Map(panel.groups.map((group) => [group.group, group]));
 
   return (
     <>
@@ -134,38 +133,7 @@ function RunoffPollBody({ panel, poll, finalists }: RunoffPollBodyProps) {
         <span className="text-xs font-medium">
           Por grupo de eleitores · {finalists.map((party) => party.abbr).join(" e ")} e indecisos
         </span>
-        <div className="grid gap-2.5">
-          {poll.groups.map((groupPoll) => {
-            const group = weights.get(groupPoll.group);
-            if (!group) return null;
-            const label = GROUP_INFO[groupPoll.group].label;
-            const weight = displayPercent(group.weight, 0);
-            const groupPoints = pollPoints(groupPoll.entries);
-            return (
-              <div key={groupPoll.group} className="grid grid-cols-[minmax(0,210px)_1fr_auto_40px] items-center gap-3">
-                <span className="flex min-w-0 items-center gap-2">
-                  <span className="truncate text-[13px] font-medium">{label}</span>
-                  <span className="font-mono text-xs text-faint-foreground">{weight}</span>
-                </span>
-                <GroupPollBar poll={groupPoll} parties={finalists} title={`${label} · ${weight} do eleitorado`} />
-                <span className="flex justify-end gap-2.5">
-                  {finalists.map((party) => (
-                    <span
-                      key={party.id}
-                      className="w-7 text-right font-mono text-xs font-semibold"
-                      style={{ color: partyColor(party) }}
-                    >
-                      {Math.round(groupPoints.get(party.id) ?? 0)}
-                    </span>
-                  ))}
-                </span>
-                <span className="font-mono text-xs text-faint-foreground">
-                  {groupPoll.margin > 0 ? `±${groupPoll.margin}` : ""}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        <GroupPollRows groups={panel.groups} polls={poll.groups} parties={finalists} />
       </div>
     </>
   );
