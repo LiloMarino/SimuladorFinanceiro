@@ -376,7 +376,6 @@ function Ranking({
       : `Classificação pelo critério da partida: ${criterionLabel(report)}`);
   const goalRace = measure === "GOAL";
   const topScore = Math.max(...report.players.map((p) => Number(p.score?.total ?? 0)), 1);
-  const largestReturn = Math.max(...report.players.map((p) => Math.abs(Number(p.return_percent))), 0.0001);
   const comparing = simulationIds.length > 1;
   const inTeams = report.teams.length > 0;
   // A meta só é uma entre as partidas comparadas quando todas têm a mesma
@@ -562,34 +561,13 @@ function Ranking({
                 {showRemaining && (
                   <TableCell numeric>{displayRemainingToGoal(p.criterion_value, report.goal_net_worth)}</TableCell>
                 )}
-                {comparing ? (
-                  <TableCell>
-                    {/* Barra divergente: o zero fica no meio, ganho para a direita e perda para a esquerda */}
-                    <span className="flex items-center gap-3">
-                      <span className="relative h-2.5 w-70 shrink-0">
-                        <span className="absolute inset-y-0 left-1/2 w-px bg-input" />
-                        <span
-                          className={cn(
-                            "absolute inset-y-0",
-                            change >= 0 ? "left-1/2 rounded-r bg-success" : "right-1/2 rounded-l bg-destructive",
-                          )}
-                          style={{ width: `${(Math.abs(change) / largestReturn) * 50}%` }}
-                        />
-                      </span>
-                      <span className={cn("w-20 text-right font-mono", returnTone)}>
-                        {displaySignedPercent(p.return_percent)}
-                      </span>
-                    </span>
-                  </TableCell>
-                ) : (
-                  <TableCell numeric>
-                    {change === bestReturn ? (
-                      <Badge variant="success">{displaySignedPercent(p.return_percent)}</Badge>
-                    ) : (
-                      <span className={returnTone}>{displaySignedPercent(p.return_percent)}</span>
-                    )}
-                  </TableCell>
-                )}
+                <TableCell numeric>
+                  {!comparing && change === bestReturn ? (
+                    <Badge variant="success">{displaySignedPercent(p.return_percent)}</Badge>
+                  ) : (
+                    <span className={returnTone}>{displaySignedPercent(p.return_percent)}</span>
+                  )}
+                </TableCell>
                 {!goalRace && <TableCell numeric>{p.days}</TableCell>}
                 {!comparing && !goalRace && <TableCell numeric>{displayCriterionGap(measure, p.leader_gap)}</TableCell>}
                 {inTeams && (

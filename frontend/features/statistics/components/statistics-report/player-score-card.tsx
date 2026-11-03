@@ -1,7 +1,7 @@
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
 import { sortNumber } from "@/shared/lib/table-sort";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
 import type { OverviewReport, Player, ScoreMetric } from "@/types";
@@ -43,10 +43,11 @@ export function PlayerScoreCard({
         <CardDescription>
           Soma de quatro eixos; cada eixo é a média dos pontos das suas métricas. ~100 por eixo é um bom desempenho.
         </CardDescription>
-        <CardAction>{action}</CardAction>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
+        {/* Seletores de jogador */}
+        {action && <div className="mb-4 flex">{action}</div>}
+        <div className="grid gap-4 md:grid-cols-2">
           {player.score.axes.map((axis) => {
             const points = Number(axis.points ?? 0);
             const leaderPoints = leader?.score?.axes.find((a) => a.axis === axis.axis)?.points;
