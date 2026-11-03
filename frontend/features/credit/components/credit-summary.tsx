@@ -21,6 +21,10 @@ const displayRange = (first: string, last: string) => {
 /** Faixa de números do topo: dívida, patrimônio líquido, alavancagem e as parcelas do próximo mês. */
 export function CreditSummary({ overview }: CreditSummaryProps) {
   const hasDebt = Number(overview.debt) > 0;
+  const overdueTotal = overview.loans.reduce(
+    (total, loan) => total + loan.overdue.reduce((sum, item) => sum + Number(item.total), 0),
+    0,
+  );
   const monthName = overview.next_installments_month ? displayMonthName(overview.next_installments_month) : null;
 
   return (
@@ -58,15 +62,18 @@ export function CreditSummary({ overview }: CreditSummaryProps) {
           {/* Parcelas do próximo mês */}
           <Kpi
             label={monthName ? `Parcelas de ${monthName}` : "Próximas parcelas"}
-            value={displayMoney(overview.next_installments_total)}
+            value={displayMoney(Number(overview.next_installments_total) + overdueTotal)}
+            tone={overdueTotal > 0 ? "destructive" : "default"}
             note={
-              overview.next_installments_first && overview.next_installments_last
-                ? `${displayRange(overview.next_installments_first, overview.next_installments_last)} · ${
-                    overview.cash_covers_next ? "o caixa cobre" : "o caixa não cobre"
-                  }`
-                : hasDebt
-                  ? "Nada a vencer"
-                  : "Sem parcelas"
+              overdueTotal > 0
+                ? `Inclui ${displayMoney(overdueTotal)} em atraso`
+                : overview.next_installments_first && overview.next_installments_last
+                  ? `${displayRange(overview.next_installments_first, overview.next_installments_last)} · ${
+                      overview.cash_covers_next ? "o caixa cobre" : "o caixa não cobre"
+                    }`
+                  : hasDebt
+                    ? "Nada a vencer"
+                    : "Sem parcelas"
             }
           />
         </div>

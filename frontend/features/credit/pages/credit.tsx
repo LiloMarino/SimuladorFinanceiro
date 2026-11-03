@@ -11,6 +11,7 @@ import { CreditSkeleton } from "../components/credit-skeleton";
 import { CreditSummary } from "../components/credit-summary";
 import { LoanOfferCard } from "../components/loan-offer-card";
 import { LoansTable } from "../components/loans-table";
+import { OverdueAlert } from "../components/overdue-alert";
 import { PayOverdueDialog } from "../components/pay-overdue-dialog";
 import { PaymentsCard } from "../components/payments-card";
 import { PrepayDialog, type PrepayChoice } from "../components/prepay-dialog";
@@ -66,11 +67,14 @@ function CreditContent({ overview }: { overview: CreditOverview }) {
 
   return (
     <>
+      {/* Aviso de parcela em atraso */}
+      <OverdueAlert loans={loans} onPay={openOverdue} />
+
       <CreditSummary overview={overview} />
 
       {/* Nota de risco e novo empréstimo */}
       <div className="grid items-start gap-5 xl:grid-cols-[1fr_1.3fr]">
-        <RiskRatingCard rating={rating} />
+        <RiskRatingCard rating={rating} loans={loans} />
         {openOffer ? (
           // A cada empréstimo aberto ou quitado o formulário nasce de novo, com o valor padrão do limite que sobrou
           <LoanOfferCard key={loans.length} overview={overview} {...openOffer} amountInputRef={amountInput} />

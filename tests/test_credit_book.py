@@ -330,6 +330,24 @@ def test_pay_overdue_charges_fee_and_late_interest(engine):
     assert loan.overdue == []
 
 
+def test_pay_overdue_charges_the_late_interest_of_the_day_of_payment(engine):
+    book = engine.credit_book
+    loan = book.contract(PLAYER, Decimal(5000), 12)
+    engine.cash[PLAYER] = Decimal(0)
+    run_until(engine, loan.state.next_due)
+    overdue = loan.overdue[0]
+    engine.add_cash(PLAYER, Decimal(10000))
+    run_until(engine, overdue.due_date + timedelta(days=5))
+    shown = overdue.charges(engine.current_date).total
+
+    run_until(engine, overdue.due_date + timedelta(days=6))
+    total = book.pay_overdue(PLAYER, loan.loan_id)
+
+    # A mora corre por dia: o valor mostrado na véspera é menor que o cobrado no dia seguinte
+    assert total == overdue.charges(engine.current_date).total
+    assert total > shown
+
+
 def test_payoff_pays_the_balance_of_the_day_and_closes_the_loan(
     engine, captured_events, notices
 ):

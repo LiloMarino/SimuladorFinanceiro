@@ -4,21 +4,25 @@ import { Progress } from "@/shared/components/ui/progress";
 import { displaySelicSpread, displaySpread, displayWholePercent } from "@/shared/lib/credit";
 import { LATE_PAYMENTS, LEVERAGE, RISK_RATING, VOLATILITY, displayLeverage } from "@/shared/lib/credit-metrics";
 import { cn } from "@/shared/lib/utils";
-import { displayDayMonth, displayNumber, displayPercent } from "@/shared/lib/utils/display";
-import type { CreditLadderTier, CreditRating } from "@/types";
+import { displayDayMonth, displayMonthName, displayNumber, displayPercent } from "@/shared/lib/utils/display";
+import type { CreditLadderTier, CreditLoan, CreditRating } from "@/types";
 import { CreditGradeMark } from "./credit-grade-mark";
 
-type RiskRatingCardProps = { rating: CreditRating };
+type RiskRatingCardProps = { rating: CreditRating; loans: CreditLoan[] };
 
 const pluralDelays = (count: number) => `${count} ${count === 1 ? "atraso" : "atrasos"}`;
 
 /** Nota de risco: a letra, a escada de faixas e os três fatores que somam os pontos. */
-export function RiskRatingCard({ rating }: RiskRatingCardProps) {
+export function RiskRatingCard({ rating, loans }: RiskRatingCardProps) {
   const current = rating.ladder.find((tier) => tier.grade === rating.grade);
   const subtitle =
     current && current.spread !== null
       ? `${displaySelicSpread(current.spread)} ao ano e dívida até ${displayWholePercent(current.debt_limit)} do patrimônio`
       : "Sem crédito novo nesta faixa";
+
+  // A nota usa o fechamento do mês anterior; empréstimo contratado neste mês só entra no próximo
+  const closedMonth = displayMonthName(rating.next_review, -1);
+  const hasNewLoan = loans.some((loan) => loan.contract_date.slice(0, 7) === rating.next_review.slice(0, 7));
 
   const factors = [
     {
@@ -26,7 +30,9 @@ export function RiskRatingCard({ rating }: RiskRatingCardProps) {
       name: <MetricLabel metric={LEVERAGE} />,
       value: displayLeverage(rating.leverage.value),
       part: rating.leverage,
-      description: "Sem dívida vale 40; cada 10% tira 4.",
+      description: `Fechamento de ${closedMonth}. Sem dívida vale 40; cada 10% tira 4.${
+        hasNewLoan ? " O empréstimo novo muda a nota no fim do mês." : ""
+      }`,
     },
     {
       key: "volatility",
