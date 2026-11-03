@@ -306,7 +306,7 @@ function HistoryRow({ entry, party }: { entry: CampaignEntry; party: ElectionPar
           >
             {entry.kind === "ATTACK" ? `${entry.rival_abbr} ${signed(worth, 1)}` : signed(worth, 1)}
           </span>
-          <span className="text-[11px] text-faint-foreground">{share}</span>
+          <span className="text-xs text-faint-foreground">{share}</span>
         </div>
       </TableCell>
       <TableCell className="text-right">

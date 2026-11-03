@@ -145,7 +145,7 @@ export function PlayerLineChart({
 
         {/* Nome de cada linha no fim, na cor dela */}
         <div
-          className="pointer-events-none absolute inset-y-0 right-0 text-[11px]"
+          className="pointer-events-none absolute inset-y-0 right-0 text-xs"
           style={{ width: MARGIN.right }}
           aria-hidden="true"
         >

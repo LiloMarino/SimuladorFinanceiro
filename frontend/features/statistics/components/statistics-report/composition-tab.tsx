@@ -233,7 +233,7 @@ function SmallMultiple({
               </AreaChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex justify-between font-mono text-[10px] text-faint-foreground">
+          <div className="flex justify-between font-mono text-xs text-faint-foreground">
             <span>{displayShortMonthYear(first.date)}</span>
             <span>{displayShortMonthYear(last.date)}</span>
           </div>

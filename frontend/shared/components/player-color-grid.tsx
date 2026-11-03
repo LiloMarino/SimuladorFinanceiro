@@ -42,7 +42,7 @@ export function PlayerColorGrid({ owners, selected, disabled, onSelect }: Player
               {taken && playerInitials(owner.nickname)}
               {isMine && <Check className="size-4.5" />}
             </span>
-            <span className={cn("text-[11px]", isMine ? "font-semibold" : "text-muted-foreground")}>{color.name}</span>
+            <span className={cn("text-xs", isMine ? "font-semibold" : "text-muted-foreground")}>{color.name}</span>
           </button>
         );
       })}

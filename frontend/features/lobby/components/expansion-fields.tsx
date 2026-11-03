@@ -297,7 +297,7 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
                       . {initialAccountExample(field.value, initialAccount.data).premium}
                     </span>
                   )}
-                  <span className="text-[11.5px] text-faint-foreground">
+                  <span className="text-xs text-faint-foreground">
                     Dívida e déficit saem dos dados anuais do Banco Central; no futuro gerado, vale o último ano com
                     dado.
                   </span>

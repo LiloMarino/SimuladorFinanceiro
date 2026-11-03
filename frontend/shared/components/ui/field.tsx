@@ -29,7 +29,7 @@ function FieldLegend({
       data-slot="field-legend"
       data-variant={variant}
       className={cn(
-        "mb-1.5 font-medium data-[variant=caption]:text-[11px] data-[variant=caption]:font-semibold data-[variant=caption]:tracking-[.06em] data-[variant=caption]:text-faint-foreground data-[variant=caption]:uppercase data-[variant=label]:text-sm data-[variant=legend]:text-base",
+        "mb-1.5 font-medium data-[variant=caption]:text-xs data-[variant=caption]:font-semibold data-[variant=caption]:tracking-[.06em] data-[variant=caption]:text-faint-foreground data-[variant=caption]:uppercase data-[variant=label]:text-sm data-[variant=legend]:text-base",
         className,
       )}
       {...props}
@@ -48,7 +48,7 @@ function FieldCaption({
       data-slot="field-caption"
       data-tone={tone}
       className={cn(
-        "text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase data-[tone=future]:text-future",
+        "text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase data-[tone=future]:text-future",
         className,
       )}
       {...props}

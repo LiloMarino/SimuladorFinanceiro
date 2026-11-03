@@ -97,7 +97,7 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
           <div className="grid gap-5 sm:grid-cols-2">
             {/* Todo mês */}
             <div className="grid content-start">
-              <span className="mb-1.5 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+              <span className="mb-1.5 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
                 Todo mês
               </span>
               <MonthRow label="Salário">
@@ -140,7 +140,7 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
 
             {/* Reserva de emergência */}
             <div className="grid content-start gap-2">
-              <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+              <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
                 <MetricLabel metric={RESERVE_MONTHS} />
               </span>
               <span>
@@ -159,7 +159,7 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
                   <span className="absolute -top-0.5 left-1/2 h-3.5 w-px bg-faint-foreground" aria-hidden="true" />
                   <span className="absolute -top-0.5 right-0 h-3.5 w-px bg-faint-foreground" aria-hidden="true" />
                 </div>
-                <div className="relative flex justify-between font-mono text-[11px] text-muted-foreground">
+                <div className="relative flex justify-between font-mono text-xs text-muted-foreground">
                   <span>0</span>
                   <span className="absolute left-1/2 -translate-x-1/2">{RESERVE_FRAGILE_MONTHS} meses</span>
                   <span>{RESERVE_FULL_MONTHS}+</span>

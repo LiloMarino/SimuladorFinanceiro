@@ -86,7 +86,7 @@ function FlagCard({ flag, selected, locked, note, onToggle }: FlagCardProps) {
           {locked}
         </Badge>
       ) : (
-        note && <span className="text-[11px] text-muted-foreground">{note}</span>
+        note && <span className="text-xs text-muted-foreground">{note}</span>
       )}
       <span
         aria-hidden

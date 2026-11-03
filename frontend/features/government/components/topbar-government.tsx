@@ -46,7 +46,7 @@ export function TopbarGovernment() {
         <HoverCardTrigger chip delay={150} render={<Link to="/government" />}>
           <ExpansionEmblem expansion="government" size="sm" className="size-6.5" />
           <span className="grid">
-            <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">Governo</span>
+            <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">Governo</span>
             <span className="flex items-center gap-1.5 text-[13px]">
               <PersonMark person={president} />
               <b className="font-semibold">{president.name}</b>

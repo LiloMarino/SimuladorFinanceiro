@@ -190,7 +190,7 @@ export function IndicatorSelector({
         {/* Sobre o preço e painéis embaixo do gráfico */}
         {(["price", "panel"] as const).map((place) => (
           <div key={place} className={cn(place === "panel" && "mt-1 border-t")}>
-            <div className="px-3.5 pt-3 pb-0.5 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+            <div className="px-3.5 pt-3 pb-0.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
               {place === "price" ? "Sobre o preço" : "Painéis embaixo do gráfico"}
             </div>
             {INDICATORS.filter((info) => info.place === place).map((info) => (

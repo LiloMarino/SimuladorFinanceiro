@@ -303,7 +303,7 @@ function SavedSimulationsContent({
       )}
 
       {choosing && kind === "matches" && (
-        <span className="-mb-2 text-[11px] font-semibold tracking-[0.06em] text-faint-foreground uppercase">
+        <span className="-mb-2 text-xs font-semibold tracking-[0.06em] text-faint-foreground uppercase">
           Partidas salvas
         </span>
       )}

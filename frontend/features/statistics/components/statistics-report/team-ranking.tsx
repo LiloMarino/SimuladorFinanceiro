@@ -72,7 +72,7 @@ export function TeamHeadline({
           <div className="flex items-center gap-4">
             <span className="grid size-19 shrink-0 place-content-center rounded-xl bg-(--team) text-center text-primary-foreground">
               <span className="text-2xl leading-none font-bold">{subject.position}º</span>
-              <span className="text-[11px] opacity-80">de {teams.length}</span>
+              <span className="text-xs opacity-80">de {teams.length}</span>
             </span>
             <div className="grid gap-1">
               <span className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">

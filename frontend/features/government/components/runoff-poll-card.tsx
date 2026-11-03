@@ -145,7 +145,7 @@ function RunoffPollBody({ panel, poll, finalists }: RunoffPollBodyProps) {
               <div key={groupPoll.group} className="grid grid-cols-[minmax(0,210px)_1fr_auto_40px] items-center gap-3">
                 <span className="flex min-w-0 items-center gap-2">
                   <span className="truncate text-[13px] font-medium">{label}</span>
-                  <span className="font-mono text-[11px] text-faint-foreground">{weight}</span>
+                  <span className="font-mono text-xs text-faint-foreground">{weight}</span>
                 </span>
                 <GroupPollBar poll={groupPoll} parties={finalists} title={`${label} · ${weight} do eleitorado`} />
                 <span className="flex justify-end gap-2.5">

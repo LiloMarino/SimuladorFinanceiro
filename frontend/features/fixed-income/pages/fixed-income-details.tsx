@@ -350,7 +350,7 @@ function PositionFigure({
     <div className="grid gap-0.5">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
       <span className={cn("font-mono font-semibold", positive && "text-success")}>{children}</span>
-      <span className="text-[11px] text-muted-foreground">{detail}</span>
+      <span className="text-xs text-muted-foreground">{detail}</span>
     </div>
   );
 }

@@ -77,7 +77,7 @@ export function JournalSettingsCard() {
             <div key={section.section}>
               {/* Seção */}
               <div className="flex items-baseline gap-2 border-t bg-subtle px-5 pt-3 pb-1.5">
-                <span className="text-[10.5px] font-bold tracking-widest uppercase">{section.label}</span>
+                <span className="text-xs font-bold tracking-widest uppercase">{section.label}</span>
                 {section.note && <span className="text-xs text-muted-foreground">{section.note}</span>}
               </div>
               {/* Tipos da seção */}

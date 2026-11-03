@@ -89,7 +89,7 @@ export function PaymentsCard({ overview }: PaymentsCardProps) {
                   ...Array<string>(month.late).fill("bg-destructive"),
                 ].slice(0, MAX_DOTS);
                 return (
-                  <li key={month.month} className="grid justify-items-center gap-1 text-[11px] text-faint-foreground">
+                  <li key={month.month} className="grid justify-items-center gap-1 text-xs text-faint-foreground">
                     <span
                       className={cn("flex h-7 w-full items-center justify-center gap-0.75 rounded-md", tone)}
                       title={

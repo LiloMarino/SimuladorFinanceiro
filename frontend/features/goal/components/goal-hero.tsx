@@ -52,7 +52,7 @@ export function GoalHero({ gameType, progress, life, projection, grouping, teamN
     <section className="grid gap-3.5 rounded-2xl bg-sidebar px-7.5 py-6.5 text-sidebar-foreground">
       <div className="flex items-end justify-between gap-5">
         <div className="grid gap-1.5">
-          <span className="text-[11px] font-semibold tracking-[.06em] text-sidebar-primary uppercase">
+          <span className="text-xs font-semibold tracking-[.06em] text-sidebar-primary uppercase">
             {inTeams ? "A corrida da sua equipe · média dos membros" : "Sua corrida"} · {GAME_TYPES[gameType]?.label}
             {life && (
               <>

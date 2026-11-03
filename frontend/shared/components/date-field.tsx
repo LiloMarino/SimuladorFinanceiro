@@ -117,7 +117,7 @@ export function DateField({
               <Button type="button" variant="outline" size="sm" onClick={() => pick(today)}>
                 Hoje
               </Button>
-              <span className="text-[11px] text-faint-foreground">{displayIsoDate(today)} · hoje</span>
+              <span className="text-xs text-faint-foreground">{displayIsoDate(today)} · hoje</span>
             </div>
             {realEnd && (
               <div className="mt-2.5 flex flex-wrap gap-x-3.5 gap-y-1 text-xs text-muted-foreground">

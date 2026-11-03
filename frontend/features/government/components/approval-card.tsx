@@ -120,7 +120,7 @@ export function ApprovalCard({ panel }: ApprovalCardProps) {
             </span>
             <ApprovalGroups approval={approval} selection={selection} onSelect={setSelection} president={president} />
             {group && !atInauguration && <ApprovalReasons group={group} approval={approval} />}
-            <div className="flex flex-wrap gap-x-3.5 gap-y-1 text-[11.5px] text-muted-foreground">
+            <div className="flex flex-wrap gap-x-3.5 gap-y-1 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-2 w-4 rounded-xs bg-border" />
                 faixa neutra, {approval.reproves_below} a {approval.approves_above}

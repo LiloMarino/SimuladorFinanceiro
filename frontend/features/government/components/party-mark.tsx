@@ -5,8 +5,8 @@ import { playerInitials } from "@/shared/lib/player-initials";
 import type { PartyCandidate } from "@/types";
 
 const ABBR_SIZES = {
-  sm: "h-[18px] px-1 text-[9px]",
-  md: "h-5 px-[5px] text-[10px]",
+  sm: "h-[18px] px-1 text-xs",
+  md: "h-5 px-[5px] text-xs",
   lg: "h-9 px-[9px] text-[13px]",
 } as const;
 
@@ -47,7 +47,7 @@ export function PersonMark({ person, size = "sm" }: PersonMarkProps) {
       aria-hidden
       className={cn(
         "inline-flex shrink-0 items-center justify-center rounded-full border-[1.5px] border-dashed border-faint-foreground bg-card font-semibold text-muted-foreground",
-        size === "sm" ? "size-6 text-[9px]" : "size-8 text-xs",
+        size === "sm" ? "size-6 text-xs" : "size-8 text-xs",
       )}
     >
       {playerInitials(person.name)}

@@ -174,7 +174,7 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
                     {source === "YFINANCE"
                       ? "O yFinance não devolveu dados para esse código. Confira se está certo (na B3, o código é o mesmo da bolsa, ex.: PETR4)."
                       : "O arquivo não pôde ser lido. Confira as colunas e o formato das datas."}
-                    <span className="mt-1 block font-mono text-[11px]">
+                    <span className="mt-1 block font-mono text-xs">
                       Resposta do servidor: {importAsset.error.message}
                     </span>
                   </AlertDescription>

@@ -79,14 +79,19 @@ function TableRow({
   );
 }
 
-/** `numeric`: coluna de valores, alinhada à direita. */
+/**
+ * `numeric`: coluna de valores, alinhada à direita.
+ * `wrap`: o cabeçalho quebra em duas linhas em vez de alargar a coluna.
+ */
 function TableHead({
   className,
   numeric = false,
+  wrap = false,
   variant = "default",
   ...props
 }: React.ComponentProps<"th"> & {
   numeric?: boolean | undefined;
+  wrap?: boolean | undefined;
   variant?: "default" | "compact" | "matrix" | "hint" | "tinted" | undefined;
 }) {
   return (
@@ -94,9 +99,10 @@ function TableHead({
       data-slot="table-head"
       data-numeric={numeric ? "" : undefined}
       className={cn(
-        "text-left align-middle font-medium whitespace-nowrap data-numeric:text-right [&:has([role=checkbox])]:pr-0",
+        "text-left align-middle font-medium data-numeric:text-right [&:has([role=checkbox])]:pr-0",
+        wrap ? "whitespace-normal" : "whitespace-nowrap",
         variant === "default" && "h-10 bg-subtle px-4 text-xs text-muted-foreground",
-        variant === "compact" && "h-auto bg-transparent px-0 pb-1 text-[11px] text-faint-foreground data-numeric:pl-2",
+        variant === "compact" && "h-auto bg-transparent px-0 pb-1 text-xs text-faint-foreground data-numeric:pl-2",
         variant === "matrix" && "h-auto bg-transparent px-1 pb-1.5 font-mono text-xs text-muted-foreground",
         variant === "hint" && "h-auto bg-transparent px-1.5 py-0.5 text-xs text-inherit",
         variant === "tinted" && "h-10 bg-warning-soft/40 px-4 text-xs text-muted-foreground",
@@ -112,16 +118,19 @@ function TableHead({
  * `variant`: `group` é o título de um grupo de linhas; `note` é o texto de apoio, em tom discreto.
  * `tone`: cor do valor, para o que está esperando (`warning`) ou isento (`success`).
  * `tinted`: coluna com fundo em laranja suave, para destacar uma coluna inteira (acompanha `TableHead` `tinted`).
+ * `wrap`: o texto quebra em duas linhas em vez de alargar a coluna.
  */
 function TableCell({
   className,
   numeric = false,
+  wrap = false,
   variant = "default",
   tone,
   tinted = false,
   ...props
 }: React.ComponentProps<"td"> & {
   numeric?: boolean | undefined;
+  wrap?: boolean | undefined;
   variant?: "default" | "group" | "note" | undefined;
   tone?: "warning" | "success" | undefined;
   tinted?: boolean | undefined;
@@ -131,7 +140,8 @@ function TableCell({
       data-slot="table-cell"
       data-numeric={numeric ? "" : undefined}
       className={cn(
-        "px-4 py-3 align-middle whitespace-nowrap data-numeric:text-right data-numeric:font-mono data-numeric:tabular-nums [&:has([role=checkbox])]:pr-0",
+        "px-4 py-3 align-middle data-numeric:text-right data-numeric:font-mono data-numeric:tabular-nums [&:has([role=checkbox])]:pr-0",
+        wrap ? "whitespace-normal" : "whitespace-nowrap",
         variant === "group" && "py-2 text-xs font-semibold",
         variant === "note" && "text-xs text-muted-foreground",
         tone === "warning" && "text-warning",

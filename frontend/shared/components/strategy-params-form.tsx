@@ -51,7 +51,7 @@ export function StrategyParamsForm({
   return (
     <div className="grid gap-3.5">
       <div className="flex items-baseline justify-between">
-        <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">Parâmetros</span>
+        <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">Parâmetros</span>
         {headerAction}
       </div>
       <div className="grid gap-4 sm:grid-cols-2">

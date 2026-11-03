@@ -115,7 +115,7 @@ export function NetworthGainChart({ points, width }: { points: NetworthPoint[]; 
         width={width}
         height={HEIGHT}
         viewBox={`0 0 ${width} ${HEIGHT}`}
-        className="block font-sans text-[11px]"
+        className="block font-sans text-xs"
         role="img"
         aria-label="Patrimônio e aportado ao longo da partida"
       >

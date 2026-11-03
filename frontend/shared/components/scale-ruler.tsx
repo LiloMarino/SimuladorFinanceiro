@@ -24,14 +24,14 @@ export function ScaleRuler({ value, low, high }: ScaleRulerProps) {
           />
         )}
       </div>
-      <div className="relative h-3 font-mono text-[10px] opacity-80">
+      <div className="relative h-3 font-mono text-xs opacity-80">
         {[0, low, high, 100].map((mark) => (
           <span key={mark} className="absolute -translate-x-1/2" style={{ left: `${mark}%` }}>
             {mark}
           </span>
         ))}
       </div>
-      <span className="text-[11px]">{value === null ? "Sem leitura hoje." : `Hoje: ${displayNumber(value, 1)}`}</span>
+      <span className="text-xs">{value === null ? "Sem leitura hoje." : `Hoje: ${displayNumber(value, 1)}`}</span>
     </div>
   );
 }

@@ -21,11 +21,11 @@ export function PendingRow({ item, onAct }: PendingRowProps) {
     >
       <div className="grid min-w-0 flex-1 gap-px">
         {item.severity === "SEVERE" && (
-          <span className="text-[11px] font-semibold tracking-wide text-destructive uppercase">Grave</span>
+          <span className="text-xs font-semibold tracking-wide text-destructive uppercase">Grave</span>
         )}
         <b className="text-[13px] font-semibold">{item.title}</b>
         <span className="text-xs text-muted-foreground">{item.detail}</span>
-        <span className="text-[11px] text-muted-foreground/80">{item.resolves}</span>
+        <span className="text-xs text-muted-foreground/80">{item.resolves}</span>
       </div>
       <Button size="xs" onClick={() => onAct(item)}>
         {target.label}

@@ -29,7 +29,7 @@ export function StrategyList({ strategies, selectedKey, activeKey, onSelect }: S
             return (
               <div key={group} className="grid gap-0.5">
                 {/* Título do grupo */}
-                <div className="flex items-center gap-1.5 px-3.5 pt-3.5 pb-1.5 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+                <div className="flex items-center gap-1.5 px-3.5 pt-3.5 pb-1.5 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
                   {GROUP_SECTION[group].title}
                   <InfoHint label={`O que são as ${GROUP_SECTION[group].title.toLowerCase()}`}>
                     {GROUP_SECTION[group].hint}

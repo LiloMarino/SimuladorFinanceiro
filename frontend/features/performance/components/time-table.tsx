@@ -30,9 +30,7 @@ const KIND_STYLE: Record<Kind, string> = {
 
 function KindTag({ kind }: { kind: Kind }) {
   return (
-    <span
-      className={cn("inline-flex h-5.5 items-center rounded-md px-1.75 text-[11px] font-semibold", KIND_STYLE[kind])}
-    >
+    <span className={cn("inline-flex h-5.5 items-center rounded-md px-1.75 text-xs font-semibold", KIND_STYLE[kind])}>
       {KIND_LABEL[kind]}
     </span>
   );

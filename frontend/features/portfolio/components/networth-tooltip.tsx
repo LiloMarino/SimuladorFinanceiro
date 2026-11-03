@@ -30,7 +30,7 @@ export function NetworthTooltip({ point, left }: { point: NetworthPoint; left: n
       className="pointer-events-none absolute top-1 z-10 grid gap-1.25 rounded-[10px] border border-border bg-popover p-3 text-xs shadow-lg"
       style={{ left, width: WIDTH }}
     >
-      <span className="font-mono text-[11px] text-muted-foreground">{displayIsoDate(point.date)}</span>
+      <span className="font-mono text-xs text-muted-foreground">{displayIsoDate(point.date)}</span>
       <div className="flex items-center justify-between gap-3 text-[13px] font-semibold whitespace-nowrap">
         <span>Patrimônio</span>
         <span className={point.networth < 0 ? "font-mono text-destructive" : "font-mono"}>
@@ -60,7 +60,7 @@ export function NetworthTooltip({ point, left }: { point: NetworthPoint; left: n
           {displayMoney(Math.abs(gain))}
         </span>
       </div>
-      <span className="-mt-0.5 text-right font-mono text-[11px] text-muted-foreground">
+      <span className="-mt-0.5 text-right font-mono text-xs text-muted-foreground">
         {positive ? "+" : "−"}
         {displayPercent(Math.abs(gainPct), 1)} sobre o aportado
       </span>

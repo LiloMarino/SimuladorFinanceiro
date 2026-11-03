@@ -193,7 +193,7 @@ export function AchievementsList({ achievements, error, onRetry, guestOf, canPla
               {visibleLocked.length > 0 && (
                 <>
                   {tab === "all" && (
-                    <div className="border-b border-muted bg-subtle px-4.5 py-2 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+                    <div className="border-b border-muted bg-subtle px-4.5 py-2 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
                       Bloqueadas · {lockedRows.length}
                     </div>
                   )}

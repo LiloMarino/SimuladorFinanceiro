@@ -256,7 +256,7 @@ function ScoreCell({ measure, today, vigenceDays, onOpen }: ScoreCellProps) {
       <span className="grid justify-items-end gap-1">
         <span className="grid min-w-30 gap-0.75">
           <Progress value={(waited / vigenceDays) * 100} size="sm" aria-label="Dias de espera" />
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {waited} de {vigenceDays} dias
           </span>
         </span>

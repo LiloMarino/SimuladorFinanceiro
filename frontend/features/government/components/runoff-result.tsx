@@ -58,7 +58,7 @@ export function RunoffResult({ result, results }: RunoffResultProps) {
             </span>
           </div>
         ))}
-        <span className="text-right text-[11px] text-faint-foreground">linha: 50% dos votos válidos</span>
+        <span className="text-right text-xs text-faint-foreground">linha: 50% dos votos válidos</span>
       </div>
 
       {/* Eleitorado todo */}

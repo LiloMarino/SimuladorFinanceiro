@@ -19,9 +19,7 @@ export function TopbarCash({ cash, independence }: TopbarCashProps) {
   if (!overdraft) {
     return (
       <div className="grid border-l border-border pl-4">
-        <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
-          Caixa disponível
-        </span>
+        <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">Caixa disponível</span>
         <span className="font-mono text-[15px] font-semibold">{cash !== undefined ? displayMoney(cash) : "—"}</span>
       </div>
     );
@@ -29,13 +27,13 @@ export function TopbarCash({ cash, independence }: TopbarCashProps) {
 
   return (
     <div className="grid justify-items-end border-l border-border pl-4">
-      <span className="flex items-center gap-1 text-[11px] font-semibold tracking-[.06em] text-destructive uppercase">
+      <span className="flex items-center gap-1 text-xs font-semibold tracking-[.06em] text-destructive uppercase">
         {OVERDRAFT.label}
         <MetricHint metric={OVERDRAFT} />
       </span>
       <span className="font-mono text-[15px] font-semibold text-destructive">{displaySignedMoney(cash)}</span>
       {status && (
-        <span className="text-[11px] text-destructive">
+        <span className="text-xs text-destructive">
           {displayRatePercent(status.overdraft_monthly_rate)} ao mês até cobrir
         </span>
       )}

@@ -33,7 +33,7 @@ function NumberTile({ label, hint, number }: NumberTileProps) {
           <span className={cn("font-mono text-lg font-semibold tabular-nums", TONE_CLASS[number.tone])}>
             {number.value}
           </span>
-          <span className="text-[11.5px] text-muted-foreground">{number.detail}</span>
+          <span className="text-xs text-muted-foreground">{number.detail}</span>
         </div>
       </CardContent>
     </Card>

@@ -233,7 +233,7 @@ function Headline({
           <div className="flex items-center gap-4">
             <span className="grid size-19 shrink-0 place-content-center rounded-xl bg-foreground text-center text-primary-foreground">
               <span className="text-2xl leading-none font-bold">{you ? `${you.position}º` : "—"}</span>
-              <span className="text-[11px] text-sidebar-foreground">de {players.length}</span>
+              <span className="text-xs text-sidebar-foreground">de {players.length}</span>
             </span>
             <div className="grid gap-1">
               <span className="text-xs text-muted-foreground">

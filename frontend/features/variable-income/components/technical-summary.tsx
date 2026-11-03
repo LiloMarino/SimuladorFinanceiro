@@ -147,7 +147,7 @@ function ReadingColumn({
   return (
     <div className="grid content-start gap-1.5">
       <div className="flex items-baseline justify-between">
-        <span className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">{title}</span>
+        <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{title}</span>
         <span className="text-xs text-muted-foreground">
           {buys} de {counted.length} compra
         </span>

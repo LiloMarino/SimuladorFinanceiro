@@ -90,22 +90,22 @@ export function TopbarGoal({ grouping, teamNaming, currentDate }: TopbarGoalProp
       <PopoverTrigger render={<Button variant="outline" size="auto" aria-label="Abrir a corrida até a meta" />}>
         {/* Meta */}
         <span className="grid gap-px">
-          <span className="flex items-center gap-1 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+          <span className="flex items-center gap-1 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
             <Flag className="size-3" />
             Meta
           </span>
           <span className="font-mono text-[13px] font-semibold">{displayMoneyCompact(progress.goal)}</span>
           {nearGoal ? (
-            <span className="text-[11px] font-normal text-warning">
+            <span className="text-xs font-normal text-warning">
               {leaderName} a {100 - goalPercent(leaderFraction)}% da meta
             </span>
           ) : rise ? (
-            <span className="flex items-center gap-0.5 text-[11px] font-normal text-warning">
+            <span className="flex items-center gap-0.5 text-xs font-normal text-warning">
               <ArrowUp className="size-3" />
               {displaySignedPercent(rise.fraction, 1)} com o IPCA
             </span>
           ) : (
-            inTeams && <span className="text-[11px] font-normal text-muted-foreground">média da sua equipe</span>
+            inTeams && <span className="text-xs font-normal text-muted-foreground">média da sua equipe</span>
           )}
         </span>
 
@@ -129,7 +129,7 @@ export function TopbarGoal({ grouping, teamNaming, currentDate }: TopbarGoalProp
           <span className="font-mono text-[13px] font-semibold">
             {yours ? displayGoalPercent(yours.fraction) : "—"}
           </span>
-          <span className="text-[11px] font-normal text-muted-foreground">você</span>
+          <span className="text-xs font-normal text-muted-foreground">você</span>
         </span>
         <ChevronDown className="text-faint-foreground" />
       </PopoverTrigger>
@@ -182,7 +182,7 @@ function TopbarGoalSkeleton() {
       aria-busy="true"
     >
       <span className="grid gap-px">
-        <span className="flex items-center gap-1 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+        <span className="flex items-center gap-1 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
           <Flag className="size-3" />
           Meta
         </span>
@@ -191,7 +191,7 @@ function TopbarGoalSkeleton() {
       <Skeleton className="h-2 w-60" />
       <span className="grid justify-items-end">
         <span className="font-mono text-[13px] font-semibold text-faint-foreground">—</span>
-        <span className="text-[11px] text-muted-foreground">você</span>
+        <span className="text-xs text-muted-foreground">você</span>
       </span>
     </div>
   );

@@ -29,7 +29,7 @@ export function ErrorState({ title, description, error, onRetry, children }: Err
         </EmptyMedia>
         <EmptyTitle>{title}</EmptyTitle>
         <EmptyDescription>{description ?? error?.message}</EmptyDescription>
-        {error && <p className="font-mono text-[11px] text-faint-foreground">{error.statusLine}</p>}
+        {error && <p className="font-mono text-xs text-faint-foreground">{error.statusLine}</p>}
       </EmptyHeader>
       {(onRetry || children) && (
         <EmptyContent className="flex-row justify-center">

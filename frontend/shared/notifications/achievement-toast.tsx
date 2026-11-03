@@ -17,7 +17,7 @@ export function AchievementToast({ achievements, onSeeAll }: AchievementToastPro
     <div className="relative flex w-[380px] max-w-full items-center gap-3.5 overflow-hidden rounded-xl bg-toast py-3.5 pr-4 pl-3.5 text-toast-foreground shadow-[0_12px_32px_rgba(15,23,41,.28)] before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:bg-toast-warning">
       <AchievementIcon name={first.icon} state="unlocked" size="lg" onDark />
       <div className="grid min-w-0 flex-1 gap-0.5">
-        <span className="text-[11px] font-semibold tracking-[.08em] text-toast-warning uppercase">
+        <span className="text-xs font-semibold tracking-[.08em] text-toast-warning uppercase">
           {several
             ? `${achievements.length} conquistas no mesmo dia`
             : first.secret

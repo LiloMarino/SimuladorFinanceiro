@@ -68,7 +68,7 @@ export function AllocationDonut({ portfolio }: { portfolio: PortfolioState }) {
             <Ring portfolio={portfolio} slices={slices} hovered={hovered} onHover={setHovered} />
 
             <div className="grid content-start gap-1.5">
-              <span className="pb-0.5 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+              <span className="pb-0.5 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
                 Por classe
               </span>
               {slices.map((slice) => (
@@ -103,7 +103,7 @@ export function AllocationDonut({ portfolio }: { portfolio: PortfolioState }) {
                       {displaySignedMoney(portfolio.total_networth)}
                     </span>
                   </div>
-                  <span className="text-[11px] text-muted-foreground">O que você tem menos o que deve</span>
+                  <span className="text-xs text-muted-foreground">O que você tem menos o que deve</span>
                 </div>
               )}
             </div>
@@ -153,9 +153,9 @@ function Ring({
         })}
       </svg>
       <div className="pointer-events-none absolute inset-0 grid place-content-center text-center">
-        <span className="text-[11px] text-muted-foreground">Você tem</span>
+        <span className="text-xs text-muted-foreground">Você tem</span>
         <span className="text-[15px] font-semibold tabular-nums">{displayMoneyCompact(portfolio.assets_value)}</span>
-        <span className="text-[11px] text-muted-foreground">{caption}</span>
+        <span className="text-xs text-muted-foreground">{caption}</span>
       </div>
     </div>
   );
@@ -191,10 +191,8 @@ function AssetList({ assets }: { assets: AssetRow[] }) {
   return (
     <div className="grid min-w-0 content-start gap-1">
       <div className="flex justify-between pb-0.5">
-        <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
-          Maiores ativos
-        </span>
-        <span className="text-[11px] text-muted-foreground">% do que você tem</span>
+        <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">Maiores ativos</span>
+        <span className="text-xs text-muted-foreground">% do que você tem</span>
       </div>
       <ul
         className="grid grid-flow-col grid-cols-2 gap-x-10 gap-y-1"

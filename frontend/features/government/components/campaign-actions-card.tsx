@@ -205,7 +205,7 @@ function ActionBody({
       <div className="grid min-w-0 content-start gap-4.5">
         {/* Passo 1: a ação */}
         <div className="grid gap-2">
-          <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">1 · Ação</span>
+          <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">1 · Ação</span>
           <div role="radiogroup" aria-label="Ação" className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
             {campaign.actions.map((candidate) => (
               <ActionChoice
@@ -229,9 +229,7 @@ function ActionBody({
         {!isTv && (
           <div className="grid gap-2">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
-                2 · Grupo
-              </span>
+              <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">2 · Grupo</span>
               <span className="text-xs text-faint-foreground">
                 {undecided
                   ? `Repetir a ação no mesmo grupo rende 100%, 50%, 25%, contando desde ${displayDayMonth(dayAfter(campaign.first_round))}; o ganho sai primeiro dos indecisos do grupo`
@@ -253,9 +251,7 @@ function ActionBody({
         {/* Passo 3: o rival, só no ataque */}
         {!isTv && (
           <div className="grid gap-2">
-            <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
-              3 · Rival
-            </span>
+            <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">3 · Rival</span>
             {!isAttack ? (
               <Select disabled value={null} items={{}}>
                 <SelectTrigger className="w-70" aria-label="Rival">
@@ -292,7 +288,7 @@ function ActionBody({
       {/* Resumo do dado */}
       <div className="grid content-start gap-3.5 rounded-[10px] border bg-subtle p-4">
         <div className="grid gap-0.5">
-          <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">Resumo</span>
+          <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">Resumo</span>
           <b className="text-base">{summaryTitle(kind, group, rival?.abbr ?? null)}</b>
           <span className="text-[12.5px] text-muted-foreground">
             {isTv
@@ -310,7 +306,7 @@ function ActionBody({
             <Dices />
             Rolar o dado · {displayMoney(price)}
           </Button>
-          <span className="text-center text-[11.5px] text-faint-foreground">
+          <span className="text-center text-xs text-faint-foreground">
             {short > 0
               ? `Faltam ${displayMoney(short)} no seu caixa`
               : isAttack && rivalId === null
@@ -398,7 +394,7 @@ function ActionChoice({ action, selected, short, cash, noRival, partyAbbr, onSel
         <span className="text-xs leading-snug text-muted-foreground">{info.blurb}</span>
         <div className="grid gap-0.5 border-t pt-1.5">
           <span className="font-mono text-xs font-semibold text-success">em média {preview}</span>
-          <span className="text-[11px] text-faint-foreground">{info.dice}</span>
+          <span className="text-xs text-faint-foreground">{info.dice}</span>
         </div>
       </div>
       {short > 0 && (
@@ -429,10 +425,7 @@ function GroupChoices({ action, kind, group, onGroup, weights, undecided, today 
   return (
     <div role="radiogroup" aria-label="Grupo" className="grid gap-0.5">
       <div
-        className={cn(
-          GROUP_ROW,
-          "px-2 pb-0.5 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase",
-        )}
+        className={cn(GROUP_ROW, "px-2 pb-0.5 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase")}
       >
         <span />
         <span />
@@ -474,7 +467,7 @@ function GroupChoices({ action, kind, group, onGroup, weights, undecided, today 
               <span className={cn("truncate", selected ? "font-semibold" : "font-medium")}>
                 {GROUP_INFO[target.group].label}
               </span>
-              <span className="text-[11px] text-faint-foreground">
+              <span className="text-xs text-faint-foreground">
                 {displayPercent(weights.get(target.group) ?? 0, 0)} do eleitorado
               </span>
             </span>
@@ -496,7 +489,7 @@ function GroupChoices({ action, kind, group, onGroup, weights, undecided, today 
                   />
                 ))}
               </span>
-              <span className="text-[11px] text-faint-foreground">{target.uses_this_month}×</span>
+              <span className="text-xs text-faint-foreground">{target.uses_this_month}×</span>
             </span>
             <span
               className={cn(
@@ -576,7 +569,7 @@ function SummaryBody({ campaign, kind, group, target, rival }: SummaryBodyProps)
       <div className="grid gap-1.5">
         <div className="flex items-baseline justify-between gap-2">
           <span className="text-xs font-medium text-muted-foreground">O dado decide quanto rende</span>
-          <span className="text-right text-[11px] text-faint-foreground">
+          <span className="text-right text-xs text-faint-foreground">
             {kind === "RALLY" && "extremos dobrados · "}
             {subject}
           </span>

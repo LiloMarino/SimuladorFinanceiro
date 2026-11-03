@@ -155,7 +155,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
             <Fragment key={group.label}>
               <TableRow variant="group">
                 <TableCell colSpan={COLUMNS}>
-                  <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+                  <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
                     {group.label}
                   </span>
                 </TableCell>

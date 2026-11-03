@@ -260,10 +260,10 @@ function RiskReturn({
           <div className="grid gap-5 lg:grid-cols-[1.7fr_1fr]">
             <div className="relative h-90">
               {/* Quadrantes: o melhor é em cima e à esquerda, o pior embaixo e à direita */}
-              <span className="pointer-events-none absolute top-5 left-18 text-[11px] font-medium text-success">
+              <span className="pointer-events-none absolute top-5 left-18 text-xs font-medium text-success">
                 Mais retorno, menos risco
               </span>
-              <span className="pointer-events-none absolute right-8 bottom-14 text-[11px] font-medium text-destructive">
+              <span className="pointer-events-none absolute right-8 bottom-14 text-xs font-medium text-destructive">
                 Menos retorno, mais risco
               </span>
               <ResponsiveContainer width="100%" height="100%">

@@ -44,8 +44,8 @@ import { useTableSort } from "@/shared/hooks/useTableSort";
 import { sortNumber } from "@/shared/lib/table-sort";
 
 // Com a taxa equivalente escondida a tabela perde a coluna "Equivale hoje"
-const COLUMNS = 8;
-const COLUMNS_WITHOUT_RATE = 7;
+const COLUMNS = 7;
+const COLUMNS_WITHOUT_RATE = 6;
 
 type IndexFilter = "ALL" | FixedIncomeOffer["rate_index"];
 type TypeFilter = "ALL" | "CDB" | "LCI_LCA" | "Tesouro Direto";
@@ -99,7 +99,6 @@ export default function FixedIncomePage() {
     filtered,
     {
       name: (o) => o.name,
-      type: (o) => INVESTMENT_TYPE_LABELS[o.investment_type],
       rate: (o) => Number(o.interest_rate),
       equivalent: (o) => sortNumber(o.effective_annual_rate),
       maturity: (o) => o.maturity_date,
@@ -151,7 +150,6 @@ export default function FixedIncomePage() {
     <TableHeader>
       <TableRow>
         <SortableTableHead {...sorting.header("name")} label="Título" />
-        <SortableTableHead {...sorting.header("type")} label="Tipo" />
         <SortableTableHead {...sorting.header("rate")} label="Rentabilidade" />
         {showRate && <SortableTableHead {...sorting.header("equivalent")} label="Equivale hoje" />}
         <SortableTableHead {...sorting.header("maturity")} label="Vencimento" />
@@ -216,9 +214,11 @@ export default function FixedIncomePage() {
                         {displayMoney(held.get(o.asset_uuid)?.total_applied ?? 0)} aplicados
                       </span>
                     )}
-                    <span className="max-w-[300px] truncate text-xs text-muted-foreground">{o.issuer}</span>
+                    <span className="max-w-[300px] truncate text-xs text-muted-foreground">
+                      {INVESTMENT_TYPE_LABELS[o.investment_type]} · {o.issuer}
+                    </span>
                     {isRareOffer(o) && o.offered_until && o.player_cap && (
-                      <span className="text-xs font-medium text-warning">
+                      <span className="max-w-[300px] text-xs font-medium whitespace-normal text-warning">
                         oferta do catálogo de {displayMonthName(o.offered_until)} · até {displayCap(o.player_cap)} por
                         jogador
                       </span>
@@ -226,26 +226,25 @@ export default function FixedIncomePage() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="secondary">{INVESTMENT_TYPE_LABELS[o.investment_type]}</Badge>
-                </TableCell>
-                <TableCell>
                   <div className="grid gap-1">
                     <span className="font-mono">{displayRateLabel(o.rate_index, o.interest_rate)}</span>
                     {budget && hasPremium(o) && position && (
-                      <span className="text-xs text-muted-foreground">
+                      <span className="max-w-48 text-xs whitespace-normal text-muted-foreground">
                         {purchasePremiumNote(position.first_applied_date, o)}
                       </span>
                     )}
                     {budget && !position && hasPremium(o) && <PremiumTag offer={o} budget={budget} />}
                     {budget && !isTreasury(o) && (
-                      <span className="text-xs text-muted-foreground">sem prêmio: o prêmio é só do Tesouro</span>
+                      <span className="max-w-48 text-xs whitespace-normal text-muted-foreground">
+                        sem prêmio: o prêmio é só do Tesouro
+                      </span>
                     )}
                   </div>
                 </TableCell>
                 {showRate && (
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <span className="h-1.5 w-22 overflow-hidden rounded-full bg-muted">
+                      <span className="h-1.5 w-14 overflow-hidden rounded-full bg-muted">
                         <span
                           className="block h-full rounded-full bg-success"
                           style={{ width: `${(Number(o.effective_annual_rate) / topRate) * 100}%` }}

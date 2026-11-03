@@ -52,6 +52,12 @@ function benchmarkLabel(benchmark: Benchmark, simulationIds: number[]) {
   return simulationIds.length > 1 ? `${name} · ${simulationLetter(simulationIds, benchmark.simulation_id)}` : name;
 }
 
+// A faixa ocupa uma largura fixa: os quadradinhos dividem o espaço, de modo que a tabela não cresce com a duração da partida.
+// Passando de 3 anos o vão entre eles some, para que cada mês ainda tenha largura.
+const STRIP_WIDTH = "w-48";
+const stripGap = (months: number) => (months > 36 ? "gap-0" : "gap-0.5");
+const MONTH_SQUARE = "block h-3 w-full";
+
 /** Cada mês da partida num quadradinho: colorido quando passou no teste da coluna, cinza quando não. */
 function MonthStrip({
   months,
@@ -63,11 +69,13 @@ function MonthStrip({
   color: string;
 }) {
   return (
-    <span className="flex gap-0.5">
+    <span className={cn("flex", STRIP_WIDTH, stripGap(months.length))}>
       {months.map((m) => (
         <Tooltip key={m.month}>
-          <TooltipTrigger render={<span />}>
-            <span className={cn("block size-3 rounded-[3px]", passed(m) ? color : "bg-muted")} />
+          <TooltipTrigger render={<span className="min-w-0 max-w-3 flex-1" />}>
+            <span
+              className={cn(MONTH_SQUARE, months.length > 36 ? "" : "rounded-[3px]", passed(m) ? color : "bg-muted")}
+            />
           </TooltipTrigger>
           <TooltipContent>
             {displayMonthSlashYear(m.month)}: {displaySignedPercent(m.value)} · CDI {displayPercent(m.cdi)}
@@ -106,9 +114,17 @@ function TeamMonthsCell({ average, months, color }: { average: string; months: n
   const exact = Number.isInteger(Number(average)) ? null : displayNumber(average, 1);
   return (
     <span className="flex items-center justify-end gap-2.5">
-      <span className="flex gap-0.5">
+      <span className={cn("flex", STRIP_WIDTH, stripGap(months))}>
         {Array.from({ length: months }, (_, i) => (
-          <span key={i} className={cn("block size-3 rounded-[3px]", i < rounded ? color : "bg-muted")} />
+          <span
+            key={i}
+            className={cn(
+              MONTH_SQUARE,
+              "min-w-0 max-w-3 flex-1",
+              months > 36 ? "" : "rounded-[3px]",
+              i < rounded ? color : "bg-muted",
+            )}
+          />
         ))}
       </span>
       <span className="font-mono">
@@ -347,11 +363,12 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
         simulationIds={simulationIds}
         currentPlayerName={currentPlayerName}
         columns={[
-          { metric: CAPITAL_PROVIDED, value: (r) => r.capital_provided, teamValue: (t) => t.capital_provided },
           {
             metric: ANNUAL_RETURN,
             value: (r) => r.annual_return,
             teamValue: (t) => t.annual_return,
+            hint: (r) => `${CAPITAL_PROVIDED.label}: ${displayMoney(r.capital_provided)}`,
+            teamHint: (t) => `${CAPITAL_PROVIDED.label}: ${displayMoney(t.capital_provided)}`,
             best: "max",
             tone: (r) => (r.annual_return && Number(r.annual_return) < 0 ? "negative" : undefined),
           },
@@ -393,7 +410,6 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
             <TableCell>
               <span className="text-muted-foreground">{benchmarkLabel(b, simulationIds)} · referência</span>
             </TableCell>
-            <TableCell numeric>—</TableCell>
             <TableCell numeric>{b.annual_return ? displayPercent(b.annual_return) : "—"}</TableCell>
             <TableCell numeric>—</TableCell>
             <TableCell numeric>—</TableCell>

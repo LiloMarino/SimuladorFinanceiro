@@ -40,7 +40,7 @@ export function TutorialNudge({ style, anchor, side }: TutorialNudgeProps) {
             <span className="inline-flex size-7 items-center justify-center rounded-lg bg-info-soft text-primary">
               <GraduationCap className="size-4" />
             </span>
-            <span className="text-[11px] font-semibold tracking-wider text-info uppercase">Tópico sobre esta tela</span>
+            <span className="text-xs font-semibold tracking-wider text-info uppercase">Tópico sobre esta tela</span>
             <Button
               variant="ghost"
               size="icon-xs"

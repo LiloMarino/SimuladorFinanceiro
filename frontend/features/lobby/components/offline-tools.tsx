@@ -77,9 +77,7 @@ export function OfflineTools({ onOpenSaved, isHost }: { onOpenSaved: () => void;
 
   return (
     <section className="grid gap-2.5">
-      <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
-        Fora da partida
-      </span>
+      <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">Fora da partida</span>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {tools.map(({ icon: Icon, title, description, onClick, badge, lockedBecause }) => (
           <button

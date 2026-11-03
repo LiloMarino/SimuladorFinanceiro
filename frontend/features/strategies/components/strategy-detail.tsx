@@ -124,7 +124,7 @@ export function StrategyDetail({
             {active ? (
               <ActiveMark since={displayDayMonth(active.since)} />
             ) : (
-              <span className="text-[11px] text-muted-foreground">Desligada</span>
+              <span className="text-xs text-muted-foreground">Desligada</span>
             )}
           </span>
           <h2 className="text-lg font-semibold">{strategy.name}</h2>

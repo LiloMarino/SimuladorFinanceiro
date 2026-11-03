@@ -124,6 +124,20 @@ por digitação, ou quando quem valida é o servidor:
 
 ---
 
+## Tabelas e texto
+
+- A tabela cabe na tela em 1920 de largura sem rolagem lateral, e em 1366 nada passa da
+  borda. Para caber, nesta ordem: a informação secundária vai para o hover, duas colunas
+  viram uma, o texto quebra em duas linhas (`wrap` em `TableHead` e `TableCell`). A rolagem
+  lateral fica para tabela larga por natureza, como a matriz de correlação.
+- Nenhum texto abaixo de 12 px: use `text-xs` ou maior. O teste
+  `shared/lib/min-text-size.test.ts` falha se uma classe `text-[Npx]` com N menor que 12
+  entrar no código.
+- Texto pequeno usa `text-muted-foreground` ou `text-faint-foreground`, ambos com contraste
+  mínimo de 4,5:1 sobre os fundos do app.
+
+---
+
 ## Testes
 
 O Vitest cobre as contas que o navegador faz: função pura de cálculo ou de formatação, sem

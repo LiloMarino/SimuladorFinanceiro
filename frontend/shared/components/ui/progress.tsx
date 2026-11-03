@@ -98,8 +98,8 @@ function ProgressMarker({ position, color, foreground, highlighted, title, child
       data-slot="progress-marker"
       title={title}
       className={cn(
-        "absolute top-1/2 inline-flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-[9px] font-bold tracking-[.02em] shadow-[0_0_0_2px_var(--card)] [&_svg]:size-3",
-        highlighted ? "z-10 size-6.5 text-[10px] shadow-[0_0_0_2px_var(--card),0_0_0_4px_var(--primary)]" : "size-5.5",
+        "absolute top-1/2 inline-flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-xs font-bold tracking-[.02em] shadow-[0_0_0_2px_var(--card)] [&_svg]:size-3",
+        highlighted ? "z-10 size-6.5 text-xs shadow-[0_0_0_2px_var(--card),0_0_0_4px_var(--primary)]" : "size-5.5",
       )}
       style={{ left: `${clamped * 100}%`, backgroundColor: color, color: foreground }}
     >

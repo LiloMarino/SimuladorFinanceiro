@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/
 import { MetricHint } from "@/shared/components/metric-hint";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { plural } from "@/shared/lib/strategy-orders";
+import { cn } from "@/shared/lib/utils";
 import { teamColor, teamName } from "@/shared/lib/teams";
 import {
   displayMoney,
@@ -263,11 +264,16 @@ function VolumeHeatmap({
   const months = [...new Set(players.flatMap((p) => p.monthly_volume.map((m) => m.month)))].sort();
   const volumeOf = (m: OperationsPlayer["monthly_volume"][number]) => Number(m.bought) + Number(m.sold);
   const max = Math.max(...players.flatMap((p) => p.monthly_volume.map(volumeOf)), 1);
+  // Passando de 3 anos as colunas dividem a largura do cartão: o vão encolhe, só a virada do ano ganha rótulo e o traço do mês sem negócio some
+  const dense = months.length > 36;
+  const isYearStart = (month: string, i: number) => i === 0 || month.slice(0, 4) !== months[i - 1]?.slice(0, 4);
   // O ano aparece só no primeiro mês e na virada
   const monthLabel = (month: string, i: number) =>
-    i === 0 || month.slice(0, 4) !== months[i - 1]?.slice(0, 4)
-      ? displayShortMonthYear(month)
-      : displayMonthShort(month);
+    isYearStart(month, i) ? displayShortMonthYear(month) : displayMonthShort(month);
+  // O primeiro mês só ganha rótulo se a próxima virada de ano estiver longe o bastante para não sobrepor
+  const firstYearBreak = months.findIndex((m, i) => i > 0 && isYearStart(m, i));
+  const showLabel = (month: string, i: number) =>
+    dense ? isYearStart(month, i) && (i > 0 || firstYearBreak >= 6) : months.length <= 12 || i % 3 === 0;
 
   return (
     <Card className="overflow-hidden">
@@ -288,18 +294,21 @@ function VolumeHeatmap({
         {months.length === 0 ? (
           <p className="py-6 text-center text-[13px] text-muted-foreground">Ninguém negociou ações ainda.</p>
         ) : (
-          <div className="overflow-x-auto">
+          <div>
             <div
-              className="grid gap-1"
-              style={{ gridTemplateColumns: `180px repeat(${months.length}, minmax(28px, 56px)) 96px` }}
+              className={cn("grid gap-y-1", dense ? "gap-x-px" : "gap-x-1")}
+              style={{ gridTemplateColumns: `180px repeat(${months.length}, minmax(0, 56px)) 96px` }}
             >
               <span />
               {months.map((m, i) => (
-                <span key={m} className="text-center font-mono text-[10px] whitespace-nowrap text-faint-foreground">
-                  {months.length <= 12 || i % 3 === 0 ? monthLabel(m, i) : ""}
+                <span
+                  key={m}
+                  className="justify-self-center text-center font-mono text-xs whitespace-nowrap text-faint-foreground"
+                >
+                  {showLabel(m, i) ? monthLabel(m, i) : ""}
                 </span>
               ))}
-              <span className="text-right text-[11px] font-medium text-muted-foreground">Total</span>
+              <span className="text-right text-xs font-medium text-muted-foreground">Total</span>
               {groups.map((group) => (
                 <Fragment key={group.team ?? "all"}>
                   {group.team !== null && (
@@ -340,14 +349,14 @@ function VolumeHeatmap({
                             <Tooltip key={month}>
                               <TooltipTrigger render={<span />}>
                                 <span
-                                  className="flex h-7 items-center justify-center rounded text-[11px] text-faint-foreground"
+                                  className="flex h-7 items-center justify-center rounded text-xs text-faint-foreground"
                                   style={{
                                     backgroundColor: volume
                                       ? `color-mix(in oklab, ${heat} ${Math.round(15 + (volume / max) * 85)}%, transparent)`
                                       : "var(--muted)",
                                   }}
                                 >
-                                  {volume ? "" : "—"}
+                                  {volume || dense ? "" : "—"}
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -371,7 +380,7 @@ function VolumeHeatmap({
                 </Fragment>
               ))}
             </div>
-            <div className="mt-3 flex items-center gap-2 text-[11px] text-faint-foreground">
+            <div className="mt-3 flex items-center gap-2 text-xs text-faint-foreground">
               R$ 0
               <span className="h-2 w-24 rounded-full bg-linear-to-r from-primary/15 to-primary" />
               {displayMoneyCompact(max)} por mês

@@ -51,7 +51,7 @@ export function MarkedSlider({
             <span
               key={mark.value}
               className={cn(
-                "absolute text-[11px] whitespace-nowrap text-faint-foreground",
+                "absolute text-xs whitespace-nowrap text-faint-foreground",
                 !first && !last && "-translate-x-1/2",
                 mark === nearest && "font-semibold text-foreground",
               )}

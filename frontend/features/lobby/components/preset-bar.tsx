@@ -221,7 +221,7 @@ function HostPresetBar({ form, locked, applied, onApplyLoaded }: HostPresetBarPr
 
 function MenuHeader({ children, hint }: { children: string; hint?: string }) {
   return (
-    <div className="flex items-center gap-1.5 px-2.5 pt-2 pb-1 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+    <div className="flex items-center gap-1.5 px-2.5 pt-2 pb-1 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
       {children}
       {hint && <span className="font-medium tracking-normal normal-case">{hint}</span>}
     </div>

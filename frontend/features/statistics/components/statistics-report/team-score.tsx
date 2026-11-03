@@ -227,11 +227,11 @@ function TeamAxes({ report, team, picker }: { report: OverviewReport; team: Team
                       title="100 = bom"
                     />
                   </div>
-                  <span className="font-mono text-[11px] text-faint-foreground">0 · 100 = bom · {AXIS_SCALE}</span>
+                  <span className="font-mono text-xs text-faint-foreground">0 · 100 = bom · {AXIS_SCALE}</span>
                 </div>
                 {/* Todas as equipes nesse eixo: uma linha por equipe, a sua destacada */}
                 <div className="grid gap-1 border-t border-muted pt-2.5">
-                  <span className="text-[11px] text-faint-foreground">Todas as equipes nesse eixo</span>
+                  <span className="text-xs text-faint-foreground">Todas as equipes nesse eixo</span>
                   {ranked.map((entry, index) => (
                     <span
                       key={entry.team}

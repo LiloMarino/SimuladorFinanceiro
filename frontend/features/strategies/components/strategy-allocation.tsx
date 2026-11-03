@@ -77,7 +77,7 @@ type BarProps = {
 function Bar({ label, percent, tone }: BarProps) {
   return (
     <div className="grid grid-cols-[44px_minmax(0,1fr)_52px] items-center gap-x-3">
-      <span className="text-[11px] text-faint-foreground">{label}</span>
+      <span className="text-xs text-faint-foreground">{label}</span>
       <Progress value={percent} size="md" indicatorTone={tone} aria-label={`${label}: ${percent}%`} />
       <span className="text-right font-mono text-xs text-muted-foreground">{displayPercent(percent / 100, 1)}</span>
     </div>

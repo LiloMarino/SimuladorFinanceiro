@@ -82,7 +82,7 @@ export function PlayerScoreCard({
                       />
                     )}
                   </div>
-                  <span className="font-mono text-[11px] text-faint-foreground">0 · 100 = bom · {AXIS_SCALE}</span>
+                  <span className="font-mono text-xs text-faint-foreground">0 · 100 = bom · {AXIS_SCALE}</span>
                 </div>
                 {/* Métrica, valor e pontos: tabela compacta dentro do cartão do eixo */}
                 <ScoreMetricsTable metrics={axis.metrics} months={player.months} />

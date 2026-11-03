@@ -53,7 +53,7 @@ export function GovernmentHeader({ panel }: GovernmentHeaderProps) {
           </div>
           {party && (
             <div className="grid gap-1">
-              <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+              <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
                 Bandeiras do {party.abbr}
               </span>
               <ValueChips values={party.flags} />

@@ -17,7 +17,7 @@ export function NewsSeal({ date }: NewsSealProps) {
     >
       <Newspaper className="size-4" />
       <b className="font-serif lining-nums text-[13px]">Diário</b>
-      <span className="font-mono text-[11px] text-muted-foreground">{displayDayMonth(date)}</span>
+      <span className="font-mono text-xs text-muted-foreground">{displayDayMonth(date)}</span>
     </Link>
   );
 }

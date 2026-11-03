@@ -150,7 +150,7 @@ function ClassPanel({
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="block font-sans text-[11px]"
+        className="block font-sans text-xs"
         role="img"
         aria-label={`${config.label} ao longo da partida`}
       >

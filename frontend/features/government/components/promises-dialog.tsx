@@ -217,7 +217,7 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
                 >
                   <Plus />
                   Adicionar promessa
-                  <span className="ml-auto text-[11px] text-muted-foreground">no máximo {panel.max_promises}</span>
+                  <span className="ml-auto text-xs text-muted-foreground">no máximo {panel.max_promises}</span>
                 </Button>
               )}
               <p className="grid gap-1 pt-1 text-xs leading-normal text-muted-foreground">
@@ -417,7 +417,7 @@ function PromiseEffects({ item, groups, abbr, stale }: PromiseEffectsProps) {
                           <b className={cn("font-mono text-[13px]", support > 0 ? "text-success" : "text-destructive")}>
                             {signedDecimal(support)}
                           </b>
-                          <span className="text-[11px] text-muted-foreground">
+                          <span className="text-xs text-muted-foreground">
                             {support > 0
                               ? `ganho de ${Number(row.support_full).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} × ${(1 - Number(row.rejection) / 100).toLocaleString("pt-BR", { maximumFractionDigits: 2 })}, pela rejeição de ${Math.round(Number(row.rejection))}`
                               : "quem não quer tira cheio"}

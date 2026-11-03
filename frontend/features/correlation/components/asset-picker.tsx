@@ -65,7 +65,7 @@ export function AssetPicker({ assets, held, selected, onToggle, onReplace }: Ass
             <div className="grid max-h-[560px] gap-0.5 overflow-y-auto">
               {groups.map(([sector, items]) => (
                 <div key={sector} className="grid">
-                  <span className="px-1 pt-2.5 pb-1 text-[11px] font-semibold tracking-[0.06em] text-faint-foreground uppercase">
+                  <span className="px-1 pt-2.5 pb-1 text-xs font-semibold tracking-[0.06em] text-faint-foreground uppercase">
                     {sector}
                   </span>
                   {items.map((a) => {

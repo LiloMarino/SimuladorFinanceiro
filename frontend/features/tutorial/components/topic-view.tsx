@@ -34,7 +34,7 @@ function HowToView({ topic }: { topic: HowToTopic }) {
       {/* Texto */}
       <div className="grid content-start gap-4">
         <div className="grid gap-1.5">
-          <span className="text-[11px] font-semibold tracking-wider text-faint-foreground uppercase">
+          <span className="text-xs font-semibold tracking-wider text-faint-foreground uppercase">
             Como se joga · {topic.minutes} min
           </span>
           <h2 className="text-[22px] font-bold">{topic.title}</h2>
@@ -82,7 +82,7 @@ function ConceptView({ topic }: { topic: ConceptTopic }) {
   return (
     <div className="grid max-w-2xl content-start gap-3.5 px-7 py-6">
       <div className="grid gap-1">
-        <span className="text-[11px] font-semibold tracking-wider text-faint-foreground uppercase">
+        <span className="text-xs font-semibold tracking-wider text-faint-foreground uppercase">
           Conceitos · {topic.minutes} min
         </span>
         <h2 className="text-[19px] font-bold">{topic.title}</h2>

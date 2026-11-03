@@ -122,14 +122,14 @@ function LadderCell({ tier, current, previous }: { tier: CreditLadderTier; curre
     <li
       aria-current={current ? "true" : undefined}
       className={cn(
-        "grid justify-items-center gap-0.5 rounded-[7px] bg-subtle pt-1.5 pb-1 text-[11px] text-muted-foreground",
+        "grid justify-items-center gap-0.5 rounded-[7px] bg-subtle pt-1.5 pb-1 text-xs text-muted-foreground",
         current && "bg-foreground text-background/80",
         previous && !current && "bg-card ring-1 ring-input ring-inset",
       )}
     >
       <b className={cn("font-mono text-[13px] text-foreground", current && "text-background")}>{tier.grade}</b>
       <span>{closed ? "—" : displaySpread(tier.spread ?? 0)}</span>
-      <span className="text-[10px]">{closed ? "—" : displayWholePercent(tier.debt_limit)}</span>
+      <span className="text-xs">{closed ? "—" : displayWholePercent(tier.debt_limit)}</span>
     </li>
   );
 }

@@ -101,9 +101,7 @@ function SavePresetForm({ values, rules, onClose }: SavePresetFormProps) {
 
       {/* O que entra */}
       <div>
-        <div className="mb-1 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
-          O que entra
-        </div>
+        <div className="mb-1 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">O que entra</div>
         <dl>
           {presetIncludes(values).map((row) => (
             <div

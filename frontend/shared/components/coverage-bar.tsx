@@ -38,7 +38,7 @@ export function CoverageBar({ coverage, window }: CoverageBarProps) {
       </div>
 
       {/* Marcas de tempo */}
-      <div className="flex justify-between font-mono text-[11px] text-faint-foreground">
+      <div className="flex justify-between font-mono text-xs text-faint-foreground">
         <span>{parseLocalDate(first).getFullYear()}</span>
         <span>real até {displayIsoDate(realEnd)}</span>
         <span>gerado até {displayMonthSlashYear(generatedEnd)}</span>

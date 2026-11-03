@@ -21,7 +21,7 @@ export function Scoreboard({ state, me }: ScoreboardProps) {
   return (
     <aside className="flex flex-col gap-1 border-l bg-subtle px-2.5 py-3.5" aria-label="Placar">
       <div className="flex items-baseline justify-between px-3 pb-1.5">
-        <span className="text-[11px] font-semibold tracking-wider text-faint-foreground uppercase">Placar</span>
+        <span className="text-xs font-semibold tracking-wider text-faint-foreground uppercase">Placar</span>
         <span className="text-xs text-muted-foreground">
           {reveal
             ? `depois da ${state.number}ª`

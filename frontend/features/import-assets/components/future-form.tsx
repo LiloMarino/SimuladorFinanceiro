@@ -275,7 +275,7 @@ export function FutureForm({ future, coverage, redrawSeed, onClose, onRecordingC
             <AlertTitle>Não deu pra gravar o futuro.</AlertTitle>
             <AlertDescription>
               Nada mudou na base: o futuro anterior, se havia, continua lá.
-              <span className="mt-1 block font-mono text-[11px]">{record.error.message}</span>
+              <span className="mt-1 block font-mono text-xs">{record.error.message}</span>
             </AlertDescription>
           </Alert>
         )}

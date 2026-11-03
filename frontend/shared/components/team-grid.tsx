@@ -41,7 +41,7 @@ export function TeamGrid({ players, naming, selected, disabled, onSelect }: Team
             <span className="grid min-w-0 flex-1">
               <span className="truncate text-[13px] font-semibold">{teamShortName(number, naming)}</span>
               {members.length === 0 ? (
-                <span className="text-[11px] text-muted-foreground">vazia</span>
+                <span className="text-xs text-muted-foreground">vazia</span>
               ) : (
                 <span className="flex -space-x-1.5">
                   {members.map((member) => (

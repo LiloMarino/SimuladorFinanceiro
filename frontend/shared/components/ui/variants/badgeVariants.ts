@@ -30,7 +30,7 @@ export const badgeVariants = cva(
         default: "h-6",
         sm: "h-5 px-1.5",
         // Etiqueta de estado ao lado de um nome ("Nova", "Secreta")
-        tag: "h-5 rounded-md px-[7px] text-[11px] font-semibold",
+        tag: "h-5 rounded-md px-[7px] text-xs font-semibold",
         // Selo de estado da partida, na altura dos controles da topbar
         status: "h-8 px-3 text-[13px]",
       },

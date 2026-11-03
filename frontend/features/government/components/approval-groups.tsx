@@ -85,7 +85,7 @@ function GroupRow({
         {icon}
         <span className="grid min-w-0">
           <b className="truncate font-medium">{name}</b>
-          <span className="text-[11.5px] text-muted-foreground">{caption}</span>
+          <span className="text-xs text-muted-foreground">{caption}</span>
         </span>
         <SatisfactionBar value={satisfaction} target={target} verdict={verdict} approval={approval} />
         <span className="text-right font-mono font-semibold">{satisfaction}</span>
@@ -138,7 +138,7 @@ export function ApprovalGroups({ approval, selection, onSelect, president }: App
 
   return (
     <ul className="grid">
-      <li className={cn(ROW, "pb-0.5 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase")}>
+      <li className={cn(ROW, "pb-0.5 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase")}>
         <span />
         <span>Grupo</span>
         <span className="inline-flex items-center gap-1 normal-case tracking-normal">

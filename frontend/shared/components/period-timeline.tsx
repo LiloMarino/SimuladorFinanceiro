@@ -32,7 +32,7 @@ const LEGEND: { kind: TimelineZone["kind"]; label: string }[] = [
 ];
 
 const BUBBLE =
-  "pointer-events-none absolute -top-[30px] inline-flex h-5 items-center rounded-[5px] bg-foreground px-1.5 font-mono text-[11px] whitespace-nowrap text-primary-foreground";
+  "pointer-events-none absolute -top-[30px] inline-flex h-5 items-center rounded-[5px] bg-foreground px-1.5 font-mono text-xs whitespace-nowrap text-primary-foreground";
 const TIP =
   "pointer-events-none absolute top-[26px] z-20 rounded-md bg-foreground px-2.5 py-1.5 text-xs font-medium whitespace-nowrap text-primary-foreground";
 
@@ -85,7 +85,7 @@ export function PeriodTimeline({
         style={{ left: `${todayPercent}%` }}
       />
       <span
-        className="pointer-events-none absolute top-[30px] -translate-x-1/2 bg-subtle px-[3px] text-[11px] font-semibold"
+        className="pointer-events-none absolute top-[30px] -translate-x-1/2 bg-subtle px-[3px] text-xs font-semibold"
         style={{ left: `${todayPercent}%` }}
       >
         hoje
@@ -191,7 +191,7 @@ export function PeriodTimeline({
         {AXIS_TICK_YEARS.map((year) => (
           <span
             key={year}
-            className="absolute -translate-x-1/2 font-mono text-[10px] text-faint-foreground"
+            className="absolute -translate-x-1/2 font-mono text-xs text-faint-foreground"
             style={{ left: `${axisPercent(axisPosition(`${year}-01-01`, "start"))}%` }}
           >
             {year}

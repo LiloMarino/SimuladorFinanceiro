@@ -331,7 +331,7 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
   return (
     <section className="flex flex-wrap items-end justify-between gap-8 rounded-2xl bg-sidebar px-9 py-8 text-sidebar-foreground">
       <div className="grid max-w-[520px] gap-3.5">
-        <span className="text-[11px] font-semibold tracking-[0.06em] text-sidebar-primary uppercase">
+        <span className="text-xs font-semibold tracking-[0.06em] text-sidebar-primary uppercase">
           Fim de partida · {winner.simulation_name}
           {inTeams && " · em equipes"}
         </span>

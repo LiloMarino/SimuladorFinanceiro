@@ -77,7 +77,7 @@ export function ImpeachmentFloor({ panel }: ImpeachmentFloorProps) {
       </div>
       <div className="grid justify-items-end gap-1">
         <StreakPips approval={approval} />
-        <span className="font-mono text-[11px] text-muted-foreground">
+        <span className="font-mono text-xs text-muted-foreground">
           {approval.in_grace ? "carência" : `${approval.low_streak} de ${approval.impeachment_months}`}
         </span>
       </div>

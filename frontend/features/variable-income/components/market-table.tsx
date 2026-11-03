@@ -26,7 +26,7 @@ function DayRange({ quote }: { quote: MarketQuote }) {
       <div className="relative h-1.5 rounded-full bg-muted">
         <span className="absolute -top-0.5 h-2.5 w-0.5 rounded-full bg-foreground" style={{ left: `${position}%` }} />
       </div>
-      <div className="flex justify-between gap-2 font-mono text-[11px] whitespace-nowrap text-faint-foreground">
+      <div className="flex justify-between gap-2 font-mono text-xs whitespace-nowrap text-faint-foreground">
         <span>{displayMoney(quote.low)}</span>
         <span>{displayMoney(quote.high)}</span>
       </div>

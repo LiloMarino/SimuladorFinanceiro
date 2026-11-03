@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { ErrorState } from "@/shared/components/error-state";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { TeamBadge } from "@/shared/components/team-badge";
@@ -225,6 +226,21 @@ interface MetricColumn<T, G = never> {
   teamValue?: (team: G) => string | number | null | undefined;
   /** Célula própria da equipe no lugar do valor formatado */
   teamCell?: (team: G, members: T[]) => ReactNode;
+  /** Informação secundária que aparece ao passar o mouse sobre o valor (a coluna dela não ocupa espaço) */
+  hint?: (row: T) => ReactNode;
+  /** Informação secundária da linha da equipe */
+  teamHint?: (team: G) => ReactNode;
+}
+
+/** O conteúdo da célula, com a dica no hover quando há uma. */
+function WithHint({ hint, children }: { hint: ReactNode; children: ReactNode }) {
+  if (!hint) return children;
+  return (
+    <Tooltip>
+      <TooltipTrigger render={<span />}>{children}</TooltipTrigger>
+      <TooltipContent>{hint}</TooltipContent>
+    </Tooltip>
+  );
 }
 
 /** Equipes de uma tabela agrupada: uma linha por equipe com os membros logo abaixo. */
@@ -305,19 +321,21 @@ export function MetricsTable<T extends PlayerRef, G extends { team: number } = n
           const tone = column.tone?.(row);
           return (
             <TableCell key={column.metric.label} numeric>
-              {column.cell ? (
-                column.cell(row)
-              ) : best ? (
-                <Badge variant="success">{displayMetric(column.metric, value)}</Badge>
-              ) : (
-                <span
-                  className={
-                    tone === "negative" ? "text-destructive" : tone === "positive" ? "text-success" : undefined
-                  }
-                >
-                  {displayMetric(column.metric, value)}
-                </span>
-              )}
+              <WithHint hint={column.hint?.(row)}>
+                {column.cell ? (
+                  column.cell(row)
+                ) : best ? (
+                  <Badge variant="success">{displayMetric(column.metric, value)}</Badge>
+                ) : (
+                  <span
+                    className={
+                      tone === "negative" ? "text-destructive" : tone === "positive" ? "text-success" : undefined
+                    }
+                  >
+                    {displayMetric(column.metric, value)}
+                  </span>
+                )}
+              </WithHint>
             </TableCell>
           );
         })}
@@ -350,11 +368,13 @@ export function MetricsTable<T extends PlayerRef, G extends { team: number } = n
           {extraColumn && <TableCell>{extraColumn.teamCell?.(team, members)}</TableCell>}
           {columns.map((column) => (
             <TableCell key={column.metric.label} numeric>
-              {column.teamCell ? (
-                column.teamCell(team, members)
-              ) : (
-                <span className="font-semibold">{displayMetric(column.metric, column.teamValue?.(team))}</span>
-              )}
+              <WithHint hint={column.teamHint?.(team)}>
+                {column.teamCell ? (
+                  column.teamCell(team, members)
+                ) : (
+                  <span className="font-semibold">{displayMetric(column.metric, column.teamValue?.(team))}</span>
+                )}
+              </WithHint>
             </TableCell>
           ))}
         </TableRow>

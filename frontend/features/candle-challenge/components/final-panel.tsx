@@ -41,7 +41,7 @@ export function FinalPanel({ state, me, starting, onBack, onPlayAgain }: FinalPa
     const band = finalBand(mine?.hits ?? 0);
     return (
       <div className="grid justify-items-center gap-3 px-6 py-10 text-center">
-        <span className="text-[11px] font-semibold tracking-wider text-faint-foreground uppercase">
+        <span className="text-xs font-semibold tracking-wider text-faint-foreground uppercase">
           Fim das {state.total} perguntas · treino
         </span>
         {/* Só a faixa de leitura afiada comemora */}
@@ -76,7 +76,7 @@ export function FinalPanel({ state, me, starting, onBack, onPlayAgain }: FinalPa
   return (
     <div className="grid gap-5 px-6 py-5">
       <div className="grid gap-1 text-center">
-        <span className="text-[11px] font-semibold tracking-wider text-faint-foreground uppercase">
+        <span className="text-xs font-semibold tracking-wider text-faint-foreground uppercase">
           Fim das {state.total} perguntas
         </span>
         <b className="text-2xl">

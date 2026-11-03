@@ -212,7 +212,7 @@ function BotForm({
       <div className="grid min-h-0 grid-cols-[340px_minmax(0,1fr)]">
         {/* Estratégias por grupo */}
         <div className="min-h-0 overflow-y-auto border-r bg-subtle px-4 pt-4 pb-5">
-          <div className="px-0.5 pb-1.5 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+          <div className="px-0.5 pb-1.5 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
             Estratégia
           </div>
           <RadioGroup value={strategy.key} onValueChange={pickStrategy} dense aria-label="Estratégia">
@@ -221,7 +221,7 @@ function BotForm({
               if (items.length === 0) return null;
               return (
                 <div key={group} className="grid gap-0.5">
-                  <div className="flex items-center gap-1.5 pt-2 pb-0.5 pl-0.5 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+                  <div className="flex items-center gap-1.5 pt-2 pb-0.5 pl-0.5 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
                     {GROUP_SECTION[group].title}
                     <InfoHint label={`O que são as ${GROUP_SECTION[group].title.toLowerCase()}`}>
                       {GROUP_SECTION[group].hint}

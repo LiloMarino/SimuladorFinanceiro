@@ -46,7 +46,7 @@ function AvatarFallback({
       data-slot="avatar-fallback"
       data-colored={color ? "" : undefined}
       className={cn(
-        "flex size-full items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground group-data-[size=sm]/avatar:text-[9px] group-data-[size=lg]/avatar:text-sm group-data-[size=xl]/avatar:text-xl group-data-[size=2xl]/avatar:text-[27px] data-colored:text-white",
+        "flex size-full items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground group-data-[size=lg]/avatar:text-sm group-data-[size=xl]/avatar:text-xl group-data-[size=2xl]/avatar:text-[27px] data-colored:text-white",
         className,
       )}
       style={color ? { ...style, backgroundColor: color, color: foreground } : style}

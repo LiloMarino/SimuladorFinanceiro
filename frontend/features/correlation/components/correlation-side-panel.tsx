@@ -26,7 +26,7 @@ function SelectedPair({ matrix, pinned }: { matrix: CorrelationMatrix; pinned: P
 
   return (
     <div className="grid gap-1.5 rounded-[10px] bg-subtle p-3.5">
-      <span className="text-[11px] font-semibold tracking-[0.06em] text-faint-foreground uppercase">Selecionado</span>
+      <span className="text-xs font-semibold tracking-[0.06em] text-faint-foreground uppercase">Selecionado</span>
       <span className="font-semibold">
         {nameOf(rowLabel)} × {nameOf(columnLabel)}
       </span>

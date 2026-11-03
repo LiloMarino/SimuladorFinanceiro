@@ -58,11 +58,11 @@ export function PriceImpactExample({ k, decayDays, ticker }: PriceImpactExampleP
         <path d={area} fill="var(--primary)" fillOpacity={0.08} />
         <polyline points={line} fill="none" stroke="var(--primary)" strokeWidth="2" />
         {first && (
-          <text x={first.x} y={first.y - 6} className="fill-foreground font-mono text-[10px] font-semibold">
+          <text x={first.x} y={first.y - 6} className="fill-foreground font-mono text-xs font-semibold">
             +{displayPercent(preview.first_day_impact)}
           </text>
         )}
-        <text x={PAD} y={HEIGHT - 1} className="fill-faint-foreground font-mono text-[10px]">
+        <text x={PAD} y={HEIGHT - 1} className="fill-faint-foreground font-mono text-xs">
           1
         </text>
         {lastDay > MIDDLE_DAY && (
@@ -70,12 +70,12 @@ export function PriceImpactExample({ k, decayDays, ticker }: PriceImpactExampleP
             x={xOf(MIDDLE_DAY)}
             y={HEIGHT - 1}
             textAnchor="middle"
-            className="fill-faint-foreground font-mono text-[10px]"
+            className="fill-faint-foreground font-mono text-xs"
           >
             {MIDDLE_DAY}
           </text>
         )}
-        <text x={WIDTH - PAD} y={HEIGHT - 1} textAnchor="end" className="fill-faint-foreground font-mono text-[10px]">
+        <text x={WIDTH - PAD} y={HEIGHT - 1} textAnchor="end" className="fill-faint-foreground font-mono text-xs">
           {tValue} pregões
         </text>
       </svg>
