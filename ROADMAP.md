@@ -124,11 +124,10 @@
 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | — | — | — | 🔍 |
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
-| [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | M20 · 3.3 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -160,6 +159,7 @@
 | [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | M20 · 3.3 | — | — | — | ✅ |
 | [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | M20 · 3.3 | — | — | — | ✅ |
 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | M20 · 3.3 | — | — | — | ✅ |
+| [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | M20 · 3.3 | — | — | — | ✅ |
 
 </details>
 
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 12/27 concluídos
+> **Progresso:** 13/27 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -190,7 +190,7 @@
 | 9 | [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | — | ✅ Concluído |
 | 10 | [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | — | ✅ Concluído |
 | 11 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | — | ✅ Concluído |
-| 12 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | — | ⏳ Pendente |
+| 12 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | — | ✅ Concluído |
 | 13 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | — | ⏳ Pendente |
 | 14 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | — | ⏳ Pendente |
 | 15 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | — | ⏳ Pendente |
@@ -286,7 +286,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | M20 · 3.3 · 12º | 0 | Médio | Bom | ⏳ |
 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | M20 · 3.3 · 13º | 0 | Baixo | Bom | ⏳ |
 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | M20 · 3.3 · 14º | 0 | Médio | Bom | ⏳ |
 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | M20 · 3.3 · 15º | 0 | Médio | Bom | ⏳ |
@@ -361,7 +360,6 @@
 | **F206** | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | N15 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
 | **F208** | Melhoria | Empréstimo: o custo inteiro antes de assinar | N15, N33 | — | M20 · 3.3 | — | Baixo | Baixo | Médio | Bom |
 | **F210** | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | N6, N15 | — | M20 · 3.3 | — | Baixo | Baixo | Alto | Bom |
-| **F214** | Melhoria | Central de dados: tabela que cabe no cartão | N15 | — | M20 · 3.3 | — | Médio | Baixo | Alto | Bom |
 | **F215** | Melhoria | Backtest: formulário do período sem estouro | N15 | — | M20 · 3.3 | — | Baixo | Baixo | Alto | Bom |
 
 <a id="f6"></a>
@@ -555,17 +553,6 @@
 - Nada mais muda de ordem.
 
 **Aceite:** a comparação em 1920 de largura sem valor colado na borda nem coluna cortada.
-
-<a id="f214"></a>
-**F214 — Central de dados: tabela que cabe no cartão.** Serve N15. A tabela de séries da Central de dados (`features/import-assets/components/series-table.tsx`, página `import-assets.tsx`) rola de lado e deixa o botão de atualizar azul em todas as linhas, o que apaga a ação em massa. O desenho foi aprovado no canvas em 03/11.
-
-**O que muda:**
-- **Sem rolagem lateral:** as colunas Série, Setor · segmento, Dados reais até, Situação e Ações cabem no cartão em 1920 de largura; texto longo termina em reticências e mostra o conteúdo inteiro no hover.
-- **Linha de cerca de 62 px** (hoje a altura varia com o conteúdo).
-- **"Atualizar" por linha em contorno**; o azul cheio fica só na ação em massa "Atualizar desatualizadas (n)" do cabeçalho do cartão.
-- **Selo "Parou em …"** (o `Badge` de aviso da coluna Situação) mantido e alinhado à coluna, sem quebrar a linha.
-
-**Aceite:** a página `/import-assets` em 1920 de largura sem rolagem lateral e com uma única ação em azul cheio.
 
 <a id="f215"></a>
 **F215 — Backtest: formulário do período sem estouro.** Serve N15. No formulário do backtest em modo lista (`features/backtest/components/backtest-form.tsx`), a coluna do período e dinheiro (`period-card.tsx`, com o `period-picker.tsx` compartilhado) estoura: os atalhos e as datas passam da borda. O usuário viu o estouro ao testar o backtest em 03/11. O desenho foi aprovado no canvas em 03/11.
@@ -798,6 +785,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F207** | Correção | Placar da vela com os votos de cada jogador | N15, N22 | — | M20 · 3.3 |
 | **F209** | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | N33, N15 | — | M20 · 3.3 |
 | **F213** | Melhoria | Pendências: consequência inteira e Pagar em destaque | N15 | — | M20 · 3.3 |
+| **F214** | Melhoria | Central de dados: tabela que cabe no cartão | N15 | — | M20 · 3.3 |
 
 <a id="f180"></a>
 **F180 — Retrato no canvas das telas que mudaram desde a 3.0.** Serve N15. Da 3.1 à 3.3, cada tela foi desenhada sozinha no canvas e implementada sem conferência na tela. Juntas, elas quebram a topbar, fazem tabelas rolarem de lado e desalinham cartões (conferência visual, F178). Os boards do governo e da eleição mostram o desenho aprovado de cada feature isolada, não o app de hoje. Esta feature põe no canvas o app como ele está, para as rodadas de redesenho (F179, F181, F182, F183) comentarem sobre o conjunto e para comparar o que foi aprovado com o que foi implementado.
@@ -909,6 +897,17 @@ Cada item sai num commit `feat:` próprio.
 - **Lista de 400 px de largura** (o popover hoje tem `w-80`, 320 px).
 
 **Aceite:** o popover em 1920 de largura, com uma pendência grave e uma leve, sem texto cortado e com a gravidade legível sem depender da cor.
+
+<a id="f214"></a>
+**F214 — Central de dados: tabela que cabe no cartão.** Serve N15. A tabela de séries da Central de dados (`features/import-assets/components/series-table.tsx`, página `import-assets.tsx`) rola de lado e deixa o botão de atualizar azul em todas as linhas, o que apaga a ação em massa. O desenho foi aprovado no canvas em 03/11.
+
+**O que muda:**
+- **Sem rolagem lateral:** as colunas Série, Setor · segmento, Dados reais até, Situação e Ações cabem no cartão em 1920 de largura; texto longo termina em reticências e mostra o conteúdo inteiro no hover.
+- **Linha de cerca de 62 px** (hoje a altura varia com o conteúdo).
+- **"Atualizar" por linha em contorno**; o azul cheio fica só na ação em massa "Atualizar desatualizadas (n)" do cabeçalho do cartão.
+- **Selo "Parou em …"** (o `Badge` de aviso da coluna Situação) mantido e alinhado à coluna, sem quebrar a linha.
+
+**Aceite:** a página `/import-assets` em 1920 de largura sem rolagem lateral e com uma única ação em azul cheio.
 
 ---
 
