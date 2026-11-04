@@ -34,22 +34,32 @@ class StatisticsRepository:
     ) -> list[PlayerHistoryDTO]:
         # Capital inicial vem da linha da simulação (nunca do formulário),
         # garantindo métricas consistentes ao continuar/carregar simulações.
-        rows = session.execute(
+        players = session.execute(
             select(
-                Snapshots,
+                SimulationPlayers.simulation_id,
+                SimulationPlayers.user_id,
+                SimulationPlayers.color,
+                SimulationPlayers.team,
                 Users.nickname,
                 Users.is_bot,
                 Simulations.name,
                 Simulations.rules,
-                SimulationPlayers.color,
-                SimulationPlayers.team,
             )
-            .join(Users, Users.id == Snapshots.user_id)
-            .join(Simulations, Simulations.id == Snapshots.simulation_id)
-            .join(
-                SimulationPlayers,
-                (SimulationPlayers.simulation_id == Snapshots.simulation_id)
-                & (SimulationPlayers.user_id == Snapshots.user_id),
+            .join(Users, Users.id == SimulationPlayers.user_id)
+            .join(Simulations, Simulations.id == SimulationPlayers.simulation_id)
+            .where(SimulationPlayers.simulation_id.in_(simulation_ids))
+        ).all()
+        snapshots = session.execute(
+            select(
+                Snapshots.simulation_id,
+                Snapshots.user_id,
+                Snapshots.snapshot_date,
+                Snapshots.total_equity,
+                Snapshots.total_fixed,
+                Snapshots.total_cash,
+                Snapshots.total_networth,
+                Snapshots.total_contribution,
+                Snapshots.total_debt,
             )
             .where(Snapshots.simulation_id.in_(simulation_ids))
             .order_by(
@@ -58,38 +68,35 @@ class StatisticsRepository:
         ).all()
 
         # Agrupa os snapshots por jogador em cada simulação, preservando a ordem de data
-        grouped: dict[tuple[int, int], list] = defaultdict(list)
-        for row in rows:
-            grouped[(row.Snapshots.simulation_id, row.Snapshots.user_id)].append(row)
+        grouped: dict[tuple[int, int], list[PatrimonialHistoryDTO]] = defaultdict(list)
+        for row in snapshots:
+            grouped[(row.simulation_id, row.user_id)].append(
+                PatrimonialHistoryDTO(
+                    snapshot_date=row.snapshot_date,
+                    total_equity=row.total_equity,
+                    total_fixed=row.total_fixed,
+                    total_cash=row.total_cash,
+                    total_networth=row.total_networth,
+                    total_contribution=row.total_contribution,
+                    total_debt=row.total_debt,
+                )
+            )
 
-        settings = {
-            simulation_id: decode_settings(group[0].name, group[0].rules)
-            for (simulation_id, _), group in grouped.items()
-        }
+        info = {(p.simulation_id, p.user_id): p for p in players}
+        settings = {p.simulation_id: decode_settings(p.name, p.rules) for p in players}
         return [
             PlayerHistoryDTO(
-                player_nickname=group[0].nickname,
-                color=group[0].color,
-                team=group[0].team,
-                is_bot=group[0].is_bot,
-                simulation_id=simulation_id,
-                simulation_name=group[0].name,
-                starting_cash=settings[simulation_id].starting_cash,
-                goal_net_worth=settings[simulation_id].goal_net_worth,
-                history=[
-                    PatrimonialHistoryDTO(
-                        snapshot_date=r.Snapshots.snapshot_date,
-                        total_equity=r.Snapshots.total_equity,
-                        total_fixed=r.Snapshots.total_fixed,
-                        total_cash=r.Snapshots.total_cash,
-                        total_networth=r.Snapshots.total_networth,
-                        total_contribution=r.Snapshots.total_contribution,
-                        total_debt=r.Snapshots.total_debt,
-                    )
-                    for r in group
-                ],
+                player_nickname=info[key].nickname,
+                color=info[key].color,
+                team=info[key].team,
+                is_bot=info[key].is_bot,
+                simulation_id=key[0],
+                simulation_name=info[key].name,
+                starting_cash=settings[key[0]].starting_cash,
+                goal_net_worth=settings[key[0]].goal_net_worth,
+                history=history,
             )
-            for (simulation_id, _), group in grouped.items()
+            for key, history in grouped.items()
         ]
 
     @transactional
