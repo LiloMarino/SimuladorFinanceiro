@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 STOP_TIMEOUT = 5.0
+# Segundos entre o fim de um dia e o começo do próximo, mesmo atrasado
+MIN_DAY_GAP = 0.005
 
 
 class SimulationState(Enum):
@@ -138,6 +140,7 @@ class SimulationLoopController:
                     self._pause_event.wait()  # bloqueia até unpause ou stop
                     continue
 
+                started = time.monotonic()
                 try:
                     with simulation.lock:
                         # A pausa pode ter sido pedida desde a leitura acima.
@@ -155,7 +158,11 @@ class SimulationLoopController:
                     break
 
                 if not backtest:
-                    time.sleep(1 / speed)
+                    # Um dia a cada 1 / velocidade segundos, contando o próprio dia.
+                    # A folga mínima é a janela em que as requisições da tela pegam
+                    # o lock: ele não é justo e voltaria direto para o loop.
+                    elapsed = time.monotonic() - started
+                    time.sleep(max(1 / speed - elapsed, MIN_DAY_GAP))
 
         except Exception:
             logger.critical("Erro fatal no loop da simulação", exc_info=True)

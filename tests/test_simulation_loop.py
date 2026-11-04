@@ -76,6 +76,8 @@ class _Loop:
         self.controller = controller
         self.log = log
         self.sleeps: list[float] = []
+        # Relógio do loop: só anda quando o teste o avança
+        self.clock = 0.0
         self.ended: list[dict] = []
         self.still_active_at_end: list[bool] = []
 
@@ -103,6 +105,7 @@ def loop(monkeypatch: pytest.MonkeyPatch) -> Iterator[_Loop]:
     monkeypatch.setattr(SimulationManager, "_simulation_id", None)
     monkeypatch.setattr(EventManager, "flush", lambda: log.append("flush"))
     monkeypatch.setattr(simulation_loop.time, "sleep", fake.sleeps.append)
+    monkeypatch.setattr(simulation_loop.time, "monotonic", lambda: fake.clock)
 
     def _notify(event: str, payload: dict, to: object = None) -> None:
         log.append(event)
@@ -184,6 +187,22 @@ def test_interval_between_days_follows_the_speed(loop, monkeypatch):
     loop.join()
 
     assert loop.sleeps == [0.5, 0.5, 0.25, 0.25]
+
+
+def test_day_duration_counts_towards_the_interval(loop, monkeypatch):
+    simulation = _FakeSimulation(loop.log, days=2, speed=2)
+
+    def take(seconds: float) -> None:
+        loop.clock += seconds
+
+    simulation.on_tick[1] = lambda: take(0.2)
+    # Atrasado, o próximo dia ainda espera a folga mínima
+    simulation.on_tick[2] = lambda: take(3)
+
+    loop.play(simulation, monkeypatch)
+    loop.join()
+
+    assert loop.sleeps == [pytest.approx(0.3), simulation_loop.MIN_DAY_GAP]
 
 
 def test_pause_between_speed_read_and_tick_does_not_start_another_day(
