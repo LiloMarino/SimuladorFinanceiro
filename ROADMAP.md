@@ -99,7 +99,6 @@
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | — | — | Médio | Bom | 💤 |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.0 | — | — | — | 🔍 |
-| [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 | — | Médio | Bom | ⏳ |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | 🔍 |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | — | — | — | 🔍 |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | — | — | — | — | 🔍 |
@@ -112,7 +111,7 @@
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (44 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (45 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -145,6 +144,7 @@
 | [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | — | — | — | — | 🚫 |
 | [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 | — | — | — | ✅ |
 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 | — | — | — | ✅ |
+| [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 | — | — | — | ✅ |
 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 | — | — | — | ✅ |
 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | M20 · 3.3 | — | — | — | ✅ |
 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 | — | — | — | ✅ |
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 28/30 concluídos
+> **Progresso:** 29/30 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -207,7 +207,7 @@
 | 26 | [**F170**](#f170) | Feature | Parâmetros das estratégias salvos no perfil | — | ✅ Concluído |
 | 27 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | — | 🔍 Em avaliação |
 | 28 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ✅ Concluído |
-| 29 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | — | ⏳ Pendente |
+| 29 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | — | ✅ Concluído |
 | 30 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | — | ✅ Concluído |
 
 ### 3.4 — Juros e Tesouro (M21)
@@ -287,7 +287,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 · 27º | 0 | — | — | 🔍 |
-| [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 · 29º | 0 | Médio | Bom | ⏳ |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 · 1º | 1 | — | — | 🔍 |
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 2º | 0 | Alto | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 · 3º | 1 | Médio | Bom | ⏳ |
@@ -332,7 +331,6 @@
 | **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom |
-| **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Bom |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
 
@@ -384,13 +382,6 @@
 
 <a id="f175"></a>
 **F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), inclusive ao partido do computador; a proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173). (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato, fica preso pelo mandato e herda, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** a federação aparece no cartão dos partidos da Eleição, no hemiciclo do Congresso e no jornal (formada, desfeita); o desenho começa registrando as telas e os estados no canvas: proposta pendente, federação formada, federação desfeita antes do prazo e expansão desligada.
-
-<a id="f186"></a>
-**F186 — Estatísticas lentas numa partida longa.** Serve N38 e N24. Medido no playtest de 31/out, numa partida de alguns anos com 7 a 8 jogadores: `GET /api/statistics/operations` com 8,2 s de mediana (até 14 s), `score-history` e `overview` com 3,1 s (até 12 e 9 s), `bots` com 2,8 s e `risk` perto de 1 s. As linhas saem em pares, a milissegundos uma da outra: cada abertura da tela pede cada leitura duas vezes.
-
-**Como medir:** cada endpoint na partida salva longa do banco de teste, com cProfile e o log de SQL do modo debug, separando o tempo de banco do tempo de Python, três rodadas. **O que muda:** (1) as estatísticas fecham no mês (F115), então o resultado de cada mês fechado fica guardado e a leitura recalcula só o mês corrente, em vez de refazer tudo a partir de todas as operações; (2) a leitura dupla vira uma só (duas montagens do componente ou duas chaves de query para o mesmo dado). Os números da tela não mudam: um teste compara o resultado guardado com o recalculado do zero.
-
-**Aceite:** cada endpoint de estatística abaixo de 500 ms (o limite do `slow.log`) na partida salva longa, e uma requisição por endpoint ao abrir a tela.
 
 <a id="f196"></a>
 **F196 — Evolução do patrimônio por tipo de renda variável.** Serve N16. Hoje a evolução do patrimônio (`portfolio/components/networth-chart.tsx`) tem as visões "Ganho" e "Por classe", que separa renda fixa, renda variável e caixa, um painel por classe. O playtest de 31/out pediu ver a renda variável aberta por tipo.
@@ -610,6 +601,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F182** | Melhoria | Eleição: corrida entre partidos redesenhada | N15, N34 | — | M20 · 3.3 |
 | **F184** | Correção | Correções da 3.3 | — | — | M20 · 3.3 |
 | **F185** | Performance | Dia da partida que fica mais lento ao longo da partida | N40, N24 | — | M20 · 3.3 |
+| **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 |
 | **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 |
 | **F188** | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | N24 | — | M20 · 3.3 |
 | **F189** | Melhoria | Retoques de interface do playtest de outubro | N15, N21 | — | M20 · 3.3 |
@@ -732,6 +724,10 @@ A medição apontou o fator de impacto de preço no histórico que os bots pedem
 Em `pnpm profile:match --days 1000 --bots 7`, três rodadas: o dia no fim da partida caiu de 190–201 ms para 89–95 ms de mediana, a razão fim ÷ início de 1,51–1,65 para 1,07–1,13, e os 1.000 dias de ~163 s para ~93 s. O que ainda cresce é o envio da carteira (imposto refeito sobre todas as operações e duas somas no banco), medido com os 8 jogadores tratados como conectados; na partida real só os humanos recebem. A previsão do backtest de 10 anos passou a cair, conferida na tela.
 
 **Aceite:** a mediana do dia depois de 1.000 dias fica a até 10% da mediana dos primeiros 50, e a previsão do backtest de 10 anos com 5 bots cai de forma contínua até o fim.
+
+<a id="f186"></a>
+**F186 — Estatísticas lentas numa partida longa.**
+Na partida longa de 10 anos e 8 jogadores, as abas caíram de 1 a 24 s para 0,3 a 0,85 s: nota ao longo da partida numa passada só, volume médio do impacto numa consulta por ativo, leitura do histórico só com as colunas usadas e cada consulta planejada com os valores dela. Cinco abas ficam entre 0,65 e 0,85 s, acima dos 500 ms, aceitas. Sem leitura dupla em produção: o par de pedidos na tela é o StrictMode do dev, e a aba já montada no mês volta do servidor em 5 a 11 ms.
 
 <a id="f187"></a>
 **F187 — Um log por boot do servidor.** Serve N26. Cada arquivo da pasta de logs tinha o próprio `RotatingFileHandler`, de 10 MB com 5 cópias, e as sessões se emendavam no mesmo arquivo: achar o log de um playtest era procurar pelo horário.
