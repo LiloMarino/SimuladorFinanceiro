@@ -76,6 +76,9 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# O histórico patrimonial do jogador; com `last`, só os `last` snapshots antes de `before`
+HistoryReader = Callable[[UUID, date | None, int | None], list[PatrimonialHistoryDTO]]
+
 # Avisos de cada parcela só nas velocidades em que dá para ler; acima vira resumo do mês
 PER_INSTALLMENT_NOTICE_MAX_SPEED = 2
 MONTHLY_SUMMARY_MIN_SPEED = 4
@@ -288,13 +291,15 @@ class CreditBook:
         self,
         engine: SimulationEngine,
         lock: threading.RLock,
-        history: Callable[[UUID], list[PatrimonialHistoryDTO]] | None = None,
+        history: HistoryReader | None = None,
     ):
         self._engine = engine
         self._lock = lock
         self._history = history or (
-            lambda client_id: repository.portfolio.get_patrimonial_history(
-                UserManager.get_user_id(client_id)
+            lambda client_id, before, last: (
+                repository.portfolio.get_patrimonial_history(
+                    UserManager.get_user_id(client_id), before, last
+                )
             )
         )
         self._clients: LazyDict[UUID, ClientCredit] = LazyDict(self._load)
@@ -346,7 +351,7 @@ class CreditBook:
         )
 
     def history(self, client_id: UUID) -> list[PatrimonialHistoryDTO]:
-        return self._history(client_id)
+        return self._history(client_id, None, None)
 
     def assets_value(self, client_id: UUID) -> Decimal:
         return self._engine.assets_value(client_id)
@@ -436,7 +441,9 @@ class CreditBook:
     # ------------------------------------------------------------------ nota
 
     def closing(self, client_id: UUID, day: date) -> ClosedRating:
-        return close_rating(self._history(client_id), day)
+        # A nota usa o último snapshot e os retornos da janela, todos de antes do mês
+        window = self._history(client_id, day.replace(day=1), ROLLING_WINDOW + 1)
+        return close_rating(window, day)
 
     def close_month(self, client_ids: list[UUID], day: date) -> None:
         """Na virada do mês a alavancagem e a volatilidade do mês que fechou valem para a nota."""

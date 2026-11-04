@@ -43,7 +43,9 @@ class CreditEngine(FakeSimulationEngine):
         self.fixed_income_market = FixedIncomeMarket(1, date(2030, 1, 1))
         self.snapshots = history if history is not None else []
         self.credit_book = CreditBook(
-            self, threading.RLock(), history=lambda _client_id: self.snapshots
+            self,
+            threading.RLock(),
+            history=lambda _client_id, _before, _last: self.snapshots,
         )
 
     def receive_loan(self, client_id: uuid.UUID, amount: Decimal) -> None:

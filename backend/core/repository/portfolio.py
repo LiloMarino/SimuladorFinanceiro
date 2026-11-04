@@ -1,3 +1,5 @@
+from datetime import date
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -19,17 +21,25 @@ from backend.core.runtime.simulation_manager import SimulationManager
 class PortfolioRepository:
     @transactional
     def get_patrimonial_history(
-        self, session: Session, user_id: int
+        self,
+        session: Session,
+        user_id: int,
+        before: date | None = None,
+        last: int | None = None,
     ) -> list[PatrimonialHistoryDTO]:
+        """Os snapshots em ordem de data; com `last`, só os `last` mais recentes antes de `before`."""
         simulation_id = SimulationManager.get_active_simulation_id()
-        rows = session.scalars(
-            select(Snapshots)
-            .where(
-                Snapshots.user_id == user_id,
-                Snapshots.simulation_id == simulation_id,
-            )
-            .order_by(Snapshots.snapshot_date)
-        ).all()
+        stmt = select(Snapshots).where(
+            Snapshots.user_id == user_id,
+            Snapshots.simulation_id == simulation_id,
+        )
+        if before is not None:
+            stmt = stmt.where(Snapshots.snapshot_date < before)
+        if last is None:
+            rows = session.scalars(stmt.order_by(Snapshots.snapshot_date)).all()
+        else:
+            recent = stmt.order_by(Snapshots.snapshot_date.desc()).limit(last)
+            rows = list(reversed(session.scalars(recent).all()))
 
         return [
             PatrimonialHistoryDTO(
