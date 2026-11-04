@@ -4,10 +4,7 @@ A tela promete números do mês fechado, então o relatório montado vale até a
 virar o mês; o fechamento, a comparação e o backtest leem o banco a cada pedido.
 """
 
-from collections import defaultdict
 from collections.abc import Callable
-from datetime import date
-from decimal import Decimal
 from threading import Lock
 from typing import cast
 
@@ -15,9 +12,6 @@ from pydantic import BaseModel
 
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.runtime.simulation_manager import SimulationManager
-
-# A nota do fim de cada mês já fechado, por apelido do jogador
-type ClosedScores = defaultdict[str, dict[date, Decimal | None]]
 
 
 class ReportCache:
@@ -32,9 +26,6 @@ class ReportCache:
         self._generation = 0
         self._reports: dict[str, BaseModel] = {}
         self._building: dict[str, Lock] = {}
-        # O corte de um mês que acabou só depende dos snapshots até ele, que não mudam
-        # mais: sobrevive ao `clear` e a virada calcula só o mês novo
-        self.closed_scores: ClosedScores = defaultdict(dict)
 
     def report[T: BaseModel](self, tab: str, build: Callable[[], T]) -> T:
         """

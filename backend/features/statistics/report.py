@@ -44,7 +44,6 @@ from backend.core.sectors import allocate_by_sector
 from backend.features.government.standings import party_ranking
 from backend.features.simulation.life_events import LIFE_EVENTS_BY_KEY
 from backend.features.statistics import operations, returns, risk, sectors
-from backend.features.statistics.cache import ClosedScores
 from backend.features.statistics.credit import CreditStanding, credit_standing
 from backend.features.statistics.goal import goal_on, goal_steps
 from backend.features.statistics.ranking import build_overview, capital_provided
@@ -291,20 +290,12 @@ def build_risk_report(simulation_ids: list[int]) -> RiskReportDTO:
     )
 
 
-def build_score_history_report(
-    simulation_ids: list[int], closed_scores: ClosedScores | None = None
-) -> ScoreHistoryReportDTO:
-    """`closed_scores` guarda a nota dos meses fechados de uma partida só, entre um pedido e outro."""
+def build_score_history_report(simulation_ids: list[int]) -> ScoreHistoryReportDTO:
     team_naming, in_teams = _team_context(simulation_ids)
     entries = [
         PlayerScoreHistoryDTO(
             **_ref(player),
-            points=score_history(
-                player.history,
-                closed_scores[player.player_nickname]
-                if closed_scores is not None
-                else None,
-            ),
+            points=score_history(player.history),
         )
         for player in repository.statistics.get_players_history(simulation_ids)
     ]

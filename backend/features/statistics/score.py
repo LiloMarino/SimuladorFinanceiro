@@ -4,7 +4,7 @@ suas métricas, e cada métrica convertida em pontos por faixas fixas, iguais em
 toda partida, para que a nota compare partidas diferentes.
 """
 
-from collections.abc import Mapping, MutableMapping
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
@@ -19,6 +19,8 @@ from backend.core.dto.statistics_report import (
     ScoreMetricDTO,
     SeriesPointDTO,
 )
+from backend.core.enum import IndicatorSeries
+from backend.core.indicators import last_known_value
 from backend.features.statistics import returns, risk
 
 # Abaixo de ~3 meses, anualizar engana: 10 dias com +2% viram ~64% ao ano
@@ -82,69 +84,173 @@ def build_score(values: Mapping[ScoreMetric, Decimal | None]) -> ScoreDTO:
     return ScoreDTO(total=total, axes=axes)
 
 
+class _ScoreWalk:
+    """
+    As métricas da nota andando um snapshot por vez: `score` dá a nota sobre os
+    snapshots vistos até ali, a mesma de `player_score` sobre esse começo do histórico.
+    """
+
+    def __init__(self, first: PatrimonialHistoryDTO) -> None:
+        self._previous = first
+        self._periods = 0
+        self._ibov_base = last_known_value(IndicatorSeries.IBOV, first.snapshot_date)
+        self._ibov_level = self._ibov_base
+        self._cdi_growth = Decimal(1)
+        # Os retornos do dia: quantos, a cota, o pico dela e as somas da volatilidade
+        self._returns = 0
+        self._quota = self._peak = Decimal(1)
+        self._max_drawdown = Decimal(0)
+        self._underwater = self._longest_underwater = 0
+        self._sum = self._squares = Decimal(0)
+        # O excesso sobre o CDI de cada dia, para o Sharpe e o Sortino
+        self._excess = self._downside = Decimal(0)
+        # Os meses fechados resumidos; o mês corrente fica em aberto
+        self._worst_month: Decimal | None = None
+        self._months = self._months_above_cdi = self._positive_months = 0
+        self._month: date | None = None
+        self._month_value = self._month_cdi = Decimal(1)
+
+    def add(self, snapshot: PatrimonialHistoryDTO) -> None:
+        day = snapshot.snapshot_date
+        self._periods += 1
+        cdi = risk.cdi_return(day)
+        self._cdi_growth *= 1 + cdi
+        if self._ibov_base:
+            self._ibov_level = last_known_value(IndicatorSeries.IBOV, day)
+
+        previous, self._previous = self._previous, snapshot
+        if previous.total_networth <= 0:
+            return
+        contribution = snapshot.total_contribution - previous.total_contribution
+        gain = snapshot.total_networth - contribution - previous.total_networth
+        daily = gain / previous.total_networth
+
+        self._returns += 1
+        self._quota *= 1 + daily
+        self._peak = max(self._peak, self._quota)
+        drawdown = (self._peak - self._quota) / self._peak
+        self._max_drawdown = max(self._max_drawdown, drawdown)
+        self._underwater = self._underwater + 1 if drawdown > 0 else 0
+        self._longest_underwater = max(self._longest_underwater, self._underwater)
+        self._sum += daily
+        self._squares += daily * daily
+
+        excess = daily - cdi
+        self._excess += excess
+        self._downside += min(excess, Decimal(0)) ** 2
+
+        month = day.replace(day=1)
+        if month != self._month:
+            self._close_month()
+            self._month = month
+            self._month_value = self._month_cdi = Decimal(1)
+        self._month_value *= 1 + daily
+        self._month_cdi *= 1 + cdi
+
+    def score(self) -> ScoreDTO | None:
+        """None com menos de 63 retornos."""
+        n = self._returns
+        if n < MIN_SCORE_DAYS:
+            return None
+
+        annual = (
+            self._quota ** (risk.DAYS_PER_YEAR / n) - 1
+            if self._quota > 0
+            else Decimal(-1)
+        )
+        cdi = returns.annualize_growth(self._cdi_growth - 1, self._periods)
+        ibov = (
+            returns.annualize_growth(
+                self._ibov_level / self._ibov_base - 1
+                if self._ibov_level
+                else Decimal(0),
+                self._periods,
+            )
+            if self._ibov_base
+            else None
+        )
+        variance = max(
+            (self._squares - self._sum * self._sum / n) / (n - 1), Decimal(0)
+        )
+        volatility = variance.sqrt() * risk.DAYS_PER_YEAR.sqrt()
+        mean_excess = self._excess / n
+        downside = (self._downside / n).sqrt() * risk.DAYS_PER_YEAR.sqrt()
+
+        # O mês corrente entra como na amostra: composto até o último dia visto
+        month_value, month_cdi = self._month_value - 1, self._month_cdi - 1
+        months = self._months + 1
+        worst = (
+            month_value
+            if self._worst_month is None
+            else min(self._worst_month, month_value)
+        )
+        above_cdi = self._months_above_cdi + (month_value > month_cdi)
+        positive = self._positive_months + (month_value > 0)
+
+        return build_score(
+            {
+                "return_over_cdi": _excess(annual, cdi),
+                "return_over_ibov": _excess(annual, ibov),
+                "max_drawdown": self._max_drawdown,
+                "annual_volatility": volatility,
+                "time_underwater": Decimal(self._longest_underwater),
+                "worst_month": worst,
+                "months_above_cdi": Decimal(above_cdi) / months,
+                "positive_months": Decimal(positive) / months,
+                "sharpe_ratio": mean_excess * risk.DAYS_PER_YEAR / volatility
+                if volatility
+                else None,
+                "sortino_ratio": mean_excess * risk.DAYS_PER_YEAR / downside
+                if downside
+                else None,
+            }
+        )
+
+    def _close_month(self) -> None:
+        if self._month is None:
+            return
+        value, cdi = self._month_value - 1, self._month_cdi - 1
+        self._worst_month = (
+            value if self._worst_month is None else min(self._worst_month, value)
+        )
+        self._months += 1
+        self._months_above_cdi += value > cdi
+        self._positive_months += value > 0
+
+
 def player_score(history: list[PatrimonialHistoryDTO]) -> ScoreDTO | None:
     """Nota de um jogador sobre os snapshots dele; None com menos de 63 retornos."""
-    days = risk.daily_returns(history)
-    if len(days) < MIN_SCORE_DAYS:
+    if not history:
         return None
-
-    dates = [h.snapshot_date for h in history]
-    annual = risk.annual_return(days)
-    cdi = returns.annualize(returns.cdi_cumulative(dates))
-    ibov = returns.annualize(returns.ibov_cumulative(dates))
-    volatility = risk.annual_volatility([r for _, r in days])
-    months = risk.monthly_returns(days)
-
-    return build_score(
-        {
-            "return_over_cdi": _excess(annual, cdi),
-            "return_over_ibov": _excess(annual, ibov),
-            "max_drawdown": risk.max_drawdown(days),
-            "annual_volatility": volatility,
-            "time_underwater": _decimal(risk.time_underwater(days)),
-            "worst_month": min((m.value for m in months), default=None),
-            "months_above_cdi": _share(
-                sum(1 for m in months if m.value > m.cdi), months
-            ),
-            "positive_months": _share(sum(1 for m in months if m.value > 0), months),
-            "sharpe_ratio": risk.sharpe_ratio(days, volatility),
-            "sortino_ratio": risk.sortino_ratio(days),
-        }
-    )
+    walk = _ScoreWalk(history[0])
+    for snapshot in history[1:]:
+        walk.add(snapshot)
+    return walk.score()
 
 
-def score_history(
-    history: list[PatrimonialHistoryDTO],
-    closed: MutableMapping[date, Decimal | None] | None = None,
-) -> list[SeriesPointDTO]:
+def score_history(history: list[PatrimonialHistoryDTO]) -> list[SeriesPointDTO]:
     """
     A nota total no último snapshot de cada mês, calculada só com os snapshots até
     ele; o último ponto é o último snapshot, então é a nota de `player_score` hoje.
     Os meses antes de 63 retornos ficam de fora.
-
-    `closed` guarda a nota de cada mês que já acabou (todo corte menos o último):
-    ela só depende dos snapshots até o corte, então quem passa o mesmo `closed` a
-    cada virada calcula só o mês novo e o dia de hoje.
     """
-    memo: MutableMapping[date, Decimal | None] = {} if closed is None else closed
+    if not history:
+        return []
+    walk = _ScoreWalk(history[0])
     last = len(history) - 1
     points = []
     for i, h in enumerate(history):
+        if i > 0:
+            walk.add(h)
         day = h.snapshot_date
         if i < last and (day.year, day.month) == (
             history[i + 1].snapshot_date.year,
             history[i + 1].snapshot_date.month,
         ):
             continue
-        if i < last and day in memo:
-            total = memo[day]
-        else:
-            score = player_score(history[: i + 1])
-            total = score.total if score else None
-            if i < last:
-                memo[day] = total
-        if total is not None:
-            points.append(SeriesPointDTO(date=day, value=total))
+        score = walk.score()
+        if score is not None:
+            points.append(SeriesPointDTO(date=day, value=score.total))
     return points
 
 
@@ -154,11 +260,3 @@ def _points(band: Band, value: Decimal | None) -> Decimal | None:
 
 def _excess(value: Decimal | None, reference: Decimal | None) -> Decimal | None:
     return None if value is None or reference is None else value - reference
-
-
-def _share(count: int, months: list[risk.MonthlyReturn]) -> Decimal | None:
-    return Decimal(count) / len(months) if months else None
-
-
-def _decimal(value: int | None) -> Decimal | None:
-    return None if value is None else Decimal(value)

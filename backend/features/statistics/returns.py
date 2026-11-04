@@ -54,7 +54,12 @@ def annualize(cumulative: DailyReturns) -> Decimal | None:
     """Acumulado de uma série de referência composto para um ano."""
     if len(cumulative) < 2:
         return None
-    growth = 1 + cumulative[-1][1]
+    return annualize_growth(cumulative[-1][1], len(cumulative) - 1)
+
+
+def annualize_growth(cumulative: Decimal, periods: int) -> Decimal:
+    """Um acumulado de `periods` pregões composto para um ano."""
+    growth = 1 + cumulative
     if growth <= 0:
         return Decimal(-1)
-    return growth ** (DAYS_PER_YEAR / (len(cumulative) - 1)) - 1
+    return growth ** (DAYS_PER_YEAR / periods) - 1

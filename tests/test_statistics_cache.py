@@ -26,7 +26,7 @@ from backend.features.simulation.simulation import Simulation
 from backend.features.statistics.cache import ReportCache, match_cache
 from backend.features.statistics.report import build_risk_report
 from backend.features.statistics.sampling import chart_period, thin
-from backend.features.statistics.score import score_history
+from backend.features.statistics.score import player_score, score_history
 from backend.routes.statistics import get_overview
 from tests.conftest import SetIndicator
 from tests.fakes import simulation_settings
@@ -132,28 +132,24 @@ def oscillating(days: int) -> list[str]:
     return [str(10000 + (i % 7) * 37 + i * 3) for i in range(days)]
 
 
-def test_score_history_reuses_closed_months_and_recomputes_today(
+def test_score_history_point_is_the_score_of_the_history_up_to_it(
     indicators: SetIndicator,
 ):
-    """150 dias desde 01/01/2020: março e abril fecharam; 29/05 é hoje e muda a cada dia."""
+    """150 dias desde 01/01/2020: cada fim de mês e o último dia, com a nota recalculada do zero."""
     days = history(oscillating(150))
-    closed: dict[date, Decimal | None] = {}
+    by_date = {h.snapshot_date: i for i, h in enumerate(days)}
 
-    assert score_history(days, closed) == score_history(days)
-    assert set(closed) == {
-        date(2020, 1, 31),
-        date(2020, 2, 29),
+    points = score_history(days)
+
+    assert [p.date for p in points] == [
         date(2020, 3, 31),
         date(2020, 4, 30),
-    }
-    assert closed[date(2020, 1, 31)] is None
-
-    closed[date(2020, 3, 31)] = Decimal(42)
-    points = score_history(days, closed)
-
-    assert points[0].value == Decimal(42)
-    assert points[-1].date == date(2020, 5, 29)
-    assert date(2020, 5, 29) not in closed
+        date(2020, 5, 29),
+    ]
+    for point in points:
+        score = player_score(days[: by_date[point.date] + 1])
+        assert score is not None
+        assert point.value == score.total
 
 
 def test_long_match_sends_weekly_series_and_comparison_keeps_every_day(

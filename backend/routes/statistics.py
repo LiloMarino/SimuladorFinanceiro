@@ -96,13 +96,7 @@ def get_risk(simulation_ids: SimulationIds):
     description="A nota geral de cada jogador (e de cada equipe) no fim de cada mês, a partir do primeiro mês com nota; o último ponto é a nota de hoje.",
 )
 def get_score_history(simulation_ids: SimulationIds):
-    cache = match_cache(simulation_ids)
-    if cache is None:
-        return build_score_history_report(simulation_ids)
-    return cache.report(
-        "score-history",
-        lambda: build_score_history_report(simulation_ids, cache.closed_scores),
-    )
+    return _report(simulation_ids, "score-history", build_score_history_report)
 
 
 @statistics_router.get(
