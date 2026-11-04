@@ -23,7 +23,7 @@
 | **N3** | — | Confiar que os números do simulador são exatos e reprodutíveis | — | [F22](#f22), [F100](#f100) | — | — | — |
 | **N4** | — | Testar uma estratégia de investimento automática e ver como ela se sai | — | [F110](#f110), [F111](#f111), [F197](#f197) | — | — | — |
 | **N5** | — | Saber quanto risco foi corrido para chegar num resultado | — | — | — | — | — |
-| **N6** | — | Comparar resultados de simulações diferentes | — | [F210](#f210) | — | — | — |
+| **N6** | — | Comparar resultados de simulações diferentes | — | — | — | — | — |
 | **N7** | — | Que o simulador cobre os custos de operar do mercado real | — | [F22](#f22), [F100](#f100) | — | — | — |
 | **N8** | — | Jogar contra oponentes controlados pelo computador | — | — | — | — | — |
 | **N9** | — | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — | — | — | — |
@@ -32,32 +32,32 @@
 | **N12** | — | Continuar jogando depois do último dia com dado real | — | [F192](#f192) | — | — | — |
 | **N13** | — | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — | — |
 | **N14** | — | Atualizar para uma versão nova sem perder as partidas salvas | — | [F56](#f56) | — | — | — |
-| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F180](#f180), [F181](#f181), [F182](#f182), [F189](#f189), [F190](#f190), [F203](#f203), [F204](#f204), [F205](#f205), [F206](#f206), [F207](#f207), [F208](#f208), [F209](#f209), [F210](#f210), [F211](#f211), [F212](#f212), [F213](#f213), [F214](#f214), [F215](#f215) | — | — | — |
+| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211) | — | — | — |
 | **N16** | — | Ver a carteira e o mercado por setor e segmento | — | [F196](#f196) | — | — | — |
 | **N17** | — | Enxergar a estrutura do banco e esboçar mudanças nela | — | — | — | — | — |
 | **N18** | — | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — | — | — | — |
 | **N19** | — | Analisar um ativo com as ferramentas de um trader | — | [F34](#f34), [F131](#f131), [F193](#f193) | — | — | — |
-| **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | [F212](#f212) | — | — | — |
-| **N21** | — | Jogar "na unha", sem a interface apontar a melhor escolha | — | [F189](#f189) | — | — | — |
-| **N22** | — | Ter objetivos para buscar além de vencer a partida | — | [F90](#f90), [F123](#f123), [F159](#f159), [F207](#f207) | — | — | — |
+| **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — | — | — | — |
+| **N21** | — | Jogar "na unha", sem a interface apontar a melhor escolha | — | — | — | — | — |
+| **N22** | — | Ter objetivos para buscar além de vencer a partida | — | [F90](#f90), [F123](#f123), [F159](#f159) | — | — | — |
 | **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F44](#f44), [F55](#f55), [F69](#f69), [F101](#f101), [F102](#f102), [F103](#f103), [F104](#f104), [F105](#f105) | — | — | — |
-| **N24** | — | Saber onde está a lentidão durante uma partida | — | [F157](#f157), [F185](#f185), [F186](#f186), [F188](#f188) | — | — | — |
+| **N24** | — | Saber onde está a lentidão durante uma partida | — | — | — | — | — |
 | **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F193](#f193) | — | — | — |
-| **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | [F187](#f187) | — | — | — |
+| **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | — | — | — | — |
 | **N27** | — | Entrar numa partida que já começou | — | — | — | — | — |
 | **N28** | — | Liberar uma vaga sem depender de o jogador sair | — | — | — | — | — |
 | **N29** | — | Saber o que cada jogador está fazendo enquanto a partida não começa | — | — | — | — | — |
 | **N30** | — | Repetir uma configuração de partida sem montá-la de novo | — | — | — | — | — |
-| **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93), [F205](#f205) | — | — | — |
+| **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93) | — | — | — |
 | **N32** | — | Saber como foi o mês sem montar a conta | — | — | — | — | — |
-| **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111), [F208](#f208), [F209](#f209) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F97](#f97), [F164](#f164), [F165](#f165), [F169](#f169), [F173](#f173), [F174](#f174), [F175](#f175), [F176](#f176), [F177](#f177), [F182](#f182), [F190](#f190), [F191](#f191), [F194](#f194), [F195](#f195), [F203](#f203), [F204](#f204) | — | — | — |
+| **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F97](#f97), [F164](#f164), [F165](#f165), [F175](#f175), [F176](#f176), [F177](#f177), [F191](#f191), [F194](#f194), [F195](#f195) | — | — | — |
 | **N35** | — | Tirar da lista as partidas que não interessam mais | — | — | — | — | — |
 | **N36** | — | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — | — |
 | **N37** | — | Comprar bitcoin do jeito que dá na vida real, em frações | — | — | — | — | — |
-| **N38** | — | Saber quando as estatísticas vão mudar, sem achar que travaram | — | [F186](#f186) | — | — | — |
-| **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F169](#f169), [F170](#f170), [F173](#f173), [F174](#f174) | — | — | — |
-| **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F157](#f157), [F185](#f185) | — | — | — |
+| **N38** | — | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — | — | — | — |
+| **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | — | — | — | — |
+| **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | — | — | — | — |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | — | — | — | — | 🔍 |
 | [**F6**](#f6) | Feature | Link de convite pela internet no lobby | — | — | Médio | Bom | ⏳ |
 | [**F14**](#f14) | Feature | Janela desktop nativa | — | — | Baixo | Bom | 💤 |
@@ -110,7 +110,7 @@
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (46 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -131,35 +131,7 @@
 | **D16** | — | Estratégias do app no host, personalização pela API | — | — | — | — | ✅ |
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
-| **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F173](#f173), [F175](#f175), [F176](#f176) | — | — | ✅ |
-| [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 | — | — | — | ✅ |
-| [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | M20 · 3.3 | — | — | — | ✅ |
-| [**F170**](#f170) | Feature | Parâmetros das estratégias salvos no perfil | M20 · 3.3 | — | — | — | ✅ |
-| [**F173**](#f173) | Feature | Partido desde o 1º dia | M20 · 3.3 | — | — | — | ✅ |
-| [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | M20 · 3.3 | — | — | — | ✅ |
-| [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | M20 · 3.3 | — | — | — | ✅ |
-| [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | M20 · 3.3 | — | — | — | ✅ |
-| [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | M20 · 3.3 | — | — | — | ✅ |
-| [**F183**](#f183) | Melhoria | Como jogar sem cobrir a tela | — | — | — | — | 🚫 |
-| [**F184**](#f184) | Correção | Correções da 3.3 | M20 · 3.3 | — | — | — | ✅ |
-| [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | M20 · 3.3 | — | — | — | ✅ |
-| [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 | — | — | — | ✅ |
-| [**F187**](#f187) | Manutenção | Um log por boot do servidor | M20 · 3.3 | — | — | — | ✅ |
-| [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | M20 · 3.3 | — | — | — | ✅ |
-| [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | M20 · 3.3 | — | — | — | ✅ |
-| [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | M20 · 3.3 | — | — | — | ✅ |
-| [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | M20 · 3.3 | — | — | — | ✅ |
-| [**F204**](#f204) | Melhoria | Congresso: votação com placar e casa eleita | M20 · 3.3 | — | — | — | ✅ |
-| [**F205**](#f205) | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | M20 · 3.3 | — | — | — | ✅ |
-| [**F206**](#f206) | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | M20 · 3.3 | — | — | — | ✅ |
-| [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | M20 · 3.3 | — | — | — | ✅ |
-| [**F208**](#f208) | Melhoria | Empréstimo: o custo inteiro antes de assinar | M20 · 3.3 | — | — | — | ✅ |
-| [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | M20 · 3.3 | — | — | — | ✅ |
-| [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | M20 · 3.3 | — | — | — | ✅ |
-| [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | ✅ |
-| [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | M20 · 3.3 | — | — | — | ✅ |
-| [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | M20 · 3.3 | — | — | — | ✅ |
-| [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | M20 · 3.3 | — | — | — | ✅ |
+| **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F175](#f175), [F176](#f176) | — | — | ✅ |
 
 </details>
 
@@ -168,47 +140,6 @@
 ## 🚀 Próximas versões
 
 > O que entra em cada versão, na ordem de trabalho. Item arquivado conta como concluído.
-
-### 3.3 — Preparação no lobby (M20)
-
-> **Objetivo:** Cada jogador chega à partida já preparado no lobby, e as telas que mudaram desde a 3.0 voltam a formar um conjunto.
->
-> **Serve:** N39, N15, N40, N24
->
-> **Progresso:** 30/30 concluídos
-
-| # | ID | Tipo | Resumo | Depende de | Status |
-| --- | --- | --- | --- | --- | --- |
-| 1 | **F143** | Feature | Preparação de cada jogador no lobby | — | 📦 Arquivado |
-| 2 | **F168** | Feature | Desafio da vela no lobby | — | 📦 Arquivado |
-| 3 | **F178** | Feature | Conferência visual de tudo o que mudou desde a 3.0 | — | 📦 Arquivado |
-| 4 | [**F184**](#f184) | Correção | Correções da 3.3 | — | ✅ Concluído |
-| 5 | [**F189**](#f189) | Melhoria | Retoques de interface do playtest de outubro | — | ✅ Concluído |
-| 6 | [**F188**](#f188) | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | — | ✅ Concluído |
-| 7 | [**F187**](#f187) | Manutenção | Um log por boot do servidor | — | ✅ Concluído |
-| 8 | [**F185**](#f185) | Performance | Dia da partida que fica mais lento ao longo da partida | — | ✅ Concluído |
-| 9 | [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | — | ✅ Concluído |
-| 10 | [**F207**](#f207) | Correção | Placar da vela com os votos de cada jogador | — | ✅ Concluído |
-| 11 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | — | ✅ Concluído |
-| 12 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | — | ✅ Concluído |
-| 13 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | — | ✅ Concluído |
-| 14 | [**F181**](#f181) | Melhoria | Tabelas que cabem na tela e texto legível | — | ✅ Concluído |
-| 15 | [**F182**](#f182) | Melhoria | Eleição: corrida entre partidos redesenhada | — | ✅ Concluído |
-| 16 | [**F203**](#f203) | Melhoria | Eleição: aba da campanha reorganizada | — | ✅ Concluído |
-| 17 | [**F190**](#f190) | Melhoria | Contas do governo redesenhadas | — | ✅ Concluído |
-| 18 | [**F204**](#f204) | Melhoria | Congresso: votação com placar e casa eleita | — | ✅ Concluído |
-| 19 | [**F205**](#f205) | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | — | ✅ Concluído |
-| 20 | [**F206**](#f206) | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | — | ✅ Concluído |
-| 21 | [**F208**](#f208) | Melhoria | Empréstimo: o custo inteiro antes de assinar | — | ✅ Concluído |
-| 22 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | — | ✅ Concluído |
-| 23 | [**F173**](#f173) | Feature | Partido desde o 1º dia | — | ✅ Concluído |
-| 24 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | — | ✅ Concluído |
-| 25 | [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | — | ✅ Concluído |
-| 26 | [**F170**](#f170) | Feature | Parâmetros das estratégias salvos no perfil | — | ✅ Concluído |
-| 27 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | — | ✅ Concluído |
-| 28 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ✅ Concluído |
-| 29 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | — | ✅ Concluído |
-| 30 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | — | ✅ Concluído |
 
 ### 3.4 — Juros e Tesouro (M21)
 
@@ -269,7 +200,7 @@
 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | N25 | [F44](#f44) | 0 | ⏳ Pendente |
 | [**F141**](#f141) | Docs | README com as features de hoje | N25 | [F139](#f139) | 0 | ⏳ Pendente |
 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | N22 | [F44](#f44) | 0 | ⏳ Pendente |
-| [**F175**](#f175) | Feature | Federações partidárias | N34 | [F173](#f173) | 0 | ⏳ Pendente |
+| [**F175**](#f175) | Feature | Federações partidárias | N34 | — | 0 | ⏳ Pendente |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | N12 | — | 0 | 🔍 Em avaliação |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | [F158](#f158) | 0 | 🔍 Em avaliação |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | N34, N11 | [F191](#f191) | 0 | 🔍 Em avaliação |
@@ -329,7 +260,7 @@
 | **F159** | Feature | Conquista "Ordem com paciência" | N22 | D1 | — | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
 | **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
-| **F175** | Feature | Federações partidárias | N34 | D19 | — | [F173](#f173) | Alto | Médio | Médio | Bom |
+| **F175** | Feature | Federações partidárias | N34 | D19 | — | — | Alto | Médio | Médio | Bom |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
 
@@ -582,325 +513,10 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 ## ✅ Concluído
 
-| ID | Tipo | Resumo | Serve | D# | Marco |
-| --- | --- | --- | --- | --- | --- |
-| **F157** | Performance | Velocidade x100 que quase não acelera | N40, N24 | — | M20 · 3.3 |
-| **F169** | Feature | Contribuição de campanha salva no perfil | N34, N39 | — | M20 · 3.3 |
-| **F170** | Feature | Parâmetros das estratégias salvos no perfil | N39 | — | M20 · 3.3 |
-| **F173** | Feature | Partido desde o 1º dia | N39, N34 | D19 | M20 · 3.3 |
-| **F174** | Melhoria | Preparação do lobby redesenhada | N39, N34 | — | M20 · 3.3 |
-| **F180** | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | N15 | — | M20 · 3.3 |
-| **F181** | Melhoria | Tabelas que cabem na tela e texto legível | N15 | — | M20 · 3.3 |
-| **F182** | Melhoria | Eleição: corrida entre partidos redesenhada | N15, N34 | — | M20 · 3.3 |
-| **F184** | Correção | Correções da 3.3 | — | — | M20 · 3.3 |
-| **F185** | Performance | Dia da partida que fica mais lento ao longo da partida | N40, N24 | — | M20 · 3.3 |
-| **F186** | Performance | Estatísticas lentas numa partida longa | N38, N24 | — | M20 · 3.3 |
-| **F187** | Manutenção | Um log por boot do servidor | N26 | — | M20 · 3.3 |
-| **F188** | Melhoria | Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso | N24 | — | M20 · 3.3 |
-| **F189** | Melhoria | Retoques de interface do playtest de outubro | N15, N21 | — | M20 · 3.3 |
-| **F190** | Melhoria | Contas do governo redesenhadas | N15, N34 | — | M20 · 3.3 |
-| **F203** | Melhoria | Eleição: aba da campanha reorganizada | N15, N34 | — | M20 · 3.3 |
-| **F204** | Melhoria | Congresso: votação com placar e casa eleita | N15, N34 | — | M20 · 3.3 |
-| **F205** | Melhoria | Jornal igual ao desenho aprovado, com histórico paginado | N15, N31 | — | M20 · 3.3 |
-| **F206** | Melhoria | Carteira: percentuais com base, alturas iguais e meta na escala | N15 | — | M20 · 3.3 |
-| **F207** | Correção | Placar da vela com os votos de cada jogador | N15, N22 | — | M20 · 3.3 |
-| **F208** | Melhoria | Empréstimo: o custo inteiro antes de assinar | N15, N33 | — | M20 · 3.3 |
-| **F209** | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | N33, N15 | — | M20 · 3.3 |
-| **F210** | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | N6, N15 | — | M20 · 3.3 |
-| **F212** | Melhoria | Paleta de cores de jogadores e partidos | N20, N15 | — | M20 · 3.3 |
-| **F213** | Melhoria | Pendências: consequência inteira e Pagar em destaque | N15 | — | M20 · 3.3 |
-| **F214** | Melhoria | Central de dados: tabela que cabe no cartão | N15 | — | M20 · 3.3 |
-| **F215** | Melhoria | Backtest: formulário do período sem estouro | N15 | — | M20 · 3.3 |
-
-<a id="f157"></a>
-**F157 — Velocidade x100 que quase não acelera.** Serve N40 e N24. No playtest, o x100 andou quase como o x1: o loop dormia `1 / velocidade` depois de um dia que levava de 0,6 a 0,95 s. Entregue: medida por etapa do dia no modo debug, espera pela cadência (descontando a duração do dia, com folga mínima para a tela pegar o lock), snapshots do dia numa consulta só e fechamento do crédito lendo só a janela da nota. Numa partida de 8 jogadores o dia caiu para 130 a 170 ms e o x100 anda de 6 a 7 dias/s. O agrupamento das emissões ficou de fora: a 4 dias/s o navegador recebeu 13 mensagens/s sem engasgar.
-
-<a id="f169"></a>
-**F169 — Contribuição de campanha salva no perfil.** Serve N34 e N39. A contribuição mensal de cada filiado fica salva no perfil do jogador (`Users.settings`, chave própria, ao lado do Meu partido), e vale para quem funda e para quem se filia: o partido em que ele entra começa a cobrá-la quando a campanha abre, em vez de começar com zero. Quem nunca salvou continua com zero. A cobrança mensal já pula quem não tem caixa (`government_book.py`, coleta do 1º dia útil); o que muda é que **o mês pulado abre uma pendência** ("sua contribuição de R$ X não foi paga em março, por falta de caixa"), resolvida quando a contribuição seguinte é paga ou quando o jogador muda o valor. Mudar a contribuição dentro da partida também grava o valor no perfil. O campo da preparação mora na tela redesenhada (F174).
-
-<a id="f170"></a>
-**F170 — Parâmetros das estratégias salvos no perfil.** Serve N39. Quem ajusta uma estratégia do modo automático (os dias das médias, o ativo, a divisão do rebalanceamento) precisa lembrar e redigitar os valores a cada partida. Os parâmetros passam a ficar no perfil, por estratégia (`Users.settings`, chave `strategy_params`: `{chave_da_estratégia: {parâmetro: valor}}`), por dois caminhos: (1) **o último valor usado**: ao ligar o automático numa partida, os parâmetros escolhidos se gravam no perfil daquela estratégia; (2) **a preparação**: a aba Estratégias da tela redesenhada (F174) lista as estratégias com os parâmetros de cada uma, para ajustar antes de jogar. Ao ligar o automático, o formulário nasce com os valores do perfil, ou com o padrão da estratégia onde o jogador não salvou nada. A validação é a mesma dos bots do lobby (`validate` da estratégia: tipo, mínimo e máximo); o ticker salvo que não existe na partida cai no padrão da estratégia, com aviso no formulário. O automático continua sendo ligado pelo jogador dentro da partida, que nasce pausada no 1º dia.
-
-<a id="f173"></a>
-**F173 — Partido desde o 1º dia.** Serve N39 e N34; condicionada pela D19. Hoje fundar e filiar-se só abrem com a campanha, um ano antes do 1º turno (`_ensure_campaign_open` em `government_book.py`), e a preparação do lobby espera a abertura para virar partido. Como no Brasil, onde o partido existe o tempo todo e o que tem prazo é a filiação de quem concorre, a regra passa a ser: **fundar, filiar-se e sair ficam livres desde o 1º dia**; a **filiação para concorrer** fecha 6 meses antes do 1º turno (Lei 9.504/97, art. 9): quem entra depois disso é filiado, mas não pode ser candidato nem vice naquela eleição; a **chapa, as ações de campanha e a cobrança da contribuição** continuam só na janela da campanha (a cobrança mensal pula os meses antes da abertura). **A preparação do lobby é aplicada no 1º dia da partida**, e não mais na abertura da campanha: os partidos preparados nascem com os filiados, e a chapa e o vice preparados ficam guardados no partido até a campanha abrir. Entre os turnos, filiação e saída continuam travadas. Partido de jogador fundado no meio do mandato não tem cadeira até a eleição seguinte. A preparação ainda não saiu em versão, então não há partida salva com o evento antigo para manter. Gatilho: antes do redesenho da preparação (F174), que mostra os partidos já existentes.
-
-<a id="f174"></a>
-**F174 — Preparação do lobby redesenhada.** Serve N39 e N34; retrabalho da F143. O card "Minha preparação" ficou ruim na tela, e a preparação vai crescer (partido, parâmetros das estratégias, gestora), o que um card no lobby não comporta. A rodada no canvas foi feita e o usuário escolheu em 03/11 a **variante A: um dialog largo com abas** (Partido, Estratégias e, com a expansão, Gestora), aberto por um botão "Minha preparação" no cabeçalho do lobby, ao lado de Copiar link e Sair. A variante dos partidos à vista no lobby polui a sala e foi descartada; o desenho da sala do host, que redesenhava só o card, também. O desenho já mostra a contribuição salva no perfil (F169), os parâmetros das estratégias (F170) e o partido que existe desde o 1º dia (F173), que vêm juntos na 3.3.
-
-**Decidido em 03/11:**
-- a aba Gestora vale, por já nascer pronta para a expansão;
-- a aba Estratégias segue a tela dos bots: ícones por estratégia e seções separadas como lá; o selo "ajustada" sai (estilo e minúsculas) e a indicação de parâmetro alterado usa o padrão visual dos bots;
-- os cartões do dialog levam os ícones e o estilo dos que já existem no app.
-
-**Decidido em 03/11 (2ª rodada):**
-- entrar num partido é direto, sem pedido nem aprovação do fundador;
-- os partidos do computador não aparecem no "Entrar": ali só os partidos preparados na sala;
-- o partido, os membros e a chapa confirmada são públicos na sala; o convite de vice pendente só aparece para quem convidou e para quem foi convidado, e o host vê só a contagem;
-- convite de vice ainda sem resposta quando a partida começa entra nela como convite comum;
-- a última escolha volta marcada na próxima sala: "Fundar" volta como Fundar, e "Entrar" volta como Sem partido, porque o partido de outro jogador pode não estar na sala nova.
-
-<a id="f180"></a>
-**F180 — Retrato no canvas das telas que mudaram desde a 3.0.** Serve N15. Da 3.1 à 3.3, cada tela foi desenhada sozinha no canvas e implementada sem conferência na tela. Juntas, elas quebram a topbar, fazem tabelas rolarem de lado e desalinham cartões (conferência visual, F178). Os boards do governo e da eleição mostram o desenho aprovado de cada feature isolada, não o app de hoje. Esta feature põe no canvas o app como ele está, para as rodadas de redesenho (F179, F181, F182, F183) comentarem sobre o conjunto e para comparar o que foi aprovado com o que foi implementado.
-
-(1) **Limpeza.** As linhas das features implementadas até a 3.0 vão para uma página nova do Arquivo, mudando só a página do board. Ficam no canvas:
-- as linhas das features ainda não implementadas, inclusive as variantes à espera de escolha;
-- as linhas do governo e da eleição, até o retrato substituí-las;
-- um board de identidade visual, de onde a skill `design-canvas` copia o `<helmet>` (fonte, cores e classes) para os boards novos.
-
-(2) **Retrato.** Uma captura em 1920 de largura, a janela que o jogo usa (navegador maximizado num monitor 1920×1080), de cada tela e estado que mudou desde a 3.0, seguindo o roteiro da conferência visual (199 linhas de tela × estado). As capturas são tiradas depois dos consertos do hotfix, no banco de teste, com o governo e a corrida ligados. Cada captura vira um board de imagem do lado do antes, com uma linha por área: lobby, mercado e carteira, crédito, estatísticas, eleição, governo, jornal, Como jogar e configurações. É imagem, e não réplica em HTML: a réplica seria uma terceira versão da tela, cara de fazer e com as próprias divergências.
-
-(3) **Post-its.**
-- Ao lado da captura, os achados da conferência que ficaram para o canvas.
-- Onde a tela difere do board aprovado da feature, o post-it "implementado diferente do aprovado", com a diferença. A comparação é texto contra texto: a spec do board (`extract_spec.py`) contra a árvore da tela no devtools, por um Haiku por área, com a captura para o layout.
-
-(4) **Notas.** O canvas comporta 200 notas, e a limpeza libera as das linhas arquivadas.
-
-**Como roda:** sessão Sonnet, sem decisão de design: o que pede escolha vira post-it para as rodadas de redesenho. Pede, na mesma sessão, o app rodando com o `chrome-devtools` e escrita no canvas original. Sem escrita no original, a sessão para e avisa.
-
-Na mesma passada, a sessão confere os estados que o playtest não provocou (lista no fim da F184).
-
-**Aceite:** toda tela do roteiro que mudou desde a 3.0 tem captura no canvas, e o canvas fica com até 185 notas.
-
-<a id="f181"></a>
-**F181 — Tabelas que cabem na tela e texto legível.** Serve N15. A conferência visual (F178) e o playtest acharam problemas que se repetem pelo app inteiro; nesta rodada o usuário confirmou que a **rolagem lateral dentro de tabela é um problema** em várias telas. Sem rodada no canvas: a regra é uma só e o aceite é objetivo.
-
-**Regra das tabelas:** em 1920 de largura nenhuma tabela rola de lado; em 1366 vale só que nada passe da borda. Rolagem lateral fica permitida apenas para uma tabela que é larga por natureza (matriz de correlação entre muitos ativos), e nunca para resumo ou lista. Para caber, a tabela esconde a coluna secundária (a informação vai para o hover), junta duas colunas numa (valor e variação) ou quebra o texto em duas linhas, nessa ordem de preferência. A mudança vai no `shared/components/ui/table.tsx` quando for comum e na tela quando for específica.
-
-**Telas com rolagem lateral hoje** (Gasto público, a votação do Congresso, a Central de dados e o Backtest vão nos cards próprios, com desenho aprovado: F190, F204, F214 e F215):
-- Renda fixa, lista (`features/fixed-income/pages/fixed-income.tsx`);
-- Estatísticas: Rentabilidade (`statistics-report/returns-tab.tsx`) e "Quando cada um negociou" (`operations-tab.tsx`, wrapper com `overflow-x-auto` na linha 291);
-- Comparar partidas (F210);
-
-**Texto e contraste:** 125 usos de texto abaixo de 12 px viram 12 px, e os rótulos com contraste de 3,4 a 3,6 para 1 sobem para 4,5 para 1 (o mínimo da recomendação de acessibilidade WCAG AA para texto comum); a mudança é nos tokens do design system (`index.css`) e nas classes `text-[10px]` e `text-[11px]`, por substituição em lote.
-
-**Fora deste card:** eixos de gráfico (o Recharts decide), largura máxima da página e o preenchimento de vazios, que ninguém apontou como problema, e a paleta de cores (F212).
-
-**Aceite:** as telas acima em 1920 de largura sem rolagem lateral e sem texto abaixo de 12 px.
-
-<a id="f182"></a>
-**F182 — Eleição: corrida entre partidos redesenhada.** Serve N15 e N34. A página (`features/government/pages/election.tsx`) empilha telas de features desenhadas separadamente e, na conferência visual e no playtest de 31/out, quebrou em vários pontos: o Ranking sobrepõe outro cartão e o texto dele sai desalinhado, o "Partidos na disputa" tem o selo "Computador" passando da borda, o nome do partido cortado, as promessas fora da largura, o radar de tamanho diferente entre cartões e rótulos pequenos demais, e a legenda mostra "Na fundação" mesmo quando o perfil não mudou. O desenho foi aprovado no canvas em 03/11 (board da corrida, com os ajustes abaixo).
-
-**O que existe:** `party-profiles-card.tsx` (bloco "Partidos na disputa", com o radar de `profile-radar.tsx`), a tabela "Partidos", `ranking-card.tsx`, a faixa por grupo do `electorate-card.tsx` e, no diálogo de fundar partido (`found-party-dialog.tsx`), o bloco "Como o eleitorado recebe" de `flags-picker.tsx`.
-
-**O que muda:**
-- **Um bloco só por partido** em `party-profiles-card.tsx`: cada card ganha chapa, filiados, verba por mês e gasto, e a tabela "Partidos" sai porque passa a repetir o card. O selo "Computador" vai para a linha do nome, que não trunca mais.
-- **Badges das bandeiras com o mini-ícone** que o app já usa nelas; o badge "chapa padrão" sai.
-- **Radar** (`profile-radar.tsx`) com rótulos de pelo menos 12 px, dentro do painel e do mesmo tamanho em todos os cartões; a legenda "Na fundação" só aparece quando o perfil mudou.
-- **Ranking da partida** (`ranking-card.tsx`) na largura toda, com "Individual" e "Patrimônio do partido" em colunas iguais, sem sobrepor a coluna vizinha.
-- **Faixa por grupo** com cabeçalho: UPR, MNV, PTD e Margem. A Margem ganha dica: quanto a pesquisa pode errar para mais ou para menos (31% com margem de 3 pontos quer dizer entre 28% e 34%).
-- **Diálogo de fundar partido:** só o bloco "Como o eleitorado recebe" muda (rótulos do radar dentro do cartão, nomes dos grupos sem corte, texto de pelo menos 12 px); o resto do diálogo fica como está.
-
-**Não muda:** os dados, a ordem das seções e o gráfico da série.
-
-**Aceite:** a Eleição em 1920 de largura, nas três fases (campanha, entre os turnos e resultado), sem elemento passando da borda nem rolagem lateral, e o Ranking sem sobrepor nada.
-
-<a id="f184"></a>
-**F184 — Correções da 3.3.** Lote dos consertos achados desde a 3.2. Tudo em main, em `fix:`. Primeiro lote, 37 commits:
-- **Eleição e Governo:** a leitura dos eventos do 2º turno, que quebrava o resumo do mês, as estatísticas e as conquistas; a pesquisa do 1º turno ao lado da do 2º; a tabela de transferência do 2º turno (estimativa chamada de exata, partes que não somavam o total); a cor dos partidos do computador; a chapa do fundador sem vice; os diálogos de promessas e da votação; a data da posse; os cartões de pesquisa, eleitorado e promessas.
-- **Economia e crédito:** o crescimento do PIB, que derrubava partidas longas; a nota de crédito, que ignorava parcela vencida; a alavancagem sem patrimônio; os pontos da nota de risco; o tooltip das séries da Economia.
-- **Estados de erro e carregamento:** a tela de resultado, o jornal e o cartão do desafio da vela, que ficavam no esqueleto ou sumiam; a mensagem de erro das páginas de Governo, Eleição, Economia e Crédito; o ranking velho das Estatísticas; o diálogo do resultado do turno depois de recarregar.
-- **Textos e corte:** plurais e concordâncias (compras e vendas, promessas, pontos, prêmio de risco); nomes cortados sem dica no lobby, nos partidos e nas estatísticas; a faixa do dia da renda variável; a janela do desafio da vela acima de 768 px; o painel final do desafio, que comemorava com 0 acertos; o relatório final; a coluna Quando das ordens abertas; a janela de notícias com a partida pausada.
-
-Segundo lote, triado do playtest de 31/out e conferido em tela com o banco de teste:
-- **Estatísticas e backtest:** o tooltip do backtest que diz "cdi contributed"; clicar no Ibovespa durante o backtest não desenha o gráfico; no Comparar, o cartão Risco cola a nota e a coluna Pts na borda direita (a tabela é mais larga que o cartão), e o mesmo cartão aparece nas outras telas de nota; o retorno das Estatísticas (2,27%) diferente do da Carteira e da Evolução (1,06% e 1,1% sobre o aportado) na mesma data: conferir se é métrica diferente ou dado de outra data, e, se for métrica, dizer qual no rótulo.
-- **Partido e eleição:** encerrar a conta e entrar de novo com o mesmo nome deixa a página do partido dizendo "Você não está em nenhum partido" com o resto da tela como filiado; o partido fundado por outra conta no diário dela, que não deu para reproduzir: com duas contas na mesma sala o fundador aparece na faixa do Diário e no jornal na hora; selecionar as bancadas em "Selecionar apoio" faz o diálogo piscar.
-- **Governo:** o diálogo de nova medida passa da altura da tela em todos os tipos de medida, e o seletor "Mudança" tem um vão à direita de "Isentar", como se faltasse uma terceira opção; o botão "Sair da base" e o botão do alerta de erro ficam soltos dentro do alerta: o `Alert` do design system ganha o lugar da ação, em vez de cada tela encaixar o botão.
-- **Visual:** na barra lateral, os selos de Pendências, Conquistas, Eleição, Debug e estratégia desligada ficam descentrados na vertical, e o ponto da Eleição sai oval; os números do jornal na fonte serifada descem da linha (algarismos de estilo antigo: `font-variant-numeric: lining-nums`); "Restaurar padrão" é menor que "Ligar esta estratégia" (`strategy-detail.tsx`, `size="sm"` contra o tamanho padrão); o "i" de Padrões de vela não abre a dica (o gatilho é um svg solto, sem elemento que receba o foco).
-- **Gerador de futuro:** o campo "até quando" aceita qualquer ano e dispara a prévia a cada dígito (21000 por engano): o campo virou seletor de ano, com teto de 30 anos além do último dado real, e o backend recusa o que passar disso.
-
-Ficam para a sessão do retrato (F180), que roda o app com o devtools, os estados que não deu para provocar no playtest: Crédito com parcela atrasada, o esqueleto e o erro do cartão do desafio da vela (forçados bloqueando a requisição) e o diálogo do resultado numa pausa real.
-
-<a id="f185"></a>
-**F185 — Dia da partida que fica mais lento ao longo da partida.** Serve N40 e N24. No playtest de 31/out o passo "Processar um dia" subiu de 576 ms de mediana no primeiro terço da sessão para 757 e 940 ms nos seguintes, e no backtest de 10 anos com 5 bots a previsão de tempo não caía com o progresso.
-
-A medição apontou o fator de impacto de preço no histórico que os bots pedem: a cada pedido, o fator de cada dia da janela era refeito de todos os fluxos de ordens desde o começo da partida. O fator de um dia passado passou a ser calculado uma vez e guardado, só com as ordens ainda dentro do decaimento; um teste confere que ele sai igual ao recálculo completo. O snapshot do dia passou a gravar só o balanço (ações, renda fixa, dívida), sem montar a carteira da tela, que segue saindo só para quem está conectado.
-
-Em `pnpm profile:match --days 1000 --bots 7`, três rodadas: o dia no fim da partida caiu de 190–201 ms para 89–95 ms de mediana, a razão fim ÷ início de 1,51–1,65 para 1,07–1,13, e os 1.000 dias de ~163 s para ~93 s. O que ainda cresce é o envio da carteira (imposto refeito sobre todas as operações e duas somas no banco), medido com os 8 jogadores tratados como conectados; na partida real só os humanos recebem. A previsão do backtest de 10 anos passou a cair, conferida na tela.
-
-**Aceite:** a mediana do dia depois de 1.000 dias fica a até 10% da mediana dos primeiros 50, e a previsão do backtest de 10 anos com 5 bots cai de forma contínua até o fim.
-
-<a id="f186"></a>
-**F186 — Estatísticas lentas numa partida longa.**
-Na partida longa de 10 anos e 8 jogadores, as abas caíram de 1 a 24 s para 0,3 a 0,85 s: nota ao longo da partida numa passada só, volume médio do impacto numa consulta por ativo, leitura do histórico só com as colunas usadas e cada consulta planejada com os valores dela. Cinco abas ficam entre 0,65 e 0,85 s, acima dos 500 ms, aceitas. Sem leitura dupla em produção: o par de pedidos na tela é o StrictMode do dev, e a aba já montada no mês volta do servidor em 5 a 11 ms.
-
-<a id="f187"></a>
-**F187 — Um log por boot do servidor.** Serve N26. Cada arquivo da pasta de logs tinha o próprio `RotatingFileHandler`, de 10 MB com 5 cópias, e as sessões se emendavam no mesmo arquivo: achar o log de um playtest era procurar pelo horário.
-
-Agora a pasta segue a estrutura do Victoria 3. `app.log` é o boot atual, `app.1.log` é o boot anterior, e assim até `app.5.log`. O mesmo vale para `error`, `database`, `import`, `realtime`, `simulation` e `slow`. No boot, antes de abrir cada arquivo, o logger empurra a fila uma casa e descarta o mais antigo (`_shift_previous_boots` em `backend/core/logger.py`). Não há mais rotação por tamanho: cada arquivo guarda um boot inteiro. A primeira linha de cada arquivo diz a versão, se o modo debug está ligado e a hora do boot, no mesmo formato das outras linhas. O giro roda uma vez, no único processo do servidor, que sobe com `reload=False`.
-
-A pasta que as Configurações abrem e os nomes dos arquivos atuais continuam os mesmos. Para conferir, os testes do logger fazem dois e oito boots seguidos numa pasta temporária, e dois boots do app contra o banco de teste deixaram `app.1.log` com o primeiro boot inteiro.
-
-<a id="f188"></a>
-**F188 — Eventos do Socket.IO no modo debug, com contagem acumulada, tamanho e atraso.** Serve N24. O cartão "O que vai para o navegador" do painel de desempenho mostrava só uma janela de 10 s, que esvaziava com a partida pausada (não era bug: a janela andava sem emissões), e a aba Socket.IO da tabela de tempo tem só os 4 eventos que o navegador manda. Um evento pesado sumia antes de ser visto, e o custo dos eventos enviados ficava escondido em "Processar um dia".
-
-**O que mudou:** o coletor (`backend/core/metrics.py`) guarda, por evento enviado e desde o boot ou o último "Zerar medições", os envios, os envios sem ninguém inscrito, o total de bytes, o tamanho típico (mediana) e o p95 sobre os últimos 1.000 envios, o atraso p95 na fila de saída (do `notify` à entrega ao socket, medido no `ws_broker`) e a hora do último envio; a janela de 10 s continua como "Agora". O bloco que publica o fim do dia virou a medição "Publicar o dia", dentro de "Processar um dia" e fora da soma da fatia. A tela tem uma tabela única, ordenável, com as colunas "Agora" e "Desde que zerou" e a dica de cada coluna; pausado, a linha fica e o "Agora" mostra "—". O primeiro uso já mostrou `stock_update:*` e `order_book_snapshot:*` com 100% dos envios sem ninguém.
-
-<a id="f189"></a>
-**F189 — Retoques de interface do playtest de outubro.** Serve N15 e N21. Mudanças pequenas, sem rodada no canvas, que o playtest de 31/out pediu:
-- **Log das ordens do bot** num drawer lateral, como as configurações do lobby, no lugar do cartão que abre embaixo da listagem e obriga a rolar a página; o cartão de hoje se adapta à largura do drawer, o "Ver mais" continua no `useInfiniteQuery` que já existe (`useBotLog`, `useStrategyLog`) e fechar o drawer fecha o log.
-- **Seletor do vice** com o avatar e o nome de cada jogador, como no resto do app.
-- **Filtro "Na carteira"** na renda variável, igual ao da renda fixa.
-- **Período do backtest** com o mesmo seletor de intervalo da sala.
-- **Correlação** sem a ordenação pelos cabeçalhos (`correlation-matrix.tsx:74`): a matriz fica na ordem em que os ativos foram escolhidos.
-- **Selos "a sala vê" e "a sala vê na fila"** saem; fica só o "a sala não vê", com ícone, como na estratégia.
-- **"Quem tem esses ativos"** sai do diálogo de nova medida: a mesa não aponta quem a medida machuca, e quem quiser saber descobre olhando os outros jogadores (N21).
-- **Curvas internas fora da tela:** o gráfico do prêmio de risco pela dívida e o da escala do investimento da eleição saem das telas; a explicação passa para o tópico de conceito do Como jogar, quando houver.
-- **Configurações** com os cartões reordenados: a zona de perigo por último, e o Como jogar ao lado da configuração irmã e no mesmo layout dela.
-- **Aviso de atualização das Estatísticas** (`update-notice.tsx`) também com a partida pausada, dizendo a data da última atualização; a contagem até a próxima aparece só com a partida andando.
-
-Cada item sai num commit `feat:` próprio.
-
-<a id="f190"></a>
-**F190 — Contas do governo redesenhadas.** Serve N15 e N34. No playtest de 31/out, a página do Governo confundiu: muita informação, o painel das contas misturado com o Congresso e as medidas, os gráficos de barra da conta do país difíceis de ler e o Gasto público rolando de lado. O que funcionou e serve de molde: a explicação "inclui 2,3 de prêmio", com a soma que monta a taxa de hoje. O desenho foi aprovado no canvas em 03/11 (board "governo-contas").
-
-**O que existe:** a aba "Contas" (`features/government/components/accounts-tab.tsx`) monta `taxes-card.tsx` (Impostos), `revenue-card.tsx` (De onde vem a receita), `spending-card.tsx` (Gasto público), `budget-card.tsx` (A conta do país), `debt-premium-card.tsx` (Dívida e prêmio de risco) e `budget-readers-card.tsx` (Quem lê a conta).
-
-**O que muda:**
-- **Uma coluna só**, na ordem da conta: Base, A conta do país, o que Entra, o que Sai, e a Dívida.
-- **Impostos e receita viram uma tabela só** (`taxes-card.tsx` absorve `revenue-card.tsx`): alíquota de hoje, padrão (a regra de antes da expansão) e quanto arrecada, lado a lado. A isenção de R$ 20 mil vira nota na linha "Ações · vendas com lucro".
-- **Gasto público** (`spending-card.tsx`) na largura toda, sem rolagem lateral, com o nome da medida numa linha e a descrição embaixo.
-- **Dívida:** o título e o texto de "prêmio de risco" saem, porque descreviam um gráfico que já foi removido; o eixo do gráfico continua o automático do Recharts.
-- **"Quem lê a conta"** (`budget-readers-card.tsx`) não aparece no desenho e sai da aba.
-
-**Aceite:** a aba "Contas" em 1920 de largura sem rolagem lateral e sem cartão que repita número de outro.
-
-<a id="f203"></a>
-**F203 — Eleição: aba da campanha reorganizada.** Serve N15 e N34. Na aba "Campanha do {sigla}" (`features/government/components/campaign-section.tsx`), o playtest e a conferência de 02/11 acharam a tela confusa: a mesma informação mora em mais de um lugar (Eleitorado, Últimas ações e Histórico, Verba de base). O desenho foi aprovado no canvas em 03/11, com uma ressalva: o cartão "Ações de campanha" (`campaign-actions-card.tsx`) fica exatamente como está, porque já foi bem desenhado e não é o problema da página.
-
-**O que muda** (cada coisa num lugar só):
-- **Pesquisa no grupo:** o passo 2 das ações ganha a coluna "Pesquisa no grupo" (por exemplo, PTD 0% com margem de 11 pontos), que mostra também o líder do grupo; o Eleitorado (`electorate-card.tsx`) sobe para logo abaixo das ações, onde a escolha acontece.
-- **Últimas ações e Histórico** (`campaign-recent-card.tsx`, `campaign-history-card.tsx`) viram um cartão só, com um único estado vazio; o "Histórico ›" rola até esse bloco.
-- **Verba de base** (`campaign-base-card.tsx`) entra no cartão "Seu partido", com um botão "Mudar". "Seu partido" ocupa a largura toda em três colunas: verba e filiados, promessas e bandeiras, orientação da bancada.
-- **Ícones:** os ícones dos grupos (Investidores e os demais), das ações (Comício e as outras) e das bandeiras ficam como estão hoje no app. O board é um esboço sem eles; na implementação a referência é a tela atual.
-
-**Aceite:** a aba em 1920 de largura, com a campanha aberta e sem campanha, e sem informação repetida entre cartões.
-
-<a id="f204"></a>
-**F204 — Congresso: votação com placar e casa eleita.** Serve N15 e N34. Na aba "Congresso" do Governo (`features/government/components/congress-tab.tsx`), a tabela da votação (`vote-table.tsx`, usada pelo `vote-dialog.tsx`) rola de lado e não mostra o placar da medida em andamento; e a conferência de 02/11 achou duas coisas do desenho aprovado que o app não tem: o acesso a "Como a casa foi eleita" e a "Ver votações anteriores". O desenho da votação foi aprovado no canvas em 03/11.
-
-**O que muda:**
-- **Faixa de placar** no topo da votação: "30 Sim" numa barra de 0 a 101, com a marca dos 51 votos Sim necessários para passar (maioria fixa de 51 em 101 cadeiras, `house.py:21-24`).
-- **Tabela sem rolagem lateral** (`vote-table.tsx`): a orientação vira selo Sim/Não com quem orientou embaixo, e a explicação de "Pode desobedecer" vira uma linha abaixo do número.
-- **Legenda** com as cores reais do hemiciclo (escura = Sim, cinza claro = Não), e o hemiciclo (`hemicycle.tsx`) ganha a linha tracejada dos 51 votos.
-- **"Como a casa foi eleita ›"** na `house-card.tsx`, levando ao bloco da casa eleita (`elected-house.tsx`), e **"Ver votações anteriores"** no `vote-history-card.tsx`.
-
-**Aceite:** a aba "Congresso" e o diálogo de votação em 1920 de largura, sem rolagem lateral, com o placar visível enquanto a votação está aberta.
-
-<a id="f205"></a>
-**F205 — Jornal igual ao desenho aprovado, com histórico paginado.** Serve N15 e N31. A página do jornal (`features/news/pages/journal.tsx`, com `journal-paper.tsx` e `journal-entries.tsx`) ficou longe do desenho aprovado, e o usuário concorda que o aprovado era mais bonito. Ela também carregava o histórico inteiro de uma vez, sem paginação.
-
-**O que mudou** (regras decididas em 02/11 e 03/11):
-- **"Hoje" virou edição de jornal:** uma manchete grande, a de maior variação do dia (duplicata do mesmo ativo no dia vira uma só), e três menores em colunas. A variação passou a ser gravada na manchete (`change_pct`, anulável).
-- **Dias anteriores** viraram linhas compactas (editoria, título, resumo, chip).
-- **Histórico em rolagem contínua, um mês por página:** `useInfiniteQuery` em que cada página é um mês, aberto no mês atual; ao chegar ao fim da lista, o mês anterior carrega sozinho. A coluna da direita é o arquivo da partida: clicar num mês recomeça a lista dele, e "Voltar a hoje" restaura a abertura. "Hoje" e o arquivo ficam fixos; só a lista rola. `GET /api/news` recebe o mês.
-- O chip da carteira ganhou o texto "na carteira".
-
-**Aceite:** a página do jornal numa partida longa abre sem carregar o histórico inteiro, e a edição de "Hoje" bate com o board aprovado, rolar até o fim carrega o mês anterior sem clique e clicar num mês do arquivo salta direto para ele.
-
-**Conferido na tela (03/11):** abre com uma requisição só (o mês atual); rolar até o fim carrega o mês anterior sem clique; o salto pelo arquivo e o "Voltar a hoje" funcionam; a busca sem resultado percorre os meses até o primeiro da partida. Ficou de fora a contagem "N manchetes em M pregões" do cabeçalho, que pede um endpoint de total.
-
-<a id="f206"></a>
-**F206 — Carteira: percentuais com base, alturas iguais e meta na escala.** Serve N15. Na conferência de 02/11 o usuário aprovou três melhorias da carteira (`features/portfolio/`), e a quarta é um desvio do desenho aprovado:
-- **Cada percentual diz a sua base:** "% dos ativos" nos blocos de distribuição (`allocation-donut.tsx`, `sector-allocation-card.tsx`) e "% do investido" na coluna da tabela de posições (`positions-card.tsx`). Setor sem linha repetida, só o ramo.
-- **Setor e imposto de renda com a mesma altura** (`sector-allocation-card.tsx` e `income-tax-card.tsx`).
-- **Meta no gráfico:** a linha da meta (`networth-gain-chart.tsx:35`, hoje sempre na escala do eixo) só entra na escala quando o patrimônio passa de uns 10% dela; abaixo disso, o eixo acompanha o patrimônio e a meta vira um selo acima do gráfico ("abaixo da escala, você está em 0%"). Nada além disso muda no gráfico.
-- **Carteira vazia:** a mensagem "O gráfico começa no próximo pregão" que o desenho aprovado tem e o app não (`networth-chart.tsx`, componente `Empty`).
-
-**Aceite:** a carteira com patrimônio de 7% da meta mostra o gráfico em escala útil, e os cartões de setor e imposto de renda saem com a mesma altura.
-
-<a id="f207"></a>
-**F207 — Placar da vela com os votos de cada jogador.** Serve N15 e N22. A conferência de 02/11 comparou o desafio da vela com o desenho aprovado, e o usuário confirmou que faltam o placar com os votos e a posição do jogador. O que o código mostra hoje: `scoreboard.tsx` só entra na janela (`challenge-window.tsx:94`) fora da sala solo e mostra contadores ("N disseram sobe", "N disseram desce") e o ✓/✗ de acerto; o backend já manda a direção de cada voto (`ChallengeVoteDTO`, em `core/dto/candle_challenge.py`), que a tela não usa; e o "Você 2º" só existe no dock minimizado (`challenge-dock.tsx:61`) e no fim (`final-panel.tsx:91`).
-
-**O que muda:**
-- Na revelação (`reveal-panel.tsx` e `scoreboard.tsx`), cada jogador aparece com o lado em que votou (sobe ou desce) ao lado do ✓/✗, como no desenho aprovado; o texto de `scoreboard.tsx:56` ("✓ e ✗ ao lado de cada nome") passa a dizer o que a tela mostra.
-- Na pergunta, o placar continua mostrando só quem já respondeu (sem revelar o lado).
-- A posição do jogador ("Você 2º") aparece no cabeçalho da janela (`challenge-header.tsx`) nas duas fases, e não só no dock.
-- A legenda da linha do gráfico (`candle-chart.tsx`) segue o desenho aprovado.
-- Passo de conferência antes de codar: abrir o desafio numa sala com dois jogadores e confirmar se o placar aparece também na pergunta e na revelação (nas capturas de 02/11 ele não apareceu, e a sala solo o esconde de propósito).
-
-**Aceite:** numa sala com dois jogadores, a revelação mostra o voto de cada um e a posição do jogador aparece nas duas fases.
-
-<a id="f208"></a>
-**F208 — Empréstimo: o custo inteiro antes de assinar.** Serve N15 e N33. Na simulação de empréstimo (`features/credit/components/loan-offer-card.tsx`), quem decide não vê o que a assinatura muda na dívida e na nota. O usuário aprovou em 03/11 o desenho do canvas, pequeno, para sair junto da 3.3.
-
-**O que muda:**
-- Um bloco **"Se você assinar"** no resultado, com hoje e depois: dívida, parcelas por mês, alavancagem (dívida dividida pelo patrimônio) e sobra do limite.
-- A comparação entre o juro e o rendimento vira um aviso amarelo com os dois números lado a lado.
-- A barra do limite engrossa e diz quanto sobra.
-- Os textos da escada de notas (`risk-rating-card.tsx`) sobem para 12 px, e os botões Amortizar e Quitar (`loans-table.tsx`) ganham 32 px de altura.
-- Decidido em 02/11: empréstimo novo com parcela em atraso continua liberado (a tela só avisa o atraso e o estado "bloqueado" da proposta sai); o bloco projeta só a alavancagem depois do empréstimo.
-
-**Aceite:** a simulação mostra a alavancagem de depois sem o jogador fazer conta.
-
-<a id="f209"></a>
-**F209 — Crédito em atraso: valor do diálogo, nota do mês e aviso no topo.** Serve N33 e N15. Na conferência de 02/11 o usuário estranhou a tela de atraso: o jogador tinha caixa e a parcela não foi descontada, e os valores do diálogo pareciam divergir (botão "Pagar" em R$ 1.565,60 contra R$ 45,60 de multa e mora). O código mostra o seguinte:
-- **O débito automático só olha o caixa no dia do vencimento** (`credit_book.py:494-531`, `_settle_due`): se o caixa cobre a parcela naquele dia, ela é descontada; se não cobre, a parcela vira atraso e nada é vendido, nem o cheque especial entra. Caixa que chega depois do vencimento não paga a parcela sozinho; só o botão "Pagar" paga.
-- **O botão e a linha "Total" usam o mesmo número** (`overdue_charges` em `price.py:131`, somado em `pay-overdue-dialog.tsx:34`); o servidor recalcula no dia do pagamento (`credit_book.py:699`). Com o diálogo aberto e o dia do jogo avançando, o valor na tela fica velho até recarregar, e a multa e a mora do dia novo não são as mostradas.
-- **A alavancagem de 0,0% na nota** vem do fechamento do mês (`overview.py:238`, `close_rating`): um empréstimo contratado neste mês só entra na nota quando o mês fecha, enquanto o resumo do topo (`credit-summary.tsx`) usa o valor ao vivo.
-
-**O que fazer:**
-1. Reproduzir no banco de teste: empréstimo com parcela vencida sem caixa, depois com caixa; abrir o diálogo, avançar o dia e comparar o "Total" com o valor cobrado. Escrever um teste do backend para o valor cobrado no dia seguinte e do front para o diálogo recarregar o valor a cada dia (`pay-overdue-dialog.tsx`), e corrigir o que o teste mostrar (`fix:`).
-2. A nota mostra, ao lado da alavancagem, que ela é a do último fechamento ("fechamento de <mês>"), e o texto "muda no fim do mês" fica visível quando há empréstimo novo (`risk-rating-card.tsx`).
-3. Aviso do desenho aprovado em 03/11 (`feat:`): um aviso vermelho no topo da página diz qual parcela atrasou, há quanto tempo e quanto já custou de multa, e traz o botão Pagar; o cartão de parcelas do topo soma o atraso; a lista Pagamentos abre com a parcela atrasada; o mês atrasado no histórico ganha rótulo vermelho além da cor.
-
-**Aceite:** o valor do botão "Pagar" é o mesmo cobrado, em qualquer dia, e a página de crédito com parcela em atraso mostra o aviso no topo.
-
-<a id="f210"></a>
-**F210 — Comparar partidas: eixos em grade e Risco inteiro.** Serve N6 e N15. A página de comparação (`features/statistics/pages/compare-simulations.tsx`) tem o cartão de nota por eixo (`statistics-report/player-score-card.tsx`) estreito demais: o "0" do cartão Risco continua colado na borda em 1920 de largura, mesmo depois da correção de 02/11, e o ranking corta a coluna Pregões. O usuário aprovou em 03/11 o desenho do canvas.
-
-**O que muda:**
-- Título e explicação da nota em linha inteira; os seletores de jogador numa linha própria abaixo (o título vira "Nota de <jogador>" ao escolher outro).
-- Os eixos numa grade 2×2 de uns 500 px cada, onde cada métrica cabe numa linha; isso resolve o Risco, que no layout de 4 colunas não tem espaço.
-- O ranking tira a barra de retorno e fica com o número colorido, o que libera espaço para mostrar Pregões (dias de pregão jogados) sem corte.
-- Nada mais muda de ordem.
-
-**Aceite:** a comparação em 1920 de largura sem valor colado na borda nem coluna cortada.
-
-<a id="f212"></a>
-**F212 — Paleta de cores de jogadores e partidos.**
-Serve N20 e N15. As 13 cores saíram de um script que maximiza a menor distância CIEDE2000 entre cada par na visão normal e nas simulações de protanopia, deuteranopia e tritanopia, com 3:1 de contraste sobre o fundo claro, sigla legível (4,5:1) em branco ou tinta e sem vermelho nem verde puros. O par mais parecido passou de 4,5 a 8,5 para 17,2 na visão normal, 11,0 na protanopia, 11,2 na deuteranopia e 8,6 na tritanopia. Dez são dos jogadores (`chart-1` a `chart-10`, cada uma no lugar da antiga mais parecida) e três dos partidos do computador (UPR cinza, ACI petróleo, MNV oliva). O partido de jogador escolhe entre as dez cores de jogador, já marcada a de quem funda quando está livre, e a sigla do partido usa o texto da cor de jogador de mesmo hex. O ranking de partidos das Estatísticas ainda manda o cinza `#7d879b` para todo partido do computador.
-
-<a id="f213"></a>
-**F213 — Pendências: consequência inteira e Pagar em destaque.** Serve N15. A lista de pendências (popover da barra lateral, `features/pending/components/pending-menu-item.tsx`, com `pending-row.tsx` por item) corta a consequência de cada item, a gravidade só se distingue pela cor da borda e a dica tem texto pequeno e apagado. O desenho da lista foi aprovado no canvas em 03/11.
-
-**O que muda:**
-- **Consequência inteira em linha própria** (`pending-row.tsx`): o texto de "quando some" e o detalhe deixam de ser cortados e ganham uma linha cada.
-- **Gravidade também em texto:** o item grave leva a palavra "Grave", além da borda vermelha, para quem não distingue as cores.
-- **Dica em 12 px com contraste:** a legenda ("Vermelha quando já custa dinheiro, âmbar quando ainda dá tempo.") sobe para o rodapé da lista, com cor de texto legível.
-- **Pagar como botão principal** da linha; a ação de cada item (rótulo de `pendingTarget`) usa a variante principal do botão.
-- **Lista de 400 px de largura** (o popover hoje tem `w-80`, 320 px).
-
-**Aceite:** o popover em 1920 de largura, com uma pendência grave e uma leve, sem texto cortado e com a gravidade legível sem depender da cor.
-
-<a id="f214"></a>
-**F214 — Central de dados: tabela que cabe no cartão.** Serve N15. A tabela de séries da Central de dados (`features/import-assets/components/series-table.tsx`, página `import-assets.tsx`) rola de lado e deixa o botão de atualizar azul em todas as linhas, o que apaga a ação em massa. O desenho foi aprovado no canvas em 03/11.
-
-**O que muda:**
-- **Sem rolagem lateral:** as colunas Série, Setor · segmento, Dados reais até, Situação e Ações cabem no cartão em 1920 de largura; texto longo termina em reticências e mostra o conteúdo inteiro no hover.
-- **Linha de cerca de 62 px** (hoje a altura varia com o conteúdo).
-- **"Atualizar" por linha em contorno**; o azul cheio fica só na ação em massa "Atualizar desatualizadas (n)" do cabeçalho do cartão.
-- **Selo "Parou em …"** (o `Badge` de aviso da coluna Situação) mantido e alinhado à coluna, sem quebrar a linha.
-
-**Aceite:** a página `/import-assets` em 1920 de largura sem rolagem lateral e com uma única ação em azul cheio.
-
-<a id="f215"></a>
-**F215 — Backtest: formulário do período sem estouro.** Serve N15. No formulário do backtest em modo lista (`features/backtest/components/backtest-form.tsx`), a coluna do período e dinheiro (`period-card.tsx`, com o `period-picker.tsx` compartilhado) estoura: os atalhos e as datas passam da borda. O usuário viu o estouro ao testar o backtest em 03/11. O desenho foi aprovado no canvas em 03/11.
-
-**O que muda:**
-- **Coluna do período com 440 px** (hoje `grid-cols-[360px_minmax(0,1fr)]`), as estratégias (`participant-list.tsx`) ocupam o resto.
-- **Atalhos em duas linhas** no `period-picker.tsx` (hoje `grid-cols-[4fr_2fr]`), e **datas Início e Fim lado a lado**.
-- **Campos inteiros:** nome, saldo inicial e aporte mensal cabem sem corte.
-- O seletor de período é compartilhado: a mudança vale também para onde ele é usado.
-
-**Aceite:** `/backtest/new` em modo lista, em 1920 de largura, sem texto cortado nem rolagem lateral na coluna do período.
+> Nenhum item neste status.
 
 ---
 
 ## 🚫 Descartado
 
-| ID | Tipo | Resumo | Serve |
-| --- | --- | --- | --- |
-| **F183** | Melhoria | Como jogar sem cobrir a tela | N15, N25 |
-
-<a id="f183"></a>
-**F183 — Descartado.** 🚫 Sem problema na tela: o usuário avaliou os retratos de 03/11 e não vê a aba do Como jogar nem o balão cobrindo conteúdo que justifique um desenho. A F179 segue com a topbar, e o palco do Como jogar fica para depois da avaliação dele.
+> Nenhum item neste status.
