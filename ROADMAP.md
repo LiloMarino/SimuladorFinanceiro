@@ -97,7 +97,7 @@
 | [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | Baixo | Bom | 💤 |
 | [**F175**](#f175) | Feature | Federações partidárias | — | — | Alto | Bom | ⏳ |
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
-| [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | — | — | Médio | Bom | 💤 |
+| [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | M21 · 3.4 | — | Médio | Bom | ⏳ |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.0 | — | — | — | 🔍 |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | 🔍 |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | — | — | — | 🔍 |
@@ -147,7 +147,7 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 0/5 concluídos
+> **Progresso:** 0/6 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -155,7 +155,8 @@
 | 2 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ⏳ Pendente |
 | 3 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | — | ⏳ Pendente |
 | 4 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
-| 5 | [**F195**](#f195) | Feature | Acordo de base com prazo | — | 🔍 Em avaliação |
+| 5 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | [F165](#f165) | ⏳ Pendente |
+| 6 | [**F195**](#f195) | Feature | Acordo de base com prazo | — | 🔍 Em avaliação |
 
 ### 4.0 — Expansão Gestoras (M18)
 
@@ -220,7 +221,7 @@
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 2º | 0 | Alto | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 · 3º | 1 | Médio | Bom | ⏳ |
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 4º | 1 | Médio | Bom | ⏳ |
-| [**F195**](#f195) | Feature | Acordo de base com prazo | M21 · 3.4 · 5º | 0 | — | — | 🔍 |
+| [**F195**](#f195) | Feature | Acordo de base com prazo | M21 · 3.4 · 6º | 0 | — | — | 🔍 |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | — | 2 | — | — | 🔍 |
 | [**F22**](#f22) | Feature | Preço ajustado e proventos | — | 2 | Alto | Bom | ⏳ |
 | [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | — | 1 | — | — | 🔍 |
@@ -259,6 +260,7 @@
 | **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | — | — | Alto | Médio | Médio | Bom |
+| **F177** | Feature | Marcação a mercado do Tesouro | N34 | — | M21 · 3.4 | [F165](#f165) | Médio | Médio | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
 
 <a id="f6"></a>
@@ -305,10 +307,13 @@
 **Aceite:** a soma das misturas regionais pesada pelo eleitorado bate com os pesos nacionais com erro de até 0,005 por grupo, num teste.
 
 <a id="f165"></a>
-**F165 — Tela do Tesouro: títulos pelo risco do governo.** Serve N34. Com o prêmio de risco (F128), a taxa dos títulos conta a história do governo: sobe quando a dívida cresce. Hoje o Tesouro sai misturado na vitrine mensal da renda fixa, com o prêmio somado à taxa (`fixed_income/factory/__init__.py`). Uma tela própria do Tesouro mostra: (1) **os títulos à venda** (Selic, Prefixado e IPCA+), com a taxa aberta em "taxa base + prêmio de risco do país" e a compra dali mesmo; (2) **a taxa de cada tipo ao longo da partida**, com a dívida pública ÷ PIB no mesmo eixo de tempo, para ver a taxa subir junto com a dívida; (3) **o termômetro do risco**: o prêmio atual, a dívida ÷ PIB e quanto falta para o próximo degrau do prêmio. Cada métrica tem uma descrição curta e uma dica com a definição e como ler. Para o gráfico, o backend guarda a taxa de cada tipo e o prêmio em cada vitrine mensal. O desenho começa registrando no canvas as telas e os estados: expansão desligada, dívida abaixo de 50% do PIB sem prêmio e prêmio alto. A marcação a mercado é o card seguinte (F177).
+**F165 — Tela do Tesouro: títulos pelo risco do governo.** Serve N34. Com o prêmio de risco (F128), a taxa dos títulos conta a história do governo: sobe quando a dívida cresce. Hoje o Tesouro sai misturado na vitrine mensal da renda fixa, sorteado como os títulos dos bancos e com o prêmio somado à taxa (`fixed_income/factory/__init__.py`). (1) **O Tesouro sai da renda fixa e ganha item próprio** no menu Mercado, logo abaixo de Renda fixa; a renda fixa fica com CDB, LCI e LCA, no sorteio de hoje, e aponta para o Tesouro. (2) **Catálogo fixo, como o Tesouro Direto:** seis títulos sempre à venda, numa escada de prazos: um Selic de uns 3 anos, dois Prefixados (uns 3 e uns 7 anos) e três IPCA+ (uns 5, 10 e 20 anos), com vencimento em datas fixas (Selic em 1º de março, Prefixado em 1º de janeiro, IPCA+ em 15 de maio). No fechamento do ano, o título cujo prazo caiu abaixo do piso do degrau sai da vitrine e entra o seguinte da escada (ex.: o Prefixado 2029 dá lugar ao Prefixado 2032); quem comprou segue com ele na carteira. Quem quer reinvestir no mesmo título o acha por anos. (3) **Taxa revista todo mês, sem sorteio**, no fechamento, junto com o prêmio: Selic = SELIC + 0,10 + prêmio; Prefixado = SELIC − 1 + 0,15 por ano de prazo + prêmio; IPCA+ = IPCA + (SELIC − IPCA + 0,10 por ano de prazo + prêmio). Quem compra trava a taxa do dia; duas compras do mesmo título em meses diferentes são duas posições. (4) **A tela mostra** os títulos à venda, com a taxa aberta em "taxa base + prêmio de risco do país" e a compra dali mesmo; a taxa de cada tipo ao longo da partida, em "equivale hoje" (% ao ano, com o IPCA de 12 meses no IPCA+), com a dívida pública ÷ PIB no mesmo eixo de tempo; e o termômetro do risco: o prêmio atual, a dívida ÷ PIB e quanto falta para a próxima faixa. As faixas são só de leitura, a fórmula do prêmio segue contínua: Sem prêmio (até 50% do PIB), Moderado (50% a 80%), Alto (80% a 100%) e Crítico (acima de 100%); a dica da dívida ÷ PIB passa a usar as mesmas faixas. Cada métrica tem uma descrição curta e uma dica com a definição e como ler. Para o gráfico, o backend guarda a taxa de cada título e o prêmio em cada fechamento de mês. (5) Sem a expansão Governo & Política, a tela existe com a taxa base, sem prêmio e sem termômetro. A marcação a mercado (F177) se faz junto: o desenho das duas está no canvas, na linha do Tesouro.
 
 <a id="f175"></a>
 **F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), inclusive ao partido do computador; a proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173). (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato, fica preso pelo mandato e herda, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** a federação aparece no cartão dos partidos da Eleição, no hemiciclo do Congresso e no jornal (formada, desfeita); o desenho começa registrando as telas e os estados no canvas: proposta pendente, federação formada, federação desfeita antes do prazo e expansão desligada.
+
+<a id="f177"></a>
+**F177 — Marcação a mercado do Tesouro.** Serve N34; feita junto com a tela do Tesouro (F165), no mesmo desenho do canvas. Na vida real, quem compra um Prefixado e vê as taxas subirem perde dinheiro se vender antes do vencimento: um título de 12% ao ano vale menos quando o mercado paga 15%, porque ninguém paga o mesmo preço por 12% podendo ter 15%. Os títulos do Tesouro ganham resgate antes do vencimento, em qualquer dia, inteiro ou em parte: o Selic pelo valor acumulado, o Prefixado e o IPCA+ pelo preço de hoje, o valor no vencimento trazido a valor presente pela taxa de hoje do mesmo título (o catálogo da F165 é fixo, então o título vendido é o mesmo que está à venda). O Tesouro recompra pela mesma taxa em que vende, sem diferença; o ganho ou a perda vem só da taxa ter mudado desde a compra. IR regressivo sobre o ganho, como no vencimento; com perda, sem IR. Como a taxa muda no fechamento do mês, o preço anda todo dia pelo tempo e salta no fechamento. A tela do Tesouro lista os títulos do jogador com a taxa da compra, a de hoje, o valor de hoje, a marcação e o valor no vencimento, e a venda mostra o que se recebe hoje ao lado do que se receberia esperando; a carteira mostra o ganho ou a perda da marcação ao lado do rendimento. O risco do governo fica palpável para quem investe, e o presidente com Prefixado na carteira perde com a própria gastança. Mexe na renda fixa toda (`liquidity.py`, `fixed_broker.redeem`), que hoje só resgata antes do vencimento o que tem liquidez diária.
 
 <a id="f197"></a>
 **F197 — Rebalanceamento por meta com várias classes.** Serve N4. Hoje o `TargetRebalance` (`backend/features/strategy/rebalance.py:55`) divide só entre um ativo de ações (BOVA11 por padrão) e a renda fixa de liquidez diária: a meta em ações vai de 10% a 90% (padrão 60%), e o desvio máximo, de 1 a 20 pontos (padrão 5). O playtest de 31/out pediu configurar a meta de cada classe.
@@ -454,7 +459,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom |
 | **F167** | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F176** | Feature | Cadeiras do Congresso por região | N34 | D19 | — | [F164](#f164) | Médio | Médio | Médio | Médio |
-| **F177** | Feature | Marcação a mercado do Tesouro | N34 | — | — | [F165](#f165) | Médio | Médio | Médio | Bom |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -497,9 +501,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 <a id="f176"></a>
 **F176 — Cadeiras do Congresso por região.** Serve N34; upgrade do mapa por região (F164). Na Câmara real nenhum estado tem menos de 8 nem mais de 70 deputados, e o Norte e o Centro-Oeste valem mais em cadeiras do que em eleitores: o Norte tem 65 de 513 cadeiras (12,7%) com 8,1% do eleitorado, e o Sudeste 179 (34,9%) com 42,6%. As 101 cadeiras se repartem na proporção das 513: Sudeste 35, Nordeste 30, Sul 15, Norte 13, Centro-Oeste 8. Cada região reparte as dela pelo D'Hondt de `house.distribute` com o voto da região; a barreira continua nacional. Ganhar o Norte passa a valer mais no Congresso do que na urna, uma decisão de campanha real. Fica depois do mapa porque mexe no modelo das cadeiras.
-
-<a id="f177"></a>
-**F177 — Marcação a mercado do Tesouro.** Serve N34; upgrade da tela do Tesouro (F165). Na vida real, quem compra um Prefixado e vê as taxas subirem perde dinheiro se vender antes do vencimento: um título de 12% ao ano vale menos quando o mercado paga 15%, porque ninguém paga o mesmo preço por 12% podendo ter 15%. Os títulos do Tesouro ganham resgate antes do vencimento: o Selic pelo valor acumulado, o Prefixado e o IPCA+ pelo preço unitário de hoje, o valor no vencimento trazido a valor presente pela taxa atual do mesmo tipo (taxa base mais o prêmio de risco de hoje). A carteira mostra o ganho ou a perda da marcação ao lado do rendimento. O risco do governo fica palpável para quem investe, e o presidente com Prefixado na carteira perde com a própria gastança. Fica separado porque mexe na renda fixa toda (`liquidity.py`, `fixed_broker.redeem`), que hoje só resgata antes do vencimento o que tem liquidez diária.
 
 ---
 
