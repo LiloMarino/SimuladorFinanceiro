@@ -88,6 +88,8 @@ def socket(monkeypatch: pytest.MonkeyPatch) -> _Socket:
 
     fake = _Socket(server, broker)
     monkeypatch.setattr(UserManager, "unregister", fake.unregistered.append)
+    # As abas são de visitantes: nenhum client_id tem usuário cadastrado
+    monkeypatch.setattr(UserManager, "get_user", lambda client_id: None)
     return fake
 
 
