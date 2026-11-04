@@ -108,10 +108,9 @@
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | — | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | — | — | — | 🔍 |
-| [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (45 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (46 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -157,6 +156,7 @@
 | [**F208**](#f208) | Melhoria | Empréstimo: o custo inteiro antes de assinar | M20 · 3.3 | — | — | — | ✅ |
 | [**F209**](#f209) | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | M20 · 3.3 | — | — | — | ✅ |
 | [**F210**](#f210) | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | M20 · 3.3 | — | — | — | ✅ |
+| [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | ✅ |
 | [**F213**](#f213) | Melhoria | Pendências: consequência inteira e Pagar em destaque | M20 · 3.3 | — | — | — | ✅ |
 | [**F214**](#f214) | Melhoria | Central de dados: tabela que cabe no cartão | M20 · 3.3 | — | — | — | ✅ |
 | [**F215**](#f215) | Melhoria | Backtest: formulário do período sem estouro | M20 · 3.3 | — | — | — | ✅ |
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 29/30 concluídos
+> **Progresso:** 30/30 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -205,7 +205,7 @@
 | 24 | [**F174**](#f174) | Melhoria | Preparação do lobby redesenhada | — | ✅ Concluído |
 | 25 | [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | — | ✅ Concluído |
 | 26 | [**F170**](#f170) | Feature | Parâmetros das estratégias salvos no perfil | — | ✅ Concluído |
-| 27 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | — | 🔍 Em avaliação |
+| 27 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | — | ✅ Concluído |
 | 28 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ✅ Concluído |
 | 29 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | — | ✅ Concluído |
 | 30 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | — | ✅ Concluído |
@@ -286,7 +286,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 · 27º | 0 | — | — | 🔍 |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 · 1º | 1 | — | — | 🔍 |
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 2º | 0 | Alto | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 · 3º | 1 | Médio | Bom | ⏳ |
@@ -421,7 +420,6 @@
 | **F195** | Feature | Acordo de base com prazo | N34 | — | M21 · 3.4 | — | Escolher entre (a) prazo na negociação, (b) renovação automática e (c) acordo até o fim do mandato com saída por aprovação baixa; recomendação (c). |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | — | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | — | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
-| **F212** | Melhoria | Paleta de cores de jogadores e partidos | N20, N15 | — | M20 · 3.3 | — | as 13 cores, que saem de um script de distância entre cores e são aprovadas numa imagem |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -516,11 +514,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 **Falta** desenhar, numa rodada no canvas em Opus com variantes e estados (como numa feature nova), a tela do livro. O desenho de 03/11 parte de: a ordem aberta do jogador numa faixa no topo com Cancelar à mão; o livro em duas colunas, Compra (maior preço no topo) e Venda (menor preço no topo), com a melhor compra e a melhor venda em destaque, ligadas à boleta; uma barra de quantidade; a coluna Situação sai (repetia "Aberta"); o balão "Tópico" some. O usuário gostou do rumo e pediu o refinamento pelo método completo. A rodada decide também o que o livro diz sobre si mesmo (que é a pressão ao redor do preço do candle de hoje) e se a ordenação por preço passa a vir do backend. Fica fora de versão.
 
-<a id="f212"></a>
-**F212 — Paleta de cores de jogadores e partidos.** Serve N20 e N15. A paleta (`chart-1` a `chart-10` em `index.css`) tem 10 cores para até 10 jogadores, e o laranja (`chart-5`) e o marrom (`chart-10`) se confundem; somados aos 3 partidos do computador, o app precisa de 13 cores distintas entre si.
-
-**Falta** escolher as cores: 13 cores que se distinguem umas das outras para quem tem visão normal e para daltônicos, sem o vermelho e o verde puros (que destoam do resto do visual) e com contraste suficiente sobre o fundo claro e o escuro. A escolha sai de um script que mede a distância entre as cores (não de uma rodada no canvas), e o usuário aprova a paleta numa imagem com as 13 amostras.
-
 ---
 
 ## 💤 Sem prioridade
@@ -614,6 +607,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F208** | Melhoria | Empréstimo: o custo inteiro antes de assinar | N15, N33 | — | M20 · 3.3 |
 | **F209** | Melhoria | Crédito em atraso: valor do diálogo, nota do mês e aviso no topo | N33, N15 | — | M20 · 3.3 |
 | **F210** | Melhoria | Comparar partidas: eixos em grade e Risco inteiro | N6, N15 | — | M20 · 3.3 |
+| **F212** | Melhoria | Paleta de cores de jogadores e partidos | N20, N15 | — | M20 · 3.3 |
 | **F213** | Melhoria | Pendências: consequência inteira e Pagar em destaque | N15 | — | M20 · 3.3 |
 | **F214** | Melhoria | Central de dados: tabela que cabe no cartão | N15 | — | M20 · 3.3 |
 | **F215** | Melhoria | Backtest: formulário do período sem estouro | N15 | — | M20 · 3.3 |
@@ -861,6 +855,10 @@ Cada item sai num commit `feat:` próprio.
 - Nada mais muda de ordem.
 
 **Aceite:** a comparação em 1920 de largura sem valor colado na borda nem coluna cortada.
+
+<a id="f212"></a>
+**F212 — Paleta de cores de jogadores e partidos.**
+Serve N20 e N15. As 13 cores saíram de um script que maximiza a menor distância CIEDE2000 entre cada par na visão normal e nas simulações de protanopia, deuteranopia e tritanopia, com 3:1 de contraste sobre o fundo claro, sigla legível (4,5:1) em branco ou tinta e sem vermelho nem verde puros. O par mais parecido passou de 4,5 a 8,5 para 17,2 na visão normal, 11,0 na protanopia, 11,2 na deuteranopia e 8,6 na tritanopia. Dez são dos jogadores (`chart-1` a `chart-10`, cada uma no lugar da antiga mais parecida) e três dos partidos do computador (UPR cinza, ACI petróleo, MNV oliva). O partido de jogador escolhe entre as dez cores de jogador, já marcada a de quem funda quando está livre, e a sigla do partido usa o texto da cor de jogador de mesmo hex. O ranking de partidos das Estatísticas ainda manda o cinza `#7d879b` para todo partido do computador.
 
 <a id="f213"></a>
 **F213 — Pendências: consequência inteira e Pagar em destaque.** Serve N15. A lista de pendências (popover da barra lateral, `features/pending/components/pending-menu-item.tsx`, com `pending-row.tsx` por item) corta a consequência de cada item, a gravidade só se distingue pela cor da borda e a dica tem texto pequeno e apagado. O desenho da lista foi aprovado no canvas em 03/11.
