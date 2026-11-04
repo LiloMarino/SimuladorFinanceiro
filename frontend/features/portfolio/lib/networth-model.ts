@@ -1,7 +1,8 @@
+import { ASSET_CLASSES } from "@/shared/lib/asset-class";
 import { niceScale } from "@/shared/lib/chart-scale";
 import { goalAt } from "@/shared/lib/goal";
 import { displayNumber, displayShortMonthYear, parseLocalDate } from "@/shared/lib/utils/display";
-import type { PortfolioHistoryPoint, SeriesPoint } from "@/types";
+import type { AssetClass, PortfolioHistoryPoint, SeriesPoint } from "@/types";
 
 export type Period = "6M" | "1Y" | "ALL";
 
@@ -19,6 +20,8 @@ export type NetworthPoint = {
   equity: number;
   fixed: number;
   cash: number;
+  /** Renda variável por tipo; ausente nos dias gravados antes de o snapshot guardá-la */
+  equityByClass: Partial<Record<AssetClass, number>> | undefined;
   /** Meta vigente no dia; ausente fora da corrida */
   goal: number | undefined;
 };
@@ -33,8 +36,23 @@ export function toNetworthPoints(history: PortfolioHistoryPoint[], goalSteps: Se
     equity: Number(p.total_equity),
     fixed: Number(p.total_fixed),
     cash: Number(p.total_cash),
+    equityByClass: p.equity_by_class ? toEquityByClass(p.equity_by_class) : undefined,
     goal: goalAt(goalSteps ?? [], p.snapshot_date),
   }));
+}
+
+function toEquityByClass(split: Record<string, string>): Partial<Record<AssetClass, number>> {
+  return Object.fromEntries(ASSET_CLASSES.filter((c) => c in split).map((c) => [c, Number(split[c])]));
+}
+
+/** Os dias com a renda variável por tipo gravada: a visão por tipo desenha só eles. */
+export function pointsWithTypes(points: NetworthPoint[]) {
+  return points.filter((p) => p.equityByClass !== undefined);
+}
+
+/** Os tipos que a carteira teve em algum dos `points`, na ordem de `ASSET_CLASSES`. */
+export function heldTypes(points: NetworthPoint[]) {
+  return ASSET_CLASSES.filter((c) => points.some((p) => (p.equityByClass?.[c] ?? 0) > 0));
 }
 
 /** Data de `isoDate` recuada em `months` meses, com o dia limitado ao tamanho do mês de chegada. */

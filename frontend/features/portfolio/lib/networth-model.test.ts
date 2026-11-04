@@ -4,8 +4,10 @@ import {
   displaySignedThousands,
   displayThousands,
   goalOnScale,
+  heldTypes,
   isPeriodAvailable,
   pointsInPeriod,
+  pointsWithTypes,
   splitGainLoss,
   valueScale,
   type NetworthPoint,
@@ -19,6 +21,7 @@ const point = (date: string, networth = 0): NetworthPoint => ({
   equity: 0,
   fixed: 0,
   cash: 0,
+  equityByClass: undefined,
   goal: undefined,
 });
 
@@ -163,6 +166,26 @@ describe("axisTicks", () => {
     const ticks = axisTicks(dates, 300);
     expect(ticks.map((t) => t.label)).toEqual(["jan/20", "jan/21", "jan/22"]);
     expect(ticks[0]?.anchor).toBe("start");
+  });
+});
+
+describe("visão por tipo", () => {
+  const split = (date: string, equityByClass: NetworthPoint["equityByClass"]) => ({ ...point(date), equityByClass });
+
+  it("desenha só os dias em que a divisão por tipo foi gravada", () => {
+    const points = [point("2020-01-02"), split("2020-01-03", {}), split("2020-01-06", { FII: 100 })];
+
+    expect(pointsWithTypes(points).map((p) => p.date)).toEqual(["2020-01-03", "2020-01-06"]);
+  });
+
+  it("um tipo ganha painel quando esteve na carteira em algum dia, na ordem da renda variável", () => {
+    const points = [
+      split("2020-01-02", { CRYPTO: 50, STOCK: 0 }),
+      split("2020-01-03", {}),
+      split("2020-01-06", { FII: 100 }),
+    ];
+
+    expect(heldTypes(points)).toEqual(["FII", "CRYPTO"]);
   });
 });
 

@@ -8,6 +8,7 @@ import {
   type AxisTick,
   type NetworthPoint,
 } from "../lib/networth-model";
+import type { PanelConfig } from "../lib/networth-panels";
 
 const PANEL_HEIGHT = 74;
 const AXIS_HEIGHT = 18;
@@ -16,37 +17,16 @@ const RIGHT = 8;
 const TOP = 6;
 const BOTTOM = 4;
 
-const CLASSES = [
-  {
-    key: "equity",
-    label: "Renda variável",
-    color: "var(--chart-1)",
-    lineClass: "stroke-chart-1",
-    areaClass: "fill-chart-1/12",
-    dotClass: "stroke-chart-1",
-  },
-  {
-    key: "fixed",
-    label: "Renda fixa",
-    color: "var(--chart-2)",
-    lineClass: "stroke-chart-2",
-    areaClass: "fill-chart-2/12",
-    dotClass: "stroke-chart-2",
-  },
-  {
-    key: "cash",
-    label: "Caixa",
-    color: "var(--faint-foreground)",
-    lineClass: "stroke-faint-foreground",
-    areaClass: "fill-faint-foreground/12",
-    dotClass: "stroke-faint-foreground",
-  },
-] as const;
-
-type ClassConfig = (typeof CLASSES)[number];
-
-/** Um painel por classe, um embaixo do outro, cada um com a própria escala e o mesmo eixo de tempo. */
-export function NetworthClassPanels({ points, width }: { points: NetworthPoint[]; width: number }) {
+/** Um painel por série, um embaixo do outro, cada um com a própria escala e o mesmo eixo de tempo. */
+export function NetworthPanels({
+  panels,
+  points,
+  width,
+}: {
+  panels: PanelConfig[];
+  points: NetworthPoint[];
+  width: number;
+}) {
   const [hover, setHover] = useState<number | null>(null);
   const plotWidth = width - LEFT - RIGHT;
   const xTicks = useMemo(
@@ -60,15 +40,15 @@ export function NetworthClassPanels({ points, width }: { points: NetworthPoint[]
 
   return (
     <div className="grid gap-3.5">
-      {CLASSES.map((config, i) => (
-        <ClassPanel
+      {panels.map((config, i) => (
+        <Panel
           key={config.key}
           config={config}
           points={points}
           width={width}
           hover={hover}
           onHover={setHover}
-          xTicks={i === CLASSES.length - 1 ? xTicks : undefined}
+          xTicks={i === panels.length - 1 ? xTicks : undefined}
         />
       ))}
       <span className="text-xs text-muted-foreground">
@@ -78,7 +58,7 @@ export function NetworthClassPanels({ points, width }: { points: NetworthPoint[]
   );
 }
 
-function ClassPanel({
+function Panel({
   config,
   points,
   width,
@@ -86,7 +66,7 @@ function ClassPanel({
   onHover,
   xTicks,
 }: {
-  config: ClassConfig;
+  config: PanelConfig;
   points: NetworthPoint[];
   width: number;
   hover: number | null;
@@ -94,7 +74,7 @@ function ClassPanel({
   /** Só o último painel desenha o eixo de tempo */
   xTicks: AxisTick[] | undefined;
 }) {
-  const values = useMemo(() => points.map((p) => p[config.key]), [points, config.key]);
+  const values = useMemo(() => points.map(config.valueOf), [points, config.valueOf]);
   const plotWidth = width - LEFT - RIGHT;
   const plotHeight = PANEL_HEIGHT - TOP - BOTTOM;
   const height = PANEL_HEIGHT + (xTicks ? AXIS_HEIGHT : 0);

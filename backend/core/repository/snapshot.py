@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.snapshot import DayBalanceDTO, SnapshotDTO
-from backend.core.enum import CONTRIBUTION_TYPES
+from backend.core.enum import CONTRIBUTION_TYPES, AssetClass
 from backend.core.models.models import (
     EventCashflow,
     Snapshots,
@@ -24,9 +24,10 @@ class SnapshotRepository:
         total_equity: Decimal,
         total_fixed: Decimal,
         total_debt: Decimal,
+        equity_by_class: dict[AssetClass, Decimal] | None = None,
     ) -> SnapshotDTO:
         """O snapshot de um jogador só, pelo mesmo caminho do dia de todos."""
-        balance = DayBalanceDTO(total_equity, total_fixed, total_debt)
+        balance = DayBalanceDTO(total_equity, total_fixed, total_debt, equity_by_class)
         return self.create_snapshots(snapshot_date, {user_id: balance})[user_id]
 
     @transactional
@@ -75,6 +76,7 @@ class SnapshotRepository:
                 + balance.total_equity
                 + balance.total_fixed
                 - balance.total_debt,
+                equity_by_class=balance.equity_by_class,
                 created_at=created_at,
             )
         if not snapshots:

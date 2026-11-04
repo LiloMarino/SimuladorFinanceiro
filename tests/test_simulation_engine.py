@@ -154,6 +154,59 @@ def test_portfolio_values_and_shares(player_book):
     ]
 
 
+def test_balance_sheet_splits_equity_by_asset_class(
+    player_book, monkeypatch: pytest.MonkeyPatch
+):
+    """A renda variável do snapshot sai aberta por tipo, e só com os tipos em carteira."""
+    monkeypatch.setattr(
+        repository.stock,
+        "get_stocks",
+        lambda: [
+            StockDTO(id=1, ticker="ABCD", name="Abcd", asset_class=AssetClass.STOCK),
+            StockDTO(id=2, ticker="FIIX11", name="Fiix", asset_class=AssetClass.FII),
+            StockDTO(id=3, ticker="BTC", name="Bitcoin", asset_class=AssetClass.CRYPTO),
+        ],
+    )
+    monkeypatch.setattr(
+        repository.portfolio,
+        "get_equity_events",
+        lambda _user_id: [
+            EquityEventDTO(
+                simulation_id=1,
+                user_id=USER_ID,
+                event_date=TODAY,
+                ticker=ticker,
+                event_type=EquityEventType.BUY,
+                quantity=Decimal(quantity),
+                price=Decimal(price),
+            )
+            for ticker, quantity, price in [("ABCD", 10, 10), ("FIIX11", 2, 100)]
+        ],
+    )
+    engine = _engine()
+    for ticker, close in [("ABCD", 12), ("FIIX11", 95)]:
+        engine.matching_engine.market_data.add_candle(
+            Candle(
+                ticker,
+                TODAY,
+                open=close,
+                high=close,
+                low=close,
+                close=close,
+                volume=100,
+            )
+        )
+
+    balance = engine.balance_sheet(PLAYER)
+
+    # 10 x R$ 12 em ações e 2 x R$ 95 em FII; a cripto nunca comprada fica de fora
+    assert balance.equity_by_class == {
+        AssetClass.STOCK: Decimal("120"),
+        AssetClass.FII: Decimal("190"),
+    }
+    assert balance.total_equity == Decimal("310")
+
+
 def test_current_price_without_candle_is_average_price(player_book):
     """Sem candle no buffer, o preço atual da posição é o preço médio."""
     position = Position("WXYZ")

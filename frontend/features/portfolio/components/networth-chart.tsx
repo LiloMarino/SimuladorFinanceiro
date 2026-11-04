@@ -15,19 +15,25 @@ import type { PortfolioState } from "@/types";
 import { useElementWidth } from "../hooks/useElementWidth";
 import {
   goalOnScale,
+  heldTypes,
   isPeriodAvailable,
   PERIODS,
   pointsInPeriod,
+  pointsWithTypes,
   toNetworthPoints,
   type NetworthPoint,
   type Period,
 } from "../lib/networth-model";
-import { NetworthClassPanels } from "./networth-class-panels";
+import { CLASS_PANELS, typePanels } from "../lib/networth-panels";
+import { NetworthPanels } from "./networth-panels";
 import { NetworthGainChart } from "./networth-gain-chart";
 
-type Mode = "gain" | "class";
+type Mode = "gain" | "class" | "type";
 
-/** Evolução da carteira: o patrimônio de hoje e o gráfico em dois modos, ganho sobre o aportado ou um painel por classe. */
+/**
+ * Evolução da carteira: o patrimônio de hoje e o gráfico em três modos, ganho sobre o aportado, um painel por classe
+ * ou um painel por tipo de renda variável.
+ */
 export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
   const { data: history, isLoading, error, refetch } = usePatrimonialHistory();
   const goalSteps = useGoalSteps();
@@ -37,6 +43,8 @@ export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
 
   const all = useMemo(() => toNetworthPoints(history ?? [], goalSteps), [history, goalSteps]);
   const points = useMemo(() => pointsInPeriod(all, period), [all, period]);
+  const typePoints = useMemo(() => pointsWithTypes(points), [points]);
+  const panelsByType = useMemo(() => typePanels(heldTypes(typePoints)), [typePoints]);
 
   const title = (
     <CardTitle>
@@ -56,6 +64,10 @@ export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
               o aportado.
             </span>
             <span className="text-muted-foreground">Acima de 0% o dinheiro rendeu; abaixo, encolheu.</span>
+            <span>
+              <b>Por tipo</b> abre a renda variável em Ações, FII, ETF, BDR e Cripto, só com os tipos que você teve e
+              nos dias em que a partida registrou essa divisão.
+            </span>
           </div>
         </InfoHint>
       </span>
@@ -99,6 +111,9 @@ export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
   }
 
   const hasChart = all.length >= 2;
+  // A visão por tipo só existe quando o período tem dias com a renda variável aberta por tipo e algum tipo em carteira
+  const hasTypes = typePoints.length >= 2 && panelsByType.length > 0;
+  const shownMode = mode === "type" && !hasTypes ? "class" : mode;
   const showGoal = goalOnScale(points);
   const currentGoal = points.at(-1)?.goal;
   const returnValue = Number(portfolio.total_return_value);
@@ -116,13 +131,14 @@ export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
                 variant="segmented"
                 size="xs"
                 aria-label="Modo do gráfico"
-                value={[mode]}
+                value={[shownMode]}
                 onValueChange={(values) => {
-                  if (values[0] === "gain" || values[0] === "class") setMode(values[0]);
+                  if (values[0] === "gain" || values[0] === "class" || values[0] === "type") setMode(values[0]);
                 }}
               >
                 <ToggleGroupItem value="gain">Ganho</ToggleGroupItem>
                 <ToggleGroupItem value="class">Por classe</ToggleGroupItem>
+                {hasTypes && <ToggleGroupItem value="type">Por tipo</ToggleGroupItem>}
               </ToggleGroup>
             )}
             <ToggleGroup
@@ -183,13 +199,15 @@ export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
           {hasChart ? (
             <div ref={attachWidth} className="grid min-w-0 gap-3">
               {width > 0 &&
-                (mode === "gain" ? (
+                (shownMode === "gain" ? (
                   <>
                     <NetworthGainChart points={points} width={width} showGoal={showGoal} />
                     <GainLegend points={points} showGoal={showGoal} />
                   </>
+                ) : shownMode === "class" ? (
+                  <NetworthPanels panels={CLASS_PANELS} points={points} width={width} />
                 ) : (
-                  <NetworthClassPanels points={points} width={width} />
+                  <NetworthPanels panels={panelsByType} points={typePoints} width={width} />
                 ))}
             </div>
           ) : (

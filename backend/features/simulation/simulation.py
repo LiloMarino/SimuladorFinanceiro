@@ -1038,16 +1038,20 @@ class Simulation:
             backtest.publish()
 
     def _balance_snapshot(self, user: UserDTO) -> SnapshotDTO:
-        equity, fixed, cash, debt = self._engine.balance_sheet(user.client_id)
+        balance = self._engine.balance_sheet(user.client_id)
         return SnapshotDTO(
             user_id=user.id,
             snapshot_date=self._current_date,
-            total_equity=equity,
-            total_fixed=fixed,
-            total_cash=cash,
+            total_equity=balance.total_equity,
+            total_fixed=balance.total_fixed,
+            total_cash=balance.total_cash,
             total_contribution=self._contributed,
-            total_debt=debt,
-            total_networth=cash + equity + fixed - debt,
+            total_debt=balance.total_debt,
+            total_networth=balance.total_cash
+            + balance.total_equity
+            + balance.total_fixed
+            - balance.total_debt,
+            equity_by_class=balance.equity_by_class,
             created_at=datetime.now(UTC),
         )
 
@@ -1446,8 +1450,13 @@ class Simulation:
         """Grava o snapshot do dia de `users` de uma vez, avisa a carteira de cada um e devolve as linhas das Estatísticas."""
         balances = {}
         for user in users:
-            equity, fixed, _, debt = self._engine.balance_sheet(user.client_id)
-            balances[user.id] = DayBalanceDTO(equity, fixed, debt)
+            balance = self._engine.balance_sheet(user.client_id)
+            balances[user.id] = DayBalanceDTO(
+                balance.total_equity,
+                balance.total_fixed,
+                balance.total_debt,
+                balance.equity_by_class,
+            )
         snapshots = repository.snapshot.create_snapshots(self._current_date, balances)
 
         entries = []

@@ -3,6 +3,7 @@ from collections.abc import Callable, Sequence
 from datetime import date
 from decimal import Decimal
 from functools import cached_property
+from typing import NamedTuple
 from uuid import UUID
 
 from backend.core import repository
@@ -49,6 +50,15 @@ from backend.features.variable_income.income_tax import (
 )
 from backend.features.variable_income.matching_engine import MatchingEngine
 from backend.features.variable_income.quantity import affordable_quantity
+
+
+class BalanceSheet(NamedTuple):
+    total_equity: Decimal
+    total_fixed: Decimal
+    total_cash: Decimal
+    total_debt: Decimal
+    # Só os tipos de renda variável com posição no dia; a soma é o total_equity
+    equity_by_class: dict[AssetClass, Decimal]
 
 
 class SimulationEngine:
@@ -364,16 +374,21 @@ class SimulationEngine:
             fixed = list(self.fixed_broker.get_fixed_positions(client_id).values())
             return equity, fixed, self._cash[client_id]
 
-    def balance_sheet(
-        self, client_id: UUID
-    ) -> tuple[Decimal, Decimal, Decimal, Decimal]:
+    def balance_sheet(self, client_id: UUID) -> BalanceSheet:
         """Ações, renda fixa, caixa e dívida do dia: o que o snapshot guarda, sem montar o portfólio da tela."""
         equity, fixed, cash = self._holdings(client_id)
-        return (
-            sum((p.current_value for p in equity), Decimal(0)),
-            sum((p.current_value for p in fixed), Decimal(0)),
-            cash,
-            self.credit_book.debt(client_id, self.current_date),
+        equity_by_class: dict[AssetClass, Decimal] = {}
+        for p in equity:
+            asset_class = self.stocks[p.ticker].asset_class
+            equity_by_class[asset_class] = (
+                equity_by_class.get(asset_class, Decimal(0)) + p.current_value
+            )
+        return BalanceSheet(
+            total_equity=sum(equity_by_class.values(), Decimal(0)),
+            total_fixed=sum((p.current_value for p in fixed), Decimal(0)),
+            total_cash=cash,
+            total_debt=self.credit_book.debt(client_id, self.current_date),
+            equity_by_class=equity_by_class,
         )
 
     def assets_value(self, client_id: UUID) -> Decimal:

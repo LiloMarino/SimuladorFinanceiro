@@ -2,6 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from backend.core.dto.base import BaseDTO
+from backend.core.enum import AssetClass
 
 
 class PatrimonialHistoryDTO(BaseDTO):
@@ -12,6 +13,8 @@ class PatrimonialHistoryDTO(BaseDTO):
     total_cash: Decimal
     total_contribution: Decimal
     total_debt: Decimal = Decimal(0)
+    # A renda variável por tipo; nula nos dias gravados antes de o snapshot guardá-la
+    equity_by_class: dict[AssetClass, Decimal] | None = None
 
 
 class PortfolioHistoryPointDTO(PatrimonialHistoryDTO):

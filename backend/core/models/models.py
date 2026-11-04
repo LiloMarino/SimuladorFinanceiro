@@ -912,6 +912,8 @@ class Snapshots(Base):
     total_networth: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False
     )
+    # {tipo: valor} da renda variável; nulo nos snapshots anteriores à divisão por tipo
+    equity_by_class: Mapped[dict | None] = mapped_column(JSONB)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )

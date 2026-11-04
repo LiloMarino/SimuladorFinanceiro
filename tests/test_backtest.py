@@ -202,6 +202,11 @@ def test_light_snapshots_match_the_values_the_events_add_up_to(events, market: E
             + stored[bot.id].total_fixed
             - stored[bot.id].total_debt
         )
+        # Cada tipo e o total arredondam na sexta casa, cada um por si
+        by_class = stored[bot.id].equity_by_class
+        assert by_class is not None
+        split = sum(map(Decimal, by_class.values()), Decimal(0))
+        assert abs(split - stored[bot.id].total_equity) < Decimal("0.00001")
 
 
 def nth_day(n: int) -> date:

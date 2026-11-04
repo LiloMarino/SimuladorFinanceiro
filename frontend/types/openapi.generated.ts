@@ -7767,6 +7767,10 @@ export interface components {
              * @default 0
              */
             total_debt: string;
+            /** Equity By Class */
+            equity_by_class: {
+                [key: string]: string;
+            } | null;
         };
         /** @enum {string} */
         PatternDirection: "up" | "down" | "neutral";
@@ -8224,6 +8228,10 @@ export interface components {
              * @default 0
              */
             total_debt: string;
+            /** Equity By Class */
+            equity_by_class: {
+                [key: string]: string;
+            } | null;
             /** Total Provided */
             total_provided: string;
         };
@@ -9797,6 +9805,10 @@ export interface components {
             total_debt: string;
             /** Total Networth */
             total_networth: string;
+            /** Equity By Class */
+            equity_by_class: {
+                [key: string]: string;
+            } | null;
             /**
              * Created At
              * Format: date-time

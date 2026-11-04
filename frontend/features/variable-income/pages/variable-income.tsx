@@ -12,18 +12,11 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { ErrorState } from "@/shared/components/error-state";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useVariableIncomeStocks } from "@/shared/hooks/queries/useVariableIncomeStocks";
+import { ASSET_CLASSES, ASSET_CLASS_LABELS } from "@/shared/lib/asset-class";
 import { MarketTable } from "../components/market-table";
 import type { AssetClass } from "@/types";
 
 type Filter = "ALL" | AssetClass;
-// Um botão por classe da API: classe nova sem rótulo não compila
-const CLASS_FILTER_LABELS: Record<AssetClass, string> = {
-  STOCK: "Ações",
-  FII: "FII",
-  ETF: "ETF",
-  BDR: "BDR",
-  CRYPTO: "Cripto",
-};
 const ALL_SECTORS = "__all__";
 const NO_SECTOR = "__none__";
 
@@ -129,9 +122,9 @@ export default function VariableIncomePage() {
             onValueChange={(values) => values[0] && setFilter(values[0] as Filter)}
           >
             <ToggleGroupItem value="ALL">Todos · {all.length}</ToggleGroupItem>
-            {(Object.entries(CLASS_FILTER_LABELS) as [AssetClass, string][]).map(([value, label]) => (
+            {ASSET_CLASSES.map((value) => (
               <ToggleGroupItem key={value} value={value}>
-                {label}
+                {ASSET_CLASS_LABELS[value]}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>

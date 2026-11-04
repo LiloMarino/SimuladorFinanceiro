@@ -22036,6 +22036,23 @@
             "type": "string",
             "title": "Total Debt",
             "default": "0"
+          },
+          "equity_by_class": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "propertyNames": {
+                  "$ref": "#/components/schemas/AssetClass"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Equity By Class"
           }
         },
         "additionalProperties": false,
@@ -22047,7 +22064,8 @@
           "total_fixed",
           "total_cash",
           "total_contribution",
-          "total_debt"
+          "total_debt",
+          "equity_by_class"
         ],
         "title": "PatrimonialHistoryDTO"
       },
@@ -23498,6 +23516,23 @@
             "title": "Total Debt",
             "default": "0"
           },
+          "equity_by_class": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "propertyNames": {
+                  "$ref": "#/components/schemas/AssetClass"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Equity By Class"
+          },
           "total_provided": {
             "type": "string",
             "title": "Total Provided"
@@ -23513,6 +23548,7 @@
           "total_cash",
           "total_contribution",
           "total_debt",
+          "equity_by_class",
           "total_provided"
         ],
         "title": "PortfolioHistoryPointDTO"
@@ -27723,6 +27759,20 @@
             "type": "string",
             "title": "Total Networth"
           },
+          "equity_by_class": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Equity By Class"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -27740,6 +27790,7 @@
           "total_contribution",
           "total_debt",
           "total_networth",
+          "equity_by_class",
           "created_at"
         ],
         "title": "SnapshotDTO"
