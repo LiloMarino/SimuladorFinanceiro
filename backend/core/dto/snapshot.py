@@ -2,12 +2,20 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from backend.core.dto.base import BaseDTO
 
 if TYPE_CHECKING:
     from backend.core.models.models import Snapshots
+
+
+class DayBalanceDTO(NamedTuple):
+    """O que o motor sabe do dia do jogador; o caixa e o aporte saem dos eventos."""
+
+    total_equity: Decimal
+    total_fixed: Decimal
+    total_debt: Decimal
 
 
 class SnapshotDTO(BaseDTO):

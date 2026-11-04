@@ -275,7 +275,7 @@ def test_player_joining_mid_match_gets_the_starting_deposit_and_the_day_snapshot
     sim.statistics = ReportCache()
     snapshots = []
     monkeypatch.setattr(
-        Simulation, "_snapshot_user", lambda _, user: snapshots.append(user)
+        Simulation, "_snapshot_users", lambda _, users: snapshots.extend(users)
     )
     monkeypatch.setattr(EventManager, "flush", lambda: None)
     user = UserDTO(id=USER_ID, client_id=PLAYER, nickname="Duda")

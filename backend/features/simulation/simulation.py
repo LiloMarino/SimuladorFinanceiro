@@ -54,7 +54,7 @@ from backend.core.dto.pending import PendingDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
 from backend.core.dto.simulation import SimulationDTO
-from backend.core.dto.snapshot import SnapshotDTO
+from backend.core.dto.snapshot import DayBalanceDTO, SnapshotDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.strategy import (
     MyStrategyDTO,
@@ -1430,7 +1430,7 @@ class Simulation:
         do mês anterior sair; `snapshot_update` é um merge por data no cache da
         Carteira e sai todo dia.
         """
-        snapshots_payload = [self._snapshot_user(user) for user in users]
+        snapshots_payload = self._snapshot_users(users)
 
         if month_changed:
             self.statistics.clear()
@@ -1442,34 +1442,36 @@ class Simulation:
             )
         return snapshots_payload
 
-    def _snapshot_user(self, user: UserDTO) -> StatisticsSnapshotEntryDTO:
-        """Grava o snapshot do dia de `user`, avisa a carteira dele e devolve a linha das Estatísticas."""
-        equity, fixed, _, debt = self._engine.balance_sheet(user.client_id)
-        snapshot = repository.snapshot.create_snapshot(
-            user_id=user.id,
-            snapshot_date=self._current_date,
-            total_equity=equity,
-            total_fixed=fixed,
-            total_debt=debt,
-        )
+    def _snapshot_users(self, users: list[UserDTO]) -> list[StatisticsSnapshotEntryDTO]:
+        """Grava o snapshot do dia de `users` de uma vez, avisa a carteira de cada um e devolve as linhas das Estatísticas."""
+        balances = {}
+        for user in users:
+            equity, fixed, _, debt = self._engine.balance_sheet(user.client_id)
+            balances[user.id] = DayBalanceDTO(equity, fixed, debt)
+        snapshots = repository.snapshot.create_snapshots(self._current_date, balances)
 
-        notify(
-            event="snapshot_update",
-            payload=SnapshotUpdateEventDTO(
-                snapshot=self._history_point(
-                    PatrimonialHistoryDTO.model_validate(
-                        snapshot.model_dump(
-                            include=set(PatrimonialHistoryDTO.model_fields)
+        entries = []
+        for user in users:
+            snapshot = snapshots[user.id]
+            notify(
+                event="snapshot_update",
+                payload=SnapshotUpdateEventDTO(
+                    snapshot=self._history_point(
+                        PatrimonialHistoryDTO.model_validate(
+                            snapshot.model_dump(
+                                include=set(PatrimonialHistoryDTO.model_fields)
+                            )
                         )
                     )
+                ).to_json(),
+                to=user.client_id,
+            )
+            entries.append(
+                StatisticsSnapshotEntryDTO(
+                    player_nickname=user.nickname, snapshot=snapshot
                 )
-            ).to_json(),
-            to=user.client_id,
-        )
-
-        return StatisticsSnapshotEntryDTO(
-            player_nickname=user.nickname, snapshot=snapshot
-        )
+            )
+        return entries
 
     @synchronized
     def add_player(self, user: UserDTO) -> None:
@@ -1480,5 +1482,5 @@ class Simulation:
         """
         self._engine.add_cash(user.client_id, self.settings.starting_cash)
         EventManager.flush()
-        self._snapshot_user(user)
+        self._snapshot_users([user])
         self.statistics.clear()
