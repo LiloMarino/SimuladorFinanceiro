@@ -32,7 +32,7 @@
 | **N12** | — | Continuar jogando depois do último dia com dado real | — | [F192](#f192) | — | — | — |
 | **N13** | — | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — | — |
 | **N14** | — | Atualizar para uma versão nova sem perder as partidas salvas | — | [F56](#f56) | — | — | — |
-| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211) | — | — | — |
+| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211), [F216](#f216) | — | — | — |
 | **N16** | — | Ver a carteira e o mercado por setor e segmento | — | [F196](#f196) | — | — | — |
 | **N17** | — | Enxergar a estrutura do banco e esboçar mudanças nela | — | — | — | — | — |
 | **N18** | — | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — | — | — | — |
@@ -51,7 +51,7 @@
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93) | — | — | — |
 | **N32** | — | Saber como foi o mês sem montar a conta | — | — | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F97](#f97), [F164](#f164), [F165](#f165), [F175](#f175), [F176](#f176), [F177](#f177), [F191](#f191), [F194](#f194), [F195](#f195) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F97](#f97), [F164](#f164), [F165](#f165), [F175](#f175), [F176](#f176), [F177](#f177), [F191](#f191), [F194](#f194), [F195](#f195), [F216](#f216) | — | — | — |
 | **N35** | — | Tirar da lista as partidas que não interessam mais | — | — | — | — | — |
 | **N36** | — | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — | — |
 | **N37** | — | Comprar bitcoin do jeito que dá na vida real, em frações | — | — | — | — | — |
@@ -107,6 +107,7 @@
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | — | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | — | — | — | 🔍 |
+| [**F216**](#f216) | Correção | Pontas soltas das features entregues | — | — | — | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
@@ -219,6 +220,7 @@
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | 0 | ⏳ Pendente |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | N10 | — | 0 | 🔍 Em avaliação |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | 0 | 🔍 Em avaliação |
+| [**F216**](#f216) | Correção | Pontas soltas das features entregues | N15, N34 | — | 0 | 🔍 Em avaliação |
 
 ---
 
@@ -250,6 +252,7 @@
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | 0 | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | 0 | — | — | 🔍 |
+| [**F216**](#f216) | Correção | Pontas soltas das features entregues | — | 0 | — | — | 🔍 |
 
 ---
 
@@ -359,6 +362,7 @@
 | **F195** | Feature | Acordo de base com prazo | N34 | — | M21 · 3.4 | — | Escolher entre (a) prazo na negociação, (b) renovação automática e (c) acordo até o fim do mandato com saída por aprovação baixa; recomendação (c). |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | — | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | — | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
+| **F216** | Correção | Pontas soltas das features entregues | N15, N34 | — | — | — | Decidir cada uma das nove pontas: conserto aqui, card próprio ou fica assim |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -452,6 +456,9 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 - **O livro não vem ordenado por preço**: `order_book.py:93-107` devolve o heap na ordem interna e a tela não define ordenação inicial (`order-book-card.tsx:69`), por isso a ordem do jogador aparece no meio.
 
 **Falta** desenhar, numa rodada no canvas em Opus com variantes e estados (como numa feature nova), a tela do livro. O desenho de 03/11 parte de: a ordem aberta do jogador numa faixa no topo com Cancelar à mão; o livro em duas colunas, Compra (maior preço no topo) e Venda (menor preço no topo), com a melhor compra e a melhor venda em destaque, ligadas à boleta; uma barra de quantidade; a coluna Situação sai (repetia "Aberta"); o balão "Tópico" some. O usuário gostou do rumo e pediu o refinamento pelo método completo. A rodada decide também o que o livro diz sobre si mesmo (que é a pressão ao redor do preço do candle de hoje) e se a ordenação por preço passa a vir do backend. Fica fora de versão.
+
+<a id="f216"></a>
+**F216 — Pontas soltas das features entregues.** Serve N15 e N34. Perguntas que ficaram abertas em features já concluídas e arquivadas, num lugar só para não se perderem. Cada uma, decidida, vira conserto pequeno aqui, card próprio ou "fica assim". (1) **Governo do computador eleito:** só propõe medidas quando assume por impeachment; recomendação: valer para todo governo do computador. (2) **Gênero dos partidos nos textos de acordo:** o texto diz "ao ACI" onde caberia "à" ou "a"; recomendação: texto neutro, "o partido ACI". (3) **Erro por cartão em Governo, Eleição e Economia:** cada página lê o painel numa consulta só; recomendação: deixar como está. (4) **Campanha:** o board mostra e o app não tem o passo "Rival" desabilitado no comício, a tabela "Comício: extremos dobrados", o cartão de reparação, o cartão "O que a manchete conta" e o cartão do partido do computador. (5) **Manchetes novas** (posse do Congresso, acordo, medida de gasto, virada e volta atrás): textos escritos sem conferir com o board. (6) **Interruptor do Especialista:** o texto da confirmação com o Personalizado ligado. (7) **Nota de craque:** a meta de 250 pontos nunca foi calibrada em partida real. (8) **Parcela com o jogador negativado:** o pagamento não foi reproduzido em tela. (9) **Logs do bot e da estratégia:** `bot-log-sheet.tsx:67` e `strategy-log.tsx:78` ainda dizem "A conexão com a partida caiu…" no erro, enquanto as páginas do governo mostram o erro do servidor; recomendação: o mesmo erro do servidor nos dois. Os marcadores de notícia no gráfico de preço, que não têm board, ficam na F167.
 
 ---
 
