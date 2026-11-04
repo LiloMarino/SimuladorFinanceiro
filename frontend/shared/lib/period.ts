@@ -110,12 +110,13 @@ export function dataFloor(coverage: SeriesCoverage[]): DataFloor | undefined {
   return floor;
 }
 
-/** Até onde vai o dado real e o futuro gerado: o fim mais cedo entre as séries que os têm. */
+/** Até onde vai o dado real e o futuro gerado: o fim mais cedo entre as séries do mercado que os têm. */
 export function dataEnds(coverage: SeriesCoverage[]): DataEnds {
   const earliest = (dates: (string | null)[]) => dates.filter((d): d is string => !!d).sort()[0];
+  const market = coverage.filter((s) => s.kind !== "MACRO");
   return {
-    realEnd: earliest(coverage.map((s) => s.real_end)),
-    generatedEnd: earliest(coverage.map((s) => s.generated_end)),
+    realEnd: earliest(market.map((s) => s.real_end)),
+    generatedEnd: earliest(market.map((s) => s.generated_end)),
   };
 }
 

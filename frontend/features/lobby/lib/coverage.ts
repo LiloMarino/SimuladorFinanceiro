@@ -6,7 +6,7 @@ const RATE_SERIES = ["CDI", "SELIC", "IPCA"];
 export type CoverageCheck = {
   /** Indexadores sem dado no dia de início: bloqueiam a partida */
   missingAtStart: SeriesCoverage[];
-  /** Séries cujo dado real acaba antes da data final: dali em diante vale o último valor */
+  /** Séries do mercado cujo dado real acaba antes da data final: dali em diante vale o último valor */
   endingBeforeEnd: SeriesCoverage[];
 };
 
@@ -17,7 +17,8 @@ export function checkCoverage(coverage: SeriesCoverage[], startDate: string, end
     const reference = s.key === "IPCA" ? `${startDate.slice(0, 8)}01` : startDate;
     return !s.start || s.start > reference;
   });
-  const endingBeforeEnd = coverage.filter((s) => s.real_end && s.real_end < endDate);
+  // O PIB e o desemprego seguem o modelo da partida depois do fim do dado real
+  const endingBeforeEnd = coverage.filter((s) => s.kind !== "MACRO" && s.real_end && s.real_end < endDate);
 
   return { missingAtStart, endingBeforeEnd };
 }

@@ -33,7 +33,7 @@ A tela tem duas partes: o painel **Adicionar ativo** (explicado em [Métodos de 
 
 ### Séries da base
 
-A tabela lista todas as séries guardadas no banco: primeiro os indicadores econômicos (CDI, SELIC, IPCA e Ibovespa) e depois cada ativo importado. O filtro **Todas** / **Precisam de atenção** deixa só as séries que pedem uma olhada (sem dado real, desatualizadas ou sem classificação). Em cada linha:
+A tabela lista todas as séries guardadas no banco: primeiro os indicadores econômicos (CDI, SELIC, IPCA e Ibovespa), depois a economia do país (crescimento do PIB e desemprego) e por fim cada ativo importado. O filtro **Todas** / **Precisam de atenção** deixa só as séries que pedem uma olhada (sem dado real, desatualizadas ou sem classificação). Em cada linha:
 
 - **Série**: nome do indicador ou do ticker.
 - **Setor · segmento**: a classificação da ação (ver abaixo). Indicadores mostram "—".
@@ -57,7 +57,14 @@ Cada ação pertence a um **setor** (ex.: Financeiro) e, dentro dele, a um **seg
 - **IPCA**: inflação oficial, medida por mês. Ex.: um IPCA de 0,5% no mês significa que os preços subiram 0,5% naquele mês.
 - **Ibovespa**: índice que acompanha o desempenho das ações mais negociadas da B3, a bolsa brasileira. Ex.: de 100.000 para 101.000 pontos é uma alta de 1%.
 
-**Fontes:** CDI, SELIC e IPCA vêm do Banco Central, pelo sistema SGS (Sistema Gerenciador de Séries Temporais), nas séries 12 (CDI diário), 11 (SELIC diária) e 433 (IPCA mensal). O Ibovespa vem do Yahoo Finance (ticker `^BVSP`).
+A economia do país aparece num grupo próprio:
+
+- **Crescimento do PIB**: quanto o país produziu a mais nos últimos 4 trimestres, contra os 4 trimestres anteriores, já descontada a inflação. Um valor por trimestre, desde o fim de 1997. Ex.: 2% quer dizer que a economia produziu 2% a mais do que no ano anterior; 2020 marca −3,3% (a pandemia) e 2021, +4,8%. Perto de 2% é o ritmo normal do Brasil; abaixo de zero é recessão.
+- **Desemprego**: a parcela de quem procura trabalho e não acha, pela PNAD Contínua do IBGE. Um valor por mês, desde março de 2012. Ex.: 8% quer dizer que, de cada 100 pessoas que querem trabalhar, 8 estão sem vaga. Até uns 8% é um bom nível; acima de 12% é ruim.
+
+Essas duas séries só informam: não limitam o período da partida, não entram no aviso de "dado acaba antes do fim" do lobby e não ganham futuro gerado.
+
+**Fontes:** CDI, SELIC e IPCA vêm do Banco Central, pelo sistema SGS (Sistema Gerenciador de Séries Temporais), nas séries 12 (CDI diário), 11 (SELIC diária) e 433 (IPCA mensal). O Ibovespa vem do Yahoo Finance (ticker `^BVSP`). O crescimento do PIB e o desemprego são do IBGE e chegam pelo mesmo SGS, que os republica: o PIB sai do índice do PIB real trimestral (série 22099, sem ajuste sazonal), somando os 4 últimos trimestres contra os 4 anteriores, e o desemprego é a taxa de desocupação da PNAD Contínua (série 24369).
 
 ### Gerar dados futuros
 

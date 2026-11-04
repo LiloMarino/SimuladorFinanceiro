@@ -117,3 +117,35 @@ def test_failure_records_the_attempt_and_keeps_the_data(store, monkeypatch):
     assert failed == [CDI]
     assert store.saved == []
     assert store.log is not None and store.log.succeeded_at is None
+
+
+def quarters(values: list[str]) -> list[tuple[date, Decimal]]:
+    """Índice trimestral datado no dia 1 de cada trimestre, a partir de 2019."""
+    return [
+        (date(2019 + i // 4, 1 + 3 * (i % 4), 1), Decimal(v))
+        for i, v in enumerate(values)
+    ]
+
+
+def test_gdp_growth_compares_the_last_four_quarters_with_the_four_before():
+    index = quarters(["100", "100", "100", "100", "102", "103", "104", "105"])
+
+    (growth,) = indicators.gdp_growth(index)
+
+    # (102 + 103 + 104 + 105) ÷ 400 - 1 = 3,5%, no trimestre que fecha a conta
+    assert growth == (date(2020, 10, 1), Decimal("3.50"))
+
+
+def test_gdp_growth_fetches_the_whole_index_and_keeps_from_the_start(monkeypatch):
+    asked: list[date] = []
+
+    def fake_sgs(code: int, start: date, end: date):
+        asked.append(start)
+        return quarters(["100"] * 4 + ["101"] * 6)
+
+    monkeypatch.setattr(indicators, "fetch_sgs", fake_sgs)
+
+    rows = indicators.fetch_gdp_growth(date(2021, 1, 1), date(2021, 12, 31))
+
+    assert asked == [indicators.GDP_INDEX_START]
+    assert [day for day, _ in rows] == [date(2021, 1, 1), date(2021, 4, 1)]

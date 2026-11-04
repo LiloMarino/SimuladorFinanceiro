@@ -6534,7 +6534,7 @@ export interface components {
          * IndicatorSeries
          * @enum {string}
          */
-        IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV";
+        IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV" | "GDP_GROWTH" | "UNEMPLOYMENT";
         /**
          * IndicatorSeriesDTO
          * @description Só os pedidos vêm preenchidos; cada série começa no primeiro pregão com valor.
@@ -9275,7 +9275,7 @@ export interface components {
          * SeriesKind
          * @enum {string}
          */
-        SeriesKind: "STOCK" | "INDICATOR";
+        SeriesKind: "STOCK" | "INDICATOR" | "MACRO";
         /** SeriesPointDTO */
         SeriesPointDTO: {
             /**

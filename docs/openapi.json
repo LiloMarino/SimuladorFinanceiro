@@ -18726,7 +18726,9 @@
           "CDI",
           "SELIC",
           "IPCA",
-          "IBOV"
+          "IBOV",
+          "GDP_GROWTH",
+          "UNEMPLOYMENT"
         ],
         "title": "IndicatorSeries"
       },
@@ -26618,7 +26620,8 @@
         "type": "string",
         "enum": [
           "STOCK",
-          "INDICATOR"
+          "INDICATOR",
+          "MACRO"
         ],
         "title": "SeriesKind"
       },

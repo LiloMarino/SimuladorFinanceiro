@@ -356,6 +356,14 @@ class IndicatorSeries(Enum):
     SELIC = "SELIC"
     IPCA = "IPCA"
     IBOV = "IBOV"
+    # Crescimento real do PIB em 4 trimestres e taxa de desemprego, ambos em %
+    GDP_GROWTH = "GDP_GROWTH"
+    UNEMPLOYMENT = "UNEMPLOYMENT"
+
+    @property
+    def is_macro(self) -> bool:
+        """Série da economia do país: mostrada na Central, fora do mercado e do período da partida."""
+        return self in (IndicatorSeries.GDP_GROWTH, IndicatorSeries.UNEMPLOYMENT)
 
 
 class DataOrigin(Enum):

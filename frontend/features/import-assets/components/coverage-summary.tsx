@@ -24,7 +24,8 @@ type CoverageSummaryProps = {
 
 /** Os números do topo: o período que vale pra todos, o que há na base, o futuro gerado e o que pede atenção. */
 export function CoverageSummary({ series, future, onGenerate }: CoverageSummaryProps) {
-  const withData = series.filter((s) => s.start && s.real_end);
+  // O PIB e o desemprego só informam: o período comum é o do mercado
+  const withData = series.filter((s) => s.kind !== "MACRO" && s.start && s.real_end);
   // O período comum começa no início mais tardio e acaba no fim real mais cedo
   const latestStart = withData.reduce<SeriesCoverage | undefined>(
     (acc, s) => (!acc || (s.start as string) > (acc.start as string) ? s : acc),
@@ -35,7 +36,7 @@ export function CoverageSummary({ series, future, onGenerate }: CoverageSummaryP
     undefined,
   );
 
-  const indicators = series.filter((s) => s.kind === "INDICATOR").length;
+  const indicators = series.filter((s) => s.kind !== "STOCK").length;
   const stocks = series.length - indicators;
   const outdated = series.filter(isOutdatedStock).length;
   const unclassified = series.filter((s) => s.kind === "STOCK" && !s.segment).length;
@@ -78,7 +79,7 @@ export function CoverageSummary({ series, future, onGenerate }: CoverageSummaryP
     {
       label: "Na base",
       value: `${indicators} ${indicators === 1 ? "indicador" : "indicadores"} · ${stocks} ${stocks === 1 ? "ativo" : "ativos"}`,
-      detail: "Indicadores do Banco Central e ações da B3",
+      detail: "Indicadores do Banco Central e do IBGE e ações da B3",
     },
     ...(future
       ? [

@@ -1,6 +1,7 @@
 """
 Atualização dos indicadores econômicos: CDI, SELIC e IPCA pelo SGS do Banco
-Central e o Ibovespa pelo yfinance.
+Central e o Ibovespa pelo yfinance. O crescimento do PIB e o desemprego são do
+IBGE e chegam pelo mesmo SGS, que os republica.
 """
 
 import logging
@@ -41,6 +42,40 @@ def fetch_ibov(start: date, end: date) -> list[tuple[date, Decimal]]:
     ]
 
 
+# Índice do PIB real trimestral do IBGE (1995 = 100, sem ajuste sazonal), no SGS desde 1996
+GDP_INDEX_SGS = 22099
+GDP_INDEX_START = date(1996, 1, 1)
+QUARTERS_PER_YEAR = 4
+# Taxa de desocupação da PNAD Contínua: % da força de trabalho, trimestre móvel datado no último mês
+UNEMPLOYMENT_SGS = 24369
+
+
+def gdp_growth(index: list[tuple[date, Decimal]]) -> list[tuple[date, Decimal]]:
+    """
+    Crescimento real em 4 trimestres, em %: a soma dos 4 últimos trimestres do índice
+    contra a dos 4 anteriores, como o IBGE divulga o "PIB acumulado em 4 trimestres".
+    Datado no dia 1 do trimestre que fecha a conta.
+    """
+    values = [value for _, value in index]
+    rows = []
+    for i in range(2 * QUARTERS_PER_YEAR - 1, len(values)):
+        last = sum(values[i - QUARTERS_PER_YEAR + 1 : i + 1], Decimal(0))
+        before = sum(
+            values[i - 2 * QUARTERS_PER_YEAR + 1 : i - QUARTERS_PER_YEAR + 1],
+            Decimal(0),
+        )
+        rows.append(
+            (index[i][0], ((last / before - 1) * 100).quantize(Decimal("0.01")))
+        )
+    return rows
+
+
+def fetch_gdp_growth(start: date, end: date) -> list[tuple[date, Decimal]]:
+    """O crescimento de cada trimestre entre `start` e `end`; o índice vem inteiro, porque a conta pede os 8 trimestres anteriores."""
+    index = fetch_sgs(GDP_INDEX_SGS, GDP_INDEX_START, end)
+    return [(day, value) for day, value in gdp_growth(index) if day >= start]
+
+
 @dataclass(frozen=True)
 class IndicatorSource:
     name: str
@@ -59,6 +94,14 @@ INDICATOR_SOURCES: dict[IndicatorSeries, IndicatorSource] = {
         "IPCA", date(1980, 1, 1), partial(fetch_sgs, 433)
     ),
     IndicatorSeries.IBOV: IndicatorSource("Ibovespa", date(1993, 4, 27), fetch_ibov),
+    IndicatorSeries.GDP_GROWTH: IndicatorSource(
+        "PIB (crescimento em 4 trimestres)", date(1997, 10, 1), fetch_gdp_growth
+    ),
+    IndicatorSeries.UNEMPLOYMENT: IndicatorSource(
+        "Desemprego (PNAD Contínua)",
+        date(2012, 3, 1),
+        partial(fetch_sgs, UNEMPLOYMENT_SGS),
+    ),
 }
 
 

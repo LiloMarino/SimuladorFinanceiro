@@ -15,6 +15,7 @@ from backend.core.dto.generated_future import (
     FuturePreviewRequest,
     GeneratedFutureDTO,
 )
+from backend.core.dto.series_coverage import SeriesKind
 from backend.core.enum import DataOrigin, IndicatorSeries
 from backend.core.exceptions.http_exceptions import BadRequestError, ConflictError
 from backend.core.models.models import (
@@ -243,3 +244,10 @@ def test_horizon_stops_thirty_years_after_the_last_real_day(base: Engine):
 
     with pytest.raises(BadRequestError, match=f"31/12/{last_year}"):
         future.preview(request)
+
+
+def test_gdp_and_unemployment_appear_apart_from_the_market_indicators(base: Engine):
+    kinds = {s.key: s.kind for s in get_series_coverage()}
+
+    assert kinds["IBOV"] is SeriesKind.INDICATOR
+    assert kinds["GDP_GROWTH"] is kinds["UNEMPLOYMENT"] is SeriesKind.MACRO

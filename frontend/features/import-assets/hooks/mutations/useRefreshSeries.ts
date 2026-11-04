@@ -10,7 +10,7 @@ export function useRefreshSeries() {
 
   return useMutation({
     mutationFn: async (item: SeriesCoverage): Promise<ReplacedGenerated | null> =>
-      item.kind === "INDICATOR"
+      item.kind !== "STOCK"
         ? apiFetch<ReplacedGenerated | null>(`/api/import-assets/indicators/${item.key}`, { method: "POST" })
         : (
             await apiFetch<ImportResult>("/api/import-assets/yfinance", {

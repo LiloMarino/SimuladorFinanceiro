@@ -8,7 +8,10 @@ from backend.core.enum import AssetClass, DataOrigin
 
 class SeriesKind(Enum):
     STOCK = "STOCK"
+    # Indicadores do mercado: limitam o período da partida
     INDICATOR = "INDICATOR"
+    # Séries da economia do país (PIB e desemprego): só informam
+    MACRO = "MACRO"
 
 
 class OriginCoverageDTO(BaseDTO):

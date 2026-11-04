@@ -100,6 +100,12 @@ describe("faixas da linha", () => {
     expect(dataEnds(COVERAGE)).toEqual({ realEnd: "2026-09-01", generatedEnd: "2036-12-31" });
   });
 
+  it("o PIB e o desemprego não encurtam o fim nem mudam o início", () => {
+    const macro = { ...series("GDP_GROWTH", "1997-10-01", "2026-04-01"), kind: "MACRO" } as SeriesCoverage;
+    expect(dataEnds([...COVERAGE, macro])).toEqual(dataEnds(COVERAGE));
+    expect(dataFloor([...COVERAGE, macro])).toEqual(dataFloor(COVERAGE));
+  });
+
   it("separa sem dado, real, futuro e o trecho que repete o último valor", () => {
     const zones = timelineZones(FLOOR, { realEnd: "2026-10-09", generatedEnd: "2036-12-31" });
     expect(zones.map((z) => z.kind)).toEqual(["no-data", "real", "future", "repeat"]);

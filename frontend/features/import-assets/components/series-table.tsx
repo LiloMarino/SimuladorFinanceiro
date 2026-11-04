@@ -15,6 +15,8 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+import { GROWTH, UNEMPLOYMENT } from "@/shared/lib/budget-metrics";
+import type { MetricInfo } from "@/shared/lib/metric-info";
 import { isOutdatedStock } from "@/shared/lib/series-coverage";
 import { cn } from "@/shared/lib/utils";
 import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
@@ -29,6 +31,7 @@ import { CorrectedDaysBadge } from "./corrected-days-badge";
 import { CoverageBar } from "./coverage-bar";
 import { DeleteStockButton } from "./delete-stock-button";
 import { TruncatedText } from "./truncated-text";
+import { MetricHint } from "@/shared/components/metric-hint";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
 
@@ -41,6 +44,9 @@ const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
 };
 
 const COLUMNS = 5;
+
+// O que cada série da economia do país mede, na dica ao lado do nome
+const MACRO_HINTS: Record<string, MetricInfo> = { GDP_GROWTH: GROWTH, UNEMPLOYMENT: UNEMPLOYMENT };
 
 type Filter = "ALL" | "ATTENTION";
 
@@ -81,6 +87,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
   const visible = sorting.rows;
   const groups = [
     { label: "Indicadores · Banco Central e B3", items: visible.filter((s) => s.kind === "INDICATOR") },
+    { label: "Economia do país · IBGE via Banco Central", items: visible.filter((s) => s.kind === "MACRO") },
     { label: "Ativos", items: visible.filter((s) => s.kind === "STOCK") },
   ].filter((g) => g.items.length > 0);
 
@@ -162,6 +169,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
               </TableRow>
               {group.items.map((item) => {
                 const stale = isOutdatedStock(item);
+                const hint = MACRO_HINTS[item.key];
                 return (
                   <Fragment key={`${item.kind}-${item.key}`}>
                     <TableRow variant={stale ? "warning" : "default"} className="h-15.5">
@@ -176,6 +184,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                               <TruncatedText className="text-xs text-muted-foreground">{item.name}</TruncatedText>
                             )}
                           </div>
+                          {hint && <MetricHint metric={hint} />}
                           <CorrectedDaysBadge days={item.corrected_days} />
                           {item.asset_class && (
                             <Select
@@ -203,7 +212,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
 
                       {/* Setor · segmento */}
                       <TableCell>
-                        {item.kind === "INDICATOR" ? (
+                        {item.kind !== "STOCK" ? (
                           <span className="text-faint-foreground">—</span>
                         ) : item.segment ? (
                           <button

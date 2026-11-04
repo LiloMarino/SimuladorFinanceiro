@@ -85,7 +85,15 @@ class EconomicIndicatorHistory(Base):
     )
 
     series: Mapped[str] = mapped_column(
-        Enum("CDI", "SELIC", "IPCA", "IBOV", name="indicator_series"),
+        Enum(
+            "CDI",
+            "SELIC",
+            "IPCA",
+            "IBOV",
+            "GDP_GROWTH",
+            "UNEMPLOYMENT",
+            name="indicator_series",
+        ),
         primary_key=True,
     )
     ref_date: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
@@ -104,7 +112,15 @@ class FetchLog(Base):
     __table_args__ = (PrimaryKeyConstraint("series", name="fetch_log_pkey"),)
 
     series: Mapped[str] = mapped_column(
-        Enum("CDI", "SELIC", "IPCA", "IBOV", name="indicator_series"),
+        Enum(
+            "CDI",
+            "SELIC",
+            "IPCA",
+            "IBOV",
+            "GDP_GROWTH",
+            "UNEMPLOYMENT",
+            name="indicator_series",
+        ),
         primary_key=True,
     )
     attempted_at: Mapped[datetime.datetime] = mapped_column(

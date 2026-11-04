@@ -81,8 +81,8 @@ export default function ImportAssetsPage() {
                 </EmptyMedia>
                 <EmptyTitle>A base está vazia</EmptyTitle>
                 <EmptyDescription>
-                  Comece pelos indicadores: sem CDI, SELIC, IPCA e Ibovespa na data inicial, a partida não começa.
-                  Depois adicione as ações que quer negociar.
+                  Comece pelos indicadores: sem CDI, SELIC, IPCA e Ibovespa na data inicial, a partida não começa. O PIB
+                  e o desemprego vêm junto e mostram a economia do país. Depois adicione as ações que quer negociar.
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent className="flex-row justify-center">

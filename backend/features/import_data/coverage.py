@@ -18,7 +18,12 @@ def get_series_coverage() -> list[SeriesCoverageDTO]:
     classification = repository.stock.get_classification()
 
     return [
-        _series(SeriesKind.INDICATOR, series.value, source.name, indicators)
+        _series(
+            SeriesKind.MACRO if series.is_macro else SeriesKind.INDICATOR,
+            series.value,
+            source.name,
+            indicators,
+        )
         for series, source in INDICATOR_SOURCES.items()
     ] + [
         _series(

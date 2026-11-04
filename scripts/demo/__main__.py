@@ -85,7 +85,7 @@ def missing_indicators(api: APIRequestContext) -> list[str]:
     present = {
         item["key"]
         for item in coverage
-        if item["kind"] == "INDICATOR" and item["start"] is not None
+        if item["kind"] in ("INDICATOR", "MACRO") and item["start"] is not None
     }
     return [series.value for series in IndicatorSeries if series.value not in present]
 
