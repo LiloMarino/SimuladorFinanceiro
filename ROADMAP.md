@@ -90,7 +90,6 @@
 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | — | — | Médio | Bom | ⏳ |
 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | — | — | Alto | Bom | ⏳ |
 | [**F141**](#f141) | Docs | README com as features de hoje | — | — | Baixo | Excelente | ⏳ |
-| [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 | — | Médio | Excelente | ⏳ |
 | [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | — | — | — | — | 🔍 |
 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | — | — | Baixo | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 | — | Médio | Bom | ⏳ |
@@ -113,7 +112,7 @@
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (43 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (44 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -135,6 +134,7 @@
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F173](#f173), [F175](#f175), [F176](#f176) | — | — | ✅ |
+| [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 | — | — | — | ✅ |
 | [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | M20 · 3.3 | — | — | — | ✅ |
 | [**F170**](#f170) | Feature | Parâmetros das estratégias salvos no perfil | M20 · 3.3 | — | — | — | ✅ |
 | [**F173**](#f173) | Feature | Partido desde o 1º dia | M20 · 3.3 | — | — | — | ✅ |
@@ -175,7 +175,7 @@
 >
 > **Serve:** N39, N15, N40, N24
 >
-> **Progresso:** 27/30 concluídos
+> **Progresso:** 28/30 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -206,7 +206,7 @@
 | 25 | [**F169**](#f169) | Feature | Contribuição de campanha salva no perfil | — | ✅ Concluído |
 | 26 | [**F170**](#f170) | Feature | Parâmetros das estratégias salvos no perfil | — | ✅ Concluído |
 | 27 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | — | 🔍 Em avaliação |
-| 28 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ⏳ Pendente |
+| 28 | [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | — | ✅ Concluído |
 | 29 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | — | ⏳ Pendente |
 | 30 | [**F180**](#f180) | Manutenção | Retrato no canvas das telas que mudaram desde a 3.0 | — | ✅ Concluído |
 
@@ -287,7 +287,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F212**](#f212) | Melhoria | Paleta de cores de jogadores e partidos | M20 · 3.3 · 27º | 0 | — | — | 🔍 |
-| [**F157**](#f157) | Performance | Velocidade x100 que quase não acelera | M20 · 3.3 · 28º | 0 | Médio | Excelente | ⏳ |
 | [**F186**](#f186) | Performance | Estatísticas lentas numa partida longa | M20 · 3.3 · 29º | 0 | Médio | Bom | ⏳ |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 · 1º | 1 | — | — | 🔍 |
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 2º | 0 | Alto | Bom | ⏳ |
@@ -329,7 +328,6 @@
 | **F139** | Docs | Demonstração regravada com o jogo de hoje | N25 | — | — | [F44](#f44) | Médio | Baixo | Alto | Bom |
 | **F140** | Docs | Docs reorganizada por tipo de leitor | N25 | — | — | [F44](#f44) | Alto | Baixo | Alto | Bom |
 | **F141** | Docs | README com as features de hoje | N25 | — | — | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
-| **F157** | Performance | Velocidade x100 que quase não acelera | N40, N24 | — | M20 · 3.3 | — | Médio | Médio | Alto | Excelente |
 | **F159** | Feature | Conquista "Ordem com paciência" | N22 | D1 | — | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
 | **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
@@ -372,11 +370,6 @@
 
 <a id="f141"></a>
 **F141 — README com as features de hoje.** Serve N25; retrabalho da F48. O README lista o que o jogo fazia em 2026-10-21 e termina em "Estratégias automáticas: em breve", que já existe. Plano: (1) "O que ele faz" ganha modo automático com estratégias e bots, crédito, governo e eleição, cripto e análise técnica, cada um com uma frase e a imagem da demonstração regravada (F139); as seções com GIF ficam nas quatro ou cinco mais fortes, e o resto vai para "E também", que deixa de ter item "em breve". (2) O parágrafo de abertura e os tipos de partida conferidos contra o lobby de hoje (presets, período). (3) Os links para os docs apontam para as páginas da reorganização (F140) quando ela tiver mudado os caminhos. (4) A intro dos docs repete a mesma lista, e as duas mudam juntas. Gatilho: F139 publicada.
-
-<a id="f157"></a>
-**F157 — Velocidade x100 que quase não acelera.** Serve N40 e N24. No playtest, o x100 andou quase como o x1, ou até mais lento. O loop dorme `1 / velocidade` segundos depois de cada tick (`simulation_loop.py:132` a `:156`): no x1 o dia leva o tick mais 1 s, no x100 o tick mais 10 ms, e com o tick perto de 1 s (a medição da D4 deu de 0,6 a 0,95 s com carga) o x100 fica só umas duas vezes mais rápido que o x1. A correção: (1) **medir por dentro do tick**, com uma medida do modo debug para cada etapa (snapshots, bots, eleição, emissão pelo Socket.IO), lida no painel de desempenho numa partida salva longa no x100, junto de se o navegador engasga com um evento por tick; (2) **dormir pela cadência**, `1 / velocidade` menos o que o tick já gastou, nunca abaixo de zero; (3) **agrupar as emissões em velocidade alta**, os dias do mesmo intervalo num evento só, com o front redesenhando uma vez por lote; (4) corrigir o gargalo que a medição apontar. É o ponto de partida das otimizações gerais de desempenho.
-
-**Aceite:** numa partida salva longa, com bots e a expansão "Governo & Política" ligada, um dia no x100 custa no máximo 100 ms (uns 10 dias por segundo).
 
 <a id="f159"></a>
 **F159 — Conquista "Ordem com paciência".** Serve N22; segue a D1. A 9ª conquista da leva de novas conquistas ficou de fora porque o evento de ordem de ações (`event_equity`) não guarda o tipo da ordem que gerou a execução. Plano: coluna `order_type` em `event_equity` (mercado ou limitada), por migration, com as linhas antigas como mercado; o `Broker` grava o tipo na execução; uma `@metric` em `metrics.py` conta as execuções de ordem limitada do jogador, e a conquista entra no `catalog.py`. Vale qualquer ordem limitada executada, inclusive a que executa na hora porque o preço já estava bom. Fica para a rodada de conquistas feita com o usuário depois da Gestoras, junto com a docs, quando dá para ver todas as features que pedem conquista.
@@ -607,6 +600,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
+| **F157** | Performance | Velocidade x100 que quase não acelera | N40, N24 | — | M20 · 3.3 |
 | **F169** | Feature | Contribuição de campanha salva no perfil | N34, N39 | — | M20 · 3.3 |
 | **F170** | Feature | Parâmetros das estratégias salvos no perfil | N39 | — | M20 · 3.3 |
 | **F173** | Feature | Partido desde o 1º dia | N39, N34 | D19 | M20 · 3.3 |
@@ -631,6 +625,9 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F213** | Melhoria | Pendências: consequência inteira e Pagar em destaque | N15 | — | M20 · 3.3 |
 | **F214** | Melhoria | Central de dados: tabela que cabe no cartão | N15 | — | M20 · 3.3 |
 | **F215** | Melhoria | Backtest: formulário do período sem estouro | N15 | — | M20 · 3.3 |
+
+<a id="f157"></a>
+**F157 — Velocidade x100 que quase não acelera.** Serve N40 e N24. No playtest, o x100 andou quase como o x1: o loop dormia `1 / velocidade` depois de um dia que levava de 0,6 a 0,95 s. Entregue: medida por etapa do dia no modo debug, espera pela cadência (descontando a duração do dia, com folga mínima para a tela pegar o lock), snapshots do dia numa consulta só e fechamento do crédito lendo só a janela da nota. Numa partida de 8 jogadores o dia caiu para 130 a 170 ms e o x100 anda de 6 a 7 dias/s. O agrupamento das emissões ficou de fora: a 4 dias/s o navegador recebeu 13 mensagens/s sem engasgar.
 
 <a id="f169"></a>
 **F169 — Contribuição de campanha salva no perfil.** Serve N34 e N39. A contribuição mensal de cada filiado fica salva no perfil do jogador (`Users.settings`, chave própria, ao lado do Meu partido), e vale para quem funda e para quem se filia: o partido em que ele entra começa a cobrá-la quando a campanha abre, em vez de começar com zero. Quem nunca salvou continua com zero. A cobrança mensal já pula quem não tem caixa (`government_book.py`, coleta do 1º dia útil); o que muda é que **o mês pulado abre uma pendência** ("sua contribuição de R$ X não foi paga em março, por falta de caixa"), resolvida quando a contribuição seguinte é paga ou quando o jogador muda o valor. Mudar a contribuição dentro da partida também grava o valor no perfil. O campo da preparação mora na tela redesenhada (F174).
