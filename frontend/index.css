@@ -165,17 +165,28 @@
   --input: #d5dae3;
   --ring: #2350d8;
   --chart-1: #2350d8;
-  --chart-2: #209993;
-  --chart-3: #809614;
-  --chart-4: #4f1599;
-  --chart-5: #cc726b;
-  --chart-6: #c81c60;
-  --chart-7: #9e75fa;
-  --chart-8: #0b5e35;
-  --chart-9: #682455;
-  --chart-10: #722604;
+  --chart-2: #0d9488;
+  --chart-3: #e9a23b;
+  --chart-4: #8e5cc8;
+  --chart-5: #e07a1f;
+  --chart-6: #db2777;
+  --chart-7: #0891b2;
+  --chart-8: #65a30d;
+  --chart-9: #57534e;
+  --chart-10: #8b5e34;
   /* O lightweight-charts desenha em canvas e lê a cor por getComputedStyle: precisa ser hex */
   --chart-1-canvas: #2350d8;
+  /* Cores dos jogadores e dos partidos: separadas das séries de gráfico, cada uma muda sem mexer na outra */
+  --player-1: #2350d8;
+  --player-2: #209993;
+  --player-3: #809614;
+  --player-4: #4f1599;
+  --player-5: #cc726b;
+  --player-6: #c81c60;
+  --player-7: #9e75fa;
+  --player-8: #0b5e35;
+  --player-9: #682455;
+  --player-10: #722604;
   /* Equipes: tons escuros, sempre em escudo, faixa ou linha grossa; a bolinha é do jogador */
   --team-1: #4338ca;
   --team-2: #be123c;

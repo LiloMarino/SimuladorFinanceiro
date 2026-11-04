@@ -37,7 +37,7 @@ export function PlayerColorGrid({ owners, selected, disabled, onSelect }: Player
                 taken && "opacity-45",
                 isMine && "ring-2 ring-foreground ring-offset-2 ring-offset-popover",
               )}
-              style={{ backgroundColor: `var(--${color.key})`, color: color.foreground }}
+              style={{ backgroundColor: color.background, color: color.foreground }}
             >
               {taken && playerInitials(owner.nickname)}
               {isMine && <Check className="size-4.5" />}

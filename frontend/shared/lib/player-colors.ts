@@ -2,21 +2,21 @@ const WHITE = "var(--primary-foreground)";
 const INK = "var(--foreground)";
 
 /**
- * Paleta dos jogadores: `key` é o que o servidor guarda e devolve. O texto da sigla
- * é o que passa de 4,5:1 de contraste sobre a cor (branco ou tinta). `hex` é o valor
- * do token `--chart-N` no index.css, porque o partido guarda a cor em hex.
+ * Paleta dos jogadores: `key` é o que o servidor guarda e devolve. `background` é o
+ * token `--player-N` do index.css e `hex` é o mesmo valor, porque o partido guarda a cor
+ * em hex. O texto da sigla é o que passa de 4,5:1 de contraste sobre a cor (branco ou tinta).
  */
 export const PLAYER_COLORS = [
-  { key: "chart-1", name: "Azul", hex: "#2350D8", foreground: WHITE },
-  { key: "chart-2", name: "Verde-água", hex: "#209993", foreground: INK },
-  { key: "chart-3", name: "Lima", hex: "#809614", foreground: INK },
-  { key: "chart-4", name: "Roxo", hex: "#4F1599", foreground: WHITE },
-  { key: "chart-5", name: "Salmão", hex: "#CC726B", foreground: INK },
-  { key: "chart-6", name: "Framboesa", hex: "#C81C60", foreground: WHITE },
-  { key: "chart-7", name: "Lavanda", hex: "#9E75FA", foreground: INK },
-  { key: "chart-8", name: "Floresta", hex: "#0B5E35", foreground: WHITE },
-  { key: "chart-9", name: "Ameixa", hex: "#682455", foreground: WHITE },
-  { key: "chart-10", name: "Marrom", hex: "#722604", foreground: WHITE },
+  { key: "chart-1", name: "Azul", background: "var(--player-1)", hex: "#2350D8", foreground: WHITE },
+  { key: "chart-2", name: "Verde-água", background: "var(--player-2)", hex: "#209993", foreground: INK },
+  { key: "chart-3", name: "Lima", background: "var(--player-3)", hex: "#809614", foreground: INK },
+  { key: "chart-4", name: "Roxo", background: "var(--player-4)", hex: "#4F1599", foreground: WHITE },
+  { key: "chart-5", name: "Salmão", background: "var(--player-5)", hex: "#CC726B", foreground: INK },
+  { key: "chart-6", name: "Framboesa", background: "var(--player-6)", hex: "#C81C60", foreground: WHITE },
+  { key: "chart-7", name: "Lavanda", background: "var(--player-7)", hex: "#9E75FA", foreground: INK },
+  { key: "chart-8", name: "Floresta", background: "var(--player-8)", hex: "#0B5E35", foreground: WHITE },
+  { key: "chart-9", name: "Ameixa", background: "var(--player-9)", hex: "#682455", foreground: WHITE },
+  { key: "chart-10", name: "Marrom", background: "var(--player-10)", hex: "#722604", foreground: WHITE },
 ] as const;
 
 /** O tamanho da paleta é o teto de jogadores da sala. */
@@ -27,7 +27,7 @@ const NEUTRAL = { background: "var(--muted)", foreground: "var(--muted-foregroun
 /** Fundo e texto da sigla para a chave da paleta; chave desconhecida fica neutra. */
 export function playerColorStyle(key: string | undefined) {
   const color = PLAYER_COLORS.find((c) => c.key === key);
-  return color ? { background: `var(--${color.key})`, foreground: color.foreground } : NEUTRAL;
+  return color ? { background: color.background, foreground: color.foreground } : NEUTRAL;
 }
 
 export function playerColorName(key: string) {

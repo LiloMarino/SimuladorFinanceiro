@@ -31,7 +31,7 @@ export function BotColorSwatches({ owners, selected, onSelect }: BotColorSwatche
               owner && "opacity-50",
               isSelected && "ring-2 ring-foreground ring-offset-2 ring-offset-card",
             )}
-            style={{ backgroundColor: `var(--${color.key})`, color: color.foreground }}
+            style={{ backgroundColor: color.background, color: color.foreground }}
           >
             {owner && (
               <span
