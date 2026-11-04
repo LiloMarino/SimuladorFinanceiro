@@ -437,7 +437,7 @@ class BudgetCourse:
         primary = revenue - spending
         rate = selic + premium(previous.debt)
         debt = step(previous.debt, selic, ipca, growth, primary)
-        interest = debt * rate
+        interest = previous.debt * rate
         return BudgetMonth(
             month_end=month_end,
             revenue=revenue,

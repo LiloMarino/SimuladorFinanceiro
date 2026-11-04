@@ -203,6 +203,16 @@ def test_month_closes_on_its_last_day_and_keeps_the_result(flat_economy: None):
     assert january.result == -january.interest
 
 
+def test_interest_is_charged_on_the_debt_that_entered_the_month(flat_economy: None):
+    account = course()
+    start = account.latest(START)
+
+    (january,) = account.months_until(date(2020, 1, 31))
+
+    selic = annual_index_rate(IndicatorSeries.SELIC, date(2020, 1, 31))
+    assert january.interest == start.debt * (selic + start.premium)
+
+
 def test_a_closed_month_is_kept_between_calls(flat_economy: None):
     account = course()
     first = account.months_until(date(2020, 3, 31))
