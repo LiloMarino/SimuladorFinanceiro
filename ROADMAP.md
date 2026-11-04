@@ -104,13 +104,12 @@
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | — | — | — | — | 🔍 |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | — | — | — | — | 🔍 |
 | [**F195**](#f195) | Feature | Acordo de base com prazo | M21 · 3.4 | — | — | — | 🔍 |
-| [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | Baixo | Bom | ⏳ |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | — | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -132,6 +131,7 @@
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F175](#f175), [F176](#f176) | — | — | ✅ |
+| [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | — | — | ✅ |
 
 </details>
 
@@ -204,7 +204,6 @@
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | N12 | — | 0 | 🔍 Em avaliação |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | [F158](#f158) | 0 | 🔍 Em avaliação |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | N34, N11 | [F191](#f191) | 0 | 🔍 Em avaliação |
-| [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | 0 | ⏳ Pendente |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | 0 | ⏳ Pendente |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | N10 | — | 0 | 🔍 Em avaliação |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | 0 | 🔍 Em avaliação |
@@ -236,7 +235,6 @@
 | [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | — | 0 | Baixo | Bom | ⏳ |
 | [**F175**](#f175) | Feature | Federações partidárias | — | 0 | Alto | Bom | ⏳ |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | 0 | — | — | 🔍 |
-| [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | 0 | Baixo | Bom | ⏳ |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | 0 | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | 0 | — | — | 🔍 |
@@ -261,7 +259,6 @@
 | **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | — | — | Alto | Médio | Médio | Bom |
-| **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
 
 <a id="f6"></a>
@@ -312,11 +309,6 @@
 
 <a id="f175"></a>
 **F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), inclusive ao partido do computador; a proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173). (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato, fica preso pelo mandato e herda, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** a federação aparece no cartão dos partidos da Eleição, no hemiciclo do Congresso e no jornal (formada, desfeita); o desenho começa registrando as telas e os estados no canvas: proposta pendente, federação formada, federação desfeita antes do prazo e expansão desligada.
-
-<a id="f196"></a>
-**F196 — Evolução do patrimônio por tipo de renda variável.** Serve N16. Hoje a evolução do patrimônio (`portfolio/components/networth-chart.tsx`) tem as visões "Ganho" e "Por classe", que separa renda fixa, renda variável e caixa, um painel por classe. O playtest de 31/out pediu ver a renda variável aberta por tipo.
-
-**O que muda:** uma visão "Por tipo", ao lado de "Por classe", com um painel por tipo de renda variável (Ações, FII, ETF, BDR e Cripto) no mesmo estilo dos painéis de hoje; o tipo que a carteira nunca teve não ganha painel. O backend soma a série da carteira pelo tipo do ativo, que já está no cadastro, no mesmo endpoint da visão por classe. Sem rodada no canvas: o layout é o da visão por classe.
 
 <a id="f197"></a>
 **F197 — Rebalanceamento por meta com várias classes.** Serve N4. Hoje o `TargetRebalance` (`backend/features/strategy/rebalance.py:55`) divide só entre um ativo de ações (BOVA11 por padrão) e a renda fixa de liquidez diária: a meta em ações vai de 10% a 90% (padrão 60%), e o desvio máximo, de 1 a 20 pontos (padrão 5). O playtest de 31/out pediu configurar a meta de cada classe.
@@ -513,7 +505,14 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 ## ✅ Concluído
 
-> Nenhum item neste status.
+| ID | Tipo | Resumo | Serve | D# | Marco |
+| --- | --- | --- | --- | --- | --- |
+| **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — |
+
+<a id="f196"></a>
+**F196 — Evolução do patrimônio por tipo de renda variável.** Serve N16. Hoje a evolução do patrimônio (`portfolio/components/networth-chart.tsx`) tem as visões "Ganho" e "Por classe", que separa renda fixa, renda variável e caixa, um painel por classe. O playtest de 31/out pediu ver a renda variável aberta por tipo.
+
+**O que muda:** uma visão "Por tipo", ao lado de "Por classe", com um painel por tipo de renda variável (Ações, FII, ETF, BDR e Cripto) no mesmo estilo dos painéis de hoje; o tipo que a carteira nunca teve não ganha painel. O backend soma a série da carteira pelo tipo do ativo, que já está no cadastro, no mesmo endpoint da visão por classe. Sem rodada no canvas: o layout é o da visão por classe.
 
 ---
 
