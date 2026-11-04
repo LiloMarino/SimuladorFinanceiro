@@ -1,7 +1,8 @@
+from bisect import bisect_right
 from datetime import date
 
 import pandas as pd
-from sqlalchemy import delete, func, select, true, update
+from sqlalchemy import delete, func, or_, select, true, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session, aliased, selectinload
 
@@ -287,6 +288,48 @@ class StockRepository:
         )
         average = session.execute(select(func.avg(recent.c.volume))).scalar_one()
         return float(average) if average is not None else 0.0
+
+    @transactional
+    def get_average_volumes(
+        self,
+        session: Session,
+        ticker: str,
+        days: list[date],
+        window: int,
+        simulation_id: int | None = None,
+    ) -> dict[date, float]:
+        """A `get_average_volume` de cada um dos `days`, lendo o histórico uma vez."""
+        series = (
+            Stock.ticker == ticker,
+            seen_by(StockPriceHistory, reading_version(simulation_id)),
+        )
+        # O pregão mais antigo que entra na média do primeiro dia
+        floor = (
+            select(StockPriceHistory.price_date)
+            .join(Stock, Stock.id == StockPriceHistory.stock_id)
+            .where(*series, StockPriceHistory.price_date <= min(days))
+            .order_by(StockPriceHistory.price_date.desc())
+            .offset(window - 1)
+            .limit(1)
+            .scalar_subquery()
+        )
+        rows = session.execute(
+            select(StockPriceHistory.price_date, StockPriceHistory.volume)
+            .join(Stock, Stock.id == StockPriceHistory.stock_id)
+            .where(
+                *series,
+                StockPriceHistory.price_date <= max(days),
+                or_(floor.is_(None), StockPriceHistory.price_date >= floor),
+            )
+            .order_by(StockPriceHistory.price_date)
+        ).all()
+        dates = [price_date for price_date, _ in rows]
+        averages: dict[date, float] = {}
+        for day in days:
+            end = bisect_right(dates, day)
+            recent = [volume for _, volume in rows[max(end - window, 0) : end]]
+            averages[day] = sum(recent) / len(recent) if recent else 0.0
+        return averages
 
     @transactional
     def get_by_ticker(self, session: Session, ticker: str) -> StockDTO | None:

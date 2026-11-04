@@ -118,6 +118,7 @@ class PriceImpact:
             flows = repository.event.get_daily_equity_flow(
                 self.simulation_id, ticker=ticker
             )
+            self._load_average_volumes(flows)
             for day in missing:
                 earlier[day] = self._factor_on(flows, day) if flows else 1.0
         return {
@@ -142,24 +143,32 @@ class PriceImpact:
         ):
             start -= 1
 
+        active = flows[start:end]
+        self._load_average_volumes(active)
         total = 0.0
-        for flow in flows[start:end]:
+        for flow in active:
             # O primeiro pregão depois da ordem tem idade 0
             remaining = decay(
                 business_days_between(flow.flow_date, on) - 1, self.decay_days
             )
             if remaining > 0:
-                average_volume = self._average_volume(flow.ticker, flow.flow_date)
+                average_volume = self._average_volumes[(flow.ticker, flow.flow_date)]
                 total += impact(flow.quantity, average_volume, self.k) * remaining
         return max(1 + total, MIN_FACTOR)
 
-    def _average_volume(self, ticker: str, day: date) -> float:
-        key = (ticker, day)
-        if key not in self._average_volumes:
-            self._average_volumes[key] = repository.stock.get_average_volume(
-                ticker, day, AVERAGE_VOLUME_WINDOW, simulation_id=self.simulation_id
+    def _load_average_volumes(self, flows: list[DailyEquityFlowDTO]) -> None:
+        """O volume médio do dia de cada fluxo ainda sem ele, uma consulta por ativo."""
+        missing: dict[str, list[date]] = defaultdict(list)
+        for flow in flows:
+            if (flow.ticker, flow.flow_date) not in self._average_volumes:
+                missing[flow.ticker].append(flow.flow_date)
+        for ticker, days in missing.items():
+            averages = repository.stock.get_average_volumes(
+                ticker, days, AVERAGE_VOLUME_WINDOW, simulation_id=self.simulation_id
             )
-        return self._average_volumes[key]
+            self._average_volumes.update(
+                ((ticker, day), average) for day, average in averages.items()
+            )
 
 
 def _scale(row: PriceRow, factor: float) -> PriceRow:
