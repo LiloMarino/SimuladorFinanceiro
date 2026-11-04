@@ -4,6 +4,126 @@ Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais anti
 O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
 deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
+## 3.3.0 Preparação no lobby (04/11/2026)
+
+Cada jogador agora se prepara antes de a partida começar: no lobby, um dialog com abas guarda no perfil o Meu partido, a contribuição ao partido e os parâmetros das estratégias, e o desafio da vela sai da partida para virar uma atividade do lobby, com o placar de cada um. Fundar, filiar-se e sair do partido ficam liberados desde o 1º dia, e a paleta de jogadores e partidos troca para 13 cores que se distinguem também para daltônicos, com o partido já marcado na cor de quem o funda. A Eleição ganha a corrida entre partidos redesenhada e a campanha reorganizada; o Congresso mostra o placar da votação; as contas do governo, o jornal, a carteira, a comparação de partidas e o crédito (com o custo inteiro do empréstimo antes de assinar e o aviso de parcela em atraso) são redesenhados. Partidas longas ficam mais rápidas no fechamento do dia e nas Estatísticas, o modo debug ganha perfil de rota e do motor e o painel de desempenho mede cada etapa do dia, e as tabelas passam a caber na tela com texto de no mínimo 12 px. Os resumos do mês saem, e fica a retrospectiva do ano.
+
+Suas partidas salvas e o `config.toml` continuam valendo.
+
+
+### Novidades
+
+- Adicionado o desafio da vela no lobby, em janela de atividade, e removido o da partida
+- Adicionada a preparação de cada jogador no lobby, com o Meu partido salvo no perfil
+- Adicionados avatar e nome de cada jogador ao seletor do vice
+- Adicionado o filtro Na carteira independente da classe na renda variável
+- Removida a ordenação pelos cabeçalhos da matriz de correlação
+- Removidos os selos a sala vê e marcado com ícone o que só o partido vê
+- Removido do diálogo de nova medida o bloco Quem tem esses ativos
+- Removidas das telas as curvas do prêmio de risco pela dívida e da escala do investimento
+- Reordenados os cartões das configurações, com o tutorial ao lado da posição do jornal e a zona de perigo por último
+- Movido o log das ordens do bot para um drawer lateral
+- Passado o período do backtest para o seletor de período da sala
+- Mostrado o aviso de atualização das Estatísticas também com a partida pausada
+- Adicionado um log por boot do servidor, com os anteriores numerados
+- Adicionada a contagem acumulada dos eventos do Socket.IO ao painel de desempenho
+- Adicionada a medida por etapa do dia ao painel de desempenho
+- Adicionados o perfil de rota e o perfil do motor ao modo debug
+- Adicionados o py-spy e o script de rodadas do motor
+- Trocado o cProfile pelo yappi, com perfil só da rota ou só do motor
+- Mantidas as 3 requisições mais lentas de cada rota no perfil das rotas
+- Carregadas sozinhas as próximas páginas dos logs ao rolar
+- Adicionado o aviso de parcela em atraso no topo do crédito e atualizado o valor do atraso a cada dia
+- Mostrada a consequência inteira das pendências com o Pagar em destaque
+- Ajustada a tabela da Central de dados para caber no cartão sem rolagem lateral
+- Ajustado o formulário do período do backtest para caber na coluna
+- Ajustadas as tabelas para caber na tela e o texto para no mínimo 12 px
+- Reorganizada a aba da campanha da eleição
+- Redesenhada a corrida entre partidos da Eleição
+- Adicionado placar e acesso à casa eleita na votação do Congresso
+- Ajustado o jornal ao desenho aprovado com histórico paginado por mês
+- Adicionada a fonte IBM Plex Serif nas manchetes do jornal
+- Adicionado o bloco com o custo inteiro do empréstimo antes de assinar
+- Ajustada a carteira com a base dos percentuais, alturas iguais e meta fora da escala
+- Ajustada a comparação de partidas com os eixos em grade e o ranking sem barra de retorno
+- Redesenhadas as contas do governo em uma coluna, com impostos e receita juntos
+- Liberados fundar, filiar-se e sair do partido desde o 1º dia da partida
+- Adicionada a contribuição do partido salva no perfil, com pendência do mês não pago
+- Adicionados os parâmetros das estratégias salvos no perfil
+- Redesenhada a preparação do lobby num dialog com abas
+- Trocada a paleta de jogadores e partidos por 13 cores que se distinguem também para daltônicos
+
+### Correções
+
+- Corrigida a chapa do fundador que concorre sem vice na preparação do lobby
+- Corrigida a leitura dos eventos do segundo turno, que quebrava o resumo do mês, as estatísticas e as conquistas
+- Limitado o crescimento do PIB e reduzido o peso da bolsa nele, que derrubava partidas longas
+- Corrigida a alavancagem sem patrimônio, que aparecia como traço no crédito
+- Corrigido o tooltip das séries da Economia, que mostrava a data no lugar do nome
+- Adicionado o estado de erro na tela de resultado, que ficava no esqueleto
+- Corrigido o ranking velho das Estatísticas, que não era refeito ao voltar à tela
+- Arredondados os pontos da nota de risco, que saíam do cartão do crédito
+- Corrigida a mensagem de erro das páginas de Governo, Eleição, Economia e Crédito, que dizia que a conexão caiu
+- Corrigido o jornal, que ficava no esqueleto quando as preferências falhavam
+- Corrigido o diálogo de promessas, que misturava a falha da prévia com a regra e deixava anunciar
+- Corrigida a janela de notícias, que dizia que o tempo corria com a partida pausada
+- Corrigido o plural dos pontos indecisos no aviso de apoio do 2º turno
+- Corrigido o plural da projeção das promessas quando a chapa só tem uma
+- Corrigido o cartão de promessas do Governo, que deixava colunas vazias com uma ou duas promessas
+- Corrigido o plural de compras e vendas na aba de operações quando há só uma
+- Corrigido o texto do prêmio de risco, que escrevia ponto(s) em vez de concordar com o valor
+- Corrigido o cabeçalho do desafio da vela, que escrevia o número da pergunta no fim da frase
+- Corrigidos os nomes cortados do lobby, que ficavam sem dica e sem espaço ao lado do seletor de cor
+- Corrigida a estratégia do bot nas tabelas de estatísticas, que ficava cortada sem dica
+- Corrigidos os cartões de partido da eleição, que cortavam o nome sem dica
+- Corrigida a faixa do dia da renda variável, que colava mínimo e máximo em preços longos
+- Corrigido o relatório final, que dizia o que faltava para a meta e para o 1º depois de a partida acabar
+- Corrigidos os cartões de pesquisa e eleitorado, que anunciavam uma primeira pesquisa depois de a campanha acabar
+- Corrigido o diálogo da votação, que abria com uma dica aberta e a tabela rolada
+- Corrigida a janela do desafio da vela, que passava de 768 px de altura e escondia os botões de voto
+- Corrigida a cor dos partidos do computador, que ficavam cinza na Eleição e coloridos no Congresso
+- Corrigida a Eleição entre os turnos, que mostrava a pesquisa do 1º turno já apurado ao lado da do 2º
+- Corrigida a tabela de transferência do 2º turno, que chamava de exatos votos que são estimativa
+- Corrigido o arredondamento da transferência do 2º turno, que fazia as partes de uma linha não somarem o total
+- Corrigido o diálogo do resultado do turno, que só abria ao vivo e não voltava após recarregar a página
+- Corrigida a data da posse, que mostrava o primeiro pregão do ano em vez de 1º de janeiro
+- Corrigida a prévia de promessas, que seguia com números da lista anterior e deixava anunciar enquanto recalculava
+- Corrigida a nota de crédito, que ignorava parcela vencida e sem pagar depois de 12 meses
+- Corrigido o painel final do desafio da vela, que comemorava mesmo com 0 acertos
+- Corrigido o cartão do desafio da vela, que sumia enquanto carregava e quando falhava
+- Corrigida a coluna Quando das ordens abertas, que mostrava a hora real em vez do dia da partida
+- Centralizados na vertical os selos da barra lateral
+- Alinhados à linha os algarismos do jornal
+- Igualado o tamanho dos botões da estratégia
+- Aberta pelo teclado e pelo toque a dica dos padrões de vela
+- Limitada à altura da tela a janela de nova medida e esticado o seletor de mudança
+- Posta em coluna própria a ação dos alertas
+- Mantida à vista a proposta anterior ao trocar de bancada na negociação
+- Limpo o cache de consultas ao sair e ao encerrar a conta
+- Mostrado o nome da série no tooltip do gráfico do backtest
+- Desenhada a linha do Ibovespa que chega depois no backtest
+- Contida na borda a tabela do cartão de risco da nota
+- Trocado por seletor de ano o campo até quando do gerador de futuro
+- Explicado na dica do rótulo o retorno sobre o aportado dos rankings
+- Migrados para o lugar da ação do alerta os botões encaixados à mão
+- Ajustados os tipos das estratégias ao pandas 3.1
+- Adicionados o voto de cada jogador, a posição no cabeçalho e o nome do padrão no desafio da vela
+- Adicionado o nome do padrão sob as velas também na pergunta do desafio da vela
+
+### Desempenho
+
+- Calculado uma vez só o fator de impacto de cada dia no histórico dos bots
+- Gravado o snapshot do dia só com o balanço, sem montar a carteira da tela
+- Removidos os resumos do mês e mantida só a retrospectiva do ano
+- Montada a janela de preços dos bots em arrays, sem passar pelo pandas
+- Limitado o fechamento do crédito aos snapshots da janela da nota
+- Gravados os snapshots do dia numa consulta só para todos os jogadores
+- Descontada a duração do dia na espera entre os pregões
+- Calculado o volume médio do impacto numa consulta por ativo
+- Calculado o histórico da nota numa passada só pela partida
+- Lido o histórico das Estatísticas só com as colunas usadas
+- Planejada cada consulta do banco com os valores dela
+
 ## 3.2.0 Orçamento e Congresso (29/10/2026)
 
 O governo passa a ter contas: a receita vem das alíquotas, o gasto e os juros pesam no resultado, a dívida cresce com o déficit e o prêmio de risco encarece os títulos novos do Tesouro. As medidas de gasto público mexem na inflação, na SELIC e na bolsa, e o painel da economia ganha PIB, desemprego e dívida. O Congresso é eleito por cadeiras, cada bancada segue a orientação do líder do partido, o impeachment é votado e o governo negocia apoio por emendas clicando no hemiciclo. A campanha e o segundo turno ganham avisos, toasts e resultado por grupo; o jornal ganha manchetes do Congresso e dos acordos; o partido do computador que assume sem vice passa a propor medidas; e os cartões de Governo, Eleição e Economia mostram esqueleto e erro próprios.
