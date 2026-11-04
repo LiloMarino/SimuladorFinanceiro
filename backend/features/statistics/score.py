@@ -220,7 +220,8 @@ class _ScoreWalk:
 
 def player_score(history: list[PatrimonialHistoryDTO]) -> ScoreDTO | None:
     """Nota de um jogador sobre os snapshots dele; None com menos de 63 retornos."""
-    if not history:
+    # Cada retorno liga dois snapshots: com poucos, a nota nem chega a ler o mercado
+    if len(history) <= MIN_SCORE_DAYS:
         return None
     walk = _ScoreWalk(history[0])
     for snapshot in history[1:]:
@@ -234,7 +235,7 @@ def score_history(history: list[PatrimonialHistoryDTO]) -> list[SeriesPointDTO]:
     ele; o último ponto é o último snapshot, então é a nota de `player_score` hoje.
     Os meses antes de 63 retornos ficam de fora.
     """
-    if not history:
+    if len(history) <= MIN_SCORE_DAYS:
         return []
     walk = _ScoreWalk(history[0])
     last = len(history) - 1
