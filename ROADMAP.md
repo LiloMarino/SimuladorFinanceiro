@@ -61,12 +61,12 @@
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | — | — | — | — | 🔍 |
 | [**F6**](#f6) | Feature | Link de convite pela internet no lobby | — | — | Médio | Bom | ⏳ |
 | [**F14**](#f14) | Feature | Janela desktop nativa | — | — | Baixo | Bom | 💤 |
-| [**F22**](#f22) | Feature | Preço ajustado e proventos | — | — | Alto | Bom | ⏳ |
+| [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | M22 · 4.0 | — | Alto | Bom | ⏳ |
 | [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | — | — | — | — | 🔍 |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | — | — | — | — | 🔍 |
 | [**F37**](#f37) | Feature | Tema escuro | — | — | Médio | Médio | 💤 |
-| [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.0 | — | — | — | 🔍 |
-| [**F55**](#f55) | Feature | Modo aquisição hostil | M18 · 4.0 | — | — | — | 🔍 |
+| [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.1 | — | — | — | 🔍 |
+| [**F55**](#f55) | Feature | Modo aquisição hostil | M18 · 4.1 | — | — | — | 🔍 |
 | [**F56**](#f56) | Feature | Novidades no app | — | — | Baixo | Bom | ⏳ |
 | [**F60**](#f60) | Feature | Modo servidor dedicado (--headless) | — | — | Baixo | Bom | 💤 |
 | [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | — | — | Médio | Bom | 💤 |
@@ -75,12 +75,12 @@
 | [**F90**](#f90) | Feature | Cenários | — | — | — | — | 🔍 |
 | [**F93**](#f93) | Feature | Rumores antecipados | — | — | — | — | 🔍 |
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 | — | Alto | Bom | ⏳ |
-| [**F100**](#f100) | Feature | Proventos na carteira e nas telas | — | — | Médio | Bom | ⏳ |
-| [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.0 | — | Alto | Médio | 💤 |
-| [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | M18 · 4.0 | — | — | — | 🔍 |
-| [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | M18 · 4.0 | — | — | — | 🔍 |
-| [**F104**](#f104) | Feature | Gestoras: co-gestores | M18 · 4.0 | — | — | — | 🔍 |
-| [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | M18 · 4.0 | — | — | — | 🔍 |
+| [**F100**](#f100) | Feature | Proventos na carteira e nas telas | M22 · 4.0 | — | Médio | Bom | ⏳ |
+| [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.1 | — | Alto | Médio | 💤 |
+| [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | M18 · 4.1 | — | — | — | 🔍 |
+| [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | M18 · 4.1 | — | — | — | 🔍 |
+| [**F104**](#f104) | Feature | Gestoras: co-gestores | M18 · 4.1 | — | — | — | 🔍 |
+| [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | M18 · 4.1 | — | — | — | 🔍 |
 | [**F110**](#f110) | Feature | Combinar estratégias | — | — | Médio | Bom | 💤 |
 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | — | Baixo | Bom | 💤 |
 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | — | — | — | — | 🔍 |
@@ -98,7 +98,7 @@
 | [**F175**](#f175) | Feature | Federações partidárias | — | — | Alto | Bom | ⏳ |
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | M21 · 3.4 | — | Médio | Bom | ⏳ |
-| [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.0 | — | — | — | 🔍 |
+| [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.1 | — | — | — | 🔍 |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | 🔍 |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | — | — | — | 🔍 |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | — | — | — | — | 🔍 |
@@ -113,17 +113,17 @@
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **D1** | — | Eventos são a fonte da verdade; snapshots são derivados | — | [F22](#f22), [F100](#f100), [F159](#f159) | — | — | ✅ |
+| **D1** | — | Eventos são a fonte da verdade; snapshots são derivados | — | [F22](#f22), [F159](#f159) | — | — | ✅ |
 | **D2** | — | Cálculo financeiro acontece só no backend; o frontend exibe | — | — | — | — | ✅ |
 | **D3** | — | Dinheiro e quantidade trafegam como Decimal serializado em string | — | [F22](#f22), [F100](#f100) | — | — | ✅ |
 | **D4** | — | Banco de dados embarcado no executável | — | — | — | — | ✅ |
 | **D6** | — | A retomada continua no dia seguinte ao último evento | — | — | — | — | ✅ |
-| **D7** | — | O simulador lê as séries sem saber a origem | — | [F22](#f22), [F100](#f100) | — | — | ✅ |
+| **D7** | — | O simulador lê as séries sem saber a origem | — | [F22](#f22) | — | — | ✅ |
 | **D8** | — | Bot, modo automático e backtest são o mesmo mecanismo | — | [F110](#f110), [F111](#f111), [F202](#f202) | — | — | ✅ |
 | **D9** | — | De onde nasce uma mudança de schema | — | [F101](#f101) | — | — | ✅ |
 | **D10** | — | Como a nota geral é calculada | — | — | — | — | ✅ |
 | **D11** | — | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | — | — | — | ✅ |
-| **D12** | — | Como numerar as versões | — | — | — | — | ✅ |
+| **D12** | — | Como numerar as versões | — | [F22](#f22) | — | — | ✅ |
 | **D13** | — | Um canal de tempo real só: Socket.IO, com fallback de polling | — | — | — | — | ✅ |
 | **D14** | — | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | — | [F97](#f97) | — | — | ✅ |
 | **D15** | — | Lint com oxlint, formatação com oxfmt e o TypeScript 7 com a API do 6 ao lado | — | — | — | — | ✅ |
@@ -158,7 +158,20 @@
 | 5 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | [F165](#f165) | ⏳ Pendente |
 | 6 | [**F195**](#f195) | Feature | Acordo de base com prazo | — | 🔍 Em avaliação |
 
-### 4.0 — Expansão Gestoras (M18)
+### 4.0 — Dividendos (M22)
+
+> **Objetivo:** O preço é o negociado na época, e o ativo desdobra e paga dividendo na partida, no real e no futuro gerado.
+>
+> **Serve:** N3, N7
+>
+> **Progresso:** 0/2 concluídos
+
+| # | ID | Tipo | Resumo | Depende de | Status |
+| --- | --- | --- | --- | --- | --- |
+| 1 | [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | — | ⏳ Pendente |
+| 2 | [**F100**](#f100) | Feature | Proventos na carteira e nas telas | [F22](#f22) | ⏳ Pendente |
+
+### 4.1 — Expansão Gestoras (M18)
 
 > **Objetivo:** Fundar a própria gestora, abrir capital e disputar as cotas na sala.
 >
@@ -184,9 +197,7 @@
 | ID | Tipo | Resumo | Serve | Depende de | Destrava | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | N2 | — | 2 | 🔍 Em avaliação |
-| [**F22**](#f22) | Feature | Preço ajustado e proventos | N3, N7 | — | 2 | ⏳ Pendente |
 | [**F6**](#f6) | Feature | Link de convite pela internet no lobby | N2 | [F5](#f5) | 1 | ⏳ Pendente |
-| [**F100**](#f100) | Feature | Proventos na carteira e nas telas | N3, N7 | [F22](#f22) | 1 | ⏳ Pendente |
 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | N25 | [F44](#f44) | 1 | ⏳ Pendente |
 | [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | N25 | — | 1 | 🔍 Em avaliação |
 | [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | N10 | — | 0 | 🔍 Em avaliação |
@@ -222,8 +233,8 @@
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 · 3º | 1 | Médio | Bom | ⏳ |
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 4º | 1 | Médio | Bom | ⏳ |
 | [**F195**](#f195) | Feature | Acordo de base com prazo | M21 · 3.4 · 6º | 0 | — | — | 🔍 |
+| [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | M22 · 4.0 · 1º | 2 | Alto | Bom | ⏳ |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | — | 2 | — | — | 🔍 |
-| [**F22**](#f22) | Feature | Preço ajustado e proventos | — | 2 | Alto | Bom | ⏳ |
 | [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | — | 1 | — | — | 🔍 |
 | [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | — | 0 | — | — | 🔍 |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | — | 0 | — | — | 🔍 |
@@ -247,10 +258,10 @@
 | ID | Tipo | Resumo | Serve | D# | Marco | Depende de | Esforço | Risco | Valor | Custo-benefício |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F6** | Feature | Link de convite pela internet no lobby | N2 | — | — | [F5](#f5) | Médio | Médio | Alto | Bom |
-| **F22** | Feature | Preço ajustado e proventos | N3, N7 | D1, D3, D7 | — | — | Alto | Alto | Alto | Bom |
+| **F22** | Feature | Preço bruto, desdobramentos e dividendos na partida | N3, N7 | D1, D3, D7, D12 | M22 · 4.0 | — | Alto | Alto | Alto | Bom |
 | **F56** | Feature | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F97** | Feature | SELIC nas mãos do governo | N34 | D19, D14 | M21 · 3.4 | — | Alto | Alto | Alto | Bom |
-| **F100** | Feature | Proventos na carteira e nas telas | N3, N7 | D1, D3, D7 | — | [F22](#f22) | Médio | Médio | Médio | Bom |
+| **F100** | Feature | Proventos na carteira e nas telas | N3, N7 | D3 | M22 · 4.0 | [F22](#f22) | Médio | Médio | Médio | Bom |
 | **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | — | — | — | Médio | Baixo | Alto | Bom |
 | **F133** | Feature | Tópicos de conceitos do Como jogar | N25 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F139** | Docs | Demonstração regravada com o jogo de hoje | N25 | — | — | [F44](#f44) | Médio | Baixo | Alto | Bom |
@@ -268,8 +279,8 @@
 **Aceite:** um amigo fora da rede local entra na partida só abrindo o link, sem instalar nada; com o host desconectado, nenhum outro jogador consegue virar host.
 
 <a id="f22"></a>
-**F22 — Preço ajustado e proventos.** Serve N3 e N7; segue a D1, a D3 e a D7. O importador usa `yf.download(auto_adjust=True)`: o preço vem ajustado por dividendos e desdobramentos até o dia da importação, e a atualização incremental (`upsert_dataframe` só grava linhas depois da última data guardada) emenda duas séries ajustadas em dias diferentes. Um desdobramento 2:1 entre a importação e a atualização vira um degrau falso, uma queda de 50% que não existiu; além disso, o preço exibido não é o que se negociava na época. Escolhido: preço bruto mais proventos como evento. Plano: (1) **Importação:** `auto_adjust=False` guarda o fechamento bruto, e as listas de dividendos e de desdobramentos que o `yfinance` traz entram numa tabela de eventos corporativos por ativo (data ex, tipo, valor ou razão), por migration. A série bruta não muda quando sai um provento novo, então a atualização incremental passa a emendar séries do mesmo tipo e o degrau some. (2) **Desdobramento e grupamento:** na data ex, a quantidade de cada posição é multiplicada pela razão e o preço médio dividido por ela, como evento da partida reconstruível (D1), com a quantidade em Decimal (D3). (3) **Dividendo:** na data ex, o valor por cota vezes a quantidade entra no caixa, como evento; sem esse crédito o retorno de quem paga dividendo cairia, porque o preço bruto cai na data ex e o ajuste que antes embutia o provento deixa de existir. Telas, rendimento por posição, IR e provento sintético ficam na F100. (4) **Números que mudam:** o retorno e a nota geral (D10) mudam de valor, então os testes de números fixos são regerados e conferidos contra uma conta à mão antes de aceitar. (5) **Partidas salvas:** jogaram sobre o preço ajustado; o primeiro passo é verificar se o congelamento por versão da D7 (hoje usado só para trecho gerado) cobre também o trecho real, ou se as partidas salvas são recalculadas. Gatilho: livre; a F100 espera esta.
-**Aceite:** num desdobramento 2:1 ocorrido depois da importação, a atualização incremental não produz queda de 50% no preço, e a posição de quem tinha o ativo dobra de quantidade sem mudar de valor.
+**F22 — Preço bruto, desdobramentos e dividendos na partida.** Serve N3 e N7; segue a D1, a D3, a D7 e a D12. O importador usa `yf.download(auto_adjust=True)`: o preço vem ajustado por dividendos e desdobramentos até o dia da importação, e a atualização incremental (`upsert_dataframe` só grava linhas depois do último pregão real) emenda duas séries ajustadas em dias diferentes. Um desdobramento 2:1 entre a importação e a atualização vira um degrau falso, uma queda de 50% que não existiu; além disso, o preço exibido não é o que se negociava na época. Com `auto_adjust=False` o problema não some: o `Close` do Yahoo continua ajustado por desdobramento (só deixa de descontar o dividendo), e a lista de dividendos também vem ajustada por desdobramento. Por isso o preço bruto é reconstruído: cada pregão e cada dividendo são multiplicados pelas razões dos desdobramentos com data ex posterior a eles. Esta feature faz o motor inteiro dos proventos, no histórico real e no futuro gerado; as telas ficam na F100, e as duas saem juntas na 4.0. Plano: (1) **Importação bruta:** `auto_adjust=False, actions=True` e a reconstrução acima. Como toda atualização baixa o histórico inteiro, a lista de desdobramentos está sempre completa e o bruto de um dia antigo nunca muda. Desdobramentos e dividendos entram numa tabela de eventos corporativos por ativo (data ex, tipo, razão ou valor por cota, origem e versão, no formato das séries por causa da D7). (2) **Desdobramento, grupamento e bonificação:** na data ex, a quantidade de cada posição muda pela razão como evento da partida (D1, quantidade em Decimal pela D3), e o custo total fica igual, então o preço médio se ajusta sozinho. A fração que sobra numa classe que não negocia fração é truncada e vendida no fechamento do dia, e o valor vai para o caixa como venda comum. (3) **Dividendo:** na data ex, o valor por cota vezes a quantidade da abertura do dia entra no caixa, com o ativo de origem guardado no evento: quem vende na data ex recebe, e quem compra não recebe. O valor é bruto; JCP e IR ficam na F100. (4) **Gerador do futuro:** a calibração passa a usar o preço corrigido por desdobramento, sem descontar dividendo, e o preço gerado não cai na data ex, porque as quedas reais de data ex já estão na média aprendida. O gerador escreve o dividendo sintético na mesma tabela, com origem gerada e pela mesma semente: o rendimento anual é a média dos últimos anos reais do ativo (até 5), com variação sorteada; os meses de pagamento são os do histórico; o ativo com histórico curto usa a média do segmento na base, com pagamento trimestral; quem passou 2 anos ou mais sem pagar continua sem pagar; cripto não paga. O trecho gerado congela com a partida salva, como as séries (D7). (5) **Migration:** a tabela de eventos, o tipo de evento de desdobramento na partida, o ativo de origem no evento de caixa e uma marca de série bruta por ativo; apaga as partidas salvas e o futuro gerado, que jogaram e foram calibrados sobre o preço ajustado, e a próxima atualização de cada ativo sem a marca reimporta a série inteira. É um `feat!` e abre a 4.0 (D12). Os testes de números fixos (retorno, nota geral da D10) são regerados e conferidos contra uma conta à mão antes de aceitar. Gatilho: a 3.4 fechada; a F100 espera esta.
+**Aceite:** num desdobramento 2:1 ocorrido depois da importação, a atualização incremental não produz queda de 50% no preço, e a posição de quem tinha o ativo dobra de quantidade sem mudar de valor; a mesma semente gera os mesmos dividendos.
 
 <a id="f56"></a>
 **F56 — Novidades no app.** Serve N14. Como as notas de patch de um jogo: o `CHANGELOG.md` da F51 vai junto no executável, o backend o serve com a versão, e o lobby mostra as novidades da versão atual. Na primeira abertura depois de atualizar, o card ou o selo de novidades fica em destaque até ser aberto (o navegador guarda a última versão vista); aberto, mostra "O que há de novo na versão X" e dá acesso ao histórico inteiro. O lugar exato no lobby, que já está cheio, sai de uma iteração no Claude Design antes de implementar.
@@ -280,7 +291,7 @@
 **Aceite:** com o resto parado, o juro real 3 pontos abaixo do neutro por um ano sobe o IPCA de 12 meses em 0,6 a 1,2 ponto no ano seguinte, e a mesma decisão com credibilidade baixa sobe mais.
 
 <a id="f100"></a>
-**F100 — Proventos na carteira e nas telas.** Serve N3 e N7; segue a D1, a D3 e a D7. Continua a F22, que guarda a lista de dividendos de cada ativo e credita o valor no caixa na data ex; aqui o provento passa a aparecer no jogo e a existir onde a API não o traz. O provento cai no caixa e nunca reinveste sozinho: o que fazer com o dinheiro é do jogador. Plano: (1) **Provento sintético:** para o futuro gerado, o gerador (D14) escreve os proventos na mesma tabela de eventos corporativos da F22, com origem gerada, junto com as séries; o motor lê real e gerado do mesmo jeito e o trecho congela com a partida salva, como as séries (D7). O rendimento anual de cada ativo é a média que ele pagou nos últimos anos do histórico real, com variação sorteada pela semente da geração, para todos receberem os mesmos nos mesmos dias; ativo sem histórico de proventos usa a média do setor, numa tabela de rendimento por setor. (2) **Carteira:** o total de proventos recebidos aparece no resumo e, em cada posição, o rendimento (proventos dos últimos 12 meses sobre o valor da posição hoje), em Decimal (D3). (3) **Detalhe do ativo:** a tela do ativo ganha o histórico de proventos (data ex, valor por cota, total recebido pelo jogador). (4) **Estatísticas e fechamento:** o que entrou como provento soma ao relatório da partida e à decomposição do retorno. (5) **IR:** dividendo e rendimento de FII são isentos para pessoa física, e a regra do simulador trata todo provento como isento; o `yfinance` não separa o JCP (juros sobre capital próprio, com 15% retidos na fonte) do dividendo, e essa simplificação entra escrita na página de impostos dos docs. Teste: um ativo com histórico paga o mesmo rendimento médio no futuro gerado com a mesma semente, e um ativo sem histórico usa a média do setor. Gatilho: F22 concluída; destrava os rendimentos mensais da gestora (F105).
+**F100 — Proventos na carteira e nas telas.** Serve N3 e N7; segue a D3. Continua a F22, que guarda os dividendos de cada ativo, reais e gerados, e os credita no caixa na data ex com o ativo de origem; aqui o provento passa a aparecer no jogo. O provento cai no caixa e nunca reinveste sozinho: o que fazer com o dinheiro é do jogador. As telas passam antes pelo canvas. Plano: (1) **Carteira:** o total de proventos recebidos aparece no resumo e, em cada posição, o rendimento (proventos dos últimos 12 meses sobre o valor da posição hoje), em Decimal (D3), com a dica do que ele mede e de como ler. (2) **Detalhe do ativo:** a tela do ativo ganha o histórico de proventos (data ex, valor por cota, total recebido pelo jogador). (3) **Estatísticas e fechamento:** o que entrou como provento soma ao relatório da partida e à decomposição do retorno. (4) **IR:** dividendo e rendimento de FII são isentos para pessoa física, e a regra do simulador trata todo provento como isento; o `yfinance` não separa o JCP (juros sobre capital próprio, com 15% retidos na fonte) do dividendo, e essa simplificação entra escrita na página de impostos dos docs. Gatilho: F22 concluída; sai com ela na 4.0 e destrava os rendimentos mensais da gestora (F105).
 **Aceite:** num ativo que pagou dividendos, o total recebido na carteira bate com a soma dos créditos no caixa na data ex, e o rendimento da posição bate com a conta feita à mão.
 
 <a id="f132"></a>
@@ -329,18 +340,18 @@
 | **F5** | Spike | Spike: provider de túnel pela internet | N2 | — | — | — | Escolhe o provider da F6 |
 | **F28** | Feature | Muitos futuros (Monte Carlo) | N10 | — | — | — | Revisa ou confirma a D7 |
 | **F34** | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | N19 | — | — | — | Escolhe a biblioteca de gráfico |
-| **F44** | Feature | Expansão Gestoras: fundar a gestora e abrir capital | N23 | — | M18 · 4.0 | [F101](#f101) | O protótipo do preço da cota com o formador sintético |
-| **F55** | Feature | Modo aquisição hostil | N23 | — | M18 · 4.0 | [F103](#f103) | Parte mínima no mercado e o destino do incorporado |
+| **F44** | Feature | Expansão Gestoras: fundar a gestora e abrir capital | N23 | — | M18 · 4.1 | [F101](#f101) | O protótipo do preço da cota com o formador sintético |
+| **F55** | Feature | Modo aquisição hostil | N23 | — | M18 · 4.1 | [F103](#f103) | Parte mínima no mercado e o destino do incorporado |
 | **F90** | Feature | Cenários | N22 | — | — | — | Um preset com objetivo |
 | **F93** | Feature | Rumores antecipados | N31 | — | — | — | Opção da partida |
-| **F102** | Feature | Gestoras: emissão de novas cotas e recompra | N23 | — | M18 · 4.0 | [F44](#f44) | O prazo da preferência e o preço da emissão |
-| **F103** | Feature | Gestoras: troca de gestor pela assembleia | N23 | — | M18 · 4.0 | [F44](#f44) | Como a assembleia escolhe o novo gestor |
-| **F104** | Feature | Gestoras: co-gestores | N23 | — | M18 · 4.0 | [F44](#f44) | A divisão das taxas |
-| **F105** | Feature | Gestoras: rendimentos mensais | N23 | — | M18 · 4.0 | [F44](#f44), [F100](#f100) | A parte do lucro distribuída |
+| **F102** | Feature | Gestoras: emissão de novas cotas e recompra | N23 | — | M18 · 4.1 | [F44](#f44) | O prazo da preferência e o preço da emissão |
+| **F103** | Feature | Gestoras: troca de gestor pela assembleia | N23 | — | M18 · 4.1 | [F44](#f44) | Como a assembleia escolhe o novo gestor |
+| **F104** | Feature | Gestoras: co-gestores | N23 | — | M18 · 4.1 | [F44](#f44) | A divisão das taxas |
+| **F105** | Feature | Gestoras: rendimentos mensais | N23 | — | M18 · 4.1 | [F44](#f44), [F100](#f100) | A parte do lucro distribuída |
 | **F123** | Melhoria | Redesenhar o aviso de conquista desbloqueada | N22, N15 | — | — | — | Escolher o desenho do aviso no canvas; liga à F122 |
 | **F131** | Feature | Catálogo de padrões de vela | N19 | — | — | — | Tópico do Como jogar com cada padrão animado |
 | **F158** | Melhoria | Animações do Como jogar revistas | N25 | — | — | — | O visual numa rodada no canvas dedicada: animações atuais contra as primeiras, número do passo fora da cena, cursor e destaque, e o palco em tamanho real mostrando só o trecho do passo |
-| **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.0 | [F44](#f44) | Escolher a variante entre as do canvas, já com o layout das Gestoras |
+| **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.1 | [F44](#f44) | Escolher a variante entre as do canvas, já com o layout das Gestoras |
 | **F191** | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | N34 | — | M21 · 3.4 | — | Sessão de desenho em Opus com o usuário: quais ligações entram, como camada de efeito com coeficientes ancorados em dado real (BCB, IBGE); série própria de desemprego (PNAD); freio do laço dívida → prêmio; a taxa média da dívida; como o painel mostra a cadeia; encaixe com a F97 e a F165. Antes, reproduzir a dívida ÷ PIB com a série da partida. |
 | **F192** | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | N12 | — | — | — | A forma dos controles de regime, a reprodutibilidade pela semente, o teto medido do horizonte e a relação com a economia interligada (F191). |
 | **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | — | — | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
@@ -454,7 +465,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F69** | Feature | Imprevistos configuráveis e tipos novos | N23 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F72** | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F81** | Manutenção | CORS restrito à mesma origem | — | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio |
-| **F101** | Feature | Carteira separada do jogador | N23 | D9 | M18 · 4.0 | — | Alto | Alto | Médio | Médio |
+| **F101** | Feature | Carteira separada do jogador | N23 | D9 | M18 · 4.1 | — | Alto | Alto | Médio | Médio |
 | **F110** | Feature | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom |
 | **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom |
 | **F167** | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | — | — | Baixo | Baixo | Médio | Bom |

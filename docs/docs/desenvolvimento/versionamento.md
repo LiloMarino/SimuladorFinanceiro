@@ -16,7 +16,7 @@ O número diz compatibilidade, não maturidade: nada na release diz que o jogo e
 | **Menor** (2.1.0) | feature nova e nada quebra: as partidas salvas abrem e o `config.toml` antigo funciona | bots, modo Especialista, indicadores técnicos |
 | **Maior** (3.0.0) | algo deixa de funcionar para quem atualiza: partida salva que não abre, chave do `config.toml` removida ou renomeada, troca de banco sem migrar os dados | trocar o Postgres pelo SQLite sem importar os dados |
 
-Migration que acrescenta tabela ou coluna não é maior, porque a aplicação das migrations a faz sozinha nas partidas salvas. Cortar o caminho de atualização de uma versão antiga, quando as migrations dela deixam de existir, é maior: veja [Uma migration por versão](./ciclo-banco-dados.md#uma-migration-por-versão). Ritmo: um marco concluído vira uma versão menor, correção solta vira correção, e a maior só com quebra de compatibilidade.
+Migration que acrescenta tabela ou coluna não é maior, porque a aplicação das migrations a faz sozinha nas partidas salvas. Cortar o caminho de atualização de uma versão antiga, quando as migrations dela deixam de existir, é maior: veja [Uma migration por versão](./ciclo-banco-dados.md#uma-migration-por-versão). Ritmo: um marco concluído vira uma versão menor, correção solta vira correção, e a maior só com quebra de compatibilidade. Uma expansão grande se destaca pelo nome da versão, e não pela maior: sem quebra, ela sai como menor.
 
 ## O número sai dos commits
 

@@ -258,6 +258,8 @@ O número sai dos commits, que seguem o Conventional Commits: `feat:` pede a men
 
 **Atualização (2026-10-27): nome da versão.** Versão menor e maior saem com nome; correção sai só com o número. O nome é o tema principal da versão, normalmente o título do marco que ela fecha ("Eleição disputada"); quando a versão fecha mais de um marco, vale o do tema principal. O nome entra pela primeira linha do `--message-file` do `pnpm release` e aparece no título da release e no CHANGELOG. O nome não acompanha a maior porque ela sobe por quebra de compatibilidade, não por conteúdo: uma maior que só troca o banco ficaria com nome, e uma menor cheia de conteúdo, sem.
 
+**Atualização (2026-11-04): a maior não se fabrica.** A maior sai só de uma quebra que o trabalho exige; a expansão grande se destaca pelo nome da versão, como qualquer menor, e nunca por uma quebra criada para justificar o número. A 3.0 foi uma maior sem quebra necessária, decidida antes de existir o nome da versão para dar destaque à expansão do governo. A próxima maior é a 4.0 Dividendos, porque o preço bruto invalida as partidas salvas; a expansão das gestoras, que não quebra nada, sai como 4.1. Quando o trabalho de um marco pede uma quebra, o commit com `!` entra na main junto com o marco que vai sair como maior, e as quebras desse marco saem todas na mesma maior.
+
 ### D13 — Um canal de tempo real só: Socket.IO, com fallback de polling
 **Status:** ✅ Decidida
 
