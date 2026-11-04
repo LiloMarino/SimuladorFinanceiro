@@ -10,6 +10,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
+import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty } from "@/types";
@@ -107,6 +108,7 @@ type ElectionContentProps = { panel: ElectionPanel; initialDialog: Dialog | null
 function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentProps) {
   const { user } = useAuth();
   const { data: portfolio } = usePortfolio();
+  const { data: players } = useRoomPlayers();
   const [dialog, setDialog] = useState<Dialog | null>(initialDialog);
   const [joinPartyId, setJoinPartyId] = useState<number | undefined>();
   const [expelling, setExpelling] = useState<string | null>(null);
@@ -335,6 +337,7 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
         onOpenChange={close}
         panel={panel}
         takenColors={takenColors}
+        founderColor={players?.find((player) => player.nickname === nickname)?.color}
         cash={cash}
       />
       <JoinPartyDialog

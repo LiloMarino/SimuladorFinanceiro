@@ -1,6 +1,6 @@
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { cn } from "@/shared/lib/utils";
-import { partyColor } from "@/shared/lib/party-colors";
+import { partyColor, partyForeground } from "@/shared/lib/party-colors";
 import { playerInitials } from "@/shared/lib/player-initials";
 import type { PartyCandidate } from "@/types";
 
@@ -19,13 +19,14 @@ type PartyMarkProps = {
 
 /** A sigla do partido na cor dele. */
 export function PartyMark({ abbr, color, size = "md" }: PartyMarkProps) {
+  const background = partyColor({ abbr, color });
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-[5px] font-bold tracking-[.03em] text-white",
+        "inline-flex shrink-0 items-center justify-center rounded-[5px] font-bold tracking-[.03em]",
         ABBR_SIZES[size],
       )}
-      style={{ backgroundColor: partyColor({ abbr, color }) }}
+      style={{ backgroundColor: background, color: partyForeground(background) }}
     >
       {abbr}
     </span>

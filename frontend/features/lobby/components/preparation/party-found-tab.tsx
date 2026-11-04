@@ -13,7 +13,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { contributionAmount, contributionText } from "@/shared/lib/contribution";
-import { PARTY_COLORS } from "@/shared/lib/party-colors";
+import { defaultPartyColor } from "@/shared/lib/party-colors";
 import { partyIdentitySchema } from "@/shared/lib/party-identity";
 import { displayMoneyWhole } from "@/shared/lib/utils/display";
 import type { PartyIdentity, VoterValue } from "@/types";
@@ -26,7 +26,6 @@ import { PreparationSection } from "./preparation-section";
 import type { PartyModeProps } from "./party-tab";
 
 const NO_VICE = "none";
-const EMPTY_PARTY: PartyIdentity = { name: "", abbr: "", color: PARTY_COLORS[0], flags: [] };
 
 /** Fundar o meu partido: identidade e bandeiras à esquerda; chapa, contribuição e com quem divide eleitor à direita. */
 export function PartyFoundTab({
@@ -43,9 +42,16 @@ export function PartyFoundTab({
   locked,
   onClose,
 }: PartyModeProps) {
+  const rivals = rivalsOf(preparations, nickname);
+  const takenColors = rivals.flatMap((rival) => (rival.color ? [rival.color] : []));
+  // O partido em branco nasce uma vez: a cor marcada fica a mesma quando um rival troca a dele
+  const [blank] = useState<PartyIdentity>(() => {
+    const ownColor = humans.find((player) => player.nickname === nickname)?.color;
+    return { name: "", abbr: "", color: defaultPartyColor(ownColor, takenColors), flags: [] };
+  });
   const form = useForm<PartyIdentity>({
     resolver: zodResolver(partyIdentitySchema),
-    values: saved ?? EMPTY_PARTY,
+    values: saved ?? blank,
   });
   const flags = useWatch({ control: form.control, name: "flags" });
   const founding = me?.kind === "FOUND" ? me : undefined;
@@ -65,8 +71,6 @@ export function PartyFoundTab({
   const viceOptions = humans.filter((player) => player.nickname !== candidate);
   // O vice sai da chapa quando vira o candidato
   const viceValue = vice === candidate ? NO_VICE : vice;
-  const rivals = rivalsOf(preparations, nickname);
-  const takenColors = rivals.flatMap((rival) => (rival.color ? [rival.color] : []));
 
   // Grava a identidade e a contribuição no perfil e só depois a escolha da sala, que parte do perfil
   const submit = form.handleSubmit(async (party) => {

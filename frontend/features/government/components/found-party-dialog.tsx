@@ -17,7 +17,7 @@ import { PartyIdentityFields } from "@/shared/components/party-identity-fields";
 import { partyIdentitySchema } from "@/shared/lib/party-identity";
 import { displayMoney } from "@/shared/lib/utils/display";
 import { useFoundParty } from "../hooks/mutations/useFoundParty";
-import { PARTY_COLORS } from "@/shared/lib/party-colors";
+import { defaultPartyColor } from "@/shared/lib/party-colors";
 import { congressAmount } from "../lib/contribution";
 import { contributionAmount } from "@/shared/lib/contribution";
 import { collectionNote } from "../lib/election";
@@ -32,21 +32,28 @@ type FoundPartyDialogProps = {
   onOpenChange: (open: boolean) => void;
   /** Cores que outros partidos já usam */
   takenColors: string[];
+  /** Chave da cor de quem funda, que o partido traz marcada se estiver livre */
+  founderColor: string | undefined;
   /** Caixa do jogador, em reais, para avisar quando a contribuição passa dele */
   cash: string | undefined;
 };
 
 /** Fundar um partido: nome, sigla, cor, as 3 bandeiras e a contribuição de quem funda. */
-export function FoundPartyDialog({ panel, open, onOpenChange, takenColors, cash }: FoundPartyDialogProps) {
+export function FoundPartyDialog({
+  panel,
+  open,
+  onOpenChange,
+  takenColors,
+  founderColor,
+  cash,
+}: FoundPartyDialogProps) {
   const found = useFoundParty();
-  const taken = new Set(takenColors.map((color) => color.toUpperCase()));
-  const firstFree = PARTY_COLORS.find((color) => !taken.has(color)) ?? PARTY_COLORS[0];
   const [contribution, setContribution] = useState("");
   const [share, setShare] = useState(0);
 
   const form = useForm<PartyIdentity>({
     resolver: zodResolver(partyIdentitySchema),
-    defaultValues: { name: "", abbr: "", color: firstFree, flags: [] },
+    defaultValues: { name: "", abbr: "", color: defaultPartyColor(founderColor, takenColors), flags: [] },
   });
 
   const color = useWatch({ control: form.control, name: "color" });
