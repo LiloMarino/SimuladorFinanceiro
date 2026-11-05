@@ -32,7 +32,7 @@
 | **N12** | — | Continuar jogando depois do último dia com dado real | — | [F192](#f192) | — | — | — |
 | **N13** | — | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — | — |
 | **N14** | — | Atualizar para uma versão nova sem perder as partidas salvas | — | [F56](#f56) | — | — | — |
-| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211), [F216](#f216) | — | — | — |
+| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211), [F216](#f216), [F217](#f217), [F218](#f218) | — | — | — |
 | **N16** | — | Ver a carteira e o mercado por setor e segmento | — | [F196](#f196) | — | — | — |
 | **N17** | — | Enxergar a estrutura do banco e esboçar mudanças nela | — | — | — | — | — |
 | **N18** | — | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — | — | — | — |
@@ -92,10 +92,10 @@
 | [**F141**](#f141) | Docs | README com as features de hoje | — | — | Baixo | Excelente | ⏳ |
 | [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | — | — | — | — | 🔍 |
 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | — | — | Baixo | Bom | ⏳ |
-| [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 | — | Médio | Bom | ⏳ |
+| [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M23 · 3.5 | — | Médio | Bom | ⏳ |
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 | — | Médio | Bom | ⏳ |
 | [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | Baixo | Bom | 💤 |
-| [**F175**](#f175) | Feature | Federações partidárias | — | — | Alto | Bom | ⏳ |
+| [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 | — | Alto | Bom | ⏳ |
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | M21 · 3.4 | — | Médio | Bom | ⏳ |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.1 | — | — | — | 🔍 |
@@ -103,11 +103,13 @@
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | — | — | — | 🔍 |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | — | — | — | — | 🔍 |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | — | — | — | — | 🔍 |
-| [**F195**](#f195) | Feature | Acordo de base com prazo | M21 · 3.4 | — | — | — | 🔍 |
+| [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 | — | Médio | Bom | ⏳ |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | — | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | — | — | — | 🔍 |
 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | — | — | — | — | 🔍 |
+| [**F217**](#f217) | Correção | Correções da 3.4 | M21 · 3.4 | — | Médio | Bom | ⏳ |
+| [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 | — | Médio | Bom | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
@@ -153,11 +155,25 @@
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | — | 🔍 Em avaliação |
-| 2 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ⏳ Pendente |
-| 3 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | — | ⏳ Pendente |
-| 4 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
-| 5 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | [F165](#f165) | ⏳ Pendente |
-| 6 | [**F195**](#f195) | Feature | Acordo de base com prazo | — | 🔍 Em avaliação |
+| 2 | [**F217**](#f217) | Correção | Correções da 3.4 | — | ⏳ Pendente |
+| 3 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | — | ⏳ Pendente |
+| 4 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ⏳ Pendente |
+| 5 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
+| 6 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | [F165](#f165) | ⏳ Pendente |
+
+### 3.5 — Congresso e eleição (M23)
+
+> **Objetivo:** As bancadas, as regiões e as federações viram decisões de governo e de campanha.
+>
+> **Serve:** N34
+>
+> **Progresso:** 0/3 concluídos
+
+| # | ID | Tipo | Resumo | Depende de | Status |
+| --- | --- | --- | --- | --- | --- |
+| 1 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | — | ⏳ Pendente |
+| 2 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | — | ⏳ Pendente |
+| 3 | [**F175**](#f175) | Feature | Federações partidárias | — | ⏳ Pendente |
 
 ### 4.0 — Dividendos (M22)
 
@@ -213,7 +229,6 @@
 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | N25 | [F44](#f44) | 0 | ⏳ Pendente |
 | [**F141**](#f141) | Docs | README com as features de hoje | N25 | [F139](#f139) | 0 | ⏳ Pendente |
 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | N22 | [F44](#f44) | 0 | ⏳ Pendente |
-| [**F175**](#f175) | Feature | Federações partidárias | N34 | — | 0 | ⏳ Pendente |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | N12 | — | 0 | 🔍 Em avaliação |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | [F158](#f158) | 0 | 🔍 Em avaliação |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | N34, N11 | [F191](#f191) | 0 | 🔍 Em avaliação |
@@ -231,10 +246,13 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 · 1º | 1 | — | — | 🔍 |
-| [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 2º | 0 | Alto | Bom | ⏳ |
-| [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M21 · 3.4 · 3º | 1 | Médio | Bom | ⏳ |
-| [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 4º | 1 | Médio | Bom | ⏳ |
-| [**F195**](#f195) | Feature | Acordo de base com prazo | M21 · 3.4 · 6º | 0 | — | — | 🔍 |
+| [**F217**](#f217) | Correção | Correções da 3.4 | M21 · 3.4 · 2º | 0 | Médio | Bom | ⏳ |
+| [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 · 3º | 0 | Médio | Bom | ⏳ |
+| [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 4º | 0 | Alto | Bom | ⏳ |
+| [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 5º | 1 | Médio | Bom | ⏳ |
+| [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 · 1º | 0 | Médio | Bom | ⏳ |
+| [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M23 · 3.5 · 2º | 1 | Médio | Bom | ⏳ |
+| [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 · 3º | 0 | Alto | Bom | ⏳ |
 | [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | M22 · 4.0 · 1º | 2 | Alto | Bom | ⏳ |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | — | 2 | — | — | 🔍 |
 | [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | — | 1 | — | — | 🔍 |
@@ -247,7 +265,6 @@
 | [**F131**](#f131) | Feature | Catálogo de padrões de vela | — | 0 | — | — | 🔍 |
 | [**F132**](#f132) | Feature | Tópicos de "como se joga" do Como jogar | — | 0 | Médio | Bom | ⏳ |
 | [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | — | 0 | Baixo | Bom | ⏳ |
-| [**F175**](#f175) | Feature | Federações partidárias | — | 0 | Alto | Bom | ⏳ |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | 0 | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | 0 | — | — | 🔍 |
@@ -271,11 +288,14 @@
 | **F140** | Docs | Docs reorganizada por tipo de leitor | N25 | — | — | [F44](#f44) | Alto | Baixo | Alto | Bom |
 | **F141** | Docs | README com as features de hoje | N25 | — | — | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
 | **F159** | Feature | Conquista "Ordem com paciência" | N22 | D1 | — | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
-| **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
+| **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M23 · 3.5 | — | Médio | Baixo | Médio | Bom |
 | **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
-| **F175** | Feature | Federações partidárias | N34 | D19 | — | — | Alto | Médio | Médio | Bom |
+| **F175** | Feature | Federações partidárias | N34 | D19 | M23 · 3.5 | — | Alto | Médio | Médio | Bom |
 | **F177** | Feature | Marcação a mercado do Tesouro | N34 | — | M21 · 3.4 | [F165](#f165) | Médio | Médio | Médio | Bom |
+| **F195** | Feature | Acordo de base até o fim do mandato | N34 | — | M23 · 3.5 | — | Médio | Baixo | Alto | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | — | — | Médio | Médio | Médio | Bom |
+| **F217** | Correção | Correções da 3.4 | N15 | — | M21 · 3.4 | — | Médio | Baixo | Alto | Bom |
+| **F218** | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | N15 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -329,10 +349,38 @@
 <a id="f177"></a>
 **F177 — Marcação a mercado do Tesouro.** Serve N34; feita junto com a tela do Tesouro (F165), no mesmo desenho do canvas. Na vida real, quem compra um Prefixado e vê as taxas subirem perde dinheiro se vender antes do vencimento: um título de 12% ao ano vale menos quando o mercado paga 15%, porque ninguém paga o mesmo preço por 12% podendo ter 15%. Os títulos do Tesouro ganham resgate antes do vencimento, em qualquer dia, inteiro ou em parte: o Selic pelo valor acumulado, o Prefixado e o IPCA+ pelo preço de hoje, o valor no vencimento trazido a valor presente pela taxa de hoje do mesmo título (o catálogo da F165 é fixo, então o título vendido é o mesmo que está à venda). O Tesouro recompra pela mesma taxa em que vende, sem diferença; o ganho ou a perda vem só da taxa ter mudado desde a compra. IR regressivo sobre o ganho, como no vencimento; com perda, sem IR. Como a taxa muda no fechamento do mês, o preço anda todo dia pelo tempo e salta no fechamento. A tela do Tesouro lista os títulos do jogador com a taxa da compra, a de hoje, o valor de hoje, a marcação e o valor no vencimento, e a venda mostra o que se recebe hoje ao lado do que se receberia esperando; a carteira mostra o ganho ou a perda da marcação ao lado do rendimento. O risco do governo fica palpável para quem investe, e o presidente com Prefixado na carteira perde com a própria gastança. Mexe na renda fixa toda (`liquidity.py`, `fixed_broker.redeem`), que hoje só resgata antes do vencimento o que tem liquidez diária.
 
+<a id="f195"></a>
+**F195 — Acordo de base até o fim do mandato.** Serve N34. Hoje o apoio de cada bancada vale 6 meses (`deals.TERM_MONTHS`) e se renova à mão; no playtest de 31/out isso virou tarefa repetida. A regra nova troca o prazo curto por uma negociação por mandato que um governo fraco perde:
+- (1) **Duração:** o acordo vale até a véspera da posse seguinte (`term_end`). O preço é o de hoje (`SEAT_PRICE` por cadeira, 1,5 vez no centrão), pago por mês enquanto o acordo durar. O card da base perde o aviso "O acordo com o X acaba em…" e o "Propor de novo", e a coluna "Prazo" mostra o fim do mandato.
+- (2) **Cobrança com o governo fraco:** quando o fechamento do mês deixa a aprovação abaixo de 35 (`FLOOR + RISK_MARGIN`, o mesmo ponto em que as Pendências mostram o risco de impeachment), cada bancada da base cobra 50% a mais. A cobrança fica 15 dias nas Pendências (`ANSWER_DAYS`) e no card da base: aceitar mantém o acordo, com o preço novo, até o fim do mandato; recusar ou deixar vencer tira a bancada da base sem contar como quebra do governo (sem a rejeição de `BREAK_REJECTION`).
+- (3) **Uma cobrança por queda:** a bancada volta a cobrar só depois que a aprovação fechar um mês acima de 45 e cair de novo abaixo de 35, para a cobrança não virar a tarefa repetida que este card tira.
+- (4) **Voltar à base:** a bancada que saiu pode ser chamada pela proposta de hoje; com a aprovação abaixo de 35, o preço da proposta já vem com os 50%.
+- (5) **Jornal:** manchete quando uma bancada deixa a base por causa da aprovação ("O PP deixa a base do governo").
+- (6) **Partida salva:** acordo já assinado vale até a data dele; os novos valem até o fim do mandato. O governo do computador continua sem negociar.
+
+As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`, ao lado das de hoje.
+
+**Aceite:** um mandato inteiro sem renovar acordo; uma queda abaixo de 35 gera uma cobrança por bancada, uma vez só até a aprovação passar de 45; recusar tira a bancada sem a rejeição da quebra; testes em `tests/test_deals.py` e `tests/test_deals_book.py`.
+
 <a id="f197"></a>
 **F197 — Rebalanceamento por meta com várias classes.** Serve N4. Hoje o `TargetRebalance` (`backend/features/strategy/rebalance.py:55`) divide só entre um ativo de ações (BOVA11 por padrão) e a renda fixa de liquidez diária: a meta em ações vai de 10% a 90% (padrão 60%), e o desvio máximo, de 1 a 20 pontos (padrão 5). O playtest de 31/out pediu configurar a meta de cada classe.
 
 **O que muda:** os parâmetros viram uma lista de alvos (um ativo ou uma classe e a porcentagem), que soma 100%, com a faixa de desvio de cada alvo; a estratégia vende o que passou da faixa antes de comprar o que ficou abaixo, como hoje. O formulário da estratégia mostra a lista com o total e recusa o que não soma 100%. O padrão continua 60% em BOVA11 e 40% em renda fixa com 5 pontos, então partidas salvas e backtests antigos dão o mesmo resultado; um teste compara os dois. Os parâmetros salvos no perfil (F170) passam a guardar a lista.
+
+<a id="f217"></a>
+**F217 — Correções da 3.4.** Lote dos consertos achados no playtest de 04/11, em main, em `fix:`:
+- (1) **Log das ordens do bot** (`statistics-report/bot-log-sheet.tsx`): o painel tem 520 px e a tabela não quebra linha (`whitespace-nowrap` em `ui/table.tsx`), então rola na horizontal. Alargar o painel e deixar as colunas de texto quebrarem; a comparação com uma partida de versão antiga pelo navegador mostra como era.
+- (2) **Radar na aba Partido da preparação** (`preparation/party-found-tab.tsx`): o mesmo `ProfileRadar` da tela de fundar partido no jogo (`flags-picker.tsx`).
+- (3) **Pendências sempre na barra lateral** (`pending-menu-item.tsx`): o item aparece também sem pendência, e o clique abre "Sem pendências".
+- (4) **Selo de pausa só "Pausado"** (`layouts/partial/topbar.tsx`), com o motivo numa dica ao passar o mouse.
+- (5) **Jornal rola a página inteira** (`journal-paper.tsx`): a lista deixa de ter rolagem própria, e o "Arquivo da partida" fica fixo na lateral como navegação.
+- (6) **Estratégias repetem a ordem:** o comprar e segurar, e outras, tenta comprar todo dia que tem caixa para uma cota (`buy_and_hold.py`), e cada recusa vira uma linha de erro no log (`runner._execute`). Reproduzir, achar o motivo da recusa e fazer as estratégias esperarem em vez de repetir.
+- (7) **Selects de jogador e partido com avatar e marca**, na lista e no valor escolhido: candidato e vice em `ticket-dialog.tsx` e `party-found-tab.tsx`, com `PlayerOption` e `PartyMark`.
+
+<a id="f218"></a>
+**F218 — Textos que explicam o óbvio ou o sistema por dentro.** Serve N15. O playtest de 04/11 achou textos que contam a conta interna ou o que a tela já mostra, e pediu a varredura do app inteiro. Os dois primeiros casos: no card do partido da preparação (`my-party-card.tsx`), "Quanto a verba rende", "Cada filiado escolhe quanto contribui, e pode ser zero.", "A verba rende pela raiz…" e "A primeira cobrança sai no próximo dia 1º."; na oferta de crédito (`loan-offer-card.tsx`), a conta "Renda fixa mais cara do dia 70,10% + 0,50 p.p. = 70,60% ao ano". A varredura passa por todas as telas e sai com a lista do que cortar; texto que explica uma métrica ao leigo fica, na dica dela. Cada corte vai em `fix:`.
+
+**Aceite:** a lista da varredura revisada antes dos cortes, e os cortes aprovados no app.
 
 ---
 
@@ -359,7 +407,6 @@
 | **F192** | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | N12 | — | — | — | A forma dos controles de regime, a reprodutibilidade pela semente, o teto medido do horizonte e a relação com a economia interligada (F191). |
 | **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | — | — | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
 | **F194** | Feature | Dólar e ativos internacionais | N34, N11 | — | — | [F191](#f191) | Como o dólar do jogo reage (desconfiança, juro real), a camada pelo desvio sobre BDR e IVVB11 e onde o seletor de origem aparece. |
-| **F195** | Feature | Acordo de base com prazo | N34 | — | M21 · 3.4 | — | Escolher entre (a) prazo na negociação, (b) renovação automática e (c) acordo até o fim do mandato com saída por aprovação baixa; recomendação (c). |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | — | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | — | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
 | **F216** | Correção | Pontas soltas das features entregues | N15, N34 | — | — | — | Decidir cada uma das nove pontas: conserto aqui, card próprio ou fica assim |
@@ -408,7 +455,7 @@
 **F158 — Animações do Como jogar revistas.** Serve N25; retrabalho da F126. No playtest, o tutorial pareceu estranho: o estilo das animações ficou parecido com o do Create, e o número do passo que aparece no meio da animação, num círculo ao lado do alvo (`StepMarker` em `tutorial/stage/stage-kit.tsx:144`, número vindo de `topic-illustration.tsx:57`, usado em `buy-stock.tsx` e `order-types.tsx`), polui a cena. O salto para o trecho do passo ao clicar numa etapa funciona bem e fica como está. Falta escolher o visual numa rodada no canvas: comparar as animações atuais com as primeiras, feitas no canvas a partir das Dicas e truques do Factorio, decidir se o número sai da cena (o passo ativo já fica destacado na lista) e o que muda no cursor e no destaque. **Palco do tutorial (avaliado em 03/11):** a captura mostra o palco com a tela inteira encolhida a uns 70%, então o texto de 12 px do livro de ofertas chega a uns 8 px, e o marcador do passo cobre o texto que aponta. O desenho do retrato (palco em tamanho real mostrando só o trecho que o passo explica, o marcador numa margem à esquerda com uma linha até o alvo e os passos numa fileira abaixo) é coerente e o usuário o reconhece como a direção, mas não vai ser implementado a partir desse board: entra na rodada de canvas dedicada desta F, com o método completo (variantes e estados).
 
 <a id="f179"></a>
-**F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: o selo de pausa leva o motivo inteiro ("Pausado: resultado do 1º turno"), depois vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Hoje isso é um caso extremo; com as Gestoras, governo, gestora e corrida pela meta ligados juntos passam a ser o caso comum, e é lá que o desenho se decide. O desenho no canvas já inclui o layout com as Gestoras, então a topbar é resolvida na 4.0, depois da F44, e entra no app já certa para o conjunto. A topbar não quebra linha, então a variante em duas linhas fica fora. Das outras, o canvas compara: (a) a velocidade num botão só ("10×") que abre as opções; (b) o selo só com "Pausado" e o motivo numa dica ou na faixa abaixo da topbar, onde já mora o aviso do presidente; (c) a corrida e o governo como selos compactos, com o detalhe ao passar o mouse. A referência é 1920 de largura, e em 1366 nada pode quebrar; o estado de teste é corrida, governo e gestora ligados, pausa com o motivo mais longo e o x100 destacado. No playtest de 31/out o motivo da pausa ("Pausado: campanha aberta") pesou de novo, o que reforça a (b). Sai daqui para Pendente com a variante escolhida.
+**F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: depois do selo de pausa vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Hoje isso é um caso extremo; com as Gestoras, governo, gestora e corrida pela meta ligados juntos passam a ser o caso comum, e é lá que o desenho se decide. O desenho no canvas já inclui o layout com as Gestoras, então a topbar é resolvida na 4.1, depois da F44, e entra no app já certa para o conjunto. A topbar não quebra linha, então a variante em duas linhas fica fora. Das outras, o canvas compara: (a) a velocidade num botão só ("10×") que abre as opções; (b) a corrida e o governo como selos compactos, com o detalhe ao passar o mouse. A referência é 1920 de largura, e em 1366 nada pode quebrar; o estado de teste é corrida, governo e gestora ligados, pausa com o motivo mais longo e o x100 destacado. O selo de pausa já sai só com "Pausado" e o motivo numa dica no lote de correções da 3.4 (F217), pedido dos playtests de 31/out e 04/11. Sai daqui para Pendente com a variante escolhida.
 
 <a id="f191"></a>
 **F191 — Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida.** Serve N34. Hoje as ligações são poucas e quase todas saem do gasto do governo: medida de gasto → IPCA → SELIC (1,5 vez a alta do IPCA) → bolsa (−2,9% por ponto de SELIC na média de 3 meses, pelo beta de cada ação); obras → crescimento; juro real e alta da bolsa → crescimento; crescimento → desemprego (lei de Okun: crescer acima de 2% derruba o desemprego, que vai de 4% a 18% com neutro em 9%); dívida → prêmio de risco, sem teto → juro da dívida e títulos novos do Tesouro; e IPCA, SELIC, bolsa, desemprego e prêmio → aprovação (`government/spending_effects.py`, `economy/growth.py`, `government/budget.py`). SELIC, IPCA e Ibovespa são as séries históricas, e só se mexem pela camada de efeito do gasto.
@@ -431,14 +478,6 @@ A direção do playtest: (1) o choque vira regime, com um controle do nível (a 
 **F194 — Dólar e ativos internacionais.** Serve N34 e N11. Ideia do playtest de 31/out: a cotação do dólar no jogo, subindo com a desconfiança na moeda e caindo com o juro real alto, e os ativos internacionais andando junto. Na Central de dados, cada ativo ganha a origem, Nacional ou Internacional, num seletor de dois com bandeirinha, que aparece também na listagem.
 
 Ponto de realismo: BDR e ETF de índice de fora (IVVB11) já carregam o dólar no preço histórico. O câmbio do jogo só pode entrar como camada por cima, a diferença entre o dólar da partida e o dólar real daquele dia, senão o câmbio conta duas vezes. A série real é a PTAX do Banco Central (série 1 do SGS), desde 1994.
-
-<a id="f195"></a>
-**F195 — Acordo de base com prazo.** Serve N34. Hoje o apoio de cada bancada vale até uma data ("O PP está na base do governo até 02 fev") e se renova à mão, várias vezes por mandato; no playtest de 31/out isso virou tarefa repetida. Três saídas:
-- (a) o prazo escolhido na negociação, até o fim do mandato, com o preço por mês fixado no acordo;
-- (b) renovação automática, com aviso nas Pendências e o preço reajustado;
-- (c) acordo até o fim do mandato, mas a bancada pede reajuste ou sai quando a aprovação do governo cai abaixo de um limite, como as bancadas que deixaram o governo em 2015 e 2016.
-
-Recomendação: a (c). Ela tira a tarefa repetida e mantém uma consequência que volta depois: governo fraco perde a base no meio do mandato.
 
 <a id="f202"></a>
 **F202 — Backtest que corre mais rápido que a partida comum.** Serve N10; segue a D8. Depois da correção do dia que crescia, o backtest de 10 anos com 5 bots já fica mais rápido a cada pregão, mas ainda corre no ritmo de uma partida comum na velocidade máxima. Pelo `profile:match`, com 7 bots o dia custa ~90 ms: os ~2.500 pregões de 10 anos levam perto de 4 minutos. Um backtest não tem ninguém olhando cada pregão, então tudo o que o dia faz para a tela e para retomar a partida no meio é custo sem retorno.
