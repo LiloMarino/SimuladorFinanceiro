@@ -28,8 +28,8 @@ type JournalPaperProps = {
 };
 
 /**
- * O jornal da partida em página de jornal: a edição de "Hoje" e o arquivo ficam fixos, e só a lista
- * dos dias anteriores rola, um mês por vez.
+ * O jornal da partida em página de jornal: "Hoje" e a lista dos dias anteriores rolam com a página,
+ * um mês por vez, e o arquivo fica fixo na lateral como navegação.
  */
 export function JournalPaper({ simulationId, startDate, currentDate }: JournalPaperProps) {
   const startMonth = monthOf(startDate);
@@ -68,7 +68,7 @@ export function JournalPaper({ simulationId, startDate, currentDate }: JournalPa
   const nothing = ready && today.length === 0 && earlier.length === 0 && !history.hasNextPage;
 
   return (
-    <Card variant="paper" size="flush" className="h-[calc(100svh-9rem)] min-h-136">
+    <Card variant="paper" size="flush" className="min-h-136">
       {/* Cabeçalho do jornal */}
       <div className="grid gap-3 border-b-[3px] border-double border-foreground px-7 pt-4 pb-3">
         <div className="grid grid-cols-[1fr_auto_1fr] items-end">
@@ -81,9 +81,9 @@ export function JournalPaper({ simulationId, startDate, currentDate }: JournalPa
         <JournalFilters filter={filter} onChange={setFilter} catalog={catalog} />
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_300px]">
+      <div className="grid flex-1 grid-cols-[minmax(0,1fr)_300px]">
         {/* Hoje e lista dos dias anteriores */}
-        <div className="flex min-h-0 flex-col">
+        <div className="flex flex-col">
           {failed ? (
             <div className="px-7">
               <ErrorState
@@ -100,8 +100,8 @@ export function JournalPaper({ simulationId, startDate, currentDate }: JournalPa
               <div className="px-7">
                 <JournalToday date={currentDate} items={today} held={held} />
               </div>
-              {/* A lista nasce de novo a cada mês escolhido no arquivo e volta ao topo */}
-              <div key={fromMonth} className="min-h-0 flex-1 overflow-y-auto px-7">
+              {/* A lista nasce de novo a cada mês escolhido no arquivo */}
+              <div key={fromMonth} className="px-7">
                 {!ready || !history.data ? (
                   <JournalSkeleton />
                 ) : nothing ? (

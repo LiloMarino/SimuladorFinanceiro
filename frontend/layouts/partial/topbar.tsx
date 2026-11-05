@@ -58,6 +58,22 @@ export default function Topbar({ pageLabel }: TopbarProps) {
     };
   }, [paused]);
 
+  // A altura do topo (que varia com a faixa de manchetes e o aviso) vira variável, para o que gruda sob ele
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+    const root = document.documentElement;
+    const publish = () => root.style.setProperty("--topbar-height", `${header.offsetHeight}px`);
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(header);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--topbar-height");
+    };
+  }, []);
+
   const handleSpeedChange = (newSpeed: number) => {
     if (newSpeed === speed) return;
     if (newSpeed > 0) lastSpeed.current = newSpeed;
@@ -65,7 +81,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-card">
+    <header ref={headerRef} className="sticky top-0 z-30 border-b border-border bg-card">
       <div className="flex flex-wrap items-center justify-between gap-4 px-7 py-3">
         <h1 className="text-lg font-semibold">{pageLabel}</h1>
 
