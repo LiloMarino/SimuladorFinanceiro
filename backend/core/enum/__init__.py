@@ -670,6 +670,17 @@ class EffectPhase(Enum):
     FADED = "FADED"
 
 
+class EconomyLink(Enum):
+    """Uma ligação da economia interligada: o desvio da partida contra a história que mexe nas séries."""
+
+    # Desemprego abaixo da história empurra a inflação (curva de Phillips)
+    PHILLIPS = "PHILLIPS"
+    # O prêmio de risco da dívida acima da história sobe a inflação e derruba a bolsa
+    FISCAL_RISK = "FISCAL_RISK"
+    # O PIB acima da história levanta a bolsa
+    GDP = "GDP"
+
+
 class MeasureStatus(Enum):
     QUEUED = "QUEUED"
     # Aprovada, esperando a vigência ou já valendo

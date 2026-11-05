@@ -28,6 +28,7 @@ export type RedeemFixedIncomeRequest = components["schemas"]["RedeemFixedIncomeR
 export type EconomicIndicators = components["schemas"]["EconomicIndicatorsDTO"];
 export type EconomyPanel = components["schemas"]["EconomyPanelDTO"];
 export type EconomyEffect = NonNullable<EconomyPanel["effects"]>[number];
+export type EconomyLinkEffect = NonNullable<EconomyPanel["links"]>[number];
 
 // Data center
 export type SeriesCoverage = components["schemas"]["SeriesCoverageDTO"];

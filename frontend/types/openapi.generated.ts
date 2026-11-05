@@ -5307,6 +5307,24 @@ export interface components {
          */
         DealStatus: "PENDING" | "ACTIVE" | "DECLINED" | "WITHDRAWN" | "BROKEN" | "CUT";
         /**
+         * DebtCausesDTO
+         * @description A variação da dívida nos últimos meses fechados, em fração do PIB, por causa: o juro
+         *     a aumenta, o crescimento e a inflação a encolhem (aumentam o PIB) e o primário a
+         *     abate ou a aumenta. A soma das quatro é a variação inteira.
+         */
+        DebtCausesDTO: {
+            /** Months */
+            months: number;
+            /** Interest */
+            interest: string;
+            /** Growth */
+            growth: string;
+            /** Inflation */
+            inflation: string;
+            /** Primary */
+            primary: string;
+        };
+        /**
          * DebtSummaryDTO
          * @description A dívida do governo no último fechamento de mês.
          */
@@ -5320,6 +5338,11 @@ export interface components {
             debt: string;
             /** Premium */
             premium: string;
+            /** History Debt */
+            history_debt: string;
+            /** Rate */
+            rate: string;
+            causes: components["schemas"]["DebtCausesDTO"];
             /** Debt Amount */
             debt_amount: string;
             /** Gdp */
@@ -5409,6 +5432,12 @@ export interface components {
             /** Cdi */
             cdi: string;
         };
+        /**
+         * EconomyLink
+         * @description Uma ligação da economia interligada: o desvio da partida contra a história que mexe nas séries.
+         * @enum {string}
+         */
+        EconomyLink: "PHILLIPS" | "FISCAL_RISK" | "GDP";
         /** EconomyPanelDTO */
         EconomyPanelDTO: {
             /** Points */
@@ -5419,6 +5448,8 @@ export interface components {
             debt: components["schemas"]["DebtSummaryDTO"] | null;
             /** Effects */
             effects: components["schemas"]["ActiveEffectDTO"][] | null;
+            /** Links */
+            links: components["schemas"]["LinkEffectDTO"][] | null;
         };
         /**
          * EconomyPointDTO
@@ -6153,26 +6184,27 @@ export interface components {
         GroupVerdict: "APPROVES" | "NEUTRAL" | "REPROVES";
         /**
          * GrowthPartsDTO
-         * @description O que puxa o alvo do crescimento hoje, em fração ao ano: tendência + juro real +
-         *     bolsa dão o alvo, e o crescimento anda um quarto do caminho até ele a cada mês.
+         * @description O crescimento do PIB em 12 meses e o desemprego no último fechamento de mês, em
+         *     fração: o da história mais o que a partida somou. A história é a série do IBGE, ou o
+         *     modelo onde ela não cobre.
          */
         GrowthPartsDTO: {
-            /** Trend */
-            trend: string;
+            /** History Growth */
+            history_growth: string;
             /** Real Rate */
             real_rate: string;
-            /** Real Rate Part */
-            real_rate_part: string;
-            /** Neutral Real Rate */
-            neutral_real_rate: string;
             /** Stocks */
-            stocks: string | null;
-            /** Stocks Part */
-            stocks_part: string;
-            /** Target */
-            target: string;
+            stocks: string;
+            /** Works */
+            works: string;
+            /** Impulse */
+            impulse: string;
             /** Growth */
             growth: string;
+            /** History Unemployment */
+            history_unemployment: string;
+            /** Unemployment */
+            unemployment: string;
         };
         /**
          * GuidanceRequest
@@ -6919,6 +6951,21 @@ export interface components {
             /** Reserve Daily Liquidity */
             reserve_daily_liquidity: string;
             overdraft_cover: components["schemas"]["OverdraftCoverDTO"] | null;
+        };
+        /**
+         * LinkEffectDTO
+         * @description Uma ligação da economia interligada hoje: o desvio do último mês fechado e o que ele soma.
+         */
+        LinkEffectDTO: {
+            link: components["schemas"]["EconomyLink"];
+            /** Gap */
+            gap: string;
+            /** Inflation */
+            inflation: string;
+            /** Selic */
+            selic: string;
+            /** Stocks */
+            stocks: string;
         };
         /** LoanDTO */
         LoanDTO: {

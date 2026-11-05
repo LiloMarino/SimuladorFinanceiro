@@ -14,6 +14,7 @@ import pytest
 
 from backend.core import repository
 from backend.core.enum import (
+    EconomyLink,
     IndicatorSeries,
     InitialAccount,
     MeasureKind,
@@ -23,6 +24,7 @@ from backend.core.indicators import annual_index_rate
 from backend.core.repository.economic import IndicatorHistory
 from backend.core.utils import last_day_of_month
 from backend.features.economy.growth import MacroCourse
+from backend.features.economy.panel import build_economy_panel
 from backend.features.government import budget
 from backend.features.government.budget import base_spending_on
 from backend.features.government.linked_economy import LinkedEconomy
@@ -214,3 +216,43 @@ def test_ten_years_of_spending_stay_finite(stored_series: None):
     level = linked.layer.level(end)
     assert math.isfinite(level) and level > 0
     assert math.isfinite(linked.layer.inflation_points(end))
+
+
+def test_the_panel_splits_the_debt_the_links_and_the_growth_by_cause(
+    stored_series: None,
+):
+    linked = spender()
+    end = date(2022, 12, 31)
+
+    panel = build_economy_panel(START, end, linked.macro, linked)
+
+    debt = panel.debt
+    assert debt is not None
+    # As quatro causas somam a variação dos últimos 12 meses fechados
+    year_ago = linked.budget.latest(date(2021, 12, 31)).debt
+    causes = debt.causes
+    assert causes.months == 12
+    assert causes.interest + causes.growth + causes.inflation + causes.primary == (
+        pytest.approx(debt.debt - year_ago, abs=Decimal("1e-20"))
+    )
+    assert debt.history_debt == linked.base_budget().latest(end).debt
+    assert debt.debt > debt.history_debt
+
+    links = {effect.link: effect for effect in panel.links or []}
+    risk = links[EconomyLink.FISCAL_RISK]
+    assert risk.gap == linked.links_on(end).premium_gap > 0
+    assert risk.inflation > 0
+    assert risk.selic == pytest.approx(
+        risk.inflation * Decimal("1.5"), abs=Decimal("0.001")
+    )
+    assert risk.stocks < 0
+    assert links[EconomyLink.GDP].inflation == 0
+
+    parts = panel.growth_parts
+    assert parts.growth == pytest.approx(
+        parts.history_growth
+        + parts.real_rate
+        + parts.stocks
+        + parts.works
+        + parts.impulse
+    )

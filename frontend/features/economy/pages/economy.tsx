@@ -41,12 +41,12 @@ function EconomyContent({ panel }: { panel: EconomyPanel }) {
   return (
     <div className="grid gap-5">
       <p className="-mt-1 text-[13px] text-muted-foreground">
-        Os números da economia ao longo da partida. Valem na história real e no futuro gerado: o PIB e o desemprego saem
-        da SELIC, da inflação e da bolsa.
+        Os números da economia ao longo da partida. Valem na história real e no futuro gerado: o PIB e o desemprego são
+        as séries do IBGE, mais o que o governo muda.
       </p>
       <EconomyKpis panel={panel} />
       <EconomyChart panel={panel} />
-      {panel.effects && <EffectsCard panel={panel} effects={panel.effects} />}
+      {panel.effects && panel.links && <EffectsCard panel={panel} effects={panel.effects} links={panel.links} />}
       <div className="grid items-start gap-5 lg:grid-cols-2">
         <GrowthCard panel={panel} />
         <UnemploymentCard panel={panel} />

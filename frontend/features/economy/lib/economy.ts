@@ -7,7 +7,9 @@ import {
   parseLocalDate,
 } from "@/shared/lib/utils/display";
 import { isSpending, SPENDING_LABEL } from "@/shared/lib/spending-kinds";
-import type { EconomyEffect, EconomyPanel } from "@/types";
+import type { MetricInfo } from "@/shared/lib/metric-info";
+import type { EconomyEffect, EconomyLinkEffect, EconomyPanel } from "@/types";
+import { FISCAL_IMPULSE, FISCAL_RISK, GDP_GAP, PHILLIPS, signedPoints } from "./economy-metrics";
 
 type EconomyPoint = EconomyPanel["points"][number];
 type CopomChange = EconomyPanel["copom_changes"][number];
@@ -117,24 +119,12 @@ export function lastMonthChange(points: EconomyPoint[], key: MonthlySeries): num
 
 const POINTS_FORMAT = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
-/** Fração em pontos percentuais com uma casa e o menos tipográfico (0.011 → "+1,1", −0.009 → "−0,9"). */
-export function signedPoints(fraction: number) {
-  const points = Math.round(fraction * 1000) / 10;
-  if (points === 0) return POINTS_FORMAT.format(0);
-  return `${points < 0 ? "−" : "+"}${POINTS_FORMAT.format(Math.abs(points))}`;
-}
-
 /** "▲ 0,3 no mês" / "▼ 0,3 no mês" / "estável no mês"; sem fechamento ainda, o aviso de que o mês não fechou. */
 export function monthChangeNote(change: number | null): string {
   if (change === null) return "ainda sem fechamento";
   const points = Math.abs(Math.round(change * 1000) / 10);
   if (points === 0) return "estável no mês";
   return `${change > 0 ? "▲" : "▼"} ${POINTS_FORMAT.format(points)} no mês`;
-}
-
-/** Onde o crescimento mora hoje, contra a tendência. */
-export function growthExample(trend: string): string {
-  return `Quanto a economia cresceu em 12 meses. A tendência é ${displayPercent(trend, 0)}.`;
 }
 
 /** Desemprego em "de cada 100". */
@@ -147,50 +137,51 @@ type GrowthParts = EconomyPanel["growth_parts"];
 
 export type GrowthLine = {
   label: string;
-  detail: string | null;
+  detail: string;
   value: string;
   tone: "up" | "down" | "neutral";
+  metric: MetricInfo | null;
 };
 
-function lineTone(part: number): GrowthLine["tone"] {
-  if (part > 0) return "up";
-  return part < 0 ? "down" : "neutral";
-}
+/** Os textos de uma parcela do crescimento: o que ela é quando empurra, quando freia e quando não mexe. */
+type GrowthPartText = { label: string; up: string; down: string; neutral: string; metric?: MetricInfo };
 
-/** As três partes que somam o alvo do crescimento, com o motivo de cada uma. */
+const GROWTH_PARTS: Record<"real_rate" | "stocks" | "works" | "impulse", GrowthPartText> = {
+  real_rate: {
+    label: "Juro real",
+    up: "Abaixo do da história: crédito mais barato empurra",
+    down: "Acima do da história: crédito mais caro freia",
+    neutral: "Igual ao da história",
+  },
+  stocks: {
+    label: "Bolsa",
+    up: "Acima da história: empresas investem mais",
+    down: "Abaixo da história: empresas investem menos",
+    neutral: "Igual à da história",
+  },
+  works: {
+    label: "Obras",
+    up: "O gasto com obras aquece a economia",
+    down: "O corte de obras esfria a economia",
+    neutral: "Sem obras a mais nem a menos",
+  },
+  impulse: {
+    label: "Impulso fiscal",
+    up: "O governo passou a gastar mais ou cobrar menos em 12 meses",
+    down: "O governo apertou as contas em 12 meses",
+    neutral: "As contas do governo no mesmo patamar de 12 meses atrás",
+    metric: FISCAL_IMPULSE,
+  },
+};
+
+/** O que a partida somou ao crescimento da história, parcela por parcela, com o motivo de cada uma. */
 export function growthLines(parts: GrowthParts): GrowthLine[] {
-  const realRatePart = Number(parts.real_rate_part);
-  const stocksPart = Number(parts.stocks_part);
-  const realRate = Number(parts.real_rate);
-  const neutral = Number(parts.neutral_real_rate);
-  const cheapCredit = realRate < neutral;
-
-  return [
-    { label: "Tendência da economia", detail: null, value: signedPoints(Number(parts.trend)), tone: "neutral" },
-    {
-      label: `Juro real ${cheapCredit ? "abaixo" : "acima"} do neutro`,
-      detail: `${displayPercent(realRate, 2)} contra ${displayPercent(neutral, 0)}: ${
-        cheapCredit ? "crédito barato empurra" : "crédito caro freia"
-      }`,
-      value: signedPoints(realRatePart),
-      tone: lineTone(realRatePart),
-    },
-    {
-      label: "Bolsa em 12 meses",
-      detail:
-        parts.stocks === null
-          ? "Sem série da bolsa nesse período: não empurra nem freia"
-          : `Ibovespa ${signedPercent(Number(parts.stocks))}: empresas investem ${stocksPart >= 0 ? "mais" : "menos"}`,
-      value: signedPoints(stocksPart),
-      tone: lineTone(stocksPart),
-    },
-  ];
-}
-
-/** "+3%" / "−17%", sem casas. */
-function signedPercent(fraction: number) {
-  const percent = Math.round(fraction * 100);
-  return `${percent < 0 ? "−" : "+"}${Math.abs(percent)}%`;
+  return (["real_rate", "stocks", "works", "impulse"] as const).map((key) => {
+    const text = GROWTH_PARTS[key];
+    const part = Number(parts[key]);
+    const tone = Math.abs(part) < 0.0005 ? "neutral" : part > 0 ? "up" : "down";
+    return { label: text.label, detail: text[tone], value: signedPoints(part), tone, metric: text.metric ?? null };
+  });
 }
 
 const DAYS_PER_MONTH = 30.4375;
@@ -212,26 +203,53 @@ export function effectShares(
 }
 
 /** O nome curto do efeito: o tipo da medida, sem o "de A para B". */
-export const effectLabel = (effect: Pick<EconomyEffect, "kind">) =>
+const effectLabel = (effect: Pick<EconomyEffect, "kind">) =>
   isSpending(effect.kind) ? SPENDING_LABEL[effect.kind] : effect.kind;
 
-/** A soma de um campo dos efeitos ativos (pontos de IPCA ou de SELIC). */
-export const sumEffects = (effects: readonly EconomyEffect[], key: "inflation" | "selic") =>
-  effects.reduce((sum, effect) => sum + Number(effect[key]), 0);
+/** A soma de um campo dos efeitos ativos, de medidas ou de ligações (pontos de IPCA ou de SELIC). */
+export const sumEffects = (
+  effects: readonly Pick<EconomyEffect, "inflation" | "selic">[],
+  key: "inflation" | "selic",
+) => effects.reduce((sum, effect) => sum + Number(effect[key]), 0);
 
-export type InflationPart = { kind: EconomyEffect["kind"]; label: string; points: number };
+/** A métrica de cada ligação: o rótulo, a dica e o formato do desvio contra a história. */
+export const LINK_METRIC: Record<EconomyLinkEffect["link"], MetricInfo> = {
+  PHILLIPS,
+  FISCAL_RISK,
+  GDP: GDP_GAP,
+};
 
-/** O IPCA de hoje aberto por tipo de medida: o que a história já trazia e o que cada tipo soma ou tira, do maior ao menor. */
-export function inflationBreakdown(effects: readonly EconomyEffect[]): InflationPart[] {
+/** As ligações que mexem em algo hoje: as outras somam menos que a última casa mostrada. */
+export const activeLinks = (links: readonly EconomyLinkEffect[]) =>
+  links.filter((link) => Math.abs(Number(link.inflation)) >= 0.005 || Math.abs(Number(link.stocks)) >= 0.0005);
+
+export type InflationPart = { key: string; label: string; points: number };
+
+/** O IPCA de hoje aberto por tipo de medida e por ligação: o que cada um soma ou tira, do maior ao menor. */
+export function inflationBreakdown(
+  effects: readonly EconomyEffect[],
+  links: readonly EconomyLinkEffect[] = [],
+): InflationPart[] {
   const byKind = new Map<EconomyEffect["kind"], number>();
   for (const effect of effects) byKind.set(effect.kind, (byKind.get(effect.kind) ?? 0) + Number(effect.inflation));
-  return [...byKind]
-    .map(([kind, points]) => ({ kind, label: effectLabel({ kind }), points }))
+  const measures = [...byKind].map(([kind, points]) => ({ key: kind, label: effectLabel({ kind }), points }));
+  const fromLinks = links.map((link) => ({
+    key: link.link,
+    label: LINK_METRIC[link.link].label,
+    points: Number(link.inflation),
+  }));
+  return [...measures, ...fromLinks]
     .filter((part) => Math.abs(part.points) >= 0.005)
     .sort((a, b) => b.points - a.points);
 }
 
-/** O quanto a bolsa anda por causa das medidas: o Ibovespa da partida contra o da história (−0.039 = 3,9% abaixo). */
+/** O quanto o governo mexe numa série hoje, em pontos: a partida menos a história; nulo sem a expansão Governo. */
+export function governmentShift(value: string, stored: string | null): number | null {
+  if (stored === null) return null;
+  return (Number(value) - Number(stored)) * 100;
+}
+
+/** O quanto a bolsa anda por causa do governo: o Ibovespa da partida contra o da história (−0.039 = 3,9% abaixo). */
 export function stocksEffect(point: EconomyPoint): number | null {
   if (point.ibovespa === null || point.stored_ibovespa === null || Number(point.stored_ibovespa) === 0) return null;
   return Number(point.ibovespa) / Number(point.stored_ibovespa) - 1;

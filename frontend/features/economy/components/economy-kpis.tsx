@@ -7,7 +7,7 @@ import { GROWTH, UNEMPLOYMENT } from "@/shared/lib/budget-metrics";
 import { displayPercent } from "@/shared/lib/utils/display";
 import type { EconomyPanel } from "@/types";
 import {
-  growthExample,
+  governmentShift,
   ipcaExample,
   lastCopomNote,
   lastMonthChange,
@@ -15,7 +15,6 @@ import {
   realRateTone,
   selicExample,
   stocksEffect,
-  sumEffects,
   targetNote,
   unemploymentExample,
 } from "../lib/economy";
@@ -54,10 +53,13 @@ function Tile({ metric, value, note, description, tone = "default" }: TileProps)
   );
 }
 
-/** "+1,35 pelas medidas": o que as medidas de gasto somam ao número, em pontos ou em %. */
-const measuresNote = (shift: string) => `${shift} pelas medidas`;
+/** "+1,35 pelo governo": o que as medidas e as ligações somam ao número, em pontos ou em %. */
+const governmentNote = (shift: string) => `${shift} pelo governo`;
 
-/** " Na história, 3,75% hoje.": o número da série guardada, sem as medidas; vazio sem a expansão Governo. */
+/** Os pontos que o governo soma, quando passam da última casa mostrada. */
+const visibleShift = (shift: number | null) => (shift !== null && Math.abs(shift) >= 0.005 ? shift : null);
+
+/** " Na história, 3,75% hoje.": o número da série guardada, sem o governo; vazio sem a expansão Governo. */
 const historyNote = (stored: string | null, format: (value: string) => string) =>
   stored === null ? "" : ` Na história, ${format(stored)} hoje.`;
 
@@ -65,10 +67,9 @@ const historyNote = (stored: string | null, format: (value: string) => string) =
 export function EconomyKpis({ panel }: EconomyKpisProps) {
   const today = panel.points.at(-1);
   if (!today) return null;
-  const { effects, growth_parts: parts } = panel;
-  const measured = effects !== null && effects.length > 0;
-  const selicShift = effects ? sumEffects(effects, "selic") : 0;
-  const ipcaShift = effects ? sumEffects(effects, "inflation") : 0;
+  const { effects } = panel;
+  const selicShift = visibleShift(governmentShift(today.selic, today.stored_selic));
+  const ipcaShift = visibleShift(governmentShift(today.ipca, today.stored_ipca));
   const stocksShift = stocksEffect(today);
 
   return (
@@ -77,7 +78,7 @@ export function EconomyKpis({ panel }: EconomyKpisProps) {
       <Tile
         metric={SELIC}
         value={SELIC.format(today.selic)}
-        note={measured ? measuresNote(signedIpca(selicShift)) : lastCopomNote(panel.copom_changes)}
+        note={selicShift !== null ? governmentNote(signedIpca(selicShift)) : lastCopomNote(panel.copom_changes)}
         description={`${selicExample(today)}${historyNote(today.stored_selic, (value) => displayPercent(value, 2))}`}
       />
 
@@ -86,7 +87,7 @@ export function EconomyKpis({ panel }: EconomyKpisProps) {
         metric={GROWTH}
         value={GROWTH.format(today.growth)}
         note={monthChangeNote(lastMonthChange(panel.points, "growth"))}
-        description={growthExample(parts.trend)}
+        description={`${GROWTH.description}.${historyNote(panel.links && panel.growth_parts.history_growth, (value) => displayPercent(value, 1))}`}
         tone={Number(today.growth) < 0 ? "destructive" : "default"}
       />
 
@@ -97,10 +98,10 @@ export function EconomyKpis({ panel }: EconomyKpisProps) {
           value={IBOVESPA.format(today.ibovespa)}
           note={
             stocksShift !== null && Math.abs(stocksShift) >= 0.0005
-              ? measuresNote(signedStocks(stocksShift))
-              : "sem efeito das medidas"
+              ? governmentNote(signedStocks(stocksShift))
+              : "sem efeito do governo"
           }
-          description={`${IBOVESPA.description}${historyNote(today.stored_ibovespa, IBOVESPA.format)}`}
+          description={`${IBOVESPA.description}.${historyNote(today.stored_ibovespa, IBOVESPA.format)}`}
         />
       )}
 
@@ -108,7 +109,7 @@ export function EconomyKpis({ panel }: EconomyKpisProps) {
       <Tile
         metric={IPCA}
         value={IPCA.format(today.ipca)}
-        note={measured ? measuresNote(signedIpca(ipcaShift)) : targetNote(today)}
+        note={ipcaShift !== null ? governmentNote(signedIpca(ipcaShift)) : targetNote(today)}
         description={`${ipcaExample(today)}${historyNote(today.stored_ipca, (value) => displayPercent(value, 2))}`}
       />
 

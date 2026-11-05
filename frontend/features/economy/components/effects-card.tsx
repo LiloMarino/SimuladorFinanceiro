@@ -1,7 +1,8 @@
-import { TriangleAlert } from "lucide-react";
+import { ShieldAlert, TrendingUp, TriangleAlert, Users, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { EffectSpark } from "@/shared/components/effect-spark";
 import { InfoHint } from "@/shared/components/info-hint";
+import { MetricHint } from "@/shared/components/metric-hint";
 import { SpendingIcon } from "@/shared/components/spending-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -11,8 +12,15 @@ import { inflationTone, phaseText, signedIpca, signedStocks } from "@/shared/lib
 import { isSpending } from "@/shared/lib/spending-kinds";
 import { cn } from "@/shared/lib/utils";
 import { displayDayMonth, displayPercent } from "@/shared/lib/utils/display";
-import type { EconomyEffect, EconomyPanel } from "@/types";
-import { effectLabel, inflationBreakdown, stocksEffect, sumEffects } from "../lib/economy";
+import type { EconomyEffect, EconomyLinkEffect, EconomyPanel } from "@/types";
+import {
+  activeLinks,
+  inflationBreakdown,
+  LINK_METRIC,
+  stocksEffect,
+  sumEffects,
+  type InflationPart,
+} from "../lib/economy";
 import { EFFECT_IPCA, EFFECT_SELIC, EFFECT_STOCKS } from "../lib/economy-metrics";
 
 const TONE = { destructive: "text-destructive", success: "text-success", default: "text-muted-foreground" } as const;
@@ -24,23 +32,37 @@ const shade = (index: number) => `color-mix(in srgb, var(--warning) ${Math.max(3
 const stocksTone = (fraction: number) =>
   Math.abs(fraction) < 0.0005 ? TONE.default : fraction < 0 ? TONE.destructive : TONE.success;
 
-type EffectsCardProps = { panel: EconomyPanel; effects: EconomyEffect[] };
+/** O ícone e o assunto do desvio de cada ligação, para a linha da tabela. */
+const LINK_ROW: Record<EconomyLinkEffect["link"], { icon: LucideIcon; subject: string }> = {
+  PHILLIPS: { icon: Users, subject: "Desemprego" },
+  FISCAL_RISK: { icon: ShieldAlert, subject: "Prêmio de risco" },
+  GDP: { icon: TrendingUp, subject: "PIB" },
+};
 
-/** O que cada medida de gasto aprovada soma hoje à inflação, à SELIC e à bolsa, e de onde vem o IPCA da partida. */
-export function EffectsCard({ panel, effects }: EffectsCardProps) {
+type EffectsCardProps = { panel: EconomyPanel; effects: EconomyEffect[]; links: EconomyLinkEffect[] };
+
+/** O que cada medida de gasto aprovada e cada ligação da economia somam hoje à inflação, à SELIC e à bolsa. */
+export function EffectsCard({ panel, effects, links }: EffectsCardProps) {
+  const active = activeLinks(links);
+
   return (
     <Card>
       <CardContent>
         <div className="grid min-w-0 content-start gap-4">
           <div className="grid gap-1">
-            <h2 className="text-[15px] font-semibold">Efeitos das medidas de gasto</h2>
+            <h2 className="text-[15px] font-semibold">Efeitos do governo na economia</h2>
             <span className="text-[13px] text-muted-foreground">
-              Quanto cada medida aprovada soma hoje à inflação, à SELIC e à bolsa. O efeito chega depois de a medida
-              valer, fica cheio por um tempo e cai pela metade a cada 12 meses.
+              Quanto cada medida aprovada e cada ligação da economia somam hoje à inflação, à SELIC e à bolsa. O efeito
+              da medida chega depois de ela valer, fica cheio por um tempo e cai pela metade a cada 12 meses; o da
+              ligação segue o quanto a partida se afastou da história no último mês fechado.
             </span>
           </div>
 
-          {effects.length === 0 ? <NoEffects /> : <EffectsBody panel={panel} effects={effects} />}
+          {effects.length === 0 && active.length === 0 ? (
+            <NoEffects />
+          ) : (
+            <EffectsBody panel={panel} effects={effects} links={active} />
+          )}
         </div>
       </CardContent>
     </Card>
@@ -51,10 +73,10 @@ function NoEffects() {
   return (
     <Empty>
       <EmptyHeader>
-        <EmptyTitle>Nenhuma medida de gasto mexe na inflação agora</EmptyTitle>
+        <EmptyTitle>Nada do governo mexe na economia agora</EmptyTitle>
         <EmptyDescription>
-          A inflação e a SELIC da partida são as da história. Quando o Congresso aprovar uma medida de gasto, o efeito
-          aparece aqui.
+          A inflação, a SELIC e a bolsa da partida são as da história. Quando o Congresso aprovar uma medida de gasto,
+          ou a dívida e o desemprego se afastarem da história, o efeito aparece aqui.
         </EmptyDescription>
       </EmptyHeader>
       <Link to="/government" className="text-sm font-medium text-info hover:underline">
@@ -64,11 +86,13 @@ function NoEffects() {
   );
 }
 
-function EffectsBody({ panel, effects }: { panel: EconomyPanel; effects: EconomyEffect[] }) {
+type EffectsBodyProps = { panel: EconomyPanel; effects: EconomyEffect[]; links: EconomyLinkEffect[] };
+
+function EffectsBody({ panel, effects, links }: EffectsBodyProps) {
   const today = panel.points.at(-1);
   if (!today) return null;
-  const ipcaShift = sumEffects(effects, "inflation");
-  const selicShift = sumEffects(effects, "selic");
+  const ipcaShift = sumEffects(effects, "inflation") + sumEffects(links, "inflation");
+  const selicShift = sumEffects(effects, "selic") + sumEffects(links, "selic");
   const stocksShift = stocksEffect(today);
 
   return (
@@ -76,7 +100,7 @@ function EffectsBody({ panel, effects }: { panel: EconomyPanel; effects: Economy
       {ipcaShift >= BIG_SHIFT && (
         <Alert variant="warning">
           <TriangleAlert />
-          <AlertTitle>As medidas somam {signedIpca(ipcaShift).replace("+", "")} pontos à inflação</AlertTitle>
+          <AlertTitle>O governo soma {signedIpca(ipcaShift).replace("+", "")} pontos à inflação</AlertTitle>
           <AlertDescription>
             IPCA de {displayPercent(today.ipca, 1)}
             {today.stored_ipca !== null && `, contra ${displayPercent(today.stored_ipca, 1)} na história`}, e a SELIC{" "}
@@ -86,12 +110,12 @@ function EffectsBody({ panel, effects }: { panel: EconomyPanel; effects: Economy
         </Alert>
       )}
 
-      <IpcaBreakdown today={today} effects={effects} />
+      <IpcaBreakdown today={today} parts={inflationBreakdown(effects, links)} />
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Medida</TableHead>
+            <TableHead>Medida ou ligação</TableHead>
             <TableHead>Onde o efeito está</TableHead>
             <TableHead numeric>
               <HeadHint label="IPCA" info={EFFECT_IPCA} />
@@ -108,8 +132,11 @@ function EffectsBody({ panel, effects }: { panel: EconomyPanel; effects: Economy
           {effects.map((effect) => (
             <EffectRow key={effect.measure_id} effect={effect} />
           ))}
+          {links.map((link) => (
+            <LinkRow key={link.link} link={link} />
+          ))}
           <TableRow variant="current">
-            <TableCell>Todas as medidas juntas</TableCell>
+            <TableCell>Tudo junto</TableCell>
             <TableCell />
             <TableCell numeric className={TONE[inflationTone(ipcaShift)]}>
               {signedIpca(ipcaShift)}
@@ -125,9 +152,10 @@ function EffectsBody({ panel, effects }: { panel: EconomyPanel; effects: Economy
       </Table>
 
       <p className="rounded-lg bg-subtle px-2.5 py-2 text-xs leading-normal text-muted-foreground">
-        O Banco Central sobe a SELIC 1,5 vez o que as medidas somam à inflação, e cada ponto de SELIC tira 2,9% da bolsa
-        no trimestre, mais nas ações de beta alto (as que se mexem mais que o Ibovespa). Cortar gasto faz o caminho
-        inverso.
+        O Banco Central sobe a SELIC 1,5 vez o que as medidas e as ligações somam à inflação, e cada ponto de SELIC ou
+        de prêmio de risco tira 2,9% da bolsa no trimestre, mais nas ações de beta alto (as que se mexem mais que o
+        Ibovespa); o PIB acima da história a levanta. A ligação de um mês vale a partir do seguinte. Cortar gasto faz o
+        caminho inverso.
       </p>
     </>
   );
@@ -187,11 +215,47 @@ function EffectRow({ effect }: { effect: EconomyEffect }) {
   );
 }
 
-type BreakdownProps = { today: EconomyPanel["points"][number]; effects: EconomyEffect[] };
+function LinkRow({ link }: { link: EconomyLinkEffect }) {
+  const metric = LINK_METRIC[link.link];
+  const { icon: Icon, subject } = LINK_ROW[link.link];
+  return (
+    <TableRow>
+      <TableCell className="max-w-90 whitespace-normal">
+        <span className="flex items-center gap-3">
+          <span className="grid size-7 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground">
+            <Icon className="size-4" />
+          </span>
+          <span className="grid min-w-0 gap-0.5">
+            <span className="inline-flex items-center gap-1 font-medium">
+              {metric.label}
+              <MetricHint metric={metric} />
+            </span>
+            <span className="text-xs text-muted-foreground">{metric.description}</span>
+          </span>
+        </span>
+      </TableCell>
+      <TableCell>
+        <span className="text-[12.5px] whitespace-normal text-muted-foreground">
+          {subject} {metric.format(link.gap)} contra a história
+        </span>
+      </TableCell>
+      <TableCell numeric className={TONE[inflationTone(link.inflation)]}>
+        {signedIpca(link.inflation)}
+      </TableCell>
+      <TableCell numeric className={TONE[inflationTone(link.selic)]}>
+        {signedIpca(link.selic)}
+      </TableCell>
+      <TableCell numeric className={stocksTone(Number(link.stocks))}>
+        {signedStocks(link.stocks)}
+      </TableCell>
+    </TableRow>
+  );
+}
 
-/** O IPCA de hoje em barra: a história e, empilhado, o que cada tipo de medida soma; o que tira fica só na lista. */
-function IpcaBreakdown({ today, effects }: BreakdownProps) {
-  const parts = inflationBreakdown(effects);
+type BreakdownProps = { today: EconomyPanel["points"][number]; parts: InflationPart[] };
+
+/** O IPCA de hoje em barra: a história e, empilhado, o que cada medida e ligação soma; o que tira fica só na lista. */
+function IpcaBreakdown({ today, parts }: BreakdownProps) {
   const history = (today.stored_ipca === null ? Number(today.ipca) : Number(today.stored_ipca)) * 100;
   const adds = parts.filter((part) => part.points > 0);
   const cuts = parts.filter((part) => part.points < 0);
@@ -215,7 +279,7 @@ function IpcaBreakdown({ today, effects }: BreakdownProps) {
           </span>
           {adds.map((part, index) => (
             <span
-              key={part.kind}
+              key={part.key}
               className="flex items-center justify-center overflow-hidden text-xs font-semibold whitespace-nowrap"
               style={{ width: `${(part.points / total) * 100}%`, background: shade(index) }}
             >
@@ -242,7 +306,7 @@ function IpcaBreakdown({ today, effects }: BreakdownProps) {
         </dt>
         <dd className="text-right font-mono font-semibold">{displayPercent(history / 100, 2)}</dd>
         {parts.map((part) => (
-          <PartLine key={part.kind} part={part} index={adds.indexOf(part)} />
+          <PartLine key={part.key} part={part} index={adds.indexOf(part)} />
         ))}
         <dt className="border-t pt-1.5 font-semibold">= IPCA da partida</dt>
         <dd className="border-t pt-1.5 text-right font-mono font-semibold">{displayPercent(today.ipca, 2)}</dd>
@@ -251,7 +315,7 @@ function IpcaBreakdown({ today, effects }: BreakdownProps) {
   );
 }
 
-type PartLineProps = { part: { kind: EconomyEffect["kind"]; points: number }; index: number };
+type PartLineProps = { part: InflationPart; index: number };
 
 /** Uma linha da lista: a cor da barra para o que soma e um quadrado vazado verde para o que tira. */
 function PartLine({ part, index }: PartLineProps) {
@@ -265,7 +329,7 @@ function PartLine({ part, index }: PartLineProps) {
           )}
           style={index >= 0 ? { background: shade(index) } : undefined}
         />
-        {part.points > 0 ? "+" : "−"} {effectLabel(part)}
+        {part.points > 0 ? "+" : "−"} {part.label}
       </dt>
       <dd className={cn("text-right font-mono font-semibold", TONE[inflationTone(part.points)])}>
         {signedIpca(part.points)}

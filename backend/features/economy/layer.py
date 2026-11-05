@@ -8,6 +8,7 @@ história. As séries guardadas seguem como estavam.
 
 import math
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal
 from itertools import pairwise
@@ -54,6 +55,24 @@ def quarter_mean(points: Callable[[date], float], day: date) -> float:
 def annual_to_daily(annual: float) -> float:
     """Taxa diária em % de uma taxa anual em fração composta por 252 dias úteis."""
     return ((1 + annual) ** (1 / BUSINESS_DAYS_PER_YEAR) - 1) * 100
+
+
+@dataclass(frozen=True)
+class StocksParts:
+    """
+    O nível da bolsa por causa, como expoente: o nível é e elevado à soma. A SELIC que
+    as medidas de gasto põem, a que a curva de Phillips põe, o risco fiscal (o prêmio e
+    a SELIC que a inflação dele põe) e o PIB acima da história.
+    """
+
+    spending: float
+    phillips: float
+    fiscal_risk: float
+    gdp: float
+
+    @property
+    def total(self) -> float:
+        return self.spending + self.phillips + self.fiscal_risk + self.gdp
 
 
 class Pressure(Protocol):
@@ -128,31 +147,55 @@ class EconomyLayer:
         ]
         return min(days, default=None)
 
-    def inflation_points(self, day: date) -> float:
-        """Pontos de IPCA em 12 meses que o governo soma no dia: as medidas e as ligações."""
+    def spending_points(self, day: date) -> float:
+        """Pontos de IPCA em 12 meses que as medidas de gasto somam no dia."""
         spending = self._spending_points.get(day)
         if spending is None:
             spending = self._spending.inflation_points(day)
             self._spending_points[day] = spending
-        return spending + self._links.links_on(day).inflation_points
+        return spending
+
+    def inflation_points(self, day: date) -> float:
+        """Pontos de IPCA em 12 meses que o governo soma no dia: as medidas e as ligações."""
+        return self.spending_points(day) + self._links.links_on(day).inflation_points
 
     def selic_points(self, day: date) -> float:
         return central_bank_reaction(self.inflation_points(day))
-
-    def premium_points(self, day: date) -> float:
-        return self._links.links_on(day).premium_points
 
     def level(self, day: date) -> float:
         """O nível da bolsa contra a série guardada."""
         if self.first_day() is None:
             return 1.0
         if day not in self._levels:
-            exponent = -STOCKS_PER_SELIC * (
-                quarter_mean(self.selic_points, day)
-                + quarter_mean(self.premium_points, day)
-            ) + STOCKS_PER_GDP * float(self._links.links_on(day).gdp_gap)
-            self._levels[day] = math.exp(exponent)
+            self._levels[day] = math.exp(self.stocks_parts(day).total)
         return self._levels[day]
+
+    def stocks_parts(self, day: date) -> StocksParts:
+        """
+        O expoente do nível da bolsa por causa. A SELIC e o prêmio pesam pela média do
+        trimestre e o PIB pelo desvio do último mês fechado.
+        """
+        links = self._links.links_on
+
+        def fiscal_risk(d: date) -> float:
+            link = links(d)
+            return (
+                central_bank_reaction(link.premium_inflation_points)
+                + link.premium_points
+            )
+
+        return StocksParts(
+            spending=-STOCKS_PER_SELIC
+            * quarter_mean(
+                lambda d: central_bank_reaction(self.spending_points(d)), day
+            ),
+            phillips=-STOCKS_PER_SELIC
+            * quarter_mean(
+                lambda d: central_bank_reaction(links(d).phillips_points), day
+            ),
+            fiscal_risk=-STOCKS_PER_SELIC * quarter_mean(fiscal_risk, day),
+            gdp=STOCKS_PER_GDP * float(links(day).gdp_gap),
+        )
 
     # Contrato com o repositório das séries
 

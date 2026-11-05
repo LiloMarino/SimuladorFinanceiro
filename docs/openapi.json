@@ -15140,6 +15140,41 @@
         "title": "DealStatus",
         "description": "Onde está um acordo de apoio por emenda entre o governo e a bancada de um partido."
       },
+      "DebtCausesDTO": {
+        "properties": {
+          "months": {
+            "type": "integer",
+            "title": "Months"
+          },
+          "interest": {
+            "type": "string",
+            "title": "Interest"
+          },
+          "growth": {
+            "type": "string",
+            "title": "Growth"
+          },
+          "inflation": {
+            "type": "string",
+            "title": "Inflation"
+          },
+          "primary": {
+            "type": "string",
+            "title": "Primary"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "months",
+          "interest",
+          "growth",
+          "inflation",
+          "primary"
+        ],
+        "title": "DebtCausesDTO",
+        "description": "A variação da dívida nos últimos meses fechados, em fração do PIB, por causa: o juro\na aumenta, o crescimento e a inflação a encolhem (aumentam o PIB) e o primário a\nabate ou a aumenta. A soma das quatro é a variação inteira."
+      },
       "DebtSummaryDTO": {
         "properties": {
           "month_end": {
@@ -15154,6 +15189,17 @@
           "premium": {
             "type": "string",
             "title": "Premium"
+          },
+          "history_debt": {
+            "type": "string",
+            "title": "History Debt"
+          },
+          "rate": {
+            "type": "string",
+            "title": "Rate"
+          },
+          "causes": {
+            "$ref": "#/components/schemas/DebtCausesDTO"
           },
           "debt_amount": {
             "type": "string",
@@ -15181,6 +15227,9 @@
           "month_end",
           "debt",
           "premium",
+          "history_debt",
+          "rate",
+          "causes",
           "debt_amount",
           "gdp",
           "month_result"
@@ -15390,6 +15439,16 @@
         ],
         "title": "EconomicIndicatorsDTO"
       },
+      "EconomyLink": {
+        "type": "string",
+        "enum": [
+          "PHILLIPS",
+          "FISCAL_RISK",
+          "GDP"
+        ],
+        "title": "EconomyLink",
+        "description": "Uma ligação da economia interligada: o desvio da partida contra a história que mexe nas séries."
+      },
       "EconomyPanelDTO": {
         "properties": {
           "points": {
@@ -15432,6 +15491,20 @@
               }
             ],
             "title": "Effects"
+          },
+          "links": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/LinkEffectDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Links"
           }
         },
         "additionalProperties": false,
@@ -15441,7 +15514,8 @@
           "copom_changes",
           "growth_parts",
           "debt",
-          "effects"
+          "effects",
+          "links"
         ],
         "title": "EconomyPanelDTO"
       },
@@ -17864,60 +17938,53 @@
       },
       "GrowthPartsDTO": {
         "properties": {
-          "trend": {
+          "history_growth": {
             "type": "string",
-            "title": "Trend"
+            "title": "History Growth"
           },
           "real_rate": {
             "type": "string",
             "title": "Real Rate"
           },
-          "real_rate_part": {
-            "type": "string",
-            "title": "Real Rate Part"
-          },
-          "neutral_real_rate": {
-            "type": "string",
-            "title": "Neutral Real Rate"
-          },
           "stocks": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
             "title": "Stocks"
           },
-          "stocks_part": {
+          "works": {
             "type": "string",
-            "title": "Stocks Part"
+            "title": "Works"
           },
-          "target": {
+          "impulse": {
             "type": "string",
-            "title": "Target"
+            "title": "Impulse"
           },
           "growth": {
             "type": "string",
             "title": "Growth"
+          },
+          "history_unemployment": {
+            "type": "string",
+            "title": "History Unemployment"
+          },
+          "unemployment": {
+            "type": "string",
+            "title": "Unemployment"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "trend",
+          "history_growth",
           "real_rate",
-          "real_rate_part",
-          "neutral_real_rate",
           "stocks",
-          "stocks_part",
-          "target",
-          "growth"
+          "works",
+          "impulse",
+          "growth",
+          "history_unemployment",
+          "unemployment"
         ],
         "title": "GrowthPartsDTO",
-        "description": "O que puxa o alvo do crescimento hoje, em fração ao ano: tendência + juro real +\nbolsa dão o alvo, e o crescimento anda um quarto do caminho até ele a cada mês."
+        "description": "O crescimento do PIB em 12 meses e o desemprego no último fechamento de mês, em\nfração: o da história mais o que a partida somou. A história é a série do IBGE, ou o\nmodelo onde ela não cobre."
       },
       "GuidanceRequest": {
         "properties": {
@@ -19627,6 +19694,40 @@
         ],
         "title": "LifeStatusDTO",
         "description": "A vida financeira de quem pede, no pregão corrente do viver de renda."
+      },
+      "LinkEffectDTO": {
+        "properties": {
+          "link": {
+            "$ref": "#/components/schemas/EconomyLink"
+          },
+          "gap": {
+            "type": "string",
+            "title": "Gap"
+          },
+          "inflation": {
+            "type": "string",
+            "title": "Inflation"
+          },
+          "selic": {
+            "type": "string",
+            "title": "Selic"
+          },
+          "stocks": {
+            "type": "string",
+            "title": "Stocks"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "link",
+          "gap",
+          "inflation",
+          "selic",
+          "stocks"
+        ],
+        "title": "LinkEffectDTO",
+        "description": "Uma ligação da economia interligada hoje: o desvio do último mês fechado e o que ele soma."
       },
       "LoanDTO": {
         "properties": {

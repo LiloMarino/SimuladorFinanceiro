@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { InfoHint } from "@/shared/components/info-hint";
+import { MetricHint } from "@/shared/components/metric-hint";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { DEBT_GDP, RISK_PREMIUM } from "@/shared/lib/budget-metrics";
 import { cn } from "@/shared/lib/utils";
-import { displayMoneyLarge } from "@/shared/lib/utils/display";
+import { displayMoneyLarge, displayPercent } from "@/shared/lib/utils/display";
 import type { EconomyPanel } from "@/types";
 import { economyRows } from "../lib/economy";
+import { DEBT_CAUSES, DEBT_RATE } from "../lib/economy-metrics";
 import { SeriesChart } from "./series-chart";
 
 type DebtCardProps = {
@@ -14,7 +16,11 @@ type DebtCardProps = {
   debt: NonNullable<EconomyPanel["debt"]>;
 };
 
-/** A dívida em % do PIB ao longo da partida, com os valores em reais do último fechamento. */
+/** Pontos de dívida a mais pesam em vermelho, a menos em verde. */
+const causeTone = (points: number) =>
+  Math.abs(points) < 0.0005 ? "text-foreground" : points > 0 ? "text-destructive" : "text-success";
+
+/** A dívida em % do PIB ao longo da partida, com os valores do último fechamento e de onde veio a variação. */
 export function DebtCard({ panel, debt }: DebtCardProps) {
   const result = debt.month_result === null ? null : Number(debt.month_result);
 
@@ -50,6 +56,21 @@ export function DebtCard({ panel, debt }: DebtCardProps) {
             </p>
             <div className="grid gap-1.5 text-[13px]">
               <div className="flex items-center justify-between gap-4">
+                <span>Dívida ÷ PIB</span>
+                <span className="font-mono font-semibold">{displayPercent(debt.debt, 1)}</span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span>Na história</span>
+                <span className="font-mono font-semibold">{displayPercent(debt.history_debt, 1)}</span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="inline-flex items-center gap-1">
+                  {DEBT_RATE.label}
+                  <MetricHint metric={DEBT_RATE} />
+                </span>
+                <span className="font-mono font-semibold">{DEBT_RATE.format(debt.rate)}</span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
                 <span>Dívida</span>
                 <span className="font-mono font-semibold">{displayMoneyLarge(debt.debt_amount)}</span>
               </div>
@@ -66,6 +87,7 @@ export function DebtCard({ panel, debt }: DebtCardProps) {
                 </div>
               )}
             </div>
+            {debt.causes.months > 0 && <DebtCauses causes={debt.causes} />}
             <Link to="/government?tab=accounts" className="text-[13px] font-medium text-primary hover:underline">
               Ver o orçamento no Governo ›
             </Link>
@@ -73,5 +95,39 @@ export function DebtCard({ panel, debt }: DebtCardProps) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+type DebtCausesProps = { causes: NonNullable<EconomyPanel["debt"]>["causes"] };
+
+/** A variação da dívida ÷ PIB nos últimos meses fechados, aberta nas quatro causas que a somam. */
+function DebtCauses({ causes }: DebtCausesProps) {
+  const lines = [
+    { label: "Juro", points: Number(causes.interest) },
+    { label: "Crescimento", points: Number(causes.growth) },
+    { label: "Inflação", points: Number(causes.inflation) },
+    { label: "Resultado primário", points: Number(causes.primary) },
+  ];
+  const total = lines.reduce((sum, line) => sum + line.points, 0);
+
+  return (
+    <div className="grid gap-1.5 border-t pt-2.5 text-[13px]">
+      <span className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground">
+        De onde veio a dívida em {causes.months} {causes.months === 1 ? "mês" : "meses"}, em pontos do PIB
+        <MetricHint metric={DEBT_CAUSES} />
+      </span>
+      {lines.map((line) => (
+        <div key={line.label} className="flex items-center justify-between gap-4">
+          <span>{line.label}</span>
+          <span className={cn("font-mono font-semibold", causeTone(line.points))}>
+            {DEBT_CAUSES.format(line.points)}
+          </span>
+        </div>
+      ))}
+      <div className="flex items-center justify-between gap-4 border-t pt-1.5">
+        <span className="font-medium">= Variação da dívida</span>
+        <span className={cn("font-mono font-semibold", causeTone(total))}>{DEBT_CAUSES.format(total)}</span>
+      </div>
+    </div>
   );
 }

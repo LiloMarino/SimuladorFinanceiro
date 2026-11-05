@@ -12,7 +12,7 @@ type SeriesChartProps = {
   /** Nome da linha no tooltip */
   label: string;
   color: string;
-  /** Linha de referência tracejada, como a tendência de crescimento */
+  /** Linha de referência tracejada, como o limite em que a dívida passa a cobrar prêmio */
   reference?: { value: number; label: string };
   height?: number;
 };

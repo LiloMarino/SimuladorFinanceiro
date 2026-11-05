@@ -135,9 +135,12 @@ def test_panel_carries_growth_unemployment_and_the_growth_parts(
     # Sem a expansão Governo a dívida fica de fora
     assert panel.debt is None
     assert first.debt is None and first.premium is None
+    # Sem o governo, o crescimento é o da história e nada soma a ele
     parts = panel.growth_parts
-    assert parts.target == parts.trend + parts.real_rate_part + parts.stocks_part
-    assert parts.growth == last.growth
+    assert parts.growth == parts.history_growth == last.growth
+    assert parts.unemployment == parts.history_unemployment
+    assert parts.real_rate == parts.stocks == parts.works == parts.impulse == 0
+    assert panel.links is None
 
 
 def test_panel_without_the_government_has_no_effects_and_no_stored_series(

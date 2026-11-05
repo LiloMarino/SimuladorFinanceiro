@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { EconomyEffect, EconomyPanel } from "@/types";
+import type { EconomyEffect, EconomyLinkEffect, EconomyPanel } from "@/types";
 import {
+  activeLinks,
   copomLabel,
   economyRows,
   effectShares,
+  governmentShift,
   inflationBreakdown,
   stocksEffect,
   sumEffects,
@@ -13,10 +15,10 @@ import {
   lastMonthChange,
   monthChangeNote,
   selicExample,
-  signedPoints,
   targetNote,
   unemploymentExample,
 } from "./economy";
+import { signedPoints } from "./economy-metrics";
 
 const point = (date: string, selic: string, ipca: string, target = "0.035", growth = "0.02") => ({
   tolerance: "0.015",
@@ -36,14 +38,14 @@ const point = (date: string, selic: string, ipca: string, target = "0.035", grow
 });
 
 const growthParts: EconomyPanel["growth_parts"] = {
-  trend: "0.02",
-  real_rate: "0.0045",
-  real_rate_part: "0.01825",
-  neutral_real_rate: "0.05",
-  stocks: "-0.17",
-  stocks_part: "-0.011",
-  target: "0.02",
-  growth: "0.022",
+  history_growth: "0.02",
+  real_rate: "-0.004",
+  stocks: "0.003",
+  works: "0",
+  impulse: "0.005",
+  growth: "0.024",
+  history_unemployment: "0.09",
+  unemployment: "0.088",
 };
 
 const rise = { date: "2022-03-16", change: "0.0075", selic: "0.1075" };
@@ -56,6 +58,7 @@ describe("economyRows", () => {
       growth_parts: growthParts,
       debt: null,
       effects: null,
+      links: null,
     };
     const [first, second] = economyRows(panel);
     expect(first?.copom).toBeUndefined();
@@ -88,6 +91,7 @@ describe("economyRows", () => {
     growth_parts: growthParts,
     debt: null,
     effects: null,
+    links: null,
   };
 
   it("monta a faixa da meta com a tolerância para os dois lados", () => {
@@ -164,21 +168,16 @@ describe("signedPoints", () => {
 });
 
 describe("growthLines", () => {
-  it("explica as três partes do alvo, cada uma com o motivo", () => {
-    const [trend, realRate, stocks] = growthLines(growthParts);
+  it("abre o que a partida somou à história em quatro parcelas, cada uma com o motivo", () => {
+    const [realRate, stocks, works, impulse] = growthLines(growthParts);
 
-    expect(trend?.value).toBe("+2,0");
-    expect(realRate?.label).toBe("Juro real abaixo do neutro");
-    expect(realRate?.detail).toBe("0,45% contra 5%: crédito barato empurra");
-    expect(stocks?.detail).toBe("Ibovespa −17%: empresas investem menos");
-    expect(stocks?.tone).toBe("down");
-  });
-
-  it("com juro real acima do neutro o crédito caro freia", () => {
-    const [, realRate] = growthLines({ ...growthParts, real_rate: "0.08", real_rate_part: "-0.012" });
-
-    expect(realRate?.label).toBe("Juro real acima do neutro");
-    expect(realRate?.detail).toContain("crédito caro freia");
+    expect(realRate?.value).toBe("−0,4");
+    expect(realRate?.tone).toBe("down");
+    expect(realRate?.detail).toContain("crédito mais caro freia");
+    expect(stocks?.detail).toContain("empresas investem mais");
+    expect(works?.tone).toBe("neutral");
+    expect(impulse?.value).toBe("+0,5");
+    expect(impulse?.metric?.label).toBe("Impulso fiscal");
   });
 });
 
@@ -207,6 +206,14 @@ const effect = (kind: EconomyEffect["kind"], inflation: string, curve: string[] 
   elapsed_months: 2,
 });
 
+const link = (kind: EconomyLinkEffect["link"], inflation: string, stocks = "0"): EconomyLinkEffect => ({
+  link: kind,
+  gap: "0.02",
+  inflation,
+  selic: String(Number(inflation) * 1.5),
+  stocks,
+});
+
 describe("efeitos das medidas", () => {
   const effects = [
     effect("WELFARE_SPENDING", "0.55"),
@@ -226,6 +233,29 @@ describe("efeitos das medidas", () => {
       ["Obras", 0.2],
       ["Reajuste dos servidores", -0.1],
     ]);
+  });
+
+  it("põe as ligações que mexem na inflação junto das medidas, pelo nome da ligação", () => {
+    const links = [link("FISCAL_RISK", "0.4"), link("PHILLIPS", "-0.2"), link("GDP", "0", "0.03")];
+    expect(inflationBreakdown(effects, links).map((part) => [part.label, Math.round(part.points * 100) / 100])).toEqual(
+      [
+        ["Auxílio", 0.8],
+        ["Risco fiscal", 0.4],
+        ["Obras", 0.2],
+        ["Reajuste dos servidores", -0.1],
+        ["Desemprego baixo", -0.2],
+      ],
+    );
+  });
+
+  it("guarda só as ligações que mexem em algo hoje", () => {
+    const links = [link("FISCAL_RISK", "0.004", "0.0001"), link("PHILLIPS", "0.2"), link("GDP", "0", "0.03")];
+    expect(activeLinks(links).map((item) => item.link)).toEqual(["PHILLIPS", "GDP"]);
+  });
+
+  it("mede o que o governo soma a uma série em pontos, contra a história", () => {
+    expect(governmentShift("0.115", "0.1")).toBeCloseTo(1.5, 6);
+    expect(governmentShift("0.115", null)).toBeNull();
   });
 
   it("lê a curva no mês que já correu desde a vigência", () => {

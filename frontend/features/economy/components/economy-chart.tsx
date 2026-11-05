@@ -26,7 +26,7 @@ const TARGET_COLOR = "var(--muted-foreground)";
 
 type EconomyChartProps = { panel: EconomyPanel };
 
-/** `measured`: a partida tem a expansão Governo, e a linha tracejada mostra a história sem as medidas. */
+/** `measured`: a partida tem a expansão Governo, e a linha tracejada mostra a história sem o governo. */
 function Legend({ measured }: { measured: boolean }) {
   return (
     <ul className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-muted-foreground">
@@ -56,7 +56,7 @@ function Legend({ measured }: { measured: boolean }) {
         <li className="flex items-center gap-1.5">
           <span className="h-0 w-5 border-t-2 border-dashed" style={{ borderColor: IPCA_COLOR }} />
           <span className="h-0 w-5 border-t-2 border-dashed" style={{ borderColor: SELIC_COLOR }} />
-          na história, sem as medidas
+          na história, sem o governo
         </li>
       )}
     </ul>
@@ -275,7 +275,7 @@ export function EconomyChart({ panel }: EconomyChartProps) {
           {measured && (
             <p className="text-[12.5px] text-muted-foreground">
               Linha cheia: a partida. Tracejada: o que aconteceu de verdade (ou o futuro gerado, depois do último dado
-              real), sem as medidas de gasto do governo. A distância entre as duas é o efeito das medidas.
+              real), sem o governo. A distância entre as duas é o que as medidas e as ligações somam.
             </p>
           )}
 

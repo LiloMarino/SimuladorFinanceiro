@@ -2,7 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from backend.core.dto.base import BaseDTO
-from backend.core.enum import EffectPhase, MeasureKind
+from backend.core.enum import EconomyLink, EffectPhase, MeasureKind
 
 
 class EconomyPointDTO(BaseDTO):
@@ -44,21 +44,35 @@ class CopomChangeDTO(BaseDTO):
 
 class GrowthPartsDTO(BaseDTO):
     """
-    O que puxa o alvo do crescimento hoje, em fração ao ano: tendência + juro real +
-    bolsa dão o alvo, e o crescimento anda um quarto do caminho até ele a cada mês.
+    O crescimento do PIB em 12 meses e o desemprego no último fechamento de mês, em
+    fração: o da história mais o que a partida somou. A história é a série do IBGE, ou o
+    modelo onde ela não cobre.
     """
 
-    trend: Decimal
-    # Juro real do dia e quanto ele soma (negativo quando acima do neutro)
+    history_growth: Decimal
+    # O que a partida soma ao crescimento, por causa: o juro real e a bolsa diferentes da
+    # história, as obras e o impulso fiscal (o primário que piorou em 12 meses)
     real_rate: Decimal
-    real_rate_part: Decimal
-    neutral_real_rate: Decimal
-    # Alta do Ibovespa em 12 meses (nula sem série de bolsa) e quanto ela soma
-    stocks: Decimal | None
-    stocks_part: Decimal
-    # Para onde o crescimento caminha e onde ele está hoje
-    target: Decimal
+    stocks: Decimal
+    works: Decimal
+    impulse: Decimal
     growth: Decimal
+    history_unemployment: Decimal
+    unemployment: Decimal
+
+
+class DebtCausesDTO(BaseDTO):
+    """
+    A variação da dívida nos últimos meses fechados, em fração do PIB, por causa: o juro
+    a aumenta, o crescimento e a inflação a encolhem (aumentam o PIB) e o primário a
+    abate ou a aumenta. A soma das quatro é a variação inteira.
+    """
+
+    months: int
+    interest: Decimal
+    growth: Decimal
+    inflation: Decimal
+    primary: Decimal
 
 
 class DebtSummaryDTO(BaseDTO):
@@ -68,6 +82,12 @@ class DebtSummaryDTO(BaseDTO):
     # Em fração do PIB
     debt: Decimal
     premium: Decimal
+    # A dívida da história: a política padrão de impostos e o gasto base
+    history_debt: Decimal
+    # A taxa média que a dívida paga ao ano: parte na SELIC do dia, parte no que os
+    # títulos dos últimos 36 meses travaram
+    rate: Decimal
+    causes: DebtCausesDTO
     # Em reais: a dívida, o PIB em 12 meses e o resultado do mês (negativo é déficit); o
     # resultado é nulo antes do primeiro fechamento
     debt_amount: Decimal
@@ -98,11 +118,24 @@ class ActiveEffectDTO(BaseDTO):
     elapsed_months: int
 
 
+class LinkEffectDTO(BaseDTO):
+    """Uma ligação da economia interligada hoje: o desvio do último mês fechado e o que ele soma."""
+
+    link: EconomyLink
+    # O desvio da partida contra a história, em fração: o desemprego, o prêmio de risco ou o nível do PIB
+    gap: Decimal
+    # Pontos de IPCA e de SELIC em 12 meses e a variação da bolsa (fração) no trimestre
+    inflation: Decimal
+    selic: Decimal
+    stocks: Decimal
+
+
 class EconomyPanelDTO(BaseDTO):
     points: list[EconomyPointDTO]
     copom_changes: list[CopomChangeDTO]
     growth_parts: GrowthPartsDTO
     # Só nas partidas com a expansão Governo & Política
     debt: DebtSummaryDTO | None
-    # Os efeitos das medidas de gasto aprovadas; nulo sem a expansão Governo
+    # Os efeitos das medidas de gasto aprovadas e das ligações; nulos sem a expansão Governo
     effects: list[ActiveEffectDTO] | None
+    links: list[LinkEffectDTO] | None

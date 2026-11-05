@@ -3,6 +3,7 @@ O painel da economia: a SELIC, o IPCA e o juro real desde o primeiro dia da
 partida, só com o que o jogador já conhece em `today`.
 """
 
+import math
 from calendar import monthrange
 from collections.abc import Iterable
 from datetime import date, timedelta
@@ -12,12 +13,14 @@ from backend.core import repository
 from backend.core.dto.economy import (
     ActiveEffectDTO,
     CopomChangeDTO,
+    DebtCausesDTO,
     DebtSummaryDTO,
     EconomyPanelDTO,
     EconomyPointDTO,
     GrowthPartsDTO,
+    LinkEffectDTO,
 )
-from backend.core.enum import IndicatorSeries
+from backend.core.enum import EconomyLink, IndicatorSeries
 from backend.core.indicators import (
     annual_index_rate,
     annualize_daily,
@@ -25,19 +28,19 @@ from backend.core.indicators import (
     inflation_tolerance,
     last_known_value,
 )
-from backend.features.economy.growth import (
-    NEUTRAL_REAL_RATE,
-    MacroCourse,
-    growth_aim,
-)
+from backend.features.economy.growth import MacroCourse
+from backend.features.economy.layer import central_bank_reaction
 from backend.features.government import measures as rules
 from backend.features.government import spending_effects
-from backend.features.government.budget import BudgetCourse
+from backend.features.government.budget import BudgetCourse, DebtChange
+from backend.features.government.linked_economy import LinkedEconomy
 from backend.features.government.spending_effects import SpendingEconomy
 from backend.features.government.state import Measure
 
 # Degrau mínimo para contar como mudança da SELIC (0.1 ponto); abaixo disso é ruído da série
 MIN_COPOM_STEP = Decimal("0.001")
+# A variação da dívida por causa soma os últimos 12 meses fechados
+CAUSES_MONTHS = 12
 
 
 def month_ends(start: date, end: date) -> list[date]:
@@ -114,12 +117,23 @@ def copom_changes(start: date, end: date) -> list[CopomChangeDTO]:
     return changes
 
 
-def debt_summary(budget: BudgetCourse, today: date) -> DebtSummaryDTO:
-    month = budget.latest(today)
+def debt_summary(linked: LinkedEconomy, today: date) -> DebtSummaryDTO:
+    month = linked.budget.latest(today)
+    recent = linked.budget.months_until(today)[-CAUSES_MONTHS:]
+    causes = sum((m.change for m in recent), DebtChange())
     return DebtSummaryDTO(
         month_end=month.month_end,
         debt=month.debt,
         premium=month.premium,
+        history_debt=linked.base_budget().latest(today).debt,
+        rate=month.rate,
+        causes=DebtCausesDTO(
+            months=len(recent),
+            interest=causes.interest,
+            growth=causes.growth,
+            inflation=causes.inflation,
+            primary=causes.primary,
+        ),
         debt_amount=month.debt * month.gdp,
         gdp=month.gdp,
         month_result=month.monthly(month.result) if month.closed else None,
@@ -127,22 +141,55 @@ def debt_summary(budget: BudgetCourse, today: date) -> DebtSummaryDTO:
 
 
 def growth_parts(macro: MacroCourse, today: date) -> GrowthPartsDTO:
-    """As partes do alvo do crescimento com o que o jogador conhece hoje, e onde o crescimento está."""
-    aim = growth_aim(today)
+    """O crescimento e o desemprego do último fechamento: a história e o que a partida somou por causa."""
+    month = macro.latest(today)
     return GrowthPartsDTO(
-        trend=aim.trend,
-        real_rate=aim.real_rate,
-        real_rate_part=aim.real_rate_part,
-        neutral_real_rate=NEUTRAL_REAL_RATE,
-        stocks=aim.stocks,
-        stocks_part=aim.stocks_part,
-        target=aim.value,
-        growth=macro.latest(today).growth,
+        history_growth=month.base_growth,
+        real_rate=month.gap.real_rate,
+        stocks=month.gap.stocks,
+        works=month.gap.spending,
+        impulse=month.gap.impulse,
+        growth=month.growth,
+        history_unemployment=month.base_unemployment,
+        unemployment=month.unemployment,
     )
 
 
 def points(value: float) -> Decimal:
     return Decimal(str(round(value, 4)))
+
+
+def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
+    """As três ligações que valem hoje, pelo desvio do último mês fechado."""
+    link = linked.links_on(today)
+    stocks = linked.layer.stocks_parts(today)
+
+    def effect(
+        kind: EconomyLink, gap: Decimal, inflation: float, exponent: float
+    ) -> LinkEffectDTO:
+        return LinkEffectDTO(
+            link=kind,
+            gap=gap,
+            inflation=points(inflation),
+            selic=points(central_bank_reaction(inflation)),
+            stocks=points(math.exp(exponent) - 1),
+        )
+
+    return [
+        effect(
+            EconomyLink.PHILLIPS,
+            link.unemployment_gap,
+            link.phillips_points,
+            stocks.phillips,
+        ),
+        effect(
+            EconomyLink.FISCAL_RISK,
+            link.premium_gap,
+            link.premium_inflation_points,
+            stocks.fiscal_risk,
+        ),
+        effect(EconomyLink.GDP, link.gdp_gap, 0.0, stocks.gdp),
+    ]
 
 
 def active_effects(
@@ -183,11 +230,15 @@ def build_economy_panel(
     start: date,
     today: date,
     macro: MacroCourse,
-    budget: BudgetCourse | None = None,
+    linked: LinkedEconomy | None = None,
     economy: SpendingEconomy | None = None,
     measures: Iterable[Measure] = (),
 ) -> EconomyPanelDTO:
-    """`budget` e `economy` só existem nas partidas com a expansão Governo; sem eles a dívida e os efeitos ficam de fora."""
+    """`linked` e `economy` só existem nas partidas com a expansão Governo; sem eles a dívida, os efeitos e as ligações ficam de fora."""
+    budget = None
+    if linked is not None:
+        linked.close_until(today)
+        budget = linked.budget
     # Antes do primeiro pregão o painel já mostra o dia de partida
     end = max(start, today)
     changes = copom_changes(start, end)
@@ -197,8 +248,9 @@ def build_economy_panel(
         points=[point_on(day, macro, budget) for day in days],
         copom_changes=changes,
         growth_parts=growth_parts(macro, today),
-        debt=debt_summary(budget, today) if budget is not None else None,
+        debt=debt_summary(linked, today) if linked is not None else None,
         effects=(
             active_effects(economy, measures, today) if economy is not None else None
         ),
+        links=link_effects(linked, today) if linked is not None else None,
     )
