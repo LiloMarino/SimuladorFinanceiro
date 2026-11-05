@@ -1,5 +1,6 @@
 """A preparação de cada jogador no lobby e o Meu partido salvo no perfil."""
 
+from decimal import Decimal
 from typing import Annotated
 
 from pydantic import StringConstraints
@@ -72,6 +73,9 @@ class PreparationsDTO(BaseDTO):
     conflicts: list[str]
     # Convites de vice ainda sem resposta na sala, sem dizer de quem
     pending_invites: int = 0
+    # No perfil de 0 a 100: onde fica o valor que o partido não defende e onde fica a bandeira
+    radar_neutral: Decimal
+    radar_flag: Decimal
     # Por que a preparação está travada (expansão desligada, partida salva ou em andamento); nulo quando aberta
     locked_reason: str | None = None
 

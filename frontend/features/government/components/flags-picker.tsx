@@ -3,9 +3,9 @@ import { FlagCards } from "@/shared/components/flag-cards";
 import { cn } from "@/shared/lib/utils";
 import type { ElectionPanel, VoterValue } from "@/types";
 import { AFFINITY } from "../lib/election-metrics";
-import { VOTER_VALUES } from "@/shared/lib/party-flags";
+import { flagRadarScores } from "@/shared/lib/party-flags";
 import { GROUP_INFO, foundingAffinity, groupList, pleasedBy, signedPoints } from "../lib/voters";
-import { ProfileRadar } from "./profile-radar";
+import { ProfileRadar } from "@/shared/components/profile-radar";
 
 type FlagsPickerProps = {
   panel: Pick<ElectionPanel, "groups" | "affinity_base" | "radar_neutral" | "radar_flag">;
@@ -20,9 +20,7 @@ type FlagsPickerProps = {
 export function FlagsPicker({ panel, value, onChange, color, error }: FlagsPickerProps) {
   const groups = panel.groups;
   const affinityBase = Number(panel.affinity_base);
-  const radar = Object.fromEntries(
-    VOTER_VALUES.map((flag) => [flag, Number(value.includes(flag) ? panel.radar_flag : panel.radar_neutral)]),
-  ) as Record<VoterValue, number>;
+  const radar = flagRadarScores(value, panel.radar_neutral, panel.radar_flag);
 
   return (
     <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_340px]">

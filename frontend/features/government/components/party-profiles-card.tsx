@@ -23,7 +23,7 @@ import {
   valueScores,
 } from "../lib/voters";
 import { PartyMark, PersonMark } from "@/shared/components/party-mark";
-import { ProfileRadar } from "./profile-radar";
+import { ProfileRadar } from "@/shared/components/profile-radar";
 import { PromiseBadges } from "./promise-badges";
 import { ValueChips } from "@/shared/components/value-chip";
 import { partyColor } from "@/shared/lib/party-colors";

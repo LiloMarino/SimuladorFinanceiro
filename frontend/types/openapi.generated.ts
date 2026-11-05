@@ -8378,6 +8378,10 @@ export interface components {
              * @default 0
              */
             pending_invites: number;
+            /** Radar Neutral */
+            radar_neutral: string;
+            /** Radar Flag */
+            radar_flag: string;
             /** Locked Reason */
             locked_reason: string | null;
         };

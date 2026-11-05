@@ -66,3 +66,10 @@ export function lockReason(value: VoterValue, selected: VoterValue[]): string | 
   if (selected.length >= FLAGS_PER_PARTY) return "Já são 3: tire uma";
   return null;
 }
+
+/** A nota de cada valor no perfil de 0 a 100: a bandeira do partido na nota alta, o resto na neutra. */
+export function flagRadarScores(flags: VoterValue[], neutral: string, flag: string): Record<VoterValue, number> {
+  return Object.fromEntries(
+    VOTER_VALUES.map((value) => [value, Number(flags.includes(value) ? flag : neutral)]),
+  ) as Record<VoterValue, number>;
+}

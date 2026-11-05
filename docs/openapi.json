@@ -23904,6 +23904,14 @@
             "title": "Pending Invites",
             "default": 0
           },
+          "radar_neutral": {
+            "type": "string",
+            "title": "Radar Neutral"
+          },
+          "radar_flag": {
+            "type": "string",
+            "title": "Radar Flag"
+          },
           "locked_reason": {
             "anyOf": [
               {
@@ -23923,6 +23931,8 @@
           "reserved",
           "conflicts",
           "pending_invites",
+          "radar_neutral",
+          "radar_flag",
           "locked_reason"
         ],
         "title": "PreparationsDTO",

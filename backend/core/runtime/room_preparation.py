@@ -27,7 +27,7 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
-from backend.features.government import house
+from backend.features.government import house, voters
 from backend.features.government.computer_parties import COMPUTER_PARTIES
 from backend.features.government.preparation import PartyIdentity, Prepared
 
@@ -284,6 +284,8 @@ class RoomPreparation:
             pending_invites=sum(
                 1 for e in entries if e.vice_id in present and not e.vice_accepted
             ),
+            radar_neutral=voters.RADAR_NEUTRAL,
+            radar_flag=voters.RADAR_FLAG,
             locked_reason=cls.locked_reason(),
         )
 

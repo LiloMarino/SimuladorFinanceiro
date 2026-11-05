@@ -6,6 +6,7 @@ import { ContributionField } from "@/shared/components/contribution-field";
 import { FlagCards } from "@/shared/components/flag-cards";
 import { PartyIdentityFields } from "@/shared/components/party-identity-fields";
 import { PartyMark } from "@/shared/components/party-mark";
+import { ProfileRadar } from "@/shared/components/profile-radar";
 import { PlayerOption } from "@/shared/components/player-option";
 import { ValueChip } from "@/shared/components/value-chip";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
@@ -14,6 +15,7 @@ import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { contributionAmount, contributionText } from "@/shared/lib/contribution";
 import { defaultPartyColor } from "@/shared/lib/party-colors";
+import { flagRadarScores } from "@/shared/lib/party-flags";
 import { partyIdentitySchema } from "@/shared/lib/party-identity";
 import { displayMoneyWhole } from "@/shared/lib/utils/display";
 import type { PartyIdentity, VoterValue } from "@/types";
@@ -54,6 +56,7 @@ export function PartyFoundTab({
     values: saved ?? blank,
   });
   const flags = useWatch({ control: form.control, name: "flags" });
+  const color = useWatch({ control: form.control, name: "color" });
   const founding = me?.kind === "FOUND" ? me : undefined;
   const [candidate, setCandidate] = useState(founding?.candidate ?? nickname);
   const [vice, setVice] = useState(founding?.vice ?? mine.invited ?? NO_VICE);
@@ -113,6 +116,24 @@ export function PartyFoundTab({
                 />
               )}
             />
+            <PreparationSection title="Como o eleitorado recebe" hint="perfil de partida">
+              <div className="flex justify-center">
+                <ProfileRadar
+                  width={308}
+                  height={188}
+                  labelSize={12}
+                  highlighted={flags}
+                  label="Perfil de partida do partido"
+                  series={[
+                    {
+                      key: "profile",
+                      scores: flagRadarScores(flags, preparations.radar_neutral, preparations.radar_flag),
+                      color,
+                    },
+                  ]}
+                />
+              </div>
+            </PreparationSection>
           </div>
 
           {/* Chapa, contribuição e rivais */}
