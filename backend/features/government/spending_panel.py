@@ -13,6 +13,7 @@ from backend.core.dto.government import (
 )
 from backend.core.enum import IndicatorSeries, MeasureKind, VoterGroup
 from backend.core.indicators import annual_index_rate
+from backend.features.economy.layer import central_bank_reaction
 from backend.features.government import approval as approval_rules
 from backend.features.government import spending, spending_effects
 from backend.features.government.state import Measure
@@ -43,7 +44,7 @@ def inflation_effect(measure: Measure, today: date) -> InflationEffectDTO | None
         ipca_before=ipca,
         ipca_after=ipca + points(peak) / HUNDRED,
         selic_before=selic,
-        selic_after=selic + points(spending_effects.SELIC_REACTION * peak) / HUNDRED,
+        selic_after=selic + points(central_bank_reaction(peak)) / HUNDRED,
         stocks=points(spending_effects.peak_stocks(measure.kind, steps)),
         growth=points(spending_effects.GROWTH_PER_STEP.get(measure.kind, 0.0) * steps),
     )

@@ -22,8 +22,8 @@ class Quote:
     close: float
 
 
-def no_spending(day: date) -> float:
-    """Sem medida de gasto aprovada, a inflação não leva nenhum ponto a mais."""
+def no_government(day: date) -> float:
+    """Sem o governo, a inflação não leva nenhum ponto a mais."""
     return 0.0
 
 
@@ -42,5 +42,5 @@ class MarketDay:
     # O último dia com dado real; depois dele o mercado é gerado. Nulo sem dado real.
     real_until: date | None
     simulation_id: int
-    # Os pontos de IPCA em 12 meses que as medidas de gasto aprovadas somam à série em cada dia
-    spending_inflation: Callable[[date], float] = field(default=no_spending)
+    # Os pontos de IPCA em 12 meses que o governo soma à série em cada dia, pelas medidas e pelas ligações da economia
+    government_inflation: Callable[[date], float] = field(default=no_government)

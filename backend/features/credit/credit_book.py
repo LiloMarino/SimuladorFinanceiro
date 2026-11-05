@@ -384,7 +384,7 @@ class CreditBook:
         limit_amount = max(tier.debt_limit * networth, ZERO)
         if tier.spread is None:
             return Offer(selic, tier, score, None, best, ZERO, limit_amount)
-        rate = selic + tier.spread
+        rate = selic + tier.spread + self._engine.premium_gap_on(day)
         if best is not None:
             rate = max(rate, best + FIXED_INCOME_MARGIN)
         return Offer(

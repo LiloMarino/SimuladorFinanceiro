@@ -2,30 +2,31 @@
 O que as medidas de gasto fazem com a economia da partida. Cada medida aprovada é um
 efeito que nasce quando ela passa a valer, enche em linha reta até o atraso, vale cheio
 e cai pela metade a cada meia-vida; a soma dos efeitos soma pontos ao IPCA, a SELIC reage
-com uma vez e meia a inflação a mais e a bolsa cai por ponto de SELIC. Os efeitos saem só
-das medidas aprovadas, então a retomada de uma partida reconstrói os mesmos números.
-O `SpendingEconomy` aplica isso por cima das séries guardadas, que seguem como estavam.
+pela regra do Banco Central e a bolsa cai por ponto de SELIC. Os efeitos saem só das
+medidas aprovadas, então a retomada de uma partida reconstrói os mesmos números. A
+camada da economia (`economy/layer.py`) leva isso para as séries da partida.
 """
 
 import math
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal
-from itertools import pairwise
 
-from backend.core import repository
-from backend.core.enum import EffectPhase, IndicatorSeries, MeasureKind, MeasureStatus
-from backend.core.indicators import BUSINESS_DAYS_PER_YEAR, annualize_daily
-from backend.core.repository.economic import IndicatorHistory
+from backend.core.enum import EffectPhase, MeasureKind, MeasureStatus
 from backend.core.utils import required
+from backend.features.economy.layer import (
+    DAYS_PER_MONTH,
+    STOCKS_PER_SELIC,
+    central_bank_reaction,
+    quarter_mean,
+)
 from backend.features.government import spending
 from backend.features.government.state import Measure
 
 # Meses até o efeito valer cheio e meia-vida da queda, em meses
 DELAY_MONTHS = 6.0
 HALF_LIFE_MONTHS = 12.0
-DAYS_PER_MONTH = 30.4375
 # Resto do efeito abaixo do qual ele já não pesa: a medida "some"
 FADED = 0.05
 # Meses que o desenho da curva do efeito cobre
@@ -40,16 +41,6 @@ INFLATION_PER_STEP: dict[MeasureKind, float] = {
 }
 # Pontos de crescimento do PIB que um passo soma, com a mesma forma do efeito na inflação
 GROWTH_PER_STEP: dict[MeasureKind, float] = {MeasureKind.PUBLIC_WORKS: 0.6}
-# A SELIC reage com 1,5 ponto por ponto de inflação a mais (Banco Central autônomo)
-SELIC_REACTION = 1.5
-# A bolsa cai 2,9% por ponto de alta da SELIC, espalhado pelo trimestre
-STOCKS_PER_SELIC = 0.029
-STOCKS_WINDOW_MONTHS = 3
-
-# Janela do histórico, antes do início da partida, que mede o beta de cada ativo contra o Ibovespa
-BETA_WINDOW_DAYS = 730
-MIN_BETA_DAYS = 60
-MAX_BETA = 3.0
 
 
 @dataclass(frozen=True)
@@ -119,17 +110,15 @@ def growth_points(effects: Iterable[Effect], day: date) -> float:
 
 
 def selic_points(effects: Iterable[Effect], day: date) -> float:
-    return SELIC_REACTION * inflation_points(effects, day)
+    return central_bank_reaction(inflation_points(effects, day))
 
 
 def stocks_level(effects: Iterable[Effect], day: date) -> float:
     """O nível da bolsa contra a série guardada: cai pela média da SELIC a mais nos últimos três meses."""
     effects = tuple(effects)
-    moves = [
-        selic_points(effects, day - timedelta(days=round(DAYS_PER_MONTH * back)))
-        for back in range(STOCKS_WINDOW_MONTHS)
-    ]
-    return math.exp(-STOCKS_PER_SELIC * sum(moves) / STOCKS_WINDOW_MONTHS)
+    return math.exp(
+        -STOCKS_PER_SELIC * quarter_mean(lambda d: selic_points(effects, d), day)
+    )
 
 
 def phase_of(effect: Effect, day: date) -> EffectPhase:
@@ -198,34 +187,32 @@ def peak_stocks(kind: MeasureKind, steps: float) -> float:
     return max(levels, key=abs)
 
 
-def annual_to_daily(annual: float) -> float:
-    """Taxa diária em % de uma taxa anual em fração composta por 252 dias úteis."""
-    return ((1 + annual) ** (1 / BUSINESS_DAYS_PER_YEAR) - 1) * 100
-
-
 class SpendingEconomy:
     """
-    As séries da partida com o efeito das medidas de gasto: IPCA, SELIC, CDI e Ibovespa
-    ganham o efeito por cima da série guardada, e cada ação ganha o nível da bolsa
-    elevado ao beta dela. Sem medida aprovada nada muda.
+    Os efeitos das medidas de gasto aprovadas na partida. `on_change` roda quando o
+    conjunto muda, para as séries da partida serem lidas de novo com o efeito novo.
     """
 
-    def __init__(self, simulation_id: int, start: date):
-        self._simulation_id = simulation_id
-        self._start = start
+    def __init__(self, on_change: Callable[[], None] = lambda: None):
         self._effects: tuple[Effect, ...] = ()
-        self._levels: dict[date, float] = {}
-        self._betas: dict[str, float] | None = None
+        self._first: date | None = None
+        self._on_change = on_change
 
     @property
     def effects(self) -> tuple[Effect, ...]:
         return self._effects
 
+    def use_on_change(self, on_change: Callable[[], None]) -> None:
+        self._on_change = on_change
+
     def update(self, measures: Iterable[Measure]) -> None:
-        """Passa a valer o conjunto de medidas aprovadas; as séries lidas de novo já trazem o efeito."""
+        """Passa a valer o conjunto de medidas aprovadas."""
         self._effects = effects_of(measures)
-        self._levels = {}
-        repository.economic.refresh_adjusted(self._simulation_id)
+        self._first = min((e.start for e in self._effects), default=None)
+        self._on_change()
+
+    def first_day(self) -> date | None:
+        return self._first
 
     def inflation_points(self, day: date) -> float:
         return inflation_points(self._effects, day)
@@ -237,13 +224,6 @@ class SpendingEconomy:
         """Fração do crescimento do PIB (0.006 é 0,6 ponto) que as medidas somam no dia."""
         return Decimal(str(round(growth_points(self._effects, day) / 100, 6)))
 
-    def level(self, day: date) -> float:
-        if not self._effects:
-            return 1.0
-        if day not in self._levels:
-            self._levels = {**self._levels, day: stocks_level(self._effects, day)}
-        return self._levels[day]
-
     def now(self, day: date) -> list[EffectNow]:
         return effects_now(self._effects, day)
 
@@ -254,88 +234,3 @@ class SpendingEconomy:
     def latest_of(self, kind: MeasureKind) -> Effect | None:
         """A última mudança aprovada da medida, que é a que ainda pesa na inflação."""
         return next((e for e in reversed(self._effects) if e.kind is kind), None)
-
-    # Contrato com o repositório das séries
-
-    def adjust(
-        self, series: IndicatorSeries, history: IndicatorHistory
-    ) -> IndicatorHistory:
-        if not self._effects:
-            return history
-        first = min(e.start for e in self._effects)
-        values = dict(history.values)
-        for day in history.dates:
-            if day < first:
-                continue
-            values[day] = self._adjusted(series, history.values[day], day)
-        return IndicatorHistory(dates=history.dates, values=values)
-
-    def _adjusted(self, series: IndicatorSeries, value: Decimal, day: date) -> Decimal:
-        match series:
-            case IndicatorSeries.IPCA:
-                # Pontos em 12 meses viram uma fração por mês
-                return value + Decimal(str(round(self.inflation_points(day) / 12, 6)))
-            case IndicatorSeries.SELIC | IndicatorSeries.CDI:
-                annual = float(annualize_daily(value)) + self.selic_points(day) / 100
-                return Decimal(str(round(annual_to_daily(annual), 6)))
-            case IndicatorSeries.IBOV:
-                return Decimal(str(round(float(value) * self.level(day), 2)))
-            case IndicatorSeries.GDP_GROWTH | IndicatorSeries.UNEMPLOYMENT:
-                return value
-
-    def stock_factor(self, ticker: str, day: date) -> float:
-        if not self._effects:
-            return 1.0
-        level = self.level(day)
-        return 1.0 if level == 1.0 else level ** self._beta(ticker)
-
-    def _beta(self, ticker: str) -> float:
-        if self._betas is None:
-            self._betas = self._measure_betas()
-        return self._betas.get(ticker, 1.0)
-
-    def _measure_betas(self) -> dict[str, float]:
-        """Beta de cada ação contra o Ibovespa nos dois anos anteriores à partida, nas séries guardadas."""
-        end = self._start - timedelta(days=1)
-        begin = end - timedelta(days=BETA_WINDOW_DAYS)
-        reference = repository.economic.get_history(
-            IndicatorSeries.IBOV, self._simulation_id, stored=True
-        )
-        market = _returns(
-            {
-                d: float(reference.values[d])
-                for d in reference.dates
-                if begin <= d <= end
-            }
-        )
-        tickers = [stock.ticker for stock in repository.stock.get_stocks()]
-        closes = repository.stock.get_closes_between(
-            tickers, begin, end, self._simulation_id
-        )
-        return {ticker: beta_of(_returns(closes[ticker]), market) for ticker in tickers}
-
-
-def _returns(levels: dict[date, float]) -> dict[date, float]:
-    """Retorno de cada pregão contra o anterior."""
-    days = sorted(levels)
-    return {
-        day: levels[day] / levels[previous] - 1
-        for previous, day in pairwise(days)
-        if levels[previous]
-    }
-
-
-def beta_of(asset: dict[date, float], market: dict[date, float]) -> float:
-    """Quanto o ativo anda por ponto que o mercado anda: covariância ÷ variância do mercado nos dias em comum; 1 quando faltam dias."""
-    common = [d for d in asset if d in market]
-    if len(common) < MIN_BETA_DAYS:
-        return 1.0
-    xs = [market[d] for d in common]
-    ys = [asset[d] for d in common]
-    mean_x = sum(xs) / len(xs)
-    mean_y = sum(ys) / len(ys)
-    variance = sum((x - mean_x) ** 2 for x in xs)
-    if variance == 0:
-        return 1.0
-    covariance = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, ys, strict=True))
-    return max(0.0, min(MAX_BETA, covariance / variance))

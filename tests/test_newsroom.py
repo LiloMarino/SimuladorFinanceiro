@@ -381,7 +381,7 @@ def test_the_window_keeps_only_the_closes_of_the_day_that_traded():
     assert room._closes["WEGE3"] == [41.0]
 
 
-def test_the_inflation_headline_tells_what_it_would_be_without_the_spending_measures():
+def test_the_inflation_headline_tells_what_it_would_be_without_the_government():
     ipca = series({date(2019, month, 1): "1" for month in range(3, 13)})
     ipca = series(
         {**ipca.values, date(2020, 1, 1): Decimal(1), date(2020, 2, 1): Decimal(1)}
@@ -390,7 +390,7 @@ def test_the_inflation_headline_tells_what_it_would_be_without_the_spending_meas
     [headline] = macro.monthly_inflation(
         replace(
             market(day=date(2020, 3, 2), previous=date(2020, 2, 28), ipca=ipca),
-            spending_inflation=lambda _day: 1.2,
+            government_inflation=lambda _day: 1.2,
         )
     )
 
@@ -398,11 +398,11 @@ def test_the_inflation_headline_tells_what_it_would_be_without_the_spending_meas
     assert headline.dek is not None
     assert headline.dek.endswith(
         "Em 12 meses, a inflação acumula 12,68%. "
-        "Sem as medidas de gasto, a inflação em 12 meses estaria em 11,35%."
+        "Sem as medidas do governo, a inflação em 12 meses estaria em 11,35%."
     )
 
 
-def test_the_inflation_headline_stays_quiet_about_spending_when_it_adds_nothing():
+def test_the_inflation_headline_stays_quiet_about_the_government_when_it_adds_nothing():
     ipca = series({date(2019, month, 1): "1" for month in range(3, 13)})
     ipca = series(
         {**ipca.values, date(2020, 1, 1): Decimal(1), date(2020, 2, 1): Decimal(1)}
@@ -412,4 +412,4 @@ def test_the_inflation_headline_stays_quiet_about_spending_when_it_adds_nothing(
         market(day=date(2020, 3, 2), previous=date(2020, 2, 28), ipca=ipca)
     )
 
-    assert headline.dek is not None and "medidas de gasto" not in headline.dek
+    assert headline.dek is not None and "medidas do governo" not in headline.dek

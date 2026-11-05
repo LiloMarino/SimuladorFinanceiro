@@ -148,9 +148,9 @@ def test_premium_grows_faster_the_higher_the_debt():
 
 
 def test_debt_barely_moves_with_zero_primary_when_growth_pays_the_interest():
-    debt = budget.step(
+    debt, _ = budget.step(
         Decimal("0.40"),
-        selic=Decimal("0.05"),
+        rate=Decimal("0.05"),
         ipca=Decimal("0.03"),
         growth=Decimal("0.02"),
         primary=Decimal(0),
@@ -162,14 +162,14 @@ def test_debt_barely_moves_with_zero_primary_when_growth_pays_the_interest():
 
 def test_a_primary_deficit_adds_to_the_debt_and_a_surplus_cuts_it():
     rates = {
-        "selic": Decimal("0.05"),
+        "rate": Decimal("0.05"),
         "ipca": Decimal("0.03"),
         "growth": Decimal("0.02"),
     }
-    neutral = budget.step(Decimal("0.60"), primary=Decimal(0), **rates)
+    neutral, _ = budget.step(Decimal("0.60"), primary=Decimal(0), **rates)
 
-    assert budget.step(Decimal("0.60"), primary=Decimal("-0.012"), **rates) > neutral
-    assert budget.step(Decimal("0.60"), primary=Decimal("0.012"), **rates) < neutral
+    assert budget.step(Decimal("0.60"), primary=Decimal("-0.012"), **rates)[0] > neutral
+    assert budget.step(Decimal("0.60"), primary=Decimal("0.012"), **rates)[0] < neutral
 
 
 def test_playable_account_starts_with_zero_primary_and_realistic_with_the_real_one():
@@ -209,8 +209,12 @@ def test_interest_is_charged_on_the_debt_that_entered_the_month(flat_economy: No
 
     (january,) = account.months_until(date(2020, 1, 31))
 
+    # A taxa mista: a SELIC do dia na parte flutuante e a janela, que ganha o mês com a
+    # SELIC mais o prêmio que a dívida cobrava ao entrar nele
     selic = annual_index_rate(IndicatorSeries.SELIC, date(2020, 1, 31))
-    assert january.interest == start.debt * (selic + start.premium)
+    window = (*start.window[1:], selic + start.premium)
+    assert january.rate == budget.debt_rate(selic, window)
+    assert january.interest == start.debt * january.rate
 
 
 def test_a_closed_month_is_kept_between_calls(flat_economy: None):
@@ -267,14 +271,18 @@ def test_projection_steps_the_debt_with_the_rates_of_the_day(flat_economy: None)
 
     (first,) = account.project(START, date(2020, 1, 31))
 
-    # Resultado primário zero, SELIC e IPCA do dia e crescimento na tendência de 2%
-    assert first.debt == budget.step(
+    # Resultado primário zero, a taxa mista com a SELIC do dia, o IPCA do dia e o
+    # crescimento na tendência de 2%
+    selic = annual_index_rate(IndicatorSeries.SELIC, START)
+    window = (*initial.window[1:], selic + initial.premium)
+    debt, _ = budget.step(
         initial.debt,
-        selic=annual_index_rate(IndicatorSeries.SELIC, START),
+        rate=budget.debt_rate(selic, window),
         ipca=annual_index_rate(IndicatorSeries.IPCA, START),
         growth=Decimal("0.02"),
         primary=Decimal(0),
     )
+    assert first.debt == debt
 
 
 def test_premium_curve_runs_from_zero_to_one_and_a_half_of_gdp():
@@ -283,3 +291,34 @@ def test_premium_curve_runs_from_zero_to_one_and_a_half_of_gdp():
     assert curve[0] == (Decimal(0), Decimal(0))
     assert curve[-1][0] == Decimal("1.5")
     assert curve[-1][1] > curve[-2][1]
+
+
+def test_a_selic_shock_passes_45_percent_at_once_and_the_rest_through_the_window():
+    window = (Decimal("0.10"),) * budget.FIXED_WINDOW_MONTHS
+    before = budget.debt_rate(Decimal("0.10"), window)
+
+    # Um ponto a mais de SELIC: 0,45 ponto na hora, pela parte flutuante
+    assert budget.debt_rate(Decimal("0.11"), window) - before == Decimal("0.0045")
+
+    # Depois de 36 meses emitindo a 11%, a janela inteira já paga o ponto a mais
+    renewed = (Decimal("0.11"),) * budget.FIXED_WINDOW_MONTHS
+    assert budget.debt_rate(Decimal("0.11"), renewed) - before == pytest.approx(
+        Decimal("0.01")
+    )
+
+
+def test_the_causes_of_the_debt_change_add_up_to_the_whole_change():
+    debt, change = budget.step(
+        Decimal("0.75"),
+        rate=Decimal("0.12"),
+        ipca=Decimal("0.05"),
+        growth=Decimal("0.02"),
+        primary=Decimal("-0.01"),
+    )
+
+    assert change.total == pytest.approx(debt - Decimal("0.75"), abs=Decimal("1e-20"))
+    assert change.interest > 0
+    assert change.growth < 0
+    assert change.inflation < 0
+    # Déficit soma à dívida
+    assert change.primary > 0

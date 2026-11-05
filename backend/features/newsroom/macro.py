@@ -16,8 +16,8 @@ MIN_DROP = 0.02
 # O recorde só volta à manchete depois de tantos dias, para uma alta seguida não repetir o aviso
 RECORD_COOLDOWN = timedelta(days=30)
 IPCA_WINDOW_MONTHS = 12
-# A diferença mínima, em pontos de inflação em 12 meses, para a manchete citar as medidas de gasto
-MIN_SPENDING_GAP = Decimal("0.05")
+# A diferença mínima, em pontos de inflação em 12 meses, para a manchete citar as medidas do governo
+MIN_GOVERNMENT_GAP = Decimal("0.05")
 
 
 def copom_decision(market: MarketDay) -> list[Headline]:
@@ -86,17 +86,17 @@ def monthly_inflation(market: MarketDay) -> list[Headline]:
     if len(window) == IPCA_WINDOW_MONTHS:
         accrued = _accumulated(window)
         parts.append(f"Em 12 meses, a inflação acumula {number(accrued)}%.")
-        # Sem os pontos das medidas de gasto, o mesmo ano teria fechado em outro número
+        # Sem os pontos que o governo soma, o mesmo ano teria fechado em outro número
         days = [d for d in market.ipca.dates if d <= closed][-IPCA_WINDOW_MONTHS:]
         without = _accumulated(
             [
-                monthly - Decimal(str(round(market.spending_inflation(day) / 12, 6)))
+                monthly - Decimal(str(round(market.government_inflation(day) / 12, 6)))
                 for day, monthly in zip(days, window, strict=True)
             ]
         )
-        if abs(accrued - without) >= MIN_SPENDING_GAP:
+        if abs(accrued - without) >= MIN_GOVERNMENT_GAP:
             parts.append(
-                f"Sem as medidas de gasto, a inflação em 12 meses estaria em {number(without)}%."
+                f"Sem as medidas do governo, a inflação em 12 meses estaria em {number(without)}%."
             )
     return [Headline(NewsType.MONTHLY_INFLATION, text, " ".join(parts) or None)]
 

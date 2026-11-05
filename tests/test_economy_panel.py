@@ -181,7 +181,7 @@ def test_panel_with_the_government_lists_the_effects_and_keeps_the_stored_series
         status=MeasureStatus.APPROVED,
         effective=date(2022, 4, 1),
     )
-    economy = SpendingEconomy(1, start)
+    economy = SpendingEconomy()
     economy.update([approved])
     today = date(2022, 12, 30)
 

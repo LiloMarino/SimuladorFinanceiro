@@ -151,7 +151,7 @@ def test_works_add_their_part_to_the_aim_and_the_growth_climbs_toward_it(
 
     plain = MacroCourse(START)
     built = MacroCourse(START)
-    built.use_spending(lambda _day: Decimal("0.006"))
+    built.use_government(lambda _day: Decimal("0.006"), lambda _day: Decimal(0))
     assert (
         built.latest(date(2020, 12, 31)).growth
         > plain.latest(date(2020, 12, 31)).growth
@@ -174,3 +174,49 @@ def test_growth_stays_inside_the_clamp_when_stocks_crash(indicators: SetIndicato
 
     assert months[-1].aim.value < growth.MIN_GROWTH
     assert min(m.growth for m in months) == growth.MIN_GROWTH
+
+
+def test_the_base_follows_the_recorded_series_and_the_game_matches_it(
+    flat_economy: None, indicators: SetIndicator
+):
+    indicators(
+        IndicatorSeries.GDP_GROWTH,
+        {date(2020, month, 1): Decimal("-3.5") for month in (1, 4, 7, 10)},
+    )
+    indicators(IndicatorSeries.UNEMPLOYMENT, monthly_series(START, 12, "13.5"))
+
+    months = MacroCourse(START).months_until(date(2020, 12, 31))
+
+    # A queda de 2020 fica como foi, mesmo abaixo da faixa do modelo
+    for month in months:
+        assert month.base_growth == Decimal("-0.035")
+        assert month.base_unemployment == Decimal("0.135")
+        assert (month.growth, month.unemployment) == (
+            month.base_growth,
+            month.base_unemployment,
+        )
+
+
+def test_before_the_unemployment_series_starts_the_model_runs(
+    flat_economy: None, indicators: SetIndicator
+):
+    indicators(IndicatorSeries.UNEMPLOYMENT, monthly_series(date(2020, 4, 1), 9, "12"))
+
+    months = MacroCourse(START).months_until(date(2020, 6, 30))
+
+    # Juro real alto puxa o crescimento abaixo da tendência e o desemprego sobe
+    assert months[0].base_unemployment > growth.NEUTRAL_UNEMPLOYMENT
+    assert months[2].base_unemployment > months[0].base_unemployment
+    later = MacroCourse(START).latest(date(2020, 4, 30))
+    assert later.base_unemployment == Decimal("0.12")
+
+
+def test_the_impulse_pushes_the_game_away_from_the_history(flat_economy: None):
+    course = MacroCourse(START)
+    course.use_government(growth.no_push, lambda _day: Decimal("0.01"))
+
+    month = course.latest(date(2020, 12, 31))
+
+    assert month.gap.impulse > 0
+    assert month.growth == month.base_growth + month.gap.total
+    assert month.unemployment < month.base_unemployment

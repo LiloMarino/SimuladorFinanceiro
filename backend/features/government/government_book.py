@@ -71,6 +71,7 @@ from backend.features.government.computer_parties import (
     COMPUTER_FLAGS,
     COMPUTER_PARTIES,
 )
+from backend.features.government.linked_economy import LinkedEconomy
 from backend.features.government.measures import PolicyTimeline
 from backend.features.government.preparation import Prepared
 from backend.features.government.promises import Promise
@@ -132,6 +133,8 @@ class GovernmentBook:
         `on_office` roda na posse de cada presidente jogador: a carteira dele congela.
         `on_news` publica no jornal da partida a manchete de cada fato político.
         `macro` é o crescimento e o desemprego do país, que o orçamento e a aprovação leem.
+        A economia interligada fecha os meses: quem lê o país ou o orçamento num dia passa
+        antes por `close_months`, que o tick chama a cada pregão.
         """
         self._settings = settings
         self._engine = engine
@@ -148,22 +151,33 @@ class GovernmentBook:
         self._timeline = PolicyTimeline(self.state.measures.values())
         self._spending = SpendingTimeline(self.state.measures.values())
         # As séries e os preços da partida levam o efeito das medidas de gasto aprovadas
-        self._economy = SpendingEconomy(settings.id, settings.start_date)
-        self._economy.update(self.state.measures.values())
-        repository.economic.use_adjustment(settings.id, self._economy)
-        # O orçamento lê a política e o gasto de cada dia e a conta de largada da sala
-        self._macro = macro or MacroCourse(settings.start_date)
-        self._macro.use_spending(self._economy.growth_points)
-        self._budget = BudgetCourse(
+        # e das ligações da economia; o orçamento lê a política e o gasto de cada dia e a
+        # conta de largada da sala
+        self._economy = SpendingEconomy()
+        self._linked = LinkedEconomy(
+            settings.id,
             settings.start_date,
-            self.policy,
+            macro or MacroCourse(settings.start_date),
             budget_rules.initial_account(settings.start_date, settings.initial_account),
-            self._macro,
+            self.policy,
             self.spending_on,
+            self.works_on,
+            self._economy,
         )
-        # O engine lê os impostos e o prêmio de risco de cada dia do governo
+        self._economy.update(self.state.measures.values())
+        self._macro = self._linked.macro
+        self._budget = self._linked.budget
+        # O engine lê os impostos, o prêmio de risco e o prêmio a mais do crédito de cada dia
         engine.use_tax_policy(self.policy)
-        engine.use_risk_premium(self._budget.premium_on)
+        engine.use_risk_premium(self._linked.premium_on)
+        engine.use_premium_gap(self._linked.premium_gap_on)
+
+    def close_months(self, day: date) -> None:
+        """Fecha os meses da economia cujo último dia já chegou."""
+        self._linked.close_until(day)
+
+    def linked(self) -> LinkedEconomy:
+        return self._linked
 
     def budget(self) -> BudgetCourse:
         return self._budget
@@ -179,7 +193,7 @@ class GovernmentBook:
         return self._timeline.latest
 
     def risk_premium_on(self, day: date) -> Decimal:
-        return self._budget.premium_on(day)
+        return self._linked.premium_on(day)
 
     def economy(self) -> SpendingEconomy:
         return self._economy
@@ -190,6 +204,11 @@ class GovernmentBook:
     def spending_on(self, day: date) -> Decimal:
         """O gasto total do governo no dia, em fração do PIB por ano: as medidas de gasto e as emendas dos acordos."""
         return self._spending.spending_on(day) + self.state.amendments_on(day)
+
+    def works_on(self, day: date) -> Decimal:
+        """O gasto com obras acima do padrão no dia, em fração do PIB por ano."""
+        kind = MeasureKind.PUBLIC_WORKS
+        return self._spending.cost_on(kind, day) - spending.DEFAULT_COSTS[kind]
 
     def value_in_force(self, kind: MeasureKind, day: date) -> Decimal | None:
         """O valor que a medida geral tem no país no dia; nulo na medida de setor."""
@@ -269,6 +288,7 @@ class GovernmentBook:
         term = self.state.term
         if term is None or not self.governs():
             return None
+        self.close_months(today)
         return approval_rules.assess(
             term,
             self.state.satisfaction,
@@ -276,7 +296,7 @@ class GovernmentBook:
             approval_rules.market_on(
                 today,
                 self._macro.latest(today).unemployment,
-                self._budget.premium_on(today),
+                self._linked.premium_on(today),
             ),
             today,
         )

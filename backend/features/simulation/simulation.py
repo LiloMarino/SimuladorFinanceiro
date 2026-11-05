@@ -294,7 +294,7 @@ class Simulation:
                 settings.id,
                 lambda: self._engine.classification,
                 lambda day, headline: news.publish(settings.id, day, headline),
-                self._spending_inflation,
+                self._government_inflation,
             )
             if backtest is None
             else None
@@ -906,6 +906,8 @@ class Simulation:
         if self._current_date > self.settings.end_date:
             logger.info("Fim da simulação")
             raise StopIteration()
+        # O mês que fechou ontem já vale nas séries e nos preços de hoje
+        self._close_months(self._current_date)
 
         # O impacto é lido dos eventos no banco: o flush leva antes as ordens que
         # chegaram por HTTP depois do último tick, ainda datadas do dia anterior
@@ -1005,11 +1007,18 @@ class Simulation:
                 ),
             )
 
-    def _spending_inflation(self, day: date) -> float:
-        """Os pontos de IPCA que as medidas de gasto aprovadas somam à série no dia; zero sem o governo."""
+    def _government_inflation(self, day: date) -> float:
+        """Os pontos de IPCA que o governo soma à série no dia, pelas medidas e pelas ligações da economia; zero sem o governo."""
         if self._government is None:
             return 0.0
-        return self._government.economy().inflation_points(day)
+        return self._government.linked().layer.inflation_points(day)
+
+    def _close_months(self, day: date) -> None:
+        """Fecha os meses da economia até `day`; com o governo, na ordem da economia interligada."""
+        if self._government is None:
+            self._macro.months_until(day)
+        else:
+            self._government.close_months(day)
 
     def _publish_newsroom(self, stocks: list[CandleDTO]) -> None:
         """As manchetes do pregão; uma falha do noticiário não para a partida."""

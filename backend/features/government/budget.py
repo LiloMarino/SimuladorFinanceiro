@@ -242,16 +242,60 @@ def premium_curve() -> list[tuple[Decimal, Decimal]]:
     ]
 
 
+# A dívida paga uma taxa mista: 45% dela segue a SELIC do dia (títulos pós-fixados e
+# compromissadas) e 55% foi emitida nos últimos três anos à SELIC mais o prêmio da época
+FLOATING_SHARE = Decimal("0.45")
+FIXED_WINDOW_MONTHS = 36
+
+
+def debt_rate(selic: Decimal, window: tuple[Decimal, ...]) -> Decimal:
+    """A taxa média da dívida, em fração ao ano: a parte flutuante na SELIC e a prefixada pela média da janela."""
+    fixed = sum(window, ZERO) / len(window)
+    return FLOATING_SHARE * selic + (1 - FLOATING_SHARE) * fixed
+
+
+@dataclass(frozen=True)
+class DebtChange:
+    """
+    A variação da dívida no mês, em fração do PIB, por causa. As causas se aplicam em
+    sequência (juro, crescimento, inflação e primário), então a soma é a variação inteira.
+    """
+
+    interest: Decimal = ZERO
+    growth: Decimal = ZERO
+    inflation: Decimal = ZERO
+    primary: Decimal = ZERO
+
+    @property
+    def total(self) -> Decimal:
+        return self.interest + self.growth + self.inflation + self.primary
+
+    def __add__(self, other: "DebtChange") -> "DebtChange":
+        return DebtChange(
+            self.interest + other.interest,
+            self.growth + other.growth,
+            self.inflation + other.inflation,
+            self.primary + other.primary,
+        )
+
+
 def step(
-    debt: Decimal, selic: Decimal, ipca: Decimal, growth: Decimal, primary: Decimal
-) -> Decimal:
+    debt: Decimal, rate: Decimal, ipca: Decimal, growth: Decimal, primary: Decimal
+) -> tuple[Decimal, DebtChange]:
     """
-    A dívida um mês depois: ela rende a SELIC mais o prêmio, encolhe com o crescimento e
-    a inflação (que aumentam o PIB) e o resultado primário a abate.
+    A dívida um mês depois: ela rende a taxa média, encolhe com o crescimento e a
+    inflação (que aumentam o PIB) e o resultado primário a abate.
     """
-    rate = selic + premium(debt)
-    factor = ((1 + rate) / ((1 + growth) * (1 + ipca))) ** ONE_TWELFTH
-    return debt * factor - primary * ONE_TWELFTH
+    charged = debt * (1 + rate) ** ONE_TWELFTH
+    grown = charged / (1 + growth) ** ONE_TWELFTH
+    deflated = grown / (1 + ipca) ** ONE_TWELFTH
+    paid = primary * ONE_TWELFTH
+    return deflated - paid, DebtChange(
+        interest=charged - debt,
+        growth=grown - charged,
+        inflation=deflated - grown,
+        primary=-paid,
+    )
 
 
 @dataclass(frozen=True)
@@ -301,6 +345,14 @@ class BudgetMonth:
     debt: Decimal
     premium: Decimal
     gdp: Decimal
+    # A taxa média da dívida no mês e a janela da parte prefixada (SELIC mais prêmio de cada mês)
+    rate: Decimal
+    window: tuple[Decimal, ...]
+    # A variação da dívida no mês, por causa
+    change: DebtChange
+    # O que o ciclo da economia somou à receita e ao gasto (já dentro deles)
+    cycle_revenue: Decimal = ZERO
+    insurance: Decimal = ZERO
     closed: bool = True
 
     def monthly(self, ratio: Decimal) -> Decimal:
@@ -315,11 +367,38 @@ def base_spending_on(_day: date) -> Decimal:
     return BASE_SPENDING
 
 
+@dataclass(frozen=True)
+class Cycle:
+    """O que o ciclo da economia soma ao orçamento: a arrecadação que acompanha o PIB e o seguro-desemprego."""
+
+    revenue: Decimal = ZERO
+    insurance: Decimal = ZERO
+
+
+CycleOn = Callable[[date], Cycle]
+
+
+def no_cycle(_day: date) -> Cycle:
+    return Cycle()
+
+
+def starting_window(start: date, premium_now: Decimal) -> tuple[Decimal, ...]:
+    """A parte prefixada antes da partida: a SELIC guardada de cada um dos 36 meses anteriores mais o prêmio de hoje."""
+    window = []
+    month_end = start - timedelta(days=1)
+    for _ in range(FIXED_WINDOW_MONTHS):
+        selic = annual_index_rate(IndicatorSeries.SELIC, month_end, stored=True)
+        window.append(selic + premium_now)
+        month_end = month_end.replace(day=1) - timedelta(days=1)
+    return tuple(reversed(window))
+
+
 class BudgetCourse:
     """
     Os fechamentos de mês do orçamento desde o começo da partida. Uma medida só vale 90
     dias depois de aprovada, então um mês fechado nunca muda e o cálculo avança com
-    memória; numa retomada refaz tudo desde o início, no molde do replay.
+    memória; numa retomada refaz tudo desde o início, no molde do replay. Com `stored`
+    é a conta da história: SELIC e IPCA guardados e o crescimento da linha de base.
     """
 
     def __init__(
@@ -329,14 +408,21 @@ class BudgetCourse:
         account: AccountStart,
         macro: MacroCourse,
         spending_on: SpendingOn = base_spending_on,
+        cycle_on: CycleOn = no_cycle,
+        *,
+        stored: bool = False,
     ):
         self._policy_on = policy_on
         self._macro = macro
         self._spending_on = spending_on
+        self._cycle_on = cycle_on
+        self._stored = stored
         self._fixed = fixed_revenue(account)
         self._lock = threading.Lock()
+        before = start - timedelta(days=1)
+        window = starting_window(start, premium(account.debt))
         self._initial = BudgetMonth(
-            month_end=start - timedelta(days=1),
+            month_end=before,
             revenue=self._fixed + DEFAULT_GAME_REVENUE,
             spending=BASE_SPENDING,
             primary=account.primary,
@@ -345,6 +431,11 @@ class BudgetCourse:
             debt=account.debt,
             premium=premium(account.debt),
             gdp=account.gdp,
+            rate=debt_rate(
+                annual_index_rate(IndicatorSeries.SELIC, before, stored=True), window
+            ),
+            window=window,
+            change=DebtChange(),
             closed=False,
         )
         self._months: list[BudgetMonth] = []
@@ -394,9 +485,10 @@ class BudgetCourse:
         `delta_from`; `spending_on` troca o gasto dos meses projetados.
         """
         previous = self.latest(day)
-        selic = annual_index_rate(IndicatorSeries.SELIC, day)
-        ipca = annual_index_rate(IndicatorSeries.IPCA, day)
-        growth = self._macro.latest(day).growth
+        selic = annual_index_rate(IndicatorSeries.SELIC, day, stored=self._stored)
+        ipca = annual_index_rate(IndicatorSeries.IPCA, day, stored=self._stored)
+        growth = self._growth(day)
+        cycle = self._cycle_on(day)
         projected: list[BudgetMonth] = []
         while (
             month_end := last_day_of_month(previous.month_end + timedelta(days=1))
@@ -407,18 +499,23 @@ class BudgetCourse:
                 else ZERO
             )
             previous = self._month(
-                previous, month_end, selic, ipca, growth, extra, spending_on
+                previous, month_end, selic, ipca, growth, cycle, extra, spending_on
             )
             projected.append(previous)
         return projected
+
+    def _growth(self, day: date) -> Decimal:
+        country = self._macro.latest(day)
+        return country.base_growth if self._stored else country.growth
 
     def _close(self, previous: BudgetMonth, month_end: date) -> BudgetMonth:
         return self._month(
             previous,
             month_end,
-            annual_index_rate(IndicatorSeries.SELIC, month_end),
-            annual_index_rate(IndicatorSeries.IPCA, month_end),
-            self._macro.latest(month_end).growth,
+            annual_index_rate(IndicatorSeries.SELIC, month_end, stored=self._stored),
+            annual_index_rate(IndicatorSeries.IPCA, month_end, stored=self._stored),
+            self._growth(month_end),
+            self._cycle_on(month_end),
             ZERO,
         )
 
@@ -429,23 +526,30 @@ class BudgetCourse:
         selic: Decimal,
         ipca: Decimal,
         growth: Decimal,
+        cycle: Cycle,
         extra_revenue: Decimal,
         spending_on: SpendingOn | None = None,
     ) -> BudgetMonth:
-        revenue = self.revenue_on(month_end) + extra_revenue
-        spending = (spending_on or self._spending_on)(month_end)
+        revenue = self.revenue_on(month_end) + extra_revenue + cycle.revenue
+        spending = (spending_on or self._spending_on)(month_end) + cycle.insurance
         primary = revenue - spending
-        rate = selic + premium(previous.debt)
-        debt = step(previous.debt, selic, ipca, growth, primary)
-        interest = previous.debt * rate
+        # O prefixado do mês sai à SELIC do dia mais o prêmio que a dívida cobrava ao entrar nele
+        window = (*previous.window[1:], selic + previous.premium)
+        rate = debt_rate(selic, window)
+        debt, change = step(previous.debt, rate, ipca, growth, primary)
         return BudgetMonth(
             month_end=month_end,
             revenue=revenue,
             spending=spending,
             primary=primary,
-            interest=interest,
-            result=primary - interest,
+            interest=previous.debt * rate,
+            result=primary - previous.debt * rate,
             debt=debt,
             premium=premium(debt),
             gdp=previous.gdp * (((1 + growth) * (1 + ipca)) ** ONE_TWELFTH),
+            rate=rate,
+            window=window,
+            change=change,
+            cycle_revenue=cycle.revenue,
+            insurance=cycle.insurance,
         )

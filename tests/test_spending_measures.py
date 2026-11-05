@@ -257,10 +257,10 @@ def test_a_resumed_game_rebuilds_the_same_effects_from_the_events(
     assert resumed.latest_value(AUX) == Decimal("0.02")
 
 
-def test_the_book_registers_the_economy_as_the_adjustment_of_the_game(
+def test_the_book_registers_the_economy_layer_as_the_adjustment_of_the_game(
     book: GovernmentBook, engine, market
 ):
-    assert repository.economic._adjustments[settings().id] is book.economy()
+    assert repository.economic._adjustments[settings().id] is book.linked().layer
 
 
 # Prévia e orçamento

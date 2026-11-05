@@ -122,6 +122,17 @@ class SimulationEngine:
         source = self._risk_premium_source
         return Decimal(0) if source is None else source(day)
 
+    # O prêmio de risco acima da história, que o banco soma ao juro do crédito; sem a
+    # expansão é zero
+    _premium_gap_source: Callable[[date], Decimal] | None = None
+
+    def use_premium_gap(self, source: Callable[[date], Decimal]) -> None:
+        self._premium_gap_source = source
+
+    def premium_gap_on(self, day: date) -> Decimal:
+        source = self._premium_gap_source
+        return Decimal(0) if source is None else source(day)
+
     def get_cash(self, client_id: UUID) -> Decimal:
         with self._lock:
             return self._cash[client_id]

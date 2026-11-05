@@ -1,4 +1,4 @@
-"""Efeito das medidas de gasto na economia: forma no tempo, soma, SELIC, bolsa, beta e leitura das séries."""
+"""Efeito das medidas de gasto na economia: forma no tempo, soma, SELIC, bolsa e linha do tempo do gasto."""
 
 from __future__ import annotations
 
@@ -8,14 +8,11 @@ from decimal import Decimal
 
 import pytest
 
-from backend.core.enum import EffectPhase, IndicatorSeries, MeasureKind, MeasureStatus
-from backend.core.indicators import annualize_daily
-from backend.core.repository.economic import IndicatorHistory
+from backend.core.enum import EffectPhase, MeasureKind, MeasureStatus
 from backend.features.government import spending
 from backend.features.government import spending_effects as fx
 from backend.features.government.spending import SpendingTimeline
 from backend.features.government.state import Measure
-from tests.fakes import daily_series, monthly_series
 
 AUX = MeasureKind.WELFARE_SPENDING
 SERVANTS = MeasureKind.SERVANT_RAISE
@@ -193,31 +190,6 @@ def test_the_preview_peak_of_the_stocks_is_the_deepest_point():
     assert fx.peak_stocks(AUX, -2.0) > 0
 
 
-# O beta de cada ativo
-
-
-def returns(
-    factor: float, days: int = 120
-) -> tuple[dict[date, float], dict[date, float]]:
-    market = {START + timedelta(days=i): math.sin(i / 3) / 100 for i in range(days)}
-    return {d: factor * r for d, r in market.items()}, market
-
-
-def test_beta_is_how_much_the_asset_moves_per_point_of_the_market():
-    asset, market = returns(2.0)
-
-    assert fx.beta_of(asset, market) == pytest.approx(2.0)
-
-
-def test_beta_is_limited_between_zero_and_three():
-    assert fx.beta_of(*returns(5.0)) == fx.MAX_BETA
-    assert fx.beta_of(*returns(-1.0)) == 0
-
-
-def test_beta_is_one_when_there_are_too_few_common_days():
-    assert fx.beta_of(*returns(2.0, days=fx.MIN_BETA_DAYS - 1)) == 1
-
-
 # A linha do tempo do gasto
 
 
@@ -295,85 +267,3 @@ def test_a_hypothetical_timeline_does_not_change_the_real_one():
 
     assert hypothetical.value_on(AUX, date(2022, 5, 1)) == Decimal("0.02")
     assert timeline.value_on(AUX, date(2022, 5, 1)) == spending.DEFAULTS[AUX]
-
-
-# A leitura das séries
-
-
-@pytest.fixture
-def economy(indicators):
-    indicators(IndicatorSeries.IPCA, monthly_series(START, 80, "0.30"))
-    indicators(IndicatorSeries.SELIC, daily_series(START, date(2026, 12, 31), "0.05"))
-    indicators(IndicatorSeries.CDI, daily_series(START, date(2026, 12, 31), "0.05"))
-    indicators(IndicatorSeries.IBOV, daily_series(START, date(2026, 12, 31), "100000"))
-    result = fx.SpendingEconomy(1, START)
-    result.update([measure(AUX, "0.02", "0.015")])
-    return result
-
-
-def history_of(series: IndicatorSeries) -> IndicatorHistory:
-    values = {
-        IndicatorSeries.IPCA: monthly_series(START, 80, "0.30"),
-        IndicatorSeries.SELIC: daily_series(START, date(2026, 12, 31), "0.05"),
-        IndicatorSeries.CDI: daily_series(START, date(2026, 12, 31), "0.05"),
-        IndicatorSeries.IBOV: daily_series(START, date(2026, 12, 31), "100000"),
-    }[series]
-    return IndicatorHistory(sorted(values), values)
-
-
-def test_the_ipca_gets_the_monthly_share_of_the_points_and_the_past_stays(economy):
-    history = history_of(IndicatorSeries.IPCA)
-    adjusted = economy.adjust(IndicatorSeries.IPCA, history)
-    full = date(2021, 8, 1)
-
-    assert adjusted.values[date(2020, 6, 1)] == Decimal("0.30")
-    assert adjusted.values[date(2021, 1, 1)] == Decimal("0.30")
-    assert adjusted.values[full] == Decimal("0.30") + Decimal(
-        str(round(economy.inflation_points(full) / 12, 6))
-    )
-    assert adjusted.values[full] > Decimal("0.30")
-    # A série guardada não é tocada
-    assert history.values[full] == Decimal("0.30")
-
-
-def test_selic_and_cdi_rise_together_by_the_reaction_of_the_central_bank(economy):
-    day = date(2021, 8, 2)
-    base = annualize_daily(Decimal("0.05"))
-
-    for series in (IndicatorSeries.SELIC, IndicatorSeries.CDI):
-        adjusted = economy.adjust(series, history_of(series))
-        assert adjusted.values[day] > Decimal("0.05")
-        assert annualize_daily(adjusted.values[day]) == pytest.approx(
-            base + Decimal(str(economy.selic_points(day) / 100)), abs=Decimal("0.0001")
-        )
-        assert adjusted.values[date(2020, 6, 1)] == Decimal("0.05")
-
-
-def test_the_ibovespa_is_scaled_by_the_level_of_the_stocks(economy):
-    day = date(2021, 8, 2)
-    adjusted = economy.adjust(IndicatorSeries.IBOV, history_of(IndicatorSeries.IBOV))
-
-    assert float(adjusted.values[day]) == pytest.approx(
-        100000 * economy.level(day), abs=0.01
-    )
-    assert adjusted.values[day] < Decimal("100000")
-
-
-def test_without_measures_the_series_come_back_untouched():
-    nothing = fx.SpendingEconomy(1, START)
-    history = history_of(IndicatorSeries.SELIC)
-
-    assert nothing.adjust(IndicatorSeries.SELIC, history) is history
-    assert nothing.stock_factor("AAA", date(2021, 8, 2)) == 1.0
-
-
-def test_a_stock_follows_the_market_level_raised_to_its_beta(economy, monkeypatch):
-    day = date(2021, 8, 2)
-    monkeypatch.setattr(economy, "_betas", {"HIGH": 2.0, "LOW": 0.5})
-
-    level = economy.level(day)
-    assert economy.stock_factor("HIGH", day) == pytest.approx(level**2)
-    assert economy.stock_factor("LOW", day) == pytest.approx(level**0.5)
-    # Sem beta medido, o ativo anda como o mercado
-    assert economy.stock_factor("NEW", day) == pytest.approx(level)
-    assert economy.stock_factor("HIGH", day) < economy.stock_factor("LOW", day)
