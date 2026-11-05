@@ -15,7 +15,7 @@ type PendingMenuItemProps = {
 
 /**
  * A linha Pendências no topo do menu lateral: mostra a contagem (vermelha se alguma é grave) e
- * abre a lista numa janela ao lado, sem pausar a partida. Sem pendência, a linha não existe.
+ * abre a lista numa janela ao lado, sem pausar a partida. Sem pendência, a linha fica sem contagem e a janela diz que não há nada.
  */
 export function PendingMenuItem({ items }: PendingMenuItemProps) {
   const navigate = useNavigate();
@@ -29,8 +29,8 @@ export function PendingMenuItem({ items }: PendingMenuItemProps) {
 
   usePendingToasts(items, goTo);
 
-  if (!items || items.length === 0) return null;
-  const severe = severeCount(items);
+  const list = items ?? [];
+  const severe = severeCount(list);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -39,7 +39,9 @@ export function PendingMenuItem({ items }: PendingMenuItemProps) {
           <ListChecks />
           <span>Pendências</span>
         </PopoverTrigger>
-        <SidebarMenuBadge tone={severe > 0 ? "destructive" : "warning"}>{items.length}</SidebarMenuBadge>
+        {list.length > 0 && (
+          <SidebarMenuBadge tone={severe > 0 ? "destructive" : "warning"}>{list.length}</SidebarMenuBadge>
+        )}
       </SidebarMenuItem>
       <PopoverContent
         side="right"
@@ -56,14 +58,20 @@ export function PendingMenuItem({ items }: PendingMenuItemProps) {
             </Badge>
           )}
         </div>
-        <ul>
-          {items.map((item) => (
-            <PendingRow key={item.key} item={item} onAct={goTo} />
-          ))}
-        </ul>
-        <p className="border-t px-4 py-2.5 text-xs text-foreground/80">
-          Vermelha quando já custa dinheiro, âmbar quando ainda dá tempo.
-        </p>
+        {list.length === 0 ? (
+          <p className="px-4 pt-1 pb-4 text-sm text-muted-foreground">Sem pendências.</p>
+        ) : (
+          <>
+            <ul>
+              {list.map((item) => (
+                <PendingRow key={item.key} item={item} onAct={goTo} />
+              ))}
+            </ul>
+            <p className="border-t px-4 py-2.5 text-xs text-foreground/80">
+              Vermelha quando já custa dinheiro, âmbar quando ainda dá tempo.
+            </p>
+          </>
+        )}
       </PopoverContent>
     </Popover>
   );
