@@ -46,7 +46,7 @@ export function BotLogSheet({ bot, onClose }: BotLogSheetProps) {
 
   return (
     <Sheet open onOpenChange={(open) => !open && onClose()}>
-      <SheetContent size="lg">
+      <SheetContent size="xl">
         {/* Título */}
         <SheetHeader>
           <div className="flex items-center gap-2.5 pr-8">
@@ -93,10 +93,10 @@ export function BotLogSheet({ bot, onClose }: BotLogSheetProps) {
                 <TableRow>
                   <TableHead>Dia</TableHead>
                   <TableHead>O que fez</TableHead>
-                  <TableHead>Ativo</TableHead>
+                  <TableHead wrap>Ativo</TableHead>
                   <TableHead numeric>Qtd.</TableHead>
                   <TableHead numeric>Preço</TableHead>
-                  <TableHead>Por quê</TableHead>
+                  <TableHead wrap>Por quê</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -110,7 +110,7 @@ export function BotLogSheet({ bot, onClose }: BotLogSheetProps) {
                         {row.action ? actionLabel(row.action) : "—"}
                       </b>
                     </TableCell>
-                    <TableCell>
+                    <TableCell wrap>
                       {row.ticker ? (
                         <Badge variant="secondary" size="tag" numeric>
                           {row.ticker}
@@ -121,7 +121,7 @@ export function BotLogSheet({ bot, onClose }: BotLogSheetProps) {
                     </TableCell>
                     <TableCell numeric>{rowQuantity(row)}</TableCell>
                     <TableCell numeric>{rowPrice(row)}</TableCell>
-                    <TableCell className="whitespace-normal">{row.reason}</TableCell>
+                    <TableCell wrap>{row.reason}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
