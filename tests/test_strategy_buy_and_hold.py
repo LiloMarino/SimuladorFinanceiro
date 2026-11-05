@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from decimal import Decimal
 
 from backend.core.dto.strategy import StrategyParamValue
@@ -70,3 +71,13 @@ def test_validate_requires_a_known_asset():
     assert BuyAndHold.validate(PARAMS, {"AAA"}) == {}
     assert BuyAndHold.validate({"asset": "ZZZ"}, {"AAA"})["asset"]
     assert BuyAndHold.validate({"asset": ["AAA"]}, {"AAA"})["asset"]
+
+
+def test_sizes_the_order_by_the_book_price_not_by_the_close():
+    ctx = context(cash="31", history={"AAA": closes([100.0, 100.0, 30.0])})
+    # O fechamento de R$ 30 paga uma cota, mas o melhor preço de venda do book é R$ 31,50
+    ctx.quotes["AAA"] = replace(ctx.quotes["AAA"], ask=31.5)
+
+    BuyAndHold().next(ctx, PARAMS)
+
+    assert ctx.intents == []

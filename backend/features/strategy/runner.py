@@ -582,6 +582,7 @@ class StrategyRunner:
             if candle is None:
                 continue
             segment = engine.classification.get(ticker)
+            best_ask = engine.matching_engine.order_book.best_sell(ticker)
             quotes[ticker] = Quote(
                 ticker,
                 engine.stocks[ticker].name,
@@ -590,6 +591,7 @@ class StrategyRunner:
                 segment.sector if segment else None,
                 segment.segment if segment else None,
                 engine.stocks[ticker].asset_class.fractional,
+                best_ask.price if best_ask else None,
             )
         return _Market(
             quotes=quotes,

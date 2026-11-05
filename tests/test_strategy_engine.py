@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 
@@ -264,6 +265,38 @@ def test_a_refused_order_is_logged_and_the_strategy_keeps_running(match):
     panel = sim.get_my_strategy(ana).panel
     assert panel is not None
     assert (panel.orders_total, panel.refused, panel.executed) == (2, 2, 0)
+
+
+def test_a_buy_the_cash_cannot_pay_at_the_book_price_waits_instead_of_repeating(match):
+    sim, ana, _ = match
+    engine = sim._engine
+    runner = sim._strategies
+    market_of_the_day = runner._market
+
+    def market_closing_below_the_ask(today: date):
+        market = market_of_the_day(today)
+        quote = market.quotes["BANK_A"]
+        best = engine.matching_engine.order_book.best_sell("BANK_A")
+        assert best is not None
+        # O caixa paga uma cota ao fechamento, mas não ao melhor preço de venda do book
+        market.quotes["BANK_A"] = replace(quote, close=best.price * 0.98)
+        short_of_one_share = Decimal(str(round(best.price * 0.99, 2)))
+        engine.add_cash(
+            ana.client_id, max(short_of_one_share - engine.get_cash(ana.client_id), 0)
+        )
+        return market
+
+    runner._market = market_closing_below_the_ask
+    sim.set_my_strategy(ana, "buy_and_hold", {"asset": "BANK_A"})
+
+    for _ in range(5):
+        sim.next_tick()
+
+    orders = [r for r in log_of(sim, ana) if r.kind is StrategyLogKind.ORDER]
+    # A estratégia dimensiona pelo preço do book: sem cota paga, ela espera em vez de pedir e ser recusada
+    assert StrategyOrderStatus.EXECUTED in [o.status for o in orders]
+    assert StrategyOrderStatus.REFUSED not in [o.status for o in orders]
+    assert sim.get_my_strategy(ana).panel.refused == 0
 
 
 def test_changing_the_parameters_keeps_the_start_date(match):

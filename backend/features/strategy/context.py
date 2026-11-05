@@ -25,6 +25,13 @@ class Quote:
     segment: str | None
     # Só a cripto negocia fração de unidade
     fractional: bool = False
+    # Melhor preço de venda do book hoje: o que uma compra a mercado paga; nulo usa o fechamento
+    ask: float | None = None
+
+    @property
+    def buy_price(self) -> float:
+        """O preço por unidade que a compra a mercado paga hoje."""
+        return self.close if self.ask is None else self.ask
 
 
 @dataclass(frozen=True)
@@ -92,12 +99,12 @@ class StrategyContext:
         return self.history_source(ticker, days)
 
     def affordable(self, ticker: str, money: Decimal) -> Decimal:
-        """O que o dinheiro paga do ativo ao preço de hoje: inteiro, ou até oito casas na cripto."""
+        """O que o dinheiro paga do ativo ao preço de compra de hoje: inteiro, ou até oito casas na cripto."""
         quote = self.quotes.get(ticker)
         if quote is None:
             return Decimal(0)
         return affordable_quantity(
-            money, Decimal(str(quote.close)), fractional=quote.fractional
+            money, Decimal(str(quote.buy_price)), fractional=quote.fractional
         )
 
     def buy(
