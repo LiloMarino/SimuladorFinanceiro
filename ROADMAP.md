@@ -107,11 +107,10 @@
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.3 | — | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 | — | — | — | 🔍 |
 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 | — | — | — | 🔍 |
-| [**F217**](#f217) | Correção | Correções da 3.4 | M21 · 3.4 | — | Médio | Bom | ⏳ |
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -136,6 +135,7 @@
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F97](#f97), [F191](#f191), [F194](#f194) | — | — | ✅ |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | ✅ |
 | [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | — | — | ✅ |
+| [**F217**](#f217) | Correção | Correções da 3.4 | M21 · 3.4 | — | — | — | ✅ |
 
 </details>
 
@@ -151,12 +151,12 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 1/7 concluídos
+> **Progresso:** 2/7 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | — | ✅ Concluído |
-| 2 | [**F217**](#f217) | Correção | Correções da 3.4 | — | ⏳ Pendente |
+| 2 | [**F217**](#f217) | Correção | Correções da 3.4 | — | ✅ Concluído |
 | 3 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | — | 🔍 Em avaliação |
 | 4 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | — | ⏳ Pendente |
 | 5 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ⏳ Pendente |
@@ -305,7 +305,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F217**](#f217) | Correção | Correções da 3.4 | M21 · 3.4 · 2º | 0 | Médio | Bom | ⏳ |
 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 · 3º | 0 | — | — | 🔍 |
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 · 4º | 0 | Médio | Bom | ⏳ |
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 5º | 0 | Alto | Bom | ⏳ |
@@ -354,7 +353,6 @@
 | **F177** | Feature | Marcação a mercado do Tesouro | N34 | — | M21 · 3.4 | [F165](#f165) | Médio | Médio | Médio | Bom |
 | **F195** | Feature | Acordo de base até o fim do mandato | N34 | — | M23 · 3.5 | — | Médio | Baixo | Alto | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.2 | — | Médio | Médio | Médio | Bom |
-| **F217** | Correção | Correções da 3.4 | N15 | — | M21 · 3.4 | — | Médio | Baixo | Alto | Bom |
 | **F218** | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | N15 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 
 <a id="f6"></a>
@@ -426,16 +424,6 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 **F197 — Rebalanceamento por meta com várias classes.** Serve N4. Hoje o `TargetRebalance` (`backend/features/strategy/rebalance.py:55`) divide só entre um ativo de ações (BOVA11 por padrão) e a renda fixa de liquidez diária: a meta em ações vai de 10% a 90% (padrão 60%), e o desvio máximo, de 1 a 20 pontos (padrão 5). O playtest de 31/out pediu configurar a meta de cada classe.
 
 **O que muda:** os parâmetros viram uma lista de alvos (um ativo ou uma classe e a porcentagem), que soma 100%, com a faixa de desvio de cada alvo; a estratégia vende o que passou da faixa antes de comprar o que ficou abaixo, como hoje. O formulário da estratégia mostra a lista com o total e recusa o que não soma 100%. O padrão continua 60% em BOVA11 e 40% em renda fixa com 5 pontos, então partidas salvas e backtests antigos dão o mesmo resultado; um teste compara os dois. Os parâmetros salvos no perfil (F170) passam a guardar a lista.
-
-<a id="f217"></a>
-**F217 — Correções da 3.4.** Lote dos consertos achados no playtest de 04/11, em main, em `fix:`:
-- (1) **Log das ordens do bot** (`statistics-report/bot-log-sheet.tsx`): o painel tem 520 px e a tabela não quebra linha (`whitespace-nowrap` em `ui/table.tsx`), então rola na horizontal. Alargar o painel e deixar as colunas de texto quebrarem; a comparação com uma partida de versão antiga pelo navegador mostra como era.
-- (2) **Radar na aba Partido da preparação** (`preparation/party-found-tab.tsx`): o mesmo `ProfileRadar` da tela de fundar partido no jogo (`flags-picker.tsx`).
-- (3) **Pendências sempre na barra lateral** (`pending-menu-item.tsx`): o item aparece também sem pendência, e o clique abre "Sem pendências".
-- (4) **Selo de pausa só "Pausado"** (`layouts/partial/topbar.tsx`), com o motivo numa dica ao passar o mouse.
-- (5) **Jornal rola a página inteira** (`journal-paper.tsx`): a lista deixa de ter rolagem própria, e o "Arquivo da partida" fica fixo na lateral como navegação.
-- (6) **Estratégias repetem a ordem:** o comprar e segurar, e outras, tenta comprar todo dia que tem caixa para uma cota (`buy_and_hold.py`), e cada recusa vira uma linha de erro no log (`runner._execute`). Reproduzir, achar o motivo da recusa e fazer as estratégias esperarem em vez de repetir.
-- (7) **Selects de jogador e partido com avatar e marca**, na lista e no valor escolhido: candidato e vice em `ticket-dialog.tsx` e `party-found-tab.tsx`, com `PlayerOption` e `PartyMark`.
 
 <a id="f218"></a>
 **F218 — Textos que explicam o óbvio ou o sistema por dentro.** Serve N15. O playtest de 04/11 achou textos que contam a conta interna ou o que a tela já mostra, e pediu a varredura do app inteiro. Os dois primeiros casos: no card do partido da preparação (`my-party-card.tsx`), "Quanto a verba rende", "Cada filiado escolhe quanto contribui, e pode ser zero.", "A verba rende pela raiz…" e "A primeira cobrança sai no próximo dia 1º."; na oferta de crédito (`loan-offer-card.tsx`), a conta "Renda fixa mais cara do dia 70,10% + 0,50 p.p. = 70,60% ao ano". A varredura passa por todas as telas e sai com a lista do que cortar; texto que explica uma métrica ao leigo fica, na dica dela. Cada corte vai em `fix:`.
@@ -617,6 +605,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | --- | --- | --- | --- | --- | --- |
 | **F191** | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | N34 | D20 | M21 · 3.4 |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — |
+| **F217** | Correção | Correções da 3.4 | N15 | — | M21 · 3.4 |
 
 <a id="f191"></a>
 **F191 — Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida.** Serve N34; condicionado por D20. A economia da partida passou a ser a história mais o desvio que o governo causa. Cada fechamento de mês calcula a partida e a história lado a lado (`government/linked_economy.py`, o `LinkedEconomy`, chamado no tick antes dos preços do dia), e as ligações saem da diferença entre as duas (`economy/links.py`):
@@ -637,6 +626,16 @@ Limitação: as linhas das ligações no painel foram conferidas em teste automa
 **F196 — Evolução do patrimônio por tipo de renda variável.** Serve N16. Hoje a evolução do patrimônio (`portfolio/components/networth-chart.tsx`) tem as visões "Ganho" e "Por classe", que separa renda fixa, renda variável e caixa, um painel por classe. O playtest de 31/out pediu ver a renda variável aberta por tipo.
 
 **O que muda:** uma visão "Por tipo", ao lado de "Por classe", com um painel por tipo de renda variável (Ações, FII, ETF, BDR e Cripto) no mesmo estilo dos painéis de hoje; o tipo que a carteira nunca teve não ganha painel. O backend soma a série da carteira pelo tipo do ativo, que já está no cadastro, no mesmo endpoint da visão por classe. Sem rodada no canvas: o layout é o da visão por classe.
+
+<a id="f217"></a>
+**F217 — Correções da 3.4.** Lote dos consertos achados no playtest de 04/11, em main, em `fix:`:
+- (1) **Log das ordens do bot** (`statistics-report/bot-log-sheet.tsx`): o painel tem 520 px e a tabela não quebra linha (`whitespace-nowrap` em `ui/table.tsx`), então rola na horizontal. Alargar o painel e deixar as colunas de texto quebrarem; a comparação com uma partida de versão antiga pelo navegador mostra como era.
+- (2) **Radar na aba Partido da preparação** (`preparation/party-found-tab.tsx`): o mesmo `ProfileRadar` da tela de fundar partido no jogo (`flags-picker.tsx`).
+- (3) **Pendências sempre na barra lateral** (`pending-menu-item.tsx`): o item aparece também sem pendência, e o clique abre "Sem pendências".
+- (4) **Selo de pausa só "Pausado"** (`layouts/partial/topbar.tsx`), com o motivo numa dica ao passar o mouse.
+- (5) **Jornal rola a página inteira** (`journal-paper.tsx`): a lista deixa de ter rolagem própria, e o "Arquivo da partida" fica fixo na lateral como navegação.
+- (6) **Estratégias repetem a ordem:** o comprar e segurar, e outras, tenta comprar todo dia que tem caixa para uma cota (`buy_and_hold.py`), e cada recusa vira uma linha de erro no log (`runner._execute`). Reproduzir, achar o motivo da recusa e fazer as estratégias esperarem em vez de repetir.
+- (7) **Selects de jogador e partido com avatar e marca**, na lista e no valor escolhido: candidato e vice em `ticket-dialog.tsx` e `party-found-tab.tsx`, com `PlayerOption` e `PartyMark`.
 
 ---
 
