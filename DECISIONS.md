@@ -348,3 +348,13 @@ Os indicadores saem do caminho: a SELIC soma as variações dos trechos ao últi
 - A rejeição dá consequência à promessa quebrada e ao governo ruim, que voltam a pesar na eleição seguinte.
 - Região é só uma mistura de grupos: o mapa por região sai depois, sem mudar o modelo.
 **Consequências:** a régua de promessa por faixas sai; a promessa vira medida da lista, cobrada no mandato. Os partidos do computador passam a existir sempre no Congresso, com perfil próprio por grupo. Os números (grupos, pesos, quanto cada medida mexe em cada grupo) se calibram jogando, antes de o Congresso e as promessas serem montados em cima.
+
+### D20 — A economia da partida é a história mais o desvio que o governo causa
+**Status:** ✅ Decidida
+
+**Decisão:** na partida com governo, toda ligação econômica age sobre a diferença entre duas economias calculadas lado a lado: a da partida, com as medidas aprovadas, e a da história, que lê as séries guardadas com os impostos e o gasto padrão. Desemprego, prêmio de risco, nível do PIB e impulso fiscal entram nas ligações como "partida menos história". O crescimento do PIB e o desemprego da história são as séries reais do IBGE, e o modelo do jogo só cobre onde elas não têm dado. Cada mês fechado vale a partir do primeiro dia do mês seguinte. A reação do Banco Central à inflação somada é uma função só, que a SELIC do governo substitui.
+**Por quê:**
+- Sem nenhuma ação do governo o desvio é zero e a partida é exatamente a história: o jogador que não governa vê o Brasil real, e a régua do placar não muda.
+- O efeito do governo fica mensurável e explicável: cada número da tela de Economia se abre em "na história" mais o que cada medida e cada ligação somaram.
+- O mês de defasagem corta o laço "o fechamento lê a série ajustada, e a série ajustada depende do fechamento", e o resultado não depende de quem leu primeiro.
+**Consequências:** custa calcular o orçamento e a macroeconomia duas vezes por mês. Toda ligação nova (o dólar, o juro real decidido pelo governo) entra no mesmo molde, como mais uma parcela do desvio. A espiral da dívida não tem teto: o prêmio cresce sem limite e só um superávit primário a segura.

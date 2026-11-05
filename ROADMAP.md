@@ -99,7 +99,6 @@
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | M21 · 3.4 | — | Médio | Bom | ⏳ |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.1 | — | — | — | 🔍 |
-| [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | 🔍 |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | — | — | — | 🔍 |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | — | — | — | — | 🔍 |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | — | — | — | — | 🔍 |
@@ -112,7 +111,7 @@
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -134,6 +133,8 @@
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F175](#f175), [F176](#f176) | — | — | ✅ |
+| **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F97](#f97), [F191](#f191), [F194](#f194) | — | — | ✅ |
+| [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | ✅ |
 | [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | — | — | ✅ |
 
 </details>
@@ -150,11 +151,11 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 0/6 concluídos
+> **Progresso:** 1/6 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | — | 🔍 Em avaliação |
+| 1 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | — | ✅ Concluído |
 | 2 | [**F217**](#f217) | Correção | Correções da 3.4 | — | ⏳ Pendente |
 | 3 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | — | ⏳ Pendente |
 | 4 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ⏳ Pendente |
@@ -245,7 +246,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 · 1º | 1 | — | — | 🔍 |
 | [**F217**](#f217) | Correção | Correções da 3.4 | M21 · 3.4 · 2º | 0 | Médio | Bom | ⏳ |
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 · 3º | 0 | Médio | Bom | ⏳ |
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 4º | 0 | Alto | Bom | ⏳ |
@@ -266,6 +266,7 @@
 | [**F132**](#f132) | Feature | Tópicos de "como se joga" do Como jogar | — | 0 | Médio | Bom | ⏳ |
 | [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | — | 0 | Baixo | Bom | ⏳ |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | 0 | — | — | 🔍 |
+| [**F194**](#f194) | Feature | Dólar e ativos internacionais | — | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | — | 0 | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | 0 | — | — | 🔍 |
@@ -280,7 +281,7 @@
 | **F6** | Feature | Link de convite pela internet no lobby | N2 | — | — | [F5](#f5) | Médio | Médio | Alto | Bom |
 | **F22** | Feature | Preço bruto, desdobramentos e dividendos na partida | N3, N7 | D1, D3, D7, D12 | M22 · 4.0 | — | Alto | Alto | Alto | Bom |
 | **F56** | Feature | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom |
-| **F97** | Feature | SELIC nas mãos do governo | N34 | D19, D14 | M21 · 3.4 | — | Alto | Alto | Alto | Bom |
+| **F97** | Feature | SELIC nas mãos do governo | N34 | D19, D14, D20 | M21 · 3.4 | — | Alto | Alto | Alto | Bom |
 | **F100** | Feature | Proventos na carteira e nas telas | N3, N7 | D3 | M22 · 4.0 | [F22](#f22) | Médio | Médio | Médio | Bom |
 | **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | — | — | — | Médio | Baixo | Alto | Bom |
 | **F133** | Feature | Tópicos de conceitos do Como jogar | N25 | — | — | — | Baixo | Baixo | Médio | Bom |
@@ -403,10 +404,9 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 | **F131** | Feature | Catálogo de padrões de vela | N19 | — | — | — | Tópico do Como jogar com cada padrão animado |
 | **F158** | Melhoria | Animações do Como jogar revistas | N25 | — | — | — | O visual numa rodada no canvas dedicada: animações atuais contra as primeiras, número do passo fora da cena, cursor e destaque, e o palco em tamanho real mostrando só o trecho do passo |
 | **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.1 | [F44](#f44) | Escolher a variante entre as do canvas, já com o layout das Gestoras |
-| **F191** | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | N34 | — | M21 · 3.4 | — | Sessão de desenho em Opus com o usuário: quais ligações entram, como camada de efeito com coeficientes ancorados em dado real (BCB, IBGE); série própria de desemprego (PNAD); freio do laço dívida → prêmio; a taxa média da dívida; como o painel mostra a cadeia; encaixe com a F97 e a F165. Antes, reproduzir a dívida ÷ PIB com a série da partida. |
 | **F192** | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | N12 | — | — | — | A forma dos controles de regime, a reprodutibilidade pela semente, o teto medido do horizonte e a relação com a economia interligada (F191). |
 | **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | — | — | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
-| **F194** | Feature | Dólar e ativos internacionais | N34, N11 | — | — | [F191](#f191) | Como o dólar do jogo reage (desconfiança, juro real), a camada pelo desvio sobre BDR e IVVB11 e onde o seletor de origem aparece. |
+| **F194** | Feature | Dólar e ativos internacionais | N34, N11 | D20 | — | [F191](#f191) | Como o dólar do jogo reage (desconfiança, juro real), a camada pelo desvio sobre BDR e IVVB11 e onde o seletor de origem aparece. |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | — | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | — | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
 | **F216** | Correção | Pontas soltas das features entregues | N15, N34 | — | — | — | Decidir cada uma das nove pontas: conserto aqui, card próprio ou fica assim |
@@ -456,15 +456,6 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 
 <a id="f179"></a>
 **F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: depois do selo de pausa vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Hoje isso é um caso extremo; com as Gestoras, governo, gestora e corrida pela meta ligados juntos passam a ser o caso comum, e é lá que o desenho se decide. O desenho no canvas já inclui o layout com as Gestoras, então a topbar é resolvida na 4.1, depois da F44, e entra no app já certa para o conjunto. A topbar não quebra linha, então a variante em duas linhas fica fora. Das outras, o canvas compara: (a) a velocidade num botão só ("10×") que abre as opções; (b) a corrida e o governo como selos compactos, com o detalhe ao passar o mouse. A referência é 1920 de largura, e em 1366 nada pode quebrar; o estado de teste é corrida, governo e gestora ligados, pausa com o motivo mais longo e o x100 destacado. O selo de pausa já sai só com "Pausado" e o motivo numa dica no lote de correções da 3.4 (F217), pedido dos playtests de 31/out e 04/11. Sai daqui para Pendente com a variante escolhida.
-
-<a id="f191"></a>
-**F191 — Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida.** Serve N34. Hoje as ligações são poucas e quase todas saem do gasto do governo: medida de gasto → IPCA → SELIC (1,5 vez a alta do IPCA) → bolsa (−2,9% por ponto de SELIC na média de 3 meses, pelo beta de cada ação); obras → crescimento; juro real e alta da bolsa → crescimento; crescimento → desemprego (lei de Okun: crescer acima de 2% derruba o desemprego, que vai de 4% a 18% com neutro em 9%); dívida → prêmio de risco, sem teto → juro da dívida e títulos novos do Tesouro; e IPCA, SELIC, bolsa, desemprego e prêmio → aprovação (`government/spending_effects.py`, `economy/growth.py`, `government/budget.py`). SELIC, IPCA e Ibovespa são as séries históricas, e só se mexem pela camada de efeito do gasto.
-
-Faltam: dívida → inflação, juro e bolsa (o risco fiscal); PIB → lucro das empresas e preço de todas as ações; PIB → arrecadação pelo ciclo; desemprego → inflação (curva de Phillips: desemprego baixo aquece os salários e a inflação) e → gasto (seguro-desemprego); prêmio de risco → CDI, crédito e bolsa; impostos do jogo → crescimento e bolsa.
-
-Falta também conferir a dívida ÷ PIB. Numa salva velha, o resultado do mês deu −R$ 285 bi enquanto a dívida subiu só de 74% para 92% do PIB em 4,5 anos. A conta mensal (`budget.py`) é a de livro-texto (a dívida cresce pelo juro, encolhe pelo crescimento nominal do PIB e muda pelo resultado primário) e só fecha com esses números se a SELIC média do período foi bem menor que a do mês olhado: isso se reproduz com a série da própria partida. Duas suspeitas: toda a dívida bruta paga SELIC + prêmio, o que superestima o juro (a dívida real é em parte prefixada e atrelada ao IPCA, com taxa média abaixo da SELIC); e a F128 registra o peso da bolsa no crescimento como 5 onde o código usa 0,05.
-
-A F97 (SELIC do governo) e a F165 (Tesouro) se apoiam no resultado.
 
 <a id="f192"></a>
 **F192 — Gerador de futuro: inflação por regime e horizonte em anos.** Serve N12. Hoje o choque de inflação é um pulso: sobe em seis meses e cai pela metade a cada ano, então no máximo faz um pico no começo do futuro gerado; o playtest de 31/out esperava um controle da inflação do futuro inteiro. O "Começar em", que só decide onde o gerado encaixa no real, pesa pouco. E o "até quando" é um campo de data livre: apagar ou errar um dígito já dispara a prévia, e milhares de anos travam (o limite no backend vai no lote de correções, F184).
@@ -565,7 +556,23 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
+| **F191** | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | N34 | D20 | M21 · 3.4 |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — |
+
+<a id="f191"></a>
+**F191 — Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida.** Serve N34; condicionado por D20. A economia da partida passou a ser a história mais o desvio que o governo causa. Cada fechamento de mês calcula a partida e a história lado a lado (`government/linked_economy.py`, o `LinkedEconomy`, chamado no tick antes dos preços do dia), e as ligações saem da diferença entre as duas (`economy/links.py`):
+- **Curva de Phillips:** cada ponto de desemprego abaixo da história soma 0,35 ponto ao IPCA.
+- **Risco fiscal:** cada ponto de prêmio acima da história soma 0,5 ponto ao IPCA, pesa na bolsa como um ponto de SELIC (−2,9%) e encarece o crédito na mesma medida.
+- **PIB → bolsa e arrecadação:** cada 1% de PIB acima da história levanta a bolsa em 2,5% (pelo beta) e soma 0,06 ponto do PIB de receita.
+- **Ciclo fiscal:** o seguro-desemprego custa 0,05% do PIB por ponto de desemprego acima da história, e o impulso fiscal (a piora do primário sem obras em 12 meses) soma metade ao crescimento.
+
+O overlay das séries (`economy/layer.py`, `EconomyLayer`) soma os pontos do gasto e das ligações, e a reação do Banco Central (1,5 vez a inflação somada) virou a função única `central_bank_reaction`, que a SELIC do governo vai trocar. Cada mês fechado vale a partir do dia 1 do mês seguinte.
+
+O crescimento do PIB e o desemprego viraram séries baixadas do SGS (PIB do IBGE em 4 trimestres e desocupação da PNAD Contínua), na Central de dados, e são a história da partida; o modelo cobre só onde não há dado. A dívida paga taxa mista (45% na SELIC do dia, 55% na média de 36 meses do que os títulos travaram) e o prêmio segue sem teto. O juro do mês passou a incidir sobre a dívida anterior. A dívida ÷ PIB reproduzida com a série da partida fecha: o resultado é nominal, e a razão anda pelo juro menos a inflação e o crescimento. O que a subia com SELIC baixa era o prêmio cobrado sobre a dívida inteira, que a taxa mista corrige. O painel agora abre a variação em juro, crescimento, inflação e primário.
+
+Na tela de Economia, o cartão de efeitos lista medidas e ligações; o do crescimento mostra a série do IBGE mais as quatro parcelas (juro real, bolsa, obras, impulso); o do desemprego, a história mais o que a partida somou; o da dívida, a taxa média e de onde veio a variação de 12 meses. A seção "A economia interligada" do guia do governo explica tudo. O peso da bolsa no crescimento era 0,05 mesmo: o "5" do registro antigo era erro de digitação.
+
+Limitação: as linhas das ligações no painel foram conferidas em teste automatizado, mas não numa partida com medidas aprovadas no app. O banco principal precisa da migration e de baixar as duas séries novas na Central de dados.
 
 <a id="f196"></a>
 **F196 — Evolução do patrimônio por tipo de renda variável.** Serve N16. Hoje a evolução do patrimônio (`portfolio/components/networth-chart.tsx`) tem as visões "Ganho" e "Por classe", que separa renda fixa, renda variável e caixa, um painel por classe. O playtest de 31/out pediu ver a renda variável aberta por tipo.
