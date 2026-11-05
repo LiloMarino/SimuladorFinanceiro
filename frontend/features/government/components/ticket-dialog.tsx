@@ -36,7 +36,12 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
   const [vice, setVice] = useState(party.vice?.nickname ?? NO_VICE);
   const setTicket = useSetTicket();
 
-  const nicknames = Object.fromEntries(party.members.map((member) => [member.nickname, member.nickname]));
+  const candidateItems = Object.fromEntries(
+    party.members.map((member) => [
+      member.nickname,
+      <PlayerOption key={member.nickname} nickname={member.nickname} color={member.color} />,
+    ]),
+  );
   const blockedBy = Object.fromEntries(panel.vice_options.map((option) => [option.nickname, option.blocked]));
   const viceOptions = panel.vice_options.filter((option) => option.nickname !== candidate);
   const viceItems = {
@@ -69,14 +74,14 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
           <div className="grid gap-3.5">
             <Field>
               <FieldLabel>Candidato</FieldLabel>
-              <Select value={candidate} items={nicknames} onValueChange={(value) => value && setCandidate(value)}>
+              <Select value={candidate} items={candidateItems} onValueChange={(value) => value && setCandidate(value)}>
                 <SelectTrigger className="w-full" aria-label="Candidato">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {party.members.map((member) => (
                     <SelectItem key={member.nickname} value={member.nickname} disabled={!!blockedBy[member.nickname]}>
-                      {member.nickname}
+                      <PlayerOption nickname={member.nickname} color={member.color} />
                       {blockedBy[member.nickname] && (
                         <span className="text-xs text-muted-foreground">{blockedBy[member.nickname]}</span>
                       )}

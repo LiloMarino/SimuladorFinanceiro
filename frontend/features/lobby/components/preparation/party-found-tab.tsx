@@ -67,7 +67,10 @@ export function PartyFoundTab({
   const members = preparations.players
     .filter((p) => p.kind === "JOIN" && p.founder === nickname)
     .map((p) => p.nickname);
-  const candidates = [nickname, ...members];
+  const candidates = [nickname, ...members].map((name) => ({
+    nickname: name,
+    color: humans.find((player) => player.nickname === name)?.color,
+  }));
   const viceOptions = humans.filter((player) => player.nickname !== candidate);
   // O vice sai da chapa quando vira o candidato
   const viceValue = vice === candidate ? NO_VICE : vice;
@@ -121,7 +124,15 @@ export function PartyFoundTab({
                   <Select
                     value={candidate}
                     items={Object.fromEntries(
-                      candidates.map((name) => [name, name === nickname ? `${name} (você)` : name]),
+                      candidates.map((item) => [
+                        item.nickname,
+                        <PlayerOption
+                          key={item.nickname}
+                          nickname={item.nickname}
+                          color={item.color}
+                          suffix={item.nickname === nickname ? "(você)" : undefined}
+                        />,
+                      ]),
                     )}
                     onValueChange={(value) => value && setCandidate(value)}
                   >
@@ -129,9 +140,13 @@ export function PartyFoundTab({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {candidates.map((name) => (
-                        <SelectItem key={name} value={name}>
-                          {name === nickname ? `${name} (você)` : name}
+                      {candidates.map((item) => (
+                        <SelectItem key={item.nickname} value={item.nickname}>
+                          <PlayerOption
+                            nickname={item.nickname}
+                            color={item.color}
+                            suffix={item.nickname === nickname ? "(você)" : undefined}
+                          />
                         </SelectItem>
                       ))}
                     </SelectContent>

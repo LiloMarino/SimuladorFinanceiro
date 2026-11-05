@@ -299,7 +299,15 @@ function ActionBody({
             ) : (
               <Select
                 value={rivalId === null ? null : String(rivalId)}
-                items={Object.fromEntries(campaign.rivals.map((item) => [String(item.party_id), item.abbr]))}
+                items={Object.fromEntries(
+                  campaign.rivals.map((item) => [
+                    String(item.party_id),
+                    <span key={item.party_id} className="flex items-center gap-2">
+                      <PartyMark abbr={item.abbr} color={item.color} size="sm" />
+                      {item.name}
+                    </span>,
+                  ]),
+                )}
                 onValueChange={(value) => value && onRival(Number(value))}
               >
                 <SelectTrigger className="w-70" aria-label="Rival">
