@@ -5,6 +5,7 @@ import { useSetSimulationSpeed } from "@/shared/hooks/mutations/useSetSimulation
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { cn } from "@/shared/lib/utils";
 import { displayShortDate } from "@/shared/lib/utils/display";
@@ -24,12 +25,13 @@ interface TopbarProps {
 const SPEED_OPTIONS = [1, 2, 4, 10, 100];
 const MAX_SPEED = 100;
 
-const PAUSE_REASON_LABELS: Record<NonNullable<SimulationState["pause_reason"]>, string> = {
-  HOST: "Pausado",
-  CAMPAIGN_OPENED: "Pausado: campanha aberta",
-  FIRST_ROUND_RESULT: "Pausado: resultado do 1º turno",
-  RUNOFF_RESULT: "Pausado: resultado do 2º turno",
-  IMPEACHMENT: "Pausado: impeachment",
+// O motivo da pausa que não foi do jogador, mostrado na dica do selo
+const PAUSE_REASON_HINTS: Record<NonNullable<SimulationState["pause_reason"]>, string | null> = {
+  HOST: null,
+  CAMPAIGN_OPENED: "Pausa automática: campanha aberta",
+  FIRST_ROUND_RESULT: "Pausa automática: resultado do 1º turno",
+  RUNOFF_RESULT: "Pausa automática: resultado do 2º turno",
+  IMPEACHMENT: "Pausa automática: impeachment",
 };
 
 export default function Topbar({ pageLabel }: TopbarProps) {
@@ -44,7 +46,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
   const speed = simData?.speed ?? 0;
   const paused = speed === 0;
   const maxSpeed = speed === MAX_SPEED;
-  const pauseLabel = PAUSE_REASON_LABELS[simData?.pause_reason ?? "HOST"];
+  const pauseHint = PAUSE_REASON_HINTS[simData?.pause_reason ?? "HOST"];
 
   // A aba do navegador avisa a pausa para quem está em outra aba
   useEffect(() => {
@@ -86,10 +88,15 @@ export default function Topbar({ pageLabel }: TopbarProps) {
           {/* Data, pausa e velocidade */}
           <div className="flex items-center gap-2 rounded-lg border border-border bg-subtle p-1">
             {paused && (
-              <Badge variant="warning" size="status" pulse role="status">
-                <Pause />
-                {pauseLabel}
-              </Badge>
+              <Tooltip>
+                <TooltipTrigger render={<span className={pauseHint ? "cursor-help" : undefined} />}>
+                  <Badge variant="warning" size="status" pulse role="status">
+                    <Pause />
+                    Pausado
+                  </Badge>
+                </TooltipTrigger>
+                {pauseHint && <TooltipContent>{pauseHint}</TooltipContent>}
+              </Tooltip>
             )}
             <span
               className={cn(
