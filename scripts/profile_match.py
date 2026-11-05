@@ -17,7 +17,6 @@ os milissegundos não, porque ele mesmo custa tempo.
 
 import argparse
 import logging
-import os
 import statistics
 import sys
 import time
@@ -32,6 +31,7 @@ from uuid import uuid4
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from backend import config
 from backend.config.env_settings import ENV_PATH
 from backend.core import repository
 from backend.core.dto.backtest import BacktestConfigDTO, BacktestParticipantDTO
@@ -82,7 +82,10 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def select_database(choice: str) -> None:
-    """Define o banco antes do primeiro uso: o backend o resolve ao abrir a conexão."""
+    """
+    Define o banco antes do primeiro uso. A engine nasce na primeira consulta com a URL
+    de `config.env`, que o import do backend já carregou do .env: é nela que vai o banco.
+    """
     if choice == "current":
         return
     url = ScratchDatabaseSettings().url
@@ -90,7 +93,7 @@ def select_database(choice: str) -> None:
         sys.exit(
             "POSTGRES_TEST_DATABASE_URL não está no .env (ou use --database current)."
         )
-    os.environ["POSTGRES_DATABASE_URL"] = url
+    config.env.postgres_url = url
 
 
 def median_ms(values: list[float]) -> float:
