@@ -74,7 +74,6 @@
 | [**F81**](#f81) | Manutenção | CORS restrito à mesma origem | — | — | Baixo | Médio | 💤 |
 | [**F90**](#f90) | Feature | Cenários | M25 · 4.3 | — | — | — | 🔍 |
 | [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.3 | — | — | — | 🔍 |
-| [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 | — | Alto | Bom | ⏳ |
 | [**F100**](#f100) | Feature | Proventos na carteira e nas telas | M22 · 4.0 | — | Médio | Bom | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.1 | — | Alto | Médio | 💤 |
 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | M18 · 4.1 | — | — | — | 🔍 |
@@ -110,7 +109,7 @@
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -133,6 +132,7 @@
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F175](#f175), [F176](#f176) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F97](#f97), [F191](#f191), [F194](#f194) | — | — | ✅ |
+| [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 | — | — | — | ✅ |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | ✅ |
 | [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | — | — | ✅ |
 | [**F217**](#f217) | Correção | Correções da 3.4 | M21 · 3.4 | — | — | — | ✅ |
@@ -151,7 +151,7 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 2/7 concluídos
+> **Progresso:** 3/7 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -159,7 +159,7 @@
 | 2 | [**F217**](#f217) | Correção | Correções da 3.4 | — | ✅ Concluído |
 | 3 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | — | ⏳ Pendente |
 | 4 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | — | ⏳ Pendente |
-| 5 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ⏳ Pendente |
+| 5 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ✅ Concluído |
 | 6 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
 | 7 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | [F165](#f165) | ⏳ Pendente |
 
@@ -307,7 +307,6 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 · 3º | 0 | Baixo | Bom | ⏳ |
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 · 4º | 0 | Médio | Bom | ⏳ |
-| [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 5º | 0 | Alto | Bom | ⏳ |
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 6º | 1 | Médio | Bom | ⏳ |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M23 · 3.5 · 2º | 1 | Médio | Bom | ⏳ |
@@ -339,7 +338,6 @@
 | **F6** | Feature | Link de convite pela internet no lobby | N2 | — | M27 · 4.5 | [F5](#f5) | Médio | Médio | Alto | Bom |
 | **F22** | Feature | Preço bruto, desdobramentos e dividendos na partida | N3, N7 | D1, D3, D7, D12 | M22 · 4.0 | — | Alto | Alto | Alto | Bom |
 | **F56** | Feature | Novidades no app | N14 | — | M27 · 4.5 | — | Baixo | Baixo | Médio | Bom |
-| **F97** | Feature | SELIC nas mãos do governo | N34 | D19, D14, D20 | M21 · 3.4 | — | Alto | Alto | Alto | Bom |
 | **F100** | Feature | Proventos na carteira e nas telas | N3, N7 | D3 | M22 · 4.0 | [F22](#f22) | Médio | Médio | Médio | Bom |
 | **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | — | M28 · 4.6 | — | Médio | Baixo | Alto | Bom |
 | **F133** | Feature | Tópicos de conceitos do Como jogar | N25 | — | M28 · 4.6 | — | Baixo | Baixo | Médio | Bom |
@@ -366,11 +364,6 @@
 
 <a id="f56"></a>
 **F56 — Novidades no app.** Serve N14. Como as notas de patch de um jogo: o `CHANGELOG.md` da F51 vai junto no executável, o backend o serve com a versão, e o lobby mostra as novidades da versão atual. Na primeira abertura depois de atualizar, o card ou o selo de novidades fica em destaque até ser aberto (o navegador guarda a última versão vista); aberto, mostra "O que há de novo na versão X" e dá acesso ao histórico inteiro. O lugar exato no lobby, que já está cheio, sai de uma iteração no Claude Design antes de implementar.
-
-<a id="f97"></a>
-**F97 — SELIC nas mãos do governo.** Ligado à N34; uma opção da expansão "Governo & Política" (F95), no lugar do Banco Central autônomo, que continua sendo o padrão. (1) **Ritmo do Copom:** o governo decide a SELIC em reuniões a cada 45 dias, como o Copom, que se reúne 8 vezes por ano desde 2006; entre reuniões ela não muda. (2) **Teto por reunião, pelo que aconteceu de verdade.** Das 150 mudanças da meta da SELIC entre 2000 e outubro de 2026 (série do Banco Central): 34 foram de 0,25 ponto, 67 de 0,5, 19 de 0,75, 19 de 1, 7 de 1,5, uma de 2, uma de 2,5 e duas de 3; desde 2006, nunca passou de 1,5. O teto vem do IPCA de 12 meses: 0,75 ponto em tempo normal (80% das mudanças reais), 1,5 com o IPCA acima do teto da meta (a meta mais a tolerância de 1,5 ponto), como em 2021 e 2022, e 3 com o IPCA acima de 15%, o que só aconteceu em 2002 e 2003. (3) **O efeito vem do juro real, contínuo e sem faixa morta.** Juro real é a SELIC menos o IPCA de 12 meses; o juro neutro, que nem aquece nem esfria, é 5%, perto da estimativa do Banco Central. A distância até o neutro age pelo mecanismo de efeito por cima das séries da F106: cada ponto abaixo do neutro, mantido por um ano, sobe o IPCA em uns 0,3 ponto ao longo dos 4 trimestres seguintes, com o pico no 2º e no 3º (o modelo Samba do Banco Central), e cada ponto acima o derruba na mesma medida. Abaixo do neutro o crescimento aquece na hora; acima, esfria e a bolsa cai pelo coeficiente da D14. Como o efeito é contínuo, nenhuma faixa de juro sai de graça. Os limites de 2% e 7% de juro real servem só para os avisos e para a reação dos grupos (D19): abaixo de 2%, aposentados e quem vive de investimento perdem apoio; acima de 7%, quem trabalha e empreende. (4) **Credibilidade.** Cada reunião que deixa o juro real abaixo do neutro com o IPCA acima da meta gasta credibilidade; cada reunião que aperta devolve um pouco, devagar. Com pouca credibilidade a inflação reage mais rápido ao juro baixo, porque o mercado já espera que ela suba, e o prêmio de risco dos títulos (F128) sobe: o governo que usou a SELIC para ganhar a eleição herda uma inflação que não cede. A tela mostra a credibilidade com uma dica do que ela mede e do que a move. O 0,3 é ordem de grandeza dos modelos semiestruturais e se calibra no playtest; não se mede no histórico do banco, porque a SELIC reage à inflação e a regressão direta sai com o sinal trocado. Fontes: [Relatório de Inflação de junho de 2013, box do Samba](https://www.bcb.gov.br/content/ri/relatorioinflacao/201306/RELINF201306-ri201306b6p.pdf); [um modelo semiestrutural simples](https://coolassessor.substack.com/p/um-modelo-semiestrutural-simples); [Blog do IBRE sobre o efeito da SELIC](https://blogdoibre.fgv.br/posts/deve-o-bc-reduzir-selic-replica-jose-julio-senna).
-
-**Aceite:** com o resto parado, o juro real 3 pontos abaixo do neutro por um ano sobe o IPCA de 12 meses em 0,6 a 1,2 ponto no ano seguinte, e a mesma decisão com credibilidade baixa sobe mais.
 
 <a id="f100"></a>
 **F100 — Proventos na carteira e nas telas.** Serve N3 e N7; segue a D3. Continua a F22, que guarda os dividendos de cada ativo, reais e gerados, e os credita no caixa na data ex com o ativo de origem; aqui o provento passa a aparecer no jogo. O provento cai no caixa e nunca reinveste sozinho: o que fazer com o dinheiro é do jogador. As telas passam antes pelo canvas. Plano: (1) **Carteira:** o total de proventos recebidos aparece no resumo e, em cada posição, o rendimento (proventos dos últimos 12 meses sobre o valor da posição hoje), em Decimal (D3), com a dica do que ele mede e de como ler. (2) **Detalhe do ativo:** a tela do ativo ganha o histórico de proventos (data ex, valor por cota, total recebido pelo jogador). (3) **Estatísticas e fechamento:** o que entrou como provento soma ao relatório da partida e à decomposição do retorno. (4) **IR:** dividendo e rendimento de FII são isentos para pessoa física, e a regra do simulador trata todo provento como isento; o `yfinance` não separa o JCP (juros sobre capital próprio, com 15% retidos na fonte) do dividendo, e essa simplificação entra escrita na página de impostos dos docs. Gatilho: F22 concluída; sai com ela na 4.0 e destrava os rendimentos mensais da gestora (F105).
@@ -603,9 +596,15 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
+| **F97** | Feature | SELIC nas mãos do governo | N34 | D19, D14, D20 | M21 · 3.4 |
 | **F191** | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | N34 | D20 | M21 · 3.4 |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — |
 | **F217** | Correção | Correções da 3.4 | N15 | — | M21 · 3.4 |
+
+<a id="f97"></a>
+**F97 — SELIC nas mãos do governo.** Ligado à N34; uma opção da expansão "Governo & Política" (F95), no lugar do Banco Central autônomo, que continua sendo o padrão. (1) **Ritmo do Copom:** o governo decide a SELIC em reuniões a cada 45 dias, como o Copom, que se reúne 8 vezes por ano desde 2006; entre reuniões ela não muda. (2) **Teto por reunião, pelo que aconteceu de verdade.** Das 150 mudanças da meta da SELIC entre 2000 e outubro de 2026 (série do Banco Central): 34 foram de 0,25 ponto, 67 de 0,5, 19 de 0,75, 19 de 1, 7 de 1,5, uma de 2, uma de 2,5 e duas de 3; desde 2006, nunca passou de 1,5. O teto vem do IPCA de 12 meses: 0,75 ponto em tempo normal (80% das mudanças reais), 1,5 com o IPCA acima do teto da meta (a meta mais a tolerância de 1,5 ponto), como em 2021 e 2022, e 3 com o IPCA acima de 15%, o que só aconteceu em 2002 e 2003. (3) **O efeito vem do juro real, contínuo e sem faixa morta.** Juro real é a SELIC menos o IPCA de 12 meses; o juro neutro, que nem aquece nem esfria, é 5%, perto da estimativa do Banco Central. A distância até o neutro age pelo mecanismo de efeito por cima das séries da F106: cada ponto abaixo do neutro, mantido por um ano, sobe o IPCA em uns 0,3 ponto ao longo dos 4 trimestres seguintes, com o pico no 2º e no 3º (o modelo Samba do Banco Central), e cada ponto acima o derruba na mesma medida. Abaixo do neutro o crescimento aquece na hora; acima, esfria e a bolsa cai pelo coeficiente da D14. Como o efeito é contínuo, nenhuma faixa de juro sai de graça. Os limites de 2% e 7% de juro real servem só para os avisos e para a reação dos grupos (D19): abaixo de 2%, aposentados e quem vive de investimento perdem apoio; acima de 7%, quem trabalha e empreende. (4) **Credibilidade.** Cada reunião que deixa o juro real abaixo do neutro com o IPCA acima da meta gasta credibilidade; cada reunião que aperta devolve um pouco, devagar. Com pouca credibilidade a inflação reage mais rápido ao juro baixo, porque o mercado já espera que ela suba, e o prêmio de risco dos títulos (F128) sobe: o governo que usou a SELIC para ganhar a eleição herda uma inflação que não cede. A tela mostra a credibilidade com uma dica do que ela mede e do que a move. O 0,3 é ordem de grandeza dos modelos semiestruturais e se calibra no playtest; não se mede no histórico do banco, porque a SELIC reage à inflação e a regressão direta sai com o sinal trocado. Fontes: [Relatório de Inflação de junho de 2013, box do Samba](https://www.bcb.gov.br/content/ri/relatorioinflacao/201306/RELINF201306-ri201306b6p.pdf); [um modelo semiestrutural simples](https://coolassessor.substack.com/p/um-modelo-semiestrutural-simples); [Blog do IBRE sobre o efeito da SELIC](https://blogdoibre.fgv.br/posts/deve-o-bc-reduzir-selic-replica-jose-julio-senna).
+
+**Entregue em 05/11.** Decidido com a Lilo na implementação: (1) o efeito na inflação mede o desvio da história, 0,3 × (juro real da história − juro real da partida), como o crescimento (D20); o neutro de 5% fica para a credibilidade, os avisos e os grupos. (2) O efeito vale nos dois modos: no Banco Central autônomo, a reação de 1,5 ponto de SELIC por ponto de IPCA passa a trazer a inflação de volta. (3) Os grupos reagem ao juro real com a faixa de 2% a 7% em toda partida, no lugar do fator da SELIC nominal contra 10%. (4) A reunião não pausa o jogo: o presidente marca a decisão antes, ela vale do dia seguinte à reunião, uma pendência avisa nos 7 dias anteriores sem decisão, sem decisão a SELIC fica, e o presidente do computador decide como o Banco Central autônomo, dentro do teto. Até o primeiro presidente de jogador tomar posse, o Banco Central decide como na história. A credibilidade perde 4 por ponto de juro real abaixo do neutro (até 20 por reunião) com o IPCA acima da meta e ganha 3 a cada alta; em 0, soma 2 pontos ao prêmio da dívida e dobra o efeito, que chega mais cedo. A janela da reunião parte da SELIC efetiva guardada (13,65% com a meta em 13,75%) e vai nos passos de 0,25 dentro do teto. Card do governo na aba Contas e escolha no lobby; retrato do card no canvas. Fica para o playtest: calibrar o 0,3, a perda de credibilidade e a faixa dos grupos; e mostrar a escolha da SELIC no resumo do lobby.
 
 <a id="f191"></a>
 **F191 — Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida.** Serve N34; condicionado por D20. A economia da partida passou a ser a história mais o desvio que o governo causa. Cada fechamento de mês calcula a partida e a história lado a lado (`government/linked_economy.py`, o `LinkedEconomy`, chamado no tick antes dos preços do dia), e as ligações saem da diferença entre as duas (`economy/links.py`):
