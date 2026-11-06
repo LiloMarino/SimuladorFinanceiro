@@ -138,6 +138,25 @@ por digitação, ou quando quem valida é o servidor:
 
 ---
 
+## Ícones
+
+- O ícone sai do `lucide-react`. Só quando o lucide não tem o desenho (marca de uma
+  instituição, símbolo do design) entra um ícone próprio.
+- Ícone próprio é um componente em `frontend/shared/components/icons/`, um arquivo por
+  ícone, escrito como SVG dentro de um `forwardRef<SVGSVGElement, LucideProps>`. Com o
+  mesmo contrato do lucide ele entra em qualquer lugar que espera um `LucideIcon` (como
+  `icon` do `NavItem`), sem adaptador. Exemplo: `treasury-icon.tsx`.
+- O SVG vem do design ou da fonte externa e é colado como está, com estas trocas: o
+  tamanho vem da prop `size`, a cor vem de `currentColor` (nada de hex, o oxlint barra),
+  e o `id` de máscara, gradiente ou `clipPath` vem de `useId()`, porque dois ícones na
+  mesma página com o mesmo `id` se desenham um no outro.
+- Ícone próprio é monocromático e herda a cor do texto, como os vizinhos. O fundo
+  colorido, quando existe, é do componente que usa o ícone.
+- Não há SVGR nem importação de `.svg` como componente: são poucos ícones e o arquivo
+  `.tsx` já é o que o TypeScript, o oxlint e o Knip enxergam.
+
+---
+
 ## Testes
 
 O Vitest cobre as contas que o navegador faz: função pura de cálculo ou de formatação, sem

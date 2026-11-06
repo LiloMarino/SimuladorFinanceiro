@@ -19,7 +19,6 @@ import {
   GraduationCap,
   LineChart,
   Newspaper,
-  Vault,
 } from "lucide-react";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
@@ -62,11 +61,12 @@ import { GuardLayout } from "./layouts/guard-layout";
 import { SimulationModeLayout } from "./layouts/simulation-mode-layout";
 import { queryClient } from "@/shared/lib/queryClient";
 import { DebugTools } from "@/shared/components/debug-tools";
+import { TreasuryIcon } from "@/shared/components/icons/treasury-icon";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda variável", endpoint: "/variable-income", icon: TrendingUp, group: "Mercado" },
   { key: "fixed-income", label: "Renda fixa", endpoint: "/fixed-income", icon: Coins, group: "Mercado" },
-  { key: "treasury", label: "Tesouro", endpoint: "/treasury", icon: Vault, group: "Mercado" },
+  { key: "treasury", label: "Tesouro", endpoint: "/treasury", icon: TreasuryIcon, group: "Mercado" },
   { key: "economy", label: "Economia", endpoint: "/economy", icon: LineChart, group: "Mercado" },
   { key: "journal", label: "Jornal", endpoint: "/journal", icon: Newspaper, group: "Mercado" },
   { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: Wallet, group: "Você" },

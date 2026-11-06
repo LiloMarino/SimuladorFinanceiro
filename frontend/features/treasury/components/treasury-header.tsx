@@ -1,4 +1,4 @@
-import { Vault } from "lucide-react";
+import { Landmark } from "lucide-react";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import type { TreasuryCatalog } from "@/types";
 import { ratesDay, reviewMonthName } from "../lib/treasury";
@@ -17,7 +17,7 @@ export function TreasuryHeader({ catalog }: TreasuryHeaderProps) {
             aria-hidden
             className="inline-flex size-14 shrink-0 items-center justify-center rounded-[14px] bg-info text-white"
           >
-            <Vault className="size-[30px]" />
+            <Landmark className="size-[30px]" />
           </span>
           <div className="grid min-w-0 flex-1 gap-1">
             <b className="text-xl">Tesouro</b>
