@@ -73,12 +73,7 @@ export function StrategyLog() {
       {/* Linhas */}
       {error ? (
         <CardContent>
-          <ErrorState
-            title="Não deu para carregar o registro"
-            description="A conexão com a partida caiu. As ordens da estratégia seguem valendo."
-            error={error}
-            onRetry={() => void refetch()}
-          />
+          <ErrorState title="Não deu para carregar o registro" error={error} onRetry={() => void refetch()} />
         </CardContent>
       ) : isLoading ? (
         <CardContent>

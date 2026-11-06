@@ -62,12 +62,7 @@ export function BotLogSheet({ bot, onClose }: BotLogSheetProps) {
         <div className="flex-1 overflow-y-auto">
           {error ? (
             <div className="px-6 py-5">
-              <ErrorState
-                title="Não deu para carregar o log"
-                description="A conexão com a partida caiu. Tente de novo em instantes."
-                error={error}
-                onRetry={() => void refetch()}
-              />
+              <ErrorState title="Não deu para carregar o log" error={error} onRetry={() => void refetch()} />
             </div>
           ) : isLoading ? (
             <div className="grid gap-2 px-6 py-5" aria-busy="true" aria-label="Carregando o log">
