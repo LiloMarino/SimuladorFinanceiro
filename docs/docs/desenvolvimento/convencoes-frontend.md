@@ -153,7 +153,16 @@ por digitação, ou quando quem valida é o servidor:
 - Ícone próprio é monocromático e herda a cor do texto, como os vizinhos. O fundo
   colorido, quando existe, é do componente que usa o ícone.
 - Não há SVGR nem importação de `.svg` como componente: são poucos ícones e o arquivo
-  `.tsx` já é o que o TypeScript, o oxlint e o Knip enxergam.
+  `.tsx` já é o que o TypeScript, o oxlint e o Knip enxergam. Passou de uns 10 ícones
+  próprios, ou os SVGs começaram a chegar prontos de fora em volume, vale reavaliar o
+  `vite-plugin-svgr`, que converte cada `.svg` em componente sem copiar o desenho à mão.
+- O `forwardRef` é o que mantém o ícone compatível com o tipo `LucideIcon`, que ainda é um
+  `ForwardRefExoticComponent`. Quando o lucide trocar esse tipo, os ícones próprios trocam
+  junto, um arquivo por vez.
+- A regra `shadcn/no-raw-colors` vale na pasta de ícones: a máscara usa `fill-white` e
+  `fill-black`. Chegou um ícone colorido de verdade, ou um SVG externo cheio de hex, o
+  caminho é um `override` do oxlint para `frontend/shared/components/icons/**` que
+  desliga só essa regra.
 
 ---
 
