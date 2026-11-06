@@ -92,16 +92,17 @@ READINGS: dict[VoterGroup, tuple[GroupReading, ...]] = {
     G.INVESTORS: (
         GroupReading.STOCKS,
         GroupReading.INFLATION,
+        GroupReading.REAL_RATE,
         GroupReading.RISK_PREMIUM,
     ),
-    G.ENTREPRENEURS: (GroupReading.SELIC, GroupReading.STOCKS),
+    G.ENTREPRENEURS: (GroupReading.REAL_RATE, GroupReading.STOCKS),
     G.FORMAL_WORKERS: (
         GroupReading.INFLATION,
-        GroupReading.SELIC,
+        GroupReading.REAL_RATE,
         GroupReading.UNEMPLOYMENT,
     ),
     G.PUBLIC_SERVANTS: (GroupReading.INFLATION, GroupReading.CAPITAL_GAINS_TAX),
-    G.RETIREES: (GroupReading.INFLATION, GroupReading.SELIC),
+    G.RETIREES: (GroupReading.INFLATION, GroupReading.REAL_RATE),
     G.WELFARE: (GroupReading.INFLATION, GroupReading.UNEMPLOYMENT),
 }
 

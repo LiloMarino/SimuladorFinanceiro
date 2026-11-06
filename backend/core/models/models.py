@@ -792,6 +792,8 @@ class GovernmentEvent(Base):
             "RUNOFF_CONTRIBUTION",
             "RUNOFF_POLL",
             "PARTIES_PREPARED",
+            "SELIC_SET",
+            "SELIC_DECIDED",
             name="government_event_type",
         ),
         nullable=False,

@@ -47,8 +47,10 @@ export function SpendingCard({ panel, onPropose }: SpendingCardProps) {
               <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">Sai</span>
               <h2 className="text-[15px] font-semibold">Gasto público</h2>
               <span className="text-[13px] text-muted-foreground">
-                Gasto mexe em preço: o dinheiro a mais vira consumo, a inflação sobe uns meses depois e o Banco Central
-                responde com a SELIC.
+                Gasto mexe em preço: o dinheiro a mais vira consumo e a inflação sobe uns meses depois.{" "}
+                {panel.monetary?.by_government
+                  ? "A SELIC só responde quando o presidente decide no Copom."
+                  : "O Banco Central responde com a SELIC."}
               </span>
             </div>
             <Link to="/economy" className="mt-4.5 text-[13px] whitespace-nowrap text-info hover:underline">

@@ -37,6 +37,7 @@ from backend.core.enum import (
     PlayerActivity,
     PlayerGrouping,
     PreparationKind,
+    SelicControl,
     TeamNaming,
     VictoryCriterion,
 )
@@ -93,6 +94,7 @@ class SimulationRulesRequest(BaseModel):
     computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL
     poll_margin: bool = True
     initial_account: InitialAccount = InitialAccount.PLAYABLE
+    selic_control: SelicControl = SelicControl.AUTONOMOUS
 
     @model_validator(mode="after")
     def validate_government_rules(self):
@@ -103,6 +105,7 @@ class SimulationRulesRequest(BaseModel):
             start_date=self.start_date,
             end_date=self.end_date,
             first_election=self.first_election,
+            selic_control=self.selic_control,
         )
         return self
 

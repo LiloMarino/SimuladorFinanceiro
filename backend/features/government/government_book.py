@@ -31,10 +31,12 @@ from backend.core.enum import (
     GovernmentEventType,
     GovernmentNoticeKind,
     GroupVerdict,
+    IndicatorSeries,
     MeasureKind,
     MeasureStatus,
     PauseReason,
     PendingType,
+    SelicControl,
     VoterGroup,
     VoterValue,
 )
@@ -44,8 +46,15 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
+from backend.core.indicators import (
+    annual_index_rate,
+    inflation_target,
+    inflation_tolerance,
+)
 from backend.core.utils import format_money, next_business_day, required
+from backend.features.economy import monetary
 from backend.features.economy.growth import MacroCourse
+from backend.features.economy.layer import central_bank_reaction
 from backend.features.government import approval as approval_rules
 from backend.features.government import budget as budget_rules
 from backend.features.government import (
@@ -98,6 +107,8 @@ logger = logging.getLogger(__name__)
 
 # A orientação do pedido de impeachment aberto; a das medidas é "measure:<id>"
 IMPEACHMENT_REF = "impeachment"
+# A reunião do Copom sem SELIC marcada vira pendência do presidente nos 7 dias antes
+SELIC_REMINDER_DAYS = 7
 
 
 def measure_ref(measure_id: int | None) -> str:
@@ -163,6 +174,7 @@ class GovernmentBook:
             self.spending_on,
             self.works_on,
             self._economy,
+            self.state.selic_board,
         )
         self._economy.update(self.state.measures.values())
         self._macro = self._linked.macro
@@ -314,6 +326,8 @@ class GovernmentBook:
         items.extend(self._unguided_votes(user, today))
         if unpaid := self._unpaid_contribution(user, today):
             items.append(unpaid)
+        if meeting := self._selic_meeting_pending(user, today):
+            items.append(meeting)
         if not self._ticket_open(today):
             return items
         party = next(
@@ -351,6 +365,25 @@ class GovernmentBook:
         return registry.pending(
             PendingType.UNPAID_CONTRIBUTION,
             f"Sua contribuição de {format_money(amount)} não foi paga em {MONTH_NAMES[month.month - 1]}, por falta de caixa",
+        )
+
+    def _selic_meeting_pending(self, user: UserDTO, today: date) -> PendingDTO | None:
+        """A reunião do Copom chegando sem a SELIC que o presidente quer."""
+        president = self.president()
+        if (
+            president is None
+            or president.id != user.id
+            or not self.selic_by_government()
+            or self.state.selic_plan is not None
+        ):
+            return None
+        meeting = self.next_selic_meeting(today)
+        if (meeting - today).days > SELIC_REMINDER_DAYS:
+            return None
+        return registry.pending(
+            PendingType.SELIC_MEETING,
+            f"O Copom se reúne em {meeting:%d/%m}: sem decisão, a SELIC fica em "
+            f"{rules.percent(self.selic_now(today))}",
         )
 
     def _deal_proposal(self, user: UserDTO) -> PendingDTO | None:
@@ -500,6 +533,7 @@ class GovernmentBook:
         ):
             self._collect(people, today)
 
+        self._hold_selic_meeting(today)
         if self._close_month(today):
             return PauseReason.IMPEACHMENT
         self._propose_as_caretaker(today)
@@ -1958,7 +1992,9 @@ class GovernmentBook:
                 self.term_end(),
                 self.state.amendments_on,
             ),
-            inflation=spending_panel.inflation_effect(draft, today),
+            inflation=spending_panel.inflation_effect(
+                draft, today, reacts=not self.selic_by_government()
+            ),
             reactions=spending_panel.reactions(draft),
         )
 
@@ -2057,6 +2093,124 @@ class GovernmentBook:
             ),
             key=lambda m: m.id,
         )
+
+    # SELIC nas reuniões do Copom
+
+    def selic_control(self) -> SelicControl:
+        return self._settings.selic_control
+
+    def selic_by_government(self) -> bool:
+        """
+        A SELIC é das reuniões do governo: numa partida com a SELIC nas mãos do governo,
+        desde a posse do primeiro presidente jogador, e daí em diante em qualquer governo.
+        """
+        if self._settings.selic_control is not SelicControl.GOVERNMENT:
+            return False
+        term = self.state.term
+        return self.state.last_meeting is not None or (
+            term is not None and term.president_id is not None
+        )
+
+    def next_selic_meeting(self, today: date) -> date:
+        """
+        A próxima reunião a fazer: a seguinte à última feita, ou a primeira do mandato.
+        Já passada, ela acontece no pregão de hoje.
+        """
+        last = self.state.last_meeting
+        if last is not None:
+            return monetary.next_meeting(last + timedelta(days=1))
+        term = self.state.term
+        return monetary.next_meeting(term.start if term is not None else today)
+
+    def selic_now(self, today: date) -> Decimal:
+        """A SELIC anual em vigor: a da última reunião do governo, ou a do Banco Central autônomo."""
+        last = self.state.selic_board.last_before(today + timedelta(days=1))
+        if last is not None:
+            return last.selic
+        return annual_index_rate(IndicatorSeries.SELIC, today)
+
+    def selic_cap(self, today: date) -> Decimal:
+        """O quanto a SELIC anda numa reunião com o IPCA em 12 meses de hoje."""
+        return monetary.meeting_cap(
+            annual_index_rate(IndicatorSeries.IPCA, today),
+            inflation_target(today),
+            inflation_tolerance(today),
+        )
+
+    def set_selic(self, user: UserDTO, today: date, selic: Decimal | None) -> None:
+        """
+        O presidente marca a SELIC da próxima reunião, no passo de 0,25 e dentro do teto
+        de hoje; a reunião re-limita pelo teto do dia dela. Nula desmarca.
+        """
+        if self._settings.selic_control is not SelicControl.GOVERNMENT:
+            raise ConflictError("Nesta partida a SELIC é do Banco Central autônomo.")
+        president = self.president()
+        if president is None or president.id != user.id:
+            raise ForbiddenError("Só o presidente marca a SELIC.")
+        if selic is not None:
+            if selic != monetary.to_step(selic):
+                raise UnprocessableEntityError("A SELIC anda em passos de 0,25 ponto.")
+            current = self.selic_now(today)
+            cap = self.selic_cap(today)
+            low, high = monetary.cap_window(current, cap)
+            if not low <= selic <= high:
+                raise UnprocessableEntityError(
+                    f"Nesta reunião a SELIC anda até {rules.number(cap * 100)} ponto "
+                    f"a partir de {rules.percent(current)}."
+                )
+        self._emit(
+            GovernmentEventType.SELIC_SET,
+            today,
+            selic=None if selic is None else str(selic),
+        )
+        self._notice(GovernmentNoticeKind.UPDATED)
+
+    def _hold_selic_meeting(self, today: date) -> None:
+        """
+        No dia da reunião do Copom, ou no primeiro pregão depois dele, a SELIC muda para a
+        decisão: a que o presidente marcou, re-limitada pelo teto do dia; no governo do
+        computador, a reação do Banco Central autônomo dentro do teto. Sem decisão marcada
+        a SELIC fica. A taxa nova vale do dia seguinte, e a credibilidade anda com ela.
+        """
+        if not self.selic_by_government():
+            return
+        meeting = self.next_selic_meeting(today)
+        if meeting > today:
+            return
+        current = self.selic_now(today)
+        plan = self.state.selic_plan
+        president = self.president()
+        if plan is not None:
+            wanted = plan
+        elif president is None or president.is_bot:
+            stored = annual_index_rate(IndicatorSeries.SELIC, today, stored=True)
+            reaction = central_bank_reaction(self._linked.layer.inflation_points(today))
+            wanted = stored + Decimal(str(round(reaction / 100, 6)))
+        else:
+            wanted = current
+        selic = (
+            current
+            if wanted == current
+            else monetary.within_cap(wanted, current, self.selic_cap(today))
+        )
+        ipca = annual_index_rate(IndicatorSeries.IPCA, today)
+        credibility = monetary.next_credibility(
+            self.state.selic_board.credibility_on(today + timedelta(days=1)),
+            selic - ipca,
+            ipca,
+            inflation_target(today),
+            raised=selic > current,
+        )
+        self._emit(
+            GovernmentEventType.SELIC_DECIDED,
+            today,
+            selic=str(selic),
+            previous=str(current),
+            credibility=str(credibility),
+            meeting=meeting.isoformat(),
+        )
+        self._linked.layer.refresh_from(today + timedelta(days=1))
+        self._notice(GovernmentNoticeKind.UPDATED)
 
     # Fechamento do mês do governo: aprovação, voto do Congresso e impeachment
 

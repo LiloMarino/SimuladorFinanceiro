@@ -7,6 +7,7 @@ import {
   effectShares,
   governmentShift,
   inflationBreakdown,
+  selicByGovernment,
   stocksEffect,
   sumEffects,
   growthLines,
@@ -251,6 +252,11 @@ describe("efeitos das medidas", () => {
   it("guarda só as ligações que mexem em algo hoje", () => {
     const links = [link("FISCAL_RISK", "0.004", "0.0001"), link("PHILLIPS", "0.2"), link("GDP", "0", "0.03")];
     expect(activeLinks(links).map((item) => item.link)).toEqual(["PHILLIPS", "GDP"]);
+  });
+
+  it("vê a SELIC do governo pela ligação que só existe com ela", () => {
+    expect(selicByGovernment([link("PHILLIPS", "0.2")])).toBe(false);
+    expect(selicByGovernment([link("SELIC", "0", "-0.02"), link("REAL_RATE", "0.1")])).toBe(true);
   });
 
   it("mede o que o governo soma a uma série em pontos, contra a história", () => {

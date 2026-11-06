@@ -1,0 +1,183 @@
+"""A política monetária: calendário do Copom, teto por reunião, defasagem do juro real e credibilidade."""
+
+from __future__ import annotations
+
+from datetime import date
+from decimal import Decimal
+
+import pytest
+
+from backend.features.economy.monetary import (
+    SelicBoard,
+    SelicDecision,
+    cap_window,
+    credibility_premium,
+    is_meeting_day,
+    lag_weights,
+    meeting_cap,
+    meeting_days,
+    next_credibility,
+    next_meeting,
+    rate_inflation_points,
+    within_cap,
+)
+
+TARGET = Decimal("0.0375")
+TOLERANCE = Decimal("0.015")
+
+
+def test_eight_meetings_a_year_on_business_days() -> None:
+    days = meeting_days(2021)
+
+    assert len(days) == 8
+    assert all(d.weekday() < 5 for d in days)
+    assert days[0] == date(2021, 2, 15)
+    # O dia 360 (45 vezes 8) de 2021 é 26/12, um domingo: a reunião vai para segunda
+    assert days[-1] == date(2021, 12, 27)
+
+
+def test_next_meeting_crosses_the_year() -> None:
+    assert next_meeting(date(2021, 2, 15)) == date(2021, 2, 15)
+    assert next_meeting(date(2021, 12, 28)) == meeting_days(2022)[0]
+    assert is_meeting_day(date(2021, 2, 15))
+    assert not is_meeting_day(date(2021, 2, 16))
+
+
+@pytest.mark.parametrize(
+    ("ipca", "cap"),
+    [
+        ("0.04", "0.0075"),
+        ("0.06", "0.015"),
+        ("0.16", "0.03"),
+    ],
+)
+def test_cap_grows_with_inflation(ipca: str, cap: str) -> None:
+    assert meeting_cap(Decimal(ipca), TARGET, TOLERANCE) == Decimal(cap)
+
+
+def test_wanted_rate_stays_within_the_cap_and_the_step() -> None:
+    current = Decimal("0.1")
+    cap = Decimal("0.0075")
+
+    assert within_cap(Decimal("0.2"), current, cap) == Decimal("0.1075")
+    assert within_cap(Decimal("0.05"), current, cap) == Decimal("0.0925")
+    assert within_cap(Decimal("0.1012"), current, cap) == Decimal("0.1")
+    assert within_cap(Decimal("-0.01"), Decimal("0.0025"), cap) == Decimal(0)
+
+
+def test_the_window_starts_from_the_effective_rate_off_the_grid() -> None:
+    # A efetiva de 23,65% com teto de 0,75 alcança de 23% a 24,25%, nunca 24,50%
+    current = Decimal("0.2365")
+    cap = Decimal("0.0075")
+    assert cap_window(current, cap) == (Decimal("0.23"), Decimal("0.2425"))
+    assert within_cap(Decimal("0.30"), current, cap) == Decimal("0.2425")
+    assert within_cap(Decimal("0.2365"), current, cap) == Decimal("0.2375")
+
+
+def test_lag_weights_peak_in_the_middle_quarters() -> None:
+    weights = lag_weights(100)
+
+    assert sum(weights) == pytest.approx(1)
+    assert weights[3] == weights[6] > weights[0] == weights[9]
+
+
+def test_low_credibility_moves_the_weight_forward() -> None:
+    assert lag_weights(0)[0] > lag_weights(100)[0]
+    assert sum(lag_weights(0)) == pytest.approx(1)
+
+
+def test_a_full_year_one_point_below_adds_three_tenths() -> None:
+    gaps = [Decimal("-0.01")] * 12
+
+    assert rate_inflation_points(gaps, 100) == pytest.approx(0.3)
+
+
+def test_the_newest_month_weighs_as_the_first_lag() -> None:
+    gaps = [Decimal(0)] * 11 + [Decimal("-0.01")]
+
+    assert rate_inflation_points(gaps, 100) == pytest.approx(0.3 * 0.05)
+
+
+def test_higher_real_rate_pulls_inflation_down() -> None:
+    assert rate_inflation_points([Decimal("0.02")] * 12, 100) == pytest.approx(-0.6)
+
+
+def test_no_credibility_doubles_the_effect() -> None:
+    gaps = [Decimal("-0.01")] * 12
+
+    assert rate_inflation_points(gaps, 0) == pytest.approx(0.6)
+
+
+def test_cutting_with_inflation_above_target_loses_credibility() -> None:
+    # Juro real de 2%, 3 pontos abaixo do neutro: perde 12
+    after = next_credibility(
+        100, Decimal("0.02"), Decimal("0.06"), TARGET, raised=False
+    )
+
+    assert after == 88
+
+
+def test_the_loss_per_meeting_has_a_ceiling() -> None:
+    after = next_credibility(50, Decimal("-0.05"), Decimal("0.1"), TARGET, raised=False)
+
+    assert after == 30
+
+
+def test_raising_recovers_slowly() -> None:
+    after = next_credibility(50, Decimal("0.01"), Decimal("0.1"), TARGET, raised=True)
+
+    assert after == 53
+
+
+def test_keeping_with_inflation_on_target_costs_nothing() -> None:
+    after = next_credibility(70, Decimal("0.01"), Decimal("0.03"), TARGET, raised=False)
+
+    assert after == 70
+
+
+def test_credibility_premium_is_two_points_at_zero() -> None:
+    assert credibility_premium(100) == 0
+    assert credibility_premium(0) == Decimal("0.02")
+    assert credibility_premium(50) == Decimal("0.01")
+
+
+def test_board_decisions_hold_from_the_next_day() -> None:
+    board = SelicBoard()
+    board.record(SelicDecision(date(2021, 2, 15), Decimal("0.03"), 90))
+
+    assert board.selic_on(date(2021, 2, 15)) is None
+    assert board.credibility_on(date(2021, 2, 15)) == 100
+    assert board.selic_on(date(2021, 2, 16)) == Decimal("0.03")
+    assert board.credibility_on(date(2021, 2, 16)) == 90
+
+
+def ipca_12m_path(gaps: list[Decimal], credibility: float) -> list[float]:
+    """
+    O IPCA em 12 meses a mais, mês a mês, de um juro real dado: o fechamento do mês n
+    vale no mês seguinte, e cada mês soma um doze avos dos pontos ao IPCA mensal.
+    """
+    monthly = [0.0] + [
+        rate_inflation_points(gaps[: n + 1], credibility) / 12
+        for n in range(len(gaps) - 1)
+    ]
+    return [sum(monthly[max(0, m - 11) : m + 1]) for m in range(len(monthly))]
+
+
+def test_a_year_three_points_below_raises_inflation_the_year_after() -> None:
+    gaps = [Decimal("-0.03")] * 12 + [Decimal(0)] * 24
+
+    path = ipca_12m_path(gaps, 100)
+
+    assert path[11] < 0.6
+    assert 0.6 <= max(path[12:24]) <= 1.2
+    assert path[-1] == pytest.approx(0, abs=1e-9)
+
+
+def test_low_credibility_raises_inflation_more_and_sooner() -> None:
+    gaps = [Decimal("-0.03")] * 12 + [Decimal(0)] * 24
+
+    calm = ipca_12m_path(gaps, 100)
+    doubted = ipca_12m_path(gaps, 0)
+
+    assert max(doubted) > max(calm)
+    assert doubted.index(max(doubted)) < calm.index(max(calm))

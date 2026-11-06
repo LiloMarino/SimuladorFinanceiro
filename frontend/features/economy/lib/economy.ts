@@ -9,7 +9,15 @@ import {
 import { isSpending, SPENDING_LABEL } from "@/shared/lib/spending-kinds";
 import type { MetricInfo } from "@/shared/lib/metric-info";
 import type { EconomyEffect, EconomyLinkEffect, EconomyPanel } from "@/types";
-import { FISCAL_IMPULSE, FISCAL_RISK, GDP_GAP, PHILLIPS, signedPoints } from "./economy-metrics";
+import {
+  FISCAL_IMPULSE,
+  FISCAL_RISK,
+  GDP_GAP,
+  GOVERNMENT_SELIC,
+  PHILLIPS,
+  REAL_RATE_GAP,
+  signedPoints,
+} from "./economy-metrics";
 
 type EconomyPoint = EconomyPanel["points"][number];
 type CopomChange = EconomyPanel["copom_changes"][number];
@@ -217,11 +225,16 @@ export const LINK_METRIC: Record<EconomyLinkEffect["link"], MetricInfo> = {
   PHILLIPS,
   FISCAL_RISK,
   GDP: GDP_GAP,
+  REAL_RATE: REAL_RATE_GAP,
+  SELIC: GOVERNMENT_SELIC,
 };
 
 /** As ligações que mexem em algo hoje: as outras somam menos que a última casa mostrada. */
 export const activeLinks = (links: readonly EconomyLinkEffect[]) =>
   links.filter((link) => Math.abs(Number(link.inflation)) >= 0.005 || Math.abs(Number(link.stocks)) >= 0.0005);
+
+/** A SELIC é do governo quando a ligação dela aparece: só existe com a taxa decidida no Copom. */
+export const selicByGovernment = (links: readonly EconomyLinkEffect[]) => links.some((link) => link.link === "SELIC");
 
 export type InflationPart = { key: string; label: string; points: number };
 

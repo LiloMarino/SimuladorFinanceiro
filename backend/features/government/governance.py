@@ -1,7 +1,7 @@
 """A página Governo: impostos em vigor, aprovação, fila do Congresso e a carteira do presidente."""
 
 from collections.abc import Callable
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 from backend.core.dto.government import (
@@ -16,6 +16,7 @@ from backend.core.dto.government import (
     ImpeachmentDTO,
     InterestDTO,
     MeasureDTO,
+    MonetaryDTO,
     SectorMeasureDTO,
     SectorOptionDTO,
     SegmentOptionDTO,
@@ -25,7 +26,21 @@ from backend.core.dto.government import (
 )
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import GroupVerdict, MeasureKind, MeasureStatus, VoterGroup
+from backend.core.enum import (
+    GroupVerdict,
+    IndicatorSeries,
+    MeasureKind,
+    MeasureStatus,
+    SelicControl,
+    VoterGroup,
+)
+from backend.core.indicators import (
+    annual_index_rate,
+    inflation_target,
+    inflation_tolerance,
+)
+from backend.features.economy import monetary
+from backend.features.economy.growth import NEUTRAL_REAL_RATE
 from backend.features.government import approval as approval_rules
 from backend.features.government import budget as budget_rules
 from backend.features.government import (
@@ -201,6 +216,30 @@ def build_governance(
         ),
         vigence_days=VIGENCE_DAYS,
         promises=build_term_promises(book, viewer, today),
+        monetary=monetary_card(book, today),
+    )
+
+
+def monetary_card(book: GovernmentBook, today: date) -> MonetaryDTO | None:
+    if book.selic_control() is not SelicControl.GOVERNMENT:
+        return None
+    selic = book.selic_now(today)
+    ipca = annual_index_rate(IndicatorSeries.IPCA, today)
+    credibility = book.state.selic_board.credibility_on(today + timedelta(days=1))
+    return MonetaryDTO(
+        by_government=book.selic_by_government(),
+        selic=selic,
+        ipca=ipca,
+        real_rate=selic - ipca,
+        neutral_real_rate=NEUTRAL_REAL_RATE,
+        target=inflation_target(today),
+        tolerance=inflation_tolerance(today),
+        next_meeting=book.next_selic_meeting(today),
+        cap=book.selic_cap(today),
+        step=monetary.SELIC_STEP,
+        plan=book.state.selic_plan,
+        credibility=credibility,
+        credibility_premium=monetary.credibility_premium(credibility),
     )
 
 

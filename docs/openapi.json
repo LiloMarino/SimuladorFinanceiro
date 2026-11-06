@@ -6281,6 +6281,56 @@
         ]
       }
     },
+    "/api/government/selic": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Marcar a SELIC da próxima reunião do Copom",
+        "description": "Só o presidente marca, e só na partida com a SELIC nas mãos do governo. A taxa anda em passos de 0,25 ponto e no máximo o teto de hoje a partir da atual; a reunião re-limita pelo teto do dia dela, e a nova SELIC vale do dia seguinte. Nula desmarca: sem decisão, a SELIC fica.",
+        "operationId": "set_selic_api_government_selic_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelicRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/government/measures/{measure_id}": {
       "delete": {
         "tags": [
@@ -10400,7 +10450,7 @@
         "enum": [
           "BASE",
           "INFLATION",
-          "SELIC",
+          "REAL_RATE",
           "STOCKS",
           "UNEMPLOYMENT",
           "RISK_PREMIUM",
@@ -14295,6 +14345,10 @@
           "initial_account": {
             "$ref": "#/components/schemas/InitialAccount",
             "default": "PLAYABLE"
+          },
+          "selic_control": {
+            "$ref": "#/components/schemas/SelicControl",
+            "default": "AUTONOMOUS"
           }
         },
         "type": "object",
@@ -15444,7 +15498,9 @@
         "enum": [
           "PHILLIPS",
           "FISCAL_RISK",
-          "GDP"
+          "GDP",
+          "REAL_RATE",
+          "SELIC"
         ],
         "title": "EconomyLink",
         "description": "Uma ligação da economia interligada: o desvio da partida contra a história que mexe nas séries."
@@ -17401,6 +17457,16 @@
                 "type": "null"
               }
             ]
+          },
+          "monetary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MonetaryDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -17425,7 +17491,8 @@
           "sectors",
           "last_impeachment",
           "vigence_days",
-          "promises"
+          "promises",
+          "monetary"
         ],
         "title": "GovernmentPanelDTO"
       },
@@ -17899,7 +17966,7 @@
         "type": "string",
         "enum": [
           "INFLATION",
-          "SELIC",
+          "REAL_RATE",
           "STOCKS",
           "CAPITAL_GAINS_TAX",
           "UNEMPLOYMENT",
@@ -19094,6 +19161,10 @@
             "type": "string",
             "title": "Selic After"
           },
+          "central_bank_reacts": {
+            "type": "boolean",
+            "title": "Central Bank Reacts"
+          },
           "stocks": {
             "type": "string",
             "title": "Stocks"
@@ -19113,6 +19184,7 @@
           "ipca_after",
           "selic_before",
           "selic_after",
+          "central_bank_reacts",
           "stocks",
           "growth"
         ],
@@ -20443,6 +20515,89 @@
           "traffic_window_s"
         ],
         "title": "MetricsResponse"
+      },
+      "MonetaryDTO": {
+        "properties": {
+          "by_government": {
+            "type": "boolean",
+            "title": "By Government"
+          },
+          "selic": {
+            "type": "string",
+            "title": "Selic"
+          },
+          "ipca": {
+            "type": "string",
+            "title": "Ipca"
+          },
+          "real_rate": {
+            "type": "string",
+            "title": "Real Rate"
+          },
+          "neutral_real_rate": {
+            "type": "string",
+            "title": "Neutral Real Rate"
+          },
+          "target": {
+            "type": "string",
+            "title": "Target"
+          },
+          "tolerance": {
+            "type": "string",
+            "title": "Tolerance"
+          },
+          "next_meeting": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Meeting"
+          },
+          "cap": {
+            "type": "string",
+            "title": "Cap"
+          },
+          "step": {
+            "type": "string",
+            "title": "Step"
+          },
+          "plan": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan"
+          },
+          "credibility": {
+            "type": "number",
+            "title": "Credibility"
+          },
+          "credibility_premium": {
+            "type": "string",
+            "title": "Credibility Premium"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "by_government",
+          "selic",
+          "ipca",
+          "real_rate",
+          "neutral_real_rate",
+          "target",
+          "tolerance",
+          "next_meeting",
+          "cap",
+          "step",
+          "plan",
+          "credibility",
+          "credibility_premium"
+        ],
+        "title": "MonetaryDTO",
+        "description": "A SELIC nas mãos do governo: a taxa de hoje, a próxima reunião do Copom e a credibilidade."
       },
       "MonthPaymentsDTO": {
         "properties": {
@@ -22312,7 +22467,8 @@
           "CAMPAIGN_OPEN",
           "UNPAID_CONTRIBUTION",
           "UNGUIDED_VOTE",
-          "DEAL_PROPOSAL"
+          "DEAL_PROPOSAL",
+          "SELIC_MEETING"
         ],
         "title": "PendingType",
         "description": "Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar."
@@ -26165,6 +26321,10 @@
             "$ref": "#/components/schemas/InitialAccount",
             "default": "PLAYABLE"
           },
+          "selic_control": {
+            "$ref": "#/components/schemas/SelicControl",
+            "default": "AUTONOMOUS"
+          },
           "id": {
             "type": "integer",
             "title": "Id"
@@ -26272,6 +26432,7 @@
           "computer_difficulty",
           "poll_margin",
           "initial_account",
+          "selic_control",
           "id",
           "is_backtest",
           "created_at",
@@ -26637,6 +26798,41 @@
           "id"
         ],
         "title": "SelectSimulationRequest"
+      },
+      "SelicControl": {
+        "type": "string",
+        "enum": [
+          "AUTONOMOUS",
+          "GOVERNMENT"
+        ],
+        "title": "SelicControl",
+        "description": "Quem decide a SELIC: o Banco Central autônomo, pela história, ou o governo, nas reuniões do Copom."
+      },
+      "SelicRequest": {
+        "properties": {
+          "selic": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selic"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "selic"
+        ],
+        "title": "SelicRequest"
       },
       "SeriesCoverageDTO": {
         "properties": {
@@ -27244,6 +27440,10 @@
             "$ref": "#/components/schemas/InitialAccount",
             "default": "PLAYABLE"
           },
+          "selic_control": {
+            "$ref": "#/components/schemas/SelicControl",
+            "default": "AUTONOMOUS"
+          },
           "id": {
             "type": "integer",
             "title": "Id"
@@ -27278,6 +27478,7 @@
           "computer_difficulty",
           "poll_margin",
           "initial_account",
+          "selic_control",
           "id"
         ],
         "title": "SimulationDTO"
@@ -27500,6 +27701,10 @@
           "initial_account": {
             "$ref": "#/components/schemas/InitialAccount",
             "default": "PLAYABLE"
+          },
+          "selic_control": {
+            "$ref": "#/components/schemas/SelicControl",
+            "default": "AUTONOMOUS"
           }
         },
         "type": "object",
@@ -27657,6 +27862,10 @@
           "initial_account": {
             "$ref": "#/components/schemas/InitialAccount",
             "default": "PLAYABLE"
+          },
+          "selic_control": {
+            "$ref": "#/components/schemas/SelicControl",
+            "default": "AUTONOMOUS"
           }
         },
         "additionalProperties": false,
@@ -27687,7 +27896,8 @@
           "first_election",
           "computer_difficulty",
           "poll_margin",
-          "initial_account"
+          "initial_account",
+          "selic_control"
         ],
         "title": "SimulationSettingsDTO"
       },
@@ -30934,6 +31144,10 @@
           "initial_account": {
             "$ref": "#/components/schemas/InitialAccount",
             "default": "PLAYABLE"
+          },
+          "selic_control": {
+            "$ref": "#/components/schemas/SelicControl",
+            "default": "AUTONOMOUS"
           }
         },
         "type": "object",

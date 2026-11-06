@@ -46,6 +46,10 @@ class LinkMonth:
     primary_gap: Decimal
     # Quanto esse desvio do primário mudou em 12 meses
     primary_change: Decimal
+    # O juro real da partida (SELIC menos IPCA em 12 meses) contra o da história
+    real_rate_gap: Decimal = ZERO
+    # O que os juros reais dos últimos 12 meses somam ao IPCA em 12 meses, já pela defasagem
+    rate_points: float = 0.0
 
     @cached_property
     def phillips_points(self) -> float:
@@ -61,7 +65,7 @@ class LinkMonth:
 
     @cached_property
     def inflation_points(self) -> float:
-        return self.phillips_points + self.premium_inflation_points
+        return self.phillips_points + self.premium_inflation_points + self.rate_points
 
     @property
     def cycle_revenue(self) -> Decimal:
@@ -83,6 +87,8 @@ class LinkMonth:
             or self.gdp_gap
             or self.primary_gap
             or self.primary_change
+            or self.real_rate_gap
+            or self.rate_points
         )
 
     def same_effect(self, other: "LinkMonth") -> bool:
@@ -93,6 +99,8 @@ class LinkMonth:
             and self.gdp_gap == other.gdp_gap
             and self.primary_gap == other.primary_gap
             and self.primary_change == other.primary_change
+            and self.real_rate_gap == other.real_rate_gap
+            and self.rate_points == other.rate_points
         )
 
 
@@ -105,6 +113,8 @@ def link_month(
     growth_gap: Decimal,
     primary_gap: Decimal,
     primary_gap_year_ago: Decimal,
+    real_rate_gap: Decimal = ZERO,
+    rate_points: float = 0.0,
 ) -> LinkMonth:
     """
     O mês fechado: o nível do PIB acumula o crescimento a mais do mês, um doze avos do
@@ -118,6 +128,8 @@ def link_month(
         gdp_gap=level + growth_gap / MONTHS_PER_YEAR,
         primary_gap=primary_gap,
         primary_change=primary_gap - primary_gap_year_ago,
+        real_rate_gap=real_rate_gap,
+        rate_points=rate_points,
     )
 
 

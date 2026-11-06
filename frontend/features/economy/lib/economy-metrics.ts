@@ -54,8 +54,8 @@ export const EFFECT_IPCA = {
 
 export const EFFECT_SELIC = {
   definition:
-    "O quanto o Banco Central sobe (ou corta) a SELIC por causa da inflação que a medida ou a ligação soma: 1,5 vez o tanto.",
-  example: "Ex.: +0,55 ponto de inflação leva a +0,83 ponto de SELIC (0,55 × 1,5).",
+    "O quanto a SELIC da partida se afasta da história por causa da medida ou da ligação. Com o Banco Central autônomo, ele sobe (ou corta) a SELIC 1,5 vez a inflação que cada uma soma; com a SELIC nas mãos do governo, só a linha da SELIC do governo mexe nela.",
+  example: "Ex.: com o Banco Central autônomo, +0,55 ponto de inflação leva a +0,83 ponto de SELIC (0,55 × 1,5).",
   reading: "SELIC mais alta encarece o crédito e faz a renda fixa render mais; menos crescimento no curto prazo.",
 };
 
@@ -109,6 +109,29 @@ export const GDP_GAP: MetricInfo = {
   example: "Ex.: um ano crescendo 1 ponto acima da história deixa o PIB 1% maior e a bolsa uns 2,5% mais alta.",
   reading: "Positivo levanta a bolsa e a arrecadação; negativo derruba as duas.",
   format: (value) => `${signedPoints(Number(value))}%`,
+};
+
+export const REAL_RATE_GAP: MetricInfo = {
+  label: "Juro real contra a história",
+  description: "O juro real abaixo da história puxa a inflação, com até um ano de atraso",
+  definition:
+    "Juro real é a SELIC menos o IPCA de 12 meses. Abaixo da história, o crédito fica barato, a economia aquece e os preços sobem meses depois: cada ponto abaixo, mantido por um ano, soma 0,3 ponto ao IPCA de 12 meses, espalhado pelos 12 meses seguintes e mais forte entre o 4º e o 9º. Com a credibilidade do Banco Central baixa, o efeito chega mais cedo e pesa até o dobro.",
+  example:
+    "Ex.: juro real de 3% contra 6% na história (3 pontos abaixo) por um ano soma uns 0,9 ponto ao IPCA no ano seguinte.",
+  reading:
+    "O número é o juro real da partida menos o da história. Negativo empurra a inflação para cima; positivo a traz de volta. É por aqui que subir a SELIC derruba a inflação.",
+  format: gapPoints,
+};
+
+export const GOVERNMENT_SELIC: MetricInfo = {
+  label: "SELIC do governo",
+  description: "A SELIC que o presidente fixou no Copom contra a da história",
+  definition:
+    "Com a SELIC nas mãos do governo, o Banco Central não reage sozinho: vale a taxa que o presidente fixou na última reunião do Copom. Cada ponto acima da história encarece o crédito, faz a renda fixa render mais e tira 2,9% da bolsa no trimestre.",
+  example:
+    "Ex.: SELIC de 12,25% contra 10,75% na história (1,5 ponto acima) tira uns 4% da bolsa no trimestre e, com a inflação parada, sobe o juro real em 1,5 ponto.",
+  reading: "Positivo segura a inflação pelo juro real e derruba a bolsa; negativo faz o contrário.",
+  format: gapPoints,
 };
 
 export const DEBT_RATE: MetricInfo = {

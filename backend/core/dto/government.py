@@ -909,6 +909,31 @@ class ImpeachmentDTO(BaseDTO):
     no: int
 
 
+class MonetaryDTO(BaseDTO):
+    """A SELIC nas mãos do governo: a taxa de hoje, a próxima reunião do Copom e a credibilidade."""
+
+    # As reuniões já são do governo; antes da posse do primeiro presidente jogador a SELIC
+    # segue o Banco Central autônomo
+    by_government: bool
+    # Taxas anuais em fração (0.1075): a SELIC em vigor, o IPCA em 12 meses e a diferença
+    selic: Decimal
+    ipca: Decimal
+    real_rate: Decimal
+    # O juro real que nem acelera nem freia a economia
+    neutral_real_rate: Decimal
+    target: Decimal
+    tolerance: Decimal
+    next_meeting: date
+    # O quanto a SELIC anda na próxima reunião, com a inflação de hoje, e o passo
+    cap: Decimal
+    step: Decimal
+    # A SELIC que o presidente marcou para a próxima reunião
+    plan: Decimal | None
+    # De 0 a 100, e o prêmio de risco que a dívida paga a mais pelo que se perdeu
+    credibility: float
+    credibility_premium: Decimal
+
+
 class GovernmentPanelDTO(BaseDTO):
     today: date
     term: TermDTO | None
@@ -936,6 +961,8 @@ class GovernmentPanelDTO(BaseDTO):
     vigence_days: int
     # As promessas da chapa que governa; nulo no governo do computador e sem promessas
     promises: TermPromisesDTO | None
+    # Nulo quando a SELIC é do Banco Central autônomo
+    monetary: MonetaryDTO | None
 
 
 class PromisesPanelDTO(BaseDTO):
@@ -958,6 +985,11 @@ class PromisesPanelDTO(BaseDTO):
 
 
 # Requisições do governo
+
+
+class SelicRequest(BaseDTO):
+    # A SELIC anual da próxima reunião (0.1075); nula desmarca
+    selic: Annotated[Decimal, Field(ge=0, le=1, max_digits=6, decimal_places=4)] | None
 
 
 class ProposeMeasureRequest(BaseDTO):
@@ -987,6 +1019,9 @@ class InflationEffectDTO(BaseDTO):
     ipca_after: Decimal
     selic_before: Decimal
     selic_after: Decimal
+    # O Banco Central autônomo reage à inflação da medida; com a SELIC do governo, a SELIC
+    # e a bolsa ficam paradas até o presidente decidir no Copom
+    central_bank_reacts: bool
     # Variação da bolsa (fração) no trimestre da alta da SELIC; mais nas ações de beta alto
     stocks: Decimal
     # Pontos de crescimento do PIB que a medida soma no pico (as obras)

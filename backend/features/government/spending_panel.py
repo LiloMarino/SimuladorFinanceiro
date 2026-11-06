@@ -26,8 +26,13 @@ def points(value: float) -> Decimal:
     return Decimal(str(round(value, 4)))
 
 
-def inflation_effect(measure: Measure, today: date) -> InflationEffectDTO | None:
-    """A inflação, a SELIC e a bolsa esperadas da medida de gasto, se ela passar; nulo nos impostos."""
+def inflation_effect(
+    measure: Measure, today: date, *, reacts: bool = True
+) -> InflationEffectDTO | None:
+    """
+    A inflação, a SELIC e a bolsa esperadas da medida de gasto, se ela passar; nulo nos
+    impostos. Com a SELIC do governo (`reacts` falso), a medida põe só inflação.
+    """
     if not measure.kind.is_spending:
         return None
     steps = float(spending.steps_of(measure.kind, measure.value, measure.before))
@@ -44,8 +49,13 @@ def inflation_effect(measure: Measure, today: date) -> InflationEffectDTO | None
         ipca_before=ipca,
         ipca_after=ipca + points(peak) / HUNDRED,
         selic_before=selic,
-        selic_after=selic + points(central_bank_reaction(peak)) / HUNDRED,
-        stocks=points(spending_effects.peak_stocks(measure.kind, steps)),
+        selic_after=(
+            selic + points(central_bank_reaction(peak)) / HUNDRED if reacts else selic
+        ),
+        central_bank_reacts=reacts,
+        stocks=points(
+            spending_effects.peak_stocks(measure.kind, steps) if reacts else 0.0
+        ),
         growth=points(spending_effects.GROWTH_PER_STEP.get(measure.kind, 0.0) * steps),
     )
 

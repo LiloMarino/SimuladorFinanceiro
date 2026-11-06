@@ -2224,6 +2224,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/government/selic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Marcar a SELIC da próxima reunião do Copom
+         * @description Só o presidente marca, e só na partida com a SELIC nas mãos do governo. A taxa anda em passos de 0,25 ponto e no máximo o teto de hoje a partir da atual; a reunião re-limita pelo teto do dia dela, e a nova SELIC vale do dia seguinte. Nula desmarca: sem decisão, a SELIC fica.
+         */
+        post: operations["set_selic_api_government_selic_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/government/measures/{measure_id}": {
         parameters: {
             query?: never;
@@ -3685,7 +3705,7 @@ export interface components {
          * @description O que empurra o alvo de satisfação de um grupo; BASE é o ponto neutro.
          * @enum {string}
          */
-        ApprovalFactorKind: "BASE" | "INFLATION" | "SELIC" | "STOCKS" | "UNEMPLOYMENT" | "RISK_PREMIUM" | "MEASURE";
+        ApprovalFactorKind: "BASE" | "INFLATION" | "REAL_RATE" | "STOCKS" | "UNEMPLOYMENT" | "RISK_PREMIUM" | "MEASURE";
         /** ApprovalPointDTO */
         ApprovalPointDTO: {
             /**
@@ -5034,6 +5054,8 @@ export interface components {
             poll_margin: boolean;
             /** @default PLAYABLE */
             initial_account: components["schemas"]["InitialAccount"];
+            /** @default AUTONOMOUS */
+            selic_control: components["schemas"]["SelicControl"];
         };
         /**
          * CreditCostDTO
@@ -5437,7 +5459,7 @@ export interface components {
          * @description Uma ligação da economia interligada: o desvio da partida contra a história que mexe nas séries.
          * @enum {string}
          */
-        EconomyLink: "PHILLIPS" | "FISCAL_RISK" | "GDP";
+        EconomyLink: "PHILLIPS" | "FISCAL_RISK" | "GDP" | "REAL_RATE" | "SELIC";
         /** EconomyPanelDTO */
         EconomyPanelDTO: {
             /** Points */
@@ -6066,6 +6088,7 @@ export interface components {
             /** Vigence Days */
             vigence_days: number;
             promises: components["schemas"]["TermPromisesDTO"] | null;
+            monetary: components["schemas"]["MonetaryDTO"] | null;
         };
         /**
          * GovernmentUpdateEventDTO
@@ -6169,7 +6192,7 @@ export interface components {
          * @description Um resultado do governo que o grupo de eleitores lê.
          * @enum {string}
          */
-        GroupReading: "INFLATION" | "SELIC" | "STOCKS" | "CAPITAL_GAINS_TAX" | "UNEMPLOYMENT" | "RISK_PREMIUM";
+        GroupReading: "INFLATION" | "REAL_RATE" | "STOCKS" | "CAPITAL_GAINS_TAX" | "UNEMPLOYMENT" | "RISK_PREMIUM";
         /** GroupScoreDTO */
         GroupScoreDTO: {
             group: components["schemas"]["VoterGroup"];
@@ -6728,6 +6751,8 @@ export interface components {
             selic_before: string;
             /** Selic After */
             selic_after: string;
+            /** Central Bank Reacts */
+            central_bank_reacts: boolean;
             /** Stocks */
             stocks: string;
             /** Growth */
@@ -7203,6 +7228,41 @@ export interface components {
             traffic: components["schemas"]["TrafficItem"][];
             /** Traffic Window S */
             traffic_window_s: number;
+        };
+        /**
+         * MonetaryDTO
+         * @description A SELIC nas mãos do governo: a taxa de hoje, a próxima reunião do Copom e a credibilidade.
+         */
+        MonetaryDTO: {
+            /** By Government */
+            by_government: boolean;
+            /** Selic */
+            selic: string;
+            /** Ipca */
+            ipca: string;
+            /** Real Rate */
+            real_rate: string;
+            /** Neutral Real Rate */
+            neutral_real_rate: string;
+            /** Target */
+            target: string;
+            /** Tolerance */
+            tolerance: string;
+            /**
+             * Next Meeting
+             * Format: date
+             */
+            next_meeting: string;
+            /** Cap */
+            cap: string;
+            /** Step */
+            step: string;
+            /** Plan */
+            plan: string | null;
+            /** Credibility */
+            credibility: number;
+            /** Credibility Premium */
+            credibility_premium: string;
         };
         /** MonthPaymentsDTO */
         MonthPaymentsDTO: {
@@ -7876,7 +7936,7 @@ export interface components {
          * @description Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar.
          * @enum {string}
          */
-        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "DEAL_PROPOSAL";
+        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "DEAL_PROPOSAL" | "SELIC_MEETING";
         /**
          * PlayerActivity
          * @description O que o jogador está fazendo na sala: a tela em que está, ou fora da aba do jogo.
@@ -9177,6 +9237,8 @@ export interface components {
             poll_margin: boolean;
             /** @default PLAYABLE */
             initial_account: components["schemas"]["InitialAccount"];
+            /** @default AUTONOMOUS */
+            selic_control: components["schemas"]["SelicControl"];
             /** Id */
             id: number;
             /** Is Backtest */
@@ -9303,6 +9365,17 @@ export interface components {
         SelectSimulationRequest: {
             /** Id */
             id: number;
+        };
+        /**
+         * SelicControl
+         * @description Quem decide a SELIC: o Banco Central autônomo, pela história, ou o governo, nas reuniões do Copom.
+         * @enum {string}
+         */
+        SelicControl: "AUTONOMOUS" | "GOVERNMENT";
+        /** SelicRequest */
+        SelicRequest: {
+            /** Selic */
+            selic: number | string | null;
         };
         /** SeriesCoverageDTO */
         SeriesCoverageDTO: {
@@ -9595,6 +9668,8 @@ export interface components {
             poll_margin: boolean;
             /** @default PLAYABLE */
             initial_account: components["schemas"]["InitialAccount"];
+            /** @default AUTONOMOUS */
+            selic_control: components["schemas"]["SelicControl"];
             /** Id */
             id: number;
         };
@@ -9709,6 +9784,8 @@ export interface components {
             poll_margin: boolean;
             /** @default PLAYABLE */
             initial_account: components["schemas"]["InitialAccount"];
+            /** @default AUTONOMOUS */
+            selic_control: components["schemas"]["SelicControl"];
         };
         /** SimulationSelectedEventDTO */
         SimulationSelectedEventDTO: {
@@ -9788,6 +9865,8 @@ export interface components {
             poll_margin: boolean;
             /** @default PLAYABLE */
             initial_account: components["schemas"]["InitialAccount"];
+            /** @default AUTONOMOUS */
+            selic_control: components["schemas"]["SelicControl"];
         };
         /** SimulationSettingsResponse */
         SimulationSettingsResponse: {
@@ -10837,6 +10916,8 @@ export interface components {
             poll_margin: boolean;
             /** @default PLAYABLE */
             initial_account: components["schemas"]["InitialAccount"];
+            /** @default AUTONOMOUS */
+            selic_control: components["schemas"]["SelicControl"];
         };
         /** UserClaimRequest */
         UserClaimRequest: {
@@ -15743,6 +15824,46 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MeasurePreviewDTO"];
                 };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_selic_api_government_selic_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SelicRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unprocessable Content */
             422: {

@@ -47,8 +47,8 @@ export function GovernmentHeader({ panel }: GovernmentHeaderProps) {
             <span className="text-[13px] text-muted-foreground">
               {monthYear(term.start)}
               {panel.term_end && ` a ${monthYear(panel.term_end)}`} · próxima eleição em{" "}
-              {monthYear(panel.next_election)}, faltam {countdownLabel(today, panel.next_election)} · SELIC com o Banco
-              Central
+              {monthYear(panel.next_election)}, faltam {countdownLabel(today, panel.next_election)} ·{" "}
+              {panel.monetary?.by_government ? "SELIC com o governo, no Copom" : "SELIC com o Banco Central"}
             </span>
           </div>
           {party && (

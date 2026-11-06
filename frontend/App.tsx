@@ -94,7 +94,7 @@ const navItems: NavItem[] = [
     icon: Gavel,
     group: "Expansões",
     expansion: "government",
-    pendingTypes: ["IMPEACHMENT_RISK", "UNGUIDED_VOTE", "DEAL_PROPOSAL"],
+    pendingTypes: ["IMPEACHMENT_RISK", "UNGUIDED_VOTE", "DEAL_PROPOSAL", "SELIC_MEETING"],
   },
   { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3, group: "Ferramentas" },
   { key: "tutorial", label: "Como jogar", endpoint: "", icon: GraduationCap, group: "Ferramentas", tutorial: true },

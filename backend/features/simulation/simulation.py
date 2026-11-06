@@ -683,6 +683,10 @@ class Simulation:
         )
 
     @synchronized
+    def set_selic(self, user: UserDTO, selic: Decimal | None) -> None:
+        self._ensure_government().set_selic(user, self._current_date, selic)
+
+    @synchronized
     def withdraw_measure(self, user: UserDTO, measure_id: int) -> None:
         self._ensure_government().withdraw(user, self._current_date, measure_id)
 

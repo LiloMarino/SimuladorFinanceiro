@@ -449,6 +449,13 @@ class InitialAccount(Enum):
     REALISTIC = "REALISTIC"
 
 
+class SelicControl(Enum):
+    """Quem decide a SELIC: o Banco Central autônomo, pela história, ou o governo, nas reuniões do Copom."""
+
+    AUTONOMOUS = "AUTONOMOUS"
+    GOVERNMENT = "GOVERNMENT"
+
+
 class ComputerDifficulty(Enum):
     """A verba de cada partido do computador, em múltiplo da média dos partidos de jogadores."""
 
@@ -520,6 +527,10 @@ class GovernmentEventType(Enum):
     DEAL_BROKEN = "DEAL_BROKEN"
     # O que cada jogador preparou no lobby, guardado até a campanha abrir; lista vazia é "aplicado"
     PARTIES_PREPARED = "PARTIES_PREPARED"
+    # O presidente marca a SELIC da próxima reunião do Copom; nula desmarca
+    SELIC_SET = "SELIC_SET"
+    # A reunião do Copom fixa a SELIC, com a credibilidade do Banco Central depois dela
+    SELIC_DECIDED = "SELIC_DECIDED"
 
 
 class ElectionPhase(Enum):
@@ -679,6 +690,10 @@ class EconomyLink(Enum):
     FISCAL_RISK = "FISCAL_RISK"
     # O PIB acima da história levanta a bolsa
     GDP = "GDP"
+    # O juro real abaixo da história sobe a inflação, com defasagem de até um ano
+    REAL_RATE = "REAL_RATE"
+    # A SELIC que o governo fixou acima da história derruba a bolsa
+    SELIC = "SELIC"
 
 
 class MeasureStatus(Enum):
@@ -719,7 +734,7 @@ class ApprovalFactorKind(Enum):
 
     BASE = "BASE"
     INFLATION = "INFLATION"
-    SELIC = "SELIC"
+    REAL_RATE = "REAL_RATE"
     STOCKS = "STOCKS"
     UNEMPLOYMENT = "UNEMPLOYMENT"
     RISK_PREMIUM = "RISK_PREMIUM"
@@ -773,7 +788,7 @@ class GroupReading(Enum):
     """Um resultado do governo que o grupo de eleitores lê."""
 
     INFLATION = "INFLATION"
-    SELIC = "SELIC"
+    REAL_RATE = "REAL_RATE"
     STOCKS = "STOCKS"
     CAPITAL_GAINS_TAX = "CAPITAL_GAINS_TAX"
     UNEMPLOYMENT = "UNEMPLOYMENT"
@@ -848,6 +863,7 @@ class PendingType(Enum):
     UNPAID_CONTRIBUTION = "UNPAID_CONTRIBUTION"
     UNGUIDED_VOTE = "UNGUIDED_VOTE"
     DEAL_PROPOSAL = "DEAL_PROPOSAL"
+    SELIC_MEETING = "SELIC_MEETING"
 
 
 class PendingSeverity(Enum):

@@ -122,28 +122,62 @@ O presidente propõe medidas pelo botão **Nova medida**. Três tipos:
 
 - **Gasto público:** muda o **auxílio** e as **obras** (em % do PIB por ano) ou o **reajuste dos servidores** e o **das aposentadorias** (ganho real ao ano, acima da inflação). Cada medida anda um passo: até 0,5 ponto do PIB no auxílio e nas obras, até 3 pontos nos reajustes, para cima ou para baixo (o ganho real não fica abaixo de 0%). Todo janeiro a folha sobe a inflação mais o ganho real em vigor.
 
-Gasto mexe em preço. O dinheiro a mais vira consumo, o **IPCA de 12 meses** sobe uns meses depois (o efeito enche em 6 meses e cai pela metade a cada 12), o Banco Central sobe a **SELIC** 1,5 vez o que as medidas somam à inflação, e cada ponto de SELIC a mais tira 2,9% da bolsa no trimestre, mais nas ações de beta alto (as que se mexem mais que o Ibovespa). O CDI sobe junto com a SELIC. Ex.: um auxílio que soma 0,5 ponto à inflação leva a SELIC a +0,75 ponto e derruba a bolsa uns 2,2%. Cortar gasto faz o caminho inverso. As obras também somam ao crescimento do PIB. O efeito vale para a partida inteira, na história e no futuro gerado, e a série guardada não muda: o painel da **Economia** mostra a série da história tracejada, o efeito de cada medida e de cada ligação e o Ibovespa com e sem o governo. Além das medidas, a economia responde ao estado do país: veja [A economia interligada](#a-economia-interligada).
+Gasto mexe em preço. O dinheiro a mais vira consumo, o **IPCA de 12 meses** sobe uns meses depois (o efeito enche em 6 meses e cai pela metade a cada 12), o Banco Central sobe a **SELIC** 1,5 vez o que as medidas somam à inflação (com a SELIC nas mãos do governo, quem decide é o presidente: veja [A SELIC no Copom](#a-selic-no-copom)), e cada ponto de SELIC a mais tira 2,9% da bolsa no trimestre, mais nas ações de beta alto (as que se mexem mais que o Ibovespa). O CDI sobe junto com a SELIC. Ex.: um auxílio que soma 0,5 ponto à inflação leva a SELIC a +0,75 ponto e derruba a bolsa uns 2,2%. Cortar gasto faz o caminho inverso. As obras também somam ao crescimento do PIB. O efeito vale para a partida inteira, na história e no futuro gerado, e a série guardada não muda: o painel da **Economia** mostra a série da história tracejada, o efeito de cada medida e de cada ligação e o Ibovespa com e sem o governo. Além das medidas, a economia responde ao estado do país: veja [A economia interligada](#a-economia-interligada).
 
 Antes de enviar, o diálogo mostra a **prévia**: o que a medida faz na carteira de cada jogador e o efeito esperado na aprovação. Só pode haver uma medida igual na fila por vez, e o presidente pode retirar uma medida enquanto ela espera a votação.
 
 ### A economia interligada
 
-Na partida com governo, a economia é a história real mais o que o governo mudou. O jogo calcula duas economias lado a lado: a da partida, com as medidas aprovadas, e a da história, com os impostos e o gasto padrão. A diferença entre as duas mexe nas séries por quatro ligações. Sem nenhuma medida, as duas são iguais e a partida segue a história exata.
+Na partida com governo, a economia é a história real mais o que o governo mudou. O jogo calcula duas economias lado a lado: a da partida, com as medidas aprovadas, e a da história, com os impostos e o gasto padrão. A diferença entre as duas mexe nas séries por cinco ligações. Sem nenhuma medida, as duas são iguais e a partida segue a história exata.
 
 | Ligação | O que faz | Exemplo |
 | --- | --- | --- |
 | Desemprego baixo (curva de Phillips) | Com menos gente procurando emprego, os salários sobem e os preços vão junto: cada ponto de desemprego abaixo da história soma 0,35 ponto ao IPCA de 12 meses; acima, tira | Desemprego de 7,4% contra 9,4% na história soma 0,7 ponto ao IPCA |
 | Risco fiscal | Cada ponto de prêmio de risco acima da história soma meio ponto ao IPCA (o real perde valor e os importados encarecem), pesa na bolsa como um ponto de SELIC e encarece os empréstimos na mesma medida | Prêmio 2 pontos acima da história soma 1 ponto ao IPCA e tira uns 5,8% da bolsa no trimestre |
 | PIB acima da história | Empresa que vende mais vale mais: cada 1% de PIB acima da história levanta a bolsa em 2,5%, e a arrecadação sobe 0,06 ponto do PIB | Um ano crescendo 1 ponto acima da história deixa a bolsa uns 2,5% mais alta |
+| Juro real | O **juro real** é a SELIC menos a inflação de 12 meses: o quanto o dinheiro parado rende de verdade. Juro real mais alto que o da história esfria o consumo e traz a inflação para baixo; mais baixo, a empurra para cima. Cada ponto de diferença mantido por um ano mexe 0,3 ponto no IPCA de 12 meses, espalhado pelo ano seguinte, com o pico entre o 4º e o 9º mês | Juro real 3 pontos abaixo da história durante um ano soma uns 0,9 ponto ao IPCA no ano seguinte |
 | Ciclo fiscal | Cada ponto de desemprego acima da história custa 0,05% do PIB por ano de seguro-desemprego. O **impulso fiscal**: quando o resultado primário (o que o governo arrecada menos o que gasta, sem os juros) piora em 12 meses, sobra mais dinheiro para famílias e empresas, e cada ponto do PIB de piora soma meio ponto ao crescimento. Mantido o patamar por um ano, o empurrão acaba | Cortar imposto em 1% do PIB soma 0,5 ponto ao crescimento durante um ano |
 
-O Banco Central reage à inflação que as medidas e as ligações somam juntas: a SELIC sobe 1,5 vez o tanto. O crescimento da partida é o da história mais quatro parcelas: o juro real e a bolsa contra os da história, as obras e o impulso fiscal. O desemprego acompanha: cada ponto de crescimento acima da história baixa o desemprego em cerca de meio ponto em um ano. Cada ligação usa o último mês fechado e vale a partir do primeiro dia do mês seguinte.
+O Banco Central reage à inflação que as medidas e as ligações somam juntas: a SELIC sobe 1,5 vez o tanto, o juro real sobe junto e, pela ligação do juro real, puxa a inflação de volta nos meses seguintes. Com a SELIC nas mãos do governo, o Banco Central não reage: a SELIC é a que o presidente decidiu, e cada ponto dela acima da história tira 2,9% da bolsa no trimestre. O crescimento da partida é o da história mais quatro parcelas: o juro real e a bolsa contra os da história, as obras e o impulso fiscal. O desemprego acompanha: cada ponto de crescimento acima da história baixa o desemprego em cerca de meio ponto em um ano. Cada ligação usa o último mês fechado e vale a partir do primeiro dia do mês seguinte.
 
 **A taxa da dívida.** A dívida paga uma taxa mista: 45% dela segue a SELIC do dia e o resto paga o que os títulos travaram ao serem emitidos, na média dos últimos 36 meses, com o prêmio de risco da época. Ex.: SELIC de 10% e títulos que travaram 12% na média dão 0,45 × 10% + 0,55 × 12% = 11,1% ao ano. Uma alta da SELIC chega em parte na hora e o resto ao longo de 3 anos.
 
 **A espiral sem teto.** Acima de 50% do PIB de dívida, os títulos novos cobram um prêmio de risco que cresce cada vez mais rápido e não tem teto: com 80% do PIB, 1,6 ponto ao ano; com 100%, 3,4 pontos. Prêmio mais alto encarece a dívida, a dívida cresce, o prêmio sobe de novo, e o risco fiscal leva a inflação e a SELIC junto. Quando o juro da dívida passa do que o crescimento e a inflação tiram dela, só um superávit primário segura a dívida.
 
 O painel da **Economia** abre tudo isso. O cartão de efeitos lista cada medida e cada ligação com o que somam ao IPCA, à SELIC e à bolsa. O do crescimento mostra a série do IBGE mais as quatro parcelas, e o do desemprego, a história mais o que a partida somou. O da dívida mostra a taxa média e de onde veio a variação dos últimos 12 meses: o juro a aumenta; o crescimento e a inflação a encolhem, porque aumentam o PIB que a divide; e o resultado primário a abate quando sobra e a aumenta quando falta. Ex.: juro +8,0 pontos, crescimento −1,3, inflação −3,0 e déficit primário +1,5 dão +5,2 pontos: a dívida foi de 70% para 75,2% do PIB.
+
+### A SELIC no Copom
+
+Na preparação da partida com governo, o campo **Juros** escolhe quem decide a SELIC:
+
+- **Banco Central autônomo** (padrão): a SELIC é a da história mais a reação do Banco Central à inflação que o governo soma.
+- **Nas mãos do governo:** o presidente decide a SELIC nas reuniões do **Copom**. Até o primeiro presidente de jogador tomar posse, o Banco Central segue decidindo como na história.
+
+**As reuniões.** O Copom se reúne 8 vezes por ano, a cada 45 dias (no dia útil seguinte quando cai em fim de semana ou feriado). O jogo não pausa: o presidente marca a decisão antes, no cartão **SELIC no Copom** da aba de contas do **Governo**, e pode trocar ou desmarcar até o dia da reunião. A SELIC nova vale a partir do dia seguinte. Sem decisão marcada, a SELIC fica onde está; nos 7 dias antes de uma reunião sem decisão, o presidente recebe uma pendência. Um presidente do computador decide como o Banco Central autônomo decidiria.
+
+**O teto por reunião.** A SELIC anda em passos de 0,25 ponto e cada reunião a move no máximo:
+
+| IPCA de 12 meses | Teto por reunião |
+| --- | --- |
+| Dentro da meta mais a tolerância | 0,75 ponto |
+| Acima da meta mais a tolerância | 1,5 ponto |
+| Acima de 15% | 3 pontos |
+
+Ex.: SELIC de 10,75% com o IPCA dentro da meta: a próxima reunião decide entre 10% e 11,5%. Uma decisão marcada fora do teto do dia da reunião anda só até o teto.
+
+**O juro real.** O efeito da SELIC na inflação vem pelo juro real (SELIC menos IPCA de 12 meses), pela [ligação do juro real](#a-economia-interligada). Um juro real perto de **5%** é o **neutro**: nem esquenta nem esfria a economia. Ex.: SELIC de 10,75% com IPCA de 4,5% dão juro real de 6,25%, um pouco acima do neutro; cortar a SELIC para 8,75% com a história parada em 10,75% deixa o juro real em 4,25%, 2 pontos abaixo da história, e, mantido por um ano, soma uns 0,6 ponto ao IPCA no ano seguinte.
+
+**A credibilidade.** A credibilidade do Banco Central vai de 0 a 100 e começa em 100. Ela mede o quanto o mercado acredita que a inflação vai voltar para a meta:
+
+- Cada reunião com o juro real abaixo do neutro e o IPCA acima da meta tira **4 pontos por ponto** de juro real abaixo do neutro, até 20 por reunião. Ex.: juro real de 2% com o IPCA acima da meta tira 12 pontos.
+- Cada alta da SELIC devolve **3 pontos**.
+- Credibilidade baixa custa de três jeitos: a dívida paga até **2 pontos de prêmio de risco** a mais (com 80 de credibilidade, 0,4 ponto); o efeito do juro real na inflação cresce até **2 vezes** (com 80, 1,2 vez); e chega mais cedo, porque o mercado reajusta preço antes.
+
+Credibilidade acima de 80 é boa; abaixo de 50, a dívida e a inflação já sentem.
+
+**Os grupos de eleitores.** Em toda partida com governo, os grupos reagem ao juro real com uma faixa de **2% a 7%**. Abaixo de 2%, aposentados e investidores, que vivem de renda, reclamam; acima de 7%, trabalhadores com carteira e empreendedores, que tomam crédito, reclamam. Cada ponto fora da faixa tira de 1,5 a 2 pontos de aprovação do grupo, até 6 pontos fora.
+
+**As fontes.** O calendário de 8 reuniões e os passos de 0,25 ponto seguem o Copom; o teto de 1,5 ponto é o ritmo do Copom em 2021. O efeito de 0,3 ponto de IPCA por ponto de juro real, com defasagem de 6 a 9 meses, é a ordem de grandeza do modelo Samba, o modelo de projeção do Banco Central. Os números se calibram no playtest.
 
 ### O Congresso
 
@@ -159,6 +193,7 @@ A aprovação é quantos eleitores, em cada 100, aprovam o governo. Ela começa 
 | Bolsa em 12 meses | +1 ponto a cada 5% de alta e −1 a cada 5% de queda, até 6 pontos para cada lado |
 | Corte de imposto | Soma de 1 a 3 pontos enquanto o governo dura |
 | Imposto novo | Tira de 1 a 5 pontos ao passar a valer, e o efeito some em 6 meses |
+| Juro real | Por grupo: tira de 1,5 a 2 pontos por ponto de juro real fora da faixa de 2% a 7% (veja [A SELIC no Copom](#a-selic-no-copom)) |
 | Promessa | Tira 3 pontos por faixa de distância entre a promessa do partido e a marca do governo na régua |
 
 A **marca do governo** é a média das faixas das medidas aprovadas. Ex.: um partido que prometeu a faixa 2 (isenção para um setor) e aprovou só aumento geral de imposto (faixa 5) está 3 faixas à direita da promessa e perde 9 pontos. A aprovação é calculada só quando um jogador governa.

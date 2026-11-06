@@ -122,7 +122,8 @@ class LinkEffectDTO(BaseDTO):
     """Uma ligação da economia interligada hoje: o desvio do último mês fechado e o que ele soma."""
 
     link: EconomyLink
-    # O desvio da partida contra a história, em fração: o desemprego, o prêmio de risco ou o nível do PIB
+    # O desvio da partida contra a história, em fração: o desemprego, o prêmio de risco, o
+    # nível do PIB, o juro real ou a SELIC
     gap: Decimal
     # Pontos de IPCA e de SELIC em 12 meses e a variação da bolsa (fração) no trimestre
     inflation: Decimal

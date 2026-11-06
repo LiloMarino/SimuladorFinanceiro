@@ -1,12 +1,13 @@
 import type { MetricInfo } from "@/shared/lib/metric-info";
 import { signedIpca } from "@/shared/lib/effects";
+import { displayPoints } from "@/shared/lib/budget-metrics";
 import { displayPercent } from "@/shared/lib/utils/display";
 
 export const APPROVAL: MetricInfo = {
   label: "Aprovação",
   description: "De cada 100 eleitores, quantos aprovam o governo",
   definition:
-    "É a média da satisfação dos 6 grupos de eleitores, pesada pelo tamanho de cada um. Cada grupo anda um terço do caminho até o alvo dele a cada fim de mês, e o alvo sai do que o grupo lê: inflação, SELIC, bolsa, desemprego, prêmio de risco da dívida e as medidas do governo.",
+    "É a média da satisfação dos 6 grupos de eleitores, pesada pelo tamanho de cada um. Cada grupo anda um terço do caminho até o alvo dele a cada fim de mês, e o alvo sai do que o grupo lê: inflação, juro real, bolsa, desemprego, prêmio de risco da dívida e as medidas do governo.",
   example:
     "Ex.: se os grupos que somam 60% do eleitorado estão em 70 e os outros 40% estão em 40, a aprovação geral é 0,6 × 70 + 0,4 × 40 = 58.",
   reading:
@@ -29,7 +30,7 @@ export const TARGET: MetricInfo = {
   label: "Alvo",
   description: "Onde a satisfação do grupo para se nada mudar",
   definition:
-    "Sai do que o grupo lê (inflação, SELIC, bolsa, desemprego e prêmio de risco da dívida) e das medidas que valem. A satisfação anda um terço do caminho até o alvo a cada fim de mês.",
+    "Sai do que o grupo lê (inflação, juro real, bolsa, desemprego e prêmio de risco da dívida) e das medidas que valem. A satisfação anda um terço do caminho até o alvo a cada fim de mês.",
   example: "Ex.: com satisfação 40 e alvo 70, o grupo vai a 50 no próximo fechamento, depois a 57 e a 61.",
   reading: "Alvo acima da satisfação: o grupo está melhorando. Abaixo: está piorando, mesmo que hoje ainda aprove.",
   format: (value) => `${value}`,
@@ -198,7 +199,7 @@ export const QUEUE_INFLATION: MetricInfo = {
     "Só as medidas de gasto mexem aqui. O IPCA de 12 meses é a inflação acumulada no último ano; a medida soma ou tira pontos dele. O efeito demora: enche em 6 meses, vale cheio no pico e cai pela metade a cada 12 meses. Vermelho é inflação a mais; verde, a menos.",
   example: "Ex.: +0,25 com o IPCA em 3,3% leva o 12 meses a 3,55% no pico, uns 6 meses depois de a medida valer.",
   reading:
-    "Inflação a mais desagrada quem lê a inflação, e o Banco Central sobe a SELIC 1,5 vez o tanto. Abaixo de 0,1 ponto quase não se sente.",
+    "Inflação a mais desagrada quem lê a inflação, e o Banco Central autônomo sobe a SELIC 1,5 vez o tanto; com a SELIC do governo, ela só sobe no Copom. Abaixo de 0,1 ponto quase não se sente.",
   format: (value) => `${signedIpca(value)} ponto`,
 };
 
@@ -208,9 +209,9 @@ export const INFLATION_EXPECTED: MetricInfo = {
   definition:
     "A medida de gasto põe mais (ou menos) dinheiro nas mãos de quem consome, e os preços reagem meses depois. O efeito enche em 6 meses, vale cheio no pico e cai pela metade a cada 12 meses. Vale para a partida inteira, na história e no futuro gerado, e a série guardada não muda: a diferença aparece tracejada no painel da economia.",
   example:
-    "Ex.: +0,55 ponto com o IPCA em 3,3% leva o 12 meses a 3,85% no pico. Se o Banco Central responde com 1,5 vez o tanto, a SELIC sobe 0,83 ponto.",
+    "Ex.: +0,55 ponto com o IPCA em 3,3% leva o 12 meses a 3,85% no pico. Com o Banco Central autônomo, que responde com 1,5 vez o tanto, a SELIC sobe 0,83 ponto.",
   reading:
-    "Pontos a mais pesam contra o governo: os grupos que leem a inflação reprovam, a SELIC sobe e a bolsa cai. Menos de 0,1 ponto quase não se sente.",
+    "Pontos a mais pesam contra o governo: os grupos que leem a inflação reprovam, a SELIC sobe (sozinha ou no Copom) e a bolsa cai. Menos de 0,1 ponto quase não se sente.",
   format: (value) => `${signedIpca(value)} ponto`,
 };
 
@@ -233,4 +234,47 @@ export const SPENDING_INFLATION_NOW: MetricInfo = {
   example: "Ex.: +0,12 hoje e +0,25 no pico: a medida ainda está chegando e vai pesar mais nos próximos meses.",
   reading: "Zero ou traço: o efeito ainda não começou ou já sumiu. Vermelho é inflação a mais; verde, a menos.",
   format: (value) => `${signedIpca(value)} ponto`,
+};
+
+export const COPOM_SELIC: MetricInfo = {
+  label: "SELIC",
+  description: "O juro básico do país, ao ano; muda só nas reuniões do Copom",
+  definition:
+    "A taxa que serve de base para todos os outros juros: o CDI, os títulos do Tesouro, o crédito e o juro da dívida do governo. Nesta partida quem decide é o presidente, nas 8 reuniões do Copom do ano; a taxa nova vale do dia seguinte à reunião.",
+  example: "Ex.: com a SELIC a 10,75% ao ano, R$ 100 parados nela viram R$ 110,75 em um ano.",
+  reading:
+    "Subir a SELIC segura a inflação meses depois, mas encarece o crédito, derruba a bolsa e aumenta o juro da dívida. Baixar faz o contrário.",
+  format: (value) => displayPercent(value, 2),
+};
+
+export const POLICY_REAL_RATE: MetricInfo = {
+  label: "Juro real",
+  description: "A SELIC menos a inflação: quanto o dinheiro rende de verdade",
+  definition:
+    "A SELIC menos o IPCA dos últimos 12 meses. É ele que mexe na inflação: abaixo da história, o crédito barato aquece a economia e a inflação sobe com até um ano de atraso (0,3 ponto de IPCA por ponto abaixo, mantido por um ano). O neutro, de 5%, é o juro real que nem aquece nem esfria a economia.",
+  example: "Ex.: SELIC de 10,75% com IPCA de 4,5% dá juro real de 6,25%, um pouco acima do neutro: esfria devagar.",
+  reading:
+    "Os grupos de eleitores aceitam entre 2% e 7%. Abaixo de 2%, aposentados e investidores reclamam que a renda fixa não rende; acima de 7%, trabalhadores com carteira e empreendedores reclamam do crédito caro.",
+  format: (value) => displayPercent(value, 2),
+};
+
+export const MEETING_CAP: MetricInfo = {
+  label: "Teto da reunião",
+  description: "O quanto a SELIC pode andar numa reunião, para cima ou para baixo",
+  definition:
+    "Cada reunião anda em passos de 0,25 ponto, até 0,75 ponto. Com o IPCA de 12 meses acima da meta mais a tolerância, o teto sobe a 1,5 ponto; com o IPCA acima de 15%, a 3 pontos. A decisão marcada é limitada de novo pelo teto do dia da reunião.",
+  example: "Ex.: SELIC de 10,75% com teto de 0,75 ponto: a reunião pode levá-la de 10% a 11,5%.",
+  reading: "O teto impede choque de um dia para o outro: mudar muito o juro leva várias reuniões.",
+  format: (value) => displayPoints(Number(value) * 100, 2),
+};
+
+export const CREDIBILITY: MetricInfo = {
+  label: "Credibilidade",
+  description: "O quanto o mercado confia que a SELIC vai segurar a inflação, de 0 a 100",
+  definition:
+    "Começa em 100. Cada reunião que mantém ou corta a SELIC com o juro real abaixo do neutro (5%) e o IPCA acima da meta tira 4 pontos por ponto de juro real abaixo do neutro, até 20 por reunião; cada alta devolve 3. Sem credibilidade, a dívida paga até 2 pontos de prêmio de risco a mais, e o juro real baixo pesa até o dobro na inflação, mais cedo.",
+  example:
+    "Ex.: juro real de 0% com o IPCA acima da meta fica 5 pontos abaixo do neutro: a reunião tira 20 e a credibilidade vai a 80, com 0,4 ponto de prêmio a mais e o efeito do juro na inflação 1,2 vez maior.",
+  reading: "100 é a confiança toda. Abaixo de 80 já custa prêmio e inflação; recuperar é lento, 3 pontos por alta.",
+  format: (value) => `${Math.round(Number(value))} de 100`,
 };

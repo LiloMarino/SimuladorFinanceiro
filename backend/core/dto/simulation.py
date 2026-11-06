@@ -10,6 +10,7 @@ from backend.core.enum import (
     GameType,
     InitialAccount,
     PlayerGrouping,
+    SelicControl,
     SimulationStatus,
     TeamNaming,
     VictoryCriterion,
@@ -26,10 +27,15 @@ def validate_government(
     start_date: date,
     end_date: date,
     first_election: date | None,
+    selic_control: SelicControl = SelicControl.AUTONOMOUS,
 ) -> None:
     """As regras da expansão Governo & Política; valem igual para o DTO e para a requisição."""
     if game_type is GameType.POLITICAL and not government_enabled:
         raise ValueError("A vitória política exige a expansão Governo & Política.")
+    if selic_control is SelicControl.GOVERNMENT and not government_enabled:
+        raise ValueError(
+            "A SELIC nas mãos do governo exige a expansão Governo & Política."
+        )
     if not government_enabled:
         return
     if game_type is GameType.POLITICAL and player_grouping is PlayerGrouping.TEAMS:
@@ -89,6 +95,8 @@ class SimulationSettingsDTO(BaseDTO):
     poll_margin: bool = True
     # A conta do governo na largada: a jogável parte de números redondos, a realista da tabela do ano
     initial_account: InitialAccount = InitialAccount.PLAYABLE
+    # Quem decide a SELIC: o Banco Central autônomo ou o presidente, nas reuniões do Copom
+    selic_control: SelicControl = SelicControl.AUTONOMOUS
 
     @property
     def expert_mode(self) -> bool:
@@ -110,6 +118,7 @@ class SimulationSettingsDTO(BaseDTO):
             start_date=self.start_date,
             end_date=self.end_date,
             first_election=self.first_election,
+            selic_control=self.selic_control,
         )
         if (
             self.game_type is GameType.GOAL_RACE

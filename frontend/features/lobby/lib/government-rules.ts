@@ -2,7 +2,7 @@ import { addMonths, addYears, format } from "date-fns";
 import { displayPremiumPoints } from "@/shared/lib/budget-metrics";
 import { displayMoneyLarge, displayPercent, parseLocalDate } from "@/shared/lib/utils/display";
 import { isIsoDate } from "@/shared/lib/utils/date-field";
-import type { ComputerDifficulty, InitialAccount, InitialAccountPreview } from "@/types";
+import type { ComputerDifficulty, InitialAccount, InitialAccountPreview, SelicControl } from "@/types";
 
 /** A campanha dura um ano e o mandato, quatro: menos que isso a partida não fecha um ciclo. */
 export const GOVERNMENT_MIN_YEARS = 5;
@@ -19,6 +19,23 @@ export const INITIAL_ACCOUNTS: { value: InitialAccount; label: string }[] = [
   { value: "PLAYABLE", label: "Jogável" },
   { value: "REALISTIC", label: "Realista" },
 ];
+
+/** Quem decide a SELIC: o texto de cada escolha e o exemplo que mostra o que muda no jogo. */
+export const SELIC_CONTROLS: Record<SelicControl, { label: string; description: string; example: string }> = {
+  AUTONOMOUS: {
+    label: "Banco Central autônomo",
+    description:
+      "Como no Brasil desde 2021: o Banco Central sobe a SELIC 1,5 vez a inflação que o governo soma, sozinho. O presidente mexe nos impostos e no gasto, não nos juros.",
+    example: "Uma medida que soma 1 ponto à inflação leva a SELIC 1,5 ponto acima da história.",
+  },
+  GOVERNMENT: {
+    label: "Nas mãos do governo",
+    description:
+      "O presidente decide a SELIC nas 8 reuniões do Copom do ano, até 0,75 ponto por reunião (1,5 com a inflação acima da meta). Juro real abaixo da história sobe a inflação com até um ano de atraso, e segurar o juro com a inflação alta custa credibilidade ao Banco Central.",
+    example:
+      "SELIC de 10,75% com inflação de 4,5% dá juro real de 6,25%. Cortar para 8,75% leva o juro real a 4,25%: 2 pontos abaixo, por um ano, somam uns 0,6 ponto à inflação do ano seguinte.",
+  },
+};
 
 const MEAN_BUDGET_EXAMPLE = 10_000;
 

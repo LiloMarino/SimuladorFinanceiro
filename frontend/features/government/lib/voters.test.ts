@@ -21,7 +21,7 @@ const investors: VoterGroupInfo = {
   group: "INVESTORS",
   weight: "0.08",
   margin: 11,
-  readings: ["SELIC", "STOCKS"],
+  readings: ["REAL_RATE", "STOCKS"],
   wants: scores({
     FREE_MARKET: 100,
     SOCIAL_JUSTICE: 0,

@@ -30,6 +30,7 @@ const settings: SimulationSettingsData = {
   computer_difficulty: "NORMAL",
   poll_margin: false,
   initial_account: "REALISTIC",
+  selic_control: "AUTONOMOUS",
 };
 
 describe("regras da partida ↔ formulário do lobby", () => {

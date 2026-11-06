@@ -15,6 +15,7 @@ const TARGETS: Record<PendingType, (item: Pending) => PendingTarget> = {
   }),
   NEGATIVE_CASH: () => ({ label: "Ver carteira", to: "/portfolio" }),
   IMPEACHMENT_RISK: () => ({ label: "Ver governo", to: "/government" }),
+  SELIC_MEETING: () => ({ label: "Marcar a SELIC", to: "/government?tab=accounts" }),
   CASH_SHORT: () => ({ label: "Ver crédito", to: "/credit" }),
   STRATEGY_ERROR: () => ({ label: "Religar", to: "/strategies" }),
   UNGUIDED_VOTE: () => ({ label: "Orientar", to: "/government?tab=congress" }),

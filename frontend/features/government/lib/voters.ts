@@ -11,7 +11,7 @@ export const GROUP_INFO: Record<VoterGroup, { label: string; short: string }> = 
 
 export const READING_LABEL: Record<VoterGroupInfo["readings"][number], string> = {
   INFLATION: "inflação",
-  SELIC: "SELIC",
+  REAL_RATE: "juro real",
   STOCKS: "Ibovespa",
   CAPITAL_GAINS_TAX: "imposto",
   UNEMPLOYMENT: "desemprego",

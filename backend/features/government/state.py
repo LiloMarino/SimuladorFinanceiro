@@ -24,6 +24,7 @@ from backend.core.enum import (
 )
 from backend.core.enum import GovernmentEventType as Event
 from backend.core.utils import required
+from backend.features.economy.monetary import SelicBoard, SelicDecision
 from backend.features.government import (
     campaign,
     house,
@@ -463,6 +464,11 @@ class GovernmentState:
     preparations: list[dict[str, object]] = field(default_factory=list)
     # Quem a última cobrança não conseguiu cobrar: o mês e o valor que faltou
     unpaid: dict[int, tuple[date, Decimal]] = field(default_factory=dict)
+    # As decisões das reuniões do Copom, a última reunião feita e a SELIC que o presidente
+    # marcou para a próxima
+    selic_board: SelicBoard = field(default_factory=SelicBoard)
+    last_meeting: date | None = None
+    selic_plan: Decimal | None = None
 
     @property
     def satisfaction(self) -> dict[VoterGroup, Decimal]:
@@ -781,6 +787,14 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             _apply_promises_weighed(state, event)
         case Event.PROMISES_SETTLED:
             _apply_promises_settled(state, event)
+        case Event.SELIC_SET:
+            state.selic_plan = _opt_money(p, "selic")
+        case Event.SELIC_DECIDED:
+            state.selic_board.record(
+                SelicDecision(day, _money(p, "selic"), float(_money(p, "credibility")))
+            )
+            state.last_meeting = date.fromisoformat(_str(p, "meeting"))
+            state.selic_plan = None
 
 
 def _reset_government(state: GovernmentState, day: date) -> None:
@@ -790,6 +804,7 @@ def _reset_government(state: GovernmentState, day: date) -> None:
             measure.status = MeasureStatus.DROPPED
     state.approvals = []
     state.low_streak = 0
+    state.selic_plan = None
     state.request = None
     state.orientations.pop("impeachment", None)
     _cut_deals(state, day)

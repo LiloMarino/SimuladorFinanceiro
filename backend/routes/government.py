@@ -31,6 +31,7 @@ from backend.core.dto.government import (
     ProposeDealRequest,
     ProposeMeasureRequest,
     RunoffContributionRequest,
+    SelicRequest,
     TicketRequest,
     ViceAnswerRequest,
 )
@@ -410,6 +411,16 @@ def preview_measure(
     simulation: ActiveSimulation, user: CurrentUser, payload: ProposeMeasureRequest
 ):
     return simulation.preview_measure(user, payload)
+
+
+@government_router.post(
+    "/selic",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Marcar a SELIC da próxima reunião do Copom",
+    description="Só o presidente marca, e só na partida com a SELIC nas mãos do governo. A taxa anda em passos de 0,25 ponto e no máximo o teto de hoje a partir da atual; a reunião re-limita pelo teto do dia dela, e a nova SELIC vale do dia seguinte. Nula desmarca: sem decisão, a SELIC fica.",
+)
+def set_selic(simulation: ActiveSimulation, user: CurrentUser, payload: SelicRequest):
+    simulation.set_selic(user, payload.selic)
 
 
 @government_router.delete(

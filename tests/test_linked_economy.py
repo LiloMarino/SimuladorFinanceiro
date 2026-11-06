@@ -24,6 +24,7 @@ from backend.core.indicators import annual_index_rate
 from backend.core.repository.economic import IndicatorHistory
 from backend.core.utils import last_day_of_month
 from backend.features.economy.growth import MacroCourse
+from backend.features.economy.monetary import Monetary, SelicBoard, SelicDecision
 from backend.features.economy.panel import build_economy_panel
 from backend.features.government import budget
 from backend.features.government.budget import base_spending_on
@@ -96,6 +97,7 @@ def aux(value: str, effective: date) -> Measure:
 def economy(
     measures: list[Measure] | None = None,
     extra_spending: Callable[[date], Decimal] = lambda _day: Decimal(0),
+    monetary: Monetary | None = None,
 ) -> LinkedEconomy:
     spending = SpendingEconomy()
     linked = LinkedEconomy(
@@ -107,6 +109,7 @@ def economy(
         lambda day: base_spending_on(day) + extra_spending(day),
         lambda _day: Decimal(0),
         spending,
+        monetary or SelicBoard(),
     )
     spending.update(measures or [])
     return linked
@@ -255,4 +258,61 @@ def test_the_panel_splits_the_debt_the_links_and_the_growth_by_cause(
         + parts.stocks
         + parts.works
         + parts.impulse
+    )
+
+
+def selic_set(selic: str, credibility: float = 100) -> SelicBoard:
+    """O governo fixou a SELIC antes do primeiro dia da partida."""
+    board = SelicBoard()
+    board.record(SelicDecision(START - timedelta(days=1), Decimal(selic), credibility))
+    return board
+
+
+def test_the_government_selic_replaces_the_series(stored_series: None):
+    linked = economy(monetary=selic_set("0.076"))
+    day = date(2020, 6, 15)
+
+    linked.close_until(day)
+
+    assert annual_index_rate(IndicatorSeries.SELIC, day) == pytest.approx(
+        Decimal("0.076"), abs=Decimal("1e-6")
+    )
+    assert linked.layer.first_day() == START
+
+
+def test_a_real_rate_below_history_raises_inflation_with_lag(stored_series: None):
+    stored = annual_index_rate(IndicatorSeries.SELIC, START, stored=True)
+    linked = economy(monetary=selic_set(str(stored - Decimal("0.03"))))
+    end = date(2021, 12, 31)
+
+    linked.close_until(end)
+
+    links = linked.links_until(end)
+    # O juro real cai os 3 pontos da SELIC e mais o que a inflação sobe
+    assert links[0].real_rate_gap == pytest.approx(
+        Decimal("-0.03"), abs=Decimal("0.001")
+    )
+    assert all(link.real_rate_gap < Decimal("-0.029") for link in links)
+    # A defasagem: pouco no começo, mais no segundo ano
+    assert 0 < links[0].rate_points < links[11].rate_points < links[-1].rate_points
+    assert annual_index_rate(IndicatorSeries.IPCA, end) > annual_index_rate(
+        IndicatorSeries.IPCA, end, stored=True
+    )
+
+
+def test_lost_credibility_costs_premium_and_inflation(stored_series: None):
+    stored = annual_index_rate(IndicatorSeries.SELIC, START, stored=True)
+    selic = str(stored - Decimal("0.03"))
+    calm = economy(monetary=selic_set(selic))
+    doubted = economy(monetary=selic_set(selic, credibility=0))
+    end = date(2020, 12, 31)
+
+    calm.close_until(end)
+    doubted.close_until(end)
+
+    assert doubted.budget.latest(end).premium - calm.budget.latest(
+        end
+    ).premium == pytest.approx(Decimal("0.02"), abs=Decimal("0.001"))
+    assert (
+        doubted.links_until(end)[-1].rate_points > calm.links_until(end)[-1].rate_points
     )

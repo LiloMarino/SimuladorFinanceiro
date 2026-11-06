@@ -229,7 +229,7 @@ def test_target_starts_at_the_neutral_point_and_adds_what_each_group_reads():
 
     assert points(result)[ApprovalFactorKind.BASE] == 50
     assert points(result)[ApprovalFactorKind.INFLATION] == Decimal("10")
-    assert points(result)[ApprovalFactorKind.SELIC] == 0
+    assert points(result)[ApprovalFactorKind.REAL_RATE] == 0
     assert points(result)[ApprovalFactorKind.STOCKS] == 1
     assert result.target == 61
 
@@ -248,8 +248,7 @@ def test_each_result_is_capped_in_both_directions():
 
     assert approval_rules.inflation_factor(retirees, market("0.30")).points == -20
     assert approval_rules.inflation_factor(retirees, market("0.00")).points == 20
-    assert approval_rules.selic_factor(retirees, market(selic="0.30")).points == 9
-    assert approval_rules.selic_factor(retirees, market(selic="0.00")).points == -9
+    assert approval_rules.real_rate_factor(retirees, market(selic="-0.30")).points == -9
     rise = approval_rules.stocks_factor(investors, market(stocks="0.90"))
     fall = approval_rules.stocks_factor(investors, market(stocks="-0.80"))
     assert rise is not None and rise.points == 24
@@ -315,14 +314,29 @@ def test_risk_premium_text_uses_the_singular_only_for_one_point():
     ]
 
 
-def test_the_same_result_pleases_one_group_and_irritates_another():
-    high_rate = market(selic="0.16")
+def test_each_side_of_the_real_rate_band_irritates_its_own_groups():
+    # Inflação de 4%: SELIC de 5% dá juro real de 1%, a de 14% dá 10%
+    low = market(selic="0.05")
+    high = market(selic="0.14")
 
-    retirees = approval_rules.selic_factor(VoterGroup.RETIREES, high_rate)
-    entrepreneurs = approval_rules.selic_factor(VoterGroup.ENTREPRENEURS, high_rate)
+    def real_rate(group: VoterGroup, m: approval_rules.Market) -> Decimal:
+        return approval_rules.real_rate_factor(group, m).points
 
-    assert retirees.points == 9
-    assert entrepreneurs.points == -12
+    assert real_rate(VoterGroup.RETIREES, low) == Decimal("-1.5")
+    assert real_rate(VoterGroup.INVESTORS, low) == Decimal("-1.5")
+    assert real_rate(VoterGroup.ENTREPRENEURS, low) == 0
+    assert real_rate(VoterGroup.ENTREPRENEURS, high) == -6
+    assert real_rate(VoterGroup.FORMAL_WORKERS, high) == Decimal("-4.5")
+    assert real_rate(VoterGroup.RETIREES, high) == 0
+
+
+def test_inside_the_real_rate_band_nobody_minds():
+    factor = approval_rules.real_rate_factor(VoterGroup.ENTREPRENEURS, market())
+
+    assert factor.points == 0
+    assert factor.description == (
+        "Juro real de 6% (SELIC menos inflação), dentro da faixa de 2% a 7%"
+    )
 
 
 def test_target_never_leaves_zero_to_one_hundred():

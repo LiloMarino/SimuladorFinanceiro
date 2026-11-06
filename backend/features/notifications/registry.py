@@ -265,6 +265,12 @@ PENDING: tuple[PendingSpec, ...] = (
         "Proposta de acordo de apoio",
         "Só para o líder do partido; some ao responder ou quando o prazo de 15 dias vence",
     ),
+    PendingSpec(
+        PendingType.SELIC_MEETING,
+        PendingSeverity.WARNING,
+        "Reunião do Copom sem SELIC marcada",
+        "Só para o presidente; some ao marcar a SELIC ou quando a reunião acontece",
+    ),
 )
 
 NEWS_BY_TYPE: dict[NewsType, NewsSpec] = {spec.type: spec for spec in NEWS}

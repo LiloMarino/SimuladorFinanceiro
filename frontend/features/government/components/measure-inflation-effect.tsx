@@ -19,6 +19,20 @@ function Line({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
+/** Quem responde à inflação da medida: o Banco Central autônomo ou o presidente, no Copom. */
+const REACTION = {
+  bank: {
+    raising: "O Banco Central responde subindo a SELIC, e a bolsa tende a cair no trimestre da alta.",
+    cutting: "O Banco Central responde cortando a SELIC, e a bolsa tende a subir no trimestre do corte.",
+  },
+  government: {
+    raising:
+      "Com a SELIC nas mãos do governo, a inflação maior baixa o juro real, e isso puxa mais inflação até o presidente subir a SELIC no Copom.",
+    cutting:
+      "Com a SELIC nas mãos do governo, a inflação menor sobe o juro real, e isso tira mais inflação até o presidente cortar a SELIC no Copom.",
+  },
+} as const;
+
 type MeasureInflationEffectProps = { effect: InflationEffect };
 
 /** O que a medida de gasto faz com a inflação, a SELIC e a bolsa: a curva do efeito mês a mês e os números do pico. */
@@ -83,13 +97,21 @@ export function MeasureInflationEffect({ effect }: MeasureInflationEffectProps) 
         <Line label="IPCA 12 meses no pico, se nada mais mudar">
           {displayPercent(effect.ipca_before)} → {displayPercent(effect.ipca_after)}
         </Line>
-        <Line label={`SELIC, que o Banco Central ${raising ? "sobe" : "corta"} 1,5 vez o tanto`}>
-          {displayPercent(effect.selic_before)} → {displayPercent(effect.selic_after)}
-        </Line>
-        <Line label={`Bolsa no trimestre ${raising ? "da alta" : "do corte"} da SELIC`}>
-          {signedStocks(effect.stocks)}
-          <span className="font-normal text-muted-foreground">, mais nas ações de beta alto</span>
-        </Line>
+        {effect.central_bank_reacts ? (
+          <>
+            <Line label={`SELIC, que o Banco Central ${raising ? "sobe" : "corta"} 1,5 vez o tanto`}>
+              {displayPercent(effect.selic_before)} → {displayPercent(effect.selic_after)}
+            </Line>
+            <Line label={`Bolsa no trimestre ${raising ? "da alta" : "do corte"} da SELIC`}>
+              {signedStocks(effect.stocks)}
+              <span className="font-normal text-muted-foreground">, mais nas ações de beta alto</span>
+            </Line>
+          </>
+        ) : (
+          <Line label="SELIC, que só muda quando o presidente decide no Copom">
+            {displayPercent(effect.selic_before)}
+          </Line>
+        )}
         {growth !== 0 && (
           <Line label="Crescimento do PIB, no pico">
             {growth > 0 ? "+" : "−"}
@@ -100,9 +122,10 @@ export function MeasureInflationEffect({ effect }: MeasureInflationEffectProps) 
 
       <p className="text-xs leading-normal text-muted-foreground">
         {raising
-          ? "Com mais gasto, as famílias consomem mais e os preços sobem meses depois. O Banco Central responde subindo a SELIC, e a bolsa tende a cair no trimestre da alta."
-          : "Com menos gasto, as famílias consomem menos e os preços sobem mais devagar meses depois. O Banco Central responde cortando a SELIC, e a bolsa tende a subir no trimestre do corte."}{" "}
-        O efeito enche em 6 meses e cai pela metade a cada 12.
+          ? "Com mais gasto, as famílias consomem mais e os preços sobem meses depois."
+          : "Com menos gasto, as famílias consomem menos e os preços sobem mais devagar meses depois."}{" "}
+        {REACTION[effect.central_bank_reacts ? "bank" : "government"][raising ? "raising" : "cutting"]} O efeito enche
+        em 6 meses e cai pela metade a cada 12.
       </p>
     </div>
   );

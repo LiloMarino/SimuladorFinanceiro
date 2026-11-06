@@ -160,9 +160,14 @@ def points(value: float) -> Decimal:
 
 
 def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
-    """As três ligações que valem hoje, pelo desvio do último mês fechado."""
+    """
+    As ligações que valem hoje, pelo desvio do último mês fechado. Com a SELIC do
+    governo, a reação do Banco Central some de cada ligação e a SELIC entra como
+    ligação própria.
+    """
     link = linked.links_on(today)
     stocks = linked.layer.stocks_parts(today)
+    reacts = linked.layer.reacts(today)
 
     def effect(
         kind: EconomyLink, gap: Decimal, inflation: float, exponent: float
@@ -171,11 +176,30 @@ def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
             link=kind,
             gap=gap,
             inflation=points(inflation),
-            selic=points(central_bank_reaction(inflation)),
+            selic=points(central_bank_reaction(inflation) if reacts else 0.0),
             stocks=points(math.exp(exponent) - 1),
         )
 
+    government: list[LinkEffectDTO] = []
+    if not reacts:
+        selic = linked.layer.selic_points(today)
+        government.append(
+            LinkEffectDTO(
+                link=EconomyLink.SELIC,
+                gap=Decimal(str(round(selic / 100, 6))),
+                inflation=Decimal(0),
+                selic=points(selic),
+                stocks=points(math.exp(stocks.selic) - 1),
+            )
+        )
     return [
+        *government,
+        effect(
+            EconomyLink.REAL_RATE,
+            link.real_rate_gap,
+            link.rate_points,
+            stocks.real_rate,
+        ),
         effect(
             EconomyLink.PHILLIPS,
             link.unemployment_gap,
@@ -193,9 +217,17 @@ def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
 
 
 def active_effects(
-    economy: SpendingEconomy, measures: Iterable[Measure], today: date
+    economy: SpendingEconomy,
+    measures: Iterable[Measure],
+    today: date,
+    *,
+    reacts: bool = True,
 ) -> list[ActiveEffectDTO]:
-    """Os efeitos das medidas de gasto aprovadas, do mais novo ao mais antigo."""
+    """
+    Os efeitos das medidas de gasto aprovadas, do mais novo ao mais antigo. Com a SELIC
+    do governo (`reacts` falso), a medida põe só inflação: a SELIC e a bolsa vêm da
+    decisão das reuniões.
+    """
     by_id = {m.id: m for m in measures}
     effects = []
     for now in reversed(economy.now(today)):
@@ -214,8 +246,8 @@ def active_effects(
                 faded_on=spending_effects.faded_on(effect),
                 phase=now.phase,
                 inflation=points(now.inflation),
-                selic=points(now.selic),
-                stocks=points(now.stocks),
+                selic=points(now.selic if reacts else 0.0),
+                stocks=points(now.stocks if reacts else 0.0),
                 curve=[
                     points(value)
                     for value in spending_effects.curve(effect.kind, effect.steps)
@@ -250,7 +282,14 @@ def build_economy_panel(
         growth_parts=growth_parts(macro, today),
         debt=debt_summary(linked, today) if linked is not None else None,
         effects=(
-            active_effects(economy, measures, today) if economy is not None else None
+            active_effects(
+                economy,
+                measures,
+                today,
+                reacts=linked is None or linked.layer.reacts(today),
+            )
+            if economy is not None
+            else None
         ),
         links=link_effects(linked, today) if linked is not None else None,
     )

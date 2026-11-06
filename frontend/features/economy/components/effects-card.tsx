@@ -1,4 +1,4 @@
-import { ShieldAlert, TrendingUp, TriangleAlert, Users, type LucideIcon } from "lucide-react";
+import { Landmark, Percent, ShieldAlert, TrendingUp, TriangleAlert, Users, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { EffectSpark } from "@/shared/components/effect-spark";
 import { InfoHint } from "@/shared/components/info-hint";
@@ -17,6 +17,7 @@ import {
   activeLinks,
   inflationBreakdown,
   LINK_METRIC,
+  selicByGovernment,
   stocksEffect,
   sumEffects,
   type InflationPart,
@@ -37,6 +38,8 @@ const LINK_ROW: Record<EconomyLinkEffect["link"], { icon: LucideIcon; subject: s
   PHILLIPS: { icon: Users, subject: "Desemprego" },
   FISCAL_RISK: { icon: ShieldAlert, subject: "Prêmio de risco" },
   GDP: { icon: TrendingUp, subject: "PIB" },
+  REAL_RATE: { icon: Percent, subject: "Juro real" },
+  SELIC: { icon: Landmark, subject: "SELIC" },
 };
 
 type EffectsCardProps = { panel: EconomyPanel; effects: EconomyEffect[]; links: EconomyLinkEffect[] };
@@ -61,7 +64,7 @@ export function EffectsCard({ panel, effects, links }: EffectsCardProps) {
           {effects.length === 0 && active.length === 0 ? (
             <NoEffects />
           ) : (
-            <EffectsBody panel={panel} effects={effects} links={active} />
+            <EffectsBody panel={panel} effects={effects} links={active} byGovernment={selicByGovernment(links)} />
           )}
         </div>
       </CardContent>
@@ -86,9 +89,14 @@ function NoEffects() {
   );
 }
 
-type EffectsBodyProps = { panel: EconomyPanel; effects: EconomyEffect[]; links: EconomyLinkEffect[] };
+type EffectsBodyProps = {
+  panel: EconomyPanel;
+  effects: EconomyEffect[];
+  links: EconomyLinkEffect[];
+  byGovernment: boolean;
+};
 
-function EffectsBody({ panel, effects, links }: EffectsBodyProps) {
+function EffectsBody({ panel, effects, links, byGovernment }: EffectsBodyProps) {
   const today = panel.points.at(-1);
   if (!today) return null;
   const ipcaShift = sumEffects(effects, "inflation") + sumEffects(links, "inflation");
@@ -152,10 +160,12 @@ function EffectsBody({ panel, effects, links }: EffectsBodyProps) {
       </Table>
 
       <p className="rounded-lg bg-subtle px-2.5 py-2 text-xs leading-normal text-muted-foreground">
-        O Banco Central sobe a SELIC 1,5 vez o que as medidas e as ligações somam à inflação, e cada ponto de SELIC ou
-        de prêmio de risco tira 2,9% da bolsa no trimestre, mais nas ações de beta alto (as que se mexem mais que o
-        Ibovespa); o PIB acima da história a levanta. A ligação de um mês vale a partir do seguinte. Cortar gasto faz o
-        caminho inverso.
+        {byGovernment
+          ? "A SELIC é a que o presidente fixou no Copom: o Banco Central não reage ao que as medidas e as ligações somam à inflação."
+          : "O Banco Central sobe a SELIC 1,5 vez o que as medidas e as ligações somam à inflação."}{" "}
+        Cada ponto de SELIC ou de prêmio de risco tira 2,9% da bolsa no trimestre, mais nas ações de beta alto (as que
+        se mexem mais que o Ibovespa); o PIB acima da história a levanta. A ligação de um mês vale a partir do seguinte.
+        Cortar gasto faz o caminho inverso.
       </p>
     </>
   );

@@ -22,6 +22,7 @@ import {
   INITIAL_ACCOUNTS,
   initialAccountDescription,
   initialAccountExample,
+  SELIC_CONTROLS,
   spansYears,
   wholeYears,
 } from "../lib/government-rules";
@@ -305,14 +306,53 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
               )}
             />
 
-            {/* Juros */}
-            <Alert variant="muted">
-              <AlertTitle>SELIC com o Banco Central autônomo</AlertTitle>
-              <AlertDescription>
-                Como no Brasil desde 2021: a SELIC reage à inflação sozinha, como no gerador. O governo mexe nos
-                impostos, não nos juros.
-              </AlertDescription>
-            </Alert>
+            {/* Quem decide a SELIC */}
+            <Controller
+              control={form.control}
+              name="selicControl"
+              render={({ field }) => {
+                const option = SELIC_CONTROLS[field.value];
+                return (
+                  <div className="grid gap-2 rounded-lg border border-info-border bg-info-soft/40 p-3">
+                    <span className="inline-flex items-center gap-1 text-sm font-medium">
+                      Quem decide a SELIC
+                      <InfoHint label="O que é decidir a SELIC">
+                        <div className="space-y-1 text-left">
+                          <p>
+                            A SELIC é o juro básico do país. Juro real é a SELIC menos a inflação dos últimos 12 meses:
+                            o quanto o dinheiro rende de verdade.
+                          </p>
+                          <p>Ex.: SELIC de 10% com inflação de 4% dá juro real de 6%.</p>
+                          <p>
+                            Juro real alto segura a inflação e esfria o crédito; baixo aquece a economia e puxa a
+                            inflação meses depois. Os grupos de eleitores ficam satisfeitos com o juro real entre 2% e
+                            7%.
+                          </p>
+                        </div>
+                      </InfoHint>
+                    </span>
+                    <ToggleGroup
+                      variant="segmented"
+                      aria-label="Quem decide a SELIC"
+                      value={[field.value]}
+                      onValueChange={(values) => values[0] && field.onChange(values[0])}
+                      disabled={readOnly}
+                      className="w-full"
+                    >
+                      {(["AUTONOMOUS", "GOVERNMENT"] as const).map((value) => (
+                        <ToggleGroupItem key={value} value={value} className="flex-1">
+                          {SELIC_CONTROLS[value].label}
+                        </ToggleGroupItem>
+                      ))}
+                    </ToggleGroup>
+                    <span className="text-xs leading-normal text-muted-foreground">{option.description}</span>
+                    <span className="rounded-md bg-card px-2.5 py-1.5 text-xs text-muted-foreground">
+                      {option.example}
+                    </span>
+                  </div>
+                );
+              }}
+            />
           </div>
         )}
       </div>

@@ -31,6 +31,7 @@ import type {
   GameType,
   PlayerGrouping,
   RoomPlayer,
+  SelicControl,
   SimulationSettings,
   SimulationSettingsData,
   TeamNaming,
@@ -128,6 +129,7 @@ const simulationFormSchema = z
     ),
     pollMargin: z.boolean(),
     initialAccount: z.custom<InitialAccount>((value) => value === "PLAYABLE" || value === "REALISTIC"),
+    selicControl: z.custom<SelicControl>((value) => value === "AUTONOMOUS" || value === "GOVERNMENT"),
   })
   .refine((data) => !isIsoDate(data.startDate) || !isIsoDate(data.endDate) || data.endDate > data.startDate, {
     message: "O fim precisa ser depois do início.",

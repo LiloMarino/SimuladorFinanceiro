@@ -35,6 +35,7 @@ export function toFormValues(settings: SimulationSettingsData): SimulationFormVa
     computerDifficulty: settings.computer_difficulty,
     pollMargin: settings.poll_margin,
     initialAccount: settings.initial_account,
+    selicControl: settings.selic_control,
   };
 }
 
@@ -70,5 +71,7 @@ export function toSettingsBody(values: SimulationFormValues): CreateSimulationRe
     computer_difficulty: values.computerDifficulty,
     poll_margin: values.pollMargin,
     initial_account: values.initialAccount,
+    // A SELIC do governo depende da expansão; desligada, a partida volta ao Banco Central autônomo
+    selic_control: values.governmentEnabled ? values.selicControl : "AUTONOMOUS",
   };
 }

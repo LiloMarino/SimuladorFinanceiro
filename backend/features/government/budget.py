@@ -382,6 +382,13 @@ def no_cycle(_day: date) -> Cycle:
     return Cycle()
 
 
+PremiumOn = Callable[[date], Decimal]
+
+
+def no_extra_premium(_day: date) -> Decimal:
+    return ZERO
+
+
 def starting_window(start: date, premium_now: Decimal) -> tuple[Decimal, ...]:
     """A parte prefixada antes da partida: a SELIC guardada de cada um dos 36 meses anteriores mais o prêmio de hoje."""
     window = []
@@ -409,13 +416,16 @@ class BudgetCourse:
         macro: MacroCourse,
         spending_on: SpendingOn = base_spending_on,
         cycle_on: CycleOn = no_cycle,
+        extra_premium: PremiumOn = no_extra_premium,
         *,
         stored: bool = False,
     ):
+        """`extra_premium` é o prêmio que a dívida paga a mais no fim de cada mês, fora o da dívida."""
         self._policy_on = policy_on
         self._macro = macro
         self._spending_on = spending_on
         self._cycle_on = cycle_on
+        self._extra_premium = extra_premium
         self._stored = stored
         self._fixed = fixed_revenue(account)
         self._lock = threading.Lock()
@@ -545,7 +555,7 @@ class BudgetCourse:
             interest=previous.debt * rate,
             result=primary - previous.debt * rate,
             debt=debt,
-            premium=premium(debt),
+            premium=premium(debt) + self._extra_premium(month_end),
             gdp=previous.gdp * (((1 + growth) * (1 + ipca)) ** ONE_TWELFTH),
             rate=rate,
             window=window,

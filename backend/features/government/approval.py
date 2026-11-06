@@ -55,16 +55,19 @@ INFLATION_WEIGHT: dict[VoterGroup, Decimal] = {
     G.RETIREES: Decimal(4),
     G.WELFARE: Decimal(4),
 }
-# SELIC: pontos por ponto percentual acima de 10% ao ano, até 6 para cada lado
-SELIC_NEUTRAL = Decimal(10)
-SELIC_CAP = Decimal(6)
-SELIC_WEIGHT: dict[VoterGroup, Decimal] = {
-    G.INVESTORS: Decimal("0.5"),
-    G.ENTREPRENEURS: Decimal(-2),
-    G.FORMAL_WORKERS: Decimal("-1.5"),
-    G.PUBLIC_SERVANTS: ZERO,
+# Juro real (SELIC menos IPCA em 12 meses): entre 2% e 7% ninguém reclama. Abaixo de 2%,
+# quem vive de renda fixa perde pontos por ponto percentual; acima de 7%, quem toma
+# crédito. Até 6 pontos percentuais fora da faixa
+REAL_RATE_LOW = Decimal(2)
+REAL_RATE_HIGH = Decimal(7)
+REAL_RATE_CAP = Decimal(6)
+REAL_RATE_LOW_WEIGHT: dict[VoterGroup, Decimal] = {
+    G.INVESTORS: Decimal("1.5"),
     G.RETIREES: Decimal("1.5"),
-    G.WELFARE: Decimal("-0.5"),
+}
+REAL_RATE_HIGH_WEIGHT: dict[VoterGroup, Decimal] = {
+    G.ENTREPRENEURS: Decimal(2),
+    G.FORMAL_WORKERS: Decimal("1.5"),
 }
 # Ibovespa: pontos a cada 10% de alta em 12 meses acima de 5%, até 3 passos para cada lado
 STOCKS_NEUTRAL = Decimal("0.05")
@@ -214,14 +217,25 @@ def inflation_factor(group: VoterGroup, market: Market) -> Factor:
     )
 
 
-def selic_factor(group: VoterGroup, market: Market) -> Factor:
-    gap = _clip(_pp(market.selic) - SELIC_NEUTRAL, SELIC_CAP)
-    where = "acima" if _pp(market.selic) > SELIC_NEUTRAL else "abaixo"
+def real_rate_factor(group: VoterGroup, market: Market) -> Factor:
+    real = _pp(market.selic - market.inflation)
+    band = f"{rules.number(REAL_RATE_LOW)}% a {rules.number(REAL_RATE_HIGH)}%"
+    shown = rules.percent(market.selic - market.inflation)
+    if real < REAL_RATE_LOW:
+        gap = min(REAL_RATE_LOW - real, REAL_RATE_CAP)
+        points = -REAL_RATE_LOW_WEIGHT.get(group, ZERO) * gap
+        where = "abaixo da"
+    elif real > REAL_RATE_HIGH:
+        gap = min(real - REAL_RATE_HIGH, REAL_RATE_CAP)
+        points = -REAL_RATE_HIGH_WEIGHT.get(group, ZERO) * gap
+        where = "acima da"
+    else:
+        points = ZERO
+        where = "dentro da"
     return Factor(
-        ApprovalFactorKind.SELIC,
-        SELIC_WEIGHT[group] * gap,
-        f"SELIC de {rules.percent(market.selic)}, {where} dos "
-        f"{rules.number(SELIC_NEUTRAL)}% neutros",
+        ApprovalFactorKind.REAL_RATE,
+        points,
+        f"Juro real de {shown} (SELIC menos inflação), {where} faixa de {band}",
     )
 
 
@@ -312,7 +326,7 @@ def group_target(
             "Ponto neutro: sem nada a favor nem contra, o grupo fica no meio",
         ),
         inflation_factor(group, market),
-        selic_factor(group, market),
+        real_rate_factor(group, market),
         stocks_factor(group, market),
         unemployment_factor(group, market),
         premium_factor(group, market),
