@@ -8,7 +8,7 @@ import { displayDayMonth, displayMoney, displayMoneyWhole, displayMonthShort } f
 import type { CampaignPanel, ElectionPanel, ElectionParty } from "@/types";
 import { BUDGET, SPENT, VOTE_YIELD } from "../lib/election-metrics";
 import { signed } from "../lib/campaign";
-import { monthlyYield, monthYear } from "../lib/election";
+import { monthYear } from "../lib/election";
 import { GuidanceRules } from "./guidance-rules";
 import { PartyMark } from "@/shared/components/party-mark";
 import { PromiseBadges } from "./promise-badges";
@@ -26,9 +26,6 @@ type MyPartyCardProps = {
   onExpel: (nickname: string) => void;
   onLeave: () => void;
 };
-
-const yieldLabel = (amount: number) =>
-  monthlyYield(amount).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 function roleOf(member: ElectionParty["members"][number]) {
   const roles = [];
@@ -53,8 +50,6 @@ export function MyPartyCard({
 }: MyPartyCardProps) {
   const mine = panel.my_party;
   const locked = panel.phase === "BETWEEN_ROUNDS";
-  const budget = Number(party.budget);
-  const doubled = budget * 2;
 
   return (
     <Card>
@@ -93,7 +88,6 @@ export function MyPartyCard({
                     </>
                   }
                   value={displayMoneyWhole(party.budget)}
-                  note="Por mês: a soma das contribuições dos filiados."
                 />
                 <Kpi
                   label={
@@ -103,7 +97,6 @@ export function MyPartyCard({
                     </>
                   }
                   value={displayMoneyWhole(party.spent)}
-                  note="Cada parte já saiu do patrimônio de quem contribuiu."
                 />
               </div>
 
@@ -152,42 +145,23 @@ export function MyPartyCard({
                   );
                 })}
               </div>
-              <div className="flex items-baseline justify-between gap-3 border-t pt-2.5">
-                {campaign.last_charge_date && campaign.last_charge_amount && campaign.last_charge_points ? (
-                  <>
-                    <span className="text-xs font-medium text-muted-foreground">
-                      Em {displayDayMonth(campaign.last_charge_date)}, {displayMoney(campaign.last_charge_amount)}{" "}
-                      viraram
-                    </span>
-                    <span className="font-mono text-[13px] font-semibold text-success">
-                      {signed(campaign.last_charge_points, 1)} em cada grupo
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-xs text-muted-foreground">A primeira cobrança sai no próximo dia 1º.</span>
-                )}
-              </div>
-              <p className="rounded-lg bg-subtle px-3 py-2 text-xs leading-normal text-muted-foreground">
-                Cada filiado escolhe quanto contribui, e pode ser zero.
-                {mine?.is_founder &&
-                  " Como quem fundou o partido, você escolhe o candidato entre os filiados, o vice entre os jogadores da sala e pode expulsar."}
-              </p>
-              <p className="rounded-lg bg-subtle px-3 py-2 text-xs leading-normal text-muted-foreground">
-                A verba rende pela raiz: o dobro rende 1,4 vez, e não 2. Para gastar mais com bom retorno, as ações
-                avulsas espalham o dinheiro entre os grupos.
-              </p>
+              {campaign.last_charge_date && campaign.last_charge_amount && campaign.last_charge_points && (
+                <div className="flex items-baseline justify-between gap-3 border-t pt-2.5">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    Em {displayDayMonth(campaign.last_charge_date)}, {displayMoney(campaign.last_charge_amount)} viraram
+                  </span>
+                  <span className="font-mono text-[13px] font-semibold text-success">
+                    {signed(campaign.last_charge_points, 1)} em cada grupo
+                  </span>
+                </div>
+              )}
 
               {/* Quanto a verba rende */}
               <div className="grid gap-1.5">
                 <span className="text-sm font-medium">
                   <MetricLabel metric={VOTE_YIELD} />
                 </span>
-                <span className="text-xs text-muted-foreground">
-                  {VOTE_YIELD.description}.
-                  {budget > 0
-                    ? ` Com ${displayMoneyWhole(budget)} o ${party.abbr} ganha +${yieldLabel(budget)}; dobrar para ${displayMoneyWhole(doubled)} dá +${yieldLabel(doubled)}, e não +${(monthlyYield(budget) * 2).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}.`
-                    : " Sem verba, o partido não ganha pontos."}
-                </span>
+                <span className="text-xs text-muted-foreground">{VOTE_YIELD.description}.</span>
               </div>
             </div>
 
@@ -207,19 +181,11 @@ export function MyPartyCard({
                 ) : (
                   <span className="text-xs text-muted-foreground">A chapa ainda não prometeu nada.</span>
                 )}
-                <span className="text-xs text-muted-foreground">
-                  Até 3 medidas que o governo pode propor. A promessa rende apoio desde o anúncio e é cobrada no fim do
-                  mandato.
-                </span>
               </div>
 
               <div className="grid gap-1.5">
                 <span className="text-sm font-medium">Bandeiras</span>
                 <ValueChips values={party.flags} />
-                <span className="text-xs text-muted-foreground">
-                  Elas ficam para sempre; o perfil do partido parte delas e se move com as medidas que ele aprova no
-                  governo.
-                </span>
               </div>
             </div>
 
