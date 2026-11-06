@@ -6,11 +6,11 @@ import { MetricHint } from "@/shared/components/metric-hint";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { displaySelicSpread, gradeTone, monthlyEquivalent } from "@/shared/lib/credit";
-import { PRICE_TABLE, SELIC_RATE, SPREAD } from "@/shared/lib/credit-metrics";
+import { PRICE_TABLE, SPREAD } from "@/shared/lib/credit-metrics";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { displayMoney, displayPercent, toCentsString } from "@/shared/lib/utils/display";
@@ -58,8 +58,6 @@ export function LoanOfferCard({ overview, spread, annualRate: annualRateText, am
   const quoteReady = quote !== undefined && deferredAmount === amount && quote.term_months === termMonths;
 
   const annualRate = Number(annualRateText);
-  const spreadRate = Number(offer.selic) + Number(spread);
-  const floorApplied = annualRate > spreadRate + 1e-9;
   const portfolioReturn = overview.portfolio_return_12m;
   const returnAlert =
     portfolioReturn === null
@@ -76,10 +74,7 @@ export function LoanOfferCard({ overview, spread, annualRate: annualRateText, am
   return (
     <Card>
       <CardHeader className="grid-cols-[1fr_auto]">
-        <div className="grid gap-1">
-          <CardTitle>Novo empréstimo</CardTitle>
-          <CardDescription>O juro fica travado na assinatura.</CardDescription>
-        </div>
+        <CardTitle>Novo empréstimo</CardTitle>
         <Badge variant={gradeTone(overview.rating.grade)}>
           Nota {overview.rating.grade} · {displaySelicSpread(spread)}
         </Badge>
@@ -116,7 +111,7 @@ export function LoanOfferCard({ overview, spread, annualRate: annualRateText, am
               ) : amount <= 0 && touched ? (
                 <FieldError>Digite quanto quer pegar.</FieldError>
               ) : (
-                <FieldDescription>Até {displayMoney(maxAmount)}, o que sobra do seu limite</FieldDescription>
+                <FieldDescription>Até {displayMoney(maxAmount)}</FieldDescription>
               )}
             </Field>
 
@@ -137,31 +132,11 @@ export function LoanOfferCard({ overview, spread, annualRate: annualRateText, am
             </div>
           </div>
 
-          {/* Juro: SELIC + spread */}
+          {/* Juro */}
           <div className="flex flex-wrap items-center gap-2 rounded-lg bg-subtle px-3 py-2.5 text-[13px]">
-            {floorApplied ? (
-              <>
-                <span>Renda fixa mais cara do dia</span>
-                <b className="font-mono">{displayPercent(offer.best_fixed_income_rate ?? 0)}</b>
-                <span className="text-faint-foreground">+</span>
-                <span>0,50 p.p.</span>
-              </>
-            ) : (
-              <>
-                <span className="inline-flex items-center gap-1">
-                  SELIC <MetricHint metric={SELIC_RATE} />
-                </span>
-                <b className="font-mono">{displayPercent(offer.selic)}</b>
-                <span className="text-faint-foreground">+</span>
-                <span className="inline-flex items-center gap-1">
-                  spread da nota {overview.rating.grade} <MetricHint metric={SPREAD} />
-                </span>
-                <b className="font-mono">
-                  {(Number(spread) * 100).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                </b>
-              </>
-            )}
-            <span className="text-faint-foreground">=</span>
+            <span className="inline-flex items-center gap-1">
+              Juro <MetricHint metric={SPREAD} />
+            </span>
             <b className="font-mono">{displayPercent(annualRate)} ao ano</b>
             <span className="text-muted-foreground">({displayPercent(monthlyEquivalent(annualRate))} ao mês)</span>
           </div>

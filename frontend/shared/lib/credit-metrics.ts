@@ -47,15 +47,6 @@ export const SPREAD: MetricInfo = {
   format: displaySpread,
 };
 
-export const SELIC_RATE: MetricInfo = {
-  label: "SELIC",
-  description: "A taxa básica de juros",
-  definition: "A taxa básica de juros do Banco Central: o ponto de partida do juro de qualquer empréstimo.",
-  example: "Ex.: SELIC em 4,25% ao ano e spread de 5 pontos → juro de 9,25% ao ano.",
-  reading: "Quando a SELIC sobe, o empréstimo novo fica mais caro. O que você já assinou não muda.",
-  format: (value) => displayPercent(value),
-};
-
 export const PRICE_TABLE: MetricInfo = {
   label: "Tabela Price",
   description: "Parcela fixa, juro que cai a cada mês",
