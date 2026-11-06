@@ -98,7 +98,7 @@
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | M21 · 3.4 | — | Médio | Bom | ⏳ |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.1 | — | — | — | 🔍 |
-| [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M25 · 4.3 | — | — | — | 🔍 |
+| [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M21 · 3.4 | — | — | — | 🔍 |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | M28 · 4.6 | — | — | — | 🔍 |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.4 | — | — | — | 🔍 |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 | — | Médio | Bom | ⏳ |
@@ -151,7 +151,7 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 4/7 concluídos
+> **Progresso:** 4/8 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -162,6 +162,7 @@
 | 5 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ✅ Concluído |
 | 6 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
 | 7 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | [F165](#f165) | ⏳ Pendente |
+| 8 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | 🔍 Em avaliação |
 
 ### 3.5 — Congresso e eleição (M23)
 
@@ -230,15 +231,14 @@
 >
 > **Serve:** N10, N12, N22, N31
 >
-> **Progresso:** 0/5 concluídos
+> **Progresso:** 0/4 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | 🔍 Em avaliação |
-| 2 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | 🔍 Em avaliação |
-| 3 | [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | — | 🔍 Em avaliação |
-| 4 | [**F90**](#f90) | Feature | Cenários | — | 🔍 Em avaliação |
-| 5 | [**F93**](#f93) | Feature | Rumores antecipados | — | 🔍 Em avaliação |
+| 1 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | 🔍 Em avaliação |
+| 2 | [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | — | 🔍 Em avaliação |
+| 3 | [**F90**](#f90) | Feature | Cenários | — | 🔍 Em avaliação |
+| 4 | [**F93**](#f93) | Feature | Rumores antecipados | — | 🔍 Em avaliação |
 
 ### 4.4 — Dólar (M26)
 
@@ -307,6 +307,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 · 4º | 0 | Médio | Bom | ⏳ |
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 6º | 1 | Médio | Bom | ⏳ |
+| [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M21 · 3.4 · 8º | 0 | — | — | 🔍 |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M23 · 3.5 · 2º | 1 | Médio | Bom | ⏳ |
 | [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 · 3º | 0 | Alto | Bom | ⏳ |
@@ -314,11 +315,10 @@
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.2 · 1º | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.2 · 3º | 0 | Médio | Bom | ⏳ |
-| [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M25 · 4.3 · 1º | 0 | — | — | 🔍 |
-| [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.3 · 2º | 0 | — | — | 🔍 |
-| [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | M25 · 4.3 · 3º | 0 | — | — | 🔍 |
-| [**F90**](#f90) | Feature | Cenários | M25 · 4.3 · 4º | 0 | — | — | 🔍 |
-| [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.3 · 5º | 0 | — | — | 🔍 |
+| [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.3 · 1º | 0 | — | — | 🔍 |
+| [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | M25 · 4.3 · 2º | 0 | — | — | 🔍 |
+| [**F90**](#f90) | Feature | Cenários | M25 · 4.3 · 3º | 0 | — | — | 🔍 |
+| [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.3 · 4º | 0 | — | — | 🔍 |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.4 · 1º | 0 | — | — | 🔍 |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.5 · 1º | 2 | — | — | 🔍 |
 | [**F56**](#f56) | Feature | Novidades no app | M27 · 4.5 · 3º | 0 | Baixo | Bom | ⏳ |
@@ -443,7 +443,7 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 | **F131** | Feature | Catálogo de padrões de vela | N19 | — | M28 · 4.6 | — | Tópico do Como jogar com cada padrão animado |
 | **F158** | Melhoria | Animações do Como jogar revistas | N25 | — | M28 · 4.6 | — | O visual numa rodada no canvas dedicada: animações atuais contra as primeiras, número do passo fora da cena, cursor e destaque, e o palco em tamanho real mostrando só o trecho do passo |
 | **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.1 | [F44](#f44) | Escolher a variante entre as do canvas, já com o layout das Gestoras |
-| **F192** | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | N12 | — | M25 · 4.3 | — | A forma dos controles de regime, a reprodutibilidade pela semente, o teto medido do horizonte e a relação com a economia interligada (F191). |
+| **F192** | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | N12 | — | M21 · 3.4 | — | A forma dos controles de regime, a reprodutibilidade pela semente, o teto medido do horizonte e a relação com a economia interligada (F191). |
 | **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | — | M28 · 4.6 | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
 | **F194** | Feature | Dólar e ativos internacionais | N34, N11 | D20 | M26 · 4.4 | [F191](#f191) | Como o dólar do jogo reage (desconfiança, juro real), a camada pelo desvio sobre BDR e IVVB11 e onde o seletor de origem aparece. |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.3 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
