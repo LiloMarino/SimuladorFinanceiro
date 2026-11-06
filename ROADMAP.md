@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-03):** Puxados para a 3.3 o partido desde o 1º dia, a contribuição e os parâmetros salvos no perfil, que o redesenho da preparação do lobby já mostra.
+> **Última mudança (2026-11-05):** Decididas as nove pontas soltas das features entregues: três consertos e seis ficam assim.
 
 ## Glossário
 
@@ -106,7 +106,7 @@
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.3 | — | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 | — | — | — | 🔍 |
-| [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 | — | — | — | 🔍 |
+| [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 | — | Baixo | Bom | ⏳ |
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 | — | Médio | Bom | ⏳ |
 
 <details>
@@ -157,7 +157,7 @@
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | — | ✅ Concluído |
 | 2 | [**F217**](#f217) | Correção | Correções da 3.4 | — | ✅ Concluído |
-| 3 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | — | 🔍 Em avaliação |
+| 3 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | — | ⏳ Pendente |
 | 4 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | — | ⏳ Pendente |
 | 5 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ⏳ Pendente |
 | 6 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
@@ -305,7 +305,7 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 · 3º | 0 | — | — | 🔍 |
+| [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 · 3º | 0 | Baixo | Bom | ⏳ |
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 · 4º | 0 | Médio | Bom | ⏳ |
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 · 5º | 0 | Alto | Bom | ⏳ |
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 6º | 1 | Médio | Bom | ⏳ |
@@ -353,6 +353,7 @@
 | **F177** | Feature | Marcação a mercado do Tesouro | N34 | — | M21 · 3.4 | [F165](#f165) | Médio | Médio | Médio | Bom |
 | **F195** | Feature | Acordo de base até o fim do mandato | N34 | — | M23 · 3.5 | — | Médio | Baixo | Alto | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.2 | — | Médio | Médio | Médio | Bom |
+| **F216** | Correção | Pontas soltas das features entregues | N15, N34 | — | M21 · 3.4 | — | Baixo | Baixo | Médio | Bom |
 | **F218** | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | N15 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 
 <a id="f6"></a>
@@ -425,6 +426,9 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 
 **O que muda:** os parâmetros viram uma lista de alvos (um ativo ou uma classe e a porcentagem), que soma 100%, com a faixa de desvio de cada alvo; a estratégia vende o que passou da faixa antes de comprar o que ficou abaixo, como hoje. O formulário da estratégia mostra a lista com o total e recusa o que não soma 100%. O padrão continua 60% em BOVA11 e 40% em renda fixa com 5 pontos, então partidas salvas e backtests antigos dão o mesmo resultado; um teste compara os dois. Os parâmetros salvos no perfil (F170) passam a guardar a lista.
 
+<a id="f216"></a>
+**F216 — Pontas soltas das features entregues.** Serve N15 e N34. Perguntas que ficaram abertas em features já concluídas e arquivadas, decididas uma a uma em 05/nov. Três viram conserto aqui. (1) **Governo do computador eleito:** o partido do computador que vence a eleição toma posse sem presidente (`state.py`, `pending_term` com `president_id` nulo), e `caretaker()` em `government_book.py` só reconhece o computador que assume por impeachment sem vice (`term.succession`); o mandato eleito passa quatro anos sem medida. O conserto é `caretaker()` (e com ele `governs()` e `_propose_as_caretaker`) valer para todo mandato de partido do computador sem presidente, eleito ou herdado; teste de que o computador eleito propõe com a fila vazia. (2) **Parcela com o jogador negativado:** reproduzir no app de teste (banco de teste, backend 8100 e Vite 5273) a parcela que vence sem caixa, o selo "Negativado", a pendência de atraso e o pagamento por ela, conferindo caixa, multa, juros de atraso e a pendência que some; o backend já tem os testes em `test_credit_book.py`, e o bug que aparecer na tela é consertado aqui. (3) **Logs do bot e da estratégia:** `bot-log-sheet.tsx` e `strategy-log.tsx` trocam o texto fixo "A conexão com a partida caiu…" pela mensagem de erro do servidor, como nas páginas do governo. Ficam assim, decididas: o artigo masculino antes da sigla do partido ("ao ACI"), que é o uso comum para sigla; o erro único por página em Governo, Eleição e Economia, que leem o painel numa consulta só; as cinco peças do board da Campanha que o app não tem (passo "Rival" desabilitado, tabela "Comício: extremos dobrados", cartões de reparação, "O que a manchete conta" e do partido do computador), e o board deixa de ser referência para elas; as manchetes novas como estão escritas; o clique no interruptor do Especialista com o Personalizado ativo, que segue aplicando direto; e a meta de 250 pontos da nota de craque. Os marcadores de notícia no gráfico de preço, que não têm board, ficam na F167. Gatilho: a 3.4, na posição do plano.
+
 <a id="f218"></a>
 **F218 — Textos que explicam o óbvio ou o sistema por dentro.** Serve N15. O playtest de 04/11 achou textos que contam a conta interna ou o que a tela já mostra, e pediu a varredura do app inteiro. Os dois primeiros casos: no card do partido da preparação (`my-party-card.tsx`), "Quanto a verba rende", "Cada filiado escolhe quanto contribui, e pode ser zero.", "A verba rende pela raiz…" e "A primeira cobrança sai no próximo dia 1º."; na oferta de crédito (`loan-offer-card.tsx`), a conta "Renda fixa mais cara do dia 70,10% + 0,50 p.p. = 70,60% ao ano". A varredura passa por todas as telas e sai com a lista do que cortar; texto que explica uma métrica ao leigo fica, na dica dela. Cada corte vai em `fix:`.
 
@@ -456,7 +460,6 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 | **F194** | Feature | Dólar e ativos internacionais | N34, N11 | D20 | M26 · 4.4 | [F191](#f191) | Como o dólar do jogo reage (desconfiança, juro real), a camada pelo desvio sobre BDR e IVVB11 e onde o seletor de origem aparece. |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.3 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M24 · 4.2 | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
-| **F216** | Correção | Pontas soltas das features entregues | N15, N34 | — | M21 · 3.4 | — | Decidir cada uma das nove pontas: conserto aqui, card próprio ou fica assim |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -533,9 +536,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 - **O livro não vem ordenado por preço**: `order_book.py:93-107` devolve o heap na ordem interna e a tela não define ordenação inicial (`order-book-card.tsx:69`), por isso a ordem do jogador aparece no meio.
 
 **Falta** desenhar, numa rodada no canvas em Opus com variantes e estados (como numa feature nova), a tela do livro. O desenho de 03/11 parte de: a ordem aberta do jogador numa faixa no topo com Cancelar à mão; o livro em duas colunas, Compra (maior preço no topo) e Venda (menor preço no topo), com a melhor compra e a melhor venda em destaque, ligadas à boleta; uma barra de quantidade; a coluna Situação sai (repetia "Aberta"); o balão "Tópico" some. O usuário gostou do rumo e pediu o refinamento pelo método completo. A rodada decide também o que o livro diz sobre si mesmo (que é a pressão ao redor do preço do candle de hoje) e se a ordenação por preço passa a vir do backend. Fica fora de versão.
-
-<a id="f216"></a>
-**F216 — Pontas soltas das features entregues.** Serve N15 e N34. Perguntas que ficaram abertas em features já concluídas e arquivadas, num lugar só para não se perderem. Cada uma, decidida, vira conserto pequeno aqui, card próprio ou "fica assim". (1) **Governo do computador eleito:** só propõe medidas quando assume por impeachment; recomendação: valer para todo governo do computador. (2) **Gênero dos partidos nos textos de acordo:** o texto diz "ao ACI" onde caberia "à" ou "a"; recomendação: texto neutro, "o partido ACI". (3) **Erro por cartão em Governo, Eleição e Economia:** cada página lê o painel numa consulta só; recomendação: deixar como está. (4) **Campanha:** o board mostra e o app não tem o passo "Rival" desabilitado no comício, a tabela "Comício: extremos dobrados", o cartão de reparação, o cartão "O que a manchete conta" e o cartão do partido do computador. (5) **Manchetes novas** (posse do Congresso, acordo, medida de gasto, virada e volta atrás): textos escritos sem conferir com o board. (6) **Interruptor do Especialista:** o texto da confirmação com o Personalizado ligado. (7) **Nota de craque:** a meta de 250 pontos nunca foi calibrada em partida real. (8) **Parcela com o jogador negativado:** o pagamento não foi reproduzido em tela. (9) **Logs do bot e da estratégia:** `bot-log-sheet.tsx:67` e `strategy-log.tsx:78` ainda dizem "A conexão com a partida caiu…" no erro, enquanto as páginas do governo mostram o erro do servidor; recomendação: o mesmo erro do servidor nos dois. Os marcadores de notícia no gráfico de preço, que não têm board, ficam na F167.
 
 ---
 
