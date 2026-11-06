@@ -32,7 +32,7 @@
 | **N12** | — | Continuar jogando depois do último dia com dado real | — | [F192](#f192) | — | — | — |
 | **N13** | — | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — | — |
 | **N14** | — | Atualizar para uma versão nova sem perder as partidas salvas | — | [F56](#f56) | — | — | — |
-| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211), [F216](#f216), [F217](#f217), [F218](#f218) | — | — | — |
+| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211), [F216](#f216), [F217](#f217), [F218](#f218), [F220](#f220) | — | — | — |
 | **N16** | — | Ver a carteira e o mercado por setor e segmento | — | [F196](#f196) | — | — | — |
 | **N17** | — | Enxergar a estrutura do banco e esboçar mudanças nela | — | — | — | — | — |
 | **N18** | — | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — | — | — | — |
@@ -43,7 +43,7 @@
 | **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F44](#f44), [F55](#f55), [F69](#f69), [F101](#f101), [F102](#f102), [F103](#f103), [F104](#f104), [F105](#f105) | — | — | — |
 | **N24** | — | Saber onde está a lentidão durante uma partida | — | — | — | — | — |
 | **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F193](#f193) | — | — | — |
-| **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | — | — | — | — |
+| **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | [F219](#f219) | — | — | — |
 | **N27** | — | Entrar numa partida que já começou | — | — | — | — | — |
 | **N28** | — | Liberar uma vaga sem depender de o jogador sair | — | — | — | — | — |
 | **N29** | — | Saber o que cada jogador está fazendo enquanto a partida não começa | — | — | — | — | — |
@@ -57,7 +57,7 @@
 | **N37** | — | Comprar bitcoin do jeito que dá na vida real, em frações | — | — | — | — | — |
 | **N38** | — | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — | — | — | — |
 | **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | — | — | — | — |
-| **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | — | — | — | — |
+| **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F221](#f221) | — | — | — |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.5 | — | — | — | 🔍 |
 | [**F6**](#f6) | Feature | Link de convite pela internet no lobby | M27 · 4.5 | — | Médio | Bom | ⏳ |
 | [**F14**](#f14) | Feature | Janela desktop nativa | — | — | Baixo | Bom | 💤 |
@@ -106,6 +106,9 @@
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.3 | — | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 | — | — | — | 🔍 |
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 | — | Médio | Bom | ⏳ |
+| [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | M21 · 3.4 | — | Baixo | Bom | ⏳ |
+| [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | — | Médio | Bom | ⏳ |
+| [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | — | Médio | Bom | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
@@ -151,7 +154,7 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 4/8 concluídos
+> **Progresso:** 4/9 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -163,6 +166,7 @@
 | 6 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
 | 7 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | [F165](#f165) | ⏳ Pendente |
 | 8 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | 🔍 Em avaliação |
+| 9 | [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | — | ⏳ Pendente |
 
 ### 3.5 — Congresso e eleição (M23)
 
@@ -297,6 +301,15 @@
 | 2 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | [F44](#f44) | ⏳ Pendente |
 | 3 | [**F141**](#f141) | Docs | README com as features de hoje | [F139](#f139) | ⏳ Pendente |
 
+### Sem versão
+
+> Os itens ⏳ e 🔍 que ainda não entraram em nenhuma versão, do que mais destrava trabalho para o que menos ("Destrava" é quantos itens em aberto esperam por aquele). É daqui que sai a próxima versão; os 💤 ficam só no kanban.
+
+| ID | Tipo | Resumo | Serve | Depende de | Destrava | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | 0 | ⏳ Pendente |
+| [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | N40 | — | 0 | ⏳ Pendente |
+
 ---
 
 ## 🚦 Livre pra pegar
@@ -308,6 +321,7 @@
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 · 4º | 0 | Médio | Bom | ⏳ |
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 6º | 1 | Médio | Bom | ⏳ |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M21 · 3.4 · 8º | 0 | — | — | 🔍 |
+| [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | M21 · 3.4 · 9º | 0 | Baixo | Bom | ⏳ |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M23 · 3.5 · 2º | 1 | Médio | Bom | ⏳ |
 | [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 · 3º | 0 | Alto | Bom | ⏳ |
@@ -327,6 +341,8 @@
 | [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | M28 · 4.6 · 3º | 0 | Baixo | Bom | ⏳ |
 | [**F131**](#f131) | Feature | Catálogo de padrões de vela | M28 · 4.6 · 4º | 0 | — | — | 🔍 |
 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 · 6º | 0 | — | — | 🔍 |
+| [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | 0 | Médio | Bom | ⏳ |
+| [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | 0 | Médio | Bom | ⏳ |
 
 ---
 
@@ -351,6 +367,9 @@
 | **F195** | Feature | Acordo de base até o fim do mandato | N34 | — | M23 · 3.5 | — | Médio | Baixo | Alto | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.2 | — | Médio | Médio | Médio | Bom |
 | **F218** | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | N15 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
+| **F219** | Correção | Correções da 3.4: playtest de 05/11 | N26 | — | M21 · 3.4 | — | Baixo | Baixo | Médio | Bom |
+| **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
+| **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -421,6 +440,16 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 **F218 — Textos que explicam o óbvio ou o sistema por dentro.** Serve N15. O playtest de 04/11 achou textos que contam a conta interna ou o que a tela já mostra, e pediu a varredura do app inteiro. Os dois primeiros casos: no card do partido da preparação (`my-party-card.tsx`), "Quanto a verba rende", "Cada filiado escolhe quanto contribui, e pode ser zero.", "A verba rende pela raiz…" e "A primeira cobrança sai no próximo dia 1º."; na oferta de crédito (`loan-offer-card.tsx`), a conta "Renda fixa mais cara do dia 70,10% + 0,50 p.p. = 70,60% ao ano". A varredura passa por todas as telas e sai com a lista do que cortar; texto que explica uma métrica ao leigo fica, na dica dela. Cada corte vai em `fix:`.
 
 **Aceite:** a lista da varredura revisada antes dos cortes, e os cortes aprovados no app.
+
+<a id="f219"></a>
+**F219 — Correções da 3.4: playtest de 05/11.** Serve N26. Lote dos consertos achados no playtest de 05/11, em main, em `fix:`:
+- (1) **Aviso do pandas no terminal:** o yfinance, ao baixar as séries, dispara `Pandas4Warning` (o parâmetro `inplace` em `DataFrame.drop`, `rename` e `sort_index`, em `yfinance/utils.py` e `multi.py`) a cada download, e o aviso entope o terminal do backend. O conserto fica na nossa chamada: atualizar o yfinance, se já houver versão sem o aviso, ou filtrar esse aviso só na importação.
+
+<a id="f220"></a>
+**F220 — Jornal: voltar para hoje.** Serve N15. Com a rolagem infinita do Jornal (a lista rola a página inteira, e o "Arquivo da partida" fica fixo na lateral), quem desceu muito pelas edições antigas só volta a hoje rolando de volta até o topo. O pedido do playtest de 05/11: um botão "Voltar para hoje" que aparece assim que a página desce da primeira edição, e um scroll spy que marca na lateral a edição que está na tela. A decisão em aberto é o desenho: onde o botão fica, o que o destaque do arquivo mostra e como os dois convivem com o carregamento de mais edições ao rolar. É tela nova, então vai ao canvas.
+
+<a id="f221"></a>
+**F221 — Lista de ações que aguenta muitas ações.** Serve N40. A tela de ações (`variable-income.tsx`) busca todas as cotações de uma vez (`useVariableIncomeStocks`), filtra e ordena no navegador e desenha um mini gráfico por linha. A cada pregão chega um `stocks_update` com todas as ações, e a tabela inteira renderiza de novo. Com poucas ações não pesa; com muitas (uma base importada grande) o navegador trava. O playtest de 05/11 sugeriu paginar com carregamento por rolagem (como no Jornal) e só atualizar o que está na tela. O primeiro passo é medir: o custo do render por pregão com 100, 1.000 e 5.000 ações, para escolher entre paginar a busca, virtualizar as linhas (só as visíveis existem no DOM) ou assinar a atualização só das linhas visíveis. O filtro e a ordenação hoje são do navegador; paginar do lado do servidor leva os dois junto.
 
 ---
 
@@ -499,6 +528,8 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 **F192 — Gerador de futuro: inflação por regime e horizonte em anos.** Serve N12. Hoje o choque de inflação é um pulso: sobe em seis meses e cai pela metade a cada ano, então no máximo faz um pico no começo do futuro gerado; o playtest de 31/out esperava um controle da inflação do futuro inteiro. O "Começar em", que só decide onde o gerado encaixa no real, pesa pouco. E o "até quando" é um campo de data livre: apagar ou errar um dígito já dispara a prévia, e milhares de anos travam (o limite no backend vai no lote de correções, F184).
 
 A direção do playtest: (1) o choque vira regime, com um controle do nível (a inflação média do futuro inteiro sobe ou desce, com a SELIC e a bolsa reagindo pelos coeficientes de hoje) e outro dos ciclos (com que frequência e intensidade vêm os períodos de inflação alta); (2) o "Começar em" sai; (3) o "até quando" vira escolha de ano, com teto medido e aviso a partir do ponto em que a prévia fica lenta.
+
+O playtest de 05/11 notou que o futuro gerado parece não contemplar PIB nem desemprego. O gerador produz a bolsa, a SELIC, o IPCA e o CDI; o PIB e o desemprego do futuro saem do modelo de crescimento da economia interligada (`economy/growth.py`), a partir da SELIC, do IPCA e da bolsa gerados, e a prévia do diálogo mostra só bolsa, SELIC e IPCA. Isso cabe aqui: com o regime de inflação, o PIB e o desemprego passam a reagir ao nível e aos ciclos, e a prévia ganha as duas linhas para o jogador ver o efeito. A decisão em aberto é se o PIB e o desemprego também aparecem na Central, no trecho gerado.
 
 <a id="f193"></a>
 **F193 — Indicadores técnicos e padrões de vela explicados no Como jogar.** Serve N25 e N19. Hoje cada indicador técnico diz Compra, Venda ou Neutro, com um "i" de texto curto que não ensina a ler, e o "i" dos padrões de vela nem abre. A ideia do playtest de 31/out: um tópico por indicador no Como jogar, em fases: o que é e como se calcula; por que ele aponta compra ou venda; um caso em que acerta; as ressalvas, quando ele engana. O "i" do indicador abre o tópico na aba dele. O mesmo molde serve aos padrões de vela, junto do catálogo (F131). As ordens a mercado e limitada já têm o tópico "Ordem a mercado e limitada" (`tutorial/topics/order-types.tsx`), que mostra a limitada esperando o preço chegar ao limite, e ficam como estão.
