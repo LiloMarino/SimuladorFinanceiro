@@ -105,11 +105,10 @@
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.3 | — | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 | — | — | — | 🔍 |
-| [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 | — | Baixo | Bom | ⏳ |
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -135,6 +134,7 @@
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 | — | — | — | ✅ |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | ✅ |
 | [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | — | — | ✅ |
+| [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 | — | — | — | ✅ |
 | [**F217**](#f217) | Correção | Correções da 3.4 | M21 · 3.4 | — | — | — | ✅ |
 
 </details>
@@ -151,13 +151,13 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 3/7 concluídos
+> **Progresso:** 4/7 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | — | ✅ Concluído |
 | 2 | [**F217**](#f217) | Correção | Correções da 3.4 | — | ✅ Concluído |
-| 3 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | — | ⏳ Pendente |
+| 3 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | — | ✅ Concluído |
 | 4 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | — | ⏳ Pendente |
 | 5 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ✅ Concluído |
 | 6 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
@@ -305,7 +305,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 · 3º | 0 | Baixo | Bom | ⏳ |
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 · 4º | 0 | Médio | Bom | ⏳ |
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 6º | 1 | Médio | Bom | ⏳ |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 · 1º | 0 | Médio | Bom | ⏳ |
@@ -351,7 +350,6 @@
 | **F177** | Feature | Marcação a mercado do Tesouro | N34 | — | M21 · 3.4 | [F165](#f165) | Médio | Médio | Médio | Bom |
 | **F195** | Feature | Acordo de base até o fim do mandato | N34 | — | M23 · 3.5 | — | Médio | Baixo | Alto | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.2 | — | Médio | Médio | Médio | Bom |
-| **F216** | Correção | Pontas soltas das features entregues | N15, N34 | — | M21 · 3.4 | — | Baixo | Baixo | Médio | Bom |
 | **F218** | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | N15 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 
 <a id="f6"></a>
@@ -418,9 +416,6 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 **F197 — Rebalanceamento por meta com várias classes.** Serve N4. Hoje o `TargetRebalance` (`backend/features/strategy/rebalance.py:55`) divide só entre um ativo de ações (BOVA11 por padrão) e a renda fixa de liquidez diária: a meta em ações vai de 10% a 90% (padrão 60%), e o desvio máximo, de 1 a 20 pontos (padrão 5). O playtest de 31/out pediu configurar a meta de cada classe.
 
 **O que muda:** os parâmetros viram uma lista de alvos (um ativo ou uma classe e a porcentagem), que soma 100%, com a faixa de desvio de cada alvo; a estratégia vende o que passou da faixa antes de comprar o que ficou abaixo, como hoje. O formulário da estratégia mostra a lista com o total e recusa o que não soma 100%. O padrão continua 60% em BOVA11 e 40% em renda fixa com 5 pontos, então partidas salvas e backtests antigos dão o mesmo resultado; um teste compara os dois. Os parâmetros salvos no perfil (F170) passam a guardar a lista.
-
-<a id="f216"></a>
-**F216 — Pontas soltas das features entregues.** Serve N15 e N34. Perguntas que ficaram abertas em features já concluídas e arquivadas, decididas uma a uma em 05/nov. Três viram conserto aqui. (1) **Governo do computador eleito:** o partido do computador que vence a eleição toma posse sem presidente (`state.py`, `pending_term` com `president_id` nulo), e `caretaker()` em `government_book.py` só reconhece o computador que assume por impeachment sem vice (`term.succession`); o mandato eleito passa quatro anos sem medida. O conserto é `caretaker()` (e com ele `governs()` e `_propose_as_caretaker`) valer para todo mandato de partido do computador sem presidente, eleito ou herdado; teste de que o computador eleito propõe com a fila vazia. (2) **Parcela com o jogador negativado:** reproduzir no app de teste (banco de teste, backend 8100 e Vite 5273) a parcela que vence sem caixa, o selo "Negativado", a pendência de atraso e o pagamento por ela, conferindo caixa, multa, juros de atraso e a pendência que some; o backend já tem os testes em `test_credit_book.py`, e o bug que aparecer na tela é consertado aqui. (3) **Logs do bot e da estratégia:** `bot-log-sheet.tsx` e `strategy-log.tsx` trocam o texto fixo "A conexão com a partida caiu…" pela mensagem de erro do servidor, como nas páginas do governo. Ficam assim, decididas: o artigo masculino antes da sigla do partido ("ao ACI"), que é o uso comum para sigla; o erro único por página em Governo, Eleição e Economia, que leem o painel numa consulta só; as cinco peças do board da Campanha que o app não tem (passo "Rival" desabilitado, tabela "Comício: extremos dobrados", cartões de reparação, "O que a manchete conta" e do partido do computador), e o board deixa de ser referência para elas; as manchetes novas como estão escritas; o clique no interruptor do Especialista com o Personalizado ativo, que segue aplicando direto; e a meta de 250 pontos da nota de craque. Os marcadores de notícia no gráfico de preço, que não têm board, ficam na F167. Gatilho: a 3.4, na posição do plano.
 
 <a id="f218"></a>
 **F218 — Textos que explicam o óbvio ou o sistema por dentro.** Serve N15. O playtest de 04/11 achou textos que contam a conta interna ou o que a tela já mostra, e pediu a varredura do app inteiro. Os dois primeiros casos: no card do partido da preparação (`my-party-card.tsx`), "Quanto a verba rende", "Cada filiado escolhe quanto contribui, e pode ser zero.", "A verba rende pela raiz…" e "A primeira cobrança sai no próximo dia 1º."; na oferta de crédito (`loan-offer-card.tsx`), a conta "Renda fixa mais cara do dia 70,10% + 0,50 p.p. = 70,60% ao ano". A varredura passa por todas as telas e sai com a lista do que cortar; texto que explica uma métrica ao leigo fica, na dica dela. Cada corte vai em `fix:`.
@@ -599,6 +594,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F97** | Feature | SELIC nas mãos do governo | N34 | D19, D14, D20 | M21 · 3.4 |
 | **F191** | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | N34 | D20 | M21 · 3.4 |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — |
+| **F216** | Correção | Pontas soltas das features entregues | N15, N34 | — | M21 · 3.4 |
 | **F217** | Correção | Correções da 3.4 | N15 | — | M21 · 3.4 |
 
 <a id="f97"></a>
@@ -625,6 +621,9 @@ Limitação: as linhas das ligações no painel foram conferidas em teste automa
 **F196 — Evolução do patrimônio por tipo de renda variável.** Serve N16. Hoje a evolução do patrimônio (`portfolio/components/networth-chart.tsx`) tem as visões "Ganho" e "Por classe", que separa renda fixa, renda variável e caixa, um painel por classe. O playtest de 31/out pediu ver a renda variável aberta por tipo.
 
 **O que muda:** uma visão "Por tipo", ao lado de "Por classe", com um painel por tipo de renda variável (Ações, FII, ETF, BDR e Cripto) no mesmo estilo dos painéis de hoje; o tipo que a carteira nunca teve não ganha painel. O backend soma a série da carteira pelo tipo do ativo, que já está no cadastro, no mesmo endpoint da visão por classe. Sem rodada no canvas: o layout é o da visão por classe.
+
+<a id="f216"></a>
+**F216 — Pontas soltas das features entregues.** Serve N15 e N34. Perguntas que ficaram abertas em features já concluídas e arquivadas, decididas uma a uma em 05/nov. Três viram conserto aqui. (1) **Governo do computador eleito:** o partido do computador que vence a eleição toma posse sem presidente (`state.py`, `pending_term` com `president_id` nulo), e `caretaker()` em `government_book.py` só reconhece o computador que assume por impeachment sem vice (`term.succession`); o mandato eleito passa quatro anos sem medida. O conserto é `caretaker()` (e com ele `governs()` e `_propose_as_caretaker`) valer para todo mandato de partido do computador sem presidente, eleito ou herdado; teste de que o computador eleito propõe com a fila vazia. (2) **Parcela com o jogador negativado:** reproduzir no app de teste (banco de teste, backend 8100 e Vite 5273) a parcela que vence sem caixa, o selo "Negativado", a pendência de atraso e o pagamento por ela, conferindo caixa, multa, juros de atraso e a pendência que some; o backend já tem os testes em `test_credit_book.py`, e o bug que aparecer na tela é consertado aqui. (3) **Logs do bot e da estratégia:** `bot-log-sheet.tsx` e `strategy-log.tsx` trocam o texto fixo "A conexão com a partida caiu…" pela mensagem de erro do servidor, como nas páginas do governo. Ficam assim, decididas: o artigo masculino antes da sigla do partido ("ao ACI"), que é o uso comum para sigla; o erro único por página em Governo, Eleição e Economia, que leem o painel numa consulta só; as cinco peças do board da Campanha que o app não tem (passo "Rival" desabilitado, tabela "Comício: extremos dobrados", cartões de reparação, "O que a manchete conta" e do partido do computador), e o board deixa de ser referência para elas; as manchetes novas como estão escritas; o clique no interruptor do Especialista com o Personalizado ativo, que segue aplicando direto; e a meta de 250 pontos da nota de craque. Os marcadores de notícia no gráfico de preço, que não têm board, ficam na F167. Gatilho: a 3.4, na posição do plano.
 
 <a id="f217"></a>
 **F217 — Correções da 3.4.** Lote dos consertos achados no playtest de 04/11, em main, em `fix:`:
