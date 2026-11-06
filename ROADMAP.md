@@ -92,11 +92,9 @@
 | [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | M28 · 4.6 | — | — | — | 🔍 |
 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | M18 · 4.1 | — | Baixo | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M23 · 3.5 | — | Médio | Bom | ⏳ |
-| [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 | — | Médio | Bom | ⏳ |
 | [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | Baixo | Bom | 💤 |
 | [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 | — | Alto | Bom | ⏳ |
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
-| [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | M21 · 3.4 | — | Médio | Bom | ⏳ |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.1 | — | — | — | 🔍 |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M21 · 3.4 | — | — | — | 🔍 |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | M28 · 4.6 | — | — | — | 🔍 |
@@ -109,10 +107,9 @@
 | [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | M21 · 3.4 | — | Baixo | Bom | ⏳ |
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | — | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | — | Médio | Bom | ⏳ |
-| [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | M21 · 3.4 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -136,10 +133,13 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F175](#f175), [F176](#f176) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F97](#f97), [F191](#f191), [F194](#f194) | — | — | ✅ |
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 | — | — | — | ✅ |
+| [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 | — | — | — | ✅ |
+| [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | M21 · 3.4 | — | — | — | ✅ |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | ✅ |
 | [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | — | — | ✅ |
 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 | — | — | — | ✅ |
 | [**F217**](#f217) | Correção | Correções da 3.4 | M21 · 3.4 | — | — | — | ✅ |
+| [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | M21 · 3.4 | — | — | — | ✅ |
 
 </details>
 
@@ -155,7 +155,7 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 4/10 concluídos
+> **Progresso:** 7/10 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -164,9 +164,9 @@
 | 3 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | — | ✅ Concluído |
 | 4 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | — | ⏳ Pendente |
 | 5 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ✅ Concluído |
-| 6 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
-| 7 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | [F165](#f165) | ⏳ Pendente |
-| 8 | [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | — | ⏳ Pendente |
+| 6 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ✅ Concluído |
+| 7 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | — | ✅ Concluído |
+| 8 | [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | — | ✅ Concluído |
 | 9 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | 🔍 Em avaliação |
 | 10 | [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | — | ⏳ Pendente |
 
@@ -321,8 +321,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 · 4º | 0 | Médio | Bom | ⏳ |
-| [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 6º | 1 | Médio | Bom | ⏳ |
-| [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | M21 · 3.4 · 8º | 0 | Médio | Bom | ⏳ |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M21 · 3.4 · 9º | 0 | — | — | 🔍 |
 | [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | M21 · 3.4 · 10º | 0 | Baixo | Bom | ⏳ |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 · 1º | 0 | Médio | Bom | ⏳ |
@@ -364,16 +362,13 @@
 | **F141** | Docs | README com as features de hoje | N25 | — | M29 · 4.7 | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
 | **F159** | Feature | Conquista "Ordem com paciência" | N22 | D1 | M18 · 4.1 | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
 | **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M23 · 3.5 | — | Médio | Baixo | Médio | Bom |
-| **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | M23 · 3.5 | — | Alto | Médio | Médio | Bom |
-| **F177** | Feature | Marcação a mercado do Tesouro | N34 | — | M21 · 3.4 | [F165](#f165) | Médio | Médio | Médio | Bom |
 | **F195** | Feature | Acordo de base até o fim do mandato | N34 | — | M23 · 3.5 | — | Médio | Baixo | Alto | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.2 | — | Médio | Médio | Médio | Bom |
 | **F218** | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | N15 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F219** | Correção | Correções da 3.4: playtest de 05/11 | N26 | — | M21 · 3.4 | — | Baixo | Baixo | Médio | Bom |
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
-| **F222** | Feature | Resgate automático de renda fixa para cobrir despesas | N34 | — | M21 · 3.4 | — | Médio | Baixo | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -413,14 +408,8 @@
 
 **Aceite:** a soma das misturas regionais pesada pelo eleitorado bate com os pesos nacionais com erro de até 0,005 por grupo, num teste.
 
-<a id="f165"></a>
-**F165 — Tela do Tesouro: títulos pelo risco do governo.** Serve N34. Com o prêmio de risco (F128), a taxa dos títulos conta a história do governo: sobe quando a dívida cresce. Hoje o Tesouro sai misturado na vitrine mensal da renda fixa, sorteado como os títulos dos bancos e com o prêmio somado à taxa (`fixed_income/factory/__init__.py`). (1) **O Tesouro sai da renda fixa e ganha item próprio** no menu Mercado, logo abaixo de Renda fixa; a renda fixa fica com CDB, LCI e LCA, no sorteio de hoje, e aponta para o Tesouro. (2) **Catálogo fixo, como o Tesouro Direto:** seis títulos sempre à venda, numa escada de prazos: um Selic de uns 3 anos, dois Prefixados (uns 3 e uns 7 anos) e três IPCA+ (uns 5, 10 e 20 anos), com vencimento em datas fixas (Selic em 1º de março, Prefixado em 1º de janeiro, IPCA+ em 15 de maio). No fechamento do ano, o título cujo prazo caiu abaixo do piso do degrau sai da vitrine e entra o seguinte da escada (ex.: o Prefixado 2029 dá lugar ao Prefixado 2032); quem comprou segue com ele na carteira. Quem quer reinvestir no mesmo título o acha por anos. (3) **Taxa revista todo mês, sem sorteio**, no fechamento, junto com o prêmio: Selic = SELIC + 0,10 + prêmio; Prefixado = SELIC − 1 + 0,15 por ano de prazo + prêmio; IPCA+ = IPCA + (SELIC − IPCA + 0,10 por ano de prazo + prêmio). Quem compra trava a taxa do dia; duas compras do mesmo título em meses diferentes são duas posições. (4) **A tela mostra** os títulos à venda, com a taxa aberta em "taxa base + prêmio de risco do país" e a compra dali mesmo; a taxa de cada tipo ao longo da partida, em "equivale hoje" (% ao ano, com o IPCA de 12 meses no IPCA+), com a dívida pública ÷ PIB no mesmo eixo de tempo; e o termômetro do risco: o prêmio atual, a dívida ÷ PIB e quanto falta para a próxima faixa. As faixas são só de leitura, a fórmula do prêmio segue contínua: Sem prêmio (até 50% do PIB), Moderado (50% a 80%), Alto (80% a 100%) e Crítico (acima de 100%); a dica da dívida ÷ PIB passa a usar as mesmas faixas. Cada métrica tem uma descrição curta e uma dica com a definição e como ler. Para o gráfico, o backend guarda a taxa de cada título e o prêmio em cada fechamento de mês. (5) Sem a expansão Governo & Política, a tela existe com a taxa base, sem prêmio e sem termômetro. A marcação a mercado (F177) se faz junto: o desenho das duas está no canvas, na linha do Tesouro.
-
 <a id="f175"></a>
 **F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), inclusive ao partido do computador; a proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173). (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato, fica preso pelo mandato e herda, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** a federação aparece no cartão dos partidos da Eleição, no hemiciclo do Congresso e no jornal (formada, desfeita); o desenho começa registrando as telas e os estados no canvas: proposta pendente, federação formada, federação desfeita antes do prazo e expansão desligada.
-
-<a id="f177"></a>
-**F177 — Marcação a mercado do Tesouro.** Serve N34; feita junto com a tela do Tesouro (F165), no mesmo desenho do canvas. Na vida real, quem compra um Prefixado e vê as taxas subirem perde dinheiro se vender antes do vencimento: um título de 12% ao ano vale menos quando o mercado paga 15%, porque ninguém paga o mesmo preço por 12% podendo ter 15%. Os títulos do Tesouro ganham resgate antes do vencimento, em qualquer dia, inteiro ou em parte: o Selic pelo valor acumulado, o Prefixado e o IPCA+ pelo preço de hoje, o valor no vencimento trazido a valor presente pela taxa de hoje do mesmo título (o catálogo da F165 é fixo, então o título vendido é o mesmo que está à venda). O Tesouro recompra pela mesma taxa em que vende, sem diferença; o ganho ou a perda vem só da taxa ter mudado desde a compra. IR regressivo sobre o ganho, como no vencimento; com perda, sem IR. Como a taxa muda no fechamento do mês, o preço anda todo dia pelo tempo e salta no fechamento. A tela do Tesouro lista os títulos do jogador com a taxa da compra, a de hoje, o valor de hoje, a marcação e o valor no vencimento, e a venda mostra o que se recebe hoje ao lado do que se receberia esperando; a carteira mostra o ganho ou a perda da marcação ao lado do rendimento. O risco do governo fica palpável para quem investe, e o presidente com Prefixado na carteira perde com a própria gastança. Mexe na renda fixa toda (`liquidity.py`, `fixed_broker.redeem`), que hoje só resgata antes do vencimento o que tem liquidez diária.
 
 <a id="f195"></a>
 **F195 — Acordo de base até o fim do mandato.** Serve N34. Hoje o apoio de cada bancada vale 6 meses (`deals.TERM_MONTHS`) e se renova à mão; no playtest de 31/out isso virou tarefa repetida. A regra nova troca o prazo curto por uma negociação por mandato que um governo fraco perde:
@@ -454,11 +443,6 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 
 <a id="f221"></a>
 **F221 — Lista de ações que aguenta muitas ações.** Serve N40. A tela de ações (`variable-income.tsx`) busca todas as cotações de uma vez (`useVariableIncomeStocks`), filtra e ordena no navegador e desenha um mini gráfico por linha. A cada pregão chega um `stocks_update` com todas as ações, e a tabela inteira renderiza de novo. Com poucas ações não pesa; com muitas (uma base importada grande) o navegador trava. O playtest de 05/11 sugeriu paginar com carregamento por rolagem (como no Jornal) e só atualizar o que está na tela. O primeiro passo é medir: o custo do render por pregão com 100, 1.000 e 5.000 ações, para escolher entre paginar a busca, virtualizar as linhas (só as visíveis existem no DOM) ou assinar a atualização só das linhas visíveis. O filtro e a ordenação hoje são do navegador; paginar do lado do servidor leva os dois junto.
-
-<a id="f222"></a>
-**F222 — Resgate automático de renda fixa para cobrir despesas.** Serve N34; vem junto com a tela do Tesouro (F165) e a marcação a mercado (F177). Hoje o caixa que não cobre a despesa do mês, o imposto de renda ou a parcela do empréstimo vira cheque especial ou parcela atrasada, mesmo com dinheiro parado na renda fixa. A regra nova põe uma porta só para os débitos automáticos, `SimulationEngine.cover_before_debit(client, needed, kind)`: se o caixa é menor que o necessário, ela vende títulos antes de debitar, na ordem (1) liquidez diária e Tesouro Selic, da menor taxa para a maior, e (2) só com a opção ligada, Prefixado e IPCA+, do que perde menos (ou ganha mais) para o que perde mais na marcação. Se não der para cobrir tudo, cobre o que dá; a venda é ação do sistema e não passa por `_ensure_can_operate`. Passam pela porta: despesa mensal e imprevisto do viver de renda, DARF, parcela de empréstimo (antes do teste de caixa, para a parcela não atrasar com saldo em renda fixa) e a contribuição mensal automática da campanha; o juro do cheque especial fica de fora, porque é consequência de não ter coberto. Cada resgate vira um toast para o jogador (`ToastType.AUTO_REDEEM`): "Resgatado R$ X de <título> para cobrir <despesa>". A opção `cover_with_treasury` (desligada por padrão) mora nas preferências do usuário, com o interruptor no cabeçalho de "Seus títulos" da tela do Tesouro. `overdraft_cover` e a ação de cobertura do card de vida saem; o card passa a mostrar uma linha dizendo se a cobertura está ligada, com link para o Tesouro.
-
-**Aceite:** ordem de resgate coberta por teste; opção desligada não vende Prefixado nem IPCA+; cobertura parcial; parcela de empréstimo coberta antes de atrasar; toast emitido; testes em `tests/test_auto_cover.py`.
 
 ---
 
@@ -632,15 +616,24 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F97** | Feature | SELIC nas mãos do governo | N34 | D19, D14, D20 | M21 · 3.4 |
+| **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 |
+| **F177** | Feature | Marcação a mercado do Tesouro | N34 | — | M21 · 3.4 |
 | **F191** | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | N34 | D20 | M21 · 3.4 |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — |
 | **F216** | Correção | Pontas soltas das features entregues | N15, N34 | — | M21 · 3.4 |
 | **F217** | Correção | Correções da 3.4 | N15 | — | M21 · 3.4 |
+| **F222** | Feature | Resgate automático de renda fixa para cobrir despesas | N34 | — | M21 · 3.4 |
 
 <a id="f97"></a>
 **F97 — SELIC nas mãos do governo.** Ligado à N34; uma opção da expansão "Governo & Política" (F95), no lugar do Banco Central autônomo, que continua sendo o padrão. (1) **Ritmo do Copom:** o governo decide a SELIC em reuniões a cada 45 dias, como o Copom, que se reúne 8 vezes por ano desde 2006; entre reuniões ela não muda. (2) **Teto por reunião, pelo que aconteceu de verdade.** Das 150 mudanças da meta da SELIC entre 2000 e outubro de 2026 (série do Banco Central): 34 foram de 0,25 ponto, 67 de 0,5, 19 de 0,75, 19 de 1, 7 de 1,5, uma de 2, uma de 2,5 e duas de 3; desde 2006, nunca passou de 1,5. O teto vem do IPCA de 12 meses: 0,75 ponto em tempo normal (80% das mudanças reais), 1,5 com o IPCA acima do teto da meta (a meta mais a tolerância de 1,5 ponto), como em 2021 e 2022, e 3 com o IPCA acima de 15%, o que só aconteceu em 2002 e 2003. (3) **O efeito vem do juro real, contínuo e sem faixa morta.** Juro real é a SELIC menos o IPCA de 12 meses; o juro neutro, que nem aquece nem esfria, é 5%, perto da estimativa do Banco Central. A distância até o neutro age pelo mecanismo de efeito por cima das séries da F106: cada ponto abaixo do neutro, mantido por um ano, sobe o IPCA em uns 0,3 ponto ao longo dos 4 trimestres seguintes, com o pico no 2º e no 3º (o modelo Samba do Banco Central), e cada ponto acima o derruba na mesma medida. Abaixo do neutro o crescimento aquece na hora; acima, esfria e a bolsa cai pelo coeficiente da D14. Como o efeito é contínuo, nenhuma faixa de juro sai de graça. Os limites de 2% e 7% de juro real servem só para os avisos e para a reação dos grupos (D19): abaixo de 2%, aposentados e quem vive de investimento perdem apoio; acima de 7%, quem trabalha e empreende. (4) **Credibilidade.** Cada reunião que deixa o juro real abaixo do neutro com o IPCA acima da meta gasta credibilidade; cada reunião que aperta devolve um pouco, devagar. Com pouca credibilidade a inflação reage mais rápido ao juro baixo, porque o mercado já espera que ela suba, e o prêmio de risco dos títulos (F128) sobe: o governo que usou a SELIC para ganhar a eleição herda uma inflação que não cede. A tela mostra a credibilidade com uma dica do que ela mede e do que a move. O 0,3 é ordem de grandeza dos modelos semiestruturais e se calibra no playtest; não se mede no histórico do banco, porque a SELIC reage à inflação e a regressão direta sai com o sinal trocado. Fontes: [Relatório de Inflação de junho de 2013, box do Samba](https://www.bcb.gov.br/content/ri/relatorioinflacao/201306/RELINF201306-ri201306b6p.pdf); [um modelo semiestrutural simples](https://coolassessor.substack.com/p/um-modelo-semiestrutural-simples); [Blog do IBRE sobre o efeito da SELIC](https://blogdoibre.fgv.br/posts/deve-o-bc-reduzir-selic-replica-jose-julio-senna).
 
 **Entregue em 05/11.** Decidido com a Lilo na implementação: (1) o efeito na inflação mede o desvio da história, 0,3 × (juro real da história − juro real da partida), como o crescimento (D20); o neutro de 5% fica para a credibilidade, os avisos e os grupos. (2) O efeito vale nos dois modos: no Banco Central autônomo, a reação de 1,5 ponto de SELIC por ponto de IPCA passa a trazer a inflação de volta. (3) Os grupos reagem ao juro real com a faixa de 2% a 7% em toda partida, no lugar do fator da SELIC nominal contra 10%. (4) A reunião não pausa o jogo: o presidente marca a decisão antes, ela vale do dia seguinte à reunião, uma pendência avisa nos 7 dias anteriores sem decisão, sem decisão a SELIC fica, e o presidente do computador decide como o Banco Central autônomo, dentro do teto. Até o primeiro presidente de jogador tomar posse, o Banco Central decide como na história. A credibilidade perde 4 por ponto de juro real abaixo do neutro (até 20 por reunião) com o IPCA acima da meta e ganha 3 a cada alta; em 0, soma 2 pontos ao prêmio da dívida e dobra o efeito, que chega mais cedo. A janela da reunião parte da SELIC efetiva guardada (13,65% com a meta em 13,75%) e vai nos passos de 0,25 dentro do teto. Card do governo na aba Contas e escolha no lobby; retrato do card no canvas. Fica para o playtest: calibrar o 0,3, a perda de credibilidade e a faixa dos grupos; e mostrar a escolha da SELIC no resumo do lobby.
+
+<a id="f165"></a>
+**F165 — Tela do Tesouro: títulos pelo risco do governo.** Serve N34. Com o prêmio de risco (F128), a taxa dos títulos conta a história do governo: sobe quando a dívida cresce. Hoje o Tesouro sai misturado na vitrine mensal da renda fixa, sorteado como os títulos dos bancos e com o prêmio somado à taxa (`fixed_income/factory/__init__.py`). (1) **O Tesouro sai da renda fixa e ganha item próprio** no menu Mercado, logo abaixo de Renda fixa; a renda fixa fica com CDB, LCI e LCA, no sorteio de hoje, e aponta para o Tesouro. (2) **Catálogo fixo, como o Tesouro Direto:** seis títulos sempre à venda, numa escada de prazos: um Selic de uns 3 anos, dois Prefixados (uns 3 e uns 7 anos) e três IPCA+ (uns 5, 10 e 20 anos), com vencimento em datas fixas (Selic em 1º de março, Prefixado em 1º de janeiro, IPCA+ em 15 de maio). No fechamento do ano, o título cujo prazo caiu abaixo do piso do degrau sai da vitrine e entra o seguinte da escada (ex.: o Prefixado 2029 dá lugar ao Prefixado 2032); quem comprou segue com ele na carteira. Quem quer reinvestir no mesmo título o acha por anos. (3) **Taxa revista todo mês, sem sorteio**, no fechamento, junto com o prêmio: Selic = SELIC + 0,10 + prêmio; Prefixado = SELIC − 1 + 0,15 por ano de prazo + prêmio; IPCA+ = IPCA + (SELIC − IPCA + 0,10 por ano de prazo + prêmio). Quem compra trava a taxa do dia; duas compras do mesmo título em meses diferentes são duas posições. (4) **A tela mostra** os títulos à venda, com a taxa aberta em "taxa base + prêmio de risco do país" e a compra dali mesmo; a taxa de cada tipo ao longo da partida, em "equivale hoje" (% ao ano, com o IPCA de 12 meses no IPCA+), com a dívida pública ÷ PIB no mesmo eixo de tempo; e o termômetro do risco: o prêmio atual, a dívida ÷ PIB e quanto falta para a próxima faixa. As faixas são só de leitura, a fórmula do prêmio segue contínua: Sem prêmio (até 50% do PIB), Moderado (50% a 80%), Alto (80% a 100%) e Crítico (acima de 100%); a dica da dívida ÷ PIB passa a usar as mesmas faixas. Cada métrica tem uma descrição curta e uma dica com a definição e como ler. Para o gráfico, o backend guarda a taxa de cada título e o prêmio em cada fechamento de mês. (5) Sem a expansão Governo & Política, a tela existe com a taxa base, sem prêmio e sem termômetro. A marcação a mercado (F177) se faz junto: o desenho das duas está no canvas, na linha do Tesouro.
+
+<a id="f177"></a>
+**F177 — Marcação a mercado do Tesouro.** Serve N34; feita junto com a tela do Tesouro (F165), no mesmo desenho do canvas. Na vida real, quem compra um Prefixado e vê as taxas subirem perde dinheiro se vender antes do vencimento: um título de 12% ao ano vale menos quando o mercado paga 15%, porque ninguém paga o mesmo preço por 12% podendo ter 15%. Os títulos do Tesouro ganham resgate antes do vencimento, em qualquer dia, inteiro ou em parte: o Selic pelo valor acumulado, o Prefixado e o IPCA+ pelo preço de hoje, o valor no vencimento trazido a valor presente pela taxa de hoje do mesmo título (o catálogo da F165 é fixo, então o título vendido é o mesmo que está à venda). O Tesouro recompra pela mesma taxa em que vende, sem diferença; o ganho ou a perda vem só da taxa ter mudado desde a compra. IR regressivo sobre o ganho, como no vencimento; com perda, sem IR. Como a taxa muda no fechamento do mês, o preço anda todo dia pelo tempo e salta no fechamento. A tela do Tesouro lista os títulos do jogador com a taxa da compra, a de hoje, o valor de hoje, a marcação e o valor no vencimento, e a venda mostra o que se recebe hoje ao lado do que se receberia esperando; a carteira mostra o ganho ou a perda da marcação ao lado do rendimento. O risco do governo fica palpável para quem investe, e o presidente com Prefixado na carteira perde com a própria gastança. Mexe na renda fixa toda (`liquidity.py`, `fixed_broker.redeem`), que hoje só resgata antes do vencimento o que tem liquidez diária.
 
 <a id="f191"></a>
 **F191 — Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida.** Serve N34; condicionado por D20. A economia da partida passou a ser a história mais o desvio que o governo causa. Cada fechamento de mês calcula a partida e a história lado a lado (`government/linked_economy.py`, o `LinkedEconomy`, chamado no tick antes dos preços do dia), e as ligações saem da diferença entre as duas (`economy/links.py`):
@@ -674,6 +667,11 @@ Limitação: as linhas das ligações no painel foram conferidas em teste automa
 - (5) **Jornal rola a página inteira** (`journal-paper.tsx`): a lista deixa de ter rolagem própria, e o "Arquivo da partida" fica fixo na lateral como navegação.
 - (6) **Estratégias repetem a ordem:** o comprar e segurar, e outras, tenta comprar todo dia que tem caixa para uma cota (`buy_and_hold.py`), e cada recusa vira uma linha de erro no log (`runner._execute`). Reproduzir, achar o motivo da recusa e fazer as estratégias esperarem em vez de repetir.
 - (7) **Selects de jogador e partido com avatar e marca**, na lista e no valor escolhido: candidato e vice em `ticket-dialog.tsx` e `party-found-tab.tsx`, com `PlayerOption` e `PartyMark`.
+
+<a id="f222"></a>
+**F222 — Resgate automático de renda fixa para cobrir despesas.** Serve N34; vem junto com a tela do Tesouro (F165) e a marcação a mercado (F177). Hoje o caixa que não cobre a despesa do mês, o imposto de renda ou a parcela do empréstimo vira cheque especial ou parcela atrasada, mesmo com dinheiro parado na renda fixa. A regra nova põe uma porta só para os débitos automáticos, `SimulationEngine.cover_before_debit(client, needed, kind)`: se o caixa é menor que o necessário, ela vende títulos antes de debitar, na ordem (1) liquidez diária e Tesouro Selic, da menor taxa para a maior, e (2) só com a opção ligada, Prefixado e IPCA+, do que perde menos (ou ganha mais) para o que perde mais na marcação. Se não der para cobrir tudo, cobre o que dá; a venda é ação do sistema e não passa por `_ensure_can_operate`. Passam pela porta: despesa mensal e imprevisto do viver de renda, DARF, parcela de empréstimo (antes do teste de caixa, para a parcela não atrasar com saldo em renda fixa) e a contribuição mensal automática da campanha; o juro do cheque especial fica de fora, porque é consequência de não ter coberto. Cada resgate vira um toast para o jogador (`ToastType.AUTO_REDEEM`): "Resgatado R$ X de <título> para cobrir <despesa>". A opção `cover_with_treasury` (desligada por padrão) mora nas preferências do usuário, com o interruptor no cabeçalho de "Seus títulos" da tela do Tesouro. `overdraft_cover` e a ação de cobertura do card de vida saem; o card passa a mostrar uma linha dizendo se a cobertura está ligada, com link para o Tesouro.
+
+**Aceite:** ordem de resgate coberta por teste; opção desligada não vende Prefixado nem IPCA+; cobertura parcial; parcela de empréstimo coberta antes de atrasar; toast emitido; testes em `tests/test_auto_cover.py`.
 
 ---
 
