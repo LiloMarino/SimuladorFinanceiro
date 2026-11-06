@@ -77,10 +77,7 @@ function FirstPollPending({ panel }: { panel: ElectionPanel }) {
       <b className="text-[15px] font-semibold">
         A primeira pesquisa sai em {displayShortDate(nextPollDate(panel.today))}
       </b>
-      <span className="max-w-md text-[13px] text-muted-foreground">
-        Um mês depois de a campanha abrir, e depois todo dia 1º. Até lá, o eleitorado mostra onde cada partido começa em
-        cada grupo.
-      </span>
+      <span className="max-w-md text-[13px] text-muted-foreground">Depois, uma pesquisa todo dia 1º.</span>
     </div>
   );
 }

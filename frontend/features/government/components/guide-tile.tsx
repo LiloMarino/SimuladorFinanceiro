@@ -65,7 +65,7 @@ export function GuideTile({ guide, measureId, current, subject }: GuideTileProps
           </AlertTitle>
           <AlertDescription>
             {confirming
-              ? `A emenda para${governmentGroups.length > 0 ? `, e ${groupsLabel(governmentGroups).toLowerCase()} somam +8 de rejeição ao ${guide.abbr}` : ` e o ${guide.abbr} soma +8 de rejeição`}.`
+              ? `A emenda para${governmentGroups.length > 0 ? `, e ${groupsLabel(governmentGroups).toLowerCase()} somam rejeição ao ${guide.abbr}` : ` e o ${guide.abbr} soma rejeição`}.`
               : `Enquanto o acordo valer, o ${guide.abbr} orienta Sim em tudo o que o governo propõe.`}
           </AlertDescription>
           {confirming && (
@@ -120,7 +120,6 @@ export function GuideTile({ guide, measureId, current, subject }: GuideTileProps
       <span className="text-xs text-muted-foreground">
         Sem orientação, o {guide.abbr} vota {orientationLabel(guide.default_orientation)}
         {pulled ? `, porque a votação puxa para ${pulled}` : ""}.
-        {guide.yes_moves.length > 0 && " Orientar Sim também move o perfil do partido."}
       </span>
     </div>
   );

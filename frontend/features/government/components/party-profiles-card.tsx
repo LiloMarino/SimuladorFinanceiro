@@ -387,7 +387,6 @@ function GroupComparison({ party, group, groups, onGroupChange, onClose }: Group
                     `${VALUE_INFO[value].label} (${distanceWord(wants[value], profile[value]).word} do ${party.abbr})`,
                 )
                 .join(" e ")}
-              . O perfil se move com as medidas que o partido aprova no governo, e a afinidade vai junto.
             </p>
           )}
         </div>

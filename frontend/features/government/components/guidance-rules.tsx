@@ -36,7 +36,7 @@ export function GuidanceRules({ rules, isLeader, abbr }: GuidanceRulesProps) {
       </div>
       <span className="text-xs text-muted-foreground">
         {isLeader
-          ? `Quando você não orienta uma votação, o ${abbr} vota Sim nas medidas que mais puxam um valor marcado Sim, e Não nas outras.`
+          ? `Sem orientação sua, o ${abbr} vota pela orientação padrão acima.`
           : `Só o líder muda. Quando ele não orienta uma votação, o ${abbr} vota por esta lista.`}
       </span>
     </div>

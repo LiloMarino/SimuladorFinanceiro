@@ -59,8 +59,7 @@ export function ElectorateCard({ panel, party }: ElectorateCardProps) {
             <div className="grid gap-1">
               <h2 className="text-[15px] font-semibold">Eleitorado · o {party.abbr} em cada grupo</h2>
               <span className="inline-flex items-center gap-1 text-[13px] text-muted-foreground">
-                O número no canto é o saldo, apoio menos rejeição: é dele que sai o voto. Borda vermelha: a rejeição
-                passa o apoio, e o {party.abbr} não tem voto ali.
+                Número no canto: apoio menos rejeição. Borda vermelha: o {party.abbr} não tem voto ali.
                 <MetricHint metric={BALANCE} />
               </span>
             </div>

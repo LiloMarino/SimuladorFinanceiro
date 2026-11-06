@@ -3,7 +3,7 @@ import { Newspaper } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/shared/components/ui/empty";
+import { Empty, EmptyHeader, EmptyTitle } from "@/shared/components/ui/empty";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
@@ -51,7 +51,6 @@ export function CampaignHistoryCard({ campaign, party, nickname }: CampaignHisto
   const [who, setWho] = useState<Who>("all");
   const [shown, setShown] = useState(PAGE);
 
-  const pricesFrom = campaign.actions.find((action) => action.action === "RALLY");
   const entries = (data?.entries ?? []).filter(
     (entry) => matchesKind(entry, kind) && (who === "all" || entry.nickname === nickname),
   );
@@ -171,12 +170,6 @@ export function CampaignHistoryCard({ campaign, party, nickname }: CampaignHisto
                 <EmptyTitle>
                   {data.entries.length === 0 ? "Nenhuma ação ainda" : "Nenhuma linha com esses filtros"}
                 </EmptyTitle>
-                {data.entries.length === 0 && (
-                  <EmptyDescription>
-                    A primeira ação em cada grupo rende 100%.
-                    {pricesFrom && ` O comício, a ${displayMoney(pricesFrom.price)}, é o jeito barato de começar.`}
-                  </EmptyDescription>
-                )}
               </EmptyHeader>
             </Empty>
           ) : (
