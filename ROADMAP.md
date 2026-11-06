@@ -51,7 +51,7 @@
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93) | — | — | — |
 | **N32** | — | Saber como foi o mês sem montar a conta | — | — | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F97](#f97), [F164](#f164), [F165](#f165), [F175](#f175), [F176](#f176), [F177](#f177), [F191](#f191), [F194](#f194), [F195](#f195), [F216](#f216) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F97](#f97), [F164](#f164), [F165](#f165), [F175](#f175), [F176](#f176), [F177](#f177), [F191](#f191), [F194](#f194), [F195](#f195), [F216](#f216), [F222](#f222) | — | — | — |
 | **N35** | — | Tirar da lista as partidas que não interessam mais | — | — | — | — | — |
 | **N36** | — | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — | — |
 | **N37** | — | Comprar bitcoin do jeito que dá na vida real, em frações | — | — | — | — | — |
@@ -109,6 +109,7 @@
 | [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | M21 · 3.4 | — | Baixo | Bom | ⏳ |
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | — | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | — | Médio | Bom | ⏳ |
+| [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | M21 · 3.4 | — | Médio | Bom | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
@@ -154,7 +155,7 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 4/9 concluídos
+> **Progresso:** 4/10 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -165,8 +166,9 @@
 | 5 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ✅ Concluído |
 | 6 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ⏳ Pendente |
 | 7 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | [F165](#f165) | ⏳ Pendente |
-| 8 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | 🔍 Em avaliação |
-| 9 | [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | — | ⏳ Pendente |
+| 8 | [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | — | ⏳ Pendente |
+| 9 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | 🔍 Em avaliação |
+| 10 | [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | — | ⏳ Pendente |
 
 ### 3.5 — Congresso e eleição (M23)
 
@@ -320,8 +322,9 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 · 4º | 0 | Médio | Bom | ⏳ |
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 · 6º | 1 | Médio | Bom | ⏳ |
-| [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M21 · 3.4 · 8º | 0 | — | — | 🔍 |
-| [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | M21 · 3.4 · 9º | 0 | Baixo | Bom | ⏳ |
+| [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | M21 · 3.4 · 8º | 0 | Médio | Bom | ⏳ |
+| [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M21 · 3.4 · 9º | 0 | — | — | 🔍 |
+| [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | M21 · 3.4 · 10º | 0 | Baixo | Bom | ⏳ |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M23 · 3.5 · 2º | 1 | Médio | Bom | ⏳ |
 | [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 · 3º | 0 | Alto | Bom | ⏳ |
@@ -370,6 +373,7 @@
 | **F219** | Correção | Correções da 3.4: playtest de 05/11 | N26 | — | M21 · 3.4 | — | Baixo | Baixo | Médio | Bom |
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
+| **F222** | Feature | Resgate automático de renda fixa para cobrir despesas | N34 | — | M21 · 3.4 | — | Médio | Baixo | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -450,6 +454,11 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 
 <a id="f221"></a>
 **F221 — Lista de ações que aguenta muitas ações.** Serve N40. A tela de ações (`variable-income.tsx`) busca todas as cotações de uma vez (`useVariableIncomeStocks`), filtra e ordena no navegador e desenha um mini gráfico por linha. A cada pregão chega um `stocks_update` com todas as ações, e a tabela inteira renderiza de novo. Com poucas ações não pesa; com muitas (uma base importada grande) o navegador trava. O playtest de 05/11 sugeriu paginar com carregamento por rolagem (como no Jornal) e só atualizar o que está na tela. O primeiro passo é medir: o custo do render por pregão com 100, 1.000 e 5.000 ações, para escolher entre paginar a busca, virtualizar as linhas (só as visíveis existem no DOM) ou assinar a atualização só das linhas visíveis. O filtro e a ordenação hoje são do navegador; paginar do lado do servidor leva os dois junto.
+
+<a id="f222"></a>
+**F222 — Resgate automático de renda fixa para cobrir despesas.** Serve N34; vem junto com a tela do Tesouro (F165) e a marcação a mercado (F177). Hoje o caixa que não cobre a despesa do mês, o imposto de renda ou a parcela do empréstimo vira cheque especial ou parcela atrasada, mesmo com dinheiro parado na renda fixa. A regra nova põe uma porta só para os débitos automáticos, `SimulationEngine.cover_before_debit(client, needed, kind)`: se o caixa é menor que o necessário, ela vende títulos antes de debitar, na ordem (1) liquidez diária e Tesouro Selic, da menor taxa para a maior, e (2) só com a opção ligada, Prefixado e IPCA+, do que perde menos (ou ganha mais) para o que perde mais na marcação. Se não der para cobrir tudo, cobre o que dá; a venda é ação do sistema e não passa por `_ensure_can_operate`. Passam pela porta: despesa mensal e imprevisto do viver de renda, DARF, parcela de empréstimo (antes do teste de caixa, para a parcela não atrasar com saldo em renda fixa) e a contribuição mensal automática da campanha; o juro do cheque especial fica de fora, porque é consequência de não ter coberto. Cada resgate vira um toast para o jogador (`ToastType.AUTO_REDEEM`): "Resgatado R$ X de <título> para cobrir <despesa>". A opção `cover_with_treasury` (desligada por padrão) mora nas preferências do usuário, com o interruptor no cabeçalho de "Seus títulos" da tela do Tesouro. `overdraft_cover` e a ação de cobertura do card de vida saem; o card passa a mostrar uma linha dizendo se a cobertura está ligada, com link para o Tesouro.
+
+**Aceite:** ordem de resgate coberta por teste; opção desligada não vende Prefixado nem IPCA+; cobertura parcial; parcela de empréstimo coberta antes de atrasar; toast emitido; testes em `tests/test_auto_cover.py`.
 
 ---
 
