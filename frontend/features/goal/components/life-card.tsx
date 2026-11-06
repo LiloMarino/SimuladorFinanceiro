@@ -1,13 +1,10 @@
 import { Flag, TriangleAlert } from "lucide-react";
+import { Link } from "react-router-dom";
 import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Spinner } from "@/shared/components/ui/spinner";
 import { StackedBar } from "@/shared/components/stacked-bar";
-import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
-import { useRedeemFixedIncome } from "@/shared/hooks/mutations/useRedeemFixedIncome";
 import { cn } from "@/shared/lib/utils";
 import { displayAnnualExpenseMultiple, displayRatePercent } from "@/shared/lib/financial-independence";
 import { displayProjectionDistance, type GoalProjection } from "@/shared/lib/goal";
@@ -80,17 +77,8 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
               <AlertTitle>Caixa em {displaySignedMoney(cash)} no cheque especial</AlertTitle>
               <AlertDescription>
                 Paga uns {displayMoney(life.overdraft_daily_interest)} de juros por pregão (
-                {displayRatePercent(life.overdraft_monthly_rate)} ao mês).{" "}
-                {life.overdraft_cover ? (
-                  <>
-                    Você tem <b className="font-mono text-foreground">{displayMoney(life.reserve_daily_liquidity)}</b>{" "}
-                    em liquidez diária, que cobre isso hoje.
-                  </>
-                ) : (
-                  "Venda ou resgate algo para cobrir."
-                )}
+                {displayRatePercent(life.overdraft_monthly_rate)} ao mês). Venda ou resgate algo para cobrir.
               </AlertDescription>
-              {life.overdraft_cover && <OverdraftCoverAction cover={life.overdraft_cover} />}
             </Alert>
           )}
 
@@ -186,7 +174,16 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
                   ? "Os dois saem no mesmo dia: cobrem a despesa sem precisar vender ação na baixa."
                   : reserveMonths > 0
                     ? `${displayMoneyWhole(cash)} em caixa: cobre a despesa sem precisar vender ação na baixa.`
-                    : "Nada em caixa: a próxima despesa cai no cheque especial."}
+                    : "Nada em caixa nem em liquidez diária: a próxima despesa cai no cheque especial."}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Sem caixa, a despesa vende sozinha a liquidez diária e o Tesouro Selic.{" "}
+                {life.cover_with_treasury
+                  ? "Prefixado e IPCA+ também entram, a mercado."
+                  : "Prefixado e IPCA+ ficam de fora."}{" "}
+                <Link to="/treasury" className="text-foreground underline underline-offset-2">
+                  Ajustar no Tesouro
+                </Link>
               </span>
             </div>
           </div>
@@ -213,30 +210,6 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
 /** Meses com uma casa, como na régua da reserva ("2,6 meses"). */
 function displayMonths(months: number) {
   return `${new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(months)} meses`;
-}
-
-/** O resgate que cobre o cheque especial: o título que rende menos entre os que cobrem a dívida inteira. */
-function OverdraftCoverAction({ cover }: { cover: NonNullable<LifeStatus["overdraft_cover"]> }) {
-  const redeem = useRedeemFixedIncome(cover.asset_uuid);
-  // Com o automático ligado quem opera é a estratégia
-  const locked = !!useMyStrategy().data?.active;
-
-  return (
-    <div className="mt-2 flex flex-wrap items-center gap-2 group-has-[>svg]/alert:col-start-2">
-      <Button
-        variant="dark"
-        size="sm"
-        disabled={locked || redeem.isPending}
-        onClick={() => redeem.mutate({ amount: cover.net_amount })}
-      >
-        {redeem.isPending && <Spinner />}
-        Receber {displayMoney(cover.net_amount)} do {cover.asset_name}
-      </Button>
-      <span className="text-xs text-muted-foreground">
-        saem {displayMoney(cover.gross_amount)} do título, com o IR · do que rende menos
-      </span>
-    </div>
-  );
 }
 
 function MonthRow({ label, children }: { label: string; children: React.ReactNode }) {

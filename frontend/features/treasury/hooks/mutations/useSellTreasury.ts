@@ -2,17 +2,17 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
-import type { BuyFixedIncomeRequest } from "@/types";
+import type { SellTreasuryRequest } from "@/types";
 
-export function useBuyFixedIncome(assetId: string) {
+export function useSellTreasury(assetId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (body: BuyFixedIncomeRequest) => apiFetch(`/api/fixed-income/${assetId}/buy`, { method: "POST", body }),
+    mutationFn: (body: SellTreasuryRequest) => apiFetch(`/api/treasury/${assetId}/sell`, { method: "POST", body }),
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.treasuryPositions() });
       void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() });
       void queryClient.invalidateQueries({ queryKey: queryKeys.simulationState() });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.fixedIncomeAsset(assetId) });
     },
     onError: (err) => toastApiError(err),
   });

@@ -272,6 +272,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/treasury": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar os títulos do Tesouro
+         * @description Os seis títulos à venda no mês, com a taxa aberta em base e prêmio de risco, o que rendem hoje, até quando ficam à venda e a data da próxima revisão. Com a expansão de governo, traz também o termômetro do risco.
+         */
+        get: operations["get_treasury_api_treasury_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/treasury/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Histórico das taxas do Tesouro
+         * @description Um ponto por mês desde a largada: SELIC, IPCA, o prêmio de risco, a dívida ÷ PIB e a taxa de cada título do catálogo do mês.
+         */
+        get: operations["get_treasury_history_api_treasury_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/treasury/positions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar as posições do jogador no Tesouro
+         * @description Cada título do Tesouro que o jogador tem: a taxa da compra e a de hoje, o aplicado, o rendimento da curva, a marcação a mercado e o valor de venda.
+         */
+        get: operations["get_treasury_positions_api_treasury_positions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/treasury/{asset_uuid}/quote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cotar a venda de um título do Tesouro
+         * @description Cota a venda hoje, a mercado, de um valor bruto do título: IOF, IR, o líquido que chega ao caixa e a comparação com esperar até o vencimento.
+         */
+        get: operations["get_treasury_sale_quote_api_treasury__asset_uuid__quote_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/treasury/{asset_uuid}/sell": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Vender um título do Tesouro
+         * @description Vende o título a mercado em qualquer dia útil, inteiro ou em parte, pelo valor bruto informado.
+         */
+        post: operations["sell_treasury_api_treasury__asset_uuid__sell_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/portfolio": {
         parameters: {
             query?: never;
@@ -417,6 +517,30 @@ export interface paths {
          * @description Grava no perfil a contribuição mensal ao partido. Mudar a contribuição dentro da partida também grava aqui.
          */
         put: operations["put_party_contribution_api_settings_party_contribution_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/treasury-cover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter a opção de cobertura com o Tesouro
+         * @description Se o resgate automático também vende Prefixado e IPCA+ (a mercado) para cobrir despesas; desligada até o jogador ligar. Os títulos sem perda (liquidez diária e Tesouro Selic) são sempre vendidos.
+         */
+        get: operations["get_treasury_cover_api_settings_treasury_cover_get"];
+        /**
+         * Salvar a opção de cobertura com o Tesouro
+         * @description Liga ou desliga a venda de Prefixado e IPCA+ na cobertura automática de despesas.
+         */
+        put: operations["put_treasury_cover_api_settings_treasury_cover_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -3725,6 +3849,18 @@ export interface components {
         AssetClassRequest: {
             asset_class: components["schemas"]["AssetClass"];
         };
+        /**
+         * AutoRedeemEventDTO
+         * @description Um título vendido pelo sistema para cobrir um débito automático.
+         */
+        AutoRedeemEventDTO: {
+            /** Asset Name */
+            asset_name: string;
+            /** Net Amount */
+            net_amount: string;
+            /** Reason */
+            reason: string;
+        };
         /** AverageSeriesDTO */
         AverageSeriesDTO: {
             kind: components["schemas"]["MovingAverageKind"];
@@ -5754,6 +5890,10 @@ export interface components {
             total_applied: string;
             /** Current Value */
             current_value: string;
+            /** Market Value */
+            market_value: string;
+            /** Mark */
+            mark: string;
             /**
              * First Applied Date
              * Format: date
@@ -6975,7 +7115,8 @@ export interface components {
             reserve_cash: string;
             /** Reserve Daily Liquidity */
             reserve_daily_liquidity: string;
-            overdraft_cover: components["schemas"]["OverdraftCoverDTO"] | null;
+            /** Cover With Treasury */
+            cover_with_treasury: boolean;
         };
         /**
          * LinkEffectDTO
@@ -7616,23 +7757,6 @@ export interface components {
             kind: "http" | "socket" | "engine";
             /** P95 Ms */
             p95_ms: number;
-        };
-        /**
-         * OverdraftCoverDTO
-         * @description O título de liquidez diária que sozinho paga o cheque especial hoje.
-         */
-        OverdraftCoverDTO: {
-            /**
-             * Asset Uuid
-             * Format: uuid
-             */
-            asset_uuid: string;
-            /** Asset Name */
-            asset_name: string;
-            /** Net Amount */
-            net_amount: string;
-            /** Gross Amount */
-            gross_amount: string;
         };
         /** OverdueDTO */
         OverdueDTO: {
@@ -8898,6 +9022,7 @@ export interface components {
             statistics_snapshot_update: components["schemas"]["StatisticsSnapshotUpdateEventDTO"];
             goal_progress_update: components["schemas"]["GoalProgressDTO"];
             life_event: components["schemas"]["LifeEventDTO"];
+            auto_redeem: components["schemas"]["AutoRedeemEventDTO"];
             order_executed: components["schemas"]["OrderExecutedEventDTO"];
             order_partial_executed: components["schemas"]["OrderPartialExecutedEventDTO"];
             player_join: components["schemas"]["PlayerPresenceEventDTO"];
@@ -9376,6 +9501,11 @@ export interface components {
         SelicRequest: {
             /** Selic */
             selic: number | string | null;
+        };
+        /** SellTreasuryRequest */
+        SellTreasuryRequest: {
+            /** Gross */
+            gross?: number | string | null;
         };
         /** SeriesCoverageDTO */
         SeriesCoverageDTO: {
@@ -10666,7 +10796,7 @@ export interface components {
          * @description Um aviso do que acontece com o próprio jogador, ligado ou desligado por tipo.
          * @enum {string}
          */
-        ToastType: "ORDER_EXECUTED" | "ORDER_PARTIAL" | "STRATEGY_ORDERS" | "PLAYER_PRESENCE" | "CREDIT_PAYMENTS" | "CREDIT_RATING" | "LIFE_EVENT" | "YEAR_REVIEW" | "VICE_ANSWER";
+        ToastType: "ORDER_EXECUTED" | "ORDER_PARTIAL" | "STRATEGY_ORDERS" | "PLAYER_PRESENCE" | "CREDIT_PAYMENTS" | "CREDIT_RATING" | "LIFE_EVENT" | "AUTO_REDEEM" | "YEAR_REVIEW" | "VICE_ANSWER";
         /** ToastTypeInfo */
         ToastTypeInfo: {
             type: components["schemas"]["ToastType"];
@@ -10759,6 +10889,208 @@ export interface components {
             trust: string;
             /** Would Follow */
             would_follow: string;
+        };
+        /** TreasuryCatalogDTO */
+        TreasuryCatalogDTO: {
+            /**
+             * Next Review
+             * Format: date
+             */
+            next_review: string;
+            /** Titles */
+            titles: components["schemas"]["TreasuryTitleDTO"][];
+            thermometer: components["schemas"]["TreasuryThermometerDTO"] | null;
+        };
+        /**
+         * TreasuryCoverDTO
+         * @description A opção de a cobertura automática vender também Prefixado e IPCA+, a mercado.
+         */
+        TreasuryCoverDTO: {
+            /** Enabled */
+            enabled: boolean;
+        };
+        /**
+         * TreasuryHistoryPointDTO
+         * @description Um mês do gráfico: as cotações do catálogo e, com o governo, o prêmio e a dívida ÷ PIB.
+         */
+        TreasuryHistoryPointDTO: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /** Selic */
+            selic: string;
+            /** Ipca */
+            ipca: string;
+            /** Premium */
+            premium: string;
+            /** Debt */
+            debt: string | null;
+            /** Band Index */
+            band_index: number | null;
+            /** Quotes */
+            quotes: components["schemas"]["TreasuryHistoryQuoteDTO"][];
+        };
+        /** TreasuryHistoryQuoteDTO */
+        TreasuryHistoryQuoteDTO: {
+            /** Name */
+            name: string;
+            rate_index: components["schemas"]["RateIndexType"];
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
+            /** Base Rate */
+            base_rate: string;
+            /** Premium */
+            premium: string;
+            /** Effective Annual Rate */
+            effective_annual_rate: string | null;
+        };
+        /**
+         * TreasuryPositionDTO
+         * @description Uma posição do jogador no Tesouro, com o que ela rendeu e o que o mercado faz com ela.
+         */
+        TreasuryPositionDTO: {
+            asset: components["schemas"]["FixedIncomeAssetDTO"];
+            /**
+             * First Applied Date
+             * Format: date
+             */
+            first_applied_date: string;
+            /** Bought Rate */
+            bought_rate: string;
+            /** Today Rate */
+            today_rate: string;
+            /** Total Applied */
+            total_applied: string;
+            /** Yield Amount */
+            yield_amount: string;
+            /** Mark */
+            mark: string;
+            /** Market Value */
+            market_value: string;
+        };
+        /**
+         * TreasurySaleQuoteDTO
+         * @description A venda de `amount` bruto do título hoje, a mercado. Os campos de valor são None quando
+         *     `amount` é zero ou passa de `max_amount`, o valor de mercado da posição inteira.
+         */
+        TreasurySaleQuoteDTO: {
+            /** Amount */
+            amount: string;
+            /** Max Amount */
+            max_amount: string;
+            /**
+             * First Applied Date
+             * Format: date
+             */
+            first_applied_date: string;
+            /** Bought Rate */
+            bought_rate: string;
+            /** Today Rate */
+            today_rate: string;
+            /** Days Held */
+            days_held: number;
+            /** Applied Amount */
+            applied_amount: string | null;
+            /** Yield Amount */
+            yield_amount: string | null;
+            /** Mark */
+            mark: string | null;
+            /** Iof Rate */
+            iof_rate: string;
+            /** Iof */
+            iof: string | null;
+            /** Income Tax Rate */
+            income_tax_rate: string;
+            /** Income Tax */
+            income_tax: string | null;
+            /** Net Amount */
+            net_amount: string | null;
+            /** Cash Before */
+            cash_before: string;
+            /** Cash After */
+            cash_after: string | null;
+            /** Remaining */
+            remaining: string | null;
+            /** Full */
+            full: boolean;
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
+            /** Maturity Gross Amount */
+            maturity_gross_amount: string | null;
+            /** Maturity Income Tax */
+            maturity_income_tax: string | null;
+            /** Maturity Net Amount */
+            maturity_net_amount: string | null;
+        };
+        /**
+         * TreasuryThermometerDTO
+         * @description O risco do país que decide o prêmio; só existe com a expansão Governo & Política.
+         */
+        TreasuryThermometerDTO: {
+            /** Premium */
+            premium: string;
+            /** Premium Per Debt Point */
+            premium_per_debt_point: string;
+            /** Band */
+            band: string;
+            /** Band Index */
+            band_index: number;
+            /** Debt */
+            debt: string;
+            /** Debt Change 12M */
+            debt_change_12m: string | null;
+            /** Next Band */
+            next_band: string | null;
+            /** Next Band Limit */
+            next_band_limit: string | null;
+            /** Debt To Next Band */
+            debt_to_next_band: string | null;
+            /** Months To Next Band */
+            months_to_next_band: number | null;
+        };
+        /**
+         * TreasuryTitleDTO
+         * @description Um título do catálogo no mês: a taxa travada de quem compra hoje, aberta em base e prêmio.
+         */
+        TreasuryTitleDTO: {
+            /**
+             * Asset Uuid
+             * Format: uuid
+             */
+            asset_uuid: string;
+            /** Name */
+            name: string;
+            rate_index: components["schemas"]["RateIndexType"];
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
+            /** Months To Maturity */
+            months_to_maturity: number;
+            /** Base Rate */
+            base_rate: string;
+            /** Premium */
+            premium: string;
+            /** Rate */
+            rate: string;
+            /** Effective Annual Rate */
+            effective_annual_rate: string | null;
+            /**
+             * Sold Until
+             * Format: date
+             */
+            sold_until: string;
+            /** Replacement Name */
+            replacement_name: string | null;
         };
         /** TunnelStatusDTO */
         TunnelStatusDTO: {
@@ -11742,6 +12074,204 @@ export interface operations {
             };
         };
     };
+    get_treasury_api_treasury_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TreasuryCatalogDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_treasury_history_api_treasury_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TreasuryHistoryPointDTO"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_treasury_positions_api_treasury_positions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TreasuryPositionDTO"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_treasury_sale_quote_api_treasury__asset_uuid__quote_get: {
+        parameters: {
+            query?: {
+                gross?: number | string;
+            };
+            header?: never;
+            path: {
+                asset_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TreasurySaleQuoteDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    sell_treasury_api_treasury__asset_uuid__sell_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SellTreasuryRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     get_portfolio_api_portfolio_get: {
         parameters: {
             query?: never;
@@ -12114,6 +12644,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PartyContributionDTO-Output"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_treasury_cover_api_settings_treasury_cover_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TreasuryCoverDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    put_treasury_cover_api_settings_treasury_cover_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TreasuryCoverDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TreasuryCoverDTO"];
                 };
             };
             /** @description Unprocessable Content */

@@ -106,9 +106,11 @@ São títulos públicos emitidos pelo **Governo Federal** para financiar a dívi
 
 **No simulador:**
 
-* Cada tipo segue sua lógica de rentabilidade
-* O IR é aplicado conforme o tempo de investimento
-* Ideal para testar cenários de curto, médio e longo prazo
+* Os títulos do governo têm tela própria, **Tesouro**, no menu Mercado: seis títulos sempre à venda (um Selic, dois Prefixados e três IPCA+), com a taxa revista a cada fechamento de mês
+* Com a expansão Governo & Política, a taxa de todos soma o **prêmio de risco** do país, que sobe quando a dívida do governo cresce; a tela mostra a taxa em duas partes (base + prêmio) e o termômetro do risco
+* Quem compra trava a taxa do dia. Dá para vender em qualquer dia, inteiro ou em parte, pelo preço de hoje (**marcação a mercado**): se a taxa subiu desde a compra, o Prefixado e o IPCA+ valem menos que a curva; se caiu, valem mais. O Tesouro Selic vale o que acumulou
+* O IR é regressivo sobre o ganho; com perda, não há IR
+* Quando o caixa não cobre uma despesa, o imposto ou a parcela do empréstimo, o simulador vende sozinho a liquidez diária e o Tesouro Selic antes de usar o cheque especial. Uma chave na tela do Tesouro estende isso ao Prefixado e ao IPCA+, a preço de mercado, o que pode realizar perda
 
 ---
 
@@ -249,7 +251,7 @@ Os títulos com a etiqueta **liquidez diária** podem ser resgatados em qualquer
 - **Oferta rara:** de vez em quando o catálogo do mês traz um título de liquidez diária acima de 100% do CDI, com **teto por jogador** (o quanto cada um pode aplicar ao todo). Quando o mês vira ela sai do catálogo: não dá mais para aplicar, mas quem já tem segue resgatando.
 - **CDB sempre disponível:** um CDB de 100% do CDI com liquidez diária fica aberto a partida inteira, como a reserva que rende.
 
-A **reserva de emergência** da Meta soma o caixa e a liquidez diária: os dois saem no mesmo dia. Quando o caixa entra no cheque especial, o aviso oferece um botão para resgatar o título que cobre a dívida.
+A **reserva de emergência** da Meta soma o caixa e a liquidez diária: os dois saem no mesmo dia. Quando o caixa não cobre uma despesa, o simulador resgata sozinho a liquidez diária e o Tesouro Selic antes de recorrer ao cheque especial.
 
 ### Acompanhar investimentos
 

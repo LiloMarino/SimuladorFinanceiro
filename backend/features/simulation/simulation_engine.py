@@ -1,5 +1,5 @@
 import threading
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from datetime import date
 from decimal import Decimal
 from functools import cached_property
@@ -36,7 +36,7 @@ from backend.features.fixed_income.fixed_broker import FixedBroker
 from backend.features.fixed_income.liquidity import redeemable_today, total_redeemable
 from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
-from backend.features.realtime.schemas import CashUpdateEventDTO
+from backend.features.realtime.schemas import AutoRedeemEventDTO, CashUpdateEventDTO
 from backend.features.statistics.sectors import effective_sectors
 from backend.features.tax_policy import DEFAULT_TAX_POLICY, PolicyOn, TaxPolicy
 from backend.features.variable_income.broker import Broker, to_money
@@ -61,6 +61,16 @@ class BalanceSheet(NamedTuple):
     equity_by_class: dict[AssetClass, Decimal]
 
 
+# O que o toast do resgate automático diz que foi coberto
+COVER_REASONS: dict[CashflowEventType, str] = {
+    CashflowEventType.EXPENSE: "a despesa do mês",
+    CashflowEventType.UNEXPECTED_EXPENSE: "o imprevisto",
+    CashflowEventType.TAX: "o imposto de renda",
+    CashflowEventType.LOAN_PAYMENT: "a parcela do empréstimo",
+    CashflowEventType.CAMPAIGN_CONTRIBUTION: "a contribuição ao partido",
+}
+
+
 class SimulationEngine:
     """
     Motor central da simulação financeira.
@@ -79,6 +89,7 @@ class SimulationEngine:
         starting_cash: Decimal,
         simulation_id: int,
         end_date: date,
+        start_date: date | None = None,
     ):
         # Protege _cash (aqui) e _positions/_assets (Broker/FixedBroker) contra
         # mutação concorrente pela thread do loop e pelas threads de request HTTP.
@@ -87,7 +98,7 @@ class SimulationEngine:
         self.fixed_broker = FixedBroker(self, self._lock)
         self.credit_book = CreditBook(self, self._lock)
         self.fixed_income_market = FixedIncomeMarket(
-            simulation_id, end_date, self.risk_premium_on
+            simulation_id, end_date, self.risk_premium_on, start_date
         )
         self.matching_engine = MatchingEngine(self.broker)
         self._cash: LazyDict[UUID, Decimal] = LazyDict(
@@ -122,6 +133,10 @@ class SimulationEngine:
         source = self._risk_premium_source
         return Decimal(0) if source is None else source(day)
 
+    def treasury_premium(self) -> Decimal:
+        """O prêmio que o Tesouro cobra no mês corrente; é o que marca os títulos a mercado."""
+        return self.risk_premium_on(self.current_date.replace(day=1))
+
     # O prêmio de risco acima da história, que o banco soma ao juro do crédito; sem a
     # expansão é zero
     _premium_gap_source: Callable[[date], Decimal] | None = None
@@ -133,9 +148,41 @@ class SimulationEngine:
         source = self._premium_gap_source
         return Decimal(0) if source is None else source(day)
 
+    # Se o jogador liberou a venda de Prefixado e IPCA+ na cobertura automática; sem a
+    # fonte (testes, sem perfil) só os títulos sem perda de marcação são vendidos
+    _cover_marked_source: Callable[[UUID], bool] | None = None
+
+    def use_cover_marked(self, source: Callable[[UUID], bool]) -> None:
+        self._cover_marked_source = source
+
     def get_cash(self, client_id: UUID) -> Decimal:
         with self._lock:
             return self._cash[client_id]
+
+    def cover_before_debit(
+        self, client_id: UUID, needed: Decimal, kind: CashflowEventType
+    ) -> None:
+        """
+        A porta única dos débitos automáticos: com o caixa abaixo de `needed`, vende
+        renda fixa antes de debitar (sem trava de operação, porque a ação é do sistema)
+        e avisa o jogador de cada título vendido. Sem renda fixa bastante, cobre o que dá.
+        """
+        shortfall = needed - self.get_cash(client_id)
+        if needed <= 0 or shortfall <= 0:
+            return
+        source = self._cover_marked_source
+        include_marked = source is not None and source(client_id)
+        sales = self.fixed_broker.sell_for_cash(client_id, shortfall, include_marked)
+        for sale in sales:
+            notify(
+                "auto_redeem",
+                AutoRedeemEventDTO(
+                    asset_name=sale.asset.name,
+                    net_amount=sale.net,
+                    reason=COVER_REASONS[kind],
+                ).to_json(),
+                to=client_id,
+            )
 
     def _move_cash(
         self,
@@ -171,18 +218,21 @@ class SimulationEngine:
         self._move_cash(client_id, amount, CashflowEventType.CONTRIBUTION)
 
     def pay_income_tax(self, client_id: UUID, amount: Decimal) -> None:
-        """Debita o DARF; o caixa pode ficar negativo, como uma dívida com a Receita."""
+        """Debita o DARF, vendendo renda fixa antes se o caixa não cobre; o que faltar fica como dívida com a Receita."""
+        self.cover_before_debit(client_id, amount, CashflowEventType.TAX)
         self._move_cash(client_id, -amount, CashflowEventType.TAX)
 
     def pay_salary(self, client_id: UUID, amount: Decimal) -> None:
         self._move_cash(client_id, amount, CashflowEventType.SALARY)
 
     def pay_expense(self, client_id: UUID, amount: Decimal) -> None:
-        """Debita a despesa do mês; o caixa pode ficar negativo e cair no cheque especial."""
+        """Debita a despesa do mês, vendendo renda fixa antes se o caixa não cobre; o que faltar cai no cheque especial."""
+        self.cover_before_debit(client_id, amount, CashflowEventType.EXPENSE)
         self._move_cash(client_id, -amount, CashflowEventType.EXPENSE)
 
     def charge_unexpected(self, client_id: UUID, amount: Decimal, key: str) -> None:
-        """Debita um imprevisto; a demissão entra com valor zero, para ficar no histórico."""
+        """Debita um imprevisto, vendendo renda fixa antes se o caixa não cobre; a demissão entra com valor zero, para ficar no histórico."""
+        self.cover_before_debit(client_id, amount, CashflowEventType.UNEXPECTED_EXPENSE)
         self._move_cash(client_id, -amount, CashflowEventType.UNEXPECTED_EXPENSE, key)
 
     def charge_overdraft_interest(self, client_id: UUID, amount: Decimal) -> None:
@@ -385,6 +435,13 @@ class SimulationEngine:
             fixed = list(self.fixed_broker.get_fixed_positions(client_id).values())
             return equity, fixed, self._cash[client_id]
 
+    def fixed_market_value(self, positions: Iterable[FixedIncomePosition]) -> Decimal:
+        """O que a renda fixa vale vendida hoje: o Tesouro entra pelo preço de mercado."""
+        premium = self.treasury_premium()
+        return sum(
+            (p.market_value(self.current_date, premium) for p in positions), Decimal(0)
+        )
+
     def balance_sheet(self, client_id: UUID) -> BalanceSheet:
         """Ações, renda fixa, caixa e dívida do dia: o que o snapshot guarda, sem montar o portfólio da tela."""
         equity, fixed, cash = self._holdings(client_id)
@@ -396,7 +453,7 @@ class SimulationEngine:
             )
         return BalanceSheet(
             total_equity=sum(equity_by_class.values(), Decimal(0)),
-            total_fixed=sum((p.current_value for p in fixed), Decimal(0)),
+            total_fixed=self.fixed_market_value(fixed),
             total_cash=cash,
             total_debt=self.credit_book.debt(client_id, self.current_date),
             equity_by_class=equity_by_class,
@@ -407,7 +464,7 @@ class SimulationEngine:
         equity, fixed, cash = self._holdings(client_id)
         return (
             sum((p.current_value for p in equity), Decimal(0))
-            + sum((p.current_value for p in fixed), Decimal(0))
+            + self.fixed_market_value(fixed)
             + cash
         )
 
@@ -416,7 +473,8 @@ class SimulationEngine:
         policy = self.tax_policy_on(self.current_date)
 
         variable_income_value = sum((p.current_value for p in equity), Decimal(0))
-        fixed_income_value = sum((p.current_value for p in fixed), Decimal(0))
+        premium = self.treasury_premium()
+        fixed_income_value = self.fixed_market_value(fixed)
         invested_value = variable_income_value + fixed_income_value
         # Os percentuais de alocação são sobre os ativos; o patrimônio é o líquido da dívida
         assets_value = invested_value + cash
@@ -457,7 +515,9 @@ class SimulationEngine:
             invested_value=invested_value,
             variable_income_value=variable_income_value,
             fixed_income_value=fixed_income_value,
-            fixed_income_redeemable=total_redeemable(fixed, self.current_date, policy),
+            fixed_income_redeemable=total_redeemable(
+                fixed, self.current_date, policy, premium
+            ),
             invested_pct=ratio(invested_value, assets_value),
             variable_income_pct=ratio(variable_income_value, invested_value),
             fixed_income_pct=ratio(fixed_income_value, invested_value),
@@ -488,20 +548,30 @@ class SimulationEngine:
             sectors=sectors,
             effective_sectors=effective_sectors(sectors),
             fixed_income=[
-                FixedIncomePositionDTO(
-                    asset=pos.asset,
-                    total_applied=pos.total_applied,
-                    current_value=pos.current_value,
-                    first_applied_date=pos.first_applied_date,
-                    return_value=pos.current_value - pos.total_applied,
-                    return_pct=ratio(
-                        pos.current_value - pos.total_applied, pos.total_applied
-                    ),
-                    portfolio_pct=ratio(pos.current_value, invested_value),
-                    redeemable_today=redeemable_today(pos, self.current_date, policy),
-                )
+                self._fixed_position_dto(pos, premium, policy, invested_value)
                 for pos in fixed
             ],
+        )
+
+    def _fixed_position_dto(
+        self,
+        pos: FixedIncomePosition,
+        premium: Decimal,
+        policy: TaxPolicy,
+        invested_value: Decimal,
+    ) -> FixedIncomePositionDTO:
+        market_value = pos.market_value(self.current_date, premium)
+        return FixedIncomePositionDTO(
+            asset=pos.asset,
+            total_applied=pos.total_applied,
+            current_value=pos.current_value,
+            market_value=market_value,
+            mark=market_value - pos.current_value,
+            first_applied_date=pos.first_applied_date,
+            return_value=pos.current_value - pos.total_applied,
+            return_pct=ratio(pos.current_value - pos.total_applied, pos.total_applied),
+            portfolio_pct=ratio(market_value, invested_value),
+            redeemable_today=redeemable_today(pos, self.current_date, policy, premium),
         )
 
     def next(self, current_date: date) -> None:

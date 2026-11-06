@@ -64,8 +64,15 @@ from backend.core.dto.strategy import (
     StrategyParamValue,
     StrategyViewDTO,
 )
+from backend.core.dto.treasury import (
+    TreasuryCatalogDTO,
+    TreasuryHistoryPointDTO,
+    TreasuryPositionDTO,
+    TreasurySaleQuoteDTO,
+)
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
+    FixedIncomeType,
     GameType,
     IndicatorSeries,
     OrderAction,
@@ -118,6 +125,7 @@ from backend.features.credit.overview import (
 from backend.features.credit.overview import build_quote as build_loan_quote
 from backend.features.economy.growth import MacroCourse
 from backend.features.economy.panel import build_economy_panel
+from backend.features.fixed_income import treasury, treasury_panel
 from backend.features.fixed_income.accrual import (
     income_tax_brackets,
     income_tax_rate,
@@ -131,7 +139,10 @@ from backend.features.fixed_income.assistance import (
     apply_offer_assistance,
     build_quote,
 )
-from backend.features.fixed_income.liquidity import overdraft_cover, total_redeemable
+from backend.features.fixed_income.entities.fixed_income_position import (
+    FixedIncomePosition,
+)
+from backend.features.fixed_income.liquidity import total_redeemable
 from backend.features.government.base_panel import build_base
 from backend.features.government.base_panel import (
     build_preview as build_deal_preview,
@@ -253,6 +264,13 @@ class Simulation:
             settings.starting_cash,
             settings.id,
             settings.end_date,
+            settings.start_date,
+        )
+        # O jogador escolhe no perfil se a cobertura automática vende também Prefixado e IPCA+
+        self._engine.use_cover_marked(
+            lambda client_id: repository.settings.get_cover_with_treasury(
+                UserManager.get_user_id(client_id)
+            )
         )
         self._price_impact = PriceImpact(
             settings.id,
@@ -799,6 +817,7 @@ class Simulation:
                 offer(a, self._current_date, self._tax_policy()), self.settings
             )
             for a in self.get_fixed_assets()
+            if a.investment_type is not FixedIncomeType.TESOURO_DIRETO
         ]
 
     @synchronized
@@ -879,6 +898,76 @@ class Simulation:
             next_tax_drop=drop and NextTaxDropDTO(on=drop.on, rate=drop.rate),
             iof_free_date=iof_free_date(first, today),
         )
+
+    @synchronized
+    def get_treasury(self) -> TreasuryCatalogDTO:
+        thermometer = (
+            treasury_panel.build_thermometer(
+                self._government.budget(), self._current_date
+            )
+            if self._government is not None
+            else None
+        )
+        return treasury_panel.build_catalog(
+            self.settings.start_date,
+            self._current_date,
+            self.get_fixed_assets(),
+            thermometer,
+            self.settings.show_equivalent_rate,
+        )
+
+    @synchronized
+    def get_treasury_history(self) -> list[TreasuryHistoryPointDTO]:
+        budget = self._government.budget() if self._government is not None else None
+        points = treasury.history(
+            self.settings.start_date,
+            self._current_date,
+            self._engine.risk_premium_on,
+            None if budget is None else budget.debt_on,
+        )
+        return treasury_panel.build_history(points, self.settings.show_equivalent_rate)
+
+    @synchronized
+    def get_treasury_positions(self, client_id: UUID) -> list[TreasuryPositionDTO]:
+        premium = self._engine.treasury_premium()
+        return [
+            treasury_panel.build_position(position, self._current_date, premium)
+            for position in self.get_fixed_positions(client_id).values()
+            if position.asset.investment_type is FixedIncomeType.TESOURO_DIRETO
+        ]
+
+    def _treasury_position(
+        self, client_id: UUID, asset_uuid: UUID
+    ) -> FixedIncomePosition:
+        position = self.get_fixed_positions(client_id).get(asset_uuid)
+        if (
+            position is None
+            or position.asset.investment_type is not FixedIncomeType.TESOURO_DIRETO
+        ):
+            raise NotFoundError("Você não tem posição neste título do Tesouro")
+        return position
+
+    @synchronized
+    def quote_treasury_sale(
+        self, client_id: UUID, asset_uuid: UUID, amount: Decimal
+    ) -> TreasurySaleQuoteDTO:
+        return treasury_panel.build_sale_quote(
+            self._treasury_position(client_id, asset_uuid),
+            amount,
+            self.get_cash(client_id),
+            self._current_date,
+            self._engine.treasury_premium(),
+            self._tax_policy(),
+        )
+
+    @synchronized
+    def sell_treasury(
+        self, client_id: UUID, asset_uuid: UUID, gross: Decimal | None
+    ) -> None:
+        self._ensure_can_operate(client_id)
+        asset = self._treasury_position(client_id, asset_uuid).asset
+        self._engine.fixed_broker.sell_treasury(client_id, asset, gross)
+        EventManager.flush()
 
     @synchronized
     def get_patrimonial_history(
@@ -1215,7 +1304,9 @@ class Simulation:
         # A reserva soma o caixa e a liquidez diária líquida, e nunca fica negativa
         positions = list(self.get_fixed_positions(client_id).values())
         policy = self._tax_policy()
-        daily_liquidity = total_redeemable(positions, day, policy)
+        daily_liquidity = total_redeemable(
+            positions, day, policy, self._engine.treasury_premium()
+        )
         reserve = max(cash + daily_liquidity, Decimal(0))
         reserve_cash = max(cash, Decimal(0))
         return LifeStatusDTO(
@@ -1234,7 +1325,9 @@ class Simulation:
             reserve_months=reserve / expense,
             reserve_cash=reserve_cash,
             reserve_daily_liquidity=reserve - reserve_cash,
-            overdraft_cover=overdraft_cover(cash, positions, day, policy),
+            cover_with_treasury=repository.settings.get_cover_with_treasury(
+                UserManager.get_user_id(client_id)
+            ),
         )
 
     @synchronized

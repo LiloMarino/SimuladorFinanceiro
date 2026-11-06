@@ -19,6 +19,7 @@ import {
   GraduationCap,
   LineChart,
   Newspaper,
+  Vault,
 } from "lucide-react";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
@@ -30,6 +31,7 @@ import PortfolioPage from "./features/portfolio/pages/portfolio";
 import SettingsPage from "./features/settings/pages/settings";
 import FixedIncomePage from "./features/fixed-income/pages/fixed-income";
 import FixedIncomeDetailPage from "./features/fixed-income/pages/fixed-income-details";
+import TreasuryPage from "./features/treasury/pages/treasury";
 import StrategiesPage from "./features/strategies/pages/strategies";
 import PerformancePage from "./features/performance/pages/performance";
 import { JoinMatchPage } from "./features/join/pages/join-match";
@@ -64,6 +66,7 @@ import { DebugTools } from "@/shared/components/debug-tools";
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda variável", endpoint: "/variable-income", icon: TrendingUp, group: "Mercado" },
   { key: "fixed-income", label: "Renda fixa", endpoint: "/fixed-income", icon: Coins, group: "Mercado" },
+  { key: "treasury", label: "Tesouro", endpoint: "/treasury", icon: Vault, group: "Mercado" },
   { key: "economy", label: "Economia", endpoint: "/economy", icon: LineChart, group: "Mercado" },
   { key: "journal", label: "Jornal", endpoint: "/journal", icon: Newspaper, group: "Mercado" },
   { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: Wallet, group: "Você" },
@@ -159,6 +162,7 @@ export default function App() {
                           <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
                           <Route path="/fixed-income" element={<FixedIncomePage />} />
                           <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
+                          <Route path="/treasury" element={<TreasuryPage />} />
                           <Route path="/portfolio" element={<PortfolioPage />} />
                           <Route path="/strategies" element={<StrategiesPage />} />
                           <Route path="/performance" element={<PerformancePage />} />

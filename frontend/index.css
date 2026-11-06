@@ -78,6 +78,8 @@
   --color-chart-8: var(--chart-8);
   --color-chart-9: var(--chart-9);
   --color-chart-10: var(--chart-10);
+  --color-risk-base: var(--risk-base);
+  --color-risk-premium: var(--risk-premium);
   --color-team-1: var(--team-1);
   --color-team-2: var(--team-2);
   --color-team-3: var(--team-3);
@@ -174,6 +176,9 @@
   --chart-8: #65a30d;
   --chart-9: #57534e;
   --chart-10: #8b5e34;
+  /* A taxa do Tesouro em duas partes: a base e o prêmio de risco do país */
+  --risk-base: #9aa3b2;
+  --risk-premium: #d97706;
   /* O lightweight-charts desenha em canvas e lê a cor por getComputedStyle: precisa ser hex */
   --chart-1-canvas: #2350d8;
   /* Cores dos jogadores e dos partidos: separadas das séries de gráfico, cada uma muda sem mexer na outra */

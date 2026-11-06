@@ -2628,6 +2628,11 @@ class GovernmentBook:
                 user = people.get(user_id)
                 if user is None or contribution <= 0:
                     continue
+                self._engine.cover_before_debit(
+                    user.client_id,
+                    contribution,
+                    CashflowEventType.CAMPAIGN_CONTRIBUTION,
+                )
                 if self._engine.get_cash(user.client_id) < contribution:
                     unpaid[str(user_id)] = str(contribution)
                     continue

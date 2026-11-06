@@ -14,9 +14,16 @@ MY_PARTY_KEY = "my_party"
 PARTY_CONTRIBUTION_KEY = "party_contribution"
 STRATEGY_PARAMS_KEY = "strategy_params"
 PREPARATION_CHOICE_KEY = "preparation_choice"
+COVER_WITH_TREASURY_KEY = "cover_with_treasury"
 # As chaves que o jogador grava pelas rotas próprias do perfil, e que as preferências atravessam
 PROFILE_KEYS = frozenset(
-    {MY_PARTY_KEY, PARTY_CONTRIBUTION_KEY, STRATEGY_PARAMS_KEY, PREPARATION_CHOICE_KEY}
+    {
+        MY_PARTY_KEY,
+        PARTY_CONTRIBUTION_KEY,
+        STRATEGY_PARAMS_KEY,
+        PREPARATION_CHOICE_KEY,
+        COVER_WITH_TREASURY_KEY,
+    }
 )
 
 
@@ -57,6 +64,13 @@ class SettingsRepository:
 
     def set_party_contribution(self, user_id: int, amount: Decimal) -> None:
         self._set_key(user_id, PARTY_CONTRIBUTION_KEY, str(amount))
+
+    def get_cover_with_treasury(self, user_id: int) -> bool:
+        """Se o resgate automático também vende Prefixado e IPCA+ (a mercado) para cobrir despesas; desligado até o jogador ligar."""
+        return bool(self.get_by_user_id(user_id).get(COVER_WITH_TREASURY_KEY, False))
+
+    def set_cover_with_treasury(self, user_id: int, enabled: bool) -> None:
+        self._set_key(user_id, COVER_WITH_TREASURY_KEY, enabled)
 
     def get_strategy_params(
         self, user_id: int

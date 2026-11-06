@@ -11,6 +11,7 @@ from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.preparation import PartyContributionDTO, PartyIdentityDTO
 from backend.core.dto.strategy import StrategyParamValue
 from backend.core.dto.technical_indicators import IndicatorSettingsDTO
+from backend.core.dto.treasury import TreasuryCoverDTO
 from backend.core.enum import (
     NewsLevel,
     NewsPosition,
@@ -185,6 +186,32 @@ def get_party_contribution(client_id: ClientID):
 def put_party_contribution(client_id: ClientID, data: PartyContributionDTO):
     repository.settings.set_party_contribution(
         UserManager.get_user_id(client_id), data.amount
+    )
+    return data
+
+
+@settings_router.get(
+    "/treasury-cover",
+    response_model=TreasuryCoverDTO,
+    summary="Obter a opção de cobertura com o Tesouro",
+    description="Se o resgate automático também vende Prefixado e IPCA+ (a mercado) para cobrir despesas; desligada até o jogador ligar. Os títulos sem perda (liquidez diária e Tesouro Selic) são sempre vendidos.",
+)
+def get_treasury_cover(client_id: ClientID):
+    enabled = repository.settings.get_cover_with_treasury(
+        UserManager.get_user_id(client_id)
+    )
+    return TreasuryCoverDTO(enabled=enabled)
+
+
+@settings_router.put(
+    "/treasury-cover",
+    response_model=TreasuryCoverDTO,
+    summary="Salvar a opção de cobertura com o Tesouro",
+    description="Liga ou desliga a venda de Prefixado e IPCA+ na cobertura automática de despesas.",
+)
+def put_treasury_cover(client_id: ClientID, data: TreasuryCoverDTO):
+    repository.settings.set_cover_with_treasury(
+        UserManager.get_user_id(client_id), data.enabled
     )
     return data
 

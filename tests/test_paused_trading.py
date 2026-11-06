@@ -239,3 +239,50 @@ def test_state_reports_why_the_match_is_paused(paused_match):
     client.post("/api/set-speed", json={"speed": 1})
     client.post("/api/set-speed", json={"speed": 0})
     assert client.get("/api/get-simulation-state").json()["pause_reason"] == "HOST"
+
+
+def test_treasury_is_bought_quoted_and_sold_over_http_apart_from_the_bank_offers(
+    paused_match,
+):
+    sim, users, client = paused_match
+    player = users[0]
+    client.cookies.set("client_id", str(player.client_id))
+
+    catalog = client.get("/api/treasury")
+    assert catalog.status_code == 200, catalog.text
+    titles = catalog.json()["titles"]
+    assert len(titles) == 6
+    treasury_ids = {t["asset_uuid"] for t in titles}
+    offers = client.get("/api/fixed-income").json()
+    assert not treasury_ids & {o["asset_uuid"] for o in offers}
+    assert client.get("/api/treasury/history").json()[0]["quotes"]
+
+    prefixed = next(t for t in titles if t["name"].startswith("Tesouro Prefixado"))
+    asset_id = prefixed["asset_uuid"]
+    cash = sim.get_cash(player.client_id)
+    bought = client.post(f"/api/fixed-income/{asset_id}/buy", json={"quantity": "1000"})
+    assert bought.status_code == 204, bought.text
+
+    [position] = client.get("/api/treasury/positions").json()
+    assert Decimal(position["total_applied"]) == 1000
+    assert Decimal(position["market_value"]) == pytest.approx(
+        Decimal(1000), abs=Decimal("0.01")
+    )
+
+    quote = client.get(f"/api/treasury/{asset_id}/quote?gross=400")
+    assert quote.status_code == 200, quote.text
+    assert Decimal(quote.json()["net_amount"]) <= 400
+    assert quote.json()["full"] is False
+
+    sold = client.post(f"/api/treasury/{asset_id}/sell", json={"gross": "400"})
+    assert sold.status_code == 204, sold.text
+    [remaining] = client.get("/api/treasury/positions").json()
+    assert Decimal(remaining["market_value"]) == pytest.approx(
+        Decimal(600), abs=Decimal("0.01")
+    )
+
+    assert client.post(f"/api/treasury/{asset_id}/sell", json={}).status_code == 204
+    assert client.get("/api/treasury/positions").json() == []
+    assert sim.get_cash(player.client_id) == pytest.approx(cash, abs=Decimal("5"))
+    other = next(t for t in titles if t["asset_uuid"] != asset_id)["asset_uuid"]
+    assert client.post(f"/api/treasury/{other}/sell", json={}).status_code == 404

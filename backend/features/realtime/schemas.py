@@ -167,6 +167,15 @@ class CreditInstallmentPaidEventDTO(BaseDTO):
     amount: Decimal
 
 
+class AutoRedeemEventDTO(BaseDTO):
+    """Um título vendido pelo sistema para cobrir um débito automático."""
+
+    asset_name: str
+    net_amount: Decimal
+    # A despesa coberta, já em texto: "a despesa do mês", "a parcela do empréstimo"
+    reason: str
+
+
 class CreditMonthlySummaryEventDTO(BaseDTO):
     """O resumo do mês que substitui o aviso de cada parcela nas velocidades altas."""
 
@@ -286,6 +295,7 @@ class RealtimeEventCatalog(BaseDTO):
     statistics_snapshot_update: StatisticsSnapshotUpdateEventDTO
     goal_progress_update: GoalProgressDTO
     life_event: LifeEventDTO
+    auto_redeem: AutoRedeemEventDTO
     order_executed: OrderExecutedEventDTO
     order_partial_executed: OrderPartialExecutedEventDTO
     player_join: PlayerPresenceEventDTO

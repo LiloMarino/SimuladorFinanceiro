@@ -14,7 +14,7 @@ class AbstractFixedIncomeFactory(ABC):
     Factory abstrato para criação de ativos de renda fixa.
 
     Responsável por:
-    - Definir interface para factories concretos (CDB, LCA, LCI, Tesouro)
+    - Definir interface para factories concretos (CDB, LCA, LCI)
     - Fornecer métodos utilitários para geração de taxas aleatórias
     - Calcular datas de vencimento dentro de ranges configurados
     - Gerar taxas CDI, IPCA spread e prefixadas baseadas em indicadores econômicos
@@ -121,13 +121,3 @@ class AbstractFixedIncomeFactory(ABC):
         base_rate = base_index(current_date)
 
         return self._random_rate(base_rate, 0.01, multiplier, step=0.0005)
-
-    def _generate_selic_spread(
-        self,
-    ) -> Decimal:
-        """
-        Retorna o spread da SELIC (ex: 0.0005 = SELIC + 0.005%)
-        """
-        return self._random_rate(
-            base_value=0.00125, delta=0.00075, precision=6
-        )  # 0.0005-0.002

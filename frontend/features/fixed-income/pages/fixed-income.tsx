@@ -1,5 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { ChevronRight, Landmark } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/shared/components/ui/card";
@@ -20,7 +22,6 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { DailyLiquidityBadge } from "@/shared/components/daily-liquidity-badge";
 import { ErrorState } from "@/shared/components/error-state";
 import { useSimulation } from "@/shared/hooks/useSimulation";
-import { useBudget } from "@/shared/hooks/queries/useBudget";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useEconomicIndicators } from "@/shared/hooks/queries/useEconomicIndicators";
@@ -36,9 +37,6 @@ import type { FixedIncomeOffer } from "@/types";
 import { useFixedIncomeAssets } from "../hooks/queries/useFixedIncomeAssets";
 import { displayCap, isPermanentCdb, isRareOffer } from "../lib/daily-liquidity";
 import { INVESTMENT_TYPE_LABELS, timeToMaturity } from "../lib/labels";
-import { hasPremium, isTreasury, purchasePremiumNote } from "../lib/premium";
-import { PremiumStrip } from "../components/premium-strip";
-import { PremiumTag } from "../components/premium-tag";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
 import { sortNumber } from "@/shared/lib/table-sort";
@@ -48,7 +46,7 @@ const COLUMNS = 7;
 const COLUMNS_WITHOUT_RATE = 6;
 
 type IndexFilter = "ALL" | FixedIncomeOffer["rate_index"];
-type TypeFilter = "ALL" | "CDB" | "LCI_LCA" | "Tesouro Direto";
+type TypeFilter = "ALL" | "CDB" | "LCI_LCA";
 
 const INDEX_FILTERS: { value: IndexFilter; label: string }[] = [
   { value: "ALL", label: "Todos" },
@@ -61,7 +59,6 @@ const TYPE_FILTERS: { value: TypeFilter; label: string }[] = [
   { value: "ALL", label: "Todos os tipos" },
   { value: "CDB", label: "CDB" },
   { value: "LCI_LCA", label: "LCI/LCA" },
-  { value: "Tesouro Direto", label: "Tesouro" },
 ];
 
 const matchesType = (o: FixedIncomeOffer, filter: TypeFilter) =>
@@ -77,7 +74,6 @@ export default function FixedIncomePage() {
   const { data: indicators } = useEconomicIndicators();
   const { simulation: match } = useSimulation();
   const showRate = match?.simulation?.show_equivalent_rate ?? true;
-  const { data: budget } = useBudget({ enabled: !!match?.simulation?.government_enabled });
   const [indexFilter, setIndexFilter] = useState<IndexFilter>("ALL");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
   const [onlyExempt, setOnlyExempt] = useState(false);
@@ -196,7 +192,6 @@ export default function FixedIncomePage() {
         <TableBody>
           {message && <TableEmptyRow colSpan={showRate ? COLUMNS : COLUMNS_WITHOUT_RATE}>{message}</TableEmptyRow>}
           {visible.map((o) => {
-            const position = held.get(o.asset_uuid);
             return (
               <TableRow key={o.asset_uuid} onActivate={() => void navigate(`/fixed-income/${o.asset_uuid}`)}>
                 <TableCell>
@@ -228,17 +223,6 @@ export default function FixedIncomePage() {
                 <TableCell>
                   <div className="grid gap-1">
                     <span className="font-mono">{displayRateLabel(o.rate_index, o.interest_rate)}</span>
-                    {budget && hasPremium(o) && position && (
-                      <span className="max-w-48 text-xs whitespace-normal text-muted-foreground">
-                        {purchasePremiumNote(position.first_applied_date, o)}
-                      </span>
-                    )}
-                    {budget && !position && hasPremium(o) && <PremiumTag offer={o} budget={budget} />}
-                    {budget && !isTreasury(o) && (
-                      <span className="max-w-48 text-xs whitespace-normal text-muted-foreground">
-                        sem prêmio: o prêmio é só do Tesouro
-                      </span>
-                    )}
                   </div>
                 </TableCell>
                 {showRate && (
@@ -298,8 +282,19 @@ export default function FixedIncomePage() {
 
   return (
     <div className="grid gap-5">
-      {/* Prêmio de risco do governo */}
-      {budget && Number(budget.month.premium) > 0 && <PremiumStrip budget={budget} />}
+      {/* Aviso: os títulos do governo moram no Tesouro */}
+      <Link to="/treasury" className="block">
+        <Alert variant="info">
+          <Landmark />
+          <AlertTitle>
+            Os títulos do governo agora ficam no Tesouro
+            <ChevronRight className="size-3.5" />
+          </AlertTitle>
+          <AlertDescription>
+            Selic, Prefixado e IPCA+, sempre à venda, com o prêmio de risco do país e a venda antes do vencimento.
+          </AlertDescription>
+        </Alert>
+      </Link>
 
       {/* CDB de 100% do CDI */}
       {permanentCdb && (

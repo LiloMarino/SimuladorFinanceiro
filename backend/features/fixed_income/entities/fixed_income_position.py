@@ -9,7 +9,9 @@ from backend.features.fixed_income.accrual import (
     index_daily_rate_on,
     redemption_breakdown,
     redemption_date,
+    sale_breakdown,
 )
+from backend.features.fixed_income.treasury import mark_factor
 from backend.features.tax_policy import DEFAULT_TAX_POLICY, TaxPolicy
 
 
@@ -81,3 +83,32 @@ class FixedIncomePosition:
     def net_redemption_value(self) -> Decimal:
         """Valor creditado no vencimento, já descontados IOF e IR."""
         return self.breakdown(self.redemption_date, None).net
+
+    def market_value(self, today: date, premium: Decimal = Decimal(0)) -> Decimal:
+        """
+        O que o título vale vendido hoje, antes dos impostos: o montante da curva
+        ajustado à taxa de hoje. `premium` é o prêmio de risco do país no mês; só o
+        Tesouro com marcação (Prefixado e IPCA+) sai do montante da curva.
+        """
+        return self.current_value * mark_factor(self.asset, today, premium)
+
+    def mark(self, today: date, premium: Decimal = Decimal(0)) -> Decimal:
+        """Marcação a mercado: quanto o preço de hoje está acima (ou abaixo) da curva."""
+        return self.market_value(today, premium) - self.current_value
+
+    def sell_breakdown(
+        self,
+        today: date,
+        gross: Decimal | None,
+        premium: Decimal = Decimal(0),
+        policy: TaxPolicy = DEFAULT_TAX_POLICY,
+    ) -> RedemptionBreakdown:
+        """A venda a mercado de `gross` (bruto) em `today`; sem `gross`, o título inteiro."""
+        return sale_breakdown(
+            self.market_value(today, premium),
+            self.total_applied,
+            self.asset.investment_type,
+            (today - self.first_applied_date).days,
+            gross,
+            policy,
+        )

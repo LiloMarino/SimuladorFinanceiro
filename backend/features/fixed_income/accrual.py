@@ -155,6 +155,23 @@ class RedemptionBreakdown:
         return self.remaining <= 0
 
 
+def _profit_share(value: Decimal, total_applied: Decimal) -> Decimal:
+    """A fração do valor que é lucro; prejuízo e valor zero valem 0."""
+    if value <= 0:
+        return Decimal(0)
+    return max(value - total_applied, Decimal(0)) / value
+
+
+def _taxes_on(
+    gross: Decimal, profit_share: Decimal, iof: Decimal, ir: Decimal
+) -> tuple[Decimal, Decimal, Decimal]:
+    """Rendimento, IOF e IR de uma parte bruta: o IOF incide no rendimento e o IR, no que sobra."""
+    yield_amount = gross * profit_share
+    iof_amount = (yield_amount * iof).quantize(CENT, ROUND_HALF_EVEN)
+    ir_amount = ((yield_amount - iof_amount) * ir).quantize(CENT, ROUND_HALF_EVEN)
+    return yield_amount, iof_amount, ir_amount
+
+
 def redemption_breakdown(
     current_value: Decimal,
     total_applied: Decimal,
@@ -173,17 +190,10 @@ def redemption_breakdown(
     """
     iof = iof_rate(days_held)
     ir = income_tax_rate(investment_type, days_held, policy)
-    profit_share = (
-        max(current_value - total_applied, Decimal(0)) / current_value
-        if current_value > 0
-        else Decimal(0)
-    )
+    profit_share = _profit_share(current_value, total_applied)
 
     def taxed(gross: Decimal) -> tuple[Decimal, Decimal, Decimal]:
-        yield_amount = gross * profit_share
-        iof_amount = (yield_amount * iof).quantize(CENT, ROUND_HALF_EVEN)
-        ir_amount = ((yield_amount - iof_amount) * ir).quantize(CENT, ROUND_HALF_EVEN)
-        return yield_amount, iof_amount, ir_amount
+        return _taxes_on(gross, profit_share, iof, ir)
 
     yield_amount, iof_amount, ir_amount = taxed(current_value)
     full_net = (current_value - iof_amount - ir_amount).quantize(CENT, ROUND_HALF_EVEN)
@@ -210,6 +220,39 @@ def redemption_breakdown(
         income_tax=ir_amount,
         net=net_wanted,
         remaining=current_value - gross,
+    )
+
+
+def sale_breakdown(
+    market_value: Decimal,
+    total_applied: Decimal,
+    investment_type: FixedIncomeType,
+    days_held: int,
+    gross: Decimal | None,
+    policy: TaxPolicy = DEFAULT_TAX_POLICY,
+) -> RedemptionBreakdown:
+    """
+    Venda de um título a mercado, em que o jogador diz o bruto (`gross`) e não o líquido.
+
+    O lucro é `mercado - aplicado` e não há IR sobre prejuízo. Sem `gross`, ou com um
+    valor que pede o título inteiro, vende tudo.
+    """
+    if gross is None or gross >= market_value:
+        gross = market_value
+    profit_share = _profit_share(market_value, total_applied)
+    yield_amount, iof_amount, ir_amount = _taxes_on(
+        gross,
+        profit_share,
+        iof_rate(days_held),
+        income_tax_rate(investment_type, days_held, policy),
+    )
+    return RedemptionBreakdown(
+        gross=gross,
+        yield_amount=yield_amount,
+        iof=iof_amount,
+        income_tax=ir_amount,
+        net=(gross - iof_amount - ir_amount).quantize(CENT, ROUND_HALF_EVEN),
+        remaining=market_value - gross,
     )
 
 

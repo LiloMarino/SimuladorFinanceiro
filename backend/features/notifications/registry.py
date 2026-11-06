@@ -194,6 +194,11 @@ TOASTS: tuple[ToastSpec, ...] = (
         ToastType.LIFE_EVENT, "Imprevisto", "Conta inesperada da vida financeira"
     ),
     ToastSpec(
+        ToastType.AUTO_REDEEM,
+        "Resgate automático",
+        "Título vendido para cobrir uma despesa",
+    ),
+    ToastSpec(
         ToastType.YEAR_REVIEW,
         "Retrospectiva do ano",
         "Na virada do ano, com o atalho para abrir",

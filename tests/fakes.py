@@ -8,6 +8,7 @@ from decimal import Decimal
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.enum import GameType, PlayerGrouping, VictoryCriterion
 from backend.core.utils import is_business_day, next_business_day
+from backend.features.fixed_income.fixed_broker import CoverSale
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.variable_income.entities.position import Position
 
@@ -64,6 +65,15 @@ def client(name: str) -> uuid.UUID:
     return uuid.uuid5(uuid.NAMESPACE_DNS, name)
 
 
+class NoFixedIncome:
+    """Corretora de renda fixa sem posições: a cobertura automática não tem o que vender."""
+
+    def sell_for_cash(
+        self, client_id: uuid.UUID, shortfall: Decimal, include_marked: bool
+    ) -> list[CoverSale]:
+        return []
+
+
 class FakeSimulationEngine(SimulationEngine):
     """
     Motor em memória para Broker e FixedBroker: só caixa, data e preço.
@@ -82,6 +92,7 @@ class FakeSimulationEngine(SimulationEngine):
         self.current_date = current_date
         self.cash: defaultdict[uuid.UUID, Decimal] = defaultdict(Decimal, cash or {})
         self.stocks = {}
+        self.fixed_broker = NoFixedIncome()
 
     def get_cash(self, client_id: uuid.UUID) -> Decimal:
         return self.cash[client_id]

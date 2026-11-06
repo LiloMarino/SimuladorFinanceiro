@@ -7,6 +7,7 @@ export const queryKeys = {
   presets: () => ["presets"] as const,
   pending: () => ["pending"] as const,
   goalProgress: (simulationId: number) => ["simulation", "goal-progress", simulationId] as const,
+  lifeStatusAll: () => ["simulation", "life"] as const,
   lifeStatus: (simulationId: number) => ["simulation", "life", simulationId] as const,
   summaries: (simulationId: number) => ["simulation", "summaries", simulationId] as const,
   newsMonth: (simulationId: number, month: string) => ["simulation", "news", simulationId, "month", month] as const,
@@ -48,6 +49,13 @@ export const queryKeys = {
     ["fixed-income", id, "projection", amount, currentDate] as const,
   fixedIncomeRedemption: (id: string, amount: string, currentDate: string) =>
     ["fixed-income", id, "redemption", amount, currentDate] as const,
+  treasury: () => ["treasury"] as const,
+  treasuryCatalog: () => ["treasury", "catalog"] as const,
+  treasuryHistory: () => ["treasury", "history"] as const,
+  treasuryPositions: () => ["treasury", "positions"] as const,
+  treasurySaleQuote: (id: string, gross: string, currentDate: string) =>
+    ["treasury", "quote", id, gross, currentDate] as const,
+  treasuryCover: () => ["treasury", "cover"] as const,
   variableIncomeList: () => ["variable-income", "list"] as const,
   variableIncomeStock: (ticker: string) => ["variable-income", ticker] as const,
   stockIndicators: (ticker: string, request?: object) =>

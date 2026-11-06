@@ -14,6 +14,7 @@ from backend.core.dto.events.credit import CreditEventDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.pending import PendingDTO
 from backend.core.enum import (
+    CashflowEventType,
     CreditEventType,
     CreditGrade,
     IndicatorSeries,
@@ -501,6 +502,9 @@ class CreditBook:
         while not loan.state.is_closed and day >= loan.state.next_due:
             amount = loan.state.due_amount()
             number = loan.state.next_number
+            self._engine.cover_before_debit(
+                client_id, amount, CashflowEventType.LOAN_PAYMENT
+            )
             if self._engine.get_cash(client_id) >= amount:
                 self._engine.pay_loan(client_id, amount)
                 self._record(

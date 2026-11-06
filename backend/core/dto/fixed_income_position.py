@@ -8,7 +8,12 @@ from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 class FixedIncomePositionDTO(BaseDTO):
     asset: FixedIncomeAssetDTO
     total_applied: Decimal
+    # O montante da curva (o aplicado mais o que rendeu)
     current_value: Decimal
+    # O que vale vendido hoje: a curva mais a marcação; só o Tesouro marca
+    market_value: Decimal
+    # Marcação a mercado: mercado menos curva, positiva ou negativa
+    mark: Decimal
     first_applied_date: date
     return_value: Decimal
     return_pct: Decimal

@@ -29,7 +29,7 @@ import { InvestmentTicket } from "../components/investment-ticket";
 import { RedemptionTicket } from "../components/redemption-ticket";
 import { useFixedIncomeAsset } from "../hooks/queries/useFixedIncomeAsset";
 import { useFixedIncomeAssets } from "../hooks/queries/useFixedIncomeAssets";
-import { useFixedIncomeProjection } from "../hooks/queries/useFixedIncomeProjection";
+import { useFixedIncomeProjection } from "@/shared/hooks/queries/useFixedIncomeProjection";
 import { useFixedIncomeRedemption } from "../hooks/queries/useFixedIncomeRedemption";
 import { isPermanentCdb, isRareOffer } from "../lib/daily-liquidity";
 import { INVESTMENT_TYPE_LABELS, RATE_KIND_LABELS, timeToMaturity } from "../lib/labels";

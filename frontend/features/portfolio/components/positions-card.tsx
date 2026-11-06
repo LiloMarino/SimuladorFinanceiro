@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { DailyLiquidityBadge } from "@/shared/components/daily-liquidity-badge";
 import { InfoHint } from "@/shared/components/info-hint";
+import { MetricHint } from "@/shared/components/metric-hint";
+import { MARK_TO_MARKET } from "@/shared/lib/treasury-metrics";
 import { displayMoney, displayPercent, displayQuantity, displayRateLabel } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
@@ -23,6 +25,21 @@ const investedShareHint = (
     </div>
   </InfoHint>
 );
+
+const isTreasury = (position: PortfolioState["fixed_income"][number]) =>
+  position.asset.investment_type === "Tesouro Direto";
+
+/** Marcação do Tesouro com sinal e cor; título sem marcação mostra traço. */
+function Mark({ position }: { position: PortfolioState["fixed_income"][number] }) {
+  const mark = Number(position.mark);
+  if (!isTreasury(position) || mark === 0) return <span className="text-faint-foreground">—</span>;
+  return (
+    <span className={mark > 0 ? "font-mono text-success" : "font-mono text-destructive"}>
+      {mark > 0 ? "+" : "−"}
+      {displayMoney(Math.abs(mark))}
+    </span>
+  );
+}
 
 /** Resultado com sinal e cor: verde ganhando, vermelho perdendo. */
 function Result({ value, pct }: { value: string; pct: string }) {
@@ -85,11 +102,13 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
     rate: (p) => Number(p.asset.interest_rate),
     share: (p) => Number(p.portfolio_pct),
     result: (p) => Number(p.return_value),
+    mark: (p) => Number(p.mark),
   });
   const stocks = stockSort.rows;
   const bonds = bondSort.rows;
   const [tab, setTab] = useState("stocks");
   const redeemable = Number(portfolio.fixed_income_redeemable);
+  const hasTreasury = bonds.some(isTreasury);
 
   return (
     <Card>
@@ -201,6 +220,12 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
                     hint={investedShareHint}
                   />
                   <SortableTableHead {...bondSort.header("result")} label="Resultado" numeric />
+                  <SortableTableHead
+                    {...bondSort.header("mark")}
+                    label="Marcação"
+                    numeric
+                    hint={<MetricHint metric={MARK_TO_MARKET} />}
+                  />
                   <TableHead>
                     <span className="sr-only">Abrir</span>
                   </TableHead>
@@ -210,7 +235,9 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
                 {bonds.map((p) => (
                   <TableRow
                     key={p.asset.asset_uuid}
-                    onActivate={() => void navigate(`/fixed-income/${p.asset.asset_uuid}`)}
+                    onActivate={() =>
+                      void navigate(isTreasury(p) ? "/treasury" : `/fixed-income/${p.asset.asset_uuid}`)
+                    }
                   >
                     <TableCell>
                       <span className="grid">
@@ -229,6 +256,9 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
                     <TableCell numeric>{displayPercent(p.portfolio_pct)}</TableCell>
                     <TableCell>
                       <Result value={p.return_value} pct={p.return_pct} />
+                    </TableCell>
+                    <TableCell numeric>
+                      <Mark position={p} />
                     </TableCell>
                     <TableCell>
                       {p.asset.daily_liquidity ? (
@@ -253,6 +283,13 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
                 ))}
               </TableBody>
             </Table>
+          )}
+          {bonds.length > 0 && hasTreasury && (
+            <div className="border-t px-4 py-3">
+              <Link to="/treasury" className="text-sm font-medium text-primary hover:text-primary-hover">
+                Vender os títulos do Tesouro na tela do Tesouro ›
+              </Link>
+            </div>
           )}
         </TabsContent>
       </Tabs>

@@ -22,7 +22,7 @@ import {
   toCentsString,
 } from "@/shared/lib/utils/display";
 import type { FixedIncomeOffer, FixedIncomeQuote } from "@/types";
-import { useBuyFixedIncome } from "../hooks/mutations/useBuyFixedIncome";
+import { useBuyFixedIncome } from "@/shared/hooks/mutations/useBuyFixedIncome";
 
 const SHORTCUTS = [
   { label: "R$ 1 mil", value: "1000" },

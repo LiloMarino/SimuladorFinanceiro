@@ -24,6 +24,16 @@ export type BuyFixedIncomeRequest = components["schemas"]["BuyFixedIncomeRequest
 export type FixedIncomeRedemptionQuote = components["schemas"]["FixedIncomeRedemptionQuoteDTO"];
 export type RedeemFixedIncomeRequest = components["schemas"]["RedeemFixedIncomeRequest"];
 
+// Treasury
+export type TreasuryCatalog = components["schemas"]["TreasuryCatalogDTO"];
+export type TreasuryTitle = TreasuryCatalog["titles"][number];
+export type TreasuryThermometer = NonNullable<TreasuryCatalog["thermometer"]>;
+export type TreasuryHistoryPoint = components["schemas"]["TreasuryHistoryPointDTO"];
+export type TreasuryPosition = components["schemas"]["TreasuryPositionDTO"];
+export type TreasurySaleQuote = components["schemas"]["TreasurySaleQuoteDTO"];
+export type SellTreasuryRequest = components["schemas"]["SellTreasuryRequest"];
+export type TreasuryCover = components["schemas"]["TreasuryCoverDTO"];
+
 // Economic
 export type EconomicIndicators = components["schemas"]["EconomicIndicatorsDTO"];
 export type EconomyPanel = components["schemas"]["EconomyPanelDTO"];

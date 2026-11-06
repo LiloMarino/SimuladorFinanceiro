@@ -1,6 +1,7 @@
 import logging
 from decimal import Decimal
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Query, status
 from pydantic import BaseModel, Field, model_validator
@@ -20,6 +21,12 @@ from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.technical_indicators import (
     IndicatorsRequestDTO,
     TechnicalIndicatorsDTO,
+)
+from backend.core.dto.treasury import (
+    TreasuryCatalogDTO,
+    TreasuryHistoryPointDTO,
+    TreasuryPositionDTO,
+    TreasurySaleQuoteDTO,
 )
 from backend.core.enum import OrderAction, OrderType
 from backend.core.exceptions.http_exceptions import (
@@ -66,6 +73,11 @@ class RedeemFixedIncomeRequest(BaseModel):
 
 class BuyFixedIncomeRequest(BaseModel):
     quantity: Decimal = Field(..., gt=0)
+
+
+class SellTreasuryRequest(BaseModel):
+    # O valor bruto de mercado a vender; sem ele, o título inteiro
+    gross: Decimal | None = Field(default=None, gt=0)
 
 
 class SubmitOrderResponse(BaseModel):
@@ -427,3 +439,78 @@ def redeem_fixed_income(
         raise NotFoundError("Ativo de renda fixa não encontrado")
 
     simulation.redeem_fixed_income(client_id, fixed, payload.amount)
+
+
+@operation_router.get(
+    "/treasury",
+    response_model=TreasuryCatalogDTO,
+    summary="Listar os títulos do Tesouro",
+    description="Os seis títulos à venda no mês, com a taxa aberta em base e prêmio de risco, o que rendem hoje, até quando ficam à venda e a data da próxima revisão. Com a expansão de governo, traz também o termômetro do risco.",
+)
+def get_treasury(simulation: ActiveSimulation):
+    """
+    Lista o catálogo do Tesouro Direto.
+    """
+    return simulation.get_treasury()
+
+
+@operation_router.get(
+    "/treasury/history",
+    response_model=list[TreasuryHistoryPointDTO],
+    summary="Histórico das taxas do Tesouro",
+    description="Um ponto por mês desde a largada: SELIC, IPCA, o prêmio de risco, a dívida ÷ PIB e a taxa de cada título do catálogo do mês.",
+)
+def get_treasury_history(simulation: ActiveSimulation):
+    """
+    Série mensal das taxas do Tesouro.
+    """
+    return simulation.get_treasury_history()
+
+
+@operation_router.get(
+    "/treasury/positions",
+    response_model=list[TreasuryPositionDTO],
+    summary="Listar as posições do jogador no Tesouro",
+    description="Cada título do Tesouro que o jogador tem: a taxa da compra e a de hoje, o aplicado, o rendimento da curva, a marcação a mercado e o valor de venda.",
+)
+def get_treasury_positions(simulation: ActiveSimulation, client_id: ClientID):
+    """
+    Lista as posições do jogador no Tesouro.
+    """
+    return simulation.get_treasury_positions(client_id)
+
+
+@operation_router.get(
+    "/treasury/{asset_uuid}/quote",
+    response_model=TreasurySaleQuoteDTO,
+    summary="Cotar a venda de um título do Tesouro",
+    description="Cota a venda hoje, a mercado, de um valor bruto do título: IOF, IR, o líquido que chega ao caixa e a comparação com esperar até o vencimento.",
+)
+def get_treasury_sale_quote(
+    simulation: ActiveSimulation,
+    client_id: ClientID,
+    asset_uuid: UUID,
+    gross: Annotated[Decimal, Query(ge=0)] = Decimal(0),
+):
+    """
+    Cota a venda de um título do Tesouro.
+    """
+    return simulation.quote_treasury_sale(client_id, asset_uuid, gross)
+
+
+@operation_router.post(
+    "/treasury/{asset_uuid}/sell",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Vender um título do Tesouro",
+    description="Vende o título a mercado em qualquer dia útil, inteiro ou em parte, pelo valor bruto informado.",
+)
+def sell_treasury(
+    simulation: ActiveSimulation,
+    client_id: ClientID,
+    asset_uuid: UUID,
+    payload: SellTreasuryRequest,
+):
+    """
+    Vende um título do Tesouro a mercado.
+    """
+    simulation.sell_treasury(client_id, asset_uuid, payload.gross)

@@ -14,7 +14,7 @@ from tests.conftest import SetIndicator
 from tests.fakes import daily_series, monthly_series
 
 TODAY = date(2020, 1, 1)
-COMBINATIONS = 12  # 4 tipos x 3 indexadores
+COMBINATIONS = 9  # CDB, LCI e LCA x 3 indexadores
 
 
 @pytest.fixture(autouse=True)
@@ -48,13 +48,11 @@ def test_every_type_and_index_is_balanced():
     assert set(counts.values()) == {2}
 
 
-def test_maturity_respects_each_issuer_range():
-    """Vencimento nunca antecede a geração; Tesouro vence em 3 anos ou mais."""
+def test_maturity_never_precedes_generation():
+    """Vencimento nunca antecede a geração."""
     for seed in range(20):
         for asset in _generate(COMBINATIONS, seed):
             assert asset.maturity_date >= TODAY
-            if asset.investment_type == FixedIncomeType.TESOURO_DIRETO:
-                assert asset.maturity_date >= TODAY + timedelta(days=3 * 365)
 
 
 def test_rates_stay_in_range_and_fit_database_precision():
@@ -111,33 +109,14 @@ def test_rare_offer_is_capped_and_leaves_at_the_end_of_the_month():
 def test_issuers_come_from_a_real_bank_pool_and_name_the_asset():
     """Cada título do catálogo leva o banco no nome, sem o emissor fictício antigo."""
     for asset in _generate(COMBINATIONS * 3):
-        if asset.investment_type is FixedIncomeType.TESOURO_DIRETO:
-            continue
         assert asset.name.startswith(asset.investment_type.name)
         assert asset.name.endswith(asset.issuer)
         assert "XPTO" not in asset.issuer
 
 
-def test_risk_premium_adds_to_the_treasury_rate_and_only_to_it():
-    """O mesmo sorteio com prêmio de 1,64 ponto: só o Tesouro sobe, na taxa do próprio título."""
-    premium = Decimal("0.016442")
-    without = list(FixedIncomeFactory.generate_assets(TODAY, 24, seed=7).values())
-    with_premium = list(
-        FixedIncomeFactory.generate_assets(
-            TODAY, 24, seed=7, risk_premium=premium
-        ).values()
-    )
-
-    for plain, priced in zip(without, with_premium, strict=True):
-        if plain.investment_type is FixedIncomeType.TESOURO_DIRETO:
-            assert priced.interest_rate == plain.interest_rate + premium
-            assert priced.risk_premium == premium
-        else:
-            assert priced.interest_rate == plain.interest_rate
-            assert priced.risk_premium is None
-
-
-def test_no_premium_leaves_the_catalog_untouched():
-    assets = list(FixedIncomeFactory.generate_assets(TODAY, 12, seed=7).values())
-
-    assert all(asset.risk_premium is None for asset in assets)
+def test_banks_never_issue_treasury_titles():
+    """O Tesouro tem catálogo próprio: a vitrine dos bancos não sorteia título do governo."""
+    for seed in range(20):
+        for asset in _generate(COMBINATIONS, seed):
+            assert asset.investment_type is not FixedIncomeType.TESOURO_DIRETO
+            assert asset.risk_premium is None

@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import threading
 from collections import defaultdict
+from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import ROUND_HALF_EVEN, Decimal
 from typing import TYPE_CHECKING
@@ -13,7 +14,7 @@ from backend.core.dto.events.fixed_income import (
     FixedIncomeEventDTO,
 )
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.enum import FixedIncomeEventType
+from backend.core.enum import FixedIncomeEventType, FixedIncomeType
 from backend.core.exceptions import InsufficentCashError
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -27,6 +28,8 @@ from backend.core.utils.lazy_dict import LazyDict
 from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
+from backend.features.fixed_income.liquidity import cover_order, redeemable_today
+from backend.features.tax_policy import TaxPolicy
 
 if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine
@@ -34,6 +37,14 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 CENT = Decimal("0.01")
+
+
+@dataclass(frozen=True)
+class CoverSale:
+    """Um título vendido pela cobertura automática e o líquido que ele mandou ao caixa."""
+
+    asset: FixedIncomeAssetDTO
+    net: Decimal
 
 
 def load_fixed_assets(
@@ -228,6 +239,129 @@ class FixedBroker:
         logger.debug(
             "Resgatado %.2f de %s (liquidez diária)", breakdown.net, asset.name
         )
+
+    def sell_treasury(
+        self, client_id: UUID, asset: FixedIncomeAssetDTO, gross: Decimal | None
+    ) -> Decimal:
+        """
+        Vende um título do Tesouro a mercado, em qualquer pregão. `gross` é o valor
+        bruto vendido (None vende tudo); o caixa recebe esse valor menos os impostos.
+        O evento guarda o equivalente na curva, a fração vendida do montante, e é isso
+        que a reconstrução tira do título. Devolve o líquido creditado.
+        """
+        if asset.investment_type is not FixedIncomeType.TESOURO_DIRETO:
+            raise ConflictError(f"{asset.name} não é um título do Tesouro")
+        if gross is not None:
+            gross = gross.quantize(CENT, ROUND_HALF_EVEN)
+            if gross <= 0:
+                raise UnprocessableEntityError("Valor da venda deve ser maior que zero")
+
+        with self._lock:
+            today = self._simulation_engine.current_date
+            positions = self._assets[client_id]
+            position = positions.get(asset.asset_uuid)
+            if position is None:
+                raise NotFoundError(f"Você não tem posição em {asset.name}")
+
+            premium = self._simulation_engine.treasury_premium()
+            policy = self._simulation_engine.tax_policy_on(today)
+            market = position.market_value(today, premium)
+            if gross is not None and gross - market >= CENT:
+                raise UnprocessableEntityError(
+                    f"Você pode vender até {format_money(market)} hoje."
+                )
+            # Sobrar menos de um centavo é vender tudo
+            if gross is not None and market - gross < CENT:
+                gross = None
+
+            breakdown = position.sell_breakdown(today, gross, premium, policy)
+            curve_amount = (breakdown.gross / market * position.current_value).quantize(
+                CENT, ROUND_HALF_EVEN
+            )
+            if breakdown.full:
+                del positions[asset.asset_uuid]
+            else:
+                position.withdraw(curve_amount)
+            self._simulation_engine.add_cash(client_id, breakdown.net)
+
+        asset_id = repository.fixed_income.get_or_create_asset(asset)
+        EventManager.push_event(
+            FixedIncomeEventDTO(
+                simulation_id=self._simulation_engine.simulation_id,
+                user_id=UserManager.get_user_id(client_id),
+                event_type=FixedIncomeEventType.REDEEM,
+                asset_id=asset_id,
+                amount=curve_amount,
+                event_date=today,
+            )
+        )
+        logger.debug("Vendido %.2f de %s (a mercado)", breakdown.net, asset.name)
+        return breakdown.net
+
+    def sell_for_cash(
+        self, client_id: UUID, shortfall: Decimal, include_marked: bool
+    ) -> list[CoverSale]:
+        """
+        Vende títulos, na ordem de `cover_order`, até o caixa receber `shortfall`
+        líquido; sem o bastante, vende o que dá. Ação do sistema: não passa pela
+        trava de operação do jogador.
+        """
+        today = self._simulation_engine.current_date
+        premium = self._simulation_engine.treasury_premium()
+        policy = self._simulation_engine.tax_policy_on(today)
+        with self._lock:
+            order = cover_order(
+                self._assets[client_id].values(), today, include_marked, premium
+            )
+
+        sales: list[CoverSale] = []
+        remaining = shortfall
+        for position in order:
+            if remaining <= 0:
+                break
+            asset = position.asset
+            full_net = redeemable_today(position, today, policy, premium)
+            if full_net is None or full_net <= 0:
+                continue
+            try:
+                if asset.investment_type is FixedIncomeType.TESOURO_DIRETO:
+                    gross = (
+                        None
+                        if remaining >= full_net
+                        else self._gross_for_net(
+                            position, remaining, full_net, today, premium, policy
+                        )
+                    )
+                    net = self.sell_treasury(client_id, asset, gross)
+                else:
+                    net = min(remaining, full_net)
+                    self.redeem(client_id, asset, net)
+            except (NotFoundError, UnprocessableEntityError):
+                # A posição mudou entre a ordem e a venda; segue para o próximo título
+                continue
+            sales.append(CoverSale(asset, net))
+            remaining -= net
+        return sales
+
+    @staticmethod
+    def _gross_for_net(
+        position: FixedIncomePosition,
+        net: Decimal,
+        full_net: Decimal,
+        today: date,
+        premium: Decimal,
+        policy: TaxPolicy,
+    ) -> Decimal:
+        """O bruto a vender para o caixa receber `net`: a fração do mercado, ajustada ao centavo dos impostos."""
+        gross = (position.market_value(today, premium) * net / full_net).quantize(
+            CENT, ROUND_HALF_EVEN
+        )
+        for _ in range(3):
+            received = position.sell_breakdown(today, gross, premium, policy).net
+            if received >= net:
+                break
+            gross += net - received
+        return gross
 
     def apply_daily_interest(self, current_date: date):
         for client_id, assets_by_client in list(self._assets.items()):

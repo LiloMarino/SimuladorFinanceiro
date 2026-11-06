@@ -7,17 +7,21 @@ type KpiProps = {
   /** Linha de apoio embaixo do valor */
   note?: ReactNode;
   tone?: "default" | "success" | "warning" | "destructive" | undefined;
+  size?: "sm" | "default" | "lg";
   className?: string;
 };
 
 /** Número de destaque: rótulo em cima, valor mono grande e uma linha de apoio. */
-export function Kpi({ label, value, note, tone = "default", className }: KpiProps) {
+export function Kpi({ label, value, note, tone = "default", size = "default", className }: KpiProps) {
   return (
     <div className={cn("grid content-start gap-1", className)}>
       <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">{label}</span>
       <span
         className={cn(
-          "font-mono text-[22px] leading-tight font-semibold whitespace-nowrap tabular-nums",
+          "font-mono leading-tight font-semibold whitespace-nowrap tabular-nums",
+          size === "sm" && "text-base",
+          size === "default" && "text-[22px]",
+          size === "lg" && "text-[28px]",
           tone === "success" && "text-success",
           tone === "warning" && "text-warning",
           tone === "destructive" && "text-destructive",

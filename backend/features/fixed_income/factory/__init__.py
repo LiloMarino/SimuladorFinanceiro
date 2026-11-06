@@ -16,9 +16,6 @@ from backend.features.fixed_income.factory.abstract_factory import (
 from backend.features.fixed_income.factory.cdb_factory import CDBFactory
 from backend.features.fixed_income.factory.lca_factory import LCAFactory
 from backend.features.fixed_income.factory.lci_factory import LCIFactory
-from backend.features.fixed_income.factory.tesouro_factory import (
-    TesouroFactory,
-)
 
 # CDB de 100% do CDI com liquidez diária: aberto a partida inteira
 DAILY_LIQUIDITY_ISSUER = "Nubank"
@@ -47,7 +44,7 @@ class FixedIncomeFactory:
     Registry e orquestrador de factories de renda fixa.
 
     Responsável por:
-    - Manter registro de factories por tipo de ativo (CDB, LCI, LCA, Tesouro)
+    - Manter registro de factories por tipo de ativo (CDB, LCI, LCA)
     - Gerar ativos de forma balanceada entre tipos e indexadores
     - Garantir distribuição uniforme de combinações (tipo + indexador)
     - Fornecer interface simplificada para geração em lote
@@ -58,7 +55,6 @@ class FixedIncomeFactory:
             FixedIncomeType.CDB: CDBFactory(),
             FixedIncomeType.LCI: LCIFactory(),
             FixedIncomeType.LCA: LCAFactory(),
-            FixedIncomeType.TESOURO_DIRETO: TesouroFactory(),
         }
     )
 
@@ -76,9 +72,8 @@ class FixedIncomeFactory:
         current_date: date,
         n: int,
         seed: int | None = None,
-        risk_premium: Decimal = Decimal(0),
     ) -> dict[str, FixedIncomeAssetDTO]:
-        """Os títulos do mês; o Tesouro sai com o prêmio de risco do país somado à taxa."""
+        """Os títulos de banco do mês; o Tesouro tem catálogo próprio, em `treasury`."""
         if seed is not None:
             random.seed(seed)
 
@@ -99,29 +94,17 @@ class FixedIncomeFactory:
         for asset_type, rate_index in combinations:
             factory = cls._registry[asset_type]
             for _ in range(base_count):
-                asset = cls._issue(factory, rate_index, current_date, risk_premium)
+                asset = factory.create_asset(rate_index, current_date)
                 generated[str(asset.asset_uuid)] = asset
 
         # Restante aleatório porém balanceado
         extras = random.sample(combinations, remainder)
         for asset_type, rate_index in extras:
             factory = cls._registry[asset_type]
-            asset = cls._issue(factory, rate_index, current_date, risk_premium)
+            asset = factory.create_asset(rate_index, current_date)
             generated[str(asset.asset_uuid)] = asset
 
         return generated
-
-    @staticmethod
-    def _issue(
-        factory: AbstractFixedIncomeFactory,
-        rate_index: RateIndexType,
-        current_date: date,
-        risk_premium: Decimal,
-    ) -> FixedIncomeAssetDTO:
-        asset = factory.create_asset(rate_index, current_date)
-        if isinstance(factory, TesouroFactory):
-            return factory.with_risk_premium(asset, risk_premium)
-        return asset
 
     @classmethod
     def daily_liquidity_cdb(

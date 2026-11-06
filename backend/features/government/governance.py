@@ -456,7 +456,7 @@ def _portfolio(
             )
         )
     slices += [
-        FrozenSliceDTO(label=pos.asset.name, tickers=[], share=share(pos.current_value))
+        FrozenSliceDTO(label=pos.asset.name, tickers=[], share=share(pos.market_value))
         for pos in portfolio.fixed_income
     ]
     slices.append(

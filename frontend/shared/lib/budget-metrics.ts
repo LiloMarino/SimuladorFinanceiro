@@ -43,7 +43,7 @@ export const DEBT_GDP: MetricInfo = {
   example:
     "Ex.: dívida de R$ 5 tri num país com PIB de R$ 10 tri dá 50%: o governo deve o equivalente à metade do que o país produz num ano.",
   reading:
-    "Até 50% é confortável e os títulos novos do Tesouro não cobram prêmio; entre 50% e 80% o prêmio começa a pesar; acima de 90% ele dispara e a aprovação do governo sofre. A dívida cresce com o déficit e com os juros, e encolhe quando a economia cresce.",
+    "Até 50% é a faixa Sem prêmio: os títulos novos do Tesouro não cobram juro extra; de 50% a 80% é Moderado, o prêmio começa a pesar; de 80% a 100% é Alto; acima de 100% é Crítico, o prêmio dispara e a aprovação do governo sofre. A dívida cresce com o déficit e com os juros, e encolhe quando a economia cresce.",
   format: percent,
 };
 

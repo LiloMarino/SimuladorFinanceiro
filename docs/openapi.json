@@ -908,6 +908,284 @@
         }
       }
     },
+    "/api/treasury": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Listar os títulos do Tesouro",
+        "description": "Os seis títulos à venda no mês, com a taxa aberta em base e prêmio de risco, o que rendem hoje, até quando ficam à venda e a data da próxima revisão. Com a expansão de governo, traz também o termômetro do risco.",
+        "operationId": "get_treasury_api_treasury_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TreasuryCatalogDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/treasury/history": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Histórico das taxas do Tesouro",
+        "description": "Um ponto por mês desde a largada: SELIC, IPCA, o prêmio de risco, a dívida ÷ PIB e a taxa de cada título do catálogo do mês.",
+        "operationId": "get_treasury_history_api_treasury_history_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TreasuryHistoryPointDTO"
+                  },
+                  "type": "array",
+                  "title": "Response Get Treasury History Api Treasury History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/treasury/positions": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Listar as posições do jogador no Tesouro",
+        "description": "Cada título do Tesouro que o jogador tem: a taxa da compra e a de hoje, o aplicado, o rendimento da curva, a marcação a mercado e o valor de venda.",
+        "operationId": "get_treasury_positions_api_treasury_positions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TreasuryPositionDTO"
+                  },
+                  "type": "array",
+                  "title": "Response Get Treasury Positions Api Treasury Positions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/treasury/{asset_uuid}/quote": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Cotar a venda de um título do Tesouro",
+        "description": "Cota a venda hoje, a mercado, de um valor bruto do título: IOF, IR, o líquido que chega ao caixa e a comparação com esperar até o vencimento.",
+        "operationId": "get_treasury_sale_quote_api_treasury__asset_uuid__quote_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "asset_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Asset Uuid"
+            }
+          },
+          {
+            "name": "gross",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0.0
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": "0",
+              "title": "Gross"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TreasurySaleQuoteDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/treasury/{asset_uuid}/sell": {
+      "post": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Vender um título do Tesouro",
+        "description": "Vende o título a mercado em qualquer dia útil, inteiro ou em parte, pelo valor bruto informado.",
+        "operationId": "sell_treasury_api_treasury__asset_uuid__sell_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "asset_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Asset Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SellTreasuryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/portfolio": {
       "get": {
         "tags": [
@@ -1393,6 +1671,108 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PartyContributionDTO-Output"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/settings/treasury-cover": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Obter a opção de cobertura com o Tesouro",
+        "description": "Se o resgate automático também vende Prefixado e IPCA+ (a mercado) para cobrir despesas; desligada até o jogador ligar. Os títulos sem perda (liquidez diária e Tesouro Selic) são sempre vendidos.",
+        "operationId": "get_treasury_cover_api_settings_treasury_cover_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TreasuryCoverDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Salvar a opção de cobertura com o Tesouro",
+        "description": "Liga ou desliga a venda de Prefixado e IPCA+ na cobertura automática de despesas.",
+        "operationId": "put_treasury_cover_api_settings_treasury_cover_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TreasuryCoverDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TreasuryCoverDTO"
                 }
               }
             }
@@ -10502,6 +10882,31 @@
         ],
         "title": "AssetClassRequest"
       },
+      "AutoRedeemEventDTO": {
+        "properties": {
+          "asset_name": {
+            "type": "string",
+            "title": "Asset Name"
+          },
+          "net_amount": {
+            "type": "string",
+            "title": "Net Amount"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "asset_name",
+          "net_amount",
+          "reason"
+        ],
+        "title": "AutoRedeemEventDTO",
+        "description": "Um título vendido pelo sistema para cobrir um débito automático."
+      },
       "AverageSeriesDTO": {
         "properties": {
           "kind": {
@@ -16384,6 +16789,14 @@
             "type": "string",
             "title": "Current Value"
           },
+          "market_value": {
+            "type": "string",
+            "title": "Market Value"
+          },
+          "mark": {
+            "type": "string",
+            "title": "Mark"
+          },
           "first_applied_date": {
             "type": "string",
             "format": "date",
@@ -16419,6 +16832,8 @@
           "asset",
           "total_applied",
           "current_value",
+          "market_value",
+          "mark",
           "first_applied_date",
           "return_value",
           "return_pct",
@@ -19735,15 +20150,9 @@
             "type": "string",
             "title": "Reserve Daily Liquidity"
           },
-          "overdraft_cover": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/OverdraftCoverDTO"
-              },
-              {
-                "type": "null"
-              }
-            ]
+          "cover_with_treasury": {
+            "type": "boolean",
+            "title": "Cover With Treasury"
           }
         },
         "additionalProperties": false,
@@ -19762,7 +20171,7 @@
           "reserve_months",
           "reserve_cash",
           "reserve_daily_liquidity",
-          "overdraft_cover"
+          "cover_with_treasury"
         ],
         "title": "LifeStatusDTO",
         "description": "A vida financeira de quem pede, no pregão corrente do viver de renda."
@@ -21587,37 +21996,6 @@
           "p95_ms"
         ],
         "title": "OverallItem"
-      },
-      "OverdraftCoverDTO": {
-        "properties": {
-          "asset_uuid": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Asset Uuid"
-          },
-          "asset_name": {
-            "type": "string",
-            "title": "Asset Name"
-          },
-          "net_amount": {
-            "type": "string",
-            "title": "Net Amount"
-          },
-          "gross_amount": {
-            "type": "string",
-            "title": "Gross Amount"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "asset_uuid",
-          "asset_name",
-          "net_amount",
-          "gross_amount"
-        ],
-        "title": "OverdraftCoverDTO",
-        "description": "O título de liquidez diária que sozinho paga o cheque especial hoje."
       },
       "OverdueDTO": {
         "properties": {
@@ -25358,6 +25736,9 @@
           "life_event": {
             "$ref": "#/components/schemas/LifeEventDTO"
           },
+          "auto_redeem": {
+            "$ref": "#/components/schemas/AutoRedeemEventDTO"
+          },
           "order_executed": {
             "$ref": "#/components/schemas/OrderExecutedEventDTO"
           },
@@ -25479,6 +25860,7 @@
           "statistics_snapshot_update",
           "goal_progress_update",
           "life_event",
+          "auto_redeem",
           "order_executed",
           "order_partial_executed",
           "player_join",
@@ -26833,6 +27215,27 @@
           "selic"
         ],
         "title": "SelicRequest"
+      },
+      "SellTreasuryRequest": {
+        "properties": {
+          "gross": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross"
+          }
+        },
+        "type": "object",
+        "title": "SellTreasuryRequest"
       },
       "SeriesCoverageDTO": {
         "properties": {
@@ -30540,6 +30943,7 @@
           "CREDIT_PAYMENTS",
           "CREDIT_RATING",
           "LIFE_EVENT",
+          "AUTO_REDEEM",
           "YEAR_REVIEW",
           "VICE_ANSWER"
         ],
@@ -30805,6 +31209,589 @@
         ],
         "title": "TransferGroupDTO",
         "description": "O voto de um partido eliminado dentro de um grupo e para onde ele foi, em cada 100 do grupo."
+      },
+      "TreasuryCatalogDTO": {
+        "properties": {
+          "next_review": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Review"
+          },
+          "titles": {
+            "items": {
+              "$ref": "#/components/schemas/TreasuryTitleDTO"
+            },
+            "type": "array",
+            "title": "Titles"
+          },
+          "thermometer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TreasuryThermometerDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "next_review",
+          "titles",
+          "thermometer"
+        ],
+        "title": "TreasuryCatalogDTO"
+      },
+      "TreasuryCoverDTO": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "title": "TreasuryCoverDTO",
+        "description": "A opção de a cobertura automática vender também Prefixado e IPCA+, a mercado."
+      },
+      "TreasuryHistoryPointDTO": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month"
+          },
+          "selic": {
+            "type": "string",
+            "title": "Selic"
+          },
+          "ipca": {
+            "type": "string",
+            "title": "Ipca"
+          },
+          "premium": {
+            "type": "string",
+            "title": "Premium"
+          },
+          "debt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Debt"
+          },
+          "band_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Band Index"
+          },
+          "quotes": {
+            "items": {
+              "$ref": "#/components/schemas/TreasuryHistoryQuoteDTO"
+            },
+            "type": "array",
+            "title": "Quotes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "selic",
+          "ipca",
+          "premium",
+          "debt",
+          "band_index",
+          "quotes"
+        ],
+        "title": "TreasuryHistoryPointDTO",
+        "description": "Um mês do gráfico: as cotações do catálogo e, com o governo, o prêmio e a dívida ÷ PIB."
+      },
+      "TreasuryHistoryQuoteDTO": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "rate_index": {
+            "$ref": "#/components/schemas/RateIndexType"
+          },
+          "maturity_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Maturity Date"
+          },
+          "base_rate": {
+            "type": "string",
+            "title": "Base Rate"
+          },
+          "premium": {
+            "type": "string",
+            "title": "Premium"
+          },
+          "effective_annual_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Annual Rate"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "rate_index",
+          "maturity_date",
+          "base_rate",
+          "premium",
+          "effective_annual_rate"
+        ],
+        "title": "TreasuryHistoryQuoteDTO"
+      },
+      "TreasuryPositionDTO": {
+        "properties": {
+          "asset": {
+            "$ref": "#/components/schemas/FixedIncomeAssetDTO"
+          },
+          "first_applied_date": {
+            "type": "string",
+            "format": "date",
+            "title": "First Applied Date"
+          },
+          "bought_rate": {
+            "type": "string",
+            "title": "Bought Rate"
+          },
+          "today_rate": {
+            "type": "string",
+            "title": "Today Rate"
+          },
+          "total_applied": {
+            "type": "string",
+            "title": "Total Applied"
+          },
+          "yield_amount": {
+            "type": "string",
+            "title": "Yield Amount"
+          },
+          "mark": {
+            "type": "string",
+            "title": "Mark"
+          },
+          "market_value": {
+            "type": "string",
+            "title": "Market Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "asset",
+          "first_applied_date",
+          "bought_rate",
+          "today_rate",
+          "total_applied",
+          "yield_amount",
+          "mark",
+          "market_value"
+        ],
+        "title": "TreasuryPositionDTO",
+        "description": "Uma posição do jogador no Tesouro, com o que ela rendeu e o que o mercado faz com ela."
+      },
+      "TreasurySaleQuoteDTO": {
+        "properties": {
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "max_amount": {
+            "type": "string",
+            "title": "Max Amount"
+          },
+          "first_applied_date": {
+            "type": "string",
+            "format": "date",
+            "title": "First Applied Date"
+          },
+          "bought_rate": {
+            "type": "string",
+            "title": "Bought Rate"
+          },
+          "today_rate": {
+            "type": "string",
+            "title": "Today Rate"
+          },
+          "days_held": {
+            "type": "integer",
+            "title": "Days Held"
+          },
+          "applied_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applied Amount"
+          },
+          "yield_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yield Amount"
+          },
+          "mark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mark"
+          },
+          "iof_rate": {
+            "type": "string",
+            "title": "Iof Rate"
+          },
+          "iof": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iof"
+          },
+          "income_tax_rate": {
+            "type": "string",
+            "title": "Income Tax Rate"
+          },
+          "income_tax": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Income Tax"
+          },
+          "net_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Net Amount"
+          },
+          "cash_before": {
+            "type": "string",
+            "title": "Cash Before"
+          },
+          "cash_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cash After"
+          },
+          "remaining": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remaining"
+          },
+          "full": {
+            "type": "boolean",
+            "title": "Full"
+          },
+          "maturity_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Maturity Date"
+          },
+          "maturity_gross_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maturity Gross Amount"
+          },
+          "maturity_income_tax": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maturity Income Tax"
+          },
+          "maturity_net_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maturity Net Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "amount",
+          "max_amount",
+          "first_applied_date",
+          "bought_rate",
+          "today_rate",
+          "days_held",
+          "applied_amount",
+          "yield_amount",
+          "mark",
+          "iof_rate",
+          "iof",
+          "income_tax_rate",
+          "income_tax",
+          "net_amount",
+          "cash_before",
+          "cash_after",
+          "remaining",
+          "full",
+          "maturity_date",
+          "maturity_gross_amount",
+          "maturity_income_tax",
+          "maturity_net_amount"
+        ],
+        "title": "TreasurySaleQuoteDTO",
+        "description": "A venda de `amount` bruto do título hoje, a mercado. Os campos de valor são None quando\n`amount` é zero ou passa de `max_amount`, o valor de mercado da posição inteira."
+      },
+      "TreasuryThermometerDTO": {
+        "properties": {
+          "premium": {
+            "type": "string",
+            "title": "Premium"
+          },
+          "premium_per_debt_point": {
+            "type": "string",
+            "title": "Premium Per Debt Point"
+          },
+          "band": {
+            "type": "string",
+            "title": "Band"
+          },
+          "band_index": {
+            "type": "integer",
+            "title": "Band Index"
+          },
+          "debt": {
+            "type": "string",
+            "title": "Debt"
+          },
+          "debt_change_12m": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Debt Change 12M"
+          },
+          "next_band": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Band"
+          },
+          "next_band_limit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Band Limit"
+          },
+          "debt_to_next_band": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Debt To Next Band"
+          },
+          "months_to_next_band": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months To Next Band"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "premium",
+          "premium_per_debt_point",
+          "band",
+          "band_index",
+          "debt",
+          "debt_change_12m",
+          "next_band",
+          "next_band_limit",
+          "debt_to_next_band",
+          "months_to_next_band"
+        ],
+        "title": "TreasuryThermometerDTO",
+        "description": "O risco do país que decide o prêmio; só existe com a expansão Governo & Política."
+      },
+      "TreasuryTitleDTO": {
+        "properties": {
+          "asset_uuid": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Asset Uuid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "rate_index": {
+            "$ref": "#/components/schemas/RateIndexType"
+          },
+          "maturity_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Maturity Date"
+          },
+          "months_to_maturity": {
+            "type": "integer",
+            "title": "Months To Maturity"
+          },
+          "base_rate": {
+            "type": "string",
+            "title": "Base Rate"
+          },
+          "premium": {
+            "type": "string",
+            "title": "Premium"
+          },
+          "rate": {
+            "type": "string",
+            "title": "Rate"
+          },
+          "effective_annual_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Annual Rate"
+          },
+          "sold_until": {
+            "type": "string",
+            "format": "date",
+            "title": "Sold Until"
+          },
+          "replacement_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replacement Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "asset_uuid",
+          "name",
+          "rate_index",
+          "maturity_date",
+          "months_to_maturity",
+          "base_rate",
+          "premium",
+          "rate",
+          "effective_annual_rate",
+          "sold_until",
+          "replacement_name"
+        ],
+        "title": "TreasuryTitleDTO",
+        "description": "Um título do catálogo no mês: a taxa travada de quem compra hoje, aberta em base e prêmio."
       },
       "TunnelStatusDTO": {
         "properties": {

@@ -1,76 +1,94 @@
 """
-Liquidez diária: o que cada posição manda ao caixa se resgatada hoje e o título que
-paga o cheque especial. Fonte única da reserva, do total resgatável da carteira e do
-botão de resgate do alerta.
+Liquidez diária: o que cada posição manda ao caixa se vendida hoje e a ordem em que a
+cobertura automática vende. Fonte única da reserva e do total resgatável da carteira.
 """
 
 from collections.abc import Iterable
 from datetime import date
-from decimal import ROUND_CEILING, Decimal
+from decimal import Decimal
 
-from backend.core.dto.life import OverdraftCoverDTO
-from backend.features.fixed_income.accrual import RedemptionBreakdown
+from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
+from backend.core.enum import FixedIncomeType, RateIndexType
+from backend.features.fixed_income.accrual import effective_annual_rate, index_rate_on
 from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
 from backend.features.tax_policy import DEFAULT_TAX_POLICY, TaxPolicy
 
-CENT = Decimal("0.01")
+
+def sellable_any_day(asset: FixedIncomeAssetDTO) -> bool:
+    """Vende em qualquer pregão: liquidez diária ou Tesouro (a Selic antiga está gravada sem a flag)."""
+    return (
+        asset.daily_liquidity or asset.investment_type is FixedIncomeType.TESOURO_DIRETO
+    )
+
+
+def loss_free(asset: FixedIncomeAssetDTO) -> bool:
+    """Vende sem perda de marcação: liquidez diária ou Tesouro Selic."""
+    return asset.daily_liquidity or (
+        asset.investment_type is FixedIncomeType.TESOURO_DIRETO
+        and asset.rate_index is RateIndexType.SELIC
+    )
 
 
 def redeemable_today(
     position: FixedIncomePosition,
     today: date,
     policy: TaxPolicy = DEFAULT_TAX_POLICY,
+    premium: Decimal = Decimal(0),
 ) -> Decimal | None:
-    """Líquido de resgatar a posição inteira hoje; None sem liquidez diária."""
-    if not position.asset.daily_liquidity:
+    """Líquido de vender a posição inteira hoje, a mercado; None em título que só sai no vencimento."""
+    if not sellable_any_day(position.asset):
         return None
-    return position.breakdown(today, None, policy).net
+    return position.sell_breakdown(today, None, premium, policy).net
 
 
 def total_redeemable(
     positions: Iterable[FixedIncomePosition],
     today: date,
     policy: TaxPolicy = DEFAULT_TAX_POLICY,
+    premium: Decimal = Decimal(0),
 ) -> Decimal:
-    """Soma do líquido resgatável hoje das posições de liquidez diária."""
+    """Soma do líquido vendável hoje das posições de liquidez diária e do Tesouro."""
     return sum(
         (
             net
             for p in positions
-            if (net := redeemable_today(p, today, policy)) is not None
+            if (net := redeemable_today(p, today, policy, premium)) is not None
         ),
         Decimal(0),
     )
 
 
-def overdraft_cover(
-    cash: Decimal,
+def cover_order(
     positions: Iterable[FixedIncomePosition],
     today: date,
-    policy: TaxPolicy = DEFAULT_TAX_POLICY,
-) -> OverdraftCoverDTO | None:
+    include_marked: bool,
+    premium: Decimal = Decimal(0),
+) -> list[FixedIncomePosition]:
     """
-    Com o caixa negativo, o título de liquidez diária de menor taxa cujo líquido de
-    hoje cobre a dívida inteira sozinho; None se o caixa é positivo ou nenhum cobre.
+    A ordem em que a cobertura automática vende. Primeiro os títulos sem perda de
+    marcação (liquidez diária e Tesouro Selic), do que rende menos para o que rende
+    mais. Com `include_marked`, depois o Prefixado e o IPCA+, do que perde menos
+    (ou ganha mais) por real vendido para o que perde mais.
     """
-    if cash >= 0:
-        return None
-
-    debt = (-cash).quantize(CENT, ROUND_CEILING)
-    covering: list[tuple[FixedIncomePosition, RedemptionBreakdown]] = []
-    for position in positions:
-        net = redeemable_today(position, today, policy)
-        if net is not None and net >= debt:
-            covering.append((position, position.breakdown(today, debt, policy)))
-    if not covering:
-        return None
-
-    position, breakdown = min(covering, key=lambda c: c[0].asset.interest_rate)
-    return OverdraftCoverDTO(
-        asset_uuid=position.asset.asset_uuid,
-        asset_name=position.asset.name,
-        net_amount=debt,
-        gross_amount=breakdown.gross,
+    held = list(positions)
+    steady = sorted(
+        (p for p in held if loss_free(p.asset)),
+        key=lambda p: effective_annual_rate(
+            p.asset, index_rate_on(p.asset.rate_index, today)
+        ),
     )
+    if not include_marked:
+        return steady
+
+    def mark_per_real(position: FixedIncomePosition) -> Decimal:
+        market = position.market_value(today, premium)
+        return Decimal(0) if market <= 0 else (market - position.current_value) / market
+
+    marked = sorted(
+        (p for p in held if sellable_any_day(p.asset) and not loss_free(p.asset)),
+        key=mark_per_real,
+        reverse=True,
+    )
+    return steady + marked
