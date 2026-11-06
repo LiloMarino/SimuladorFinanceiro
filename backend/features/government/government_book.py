@@ -256,9 +256,9 @@ class GovernmentBook:
         return self._people.get(term.president_id)
 
     def caretaker(self) -> Party | None:
-        """O partido do computador que governa depois de um impeachment sem vice."""
+        """O partido do computador que governa sem presidente jogador: eleito ou herdeiro de um impeachment sem vice."""
         term = self.state.term
-        if term is None or not term.succession or term.president_id is not None:
+        if term is None or term.president_id is not None:
             return None
         party = self.state.parties.get(term.party_id) if term.party_id else None
         return party if party is not None and party.is_computer else None

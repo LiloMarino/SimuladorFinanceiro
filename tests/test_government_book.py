@@ -19,6 +19,7 @@ from backend.core.enum import (
     CashflowEventType,
     ComputerDifficulty,
     ElectionPhase,
+    GovernmentEventType,
     GovernmentNoticeKind,
     MeasureKind,
     MeasureStatus,
@@ -1167,6 +1168,35 @@ def test_impeachment_without_a_vice_hands_the_office_to_the_largest_computer_blo
     book.ensure_can_trade(ALICE.client_id)
     with pytest.raises(ForbiddenError):
         propose(book, "0.25")
+
+
+def test_elected_computer_government_proposes_with_an_empty_queue(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+    day = date(2022, 2, 1)
+    heir = required(
+        caretaker.successor(
+            book.state.house_on(day), {p.id for p in book.state.computer_parties()}
+        )
+    )
+    # O partido do computador vence a eleição: posse sem presidente e sem sucessão
+    book._emit(
+        GovernmentEventType.TERM_STARTED,
+        TERM_START,
+        party_id=heir.party_id,
+        president_id=None,
+        vice_id=None,
+        consecutive=1,
+    )
+    term = required(book.state.term)
+    assert (term.president_id, term.succession) == (None, False)
+    assert required(book.caretaker()).id == heir.party_id
+    assert book.governs()
+
+    book.on_tick(USERS, day, False)
+    [first] = book._queue()
+    assert (first.proposer_id, first.party_id) == (None, heir.party_id)
 
 
 def test_computer_government_proposes_by_its_voters_and_the_house_votes(
