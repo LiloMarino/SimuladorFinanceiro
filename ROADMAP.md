@@ -106,7 +106,6 @@
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M25 · 4.3 | — | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
-| [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | — | Médio | Bom | ⏳ |
 | [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | — | Médio | Bom | ⏳ |
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | — | Alto | Bom | ⏳ |
 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | Alto | Bom | ⏳ |
@@ -114,7 +113,7 @@
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | — | Alto | Médio | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -144,6 +143,7 @@
 | [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | — | — | — | ✅ |
 | [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | — | — | — | ✅ |
 | [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | — | — | — | ✅ |
+| [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | — | — | — | ✅ |
 | [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | — | — | — | ✅ |
 | [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | — | — | — | ✅ |
 
@@ -275,7 +275,6 @@
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | 0 | ⏳ Pendente |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | N40 | — | 0 | ⏳ Pendente |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | N34 | — | 0 | 🔍 Em avaliação |
-| [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | — | 0 | ⏳ Pendente |
 | [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | — | 0 | ⏳ Pendente |
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | — | 0 | ⏳ Pendente |
 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | 0 | ⏳ Pendente |
@@ -310,7 +309,6 @@
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | 0 | Médio | Bom | ⏳ |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | 0 | — | — | 🔍 |
-| [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | 0 | Médio | Bom | ⏳ |
 | [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | 0 | Médio | Bom | ⏳ |
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | 0 | Alto | Bom | ⏳ |
 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | 0 | Alto | Bom | ⏳ |
@@ -336,7 +334,6 @@
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
-| **F239** | Manutenção | Formatadores de percentual unificados | — | — | — | — | Médio | Médio | Médio | Bom |
 | **F241** | Manutenção | Card de ações de campanha em arquivos por parte | — | — | — | — | Médio | Baixo | Médio | Bom |
 | **F242** | Manutenção | Partida do lobby em arquivos por parte | — | — | — | — | Alto | Médio | Médio | Bom |
 | **F243** | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | — | — | Alto | Médio | Médio | Bom |
@@ -388,13 +385,6 @@
 
 <a id="f225"></a>
 **F225 — Conceitos de economia real na docs e nomeados na tela.** Serve N41 e N25; condicionado por D21. **Para quem:** quem joga e quer entender por que a economia da partida reagiu como reagiu, e quem lê a docs sem jogar. **O que cobre:** uma página por conceito na categoria de explicação que a reorganização da docs cria: juro real e juro real neutro, curva IS, lei de Okun, curva de Phillips, princípio de Taylor e a reação do Banco Central, defasagem da política monetária, meta de inflação e tolerância, credibilidade e expectativas, prêmio de risco, dinâmica da dívida (r − g) e espiral da dívida, primário que estabiliza a dívida e dominância fiscal. Cada página diz o que o conceito mede, um exemplo numérico, o que é valor bom e ruim, a fonte (relatório do Banco Central, artigo ou livro-texto) e como o jogo o implementa, com a fórmula e os coeficientes: é o lugar único dos números do modelo (D21), e a seção de economia interligada de `docs/docs/como-usar/governo.md` passa a apontar para as páginas. Cada página fecha com o que o jogo simplifica em relação à economia real, e uma página própria reúne as simplificações do modelo inteiro: as defasagens comprimidas, os coeficientes fixos em todas as épocas, o Banco Central que reage só à inflação (e não ao hiato do PIB) e o câmbio representado pelo prêmio de risco enquanto o dólar não entra na partida. O conteúdo parte dos conceitos e das explicações do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) (`frontend/shared/concepts/concepts.tsx` e `frontend/features/explainers/`), adaptado ao que o jogo faz, e as fórmulas entram com KaTeX no Docusaurus (`remark-math` e `rehype-katex`). **Na tela:** onde um texto do jogo cita um conceito ("segue o princípio de Taylor"), o nome dele vem com o sublinhado pontilhado do app e o cursor de interrogação, o mesmo `HoverCardTrigger term` de `frontend/shared/components/ui/hover-card.tsx` que o nome do padrão de candle usa no desafio. Passar o mouse ou focar abre um cartão no molde de `pattern-hint.tsx`, com três blocos. Primeiro, o nome e uma frase do que o conceito é, sem fórmula. Depois, "Na partida agora": o conceito aplicado ao estado da partida, como "IPCA 6,2% contra meta de 3,0%: o Copom tende a subir a SELIC na próxima reunião". Por fim, o "Saiba mais" para a página da docs. Os dois primeiros funcionam sem rede, e só o link depende dela. **Mecanismo:** um componente `ConceptTerm` em `frontend/shared/components/` e um catálogo dos conceitos em `frontend/shared/lib/` (chave, nome, frase e caminho da página da docs). Cada tela que cita o conceito passa o trecho da partida que o cartão lê, já resolvido pela tela, e o "Na partida agora" é montado a partir desse trecho. No mesmo bloco de texto, só a primeira menção ao conceito leva o sublinhado. Um teste confere que o caminho de cada conceito do catálogo existe em `docs/docs/`. Os pontos de partida são o painel da Economia (cada parcela leva o nome do conceito), a decisão do Copom, o prêmio de risco do Tesouro e o card da dívida. **Onde mora:** `docs/docs/`, na categoria de explicação. **Gatilho:** depois da reorganização da docs.
-
-<a id="f239"></a>
-**F239 — Formatadores de percentual unificados.** O mesmo percentual é formatado por `displayPercent`, por `chancePercent` (`government/lib/campaign.ts`), por `formatPercent(Number(x) * 100, 1)` em três cards do mapa e por cerca de 30 `toLocaleString("pt-BR"`/`Intl.NumberFormat` espalhados em `features/`.
-
-`displayPercent` (`shared/lib/utils/display.ts`) ganha a opção `{ trim: true }`, que mostra casas só quando há (`minimumFractionDigits: 0`). `chancePercent` sai e os 4 usos viram `displayPercent(x, 2, { trim: true })`; os três `formatPercent(Number(x) * 100, 1)` (`map-place-card.tsx`, `map-places-table.tsx`, `party-regions-card.tsx`) viram `displayPercent(x, 1)`. `formatPercent` continua, porque é o formatador de pontos (52 = 52%), unidade só do governo, e a docstring dele afirma isso. Uma varredura mecânica das formatações à mão (`government/lib/*`, `economy/lib/*`, `lobby/lib/*`, `treasury/lib/treasury.ts`, entre outros) troca por `display*` onde for fração vezes 100 com `%`; onde o formato não existe, reporta em vez de criar formatador local, e o diff é revisado antes do commit.
-
-Por fora o texto exibido fica idêntico. Confere-se com `vitest`, `pnpm --dir frontend run check` e os percentuais do mapa do governo comparados com os de antes no app de teste.
 
 <a id="f241"></a>
 **F241 — Card de ações de campanha em arquivos por parte.** `government/components/campaign-actions-card.tsx` reúne o card e sete subcomponentes que só recebem props (`ActionBody`, `TvReach`, `ActionChoice`, `GroupChoices`, `GroupPollCell`, `SummaryBody`, `SummaryRow`), e resolve o `rival` duas vezes.
@@ -611,6 +601,7 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F236** | Manutenção | Prévia do impacto de preço fora da rota | — | — | — |
 | **F237** | Manutenção | Componentes do mercado na pasta da renda variável | — | — | — |
 | **F238** | Manutenção | Features do front sem import atravessado | — | — | — |
+| **F239** | Manutenção | Formatadores de percentual unificados | — | — | — |
 | **F240** | Manutenção | Badge de passo como variante do design system | — | — | — |
 | **F245** | Manutenção | Limpeza de scripts e docs | — | — | — |
 
@@ -649,6 +640,13 @@ Por fora nada mudou: só os caminhos de import.
 O minigame de candles desceu para dentro do lobby, o único que o usa: `features/candle-challenge/` virou `features/lobby/candle-challenge/`, com `components/`, `hooks/` e `lib/` preservados. O `lobby-button.tsx` do tutorial desceu para `lobby/components/`.
 
 Dentro de `features/`, a única aresta entre features que sobra é a do tutorial para variable-income, aceita como exceção.
+
+<a id="f239"></a>
+**F239 — Formatadores de percentual unificados.** `displayPercent` ganhou a opção `{ trim: true }`, que mostra casas só quando há (0,4 → "40%", 0,0025 → "0,25%"). O `chancePercent` do governo saiu e seus 4 usos viraram `displayPercent(x, 2, { trim: true })`; os três `formatPercent(Number(x) * 100, 1)` dos cards do mapa viraram `displayPercent(x, 1)`. O `formatPercent` ficou, porque é o formatador de pontos (52 = "52%"), unidade só do governo, e a docstring dele agora afirma isso.
+
+Uma varredura das formatações à mão trocou mais cinco pontos por `displayPercent`: `percentLabel` (governo), o toast do 2º turno, `percentOf` do tesouro, as três linhas da ilustração de alavancagem do tutorial e `cashShare` do lobby. O texto exibido é o mesmo de antes.
+
+Ficaram de fora, por não terem equivalente exato: `yearShare` (mínimo de 2 e máximo de 3 casas) e os formatadores de valores que já chegam na escala 0–100, ou sem o "%" (`pointsOf`, `signedPointsOf`, `pollPercent`, os de pontos percentuais do mapa).
 
 <a id="f240"></a>
 **F240 — Badge de passo como variante do design system.** O círculo numerado do `Step` em `pyspy-card.tsx` era um `Badge` reimplementado com classes inline. O `Badge` ganhou `size="step"` (`size-5.5 px-0 font-semibold`) em `badgeVariants.ts`, e o `Step` passou a `<Badge variant="secondary" size="step">`.
