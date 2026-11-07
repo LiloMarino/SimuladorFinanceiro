@@ -52,7 +52,6 @@ export type PriceCorrectionResult = components["schemas"]["PriceCorrectionResult
 export type ReplacedGenerated = components["schemas"]["ReplacedGeneratedDTO"];
 
 // Futuro gerado
-export type MarketRegime = components["schemas"]["MarketRegime"];
 export type FutureParams = components["schemas"]["FutureParamsDTO"];
 export type GeneratedFuture = components["schemas"]["GeneratedFutureDTO"];
 export type FuturePreview = components["schemas"]["FuturePreviewDTO"];

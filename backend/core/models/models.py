@@ -141,12 +141,14 @@ class GeneratedFuture(Base):
     id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
     seed: Mapped[int] = mapped_column(BigInteger, nullable=False)
     temperature: Mapped[decimal.Decimal] = mapped_column(Numeric(4, 2), nullable=False)
-    # Nulo é "o mercado de hoje": o bioma do último trimestre real
-    start_regime: Mapped[str | None] = mapped_column(
-        Enum("CALM", "NORMAL", "AGITATED", name="market_regime")
-    )
-    inflation_shock: Mapped[decimal.Decimal] = mapped_column(
+    inflation_level: Mapped[decimal.Decimal] = mapped_column(
         Numeric(5, 2), nullable=False
+    )
+    surge_frequency: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(4, 2), nullable=False, server_default="0"
+    )
+    surge_intensity: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(5, 2), nullable=False, server_default="6"
     )
     until: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     generated_at: Mapped[datetime.datetime] = mapped_column(

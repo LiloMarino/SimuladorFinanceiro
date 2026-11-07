@@ -308,7 +308,7 @@ def get_ticker_suggestions(q: Annotated[str, Query(max_length=30)] = ""):
     "/future",
     response_model=GeneratedFutureDTO | None,
     summary="Futuro gerado",
-    description="Os controles do futuro gravado, quando há um: semente, temperatura, começo e choque, até quando vai, até onde o real já chegou depois dele e quantas partidas salvas jogaram dias dele.",
+    description="Os controles do futuro gravado, quando há um: semente, temperatura, nível e surtos de inflação, até quando vai, até onde o real já chegou depois dele e quantas partidas salvas jogaram dias dele.",
 )
 def get_generated_future():
     return get_future()

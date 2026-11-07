@@ -6072,9 +6072,12 @@ export interface components {
             seed: number;
             /** Temperature */
             temperature: number;
-            start_regime?: components["schemas"]["MarketRegime"] | null;
-            /** Inflation Shock */
-            inflation_shock: number;
+            /** Inflation Level */
+            inflation_level: number;
+            /** Surge Frequency */
+            surge_frequency: number;
+            /** Surge Intensity */
+            surge_intensity: number;
         };
         /** FuturePreviewDTO */
         FuturePreviewDTO: {
@@ -6107,9 +6110,12 @@ export interface components {
             seed: number;
             /** Temperature */
             temperature: number;
-            start_regime?: components["schemas"]["MarketRegime"] | null;
-            /** Inflation Shock */
-            inflation_shock: number;
+            /** Inflation Level */
+            inflation_level: number;
+            /** Surge Frequency */
+            surge_frequency: number;
+            /** Surge Intensity */
+            surge_intensity: number;
             /** Ticker */
             ticker?: string | null;
         };
@@ -6142,9 +6148,12 @@ export interface components {
             seed: number;
             /** Temperature */
             temperature: number;
-            start_regime: components["schemas"]["MarketRegime"] | null;
-            /** Inflation Shock */
-            inflation_shock: number;
+            /** Inflation Level */
+            inflation_level: number;
+            /** Surge Frequency */
+            surge_frequency: number;
+            /** Surge Intensity */
+            surge_intensity: number;
             /**
              * Generated At
              * Format: date-time

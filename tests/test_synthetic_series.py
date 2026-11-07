@@ -12,7 +12,6 @@ from backend.features.import_data import synthetic
 from backend.features.import_data.synthetic import (
     AssetHistory,
     MarketHistory,
-    Regime,
     SeriesGenerator,
 )
 
@@ -203,45 +202,87 @@ def test_temperature_outside_the_range_is_refused(generator):
         generator.generate(UNTIL, seed=1, temperature=3.5)
 
 
-def test_inflation_shock_outside_the_range_is_refused(generator):
-    with pytest.raises(ValueError, match="Choque"):
-        generator.generate(UNTIL, seed=1, inflation_shock=25)
+@pytest.mark.parametrize(
+    ("controls", "message"),
+    [
+        ({"inflation_level": 25}, "Nível"),
+        ({"surge_frequency": 6}, "Frequência"),
+        ({"surge_intensity": 1}, "Intensidade"),
+    ],
+)
+def test_inflation_controls_outside_the_range_are_refused(generator, controls, message):
+    with pytest.raises(ValueError, match=message):
+        generator.generate(UNTIL, seed=1, **controls)
 
 
-def test_inflation_shock_raises_rates_and_hits_the_market(generator):
-    calm = generator.generate(UNTIL, seed=4)
-    shocked = generator.generate(UNTIL, seed=4, inflation_shock=10)
+def test_inflation_level_raises_rates_and_hits_the_market(generator):
+    until = date(2010, 12, 31)
+    calm = generator.generate(until, seed=4)
+    raised = generator.generate(until, seed=4, inflation_level=10)
 
-    # O choque é camada por cima dos mesmos trechos: tudo muda na mesma direção
-    ipca_push = (
-        shocked.indicators[IndicatorSeries.IPCA] - calm.indicators[IndicatorSeries.IPCA]
-    )
+    # O nível é camada por cima dos mesmos trechos: tudo muda na mesma direção
+    selic_days = list(calm.indicators[IndicatorSeries.SELIC].index)
     selic_push = synthetic._to_annual(
-        shocked.indicators[IndicatorSeries.SELIC].to_numpy()
+        raised.indicators[IndicatorSeries.SELIC].to_numpy()
     ) - synthetic._to_annual(calm.indicators[IndicatorSeries.SELIC].to_numpy())
-    assert (ipca_push.iloc[1:] > 0).all()
     assert (selic_push[5:] > 0).all()
 
     # No pico, seis meses depois, a SELIC subiu 1,5x o que subiu a inflação anual
     peak = date(2005, 7, 1)
-    selic_peak = selic_push[
-        list(calm.indicators[IndicatorSeries.SELIC].index).index(peak)
-    ]
-    assert selic_peak == pytest.approx(0.15, abs=0.005)
+    assert selic_push[selic_days.index(peak)] == pytest.approx(0.15, abs=0.005)
+    # Cinco anos depois ela assentou perto de 1x: o juro real volta ao de antes
+    assert selic_push[selic_days.index(date(2010, 1, 4))] == pytest.approx(
+        0.10, abs=0.005
+    )
 
+    # A inflação fica mais alta de forma permanente: +10% ao ano são ~0,8% ao mês
+    ipca_push = (
+        raised.indicators[IndicatorSeries.IPCA] - calm.indicators[IndicatorSeries.IPCA]
+    )
+    assert ipca_push.loc[date(2010, 1, 1) :].mean() == pytest.approx(0.797, abs=0.01)
+
+    # Na subida a bolsa leva o tombo da SELIC, e o banco, de beta maior, cai mais
     ibov_ratio = (
-        shocked.indicators[IndicatorSeries.IBOV] / calm.indicators[IndicatorSeries.IBOV]
+        raised.indicators[IndicatorSeries.IBOV] / calm.indicators[IndicatorSeries.IBOV]
     )
     assert ibov_ratio.loc[peak] < 0.9
-    bank_ratio = shocked.assets["BANK_A"]["close"] / calm.assets["BANK_A"]["close"]
+    bank_ratio = raised.assets["BANK_A"]["close"] / calm.assets["BANK_A"]["close"]
     assert bank_ratio.loc[peak] < ibov_ratio.loc[peak]  # beta do banco acima de 1
 
+    # Depois a bolsa sobe com a inflação somada no nominal
+    assert ibov_ratio.iloc[-1] > ibov_ratio.loc[peak]
 
-def test_inflation_shock_keeps_the_subset_invariant(generator):
-    full = generator.generate(UNTIL, seed=6, inflation_shock=-5)
-    alone = generator.generate(UNTIL, seed=6, inflation_shock=-5, tickers=["POWER"])
+
+def test_inflation_level_keeps_the_subset_invariant(generator):
+    controls = {"inflation_level": -5, "surge_frequency": 3, "surge_intensity": 8}
+    full = generator.generate(UNTIL, seed=6, **controls)
+    alone = generator.generate(UNTIL, seed=6, tickers=["POWER"], **controls)
 
     pd.testing.assert_frame_equal(alone.assets["POWER"], full.assets["POWER"])
+
+
+def test_more_frequent_surges_contain_the_less_frequent_ones(generator):
+    def surges(frequency: float) -> set[tuple[float, float]]:
+        draw = synthetic._Draw(5, 1.0, 0.0, frequency / 10, 0.06)
+        return set(generator._surges(draw, 30))
+
+    rare, frequent = surges(1), surges(5)
+    assert rare < frequent
+    assert surges(0) == set()
+
+
+def test_surges_are_pulses_over_the_same_stretches(generator):
+    until = date(2014, 12, 31)
+    calm = generator.generate(until, seed=9)
+    surged = generator.generate(until, seed=9, surge_frequency=5, surge_intensity=12)
+
+    ipca_push = (
+        surged.indicators[IndicatorSeries.IPCA] - calm.indicators[IndicatorSeries.IPCA]
+    )
+    # Cada surto só soma inflação, e some quando passa
+    assert (ipca_push >= -0.011).all()
+    assert ipca_push.max() > 0.3
+    assert ipca_push.min() < 0.05
 
 
 def test_next_stretch_starts_close_to_the_current_economy(generator, history):
@@ -253,39 +294,12 @@ def test_next_stretch_starts_close_to_the_current_economy(generator, history):
         generator.selic_annual[
             generator._path(draw, UNTIL).chain[generator.anchor_block]
         ]
-        for draw in (
-            synthetic._Draw(seed, 1.0, generator.current_regime, 0.0)
-            for seed in range(40)
-        )
+        for draw in (synthetic._Draw(seed, 1.0, 0.0, 0.0, 0.06) for seed in range(40))
     ]
     anywhere = generator.selic_annual[generator.starts]
     assert np.mean(np.abs(np.array(chosen) - today)) < 0.5 * np.mean(
         np.abs(anywhere - today)
     )
-
-
-def test_starting_in_a_crisis_begins_agitated(generator):
-    def first_quarter_volatility(regime: Regime) -> float:
-        return float(
-            np.mean(
-                [
-                    np.std(
-                        log_returns(
-                            generator.generate(
-                                date(2005, 3, 31),
-                                seed=seed,
-                                start_regime=regime,
-                                tickers=[],
-                            ).indicators[IndicatorSeries.IBOV]
-                        )
-                    )
-                    for seed in range(30)
-                ]
-            )
-        )
-
-    calm, normal, agitated = (first_quarter_volatility(r) for r in Regime)
-    assert calm < normal < agitated
 
 
 def test_asset_without_history_in_the_drawn_stretch_follows_its_segment(generator):

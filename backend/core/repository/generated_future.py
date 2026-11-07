@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.generated_future import FutureParamsDTO, GeneratedFutureDTO
 from backend.core.dto.series_coverage import SeriesKind
-from backend.core.enum import DataOrigin, MarketRegime
+from backend.core.enum import DataOrigin
 from backend.core.models.models import (
     EconomicIndicatorHistory,
     GeneratedFuture,
@@ -47,10 +47,9 @@ class GeneratedFutureRepository:
             until=future.until,
             seed=future.seed,
             temperature=float(future.temperature),
-            start_regime=(
-                MarketRegime(future.start_regime) if future.start_regime else None
-            ),
-            inflation_shock=float(future.inflation_shock),
+            inflation_level=float(future.inflation_level),
+            surge_frequency=float(future.surge_frequency),
+            surge_intensity=float(future.surge_intensity),
             generated_at=future.generated_at,
             real_advanced_until=future.real_advanced_until,
             saved_simulations_on_future=self._count_saved_on_future(session),
@@ -193,8 +192,9 @@ class GeneratedFutureRepository:
         values = {
             "seed": params.seed,
             "temperature": Decimal(str(params.temperature)),
-            "start_regime": params.start_regime.value if params.start_regime else None,
-            "inflation_shock": Decimal(str(params.inflation_shock)),
+            "inflation_level": Decimal(str(params.inflation_level)),
+            "surge_frequency": Decimal(str(params.surge_frequency)),
+            "surge_intensity": Decimal(str(params.surge_intensity)),
             "until": params.until,
             "generated_at": generated_at,
             "real_advanced_until": None,

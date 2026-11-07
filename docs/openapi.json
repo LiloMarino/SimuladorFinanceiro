@@ -2924,7 +2924,7 @@
           "Import Assets"
         ],
         "summary": "Futuro gerado",
-        "description": "Os controles do futuro gravado, quando há um: semente, temperatura, começo e choque, até quando vai, até onde o real já chegou depois dele e quantas partidas salvas jogaram dias dele.",
+        "description": "Os controles do futuro gravado, quando há um: semente, temperatura, nível e surtos de inflação, até quando vai, até onde o real já chegou depois dele e quantas partidas salvas jogaram dias dele.",
         "operationId": "get_generated_future_api_import_assets_future_get",
         "responses": {
           "200": {
@@ -17350,21 +17350,23 @@
             "minimum": 0.0,
             "title": "Temperature"
           },
-          "start_regime": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/MarketRegime"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "inflation_shock": {
+          "inflation_level": {
             "type": "number",
             "maximum": 20.0,
             "minimum": -5.0,
-            "title": "Inflation Shock"
+            "title": "Inflation Level"
+          },
+          "surge_frequency": {
+            "type": "number",
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Surge Frequency"
+          },
+          "surge_intensity": {
+            "type": "number",
+            "maximum": 20.0,
+            "minimum": 2.0,
+            "title": "Surge Intensity"
           }
         },
         "additionalProperties": false,
@@ -17373,7 +17375,9 @@
           "until",
           "seed",
           "temperature",
-          "inflation_shock"
+          "inflation_level",
+          "surge_frequency",
+          "surge_intensity"
         ],
         "title": "FutureParamsDTO",
         "description": "Os controles de uma geração: os mesmos valores geram o mesmo futuro."
@@ -17500,21 +17504,23 @@
             "minimum": 0.0,
             "title": "Temperature"
           },
-          "start_regime": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/MarketRegime"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "inflation_shock": {
+          "inflation_level": {
             "type": "number",
             "maximum": 20.0,
             "minimum": -5.0,
-            "title": "Inflation Shock"
+            "title": "Inflation Level"
+          },
+          "surge_frequency": {
+            "type": "number",
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Surge Frequency"
+          },
+          "surge_intensity": {
+            "type": "number",
+            "maximum": 20.0,
+            "minimum": 2.0,
+            "title": "Surge Intensity"
           },
           "ticker": {
             "anyOf": [
@@ -17534,7 +17540,9 @@
           "until",
           "seed",
           "temperature",
-          "inflation_shock"
+          "inflation_level",
+          "surge_frequency",
+          "surge_intensity"
         ],
         "title": "FuturePreviewRequest"
       },
@@ -17593,21 +17601,23 @@
             "minimum": 0.0,
             "title": "Temperature"
           },
-          "start_regime": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/MarketRegime"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "inflation_shock": {
+          "inflation_level": {
             "type": "number",
             "maximum": 20.0,
             "minimum": -5.0,
-            "title": "Inflation Shock"
+            "title": "Inflation Level"
+          },
+          "surge_frequency": {
+            "type": "number",
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Surge Frequency"
+          },
+          "surge_intensity": {
+            "type": "number",
+            "maximum": 20.0,
+            "minimum": 2.0,
+            "title": "Surge Intensity"
           },
           "generated_at": {
             "type": "string",
@@ -17637,8 +17647,9 @@
           "until",
           "seed",
           "temperature",
-          "start_regime",
-          "inflation_shock",
+          "inflation_level",
+          "surge_frequency",
+          "surge_intensity",
           "generated_at",
           "real_advanced_until",
           "saved_simulations_on_future"

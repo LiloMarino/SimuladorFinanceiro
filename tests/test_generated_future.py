@@ -3,6 +3,7 @@
 import uuid
 from datetime import UTC, date, datetime
 from decimal import Decimal
+from typing import Any
 
 import pandas as pd
 import pytest
@@ -31,10 +32,16 @@ from tests.test_synthetic_series import LAST_REAL
 
 UNTIL = date(2005, 6, 30)
 PLAYED_UNTIL = date(2005, 2, 15)
+# Sem nível nem surtos de inflação
+NEUTRAL: dict[str, Any] = {
+    "inflation_level": 0,
+    "surge_frequency": 0,
+    "surge_intensity": 6,
+}
 
 
 def params(seed: int) -> FutureParamsDTO:
-    return FutureParamsDTO(until=UNTIL, seed=seed, temperature=1, inflation_shock=0)
+    return FutureParamsDTO(until=UNTIL, seed=seed, temperature=1, **NEUTRAL)
 
 
 @pytest.fixture
@@ -218,7 +225,11 @@ def test_cancelling_keeps_the_previous_future(
 
 def test_preview_generates_without_recording(base: Engine):
     request = FuturePreviewRequest(
-        until=UNTIL, seed=7, temperature=1, inflation_shock=10, ticker="BANK_A"
+        until=UNTIL,
+        seed=7,
+        temperature=1,
+        **(NEUTRAL | {"inflation_level": 10}),
+        ticker="BANK_A",
     )
 
     preview = future.preview(request)
@@ -239,7 +250,7 @@ def test_preview_generates_without_recording(base: Engine):
 def test_horizon_stops_thirty_years_after_the_last_real_day(base: Engine):
     last_year = LAST_REAL.year + future.MAX_FUTURE_YEARS
     request = FuturePreviewRequest(
-        until=date(last_year + 1, 1, 2), seed=7, temperature=1, inflation_shock=0
+        until=date(last_year + 1, 1, 2), seed=7, temperature=1, **NEUTRAL
     )
 
     with pytest.raises(BadRequestError, match=f"31/12/{last_year}"):

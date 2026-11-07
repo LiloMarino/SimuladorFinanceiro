@@ -13,9 +13,11 @@ class FutureParamsDTO(BaseDTO):
     until: date
     seed: int = Field(ge=0, le=2**63 - 1)
     temperature: float = Field(ge=0, le=3)
-    # Nulo começa no bioma do mercado de hoje
-    start_regime: MarketRegime | None = None
-    inflation_shock: float = Field(ge=-5, le=20)
+    # Pontos a mais (ou a menos) na inflação anual, para o futuro inteiro
+    inflation_level: float = Field(ge=-5, le=20)
+    # Surtos de inflação por década e a intensidade média de cada um, em pontos
+    surge_frequency: float = Field(ge=0, le=5)
+    surge_intensity: float = Field(ge=2, le=20)
 
 
 class GeneratedFutureDTO(FutureParamsDTO):

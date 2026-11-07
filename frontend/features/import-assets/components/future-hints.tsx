@@ -2,7 +2,14 @@ import type { ReactNode } from "react";
 import { InfoHint } from "@/shared/components/info-hint";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
-import { withMinus, INFLATION_SHOCK_TABLE, signedShock, TEMPERATURE_TABLE } from "../lib/future-readings";
+import { displayNumber } from "@/shared/lib/utils/display";
+import {
+  INFLATION_LEVEL_TABLE,
+  signedLevel,
+  SURGE_FREQUENCY_TABLE,
+  TEMPERATURE_TABLE,
+  withMinus,
+} from "../lib/future-readings";
 
 type HintRow = { values: number[]; cells: ReactNode[] };
 
@@ -67,46 +74,78 @@ export function TemperatureHint() {
   );
 }
 
-export function StartRegimeHint() {
+export function InflationLevelHint() {
   return (
-    <InfoHint label="O que é o clima inicial">
+    <InfoHint label="O que é o nível da inflação" interactive>
       <div className="space-y-1.5 text-left">
-        <p className="font-semibold">Começar em</p>
+        <p className="font-semibold">Nível da inflação</p>
         <p>
-          O mercado alterna entre três climas, pela agitação do Ibovespa: calmaria (o terço mais calmo do histórico),
-          normal e crise (o terço mais agitado).
+          Soma pontos à inflação anual do futuro inteiro: a alta leva seis meses e fica. A SELIC sobe 1,5 vez o que a
+          inflação subiu, como o Banco Central faz para conter a alta, e depois assenta em 1 vez, de modo que o juro
+          real volta ao de antes. A bolsa cai na subida do juro e depois sobe com a inflação somada.
         </p>
         <p>
-          A escolha vale só para o primeiro trimestre. Depois o clima muda sozinho, com as chances medidas no histórico:
-          crise tende a ser seguida de crise.
+          <b>Juro real</b> é a SELIC descontada a inflação: SELIC de 14% com inflação de 6% rende uns 8% acima dos
+          preços. <b>Bolsa real</b> é a variação do Ibovespa já descontada a inflação: +21% quer dizer que o dinheiro na
+          bolsa compra 21% a mais depois de 10 anos.
+        </p>
+        <HintTable
+          head={["Nível", "Inflação média", "SELIC média", "Bolsa real em 10 anos"]}
+          rows={INFLATION_LEVEL_TABLE.map((row) => ({
+            values: [row.level, row.inflation, row.selic, row.stocksReal],
+            cells: [
+              signedLevel(row.level),
+              `${row.inflation}% ao ano`,
+              `${row.selic}% ao ano`,
+              withMinus(`${row.stocksReal > 0 ? "+" : ""}${row.stocksReal}%`),
+            ],
+          }))}
+        />
+        <p className="opacity-70">
+          Medianas de 50 futuros de 10 anos partindo de hoje. A bolsa varia muito de um futuro para outro: o do meio
+          sobe 21% sem nível, e os extremos vão de −67% a +343%.
         </p>
       </div>
     </InfoHint>
   );
 }
 
-export function InflationShockHint() {
+export function SurgeFrequencyHint() {
   return (
-    <InfoHint label="O que é o choque de inflação" interactive>
+    <InfoHint label="O que são os surtos de inflação" interactive>
       <div className="space-y-1.5 text-left">
-        <p className="font-semibold">Choque de inflação</p>
+        <p className="font-semibold">Frequência dos surtos</p>
         <p>
-          Soma pontos à inflação anual: cresce em seis meses e depois perde metade da força a cada ano. A SELIC sobe 1,5
-          vez o que a inflação subiu, como o Banco Central faz para conter a alta.
+          Surto é uma alta de inflação que sobe em seis meses e perde metade da força a cada ano, com a SELIC subindo
+          1,5 vez o que a inflação subiu. Cada ano da série tem a própria chance de começar um: 3 surtos por década são
+          3 chances em 10.
+        </p>
+        <p>
+          Com a mesma semente, aumentar a frequência só acrescenta surtos, sem mexer nos que já estavam. Surtos próximos
+          se somam.
         </p>
         <HintTable
-          head={["Choque", "Inflação no pico", "SELIC no pico", "Queda em 2 anos"]}
-          rows={INFLATION_SHOCK_TABLE.map((row) => ({
-            values: [row.shock, row.inflationPeak, row.selicPeak, -row.twoYearDrop],
-            cells: [
-              signedShock(row.shock),
-              `${row.inflationPeak}%`,
-              `${row.selicPeak}%`,
-              withMinus(`${row.twoYearDrop}%`),
-            ],
+          head={["Surtos por década", "Anos com inflação acima de 10%"]}
+          rows={SURGE_FREQUENCY_TABLE.map((row) => ({
+            values: [row.frequency, row.hotYears],
+            cells: [row.frequency, `${displayNumber(row.hotYears, 1)} de 10`],
           }))}
         />
-        <p className="opacity-70">Medianas de 50 futuros partindo de hoje, com a SELIC em 13,65%.</p>
+        <p className="opacity-70">Médias de 50 futuros de 10 anos, com surtos de 6 pontos e sem nível extra.</p>
+      </div>
+    </InfoHint>
+  );
+}
+
+export function SurgeIntensityHint() {
+  return (
+    <InfoHint label="O que é a intensidade dos surtos">
+      <div className="space-y-1.5 text-left">
+        <p className="font-semibold">Intensidade dos surtos</p>
+        <p>
+          Quantos pontos um surto soma à inflação anual no pico, seis meses depois de começar. É a média: cada surto
+          sorteia entre metade e uma vez e meia esse valor. Sem surtos, a intensidade não faz nada.
+        </p>
       </div>
     </InfoHint>
   );

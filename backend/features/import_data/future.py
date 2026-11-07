@@ -44,7 +44,6 @@ from backend.features.import_data.synthetic import (
     AssetHistory,
     GeneratedSeries,
     MarketHistory,
-    Regime,
     SeriesGenerator,
 )
 from backend.features.realtime import notify
@@ -136,13 +135,13 @@ def _generate(
             f"Escolha uma data até 31/12/{last_year}, "
             f"{MAX_FUTURE_YEARS} anos depois do último dado real do Ibovespa."
         )
-    regime = Regime[params.start_regime.value] if params.start_regime else None
     return generator.generate(
         params.until,
         seed=params.seed,
         temperature=params.temperature,
-        start_regime=regime,
-        inflation_shock=params.inflation_shock,
+        inflation_level=params.inflation_level,
+        surge_frequency=params.surge_frequency,
+        surge_intensity=params.surge_intensity,
         tickers=tickers,
     )
 

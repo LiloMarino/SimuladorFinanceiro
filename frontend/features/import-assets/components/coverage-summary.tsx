@@ -5,7 +5,7 @@ import { isOutdatedStock } from "@/shared/lib/series-coverage";
 import { cn } from "@/shared/lib/utils";
 import { displayDecimal, displayIsoDate } from "@/shared/lib/utils/display";
 import type { GeneratedFuture, SeriesCoverage } from "@/types";
-import { REGIME_NAMES, withMinus } from "../lib/future-readings";
+import { displayIntensity, displaySurgeFrequency, signedLevel } from "../lib/future-readings";
 import { displayRecordedAt } from "../lib/recorded-at";
 
 type Stat = {
@@ -90,9 +90,9 @@ export function CoverageSummary({ series, future, onGenerate }: CoverageSummaryP
             detail: (
               <>
                 Semente <span className="font-mono">{future.seed}</span> · temperatura{" "}
-                {displayDecimal(future.temperature)} · começo:{" "}
-                {future.start_regime ? REGIME_NAMES[future.start_regime] : "hoje"} · choque{" "}
-                {withMinus(String(future.inflation_shock))}
+                {displayDecimal(future.temperature)} · inflação {signedLevel(future.inflation_level)} ·{" "}
+                {displaySurgeFrequency(future.surge_frequency)}
+                {future.surge_frequency > 0 && <> de {displayIntensity(future.surge_intensity)}</>}
                 {future.real_advanced_until && (
                   <>
                     <br />O real chegou até {displayIsoDate(future.real_advanced_until)} depois deste futuro

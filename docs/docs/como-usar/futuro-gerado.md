@@ -36,7 +36,7 @@ Cada trecho do histórico tem um **bioma**, pela agitação do Ibovespa nele: o 
 
 Crise tende a vir seguida de crise (61%), e a calmaria volta aos poucos. Na estatística, isso é um **modelo de troca de regimes** (Hamilton, 1989).
 
-O futuro começa no bioma em que o mercado real está hoje, ou no que você escolher. Começar numa crise dá uma crise que dura e sai aos poucos, como as do histórico.
+O futuro começa no bioma em que o mercado real está hoje. Começar numa crise dá uma crise que dura e sai aos poucos, como as do histórico.
 
 ---
 
@@ -67,27 +67,38 @@ Os controles ficam no diálogo "Gerar dados futuros" da [Central de dados](./imp
 
 O ano mais agitado desde 2000 foi 2008, com volatilidade de 52%. A temperatura 2 fica perto dele; a 3 é o "modo apocalipse": todo ano é pior que 2008.
 
-**Começar em.** O bioma do primeiro trimestre: o do mercado de hoje (padrão), calmaria, normal ou crise. Começando em crise, a volatilidade do primeiro ano fica em 30%, contra 22% começando normal e 18% calmo.
+**Nível da inflação**, de −5 a +20 pontos, padrão 0. Os trechos reais nunca passam do que já aconteceu desde 2000; o nível é o jeito de sair disso. Ele soma pontos à inflação anual de forma permanente: cresce em seis meses e fica. A SELIC reage subindo **1,5 vez** o que a inflação subiu, e depois assenta em 1 vez: o juro real (o juro descontado da inflação) fica perto do de hoje. Esse é o **princípio de Taylor** (Taylor, 1993): para conter a inflação, o Banco Central sobe o juro mais do que a inflação subiu, senão o juro descontado da inflação cai e a alta continua. A bolsa leva um tombo na subida do juro, como sentiu no histórico (em média, o Ibovespa caiu 2,9% no trimestre para cada ponto de alta da SELIC) e depois volta a subir com a inflação, porque os preços das empresas sobem junto com os dos outros produtos.
 
-**Choque de inflação**, de −5 a +20 pontos, padrão 0. Os trechos reais nunca passam do que já aconteceu desde 2000; o choque é o jeito de sair disso. Ele soma pontos à inflação anual, cresce em seis meses e depois perde metade da força a cada ano. A SELIC reage subindo **1,5 vez** o que a inflação subiu. Esse é o **princípio de Taylor** (Taylor, 1993): para conter a inflação, o Banco Central sobe o juro mais do que a inflação subiu, senão o juro descontado da inflação cai e a alta continua. A bolsa sente o juro como sentiu no histórico: em média, o Ibovespa caiu 2,9% no trimestre para cada ponto de alta da SELIC, e cada ação sente na proporção do quanto costuma acompanhar o índice.
-
-| Choque | Inflação de 12 meses no pico | SELIC no pico | Maior queda do Ibovespa em 2 anos |
+| Nível | Inflação média no ano | SELIC média | Ibovespa em 10 anos, descontada a inflação |
 | --- | --- | --- | --- |
-| −5 | 6% | 13% (cai até 6%) | −30% |
-| 0 | 7% | 15% | −26% |
-| +10 | 14% | 28% | −36% |
-| +20 | 22% | 43% | −57% |
+| −5 | 1% | 9% | +35% |
+| 0 | 6% | 14% | +21% |
+| +10 | 16% | 24% | −4% |
+| +20 | 26% | 35% | −23% |
 
-Medianas de 50 futuros partindo de outubro de 2026, com a SELIC em 13,65%. No choque negativo, o juro cai e a bolsa sobe primeiro, e depois devolve parte da alta quando o juro volta.
+Medianas de 50 futuros de 10 anos partindo de hoje, com a SELIC em 13,65%. "Descontada a inflação" quer dizer em poder de compra: +21% é o quanto a carteira de ações compra a mais no fim dos 10 anos.
+
+**Frequência dos surtos**, de 0 a 5 por década, padrão 0. Um surto é uma alta de inflação que passa: sobe em meio ano e perde metade da força a cada ano, como a de 2015. A SELIC sobe 1,5 vez o que a inflação subiu e a bolsa leva o tombo do juro, sem a compensação do nível, porque o preço das empresas não fica mais alto de forma permanente. Os surtos são sorteados ano a ano e podem se somar. A frequência 1 quer dizer que, em média, 1 ano em 10 abre um surto; com 5, a chance sobe a 1 em 2. Com 0, não há surtos e a intensidade não conta.
+
+**Intensidade dos surtos**, de 2 a 20 pontos, padrão 6. É o pico médio de cada surto; o de cada um é sorteado entre metade e uma vez e meia esse valor (com 6, de 3 a 9 pontos).
+
+| Surtos por década | Anos com inflação de 12 meses acima de 10% |
+| --- | --- |
+| 0 | 0,8 |
+| 1 | 1,9 |
+| 3 | 3,1 |
+| 5 | 4,9 |
+
+Médias de 50 futuros de 10 anos, com intensidade 6. Mesmo com 0 surtos o histórico traz uns 0,8 ano acima de 10% em 10 anos, porque o futuro de hoje parte de uma inflação alta.
 
 ---
 
 ## Os indicadores, um por um
 
 - **Ibovespa:** repete os movimentos do trecho sorteado, como uma ação.
-- **SELIC:** parte do valor real de hoje e soma as variações do trecho sorteado, sem passar do mínimo e do máximo vistos desde 2000 (1,9% a 26,4% ao ano). O choque soma por cima.
+- **SELIC:** parte do valor real de hoje e soma as variações do trecho sorteado, sem passar do mínimo e do máximo vistos desde 2000 (1,9% a 26,4% ao ano). O nível e os surtos somam por cima.
 - **CDI:** acompanha a SELIC, com a mesma diferença que os dois tinham no último dia real.
-- **IPCA:** a inflação de cada mês é a do mês sorteado. A inflação mensal oscila em torno de uma média e não se acumula como a SELIC; somar variações de IPCA levaria a inflações absurdas. O choque soma por cima.
+- **IPCA:** a inflação de cada mês é a do mês sorteado. A inflação mensal oscila em torno de uma média e não se acumula como a SELIC; somar variações de IPCA levaria a inflações absurdas. O nível e os surtos somam por cima.
 
 ---
 
@@ -103,7 +114,7 @@ Medianas de 50 futuros partindo de outubro de 2026, com a SELIC em 13,65%. No ch
 
 ## Quão realista é
 
-Para cada critério, o histórico real (2000 a 2026, 37 ações e fundos imobiliários de 10 setores) comparado com 100 futuros gerados, com temperatura 1 e sem choque.
+Para cada critério, o histórico real (2000 a 2026, 37 ações e fundos imobiliários de 10 setores) comparado com 100 futuros gerados, com temperatura 1, nível 0 e sem surtos.
 
 **Dias bruscos (curtose).** Mede o quanto aparecem dias extremos, como um −10% num pregão. Vale 0 numa curva em forma de sino perfeita, em que esses dias praticamente não existem; quanto maior, mais dias bruscos. Real: 53. Gerado: 23. Passeio aleatório: 0. Parte do 53 real ainda é erro de dado da fonte.
 
@@ -130,7 +141,7 @@ Uma correlação de 0,37 é uma tendência moderada, não uma regra: em 2008 a S
 
 ## Limites
 
-- **Sem choque, o futuro nunca traz um tipo de crise que não aconteceu desde 2000.** Uma pandemia ou um ciclo de juros inédito só aparece se você pedir, pela temperatura ou pelo choque.
+- **Sem nível e sem surtos, o futuro nunca traz um tipo de crise que não aconteceu desde 2000.** Uma pandemia ou um ciclo de juros inédito só aparece se você pedir, pela temperatura, pelo nível ou pelos surtos.
 - **Não acerta o destino de uma empresa.** O gerador reproduz a estrutura do mercado (crises, setores, juros), não as surpresas de uma empresa específica, como um escândalo contábil.
 - **Os futuros partem do momento atual** e são coerentes com ele, o que também os deixa mais parecidos entre si do que o futuro real costuma ser.
 

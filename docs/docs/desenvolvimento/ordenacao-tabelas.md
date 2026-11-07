@@ -18,7 +18,7 @@ As respostas guardadas no cache da API não são modificadas pela ordenação.
   tabelas das métricas que compõem a nota.
 - Histórico do viver de renda.
 - Séries importadas, matriz de correlação, desempenho e tráfego do servidor.
-- Tabelas de referência da temperatura e do choque de inflação, em ajuda que abre
+- Tabelas de referência da temperatura, do nível e dos surtos de inflação, em ajuda que abre
   por clique e aceita interação pelo teclado.
 
 Equipes e seus membros continuam juntos: os grupos são ordenados pelo valor da

@@ -14,10 +14,16 @@ com SELIC, inflação de 12 meses e tendência da inflação parecidas com as do
 momento gerado. É o que mantém o juro real plausível e a SELIC reagindo à
 inflação como no histórico.
 
-Choque de inflação: uma camada por cima do sorteio, que sobe em seis meses e
-decai pela metade a cada ano. Soma X pontos à inflação anual, 1,5·X à SELIC
-(princípio de Taylor: o juro sobe mais que a inflação) e, à bolsa, a reação
-histórica do Ibovespa à SELIC, cada ativo pelo seu beta.
+Inflação por regime: duas camadas por cima do sorteio, que mudam os níveis sem
+mudar os trechos.
+- O nível sobe em seis meses e fica. Soma X pontos à inflação anual; a SELIC
+  reage 1,5·X na subida (princípio de Taylor: o juro sobe mais que a inflação) e
+  assenta em +X, de modo que o juro real volta ao de antes. A bolsa leva a
+  reação histórica do Ibovespa à SELIC, cada ativo pelo seu beta, e depois sobe
+  com a inflação somada no nominal.
+- Os surtos são pulsos que sobem em seis meses e decaem pela metade a cada ano,
+  sorteados ano a ano pela semente. Cada um soma pontos à inflação anual, 1,5x
+  isso à SELIC e a reação da bolsa à SELIC, sem repasse nominal.
 
 É uma conta pura sobre o histórico recebido: nada aqui lê ou grava no banco.
 """
@@ -57,8 +63,13 @@ MIN_FIT_DAYS = 60
 
 # Largura do encaixe de nível, em desvios-padrão do estado dos trechos
 MATCH_BANDWIDTH = 0.5
-# Choque de inflação, em pontos percentuais da inflação anual
-MIN_INFLATION_SHOCK, MAX_INFLATION_SHOCK = -5.0, 20.0
+# Nível da inflação, em pontos percentuais da inflação anual
+MIN_INFLATION_LEVEL, MAX_INFLATION_LEVEL = -5.0, 20.0
+# Surtos de inflação: quantos por década e a intensidade média, em pontos
+MIN_SURGE_FREQUENCY, MAX_SURGE_FREQUENCY = 0.0, 5.0
+MIN_SURGE_INTENSITY, MAX_SURGE_INTENSITY = 2.0, 20.0
+SURGES_DECADE_YEARS = 10
+SURGE_SALT = zlib.crc32(b"inflation-surge")
 SHOCK_RAMP_YEARS, SHOCK_HALF_LIFE_YEARS = 0.5, 1.0
 SELIC_SHOCK_RESPONSE = 1.5
 SELIC_FLOOR = 0.005
@@ -207,11 +218,11 @@ class SeriesGenerator:
             int(np.digitize(np.nanstd(self.market[-BLOCK_DAYS:]), cuts))
         )
         self.anchor_block = _block_of(self.calendar_days[-1])[0]
-        # O choque começa no primeiro dia depois do último pregão real
+        # O nível e os surtos começam no primeiro dia depois do último pregão real
         self.shock_start = _day_number(self.calendar_days[-1]) + 1
         self._prepare_economy()
 
-        self._paths: dict[tuple[int, float, Regime], _Path] = {}
+        self._paths: dict[tuple[int, float], _Path] = {}
         self._bars: dict[str, pd.DataFrame] = {}
         self._returns: dict[str, np.ndarray] = {}
         self._group_means: dict[tuple[str, str], np.ndarray] = {}
@@ -279,31 +290,44 @@ class SeriesGenerator:
         until: date,
         seed: int,
         temperature: float = 1.0,
-        start_regime: Regime | None = None,
-        inflation_shock: float = 0.0,
+        inflation_level: float = 0.0,
+        surge_frequency: float = 0.0,
+        surge_intensity: float = 6.0,
         tickers: Iterable[str] | None = None,
     ) -> GeneratedSeries:
         """
         Cada série recebe os dias úteis desde o dia seguinte ao seu último dado
         real até `until`. O trecho sorteado para cada data depende só da semente,
-        da temperatura, do bioma inicial e da data: gerar um ativo sozinho dá as
-        mesmas linhas que gerá-lo junto com os outros. O choque de inflação, em
-        pontos percentuais, muda os níveis sem mudar os trechos.
+        da temperatura e da data: gerar um ativo sozinho dá as mesmas linhas que
+        gerá-lo junto com os outros. O nível da inflação (pontos percentuais) e os
+        surtos (quantos por década e a intensidade em pontos) mudam os níveis sem
+        mudar os trechos.
         """
         if not MIN_TEMPERATURE <= temperature <= MAX_TEMPERATURE:
             raise ValueError(
                 f"Temperatura fora de [{MIN_TEMPERATURE}, {MAX_TEMPERATURE}]."
             )
-        if not MIN_INFLATION_SHOCK <= inflation_shock <= MAX_INFLATION_SHOCK:
+        if not MIN_INFLATION_LEVEL <= inflation_level <= MAX_INFLATION_LEVEL:
             raise ValueError(
-                "Choque de inflação fora de "
-                f"[{MIN_INFLATION_SHOCK}, {MAX_INFLATION_SHOCK}] pontos."
+                "Nível da inflação fora de "
+                f"[{MIN_INFLATION_LEVEL}, {MAX_INFLATION_LEVEL}] pontos."
+            )
+        if not MIN_SURGE_FREQUENCY <= surge_frequency <= MAX_SURGE_FREQUENCY:
+            raise ValueError(
+                "Frequência dos surtos fora de "
+                f"[{MIN_SURGE_FREQUENCY}, {MAX_SURGE_FREQUENCY}] por década."
+            )
+        if not MIN_SURGE_INTENSITY <= surge_intensity <= MAX_SURGE_INTENSITY:
+            raise ValueError(
+                "Intensidade dos surtos fora de "
+                f"[{MIN_SURGE_INTENSITY}, {MAX_SURGE_INTENSITY}] pontos."
             )
         draw = _Draw(
             seed,
             temperature,
-            self.current_regime if start_regime is None else start_regime,
-            inflation_shock / 100,
+            inflation_level / 100,
+            surge_frequency / SURGES_DECADE_YEARS,
+            surge_intensity / 100,
         )
         selected = self.history.assets if tickers is None else tickers
         result = GeneratedSeries()
@@ -320,10 +344,10 @@ class SeriesGenerator:
     def _path(self, draw: "_Draw", last_day: date) -> "_Path":
         """
         Percorre os dias desde o bloco âncora sorteando um trecho por bloco e
-        levando junto a SELIC e o IPCA sem choque: o encaixe do próximo trecho
-        depende do estado a que os anteriores levaram.
+        levando junto a SELIC e o IPCA sem nível nem surtos: o encaixe do próximo
+        trecho depende do estado a que os anteriores levaram.
         """
-        key = (draw.seed, draw.temperature, draw.start_regime)
+        key = (draw.seed, draw.temperature)
         cached = self._paths.get(key)
         if cached is not None and cached.last_day >= last_day:
             return cached
@@ -334,7 +358,7 @@ class SeriesGenerator:
         level = self.last_selic
         recent_ipca = list(self.last_ipca)
         ipca12 = [_accumulated(recent_ipca)] * 4 if recent_ipca else [np.nan] * 4
-        regime = draw.start_regime
+        regime = self.current_regime
 
         number = self.anchor_block * BLOCK_DAYS
         day = _day_from_number(number)
@@ -399,24 +423,55 @@ class SeriesGenerator:
             ]
         )
 
-    def _shock(self, draw: "_Draw", day: date) -> float:
-        """Choque vigente no dia: sobe em seis meses e decai pela metade a cada ano."""
-        if not draw.shock:
-            return 0.0
-        years = max(_day_number(day) - self.shock_start, 0) / TRADING_DAYS_PER_YEAR
-        ramp = min(years / SHOCK_RAMP_YEARS, 1.0)
-        decay = 0.5 ** (max(years - SHOCK_RAMP_YEARS, 0) / SHOCK_HALF_LIFE_YEARS)
-        return draw.shock * ramp * decay
+    def _surges(self, draw: "_Draw", last_year: int) -> list[tuple[float, float]]:
+        """
+        Surtos do sorteio como (início em anos desde `shock_start`, amplitude em
+        fração). Cada ano `k` tem o próprio sorteio: aumentar a frequência só
+        acrescenta surtos e eles dependem só da semente e do ano.
+        """
+        surges = []
+        for k in range(last_year + 1):
+            u1, u2, u3 = np.random.default_rng([draw.seed, SURGE_SALT, k]).random(3)
+            if u1 < draw.surge_frequency:
+                surges.append((k + float(u2), draw.surge_intensity * (0.5 + float(u3))))
+        return surges
+
+    def _effects(
+        self, draw: "_Draw", numbers: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """
+        O que o nível e os surtos somam em cada pregão (número de dia útil), em
+        fração ao ano: a inflação e a SELIC, antes do piso da SELIC. O nível sobe em
+        seis meses e fica; a SELIC reage 1,5x na subida e assenta em 1x. Cada surto
+        é um pulso que sobe em seis meses e decai pela metade a cada ano, com a SELIC
+        a 1,5x.
+        """
+        elapsed = (numbers - self.shock_start) / TRADING_DAYS_PER_YEAR
+        years = np.maximum(elapsed, 0.0)
+        level = draw.level * _ramp(years)
+        inflation = level.copy()
+        selic = level * (1 + (SELIC_SHOCK_RESPONSE - 1) * _decay(years))
+        for start, amplitude in self._surges(draw, int(years.max(initial=0.0))):
+            since = np.maximum(elapsed - start, 0.0)
+            pulse = amplitude * _ramp(since) * _decay(since)
+            inflation += pulse
+            selic += SELIC_SHOCK_RESPONSE * pulse
+        return inflation, selic
 
     def _shock_moves(self, draw: "_Draw", days: list[date]) -> np.ndarray:
-        """Retorno extra do Ibovespa em cada dia pela SELIC que o choque empurrou."""
-        if not draw.shock:
+        """
+        Retorno extra do Ibovespa em cada dia: a reação à SELIC que o nível e os
+        surtos empurraram, mais o repasse nominal da inflação do nível.
+        """
+        if not draw.level and not draw.surge_frequency:
             return np.zeros(len(days))
-        previous = _day_from_number(_day_number(days[0]) - 1)
-        selic_push = SELIC_SHOCK_RESPONSE * np.array(
-            [self._shock(draw, d) for d in [previous, *days]]
-        )
-        return self.market_selic_beta * np.diff(selic_push)
+        # O dia útil anterior ao primeiro é o ponto de partida da diferença
+        numbers = np.array([_day_number(d) for d in days])
+        numbers = np.concatenate([[numbers[0] - 1], numbers])
+        _, selic_push = self._effects(draw, numbers)
+        years = np.maximum(numbers[1:] - self.shock_start, 0) / TRADING_DAYS_PER_YEAR
+        passthrough = np.log1p(draw.level * _ramp(years)) / TRADING_DAYS_PER_YEAR
+        return self.market_selic_beta * np.diff(selic_push) + passthrough
 
     # ------------------------------------------------------------------
     # Ativos
@@ -518,7 +573,7 @@ class SeriesGenerator:
                     beta * ref[source] + residuals[rng.integers(len(residuals))]
                 )
 
-        # O choque chega ao ativo pelo beta dele contra o Ibovespa
+        # O nível e os surtos chegam ao ativo pelo beta dele contra o Ibovespa
         market_beta = next((b for ref, b, _ in fits if ref is self.market), 1.0)
         generated += market_beta * self._shock_moves(draw, days)
 
@@ -573,8 +628,8 @@ class SeriesGenerator:
         out: dict[IndicatorSeries, pd.Series],
     ) -> None:
         """
-        A SELIC do caminho mais o empurrão do choque; o CDI anda colado nela,
-        com o spread do último dia real.
+        A SELIC do caminho mais o empurrão do nível e dos surtos; o CDI anda colado
+        nela, com o spread do último dia real.
         """
         cdi_end = _last_day(cdi)
         days = _business_days(min(_last_day(selic), cdi_end), until)
@@ -583,14 +638,9 @@ class SeriesGenerator:
         path = self._path(draw, days[-1]).selic
         spread = self.last_selic - float(_to_annual(np.array([cdi.iloc[-1]]))[0])
         selic_days = [day for day in days if day in path]
-        annual = np.array(
-            [
-                max(
-                    path[day] + SELIC_SHOCK_RESPONSE * self._shock(draw, day),
-                    SELIC_FLOOR,
-                )
-                for day in selic_days
-            ]
+        _, push = self._effects(draw, np.array([_day_number(d) for d in selic_days]))
+        annual = np.maximum(
+            np.array([path[day] for day in selic_days]) + push, SELIC_FLOOR
         )
         out[IndicatorSeries.SELIC] = pd.Series(
             np.round(_to_daily(annual), 6), index=selic_days
@@ -618,32 +668,47 @@ class SeriesGenerator:
     def _generate_ipca(
         self, draw: "_Draw", until: date, out: dict[IndicatorSeries, pd.Series]
     ) -> None:
-        """O IPCA do mês sorteado mais o choque do mês, convertido para % ao mês."""
+        """O IPCA do mês sorteado mais o nível e os surtos do mês, em % ao mês."""
         months = [
             m for m in self._path(draw, until).ipca if _first_business_day(m) <= until
         ]
         if not months:
             return
         path = self._path(draw, until).ipca
+        push, _ = self._effects(
+            draw, np.array([_day_number(_first_business_day(m)) for m in months])
+        )
         values = [
-            path[m]
-            + ((1 + self._shock(draw, _first_business_day(m))) ** (1 / 12) - 1) * 100
-            for m in months
+            path[m] + ((1 + added) ** (1 / 12) - 1) * 100
+            for m, added in zip(months, push, strict=True)
         ]
         out[IndicatorSeries.IPCA] = pd.Series(np.round(values, 2), index=months)
 
 
+def _ramp(years: np.ndarray) -> np.ndarray:
+    """Quanto da subida já aconteceu: de 0 a 1 em seis meses."""
+    return np.minimum(years / SHOCK_RAMP_YEARS, 1.0)
+
+
+def _decay(years: np.ndarray) -> np.ndarray:
+    """O que resta de um pulso depois da subida: metade a cada ano."""
+    return 0.5 ** (np.maximum(years - SHOCK_RAMP_YEARS, 0.0) / SHOCK_HALF_LIFE_YEARS)
+
+
 @dataclass(frozen=True)
 class _Draw:
+    """Os controles de uma geração: nível e intensidade em fração, frequência em surtos por ano."""
+
     seed: int
     temperature: float
-    start_regime: Regime
-    shock: float
+    level: float
+    surge_frequency: float
+    surge_intensity: float
 
 
 @dataclass
 class _Path:
-    """Trecho de cada bloco e os níveis sem choque de SELIC (anual) e IPCA (% ao mês)."""
+    """Trecho de cada bloco e os níveis de SELIC (anual) e IPCA (% ao mês) sem nível nem surtos."""
 
     last_day: date
     chain: dict[int, int] = field(default_factory=dict)

@@ -23,7 +23,6 @@ import { Input } from "@/shared/components/ui/input";
 import { Progress } from "@/shared/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Spinner } from "@/shared/components/ui/spinner";
-import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { cn } from "@/shared/lib/utils";
 import { displayIsoDate, displayNumber } from "@/shared/lib/utils/display";
@@ -39,26 +38,28 @@ import { useDownloadIndicators } from "../hooks/mutations/useDownloadIndicators"
 import { useRecordFuture } from "../hooks/mutations/useRecordFuture";
 import { useFuturePreview } from "../hooks/queries/useFuturePreview";
 import {
-  displayShock,
+  displayIntensity,
+  displayLevel,
+  displaySurgeFrequency,
   displayTemperature,
   drawSeed,
   endOfYearAhead,
-  FIRST_YEAR_VOLATILITY,
   futureEndDates,
   FUTURE_DOCS_URL,
-  INFLATION_SHOCK,
-  INFLATION_SHOCK_MARKS,
-  inflationShockReading,
-  regimeToStartChoice,
-  REGIME_NAMES,
-  START_CHOICES,
-  startChoiceToRegime,
+  INFLATION_LEVEL,
+  INFLATION_LEVEL_MARKS,
+  inflationLevelReading,
+  SURGE_FREQUENCY,
+  SURGE_FREQUENCY_MARKS,
+  SURGE_INTENSITY,
+  SURGE_INTENSITY_MARKS,
+  surgeFrequencyReading,
   TEMPERATURE,
   TEMPERATURE_MARKS,
   temperatureReading,
   withMinus,
 } from "../lib/future-readings";
-import { InflationShockHint, StartRegimeHint, TemperatureHint } from "./future-hints";
+import { InflationLevelHint, SurgeFrequencyHint, SurgeIntensityHint, TemperatureHint } from "./future-hints";
 import { FuturePreviewPanel } from "./future-preview-panel";
 
 const SHORTCUT_YEARS = [1, 2, 5, 10];
@@ -83,8 +84,9 @@ const futureFormSchema = (lastRealIso: string | null) =>
       .string()
       .regex(new RegExp(`^\\d{1,${SEED_DIGITS}}$`), `A semente é um número inteiro de até ${SEED_DIGITS} dígitos`),
     temperature: z.number().min(TEMPERATURE.min).max(TEMPERATURE.max),
-    startRegime: z.enum(["TODAY", "CALM", "NORMAL", "AGITATED"]),
-    inflationShock: z.number().min(INFLATION_SHOCK.min).max(INFLATION_SHOCK.max),
+    inflationLevel: z.number().min(INFLATION_LEVEL.min).max(INFLATION_LEVEL.max),
+    surgeFrequency: z.number().min(SURGE_FREQUENCY.min).max(SURGE_FREQUENCY.max),
+    surgeIntensity: z.number().min(SURGE_INTENSITY.min).max(SURGE_INTENSITY.max),
   });
 
 type FutureFormValues = z.infer<ReturnType<typeof futureFormSchema>>;
@@ -95,26 +97,29 @@ function initialValues(future: GeneratedFuture | null, redrawSeed: boolean): Fut
       until: endOfYearAhead(5),
       seed: drawSeed(),
       temperature: TEMPERATURE.default,
-      startRegime: "TODAY",
-      inflationShock: INFLATION_SHOCK.default,
+      inflationLevel: INFLATION_LEVEL.default,
+      surgeFrequency: SURGE_FREQUENCY.default,
+      surgeIntensity: SURGE_INTENSITY.default,
     };
   }
   return {
     until: future.until,
     seed: redrawSeed ? drawSeed() : String(future.seed),
     temperature: future.temperature,
-    startRegime: regimeToStartChoice(future.start_regime),
-    inflationShock: future.inflation_shock,
+    inflationLevel: future.inflation_level,
+    surgeFrequency: future.surge_frequency,
+    surgeIntensity: future.surge_intensity,
   };
 }
 
 const toParams = (values: FutureFormValues): FutureParams => ({
   until: values.until,
   seed: Number(values.seed),
-  // O slider anda de 0,1 em 0,1: o arredondamento tira o ruído de ponto flutuante
+  // Os sliders andam de 0,1 e de 0,5: o arredondamento tira o ruído de ponto flutuante
   temperature: Math.round(values.temperature * 10) / 10,
-  start_regime: startChoiceToRegime(values.startRegime),
-  inflation_shock: values.inflationShock,
+  inflation_level: values.inflationLevel,
+  surge_frequency: Math.round(values.surgeFrequency * 10) / 10,
+  surge_intensity: values.surgeIntensity,
 });
 
 const countLabel = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
@@ -196,9 +201,9 @@ export function FutureForm({ future, coverage, redrawSeed, onClose, onRecordingC
     });
   };
 
-  const regime = preview?.current_regime;
-  const otherRegimes = (["AGITATED", "NORMAL", "CALM"] as const).filter((r) => r !== regime);
-  const shockReading = inflationShockReading(values.inflationShock);
+  const levelReading = inflationLevelReading(values.inflationLevel);
+  const surgesReading = surgeFrequencyReading(values.surgeFrequency);
+  const noSurges = values.surgeFrequency === 0;
   const temperature = temperatureReading(values.temperature);
   const recordFailed = record.isError && record.error.status !== 409;
 
@@ -440,48 +445,36 @@ export function FutureForm({ future, coverage, redrawSeed, onClose, onRecordingC
               />
 
               <Controller
-                name="startRegime"
+                name="inflationLevel"
                 control={form.control}
                 render={({ field }) => (
                   <Field>
-                    <div className="flex items-center gap-1.5">
-                      <FieldLabel>Começar em</FieldLabel>
-                      <StartRegimeHint />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <FieldLabel>Nível da inflação</FieldLabel>
+                        <InflationLevelHint />
+                      </div>
+                      <Badge variant={field.value === 0 ? "info" : "warning"} numeric>
+                        {displayLevel(field.value)}
+                      </Badge>
                     </div>
-                    <ToggleGroup
-                      variant="segmented"
-                      className="w-full"
-                      aria-label="Começar em"
-                      value={[field.value]}
+                    <MarkedSlider
+                      aria-label="Nível da inflação"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      min={INFLATION_LEVEL.min}
+                      max={INFLATION_LEVEL.max}
+                      step={INFLATION_LEVEL.step}
+                      marks={INFLATION_LEVEL_MARKS}
                       disabled={recording}
-                      onValueChange={(next) => next[0] && field.onChange(next[0])}
-                    >
-                      <ToggleGroupItem value="TODAY" className="flex-1">
-                        Hoje{regime && ` · ${REGIME_NAMES[regime]}`}
-                      </ToggleGroupItem>
-                      {START_CHOICES.map((choice) => (
-                        <ToggleGroupItem key={choice.value} value={choice.value} className="flex-1">
-                          {choice.label}
-                        </ToggleGroupItem>
-                      ))}
-                    </ToggleGroup>
-                    <Alert variant="info" role="status">
+                    />
+                    <Alert variant={field.value === 0 ? "info" : "warning"} role="status">
                       <p>
-                        O clima do primeiro trimestre.
-                        {regime && (
-                          <>
-                            {" "}
-                            Hoje o mercado está <b>{REGIME_NAMES[regime]}</b>: o 1º ano oscila uns{" "}
-                            <b>{FIRST_YEAR_VOLATILITY[regime]}%</b> (começando em{" "}
-                            {otherRegimes.map((other, index) => (
-                              <span key={other}>
-                                {index > 0 && "; em "}
-                                {REGIME_NAMES[other]}, {FIRST_YEAR_VOLATILITY[other]}%
-                              </span>
-                            ))}
-                            ).
-                          </>
-                        )}
+                        <b>{field.value === 0 ? "Sem nível extra." : `${displayLevel(field.value)}.`}</b> A inflação
+                        média fica em uns <b>{levelReading.inflation}% ao ano</b> e a SELIC em{" "}
+                        <b>{levelReading.selic}%</b>; a bolsa, já descontada a inflação, anda uns{" "}
+                        <b>{withMinus(`${levelReading.stocksReal}`)}%</b> em 10 anos.{" "}
+                        <span className="text-muted-foreground">Medianas de 50 futuros de 10 anos.</span>
                       </p>
                     </Alert>
                   </Field>
@@ -489,41 +482,75 @@ export function FutureForm({ future, coverage, redrawSeed, onClose, onRecordingC
               />
 
               <Controller
-                name="inflationShock"
+                name="surgeFrequency"
                 control={form.control}
                 render={({ field }) => (
                   <Field>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
-                        <FieldLabel>Choque de inflação</FieldLabel>
-                        <InflationShockHint />
+                        <FieldLabel>Frequência dos surtos</FieldLabel>
+                        <SurgeFrequencyHint />
                       </div>
                       <Badge variant={field.value === 0 ? "info" : "warning"} numeric>
-                        {displayShock(field.value)}
+                        {displaySurgeFrequency(field.value)}
                       </Badge>
                     </div>
                     <MarkedSlider
-                      aria-label="Choque de inflação"
+                      aria-label="Frequência dos surtos"
                       value={field.value}
                       onValueChange={field.onChange}
-                      min={INFLATION_SHOCK.min}
-                      max={INFLATION_SHOCK.max}
-                      step={INFLATION_SHOCK.step}
-                      marks={INFLATION_SHOCK_MARKS}
+                      min={SURGE_FREQUENCY.min}
+                      max={SURGE_FREQUENCY.max}
+                      step={SURGE_FREQUENCY.step}
+                      marks={SURGE_FREQUENCY_MARKS}
                       disabled={recording}
                     />
-                    <Alert variant={field.value === 0 ? "info" : "warning"} role="status">
-                      {field.value === 0 ? (
-                        <p>
-                          <b>Sem choque.</b> A inflação fica no que já aconteceu desde 2000: no pico, uns{" "}
-                          <b>{shockReading.inflationPeak}%</b> em 12 meses, com a SELIC a{" "}
-                          <b>{shockReading.selicPeak}%</b>.
-                        </p>
+                    <Alert variant={noSurges ? "info" : "warning"} role="status">
+                      <p>
+                        <b>{noSurges ? "Sem surtos." : `${displaySurgeFrequency(field.value)}.`}</b> Em 10 anos, a
+                        inflação de 12 meses passa de 10% em cerca de <b>{displayNumber(surgesReading.hotYears, 1)}</b>{" "}
+                        anos.{" "}
+                        <span className="text-muted-foreground">
+                          Média de 50 futuros, com surtos de 6 pontos e sem nível extra.
+                        </span>
+                      </p>
+                    </Alert>
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="surgeIntensity"
+                control={form.control}
+                render={({ field }) => (
+                  <Field>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <FieldLabel>Intensidade dos surtos</FieldLabel>
+                        <SurgeIntensityHint />
+                      </div>
+                      <Badge variant="info" numeric>
+                        {displayIntensity(field.value)}
+                      </Badge>
+                    </div>
+                    <MarkedSlider
+                      aria-label="Intensidade dos surtos"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      min={SURGE_INTENSITY.min}
+                      max={SURGE_INTENSITY.max}
+                      step={SURGE_INTENSITY.step}
+                      marks={SURGE_INTENSITY_MARKS}
+                      disabled={recording || noSurges}
+                    />
+                    <Alert variant="info" role="status">
+                      {noSurges ? (
+                        <p>Sem surtos, a intensidade não faz nada.</p>
                       ) : (
                         <p>
-                          <b>{displayShock(field.value)}.</b> A inflação de 12 meses chega a uns{" "}
-                          <b>{shockReading.inflationPeak}%</b> e a SELIC a <b>{shockReading.selicPeak}%</b>; a bolsa cai
-                          uns <b>{withMinus(String(Math.abs(shockReading.twoYearDrop)))}%</b> em 2 anos.
+                          Cada surto soma em média <b>{displayIntensity(field.value)}</b> à inflação anual no pico, de{" "}
+                          {displayNumber(field.value / 2, 1)} a {displayNumber(field.value * 1.5, 1)} conforme o
+                          sorteio. A SELIC sobe 1,5 vez isso, e o surto perde metade da força a cada ano.
                         </p>
                       )}
                     </Alert>

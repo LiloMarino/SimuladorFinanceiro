@@ -77,8 +77,9 @@ O botão **Gerar dados futuros** (depois da primeira geração, **Gerar outro fu
 - **"Até quando"**: cada série continua do dia útil seguinte ao seu último dado real.
 - **"Semente"**: um número que fixa o sorteio. A mesma semente com os mesmos controles gera sempre o mesmo futuro. "Sortear" escolhe outra semente, e outro futuro igualmente plausível.
 - **"Temperatura"**, de 0 a 3, padrão 1. Mede o quanto o futuro se parece com as piores crises do histórico. Em 1, o futuro respeita o histórico como foi. Em 2, a maior queda do Ibovespa dentro de um ano (do topo até o fundo) passa de 30% em 64 de cada 100 anos; uma queda assim leva, por exemplo, de 100.000 para 65.000 pontos. Em 3, é crise permanente.
-- **"Começar em"**: hoje, calmaria, normal ou crise. É o clima do primeiro trimestre do futuro. Com "Hoje", ele é o clima em que o mercado real está.
-- **"Choque de inflação"**, de −5 a +20 pontos, padrão 0. Soma pontos à inflação de 12 meses, isto é, quanto os preços subiram nos últimos 12 meses: 4% quer dizer que algo que custava R$ 100 passou a custar R$ 104. Com +10, a inflação de 12 meses chega a uns 14% e a SELIC a 28% ao ano.
+- **"Nível da inflação"**, de −5 a +20 pontos, padrão 0. Soma pontos permanentes à inflação de 12 meses, isto é, quanto os preços subiram nos últimos 12 meses: 4% quer dizer que algo que custava R$ 100 passou a custar R$ 104. Com +10, a inflação média fica em uns 16% ao ano e a SELIC em 24%.
+- **"Frequência dos surtos"**, de 0 a 5 por década, padrão 0. Um surto é uma alta de inflação que passa em poucos anos. Com 1, em média um ano em dez abre um surto.
+- **"Intensidade dos surtos"**, de 2 a 20 pontos, padrão 6. O pico médio de cada surto; fica desligada com 0 surtos.
 
 **Prévia.** Gera o futuro sem gravar nada. Mostra o Ibovespa e um ativo à escolha, SELIC e inflação, além de quatro números:
 
