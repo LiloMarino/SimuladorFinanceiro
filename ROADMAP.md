@@ -93,7 +93,6 @@
 | [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | M28 · 4.6 | — | — | — | 🔍 |
 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | M18 · 4.1 | — | Baixo | Bom | ⏳ |
 | [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | Baixo | Bom | 💤 |
-| [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 | — | Alto | Bom | ⏳ |
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.1 | — | — | — | 🔍 |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | M28 · 4.6 | — | — | — | 🔍 |
@@ -109,7 +108,7 @@
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -134,6 +133,7 @@
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região e por estado | M23 · 3.5 | — | — | — | ✅ |
+| [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 | — | — | — | ✅ |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 | — | — | — | ✅ |
 
 </details>
@@ -150,13 +150,13 @@
 >
 > **Serve:** N34
 >
-> **Progresso:** 2/3 concluídos
+> **Progresso:** 3/3 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | — | ✅ Concluído |
 | 2 | [**F164**](#f164) | Feature | Mapa do Brasil por região e por estado | — | ✅ Concluído |
-| 3 | [**F175**](#f175) | Feature | Federações partidárias | — | ⏳ Pendente |
+| 3 | [**F175**](#f175) | Feature | Federações partidárias | — | ✅ Concluído |
 
 ### 4.0 — Dividendos (M22)
 
@@ -287,7 +287,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 · 3º | 0 | Alto | Bom | ⏳ |
 | [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | M22 · 4.0 · 1º | 2 | Alto | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.2 · 1º | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 · 2º | 0 | — | — | 🔍 |
@@ -326,7 +325,6 @@
 | **F140** | Docs | Docs reorganizada por tipo de leitor | N25 | D21 | M28 · 4.6 | [F44](#f44) | Alto | Baixo | Alto | Bom |
 | **F141** | Docs | README com as features de hoje | N25 | — | M28 · 4.6 | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
 | **F159** | Feature | Conquista "Ordem com paciência" | N22 | D1 | M18 · 4.1 | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
-| **F175** | Feature | Federações partidárias | N34 | D19 | M23 · 3.5 | — | Alto | Médio | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.2 | — | Médio | Médio | Médio | Bom |
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
@@ -364,9 +362,6 @@
 
 <a id="f159"></a>
 **F159 — Conquista "Ordem com paciência".** Serve N22; segue a D1. A 9ª conquista da leva de novas conquistas ficou de fora porque o evento de ordem de ações (`event_equity`) não guarda o tipo da ordem que gerou a execução. Plano: coluna `order_type` em `event_equity` (mercado ou limitada), por migration, com as linhas antigas como mercado; o `Broker` grava o tipo na execução; uma `@metric` em `metrics.py` conta as execuções de ordem limitada do jogador, e a conquista entra no `catalog.py`. Vale qualquer ordem limitada executada, inclusive a que executa na hora porque o preço já estava bom. Fica para a rodada de conquistas feita com o usuário depois da Gestoras, junto com a docs, quando dá para ver todas as features que pedem conquista.
-
-<a id="f175"></a>
-**F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), e a federação tem só 2 partidos. Num partido de jogadores, o fundador propõe e responde, e os filiados veem o aviso. Os partidos do computador também propõem (os abaixo da barreira, ao parceiro de bandeiras mais próximas) e respondem por regra; a proposta ao jogador chega no topo da Eleição e em Pendências. A proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173), e cada partido tem uma proposta aberta por vez. (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. As promessas da chapa são as do partido do candidato; as do parceiro saem sem custo no dia em que a federação se forma. Cada partido continua com a sua verba e as próprias ações de campanha, todas pela mesma chapa. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato; os dois ficam presos pelo mandato e herdam, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** o design está no canvas: o botão de propor no cartão do seu partido e o dialog com o custo antes do clique (ganho na lista, chapa, orientação, promessas que saem, prazo e rejeição herdada por grupo, em números), o dialog de quem recebe, a federação como uma linha na pesquisa e um cartão em Partidos na disputa, o colchete das cadeiras dela no hemiciclo com a tabela da barreira, as manchetes de formada e desfeita no jornal, e os estados (proposta enviada, recusada, prazo encerrado, saída antes do prazo, desfeita, expansão desligada).
 
 <a id="f197"></a>
 **F197 — Rebalanceamento por meta com várias classes.** Serve N4. Hoje o `TargetRebalance` (`backend/features/strategy/rebalance.py:55`) divide só entre um ativo de ações (BOVA11 por padrão) e a renda fixa de liquidez diária: a meta em ações vai de 10% a 90% (padrão 60%), e o desvio máximo, de 1 a 20 pontos (padrão 5). O playtest de 31/out pediu configurar a meta de cada classe.
@@ -558,10 +553,14 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F164** | Feature | Mapa do Brasil por região e por estado | N34 | D19 | M23 · 3.5 |
+| **F175** | Feature | Federações partidárias | N34 | D19 | M23 · 3.5 |
 | **F195** | Feature | Acordo de base até o fim do mandato | N34 | — | M23 · 3.5 |
 
 <a id="f164"></a>
 **F164 — Mapa do Brasil por região e por estado.** Serve N34. Uma página Mapa no menu, logo abaixo de Eleição, com o Brasil dividido por região ou por estado e visto por lentes, no molde dos mapas do Victoria 3: quem lidera, desempenho de um partido, variação desde a pesquisa anterior, rejeição de um partido, aprovação do presidente e onde vive cada grupo de eleitores (degradê, um grupo por vez). As lentes ficam num painel fixo à esquerda, com Região | Estado no topo; à direita, o lugar escolhido (intenção com a variação, quem vota ali) e a lista dos estados, que é a alternativa acessível ao mapa. O mesmo componente volta pequeno na Corrida, no card de aprovação do Governo e no dialog do resultado do turno, cada um com "Abrir no mapa". Pelo modelo da D19 um lugar é uma mistura de grupos de eleitores, então o voto e a aprovação por lugar saem do modelo sem mudá-lo. Cada um dos 27 estados tem a sua mistura, de dados públicos por UF: beneficiários do Bolsa Família (quem depende de auxílio), benefícios do INSS (aposentados), PNAD Contínua do IBGE (trabalhadores formais e servidores) e investidores da B3 (quem vive de investimento), com a fonte de quem empreende escolhida na implementação e citada no código. A região é a soma dos estados dela, pesada pelo eleitorado do TSE de 2022 (Sudeste 42,6%, Nordeste 27,1%, Sul 14,7%, Norte 8,1%, Centro-Oeste 7,5%). As misturas moram ao lado de `voters.WEIGHTS`, e a soma pesada fecha os pesos nacionais. A pesquisa mensal sai também por estado, cada um com a margem do tamanho da amostra (São Paulo ±3, Acre ±12); quando a diferença entre o 1º e o 2º cabe na margem, o lugar fica listrado nas duas cores (empate técnico). O mapa mostra só a pesquisa atual, com a variação desde a anterior; entre os turnos, só os dois finalistas. O resultado sai de uma vez, sem animação, e a frase diz o melhor e o pior lugar do partido em % dos votos válidos. Quem vence continua sendo o voto do país, e o Congresso continua nacional. O mapa vem sempre com Governo & Política, sem opção própria no lobby. O design aprovado está no canvas, com as lentes, os usos pequenos e os estados. O upgrade seguinte são as cadeiras por região (F176), que entram como mais uma lente, e, se valer, ações de campanha por região ("comício no Nordeste") na F130.
+
+<a id="f175"></a>
+**F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), e a federação tem só 2 partidos. Num partido de jogadores, o fundador propõe e responde, e os filiados veem o aviso. Os partidos do computador também propõem (os abaixo da barreira, ao parceiro de bandeiras mais próximas) e respondem por regra; a proposta ao jogador chega no topo da Eleição e em Pendências. A proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173), e cada partido tem uma proposta aberta por vez. (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. As promessas da chapa são as do partido do candidato; as do parceiro saem sem custo no dia em que a federação se forma. Cada partido continua com a sua verba e as próprias ações de campanha, todas pela mesma chapa. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato; os dois ficam presos pelo mandato e herdam, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** o design está no canvas: o botão de propor no cartão do seu partido e o dialog com o custo antes do clique (ganho na lista, chapa, orientação, promessas que saem, prazo e rejeição herdada por grupo, em números), o dialog de quem recebe, a federação como uma linha na pesquisa e um cartão em Partidos na disputa, o colchete das cadeiras dela no hemiciclo com a tabela da barreira, as manchetes de formada e desfeita no jornal, e os estados (proposta enviada, recusada, prazo encerrado, saída antes do prazo, desfeita, expansão desligada).
 
 <a id="f195"></a>
 **F195 — Acordo de base até o fim do mandato.** Serve N34. Hoje o apoio de cada bancada vale 6 meses (`deals.TERM_MONTHS`) e se renova à mão; no playtest de 31/out isso virou tarefa repetida. A regra nova troca o prazo curto por uma negociação por mandato que um governo fraco perde:
