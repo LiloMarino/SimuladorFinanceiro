@@ -4,6 +4,55 @@ Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais anti
 O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
 deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
+## 3.4.0 Juros e Tesouro (07/11/2026)
+
+O governo ganha a SELIC nas mãos, e o Tesouro ganha tela própria, com marcação a mercado e resgate automático da renda fixa para cobrir despesas. A economia fica interligada: PIB, desemprego, juros e bolsa passam a se influenciar na partida, e o gerador de futuro troca o choque de inflação por nível e surtos.
+
+Suas partidas salvas e o `config.toml` continuam valendo.
+
+
+### Novidades
+
+- Adicionada a evolução do patrimônio por tipo de renda variável
+- Adicionadas as séries de PIB e desemprego na Central de dados
+- Adicionada a economia interligada
+- Adicionadas as parcelas da economia interligada no painel da Economia
+- Adicionada a SELIC nas mãos do governo
+- Adicionados a tela do Tesouro, a marcação a mercado e o resgate automático de renda fixa
+- Adicionado o ícone próprio do Tesouro e a convenção de ícones personalizados
+- Trocado o choque de inflação por nível e surtos no gerador de futuro
+- Adicionados o PIB e o desemprego à prévia do futuro gerado
+- Adicionada à Central a legenda do PIB e do desemprego calculados na partida
+- Adicionado o primário que estabiliza a dívida no painel da Economia
+- Adicionada a SELIC do presidente livre até 3 pontos por reunião
+- Garantida a SELIC da história dentro da janela da reunião do presidente
+
+### Correções
+
+- Separadas as cores dos jogadores das cores dos gráficos
+- Calculado o juro do mês sobre a dívida anterior
+- Apontado o profile_match para o banco de teste
+- Alargado o log das ordens do bot e quebradas as colunas de texto
+- Mantido o item Pendências na barra lateral mesmo sem pendências
+- Reduzido o selo de pausa a Pausado, com o motivo na dica
+- Adicionados avatar e marca nos selects de candidato, vice e rival
+- Adicionado o radar do perfil na aba Partido da preparação
+- Feito o jornal rolar a página inteira com o arquivo fixo na lateral
+- Dimensionadas as compras das estratégias pelo preço de venda do book
+- Feito o governo do computador eleito propor com a fila vazia
+- Mostrada a mensagem de erro do servidor nos logs do bot e da estratégia
+- Removidas as explicações internas do card de novo empréstimo
+- Removidas as explicações internas do card do partido
+- Removidas as explicações internas das telas de eleição e orientação do partido
+- Removida a explicação interna da tela de governo antes da posse
+- Atualizado o yfinance para eliminar o aviso do pandas no terminal
+- Revertida a atualização do yfinance e filtrado o aviso do pandas no terminal
+- Descontada a inflação da bolsa no alvo do crescimento do PIB
+- Ajustada a bolsa do futuro gerado para reagir ao juro real e acompanhar a inflação do nível
+- Atualizada a leitura dos surtos com o ano de pregões do futuro gerado
+- Medida a credibilidade do Banco Central contra o juro real da história
+- Corrigido o desemprego da partida que volta devagar ao normal da época
+
 ## 3.3.0 Preparação no lobby (04/11/2026)
 
 Cada jogador agora se prepara antes de a partida começar: no lobby, um dialog com abas guarda no perfil o Meu partido, a contribuição ao partido e os parâmetros das estratégias, e o desafio da vela sai da partida para virar uma atividade do lobby, com o placar de cada um. Fundar, filiar-se e sair do partido ficam liberados desde o 1º dia, e a paleta de jogadores e partidos troca para 13 cores que se distinguem também para daltônicos, com o partido já marcado na cor de quem o funda. A Eleição ganha a corrida entre partidos redesenhada e a campanha reorganizada; o Congresso mostra o placar da votação; as contas do governo, o jornal, a carteira, a comparação de partidas e o crédito (com o custo inteiro do empréstimo antes de assinar e o aviso de parcela em atraso) são redesenhados. Partidas longas ficam mais rápidas no fechamento do dia e nas Estatísticas, o modo debug ganha perfil de rota e do motor e o painel de desempenho mede cada etapa do dia, e as tabelas passam a caber na tela com texto de no mínimo 12 px. Os resumos do mês saem, e fica a retrospectiva do ano.
