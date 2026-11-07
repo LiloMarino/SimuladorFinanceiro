@@ -16,9 +16,12 @@ from backend.core.utils import (
 )
 from backend.features.variable_income.price_impact import (
     MIN_FACTOR,
+    PREVIEW_AVERAGE_VOLUME,
+    PREVIEW_VOLUME_SHARE,
     PriceImpact,
     decay,
     impact,
+    preview_curve,
 )
 
 MONDAY = date(2020, 1, 6)
@@ -344,3 +347,19 @@ def test_days_before_the_first_refresh_come_from_the_events(
     factors = _impact().factors_on("ABCD", days)
 
     assert factors == {d: _full_factor(flows, d) for d in days}
+
+
+def test_preview_curve_follows_the_impact_and_decay_of_a_ten_percent_buy():
+    first_day = impact(
+        Decimal(round(PREVIEW_VOLUME_SHARE * PREVIEW_AVERAGE_VOLUME)),
+        PREVIEW_AVERAGE_VOLUME,
+        K,
+    )
+
+    curve = preview_curve(K, DECAY_DAYS)
+
+    assert curve == [
+        first_day * decay(age, DECAY_DAYS) for age in range(DECAY_DAYS + 1)
+    ]
+    assert curve[0] == first_day
+    assert curve[-1] == 0

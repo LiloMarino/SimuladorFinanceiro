@@ -43,6 +43,25 @@ def decay(age: int, decay_days: int) -> float:
     return (1 - age / decay_days) ** 2
 
 
+# Fração do volume médio diário usada no exemplo da prévia
+PREVIEW_VOLUME_SHARE = 0.10
+# O volume médio do exemplo da prévia, em ações
+PREVIEW_AVERAGE_VOLUME = 1_000_000
+
+
+def preview_curve(k: float, decay_days: int) -> list[float]:
+    """
+    O impacto de uma compra de `PREVIEW_VOLUME_SHARE` do volume médio em cada pregão
+    afetado: o primeiro dia e o efeito até sumir, em `decay_days + 1` pontos.
+    """
+    first_day = impact(
+        Decimal(round(PREVIEW_VOLUME_SHARE * PREVIEW_AVERAGE_VOLUME)),
+        PREVIEW_AVERAGE_VOLUME,
+        k,
+    )
+    return [first_day * decay(age, decay_days) for age in range(decay_days + 1)]
+
+
 class PriceImpact:
     """
     Deslocamento do preço histórico causado pelas ordens dos jogadores.

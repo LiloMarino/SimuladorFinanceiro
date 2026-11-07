@@ -64,7 +64,10 @@ from backend.features.simulation.saved_simulation import describe
 from backend.features.simulation.simulation_loader import SimulationLoader
 from backend.features.simulation.simulation_loop import simulation_controller
 from backend.features.strategy import catalog
-from backend.features.variable_income.price_impact import decay, impact
+from backend.features.variable_income.price_impact import (
+    PREVIEW_VOLUME_SHARE,
+    preview_curve,
+)
 
 simulation_router = APIRouter(prefix="/api/simulation", tags=["Simulation"])
 
@@ -393,10 +396,6 @@ def list_simulations(client_id: ClientID, search: str | None = None):
     ]
 
 
-# Fração do volume médio diário usada no exemplo da prévia
-PREVIEW_VOLUME_SHARE = 0.10
-
-
 @simulation_router.get(
     "/price-impact-preview",
     summary="Prévia do impacto de preço",
@@ -405,13 +404,13 @@ PREVIEW_VOLUME_SHARE = 0.10
 def price_impact_preview(
     k: Annotated[float, Query(ge=0)], decay_days: Annotated[int, Query(ge=1, le=250)]
 ) -> PriceImpactPreviewDTO:
-    first_day = impact(Decimal(round(PREVIEW_VOLUME_SHARE * 1_000_000)), 1_000_000, k)
+    curve = preview_curve(k, decay_days)
     return PriceImpactPreviewDTO(
         volume_share=PREVIEW_VOLUME_SHARE,
-        first_day_impact=first_day,
+        first_day_impact=curve[0],
         curve=[
-            PriceImpactPointDTO(day=age + 1, impact=first_day * decay(age, decay_days))
-            for age in range(decay_days + 1)
+            PriceImpactPointDTO(day=age + 1, impact=value)
+            for age, value in enumerate(curve)
         ],
     )
 
