@@ -16,8 +16,7 @@ export function BeforeFirstTerm({ inauguration }: { inauguration: GovernmentPane
             <EmptyTitle>O computador governa até a primeira posse</EmptyTitle>
             <EmptyDescription>
               A posse é em {displayShortDate(inauguration)}. Até lá ninguém propõe medidas e os impostos seguem como
-              estão. Quem vencer a eleição passa a governar: propõe mudanças de imposto ao Congresso, acompanha a
-              aprovação e, em troca, fica com a carteira congelada.
+              estão.
             </EmptyDescription>
           </EmptyHeader>
           <Badge variant="secondary">Governo do computador até a posse</Badge>
