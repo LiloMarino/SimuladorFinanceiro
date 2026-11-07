@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-07):** Redesenhados no canvas o mapa do Brasil, agora por região e por estado com lentes, e as federações partidárias
+> **Última mudança (2026-11-07):** Registradas as manutenções da varredura de dívida técnica, o lote de agora e os adiados
 
 ## Glossário
 
@@ -106,6 +106,26 @@
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M25 · 4.3 | — | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
+| [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | — | Médio | Bom | ⏳ |
+| [**F234**](#f234) | Manutenção | Juros compostos num módulo só | — | — | Médio | Bom | ⏳ |
+| [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | — | Médio | Bom | ⏳ |
+| [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | — | Baixo | Bom | ⏳ |
+| [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | — | Baixo | Bom | ⏳ |
+| [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | — | Médio | Bom | ⏳ |
+| [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | — | Médio | Bom | ⏳ |
+| [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | — | Baixo | Bom | ⏳ |
+| [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | — | Médio | Bom | ⏳ |
+| [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | — | Alto | Bom | ⏳ |
+| [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | Alto | Bom | ⏳ |
+| [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | Alto | Médio | ⏳ |
+| [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | — | Baixo | Bom | ⏳ |
+| [**F246**](#f246) | Manutenção | Payload dos eventos do governo tipado | — | — | Alto | Médio | 💤 |
+| [**F247**](#f247) | Manutenção | Trava do gerenciador de usuários garantida pelo código | — | — | Baixo | Bom | 💤 |
+| [**F248**](#f248) | Manutenção | Eleição determinística nos testes do livro de acordos | — | — | Médio | Bom | 💤 |
+| [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | — | Alto | Médio | 💤 |
+| [**F250**](#f250) | Manutenção | Livro do governo quebrado por assunto | — | — | Alto | Médio | 💤 |
+| [**F251**](#f251) | Manutenção | Testes para túnel, fábrica de renda fixa, importação de ativos e crédito | — | — | Alto | Médio | 💤 |
+| [**F252**](#f252) | Manutenção | Aviso local de testes de banco pulados | — | — | Baixo | Bom | 💤 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
@@ -261,6 +281,19 @@
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | 0 | ⏳ Pendente |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | N40 | — | 0 | ⏳ Pendente |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | N34 | — | 0 | 🔍 Em avaliação |
+| [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | — | 0 | ⏳ Pendente |
+| [**F234**](#f234) | Manutenção | Juros compostos num módulo só | — | — | 0 | ⏳ Pendente |
+| [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | — | 0 | ⏳ Pendente |
+| [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | — | 0 | ⏳ Pendente |
+| [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | — | 0 | ⏳ Pendente |
+| [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | — | 0 | ⏳ Pendente |
+| [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | — | 0 | ⏳ Pendente |
+| [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | — | 0 | ⏳ Pendente |
+| [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | — | 0 | ⏳ Pendente |
+| [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | — | 0 | ⏳ Pendente |
+| [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | 0 | ⏳ Pendente |
+| [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | 0 | ⏳ Pendente |
+| [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | — | 0 | ⏳ Pendente |
 
 ---
 
@@ -291,6 +324,19 @@
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | 0 | Médio | Bom | ⏳ |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | 0 | — | — | 🔍 |
+| [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | 0 | Médio | Bom | ⏳ |
+| [**F234**](#f234) | Manutenção | Juros compostos num módulo só | — | 0 | Médio | Bom | ⏳ |
+| [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | 0 | Médio | Bom | ⏳ |
+| [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | 0 | Baixo | Bom | ⏳ |
+| [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | 0 | Baixo | Bom | ⏳ |
+| [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | 0 | Médio | Bom | ⏳ |
+| [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | 0 | Médio | Bom | ⏳ |
+| [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | 0 | Baixo | Bom | ⏳ |
+| [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | 0 | Médio | Bom | ⏳ |
+| [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | 0 | Alto | Bom | ⏳ |
+| [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | 0 | Alto | Bom | ⏳ |
+| [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | 0 | Alto | Médio | ⏳ |
+| [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | 0 | Baixo | Bom | ⏳ |
 
 ---
 
@@ -312,6 +358,19 @@
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
+| **F233** | Manutenção | Constantes de calendário unificadas no core | — | — | — | — | Médio | Baixo | Médio | Bom |
+| **F234** | Manutenção | Juros compostos num módulo só | — | — | — | — | Médio | Médio | Médio | Bom |
+| **F235** | Manutenção | Tipo Percent no indicador do BCB | — | — | — | — | Médio | Baixo | Médio | Bom |
+| **F236** | Manutenção | Prévia do impacto de preço fora da rota | — | — | — | — | Baixo | Baixo | Baixo | Bom |
+| **F237** | Manutenção | Componentes do mercado na pasta da renda variável | — | — | — | — | Baixo | Baixo | Baixo | Bom |
+| **F238** | Manutenção | Features do front sem import atravessado | — | — | — | — | Médio | Médio | Médio | Bom |
+| **F239** | Manutenção | Formatadores de percentual unificados | — | — | — | — | Médio | Médio | Médio | Bom |
+| **F240** | Manutenção | Badge de passo como variante do design system | — | — | — | — | Baixo | Baixo | Baixo | Bom |
+| **F241** | Manutenção | Card de ações de campanha em arquivos por parte | — | — | — | — | Médio | Baixo | Médio | Bom |
+| **F242** | Manutenção | Partida do lobby em arquivos por parte | — | — | — | — | Alto | Médio | Médio | Bom |
+| **F243** | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | — | — | Alto | Médio | Médio | Bom |
+| **F244** | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | — | — | Alto | Alto | Médio | Médio |
+| **F245** | Manutenção | Limpeza de scripts e docs | — | — | — | — | Baixo | Baixo | Baixo | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -359,6 +418,97 @@
 
 <a id="f225"></a>
 **F225 — Conceitos de economia real na docs e nomeados na tela.** Serve N41 e N25; condicionado por D21. **Para quem:** quem joga e quer entender por que a economia da partida reagiu como reagiu, e quem lê a docs sem jogar. **O que cobre:** uma página por conceito na categoria de explicação que a reorganização da docs cria: juro real e juro real neutro, curva IS, lei de Okun, curva de Phillips, princípio de Taylor e a reação do Banco Central, defasagem da política monetária, meta de inflação e tolerância, credibilidade e expectativas, prêmio de risco, dinâmica da dívida (r − g) e espiral da dívida, primário que estabiliza a dívida e dominância fiscal. Cada página diz o que o conceito mede, um exemplo numérico, o que é valor bom e ruim, a fonte (relatório do Banco Central, artigo ou livro-texto) e como o jogo o implementa, com a fórmula e os coeficientes: é o lugar único dos números do modelo (D21), e a seção de economia interligada de `docs/docs/como-usar/governo.md` passa a apontar para as páginas. Cada página fecha com o que o jogo simplifica em relação à economia real, e uma página própria reúne as simplificações do modelo inteiro: as defasagens comprimidas, os coeficientes fixos em todas as épocas, o Banco Central que reage só à inflação (e não ao hiato do PIB) e o câmbio representado pelo prêmio de risco enquanto o dólar não entra na partida. O conteúdo parte dos conceitos e das explicações do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) (`frontend/shared/concepts/concepts.tsx` e `frontend/features/explainers/`), adaptado ao que o jogo faz, e as fórmulas entram com KaTeX no Docusaurus (`remark-math` e `rehype-katex`). **Na tela:** onde um texto do jogo cita um conceito ("segue o princípio de Taylor"), o nome dele vem com o sublinhado pontilhado do app e o cursor de interrogação, o mesmo `HoverCardTrigger term` de `frontend/shared/components/ui/hover-card.tsx` que o nome do padrão de candle usa no desafio. Passar o mouse ou focar abre um cartão no molde de `pattern-hint.tsx`, com três blocos. Primeiro, o nome e uma frase do que o conceito é, sem fórmula. Depois, "Na partida agora": o conceito aplicado ao estado da partida, como "IPCA 6,2% contra meta de 3,0%: o Copom tende a subir a SELIC na próxima reunião". Por fim, o "Saiba mais" para a página da docs. Os dois primeiros funcionam sem rede, e só o link depende dela. **Mecanismo:** um componente `ConceptTerm` em `frontend/shared/components/` e um catálogo dos conceitos em `frontend/shared/lib/` (chave, nome, frase e caminho da página da docs). Cada tela que cita o conceito passa o trecho da partida que o cartão lê, já resolvido pela tela, e o "Na partida agora" é montado a partir desse trecho. No mesmo bloco de texto, só a primeira menção ao conceito leva o sublinhado. Um teste confere que o caminho de cada conceito do catálogo existe em `docs/docs/`. Os pontos de partida são o painel da Economia (cada parcela leva o nome do conceito), a decisão do Copom, o prêmio de risco do Tesouro e o card da dívida. **Onde mora:** `docs/docs/`, na categoria de explicação. **Gatilho:** depois da reorganização da docs.
+
+<a id="f233"></a>
+**F233 — Constantes de calendário unificadas no core.** Hoje o mesmo conceito tem nomes diferentes e o mesmo nome significa coisas diferentes: `DAYS_PER_YEAR` vale 365,25 em `fixed_income/treasury.py` e 252 em `statistics/risk.py`; `MONTHS_PER_YEAR` é definido em cinco módulos; o literal `12` aparece em quatro lugares; `DAYS_PER_MONTH` existe em float (`economy/layer.py`) e em outro tipo (`government/approval.py`).
+
+Nasce `backend/core/periods.py` com `BUSINESS_DAYS_PER_YEAR = 252` (movido de `core/indicators.py`), `CALENDAR_DAYS_PER_YEAR = Decimal("365.25")`, `MONTHS_PER_YEAR = 12` e `DAYS_PER_MONTH`. A docstring afirma que dia útil é sessão da B3 e dia corrido é dia de calendário. `treasury.py`, `risk.py`, `returns.py`, `score.py`, `synthetic.py` e `future.py` passam a importar de lá; os cinco `MONTHS_PER_YEAR` e os dois `DAYS_PER_MONTH` locais saem; os quatro literais `12` viram a constante. As janelas que significam "um ano de pregões" (`achievements/metrics.py`, `newsroom/companies.py`, o `252` de `score.py`) usam `BUSINESS_DAYS_PER_YEAR`. `synthetic.py` renomeia a sua régua de dias sem feriado para `WEEKDAYS_PER_YEAR` e a mantém local. Ficam como estão as janelas ajustáveis que só coincidem com 252 (`strategy/momentum.py`, `base_strategy.py`) e o `MONTH_DAYS = 30` do crédito, que é outra convenção. Junto: o validador duplicado em `routes/simulation.py` passa a ser o do DTO (`core/dto/simulation.py`).
+
+Por fora nada muda: os números exibidos são os mesmos. Confere-se com `uv run pyright` e `uv run pytest -n 4`, sem nenhum valor esperado alterado.
+
+<a id="f234"></a>
+**F234 — Juros compostos num módulo só.** A conta `(1+r)^(1/n) − 1`, a `(1+r)^n − 1` e o produto `∏(1+r) − 1` estão escritas à mão em `credit/price.py`, `fixed_income/accrual.py`, `economy/debt.py`, `government/budget.py`, `simulation/life_events.py`, `core/indicators.py`, `statistics/risk.py` e `statistics/score.py`.
+
+Nasce `backend/core/rates.py`, só em Decimal, com `period_rate(rate, periods)`, `compound(rate, periods)` e `compose(*rates)`. Os módulos acima passam a chamá-las (em `accrual.py`, `annual_to_daily_factor` vira `1 + period_rate(...)` e mantém o `lru_cache`); `risk.py` e `score.py` chamam o `returns.annualize_growth` que já existe. Os caminhos em float/numpy (`synthetic._to_annual`/`_to_daily`, `economy/layer.annual_to_daily`) ficam com os helpers próprios, só trocando a constante; `future.py` deixa de duplicar `_to_annual` e passa a chamá-lo. Vem depois da constante de calendário (F233) para o `252` e o `12`.
+
+Por fora nada muda: o resultado em Decimal é idêntico. Os testes existentes (`test_treasury`, `test_credit*`, `test_economy_layer`, `test_strategy_cdi`) são a rede de segurança e passam sem nenhum valor esperado alterado.
+
+<a id="f235"></a>
+**F235 — Tipo Percent no indicador do BCB.** O valor publicado pelo BCB é um percentual (0,0551 significa 0,0551%), mas hoje trafega como `Decimal` comum e cada chamador lembra, por atenção, de dividir por 100; passar a fração onde se espera percentual compila e dá resultado errado.
+
+`Percent = NewType("Percent", Decimal)` mora em `core/periods.py` (ou num `core/units.py`, se ficar mais claro), com a docstring "valor como o BCB publica: 0,0551 = 0,0551%". `index_value_on` e `last_known_value` devolvem `Percent`; `daily_rate` e `annualize_daily` só aceitam `Percent`; `from_percent(value: Percent) -> Decimal` substitui os `/ 100` de `core/indicators.py` e das tabelas de meta, tolerância, dívida e primário. Os chamadores (`fixed_income/accrual.py`, `economy/panel.py`, `economy/layer.py`, `newsroom/macro.py`, `tests/test_economy_layer.py`) se ajustam até o pyright passar; onde o valor vem do banco, o `Percent(...)` nasce na leitura, não no chamador. Vem depois de F233 e F234 (`annualize_daily` passa a usar `compound`).
+
+Por fora nada muda. Confere-se com `uv run pyright` e, uma vez, com uma chamada de prova passando `Decimal` cru a `daily_rate`, que tem de falhar no pyright e é removida em seguida.
+
+<a id="f236"></a>
+**F236 — Prévia do impacto de preço fora da rota.** `routes/simulation.py` monta a curva de prévia do impacto de preço dentro do handler (`PREVIEW_VOLUME_SHARE`, volume fixo de 1 milhão, laço sobre os dias), lógica de domínio que mora numa rota.
+
+A conta vira `preview_curve(k, decay_days)` em `features/variable_income/price_impact.py`, junto de `impact()` e `decay()`, levando `PREVIEW_VOLUME_SHARE` e o volume fixo. A rota só chama a função e monta o DTO.
+
+Por fora nada muda: a resposta da rota é a mesma e o `docs/openapi.json` não muda. Confere-se com `uv run pytest -n 4` e um teste novo de `preview_curve` contra `impact()`/`decay()`.
+
+<a id="f237"></a>
+**F237 — Componentes do mercado na pasta da renda variável.** `shared/components/market-mark.tsx` e `shared/components/scale-ruler.tsx` têm um consumidor só, a feature de renda variável, mas moram em `shared/` e parecem genéricos como os irmãos que são de verdade.
+
+Os dois descem para `features/variable-income/components/`, com os imports ajustados por script. `chart-scale.ts` e `tutorial-topic-ids.ts` ficam em `shared/`, porque também têm consumidores lá.
+
+Por fora nada muda. Confere-se com `pnpm --dir frontend run check`; o knip acusa export órfão se algum import ficou para trás.
+
+<a id="f238"></a>
+**F238 — Features do front sem import atravessado.** Algumas features importam de outras: o lobby de `candle-challenge`, o tutorial de `lobby-button`, e vários consumidores dos padrões de vela da renda variável.
+
+O destino de cada um é o nó mais profundo que é ancestral de todos os consumidores. Sobem para `shared/`, por terem consumidores em ramos distantes: `variable-income/lib/candle-patterns.ts`, `lib/pattern-view.ts` (com o seu `.test.ts`) e `components/candle-patterns/pattern-drawing.tsx`; o resto de `candle-patterns/` fica onde está. Descem para o consumidor único: `features/candle-challenge/` vira `features/lobby/candle-challenge/`, com `components/`, `hooks/` e `lib/` preservados, e `tutorial/components/lobby-button.tsx` vai para `lobby/components/` (só usa `useTutorial`, de `shared/hooks`). O tutorial continua importando de variable-income, como exceção aceita. Os moves de import são feitos por script.
+
+Por fora nada muda. Ao fim, `grep "@/features/"` dentro de `features/` mostra só a aresta do tutorial e as internas do lobby. Confere-se com `pnpm --dir frontend run check`, `vitest` e o minigame de candles abrindo do lobby no app de teste.
+
+<a id="f239"></a>
+**F239 — Formatadores de percentual unificados.** O mesmo percentual é formatado por `displayPercent`, por `chancePercent` (`government/lib/campaign.ts`), por `formatPercent(Number(x) * 100, 1)` em três cards do mapa e por cerca de 30 `toLocaleString("pt-BR"`/`Intl.NumberFormat` espalhados em `features/`.
+
+`displayPercent` (`shared/lib/utils/display.ts`) ganha a opção `{ trim: true }`, que mostra casas só quando há (`minimumFractionDigits: 0`). `chancePercent` sai e os 4 usos viram `displayPercent(x, 2, { trim: true })`; os três `formatPercent(Number(x) * 100, 1)` (`map-place-card.tsx`, `map-places-table.tsx`, `party-regions-card.tsx`) viram `displayPercent(x, 1)`. `formatPercent` continua, porque é o formatador de pontos (52 = 52%), unidade só do governo, e a docstring dele afirma isso. Uma varredura mecânica das formatações à mão (`government/lib/*`, `economy/lib/*`, `lobby/lib/*`, `treasury/lib/treasury.ts`, entre outros) troca por `display*` onde for fração vezes 100 com `%`; onde o formato não existe, reporta em vez de criar formatador local, e o diff é revisado antes do commit.
+
+Por fora o texto exibido fica idêntico. Confere-se com `vitest`, `pnpm --dir frontend run check` e os percentuais do mapa do governo comparados com os de antes no app de teste.
+
+<a id="f240"></a>
+**F240 — Badge de passo como variante do design system.** O círculo numerado de `Step` em `pyspy-card.tsx` é um `Badge` reimplementado com classes inline.
+
+`shared/components/ui/variants/badgeVariants.ts` ganha `size: { step: "size-5.5 px-0 font-semibold" }`. `Step` passa a `<Badge variant="secondary" size="step">`, e `government/components/measure-steps.tsx` também, se for o mesmo círculo.
+
+Por fora nada muda. Confere-se por `pnpm --dir frontend run check` e screenshot dos dois cards, que devem ficar iguais.
+
+<a id="f241"></a>
+**F241 — Card de ações de campanha em arquivos por parte.** `government/components/campaign-actions-card.tsx` reúne o card e sete subcomponentes que só recebem props (`ActionBody`, `TvReach`, `ActionChoice`, `GroupChoices`, `GroupPollCell`, `SummaryBody`, `SummaryRow`), e resolve o `rival` duas vezes.
+
+Vira a pasta `campaign-actions-card/` com `index.tsx` mais um arquivo por subcomponente, no padrão de `statistics/components/statistics-report/`; os importadores não mudam de caminho. A resolução duplicada de `rival` é eliminada.
+
+Por fora nada muda. Confere-se com `pnpm --dir frontend run check`, `vitest` e screenshot do card de campanha, igual ao de antes.
+
+<a id="f242"></a>
+**F242 — Partida do lobby em arquivos por parte.** `lobby/components/lobby-match.tsx` mistura o schema do formulário, o resumo da partida e os blocos de novos jogadores, equipes e início.
+
+`dateField`, `simulationFormSchema` e o tipo `SimulationFormValues` vão para `lobby/lib/simulation-form.ts`, que já é dono de `toFormValues`/`toSettingsBody`; os 9 importadores do tipo são ajustados por script. Os blocos de novos jogadores, equipes e início e o resumo `typeRows`/`rows` viram componentes que recebem props, numa pasta `lobby-match/` com `index.tsx`.
+
+Por fora nada muda. Confere-se com `pnpm --dir frontend run check`, `vitest` e o lobby aberto no app de teste, com a folha de regras e o resumo iguais ao de antes.
+
+<a id="f243"></a>
+**F243 — Folha de regras do lobby em arquivos por parte.** `lobby/components/rules-sheet.tsx` tem o hook `useNow`, o `SaveStatus` e as seções do formulário (Básico, Modo de jogo, Tipo de partida, Meta, Quem vence, Impacto de preço) no mesmo arquivo.
+
+`useNow` vai para `shared/hooks` e `SaveStatus` para arquivo próprio. Cada `FieldSet` vira um componente que recebe `form`, `readOnly` e os valores observados, numa pasta `rules-sheet/` com `index.tsx`; `selectGameType` e o `useWatch` ficam no principal.
+
+Por fora nada muda. Confere-se com `pnpm --dir frontend run check`, `vitest` e a folha de regras aberta no app de teste, nas abas e salvando.
+
+<a id="f244"></a>
+**F244 — Gráfico de ações em arquivos por parte e um hook.** `variable-income/components/stock-chart.tsx` tem constantes, helpers puros, três subcomponentes (`PopRow`, `LegendItem`, `PaneLabel`) e um efeito de criação do gráfico com dois `oxlint-disable` de exhaustive-deps, sem teste de componente. É o mais delicado dos quatro e o último da fila.
+
+Constantes e helpers puros, `PopRow`, `LegendItem` e `PaneLabel` vão para arquivos em `stock-chart/`. O par `fill` + efeito de criação vira o hook `useStockChartInstance`, que recebe `chartType`, `selectedScale`, `layout` e `height` e devolve as refs. Os dois `oxlint-disable` vão junto, com o contrato escrito no hook como afirmação: `layout` resume tudo o que o efeito lê.
+
+Por fora nada muda. Sem teste de componente, a conferência é no app de teste: trocar período, tipo e indicadores, com a mira e o zoom mantidos quando chega dado novo.
+
+<a id="f245"></a>
+**F245 — Limpeza de scripts e docs.** Há scripts sem uso (`scripts/plot_beta_distribution.py`, `scripts/tree.py`, `scripts/tree_descriptions.yaml`), o script `profile:line` do `package.json` e a docs de estrutura de pastas cita como exemplo `shared/components/base-card.tsx`, que não existe.
+
+Os três arquivos saem depois de conferir que nada os referencia. `profile:line` sai do `package.json`; se nada mais usar `line-profiler` e `cross-env`, saem do `pyproject` e do `package.json`, e o deptry e o knip confirmam. Em `docs/docs/desenvolvimento/estrutura-pastas.md` o exemplo passa a `shared/components/kpi.tsx`, usado por 7 features. O `contribuindo.md` fica como está.
+
+Por fora nada muda. Confere-se com `pnpm run check`.
 
 ---
 
@@ -486,6 +636,13 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom |
 | **F167** | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F176** | Feature | Cadeiras do Congresso por região | N34 | D19 | — | — | Médio | Médio | Médio | Médio |
+| **F246** | Manutenção | Payload dos eventos do governo tipado | — | — | — | — | Alto | Médio | Médio | Médio |
+| **F247** | Manutenção | Trava do gerenciador de usuários garantida pelo código | — | — | — | — | Baixo | Baixo | Médio | Bom |
+| **F248** | Manutenção | Eleição determinística nos testes do livro de acordos | — | — | — | — | Médio | Baixo | Médio | Bom |
+| **F249** | Manutenção | Núcleo do backend sem import de features | — | — | — | — | Alto | Médio | Médio | Médio |
+| **F250** | Manutenção | Livro do governo quebrado por assunto | — | — | — | — | Alto | Médio | Médio | Médio |
+| **F251** | Manutenção | Testes para túnel, fábrica de renda fixa, importação de ativos e crédito | — | — | — | — | Alto | Baixo | Médio | Médio |
+| **F252** | Manutenção | Aviso local de testes de banco pulados | — | — | — | — | Baixo | Baixo | Baixo | Bom |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -528,6 +685,41 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 <a id="f176"></a>
 **F176 — Cadeiras do Congresso por região.** Serve N34; upgrade do mapa por região (F164). Na Câmara real nenhum estado tem menos de 8 nem mais de 70 deputados, e o Norte e o Centro-Oeste valem mais em cadeiras do que em eleitores: o Norte tem 65 de 513 cadeiras (12,7%) com 8,1% do eleitorado, e o Sudeste 179 (34,9%) com 42,6%. As 101 cadeiras se repartem na proporção das 513: Sudeste 35, Nordeste 30, Sul 15, Norte 13, Centro-Oeste 8. Cada região reparte as dela pelo D'Hondt de `house.distribute` com o voto da região; a barreira continua nacional. Ganhar o Norte passa a valer mais no Congresso do que na urna, uma decisão de campanha real. Fica depois do mapa porque mexe no modelo das cadeiras.
+
+<a id="f246"></a>
+**F246 — Payload dos eventos do governo tipado.** `government/state.py` e `government/preparation.py` têm 26 `type: ignore` porque o payload do evento é um dicionário solto.
+
+Cada tipo de evento ganha um `TypedDict` (ou dataclass) para o payload, e o despacho por tipo estreita o payload antes de usá-lo; os `type: ignore` saem um a um. Por fora nada muda; confere-se com `uv run pyright` sem os ignores e `uv run pytest -n 4`. Sem decisão de fazer agora.
+
+<a id="f247"></a>
+**F247 — Trava do gerenciador de usuários garantida pelo código.** Seis métodos do `UserManager` trazem o comentário "o chamador segura o `_lock`": o contrato existe só no texto, e chamar sem a trava compila.
+
+Os métodos passam a ter nome que diz a exigência (sufixo `_locked`) ou um `assert self._lock.locked()` na entrada, e o comentário sai. Por fora nada muda; confere-se com `uv run pytest -n 4`. Sem decisão de fazer agora.
+
+<a id="f248"></a>
+**F248 — Eleição determinística nos testes do livro de acordos.** `tests/test_deals_book.py` pula 4 testes porque o resultado da eleição depende do acaso.
+
+Uma fixture monta a eleição com semente e resultado fixos, e os 4 skips saem. Por fora nada muda; confere-se com `uv run pytest -n 4` sem nenhum skip nesse arquivo. Sem decisão de fazer agora.
+
+<a id="f249"></a>
+**F249 — Núcleo do backend sem import de features.** `core/` importa de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
+
+Cada um desses módulos é movido para a feature que o consome ou passa a receber a dependência por injeção (o `core` define o protocolo, a feature implementa). Por fora nada muda; confere-se com `uv run pyright`, `uv run pytest -n 4` e um `grep "features" backend/core` vazio. Sem decisão de fazer agora.
+
+<a id="f250"></a>
+**F250 — Livro do governo quebrado por assunto.** `government_book.py` reúne campanha, bancadas, política tributária e emissão de rodada num arquivo só.
+
+O livro vira um pacote com um módulo por assunto e um `__init__` que mantém a mesma superfície, de modo que os chamadores não mudam. Por fora nada muda; confere-se com `uv run pyright` e `uv run pytest -n 4`. Sem decisão de fazer agora.
+
+<a id="f251"></a>
+**F251 — Testes para túnel, fábrica de renda fixa, importação de ativos e crédito.** `tunnel/`, `fixed_income/factory/`, `import-assets` e `credit` não têm teste próprio.
+
+Um módulo de teste por área, cobrindo o fluxo comum e o caso crítico de cada uma, sem mudar código de produção; os bugs que aparecerem viram `fix:` à parte. Confere-se com `uv run pytest -n 4`. Sem decisão de fazer agora.
+
+<a id="f252"></a>
+**F252 — Aviso local de testes de banco pulados.** Sem `POSTGRES_DATABASE_URL`, os testes com banco são pulados em silêncio e a suíte local parece verde.
+
+O `pytest` passa a mostrar no cabeçalho da execução quantos testes foram pulados por falta do banco e como configurá-lo, via `pytest_report_header` no `conftest`. Por fora nada muda no comportamento dos testes; confere-se rodando a suíte com e sem a variável. Sem decisão de fazer agora.
 
 ---
 
