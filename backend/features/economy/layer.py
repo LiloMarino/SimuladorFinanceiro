@@ -17,16 +17,12 @@ from typing import Protocol
 
 from backend.core import repository
 from backend.core.enum import IndicatorSeries
-from backend.core.indicators import (
-    BUSINESS_DAYS_PER_YEAR,
-    annual_index_rate,
-    annualize_daily,
-)
+from backend.core.indicators import annual_index_rate, annualize_daily
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR, DAYS_PER_MONTH
 from backend.core.repository.economic import IndicatorHistory
 from backend.features.economy.links import NO_LINK, LinkMonth
 from backend.features.economy.monetary import AutonomousBank, Monetary
 
-DAYS_PER_MONTH = 30.4375
 # A SELIC reage com 1,5 ponto por ponto de inflação a mais (Banco Central autônomo)
 SELIC_REACTION = 1.5
 # A bolsa cai 2,9% por ponto de alta da SELIC ou do prêmio de risco, espalhado pelo trimestre
@@ -46,8 +42,13 @@ def central_bank_reaction(inflation_points: float) -> float:
     return SELIC_REACTION * inflation_points
 
 
+def months_to_days(months: float) -> int:
+    """Os dias corridos de `months` meses, no mês médio do calendário."""
+    return round(float(DAYS_PER_MONTH) * months)
+
+
 def months_back(day: date, months: int) -> date:
-    return day - timedelta(days=round(DAYS_PER_MONTH * months))
+    return day - timedelta(days=months_to_days(months))
 
 
 def quarter_mean(points: Callable[[date], float], day: date) -> float:

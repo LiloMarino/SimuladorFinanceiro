@@ -33,6 +33,7 @@ from backend.core.dto.generated_future import (
 from backend.core.dto.series_coverage import SeriesKind
 from backend.core.enum import IndicatorSeries, MarketRegime
 from backend.core.exceptions.http_exceptions import BadRequestError, ConflictError
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR
 from backend.core.repository.generated_future import GeneratedRows
 from backend.core.utils import (
     business_days_between,
@@ -43,7 +44,6 @@ from backend.core.utils import (
 from backend.features.economy import growth
 from backend.features.import_data.synthetic import (
     PRICE_COLUMNS,
-    TRADING_DAYS_PER_YEAR,
     AssetHistory,
     GeneratedSeries,
     MarketHistory,
@@ -194,7 +194,7 @@ def _preview_series(key: str, real: _Line, generated: _Line) -> PreviewSeriesDTO
 def _annual_selic(daily: _Line) -> _Line:
     """SELIC em % ao ano a partir da taxa em % ao dia útil."""
     return _Line(
-        daily.days, ((1 + daily.values / 100) ** TRADING_DAYS_PER_YEAR - 1) * 100
+        daily.days, ((1 + daily.values / 100) ** BUSINESS_DAYS_PER_YEAR - 1) * 100
     )
 
 

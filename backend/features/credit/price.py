@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from datetime import date
 from decimal import ROUND_HALF_EVEN, Decimal
 
+from backend.core.periods import MONTHS_PER_YEAR
 from backend.features.credit.rules import (
     LATE_FEE,
     LATE_INTEREST_PER_MONTH,
@@ -34,7 +35,7 @@ def add_months(day: date, months: int) -> date:
 
 
 def monthly_rate(annual_rate: Decimal) -> Decimal:
-    return (1 + annual_rate) ** (Decimal(1) / 12) - 1
+    return (1 + annual_rate) ** (Decimal(1) / MONTHS_PER_YEAR) - 1
 
 
 def installment(principal: Decimal, annual_rate: Decimal, months: int) -> Decimal:

@@ -12,11 +12,13 @@ from itertools import groupby, pairwise
 from backend.core import repository
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.enum import IndicatorSeries
-from backend.core.indicators import BUSINESS_DAYS_PER_YEAR, index_daily_rate
+from backend.core.indicators import index_daily_rate
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR
 from backend.core.repository.economic import IndicatorHistory
 from backend.core.utils import subtract_business_days
 
-DAYS_PER_YEAR = Decimal(BUSINESS_DAYS_PER_YEAR)
+# √252: leva o desvio-padrão dos retornos diários para o ano
+VOLATILITY_ANNUALIZER = Decimal(BUSINESS_DAYS_PER_YEAR).sqrt()
 
 # Pregões da volatilidade em janela móvel: ~3 meses
 ROLLING_WINDOW = 63
@@ -90,7 +92,7 @@ def annual_volatility(returns: list[Decimal]) -> Decimal | None:
     """Desvio-padrão amostral dos retornos diários x √252."""
     if len(returns) < 2:
         return None
-    return statistics.stdev(returns) * DAYS_PER_YEAR.sqrt()
+    return statistics.stdev(returns) * VOLATILITY_ANNUALIZER
 
 
 def rolling_volatility(
@@ -105,7 +107,7 @@ def rolling_volatility(
     # então cada ponto custa O(1) e o desvio sai de (Σx² - (Σx)²/n) / (n - 1).
     total = sum(returns[:window], Decimal(0))
     squares = sum((r * r for r in returns[:window]), Decimal(0))
-    annualizer = DAYS_PER_YEAR.sqrt()
+    annualizer = VOLATILITY_ANNUALIZER
     series = []
     for end in range(window, len(returns) + 1):
         if end > window:
@@ -124,7 +126,7 @@ def annual_return(days: DailyReturns) -> Decimal | None:
     quota = quota_series([r for _, r in days])[-1]
     if quota <= 0:
         return Decimal(-1)
-    return quota ** (DAYS_PER_YEAR / len(days)) - 1
+    return quota ** (Decimal(BUSINESS_DAYS_PER_YEAR) / len(days)) - 1
 
 
 # As taxas já calculadas valem para a série em memória a que pertencem: quando o
@@ -158,7 +160,7 @@ def sharpe_ratio(days: DailyReturns, volatility: Decimal | None) -> Decimal | No
         return None
 
     excess = statistics.mean(r - cdi_return(day) for day, r in days)
-    return excess * DAYS_PER_YEAR / volatility
+    return excess * BUSINESS_DAYS_PER_YEAR / volatility
 
 
 def sortino_ratio(days: DailyReturns) -> Decimal | None:
@@ -172,10 +174,10 @@ def sortino_ratio(days: DailyReturns) -> Decimal | None:
     excess = [r - cdi_return(day) for day, r in days]
     downside = (
         sum((min(e, Decimal(0)) ** 2 for e in excess), Decimal(0)) / len(excess)
-    ).sqrt() * DAYS_PER_YEAR.sqrt()
+    ).sqrt() * VOLATILITY_ANNUALIZER
     if not downside:
         return None
-    return statistics.mean(excess) * DAYS_PER_YEAR / downside
+    return statistics.mean(excess) * BUSINESS_DAYS_PER_YEAR / downside
 
 
 def monthly_returns(days: DailyReturns) -> list[MonthlyReturn]:

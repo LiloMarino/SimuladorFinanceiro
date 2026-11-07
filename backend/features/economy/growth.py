@@ -17,6 +17,7 @@ from decimal import Decimal
 from backend.core import repository
 from backend.core.enum import IndicatorSeries
 from backend.core.indicators import annual_index_rate, last_known_value
+from backend.core.periods import MONTHS_PER_YEAR
 from backend.core.utils import last_day_of_month
 
 ZERO = Decimal(0)
@@ -41,7 +42,6 @@ OKUN = Decimal("0.5")
 NEUTRAL_UNEMPLOYMENT = Decimal("0.09")
 MIN_UNEMPLOYMENT = Decimal("0.04")
 MAX_UNEMPLOYMENT = Decimal("0.18")
-MONTHS_PER_YEAR = Decimal(12)
 # O desvio do desemprego contra a história cai pela metade a cada 36 meses: o normal da
 # época é a taxa para a qual o país volta, devagar, quando a economia sai do aquecimento
 # ou da recessão. O fator mensal é a raiz 36 de 1/2.

@@ -16,7 +16,8 @@ from uuid import NAMESPACE_URL, UUID, uuid5
 
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.enum import FixedIncomeType, IndicatorSeries, RateIndexType
-from backend.core.indicators import BUSINESS_DAYS_PER_YEAR, annual_index_rate
+from backend.core.indicators import annual_index_rate
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR, CALENDAR_DAYS_PER_YEAR
 from backend.core.utils import business_days_between, last_day_of_month
 from backend.features.fixed_income.accrual import (
     effective_annual_rate,
@@ -24,7 +25,6 @@ from backend.features.fixed_income.accrual import (
 )
 
 ISSUER = "Tesouro Nacional"
-DAYS_PER_YEAR = Decimal("365.25")
 
 # Curva de taxa por prazo `anos`, em fração ao ano (0.001 = 0,10 ponto)
 SELIC_SPREAD = Decimal("0.001")
@@ -70,7 +70,7 @@ def title_name(rate_index: RateIndexType, maturity: date) -> str:
 
 def years_between(start: date, maturity: date) -> Decimal:
     """O prazo em anos de `start` até `maturity`; vencido vale 0."""
-    return max(Decimal((maturity - start).days) / DAYS_PER_YEAR, Decimal(0))
+    return max(Decimal((maturity - start).days) / CALENDAR_DAYS_PER_YEAR, Decimal(0))
 
 
 def month_start(day: date) -> date:

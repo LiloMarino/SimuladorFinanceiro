@@ -12,8 +12,8 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 from backend.core.enum import LifeEventEffect
-from backend.core.indicators import BUSINESS_DAYS_PER_YEAR
-from backend.core.life_budget import MONTHS_PER_YEAR, cents
+from backend.core.life_budget import cents
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR, MONTHS_PER_YEAR
 from backend.core.utils import is_business_day, next_business_day
 
 

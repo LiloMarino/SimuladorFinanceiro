@@ -9,6 +9,7 @@ from decimal import Decimal
 import pytest
 
 from backend.core.enum import EffectPhase, MeasureKind, MeasureStatus
+from backend.features.economy.layer import months_to_days
 from backend.features.government import spending
 from backend.features.government import spending_effects as fx
 from backend.features.government.spending import SpendingTimeline
@@ -46,7 +47,7 @@ def measure(
 
 
 def after_months(months: float, start: date = EFFECTIVE) -> date:
-    return start + timedelta(days=round(fx.DAYS_PER_MONTH * months))
+    return start + timedelta(days=months_to_days(months))
 
 
 def one_step_up(kind: MeasureKind = AUX) -> fx.Effect:
@@ -162,7 +163,7 @@ def test_stocks_fall_2_9_percent_per_selic_point_averaged_over_the_quarter():
     effect = fx.Effect(1, AUX, EFFECTIVE, steps=2.0)
     day = after_months(12)
     moves = [
-        fx.selic_points([effect], day - timedelta(days=round(fx.DAYS_PER_MONTH * back)))
+        fx.selic_points([effect], day - timedelta(days=months_to_days(back)))
         for back in range(3)
     ]
 

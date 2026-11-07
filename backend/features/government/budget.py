@@ -21,6 +21,7 @@ from backend.core.indicators import (
     nominal_gdp,
     primary_result_ratio,
 )
+from backend.core.periods import MONTHS_PER_YEAR
 from backend.core.utils import last_day_of_month
 from backend.features.economy.growth import MacroCourse
 from backend.features.government import measures as rules
@@ -30,7 +31,6 @@ from backend.features.tax_policy import DEFAULT_TAX_POLICY, LossPool, TaxPolicy
 
 ZERO = Decimal(0)
 HUNDRED = Decimal(100)
-MONTHS_PER_YEAR = Decimal(12)
 ONE_TWELFTH = Decimal(1) / MONTHS_PER_YEAR
 
 

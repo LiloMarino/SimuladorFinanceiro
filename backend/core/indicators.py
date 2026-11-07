@@ -11,9 +11,9 @@ from decimal import Decimal
 from backend.core import repository
 from backend.core.enum import IndicatorSeries
 from backend.core.exceptions.http_exceptions import ConflictError
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR
 from backend.core.utils import business_days_in_month
 
-BUSINESS_DAYS_PER_YEAR = 252
 IPCA_WINDOW_MONTHS = 12
 
 # Indexadores que a renda fixa usa; a partida só nasce com os três cobertos

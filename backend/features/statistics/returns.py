@@ -6,8 +6,8 @@ from decimal import Decimal
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.enum import IndicatorSeries
 from backend.core.indicators import last_known_value
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR
 from backend.features.statistics.risk import (
-    DAYS_PER_YEAR,
     DailyReturns,
     cdi_return,
     quota_series,
@@ -62,4 +62,4 @@ def annualize_growth(cumulative: Decimal, periods: int) -> Decimal:
     growth = 1 + cumulative
     if growth <= 0:
         return Decimal(-1)
-    return growth ** (DAYS_PER_YEAR / periods) - 1
+    return growth ** (Decimal(BUSINESS_DAYS_PER_YEAR) / periods) - 1

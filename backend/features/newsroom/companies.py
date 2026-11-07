@@ -3,6 +3,7 @@
 from collections.abc import Sequence
 
 from backend.core.enum import AssetClass, NewsType
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR
 from backend.features.newsroom.causes import cause_for
 from backend.features.newsroom.market import MarketDay, Quote
 from backend.features.newsroom.text import number, pick, price, short_name
@@ -14,8 +15,7 @@ MOVE_THRESHOLD = 0.05
 BIG_MOVE = 0.08
 # Quantos ativos uma regra põe no jornal por pregão: o resto da rajada fica de fora
 MAX_PER_DAY = 3
-# A janela de um ano de pregões e o mínimo de histórico para chamar de máxima de 52 semanas
-YEAR_SESSIONS = 252
+# O mínimo de histórico para chamar de máxima de 52 semanas
 MIN_SESSIONS = 126
 # A cripto se move assim todo dia, e a variação dela não é notícia de empresa
 MOVER_CLASSES = (AssetClass.STOCK, AssetClass.FII, AssetClass.BDR)
@@ -72,7 +72,7 @@ def week_highs(market: MarketDay) -> list[Headline]:
     """Os ativos que fecham acima de tudo o que fecharam nas últimas 52 semanas."""
     highs: list[tuple[float, float, Quote]] = []
     for quote in market.quotes:
-        closes = _before(market, quote)[-YEAR_SESSIONS:]
+        closes = _before(market, quote)[-BUSINESS_DAYS_PER_YEAR:]
         if len(closes) < MIN_SESSIONS:
             continue
         top = max(closes)

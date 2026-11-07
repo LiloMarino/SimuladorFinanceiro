@@ -10,9 +10,10 @@ from datetime import date
 from decimal import Decimal
 from functools import cached_property
 
+from backend.core.periods import MONTHS_PER_YEAR
+
 ZERO = Decimal(0)
 HUNDRED = 100
-MONTHS_PER_YEAR = Decimal(12)
 
 # Curva de Phillips: cada ponto de desemprego abaixo da história soma 0,35 ponto ao IPCA em 12 meses
 PHILLIPS = 0.35

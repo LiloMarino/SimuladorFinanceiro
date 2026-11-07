@@ -21,6 +21,7 @@ from backend.core.indicators import (
     inflation_target,
     last_known_value,
 )
+from backend.core.periods import DAYS_PER_MONTH
 from backend.core.utils import required
 from backend.features.government import measures as rules
 from backend.features.government import voters
@@ -107,7 +108,6 @@ PREMIUM_WEIGHT: dict[VoterGroup, Decimal] = {
 # Medida: 6 pontos por unidade de reação do grupo, cheia ao valer e pela metade a cada 6 meses
 MEASURE_POINTS = Decimal(6)
 MEASURE_HALF_LIFE_MONTHS = Decimal(6)
-DAYS_PER_MONTH = Decimal("30.4375")
 
 SATISFACTION_PRECISION = Decimal("0.0001")
 

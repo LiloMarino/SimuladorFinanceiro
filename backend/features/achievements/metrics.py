@@ -15,6 +15,7 @@ from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.enum import GameType, PlayerGrouping
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR
 from backend.core.utils import next_business_day
 from backend.features.statistics import returns, risk, score
 from backend.features.variable_income.income_tax import MonthlyTax
@@ -26,8 +27,6 @@ from backend.features.variable_income.price_impact import (
 ZERO = Decimal(0)
 ONE = Decimal(1)
 
-# Pregões em 12 meses
-YEAR_OF_TRADING_DAYS = 252
 # Queda do Ibovespa, a partir do pico, que conta como "queda" e como "tempestade"
 DOWNTURN_DEPTH = Decimal("0.20")
 STORM_DEPTH = Decimal("0.30")
@@ -307,8 +306,8 @@ def months_above_cdi(ctx: Context) -> Decimal:
 @metric("beat_ibov_year", Trigger.MONTH)
 def beat_ibov_year(ctx: Context) -> Decimal:
     """Nos últimos 12 meses a cota do jogador subiu mais que o Ibovespa."""
-    window = ctx.history[-(YEAR_OF_TRADING_DAYS + 1) :]
-    if len(window) <= YEAR_OF_TRADING_DAYS:
+    window = ctx.history[-(BUSINESS_DAYS_PER_YEAR + 1) :]
+    if len(window) <= BUSINESS_DAYS_PER_YEAR:
         return ZERO
     ibov = returns.ibov_cumulative([h.snapshot_date for h in window])
     if not ibov:

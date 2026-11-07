@@ -26,7 +26,9 @@ from backend.core.dto.simulation import (
     SavedSimulationDTO,
     SimulationSettingsDTO,
     SimulationStatusResponse,
+    validate_goal,
     validate_government,
+    validate_independence,
 )
 from backend.core.dto.strategy import StrategyInfoDTO, StrategyParamValue
 from backend.core.dto.user import UserDTO
@@ -119,25 +121,22 @@ class SimulationRulesRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_goal(self):
-        if (
-            self.game_type is GameType.GOAL_RACE
-            and self.goal_net_worth <= self.starting_cash
-        ):
-            raise ValueError("A meta precisa ser maior que o saldo inicial.")
+        validate_goal(
+            game_type=self.game_type,
+            goal_net_worth=self.goal_net_worth,
+            starting_cash=self.starting_cash,
+        )
         return self
 
     @model_validator(mode="after")
     def validate_life(self):
-        if self.game_type is not GameType.FINANCIAL_INDEPENDENCE:
-            return self
-        if self.monthly_salary <= 0 or self.monthly_expense <= 0:
-            raise ValueError("Salário e despesa mensais precisam ser maiores que zero.")
-        goal = 12 * self.monthly_expense / self.withdrawal_rate
-        if goal <= self.starting_cash:
-            raise ValueError(
-                "A meta de independência (12 x a despesa ÷ a taxa de retirada) "
-                "precisa ser maior que o saldo inicial."
-            )
+        validate_independence(
+            game_type=self.game_type,
+            monthly_salary=self.monthly_salary,
+            monthly_expense=self.monthly_expense,
+            withdrawal_rate=self.withdrawal_rate,
+            starting_cash=self.starting_cash,
+        )
         return self
 
 

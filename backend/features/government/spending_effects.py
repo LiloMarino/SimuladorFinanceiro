@@ -14,11 +14,12 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 from backend.core.enum import EffectPhase, MeasureKind, MeasureStatus
+from backend.core.periods import DAYS_PER_MONTH
 from backend.core.utils import required
 from backend.features.economy.layer import (
-    DAYS_PER_MONTH,
     STOCKS_PER_SELIC,
     central_bank_reaction,
+    months_to_days,
     quarter_mean,
 )
 from backend.features.government import spending
@@ -66,7 +67,7 @@ class EffectNow:
 
 
 def elapsed_months(start: date, day: date) -> float:
-    return (day - start).days / DAYS_PER_MONTH
+    return (day - start).days / float(DAYS_PER_MONTH)
 
 
 def shape(months: float) -> float:
@@ -152,13 +153,13 @@ def effects_now(effects: Iterable[Effect], day: date) -> list[EffectNow]:
 
 def peak_on(effect: Effect) -> date:
     """O dia em que o efeito chega cheio."""
-    return effect.start + timedelta(days=round(DAYS_PER_MONTH * DELAY_MONTHS))
+    return effect.start + timedelta(days=months_to_days(DELAY_MONTHS))
 
 
 def faded_on(effect: Effect) -> date:
     """O dia em que o efeito já caiu abaixo do que pesa."""
     months = DELAY_MONTHS + HALF_LIFE_MONTHS * math.log2(1 / FADED)
-    return effect.start + timedelta(days=round(DAYS_PER_MONTH * months))
+    return effect.start + timedelta(days=months_to_days(months))
 
 
 def curve(kind: MeasureKind, steps: float) -> list[float]:
@@ -178,9 +179,7 @@ def peak_stocks(kind: MeasureKind, steps: float) -> float:
     """A maior variação da bolsa que a medida causa no trimestre, contra a série guardada."""
     effect = Effect(0, kind, date(2000, 1, 1), steps)
     levels = [
-        stocks_level(
-            (effect,), effect.start + timedelta(days=round(DAYS_PER_MONTH * month))
-        )
+        stocks_level((effect,), effect.start + timedelta(days=months_to_days(month)))
         - 1
         for month in range(CURVE_MONTHS + 1)
     ]

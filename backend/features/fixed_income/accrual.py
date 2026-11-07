@@ -24,12 +24,12 @@ from backend.core.dto.fixed_income_projection import (
 )
 from backend.core.enum import FixedIncomeType, IndicatorSeries, RateIndexType
 from backend.core.indicators import (
-    BUSINESS_DAYS_PER_YEAR,
     annual_index_rate,
     daily_rate,
     index_daily_rate,
     last_known_value,
 )
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR
 from backend.core.utils import is_business_day, next_business_day
 from backend.features.tax_policy import DEFAULT_TAX_POLICY, TaxPolicy
 

@@ -15,6 +15,7 @@ from backend.core.enum import (
     TeamNaming,
     VictoryCriterion,
 )
+from backend.core.periods import MONTHS_PER_YEAR
 
 GOVERNMENT_MIN_YEARS = 5
 
@@ -48,6 +49,38 @@ def validate_government(
         raise ValueError("Escolha a data da primeira eleição.")
     if not start_date < first_election <= end_date:
         raise ValueError("A primeira eleição precisa cair dentro da partida.")
+
+
+def validate_goal(
+    *,
+    game_type: GameType,
+    goal_net_worth: Decimal,
+    starting_cash: Decimal,
+) -> None:
+    """A regra da corrida à meta; vale igual para o DTO e para a requisição."""
+    if game_type is GameType.GOAL_RACE and goal_net_worth <= starting_cash:
+        raise ValueError("A meta precisa ser maior que o saldo inicial.")
+
+
+def validate_independence(
+    *,
+    game_type: GameType,
+    monthly_salary: Decimal,
+    monthly_expense: Decimal,
+    withdrawal_rate: Decimal,
+    starting_cash: Decimal,
+) -> None:
+    """As regras de viver de renda; valem igual para o DTO e para a requisição."""
+    if game_type is not GameType.FINANCIAL_INDEPENDENCE:
+        return
+    if monthly_salary <= 0 or monthly_expense <= 0:
+        raise ValueError("Salário e despesa mensais precisam ser maiores que zero.")
+    goal = MONTHS_PER_YEAR * monthly_expense / withdrawal_rate
+    if goal <= starting_cash:
+        raise ValueError(
+            "A meta de independência (12 x a despesa ÷ a taxa de retirada) "
+            "precisa ser maior que o saldo inicial."
+        )
 
 
 def _add_years(day: date, years: int) -> date:
@@ -120,21 +153,18 @@ class SimulationSettingsDTO(BaseDTO):
             first_election=self.first_election,
             selic_control=self.selic_control,
         )
-        if (
-            self.game_type is GameType.GOAL_RACE
-            and self.goal_net_worth <= self.starting_cash
-        ):
-            raise ValueError("A meta precisa ser maior que o saldo inicial.")
-        if self.game_type is not GameType.FINANCIAL_INDEPENDENCE:
-            return self
-        if self.monthly_salary <= 0 or self.monthly_expense <= 0:
-            raise ValueError("Salário e despesa mensais precisam ser maiores que zero.")
-        goal = 12 * self.monthly_expense / self.withdrawal_rate
-        if goal <= self.starting_cash:
-            raise ValueError(
-                "A meta de independência (12 x a despesa ÷ a taxa de retirada) "
-                "precisa ser maior que o saldo inicial."
-            )
+        validate_goal(
+            game_type=self.game_type,
+            goal_net_worth=self.goal_net_worth,
+            starting_cash=self.starting_cash,
+        )
+        validate_independence(
+            game_type=self.game_type,
+            monthly_salary=self.monthly_salary,
+            monthly_expense=self.monthly_expense,
+            withdrawal_rate=self.withdrawal_rate,
+            starting_cash=self.starting_cash,
+        )
         return self
 
 

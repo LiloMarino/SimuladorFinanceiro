@@ -6,8 +6,8 @@ from decimal import ROUND_HALF_EVEN, Decimal
 
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.indicators import anniversaries, inflation_factor
+from backend.core.periods import MONTHS_PER_YEAR
 
-MONTHS_PER_YEAR = 12
 CENT = Decimal("0.01")
 
 

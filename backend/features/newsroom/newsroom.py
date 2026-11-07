@@ -12,8 +12,9 @@ from backend.core import repository
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.enum import DataOrigin, IndicatorSeries
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR
 from backend.core.utils import subtract_business_days
-from backend.features.newsroom.companies import YEAR_SESSIONS, strong_moves, week_highs
+from backend.features.newsroom.companies import strong_moves, week_highs
 from backend.features.newsroom.history import historical_milestones
 from backend.features.newsroom.macro import (
     IbovespaExtremes,
@@ -103,10 +104,11 @@ class Newsroom:
         """Os fechamentos até o pregão anterior; na primeira vez nascem do histórico gravado."""
         if self._closes is None:
             recent = repository.stock.get_recent_closes(
-                previous, YEAR_SESSIONS, self._simulation_id
+                previous, BUSINESS_DAYS_PER_YEAR, self._simulation_id
             )
             self._closes = {
-                ticker: values[-YEAR_SESSIONS:] for ticker, values in recent.items()
+                ticker: values[-BUSINESS_DAYS_PER_YEAR:]
+                for ticker, values in recent.items()
             }
         return self._closes
 
@@ -119,7 +121,7 @@ class Newsroom:
                 continue
             window = self._closes.setdefault(candle.ticker, [])
             window.append(candle.close)
-            del window[:-YEAR_SESSIONS]
+            del window[:-BUSINESS_DAYS_PER_YEAR]
 
     @cached_property
     def _real_end(self) -> date | None:

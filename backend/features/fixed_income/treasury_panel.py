@@ -16,6 +16,7 @@ from backend.core.dto.treasury import (
     TreasuryTitleDTO,
 )
 from backend.core.enum import FixedIncomeType
+from backend.core.periods import MONTHS_PER_YEAR
 from backend.core.utils import last_day_of_month
 from backend.features.fixed_income import treasury
 from backend.features.fixed_income.accrual import (
@@ -34,7 +35,6 @@ from backend.features.government.budget import BudgetCourse
 from backend.features.government.budget import premium as debt_premium
 from backend.features.tax_policy import TaxPolicy
 
-MONTHS_PER_YEAR = 12
 ONE_POINT_OF_DEBT = Decimal("0.01")
 
 

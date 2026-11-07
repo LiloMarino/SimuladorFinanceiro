@@ -21,6 +21,7 @@ from backend.core.dto.statistics_report import (
 )
 from backend.core.enum import IndicatorSeries
 from backend.core.indicators import last_known_value
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR
 from backend.features.statistics import returns, risk
 
 # Abaixo de ~3 meses, anualizar engana: 10 dias com +2% viram ~64% ao ano
@@ -46,7 +47,7 @@ BANDS = [
     Band("return_over_ibov", "return", Decimal("-0.15"), Decimal("0.15")),
     Band("max_drawdown", "risk", Decimal("0.50"), Decimal(0)),
     Band("annual_volatility", "risk", Decimal("0.40"), Decimal(0)),
-    Band("time_underwater", "risk", Decimal(252), Decimal(0)),
+    Band("time_underwater", "risk", Decimal(BUSINESS_DAYS_PER_YEAR), Decimal(0)),
     Band("worst_month", "risk", Decimal("-0.20"), Decimal(0)),
     Band("months_above_cdi", "consistency", Decimal(0), Decimal(1)),
     Band("positive_months", "consistency", Decimal(0), Decimal(1)),
@@ -154,7 +155,7 @@ class _ScoreWalk:
             return None
 
         annual = (
-            self._quota ** (risk.DAYS_PER_YEAR / n) - 1
+            self._quota ** (Decimal(BUSINESS_DAYS_PER_YEAR) / n) - 1
             if self._quota > 0
             else Decimal(-1)
         )
@@ -172,9 +173,9 @@ class _ScoreWalk:
         variance = max(
             (self._squares - self._sum * self._sum / n) / (n - 1), Decimal(0)
         )
-        volatility = variance.sqrt() * risk.DAYS_PER_YEAR.sqrt()
+        volatility = variance.sqrt() * risk.VOLATILITY_ANNUALIZER
         mean_excess = self._excess / n
-        downside = (self._downside / n).sqrt() * risk.DAYS_PER_YEAR.sqrt()
+        downside = (self._downside / n).sqrt() * risk.VOLATILITY_ANNUALIZER
 
         # O mês corrente entra como na amostra: composto até o último dia visto
         month_value, month_cdi = self._month_value - 1, self._month_cdi - 1
@@ -197,10 +198,10 @@ class _ScoreWalk:
                 "worst_month": worst,
                 "months_above_cdi": Decimal(above_cdi) / months,
                 "positive_months": Decimal(positive) / months,
-                "sharpe_ratio": mean_excess * risk.DAYS_PER_YEAR / volatility
+                "sharpe_ratio": mean_excess * BUSINESS_DAYS_PER_YEAR / volatility
                 if volatility
                 else None,
-                "sortino_ratio": mean_excess * risk.DAYS_PER_YEAR / downside
+                "sortino_ratio": mean_excess * BUSINESS_DAYS_PER_YEAR / downside
                 if downside
                 else None,
             }

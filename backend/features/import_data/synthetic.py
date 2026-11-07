@@ -39,6 +39,7 @@ import numpy as np
 import pandas as pd
 
 from backend.core.enum import IndicatorSeries
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR, MONTHS_PER_YEAR
 from backend.core.utils import (
     business_days_between,
     next_business_day,
@@ -46,7 +47,6 @@ from backend.core.utils import (
 )
 
 BLOCK_DAYS = 60
-TRADING_DAYS_PER_YEAR = 252
 MIN_TEMPERATURE, MAX_TEMPERATURE = 0.0, 3.0
 # Expoente da temperatura: em T = 2 a volatilidade fica no nível do pior ano real
 TEMPERATURE_STEEPNESS = 2.0
@@ -74,7 +74,7 @@ SURGE_SALT = zlib.crc32(b"inflation-surge")
 SHOCK_RAMP_YEARS, SHOCK_HALF_LIFE_YEARS = 0.5, 1.0
 # O calendário gerado tem um pregão por dia útil da semana, sem feriado: é a régua do
 # tempo do nível e dos surtos, para que um ano deles seja um ano do IPCA mensal
-BUSINESS_DAYS_PER_YEAR = 365.25 * 5 / 7
+WEEKDAYS_PER_YEAR = 365.25 * 5 / 7
 SELIC_SHOCK_RESPONSE = 1.5
 SELIC_FLOOR = 0.005
 QUARTER_DAYS = 63
@@ -125,11 +125,11 @@ def _clean(returns: np.ndarray) -> np.ndarray:
 
 
 def _to_annual(daily_pct: np.ndarray) -> np.ndarray:
-    return (1 + daily_pct / 100) ** TRADING_DAYS_PER_YEAR - 1
+    return (1 + daily_pct / 100) ** BUSINESS_DAYS_PER_YEAR - 1
 
 
 def _to_daily(annual: np.ndarray) -> np.ndarray:
-    return ((1 + annual) ** (1 / TRADING_DAYS_PER_YEAR) - 1) * 100
+    return ((1 + annual) ** (1 / BUSINESS_DAYS_PER_YEAR) - 1) * 100
 
 
 def _day_number(day: date) -> int:
@@ -450,7 +450,7 @@ class SeriesGenerator:
         é um pulso que sobe em seis meses e decai pela metade a cada ano, com a SELIC
         a 1,5x.
         """
-        elapsed = (numbers - self.shock_start) / BUSINESS_DAYS_PER_YEAR
+        elapsed = (numbers - self.shock_start) / WEEKDAYS_PER_YEAR
         years = np.maximum(elapsed, 0.0)
         level = draw.level * _ramp(years)
         inflation = level.copy()
@@ -474,15 +474,15 @@ class SeriesGenerator:
         numbers = np.array([_day_number(d) for d in days])
         numbers = np.concatenate([[numbers[0] - 1], numbers])
         _, selic_push = self._effects(draw, numbers)
-        years = np.maximum(numbers - self.shock_start, 0) / BUSINESS_DAYS_PER_YEAR
+        years = np.maximum(numbers - self.shock_start, 0) / WEEKDAYS_PER_YEAR
         rate_push = selic_push - draw.level * _ramp(years)
         return self.market_selic_beta * np.diff(rate_push)
 
     def _passthrough(self, draw: "_Draw", days: list[date]) -> np.ndarray:
         """Retorno extra de cada dia pelo repasse nominal da inflação do nível, igual em todo ativo."""
         numbers = np.array([_day_number(d) for d in days])
-        years = np.maximum(numbers - self.shock_start, 0) / BUSINESS_DAYS_PER_YEAR
-        return np.log1p(draw.level * _ramp(years)) / BUSINESS_DAYS_PER_YEAR
+        years = np.maximum(numbers - self.shock_start, 0) / WEEKDAYS_PER_YEAR
+        return np.log1p(draw.level * _ramp(years)) / WEEKDAYS_PER_YEAR
 
     # ------------------------------------------------------------------
     # Ativos
@@ -538,7 +538,7 @@ class SeriesGenerator:
         # Proporções do pregão real: abertura sobre o fechamento anterior, máxima
         # e mínima sobre o fechamento, volume sobre o volume mediano do ano
         aligned = bars.reindex(self.calendar)
-        median_volume = bars["volume"].rolling(TRADING_DAYS_PER_YEAR, min_periods=20)
+        median_volume = bars["volume"].rolling(BUSINESS_DAYS_PER_YEAR, min_periods=20)
         median_volume = median_volume.median().reindex(self.calendar)
         open_ratio = (aligned["open"] / aligned["close"].shift(1)).clip(0.5, 2.0)
         high_ratio = (aligned["high"] / aligned["close"]).clip(1.0, 2.0)
@@ -600,7 +600,7 @@ class SeriesGenerator:
         low = np.minimum.reduce(
             [close * low_ratio.fillna(1.0).to_numpy()[ratio_day], open_, close]
         )
-        recent_volume = float(bars["volume"].iloc[-TRADING_DAYS_PER_YEAR:].median())
+        recent_volume = float(bars["volume"].iloc[-BUSINESS_DAYS_PER_YEAR:].median())
         volume = np.round(
             volume_ratio.fillna(1.0).to_numpy()[ratio_day] * recent_volume
         ).astype(np.int64)
@@ -694,7 +694,7 @@ class SeriesGenerator:
             draw, np.array([_day_number(_first_business_day(m)) for m in months])
         )
         values = [
-            path[m] + ((1 + added) ** (1 / 12) - 1) * 100
+            path[m] + ((1 + added) ** (1 / MONTHS_PER_YEAR) - 1) * 100
             for m, added in zip(months, push, strict=True)
         ]
         out[IndicatorSeries.IPCA] = pd.Series(np.round(values, 2), index=months)
