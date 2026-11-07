@@ -1,4 +1,5 @@
 import { defaultValues, profileValues, sameValues } from "@/shared/lib/strategy-params";
+import { displayPercent } from "@/shared/lib/utils/display";
 import type { Preparations, SavedStrategyParams, StrategyInfo, VoterValue } from "@/types";
 
 /** Um partido que disputa eleitor com o do jogador: os do computador e os dos outros fundadores da sala. */
@@ -48,8 +49,8 @@ export function partyOf(preparations: Preparations, nickname: string) {
 /** Quanto a contribuição pesa no saldo inicial da sala, em porcentagem ("0,5%"). */
 export function cashShare(amount: string, startingCash: string) {
   const cash = Number(startingCash);
-  const share = cash > 0 ? (Number(amount) / cash) * 100 : 0;
-  return `${share.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%`;
+  const share = cash > 0 ? Number(amount) / cash : 0;
+  return displayPercent(share, 2, { trim: true });
 }
 
 /** As estratégias cujos parâmetros salvos no perfil diferem do padrão. */

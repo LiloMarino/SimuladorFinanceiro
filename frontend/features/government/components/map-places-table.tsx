@@ -4,6 +4,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { displayPercent } from "@/shared/lib/utils/display";
 import type { ElectionMap, MapParty } from "@/types";
 import {
   classifyPlace,
@@ -69,7 +70,7 @@ export function MapPlacesTable({ map, division, party, selected, onSelect, showR
                       >
                         {division === "state" ? place.code : place.name}
                         <span className="text-xs font-normal text-muted-foreground">
-                          {formatPercent(Number(place.electorate_share) * 100, 1)}
+                          {displayPercent(place.electorate_share, 1)}
                         </span>
                       </button>
                     </TableCell>

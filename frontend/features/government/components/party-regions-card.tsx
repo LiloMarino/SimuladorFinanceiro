@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { displayPercent } from "@/shared/lib/utils/display";
 import { useElectionMap } from "../hooks/queries/useElectionMap";
 import { lensView } from "../lib/map-fills";
 import { DEFAULT_GROUP, formatPercent, paintedParty, placesOf, pointsOf, standings } from "../lib/map-lenses";
@@ -49,7 +50,7 @@ export function PartyRegionsCard() {
                       <span>
                         {region.name}{" "}
                         <span className="text-xs text-muted-foreground">
-                          {formatPercent(Number(region.electorate_share) * 100, 1)}
+                          {displayPercent(region.electorate_share, 1)}
                         </span>
                       </span>
                       <span className="flex items-center gap-2">

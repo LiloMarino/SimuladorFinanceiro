@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
 import { partyColor } from "@/shared/lib/party-colors";
-import { displayMonthShort } from "@/shared/lib/utils/display";
+import { displayMonthShort, displayPercent } from "@/shared/lib/utils/display";
 import type { ElectionMap, MapPlace, VoterGroup } from "@/types";
 import { PLACE_MARGIN } from "../lib/map-metrics";
 import {
@@ -77,7 +77,7 @@ export function MapPlaceCard({ map, place, showResult }: MapPlaceCardProps) {
             <b className="text-lg">{place.name}</b>
             <span className="text-[13px] text-muted-foreground">
               {region ? `${region.name} · ` : ""}
-              {formatPercent(Number(place.electorate_share) * 100, 1)} do eleitorado ·{" "}
+              {displayPercent(place.electorate_share, 1)} do eleitorado ·{" "}
               {(place.electorate / 1_000_000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mi
             </span>
             {verdict && (

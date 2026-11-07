@@ -1,8 +1,8 @@
-import { displayShortDate } from "@/shared/lib/utils/display";
+import { displayPercent, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionRound, GovernmentNotice } from "@/types";
 import type { MeasureToast } from "./measure-toast";
 
-const percent = (share: string) => `${(Number(share) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
+const percent = (share: string) => displayPercent(share, 1, { trim: true });
 
 /** O resultado de um turno para toda a sala: quem venceu, ou quem vai ao 2º turno e quem pode declarar apoio. */
 export function roundResultToast(panel: ElectionPanel, result: ElectionRound): MeasureToast {

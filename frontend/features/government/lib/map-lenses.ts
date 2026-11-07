@@ -279,7 +279,7 @@ export function votesInMillions(points: number, electorate: number) {
   return (points / 100) * (electorate / 1_000_000);
 }
 
-/** "52%" para a pesquisa com margem (sem casa decimal) e "52,4%" sem ela. */
+/** Pontos percentuais já na escala 0–100 (52 → "52%"): sem casa decimal na pesquisa com margem e com uma casa ("52,4%") sem ela. */
 export function formatPercent(value: number, digits = 0) {
   return `${value.toLocaleString("pt-BR", { maximumFractionDigits: digits, minimumFractionDigits: digits })}%`;
 }

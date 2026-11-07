@@ -1,7 +1,8 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
+import { displayPercent } from "@/shared/lib/utils/display";
 import type { CampaignBand, DiceBand } from "@/types";
-import { BAND_INFO, bandEffect, bandRange, chancePercent } from "../lib/campaign";
+import { BAND_INFO, bandEffect, bandRange } from "../lib/campaign";
 
 type D20Props = {
   value: number | "?";
@@ -78,14 +79,14 @@ export function BandsTable({ bands, roll, className }: BandsTableProps) {
                     {style.label}
                   </TooltipTrigger>
                   <TooltipContent side="top" className="max-w-70">
-                    {style.label} · sai no {bandRange(band)} · chance de {chancePercent(band.chance)}. Rende{" "}
-                    {bandEffect(band)}.
+                    {style.label} · sai no {bandRange(band)} · chance de{" "}
+                    {displayPercent(band.chance, 2, { trim: true })}. Rende {bandEffect(band)}.
                   </TooltipContent>
                 </Tooltip>
               </td>
               <td className="px-2 py-1.5 text-right font-mono whitespace-nowrap tabular-nums">{bandEffect(band)}</td>
               <td className="px-2 py-1.5 text-right font-mono whitespace-nowrap text-muted-foreground tabular-nums">
-                {chancePercent(band.chance)}
+                {displayPercent(band.chance, 2, { trim: true })}
               </td>
             </tr>
           );

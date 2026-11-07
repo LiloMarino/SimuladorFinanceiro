@@ -119,7 +119,7 @@ export const shortTitleName = (name: string) => name.replace(/^Tesouro /, "");
 export function percentOf(fraction: string | number) {
   const points = Number(fraction) * 100;
   const whole = Math.abs(points - Math.round(points)) < 1e-9;
-  return `${points.toLocaleString("pt-BR", { maximumFractionDigits: whole ? 0 : 2 })}%`;
+  return displayPercent(fraction, whole ? 0 : 2, { trim: true });
 }
 
 export type HistoryRow = {

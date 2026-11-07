@@ -1,5 +1,11 @@
 import { addDays, differenceInCalendarDays, format } from "date-fns";
-import { displayDayMonth, displayMoneyCompact, displayMonthShort, parseLocalDate } from "@/shared/lib/utils/display";
+import {
+  displayDayMonth,
+  displayMoneyCompact,
+  displayMonthShort,
+  displayPercent,
+  parseLocalDate,
+} from "@/shared/lib/utils/display";
 import type {
   GovernmentApproval,
   GovernmentMeasure,
@@ -11,7 +17,6 @@ import type {
 import type { SpendingKind } from "@/shared/lib/spending-kinds";
 
 const MINUS = "−";
-const PERCENT = new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 1 });
 
 export type GeneralKind = Exclude<MeasureKind, "SECTOR_EXEMPT" | "SECTOR_TAX" | SpendingKind>;
 
@@ -27,7 +32,7 @@ export const isGeneral = (kind: MeasureKind): kind is GeneralKind => GENERAL_KIN
 
 /** Alíquota como o jogo escreve: 0.225 → "22,5%" e 0.15 → "15%". */
 export function percentLabel(fraction: string | number) {
-  return PERCENT.format(Number(fraction));
+  return displayPercent(fraction, 1, { trim: true });
 }
 
 /** Pontos com sinal e o menos tipográfico: 4 → "+4", -1 → "−1". */

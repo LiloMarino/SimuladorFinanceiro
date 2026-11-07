@@ -5,7 +5,6 @@ import {
   bandOf,
   bandRange,
   campaignToast,
-  chancePercent,
   effectText,
   entryTitle,
   freshGroup,
@@ -114,9 +113,6 @@ describe("faixas do dado", () => {
   it("escreve a faixa e a chance", () => {
     expect(bandRange(band({ first_roll: 1, last_roll: 1 }))).toBe("1");
     expect(bandRange(band({ first_roll: 2, last_roll: 6 }))).toBe("2–6");
-    // Dois dados: 1 chance em 400
-    expect(chancePercent("0.0025")).toBe("0,25%");
-    expect(chancePercent("0.4")).toBe("40%");
   });
 
   it("mostra a rejeição quando o apoio não muda (a culatra do ataque)", () => {

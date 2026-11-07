@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import { cn } from "@/shared/lib/utils";
-import { displayMoneyWhole } from "@/shared/lib/utils/display";
+import { displayMoneyWhole, displayPercent } from "@/shared/lib/utils/display";
 import type { IllustrationProps } from "../lib/topics";
 
 // Exemplo: R$ 10.000 do jogador e R$ 10.000 emprestados, tudo investido numa ação que cai 10%
@@ -13,8 +13,6 @@ const invested = OWN + BORROWED;
 const leverage = BORROWED / OWN;
 const loss = invested * DROP;
 const lossOfOwn = loss / OWN;
-
-const percent = new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 0 });
 
 /** Bar cresce da esquerda até a fração do investido que ela representa. */
 function Bar({ label, value, tone }: { label: string; value: number; tone: "primary" | "muted" }) {
@@ -44,15 +42,15 @@ export default function LeverageIllustration({ still = false }: IllustrationProp
       <div className="grid gap-1.5 border-t border-dashed border-input pt-3 text-[13px]">
         <div className="flex justify-between">
           <span>Alavancagem · dívida ÷ patrimônio</span>
-          <span className="font-mono">{percent.format(leverage)}</span>
+          <span className="font-mono">{displayPercent(leverage, 0)}</span>
         </div>
         <div className="flex justify-between">
-          <span>Ação cai {percent.format(DROP)}</span>
+          <span>Ação cai {displayPercent(DROP, 0)}</span>
           <span className="font-mono text-destructive">−{displayMoneyWhole(loss)}</span>
         </div>
         <div className="flex justify-between">
           <b>Do seu dinheiro</b>
-          <b className="font-mono text-destructive">−{percent.format(lossOfOwn)}</b>
+          <b className="font-mono text-destructive">−{displayPercent(lossOfOwn, 0)}</b>
         </div>
       </div>
     </div>

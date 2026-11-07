@@ -68,10 +68,11 @@ export function displayMoneyLarge(value: Numeric) {
   return `${sign}R$ ${LARGE_MONEY_FORMAT.format(magnitude / unit.from)} ${unit.suffix}`;
 }
 
-export function displayPercent(value: Numeric, digits = 2) {
+/** A fração como percentual (0.1234 → "12,34%"); com `trim`, as casas aparecem só quando há (0.4 → "40%", 0.0025 → "0,25%"). */
+export function displayPercent(value: Numeric, digits = 2, { trim = false }: { trim?: boolean } = {}) {
   return new Intl.NumberFormat("pt-BR", {
     style: "percent",
-    minimumFractionDigits: digits,
+    minimumFractionDigits: trim ? 0 : digits,
     maximumFractionDigits: digits,
   }).format(value as Intl.StringNumericLiteral | number);
 }

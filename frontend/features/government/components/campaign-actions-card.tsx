@@ -24,7 +24,6 @@ import {
   ACTION_INFO,
   bandEffect,
   bandOf,
-  chancePercent,
   freshGroup,
   groupWord,
   nthOf,
@@ -695,13 +694,13 @@ function SummaryBody({ campaign, kind, group, target, rival }: SummaryBodyProps)
         )}
         {kind === "RALLY" && disaster && (
           <SummaryRow label="Chance de tombo grande" tone="down">
-            {chancePercent(disaster.chance)} · {bandEffect(disaster)}
+            {displayPercent(disaster.chance, 2, { trim: true })} · {bandEffect(disaster)}
           </SummaryRow>
         )}
         {kind === "ATTACK" && disaster && (
           <>
             <SummaryRow label="Sai pela culatra" tone="down">
-              {chancePercent(disaster.chance)} · {signed(disaster.rejection)} de rejeição a você
+              {displayPercent(disaster.chance, 2, { trim: true })} · {signed(disaster.rejection)} de rejeição a você
             </SummaryRow>
             <SummaryRow label="Todo ataque é público">sim</SummaryRow>
           </>

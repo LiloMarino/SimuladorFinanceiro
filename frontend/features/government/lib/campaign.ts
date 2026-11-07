@@ -122,11 +122,6 @@ export function bandRange(band: CampaignBand) {
   return band.first_roll === band.last_roll ? `${band.first_roll}` : `${band.first_roll}–${band.last_roll}`;
 }
 
-/** A chance da faixa em porcentagem, com casas só quando há (0,25%). */
-export function chancePercent(chance: number | string) {
-  return `${(Number(chance) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%`;
-}
-
 /** O que a faixa muda: o apoio, ou a rejeição de quem agiu quando o apoio não muda (a culatra do ataque). */
 export function bandEffect(band: CampaignBand) {
   if (Number(band.support) !== 0) return signed(band.support);

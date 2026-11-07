@@ -80,6 +80,12 @@ describe("percentuais", () => {
     expect(displayPercent(0.1234, 1)).toBe("12,3%");
   });
 
+  it("com trim, mostra casas só quando há", () => {
+    // Dois dados: 1 chance em 400
+    expect(displayPercent("0.0025", 2, { trim: true })).toBe("0,25%");
+    expect(displayPercent("0.4", 2, { trim: true })).toBe("40%");
+  });
+
   it("com sinal, exceto no zero", () => {
     expect(displaySignedPercent(0.0141)).toBe("+1,41%");
     expect(displaySignedPercent(-0.0141)).toBe("-1,41%");
