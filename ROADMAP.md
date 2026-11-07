@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-07):** Usada a variante de passo do Badge no cartão do py-spy
+> **Última mudança (2026-11-07):** Incluídas as manutenções da dívida técnica na 4.0
 
 ## Glossário
 
@@ -106,10 +106,10 @@
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M25 · 4.3 | — | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
-| [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | — | Médio | Bom | ⏳ |
-| [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | — | Alto | Bom | ⏳ |
-| [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | Alto | Bom | ⏳ |
-| [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | Alto | Médio | ⏳ |
+| [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | M22 · 4.0 | — | Médio | Bom | ⏳ |
+| [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | M22 · 4.0 | — | Alto | Bom | ⏳ |
+| [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | M22 · 4.0 | — | Alto | Bom | ⏳ |
+| [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | M22 · 4.0 | — | Alto | Médio | ⏳ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | — | Alto | Médio | 💤 |
 
 <details>
@@ -137,15 +137,15 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
-| [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | — | — | — | ✅ |
-| [**F234**](#f234) | Manutenção | Juros compostos num módulo só | — | — | — | — | ✅ |
-| [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | — | — | — | ✅ |
-| [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | — | — | — | ✅ |
-| [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | — | — | — | ✅ |
-| [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | — | — | — | ✅ |
-| [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | — | — | — | ✅ |
-| [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | — | — | — | ✅ |
-| [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | — | — | — | ✅ |
+| [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | M22 · 4.0 | — | — | — | ✅ |
+| [**F234**](#f234) | Manutenção | Juros compostos num módulo só | M22 · 4.0 | — | — | — | ✅ |
+| [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | M22 · 4.0 | — | — | — | ✅ |
+| [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | M22 · 4.0 | — | — | — | ✅ |
+| [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | M22 · 4.0 | — | — | — | ✅ |
+| [**F238**](#f238) | Manutenção | Features do front sem import atravessado | M22 · 4.0 | — | — | — | ✅ |
+| [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | M22 · 4.0 | — | — | — | ✅ |
+| [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | M22 · 4.0 | — | — | — | ✅ |
+| [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | M22 · 4.0 | — | — | — | ✅ |
 
 </details>
 
@@ -161,12 +161,25 @@
 >
 > **Serve:** N3, N7
 >
-> **Progresso:** 0/2 concluídos
+> **Progresso:** 9/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | — | ⏳ Pendente |
 | 2 | [**F100**](#f100) | Feature | Proventos na carteira e nas telas | [F22](#f22) | ⏳ Pendente |
+| 3 | [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | ✅ Concluído |
+| 4 | [**F234**](#f234) | Manutenção | Juros compostos num módulo só | — | ✅ Concluído |
+| 5 | [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | ✅ Concluído |
+| 6 | [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | ✅ Concluído |
+| 7 | [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | ✅ Concluído |
+| 8 | [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | ✅ Concluído |
+| 9 | [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | ✅ Concluído |
+| 10 | [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | ✅ Concluído |
+| 11 | [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | ⏳ Pendente |
+| 12 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | ⏳ Pendente |
+| 13 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | ⏳ Pendente |
+| 14 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | ⏳ Pendente |
+| 15 | [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | ✅ Concluído |
 
 ### 4.1 — Expansão Gestoras (M18)
 
@@ -275,10 +288,6 @@
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | 0 | ⏳ Pendente |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | N40 | — | 0 | ⏳ Pendente |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | N34 | — | 0 | 🔍 Em avaliação |
-| [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | — | 0 | ⏳ Pendente |
-| [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | — | 0 | ⏳ Pendente |
-| [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | 0 | ⏳ Pendente |
-| [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | 0 | ⏳ Pendente |
 
 ---
 
@@ -289,6 +298,10 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | M22 · 4.0 · 1º | 2 | Alto | Bom | ⏳ |
+| [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | M22 · 4.0 · 11º | 0 | Médio | Bom | ⏳ |
+| [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | M22 · 4.0 · 12º | 0 | Alto | Bom | ⏳ |
+| [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | M22 · 4.0 · 13º | 0 | Alto | Bom | ⏳ |
+| [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | M22 · 4.0 · 14º | 0 | Alto | Médio | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.2 · 1º | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.2 · 3º | 0 | Médio | Bom | ⏳ |
@@ -309,10 +322,6 @@
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | 0 | Médio | Bom | ⏳ |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | 0 | — | — | 🔍 |
-| [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | 0 | Médio | Bom | ⏳ |
-| [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | 0 | Alto | Bom | ⏳ |
-| [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | 0 | Alto | Bom | ⏳ |
-| [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | 0 | Alto | Médio | ⏳ |
 
 ---
 
@@ -334,10 +343,10 @@
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
-| **F241** | Manutenção | Card de ações de campanha em arquivos por parte | — | — | — | — | Médio | Baixo | Médio | Bom |
-| **F242** | Manutenção | Partida do lobby em arquivos por parte | — | — | — | — | Alto | Médio | Médio | Bom |
-| **F243** | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | — | — | Alto | Médio | Médio | Bom |
-| **F244** | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | — | — | Alto | Alto | Médio | Médio |
+| **F241** | Manutenção | Card de ações de campanha em arquivos por parte | — | — | M22 · 4.0 | — | Médio | Baixo | Médio | Bom |
+| **F242** | Manutenção | Partida do lobby em arquivos por parte | — | — | M22 · 4.0 | — | Alto | Médio | Médio | Bom |
+| **F243** | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | M22 · 4.0 | — | Alto | Médio | Médio | Bom |
+| **F244** | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | M22 · 4.0 | — | Alto | Alto | Médio | Médio |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -595,15 +604,15 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
-| **F233** | Manutenção | Constantes de calendário unificadas no core | — | — | — |
-| **F234** | Manutenção | Juros compostos num módulo só | — | — | — |
-| **F235** | Manutenção | Tipo Percent no indicador do BCB | — | — | — |
-| **F236** | Manutenção | Prévia do impacto de preço fora da rota | — | — | — |
-| **F237** | Manutenção | Componentes do mercado na pasta da renda variável | — | — | — |
-| **F238** | Manutenção | Features do front sem import atravessado | — | — | — |
-| **F239** | Manutenção | Formatadores de percentual unificados | — | — | — |
-| **F240** | Manutenção | Badge de passo como variante do design system | — | — | — |
-| **F245** | Manutenção | Limpeza de scripts e docs | — | — | — |
+| **F233** | Manutenção | Constantes de calendário unificadas no core | — | — | M22 · 4.0 |
+| **F234** | Manutenção | Juros compostos num módulo só | — | — | M22 · 4.0 |
+| **F235** | Manutenção | Tipo Percent no indicador do BCB | — | — | M22 · 4.0 |
+| **F236** | Manutenção | Prévia do impacto de preço fora da rota | — | — | M22 · 4.0 |
+| **F237** | Manutenção | Componentes do mercado na pasta da renda variável | — | — | M22 · 4.0 |
+| **F238** | Manutenção | Features do front sem import atravessado | — | — | M22 · 4.0 |
+| **F239** | Manutenção | Formatadores de percentual unificados | — | — | M22 · 4.0 |
+| **F240** | Manutenção | Badge de passo como variante do design system | — | — | M22 · 4.0 |
+| **F245** | Manutenção | Limpeza de scripts e docs | — | — | M22 · 4.0 |
 
 <a id="f233"></a>
 **F233 — Constantes de calendário unificadas no core.** Nasceu `backend/core/periods.py` com `BUSINESS_DAYS_PER_YEAR = 252` (movido de `core/indicators.py`), `CALENDAR_DAYS_PER_YEAR = Decimal("365.25")`, `MONTHS_PER_YEAR = 12` e `DAYS_PER_MONTH`, e a docstring afirma que dia útil é sessão da B3 e dia corrido é dia de calendário. O tesouro, as estatísticas (`risk`, `returns`, `score`), o gerador sintético, o futuro gerado, o orçamento de vida, os efeitos do governo e o crédito importam de lá; os cinco `MONTHS_PER_YEAR` e os dois `DAYS_PER_MONTH` locais saíram, e o literal `12` virou a constante. As janelas de "um ano de pregões" (`achievements/metrics.py`, `newsroom/companies.py` e `newsroom/newsroom.py`) usam `BUSINESS_DAYS_PER_YEAR`. O `synthetic.py` renomeou a régua de dias sem feriado para `WEEKDAYS_PER_YEAR` e a manteve local. `economy/layer.py` ganhou `months_to_days`, que converte meses em dias corridos no mês médio, e `statistics/risk.py` ganhou `VOLATILITY_ANNUALIZER` (√252) em Decimal. Ficaram como estavam as janelas ajustáveis que só coincidem com 252 (`strategy/momentum.py`, `base_strategy.py`) e o `MONTH_DAYS = 30` do crédito, que é outra convenção.
