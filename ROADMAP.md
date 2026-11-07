@@ -105,14 +105,13 @@
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 | — | — | — | 🔍 |
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | — | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | — | Médio | Bom | ⏳ |
-| [**F223**](#f223) | Correção | Credibilidade do Banco Central medida contra a história | M21 · 3.4 | — | Baixo | Excelente | ⏳ |
 | [**F224**](#f224) | Feature | Primário que estabiliza a dívida no painel da Economia | M21 · 3.4 | — | Baixo | Excelente | ⏳ |
 | [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | M28 · 4.6 | — | Médio | Bom | ⏳ |
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M25 · 4.3 | — | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (31 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (32 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -147,6 +146,7 @@
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 | — | — | — | ✅ |
 | [**F219**](#f219) | Correção | Terminal do backend sem o aviso do pandas do yfinance | M21 · 3.4 | — | — | — | ✅ |
 | [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | M21 · 3.4 | — | — | — | ✅ |
+| [**F223**](#f223) | Correção | Credibilidade do Banco Central medida contra a história | M21 · 3.4 | — | — | — | ✅ |
 
 </details>
 
@@ -162,7 +162,7 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 10/12 concluídos
+> **Progresso:** 11/12 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -176,7 +176,7 @@
 | 8 | [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | — | ✅ Concluído |
 | 9 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | ✅ Concluído |
 | 10 | [**F219**](#f219) | Correção | Terminal do backend sem o aviso do pandas do yfinance | — | ✅ Concluído |
-| 11 | [**F223**](#f223) | Correção | Credibilidade do Banco Central medida contra a história | — | ⏳ Pendente |
+| 11 | [**F223**](#f223) | Correção | Credibilidade do Banco Central medida contra a história | — | ✅ Concluído |
 | 12 | [**F224**](#f224) | Feature | Primário que estabiliza a dívida no painel da Economia | [F223](#f223) | ⏳ Pendente |
 
 ### 3.5 — Congresso e eleição (M23)
@@ -321,7 +321,7 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F223**](#f223) | Correção | Credibilidade do Banco Central medida contra a história | M21 · 3.4 · 11º | 1 | Baixo | Excelente | ⏳ |
+| [**F224**](#f224) | Feature | Primário que estabiliza a dívida no painel da Economia | M21 · 3.4 · 12º | 0 | Baixo | Excelente | ⏳ |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M23 · 3.5 · 2º | 1 | Médio | Bom | ⏳ |
 | [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 · 3º | 0 | Alto | Bom | ⏳ |
@@ -368,7 +368,6 @@
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.2 | — | Médio | Médio | Médio | Bom |
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
-| **F223** | Correção | Credibilidade do Banco Central medida contra a história | N34 | D20 | M21 · 3.4 | — | Baixo | Baixo | Alto | Excelente |
 | **F224** | Feature | Primário que estabiliza a dívida no painel da Economia | N34, N41 | D20 | M21 · 3.4 | [F223](#f223) | Baixo | Baixo | Alto | Excelente |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Médio | Baixo | Alto | Bom |
 
@@ -436,9 +435,6 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 
 <a id="f221"></a>
 **F221 — Lista de ações que aguenta muitas ações.** Serve N40. A tela de ações (`variable-income.tsx`) busca todas as cotações de uma vez (`useVariableIncomeStocks`), filtra e ordena no navegador e desenha um mini gráfico por linha. A cada pregão chega um `stocks_update` com todas as ações, e a tabela inteira renderiza de novo. Com poucas ações não pesa; com muitas (uma base importada grande) o navegador trava. O playtest de 05/11 sugeriu paginar com carregamento por rolagem (como no Jornal) e só atualizar o que está na tela. O primeiro passo é medir: o custo do render por pregão com 100, 1.000 e 5.000 ações, para escolher entre paginar a busca, virtualizar as linhas (só as visíveis existem no DOM) ou assinar a atualização só das linhas visíveis. O filtro e a ordenação hoje são do navegador; paginar do lado do servidor leva os dois junto.
-
-<a id="f223"></a>
-**F223 — Credibilidade do Banco Central medida contra a história.** Serve N34; condicionado por D20. **Sintoma:** na partida com a SELIC nas mãos do governo, um presidente que marca exatamente a SELIC da história em toda reunião perde credibilidade sem ter feito nada diferente. Simulada de 2001 a 2025, ela cai para 32 em 2012–2013, fica presa perto de 55 de 2016 a 2018, zera em dezembro de 2019 e fica em 0 até 2021. Com 0, a dívida paga 2 pontos de prêmio a mais, o que soma cerca de 1 ponto ao IPCA pelo risco fiscal, tira cerca de 5,8% da bolsa no trimestre e dobra o efeito do juro real na inflação. Com o Banco Central autônomo, a mesma janela fica em 100. **Reproduzir:** aplicar `next_credibility` às reuniões de `meeting_days` de 2001 a 2025, com a SELIC e o IPCA guardados. **Causa** (`next_credibility` em `backend/features/economy/monetary.py`, chamada por `_hold_selic_meeting` no `government_book.py`): (1) compara o juro real com o neutro fixo de 5%, e não com o juro real da história no mesmo dia, e cobra de novo o que a série real já contém, contra a D20; (2) só devolve credibilidade com alta da SELIC, e entregar a inflação na meta nunca a reconstrói (em 2016–2018 o IPCA caiu de 10,7% para 2,5% e a credibilidade não voltou); (3) dispara com o IPCA acima da meta, e não acima da meta mais a tolerância (em dezembro de 2019, 4,31% contra a meta de 4,25%, dentro da tolerância de 1,5 ponto, tirou 15,8 pontos). **Conserto:** (1) a reunião tira credibilidade quando o juro real da partida fica abaixo do da história (SELIC e IPCA guardados no dia) e o IPCA em 12 meses da partida passa da meta mais a tolerância: 4 pontos por ponto abaixo da história, até 20; (2) devolve 3 quando sobe a SELIC ou quando o juro real da partida fica igual ou acima do da história; (3) `_hold_selic_meeting` passa o juro real da história e a `inflation_tolerance` do dia. Os testes da credibilidade e o trecho da credibilidade em `docs/docs/como-usar/governo.md` mudam junto. **Aceite:** um presidente que copia a SELIC da história de 2001 a 2025 termina toda reunião com credibilidade 100. **Gatilho:** agora, antes do release da 3.4.
 
 <a id="f224"></a>
 **F224 — Primário que estabiliza a dívida no painel da Economia.** Serve N34 e N41; condicionado por D20. Hoje o painel da Economia mostra a dívida/PIB, a taxa média que ela paga e o que a moveu nos últimos meses (juros, crescimento, inflação e primário, em `debt_summary` de `backend/features/economy/panel.py`), mas não diz quanto superávit seguraria a dívida parada. O jogador passa a ver, ao lado do resultado primário, o **primário que estabiliza a dívida**: o superávit, em % do PIB, que mantém a dívida/PIB no mesmo lugar. A conta é s = d × (r − g) / (1 + g), com d a dívida/PIB, r a taxa nominal média que a dívida paga (a mista, que `budget.debt_rate` já calcula) e g o crescimento nominal do PIB em 12 meses (o crescimento real da partida mais o IPCA). Exemplo: dívida de 80% do PIB, taxa de 12% e PIB nominal crescendo 8% pedem 0,8 × 0,04 / 1,08 ≈ 3,0% do PIB de superávit; com um primário de 1%, a dívida sobe cerca de 2 pontos do PIB por ano. A linha mostra os dois números e a diferença em palavras ("faltam 2,0 pontos do PIB de superávit para a dívida parar de subir"), com o número da história ao lado, que é a régua da D20. A dica traz a definição, o exemplo e o que é bom e ruim: primário acima do que estabiliza faz a dívida cair; abaixo, ela sobe, e com r acima de g sobe sozinha, que é a espiral da dívida. **Mecanismo:** função pura `stabilizing_primary(debt, rate, nominal_growth)` em `backend/features/economy/`, no molde da de `backend/domain/debt.py` do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics); o `DebtSummaryDTO` ganha o primário que estabiliza da partida e o da história, e o `pnpm openapi` regenera os tipos do front. **Gatilho:** depois da credibilidade medida contra a história, antes do release da 3.4.
@@ -628,6 +624,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F218** | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | N15 | — | M21 · 3.4 |
 | **F219** | Correção | Terminal do backend sem o aviso do pandas do yfinance | N26 | — | M21 · 3.4 |
 | **F222** | Feature | Resgate automático de renda fixa para cobrir despesas | N34 | — | M21 · 3.4 |
+| **F223** | Correção | Credibilidade do Banco Central medida contra a história | N34 | D20 | M21 · 3.4 |
 
 <a id="f97"></a>
 **F97 — SELIC nas mãos do governo.** Ligado à N34; uma opção da expansão "Governo & Política" (F95), no lugar do Banco Central autônomo, que continua sendo o padrão. (1) **Ritmo do Copom:** o governo decide a SELIC em reuniões a cada 45 dias, como o Copom, que se reúne 8 vezes por ano desde 2006; entre reuniões ela não muda. (2) **Teto por reunião, pelo que aconteceu de verdade.** Das 150 mudanças da meta da SELIC entre 2000 e outubro de 2026 (série do Banco Central): 34 foram de 0,25 ponto, 67 de 0,5, 19 de 0,75, 19 de 1, 7 de 1,5, uma de 2, uma de 2,5 e duas de 3; desde 2006, nunca passou de 1,5. O teto vem do IPCA de 12 meses: 0,75 ponto em tempo normal (80% das mudanças reais), 1,5 com o IPCA acima do teto da meta (a meta mais a tolerância de 1,5 ponto), como em 2021 e 2022, e 3 com o IPCA acima de 15%, o que só aconteceu em 2002 e 2003. (3) **O efeito vem do juro real, contínuo e sem faixa morta.** Juro real é a SELIC menos o IPCA de 12 meses; o juro neutro, que nem aquece nem esfria, é 5%, perto da estimativa do Banco Central. A distância até o neutro age pelo mecanismo de efeito por cima das séries da F106: cada ponto abaixo do neutro, mantido por um ano, sobe o IPCA em uns 0,3 ponto ao longo dos 4 trimestres seguintes, com o pico no 2º e no 3º (o modelo Samba do Banco Central), e cada ponto acima o derruba na mesma medida. Abaixo do neutro o crescimento aquece na hora; acima, esfria e a bolsa cai pelo coeficiente da D14. Como o efeito é contínuo, nenhuma faixa de juro sai de graça. Os limites de 2% e 7% de juro real servem só para os avisos e para a reação dos grupos (D19): abaixo de 2%, aposentados e quem vive de investimento perdem apoio; acima de 7%, quem trabalha e empreende. (4) **Credibilidade.** Cada reunião que deixa o juro real abaixo do neutro com o IPCA acima da meta gasta credibilidade; cada reunião que aperta devolve um pouco, devagar. Com pouca credibilidade a inflação reage mais rápido ao juro baixo, porque o mercado já espera que ela suba, e o prêmio de risco dos títulos (F128) sobe: o governo que usou a SELIC para ganhar a eleição herda uma inflação que não cede. A tela mostra a credibilidade com uma dica do que ela mede e do que a move. O 0,3 é ordem de grandeza dos modelos semiestruturais e se calibra no playtest; não se mede no histórico do banco, porque a SELIC reage à inflação e a regressão direta sai com o sinal trocado. Fontes: [Relatório de Inflação de junho de 2013, box do Samba](https://www.bcb.gov.br/content/ri/relatorioinflacao/201306/RELINF201306-ri201306b6p.pdf); [um modelo semiestrutural simples](https://coolassessor.substack.com/p/um-modelo-semiestrutural-simples); [Blog do IBRE sobre o efeito da SELIC](https://blogdoibre.fgv.br/posts/deve-o-bc-reduzir-selic-replica-jose-julio-senna).
@@ -690,6 +687,9 @@ Decidido na revisão, em 06/11: no nível, a bolsa reage ao juro real (a SELIC a
 **F222 — Resgate automático de renda fixa para cobrir despesas.** Serve N34; vem junto com a tela do Tesouro (F165) e a marcação a mercado (F177). Hoje o caixa que não cobre a despesa do mês, o imposto de renda ou a parcela do empréstimo vira cheque especial ou parcela atrasada, mesmo com dinheiro parado na renda fixa. A regra nova põe uma porta só para os débitos automáticos, `SimulationEngine.cover_before_debit(client, needed, kind)`: se o caixa é menor que o necessário, ela vende títulos antes de debitar, na ordem (1) liquidez diária e Tesouro Selic, da menor taxa para a maior, e (2) só com a opção ligada, Prefixado e IPCA+, do que perde menos (ou ganha mais) para o que perde mais na marcação. Se não der para cobrir tudo, cobre o que dá; a venda é ação do sistema e não passa por `_ensure_can_operate`. Passam pela porta: despesa mensal e imprevisto do viver de renda, DARF, parcela de empréstimo (antes do teste de caixa, para a parcela não atrasar com saldo em renda fixa) e a contribuição mensal automática da campanha; o juro do cheque especial fica de fora, porque é consequência de não ter coberto. Cada resgate vira um toast para o jogador (`ToastType.AUTO_REDEEM`): "Resgatado R$ X de <título> para cobrir <despesa>". A opção `cover_with_treasury` (desligada por padrão) mora nas preferências do usuário, com o interruptor no cabeçalho de "Seus títulos" da tela do Tesouro. `overdraft_cover` e a ação de cobertura do card de vida saem; o card passa a mostrar uma linha dizendo se a cobertura está ligada, com link para o Tesouro.
 
 **Aceite:** ordem de resgate coberta por teste; opção desligada não vende Prefixado nem IPCA+; cobertura parcial; parcela de empréstimo coberta antes de atrasar; toast emitido; testes em `tests/test_auto_cover.py`.
+
+<a id="f223"></a>
+**F223 — Credibilidade do Banco Central medida contra a história.** Serve N34; condicionado por D20. **Sintoma:** na partida com a SELIC nas mãos do governo, um presidente que marca exatamente a SELIC da história em toda reunião perde credibilidade sem ter feito nada diferente. Simulada de 2001 a 2025, ela cai para 32 em 2012–2013, fica presa perto de 55 de 2016 a 2018, zera em dezembro de 2019 e fica em 0 até 2021. Com 0, a dívida paga 2 pontos de prêmio a mais, o que soma cerca de 1 ponto ao IPCA pelo risco fiscal, tira cerca de 5,8% da bolsa no trimestre e dobra o efeito do juro real na inflação. Com o Banco Central autônomo, a mesma janela fica em 100. **Reproduzir:** aplicar `next_credibility` às reuniões de `meeting_days` de 2001 a 2025, com a SELIC e o IPCA guardados. **Causa** (`next_credibility` em `backend/features/economy/monetary.py`, chamada por `_hold_selic_meeting` no `government_book.py`): (1) compara o juro real com o neutro fixo de 5%, e não com o juro real da história no mesmo dia, e cobra de novo o que a série real já contém, contra a D20; (2) só devolve credibilidade com alta da SELIC, e entregar a inflação na meta nunca a reconstrói (em 2016–2018 o IPCA caiu de 10,7% para 2,5% e a credibilidade não voltou); (3) dispara com o IPCA acima da meta, e não acima da meta mais a tolerância (em dezembro de 2019, 4,31% contra a meta de 4,25%, dentro da tolerância de 1,5 ponto, tirou 15,8 pontos). **Conserto:** (1) a reunião tira credibilidade quando o juro real da partida fica abaixo do da história (SELIC e IPCA guardados no dia) e o IPCA em 12 meses da partida passa da meta mais a tolerância: 4 pontos por ponto abaixo da história, até 20; (2) devolve 3 quando sobe a SELIC ou quando o juro real da partida fica igual ou acima do da história; (3) `_hold_selic_meeting` passa o juro real da história e a `inflation_tolerance` do dia. Os testes da credibilidade e o trecho da credibilidade em `docs/docs/como-usar/governo.md` mudam junto. **Aceite:** um presidente que copia a SELIC da história de 2001 a 2025 termina toda reunião com credibilidade 100. **Gatilho:** agora, antes do release da 3.4.
 
 ---
 
