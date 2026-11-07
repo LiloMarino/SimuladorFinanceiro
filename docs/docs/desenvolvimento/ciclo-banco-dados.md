@@ -84,9 +84,11 @@ Antes de apagar as migrations antigas, confira que o `pg_dump --schema-only` de 
 | Vazio | Recebe todas as migrations até o head |
 | Já no head | Nada |
 | Com tabelas, sem `alembic_version`, igual aos models | É marcado no head (`stamp`) |
-| Com tabelas, sem `alembic_version`, diferente dos models | A inicialização é recusada: o banco é anterior às migrations e precisa ser trocado por um novo |
+| Com tabelas, sem `alembic_version`, diferente dos models | Backup, e o banco é recriado vazio no head |
 | Numa revisão anterior | Backup, e então upgrade |
-| Numa revisão que esta versão não conhece | Recusado: o banco é de uma versão anterior à que a linha de revisões cobre; abra-o uma vez com a versão anterior e volte |
+| Numa revisão que esta versão não conhece | Backup, e o banco é recriado vazio no head |
+
+**Banco sem caminho até o head:** quando uma versão maior corta o caminho de atualização, a linha de revisões recomeça numa migration só. O banco de uma versão que a linha não cobre vai inteiro para o backup e é recriado vazio. O terminal diz que as partidas e os ativos da versão anterior não passam para esta e dá o nome do backup. Os ativos são importados de novo.
 
 **Backup:** antes do upgrade, o banco como estava é copiado para `<banco>_bkp_AAAAMMDD_HHMMSS`; ficam os 3 mais recentes. Remover ou renomear tabela e coluna é permitido: o backup é o caminho de volta.
 

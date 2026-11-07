@@ -342,6 +342,10 @@ Os indicadores saem do caminho: a SELIC soma as variações dos trechos ao últi
 
 **Atualização (2026-10-29):** a trava que recusava a migration quando uma tabela perdia linha ou célula preenchida, e o ensaio numa cópia que a alimentava, foram retirados; o backup antes do upgrade fica. Migration de remoção e de renomeio é comum, e a trava travava o desenvolvimento a cada uma; o backup já devolve o banco como estava.
 
+**Atualização (2026-11-07): na major que corta o caminho, a linha recomeça numa migration só.** Quem vem de uma versão que a linha não cobre não é mais recusado: o banco antigo vai para o backup, é recriado vazio e sobe pela migration inicial, que leva os dados de catálogo (os presets embutidos). As partidas e os ativos da versão anterior não passam, e o terminal diz isso e dá o nome do backup. A 4.0 é a primeira a fazer isso.
+- Sem conversão de dados: sem banco antigo para converter, a migration inicial é só o schema e o catálogo, e o histórico de preços se importa de novo, já no formato da versão.
+- A conferência do `pg_dump --schema-only` cobre o conteúdo (colunas, tipos, restrições, índices, valores de enum). A ordem das colunas e dos valores de enum da migration nova segue os models, e não a ordem em que a cadeia antiga as acrescentou.
+
 ### D19 — O eleitorado são grupos, cada um com apoio e rejeição por partido
 **Status:** ✅ Decidida
 
