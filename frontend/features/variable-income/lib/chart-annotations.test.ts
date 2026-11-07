@@ -1,8 +1,14 @@
 import { describe, expect, it } from "vitest";
-import type { CandlePattern } from "@/types";
-import { crossoverShapes, patternMarkers, patternShapes, type AnnotationColors } from "./chart-annotations";
+import type { AssetCorporateEvent, CandlePattern } from "@/types";
+import {
+  corporateShapes,
+  crossoverShapes,
+  patternMarkers,
+  patternShapes,
+  type AnnotationColors,
+} from "./chart-annotations";
 
-const colors: AnnotationColors = { up: "g", down: "r", neutral: "n", band: "b" };
+const colors: AnnotationColors = { up: "g", down: "r", neutral: "n", band: "b", dividend: "p", split: "d" };
 const phrases = { up: "sobe", down: "desce" };
 
 const pattern = (end: string, direction: CandlePattern["direction"], start = end): CandlePattern => ({
@@ -54,5 +60,28 @@ describe("chart annotations", () => {
   it("ignora os cruzamentos de antes do período", () => {
     const shapes = crossoverShapes(line(1, 3, 1, 3), line(2, 2, 2, 2), days[3]!, phrases, colors);
     expect(shapes.map((s) => s.kind)).toEqual(["circle", "note"]);
+  });
+
+  it("põe o selo P e D só nos dias que o gráfico tem", () => {
+    const event = (ex_date: string, kind: AssetCorporateEvent["kind"]): AssetCorporateEvent => ({
+      ex_date,
+      kind,
+      value: "1",
+      before_match: false,
+      shares: null,
+      shares_after: null,
+      received: null,
+    });
+
+    const shapes = corporateShapes(
+      [event(days[0]!, "DIVIDEND"), event(days[1]!, "SPLIT"), event("2023-12-01", "DIVIDEND")],
+      days,
+      colors,
+    );
+
+    expect(shapes).toEqual([
+      { kind: "badge", time: days[0], letter: "P", color: "p" },
+      { kind: "badge", time: days[1], letter: "D", color: "d" },
+    ]);
   });
 });

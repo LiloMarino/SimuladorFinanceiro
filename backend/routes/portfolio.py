@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from backend.core.dependencies import ActiveSimulation, ClientID
+from backend.core.dto.dividends import PortfolioDividendsDTO
 from backend.core.dto.patrimonial_history import PortfolioHistoryPointDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
@@ -54,6 +55,19 @@ def get_cash(client_id: ClientID, simulation: ActiveSimulation):
     """
     cash = simulation.get_cash(client_id)
     return CashResponse(cash=cash)
+
+
+@portfolio_router.get(
+    "/dividends",
+    response_model=PortfolioDividendsDTO,
+    summary="Proventos recebidos",
+    description=(
+        "Os proventos que o jogador recebeu na partida: o total, o dos 12 meses-calendário "
+        "até hoje, a divisão por mês, por ano e por classe, e quem mais pagou."
+    ),
+)
+def get_dividends(client_id: ClientID, simulation: ActiveSimulation):
+    return simulation.get_dividends(client_id)
 
 
 @portfolio_router.get(

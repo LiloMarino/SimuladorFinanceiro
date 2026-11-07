@@ -1,14 +1,18 @@
 from datetime import date
+from decimal import Decimal
+from typing import NamedTuple
 
-from sqlalchemy import select
+from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
+from backend.core.dto.dividends import DividendPaymentDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.order_preview import TradeDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
-from backend.core.enum import EquityEventType
+from backend.core.enum import AssetClass, CashflowEventType, EquityEventType
 from backend.core.models.models import (
+    EventCashflow,
     EventEquity,
     SimulationPlayers,
     Snapshots,
@@ -16,6 +20,13 @@ from backend.core.models.models import (
     Users,
 )
 from backend.core.runtime.simulation_manager import SimulationManager
+
+
+class DividendTotal(NamedTuple):
+    """Proventos de um ativo: a partida inteira e a janela pedida."""
+
+    total: Decimal
+    recent: Decimal
 
 
 class PortfolioRepository:
@@ -90,6 +101,60 @@ class PortfolioRepository:
             )
             for event, nickname, color in rows
         ]
+
+    @transactional
+    def get_dividend_payments(
+        self, session: Session, user_id: int
+    ) -> list[DividendPaymentDTO]:
+        """Os créditos de provento no caixa do jogador, em ordem de data."""
+        simulation_id = SimulationManager.get_active_simulation_id()
+        rows = session.execute(
+            select(EventCashflow, Stock.ticker, Stock.name, Stock.asset_class)
+            .join(Stock, Stock.id == EventCashflow.stock_id)
+            .where(
+                EventCashflow.user_id == user_id,
+                EventCashflow.simulation_id == simulation_id,
+                EventCashflow.event_type == CashflowEventType.DIVIDEND.value,
+            )
+            .order_by(EventCashflow.event_date, EventCashflow.id)
+        ).all()
+        return [
+            DividendPaymentDTO(
+                ticker=ticker,
+                name=name,
+                asset_class=AssetClass(asset_class),
+                event_date=event.event_date,
+                amount=event.amount,
+            )
+            for event, ticker, name, asset_class in rows
+        ]
+
+    @transactional
+    def get_dividend_totals(
+        self, session: Session, user_id: int, since: date
+    ) -> dict[str, DividendTotal]:
+        """Quanto cada ativo pagou ao jogador na partida inteira e de `since` em diante."""
+        simulation_id = SimulationManager.get_active_simulation_id()
+        since_total = func.coalesce(
+            func.sum(
+                case((EventCashflow.event_date >= since, EventCashflow.amount), else_=0)
+            ),
+            0,
+        )
+        rows = session.execute(
+            select(Stock.ticker, func.sum(EventCashflow.amount), since_total)
+            .join(Stock, Stock.id == EventCashflow.stock_id)
+            .where(
+                EventCashflow.user_id == user_id,
+                EventCashflow.simulation_id == simulation_id,
+                EventCashflow.event_type == CashflowEventType.DIVIDEND.value,
+            )
+            .group_by(Stock.ticker)
+        ).all()
+        return {
+            ticker: DividendTotal(Decimal(total), Decimal(recent))
+            for ticker, total, recent in rows
+        }
 
     @transactional
     def get_equity_events(self, session: Session, user_id: int) -> list[EquityEventDTO]:

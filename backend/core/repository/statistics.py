@@ -9,11 +9,13 @@ from backend.core.dto.events.credit import CreditEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
-from backend.core.enum import CashflowEventType, EquityEventType
+from backend.core.dto.return_flows import ReturnFlowsDTO
+from backend.core.enum import CashflowEventType, EquityEventType, FixedIncomeEventType
 from backend.core.models.models import (
     EventCashflow,
     EventCredit,
     EventEquity,
+    EventFixedIncome,
     SimulationPlayers,
     Simulations,
     Snapshots,
@@ -193,3 +195,92 @@ class StatisticsRepository:
         for row, nickname in rows:
             events[(row.simulation_id, nickname)].append(credit_event_dto(row))
         return events
+
+    @transactional
+    def get_players_return_flows(
+        self, session: Session, simulation_ids: list[int]
+    ) -> dict[PlayerKey, ReturnFlowsDTO]:
+        """
+        Os totais do caixa e da renda fixa de cada jogador até o último snapshot dele:
+        o mesmo recorte do patrimônio com que o retorno é medido.
+        """
+        last_snapshot = (
+            select(func.max(Snapshots.snapshot_date))
+            .where(
+                Snapshots.simulation_id == EventCashflow.simulation_id,
+                Snapshots.user_id == EventCashflow.user_id,
+            )
+            .scalar_subquery()
+        )
+        cashflow_rows = session.execute(
+            select(
+                EventCashflow.simulation_id,
+                Users.nickname,
+                EventCashflow.event_type,
+                func.sum(EventCashflow.amount),
+            )
+            .join(Users, Users.id == EventCashflow.user_id)
+            .where(
+                EventCashflow.simulation_id.in_(simulation_ids),
+                EventCashflow.event_date <= last_snapshot,
+                EventCashflow.event_type.in_([t.value for t in _CASHFLOW_FLOW_FIELDS]),
+            )
+            .group_by(
+                EventCashflow.simulation_id, Users.nickname, EventCashflow.event_type
+            )
+        ).all()
+
+        fixed_snapshot = (
+            select(func.max(Snapshots.snapshot_date))
+            .where(
+                Snapshots.simulation_id == EventFixedIncome.simulation_id,
+                Snapshots.user_id == EventFixedIncome.user_id,
+            )
+            .scalar_subquery()
+        )
+        fixed_rows = session.execute(
+            select(
+                EventFixedIncome.simulation_id,
+                Users.nickname,
+                EventFixedIncome.event_type,
+                func.sum(EventFixedIncome.amount),
+                func.sum(EventFixedIncome.tax_withheld),
+            )
+            .join(Users, Users.id == EventFixedIncome.user_id)
+            .where(
+                EventFixedIncome.simulation_id.in_(simulation_ids),
+                EventFixedIncome.event_date <= fixed_snapshot,
+            )
+            .group_by(
+                EventFixedIncome.simulation_id,
+                Users.nickname,
+                EventFixedIncome.event_type,
+            )
+        ).all()
+
+        totals: dict[PlayerKey, dict[str, Decimal]] = defaultdict(
+            lambda: defaultdict(Decimal)
+        )
+        for simulation_id, nickname, event_type, amount in cashflow_rows:
+            field = _CASHFLOW_FLOW_FIELDS[CashflowEventType(event_type)]
+            totals[(simulation_id, nickname)][field] += amount
+        for simulation_id, nickname, event_type, amount, withheld in fixed_rows:
+            key = (simulation_id, nickname)
+            if FixedIncomeEventType(event_type) is FixedIncomeEventType.BUY:
+                totals[key]["fixed_bought"] += amount
+            else:
+                totals[key]["fixed_redeemed"] += amount
+                totals[key]["fixed_tax_withheld"] += withheld
+        return {key: ReturnFlowsDTO(**fields) for key, fields in totals.items()}
+
+
+# Cada tipo de caixa que explica o retorno e o campo do total em que ele soma
+_CASHFLOW_FLOW_FIELDS: dict[CashflowEventType, str] = {
+    CashflowEventType.DIVIDEND: "dividends",
+    CashflowEventType.OVERDRAFT_INTEREST: "overdraft_interest",
+    CashflowEventType.LOAN_PROCEEDS: "loan_proceeds",
+    CashflowEventType.LOAN_PAYMENT: "loan_payment",
+    CashflowEventType.CAMPAIGN_CONTRIBUTION: "campaign",
+    CashflowEventType.CAMPAIGN_DONATION: "campaign",
+    CashflowEventType.CAMPAIGN_ACTION: "campaign",
+}

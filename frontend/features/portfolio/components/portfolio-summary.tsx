@@ -6,11 +6,12 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { InfoHint } from "@/shared/components/info-hint";
-import { MetricHint } from "@/shared/components/metric-hint";
+import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
+import { RECEIVED_DIVIDENDS } from "@/shared/lib/dividend-metrics";
 import { GOAL_PERCENT } from "@/shared/lib/goal-metrics";
 import { useEconomicIndicators } from "@/shared/hooks/queries/useEconomicIndicators";
 import { displayMoney, displayMoneyCompact, displayPercent, displaySignedMoney } from "@/shared/lib/utils/display";
@@ -52,7 +53,7 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
   return (
     <Card>
       <CardContent>
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_1.5fr_1fr] lg:gap-0">
+        <div className="grid gap-6 lg:grid-cols-[1.25fr_1.3fr_0.85fr_0.95fr] lg:gap-0">
           {/* Patrimônio */}
           <div className="grid content-start gap-1.5 lg:pr-6">
             <span className="text-xs font-medium text-muted-foreground">
@@ -112,12 +113,35 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
 
           {/* Indicadores */}
           <EconomicIndicators />
+
+          {/* Proventos recebidos */}
+          <ReceivedDividends portfolio={portfolio} />
         </div>
 
         {/* Quem deve: o patrimônio líquido é o que sobra dos ativos depois da dívida */}
         {indebted && <DebtBreakdown portfolio={portfolio} />}
       </CardContent>
     </Card>
+  );
+}
+
+/** Total de proventos na partida e nos últimos 12 meses. */
+function ReceivedDividends({ portfolio }: { portfolio: PortfolioState }) {
+  return (
+    <div className="grid content-start gap-1.5 lg:border-l lg:pl-6">
+      <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+        <MetricLabel metric={RECEIVED_DIVIDENDS} />
+        <span className="size-2.5 rounded-[3px] bg-dividend-bar" aria-hidden="true" />
+      </span>
+      <span className="font-mono text-[22px] leading-tight font-semibold">
+        {displayMoney(portfolio.dividends_total)}
+      </span>
+      <span className="text-[13px] text-muted-foreground">
+        na partida · nos últimos 12 meses{" "}
+        <b className="font-mono text-foreground">{displayMoney(portfolio.dividends_12m)}</b>
+      </span>
+      <span className="text-xs text-faint-foreground">No caixa, sem reinvestir sozinho.</span>
+    </div>
   );
 }
 

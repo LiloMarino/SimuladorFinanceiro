@@ -6,6 +6,7 @@ import { ErrorPage } from "@/pages/error";
 import { ErrorState } from "@/shared/components/error-state";
 import { StockAnalysis } from "../components/stock-analysis";
 import { StockHeader } from "../components/stock-header";
+import { CorporateEventsCard } from "../components/corporate-events-card";
 import { OrderBookCard } from "../components/order-book-card";
 import { OrderTicket } from "../components/order-ticket";
 import { PositionCard } from "../components/position-card";
@@ -66,6 +67,7 @@ export default function VariableIncomeDetailPage() {
           ) : (
             <Skeleton className="h-96" />
           )}
+          <CorporateEventsCard ticker={stock.ticker} />
           <OrderBookCard ticker={stock.ticker} orders={orders} />
         </div>
         <div className="grid gap-5">

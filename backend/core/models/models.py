@@ -658,6 +658,10 @@ class EventFixedIncome(Base):
         Enum("BUY", "REDEEM", name="fixed_income_event_type"), nullable=False
     )
     amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    # IR e IOF retidos no resgate (bruto - líquido); zero na aplicação
+    tax_withheld: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
     event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False

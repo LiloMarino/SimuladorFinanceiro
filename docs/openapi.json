@@ -112,6 +112,64 @@
         }
       }
     },
+    "/api/variable-income/{asset}/corporate-events": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Proventos e desdobramentos de um ativo",
+        "description": "O histórico de proventos, desdobramentos e grupamentos do ativo até a data da simulação, com as ações do jogador em cada data ex e o que ele recebeu, além do rendimento de 12 meses e o rendimento sobre o preço médio.",
+        "operationId": "get_variable_income_corporate_events_api_variable_income__asset__corporate_events_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "asset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetCorporateEventsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/variable-income/{asset}/indicators": {
       "post": {
         "tags": [
@@ -1299,6 +1357,53 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CashResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/portfolio/dividends": {
+      "get": {
+        "tags": [
+          "Portfolio"
+        ],
+        "summary": "Proventos recebidos",
+        "description": "Os proventos que o jogador recebeu na partida: o total, o dos 12 meses-calendário até hoje, a divisão por mês, por ano e por classe, e quem mais pagou.",
+        "operationId": "get_dividends_api_portfolio_dividends_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioDividendsDTO"
                 }
               }
             }
@@ -11353,6 +11458,143 @@
         ],
         "title": "AssetClassRequest"
       },
+      "AssetCorporateEventDTO": {
+        "properties": {
+          "ex_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Ex Date"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CorporateEventKind"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "before_match": {
+            "type": "boolean",
+            "title": "Before Match"
+          },
+          "shares": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shares"
+          },
+          "shares_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shares After"
+          },
+          "received": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ex_date",
+          "kind",
+          "value",
+          "before_match",
+          "shares",
+          "shares_after",
+          "received"
+        ],
+        "title": "AssetCorporateEventDTO",
+        "description": "Uma linha do histórico do ativo: um provento, um desdobramento ou um grupamento."
+      },
+      "AssetCorporateEventsDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "asset_class": {
+            "$ref": "#/components/schemas/AssetClass"
+          },
+          "dividend_yield_12m": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dividend Yield 12M"
+          },
+          "per_share_12m": {
+            "type": "string",
+            "title": "Per Share 12M"
+          },
+          "yield_on_cost": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yield On Cost"
+          },
+          "received_total": {
+            "type": "string",
+            "title": "Received Total"
+          },
+          "payments_count": {
+            "type": "integer",
+            "title": "Payments Count"
+          },
+          "match_start_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Match Start Date"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/AssetCorporateEventDTO"
+            },
+            "type": "array",
+            "title": "Events"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "asset_class",
+          "dividend_yield_12m",
+          "per_share_12m",
+          "yield_on_cost",
+          "received_total",
+          "payments_count",
+          "match_start_date",
+          "events"
+        ],
+        "title": "AssetCorporateEventsDTO"
+      },
       "AutoRedeemEventDTO": {
         "properties": {
           "asset_name": {
@@ -14439,6 +14681,24 @@
         ],
         "title": "ChallengeWinsDTO"
       },
+      "ClassAmountDTO": {
+        "properties": {
+          "asset_class": {
+            "$ref": "#/components/schemas/AssetClass"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "asset_class",
+          "amount"
+        ],
+        "title": "ClassAmountDTO"
+      },
       "ClosingDTO": {
         "properties": {
           "month": {
@@ -14839,6 +15099,45 @@
         ],
         "title": "CopomChangeDTO",
         "description": "Dia em que a SELIC mudou de nível."
+      },
+      "CorporateActionsEventDTO": {
+        "properties": {
+          "dividends": {
+            "items": {
+              "$ref": "#/components/schemas/DividendLineDTO"
+            },
+            "type": "array",
+            "title": "Dividends"
+          },
+          "dividends_total": {
+            "type": "string",
+            "title": "Dividends Total"
+          },
+          "splits": {
+            "items": {
+              "$ref": "#/components/schemas/SplitLineDTO"
+            },
+            "type": "array",
+            "title": "Splits"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "dividends",
+          "dividends_total",
+          "splits"
+        ],
+        "title": "CorporateActionsEventDTO",
+        "description": "O que os proventos e os desdobramentos do pregão fizeram na carteira do jogador."
+      },
+      "CorporateEventKind": {
+        "type": "string",
+        "enum": [
+          "SPLIT",
+          "DIVIDEND"
+        ],
+        "title": "CorporateEventKind"
       },
       "CorrelationAssetDTO": {
         "properties": {
@@ -16327,6 +16626,136 @@
         ],
         "title": "DiceBandDTO",
         "description": "Uma faixa do dado de uma ação: onde cai, com que chance e o que muda."
+      },
+      "DividendBucketDTO": {
+        "properties": {
+          "period": {
+            "type": "string",
+            "format": "date",
+            "title": "Period"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "by_class": {
+            "items": {
+              "$ref": "#/components/schemas/ClassAmountDTO"
+            },
+            "type": "array",
+            "title": "By Class"
+          },
+          "payers": {
+            "items": {
+              "$ref": "#/components/schemas/PayerAmountDTO"
+            },
+            "type": "array",
+            "title": "Payers"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "period",
+          "amount",
+          "by_class",
+          "payers"
+        ],
+        "title": "DividendBucketDTO",
+        "description": "Um mês (ou um ano) de proventos, com a divisão por classe e quem pagou."
+      },
+      "DividendHighlightDTO": {
+        "properties": {
+          "player_nickname": {
+            "type": "string",
+            "title": "Player Nickname"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "is_bot": {
+            "type": "boolean",
+            "title": "Is Bot"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "result_share": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "player_nickname",
+          "color",
+          "is_bot",
+          "value",
+          "result_share"
+        ],
+        "title": "DividendHighlightDTO"
+      },
+      "DividendLineDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "amount"
+        ],
+        "title": "DividendLineDTO"
+      },
+      "DividendPayerDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "asset_class": {
+            "$ref": "#/components/schemas/AssetClass"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "name",
+          "asset_class",
+          "amount",
+          "share"
+        ],
+        "title": "DividendPayerDTO"
       },
       "DonationDTO": {
         "properties": {
@@ -19696,6 +20125,16 @@
               }
             ]
           },
+          "most_dividends": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DividendHighlightDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "your_best_month": {
             "anyOf": [
               {
@@ -19714,6 +20153,7 @@
           "smallest_drawdown",
           "most_trades",
           "most_tax",
+          "most_dividends",
           "your_best_month"
         ],
         "title": "HighlightsDTO"
@@ -24228,6 +24668,34 @@
         "title": "PauseReason",
         "description": "Por que a partida está parada; o host pausa, e o calendário do governo também."
       },
+      "PayerAmountDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "asset_class": {
+            "$ref": "#/components/schemas/AssetClass"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "name",
+          "asset_class",
+          "amount"
+        ],
+        "title": "PayerAmountDTO"
+      },
       "PeakDTO": {
         "properties": {
           "value": {
@@ -25059,6 +25527,9 @@
                 "type": "null"
               }
             ]
+          },
+          "return_sources": {
+            "$ref": "#/components/schemas/ReturnSourcesDTO"
           }
         },
         "additionalProperties": false,
@@ -25078,7 +25549,8 @@
           "positive_months",
           "months",
           "monthly_returns",
-          "credit_cost"
+          "credit_cost",
+          "return_sources"
         ],
         "title": "PlayerReturnsDTO"
       },
@@ -25538,6 +26010,14 @@
             ],
             "title": "Income Tax Due Date"
           },
+          "dividends_total": {
+            "type": "string",
+            "title": "Dividends Total"
+          },
+          "dividends_12m": {
+            "type": "string",
+            "title": "Dividends 12M"
+          },
           "month_stock_sales": {
             "type": "string",
             "title": "Month Stock Sales"
@@ -25612,6 +26092,8 @@
           "income_tax_paid",
           "income_tax_due",
           "income_tax_due_date",
+          "dividends_total",
+          "dividends_12m",
           "month_stock_sales",
           "stock_sales_exemption",
           "month_crypto_sales",
@@ -25622,6 +26104,81 @@
           "fixed_income"
         ],
         "title": "PortfolioDTO"
+      },
+      "PortfolioDividendsDTO": {
+        "properties": {
+          "total": {
+            "type": "string",
+            "title": "Total"
+          },
+          "total_12m": {
+            "type": "string",
+            "title": "Total 12M"
+          },
+          "payments_count": {
+            "type": "integer",
+            "title": "Payments Count"
+          },
+          "first_payment_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Payment Date"
+          },
+          "average_per_month": {
+            "type": "string",
+            "title": "Average Per Month"
+          },
+          "classes": {
+            "items": {
+              "$ref": "#/components/schemas/AssetClass"
+            },
+            "type": "array",
+            "title": "Classes"
+          },
+          "monthly": {
+            "items": {
+              "$ref": "#/components/schemas/DividendBucketDTO"
+            },
+            "type": "array",
+            "title": "Monthly"
+          },
+          "yearly": {
+            "items": {
+              "$ref": "#/components/schemas/DividendBucketDTO"
+            },
+            "type": "array",
+            "title": "Yearly"
+          },
+          "payers": {
+            "items": {
+              "$ref": "#/components/schemas/DividendPayerDTO"
+            },
+            "type": "array",
+            "title": "Payers"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "total",
+          "total_12m",
+          "payments_count",
+          "first_payment_date",
+          "average_per_month",
+          "classes",
+          "monthly",
+          "yearly",
+          "payers"
+        ],
+        "title": "PortfolioDividendsDTO",
+        "description": "O card de proventos da Carteira; os 12 meses são os 12 meses-calendário até o da data de hoje."
       },
       "PortfolioHistoryPointDTO": {
         "properties": {
@@ -25737,6 +26294,32 @@
           "portfolio_pct": {
             "type": "string",
             "title": "Portfolio Pct"
+          },
+          "dividend_yield_12m": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dividend Yield 12M"
+          },
+          "yield_on_cost": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yield On Cost"
+          },
+          "dividends_received": {
+            "type": "string",
+            "title": "Dividends Received"
           }
         },
         "additionalProperties": false,
@@ -25752,7 +26335,10 @@
           "return_value",
           "return_pct",
           "name",
-          "portfolio_pct"
+          "portfolio_pct",
+          "dividend_yield_12m",
+          "yield_on_cost",
+          "dividends_received"
         ],
         "title": "PortfolioPositionDTO"
       },
@@ -27322,6 +27908,9 @@
           "auto_redeem": {
             "$ref": "#/components/schemas/AutoRedeemEventDTO"
           },
+          "corporate_actions": {
+            "$ref": "#/components/schemas/CorporateActionsEventDTO"
+          },
           "order_executed": {
             "$ref": "#/components/schemas/OrderExecutedEventDTO"
           },
@@ -27444,6 +28033,7 @@
           "goal_progress_update",
           "life_event",
           "auto_redeem",
+          "corporate_actions",
           "order_executed",
           "order_partial_executed",
           "player_join",
@@ -27584,6 +28174,46 @@
         ],
         "title": "ReservedPartyDTO",
         "description": "Um partido do computador, cujo nome e sigla ninguém repete, com as bandeiras fixas dele."
+      },
+      "ReturnSourcesDTO": {
+        "properties": {
+          "appreciation": {
+            "type": "string",
+            "title": "Appreciation"
+          },
+          "dividends": {
+            "type": "string",
+            "title": "Dividends"
+          },
+          "fixed_income_interest": {
+            "type": "string",
+            "title": "Fixed Income Interest"
+          },
+          "taxes": {
+            "type": "string",
+            "title": "Taxes"
+          },
+          "debt_interest": {
+            "type": "string",
+            "title": "Debt Interest"
+          },
+          "campaign": {
+            "type": "string",
+            "title": "Campaign"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "appreciation",
+          "dividends",
+          "fixed_income_interest",
+          "taxes",
+          "debt_interest",
+          "campaign"
+        ],
+        "title": "ReturnSourcesDTO",
+        "description": "De onde veio o retorno do jogador (patrimônio menos o capital aportado).\nCada parcela entra com o sinal que teve no retorno: ganho positivo, custo\nnegativo. A valorização é o que sobra depois das demais, então as seis\nparcelas somam o retorno total."
       },
       "ReturnsReportDTO": {
         "properties": {
@@ -30330,6 +30960,40 @@
         "title": "SpendingRowDTO",
         "description": "Uma medida de gasto no cartão Gasto público: o valor em vigor, o que pesa e o que soma à inflação."
       },
+      "SplitLineDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "ratio": {
+            "type": "string",
+            "title": "Ratio"
+          },
+          "shares_before": {
+            "type": "string",
+            "title": "Shares Before"
+          },
+          "shares_after": {
+            "type": "string",
+            "title": "Shares After"
+          },
+          "fraction_amount": {
+            "type": "string",
+            "title": "Fraction Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "ratio",
+          "shares_before",
+          "shares_after",
+          "fraction_amount"
+        ],
+        "title": "SplitLineDTO"
+      },
       "StatisticsNextUpdateDTO": {
         "properties": {
           "last_update_date": {
@@ -32572,6 +33236,7 @@
           "CREDIT_RATING",
           "LIFE_EVENT",
           "AUTO_REDEEM",
+          "CORPORATE_ACTIONS",
           "YEAR_REVIEW",
           "VICE_ANSWER"
         ],

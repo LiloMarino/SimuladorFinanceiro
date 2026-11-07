@@ -91,6 +91,7 @@ class FixedIncomeRepository:
                     asset_id=event.asset_id,
                     event_type=FixedIncomeEventType(event.event_type),
                     amount=event.amount,
+                    tax_withheld=event.tax_withheld,
                     event_date=event.event_date,
                     created_at=event.created_at,
                 ),

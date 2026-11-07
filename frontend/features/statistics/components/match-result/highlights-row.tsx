@@ -15,12 +15,14 @@ import {
 } from "@/shared/lib/utils/display";
 import type { Highlights, TeamNaming } from "@/types";
 import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
-import { CUMULATIVE_RETURN, INCOME_TAX_PAID, MAX_DRAWDOWN } from "../../lib/metrics";
+import { CUMULATIVE_RETURN, INCOME_TAX_PAID, MAX_DRAWDOWN, MOST_DIVIDENDS } from "../../lib/metrics";
 
 interface HighlightProps {
   label: string;
   metric?: MetricInfo;
   value: ReactNode;
+  /** Linha de apoio sob o valor, como o peso do valor no resultado. */
+  detail?: ReactNode;
   tone?: "positive" | "negative" | undefined;
   player: string | undefined;
   color: string | undefined;
@@ -29,7 +31,7 @@ interface HighlightProps {
   team?: { index: number | null | undefined; naming: TeamNaming } | undefined;
 }
 
-function Highlight({ label, metric, value, tone, player, color, bot, team }: HighlightProps) {
+function Highlight({ label, metric, value, detail, tone, player, color, bot, team }: HighlightProps) {
   return (
     <Card size="sm">
       <div className="grid gap-1.5 px-4">
@@ -46,6 +48,7 @@ function Highlight({ label, metric, value, tone, player, color, bot, team }: Hig
         >
           {player ? value : "—"}
         </span>
+        {player && detail && <span className="text-xs text-faint-foreground">{detail}</span>}
         <span className="flex items-center gap-1.5 text-xs">
           {player ? (
             <>
@@ -96,9 +99,10 @@ export function HighlightsRow({
     team: teamOf ? { index: teamOf(h?.player_nickname), naming: teamNaming } : undefined,
   });
   const best = data.your_best_month;
+  const dividends = data.most_dividends;
 
   return (
-    <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-5">
+    <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
       <Highlight
         label="Maior retorno"
         metric={CUMULATIVE_RETURN}
@@ -124,6 +128,13 @@ export function HighlightsRow({
         {...item(data.most_tax)}
       />
       <Highlight
+        label="Mais proventos"
+        metric={MOST_DIVIDENDS}
+        value={dividends && displayMoney(dividends.value)}
+        detail={dividends?.result_share != null && `${displayPercent(dividends.result_share, 0)} do resultado dele`}
+        {...item(dividends)}
+      />
+      <Highlight
         label="Seu melhor mês"
         value={best && `${displaySignedPercent(best.value)} · ${displayMonthSlashYear(best.month)}`}
         tone={toneOf(best?.value)}
@@ -137,9 +148,9 @@ export function HighlightsRow({
 
 export function HighlightsSkeleton() {
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-      {Array.from({ length: 5 }, (_, i) => (
-        <Skeleton key={i} className="h-[76px]" />
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
+      {Array.from({ length: 6 }, (_, i) => (
+        <Skeleton key={i} className="h-[92px]" />
       ))}
     </div>
   );

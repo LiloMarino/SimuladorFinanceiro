@@ -10,12 +10,14 @@ from functools import cache
 
 from backend.core import repository
 from backend.core.dto.player_history import PlayerHistoryDTO
+from backend.core.dto.return_flows import ReturnFlowsDTO
 from backend.core.dto.statistics_report import (
     BenchmarkDTO,
     BenchmarkSeries,
     BestMonthDTO,
     CompositionReportDTO,
     CreditCostDTO,
+    DividendHighlightDTO,
     HighlightsDTO,
     MonthlyReturnDTO,
     OperationsReportDTO,
@@ -47,6 +49,7 @@ from backend.features.statistics import operations, returns, risk, sectors
 from backend.features.statistics.credit import CreditStanding, credit_standing
 from backend.features.statistics.goal import goal_on, goal_steps
 from backend.features.statistics.ranking import build_overview, capital_provided
+from backend.features.statistics.return_sources import build_return_sources
 from backend.features.statistics.sampling import ChartPeriod, chart_period, thin
 from backend.features.statistics.score import score_history
 from backend.features.statistics.teams import (
@@ -195,9 +198,12 @@ def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
     players = repository.statistics.get_players_history(simulation_ids)
     standings = _credit_standings(simulation_ids, players)
     period = _chart_period(simulation_ids, players)
+    flows = repository.statistics.get_players_return_flows(simulation_ids)
+    taxes = repository.statistics.get_players_tax(simulation_ids)
 
     entries = []
     for player in players:
+        key = (player.simulation_id, player.player_nickname)
         days = risk.daily_returns(player.history)
         months = risk.monthly_returns(days)
         entries.append(
@@ -219,8 +225,12 @@ def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
                     MonthlyReturnDTO(month=m.month, value=m.value, cdi=m.cdi)
                     for m in months
                 ],
-                credit_cost=_credit_cost(
-                    standings[(player.simulation_id, player.player_nickname)]
+                credit_cost=_credit_cost(standings[key]),
+                return_sources=build_return_sources(
+                    player.history[-1],
+                    capital_provided(player),
+                    taxes.get(key, Decimal(0)),
+                    flows.get(key, ReturnFlowsDTO()),
                 ),
             )
         )
@@ -486,11 +496,13 @@ def build_highlights(simulation_ids: list[int], nickname: str | None) -> Highlig
     players = repository.statistics.get_players_history(simulation_ids)
     trades = repository.statistics.get_players_trades(simulation_ids)
     taxes = repository.statistics.get_players_tax(simulation_ids)
+    flows = repository.statistics.get_players_return_flows(simulation_ids)
 
     returns: list[PlayerHighlightDTO] = []
     drawdowns: list[PlayerHighlightDTO] = []
     trade_counts: list[PlayerHighlightDTO] = []
     tax_paid: list[PlayerHighlightDTO] = []
+    dividends: list[DividendHighlightDTO] = []
     your_best: BestMonthDTO | None = None
     for player in players:
         key = (player.simulation_id, player.player_nickname)
@@ -511,13 +523,21 @@ def build_highlights(simulation_ids: list[int], nickname: str | None) -> Highlig
         ]
         trade_counts.append(_highlight(player, Decimal(len(market_trades))))
         tax_paid.append(_highlight(player, taxes.get(key, Decimal(0))))
+        received = flows[key].dividends if key in flows else Decimal(0)
+        profit = player.history[-1].total_networth - capital
+        dividends.append(
+            DividendHighlightDTO(
+                **_highlight(player, received).model_dump(),
+                result_share=received / profit if profit > 0 else None,
+            )
+        )
         if player.player_nickname == nickname and (
             months := risk.monthly_returns(days)
         ):
             best = max(months, key=lambda m: m.value)
             your_best = BestMonthDTO(month=best.month, value=best.value)
 
-    def top(items: list[PlayerHighlightDTO]) -> PlayerHighlightDTO | None:
+    def top[T: PlayerHighlightDTO](items: list[T]) -> T | None:
         return max(items, key=lambda h: h.value, default=None)
 
     # A queda é medida como magnitude positiva: a menor é a mais rasa
@@ -529,6 +549,7 @@ def build_highlights(simulation_ids: list[int], nickname: str | None) -> Highlig
         smallest_drawdown=bottom(drawdowns),
         most_trades=top([t for t in trade_counts if t.value > 0]),
         most_tax=top([t for t in tax_paid if t.value > 0]),
+        most_dividends=top([d for d in dividends if d.value > 0]),
         your_best_month=your_best,
     )
 

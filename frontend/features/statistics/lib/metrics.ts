@@ -321,3 +321,26 @@ export const BACKTEST_OVER_CDI: MetricInfo = {
   reading: "Positivo bateu o CDI; negativo, deixar o dinheiro parado no CDI teria rendido mais.",
   format: (value) => displayPercentagePoints(value, 1),
 };
+
+export const RETURN_SOURCES: MetricInfo = {
+  label: "De onde veio o retorno",
+  description: "O resultado da partida separado pela origem do dinheiro. As partes somam o retorno total.",
+  definition:
+    "O retorno da partida em reais (patrimônio de hoje menos o que você aportou) repartido em: valorização das ações, FIIs e cripto; proventos que caíram no caixa; juro bruto da renda fixa; e o que saiu em imposto de renda, juro de dívida e gastos de campanha. A valorização é o que sobra depois das outras parcelas, então tudo soma exatamente o retorno.",
+  example:
+    "Ex.: com R$ 100.000 aportados e retorno de R$ 12.480, sendo R$ 2.340 de proventos: os proventos explicam 19% do resultado (2.340 ÷ 12.480) e valem 2,3 pontos dos 12,5% de retorno.",
+  reading:
+    "Mostra se o resultado veio de acertar o preço dos ativos ou de renda recebida sem vender nada. Proventos e juro de renda fixa são mais estáveis que valorização; imposto e custos são o preço de investir. O alternador troca reais por % do aporte (a parcela dividida pelo que você aportou).",
+  format: (value) => displayMoney(value),
+};
+
+export const MOST_DIVIDENDS: MetricInfo = {
+  label: "Mais proventos",
+  description: "Quem recebeu mais dinheiro de proventos na partida",
+  definition:
+    "O total de dividendos e rendimentos que caíram no caixa de cada jogador durante a partida, e quanto isso foi do resultado dele.",
+  example: "Ex.: R$ 2.340 de proventos num resultado de R$ 12.480 = 19% do resultado.",
+  reading:
+    "Um percentual alto indica quem viveu mais de renda recebida; um baixo, quem ganhou principalmente com a valorização dos preços. Compare sempre o percentual junto do valor em reais.",
+  format: (value) => displayMoney(value),
+};

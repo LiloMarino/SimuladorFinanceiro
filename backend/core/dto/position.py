@@ -20,3 +20,10 @@ class PositionDTO(BaseDTO):
 class PortfolioPositionDTO(PositionDTO):
     name: str
     portfolio_pct: Decimal
+    # Fração (0.06 = 6%) do provento por ação dos últimos 12 meses sobre o preço de hoje;
+    # nula na cripto, que não paga
+    dividend_yield_12m: Decimal | None
+    # O mesmo provento sobre o preço médio do jogador
+    yield_on_cost: Decimal | None
+    # Tudo que o ativo pagou ao jogador na partida, mesmo com venda e recompra no meio
+    dividends_received: Decimal

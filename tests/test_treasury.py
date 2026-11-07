@@ -626,6 +626,8 @@ def test_full_sale_credits_the_market_net_and_closes_the_position(
     assert holding.asset.asset_uuid not in holding.broker.get_fixed_positions(INVESTOR)
     [event] = redeem_events(captured_events)
     assert event.amount == curve.quantize(CENT)
+    # O IR retido parte do valor de mercado, o que foi vendido, e não da curva
+    assert event.tax_withheld == (expected.gross - expected.net).quantize(CENT)
     assert event.event_date == holding.today
 
 

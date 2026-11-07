@@ -8,6 +8,7 @@ from typing import cast
 import pytest
 
 from backend.core import repository
+from backend.core.dto.corporate_event import CorporateEventDTO
 from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
@@ -20,6 +21,7 @@ from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     AssetClass,
     CashflowEventType,
+    CorporateEventKind,
     EquityEventType,
     FixedIncomeEventType,
     FixedIncomeType,
@@ -27,6 +29,7 @@ from backend.core.enum import (
     RateIndexType,
 )
 from backend.core.exceptions.http_exceptions import UnprocessableEntityError
+from backend.core.repository.portfolio import DividendTotal
 from backend.core.runtime.event_manager import EventManager
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_engine import SimulationEngine
@@ -71,6 +74,8 @@ def player_book(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEvent
     monkeypatch.setattr(
         repository.portfolio, "get_patrimonial_history", lambda *_args: []
     )
+    monkeypatch.setattr(repository.portfolio, "get_dividend_totals", lambda *_args: {})
+    monkeypatch.setattr(repository.corporate_event, "get_between", lambda *_args: [])
     monkeypatch.setattr(
         repository.stock,
         "get_stocks",
@@ -152,6 +157,46 @@ def test_portfolio_values_and_shares(player_book):
     assert [(s.sector, s.value, s.fraction) for s in portfolio.sectors] == [
         ("Financeiro", Decimal("120"), Decimal("1"))
     ]
+
+
+def test_portfolio_shows_dividends_received_and_yields(
+    player_book, monkeypatch: pytest.MonkeyPatch
+):
+    """Duas parcelas de R$ 0,60 em 12 meses: 10% sobre o preço de hoje (R$ 12) e 12% sobre o médio (R$ 10)."""
+    monkeypatch.setattr(
+        repository.corporate_event,
+        "get_between",
+        lambda *_args: [
+            CorporateEventDTO(
+                stock_id=1,
+                ex_date=date(2019, month, 2),
+                kind=CorporateEventKind.DIVIDEND,
+                value=0.6,
+            )
+            for month in (10, 12)
+        ],
+    )
+    # 10 ações recebendo R$ 0,60 duas vezes: R$ 12 no caixa
+    monkeypatch.setattr(
+        repository.portfolio,
+        "get_dividend_totals",
+        lambda *_args: {
+            "ABCD": DividendTotal(total=Decimal("12"), recent=Decimal("12"))
+        },
+    )
+    engine = _engine()
+    engine.matching_engine.market_data.add_candle(
+        Candle("ABCD", TODAY, open=11, high=12.5, low=10.5, close=12, volume=100)
+    )
+
+    portfolio = engine.get_portfolio(PLAYER)
+
+    position = portfolio.variable_income[0]
+    assert position.dividend_yield_12m == Decimal("0.1")
+    assert position.yield_on_cost == Decimal("0.12")
+    assert position.dividends_received == Decimal("12")
+    assert portfolio.dividends_total == Decimal("12")
+    assert portfolio.dividends_12m == Decimal("12")
 
 
 def test_balance_sheet_splits_equity_by_asset_class(

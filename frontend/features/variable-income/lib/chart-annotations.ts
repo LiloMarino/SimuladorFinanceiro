@@ -1,5 +1,5 @@
 import type { SeriesMarker, Time } from "lightweight-charts";
-import type { CandlePattern } from "@/types";
+import type { AssetCorporateEvent, CandlePattern } from "@/types";
 import type { OverlayShape } from "./chart-overlay";
 import { PATTERN_INFO } from "@/shared/lib/candle-patterns";
 import { crossovers, type SeriesPoint } from "./crossovers";
@@ -10,6 +10,8 @@ export interface AnnotationColors {
   down: string;
   neutral: string;
   band: string;
+  dividend: string;
+  split: string;
 }
 
 /** Quantos pregões depois do padrão o desfecho é conferido. */
@@ -25,6 +27,23 @@ export function patternMarkers(patterns: CandlePattern[], colors: AnnotationColo
     text: PATTERN_INFO[pattern.code].name,
     size: 1,
   }));
+}
+
+/** Um selo "P" (provento) ou "D" (desdobramento ou grupamento) na base do gráfico, no dia da data ex, nos dias que o gráfico tem. */
+export function corporateShapes(
+  events: AssetCorporateEvent[],
+  days: string[],
+  colors: AnnotationColors,
+): OverlayShape[] {
+  const shown = new Set(days);
+  return events
+    .filter((event) => shown.has(event.ex_date))
+    .map((event): OverlayShape => ({
+      kind: "badge",
+      time: event.ex_date,
+      letter: event.kind === "DIVIDEND" ? "P" : "D",
+      color: event.kind === "DIVIDEND" ? colors.dividend : colors.split,
+    }));
 }
 
 /**

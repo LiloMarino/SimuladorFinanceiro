@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui
 import { DailyLiquidityBadge } from "@/shared/components/daily-liquidity-badge";
 import { InfoHint } from "@/shared/components/info-hint";
 import { MetricHint } from "@/shared/components/metric-hint";
+import { DIVIDEND_YIELD, YIELD_ON_COST } from "@/shared/lib/dividend-metrics";
 import { MARK_TO_MARKET } from "@/shared/lib/treasury-metrics";
 import { displayMoney, displayPercent, displayQuantity, displayRateLabel } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
@@ -42,19 +43,30 @@ function Mark({ position }: { position: PortfolioState["fixed_income"][number] }
 }
 
 /** Resultado com sinal e cor: verde ganhando, vermelho perdendo. */
-function Result({ value, pct }: { value: string; pct: string }) {
+function Result({ value, pct, dividends }: { value: string; pct: string; dividends?: string }) {
   const positive = Number(value) >= 0;
   return (
-    <span className={positive ? "grid text-right text-success" : "grid text-right text-destructive"}>
-      <span className="font-mono">
-        {positive ? "+" : ""}
-        {displayMoney(value)}
+    <span className="grid text-right">
+      <span className={positive ? "grid text-success" : "grid text-destructive"}>
+        <span className="font-mono">
+          {positive ? "+" : ""}
+          {displayMoney(value)}
+        </span>
+        <span className="font-mono text-xs">
+          {positive ? "▲" : "▼"} {displayPercent(pct)}
+        </span>
       </span>
-      <span className="font-mono text-xs">
-        {positive ? "▲" : "▼"} {displayPercent(pct)}
-      </span>
+      {dividends !== undefined && Number(dividends) > 0 && (
+        <span className="font-mono text-xs text-dividend">+{displayMoney(dividends)} em proventos</span>
+      )}
     </span>
   );
+}
+
+/** Rendimento em proventos; sem valor (cripto) a posição não paga. */
+function YieldCell({ value }: { value: string | null }) {
+  if (value === null) return <span className="font-sans text-xs text-muted-foreground">não paga</span>;
+  return <b>{displayPercent(value, 1)}</b>;
 }
 
 function EmptyPositions({
@@ -93,6 +105,8 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
     price: (p) => Number(p.current_price),
     value: (p) => Number(p.current_value),
     share: (p) => Number(p.portfolio_pct),
+    yield: (p) => Number(p.dividend_yield_12m ?? -1),
+    yieldOnCost: (p) => Number(p.yield_on_cost ?? -1),
     result: (p) => Number(p.return_value),
   });
   const bondSort = useTableSort(portfolio.fixed_income, {
@@ -164,6 +178,20 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
                     numeric
                     hint={investedShareHint}
                   />
+                  <SortableTableHead
+                    {...stockSort.header("yield")}
+                    label="DY 12m"
+                    numeric
+                    variant="tinted"
+                    hint={<MetricHint metric={DIVIDEND_YIELD} />}
+                  />
+                  <SortableTableHead
+                    {...stockSort.header("yieldOnCost")}
+                    label="YoC"
+                    numeric
+                    variant="tinted"
+                    hint={<MetricHint metric={YIELD_ON_COST} />}
+                  />
                   <SortableTableHead {...stockSort.header("result")} label="Resultado" numeric />
                   <TableHead>
                     <span className="sr-only">Abrir</span>
@@ -184,8 +212,14 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
                     <TableCell numeric>{displayMoney(p.current_price)}</TableCell>
                     <TableCell numeric>{displayMoney(p.current_value)}</TableCell>
                     <TableCell numeric>{displayPercent(p.portfolio_pct)}</TableCell>
+                    <TableCell numeric tinted>
+                      <YieldCell value={p.dividend_yield_12m} />
+                    </TableCell>
+                    <TableCell numeric tinted>
+                      {p.yield_on_cost === null ? "—" : displayPercent(p.yield_on_cost, 1)}
+                    </TableCell>
                     <TableCell>
-                      <Result value={p.return_value} pct={p.return_pct} />
+                      <Result value={p.return_value} pct={p.return_pct} dividends={p.dividends_received} />
                     </TableCell>
                     <TableCell>
                       <ChevronRight className="size-4 text-faint-foreground" />

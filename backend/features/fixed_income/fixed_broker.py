@@ -25,6 +25,7 @@ from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import format_money, next_business_day
 from backend.core.utils.lazy_dict import LazyDict
+from backend.features.fixed_income.accrual import RedemptionBreakdown
 from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
@@ -37,6 +38,11 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 CENT = Decimal("0.01")
+
+
+def _withheld(breakdown: RedemptionBreakdown) -> Decimal:
+    """O que o resgate retém em IR e IOF: o bruto menos o líquido que vai ao caixa."""
+    return (breakdown.gross - breakdown.net).quantize(CENT, ROUND_HALF_EVEN)
 
 
 @dataclass(frozen=True)
@@ -233,6 +239,7 @@ class FixedBroker:
                 event_type=FixedIncomeEventType.REDEEM,
                 asset_id=asset_id,
                 amount=breakdown.gross.quantize(CENT, ROUND_HALF_EVEN),
+                tax_withheld=_withheld(breakdown),
                 event_date=today,
             )
         )
@@ -292,6 +299,7 @@ class FixedBroker:
                 event_type=FixedIncomeEventType.REDEEM,
                 asset_id=asset_id,
                 amount=curve_amount,
+                tax_withheld=_withheld(breakdown),
                 event_date=today,
             )
         )
@@ -399,6 +407,7 @@ class FixedBroker:
                 event_type=FixedIncomeEventType.REDEEM,
                 asset_id=asset_id,
                 amount=breakdown.gross.quantize(CENT, ROUND_HALF_EVEN),
+                tax_withheld=_withheld(breakdown),
                 event_date=current_date,
             )
         )

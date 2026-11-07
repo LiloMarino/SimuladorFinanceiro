@@ -25,10 +25,11 @@ from backend.core.enum import (
     OrderAction,
 )
 from backend.core.exceptions.http_exceptions import UnprocessableEntityError
+from backend.core.repository.portfolio import DividendTotal
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.sectors import allocate_by_sector
-from backend.core.utils import ratio, required
+from backend.core.utils import ratio, required, subtract_months
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.credit.credit_book import CreditBook
 from backend.features.fixed_income.entities.fixed_income_position import (
@@ -43,6 +44,13 @@ from backend.features.statistics.sectors import effective_sectors
 from backend.features.tax_policy import DEFAULT_TAX_POLICY, PolicyOn, TaxPolicy
 from backend.features.variable_income.broker import Broker, to_money
 from backend.features.variable_income.corporate_actions import PlayerCorporateActions
+from backend.features.variable_income.dividends import (
+    TRAILING_MONTHS,
+    dividend_yield,
+    trailing_per_share,
+    trailing_window_start,
+    yield_on_cost,
+)
 from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.order import MarketOrder
 from backend.features.variable_income.entities.position import Position
@@ -110,6 +118,8 @@ class SimulationEngine:
         self.current_date: date = current_date
         self.starting_cash = starting_cash
         self.simulation_id = simulation_id
+        # (pregão, provento por ação dos últimos 12 meses): o rendimento da Carteira lê daqui
+        self._per_share_cache: tuple[date, dict[int, Decimal]] | None = None
 
         # Configura os alias
         self.get_positions = self.broker.get_positions
@@ -541,6 +551,12 @@ class SimulationEngine:
         )
         names = {ticker: s.name for ticker, s in self.stocks.items()}
 
+        # Proventos: a soma por ativo vem do caixa; o rendimento usa o provento por ação do dia
+        received = repository.portfolio.get_dividend_totals(
+            user_id, trailing_window_start(today)
+        )
+        per_share = self.dividends_per_share(today)
+
         return PortfolioDTO(
             starting_cash=self.starting_cash,
             cash=cash,
@@ -566,15 +582,15 @@ class SimulationEngine:
             income_tax_paid=income_tax_paid,
             income_tax_due=income_tax_assessed - income_tax_paid,
             income_tax_due_date=min(upcoming_due) if upcoming_due else None,
+            dividends_total=sum((r.total for r in received.values()), Decimal(0)),
+            dividends_12m=sum((r.recent for r in received.values()), Decimal(0)),
             month_stock_sales=this_month.stock_sales if this_month else Decimal(0),
             stock_sales_exemption=policy.stock_exemption_limit,
             month_crypto_sales=this_month.crypto_sales if this_month else Decimal(0),
             crypto_sales_exemption=policy.crypto_exemption_limit,
             variable_income=[
-                PortfolioPositionDTO(
-                    **pos.model_dump(),
-                    name=names.get(pos.ticker, pos.ticker),
-                    portfolio_pct=ratio(pos.current_value, invested_value),
+                self._position_dto(
+                    pos, names, invested_value, per_share, received.get(pos.ticker)
                 )
                 for pos in equity
             ],
@@ -585,6 +601,43 @@ class SimulationEngine:
                 for pos in fixed
             ],
         )
+
+    def _position_dto(
+        self,
+        pos: PositionDTO,
+        names: dict[str, str],
+        invested_value: Decimal,
+        per_share: dict[int, Decimal],
+        received: DividendTotal | None,
+    ) -> PortfolioPositionDTO:
+        stock = self.stocks[pos.ticker]
+        # Ativo sem provento na janela rende 0%; a cripto não paga e fica sem rendimento
+        paid = per_share.get(stock.id, Decimal(0))
+        return PortfolioPositionDTO(
+            **pos.model_dump(),
+            name=names.get(pos.ticker, pos.ticker),
+            portfolio_pct=ratio(pos.current_value, invested_value),
+            dividend_yield_12m=dividend_yield(
+                paid, pos.current_price, stock.asset_class
+            ),
+            yield_on_cost=yield_on_cost(paid, pos.avg_price, stock.asset_class),
+            dividends_received=received.total if received else Decimal(0),
+        )
+
+    def dividends_per_share(self, today: date) -> dict[int, Decimal]:
+        """
+        O provento por ação dos últimos 12 meses de cada ativo, lido uma vez por
+        pregão: os eventos até hoje não mudam durante o dia e valem para todos os jogadores.
+        """
+        cached = self._per_share_cache
+        if cached is not None and cached[0] == today:
+            return cached[1]
+        events = repository.corporate_event.get_between(
+            subtract_months(today, TRAILING_MONTHS), today, self.simulation_id
+        )
+        per_share = trailing_per_share(events, today)
+        self._per_share_cache = (today, per_share)
+        return per_share
 
     def _fixed_position_dto(
         self,

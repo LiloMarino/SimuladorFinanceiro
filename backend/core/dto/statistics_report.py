@@ -197,6 +197,26 @@ class CreditCostDTO(BaseDTO):
     cost_of_debt: Decimal | None
 
 
+class ReturnSourcesDTO(BaseDTO):
+    """
+    De onde veio o retorno do jogador (patrimônio menos o capital aportado).
+    Cada parcela entra com o sinal que teve no retorno: ganho positivo, custo
+    negativo. A valorização é o que sobra depois das demais, então as seis
+    parcelas somam o retorno total.
+    """
+
+    appreciation: Decimal
+    dividends: Decimal
+    # Juro da renda fixa antes do IR e do IOF retidos no resgate
+    fixed_income_interest: Decimal
+    # IR da renda variável e IR/IOF retidos nos resgates da renda fixa
+    taxes: Decimal
+    # Juro de empréstimo e do cheque especial; zero para quem nunca se endividou
+    debt_interest: Decimal
+    # Contribuições, doações e ações de campanha; zero fora do modo político
+    campaign: Decimal
+
+
 class PlayerReturnsDTO(PlayerRefDTO):
     networth: list[SeriesPointDTO]
     # Retorno acumulado da cota, que só os rendimentos movem: o aporte não conta
@@ -209,6 +229,7 @@ class PlayerReturnsDTO(PlayerRefDTO):
     monthly_returns: list[MonthlyReturnDTO]
     # Nulo para quem nunca contratou crédito
     credit_cost: CreditCostDTO | None
+    return_sources: ReturnSourcesDTO
 
 
 type BenchmarkSeries = Literal["CDI", "IBOV"]
@@ -403,6 +424,11 @@ class PlayerHighlightDTO(BaseDTO):
     value: Decimal
 
 
+class DividendHighlightDTO(PlayerHighlightDTO):
+    # Fração do retorno do jogador que veio dos proventos; nula quando ele não teve retorno positivo
+    result_share: Decimal | None
+
+
 class BestMonthDTO(BaseDTO):
     month: date
     value: Decimal
@@ -423,5 +449,7 @@ class HighlightsDTO(BaseDTO):
     smallest_drawdown: PlayerHighlightDTO | None
     most_trades: PlayerHighlightDTO | None
     most_tax: PlayerHighlightDTO | None
+    # Quem mais recebeu proventos; `value` é o total recebido
+    most_dividends: DividendHighlightDTO | None
     # O melhor mês de quem está vendo; None se ele não jogou
     your_best_month: BestMonthDTO | None

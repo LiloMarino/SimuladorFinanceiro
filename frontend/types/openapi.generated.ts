@@ -44,6 +44,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/variable-income/{asset}/corporate-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Proventos e desdobramentos de um ativo
+         * @description O histórico de proventos, desdobramentos e grupamentos do ativo até a data da simulação, com as ações do jogador em cada data ex e o que ele recebeu, além do rendimento de 12 meses e o rendimento sobre o preço médio.
+         */
+        get: operations["get_variable_income_corporate_events_api_variable_income__asset__corporate_events_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/variable-income/{asset}/indicators": {
         parameters: {
             query?: never;
@@ -424,6 +444,26 @@ export interface paths {
          * @description Retorna o saldo de caixa (dinheiro disponível) do cliente.
          */
         get: operations["get_cash_api_portfolio_cash_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portfolio/dividends": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Proventos recebidos
+         * @description Os proventos que o jogador recebeu na partida: o total, o dos 12 meses-calendário até hoje, a divisão por mês, por ano e por classe, e quem mais pagou.
+         */
+        get: operations["get_dividends_api_portfolio_dividends_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4019,6 +4059,51 @@ export interface components {
             asset_class: components["schemas"]["AssetClass"];
         };
         /**
+         * AssetCorporateEventDTO
+         * @description Uma linha do histórico do ativo: um provento, um desdobramento ou um grupamento.
+         */
+        AssetCorporateEventDTO: {
+            /**
+             * Ex Date
+             * Format: date
+             */
+            ex_date: string;
+            kind: components["schemas"]["CorporateEventKind"];
+            /** Value */
+            value: string;
+            /** Before Match */
+            before_match: boolean;
+            /** Shares */
+            shares: string | null;
+            /** Shares After */
+            shares_after: string | null;
+            /** Received */
+            received: string | null;
+        };
+        /** AssetCorporateEventsDTO */
+        AssetCorporateEventsDTO: {
+            /** Ticker */
+            ticker: string;
+            asset_class: components["schemas"]["AssetClass"];
+            /** Dividend Yield 12M */
+            dividend_yield_12m: string | null;
+            /** Per Share 12M */
+            per_share_12m: string;
+            /** Yield On Cost */
+            yield_on_cost: string | null;
+            /** Received Total */
+            received_total: string;
+            /** Payments Count */
+            payments_count: number;
+            /**
+             * Match Start Date
+             * Format: date
+             */
+            match_start_date: string;
+            /** Events */
+            events: components["schemas"]["AssetCorporateEventDTO"][];
+        };
+        /**
          * AutoRedeemEventDTO
          * @description Um título vendido pelo sistema para cobrir um débito automático.
          */
@@ -5070,6 +5155,12 @@ export interface components {
             /** Wins */
             wins: number;
         };
+        /** ClassAmountDTO */
+        ClassAmountDTO: {
+            asset_class: components["schemas"]["AssetClass"];
+            /** Amount */
+            amount: string;
+        };
         /**
          * ClosingDTO
          * @description O que o último fechamento fez com o apoio e a rejeição do partido do presidente.
@@ -5204,6 +5295,23 @@ export interface components {
             /** Selic */
             selic: string;
         };
+        /**
+         * CorporateActionsEventDTO
+         * @description O que os proventos e os desdobramentos do pregão fizeram na carteira do jogador.
+         */
+        CorporateActionsEventDTO: {
+            /** Dividends */
+            dividends: components["schemas"]["DividendLineDTO"][];
+            /** Dividends Total */
+            dividends_total: string;
+            /** Splits */
+            splits: components["schemas"]["SplitLineDTO"][];
+        };
+        /**
+         * CorporateEventKind
+         * @enum {string}
+         */
+        CorporateEventKind: "SPLIT" | "DIVIDEND";
         /** CorrelationAssetDTO */
         CorrelationAssetDTO: {
             /** Ticker */
@@ -5725,6 +5833,55 @@ export interface components {
             support: string;
             /** Rejection */
             rejection: string;
+        };
+        /**
+         * DividendBucketDTO
+         * @description Um mês (ou um ano) de proventos, com a divisão por classe e quem pagou.
+         */
+        DividendBucketDTO: {
+            /**
+             * Period
+             * Format: date
+             */
+            period: string;
+            /** Amount */
+            amount: string;
+            /** By Class */
+            by_class: components["schemas"]["ClassAmountDTO"][];
+            /** Payers */
+            payers: components["schemas"]["PayerAmountDTO"][];
+        };
+        /** DividendHighlightDTO */
+        DividendHighlightDTO: {
+            /** Player Nickname */
+            player_nickname: string;
+            /** Color */
+            color: string;
+            /** Is Bot */
+            is_bot: boolean;
+            /** Value */
+            value: string;
+            /** Result Share */
+            result_share: string | null;
+        };
+        /** DividendLineDTO */
+        DividendLineDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Amount */
+            amount: string;
+        };
+        /** DividendPayerDTO */
+        DividendPayerDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+            asset_class: components["schemas"]["AssetClass"];
+            /** Amount */
+            amount: string;
+            /** Share */
+            share: string;
         };
         /** DonationDTO */
         DonationDTO: {
@@ -6821,6 +6978,7 @@ export interface components {
             smallest_drawdown: components["schemas"]["PlayerHighlightDTO"] | null;
             most_trades: components["schemas"]["PlayerHighlightDTO"] | null;
             most_tax: components["schemas"]["PlayerHighlightDTO"] | null;
+            most_dividends: components["schemas"]["DividendHighlightDTO"] | null;
             your_best_month: components["schemas"]["BestMonthDTO"] | null;
         };
         /** HouseDTO */
@@ -8551,6 +8709,16 @@ export interface components {
          * @enum {string}
          */
         PauseReason: "HOST" | "CAMPAIGN_OPENED" | "FIRST_ROUND_RESULT" | "RUNOFF_RESULT" | "IMPEACHMENT";
+        /** PayerAmountDTO */
+        PayerAmountDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+            asset_class: components["schemas"]["AssetClass"];
+            /** Amount */
+            amount: string;
+        };
         /** PeakDTO */
         PeakDTO: {
             /** Value */
@@ -8806,6 +8974,7 @@ export interface components {
             /** Monthly Returns */
             monthly_returns: components["schemas"]["MonthlyReturnDTO"][];
             credit_cost: components["schemas"]["CreditCostDTO"] | null;
+            return_sources: components["schemas"]["ReturnSourcesDTO"];
         };
         /** PlayerRiskDTO */
         PlayerRiskDTO: {
@@ -8959,6 +9128,10 @@ export interface components {
             income_tax_due: string;
             /** Income Tax Due Date */
             income_tax_due_date: string | null;
+            /** Dividends Total */
+            dividends_total: string;
+            /** Dividends 12M */
+            dividends_12m: string;
             /** Month Stock Sales */
             month_stock_sales: string;
             /** Stock Sales Exemption */
@@ -8975,6 +9148,30 @@ export interface components {
             effective_sectors: string | null;
             /** Fixed Income */
             fixed_income: components["schemas"]["FixedIncomePositionDTO"][];
+        };
+        /**
+         * PortfolioDividendsDTO
+         * @description O card de proventos da Carteira; os 12 meses são os 12 meses-calendário até o da data de hoje.
+         */
+        PortfolioDividendsDTO: {
+            /** Total */
+            total: string;
+            /** Total 12M */
+            total_12m: string;
+            /** Payments Count */
+            payments_count: number;
+            /** First Payment Date */
+            first_payment_date: string | null;
+            /** Average Per Month */
+            average_per_month: string;
+            /** Classes */
+            classes: components["schemas"]["AssetClass"][];
+            /** Monthly */
+            monthly: components["schemas"]["DividendBucketDTO"][];
+            /** Yearly */
+            yearly: components["schemas"]["DividendBucketDTO"][];
+            /** Payers */
+            payers: components["schemas"]["DividendPayerDTO"][];
         };
         /** PortfolioHistoryPointDTO */
         PortfolioHistoryPointDTO: {
@@ -9029,6 +9226,12 @@ export interface components {
             name: string;
             /** Portfolio Pct */
             portfolio_pct: string;
+            /** Dividend Yield 12M */
+            dividend_yield_12m: string | null;
+            /** Yield On Cost */
+            yield_on_cost: string | null;
+            /** Dividends Received */
+            dividends_received: string;
         };
         /** PortfolioUpdateEventDTO */
         PortfolioUpdateEventDTO: {
@@ -9592,6 +9795,7 @@ export interface components {
             goal_progress_update: components["schemas"]["GoalProgressDTO"];
             life_event: components["schemas"]["LifeEventDTO"];
             auto_redeem: components["schemas"]["AutoRedeemEventDTO"];
+            corporate_actions: components["schemas"]["CorporateActionsEventDTO"];
             order_executed: components["schemas"]["OrderExecutedEventDTO"];
             order_partial_executed: components["schemas"]["OrderPartialExecutedEventDTO"];
             player_join: components["schemas"]["PlayerPresenceEventDTO"];
@@ -9672,6 +9876,27 @@ export interface components {
             abbr: string;
             /** Flags */
             flags: components["schemas"]["VoterValue"][];
+        };
+        /**
+         * ReturnSourcesDTO
+         * @description De onde veio o retorno do jogador (patrimônio menos o capital aportado).
+         *     Cada parcela entra com o sinal que teve no retorno: ganho positivo, custo
+         *     negativo. A valorização é o que sobra depois das demais, então as seis
+         *     parcelas somam o retorno total.
+         */
+        ReturnSourcesDTO: {
+            /** Appreciation */
+            appreciation: string;
+            /** Dividends */
+            dividends: string;
+            /** Fixed Income Interest */
+            fixed_income_interest: string;
+            /** Taxes */
+            taxes: string;
+            /** Debt Interest */
+            debt_interest: string;
+            /** Campaign */
+            campaign: string;
         };
         /** ReturnsReportDTO */
         ReturnsReportDTO: {
@@ -10719,6 +10944,19 @@ export interface components {
             /** Promised */
             promised: boolean;
         };
+        /** SplitLineDTO */
+        SplitLineDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Ratio */
+            ratio: string;
+            /** Shares Before */
+            shares_before: string;
+            /** Shares After */
+            shares_after: string;
+            /** Fraction Amount */
+            fraction_amount: string;
+        };
         /**
          * StatisticsNextUpdateDTO
          * @description Quando as estatísticas fecharam o mês pela última vez e quando fecham de novo.
@@ -11385,7 +11623,7 @@ export interface components {
          * @description Um aviso do que acontece com o próprio jogador, ligado ou desligado por tipo.
          * @enum {string}
          */
-        ToastType: "ORDER_EXECUTED" | "ORDER_PARTIAL" | "STRATEGY_ORDERS" | "PLAYER_PRESENCE" | "CREDIT_PAYMENTS" | "CREDIT_RATING" | "LIFE_EVENT" | "AUTO_REDEEM" | "YEAR_REVIEW" | "VICE_ANSWER";
+        ToastType: "ORDER_EXECUTED" | "ORDER_PARTIAL" | "STRATEGY_ORDERS" | "PLAYER_PRESENCE" | "CREDIT_PAYMENTS" | "CREDIT_RATING" | "LIFE_EVENT" | "AUTO_REDEEM" | "CORPORATE_ACTIONS" | "YEAR_REVIEW" | "VICE_ANSWER";
         /** ToastTypeInfo */
         ToastTypeInfo: {
             type: components["schemas"]["ToastType"];
@@ -12101,6 +12339,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StockDetailsDTO"] | null;
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_variable_income_corporate_events_api_variable_income__asset__corporate_events_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssetCorporateEventsDTO"];
                 };
             };
             /** @description Unprocessable Content */
@@ -12953,6 +13231,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CashResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_dividends_api_portfolio_dividends_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioDividendsDTO"];
                 };
             };
             /** @description Unprocessable Content */

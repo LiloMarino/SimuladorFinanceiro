@@ -1,11 +1,14 @@
 import { useState, useMemo } from "react";
 import { AlertCircle, Settings, Sparkles, X } from "lucide-react";
 import { Alert, AlertAction, AlertDescription } from "@/shared/components/ui/alert";
+import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { displayMoney, displayNumber } from "@/shared/lib/utils/display";
+import { useCorporateEvents } from "../../hooks/queries/useCorporateEvents";
+import { CorporateEventNote } from "./corporate-event-note";
 import type {
   CandlePattern,
   CandlePatterns,
@@ -20,6 +23,7 @@ import { PatternNotice, PatternSwitch, type PatternNoticeProps } from "../candle
 import { PatternList } from "../candle-patterns/pattern-list";
 import { useChartAnnotations, type Annotations } from "../../hooks/useChartAnnotations";
 import {
+  corporateShapes,
   AVERAGE_PHRASES,
   MACD_PHRASES,
   crossoverShapes,
@@ -85,6 +89,8 @@ interface StockChartProps {
   hints: ChartHints | null;
 }
 
+const byTime = (a: { time: unknown }, b: { time: unknown }) => String(a.time).localeCompare(String(b.time));
+
 export function StockChart({
   ticker,
   initialData,
@@ -138,12 +144,15 @@ export function StockChart({
   const candleMode = chartType === "candle";
   const hintsOn = hints !== null;
   const showPatterns = hintsOn && settings.patterns;
+  const hoverDay = hover?.day ?? null;
   const days = useMemo(() => initialData.map(dayOf), [initialData]);
+  const { data: corporate } = useCorporateEvents(ticker);
+  const corporateEvents = corporate?.events;
+  const hoverEvents = hoverDay === null ? [] : (corporateEvents ?? []).filter((event) => event.ex_date === hoverDay);
   const lastDay = days[days.length - 1];
   const periodStart = fromDay(initialData, selectedScale);
   const allPatterns = hints?.patterns?.patterns;
   const periodPatterns = useMemo(() => patternsSince(allPatterns ?? [], periodStart), [allPatterns, periodStart]);
-  const hoverDay = hover?.day ?? null;
   const activePattern =
     hoverDay !== null && candleMode && showPatterns ? patternOn(periodPatterns, hoverDay) : undefined;
   const chartKey = [chartType, selectedScale, ticker, hasHistory, layout, height].join("|");
@@ -151,15 +160,17 @@ export function StockChart({
   const shortAverage = firstAverage && secondAverage && firstAverage.period > secondAverage.period ? 1 : 0;
 
   const annotations = useMemo<Annotations>(() => {
-    if (!hintsOn) return { markers: [], shapes: {} };
     const colors = readAnnotationColors();
+    // Os selos de provento e desdobramento valem com ou sem as dicas técnicas
+    const corporateOnChart = corporateShapes(corporateEvents ?? [], days, colors);
+    if (!hintsOn) return { markers: [], shapes: { price: corporateOnChart } };
     const series = indicators?.series ?? NO_SERIES;
-    const shapes: Annotations["shapes"] = {};
+    const shapes: Annotations["shapes"] = { price: corporateOnChart };
     let markers: Annotations["markers"] = [];
 
     if (candleMode && settings.patterns) {
       markers = patternMarkers(periodPatterns, colors);
-      shapes.price = patternShapes(periodPatterns, activePattern, days, colors);
+      shapes.price = [...patternShapes(periodPatterns, activePattern, days, colors), ...corporateOnChart];
     }
     if (panels.includes("rsi")) shapes.rsi = rsiShapes(rsi_overbought, rsi_oversold, colors);
     if (panels.includes("macd") && series.macd) {
@@ -170,11 +181,12 @@ export function StockChart({
       const long = series.averages[1 - shortAverage]?.points;
       if (short && long) shapes.average = crossoverShapes(short, long, periodStart, AVERAGE_PHRASES, colors);
     }
-    return { markers, shapes };
+    return { markers: markers.sort(byTime), shapes };
     // `panels` e `averages` mudam junto com `layout`, que já está nas dependências
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [
     hintsOn,
+    corporateEvents,
     candleMode,
     settings.patterns,
     periodPatterns,
@@ -300,9 +312,24 @@ export function StockChart({
               <ToggleGroupItem value="candle">Velas</ToggleGroupItem>
             </ToggleGroup>
           </div>
-          <Button variant="outline" size="sm" onClick={goToToday}>
-            Ir pro dia de hoje
-          </Button>
+          <div className="flex items-center gap-4">
+            {/* Legenda dos marcadores de proventos */}
+            {corporateEvents && corporateEvents.length > 0 && (
+              <ul className="flex gap-3 text-xs text-muted-foreground">
+                <li className="flex items-center gap-1.5">
+                  <Badge variant="dividend">P</Badge>
+                  Provento
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <Badge variant="split">D</Badge>
+                  Desdobramento ou grupamento
+                </li>
+              </ul>
+            )}
+            <Button variant="outline" size="sm" onClick={goToToday}>
+              Ir pro dia de hoje
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
@@ -477,6 +504,9 @@ export function StockChart({
                       value={bandsValue(series, hover.day, settings.params.bollinger_period, Infinity)}
                     />
                   )}
+                  {hoverEvents.map((event) => (
+                    <CorporateEventNote key={`${event.kind}-${event.ex_date}`} event={event} />
+                  ))}
                 </div>
               )}
             </div>

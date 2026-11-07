@@ -38,6 +38,9 @@ class PortfolioDTO(BaseDTO):
     income_tax_due: Decimal
     # Vencimento do próximo DARF ainda não pago
     income_tax_due_date: date | None
+    # Proventos recebidos na partida inteira e nos 12 meses-calendário até o mês de hoje
+    dividends_total: Decimal
+    dividends_12m: Decimal
     # Vendas de ações no mês da simulação e o teto da isenção mensal
     month_stock_sales: Decimal
     stock_sales_exemption: Decimal

@@ -137,6 +137,8 @@ def test_redemption_credits_projected_net_value(fixed_income_db, captured_events
     # O evento guarda o que saiu do título (bruto); o caixa recebeu o líquido
     assert redeem.event_type is FixedIncomeEventType.REDEEM
     assert redeem.amount > expected
+    # O IR retido é a diferença entre o bruto do evento e o líquido que foi ao caixa
+    assert redeem.tax_withheld == redeem.amount - expected
 
 
 # =========================================================
@@ -172,6 +174,7 @@ def test_partial_redemption_credits_exact_net_and_keeps_proportions(
     redeem = _fixed_events(captured_events)[-1]
     assert redeem.event_type is FixedIncomeEventType.REDEEM
     assert redeem.amount > Decimal("2000")
+    assert redeem.tax_withheld == redeem.amount - Decimal("2000")
     assert position.current_value == before_value - redeem.amount
     assert position.total_applied / position.current_value == pytest.approx(
         before_applied / before_value

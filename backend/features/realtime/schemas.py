@@ -48,6 +48,7 @@ from backend.core.enum import (
     PlayerActivity,
     VoterGroup,
 )
+from backend.features.variable_income.corporate_actions import PlayerCorporateActions
 
 
 class CashUpdateEventDTO(BaseDTO):
@@ -176,6 +177,55 @@ class AutoRedeemEventDTO(BaseDTO):
     reason: str
 
 
+class DividendLineDTO(BaseDTO):
+    ticker: str
+    amount: Decimal
+
+
+class SplitLineDTO(BaseDTO):
+    ticker: str
+    # A razão: 2 é 2 para 1; 0,1 é grupamento 10 para 1
+    ratio: Decimal
+    shares_before: Decimal
+    shares_after: Decimal
+    # O que a fração que sobrou rendeu na venda; zero sem fração
+    fraction_amount: Decimal
+
+
+class CorporateActionsEventDTO(BaseDTO):
+    """O que os proventos e os desdobramentos do pregão fizeram na carteira do jogador."""
+
+    # Do ativo que mais pagou ao que menos pagou
+    dividends: list[DividendLineDTO]
+    dividends_total: Decimal
+    splits: list[SplitLineDTO]
+
+    @staticmethod
+    def from_actions(actions: PlayerCorporateActions) -> "CorporateActionsEventDTO":
+        dividends = sorted(
+            (
+                DividendLineDTO(ticker=d.ticker, amount=d.amount)
+                for d in actions.dividends
+            ),
+            key=lambda line: line.amount,
+            reverse=True,
+        )
+        return CorporateActionsEventDTO(
+            dividends=dividends,
+            dividends_total=sum((d.amount for d in dividends), Decimal(0)),
+            splits=[
+                SplitLineDTO(
+                    ticker=s.ticker,
+                    ratio=s.ratio,
+                    shares_before=s.size_before,
+                    shares_after=s.size_after,
+                    fraction_amount=s.fraction_amount,
+                )
+                for s in actions.splits
+            ],
+        )
+
+
 class CreditMonthlySummaryEventDTO(BaseDTO):
     """O resumo do mês que substitui o aviso de cada parcela nas velocidades altas."""
 
@@ -299,6 +349,7 @@ class RealtimeEventCatalog(BaseDTO):
     goal_progress_update: GoalProgressDTO
     life_event: LifeEventDTO
     auto_redeem: AutoRedeemEventDTO
+    corporate_actions: CorporateActionsEventDTO
     order_executed: OrderExecutedEventDTO
     order_partial_executed: OrderPartialExecutedEventDTO
     player_join: PlayerPresenceEventDTO

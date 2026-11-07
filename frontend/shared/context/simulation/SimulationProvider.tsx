@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useSimulationStatus } from "@/shared/hooks/queries/useSimulationStatus";
 import { AutoRedeemNotifications } from "@/shared/notifications/auto-redeem-notifications";
+import { CorporateActionsNotifications } from "@/shared/notifications/corporate-actions-notifications";
 import { CreditNotifications } from "@/shared/notifications/credit-notifications";
 import { StrategyNotifications } from "@/shared/notifications/strategy-notifications";
 import { LifeNotifications } from "@/shared/notifications/life-notifications";
@@ -87,6 +88,8 @@ export function SimulationProvider({ children }: PropsWithChildren) {
       <CreditNotifications />
       {/* Aviso do título vendido para cobrir uma despesa */}
       <AutoRedeemNotifications />
+      {/* Avisos de proventos, desdobramentos e grupamentos */}
+      <CorporateActionsNotifications />
       <StrategyNotifications />
       {/* Atividade desta aba na sala */}
       <PlayerActivityReporter />

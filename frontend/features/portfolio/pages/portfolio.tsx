@@ -4,6 +4,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ErrorState } from "@/shared/components/error-state";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { AllocationDonut } from "../components/allocation-donut";
+import { DividendsCard } from "../components/dividends-card";
 import { IncomeTaxCard } from "../components/income-tax-card";
 import { NetworthChart } from "../components/networth-chart";
 import { PortfolioSummary } from "../components/portfolio-summary";
@@ -42,6 +43,8 @@ export default function PortfolioPage() {
   return (
     <>
       <PortfolioSummary portfolio={portfolio} />
+
+      <DividendsCard />
 
       <NetworthChart portfolio={portfolio} />
       <AllocationDonut portfolio={portfolio} />

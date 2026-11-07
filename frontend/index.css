@@ -50,6 +50,15 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-warning-soft: var(--warning-soft);
   --color-expansion-government: var(--expansion-government);
+  --color-dividend: var(--dividend);
+  --color-dividend-soft: var(--dividend-soft);
+  --color-dividend-bar: var(--dividend-bar);
+  --color-dividend-bar-soft: var(--dividend-bar-soft);
+  --color-dividend-bar-etf: var(--dividend-bar-etf);
+  --color-dividend-bar-bdr: var(--dividend-bar-bdr);
+  --color-split: var(--split);
+  --color-split-soft: var(--split-soft);
+  --color-split-mark: var(--split-mark);
   --color-secret: var(--secret);
   --color-secret-soft: var(--secret-soft);
   --color-federation: var(--federation);
@@ -168,6 +177,16 @@
   --warning-soft: #fdf1dc;
   /* Emblema de cada expansão */
   --expansion-government: #9a3412;
+  /* Provento (âmbar) e desdobramento (violeta): selo, fundo de coluna, barras e marcadores do gráfico */
+  --dividend: #8a5a06;
+  --dividend-soft: #fdf3e1;
+  --dividend-bar: #e9a23b;
+  --dividend-bar-soft: #f4cd8a;
+  --dividend-bar-etf: #c9780a;
+  --dividend-bar-bdr: #f7b955;
+  --split: #5b30c9;
+  --split-soft: #f1ecfe;
+  --split-mark: #7c5ce0;
   --secret: #6b3fc4;
   --secret-soft: #f1eafe;
   --federation: #5b30c9;
@@ -204,6 +223,8 @@
   --risk-premium: #d97706;
   /* O lightweight-charts desenha em canvas e lê a cor por getComputedStyle: precisa ser hex */
   --chart-1-canvas: #2350d8;
+  --dividend-mark-canvas: #e9a23b;
+  --split-mark-canvas: #7c5ce0;
   /* Cores dos jogadores e dos partidos: separadas das séries de gráfico, cada uma muda sem mexer na outra */
   --player-1: #2350d8;
   --player-2: #209993;

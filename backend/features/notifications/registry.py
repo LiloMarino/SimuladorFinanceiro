@@ -199,6 +199,11 @@ TOASTS: tuple[ToastSpec, ...] = (
         "Título vendido para cobrir uma despesa",
     ),
     ToastSpec(
+        ToastType.CORPORATE_ACTIONS,
+        "Proventos e desdobramentos",
+        "Dividendos caídos no caixa e desdobramento ou grupamento das suas ações",
+    ),
+    ToastSpec(
         ToastType.YEAR_REVIEW,
         "Retrospectiva do ano",
         "Na virada do ano, com o atalho para abrir",

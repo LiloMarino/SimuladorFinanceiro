@@ -14,6 +14,7 @@ from backend.core.dto.statistics_report import (
     PlayerOperationsDTO,
     PlayerReturnsDTO,
     PlayerScoreHistoryDTO,
+    ReturnSourcesDTO,
     SeriesPointDTO,
 )
 from backend.core.enum import PlayerGrouping, TeamNaming, VictoryCriterion
@@ -273,6 +274,14 @@ def returns_row(
         months=12,
         monthly_returns=[],
         credit_cost=None,
+        return_sources=ReturnSourcesDTO(
+            appreciation=Decimal(0),
+            dividends=Decimal(0),
+            fixed_income_interest=Decimal(0),
+            taxes=Decimal(0),
+            debt_interest=Decimal(0),
+            campaign=Decimal(0),
+        ),
     )
 
 

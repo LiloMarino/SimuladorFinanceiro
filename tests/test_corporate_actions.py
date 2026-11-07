@@ -14,6 +14,7 @@ from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.enum import AssetClass, CorporateEventKind, EquityEventType
 from backend.core.runtime.user_manager import UserManager
+from backend.features.realtime.schemas import CorporateActionsEventDTO
 from backend.features.variable_income.broker import Broker, load_positions
 from backend.features.variable_income.entities.position import Position
 from tests.fakes import FakeSimulationEngine, client
@@ -202,3 +203,31 @@ def test_replay_reaches_the_same_state_as_the_live_game(
         live.total_cost,
         live.avg_price,
     )
+
+
+def test_event_goes_only_to_who_held_the_asset_and_sums_the_dividends(
+    captured_events,
+):
+    broker, _engine = _setup(150)
+
+    applied = _apply(broker, [_dividend(0.45)])
+
+    assert set(applied) == {HOLDER}
+    event = CorporateActionsEventDTO.from_actions(applied[HOLDER])
+    assert event.dividends_total == Decimal("67.50")
+    assert [(d.ticker, d.amount) for d in event.dividends] == [
+        ("ABCD", Decimal("67.50"))
+    ]
+    assert event.splits == []
+
+
+def test_event_carries_the_split_with_before_and_after(captured_events):
+    broker, _engine = _setup(150)
+
+    applied = _apply(broker, [_split(2)])
+
+    event = CorporateActionsEventDTO.from_actions(applied[HOLDER])
+    [split] = event.splits
+    assert (split.ticker, split.ratio) == ("ABCD", Decimal(2))
+    assert (split.shares_before, split.shares_after) == (Decimal(150), Decimal(300))
+    assert event.dividends == []

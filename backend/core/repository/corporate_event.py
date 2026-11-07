@@ -73,6 +73,30 @@ class CorporateEventRepository:
         return [CorporateEventDTO.from_model(row) for row in rows]
 
     @transactional
+    def get_for_stock(
+        self,
+        session: Session,
+        stock_id: int,
+        until: date,
+        simulation_id: int | None = None,
+    ) -> list[CorporateEventDTO]:
+        """Os eventos do ativo com data ex até `until`, do mais recente ao mais antigo."""
+        rows = (
+            session.execute(
+                select(StockCorporateEvent)
+                .where(
+                    StockCorporateEvent.stock_id == stock_id,
+                    StockCorporateEvent.ex_date <= until,
+                    seen_by(StockCorporateEvent, reading_version(simulation_id)),
+                )
+                .order_by(StockCorporateEvent.ex_date.desc())
+            )
+            .scalars()
+            .all()
+        )
+        return [CorporateEventDTO.from_model(row) for row in rows]
+
+    @transactional
     def get_real(self, session: Session) -> list[CorporateEventDTO]:
         """Todos os eventos reais da série comum, por ativo e data."""
         rows = (

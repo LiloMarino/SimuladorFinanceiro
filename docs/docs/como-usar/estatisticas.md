@@ -30,6 +30,7 @@ Quando a partida chega à data final ou o host a encerra, todos os jogadores vã
 
 - **Pódio** com os três primeiros pelo [critério de vitória](./lobby#critério-de-vitória) escolhido no lobby, e o valor que decidiu cada posição (ex.: "212 pts" pela nota geral). Na Corrida à meta e no Viver de renda, o pódio vai pelo % da meta (ex.: "91% · R$ 1,37 mi").
 - **O relatório inteiro** em abas, sobre a partida toda.
+- Entre os destaques, **Mais proventos** mostra quem mais recebeu proventos e quanto do resultado dele isso foi (ex.: R$ 5.610,20, ou 61% do resultado).
 - **Voltar ao lobby** leva de volta ao lobby, para a próxima partida.
 - **Comparar com outras partidas** abre a comparação entre simulações.
 - As **conquistas** e os destaques da partida aparecem na mesma tela. A lista de conquistas está em [Conquistas](./conquistas.md).
@@ -132,6 +133,8 @@ Com pouco tempo de partida, anualizar engana: 10 dias com +2% viram ~64% ao ano.
 - **Patrimônio:** caixa + investimentos, dia a dia, com os aportes.
 
   Na Corrida à meta e no Viver de renda, uma linha tracejada mostra a meta. Quando a linha do patrimônio encosta nela, o jogador chegou. Se a meta sobe pelo IPCA (o índice oficial de inflação), a linha tracejada sobe em degraus, a cada reajuste anual.
+- **De onde veio o retorno:** uma cascata que parte o retorno (patrimônio menos o capital aportado) em **Valorização**, **Proventos**, **Juro da renda fixa** (antes do IR) e **IR pago** (o da renda variável e o retido nos resgates da renda fixa). O **Juro de dívida** e os **Gastos de campanha** só aparecem para quem teve. A valorização é o que sobra depois das outras parcelas, então as barras sempre somam o retorno. O botão **R$ / %** troca o valor pela fração do capital aportado. Ex.: com R$ 10.000 aportados, R$ 3.000 de retorno podem ser +R$ 2.200 de valorização, +R$ 500 de proventos, +R$ 400 de juro, -R$ 100 de IR: somam R$ 3.000, ou +30% do aporte.
+- **Origem do retorno por jogador:** a mesma divisão, uma barra por jogador, para ver quem ganhou com preço e quem ganhou com proventos. Nas partidas em equipes ela continua mostrando jogadores.
 - **Tabela:**
   - **Capital aportado.**
   - **Retorno anual:** a cota composta para um ano. Ex.: +2% em 63 pregões (~3 meses) equivale a ~8,2% ao ano.

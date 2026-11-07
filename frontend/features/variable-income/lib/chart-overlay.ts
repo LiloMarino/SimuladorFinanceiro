@@ -17,10 +17,16 @@ export type OverlayShape =
   | { kind: "circle"; time: string; value: number; color: string }
   // `dy` afasta a legenda da linha do nível, em px (negativo sobe)
   | { kind: "level-label"; value: number; text: string; color: string; dy?: number }
-  | { kind: "note"; time: string; value: number; text: string; color: string };
+  | { kind: "note"; time: string; value: number; text: string; color: string }
+  // Círculo cheio com uma letra, preso à base do painel, no dia `time`
+  | { kind: "badge"; time: string; letter: string; color: string };
 
 const FONT = "12px -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif";
 const CIRCLE_RADIUS = 5;
+const BADGE_RADIUS = 8;
+const BADGE_FONT = "bold 9px -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif";
+// Distância do centro do selo à base do painel
+const BADGE_INSET = 14;
 
 /** Desenha faixas, contornos, círculos e legendas sobre o painel da série em que está ligado. */
 export class ChartOverlay implements ISeriesPrimitive {
@@ -106,6 +112,19 @@ export class ChartOverlay implements ISeriesPrimitive {
           ctx.lineWidth = 2;
           ctx.strokeStyle = shape.color;
           ctx.stroke();
+        } else if (shape.kind === "badge") {
+          const cx = x(shape.time);
+          if (cx === null || cx < BADGE_RADIUS || cx > mediaSize.width - BADGE_RADIUS) continue;
+          const cy = mediaSize.height - BADGE_INSET;
+          ctx.beginPath();
+          ctx.arc(cx, cy, BADGE_RADIUS, 0, Math.PI * 2);
+          ctx.fillStyle = shape.color;
+          ctx.fill();
+          ctx.font = BADGE_FONT;
+          ctx.textAlign = "center";
+          ctx.fillStyle = "#ffffff";
+          ctx.fillText(shape.letter, cx, cy + 0.5);
+          ctx.font = FONT;
         } else if (shape.kind === "level-label") {
           const cy = y(shape.value);
           if (cy === null) continue;

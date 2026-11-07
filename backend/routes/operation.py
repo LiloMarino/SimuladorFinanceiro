@@ -10,6 +10,7 @@ from backend.core import repository
 from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.dto.candle import MarketQuoteDTO
 from backend.core.dto.candle_patterns import CandlePatternsDTO
+from backend.core.dto.dividends import AssetCorporateEventsDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeOfferDTO
 from backend.core.dto.fixed_income_projection import (
     FixedIncomeQuoteDTO,
@@ -116,6 +117,25 @@ def get_variable_income_details(simulation: ActiveSimulation, asset: str):
     if not stock:
         raise NotFoundError("Ativo não encontrado.")
     return stock
+
+
+@operation_router.get(
+    "/variable-income/{asset}/corporate-events",
+    response_model=AssetCorporateEventsDTO,
+    summary="Proventos e desdobramentos de um ativo",
+    description=(
+        "O histórico de proventos, desdobramentos e grupamentos do ativo até a data da "
+        "simulação, com as ações do jogador em cada data ex e o que ele recebeu, além do "
+        "rendimento de 12 meses e o rendimento sobre o preço médio."
+    ),
+)
+def get_variable_income_corporate_events(
+    client_id: ClientID, simulation: ActiveSimulation, asset: str
+):
+    events = simulation.get_asset_corporate_events(client_id, asset)
+    if events is None:
+        raise NotFoundError("Ativo não encontrado.")
+    return events
 
 
 @operation_router.post(

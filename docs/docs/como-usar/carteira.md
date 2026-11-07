@@ -14,6 +14,8 @@ No topo, o **Patrimônio líquido** soma o caixa e tudo o que está investido e 
 
 A faixa **Alocação** mostra quanto está investido e em que parte do patrimônio isso pesa. Ela divide o patrimônio em três: **Renda variável**, **Renda fixa** e **Caixa**, cada uma com o valor e o percentual.
 
+Ao lado do patrimônio, **Proventos recebidos** mostra o total que as ações, os FIIs e os ETFs já pagaram no seu caixa na partida inteira, e, abaixo dele, quanto disso veio nos últimos 12 meses. Ex.: R$ 5.610,20 na partida e R$ 3.100,00 nos últimos 12 meses.
+
 Nas partidas de corrida à meta e de viver de renda, o patrimônio mostra também quanto da meta você já cumpriu (por exemplo, "42% da meta de R$ 1.000.000"). A tela [Meta](./meta.md) detalha essa corrida.
 
 ## Indicadores do dia
@@ -50,9 +52,19 @@ A tabela lista cada ação, FII ou ETF da carteira:
 | **Preço atual** | A cotação do dia simulado |
 | **Valor** | O valor de mercado da posição |
 | **% carteira** | A participação no patrimônio |
-| **Resultado** | O ganho ou a perda em R$ e em %, em verde ou vermelho |
+| **DY 12m** | O dividend yield: quanto o ativo pagou por ação nos últimos 12 meses, dividido pelo preço de hoje |
+| **YoC** | O yield on cost: o mesmo provento, dividido pelo **seu** preço médio |
+| **Resultado** | O ganho ou a perda **de preço** em R$ e em %, em verde ou vermelho. Os proventos ficam de fora: aparecem numa linha âmbar logo abaixo, com o total que a posição já pagou |
+
+**Como ler o DY e o YoC.** Uma ação que pagou R$ 1,20 por ação em 12 meses, cotada hoje a R$ 20,00, tem DY de 6,0% (1,20 ÷ 20,00). Se você comprou a R$ 12,00, o YoC é de 10,0% (1,20 ÷ 12,00): o preço médio é o seu custo, então o YoC mede o quanto a sua compra rende. Quanto mais o preço sobe depois da sua compra, mais o DY fica abaixo do YoC. Acima de uns 6% ao ano o DY é de um pagador alto; perto de 0% a ação quase não paga. Ativo que não pagou nada nos 12 meses aparece com 0,0%. A cripto não paga proventos e mostra "—". Quando houve desdobramento ou grupamento no período, o provento de antes é ajustado para a quantidade de hoje, para a conta não ficar torta.
 
 Clicar numa linha abre a página do ativo, onde você negocia. Sem nenhuma posição, a tabela mostra "Nenhuma ação na carteira".
+
+## Proventos nos últimos 12 meses
+
+Um card com o que as suas posições pagaram: barras mês a mês (ou ano a ano, no seletor), empilhadas por classe de ativo (ação, FII, ETF, BDR). Mostra também o **Recebido nos últimos 12 meses**, a **Média por mês** (o recebido em 12 meses dividido por 12, contando os meses sem provento) e a lista **Quem mais pagou**, com a parte de cada ativo. Ex.: R$ 3.100,00 em 12 meses dão média de R$ 258,33 por mês.
+
+Os 12 meses do card são os 12 meses do calendário até o mês de hoje da partida. O DY e o YoC da tabela usam 12 meses corridos até hoje.
 
 ## Renda fixa
 

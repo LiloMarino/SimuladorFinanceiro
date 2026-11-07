@@ -28,6 +28,8 @@ import {
   VS_CDI,
 } from "../../lib/metrics";
 import { CreditCostCard } from "./credit-cost-card";
+import { ReturnSourcesByPlayerCard } from "./return-sources-by-player-card";
+import { ReturnSourcesCard } from "./return-sources-card";
 import { PlayerLineChart, type LineSeries } from "@/shared/components/player-line-chart";
 import type { ChartAxis } from "@/shared/components/player-line-chart/utils";
 import { ChartCard, MetricsTable, TabStatus, type ReportProps } from "./shared";
@@ -264,6 +266,13 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
   const seriesSetKey = `${scope}|${focus}|${view}|${chartAxis}|${series.map((s) => s.key).join("|")}`;
 
   const borrower = data.players.find((p) => isYou(p) && p.credit_cost !== null);
+  // A cascata é de quem está vendo; num relatório de um jogador só, é a dele
+  const sourcePlayers = players.map(({ player, label }) => ({
+    player,
+    label,
+    isYou: isYou(player),
+  }));
+  const sourceSubjects = sourcePlayers.filter((entry) => entry.isYou || data.players.length === 1);
 
   return (
     <div className="grid grid-cols-1 gap-5">
@@ -350,6 +359,10 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
           xTickFormat={monthTicks ? (x) => `mês ${Math.round((x - 1) / TRADING_DAYS_PER_MONTH)}` : undefined}
         />
       </ChartCard>
+
+      {/* De onde veio o retorno */}
+      {sourceSubjects.length > 0 && <ReturnSourcesCard subjects={sourceSubjects} />}
+      <ReturnSourcesByPlayerCard players={sourcePlayers} />
 
       <MetricsTable
         title={inTeams ? "Rentabilidade por equipe" : "Rentabilidade por jogador"}

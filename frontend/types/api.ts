@@ -15,6 +15,10 @@ export type Position = components["schemas"]["PositionDTO"];
 export type PortfolioHistoryPoint = components["schemas"]["PortfolioHistoryPointDTO"];
 export type FixedIncomePosition = components["schemas"]["FixedIncomePositionDTO"];
 export type PortfolioState = components["schemas"]["PortfolioDTO"];
+export type PortfolioDividends = components["schemas"]["PortfolioDividendsDTO"];
+export type DividendBucket = PortfolioDividends["monthly"][number];
+export type AssetCorporateEvents = components["schemas"]["AssetCorporateEventsDTO"];
+export type AssetCorporateEvent = AssetCorporateEvents["events"][number];
 
 // Fixed Income
 export type RateIndex = components["schemas"]["RateIndexType"];
@@ -84,6 +88,7 @@ export type OperationsReport = components["schemas"]["OperationsReportDTO"];
 export type Player = OverviewReport["players"][number];
 export type Team = OverviewReport["teams"][number];
 export type ReturnsPlayer = ReturnsReport["players"][number];
+export type ReturnSources = ReturnsPlayer["return_sources"];
 export type RiskPlayer = RiskReport["players"][number];
 export type CompositionPlayer = CompositionReport["players"][number];
 export type OperationsPlayer = OperationsReport["players"][number];

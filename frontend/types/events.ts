@@ -44,6 +44,7 @@ export type SimulationEvents = {
   goal_progress_update: RealtimeEventCatalog["goal_progress_update"];
   life_event: LifeEvent;
   auto_redeem: RealtimeEventCatalog["auto_redeem"];
+  corporate_actions: RealtimeEventCatalog["corporate_actions"];
   future_recording_progress: FutureRecordingProgressEvent;
   achievement_unlocked: AchievementUnlockedEvent;
   summary_delivered: RealtimeEventCatalog["summary_delivered"];

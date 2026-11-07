@@ -190,6 +190,7 @@ class EventRepository:
                 asset_id=e.asset_id,
                 event_type=e.event_type.value,
                 amount=e.amount,
+                tax_withheld=e.tax_withheld,
                 event_date=e.event_date,
                 created_at=e.created_at,
             )

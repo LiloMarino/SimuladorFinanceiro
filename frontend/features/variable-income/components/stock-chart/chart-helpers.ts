@@ -24,6 +24,8 @@ export function readAnnotationColors(): AnnotationColors {
     down: color("--candle-down"),
     neutral: color("--faint-foreground"),
     band: color("--chart-1-canvas"),
+    dividend: color("--dividend-mark-canvas"),
+    split: color("--split-mark-canvas"),
   };
 }
 

@@ -8,3 +8,5 @@ class FixedIncomeEventDTO(BaseEventDTO):
     asset_id: int
     event_type: FixedIncomeEventType
     amount: Decimal
+    # IR e IOF retidos no resgate (bruto - líquido); zero na aplicação
+    tax_withheld: Decimal = Decimal(0)

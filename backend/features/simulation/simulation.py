@@ -24,6 +24,7 @@ from backend.core.dto.credit import (
     LoanQuoteDTO,
     PrepaymentPreviewDTO,
 )
+from backend.core.dto.dividends import AssetCorporateEventsDTO, PortfolioDividendsDTO
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.economy import EconomyPanelDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO, FixedIncomeOfferDTO
@@ -169,6 +170,7 @@ from backend.features.newsroom.newsroom import Newsroom
 from backend.features.notifications import news, registry
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
+    CorporateActionsEventDTO,
     PortfolioUpdateEventDTO,
     SimulationTickUpdateEventDTO,
     SnapshotUpdateEventDTO,
@@ -191,6 +193,11 @@ from backend.features.statistics.goal import goal_on, goal_reached
 from backend.features.strategy.runner import StrategyRunner
 from backend.features.summaries.service import SummaryDelivery
 from backend.features.tax_policy import TaxPolicy
+from backend.features.variable_income.broker import to_money
+from backend.features.variable_income.dividends import (
+    build_asset_events,
+    build_portfolio_dividends,
+)
 from backend.features.variable_income.entities.order import MarketOrder, Order
 from backend.features.variable_income.price_impact import PriceImpact
 
@@ -1080,7 +1087,7 @@ class Simulation:
 
             # Desdobramentos e dividendos entram na abertura, antes de o book executar
             # qualquer ordem do dia: a posição e as ordens já valem na unidade nova
-            self._engine.apply_corporate_events(
+            corporate_actions = self._engine.apply_corporate_events(
                 repository.corporate_event.get_between(
                     previous_date, self._current_date, self.settings.id
                 ),
@@ -1155,6 +1162,14 @@ class Simulation:
                     ).to_json(),
                     to=player.client_id,
                 )
+                # Só quem tinha o ativo na abertura recebe o aviso do pregão
+                actions = corporate_actions.get(player.client_id)
+                if actions is not None:
+                    notify(
+                        "corporate_actions",
+                        CorporateActionsEventDTO.from_actions(actions).to_json(),
+                        to=player.client_id,
+                    )
         if self.settings.game_type.has_goal:
             with metrics.measure("engine", ENGINE_GOAL):
                 self._track_goal(snapshots)
@@ -1491,6 +1506,49 @@ class Simulation:
                 return_value=Decimal(0),
                 return_pct=Decimal(0),
             )
+        )
+
+    @synchronized
+    def get_dividends(self, client_id: UUID) -> PortfolioDividendsDTO:
+        """Os proventos que o jogador recebeu na partida, até hoje."""
+        payments = repository.portfolio.get_dividend_payments(
+            UserManager.get_user_id(client_id)
+        )
+        return build_portfolio_dividends(payments, self._current_date)
+
+    @synchronized
+    def get_asset_corporate_events(
+        self, client_id: UUID, ticker: str
+    ) -> AssetCorporateEventsDTO | None:
+        """Proventos e desdobramentos do ativo até hoje, com o que cada um fez na carteira do jogador."""
+        stock = self._engine.stocks.get(ticker)
+        if stock is None:
+            return None
+        user_id = UserManager.get_user_id(client_id)
+        position = self._engine.get_positions(client_id).get(ticker)
+        last = self._engine.matching_engine.market_data.get_last(ticker)
+        return build_asset_events(
+            ticker=ticker,
+            asset_class=stock.asset_class,
+            events=repository.corporate_event.get_for_stock(
+                stock.id, self._current_date, self.settings.id
+            ),
+            equity_events=[
+                e
+                for e in repository.portfolio.get_equity_events(user_id)
+                if e.ticker == ticker
+            ],
+            payments=[
+                p
+                for p in repository.portfolio.get_dividend_payments(user_id)
+                if p.ticker == ticker
+            ],
+            match_start=self.settings.start_date,
+            per_share=self._engine.dividends_per_share(self._current_date).get(
+                stock.id, Decimal(0)
+            ),
+            price=to_money(last.close) if last else Decimal(0),
+            avg_price=position.avg_price if position and position.size > 0 else None,
         )
 
     @synchronized
