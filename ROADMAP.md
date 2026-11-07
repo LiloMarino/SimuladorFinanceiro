@@ -62,7 +62,6 @@
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.5 | — | — | — | 🔍 |
 | [**F6**](#f6) | Feature | Link de convite pela internet no lobby | M27 · 4.5 | — | Médio | Bom | ⏳ |
 | [**F14**](#f14) | Feature | Janela desktop nativa | — | — | Baixo | Bom | 💤 |
-| [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | M22 · 4.0 | — | Alto | Bom | ⏳ |
 | [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | M25 · 4.3 | — | — | — | 🔍 |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.2 | — | — | — | 🔍 |
 | [**F37**](#f37) | Feature | Tema escuro | — | — | Médio | Médio | 💤 |
@@ -109,7 +108,7 @@
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | — | Alto | Médio | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (33 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (34 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -133,6 +132,7 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
+| [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | M22 · 4.0 | — | — | — | ✅ |
 | [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | M22 · 4.0 | — | — | — | ✅ |
 | [**F234**](#f234) | Manutenção | Juros compostos num módulo só | M22 · 4.0 | — | — | — | ✅ |
 | [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | M22 · 4.0 | — | — | — | ✅ |
@@ -161,11 +161,11 @@
 >
 > **Serve:** N3, N7
 >
-> **Progresso:** 13/16 concluídos
+> **Progresso:** 14/16 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | — | ⏳ Pendente |
+| 1 | [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | — | ✅ Concluído |
 | 2 | [**F100**](#f100) | Feature | Proventos na carteira e nas telas | [F22](#f22) | ⏳ Pendente |
 | 3 | [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | ✅ Concluído |
 | 4 | [**F234**](#f234) | Manutenção | Juros compostos num módulo só | — | ✅ Concluído |
@@ -297,7 +297,7 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | M22 · 4.0 · 1º | 2 | Alto | Bom | ⏳ |
+| [**F100**](#f100) | Feature | Proventos na carteira e nas telas | M22 · 4.0 · 2º | 1 | Médio | Bom | ⏳ |
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | M22 · 4.0 · 16º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.2 · 1º | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 · 2º | 0 | — | — | 🔍 |
@@ -326,7 +326,6 @@
 | ID | Tipo | Resumo | Serve | D# | Marco | Depende de | Esforço | Risco | Valor | Custo-benefício |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F6** | Feature | Link de convite pela internet no lobby | N2 | — | M27 · 4.5 | [F5](#f5) | Médio | Médio | Alto | Bom |
-| **F22** | Feature | Preço bruto, desdobramentos e dividendos na partida | N3, N7 | D1, D3, D7, D12 | M22 · 4.0 | — | Alto | Alto | Alto | Bom |
 | **F56** | Feature | Novidades no app | N14 | — | M27 · 4.5 | — | Baixo | Baixo | Médio | Bom |
 | **F100** | Feature | Proventos na carteira e nas telas | N3, N7 | D3 | M22 · 4.0 | [F22](#f22) | Médio | Médio | Médio | Bom |
 | **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | D21 | M28 · 4.6 | — | Médio | Baixo | Alto | Bom |
@@ -343,10 +342,6 @@
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
 **Aceite:** um amigo fora da rede local entra na partida só abrindo o link, sem instalar nada; com o host desconectado, nenhum outro jogador consegue virar host.
-
-<a id="f22"></a>
-**F22 — Preço bruto, desdobramentos e dividendos na partida.** Serve N3 e N7; segue a D1, a D3, a D7 e a D12. O importador usa `yf.download(auto_adjust=True)`: o preço vem ajustado por dividendos e desdobramentos até o dia da importação, e a atualização incremental (`upsert_dataframe` só grava linhas depois do último pregão real) emenda duas séries ajustadas em dias diferentes. Um desdobramento 2:1 entre a importação e a atualização vira um degrau falso, uma queda de 50% que não existiu; além disso, o preço exibido não é o que se negociava na época. Com `auto_adjust=False` o problema não some: o `Close` do Yahoo continua ajustado por desdobramento (só deixa de descontar o dividendo), e a lista de dividendos também vem ajustada por desdobramento. Por isso o preço bruto é reconstruído: cada pregão e cada dividendo são multiplicados pelas razões dos desdobramentos com data ex posterior a eles. Esta feature faz o motor inteiro dos proventos, no histórico real e no futuro gerado; as telas ficam na F100, e as duas saem juntas na 4.0. Plano: (1) **Importação bruta:** `auto_adjust=False, actions=True` e a reconstrução acima. Como toda atualização baixa o histórico inteiro, a lista de desdobramentos está sempre completa e o bruto de um dia antigo nunca muda. Desdobramentos e dividendos entram numa tabela de eventos corporativos por ativo (data ex, tipo, razão ou valor por cota, origem e versão, no formato das séries por causa da D7). (2) **Desdobramento, grupamento e bonificação:** na data ex, a quantidade de cada posição muda pela razão como evento da partida (D1, quantidade em Decimal pela D3), e o custo total fica igual, então o preço médio se ajusta sozinho. A fração que sobra numa classe que não negocia fração é truncada e vendida no fechamento do dia, e o valor vai para o caixa como venda comum. (3) **Dividendo:** na data ex, o valor por cota vezes a quantidade da abertura do dia entra no caixa, com o ativo de origem guardado no evento: quem vende na data ex recebe, e quem compra não recebe. O valor é bruto; JCP e IR ficam na F100. (4) **Gerador do futuro:** a calibração passa a usar o preço corrigido por desdobramento, sem descontar dividendo, e o preço gerado não cai na data ex, porque as quedas reais de data ex já estão na média aprendida. O gerador escreve o dividendo sintético na mesma tabela, com origem gerada e pela mesma semente: o rendimento anual é a média dos últimos anos reais do ativo (até 5), com variação sorteada; os meses de pagamento são os do histórico; o ativo com histórico curto usa a média do segmento na base, com pagamento trimestral; quem passou 2 anos ou mais sem pagar continua sem pagar; cripto não paga. O trecho gerado congela com a partida salva, como as séries (D7). (5) **Migration:** a tabela de eventos, o tipo de evento de desdobramento na partida, o ativo de origem no evento de caixa e uma marca de série bruta por ativo; apaga as partidas salvas e o futuro gerado, que jogaram e foram calibrados sobre o preço ajustado, e a próxima atualização de cada ativo sem a marca reimporta a série inteira. É um `feat!` e abre a 4.0 (D12). Os testes de números fixos (retorno, nota geral da D10) são regerados e conferidos contra uma conta à mão antes de aceitar. Gatilho: a 3.4 fechada; a F100 espera esta.
-**Aceite:** num desdobramento 2:1 ocorrido depois da importação, a atualização incremental não produz queda de 50% no preço, e a posição de quem tinha o ativo dobra de quantidade sem mudar de valor; a mesma semente gera os mesmos dividendos.
 
 <a id="f56"></a>
 **F56 — Novidades no app.** Serve N14. Como as notas de patch de um jogo: o `CHANGELOG.md` da F51 vai junto no executável, o backend o serve com a versão, e o lobby mostra as novidades da versão atual. Na primeira abertura depois de atualizar, o card ou o selo de novidades fica em destaque até ser aberto (o navegador guarda a última versão vista); aberto, mostra "O que há de novo na versão X" e dá acesso ao histórico inteiro. O lugar exato no lobby, que já está cheio, sai de uma iteração no Claude Design antes de implementar.
@@ -568,6 +563,7 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
+| **F22** | Feature | Preço bruto, desdobramentos e dividendos na partida | N3, N7 | D1, D3, D7, D12 | M22 · 4.0 |
 | **F233** | Manutenção | Constantes de calendário unificadas no core | — | — | M22 · 4.0 |
 | **F234** | Manutenção | Juros compostos num módulo só | — | — | M22 · 4.0 |
 | **F235** | Manutenção | Tipo Percent no indicador do BCB | — | — | M22 · 4.0 |
@@ -581,6 +577,9 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F243** | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | M22 · 4.0 |
 | **F244** | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | M22 · 4.0 |
 | **F245** | Manutenção | Limpeza de scripts e docs | — | — | M22 · 4.0 |
+
+<a id="f22"></a>
+**F22 — Preço bruto, desdobramentos e dividendos na partida.** Serve N3 e N7; segue a D1, a D3, a D7 e a D12. A importação do Yahoo Finance passou a `auto_adjust=False, actions=True`, e `features/import_data/corporate_events.py` reconstrói o preço bruto: cada pregão e cada dividendo é multiplicado pelo produto das razões dos desdobramentos com data ex posterior, e o volume é dividido por ele. Como toda atualização baixa o histórico inteiro, o bruto de um dia antigo não muda, e uma atualização depois de um 2:1 novo não cria queda de 50%. Desdobramentos e dividendos moram na tabela `stock_corporate_event` (data ex, tipo, razão ou valor por cota, origem e versão, no formato das séries da D7), com o repositório `corporate_event`; o congelar, o apagar e a troca do futuro gerado cobrem os eventos junto das séries. Na partida, `Simulation.next_tick` aplica os eventos da data ex antes de atualizar o mercado: o desdobramento muda a quantidade pela razão como evento `SPLIT` (o custo total fica, e o preço médio acompanha), a fração que sobra numa classe sem fração vira `FRACTION_SELL` ao close do dia (a cripto guarda a fração), as ordens abertas do ativo são canceladas e o dividendo entra no caixa como `DIVIDEND` com o ativo de origem (`event_cashflow.stock_id`), valor por cota vezes a quantidade da abertura, truncado ao centavo. O replay, as estatísticas, os setores, o imposto de renda e as conquistas leem `SPLIT` como mais quantidade e `FRACTION_SELL` como venda. O gerador do futuro calibra pelo retorno total (preço corrigido por desdobramento mais dividendos) e escreve o dividendo sintético na mesma tabela, com origem gerada e a mesma semente: o rendimento é a média dos últimos anos reais, com variação sorteada, nos meses do histórico; quem ficou 2 anos sem pagar continua sem pagar; a cripto não paga; e cada data ex gerada tira do preço o valor pago. Como não há banco anterior a converter, a migration é a da linha recomeçada da 4.0 mais a dos eventos, sem marca de série bruta. A F100 lê o `PlayerCorporateActions` que `apply_corporate_events` devolve.
 
 <a id="f233"></a>
 **F233 — Constantes de calendário unificadas no core.** Nasceu `backend/core/periods.py` com `BUSINESS_DAYS_PER_YEAR = 252` (movido de `core/indicators.py`), `CALENDAR_DAYS_PER_YEAR = Decimal("365.25")`, `MONTHS_PER_YEAR = 12` e `DAYS_PER_MONTH`, e a docstring afirma que dia útil é sessão da B3 e dia corrido é dia de calendário. O tesouro, as estatísticas (`risk`, `returns`, `score`), o gerador sintético, o futuro gerado, o orçamento de vida, os efeitos do governo e o crédito importam de lá; os cinco `MONTHS_PER_YEAR` e os dois `DAYS_PER_MONTH` locais saíram, e o literal `12` virou a constante. As janelas de "um ano de pregões" (`achievements/metrics.py`, `newsroom/companies.py` e `newsroom/newsroom.py`) usam `BUSINESS_DAYS_PER_YEAR`. O `synthetic.py` renomeou a régua de dias sem feriado para `WEEKDAYS_PER_YEAR` e a manteve local. `economy/layer.py` ganhou `months_to_days`, que converte meses em dias corridos no mês médio, e `statistics/risk.py` ganhou `VOLATILITY_ANNUALIZER` (√252) em Decimal. Ficaram como estavam as janelas ajustáveis que só coincidem com 252 (`strategy/momentum.py`, `base_strategy.py`) e o `MONTH_DAYS = 30` do crédito, que é outra convenção.
