@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-07):** Concluída a prévia do impacto de preço fora da rota
+> **Última mudança (2026-11-07):** Concluídos os componentes do mercado na pasta da renda variável
 
 ## Glossário
 
@@ -106,7 +106,6 @@
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M25 · 4.3 | — | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
-| [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | — | Baixo | Bom | ⏳ |
 | [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | — | Médio | Bom | ⏳ |
 | [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | — | Médio | Bom | ⏳ |
 | [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | — | Baixo | Bom | ⏳ |
@@ -117,7 +116,7 @@
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | — | Alto | Médio | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -145,6 +144,7 @@
 | [**F234**](#f234) | Manutenção | Juros compostos num módulo só | — | — | — | — | ✅ |
 | [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | — | — | — | ✅ |
 | [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | — | — | — | ✅ |
+| [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | — | — | — | ✅ |
 | [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | — | — | — | ✅ |
 
 </details>
@@ -275,7 +275,6 @@
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | 0 | ⏳ Pendente |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | N40 | — | 0 | ⏳ Pendente |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | N34 | — | 0 | 🔍 Em avaliação |
-| [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | — | 0 | ⏳ Pendente |
 | [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | — | 0 | ⏳ Pendente |
 | [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | — | 0 | ⏳ Pendente |
 | [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | — | 0 | ⏳ Pendente |
@@ -313,7 +312,6 @@
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | 0 | Médio | Bom | ⏳ |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | 0 | — | — | 🔍 |
-| [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | 0 | Baixo | Bom | ⏳ |
 | [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | 0 | Médio | Bom | ⏳ |
 | [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | 0 | Médio | Bom | ⏳ |
 | [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | 0 | Baixo | Bom | ⏳ |
@@ -342,7 +340,6 @@
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
-| **F237** | Manutenção | Componentes do mercado na pasta da renda variável | — | — | — | — | Baixo | Baixo | Baixo | Bom |
 | **F238** | Manutenção | Features do front sem import atravessado | — | — | — | — | Médio | Médio | Médio | Bom |
 | **F239** | Manutenção | Formatadores de percentual unificados | — | — | — | — | Médio | Médio | Médio | Bom |
 | **F240** | Manutenção | Badge de passo como variante do design system | — | — | — | — | Baixo | Baixo | Baixo | Bom |
@@ -397,13 +394,6 @@
 
 <a id="f225"></a>
 **F225 — Conceitos de economia real na docs e nomeados na tela.** Serve N41 e N25; condicionado por D21. **Para quem:** quem joga e quer entender por que a economia da partida reagiu como reagiu, e quem lê a docs sem jogar. **O que cobre:** uma página por conceito na categoria de explicação que a reorganização da docs cria: juro real e juro real neutro, curva IS, lei de Okun, curva de Phillips, princípio de Taylor e a reação do Banco Central, defasagem da política monetária, meta de inflação e tolerância, credibilidade e expectativas, prêmio de risco, dinâmica da dívida (r − g) e espiral da dívida, primário que estabiliza a dívida e dominância fiscal. Cada página diz o que o conceito mede, um exemplo numérico, o que é valor bom e ruim, a fonte (relatório do Banco Central, artigo ou livro-texto) e como o jogo o implementa, com a fórmula e os coeficientes: é o lugar único dos números do modelo (D21), e a seção de economia interligada de `docs/docs/como-usar/governo.md` passa a apontar para as páginas. Cada página fecha com o que o jogo simplifica em relação à economia real, e uma página própria reúne as simplificações do modelo inteiro: as defasagens comprimidas, os coeficientes fixos em todas as épocas, o Banco Central que reage só à inflação (e não ao hiato do PIB) e o câmbio representado pelo prêmio de risco enquanto o dólar não entra na partida. O conteúdo parte dos conceitos e das explicações do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) (`frontend/shared/concepts/concepts.tsx` e `frontend/features/explainers/`), adaptado ao que o jogo faz, e as fórmulas entram com KaTeX no Docusaurus (`remark-math` e `rehype-katex`). **Na tela:** onde um texto do jogo cita um conceito ("segue o princípio de Taylor"), o nome dele vem com o sublinhado pontilhado do app e o cursor de interrogação, o mesmo `HoverCardTrigger term` de `frontend/shared/components/ui/hover-card.tsx` que o nome do padrão de candle usa no desafio. Passar o mouse ou focar abre um cartão no molde de `pattern-hint.tsx`, com três blocos. Primeiro, o nome e uma frase do que o conceito é, sem fórmula. Depois, "Na partida agora": o conceito aplicado ao estado da partida, como "IPCA 6,2% contra meta de 3,0%: o Copom tende a subir a SELIC na próxima reunião". Por fim, o "Saiba mais" para a página da docs. Os dois primeiros funcionam sem rede, e só o link depende dela. **Mecanismo:** um componente `ConceptTerm` em `frontend/shared/components/` e um catálogo dos conceitos em `frontend/shared/lib/` (chave, nome, frase e caminho da página da docs). Cada tela que cita o conceito passa o trecho da partida que o cartão lê, já resolvido pela tela, e o "Na partida agora" é montado a partir desse trecho. No mesmo bloco de texto, só a primeira menção ao conceito leva o sublinhado. Um teste confere que o caminho de cada conceito do catálogo existe em `docs/docs/`. Os pontos de partida são o painel da Economia (cada parcela leva o nome do conceito), a decisão do Copom, o prêmio de risco do Tesouro e o card da dívida. **Onde mora:** `docs/docs/`, na categoria de explicação. **Gatilho:** depois da reorganização da docs.
-
-<a id="f237"></a>
-**F237 — Componentes do mercado na pasta da renda variável.** `shared/components/market-mark.tsx` e `shared/components/scale-ruler.tsx` têm um consumidor só, a feature de renda variável, mas moram em `shared/` e parecem genéricos como os irmãos que são de verdade.
-
-Os dois descem para `features/variable-income/components/`, com os imports ajustados por script. `chart-scale.ts` e `tutorial-topic-ids.ts` ficam em `shared/`, porque também têm consumidores lá.
-
-Por fora nada muda. Confere-se com `pnpm --dir frontend run check`; o knip acusa export órfão se algum import ficou para trás.
 
 <a id="f238"></a>
 **F238 — Features do front sem import atravessado.** Algumas features importam de outras: o lobby de `candle-challenge`, o tutorial de `lobby-button`, e vários consumidores dos padrões de vela da renda variável.
@@ -639,6 +629,7 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F234** | Manutenção | Juros compostos num módulo só | — | — | — |
 | **F235** | Manutenção | Tipo Percent no indicador do BCB | — | — | — |
 | **F236** | Manutenção | Prévia do impacto de preço fora da rota | — | — | — |
+| **F237** | Manutenção | Componentes do mercado na pasta da renda variável | — | — | — |
 | **F245** | Manutenção | Limpeza de scripts e docs | — | — | — |
 
 <a id="f233"></a>
@@ -664,6 +655,11 @@ Por fora nada mudou: os valores são os mesmos; `pyright` e `pytest` passam sem 
 **F236 — Prévia do impacto de preço fora da rota.** A conta da curva saiu de `routes/simulation.py` e virou `preview_curve(k, decay_days)` em `features/variable_income/price_impact.py`, junto de `impact()` e `decay()`, levando `PREVIEW_VOLUME_SHARE` e o volume médio fixo do exemplo (`PREVIEW_AVERAGE_VOLUME`, 1 milhão). A função devolve o impacto de cada pregão afetado, e a rota só chama `preview_curve` e monta o `PriceImpactPreviewDTO`. Um teste novo confere `preview_curve` contra `impact()` e `decay()`.
 
 Por fora nada mudou: a resposta da rota é a mesma e o `docs/openapi.json` não mudou.
+
+<a id="f237"></a>
+**F237 — Componentes do mercado na pasta da renda variável.** `market-mark.tsx` e `scale-ruler.tsx` saíram de `shared/components/` e foram para `features/variable-income/components/`, a única feature que os usa (`order-book-card.tsx` e `indicator-selector.tsx`). `chart-scale.ts` e `tutorial-topic-ids.ts` ficam em `shared/`, porque também têm consumidores lá.
+
+Por fora nada mudou: só os caminhos de import.
 
 <a id="f245"></a>
 **F245 — Limpeza de scripts e docs.** Saíram `scripts/plot_beta_distribution.py`, `scripts/tree.py` e `scripts/tree_descriptions.yaml`, junto com a seção "Atualização da Árvore de Estrutura" de `docs/docs/desenvolvimento/estrutura-pastas.md`, que ensinava a rodá-los. Os scripts `profile:line` e `profile:line:view` saíram do `package.json`, e com eles `line-profiler` (`pyproject.toml`, exclude do `.spec`) e `cross-env`; os dois lockfiles foram regenerados e o deptry confirma. O padrão `*.lprof` saiu do script `clean`. Na docs de estrutura de pastas, o exemplo `base-card.tsx`, que não existe, passou a `shared/components/kpi.tsx`. O `matplotlib`, que só o `plot_beta_distribution.py` usava, continua no grupo `dev` do `pyproject.toml`.
