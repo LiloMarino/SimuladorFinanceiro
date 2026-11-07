@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-07):** Concluída a limpeza de scripts e docs
+> **Última mudança (2026-11-07):** Concluídas as constantes de calendário unificadas
 
 ## Glossário
 
@@ -106,7 +106,6 @@
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M25 · 4.3 | — | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
-| [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | — | Médio | Bom | ⏳ |
 | [**F234**](#f234) | Manutenção | Juros compostos num módulo só | — | — | Médio | Bom | ⏳ |
 | [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | — | Médio | Bom | ⏳ |
 | [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | — | Baixo | Bom | ⏳ |
@@ -127,7 +126,7 @@
 | [**F252**](#f252) | Manutenção | Aviso local de testes de banco pulados | — | — | Baixo | Bom | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -151,6 +150,7 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
+| [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | — | — | — | ✅ |
 | [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | — | — | — | ✅ |
 
 </details>
@@ -281,7 +281,6 @@
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | 0 | ⏳ Pendente |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | N40 | — | 0 | ⏳ Pendente |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | N34 | — | 0 | 🔍 Em avaliação |
-| [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | — | 0 | ⏳ Pendente |
 | [**F234**](#f234) | Manutenção | Juros compostos num módulo só | — | — | 0 | ⏳ Pendente |
 | [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | — | 0 | ⏳ Pendente |
 | [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | — | 0 | ⏳ Pendente |
@@ -323,7 +322,6 @@
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | 0 | Médio | Bom | ⏳ |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | 0 | — | — | 🔍 |
-| [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | 0 | Médio | Bom | ⏳ |
 | [**F234**](#f234) | Manutenção | Juros compostos num módulo só | — | 0 | Médio | Bom | ⏳ |
 | [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | 0 | Médio | Bom | ⏳ |
 | [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | 0 | Baixo | Bom | ⏳ |
@@ -356,7 +354,6 @@
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
-| **F233** | Manutenção | Constantes de calendário unificadas no core | — | — | — | — | Médio | Baixo | Médio | Bom |
 | **F234** | Manutenção | Juros compostos num módulo só | — | — | — | — | Médio | Médio | Médio | Bom |
 | **F235** | Manutenção | Tipo Percent no indicador do BCB | — | — | — | — | Médio | Baixo | Médio | Bom |
 | **F236** | Manutenção | Prévia do impacto de preço fora da rota | — | — | — | — | Baixo | Baixo | Baixo | Bom |
@@ -415,13 +412,6 @@
 
 <a id="f225"></a>
 **F225 — Conceitos de economia real na docs e nomeados na tela.** Serve N41 e N25; condicionado por D21. **Para quem:** quem joga e quer entender por que a economia da partida reagiu como reagiu, e quem lê a docs sem jogar. **O que cobre:** uma página por conceito na categoria de explicação que a reorganização da docs cria: juro real e juro real neutro, curva IS, lei de Okun, curva de Phillips, princípio de Taylor e a reação do Banco Central, defasagem da política monetária, meta de inflação e tolerância, credibilidade e expectativas, prêmio de risco, dinâmica da dívida (r − g) e espiral da dívida, primário que estabiliza a dívida e dominância fiscal. Cada página diz o que o conceito mede, um exemplo numérico, o que é valor bom e ruim, a fonte (relatório do Banco Central, artigo ou livro-texto) e como o jogo o implementa, com a fórmula e os coeficientes: é o lugar único dos números do modelo (D21), e a seção de economia interligada de `docs/docs/como-usar/governo.md` passa a apontar para as páginas. Cada página fecha com o que o jogo simplifica em relação à economia real, e uma página própria reúne as simplificações do modelo inteiro: as defasagens comprimidas, os coeficientes fixos em todas as épocas, o Banco Central que reage só à inflação (e não ao hiato do PIB) e o câmbio representado pelo prêmio de risco enquanto o dólar não entra na partida. O conteúdo parte dos conceitos e das explicações do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) (`frontend/shared/concepts/concepts.tsx` e `frontend/features/explainers/`), adaptado ao que o jogo faz, e as fórmulas entram com KaTeX no Docusaurus (`remark-math` e `rehype-katex`). **Na tela:** onde um texto do jogo cita um conceito ("segue o princípio de Taylor"), o nome dele vem com o sublinhado pontilhado do app e o cursor de interrogação, o mesmo `HoverCardTrigger term` de `frontend/shared/components/ui/hover-card.tsx` que o nome do padrão de candle usa no desafio. Passar o mouse ou focar abre um cartão no molde de `pattern-hint.tsx`, com três blocos. Primeiro, o nome e uma frase do que o conceito é, sem fórmula. Depois, "Na partida agora": o conceito aplicado ao estado da partida, como "IPCA 6,2% contra meta de 3,0%: o Copom tende a subir a SELIC na próxima reunião". Por fim, o "Saiba mais" para a página da docs. Os dois primeiros funcionam sem rede, e só o link depende dela. **Mecanismo:** um componente `ConceptTerm` em `frontend/shared/components/` e um catálogo dos conceitos em `frontend/shared/lib/` (chave, nome, frase e caminho da página da docs). Cada tela que cita o conceito passa o trecho da partida que o cartão lê, já resolvido pela tela, e o "Na partida agora" é montado a partir desse trecho. No mesmo bloco de texto, só a primeira menção ao conceito leva o sublinhado. Um teste confere que o caminho de cada conceito do catálogo existe em `docs/docs/`. Os pontos de partida são o painel da Economia (cada parcela leva o nome do conceito), a decisão do Copom, o prêmio de risco do Tesouro e o card da dívida. **Onde mora:** `docs/docs/`, na categoria de explicação. **Gatilho:** depois da reorganização da docs.
-
-<a id="f233"></a>
-**F233 — Constantes de calendário unificadas no core.** Hoje o mesmo conceito tem nomes diferentes e o mesmo nome significa coisas diferentes: `DAYS_PER_YEAR` vale 365,25 em `fixed_income/treasury.py` e 252 em `statistics/risk.py`; `MONTHS_PER_YEAR` é definido em cinco módulos; o literal `12` aparece em quatro lugares; `DAYS_PER_MONTH` existe em float (`economy/layer.py`) e em outro tipo (`government/approval.py`).
-
-Nasce `backend/core/periods.py` com `BUSINESS_DAYS_PER_YEAR = 252` (movido de `core/indicators.py`), `CALENDAR_DAYS_PER_YEAR = Decimal("365.25")`, `MONTHS_PER_YEAR = 12` e `DAYS_PER_MONTH`. A docstring afirma que dia útil é sessão da B3 e dia corrido é dia de calendário. `treasury.py`, `risk.py`, `returns.py`, `score.py`, `synthetic.py` e `future.py` passam a importar de lá; os cinco `MONTHS_PER_YEAR` e os dois `DAYS_PER_MONTH` locais saem; os quatro literais `12` viram a constante. As janelas que significam "um ano de pregões" (`achievements/metrics.py`, `newsroom/companies.py`, o `252` de `score.py`) usam `BUSINESS_DAYS_PER_YEAR`. `synthetic.py` renomeia a sua régua de dias sem feriado para `WEEKDAYS_PER_YEAR` e a mantém local. Ficam como estão as janelas ajustáveis que só coincidem com 252 (`strategy/momentum.py`, `base_strategy.py`) e o `MONTH_DAYS = 30` do crédito, que é outra convenção. Junto: o validador duplicado em `routes/simulation.py` passa a ser o do DTO (`core/dto/simulation.py`).
-
-Por fora nada muda: os números exibidos são os mesmos. Confere-se com `uv run pyright` e `uv run pytest -n 4`, sem nenhum valor esperado alterado.
 
 <a id="f234"></a>
 **F234 — Juros compostos num módulo só.** A conta `(1+r)^(1/n) − 1`, a `(1+r)^n − 1` e o produto `∏(1+r) − 1` estão escritas à mão em `credit/price.py`, `fixed_income/accrual.py`, `economy/debt.py`, `government/budget.py`, `simulation/life_events.py`, `core/indicators.py`, `statistics/risk.py` e `statistics/score.py`.
@@ -717,7 +707,15 @@ O `pytest` passa a mostrar no cabeçalho da execução quantos testes foram pula
 
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
+| **F233** | Manutenção | Constantes de calendário unificadas no core | — | — | — |
 | **F245** | Manutenção | Limpeza de scripts e docs | — | — | — |
+
+<a id="f233"></a>
+**F233 — Constantes de calendário unificadas no core.** Nasceu `backend/core/periods.py` com `BUSINESS_DAYS_PER_YEAR = 252` (movido de `core/indicators.py`), `CALENDAR_DAYS_PER_YEAR = Decimal("365.25")`, `MONTHS_PER_YEAR = 12` e `DAYS_PER_MONTH`, e a docstring afirma que dia útil é sessão da B3 e dia corrido é dia de calendário. O tesouro, as estatísticas (`risk`, `returns`, `score`), o gerador sintético, o futuro gerado, o orçamento de vida, os efeitos do governo e o crédito importam de lá; os cinco `MONTHS_PER_YEAR` e os dois `DAYS_PER_MONTH` locais saíram, e o literal `12` virou a constante. As janelas de "um ano de pregões" (`achievements/metrics.py`, `newsroom/companies.py` e `newsroom/newsroom.py`) usam `BUSINESS_DAYS_PER_YEAR`. O `synthetic.py` renomeou a régua de dias sem feriado para `WEEKDAYS_PER_YEAR` e a manteve local. `economy/layer.py` ganhou `months_to_days`, que converte meses em dias corridos no mês médio, e `statistics/risk.py` ganhou `VOLATILITY_ANNUALIZER` (√252) em Decimal. Ficaram como estavam as janelas ajustáveis que só coincidem com 252 (`strategy/momentum.py`, `base_strategy.py`) e o `MONTH_DAYS = 30` do crédito, que é outra convenção.
+
+As regras da corrida à meta e de viver de renda, antes escritas duas vezes (no DTO e na requisição da rota), viraram `validate_goal` e `validate_independence` em `core/dto/simulation.py`, no padrão de `validate_government`; a requisição continua validando na entrada (422) e chama as mesmas funções do DTO.
+
+Por fora nada mudou: os números exibidos são os mesmos, `pyright` e `pytest` passam sem nenhum valor esperado alterado.
 
 <a id="f245"></a>
 **F245 — Limpeza de scripts e docs.** Saíram `scripts/plot_beta_distribution.py`, `scripts/tree.py` e `scripts/tree_descriptions.yaml`, junto com a seção "Atualização da Árvore de Estrutura" de `docs/docs/desenvolvimento/estrutura-pastas.md`, que ensinava a rodá-los. Os scripts `profile:line` e `profile:line:view` saíram do `package.json`, e com eles `line-profiler` (`pyproject.toml`, exclude do `.spec`) e `cross-env`; os dois lockfiles foram regenerados e o deptry confirma. O padrão `*.lprof` saiu do script `clean`. Na docs de estrutura de pastas, o exemplo `base-card.tsx`, que não existe, passou a `shared/components/kpi.tsx`. O `matplotlib`, que só o `plot_beta_distribution.py` usava, continua no grupo `dev` do `pyproject.toml`.
