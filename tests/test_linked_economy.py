@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Callable
+from dataclasses import replace
 from datetime import date, timedelta
 from decimal import Decimal
 
@@ -23,7 +24,12 @@ from backend.core.enum import (
 from backend.core.indicators import annual_index_rate
 from backend.core.repository.economic import IndicatorHistory
 from backend.core.utils import last_day_of_month
-from backend.features.economy.growth import MacroCourse
+from backend.features.economy.growth import (
+    UNEMPLOYMENT_HALF_LIFE_MONTHS,
+    MacroCourse,
+    next_month,
+    starting_month,
+)
 from backend.features.economy.monetary import Monetary, SelicBoard, SelicDecision
 from backend.features.economy.panel import build_economy_panel
 from backend.features.government import budget
@@ -219,6 +225,29 @@ def test_ten_years_of_spending_stay_finite(stored_series: None):
     level = linked.layer.level(end)
     assert math.isfinite(level) and level > 0
     assert math.isfinite(linked.layer.inflation_points(end))
+
+
+def test_the_unemployment_gap_returns_to_the_history_by_half_life(
+    stored_series: None,
+):
+    month = starting_month(START - timedelta(days=1))
+    gap = Decimal("0.05")
+    month = replace(month, unemployment=month.base_unemployment + gap)
+    steps: dict[int, Decimal] = {}
+
+    # Sem governo o crescimento é o da história: só a volta mexe no desvio
+    for elapsed in range(1, 2 * UNEMPLOYMENT_HALF_LIFE_MONTHS + 1):
+        month = next_month(
+            month, last_day_of_month(month.month_end + timedelta(days=1))
+        )
+        steps[elapsed] = month.unemployment - month.base_unemployment
+
+    assert steps[UNEMPLOYMENT_HALF_LIFE_MONTHS] == pytest.approx(
+        gap / 2, abs=Decimal("1e-6")
+    )
+    assert steps[2 * UNEMPLOYMENT_HALF_LIFE_MONTHS] == pytest.approx(
+        gap / 4, abs=Decimal("1e-6")
+    )
 
 
 def test_the_panel_splits_the_debt_the_links_and_the_growth_by_cause(

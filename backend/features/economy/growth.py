@@ -42,6 +42,11 @@ NEUTRAL_UNEMPLOYMENT = Decimal("0.09")
 MIN_UNEMPLOYMENT = Decimal("0.04")
 MAX_UNEMPLOYMENT = Decimal("0.18")
 MONTHS_PER_YEAR = Decimal(12)
+# O desvio do desemprego contra a história cai pela metade a cada 36 meses: o normal da
+# época é a taxa para a qual o país volta, devagar, quando a economia sai do aquecimento
+# ou da recessão. O fator mensal é a raiz 36 de 1/2.
+UNEMPLOYMENT_HALF_LIFE_MONTHS = 36
+UNEMPLOYMENT_RETURN = Decimal("0.5") ** (Decimal(1) / UNEMPLOYMENT_HALF_LIFE_MONTHS)
 STOCKS_WINDOW_DAYS = 365
 
 GrowthSource = Callable[[date], Decimal]
@@ -244,8 +249,8 @@ def next_month(
     """
     O fechamento seguinte. A base é a série guardada; onde ela não cobre, o modelo anda
     1/4 até o alvo da história e o desemprego segue o Okun. A partida soma à base o
-    desvio de cada parte do alvo, e o desvio do desemprego segue o Okun sobre o desvio
-    do crescimento.
+    desvio de cada parte do alvo; o desvio do desemprego volta devagar a zero e segue
+    o Okun sobre o desvio do crescimento.
     """
     base_aim = growth_aim(month_end, stored=True)
     base_growth = recorded_growth(month_end)
@@ -264,10 +269,8 @@ def next_month(
         max(MAX_GROWTH, base_growth),
     )
     unemployment_gap = (
-        previous.unemployment
-        - previous.base_unemployment
-        - OKUN * (growth - base_growth) / MONTHS_PER_YEAR
-    )
+        previous.unemployment - previous.base_unemployment
+    ) * UNEMPLOYMENT_RETURN - OKUN * (growth - base_growth) / MONTHS_PER_YEAR
     return MacroMonth(
         month_end=month_end,
         growth=growth,
