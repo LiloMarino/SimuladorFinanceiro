@@ -17431,6 +17431,12 @@
           "ipca_12m": {
             "$ref": "#/components/schemas/PreviewSeriesDTO"
           },
+          "gdp_growth": {
+            "$ref": "#/components/schemas/PreviewSeriesDTO"
+          },
+          "unemployment": {
+            "$ref": "#/components/schemas/PreviewSeriesDTO"
+          },
           "ibov_change": {
             "$ref": "#/components/schemas/LevelChangeDTO"
           },
@@ -17478,6 +17484,8 @@
           "asset",
           "selic",
           "ipca_12m",
+          "gdp_growth",
+          "unemployment",
           "ibov_change",
           "max_drawdown",
           "selic_peak",

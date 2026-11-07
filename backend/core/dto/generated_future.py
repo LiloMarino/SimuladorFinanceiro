@@ -88,6 +88,9 @@ class FuturePreviewDTO(BaseDTO):
     # SELIC em % ao ano e IPCA de 12 meses em %
     selic: PreviewSeriesDTO
     ipca_12m: PreviewSeriesDTO
+    # PIB em 12 meses e desemprego em %: o real é o gravado; o gerado é o que a partida calcula
+    gdp_growth: PreviewSeriesDTO
+    unemployment: PreviewSeriesDTO
     ibov_change: LevelChangeDTO
     max_drawdown: DrawdownDTO | None
     selic_peak: PeakDTO | None

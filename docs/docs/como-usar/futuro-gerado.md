@@ -91,6 +91,8 @@ Medianas de 50 futuros de 10 anos partindo de hoje, com a SELIC em 13,65%. "Desc
 
 Médias de 50 futuros de 10 anos, com intensidade 6. Mesmo com 0 surtos o histórico traz uns 0,8 ano acima de 10% em 10 anos, porque o futuro de hoje parte de uma inflação alta.
 
+**PIB e desemprego na prévia.** A prévia também mostra o crescimento do PIB (em 12 meses) e o desemprego, para ver o que o nível e os surtos fazem com a economia. Eles não são sorteados nem gravados: saem de uma conta mês a mês, a partir do último valor real, com a SELIC e a inflação do futuro e a alta da bolsa em 12 meses. Juro real alto (a SELIC descontada a inflação, acima de 5% ao ano) freia o crescimento; bolsa em alta ajuda um pouco. O desemprego sobe quando o PIB cresce menos que 2% ao ano e cai quando cresce mais (a regra de Okun: quando a economia anda mais devagar que o normal, sobra gente sem emprego). A partida usa a mesma conta, mês a mês, e soma a ela os gastos e as decisões do governo do jogo; a prévia mostra a economia sem essa parte.
+
 ---
 
 ## Os indicadores, um por um

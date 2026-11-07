@@ -81,7 +81,7 @@ O botão **Gerar dados futuros** (depois da primeira geração, **Gerar outro fu
 - **"Frequência dos surtos"**, de 0 a 5 por década, padrão 0. Um surto é uma alta de inflação que passa em poucos anos. Com 1, em média um ano em dez abre um surto.
 - **"Intensidade dos surtos"**, de 2 a 20 pontos, padrão 6. O pico médio de cada surto; fica desligada com 0 surtos.
 
-**Prévia.** Gera o futuro sem gravar nada. Mostra o Ibovespa e um ativo à escolha, SELIC e inflação, além de quatro números:
+**Prévia.** Gera o futuro sem gravar nada. Mostra o Ibovespa e um ativo à escolha, SELIC, inflação, crescimento do PIB e desemprego, além de quatro números. O PIB e o desemprego são calculados na hora a partir da SELIC, da inflação e da bolsa do futuro gerado, pela mesma conta da partida, sem os gastos do governo do jogo; só a prévia os mostra, e gravar não os grava:
 
 - **Quanto o Ibovespa termina acima ou abaixo de hoje.** Ex.: de 100.000 para 120.000 pontos é uma alta de 20%.
 - **A maior queda do pico ao fundo.** A maior queda do Ibovespa entre o ponto mais alto e o ponto mais baixo que vem depois dele. Ex.: sobe de 100.000 para 120.000 e depois cai para 90.000; a queda é de 25% (de 120.000 para 90.000).

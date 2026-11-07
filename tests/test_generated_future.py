@@ -13,12 +13,14 @@ from sqlalchemy.orm import Session
 from backend.core import repository
 from backend.core.dto.generated_future import (
     FutureParamsDTO,
+    FuturePreviewDTO,
     FuturePreviewRequest,
     GeneratedFutureDTO,
 )
 from backend.core.dto.series_coverage import SeriesKind
 from backend.core.enum import DataOrigin, IndicatorSeries
 from backend.core.exceptions.http_exceptions import BadRequestError, ConflictError
+from backend.core.indicators import annual_index_rate
 from backend.core.models.models import (
     EconomicIndicatorHistory,
     Snapshots,
@@ -245,6 +247,77 @@ def test_preview_generates_without_recording(base: Engine):
 
     with pytest.raises(BadRequestError):
         future.preview(request.model_copy(update={"until": LAST_REAL}))
+
+
+def macro_preview(base: Engine, **controls: Any) -> FuturePreviewDTO:
+    """A prévia de 10 anos, com os controles neutros alterados por `controls`."""
+    return future.preview(
+        FuturePreviewRequest(
+            until=date(LAST_REAL.year + 10, 12, 31),
+            seed=7,
+            temperature=1,
+            **(NEUTRAL | controls),
+        )
+    )
+
+
+def record_macro() -> None:
+    """PIB por trimestre até o 3º de 2004 e desemprego por mês até outubro de 2004."""
+    repository.economic.save_history(
+        IndicatorSeries.GDP_GROWTH,
+        [
+            (date(year, month, 1), Decimal("3.0"))
+            for year in (2002, 2003, 2004)
+            for month in (1, 4, 7, 10)
+            if (year, month) <= (2004, 7)
+        ],
+    )
+    repository.economic.save_history(
+        IndicatorSeries.UNEMPLOYMENT,
+        [(date(2002 + (m // 12), m % 12 + 1, 1), Decimal("8.0")) for m in range(34)],
+    )
+
+
+def test_preview_brings_gdp_and_unemployment_after_the_recorded_months(base: Engine):
+    record_macro()
+
+    preview = macro_preview(base)
+
+    assert preview.gdp_growth.real[-1].date == date(2004, 9, 30)
+    assert preview.gdp_growth.real[-1].value == 3.0
+    assert preview.unemployment.real[-1].date == date(2004, 10, 31)
+    for series in (preview.gdp_growth, preview.unemployment):
+        assert series.generated[0].date > series.real[-1].date
+        assert series.generated[-1].date == date(LAST_REAL.year + 10, 12, 31)
+        assert all(-10 < point.value < 25 for point in series.generated)
+
+
+def test_preview_rates_are_the_ones_the_game_reads(base: Engine):
+    """A SELIC e o IPCA de 12 meses da prévia são os de annual_index_rate nos dias reais."""
+    preview = macro_preview(base)
+
+    selic = preview.selic.real[-1]
+    ipca = preview.ipca_12m.real[-1]
+    assert selic.value == pytest.approx(
+        float(annual_index_rate(IndicatorSeries.SELIC, selic.date, stored=True)) * 100
+    )
+    assert ipca.value == pytest.approx(
+        float(annual_index_rate(IndicatorSeries.IPCA, ipca.date, stored=True)) * 100
+    )
+
+
+def test_a_higher_inflation_level_drops_gdp_in_the_transition_and_settles_close_after(
+    base: Engine,
+):
+    calm = [p.value for p in macro_preview(base).gdp_growth.generated]
+    raised = [
+        p.value for p in macro_preview(base, inflation_level=10).gdp_growth.generated
+    ]
+
+    # A subida do juro derruba o crescimento nos primeiros três anos
+    assert min(raised[:36]) < min(calm[:36]) - 1
+    # Depois de 10 anos o nível assentou: o último ano fica perto do sem nível
+    assert abs(sum(raised[-12:]) / 12 - sum(calm[-12:]) / 12) < 1.5
 
 
 def test_horizon_stops_thirty_years_after_the_last_real_day(base: Engine):

@@ -965,7 +965,7 @@ export interface paths {
         };
         /**
          * Futuro gerado
-         * @description Os controles do futuro gravado, quando há um: semente, temperatura, começo e choque, até quando vai, até onde o real já chegou depois dele e quantas partidas salvas jogaram dias dele.
+         * @description Os controles do futuro gravado, quando há um: semente, temperatura, nível e surtos de inflação, até quando vai, até onde o real já chegou depois dele e quantas partidas salvas jogaram dias dele.
          */
         get: operations["get_generated_future_api_import_assets_future_get"];
         put?: never;
@@ -6094,6 +6094,8 @@ export interface components {
             asset: components["schemas"]["PreviewSeriesDTO"] | null;
             selic: components["schemas"]["PreviewSeriesDTO"];
             ipca_12m: components["schemas"]["PreviewSeriesDTO"];
+            gdp_growth: components["schemas"]["PreviewSeriesDTO"];
+            unemployment: components["schemas"]["PreviewSeriesDTO"];
             ibov_change: components["schemas"]["LevelChangeDTO"];
             max_drawdown: components["schemas"]["DrawdownDTO"] | null;
             selic_peak: components["schemas"]["PeakDTO"] | null;

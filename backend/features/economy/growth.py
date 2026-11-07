@@ -128,6 +128,30 @@ class MacroMonth:
     gap: GrowthGap = GrowthGap()
 
 
+def aim_from(
+    real_rate: Decimal,
+    stocks: Decimal | None,
+    spending: Decimal = ZERO,
+    impulse: Decimal = ZERO,
+) -> GrowthAim:
+    """
+    O alvo do crescimento para o juro real e a alta do Ibovespa em 12 meses dados (frações
+    ao ano), mais o que as obras e o resultado primário somam. Sem série de bolsa, a bolsa
+    fica no neutro: não empurra nem puxa.
+    """
+    return GrowthAim(
+        trend=TREND,
+        real_rate=real_rate,
+        real_rate_part=-REAL_RATE_WEIGHT * (real_rate - NEUTRAL_REAL_RATE),
+        stocks=stocks,
+        stocks_part=(
+            STOCKS_WEIGHT * (stocks - NEUTRAL_STOCKS) if stocks is not None else ZERO
+        ),
+        spending_part=spending,
+        impulse_part=impulse,
+    )
+
+
 def growth_aim(
     day: date,
     spending: Decimal = ZERO,
@@ -147,17 +171,22 @@ def growth_aim(
         IndicatorSeries.IBOV, day - timedelta(days=STOCKS_WINDOW_DAYS), stored=stored
     )
     stocks = now / before - 1 if now is not None and before else None
-    return GrowthAim(
-        trend=TREND,
-        real_rate=real_rate,
-        real_rate_part=-REAL_RATE_WEIGHT * (real_rate - NEUTRAL_REAL_RATE),
-        stocks=stocks,
-        # Sem série de bolsa, a bolsa fica no neutro: não empurra nem puxa
-        stocks_part=(
-            STOCKS_WEIGHT * (stocks - NEUTRAL_STOCKS) if stocks is not None else ZERO
-        ),
-        spending_part=spending,
-        impulse_part=impulse,
+    return aim_from(real_rate, stocks, spending, impulse)
+
+
+def step_growth(previous: Decimal, aim_value: Decimal) -> Decimal:
+    """O crescimento anda 1/4 do caminho até o alvo, dentro da faixa."""
+    return clamp(
+        previous + GROWTH_STEP * (aim_value - previous), MIN_GROWTH, MAX_GROWTH
+    )
+
+
+def step_unemployment(previous: Decimal, growth: Decimal) -> Decimal:
+    """O desemprego segue o crescimento do mês pela lei de Okun, dentro da faixa."""
+    return clamp(
+        previous - OKUN * (growth - TREND) / MONTHS_PER_YEAR,
+        MIN_UNEMPLOYMENT,
+        MAX_UNEMPLOYMENT,
     )
 
 
@@ -212,19 +241,10 @@ def next_month(
     base_aim = growth_aim(month_end, stored=True)
     base_growth = recorded_growth(month_end)
     if base_growth is None:
-        base_growth = clamp(
-            previous.base_growth
-            + GROWTH_STEP * (base_aim.value - previous.base_growth),
-            MIN_GROWTH,
-            MAX_GROWTH,
-        )
+        base_growth = step_growth(previous.base_growth, base_aim.value)
     base_unemployment = recorded_unemployment(month_end)
     if base_unemployment is None:
-        base_unemployment = clamp(
-            previous.base_unemployment - OKUN * (base_growth - TREND) / MONTHS_PER_YEAR,
-            MIN_UNEMPLOYMENT,
-            MAX_UNEMPLOYMENT,
-        )
+        base_unemployment = step_unemployment(previous.base_unemployment, base_growth)
 
     # A faixa vale para o desvio: a história fica como foi, mesmo fora dela
     aim = growth_aim(month_end, spending, impulse)

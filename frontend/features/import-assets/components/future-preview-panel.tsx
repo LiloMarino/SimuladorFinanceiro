@@ -1,9 +1,11 @@
 import type { UseQueryResult } from "@tanstack/react-query";
 import { Badge } from "@/shared/components/ui/badge";
 import { ErrorState } from "@/shared/components/error-state";
+import { MetricHint } from "@/shared/components/metric-hint";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+import { GROWTH, UNEMPLOYMENT } from "@/shared/lib/budget-metrics";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
 import type { FuturePreview } from "@/types";
@@ -122,6 +124,32 @@ export function FuturePreviewPanel({ query, tickers, ticker, onTickerChange }: F
               maxYearTicks={4}
               formatValue={(v) => `${displayNumber(v, 0)}%`}
               formatTooltip={(v) => `${displayNumber(v, 2)}%`}
+            />
+          </div>
+          <div className="grid gap-1">
+            <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+              Crescimento do PIB · 12 meses
+              <MetricHint metric={GROWTH} />
+            </span>
+            <PreviewChart
+              series={preview.gdp_growth}
+              height={120}
+              maxYearTicks={4}
+              formatValue={(v) => `${displayNumber(v, 0)}%`}
+              formatTooltip={(v) => `${displayNumber(v, 1)}%`}
+            />
+          </div>
+          <div className="grid gap-1">
+            <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+              Desemprego
+              <MetricHint metric={UNEMPLOYMENT} />
+            </span>
+            <PreviewChart
+              series={preview.unemployment}
+              height={120}
+              maxYearTicks={4}
+              formatValue={(v) => `${displayNumber(v, 0)}%`}
+              formatTooltip={(v) => `${displayNumber(v, 1)}%`}
             />
           </div>
         </div>

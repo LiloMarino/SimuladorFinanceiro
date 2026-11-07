@@ -73,6 +73,34 @@ def test_high_real_rate_pulls_the_aim_down_and_stocks_push_it_up(
     assert aim.stocks_part == Decimal("0.0075")
 
 
+def test_aim_from_gives_the_aim_that_growth_aim_reads_from_the_series(
+    flat_economy: None,
+):
+    read = growth.growth_aim(date(2020, 6, 30), Decimal("0.01"), Decimal("0.002"))
+
+    assert (
+        growth.aim_from(read.real_rate, read.stocks, Decimal("0.01"), Decimal("0.002"))
+        == read
+    )
+
+
+def test_growth_step_goes_a_quarter_of_the_way_and_stays_in_the_band():
+    assert growth.step_growth(Decimal("0.02"), Decimal("0.06")) == Decimal("0.03")
+    assert growth.step_growth(growth.MAX_GROWTH, Decimal("1")) == growth.MAX_GROWTH
+    assert growth.step_growth(growth.MIN_GROWTH, Decimal("-1")) == growth.MIN_GROWTH
+
+
+def test_unemployment_step_follows_okun_and_stays_in_the_band():
+    above_trend = growth.step_unemployment(Decimal("0.10"), Decimal("0.05"))
+
+    # Meio ponto de desemprego a menos por ano para cada ponto acima da tendência
+    assert above_trend == Decimal("0.10") - Decimal("0.5") * Decimal("0.03") / 12
+    assert (
+        growth.step_unemployment(growth.MIN_UNEMPLOYMENT, Decimal("0.08"))
+        == growth.MIN_UNEMPLOYMENT
+    )
+
+
 def test_month_closes_only_on_its_last_day(flat_economy: None):
     course = MacroCourse(START)
 

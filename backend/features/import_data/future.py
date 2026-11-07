@@ -7,9 +7,10 @@ muda, então cada mudança de controle na prévia custa só a geração.
 """
 
 import logging
+from bisect import bisect_right
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from threading import Event, Lock
 
@@ -35,9 +36,11 @@ from backend.core.exceptions.http_exceptions import BadRequestError, ConflictErr
 from backend.core.repository.generated_future import GeneratedRows
 from backend.core.utils import (
     business_days_between,
+    last_day_of_month,
     next_business_day,
     subtract_months,
 )
+from backend.features.economy import growth
 from backend.features.import_data.synthetic import (
     PRICE_COLUMNS,
     TRADING_DAYS_PER_YEAR,
@@ -208,6 +211,82 @@ def _ipca_12m(real: _Line, generated: _Line) -> tuple[_Line, _Line]:
     )
 
 
+def _last_value(line: _Line, day: date) -> float | None:
+    """O último valor da série até `day`, inclusive; nulo antes do primeiro ponto ou em NaN."""
+    index = bisect_right(line.days, day)
+    if not index or np.isnan(line.values[index - 1]):
+        return None
+    return float(line.values[index - 1])
+
+
+def _join(real: _Line, generated: _Line) -> _Line:
+    """O real seguido do gerado que o continua."""
+    return _Line(
+        [*real.days, *generated.days], np.concatenate([real.values, generated.values])
+    )
+
+
+def _macro_preview(
+    selic: _Line, ipca: _Line, ibov: _Line, start: date, until: date
+) -> tuple[PreviewSeriesDTO, PreviewSeriesDTO]:
+    """
+    O PIB em 12 meses e o desemprego mês a mês, de `start` até `until`: o gravado onde a
+    série cobre e, depois, o que a partida calcula com a SELIC em % ao ano, o IPCA de 12
+    meses em % e o Ibovespa, cada um já com o real seguido do gerado.
+    """
+
+    def aim_on(month_end: date) -> growth.GrowthAim:
+        real_rate = (_last_value(selic, month_end) or 0) - (
+            _last_value(ipca, month_end.replace(day=1)) or 0
+        )
+        now = _last_value(ibov, month_end)
+        before = _last_value(
+            ibov, month_end - timedelta(days=growth.STOCKS_WINDOW_DAYS)
+        )
+        return growth.aim_from(
+            Decimal(real_rate) / 100,
+            Decimal(now / before - 1) if now is not None and before else None,
+        )
+
+    real: dict[str, list[PreviewPointDTO]] = {"gdp": [], "unemployment": []}
+    new: dict[str, list[PreviewPointDTO]] = {"gdp": [], "unemployment": []}
+    gdp, unemployment = growth.TREND, growth.NEUTRAL_UNEMPLOYMENT
+    month_end = last_day_of_month(start)
+    while month_end <= until:
+        recorded_gdp = growth.recorded_growth(month_end)
+        recorded_unemployment = growth.recorded_unemployment(month_end)
+        gdp = (
+            recorded_gdp
+            if recorded_gdp is not None
+            else growth.step_growth(gdp, aim_on(month_end).value)
+        )
+        unemployment = (
+            recorded_unemployment
+            if recorded_unemployment is not None
+            else growth.step_unemployment(unemployment, gdp)
+        )
+        for key, value, recorded in (
+            ("gdp", gdp, recorded_gdp),
+            ("unemployment", unemployment, recorded_unemployment),
+        ):
+            (real if recorded is not None else new)[key].append(
+                PreviewPointDTO(date=month_end, value=float(value * growth.HUNDRED))
+            )
+        month_end = last_day_of_month(month_end + timedelta(days=1))
+    return (
+        PreviewSeriesDTO(
+            key=IndicatorSeries.GDP_GROWTH.value,
+            real=real["gdp"],
+            generated=new["gdp"],
+        ),
+        PreviewSeriesDTO(
+            key=IndicatorSeries.UNEMPLOYMENT.value,
+            real=real["unemployment"],
+            generated=new["unemployment"],
+        ),
+    )
+
+
 def _max_drawdown(start: float, generated: _Line) -> DrawdownDTO | None:
     """A maior queda do pico ao fundo no caminho que parte do último real."""
     levels = np.concatenate([[start], generated.values])
@@ -275,6 +354,13 @@ def preview(request: FuturePreviewRequest) -> FuturePreviewDTO:
     selic_real = _annual_selic(real(IndicatorSeries.SELIC))
     selic = _annual_selic(new(IndicatorSeries.SELIC))
     ipca_real, ipca = _ipca_12m(real(IndicatorSeries.IPCA), new(IndicatorSeries.IPCA))
+    gdp_growth, unemployment = _macro_preview(
+        _join(selic_real, selic),
+        _join(ipca_real, ipca),
+        _join(ibov_real, ibov),
+        subtract_months(generator.calendar_days[-1], PREVIEW_REAL_MONTHS),
+        request.until,
+    )
 
     asset = None
     if request.ticker and request.ticker in generated.assets:
@@ -297,6 +383,8 @@ def preview(request: FuturePreviewRequest) -> FuturePreviewDTO:
         asset=asset,
         selic=_preview_series(IndicatorSeries.SELIC.value, selic_real, selic),
         ipca_12m=_preview_series(IndicatorSeries.IPCA.value, ipca_real, ipca),
+        gdp_growth=gdp_growth,
+        unemployment=unemployment,
         ibov_change=LevelChangeDTO(
             change=end_level / start_level - 1,
             start=start_level,
