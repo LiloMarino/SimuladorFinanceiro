@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-07):** Concluídos os juros compostos unificados
+> **Última mudança (2026-11-07):** Concluído o tipo do percentual publicado pelo BCB
 
 ## Glossário
 
@@ -106,7 +106,6 @@
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M25 · 4.3 | — | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
-| [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | — | Médio | Bom | ⏳ |
 | [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | — | Baixo | Bom | ⏳ |
 | [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | — | Baixo | Bom | ⏳ |
 | [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | — | Médio | Bom | ⏳ |
@@ -119,7 +118,7 @@
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | — | Alto | Médio | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -145,6 +144,7 @@
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | — | — | — | ✅ |
 | [**F234**](#f234) | Manutenção | Juros compostos num módulo só | — | — | — | — | ✅ |
+| [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | — | — | — | ✅ |
 | [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | — | — | — | ✅ |
 
 </details>
@@ -275,7 +275,6 @@
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | 0 | ⏳ Pendente |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | N40 | — | 0 | ⏳ Pendente |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | N34 | — | 0 | 🔍 Em avaliação |
-| [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | — | 0 | ⏳ Pendente |
 | [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | — | 0 | ⏳ Pendente |
 | [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | — | 0 | ⏳ Pendente |
 | [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | — | 0 | ⏳ Pendente |
@@ -315,7 +314,6 @@
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | 0 | Médio | Bom | ⏳ |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | 0 | — | — | 🔍 |
-| [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | 0 | Médio | Bom | ⏳ |
 | [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | 0 | Baixo | Bom | ⏳ |
 | [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | 0 | Baixo | Bom | ⏳ |
 | [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | 0 | Médio | Bom | ⏳ |
@@ -346,7 +344,6 @@
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
-| **F235** | Manutenção | Tipo Percent no indicador do BCB | — | — | — | — | Médio | Baixo | Médio | Bom |
 | **F236** | Manutenção | Prévia do impacto de preço fora da rota | — | — | — | — | Baixo | Baixo | Baixo | Bom |
 | **F237** | Manutenção | Componentes do mercado na pasta da renda variável | — | — | — | — | Baixo | Baixo | Baixo | Bom |
 | **F238** | Manutenção | Features do front sem import atravessado | — | — | — | — | Médio | Médio | Médio | Bom |
@@ -403,13 +400,6 @@
 
 <a id="f225"></a>
 **F225 — Conceitos de economia real na docs e nomeados na tela.** Serve N41 e N25; condicionado por D21. **Para quem:** quem joga e quer entender por que a economia da partida reagiu como reagiu, e quem lê a docs sem jogar. **O que cobre:** uma página por conceito na categoria de explicação que a reorganização da docs cria: juro real e juro real neutro, curva IS, lei de Okun, curva de Phillips, princípio de Taylor e a reação do Banco Central, defasagem da política monetária, meta de inflação e tolerância, credibilidade e expectativas, prêmio de risco, dinâmica da dívida (r − g) e espiral da dívida, primário que estabiliza a dívida e dominância fiscal. Cada página diz o que o conceito mede, um exemplo numérico, o que é valor bom e ruim, a fonte (relatório do Banco Central, artigo ou livro-texto) e como o jogo o implementa, com a fórmula e os coeficientes: é o lugar único dos números do modelo (D21), e a seção de economia interligada de `docs/docs/como-usar/governo.md` passa a apontar para as páginas. Cada página fecha com o que o jogo simplifica em relação à economia real, e uma página própria reúne as simplificações do modelo inteiro: as defasagens comprimidas, os coeficientes fixos em todas as épocas, o Banco Central que reage só à inflação (e não ao hiato do PIB) e o câmbio representado pelo prêmio de risco enquanto o dólar não entra na partida. O conteúdo parte dos conceitos e das explicações do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) (`frontend/shared/concepts/concepts.tsx` e `frontend/features/explainers/`), adaptado ao que o jogo faz, e as fórmulas entram com KaTeX no Docusaurus (`remark-math` e `rehype-katex`). **Na tela:** onde um texto do jogo cita um conceito ("segue o princípio de Taylor"), o nome dele vem com o sublinhado pontilhado do app e o cursor de interrogação, o mesmo `HoverCardTrigger term` de `frontend/shared/components/ui/hover-card.tsx` que o nome do padrão de candle usa no desafio. Passar o mouse ou focar abre um cartão no molde de `pattern-hint.tsx`, com três blocos. Primeiro, o nome e uma frase do que o conceito é, sem fórmula. Depois, "Na partida agora": o conceito aplicado ao estado da partida, como "IPCA 6,2% contra meta de 3,0%: o Copom tende a subir a SELIC na próxima reunião". Por fim, o "Saiba mais" para a página da docs. Os dois primeiros funcionam sem rede, e só o link depende dela. **Mecanismo:** um componente `ConceptTerm` em `frontend/shared/components/` e um catálogo dos conceitos em `frontend/shared/lib/` (chave, nome, frase e caminho da página da docs). Cada tela que cita o conceito passa o trecho da partida que o cartão lê, já resolvido pela tela, e o "Na partida agora" é montado a partir desse trecho. No mesmo bloco de texto, só a primeira menção ao conceito leva o sublinhado. Um teste confere que o caminho de cada conceito do catálogo existe em `docs/docs/`. Os pontos de partida são o painel da Economia (cada parcela leva o nome do conceito), a decisão do Copom, o prêmio de risco do Tesouro e o card da dívida. **Onde mora:** `docs/docs/`, na categoria de explicação. **Gatilho:** depois da reorganização da docs.
-
-<a id="f235"></a>
-**F235 — Tipo Percent no indicador do BCB.** O valor publicado pelo BCB é um percentual (0,0551 significa 0,0551%), mas hoje trafega como `Decimal` comum e cada chamador lembra, por atenção, de dividir por 100; passar a fração onde se espera percentual compila e dá resultado errado.
-
-`Percent = NewType("Percent", Decimal)` mora em `core/periods.py` (ou num `core/units.py`, se ficar mais claro), com a docstring "valor como o BCB publica: 0,0551 = 0,0551%". `index_value_on` e `last_known_value` devolvem `Percent`; `daily_rate` e `annualize_daily` só aceitam `Percent`; `from_percent(value: Percent) -> Decimal` substitui os `/ 100` de `core/indicators.py` e das tabelas de meta, tolerância, dívida e primário. Os chamadores (`fixed_income/accrual.py`, `economy/panel.py`, `economy/layer.py`, `newsroom/macro.py`, `tests/test_economy_layer.py`) se ajustam até o pyright passar; onde o valor vem do banco, o `Percent(...)` nasce na leitura, não no chamador. Vem depois de F233 e F234 (`annualize_daily` passa a usar `compound`).
-
-Por fora nada muda. Confere-se com `uv run pyright` e, uma vez, com uma chamada de prova passando `Decimal` cru a `daily_rate`, que tem de falhar no pyright e é removida em seguida.
 
 <a id="f236"></a>
 **F236 — Prévia do impacto de preço fora da rota.** `routes/simulation.py` monta a curva de prévia do impacto de preço dentro do handler (`PREVIEW_VOLUME_SHARE`, volume fixo de 1 milhão, laço sobre os dias), lógica de domínio que mora numa rota.
@@ -657,6 +647,7 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | --- | --- | --- | --- | --- | --- |
 | **F233** | Manutenção | Constantes de calendário unificadas no core | — | — | — |
 | **F234** | Manutenção | Juros compostos num módulo só | — | — | — |
+| **F235** | Manutenção | Tipo Percent no indicador do BCB | — | — | — |
 | **F245** | Manutenção | Limpeza de scripts e docs | — | — | — |
 
 <a id="f233"></a>
@@ -672,6 +663,11 @@ Por fora nada mudou: os números exibidos são os mesmos, `pyright` e `pytest` p
 `annualize_growth` mudou de `statistics/returns.py` para `statistics/risk.py`, porque o `returns` já importa do `risk` e o `risk` precisava dela; o `returns` importa de lá e o `score.py` a chama como `risk.annualize_growth`. Com isso `risk.annual_return` e a nota anual do `score.py` deixaram de repetir a conta e o guarda de acumulado ≤ −100%. Os caminhos em float/numpy (`economy/layer.annual_to_daily` e os helpers do `synthetic.py`) ficaram com os helpers próprios; `to_annual` e `to_daily` do `synthetic.py` passaram a públicos e o `future.py` chama `to_annual` em vez de repetir a conta.
 
 Por fora nada mudou: o resultado em Decimal é idêntico e nenhum valor esperado dos testes foi alterado.
+
+<a id="f235"></a>
+**F235 — Tipo Percent no indicador do BCB.** `Percent = NewType("Percent", Decimal)` e `from_percent(value: Percent) -> Decimal` moram em `core/rates.py`, com a afirmação de que o valor é como o BCB publica (0,0551 = 0,0551%). `index_value_on` devolve `Percent`; `daily_rate` e `annualize_daily` só aceitam `Percent`, e os `/ 100` de `core/indicators.py` e das tabelas de meta, tolerância, dívida bruta e resultado primário viraram `from_percent`. Como `last_known_value` também lê o IBOV, que é nível de índice em pontos, a leitura das taxas ganhou `last_known_rate` (CDI/SELIC/IPCA, devolve `Percent`) e `last_known_value` ficou só para as séries de nível; `accrual.py`, `economy/panel.py` e a checagem de cobertura migraram para `last_known_rate`. Onde a história é lida direto (`economy/panel.py`, `economy/layer.py`, `newsroom/macro.py`) o `Percent(...)` nasce na leitura, e os testes de `economy_layer` e `economy_panel` passam `Percent`. A chamada de prova com um `Decimal` cru em `annualize_daily` falhou no pyright e foi removida.
+
+Por fora nada mudou: os valores são os mesmos; `pyright` e `pytest` passam sem nenhum valor esperado alterado.
 
 <a id="f245"></a>
 **F245 — Limpeza de scripts e docs.** Saíram `scripts/plot_beta_distribution.py`, `scripts/tree.py` e `scripts/tree_descriptions.yaml`, junto com a seção "Atualização da Árvore de Estrutura" de `docs/docs/desenvolvimento/estrutura-pastas.md`, que ensinava a rodá-los. Os scripts `profile:line` e `profile:line:view` saíram do `package.json`, e com eles `line-profiler` (`pyproject.toml`, exclude do `.spec`) e `cross-env`; os dois lockfiles foram regenerados e o deptry confirma. O padrão `*.lprof` saiu do script `clean`. Na docs de estrutura de pastas, o exemplo `base-card.tsx`, que não existe, passou a `shared/components/kpi.tsx`. O `matplotlib`, que só o `plot_beta_distribution.py` usava, continua no grupo `dev` do `pyproject.toml`.
