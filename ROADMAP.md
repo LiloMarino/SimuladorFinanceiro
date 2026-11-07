@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-07):** Removidos os imports atravessados entre features do front
+> **Última mudança (2026-11-07):** Usada a variante de passo do Badge no cartão do py-spy
 
 ## Glossário
 
@@ -107,7 +107,6 @@
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
 | [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | — | Médio | Bom | ⏳ |
-| [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | — | Baixo | Bom | ⏳ |
 | [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | — | Médio | Bom | ⏳ |
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | — | Alto | Bom | ⏳ |
 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | Alto | Bom | ⏳ |
@@ -115,7 +114,7 @@
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | — | Alto | Médio | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -145,6 +144,7 @@
 | [**F236**](#f236) | Manutenção | Prévia do impacto de preço fora da rota | — | — | — | — | ✅ |
 | [**F237**](#f237) | Manutenção | Componentes do mercado na pasta da renda variável | — | — | — | — | ✅ |
 | [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | — | — | — | ✅ |
+| [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | — | — | — | ✅ |
 | [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | — | — | — | ✅ |
 
 </details>
@@ -276,7 +276,6 @@
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | N40 | — | 0 | ⏳ Pendente |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | N34 | — | 0 | 🔍 Em avaliação |
 | [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | — | 0 | ⏳ Pendente |
-| [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | — | 0 | ⏳ Pendente |
 | [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | — | 0 | ⏳ Pendente |
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | — | 0 | ⏳ Pendente |
 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | 0 | ⏳ Pendente |
@@ -312,7 +311,6 @@
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | 0 | Médio | Bom | ⏳ |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | 0 | — | — | 🔍 |
 | [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | 0 | Médio | Bom | ⏳ |
-| [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | 0 | Baixo | Bom | ⏳ |
 | [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | 0 | Médio | Bom | ⏳ |
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | 0 | Alto | Bom | ⏳ |
 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | 0 | Alto | Bom | ⏳ |
@@ -339,7 +337,6 @@
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F239** | Manutenção | Formatadores de percentual unificados | — | — | — | — | Médio | Médio | Médio | Bom |
-| **F240** | Manutenção | Badge de passo como variante do design system | — | — | — | — | Baixo | Baixo | Baixo | Bom |
 | **F241** | Manutenção | Card de ações de campanha em arquivos por parte | — | — | — | — | Médio | Baixo | Médio | Bom |
 | **F242** | Manutenção | Partida do lobby em arquivos por parte | — | — | — | — | Alto | Médio | Médio | Bom |
 | **F243** | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | — | — | Alto | Médio | Médio | Bom |
@@ -398,13 +395,6 @@
 `displayPercent` (`shared/lib/utils/display.ts`) ganha a opção `{ trim: true }`, que mostra casas só quando há (`minimumFractionDigits: 0`). `chancePercent` sai e os 4 usos viram `displayPercent(x, 2, { trim: true })`; os três `formatPercent(Number(x) * 100, 1)` (`map-place-card.tsx`, `map-places-table.tsx`, `party-regions-card.tsx`) viram `displayPercent(x, 1)`. `formatPercent` continua, porque é o formatador de pontos (52 = 52%), unidade só do governo, e a docstring dele afirma isso. Uma varredura mecânica das formatações à mão (`government/lib/*`, `economy/lib/*`, `lobby/lib/*`, `treasury/lib/treasury.ts`, entre outros) troca por `display*` onde for fração vezes 100 com `%`; onde o formato não existe, reporta em vez de criar formatador local, e o diff é revisado antes do commit.
 
 Por fora o texto exibido fica idêntico. Confere-se com `vitest`, `pnpm --dir frontend run check` e os percentuais do mapa do governo comparados com os de antes no app de teste.
-
-<a id="f240"></a>
-**F240 — Badge de passo como variante do design system.** O círculo numerado de `Step` em `pyspy-card.tsx` é um `Badge` reimplementado com classes inline.
-
-`shared/components/ui/variants/badgeVariants.ts` ganha `size: { step: "size-5.5 px-0 font-semibold" }`. `Step` passa a `<Badge variant="secondary" size="step">`, e `government/components/measure-steps.tsx` também, se for o mesmo círculo.
-
-Por fora nada muda. Confere-se por `pnpm --dir frontend run check` e screenshot dos dois cards, que devem ficar iguais.
 
 <a id="f241"></a>
 **F241 — Card de ações de campanha em arquivos por parte.** `government/components/campaign-actions-card.tsx` reúne o card e sete subcomponentes que só recebem props (`ActionBody`, `TvReach`, `ActionChoice`, `GroupChoices`, `GroupPollCell`, `SummaryBody`, `SummaryRow`), e resolve o `rival` duas vezes.
@@ -621,6 +611,7 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F236** | Manutenção | Prévia do impacto de preço fora da rota | — | — | — |
 | **F237** | Manutenção | Componentes do mercado na pasta da renda variável | — | — | — |
 | **F238** | Manutenção | Features do front sem import atravessado | — | — | — |
+| **F240** | Manutenção | Badge de passo como variante do design system | — | — | — |
 | **F245** | Manutenção | Limpeza de scripts e docs | — | — | — |
 
 <a id="f233"></a>
@@ -658,6 +649,11 @@ Por fora nada mudou: só os caminhos de import.
 O minigame de candles desceu para dentro do lobby, o único que o usa: `features/candle-challenge/` virou `features/lobby/candle-challenge/`, com `components/`, `hooks/` e `lib/` preservados. O `lobby-button.tsx` do tutorial desceu para `lobby/components/`.
 
 Dentro de `features/`, a única aresta entre features que sobra é a do tutorial para variable-income, aceita como exceção.
+
+<a id="f240"></a>
+**F240 — Badge de passo como variante do design system.** O círculo numerado do `Step` em `pyspy-card.tsx` era um `Badge` reimplementado com classes inline. O `Badge` ganhou `size="step"` (`size-5.5 px-0 font-semibold`) em `badgeVariants.ts`, e o `Step` passou a `<Badge variant="secondary" size="step">`.
+
+O círculo de `measure-steps.tsx` ficou de fora: é outro selo, maior (`size-7`), em tom de informação e com fonte mono, e não o mesmo círculo do py-spy.
 
 <a id="f245"></a>
 **F245 — Limpeza de scripts e docs.** Saíram `scripts/plot_beta_distribution.py`, `scripts/tree.py` e `scripts/tree_descriptions.yaml`, junto com a seção "Atualização da Árvore de Estrutura" de `docs/docs/desenvolvimento/estrutura-pastas.md`, que ensinava a rodá-los. Os scripts `profile:line` e `profile:line:view` saíram do `package.json`, e com eles `line-profiler` (`pyproject.toml`, exclude do `.spec`) e `cross-env`; os dois lockfiles foram regenerados e o deptry confirma. O padrão `*.lprof` saiu do script `clean`. Na docs de estrutura de pastas, o exemplo `base-card.tsx`, que não existe, passou a `shared/components/kpi.tsx`. O `matplotlib`, que só o `plot_beta_distribution.py` usava, continua no grupo `dev` do `pyproject.toml`.
