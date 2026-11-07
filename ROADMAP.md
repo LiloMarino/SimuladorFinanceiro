@@ -103,13 +103,12 @@
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.3 | — | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 | — | — | — | 🔍 |
-| [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 | — | Médio | Bom | ⏳ |
 | [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | M21 · 3.4 | — | Baixo | Bom | ⏳ |
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | — | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -139,6 +138,7 @@
 | [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | — | — | ✅ |
 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 | — | — | — | ✅ |
 | [**F217**](#f217) | Correção | Correções da 3.4 | M21 · 3.4 | — | — | — | ✅ |
+| [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 | — | — | — | ✅ |
 | [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | M21 · 3.4 | — | — | — | ✅ |
 
 </details>
@@ -155,14 +155,14 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 7/10 concluídos
+> **Progresso:** 8/10 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | — | ✅ Concluído |
 | 2 | [**F217**](#f217) | Correção | Correções da 3.4 | — | ✅ Concluído |
 | 3 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | — | ✅ Concluído |
-| 4 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | — | ⏳ Pendente |
+| 4 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | — | ✅ Concluído |
 | 5 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ✅ Concluído |
 | 6 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ✅ Concluído |
 | 7 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | — | ✅ Concluído |
@@ -320,7 +320,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 · 4º | 0 | Médio | Bom | ⏳ |
 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M21 · 3.4 · 9º | 0 | — | — | 🔍 |
 | [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | M21 · 3.4 · 10º | 0 | Baixo | Bom | ⏳ |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 · 1º | 0 | Médio | Bom | ⏳ |
@@ -365,7 +364,6 @@
 | **F175** | Feature | Federações partidárias | N34 | D19 | M23 · 3.5 | — | Alto | Médio | Médio | Bom |
 | **F195** | Feature | Acordo de base até o fim do mandato | N34 | — | M23 · 3.5 | — | Médio | Baixo | Alto | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.2 | — | Médio | Médio | Médio | Bom |
-| **F218** | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | N15 | — | M21 · 3.4 | — | Médio | Baixo | Médio | Bom |
 | **F219** | Correção | Correções da 3.4: playtest de 05/11 | N26 | — | M21 · 3.4 | — | Baixo | Baixo | Médio | Bom |
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
@@ -428,11 +426,6 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 **F197 — Rebalanceamento por meta com várias classes.** Serve N4. Hoje o `TargetRebalance` (`backend/features/strategy/rebalance.py:55`) divide só entre um ativo de ações (BOVA11 por padrão) e a renda fixa de liquidez diária: a meta em ações vai de 10% a 90% (padrão 60%), e o desvio máximo, de 1 a 20 pontos (padrão 5). O playtest de 31/out pediu configurar a meta de cada classe.
 
 **O que muda:** os parâmetros viram uma lista de alvos (um ativo ou uma classe e a porcentagem), que soma 100%, com a faixa de desvio de cada alvo; a estratégia vende o que passou da faixa antes de comprar o que ficou abaixo, como hoje. O formulário da estratégia mostra a lista com o total e recusa o que não soma 100%. O padrão continua 60% em BOVA11 e 40% em renda fixa com 5 pontos, então partidas salvas e backtests antigos dão o mesmo resultado; um teste compara os dois. Os parâmetros salvos no perfil (F170) passam a guardar a lista.
-
-<a id="f218"></a>
-**F218 — Textos que explicam o óbvio ou o sistema por dentro.** Serve N15. O playtest de 04/11 achou textos que contam a conta interna ou o que a tela já mostra, e pediu a varredura do app inteiro. Os dois primeiros casos: no card do partido da preparação (`my-party-card.tsx`), "Quanto a verba rende", "Cada filiado escolhe quanto contribui, e pode ser zero.", "A verba rende pela raiz…" e "A primeira cobrança sai no próximo dia 1º."; na oferta de crédito (`loan-offer-card.tsx`), a conta "Renda fixa mais cara do dia 70,10% + 0,50 p.p. = 70,60% ao ano". A varredura passa por todas as telas e sai com a lista do que cortar; texto que explica uma métrica ao leigo fica, na dica dela. Cada corte vai em `fix:`.
-
-**Aceite:** a lista da varredura revisada antes dos cortes, e os cortes aprovados no app.
 
 <a id="f219"></a>
 **F219 — Correções da 3.4: playtest de 05/11.** Serve N26. Lote dos consertos achados no playtest de 05/11, em main, em `fix:`:
@@ -622,6 +615,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — |
 | **F216** | Correção | Pontas soltas das features entregues | N15, N34 | — | M21 · 3.4 |
 | **F217** | Correção | Correções da 3.4 | N15 | — | M21 · 3.4 |
+| **F218** | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | N15 | — | M21 · 3.4 |
 | **F222** | Feature | Resgate automático de renda fixa para cobrir despesas | N34 | — | M21 · 3.4 |
 
 <a id="f97"></a>
@@ -667,6 +661,9 @@ Limitação: as linhas das ligações no painel foram conferidas em teste automa
 - (5) **Jornal rola a página inteira** (`journal-paper.tsx`): a lista deixa de ter rolagem própria, e o "Arquivo da partida" fica fixo na lateral como navegação.
 - (6) **Estratégias repetem a ordem:** o comprar e segurar, e outras, tenta comprar todo dia que tem caixa para uma cota (`buy_and_hold.py`), e cada recusa vira uma linha de erro no log (`runner._execute`). Reproduzir, achar o motivo da recusa e fazer as estratégias esperarem em vez de repetir.
 - (7) **Selects de jogador e partido com avatar e marca**, na lista e no valor escolhido: candidato e vice em `ticket-dialog.tsx` e `party-found-tab.tsx`, com `PlayerOption` e `PartyMark`.
+
+<a id="f218"></a>
+**F218 — Textos que explicam o óbvio ou o sistema por dentro.** Serve N15. Cortados os textos das telas que o jogador vê e aprovou no app: o card de novo empréstimo, o card do partido, as telas de eleição e orientação do partido e a tela de governo antes da posse. Os diálogos e as telas que a varredura listou e não foram revisados no app ficaram como estão, sem corte.
 
 <a id="f222"></a>
 **F222 — Resgate automático de renda fixa para cobrir despesas.** Serve N34; vem junto com a tela do Tesouro (F165) e a marcação a mercado (F177). Hoje o caixa que não cobre a despesa do mês, o imposto de renda ou a parcela do empréstimo vira cheque especial ou parcela atrasada, mesmo com dinheiro parado na renda fixa. A regra nova põe uma porta só para os débitos automáticos, `SimulationEngine.cover_before_debit(client, needed, kind)`: se o caixa é menor que o necessário, ela vende títulos antes de debitar, na ordem (1) liquidez diária e Tesouro Selic, da menor taxa para a maior, e (2) só com a opção ligada, Prefixado e IPCA+, do que perde menos (ou ganha mais) para o que perde mais na marcação. Se não der para cobrir tudo, cobre o que dá; a venda é ação do sistema e não passa por `_ensure_can_operate`. Passam pela porta: despesa mensal e imprevisto do viver de renda, DARF, parcela de empréstimo (antes do teste de caixa, para a parcela não atrasar com saldo em renda fixa) e a contribuição mensal automática da campanha; o juro do cheque especial fica de fora, porque é consequência de não ter coberto. Cada resgate vira um toast para o jogador (`ToastType.AUTO_REDEEM`): "Resgatado R$ X de <título> para cobrir <despesa>". A opção `cover_with_treasury` (desligada por padrão) mora nas preferências do usuário, com o interruptor no cabeçalho de "Seus títulos" da tela do Tesouro. `overdraft_cover` e a ação de cobertura do card de vida saem; o card passa a mostrar uma linha dizendo se a cobertura está ligada, com link para o Tesouro.
