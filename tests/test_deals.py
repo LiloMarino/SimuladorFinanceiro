@@ -68,10 +68,24 @@ def test_a_bloc_without_a_mix_weighs_every_group_the_same():
     assert set(weights.values()) == {Decimal(1)}
 
 
-def test_the_deal_lasts_six_months_or_until_the_eve_of_the_new_congress():
-    assert deals.last_day(date(2022, 3, 15), None) == date(2022, 9, 14)
-    assert deals.last_day(date(2022, 8, 31), None) == date(2023, 2, 27)
-    assert deals.last_day(date(2022, 3, 15), date(2022, 6, 30)) == date(2022, 6, 30)
+def test_the_demand_adds_half_on_top_of_the_current_price():
+    ratio = Decimal("0.0010")
+
+    first = deals.demanded(ratio)
+
+    assert first == Decimal("0.0015")
+    assert deals.demanded(first) == Decimal("0.00225")
+
+
+def test_the_government_is_weak_only_below_the_limit_the_caller_passes():
+    assert deals.is_weak(34, 35)
+    assert not deals.is_weak(35, 35)
+    assert deals.is_weak(40, 45)
+
+
+def test_the_approval_recovers_only_above_forty_five():
+    assert not deals.has_recovered(45)
+    assert deals.has_recovered(46)
 
 
 def test_a_declined_proposal_waits_thirty_days():

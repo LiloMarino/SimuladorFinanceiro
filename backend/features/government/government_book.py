@@ -323,6 +323,7 @@ class GovernmentBook:
             items.append(risk)
         if proposal := self._deal_proposal(user):
             items.append(proposal)
+        items.extend(self._deal_demands(user, today))
         items.extend(self._unguided_votes(user, today))
         if unpaid := self._unpaid_contribution(user, today):
             items.append(unpaid)
@@ -398,6 +399,21 @@ class GovernmentBook:
             f"{who} propõe que o {deal.abbr} entre na base · responda até {deal.answer_by:%d/%m}",
         )
 
+    def _deal_demands(self, user: UserDTO, today: date) -> list[PendingDTO]:
+        """A cobrança de cada bancada da base, que o presidente aceita ou recusa até o prazo."""
+        president = self.president()
+        if president is None or president.id != user.id:
+            return []
+        return [
+            registry.pending(
+                PendingType.DEAL_DEMAND,
+                f"O {deal.abbr} cobra {format_money(self.monthly(deal.demand_ratio, today))} por mês para seguir na base · responda até {deal.demand_by:%d/%m}",
+                ref=f"deal-{deal.id}",
+            )
+            for deal in sorted(self.state.deals_in_force(today), key=lambda d: d.id)
+            if deal.demand_ratio is not None and deal.demand_by is not None
+        ]
+
     def _unguided_votes(self, user: UserDTO, today: date) -> list[PendingDTO]:
         """Uma pendência por votação aberta em que o líder ainda não orientou a bancada."""
         party = self.state.party_of(user.id)
@@ -462,10 +478,7 @@ class GovernmentBook:
         if approval_rules.in_grace(term, today.replace(day=1)):
             return None
         streak = self.state.low_streak
-        if (
-            streak == 0
-            and current.value >= approval_rules.FLOOR + approval_rules.RISK_MARGIN
-        ):
+        if streak == 0 and current.value >= approval_rules.RISK_LIMIT:
             return None
         floor = approval_rules.FLOOR
         months = approval_rules.IMPEACHMENT_MONTHS
@@ -1006,11 +1019,7 @@ class GovernmentBook:
         if self.state.pending_deal_of(bloc.key) is not None:
             return (f"A proposta ao {bloc.abbr} espera a resposta.", None)
         active = self.state.deal_of(bloc.key, today)
-        if (
-            active is not None
-            and active.end is not None
-            and (active.end - today).days > deals.RENEW_DAYS
-        ):
+        if active is not None and active.end is not None:
             return (
                 f"O {bloc.abbr} já está na base até {rules.short_date(active.end)}.",
                 None,
@@ -1022,6 +1031,16 @@ class GovernmentBook:
                 retry,
             )
         return None
+
+    def deal_price(self, abbr: str, seats: int, today: date) -> Decimal:
+        """O preço da bancada hoje: com o governo fraco, a proposta já vem com os 50% da cobrança."""
+        ratio = deals.price(abbr, seats)
+        current = self.approval(today)
+        if current is not None and deals.is_weak(
+            current.value, approval_rules.RISK_LIMIT
+        ):
+            return deals.demanded(ratio)
+        return ratio
 
     def deal_odds(
         self, abbr: str, party_id: int | None
@@ -1040,7 +1059,7 @@ class GovernmentBook:
         return deals.computer_accepts(abbr, flags, government_flags), shared
 
     def propose_deal(self, user: UserDTO, today: date, bloc_key: int) -> None:
-        """O presidente propõe à bancada entrar na base por 6 meses, pelo preço do dia."""
+        """O presidente propõe à bancada entrar na base até o fim do mandato, pelo preço do dia."""
         self._ensure_president(user)
         term = required(self.state.term)
         bloc = self.state.house_on(today).bloc(bloc_key)
@@ -1062,7 +1081,7 @@ class GovernmentBook:
             party_id=bloc.party_id,
             abbr=bloc.abbr,
             seats=bloc.seats,
-            ratio=str(deals.price(bloc.abbr, bloc.seats)),
+            ratio=str(self.deal_price(bloc.abbr, bloc.seats, today)),
             proposer_id=user.id,
             answer_by=(
                 (today + timedelta(days=deals.ANSWER_DAYS)).isoformat()
@@ -1101,7 +1120,7 @@ class GovernmentBook:
     def _answer(
         self, deal: deals.Deal, today: date, accept: bool, user: UserDTO | None
     ) -> None:
-        end = deals.last_day(today, self.term_end())
+        end = required(self.term_end())
         before = self.base_seats(today)
         self._emit(
             GovernmentEventType.DEAL_ANSWERED,
@@ -1124,6 +1143,89 @@ class GovernmentBook:
         )
         if accept:
             self._announce_deal_made(deal, today, end)
+
+    def answer_demand(
+        self, user: UserDTO, today: date, deal_id: int, accept: bool
+    ) -> None:
+        """O presidente aceita a cobrança (o acordo segue até o fim do mandato, no preço novo) ou recusa (a bancada sai da base)."""
+        self._ensure_president(user)
+        deal = self.state.deals.get(deal_id)
+        if (
+            deal is None
+            or not deal.in_force(today)
+            or deal.demand_ratio is None
+            or deal.demand_by is None
+        ):
+            raise ConflictError("Essa bancada não está cobrando nada agora.")
+        if today > deal.demand_by:
+            raise ConflictError("O prazo para responder já passou.")
+        if accept:
+            self._renew_at_demand(deal, today, user, deal.demand_ratio)
+        else:
+            self._leave_by_approval(deal, today)
+
+    def _renew_at_demand(
+        self, deal: deals.Deal, today: date, user: UserDTO, ratio: Decimal
+    ) -> None:
+        """O acordo com o preço novo substitui o anterior da bancada e vale até o mesmo fim de mandato."""
+        party = self.state.parties.get(deal.party_id) if deal.party_id else None
+        player = party is not None and not party.is_computer
+        self._emit(
+            GovernmentEventType.DEAL_PROPOSED,
+            today,
+            deal_id=self.state.next_deal_id,
+            bloc_key=deal.bloc_key,
+            party_id=deal.party_id,
+            abbr=deal.abbr,
+            seats=deal.seats,
+            ratio=str(ratio),
+            proposer_id=user.id,
+            answer_by=today.isoformat() if player else None,
+        )
+        renewed = max(self.state.deals.values(), key=lambda d: d.id)
+        self._emit(
+            GovernmentEventType.DEAL_ANSWERED,
+            today,
+            deal_id=renewed.id,
+            accepted=True,
+            by=None,
+            end=required(deal.end).isoformat(),
+        )
+        self._notice(GovernmentNoticeKind.UPDATED, user, party_abbr=deal.abbr)
+
+    def _leave_by_approval(self, deal: deals.Deal, today: date) -> None:
+        """A cobrança recusada ou vencida tira a bancada da base, sem quebra: ninguém soma rejeição."""
+        ally = self.state.house_on(today).bloc(deal.bloc_key)
+        before = self.base_seats(today)
+        self._emit(
+            GovernmentEventType.DEAL_BROKEN,
+            today,
+            deal_id=deal.id,
+            by=DealBreaker.APPROVAL.value,
+            oriented_no=False,
+        )
+        after = self.base_seats(today)
+        president = self.president()
+        if president is None:
+            return
+        self._notice(
+            GovernmentNoticeKind.DEAL_LEFT,
+            president,
+            target=president,
+            party_abbr=deal.abbr,
+            seats_before=before,
+            seats_after=after,
+        )
+        self._on_news(
+            today,
+            headlines.deal_left(
+                president.nickname,
+                deal.abbr,
+                ally.seats if ally else deal.seats,
+                after,
+                house.MAJORITY,
+            ),
+        )
 
     def _announce_deal_made(self, deal: deals.Deal, today: date, end: date) -> None:
         """O acordo fechado vai ao jornal com o tamanho da base que ele deixa."""
@@ -1223,7 +1325,10 @@ class GovernmentBook:
             )
 
     def _resolve_deals(self, today: date) -> None:
-        """O computador responde no pregão seguinte à proposta; o partido de jogador que deixa o prazo vencer recusa."""
+        """O computador responde no pregão seguinte à proposta; o partido de jogador que deixa o prazo vencer recusa, e a cobrança sem resposta tira a bancada da base."""
+        for deal in sorted(self.state.deals_in_force(today), key=lambda d: d.id):
+            if deal.demand_by is not None and today > deal.demand_by:
+                self._leave_by_approval(deal, today)
         for deal in sorted(self.state.deals.values(), key=lambda d: d.id):
             if deal.status is not DealStatus.PENDING:
                 continue
@@ -1269,11 +1374,10 @@ class GovernmentBook:
         end = self.term_end()
         if end is None:
             return None
-        last = deals.last_day(today, end)
 
         def with_deal(day: date) -> Decimal:
             eve = day - timedelta(days=1)
-            extra = ratio if today <= eve <= last else Decimal(0)
+            extra = ratio if today <= eve <= end else Decimal(0)
             if replaces is not None and replaces.covers(eve) and eve >= today:
                 extra -= replaces.ratio
             return self.spending_on(day) + extra
@@ -2262,10 +2366,18 @@ class GovernmentBook:
             and value < approval_rules.FLOOR
         )
         streak = self.state.low_streak + 1 if below else 0
+        # O governo de jogador que fecha o mês fraco recebe a cobrança da base, uma por queda
+        demanding = (
+            term.president_id is not None
+            and not approval_rules.in_grace(term, month)
+            and self.state.demand_armed
+            and deals.is_weak(value, approval_rules.RISK_LIMIT)
+        )
         self._emit(
             GovernmentEventType.APPROVAL_MEASURED,
             today,
             value=value,
+            demand=demanding,
             satisfaction={g.value: str(v) for g, v in satisfaction.items()},
             low_streak=streak,
             month=month.isoformat(),

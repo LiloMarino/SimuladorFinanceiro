@@ -14,6 +14,7 @@ import pytest
 from backend.core.enum import (
     DealBreaker,
     DealStatus,
+    GovernmentEventType,
     GovernmentNoticeKind,
     PendingType,
     VoterGroup,
@@ -23,6 +24,8 @@ from backend.core.exceptions.http_exceptions import (
     ForbiddenError,
     NotFoundError,
 )
+from backend.core.utils import required
+from backend.features.government import approval as approval_rules
 from backend.features.government import base_panel, deals, house
 from backend.features.government import state as government_state
 from backend.features.government.government_book import GovernmentBook
@@ -36,6 +39,7 @@ from tests.test_government_book import (
     NICHE,
     TERM_START,
     USERS,
+    bleak,
     book,
     close_months,
     engine,
@@ -90,7 +94,7 @@ def test_the_computer_answers_in_the_next_session_and_accepts_with_two_shared_fl
     book.on_tick(USERS, NEXT_DAY, False)
     assert deal.status is DealStatus.ACTIVE
     assert deal.start == NEXT_DAY
-    assert deal.end == deals.last_day(NEXT_DAY, book.term_end())
+    assert deal.end == book.term_end() == date(2025, 12, 31)
     assert deal.ratio == deals.price("MNV", seats_of(book, MNV))
     answered = [
         n for n in notices if n.get("kind") == GovernmentNoticeKind.DEAL_ANSWERED.value
@@ -169,7 +173,7 @@ def test_a_pending_proposal_blocks_another_to_the_same_bloc_and_can_be_withdrawn
     assert book.state.deals_in_force(NEXT_DAY) == []
 
 
-def test_a_deal_in_force_blocks_a_new_one_until_the_last_month(
+def test_a_deal_in_force_blocks_a_new_one_until_the_end_of_the_term(
     book: GovernmentBook, engine, market
 ):
     govern(book, engine)
@@ -179,8 +183,9 @@ def test_a_deal_in_force_blocks_a_new_one_until_the_last_month(
     assert deal.end is not None
 
     assert book.deal_blocker(bloc, NEXT_DAY) is not None
-    renewal = deal.end - timedelta(days=deals.RENEW_DAYS)
-    assert book.deal_blocker(bloc, renewal) is None
+    assert book.deal_blocker(bloc, deal.end) is not None
+    with pytest.raises(ConflictError, match="já está na base"):
+        book.propose_deal(ALICE, NEXT_DAY + timedelta(days=200), MNV)
 
 
 # Base, orientação e votação
@@ -365,7 +370,293 @@ def test_a_new_government_inherits_an_empty_base(book: GovernmentBook, engine, m
     assert pending.status is DealStatus.WITHDRAWN
 
 
+# Cobrança da base
+
+# O 1º ano do mandato é carência: a primeira cobrança possível vem no fechamento de janeiro do 2º
+FIRST_DEMAND_CLOSING = date(2023, 1, 31)
+FEBRUARY_CLOSING = date(2023, 2, 28)
+AFTER_DEMAND = FIRST_DEMAND_CLOSING + timedelta(days=1)
+
+
+def aim_approval(monkeypatch: pytest.MonkeyPatch, target: int) -> None:
+    """Todos os grupos passam a mirar o mesmo alvo: a aprovação anda um terço do caminho por mês."""
+    monkeypatch.setattr(
+        approval_rules,
+        "group_target",
+        lambda *_: approval_rules.GroupTarget(Decimal(target), []),
+    )
+
+
+def latest_deal(book: GovernmentBook, key: int) -> deals.Deal:
+    return max(
+        (d for d in book.state.deals.values() if d.bloc_key == key),
+        key=lambda d: d.id,
+    )
+
+
+def demands_of(book: GovernmentBook, user, day: date):
+    return [i for i in book.pending(user, day) if i.type is PendingType.DEAL_DEMAND]
+
+
+def weak_deal(book: GovernmentBook, engine) -> deals.Deal:
+    """O governo com o acordo do MNV chega ao 1º fechamento fraco depois da carência."""
+    govern(book, engine, vice=True)
+    deal = ally_deal(book)
+    close_months(book, 12)
+    assert deal.demand_ratio is None
+    close_months(book, 1, FIRST_DEMAND_CLOSING)
+    return deal
+
+
+def test_the_base_charges_half_more_when_a_month_closes_below_thirty_five(
+    book: GovernmentBook, engine, market, bleak
+):
+    deal = weak_deal(book, engine)
+
+    assert deal.demand_ratio == deals.demanded(deal.ratio)
+    assert deal.demand_by == FIRST_DEMAND_CLOSING + timedelta(days=deals.ANSWER_DAYS)
+    [item] = demands_of(book, ALICE, AFTER_DEMAND)
+    assert item.key == f"{PendingType.DEAL_DEMAND.value}:deal-{deal.id}"
+    assert "MNV" in item.detail
+    assert demands_of(book, BOB, AFTER_DEMAND) == []
+    assert deal.in_force(AFTER_DEMAND)
+
+
+def test_there_is_no_demand_inside_the_first_year_of_the_term(
+    book: GovernmentBook, engine, market, bleak
+):
+    govern(book, engine)
+    deal = ally_deal(book)
+
+    close_months(book, 12)
+
+    assert required(book.approval(date(2022, 12, 31))).value < approval_rules.RISK_LIMIT
+    assert deal.demand_ratio is None
+    assert book.state.demand_armed
+
+
+def test_accepting_keeps_the_deal_until_the_end_of_the_term_at_the_new_price(
+    book: GovernmentBook, engine, market, bleak, notices
+):
+    old = weak_deal(book, engine)
+    end = old.end
+
+    book.answer_demand(ALICE, AFTER_DEMAND, old.id, True)
+
+    renewed = latest_deal(book, MNV)
+    assert renewed.id != old.id
+    assert old.status is DealStatus.CUT
+    assert old.end == AFTER_DEMAND - timedelta(days=1)
+    assert renewed.status is DealStatus.ACTIVE
+    assert renewed.ratio == deals.demanded(old.ratio)
+    assert (renewed.start, renewed.end) == (AFTER_DEMAND, end)
+    assert renewed.demand_ratio is None
+    assert demands_of(book, ALICE, AFTER_DEMAND) == []
+
+
+def test_one_demand_per_fall_and_a_new_one_only_after_approval_passes_forty_five(
+    book: GovernmentBook, engine, market, bleak, monkeypatch
+):
+    old = weak_deal(book, engine)
+    base_ratio = old.ratio
+    book.answer_demand(ALICE, AFTER_DEMAND, old.id, True)
+
+    # Seguir fraco no mês seguinte não cobra de novo
+    close_months(book, 1, FEBRUARY_CLOSING)
+    assert latest_deal(book, MNV).demand_ratio is None
+    assert not book.state.demand_armed
+
+    # Subir sem passar de 45 não rearma; passar de 45 rearma
+    aim_approval(monkeypatch, 100)
+    close_months(book, 1, date(2023, 3, 31))
+    assert not book.state.demand_armed
+    close_months(book, 1, date(2023, 4, 30))
+    assert required(book.approval(date(2023, 4, 30))).value > deals.RECOVERY_APPROVAL
+    assert book.state.demand_armed
+
+    # A nova queda cobra de novo, sobre o preço que já estava valendo
+    aim_approval(monkeypatch, 0)
+    close_months(book, 3, date(2023, 5, 31))
+    current = latest_deal(book, MNV)
+    assert current.demand_ratio == deals.demanded(deals.demanded(base_ratio))
+    assert not book.state.demand_armed
+
+
+def test_refusing_removes_the_bloc_without_the_break_rejection(
+    book: GovernmentBook, engine, market, bleak, notices, headlines
+):
+    deal = weak_deal(book, engine)
+    party = party_of(book, ALICE)
+    before = dict(party.rejection)
+    notices.clear()
+    headlines.clear()
+
+    book.answer_demand(ALICE, AFTER_DEMAND, deal.id, False)
+
+    assert deal.status is DealStatus.BROKEN
+    assert deal.broken_by is DealBreaker.APPROVAL
+    assert book.state.deal_of(MNV, AFTER_DEMAND + timedelta(days=1)) is None
+    assert party.rejection == before
+    assert [n for n in notices if n.get("kind") == GovernmentNoticeKind.DEAL_LEFT.value]
+    assert [h.text for _, h in headlines] == ["O MNV deixa a base do governo"]
+    assert demands_of(book, ALICE, AFTER_DEMAND) == []
+
+
+def test_an_expired_demand_removes_the_bloc_like_a_refusal(
+    book: GovernmentBook, engine, market, bleak
+):
+    deal = weak_deal(book, engine)
+    party = party_of(book, ALICE)
+    before = dict(party.rejection)
+    assert deal.demand_by is not None
+
+    book.on_tick(USERS, deal.demand_by, False)
+    assert deal.in_force(deal.demand_by)
+    book.on_tick(USERS, deal.demand_by + timedelta(days=1), False)
+
+    assert deal.status is DealStatus.BROKEN
+    assert deal.broken_by is DealBreaker.APPROVAL
+    assert party.rejection == before
+
+
+def test_only_the_president_answers_and_only_an_open_demand(
+    book: GovernmentBook, engine, market, bleak
+):
+    govern(book, engine, vice=True)
+    deal = ally_deal(book)
+
+    with pytest.raises(ConflictError, match="não está cobrando"):
+        book.answer_demand(ALICE, NEXT_DAY, deal.id, True)
+    close_months(book, 12)
+    close_months(book, 1, FIRST_DEMAND_CLOSING)
+    with pytest.raises(ForbiddenError):
+        book.answer_demand(BOB, AFTER_DEMAND, deal.id, True)
+    late = required(deal.demand_by) + timedelta(days=1)
+    with pytest.raises(ConflictError, match="prazo"):
+        book.answer_demand(ALICE, late, deal.id, True)
+
+
+def test_a_bloc_that_left_comes_back_with_the_price_already_raised(
+    book: GovernmentBook, engine, market, bleak
+):
+    deal = weak_deal(book, engine)
+    book.answer_demand(ALICE, AFTER_DEMAND, deal.id, False)
+    bloc = book.state.house_on(AFTER_DEMAND).bloc(MNV)
+    assert bloc is not None
+    # Sair por aprovação não é recusa de proposta: não há espera de 30 dias
+    assert book.deal_blocker(bloc, AFTER_DEMAND) is None
+    day = AFTER_DEMAND + timedelta(days=1)
+
+    book.propose_deal(ALICE, day, MNV)
+    book.on_tick(USERS, day + timedelta(days=1), False)
+
+    recalled = latest_deal(book, MNV)
+    assert recalled.status is DealStatus.ACTIVE
+    assert recalled.ratio == deals.demanded(deals.price("MNV", seats_of(book, MNV)))
+    assert recalled.end == book.term_end()
+
+
+def test_the_base_panel_shows_the_demand_with_the_price_and_the_days_left(
+    book: GovernmentBook, engine, market, bleak
+):
+    deal = weak_deal(book, engine)
+
+    panel = base_panel.build_base(book, USERS, ALICE, AFTER_DEMAND)
+
+    [shown] = [d for d in panel.deals if d.abbr == "MNV"]
+    assert shown.demand_monthly == book.monthly(
+        required(deal.demand_ratio), AFTER_DEMAND
+    )
+    assert shown.demand_by == deal.demand_by
+    assert shown.demand_days_left == deals.ANSWER_DAYS - 1
+
+
+def test_the_preview_already_shows_the_raised_price_while_approval_is_below_thirty_five(
+    book: GovernmentBook, engine, market, bleak, projection
+):
+    govern(book, engine)
+    assert required(book.approval(TERM_START)).value >= approval_rules.RISK_LIMIT
+    normal = base_panel.build_preview(book, USERS, TERM_START, MNV)
+
+    close_months(book, 15)
+    later = date(2023, 4, 3)
+    assert required(book.approval(later)).value < approval_rules.RISK_LIMIT
+    weak = base_panel.build_preview(book, USERS, later, MNV)
+
+    assert normal.ratio == deals.price("MNV", normal.seats)
+    assert weak.ratio == deals.demanded(deals.price("MNV", weak.seats))
+
+
+def test_the_computer_government_never_charges(
+    book: GovernmentBook, engine, market, bleak, stored
+):
+    govern(book, engine)
+    book._emit(
+        GovernmentEventType.TERM_STARTED,
+        TERM_START,
+        party_id=next(iter(book.state.computer_parties())).id,
+        president_id=None,
+        vice_id=None,
+        consecutive=1,
+    )
+
+    close_months(book, 14)
+
+    assert book.state.approvals
+    assert book.state.demand_armed
+    measured = [
+        e for e in stored if e.event_type is GovernmentEventType.APPROVAL_MEASURED
+    ]
+    assert measured
+    assert all(e.payload.get("demand") is False for e in measured)
+
+
 # Retomada
+
+
+def test_a_resumed_game_keeps_the_demand_and_the_renewed_deal(
+    book: GovernmentBook, engine, market, bleak, stored
+):
+    old = weak_deal(book, engine)
+    rebuilt = replay(stored)
+    assert rebuilt.deals == book.state.deals
+    assert rebuilt.demand_armed is False
+    assert book.state.demand_armed is False
+
+    book.answer_demand(ALICE, AFTER_DEMAND, old.id, True)
+    rebuilt = replay(stored)
+
+    assert rebuilt.deals == book.state.deals
+    assert latest_deal_of(rebuilt, MNV).ratio == deals.demanded(old.ratio)
+
+
+def latest_deal_of(state: government_state.GovernmentState, key: int) -> deals.Deal:
+    return max(
+        (d for d in state.deals.values() if d.bloc_key == key), key=lambda d: d.id
+    )
+
+
+def test_a_deal_signed_before_keeps_its_own_end_when_the_game_is_resumed(
+    book: GovernmentBook, engine, market, stored
+):
+    govern(book, engine)
+    book.propose_deal(ALICE, TERM_START, MNV)
+    signed = deal_with(book, MNV)
+    book._emit(
+        GovernmentEventType.DEAL_ANSWERED,
+        NEXT_DAY,
+        deal_id=signed.id,
+        accepted=True,
+        by=None,
+        end=date(2022, 7, 2).isoformat(),
+    )
+
+    rebuilt = replay(stored)
+
+    old = rebuilt.deals[signed.id]
+    assert old.end == date(2022, 7, 2)
+    assert old.in_force(date(2022, 7, 2))
+    assert not old.in_force(date(2022, 7, 3))
 
 
 def test_a_resumed_game_rebuilds_the_deals_and_the_spending(
@@ -505,7 +796,7 @@ def test_the_preview_prices_the_proposal_and_tells_whether_the_computer_accepts(
     assert liked.likely is True and liked.shared_flags == 2
     assert refused.likely is False and refused.shared_flags == 1
     assert liked.base_after == liked.base_before + liked.seats
-    assert liked.end == deals.last_day(TERM_START, book.term_end())
+    assert liked.end == book.term_end()
     assert liked.debt_before is not None and liked.debt_after is not None
     assert liked.debt_after > liked.debt_before
     assert liked.ratio == deals.price("MNV", liked.seats)

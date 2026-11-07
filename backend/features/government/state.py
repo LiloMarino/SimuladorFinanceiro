@@ -447,6 +447,8 @@ class GovernmentState:
     approvals: list[ApprovalPoint] = field(default_factory=list)
     # Meses seguidos abaixo do piso, depois da carência; o impeachment vem no limite
     low_streak: int = 0
+    # A bancada só cobra de novo depois que a aprovação fecha um mês acima de 45
+    demand_armed: bool = True
     last_measured: date | None = None
     impeachments: list[Impeachment] = field(default_factory=list)
     # As casas eleitas, em ordem; antes da 1ª eleição vale a casa inicial do computador
@@ -755,6 +757,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             state.low_streak = _int(p, "low_streak")
             state.last_measured = date.fromisoformat(_str(p, "month"))
             _remember_month(state, satisfaction, day)
+            _apply_demands(state, day, bool(p.get("demand")), _int(p, "value"))
         case Event.IMPEACHED:
             _apply_impeachment(state, event)
         case Event.HOUSE_ELECTED:
@@ -804,6 +807,7 @@ def _reset_government(state: GovernmentState, day: date) -> None:
             measure.status = MeasureStatus.DROPPED
     state.approvals = []
     state.low_streak = 0
+    state.demand_armed = True
     state.selic_plan = None
     state.request = None
     state.orientations.pop("impeachment", None)
@@ -851,6 +855,22 @@ def _cut_deals(state: GovernmentState, day: date) -> None:
                 deal.end = min(deal.end, day - timedelta(days=1))
         elif deal.status is DealStatus.PENDING:
             deal.status = DealStatus.WITHDRAWN
+
+
+def _apply_demands(
+    state: GovernmentState, day: date, demanding: bool, approval: int
+) -> None:
+    """
+    O fechamento que deixou o governo fraco abre a cobrança de cada bancada da base, com
+    prazo para responder; a aprovação acima de 45 rearma a cobrança para a próxima queda.
+    """
+    if demanding:
+        state.demand_armed = False
+        for deal in state.deals_in_force(day):
+            deal.demand_ratio = deal_rules.demanded(deal.ratio)
+            deal.demand_by = day + timedelta(days=deal_rules.ANSWER_DAYS)
+    if deal_rules.has_recovered(approval):
+        state.demand_armed = True
 
 
 def _apply_deal_proposed(state: GovernmentState, event: GovernmentEventDTO) -> None:
@@ -901,6 +921,9 @@ def _apply_deal_broken(state: GovernmentState, event: GovernmentEventDTO) -> Non
     deal.status = DealStatus.BROKEN
     deal.end = day
     deal.broken_by = DealBreaker(_str(p, "by"))
+    # A saída por aprovação baixa é o fim do apoio, sem culpado
+    if deal.broken_by is DealBreaker.APPROVAL:
+        return
     current = state.house_on(day)
     term = state.term
     governing = current.of_party(term.party_id) if term and term.party_id else None

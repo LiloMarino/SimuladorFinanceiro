@@ -151,7 +151,7 @@ def preview_deal(simulation: ActiveSimulation, user: CurrentUser, bloc_key: int)
     "/deals",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Propor um acordo de apoio",
-    description="O presidente propõe à bancada entrar na base por 6 meses (no máximo até a véspera da posse do novo Congresso): a emenda é 0,005% do PIB por ano por cadeira (o centrão, 1,5 vez) e a bancada orienta Sim em tudo o que o governo propuser. O partido de jogador tem 15 dias para responder; o do computador responde no pregão seguinte. Recusa com 403 para quem não preside e com 409 quando o partido já é da base com mais de 31 dias de prazo, tem proposta esperando, recusou há menos de 30 dias ou o impeachment está em votação.",
+    description="O presidente propõe à bancada entrar na base até a véspera da posse do novo Congresso: a emenda é 0,005% do PIB por ano por cadeira (o centrão, 1,5 vez; com a aprovação abaixo de 35, mais 50%) e a bancada orienta Sim em tudo o que o governo propuser. O partido de jogador tem 15 dias para responder; o do computador responde no pregão seguinte. Recusa com 403 para quem não preside e com 409 quando o partido já está na base, tem proposta esperando, recusou há menos de 30 dias ou o impeachment está em votação.",
 )
 def propose_deal(
     simulation: ActiveSimulation, user: CurrentUser, payload: ProposeDealRequest
@@ -169,6 +169,21 @@ def answer_deal(
     simulation: ActiveSimulation, user: CurrentUser, payload: AnswerDealRequest
 ):
     simulation.answer_deal(user, payload.accept)
+
+
+@government_router.put(
+    "/deals/{deal_id}/demand",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Responder a cobrança da bancada",
+    description="Com a aprovação abaixo de 35 no fechamento do mês, cada bancada da base cobra 50% a mais por 15 dias. O presidente aceita (o acordo segue até o fim do mandato, no preço novo) ou recusa (a bancada sai da base, sem rejeição). Recusa com 403 para quem não preside e com 409 sem cobrança aberta ou depois do prazo.",
+)
+def answer_demand(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    deal_id: int,
+    payload: AnswerDealRequest,
+):
+    simulation.answer_demand(user, deal_id, payload.accept)
 
 
 @government_router.post(

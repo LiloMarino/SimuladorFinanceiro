@@ -56,7 +56,7 @@ export function DealProposalDialog({ open, onOpenChange }: DealProposalDialogPro
               />
               <Kpi
                 label="Prazo"
-                value={<span className="text-lg">{base.term_months} meses</span>}
+                value={<span className="text-lg">até o fim do mandato</span>}
                 note="a partir da sua resposta"
               />
               <Kpi

@@ -580,8 +580,10 @@ class DealDTO(BaseDTO):
     start: date | None
     end: date | None
     days_left: int | None
-    # Faltam no máximo 31 dias: o governo já pode propor de novo
-    renewable: bool
+    # A cobrança aberta (governo fraco): o preço novo por mês, o último dia para responder e quantos dias faltam
+    demand_monthly: Decimal | None
+    demand_by: date | None
+    demand_days_left: int | None
     # Medidas do governo votadas durante o acordo e quantas a bancada orientou Sim
     votes: int
     yes: int
@@ -661,7 +663,6 @@ class CongressBaseDTO(BaseDTO):
     blocker: str | None
     # As propostas ao partido de jogador contam 15 dias, e o do computador responde no pregão seguinte
     answer_days: int
-    term_months: int
 
 
 class DealPreviewDTO(BaseDTO):

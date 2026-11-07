@@ -134,6 +134,15 @@ def test_a_deal_made_tells_where_the_base_stands():
     assert "até 31/12/2025" in made.dek
 
 
+def test_a_bloc_leaving_for_approval_has_no_culprit_and_tells_where_the_base_stands():
+    left = headlines.deal_left("Alice", "PP", 12, 38, 51)
+
+    assert left.news_type is NewsType.PARTY_LIFE
+    assert left.text == "O PP deixa a base do governo"
+    assert left.dek is not None
+    assert "a base cai para 38, abaixo da maioria de 51" in left.dek
+
+
 def test_a_spending_vote_says_whether_spending_rises_and_what_inflation_does():
     approved = headlines.spending_voted(
         MeasureKind.WELFARE_SPENDING,

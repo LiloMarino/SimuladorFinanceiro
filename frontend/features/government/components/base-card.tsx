@@ -11,6 +11,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { BaseDeal, CongressBase } from "@/types";
+import { useAnswerDemand } from "../hooks/mutations/useAnswerDemand";
 import { useWithdrawDeal } from "../hooks/mutations/useWithdrawDeal";
 import { useBase } from "../hooks/queries/useBase";
 import {
@@ -67,6 +68,7 @@ function BaseContent({ base }: { base: CongressBase }) {
   const [breaking, setBreaking] = useState<Breaking | null>(null);
   const [negotiating, setNegotiating] = useState<Negotiating | null>(null);
   const withdraw = useWithdrawDeal();
+  const answerDemand = useAnswerDemand();
 
   const active = dealsInForce(base);
   const pending = dealsPending(base);
@@ -74,7 +76,7 @@ function BaseContent({ base }: { base: CongressBase }) {
   const margin = majorityMargin(base.seats, base.majority);
   const outside = outsideLabel(base.blocs);
   const ownMajority = base.governing_seats >= base.majority;
-  const renewing = base.is_president ? active.filter((deal) => deal.renewable) : [];
+  const demanding = base.is_president ? active.filter((deal) => deal.demand_by !== null) : [];
   const hasDeals = active.length > 0;
 
   const negotiate = (key: number | null) => setNegotiating({ round: (negotiating?.round ?? 0) + 1, key });
@@ -107,7 +109,7 @@ function BaseContent({ base }: { base: CongressBase }) {
             </Alert>
           )}
 
-          {/* Avisos fixos: a proposta que espera o líder, o acordo do aliado e as renovações */}
+          {/* Avisos fixos: a proposta que espera o líder, o acordo do aliado e as cobranças da base */}
           <ProposalNotice base={base} />
           {base.my_deal && base.my_deal.status === "ACTIVE" && base.my_deal.end && (
             <Alert variant="info">
@@ -125,24 +127,41 @@ function BaseContent({ base }: { base: CongressBase }) {
               </AlertAction>
             </Alert>
           )}
-          {renewing.map((deal) => (
-            <Alert key={deal.id} variant="warning">
-              <TriangleAlert />
-              <AlertTitle>
-                O acordo com o {deal.abbr} acaba em {deal.end ? displayDayMonth(deal.end) : "breve"}
-              </AlertTitle>
-              <AlertDescription>
-                Sem proposta nova, ele acaba sem quebra e a base cai para {deal.base_after} cadeiras. Pelo preço de
-                hoje: {monthlyLabel(base.blocs.find((bloc) => bloc.key === deal.bloc_key)?.monthly ?? deal.monthly)} por
-                mês.
-              </AlertDescription>
-              <AlertAction>
-                <Button size="xs" onClick={() => negotiate(deal.bloc_key)} disabled={base.blocker !== null}>
-                  Propor de novo
-                </Button>
-              </AlertAction>
-            </Alert>
-          ))}
+          {demanding.map((deal) =>
+            deal.demand_monthly === null || deal.demand_by === null ? null : (
+              <Alert key={deal.id} variant="warning">
+                <TriangleAlert />
+                <AlertTitle>
+                  O {deal.abbr} cobra {monthlyLabel(deal.demand_monthly)} por mês para seguir na base · até{" "}
+                  {displayDayMonth(deal.demand_by)}
+                </AlertTitle>
+                <AlertDescription>
+                  Com a aprovação baixa, a bancada quer 50% a mais do que recebe hoje ({monthlyLabel(deal.monthly)} por
+                  mês). Aceitando, o acordo segue nesse preço até o fim do mandato. Recusando, o partido sai da base sem
+                  quebra e ela cai para {deal.base_after} cadeiras.
+                </AlertDescription>
+                <AlertAction>
+                  <div className="flex gap-2">
+                    <Button
+                      size="xs"
+                      variant="outline-destructive"
+                      disabled={answerDemand.isPending}
+                      onClick={() => answerDemand.mutate({ dealId: deal.id, accept: false })}
+                    >
+                      Recusar
+                    </Button>
+                    <Button
+                      size="xs"
+                      disabled={answerDemand.isPending}
+                      onClick={() => answerDemand.mutate({ dealId: deal.id, accept: true })}
+                    >
+                      Aceitar
+                    </Button>
+                  </div>
+                </AlertAction>
+              </Alert>
+            ),
+          )}
 
           {/* Situação da maioria */}
           {base.is_president && !hasDeals && !ownMajority && (

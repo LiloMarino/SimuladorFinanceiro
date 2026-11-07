@@ -5461,7 +5461,7 @@
           "Government"
         ],
         "summary": "Propor um acordo de apoio",
-        "description": "O presidente propõe à bancada entrar na base por 6 meses (no máximo até a véspera da posse do novo Congresso): a emenda é 0,005% do PIB por ano por cadeira (o centrão, 1,5 vez) e a bancada orienta Sim em tudo o que o governo propuser. O partido de jogador tem 15 dias para responder; o do computador responde no pregão seguinte. Recusa com 403 para quem não preside e com 409 quando o partido já é da base com mais de 31 dias de prazo, tem proposta esperando, recusou há menos de 30 dias ou o impeachment está em votação.",
+        "description": "O presidente propõe à bancada entrar na base até a véspera da posse do novo Congresso: a emenda é 0,005% do PIB por ano por cadeira (o centrão, 1,5 vez; com a aprovação abaixo de 35, mais 50%) e a bancada orienta Sim em tudo o que o governo propuser. O partido de jogador tem 15 dias para responder; o do computador responde no pregão seguinte. Recusa com 403 para quem não preside e com 409 quando o partido já está na base, tem proposta esperando, recusou há menos de 30 dias ou o impeachment está em votação.",
         "operationId": "propose_deal_api_government_deals_post",
         "requestBody": {
           "content": {
@@ -5553,6 +5553,67 @@
             "APIKeyCookie": []
           }
         ]
+      }
+    },
+    "/api/government/deals/{deal_id}/demand": {
+      "put": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Responder a cobrança da bancada",
+        "description": "Com a aprovação abaixo de 35 no fechamento do mês, cada bancada da base cobra 50% a mais por 15 dias. O presidente aceita (o acordo segue até o fim do mandato, no preço novo) ou recusa (a bancada sai da base, sem rejeição). Recusa com 403 para quem não preside e com 409 sem cobrança aberta ou depois do prazo.",
+        "operationId": "answer_demand_api_government_deals__deal_id__demand_put",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "deal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Deal Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerDealRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
       }
     },
     "/api/government/deals/leave": {
@@ -14186,10 +14247,6 @@
           "answer_days": {
             "type": "integer",
             "title": "Answer Days"
-          },
-          "term_months": {
-            "type": "integer",
-            "title": "Term Months"
           }
         },
         "additionalProperties": false,
@@ -14209,8 +14266,7 @@
           "amendments",
           "last_vote",
           "blocker",
-          "answer_days",
-          "term_months"
+          "answer_days"
         ],
         "title": "CongressBaseDTO",
         "description": "A base do governo no Congresso: o partido do presidente mais os aliados pagos com emenda."
@@ -15348,9 +15404,39 @@
             ],
             "title": "Days Left"
           },
-          "renewable": {
-            "type": "boolean",
-            "title": "Renewable"
+          "demand_monthly": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Demand Monthly"
+          },
+          "demand_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Demand By"
+          },
+          "demand_days_left": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Demand Days Left"
           },
           "votes": {
             "type": "integer",
@@ -15399,7 +15485,9 @@
           "start",
           "end",
           "days_left",
-          "renewable",
+          "demand_monthly",
+          "demand_by",
+          "demand_days_left",
           "votes",
           "yes",
           "base_after",
@@ -17769,7 +17857,8 @@
           "DEAL_PROPOSED",
           "DEAL_ANSWERED",
           "DEAL_BROKEN",
-          "DEAL_ENDED"
+          "DEAL_ENDED",
+          "DEAL_LEFT"
         ],
         "title": "GovernmentNoticeKind",
         "description": "O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."
@@ -22885,6 +22974,7 @@
           "UNPAID_CONTRIBUTION",
           "UNGUIDED_VOTE",
           "DEAL_PROPOSAL",
+          "DEAL_DEMAND",
           "SELIC_MEETING"
         ],
         "title": "PendingType",

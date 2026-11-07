@@ -20,13 +20,16 @@ SEAT_PRICE = Decimal("0.00005")
 CENTRAO = "UPR"
 CENTRAO_FACTOR = Decimal("1.5")
 
-# O acordo vale 6 meses, e o partido de jogador tem 15 dias para responder
-TERM_MONTHS = 6
+# O acordo vale até a véspera da posse seguinte; o partido de jogador tem 15 dias para
+# responder à proposta e à cobrança
 ANSWER_DAYS = 15
 # Depois de uma recusa, nova proposta ao mesmo partido só em 30 dias
 RETRY_DAYS = 30
-# Um mês antes do fim o governo propõe de novo
-RENEW_DAYS = 31
+
+# Com o governo fraco a bancada cobra 50% a mais, e só cobra de novo depois que a
+# aprovação fecha um mês acima de 45
+DEMAND_MARKUP = Decimal("0.5")
+RECOVERY_APPROVAL = 45
 
 # O partido do computador (fora o centrão) aceita com ao menos 2 das 3 bandeiras em comum com o governo
 SHARED_FLAGS = 2
@@ -58,6 +61,9 @@ class Deal:
     start: date | None = None
     end: date | None = None
     broken_by: DealBreaker | None = None
+    # A cobrança aberta: o preço novo e o último dia para o governo responder
+    demand_ratio: Decimal | None = None
+    demand_by: date | None = None
 
     def covers(self, day: date) -> bool:
         """O acordo vigorou no dia, mesmo se acabou depois."""
@@ -80,6 +86,21 @@ def price(abbr: str, seats: int) -> Decimal:
     """Quanto a bancada custa por ano, em fração do PIB."""
     factor = CENTRAO_FACTOR if abbr == CENTRAO else Decimal(1)
     return SEAT_PRICE * seats * factor
+
+
+def demanded(ratio: Decimal) -> Decimal:
+    """O preço que a bancada cobra com o governo fraco: 50% a mais sobre o que já recebe."""
+    return ratio * (1 + DEMAND_MARKUP)
+
+
+def is_weak(approval: int, limit: int) -> bool:
+    """O governo está fraco quando a aprovação fica abaixo do `limite`, o ponto em que o risco de impeachment aparece."""
+    return approval < limit
+
+
+def has_recovered(approval: int) -> bool:
+    """A aprovação passou de 45: a bancada volta a poder cobrar na próxima queda."""
+    return approval > RECOVERY_APPROVAL
 
 
 def shared_flags(
@@ -129,12 +150,6 @@ def add_months(day: date, months: int) -> date:
     index = day.month - 1 + months
     year, month = day.year + index // 12, index % 12 + 1
     return date(year, month, min(day.day, calendar.monthrange(year, month)[1]))
-
-
-def last_day(start: date, cap: date | None) -> date:
-    """O último dia do acordo: 6 meses a partir do início, ou a véspera da posse do novo Congresso."""
-    end = add_months(start, TERM_MONTHS) - timedelta(days=1)
-    return min(end, cap) if cap is not None else end
 
 
 def retry_from(declined: date) -> date:

@@ -607,6 +607,12 @@ class Simulation:
         self._ensure_government().answer_deal(user, self._current_date, accept)
 
     @synchronized
+    def answer_demand(self, user: UserDTO, deal_id: int, accept: bool) -> None:
+        self._ensure_government().answer_demand(
+            user, self._current_date, deal_id, accept
+        )
+
+    @synchronized
     def break_deal(self, user: UserDTO, deal_id: int) -> None:
         self._ensure_government().break_deal(user, self._current_date, deal_id)
 

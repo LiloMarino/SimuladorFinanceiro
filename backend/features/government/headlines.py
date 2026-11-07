@@ -423,6 +423,24 @@ def deal_broken(
     )
 
 
+def deal_left(
+    president: str,
+    ally_abbr: str,
+    ally_seats: int,
+    base_seats: int,
+    majority: int,
+) -> Headline:
+    """A bancada deixa a base porque o governo fraco não aceitou pagar mais; não há quebra nem culpado."""
+    position = "abaixo" if base_seats < majority else "ainda acima"
+    return Headline(
+        NewsType.PARTY_LIFE,
+        f"O {ally_abbr} deixa a base do governo",
+        f"Com a aprovação de {president} em baixa, a bancada não segue apoiando sem o "
+        f"reajuste que cobrou. São {ally_seats} cadeiras: a base cai para {base_seats}, "
+        f"{position} da maioria de {majority}.",
+    )
+
+
 def deals_ended(abbrs: list[str], new_congress: bool) -> Headline:
     cause = "com a posse do novo Congresso" if new_congress else "pelo prazo"
     return Headline(

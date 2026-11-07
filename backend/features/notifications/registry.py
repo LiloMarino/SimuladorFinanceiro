@@ -271,6 +271,12 @@ PENDING: tuple[PendingSpec, ...] = (
         "Só para o líder do partido; some ao responder ou quando o prazo de 15 dias vence",
     ),
     PendingSpec(
+        PendingType.DEAL_DEMAND,
+        PendingSeverity.WARNING,
+        "Cobrança da base",
+        "Só para o presidente; some ao responder ou quando o prazo de 15 dias vence",
+    ),
+    PendingSpec(
         PendingType.SELIC_MEETING,
         PendingSeverity.WARNING,
         "Reunião do Copom sem SELIC marcada",

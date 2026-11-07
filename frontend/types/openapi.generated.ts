@@ -1895,7 +1895,7 @@ export interface paths {
         put?: never;
         /**
          * Propor um acordo de apoio
-         * @description O presidente propõe à bancada entrar na base por 6 meses (no máximo até a véspera da posse do novo Congresso): a emenda é 0,005% do PIB por ano por cadeira (o centrão, 1,5 vez) e a bancada orienta Sim em tudo o que o governo propuser. O partido de jogador tem 15 dias para responder; o do computador responde no pregão seguinte. Recusa com 403 para quem não preside e com 409 quando o partido já é da base com mais de 31 dias de prazo, tem proposta esperando, recusou há menos de 30 dias ou o impeachment está em votação.
+         * @description O presidente propõe à bancada entrar na base até a véspera da posse do novo Congresso: a emenda é 0,005% do PIB por ano por cadeira (o centrão, 1,5 vez; com a aprovação abaixo de 35, mais 50%) e a bancada orienta Sim em tudo o que o governo propuser. O partido de jogador tem 15 dias para responder; o do computador responde no pregão seguinte. Recusa com 403 para quem não preside e com 409 quando o partido já está na base, tem proposta esperando, recusou há menos de 30 dias ou o impeachment está em votação.
          */
         post: operations["propose_deal_api_government_deals_post"];
         delete?: never;
@@ -1917,6 +1917,26 @@ export interface paths {
          * @description O líder do partido aceita ou recusa a proposta que espera resposta; o acordo vale a partir de hoje. Recusar não custa nada. Recusa com 404 sem proposta e com 409 depois do prazo.
          */
         put: operations["answer_deal_api_government_deals_answer_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/deals/{deal_id}/demand": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Responder a cobrança da bancada
+         * @description Com a aprovação abaixo de 35 no fechamento do mês, cada bancada da base cobra 50% a mais por 15 dias. O presidente aceita (o acordo segue até o fim do mandato, no preço novo) ou recusa (a bancada sai da base, sem rejeição). Recusa com 403 para quem não preside e com 409 sem cobrança aberta ou depois do prazo.
+         */
+        put: operations["answer_demand_api_government_deals__deal_id__demand_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -4988,8 +5008,6 @@ export interface components {
             blocker: string | null;
             /** Answer Days */
             answer_days: number;
-            /** Term Months */
-            term_months: number;
         };
         /** CongressDTO */
         CongressDTO: {
@@ -5391,8 +5409,12 @@ export interface components {
             end: string | null;
             /** Days Left */
             days_left: number | null;
-            /** Renewable */
-            renewable: boolean;
+            /** Demand Monthly */
+            demand_monthly: string | null;
+            /** Demand By */
+            demand_by: string | null;
+            /** Demand Days Left */
+            demand_days_left: number | null;
             /** Votes */
             votes: number;
             /** Yes */
@@ -6198,7 +6220,7 @@ export interface components {
          * @description O que o aviso em tempo real conta; o front escolhe o toast pelo tipo.
          * @enum {string}
          */
-        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED" | "ENDORSEMENT" | "HOUSE_ELECTED" | "IMPEACHMENT_REQUESTED" | "IMPEACHMENT_VOTED" | "DEAL_PROPOSED" | "DEAL_ANSWERED" | "DEAL_BROKEN" | "DEAL_ENDED";
+        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED" | "ENDORSEMENT" | "HOUSE_ELECTED" | "IMPEACHMENT_REQUESTED" | "IMPEACHMENT_VOTED" | "DEAL_PROPOSED" | "DEAL_ANSWERED" | "DEAL_BROKEN" | "DEAL_ENDED" | "DEAL_LEFT";
         /** GovernmentPanelDTO */
         GovernmentPanelDTO: {
             /**
@@ -8079,7 +8101,7 @@ export interface components {
          * @description Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar.
          * @enum {string}
          */
-        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "DEAL_PROPOSAL" | "SELIC_MEETING";
+        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING";
         /**
          * PlayerActivity
          * @description O que o jogador está fazendo na sala: a tela em que está, ou fora da aba do jogo.
@@ -15573,6 +15595,48 @@ export interface operations {
             query?: never;
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnswerDealRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    answer_demand_api_government_deals__deal_id__demand_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: number;
+            };
             cookie?: never;
         };
         requestBody: {

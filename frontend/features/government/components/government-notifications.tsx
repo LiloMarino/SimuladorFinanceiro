@@ -8,7 +8,7 @@ import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { ElectionPanel, GovernmentPanel } from "@/types";
 import { campaignToast, toastEffect } from "../lib/campaign";
-import { dealAnsweredToast, dealBrokenToast, dealEndedToast } from "../lib/deal-toast";
+import { dealAnsweredToast, dealBrokenToast, dealEndedToast, dealLeftToast } from "../lib/deal-toast";
 import { impeachmentToast, measureVotedToast, monthClosedToast } from "../lib/measure-toast";
 import { endorsementToast, roundResultToast } from "../lib/runoff-toast";
 import { campaignQuery } from "../hooks/queries/useCampaign";
@@ -151,6 +151,16 @@ export function GovernmentNotifications() {
         // Avisa o lado que sofreu a quebra; quem rompeu já viu o diálogo
         if (event.target === me) {
           const notice = dealBrokenToast(event);
+          toast[notice.tone](notice.title, {
+            description: notice.description,
+            action: { label: "Ver", onClick: openBase },
+          });
+        }
+        break;
+      case "DEAL_LEFT":
+        // Quem governa recebe o aviso da bancada que saiu por falta de pagamento da cobrança
+        if (event.target === me) {
+          const notice = dealLeftToast(event);
           toast[notice.tone](notice.title, {
             description: notice.description,
             action: { label: "Ver", onClick: openBase },

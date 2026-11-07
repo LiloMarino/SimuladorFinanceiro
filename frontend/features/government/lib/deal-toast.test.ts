@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { GovernmentNotice } from "@/types";
-import { dealAnsweredToast, dealBrokenToast, dealEndedToast } from "./deal-toast";
+import { dealAnsweredToast, dealBrokenToast, dealEndedToast, dealLeftToast } from "./deal-toast";
 
 const NOTICE: GovernmentNotice = {
   kind: "DEAL_ANSWERED",
@@ -75,6 +75,15 @@ describe("dealBrokenToast", () => {
       seats_after: 46,
     });
     expect(toast.title).toBe("O PRL saiu da base");
+    expect(toast.description).toContain("de 74 para 46");
+  });
+});
+
+describe("dealLeftToast", () => {
+  it("conta a base que cai sem culpar ninguém", () => {
+    const toast = dealLeftToast({ ...NOTICE, kind: "DEAL_LEFT", seats_before: 74, seats_after: 46 });
+    expect(toast.tone).toBe("warning");
+    expect(toast.title).toBe("O PRL deixou a base");
     expect(toast.description).toContain("de 74 para 46");
   });
 });

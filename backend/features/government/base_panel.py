@@ -13,6 +13,7 @@ from backend.core.dto.government import (
 from backend.core.dto.user import UserDTO
 from backend.core.enum import DealStatus
 from backend.core.exceptions.http_exceptions import NotFoundError
+from backend.core.utils import required
 from backend.features.government import deals as deal_rules
 from backend.features.government import house
 from backend.features.government.deals import Deal
@@ -72,7 +73,6 @@ def build_base(
             else None
         ),
         answer_days=deal_rules.ANSWER_DAYS,
-        term_months=deal_rules.TERM_MONTHS,
     )
 
 
@@ -87,7 +87,7 @@ def build_preview(
     bloc = book.state.house_on(today).bloc(bloc_key)
     if bloc is None or bloc.seats == 0:
         raise NotFoundError("Esse partido não tem bancada na casa.")
-    ratio = deal_rules.price(bloc.abbr, bloc.seats)
+    ratio = book.deal_price(bloc.abbr, bloc.seats, today)
     active = book.state.deal_of(bloc.key, today)
     base = book.base_seats(today)
     debt = book.deal_debt(ratio, today, active)
@@ -105,7 +105,7 @@ def build_preview(
         ratio=ratio,
         monthly=book.monthly(ratio, today),
         start=today,
-        end=deal_rules.last_day(today, book.term_end()),
+        end=required(book.term_end()),
         base_before=base,
         base_after=base if active is not None else base + bloc.seats,
         debt_before=debt[0] if debt else None,
@@ -176,7 +176,17 @@ def _deal(
         start=deal.start,
         end=deal.end,
         days_left=days_left,
-        renewable=days_left is not None and days_left <= deal_rules.RENEW_DAYS,
+        demand_monthly=(
+            book.monthly(deal.demand_ratio, today)
+            if deal.demand_ratio is not None
+            else None
+        ),
+        demand_by=deal.demand_by if in_force else None,
+        demand_days_left=(
+            (deal.demand_by - today).days
+            if in_force and deal.demand_by is not None
+            else None
+        ),
         votes=votes,
         yes=yes,
         base_after=base - seats if in_force else base + seats,
@@ -193,7 +203,7 @@ def _bloc(
     state = book.state
     term = state.term
     governing = term is not None and bloc.party_id == term.party_id
-    ratio = deal_rules.price(bloc.abbr, bloc.seats)
+    ratio = book.deal_price(bloc.abbr, bloc.seats, today)
     blocker = None if governing else book.deal_blocker(bloc, today)
     return BaseBlocDTO(
         key=bloc.key,

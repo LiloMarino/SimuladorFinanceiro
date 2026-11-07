@@ -597,6 +597,8 @@ class GovernmentNoticeKind(Enum):
     DEAL_ANSWERED = "DEAL_ANSWERED"
     DEAL_BROKEN = "DEAL_BROKEN"
     DEAL_ENDED = "DEAL_ENDED"
+    # A bancada saiu da base porque o governo recusou a cobrança por aprovação baixa
+    DEAL_LEFT = "DEAL_LEFT"
 
 
 class CampaignActionKind(Enum):
@@ -723,10 +725,11 @@ class DealStatus(Enum):
 
 
 class DealBreaker(Enum):
-    """Quem rompeu o acordo."""
+    """Quem rompeu o acordo; APPROVAL é a saída da bancada depois da cobrança recusada, sem rejeição para ninguém."""
 
     GOVERNMENT = "GOVERNMENT"
     ALLY = "ALLY"
+    APPROVAL = "APPROVAL"
 
 
 class ApprovalFactorKind(Enum):
@@ -863,6 +866,7 @@ class PendingType(Enum):
     UNPAID_CONTRIBUTION = "UNPAID_CONTRIBUTION"
     UNGUIDED_VOTE = "UNGUIDED_VOTE"
     DEAL_PROPOSAL = "DEAL_PROPOSAL"
+    DEAL_DEMAND = "DEAL_DEMAND"
     SELIC_MEETING = "SELIC_MEETING"
 
 

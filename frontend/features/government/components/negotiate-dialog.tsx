@@ -52,8 +52,8 @@ export function NegotiateDialog({ open, onOpenChange, base, initialKey = null }:
         <DialogHeader variant="divided">
           <DialogTitle>Negociar apoio no Congresso</DialogTitle>
           <DialogDescription>
-            Clique numa bancada para propor. O aliado orienta Sim em tudo o que o governo propuser, por{" "}
-            {base.term_months} meses, em troca de uma emenda mensal.
+            Clique numa bancada para propor. O aliado orienta Sim em tudo o que o governo propuser, até o fim do
+            mandato, em troca de uma emenda mensal.
           </DialogDescription>
         </DialogHeader>
 

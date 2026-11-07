@@ -20,7 +20,7 @@ export function ProposalNotice({ base }: { base: CongressBase }) {
         O governo {base.president} espera sua resposta sobre a base · até {displayDayMonth(proposal.answer_by)}
       </AlertTitle>
       <AlertDescription>
-        Emenda de {monthlyLabel(proposal.monthly)} por mês ao {proposal.abbr}, por {base.term_months} meses, em troca de
+        Emenda de {monthlyLabel(proposal.monthly)} por mês ao {proposal.abbr}, até o fim do mandato, em troca de
         orientar Sim.
       </AlertDescription>
       <AlertAction>

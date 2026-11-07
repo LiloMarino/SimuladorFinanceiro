@@ -51,6 +51,18 @@ export function dealBrokenToast(event: GovernmentNotice): MeasureToast {
   };
 }
 
+/** A bancada que saiu da base porque o governo fraco não pagou a cobrança: sem quebra e sem culpado. */
+export function dealLeftToast(event: GovernmentNotice): MeasureToast {
+  const abbr = event.party_abbr ?? "partido";
+  const before = seatsText(event.seats_before ?? null);
+  const after = seatsText(event.seats_after ?? null);
+  return {
+    tone: "warning",
+    title: `O ${abbr} deixou a base`,
+    description: `A cobrança não foi paga: a base caiu de ${before} para ${after} cadeiras, sem quebra e sem rejeição.`,
+  };
+}
+
 /** O fim de prazo e o fim na posse do novo Congresso: sem quebra, sem rejeição. */
 export function dealEndedToast(event: GovernmentNotice): MeasureToast {
   const abbrs = event.party_abbr ?? "";

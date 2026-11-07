@@ -21,6 +21,7 @@ const TARGETS: Record<PendingType, (item: Pending) => PendingTarget> = {
   UNGUIDED_VOTE: () => ({ label: "Orientar", to: "/government?tab=congress" }),
   VICE_INVITE: () => ({ label: "Responder", to: "/election", state: { dialog: "vice" } }),
   DEAL_PROPOSAL: () => ({ label: "Responder", to: "/government?tab=accounts&deal=answer" }),
+  DEAL_DEMAND: () => ({ label: "Responder", to: "/government?tab=accounts" }),
   CAMPAIGN_OPEN: () => ({ label: "Ver eleição", to: "/election", state: { dialog: "campaign" } }),
   UNPAID_CONTRIBUTION: () => ({ label: "Mudar valor", to: "/election", state: { dialog: "contribution" } }),
 };
