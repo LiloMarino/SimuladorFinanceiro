@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-07):** Incluídas as manutenções da dívida técnica na 4.0
+> **Última mudança (2026-11-07):** Dividido o card de ações de campanha em arquivos por parte
 
 ## Glossário
 
@@ -106,14 +106,13 @@
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M25 · 4.3 | — | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
-| [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | M22 · 4.0 | — | Médio | Bom | ⏳ |
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | M22 · 4.0 | — | Alto | Bom | ⏳ |
 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | M22 · 4.0 | — | Alto | Bom | ⏳ |
 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | M22 · 4.0 | — | Alto | Médio | ⏳ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | — | Alto | Médio | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (30 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -145,6 +144,7 @@
 | [**F238**](#f238) | Manutenção | Features do front sem import atravessado | M22 · 4.0 | — | — | — | ✅ |
 | [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | M22 · 4.0 | — | — | — | ✅ |
 | [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | M22 · 4.0 | — | — | — | ✅ |
+| [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | M22 · 4.0 | — | — | — | ✅ |
 | [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | M22 · 4.0 | — | — | — | ✅ |
 
 </details>
@@ -161,7 +161,7 @@
 >
 > **Serve:** N3, N7
 >
-> **Progresso:** 9/15 concluídos
+> **Progresso:** 10/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -175,7 +175,7 @@
 | 8 | [**F238**](#f238) | Manutenção | Features do front sem import atravessado | — | ✅ Concluído |
 | 9 | [**F239**](#f239) | Manutenção | Formatadores de percentual unificados | — | ✅ Concluído |
 | 10 | [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | ✅ Concluído |
-| 11 | [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | ⏳ Pendente |
+| 11 | [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | ✅ Concluído |
 | 12 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | ⏳ Pendente |
 | 13 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | ⏳ Pendente |
 | 14 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | ⏳ Pendente |
@@ -298,7 +298,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | M22 · 4.0 · 1º | 2 | Alto | Bom | ⏳ |
-| [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | M22 · 4.0 · 11º | 0 | Médio | Bom | ⏳ |
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | M22 · 4.0 · 12º | 0 | Alto | Bom | ⏳ |
 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | M22 · 4.0 · 13º | 0 | Alto | Bom | ⏳ |
 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | M22 · 4.0 · 14º | 0 | Alto | Médio | ⏳ |
@@ -343,7 +342,6 @@
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
-| **F241** | Manutenção | Card de ações de campanha em arquivos por parte | — | — | M22 · 4.0 | — | Médio | Baixo | Médio | Bom |
 | **F242** | Manutenção | Partida do lobby em arquivos por parte | — | — | M22 · 4.0 | — | Alto | Médio | Médio | Bom |
 | **F243** | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | M22 · 4.0 | — | Alto | Médio | Médio | Bom |
 | **F244** | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | M22 · 4.0 | — | Alto | Alto | Médio | Médio |
@@ -394,13 +392,6 @@
 
 <a id="f225"></a>
 **F225 — Conceitos de economia real na docs e nomeados na tela.** Serve N41 e N25; condicionado por D21. **Para quem:** quem joga e quer entender por que a economia da partida reagiu como reagiu, e quem lê a docs sem jogar. **O que cobre:** uma página por conceito na categoria de explicação que a reorganização da docs cria: juro real e juro real neutro, curva IS, lei de Okun, curva de Phillips, princípio de Taylor e a reação do Banco Central, defasagem da política monetária, meta de inflação e tolerância, credibilidade e expectativas, prêmio de risco, dinâmica da dívida (r − g) e espiral da dívida, primário que estabiliza a dívida e dominância fiscal. Cada página diz o que o conceito mede, um exemplo numérico, o que é valor bom e ruim, a fonte (relatório do Banco Central, artigo ou livro-texto) e como o jogo o implementa, com a fórmula e os coeficientes: é o lugar único dos números do modelo (D21), e a seção de economia interligada de `docs/docs/como-usar/governo.md` passa a apontar para as páginas. Cada página fecha com o que o jogo simplifica em relação à economia real, e uma página própria reúne as simplificações do modelo inteiro: as defasagens comprimidas, os coeficientes fixos em todas as épocas, o Banco Central que reage só à inflação (e não ao hiato do PIB) e o câmbio representado pelo prêmio de risco enquanto o dólar não entra na partida. O conteúdo parte dos conceitos e das explicações do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) (`frontend/shared/concepts/concepts.tsx` e `frontend/features/explainers/`), adaptado ao que o jogo faz, e as fórmulas entram com KaTeX no Docusaurus (`remark-math` e `rehype-katex`). **Na tela:** onde um texto do jogo cita um conceito ("segue o princípio de Taylor"), o nome dele vem com o sublinhado pontilhado do app e o cursor de interrogação, o mesmo `HoverCardTrigger term` de `frontend/shared/components/ui/hover-card.tsx` que o nome do padrão de candle usa no desafio. Passar o mouse ou focar abre um cartão no molde de `pattern-hint.tsx`, com três blocos. Primeiro, o nome e uma frase do que o conceito é, sem fórmula. Depois, "Na partida agora": o conceito aplicado ao estado da partida, como "IPCA 6,2% contra meta de 3,0%: o Copom tende a subir a SELIC na próxima reunião". Por fim, o "Saiba mais" para a página da docs. Os dois primeiros funcionam sem rede, e só o link depende dela. **Mecanismo:** um componente `ConceptTerm` em `frontend/shared/components/` e um catálogo dos conceitos em `frontend/shared/lib/` (chave, nome, frase e caminho da página da docs). Cada tela que cita o conceito passa o trecho da partida que o cartão lê, já resolvido pela tela, e o "Na partida agora" é montado a partir desse trecho. No mesmo bloco de texto, só a primeira menção ao conceito leva o sublinhado. Um teste confere que o caminho de cada conceito do catálogo existe em `docs/docs/`. Os pontos de partida são o painel da Economia (cada parcela leva o nome do conceito), a decisão do Copom, o prêmio de risco do Tesouro e o card da dívida. **Onde mora:** `docs/docs/`, na categoria de explicação. **Gatilho:** depois da reorganização da docs.
-
-<a id="f241"></a>
-**F241 — Card de ações de campanha em arquivos por parte.** `government/components/campaign-actions-card.tsx` reúne o card e sete subcomponentes que só recebem props (`ActionBody`, `TvReach`, `ActionChoice`, `GroupChoices`, `GroupPollCell`, `SummaryBody`, `SummaryRow`), e resolve o `rival` duas vezes.
-
-Vira a pasta `campaign-actions-card/` com `index.tsx` mais um arquivo por subcomponente, no padrão de `statistics/components/statistics-report/`; os importadores não mudam de caminho. A resolução duplicada de `rival` é eliminada.
-
-Por fora nada muda. Confere-se com `pnpm --dir frontend run check`, `vitest` e screenshot do card de campanha, igual ao de antes.
 
 <a id="f242"></a>
 **F242 — Partida do lobby em arquivos por parte.** `lobby/components/lobby-match.tsx` mistura o schema do formulário, o resumo da partida e os blocos de novos jogadores, equipes e início.
@@ -612,6 +603,7 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F238** | Manutenção | Features do front sem import atravessado | — | — | M22 · 4.0 |
 | **F239** | Manutenção | Formatadores de percentual unificados | — | — | M22 · 4.0 |
 | **F240** | Manutenção | Badge de passo como variante do design system | — | — | M22 · 4.0 |
+| **F241** | Manutenção | Card de ações de campanha em arquivos por parte | — | — | M22 · 4.0 |
 | **F245** | Manutenção | Limpeza de scripts e docs | — | — | M22 · 4.0 |
 
 <a id="f233"></a>
@@ -661,6 +653,13 @@ Ficaram de fora, por não terem equivalente exato: `yearShare` (mínimo de 2 e m
 **F240 — Badge de passo como variante do design system.** O círculo numerado do `Step` em `pyspy-card.tsx` era um `Badge` reimplementado com classes inline. O `Badge` ganhou `size="step"` (`size-5.5 px-0 font-semibold`) em `badgeVariants.ts`, e o `Step` passou a `<Badge variant="secondary" size="step">`.
 
 O círculo de `measure-steps.tsx` ficou de fora: é outro selo, maior (`size-7`), em tom de informação e com fonte mono, e não o mesmo círculo do py-spy.
+
+<a id="f241"></a>
+**F241 — Card de ações de campanha em arquivos por parte.** `campaign-actions-card.tsx` virou a pasta `campaign-actions-card/`, com `index.tsx` (o card e o subtítulo do dado) e um arquivo por parte: `action-body.tsx`, `tv-reach.tsx`, `action-choice.tsx`, `group-choices.tsx`, `group-poll-cell.tsx`, `summary-body.tsx`, `summary-row.tsx` e `summary-title.ts`, no padrão de `statistics-report/`. Quem importa o card continua com o mesmo caminho.
+
+O rival antes era resolvido duas vezes, no card e no corpo da ação. Agora o `index.tsx` resolve uma vez e passa o `rival` pronto ao `ActionBody`, com o tipo tirado do `CampaignPanel`.
+
+Por fora nada mudou.
 
 <a id="f245"></a>
 **F245 — Limpeza de scripts e docs.** Saíram `scripts/plot_beta_distribution.py`, `scripts/tree.py` e `scripts/tree_descriptions.yaml`, junto com a seção "Atualização da Árvore de Estrutura" de `docs/docs/desenvolvimento/estrutura-pastas.md`, que ensinava a rodá-los. Os scripts `profile:line` e `profile:line:view` saíram do `package.json`, e com eles `line-profiler` (`pyproject.toml`, exclude do `.spec`) e `cross-env`; os dois lockfiles foram regenerados e o deptry confirma. O padrão `*.lprof` saiu do script `clean`. Na docs de estrutura de pastas, o exemplo `base-card.tsx`, que não existe, passou a `shared/components/kpi.tsx`. O `matplotlib`, que só o `plot_beta_distribution.py` usava, continua no grupo `dev` do `pyproject.toml`.
