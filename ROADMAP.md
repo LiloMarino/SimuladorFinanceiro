@@ -117,14 +117,10 @@
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | — | Alto | Bom | ⏳ |
 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | Alto | Bom | ⏳ |
 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | Alto | Médio | ⏳ |
-| [**F246**](#f246) | Manutenção | Payload dos eventos do governo tipado | — | — | Alto | Médio | 💤 |
-| [**F247**](#f247) | Manutenção | Trava do gerenciador de usuários garantida pelo código | — | — | Baixo | Bom | 💤 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | — | Alto | Médio | 💤 |
-| [**F250**](#f250) | Manutenção | Livro do governo quebrado por assunto | — | — | Alto | Médio | 💤 |
-| [**F252**](#f252) | Manutenção | Aviso local de testes de banco pulados | — | — | Baixo | Bom | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -150,8 +146,6 @@
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | — | — | — | ✅ |
 | [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | — | — | — | ✅ |
-| [**F248**](#f248) | Manutenção | Eleição determinística nos testes do livro de acordos | — | — | — | — | 🚫 |
-| [**F251**](#f251) | Manutenção | Testes para túnel, fábrica de renda fixa, importação de ativos e crédito | — | — | — | — | 🚫 |
 
 </details>
 
@@ -616,11 +610,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom |
 | **F167** | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F176** | Feature | Cadeiras do Congresso por região | N34 | D19 | — | — | Médio | Médio | Médio | Médio |
-| **F246** | Manutenção | Payload dos eventos do governo tipado | — | — | — | — | Alto | Médio | Médio | Médio |
-| **F247** | Manutenção | Trava do gerenciador de usuários garantida pelo código | — | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | — | — | Alto | Médio | Médio | Médio |
-| **F250** | Manutenção | Livro do governo quebrado por assunto | — | — | — | — | Alto | Médio | Médio | Médio |
-| **F252** | Manutenção | Aviso local de testes de banco pulados | — | — | — | — | Baixo | Baixo | Baixo | Bom |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -664,30 +654,10 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 <a id="f176"></a>
 **F176 — Cadeiras do Congresso por região.** Serve N34; upgrade do mapa por região (F164). Na Câmara real nenhum estado tem menos de 8 nem mais de 70 deputados, e o Norte e o Centro-Oeste valem mais em cadeiras do que em eleitores: o Norte tem 65 de 513 cadeiras (12,7%) com 8,1% do eleitorado, e o Sudeste 179 (34,9%) com 42,6%. As 101 cadeiras se repartem na proporção das 513: Sudeste 35, Nordeste 30, Sul 15, Norte 13, Centro-Oeste 8. Cada região reparte as dela pelo D'Hondt de `house.distribute` com o voto da região; a barreira continua nacional. Ganhar o Norte passa a valer mais no Congresso do que na urna, uma decisão de campanha real. Fica depois do mapa porque mexe no modelo das cadeiras.
 
-<a id="f246"></a>
-**F246 — Payload dos eventos do governo tipado.** `government/state.py` e `government/preparation.py` têm 26 `type: ignore` porque o payload do evento é um dicionário solto.
-
-Cada tipo de evento ganha um `TypedDict` (ou dataclass) para o payload, e o despacho por tipo estreita o payload antes de usá-lo; os `type: ignore` saem um a um. Por fora nada muda; confere-se com `uv run pyright` sem os ignores e `uv run pytest -n 4`. Sem decisão de fazer agora.
-
-<a id="f247"></a>
-**F247 — Trava do gerenciador de usuários garantida pelo código.** Seis métodos do `UserManager` trazem o comentário "o chamador segura o `_lock`": o contrato existe só no texto, e chamar sem a trava compila.
-
-Os métodos passam a ter nome que diz a exigência (sufixo `_locked`) ou um `assert self._lock.locked()` na entrada, e o comentário sai. Por fora nada muda; confere-se com `uv run pytest -n 4`. Sem decisão de fazer agora.
-
 <a id="f249"></a>
 **F249 — Núcleo do backend sem import de features.** `core/` importa de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
 
 Cada um desses módulos é movido para a feature que o consome ou passa a receber a dependência por injeção (o `core` define o protocolo, a feature implementa). Por fora nada muda; confere-se com `uv run pyright`, `uv run pytest -n 4` e um `grep "features" backend/core` vazio. Sem decisão de fazer agora.
-
-<a id="f250"></a>
-**F250 — Livro do governo quebrado por assunto.** `government_book.py` reúne campanha, bancadas, política tributária e emissão de rodada num arquivo só.
-
-O livro vira um pacote com um módulo por assunto e um `__init__` que mantém a mesma superfície, de modo que os chamadores não mudam. Por fora nada muda; confere-se com `uv run pyright` e `uv run pytest -n 4`. Sem decisão de fazer agora.
-
-<a id="f252"></a>
-**F252 — Aviso local de testes de banco pulados.** Sem `POSTGRES_DATABASE_URL`, os testes com banco são pulados em silêncio e a suíte local parece verde.
-
-O `pytest` passa a mostrar no cabeçalho da execução quantos testes foram pulados por falta do banco e como configurá-lo, via `pytest_report_header` no `conftest`. Por fora nada muda no comportamento dos testes; confere-se rodando a suíte com e sem a variável. Sem decisão de fazer agora.
 
 ---
 
@@ -712,13 +682,4 @@ Por fora nada mudou: os números exibidos são os mesmos, `pyright` e `pytest` p
 
 ## 🚫 Descartado
 
-| ID | Tipo | Resumo | Serve |
-| --- | --- | --- | --- |
-| **F248** | Manutenção | Eleição determinística nos testes do livro de acordos | — |
-| **F251** | Manutenção | Testes para túnel, fábrica de renda fixa, importação de ativos e crédito | — |
-
-<a id="f248"></a>
-**F248 — Descartado.** 🚫 Fora do que foi planejado para o roadmap; descartada a pedido.
-
-<a id="f251"></a>
-**F251 — Descartado.** 🚫 Fora do que foi planejado para o roadmap; descartada a pedido.
+> Nenhum item neste status.
