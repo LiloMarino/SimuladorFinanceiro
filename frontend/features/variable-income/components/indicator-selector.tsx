@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/
 import { Switch } from "@/shared/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { MetricHint } from "@/shared/components/metric-hint";
-import { ScaleRuler } from "@/shared/components/scale-ruler";
+import { ScaleRuler } from "@/features/variable-income/components/scale-ruler";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
 import type { IndicatorKey, IndicatorParams, IndicatorSettings, MovingAverage, TechnicalSummary } from "@/types";

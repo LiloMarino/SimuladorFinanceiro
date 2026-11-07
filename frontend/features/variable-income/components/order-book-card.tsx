@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
-import { MarketMark } from "@/shared/components/market-mark";
+import { MarketMark } from "@/features/variable-income/components/market-mark";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
