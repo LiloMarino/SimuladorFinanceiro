@@ -51,7 +51,7 @@
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93), [F226](#f226) | — | — | — |
 | **N32** | — | Saber como foi o mês sem montar a conta | — | — | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F164](#f164), [F175](#f175), [F176](#f176), [F194](#f194), [F195](#f195), [F226](#f226), [F227](#f227), [F232](#f232) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232) | — | — | — |
 | **N35** | — | Tirar da lista as partidas que não interessam mais | — | — | — | — | — |
 | **N36** | — | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — | — |
 | **N37** | — | Comprar bitcoin do jeito que dá na vida real, em frações | — | — | — | — | — |
@@ -108,7 +108,7 @@
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -129,12 +129,9 @@
 | **D16** | — | Estratégias do app no host, personalização pela API | — | — | — | — | ✅ |
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
-| **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F164](#f164), [F175](#f175), [F176](#f176) | — | — | ✅ |
+| **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
-| [**F164**](#f164) | Feature | Mapa do Brasil por região e por estado | M23 · 3.5 | — | — | — | ✅ |
-| [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 | — | — | — | ✅ |
-| [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 | — | — | — | ✅ |
 
 </details>
 
@@ -143,20 +140,6 @@
 ## 🚀 Próximas versões
 
 > O que entra em cada versão, na ordem de trabalho. Item arquivado conta como concluído.
-
-### 3.5 — Congresso e eleição (M23)
-
-> **Objetivo:** As bancadas, as regiões e as federações viram decisões de governo e de campanha.
->
-> **Serve:** N34
->
-> **Progresso:** 3/3 concluídos
-
-| # | ID | Tipo | Resumo | Depende de | Status |
-| --- | --- | --- | --- | --- | --- |
-| 1 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | — | ✅ Concluído |
-| 2 | [**F164**](#f164) | Feature | Mapa do Brasil por região e por estado | — | ✅ Concluído |
-| 3 | [**F175**](#f175) | Feature | Federações partidárias | — | ✅ Concluído |
 
 ### 4.0 — Dividendos (M22)
 
@@ -502,7 +485,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F110** | Feature | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom |
 | **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom |
 | **F167** | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | — | — | Baixo | Baixo | Médio | Bom |
-| **F176** | Feature | Cadeiras do Congresso por região | N34 | D19 | — | [F164](#f164) | Médio | Médio | Médio | Médio |
+| **F176** | Feature | Cadeiras do Congresso por região | N34 | D19 | — | — | Médio | Médio | Médio | Médio |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -550,30 +533,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 ## ✅ Concluído
 
-| ID | Tipo | Resumo | Serve | D# | Marco |
-| --- | --- | --- | --- | --- | --- |
-| **F164** | Feature | Mapa do Brasil por região e por estado | N34 | D19 | M23 · 3.5 |
-| **F175** | Feature | Federações partidárias | N34 | D19 | M23 · 3.5 |
-| **F195** | Feature | Acordo de base até o fim do mandato | N34 | — | M23 · 3.5 |
-
-<a id="f164"></a>
-**F164 — Mapa do Brasil por região e por estado.** Serve N34. Uma página Mapa no menu, logo abaixo de Eleição, com o Brasil dividido por região ou por estado e visto por lentes, no molde dos mapas do Victoria 3: quem lidera, desempenho de um partido, variação desde a pesquisa anterior, rejeição de um partido, aprovação do presidente e onde vive cada grupo de eleitores (degradê, um grupo por vez). As lentes ficam num painel fixo à esquerda, com Região | Estado no topo; à direita, o lugar escolhido (intenção com a variação, quem vota ali) e a lista dos estados, que é a alternativa acessível ao mapa. O mesmo componente volta pequeno na Corrida, no card de aprovação do Governo e no dialog do resultado do turno, cada um com "Abrir no mapa". Pelo modelo da D19 um lugar é uma mistura de grupos de eleitores, então o voto e a aprovação por lugar saem do modelo sem mudá-lo. Cada um dos 27 estados tem a sua mistura, de dados públicos por UF: beneficiários do Bolsa Família (quem depende de auxílio), benefícios do INSS (aposentados), PNAD Contínua do IBGE (trabalhadores formais e servidores) e investidores da B3 (quem vive de investimento), com a fonte de quem empreende escolhida na implementação e citada no código. A região é a soma dos estados dela, pesada pelo eleitorado do TSE de 2022 (Sudeste 42,6%, Nordeste 27,1%, Sul 14,7%, Norte 8,1%, Centro-Oeste 7,5%). As misturas moram ao lado de `voters.WEIGHTS`, e a soma pesada fecha os pesos nacionais. A pesquisa mensal sai também por estado, cada um com a margem do tamanho da amostra (São Paulo ±3, Acre ±12); quando a diferença entre o 1º e o 2º cabe na margem, o lugar fica listrado nas duas cores (empate técnico). O mapa mostra só a pesquisa atual, com a variação desde a anterior; entre os turnos, só os dois finalistas. O resultado sai de uma vez, sem animação, e a frase diz o melhor e o pior lugar do partido em % dos votos válidos. Quem vence continua sendo o voto do país, e o Congresso continua nacional. O mapa vem sempre com Governo & Política, sem opção própria no lobby. O design aprovado está no canvas, com as lentes, os usos pequenos e os estados. O upgrade seguinte são as cadeiras por região (F176), que entram como mais uma lente, e, se valer, ações de campanha por região ("comício no Nordeste") na F130.
-
-<a id="f175"></a>
-**F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), e a federação tem só 2 partidos. Num partido de jogadores, o fundador propõe e responde, e os filiados veem o aviso. Os partidos do computador também propõem (os abaixo da barreira, ao parceiro de bandeiras mais próximas) e respondem por regra; a proposta ao jogador chega no topo da Eleição e em Pendências. A proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173), e cada partido tem uma proposta aberta por vez. (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. As promessas da chapa são as do partido do candidato; as do parceiro saem sem custo no dia em que a federação se forma. Cada partido continua com a sua verba e as próprias ações de campanha, todas pela mesma chapa. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato; os dois ficam presos pelo mandato e herdam, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** o design está no canvas: o botão de propor no cartão do seu partido e o dialog com o custo antes do clique (ganho na lista, chapa, orientação, promessas que saem, prazo e rejeição herdada por grupo, em números), o dialog de quem recebe, a federação como uma linha na pesquisa e um cartão em Partidos na disputa, o colchete das cadeiras dela no hemiciclo com a tabela da barreira, as manchetes de formada e desfeita no jornal, e os estados (proposta enviada, recusada, prazo encerrado, saída antes do prazo, desfeita, expansão desligada).
-
-<a id="f195"></a>
-**F195 — Acordo de base até o fim do mandato.** Serve N34. Hoje o apoio de cada bancada vale 6 meses (`deals.TERM_MONTHS`) e se renova à mão; no playtest de 31/out isso virou tarefa repetida. A regra nova troca o prazo curto por uma negociação por mandato que um governo fraco perde:
-- (1) **Duração:** o acordo vale até a véspera da posse seguinte (`term_end`). O preço é o de hoje (`SEAT_PRICE` por cadeira, 1,5 vez no centrão), pago por mês enquanto o acordo durar. O card da base perde o aviso "O acordo com o X acaba em…" e o "Propor de novo", e a coluna "Prazo" mostra o fim do mandato.
-- (2) **Cobrança com o governo fraco:** quando o fechamento do mês deixa a aprovação abaixo de 35 (`FLOOR + RISK_MARGIN`, o mesmo ponto em que as Pendências mostram o risco de impeachment), cada bancada da base cobra 50% a mais. A cobrança fica 15 dias nas Pendências (`ANSWER_DAYS`) e no card da base: aceitar mantém o acordo, com o preço novo, até o fim do mandato; recusar ou deixar vencer tira a bancada da base sem contar como quebra do governo (sem a rejeição de `BREAK_REJECTION`).
-- (3) **Uma cobrança por queda:** a bancada volta a cobrar só depois que a aprovação fechar um mês acima de 45 e cair de novo abaixo de 35, para a cobrança não virar a tarefa repetida que este card tira.
-- (4) **Voltar à base:** a bancada que saiu pode ser chamada pela proposta de hoje; com a aprovação abaixo de 35, o preço da proposta já vem com os 50%.
-- (5) **Jornal:** manchete quando uma bancada deixa a base por causa da aprovação ("O PP deixa a base do governo").
-- (6) **Partida salva:** acordo já assinado vale até a data dele; os novos valem até o fim do mandato. O governo do computador continua sem negociar.
-
-As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`, ao lado das de hoje.
-
-**Aceite:** um mandato inteiro sem renovar acordo; uma queda abaixo de 35 gera uma cobrança por bancada, uma vez só até a aprovação passar de 45; recusar tira a bancada sem a rejeição da quebra; testes em `tests/test_deals.py` e `tests/test_deals_book.py`.
+> Nenhum item neste status.
 
 ---
 
