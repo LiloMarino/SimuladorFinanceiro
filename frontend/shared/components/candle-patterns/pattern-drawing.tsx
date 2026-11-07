@@ -1,8 +1,8 @@
 import { lazy, Suspense } from "react";
 import { usePrefersReducedMotion } from "@/shared/hooks/usePrefersReducedMotion";
 import type { CandlePatternCode } from "@/types";
-import { PATTERN_INFO } from "../../lib/candle-patterns";
-import { candleBoxes, candleColor, CANDLE_WIDTH, DRAWING_HEIGHT, DRAWING_WIDTH } from "../../lib/pattern-geometry";
+import { PATTERN_INFO } from "@/shared/lib/candle-patterns";
+import { candleBoxes, candleColor, CANDLE_WIDTH, DRAWING_HEIGHT, DRAWING_WIDTH } from "@/shared/lib/pattern-geometry";
 
 // A biblioteca de animação carrega só quando um card pede o desenho
 const AnimatedCandles = lazy(() => import("./pattern-drawing-animated"));

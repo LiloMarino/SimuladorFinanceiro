@@ -1,4 +1,4 @@
-import { PATTERN_INFO } from "@/features/variable-income/lib/candle-patterns";
+import { PATTERN_INFO } from "@/shared/lib/candle-patterns";
 import { cn } from "@/shared/lib/utils";
 import type { CandlePatternCode, ChallengeBar } from "@/types";
 import {

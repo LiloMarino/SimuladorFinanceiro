@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { candleColor, CANDLE_WIDTH, type CandleBox } from "../../lib/pattern-geometry";
+import { candleColor, CANDLE_WIDTH, type CandleBox } from "@/shared/lib/pattern-geometry";
 
 const GROW_SECONDS = 0.35;
 const STAGGER_SECONDS = 0.25;

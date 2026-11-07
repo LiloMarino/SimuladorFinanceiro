@@ -37,8 +37,8 @@ import type {
   TeamNaming,
   VictoryCriterion,
 } from "@/types";
-import { ChallengeStartWarning } from "@/features/candle-challenge/components/challenge-start-warning";
-import { useRunningChallenge } from "@/features/candle-challenge/hooks/queries/useRunningChallenge";
+import { ChallengeStartWarning } from "@/features/lobby/candle-challenge/components/challenge-start-warning";
+import { useRunningChallenge } from "@/features/lobby/candle-challenge/hooks/queries/useRunningChallenge";
 import { useContinueSimulation } from "../hooks/mutations/useContinueSimulation";
 import { useCreateSimulation } from "../hooks/mutations/useCreateSimulation";
 import { useDistributeTeams } from "../hooks/mutations/useDistributeTeams";

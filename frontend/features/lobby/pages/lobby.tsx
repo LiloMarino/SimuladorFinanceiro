@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { ErrorState } from "@/shared/components/error-state";
-import { CandleChallenge } from "@/features/candle-challenge/components/candle-challenge";
+import { CandleChallenge } from "@/features/lobby/candle-challenge/components/candle-challenge";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";

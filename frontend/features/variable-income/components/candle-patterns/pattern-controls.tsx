@@ -6,7 +6,7 @@ import { Label } from "@/shared/components/ui/label";
 import { Switch } from "@/shared/components/ui/switch";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { CandlePatternCode } from "@/types";
-import { PATTERN_INFO } from "../../lib/candle-patterns";
+import { PATTERN_INFO } from "@/shared/lib/candle-patterns";
 
 interface PatternSwitchProps {
   checked: boolean;

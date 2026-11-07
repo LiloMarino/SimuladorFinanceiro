@@ -4,9 +4,9 @@ import { Badge } from "@/shared/components/ui/badge";
 import { cn } from "@/shared/lib/utils";
 import { displaySignedPercent } from "@/shared/lib/utils/display";
 import type { CandlePattern } from "@/types";
-import { PATTERN_INFO, SIDE_LABEL } from "../../lib/candle-patterns";
+import { PATTERN_INFO, SIDE_LABEL } from "@/shared/lib/candle-patterns";
 import { loadListOpen, saveListOpen } from "../../lib/pattern-list-preference";
-import { displayPatternDays, periodScore } from "../../lib/pattern-view";
+import { displayPatternDays, periodScore } from "@/shared/lib/pattern-view";
 
 interface PatternListProps {
   patterns: CandlePattern[];

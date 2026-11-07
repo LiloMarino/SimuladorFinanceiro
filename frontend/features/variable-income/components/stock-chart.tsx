@@ -52,7 +52,7 @@ import {
   rsiShapes,
   type AnnotationColors,
 } from "../lib/chart-annotations";
-import { nextScaleWithPatterns, patternOn, patternsSince, statsOf } from "../lib/pattern-view";
+import { nextScaleWithPatterns, patternOn, patternsSince, statsOf } from "@/shared/lib/pattern-view";
 import {
   averageColor,
   INDICATOR_BY_KEY,

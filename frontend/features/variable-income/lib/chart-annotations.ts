@@ -1,7 +1,7 @@
 import type { SeriesMarker, Time } from "lightweight-charts";
 import type { CandlePattern } from "@/types";
 import type { OverlayShape } from "./chart-overlay";
-import { PATTERN_INFO } from "./candle-patterns";
+import { PATTERN_INFO } from "@/shared/lib/candle-patterns";
 import { crossovers, type SeriesPoint } from "./crossovers";
 
 /** As cores do tema que as anotações usam, lidas uma vez do documento. */

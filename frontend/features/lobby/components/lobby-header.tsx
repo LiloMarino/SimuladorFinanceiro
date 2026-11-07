@@ -8,7 +8,7 @@ import { BrandMark } from "@/shared/components/brand-mark";
 import { useAchievementTally } from "@/shared/hooks/queries/useAchievementTally";
 import { useTunnelStatus } from "../hooks/queries/useTunnelStatus";
 import { useStartTunnel } from "../hooks/mutations/useStartTunnel";
-import { LobbyTutorialButton } from "@/features/tutorial/components/lobby-button";
+import { LobbyTutorialButton } from "@/features/lobby/components/lobby-button";
 import type { SimulationSettings } from "@/types";
 import { PreparationButton } from "./preparation/preparation-button";
 

@@ -1,6 +1,6 @@
-import { PatternDrawing } from "@/features/variable-income/components/candle-patterns/pattern-drawing";
-import { PATTERN_INFO, SIDE_LABEL } from "@/features/variable-income/lib/candle-patterns";
-import { hitRate } from "@/features/variable-income/lib/pattern-view";
+import { PatternDrawing } from "@/shared/components/candle-patterns/pattern-drawing";
+import { PATTERN_INFO, SIDE_LABEL } from "@/shared/lib/candle-patterns";
+import { hitRate } from "@/shared/lib/pattern-view";
 import { Badge } from "@/shared/components/ui/badge";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/shared/components/ui/hover-card";
 import type { CandlePatternCode, PatternStats } from "@/types";

@@ -4,9 +4,9 @@ import { Progress } from "@/shared/components/ui/progress";
 import { cn } from "@/shared/lib/utils";
 import { displaySignedPercent } from "@/shared/lib/utils/display";
 import type { CandlePattern, PatternStats } from "@/types";
-import { PATTERN_INFO, SIDE_LABEL } from "../../lib/candle-patterns";
-import { displayPatternDays, hitRate } from "../../lib/pattern-view";
-import { PatternDrawing } from "./pattern-drawing";
+import { PATTERN_INFO, SIDE_LABEL } from "@/shared/lib/candle-patterns";
+import { displayPatternDays, hitRate } from "@/shared/lib/pattern-view";
+import { PatternDrawing } from "@/shared/components/candle-patterns/pattern-drawing";
 
 interface PatternCardProps {
   ticker: string;
