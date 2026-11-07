@@ -95,7 +95,7 @@ export const INFLATION_LEVEL_TABLE = [
 // de 12 meses passa de 10%
 export const SURGE_FREQUENCY_TABLE = [
   { frequency: 0, hotYears: 0.8 },
-  { frequency: 1, hotYears: 1.9 },
+  { frequency: 1, hotYears: 1.8 },
   { frequency: 3, hotYears: 3.1 },
   { frequency: 5, hotYears: 4.9 },
 ] as const;

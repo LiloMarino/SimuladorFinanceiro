@@ -85,7 +85,7 @@ Medianas de 50 futuros de 10 anos partindo de hoje, com a SELIC em 13,65%. O tom
 | Surtos por década | Anos com inflação de 12 meses acima de 10% |
 | --- | --- |
 | 0 | 0,8 |
-| 1 | 1,9 |
+| 1 | 1,8 |
 | 3 | 3,1 |
 | 5 | 4,9 |
 
