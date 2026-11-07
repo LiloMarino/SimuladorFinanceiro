@@ -99,7 +99,6 @@
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.1 | — | — | — | 🔍 |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | M28 · 4.6 | — | — | — | 🔍 |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.4 | — | — | — | 🔍 |
-| [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 | — | Médio | Bom | ⏳ |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.3 | — | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 | — | — | — | 🔍 |
@@ -111,7 +110,7 @@
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -135,6 +134,7 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F164](#f164), [F175](#f175), [F176](#f176) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
+| [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 | — | — | — | ✅ |
 
 </details>
 
@@ -150,11 +150,11 @@
 >
 > **Serve:** N34
 >
-> **Progresso:** 0/3 concluídos
+> **Progresso:** 1/3 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | — | ⏳ Pendente |
+| 1 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | — | ✅ Concluído |
 | 2 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | — | ⏳ Pendente |
 | 3 | [**F175**](#f175) | Feature | Federações partidárias | — | ⏳ Pendente |
 
@@ -287,7 +287,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M23 · 3.5 · 2º | 1 | Médio | Bom | ⏳ |
 | [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 · 3º | 0 | Alto | Bom | ⏳ |
 | [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | M22 · 4.0 · 1º | 2 | Alto | Bom | ⏳ |
@@ -330,7 +329,6 @@
 | **F159** | Feature | Conquista "Ordem com paciência" | N22 | D1 | M18 · 4.1 | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
 | **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M23 · 3.5 | — | Médio | Baixo | Médio | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | M23 · 3.5 | — | Alto | Médio | Médio | Bom |
-| **F195** | Feature | Acordo de base até o fim do mandato | N34 | — | M23 · 3.5 | — | Médio | Baixo | Alto | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.2 | — | Médio | Médio | Médio | Bom |
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
@@ -376,19 +374,6 @@
 
 <a id="f175"></a>
 **F175 — Federações partidárias.** Serve N34. Na regra real (Lei 14.208/2021), dois ou mais partidos se unem e agem como um só por no mínimo 4 anos; a federação é diferente da chapa com vice de outro partido, que já existe e vale só para a eleição. Aqui: (1) **Formação:** um partido propõe a outro, no molde do convite de vice (`election.vice_blocker`, `government_book.answer_vice`), inclusive ao partido do computador; a proposta vale até 6 meses antes do 1º turno, o mesmo prazo da filiação para concorrer (F173). (2) **Um partido só, por um mandato:** a federação dura até o fim do mandato que vem depois da eleição em que se formou. Nela há uma chapa presidencial, com o candidato que a proposta nomeia e o vice de qualquer partido federado; uma lista no Congresso, com os votos somados para a barreira de 5% e para o D'Hondt de `house.distribute`, e as cadeiras da federação repartidas entre os partidos dela pelo D'Hondt sobre o voto de cada um; e uma orientação, a do partido com mais cadeiras (sem cadeira ou com empate, a do partido que propôs). O parceiro pode desobedecer, com o custo normal da desobediência. (3) **O preço:** o partido pequeno escapa da barreira, mas perde o próprio candidato, fica preso pelo mandato e herda, enquanto durar a federação, metade da rejeição que cada grupo de eleitores (D19) tem pelo parceiro. Sair antes do prazo desfaz a federação e impede quem saiu de se federar na eleição seguinte. (4) **Tela:** a federação aparece no cartão dos partidos da Eleição, no hemiciclo do Congresso e no jornal (formada, desfeita); o desenho começa registrando as telas e os estados no canvas: proposta pendente, federação formada, federação desfeita antes do prazo e expansão desligada.
-
-<a id="f195"></a>
-**F195 — Acordo de base até o fim do mandato.** Serve N34. Hoje o apoio de cada bancada vale 6 meses (`deals.TERM_MONTHS`) e se renova à mão; no playtest de 31/out isso virou tarefa repetida. A regra nova troca o prazo curto por uma negociação por mandato que um governo fraco perde:
-- (1) **Duração:** o acordo vale até a véspera da posse seguinte (`term_end`). O preço é o de hoje (`SEAT_PRICE` por cadeira, 1,5 vez no centrão), pago por mês enquanto o acordo durar. O card da base perde o aviso "O acordo com o X acaba em…" e o "Propor de novo", e a coluna "Prazo" mostra o fim do mandato.
-- (2) **Cobrança com o governo fraco:** quando o fechamento do mês deixa a aprovação abaixo de 35 (`FLOOR + RISK_MARGIN`, o mesmo ponto em que as Pendências mostram o risco de impeachment), cada bancada da base cobra 50% a mais. A cobrança fica 15 dias nas Pendências (`ANSWER_DAYS`) e no card da base: aceitar mantém o acordo, com o preço novo, até o fim do mandato; recusar ou deixar vencer tira a bancada da base sem contar como quebra do governo (sem a rejeição de `BREAK_REJECTION`).
-- (3) **Uma cobrança por queda:** a bancada volta a cobrar só depois que a aprovação fechar um mês acima de 45 e cair de novo abaixo de 35, para a cobrança não virar a tarefa repetida que este card tira.
-- (4) **Voltar à base:** a bancada que saiu pode ser chamada pela proposta de hoje; com a aprovação abaixo de 35, o preço da proposta já vem com os 50%.
-- (5) **Jornal:** manchete quando uma bancada deixa a base por causa da aprovação ("O PP deixa a base do governo").
-- (6) **Partida salva:** acordo já assinado vale até a data dele; os novos valem até o fim do mandato. O governo do computador continua sem negociar.
-
-As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`, ao lado das de hoje.
-
-**Aceite:** um mandato inteiro sem renovar acordo; uma queda abaixo de 35 gera uma cobrança por bancada, uma vez só até a aprovação passar de 45; recusar tira a bancada sem a rejeição da quebra; testes em `tests/test_deals.py` e `tests/test_deals_book.py`.
 
 <a id="f197"></a>
 **F197 — Rebalanceamento por meta com várias classes.** Serve N4. Hoje o `TargetRebalance` (`backend/features/strategy/rebalance.py:55`) divide só entre um ativo de ações (BOVA11 por padrão) e a renda fixa de liquidez diária: a meta em ações vai de 10% a 90% (padrão 60%), e o desvio máximo, de 1 a 20 pontos (padrão 5). O playtest de 31/out pediu configurar a meta de cada classe.
@@ -577,7 +562,22 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 ## ✅ Concluído
 
-> Nenhum item neste status.
+| ID | Tipo | Resumo | Serve | D# | Marco |
+| --- | --- | --- | --- | --- | --- |
+| **F195** | Feature | Acordo de base até o fim do mandato | N34 | — | M23 · 3.5 |
+
+<a id="f195"></a>
+**F195 — Acordo de base até o fim do mandato.** Serve N34. Hoje o apoio de cada bancada vale 6 meses (`deals.TERM_MONTHS`) e se renova à mão; no playtest de 31/out isso virou tarefa repetida. A regra nova troca o prazo curto por uma negociação por mandato que um governo fraco perde:
+- (1) **Duração:** o acordo vale até a véspera da posse seguinte (`term_end`). O preço é o de hoje (`SEAT_PRICE` por cadeira, 1,5 vez no centrão), pago por mês enquanto o acordo durar. O card da base perde o aviso "O acordo com o X acaba em…" e o "Propor de novo", e a coluna "Prazo" mostra o fim do mandato.
+- (2) **Cobrança com o governo fraco:** quando o fechamento do mês deixa a aprovação abaixo de 35 (`FLOOR + RISK_MARGIN`, o mesmo ponto em que as Pendências mostram o risco de impeachment), cada bancada da base cobra 50% a mais. A cobrança fica 15 dias nas Pendências (`ANSWER_DAYS`) e no card da base: aceitar mantém o acordo, com o preço novo, até o fim do mandato; recusar ou deixar vencer tira a bancada da base sem contar como quebra do governo (sem a rejeição de `BREAK_REJECTION`).
+- (3) **Uma cobrança por queda:** a bancada volta a cobrar só depois que a aprovação fechar um mês acima de 45 e cair de novo abaixo de 35, para a cobrança não virar a tarefa repetida que este card tira.
+- (4) **Voltar à base:** a bancada que saiu pode ser chamada pela proposta de hoje; com a aprovação abaixo de 35, o preço da proposta já vem com os 50%.
+- (5) **Jornal:** manchete quando uma bancada deixa a base por causa da aprovação ("O PP deixa a base do governo").
+- (6) **Partida salva:** acordo já assinado vale até a data dele; os novos valem até o fim do mandato. O governo do computador continua sem negociar.
+
+As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`, ao lado das de hoje.
+
+**Aceite:** um mandato inteiro sem renovar acordo; uma queda abaixo de 35 gera uma cobrança por bancada, uma vez só até a aprovação passar de 45; recusar tira a bancada sem a rejeição da quebra; testes em `tests/test_deals.py` e `tests/test_deals_book.py`.
 
 ---
 
