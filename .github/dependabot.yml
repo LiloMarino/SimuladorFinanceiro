@@ -55,7 +55,7 @@ updates:
       docs-minor-patch:
         update-types: ["minor", "patch"]
 
-  # Ferramentas de desenvolvimento da raiz (concurrently, cross-env)
+  # Ferramentas de desenvolvimento da raiz (concurrently, gifski)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:

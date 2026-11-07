@@ -118,7 +118,6 @@ dev = [
     "deptry>=0.25.1",
     "git-cliff>=2.14.2",
     "httpx2>=2.13.1",
-    "line-profiler>=5.0.2",
     "matplotlib>=3.10.9",
     "pillow>=13.0.0",
     "playwright>=1.64.1",

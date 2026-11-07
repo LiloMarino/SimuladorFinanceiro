@@ -30,7 +30,7 @@ Componentes, hooks, contexts e outros recursos dentro de `shared/` são **REAPRO
 
 **Exemplo:**
 ```
-shared/components/base-card.tsx
+shared/components/kpi.tsx
 ```
 Este componente pode ser usado em qualquer feature do projeto.
 
@@ -134,44 +134,6 @@ Na raiz ficam também `main.py` (a entrada da aplicação), `pyproject.toml` e `
 
 ---
 
-## Atualização da Árvore de Estrutura
-
-O script abaixo gera a árvore completa do projeto, com todas as subpastas:
-
-```bash
-python -X utf8 ./scripts/tree.py > arvore.md
-```
-
-### Como Adicionar Descrições
-
-As descrições exibidas ao lado dos arquivos e pastas na árvore são carregadas do arquivo:
-
-```
-scripts/tree_descriptions.yaml
-```
-
-Para adicionar ou alterar descrições, edite esse arquivo YAML seguindo o padrão:
-
-```yaml
-backend/: Lógica do backend em FastAPI
-backend/core/: Infraestrutura central do backend
-frontend/: Aplicação React + TypeScript
-```
-
-Após salvar, execute novamente:
-
-```bash
-python -X utf8 ./scripts/tree.py > arvore.md
-```
-
-Isso gerará a estrutura atualizada com os comentários alinhados.
-
-:::tip
-Após gerar, você pode atualizar esta documentação com a nova árvore se houver mudanças significativas na estrutura.
-:::
-
----
-
 ## Convenções de Nomenclatura
 
 ### Backend (Python)
@@ -205,8 +167,8 @@ class SimulationEngine:
 
 **Exemplo:**
 ```typescript
-// frontend/shared/components/base-card.tsx
-export const BaseCard = () => { ... }
+// frontend/shared/components/kpi.tsx
+export function Kpi() { ... }
 
 // frontend/shared/hooks/useAuth.ts
 export const useAuth = () => { ... }

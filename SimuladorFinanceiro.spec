@@ -29,7 +29,6 @@ a = Analysis(
         # Dev / tooling
         'pyright',
         'ruff',
-        'line_profiler',
         'radon',
         'snakeviz',
 
