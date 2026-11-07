@@ -74,7 +74,6 @@
 | [**F81**](#f81) | Manutenção | CORS restrito à mesma origem | — | — | Baixo | Médio | 💤 |
 | [**F90**](#f90) | Feature | Cenários | M25 · 4.3 | — | — | — | 🔍 |
 | [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.3 | — | — | — | 🔍 |
-| [**F100**](#f100) | Feature | Proventos na carteira e nas telas | M22 · 4.0 | — | Médio | Bom | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.1 | — | Alto | Médio | 💤 |
 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | M18 · 4.1 | — | — | — | 🔍 |
 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | M18 · 4.1 | — | — | — | 🔍 |
@@ -108,7 +107,7 @@
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | — | Alto | Médio | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (34 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (35 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -133,6 +132,7 @@
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | M22 · 4.0 | — | — | — | ✅ |
+| [**F100**](#f100) | Feature | Proventos na carteira e nas telas | M22 · 4.0 | — | — | — | ✅ |
 | [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | M22 · 4.0 | — | — | — | ✅ |
 | [**F234**](#f234) | Manutenção | Juros compostos num módulo só | M22 · 4.0 | — | — | — | ✅ |
 | [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | M22 · 4.0 | — | — | — | ✅ |
@@ -161,12 +161,12 @@
 >
 > **Serve:** N3, N7
 >
-> **Progresso:** 14/16 concluídos
+> **Progresso:** 15/16 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | — | ✅ Concluído |
-| 2 | [**F100**](#f100) | Feature | Proventos na carteira e nas telas | [F22](#f22) | ⏳ Pendente |
+| 2 | [**F100**](#f100) | Feature | Proventos na carteira e nas telas | — | ✅ Concluído |
 | 3 | [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | ✅ Concluído |
 | 4 | [**F234**](#f234) | Manutenção | Juros compostos num módulo só | — | ✅ Concluído |
 | 5 | [**F235**](#f235) | Manutenção | Tipo Percent no indicador do BCB | — | ✅ Concluído |
@@ -297,7 +297,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F100**](#f100) | Feature | Proventos na carteira e nas telas | M22 · 4.0 · 2º | 1 | Médio | Bom | ⏳ |
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | M22 · 4.0 · 16º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.2 · 1º | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 · 2º | 0 | — | — | 🔍 |
@@ -327,7 +326,6 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F6** | Feature | Link de convite pela internet no lobby | N2 | — | M27 · 4.5 | [F5](#f5) | Médio | Médio | Alto | Bom |
 | **F56** | Feature | Novidades no app | N14 | — | M27 · 4.5 | — | Baixo | Baixo | Médio | Bom |
-| **F100** | Feature | Proventos na carteira e nas telas | N3, N7 | D3 | M22 · 4.0 | [F22](#f22) | Médio | Médio | Médio | Bom |
 | **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | D21 | M28 · 4.6 | — | Médio | Baixo | Alto | Bom |
 | **F133** | Feature | Tópicos de conceitos do Como jogar | N25 | D21 | M28 · 4.6 | — | Baixo | Baixo | Médio | Bom |
 | **F139** | Docs | Demonstração regravada com o jogo de hoje | N25 | — | M28 · 4.6 | [F44](#f44) | Médio | Baixo | Alto | Bom |
@@ -345,10 +343,6 @@
 
 <a id="f56"></a>
 **F56 — Novidades no app.** Serve N14. Como as notas de patch de um jogo: o `CHANGELOG.md` da F51 vai junto no executável, o backend o serve com a versão, e o lobby mostra as novidades da versão atual. Na primeira abertura depois de atualizar, o card ou o selo de novidades fica em destaque até ser aberto (o navegador guarda a última versão vista); aberto, mostra "O que há de novo na versão X" e dá acesso ao histórico inteiro. O lugar exato no lobby, que já está cheio, sai de uma iteração no Claude Design antes de implementar.
-
-<a id="f100"></a>
-**F100 — Proventos na carteira e nas telas.** Serve N3 e N7; segue a D3. Continua a F22, que guarda os dividendos de cada ativo, reais e gerados, e os credita no caixa na data ex com o ativo de origem; aqui o provento passa a aparecer no jogo. O provento cai no caixa e nunca reinveste sozinho: o que fazer com o dinheiro é do jogador. As telas passam antes pelo canvas. Plano: (1) **Carteira:** o total de proventos recebidos aparece no resumo e, em cada posição, o rendimento (proventos dos últimos 12 meses sobre o valor da posição hoje), em Decimal (D3), com a dica do que ele mede e de como ler. (2) **Detalhe do ativo:** a tela do ativo ganha o histórico de proventos (data ex, valor por cota, total recebido pelo jogador). (3) **Estatísticas e fechamento:** o que entrou como provento soma ao relatório da partida e à decomposição do retorno. (4) **IR:** dividendo e rendimento de FII são isentos para pessoa física, e a regra do simulador trata todo provento como isento; o `yfinance` não separa o JCP (juros sobre capital próprio, com 15% retidos na fonte) do dividendo, e essa simplificação entra escrita na página de impostos dos docs. Gatilho: F22 concluída; sai com ela na 4.0 e destrava os rendimentos mensais da gestora (F105).
-**Aceite:** num ativo que pagou dividendos, o total recebido na carteira bate com a soma dos créditos no caixa na data ex, e o rendimento da posição bate com a conta feita à mão.
 
 <a id="f132"></a>
 **F132 — Tópicos de "como se joga" do Como jogar.** Serve N25. Completa o grupo de passo a passo da janela (F126) com os tópicos que faltam: entrar na sala, avançar o tempo, aplicar em renda fixa, ler as estatísticas e pegar crédito. Cada um é animado como "Comprar uma ação": componentes reais do app no palco, com contextos e dados de exemplo, e cursor e destaque que medem o DOM; entra no registro `features/tutorial/lib/topics.ts` com a cena em `features/tutorial/topics/`. Cada tópico pede um roteiro no canvas antes do código (quais passos, quanto dura, o que o cursor toca), e quem precisar de um dado novo no palco o acrescenta em `stage-data.ts`. Cada tela declara o tópico dela para o aviso pelo contexto.
@@ -564,6 +558,7 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F22** | Feature | Preço bruto, desdobramentos e dividendos na partida | N3, N7 | D1, D3, D7, D12 | M22 · 4.0 |
+| **F100** | Feature | Proventos na carteira e nas telas | N3, N7 | D3 | M22 · 4.0 |
 | **F233** | Manutenção | Constantes de calendário unificadas no core | — | — | M22 · 4.0 |
 | **F234** | Manutenção | Juros compostos num módulo só | — | — | M22 · 4.0 |
 | **F235** | Manutenção | Tipo Percent no indicador do BCB | — | — | M22 · 4.0 |
@@ -580,6 +575,10 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 
 <a id="f22"></a>
 **F22 — Preço bruto, desdobramentos e dividendos na partida.** Serve N3 e N7; segue a D1, a D3, a D7 e a D12. A importação do Yahoo Finance passou a `auto_adjust=False, actions=True`, e `features/import_data/corporate_events.py` reconstrói o preço bruto: cada pregão e cada dividendo é multiplicado pelo produto das razões dos desdobramentos com data ex posterior, e o volume é dividido por ele. Como toda atualização baixa o histórico inteiro, o bruto de um dia antigo não muda, e uma atualização depois de um 2:1 novo não cria queda de 50%. Desdobramentos e dividendos moram na tabela `stock_corporate_event` (data ex, tipo, razão ou valor por cota, origem e versão, no formato das séries da D7), com o repositório `corporate_event`; o congelar, o apagar e a troca do futuro gerado cobrem os eventos junto das séries. Na partida, `Simulation.next_tick` aplica os eventos da data ex antes de atualizar o mercado: o desdobramento muda a quantidade pela razão como evento `SPLIT` (o custo total fica, e o preço médio acompanha), a fração que sobra numa classe sem fração vira `FRACTION_SELL` ao close do dia (a cripto guarda a fração), as ordens abertas do ativo são canceladas e o dividendo entra no caixa como `DIVIDEND` com o ativo de origem (`event_cashflow.stock_id`), valor por cota vezes a quantidade da abertura, truncado ao centavo. O replay, as estatísticas, os setores, o imposto de renda e as conquistas leem `SPLIT` como mais quantidade e `FRACTION_SELL` como venda. O gerador do futuro calibra pelo retorno total (preço corrigido por desdobramento mais dividendos) e escreve o dividendo sintético na mesma tabela, com origem gerada e a mesma semente: o rendimento é a média dos últimos anos reais, com variação sorteada, nos meses do histórico; quem ficou 2 anos sem pagar continua sem pagar; a cripto não paga; e cada data ex gerada tira do preço o valor pago. Como não há banco anterior a converter, a migration é a da linha recomeçada da 4.0 mais a dos eventos, sem marca de série bruta. A F100 lê o `PlayerCorporateActions` que `apply_corporate_events` devolve.
+
+<a id="f100"></a>
+**F100 — Proventos na carteira e nas telas.** Serve N3 e N7; segue a D3. Continua a F22, que guarda os dividendos de cada ativo, reais e gerados, e os credita no caixa na data ex com o ativo de origem; aqui o provento passa a aparecer no jogo. O provento cai no caixa e nunca reinveste sozinho: o que fazer com o dinheiro é do jogador. As telas passam antes pelo canvas. Plano: (1) **Carteira:** o total de proventos recebidos aparece no resumo e, em cada posição, o rendimento (proventos dos últimos 12 meses sobre o valor da posição hoje), em Decimal (D3), com a dica do que ele mede e de como ler. (2) **Detalhe do ativo:** a tela do ativo ganha o histórico de proventos (data ex, valor por cota, total recebido pelo jogador). (3) **Estatísticas e fechamento:** o que entrou como provento soma ao relatório da partida e à decomposição do retorno. (4) **IR:** dividendo e rendimento de FII são isentos para pessoa física, e a regra do simulador trata todo provento como isento; o `yfinance` não separa o JCP (juros sobre capital próprio, com 15% retidos na fonte) do dividendo, e essa simplificação entra escrita na página de impostos dos docs. Gatilho: F22 concluída; sai com ela na 4.0 e destrava os rendimentos mensais da gestora (F105).
+**Aceite:** num ativo que pagou dividendos, o total recebido na carteira bate com a soma dos créditos no caixa na data ex, e o rendimento da posição bate com a conta feita à mão.
 
 <a id="f233"></a>
 **F233 — Constantes de calendário unificadas no core.** Nasceu `backend/core/periods.py` com `BUSINESS_DAYS_PER_YEAR = 252` (movido de `core/indicators.py`), `CALENDAR_DAYS_PER_YEAR = Decimal("365.25")`, `MONTHS_PER_YEAR = 12` e `DAYS_PER_MONTH`, e a docstring afirma que dia útil é sessão da B3 e dia corrido é dia de calendário. O tesouro, as estatísticas (`risk`, `returns`, `score`), o gerador sintético, o futuro gerado, o orçamento de vida, os efeitos do governo e o crédito importam de lá; os cinco `MONTHS_PER_YEAR` e os dois `DAYS_PER_MONTH` locais saíram, e o literal `12` virou a constante. As janelas de "um ano de pregões" (`achievements/metrics.py`, `newsroom/companies.py` e `newsroom/newsroom.py`) usam `BUSINESS_DAYS_PER_YEAR`. O `synthetic.py` renomeou a régua de dias sem feriado para `WEEKDAYS_PER_YEAR` e a manteve local. `economy/layer.py` ganhou `months_to_days`, que converte meses em dias corridos no mês médio, e `statistics/risk.py` ganhou `VOLATILITY_ANNUALIZER` (√252) em Decimal. Ficaram como estavam as janelas ajustáveis que só coincidem com 252 (`strategy/momentum.py`, `base_strategy.py`) e o `MONTH_DAYS = 30` do crédito, que é outra convenção.
