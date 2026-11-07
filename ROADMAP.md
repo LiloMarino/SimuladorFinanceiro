@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-07):** Registradas as manutenções da varredura de dívida técnica, o lote de agora e os adiados
+> **Última mudança (2026-11-07):** Concluída a limpeza de scripts e docs
 
 ## Glossário
 
@@ -118,7 +118,6 @@
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | — | Alto | Bom | ⏳ |
 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | Alto | Bom | ⏳ |
 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | Alto | Médio | ⏳ |
-| [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | — | Baixo | Bom | ⏳ |
 | [**F246**](#f246) | Manutenção | Payload dos eventos do governo tipado | — | — | Alto | Médio | 💤 |
 | [**F247**](#f247) | Manutenção | Trava do gerenciador de usuários garantida pelo código | — | — | Baixo | Bom | 💤 |
 | [**F248**](#f248) | Manutenção | Eleição determinística nos testes do livro de acordos | — | — | Médio | Bom | 💤 |
@@ -128,7 +127,7 @@
 | [**F252**](#f252) | Manutenção | Aviso local de testes de banco pulados | — | — | Baixo | Bom | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -152,6 +151,7 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
+| [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | — | — | — | ✅ |
 
 </details>
 
@@ -293,7 +293,6 @@
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | — | 0 | ⏳ Pendente |
 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | 0 | ⏳ Pendente |
 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | 0 | ⏳ Pendente |
-| [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | — | 0 | ⏳ Pendente |
 
 ---
 
@@ -336,7 +335,6 @@
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | 0 | Alto | Bom | ⏳ |
 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | 0 | Alto | Bom | ⏳ |
 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | 0 | Alto | Médio | ⏳ |
-| [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | 0 | Baixo | Bom | ⏳ |
 
 ---
 
@@ -370,7 +368,6 @@
 | **F242** | Manutenção | Partida do lobby em arquivos por parte | — | — | — | — | Alto | Médio | Médio | Bom |
 | **F243** | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | — | — | Alto | Médio | Médio | Bom |
 | **F244** | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | — | — | Alto | Alto | Médio | Médio |
-| **F245** | Manutenção | Limpeza de scripts e docs | — | — | — | — | Baixo | Baixo | Baixo | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -502,13 +499,6 @@ Por fora nada muda. Confere-se com `pnpm --dir frontend run check`, `vitest` e a
 Constantes e helpers puros, `PopRow`, `LegendItem` e `PaneLabel` vão para arquivos em `stock-chart/`. O par `fill` + efeito de criação vira o hook `useStockChartInstance`, que recebe `chartType`, `selectedScale`, `layout` e `height` e devolve as refs. Os dois `oxlint-disable` vão junto, com o contrato escrito no hook como afirmação: `layout` resume tudo o que o efeito lê.
 
 Por fora nada muda. Sem teste de componente, a conferência é no app de teste: trocar período, tipo e indicadores, com a mira e o zoom mantidos quando chega dado novo.
-
-<a id="f245"></a>
-**F245 — Limpeza de scripts e docs.** Há scripts sem uso (`scripts/plot_beta_distribution.py`, `scripts/tree.py`, `scripts/tree_descriptions.yaml`), o script `profile:line` do `package.json` e a docs de estrutura de pastas cita como exemplo `shared/components/base-card.tsx`, que não existe.
-
-Os três arquivos saem depois de conferir que nada os referencia. `profile:line` sai do `package.json`; se nada mais usar `line-profiler` e `cross-env`, saem do `pyproject` e do `package.json`, e o deptry e o knip confirmam. Em `docs/docs/desenvolvimento/estrutura-pastas.md` o exemplo passa a `shared/components/kpi.tsx`, usado por 7 features. O `contribuindo.md` fica como está.
-
-Por fora nada muda. Confere-se com `pnpm run check`.
 
 ---
 
@@ -725,7 +715,12 @@ O `pytest` passa a mostrar no cabeçalho da execução quantos testes foram pula
 
 ## ✅ Concluído
 
-> Nenhum item neste status.
+| ID | Tipo | Resumo | Serve | D# | Marco |
+| --- | --- | --- | --- | --- | --- |
+| **F245** | Manutenção | Limpeza de scripts e docs | — | — | — |
+
+<a id="f245"></a>
+**F245 — Limpeza de scripts e docs.** Saíram `scripts/plot_beta_distribution.py`, `scripts/tree.py` e `scripts/tree_descriptions.yaml`, junto com a seção "Atualização da Árvore de Estrutura" de `docs/docs/desenvolvimento/estrutura-pastas.md`, que ensinava a rodá-los. Os scripts `profile:line` e `profile:line:view` saíram do `package.json`, e com eles `line-profiler` (`pyproject.toml`, exclude do `.spec`) e `cross-env`; os dois lockfiles foram regenerados e o deptry confirma. O padrão `*.lprof` saiu do script `clean`. Na docs de estrutura de pastas, o exemplo `base-card.tsx`, que não existe, passou a `shared/components/kpi.tsx`. O `matplotlib`, que só o `plot_beta_distribution.py` usava, continua no grupo `dev` do `pyproject.toml`.
 
 ---
 
