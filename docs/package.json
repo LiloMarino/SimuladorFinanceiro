@@ -22,7 +22,7 @@
     "generate:api": "docusaurus clean-api-docs api && docusaurus gen-api-docs api"
   },
   "dependencies": {
-    "@dineug/erd-editor": "^4.2.0",
+    "@dineug/erd-editor": "^5.0.1",
     "@docusaurus/core": "3.10.2",
     "@docusaurus/preset-classic": "3.10.2",
     "@docusaurus/theme-common": "3.10.2",

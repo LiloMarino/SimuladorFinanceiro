@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@dineug/erd-editor':
-        specifier: ^4.2.0
-        version: 4.2.0
+        specifier: ^5.0.1
+        version: 5.0.1
       '@docusaurus/core':
         specifier: 3.10.2
         version: 3.10.2(@docusaurus/faster@3.10.2(@docusaurus/types@3.10.2(@swc/core@1.16.18)(@swc/html@1.16.18)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.31))(csso@5.0.5)(html-minifier-terser@7.2.0)(lightningcss@1.33.0)(postcss@8.5.31)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@8.1.1)(svgo@3.3.5))(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.31))(csso@5.0.5)(html-minifier-terser@7.2.0)(postcss@8.5.31)(svgo@3.3.5))(@mdx-js/react@3.1.1(@types/react@19.3.0)(react@19.3.1))(@rspack/core@1.7.12)(@swc/core@1.16.18)(@swc/html@1.16.18)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.31))(csso@5.0.5)(debug@4.4.3(supports-color@8.1.1))(html-minifier-terser@7.2.0)(lightningcss@1.33.0)(postcss@8.5.31)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@8.1.1)(svgo@3.3.5)(typescript@5.6.3)
@@ -1069,8 +1069,8 @@ packages:
     peerDependencies:
       postcss: ^8.4
 
-  '@dineug/erd-editor@4.2.0':
-    resolution: {integrity: sha512-TE5RQq+WPzMEei0j0GQeSq600HihrJtsWlRmcVTMO75Fupl6fYP3VHILXKyjyvYN0/pQ6soFmUffOKKe1ZNAWg==}
+  '@dineug/erd-editor@5.0.1':
+    resolution: {integrity: sha512-qCqxxDRVdxUGKmPyeDe0n5kI6FXLrv2avXv9qVuOfrR11eC5Pxqr9Qt0Lsc1DAhwxz9Usts00YlbYMPfpehmsA==}
 
   '@discoveryjs/json-ext@0.5.7':
     resolution: {integrity: sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==}
@@ -7997,7 +7997,7 @@ snapshots:
     dependencies:
       postcss: 8.5.31
 
-  '@dineug/erd-editor@4.2.0':
+  '@dineug/erd-editor@5.0.1':
     dependencies:
       '@chenglou/pretext': 1.0.0
       '@radix-ui/colors': 3.0.0
