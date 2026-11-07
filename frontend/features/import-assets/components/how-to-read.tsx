@@ -28,6 +28,10 @@ export function HowToRead() {
               <span className="h-2.5 w-8 rounded-full bg-[repeating-linear-gradient(135deg,var(--chart-3)_0_3px,transparent_3px_6px)] opacity-70" />
               Depois do fim: repete o último valor
             </span>
+            <span className="flex items-start gap-2">
+              <span className="mt-1 h-2.5 w-8 shrink-0 rounded-full bg-chart-2" />
+              <span>Calculado na partida a partir da SELIC, do IPCA e da bolsa (PIB e desemprego)</span>
+            </span>
           </div>
           <p>
             <b className="text-foreground">Atualizar</b> troca o gerado pelo real nos dias que o real já cobre.
