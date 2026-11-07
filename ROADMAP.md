@@ -106,11 +106,10 @@
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M25 · 4.3 | — | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
-| [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | M22 · 4.0 | — | Alto | Médio | ⏳ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | — | Alto | Médio | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (32 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (33 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -145,6 +144,7 @@
 | [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | M22 · 4.0 | — | — | — | ✅ |
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | M22 · 4.0 | — | — | — | ✅ |
 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | M22 · 4.0 | — | — | — | ✅ |
+| [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | M22 · 4.0 | — | — | — | ✅ |
 | [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | M22 · 4.0 | — | — | — | ✅ |
 
 </details>
@@ -161,7 +161,7 @@
 >
 > **Serve:** N3, N7
 >
-> **Progresso:** 12/15 concluídos
+> **Progresso:** 13/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -178,7 +178,7 @@
 | 11 | [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | ✅ Concluído |
 | 12 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | ✅ Concluído |
 | 13 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | ✅ Concluído |
-| 14 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | ⏳ Pendente |
+| 14 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | ✅ Concluído |
 | 15 | [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | ✅ Concluído |
 
 ### 4.1 — Expansão Gestoras (M18)
@@ -298,7 +298,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | M22 · 4.0 · 1º | 2 | Alto | Bom | ⏳ |
-| [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | M22 · 4.0 · 14º | 0 | Alto | Médio | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.2 · 1º | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.2 · 3º | 0 | Médio | Bom | ⏳ |
@@ -340,7 +339,6 @@
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
-| **F244** | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | M22 · 4.0 | — | Alto | Alto | Médio | Médio |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -388,13 +386,6 @@
 
 <a id="f225"></a>
 **F225 — Conceitos de economia real na docs e nomeados na tela.** Serve N41 e N25; condicionado por D21. **Para quem:** quem joga e quer entender por que a economia da partida reagiu como reagiu, e quem lê a docs sem jogar. **O que cobre:** uma página por conceito na categoria de explicação que a reorganização da docs cria: juro real e juro real neutro, curva IS, lei de Okun, curva de Phillips, princípio de Taylor e a reação do Banco Central, defasagem da política monetária, meta de inflação e tolerância, credibilidade e expectativas, prêmio de risco, dinâmica da dívida (r − g) e espiral da dívida, primário que estabiliza a dívida e dominância fiscal. Cada página diz o que o conceito mede, um exemplo numérico, o que é valor bom e ruim, a fonte (relatório do Banco Central, artigo ou livro-texto) e como o jogo o implementa, com a fórmula e os coeficientes: é o lugar único dos números do modelo (D21), e a seção de economia interligada de `docs/docs/como-usar/governo.md` passa a apontar para as páginas. Cada página fecha com o que o jogo simplifica em relação à economia real, e uma página própria reúne as simplificações do modelo inteiro: as defasagens comprimidas, os coeficientes fixos em todas as épocas, o Banco Central que reage só à inflação (e não ao hiato do PIB) e o câmbio representado pelo prêmio de risco enquanto o dólar não entra na partida. O conteúdo parte dos conceitos e das explicações do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) (`frontend/shared/concepts/concepts.tsx` e `frontend/features/explainers/`), adaptado ao que o jogo faz, e as fórmulas entram com KaTeX no Docusaurus (`remark-math` e `rehype-katex`). **Na tela:** onde um texto do jogo cita um conceito ("segue o princípio de Taylor"), o nome dele vem com o sublinhado pontilhado do app e o cursor de interrogação, o mesmo `HoverCardTrigger term` de `frontend/shared/components/ui/hover-card.tsx` que o nome do padrão de candle usa no desafio. Passar o mouse ou focar abre um cartão no molde de `pattern-hint.tsx`, com três blocos. Primeiro, o nome e uma frase do que o conceito é, sem fórmula. Depois, "Na partida agora": o conceito aplicado ao estado da partida, como "IPCA 6,2% contra meta de 3,0%: o Copom tende a subir a SELIC na próxima reunião". Por fim, o "Saiba mais" para a página da docs. Os dois primeiros funcionam sem rede, e só o link depende dela. **Mecanismo:** um componente `ConceptTerm` em `frontend/shared/components/` e um catálogo dos conceitos em `frontend/shared/lib/` (chave, nome, frase e caminho da página da docs). Cada tela que cita o conceito passa o trecho da partida que o cartão lê, já resolvido pela tela, e o "Na partida agora" é montado a partir desse trecho. No mesmo bloco de texto, só a primeira menção ao conceito leva o sublinhado. Um teste confere que o caminho de cada conceito do catálogo existe em `docs/docs/`. Os pontos de partida são o painel da Economia (cada parcela leva o nome do conceito), a decisão do Copom, o prêmio de risco do Tesouro e o card da dívida. **Onde mora:** `docs/docs/`, na categoria de explicação. **Gatilho:** depois da reorganização da docs.
-
-<a id="f244"></a>
-**F244 — Gráfico de ações em arquivos por parte e um hook.** `variable-income/components/stock-chart.tsx` tem constantes, helpers puros, três subcomponentes (`PopRow`, `LegendItem`, `PaneLabel`) e um efeito de criação do gráfico com dois `oxlint-disable` de exhaustive-deps, sem teste de componente. É o mais delicado dos quatro e o último da fila.
-
-Constantes e helpers puros, `PopRow`, `LegendItem` e `PaneLabel` vão para arquivos em `stock-chart/`. O par `fill` + efeito de criação vira o hook `useStockChartInstance`, que recebe `chartType`, `selectedScale`, `layout` e `height` e devolve as refs. Os dois `oxlint-disable` vão junto, com o contrato escrito no hook como afirmação: `layout` resume tudo o que o efeito lê.
-
-Por fora nada muda. Sem teste de componente, a conferência é no app de teste: trocar período, tipo e indicadores, com a mira e o zoom mantidos quando chega dado novo.
 
 ---
 
@@ -588,6 +579,7 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F241** | Manutenção | Card de ações de campanha em arquivos por parte | — | — | M22 · 4.0 |
 | **F242** | Manutenção | Partida do lobby em arquivos por parte | — | — | M22 · 4.0 |
 | **F243** | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | M22 · 4.0 |
+| **F244** | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | M22 · 4.0 |
 | **F245** | Manutenção | Limpeza de scripts e docs | — | — | M22 · 4.0 |
 
 <a id="f233"></a>
@@ -660,6 +652,9 @@ Por fora nada mudou.
 O `SaveStatus` ganhou arquivo próprio, com o tipo `RulesSaveStatus` que a folha e o lobby passam a compartilhar, e o `useNow` foi para `shared/hooks`.
 
 Por fora nada mudou.
+
+<a id="f244"></a>
+**F244 — Gráfico de ações em arquivos por parte e um hook.** `stock-chart.tsx` (994 linhas) virou a pasta `stock-chart/`: `index.tsx` com o componente e a composição, `chart-config.ts` (constantes, formatos e tipos), `chart-helpers.ts` (funções puras do dia, do período e dos textos da mira), `pop-row.tsx`, `legend-item.tsx`, `pane-label.tsx` e o hook `useStockChartInstance.ts`, que cria o gráfico, mantém as séries preenchidas e assina a mira. O corpo do efeito de criação e o preenchimento das séries foram movidos sem mudança de lógica; os efeitos mantêm a ordem de antes.
 
 <a id="f245"></a>
 **F245 — Limpeza de scripts e docs.** Saíram `scripts/plot_beta_distribution.py`, `scripts/tree.py` e `scripts/tree_descriptions.yaml`, junto com a seção "Atualização da Árvore de Estrutura" de `docs/docs/desenvolvimento/estrutura-pastas.md`, que ensinava a rodá-los. Os scripts `profile:line` e `profile:line:view` saíram do `package.json`, e com eles `line-profiler` (`pyproject.toml`, exclude do `.spec`) e `cross-env`; os dois lockfiles foram regenerados e o deptry confirma. O padrão `*.lprof` saiu do script `clean`. Na docs de estrutura de pastas, o exemplo `base-card.tsx`, que não existe, passou a `shared/components/kpi.tsx`. O `matplotlib`, que só o `plot_beta_distribution.py` usava, continua no grupo `dev` do `pyproject.toml`.
