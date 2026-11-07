@@ -185,6 +185,29 @@ Na tela de detalhes do ativo, você encontra:
 
 ---
 
+## Dividendos e desdobramentos
+
+Nas ações, FIIs e ETFs com histórico importado pelo Yahoo Finance, a partida aplica o que a empresa fez, no dia em que o mercado real aplicou (a data ex).
+
+### Dividendos
+
+O **dividendo** é a parte do lucro que a empresa reparte entre os acionistas. Na data ex, o caixa de cada jogador recebe **dividendo por ação × quantidade que ele tinha na abertura do dia**, truncado ao centavo. Ex.: um dividendo de R$ 0,45 e 150 ações dão R$ 67,50. Quem não tem a ação não recebe nada.
+
+- O preço da ação cai, na data ex, mais ou menos o valor pago. É por isso que receber dividendo não é ganho de graça: o patrimônio sobe no caixa e desce na ação.
+- O dividendo aparece no extrato do caixa com o nome do ativo e não paga imposto no simulador.
+- O **dividend yield** é o dividendo de 12 meses sobre o preço: R$ 1,40 pagos em um ano por uma ação de R$ 29,85 dão 4,7% ao ano. Acima de uns 6% é um pagador alto; perto de 0%, a ação quase não paga.
+
+### Desdobramentos
+
+O **desdobramento** divide cada ação em várias, sem mudar o valor da empresa nem o da sua posição. Num 2 para 1, 100 ações a R$ 10 (R$ 1.000) viram 200 ações a R$ 5 (R$ 1.000). O **preço médio** da posição acompanha: de R$ 10 para R$ 5, e o custo total continua R$ 1.000.
+
+- O **agrupamento** é o inverso: num 10 para 1, 100 ações a R$ 2 viram 10 a R$ 20.
+- Na **bonificação** (como 10% de ações novas), a conta pode sobrar uma fração de ação: 15 ações com 10% a mais dão 16,5. Ações, FIIs e ETFs só existem em quantidade inteira, então a fração (0,5) é vendida ao preço de fechamento do dia e o dinheiro vai ao caixa. Essa venda aparece no histórico como **venda de fração** e entra na conta do imposto como uma venda. A cripto guarda a fração.
+- As **ordens abertas** da ação são canceladas no dia do desdobramento, porque o preço limite delas deixa de fazer sentido com o preço novo.
+- Quando há dividendo e desdobramento no mesmo dia, o dividendo é pago sobre a quantidade já desdobrada.
+
+---
+
 ## Estratégias Comuns
 
 As estratégias abaixo se fazem à mão, com ordens manuais. As estratégias automáticas ainda não existem: o menu **Estratégias** está marcado como "Em breve".

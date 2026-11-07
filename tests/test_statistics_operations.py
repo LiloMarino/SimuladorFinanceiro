@@ -131,3 +131,26 @@ def test_monthly_volume_covers_months_without_trades():
 )
 def test_turnover_style_names_how_much_the_portfolio_turned(value, style):
     assert operations.turnover_style(value) == style
+
+
+def test_split_is_not_a_trade_and_the_fraction_counts_as_a_sale():
+    trades = [
+        trade(JAN, BUY, 100, "10"),
+        trade(JAN, EquityEventType.SPLIT, 100, "0"),
+        trade(JAN, EquityEventType.FRACTION_SELL, 1, "5"),
+    ]
+    history = [
+        PatrimonialHistoryDTO(
+            snapshot_date=JAN,
+            total_networth=Decimal(1000),
+            total_equity=Decimal(0),
+            total_fixed=Decimal(0),
+            total_cash=Decimal(1000),
+            total_contribution=Decimal(0),
+        )
+    ]
+
+    [month] = operations.monthly_volume(trades, history)
+
+    assert (month.buy_count, month.sell_count) == (1, 1)
+    assert (month.bought, month.sold) == (Decimal(1000), Decimal(5))

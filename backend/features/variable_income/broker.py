@@ -3,19 +3,30 @@ from __future__ import annotations
 import logging
 import threading
 from collections.abc import Callable
-from decimal import Decimal
+from decimal import ROUND_DOWN, Decimal
 from typing import TYPE_CHECKING
 from uuid import UUID
 
 from backend.core import repository
+from backend.core.dto.corporate_event import CorporateEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
-from backend.core.enum import EquityEventType, OrderAction
+from backend.core.enum import (
+    AssetClass,
+    CorporateEventKind,
+    EquityEventType,
+    OrderAction,
+)
 from backend.core.exceptions import InsufficentCashError, InsufficentPositionError
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import PositionUpdateEventDTO
+from backend.features.variable_income.corporate_actions import (
+    DividendReceived,
+    PlayerCorporateActions,
+    SplitApplied,
+)
 from backend.features.variable_income.entities.order import (
     MARKET_CLIENT_ID,
     LimitOrder,
@@ -28,6 +39,11 @@ if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine
 
 logger = logging.getLogger(__name__)
+
+
+CENT = Decimal("0.01")
+# Quantidade negocia com oito casas, como a coluna dos eventos
+QUANTITY_STEP = Decimal("1e-8")
 
 
 def to_money(price: float) -> Decimal:
@@ -45,8 +61,10 @@ def load_positions(client_id: UUID) -> dict[str, Position]:
         match event.event_type:
             case EquityEventType.BUY:
                 position.update_buy(event.price, event.quantity)
-            case EquityEventType.SELL:
+            case EquityEventType.SELL | EquityEventType.FRACTION_SELL:
                 position.update_sell(event.quantity)
+            case EquityEventType.SPLIT:
+                position.update_split(event.quantity)
 
     return {ticker: p for ticker, p in positions.items() if p.size > 0}
 
@@ -76,6 +94,131 @@ class Broker:
     def get_positions(self, client_id: UUID) -> dict[str, Position]:
         with self._lock:
             return self._positions[client_id]
+
+    def apply_corporate_events(
+        self,
+        events: list[CorporateEventDTO],
+        tickers: dict[int, str],
+        classes: dict[str, AssetClass],
+        closes: dict[str, Decimal],
+        client_ids: list[UUID],
+    ) -> dict[UUID, PlayerCorporateActions]:
+        """
+        Aplica desdobramentos e dividendos à posição que cada jogador tem na abertura
+        do dia. Na mesma data ex o desdobramento vem antes do dividendo: o valor por
+        cota da data ex já está na unidade nova.
+        """
+        applied: dict[UUID, PlayerCorporateActions] = {}
+        ordered = sorted(
+            events,
+            key=lambda e: (
+                e.ex_date,
+                e.stock_id,
+                e.kind is not CorporateEventKind.SPLIT,
+            ),
+        )
+        with self._lock:
+            for event in ordered:
+                ticker = tickers.get(event.stock_id)
+                if ticker is None:
+                    continue
+                value = Decimal(str(event.value))
+                for client_id in client_ids:
+                    position = self._positions[client_id].get(ticker)
+                    if position is None or position.size <= 0:
+                        continue
+                    actions = applied.setdefault(client_id, PlayerCorporateActions())
+                    match event.kind:
+                        case CorporateEventKind.SPLIT:
+                            actions.splits.append(
+                                self._apply_split(
+                                    client_id,
+                                    position,
+                                    value,
+                                    classes[ticker],
+                                    closes.get(ticker, position.avg_price),
+                                )
+                            )
+                        case CorporateEventKind.DIVIDEND:
+                            dividend = self._pay_dividend(client_id, position, value)
+                            if dividend is not None:
+                                actions.dividends.append(dividend)
+        return applied
+
+    def _apply_split(
+        self,
+        client_id: UUID,
+        position: Position,
+        ratio: Decimal,
+        asset_class: AssetClass,
+        close: Decimal,
+    ) -> SplitApplied:
+        ticker = position.ticker
+        size_before = position.size
+        avg_before = position.avg_price
+        delta = (size_before * ratio).quantize(QUANTITY_STEP) - size_before
+
+        self._mutate_position(
+            client_id=client_id,
+            ticker=ticker,
+            mutation=lambda p: p.update_split(delta),
+        )
+        self._push_equity_event(client_id, EquityEventType.SPLIT, ticker, delta, 0)
+
+        # Classe de quantidade inteira: a fração que sobrou vira venda ao close do dia
+        fraction = Decimal(0)
+        if not asset_class.fractional:
+            fraction = position.size - position.size.to_integral_value(ROUND_DOWN)
+        if fraction > 0:
+            self._simulation_engine.add_cash(client_id, close * fraction)
+            self._mutate_position(
+                client_id=client_id,
+                ticker=ticker,
+                mutation=lambda p: p.update_sell(fraction),
+            )
+            self._push_equity_event(
+                client_id, EquityEventType.FRACTION_SELL, ticker, fraction, close
+            )
+
+        return SplitApplied(
+            ticker=ticker,
+            ratio=ratio,
+            size_before=size_before,
+            size_after=position.size,
+            avg_price_before=avg_before,
+            avg_price_after=position.avg_price,
+            fraction_sold=fraction,
+            fraction_amount=close * fraction,
+        )
+
+    def _pay_dividend(
+        self, client_id: UUID, position: Position, per_share: Decimal
+    ) -> DividendReceived | None:
+        amount = (per_share * position.size).quantize(CENT, ROUND_DOWN)
+        if amount <= 0:
+            return None
+        self._simulation_engine.pay_dividend(client_id, position.ticker, amount)
+        return DividendReceived(position.ticker, per_share, position.size, amount)
+
+    def _push_equity_event(
+        self,
+        client_id: UUID,
+        event_type: EquityEventType,
+        ticker: str,
+        quantity: Decimal,
+        price: Decimal | int,
+    ) -> None:
+        EventManager.push_event(
+            EquityEventDTO(
+                simulation_id=self._simulation_engine.simulation_id,
+                user_id=UserManager.get_user_id(client_id),
+                event_type=event_type,
+                ticker=ticker,
+                quantity=quantity,
+                price=Decimal(price),
+                event_date=self._simulation_engine.current_date,
+            )
+        )
 
     def get_available_position(self, client_id: UUID, ticker: str) -> Decimal:
         with self._lock:

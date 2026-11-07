@@ -7,15 +7,13 @@ from decimal import Decimal
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.sector import SectorAllocationDTO, StockSegmentDTO
 from backend.core.dto.statistics_report import SectorProfitDTO
-from backend.core.enum import EquityEventType
 
 
 def final_quantities(trades: list[EquityEventDTO]) -> dict[str, Decimal]:
     """Quantidade em carteira de cada ativo depois de todas as execuções."""
     quantities: dict[str, Decimal] = defaultdict(Decimal)
     for trade in trades:
-        sign = 1 if trade.event_type is EquityEventType.BUY else -1
-        quantities[trade.ticker] += sign * trade.quantity
+        quantities[trade.ticker] += trade.event_type.quantity_sign * trade.quantity
     return {ticker: q for ticker, q in quantities.items() if q > 0}
 
 
@@ -49,8 +47,10 @@ def sector_profit(
     """
     by_ticker: dict[str, Decimal] = defaultdict(Decimal)
     for trade in trades:
-        sign = -1 if trade.event_type is EquityEventType.BUY else 1
-        by_ticker[trade.ticker] += sign * trade.quantity * trade.price
+        # Compra paga e venda recebe; o desdobramento não tem preço e soma zero
+        by_ticker[trade.ticker] -= (
+            trade.event_type.quantity_sign * trade.quantity * trade.price
+        )
     for ticker, value in position_values(trades, prices).items():
         by_ticker[ticker] += value
 

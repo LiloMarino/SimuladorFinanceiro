@@ -26,10 +26,16 @@ mudar os trechos.
   sorteados ano a ano pela semente. Cada um soma pontos à inflação anual, 1,5x
   isso à SELIC e a reação da bolsa à SELIC, sem repasse nominal.
 
+Dividendos: o caminho sorteado é de retorno total (o preço mais o provento). O
+ativo que pagava continua pagando: o rendimento anual e os meses de pagamento vêm
+dos últimos anos reais, e cada data ex gerada tira do preço o valor pago, como no
+mercado. O gerador não sorteia desdobramento.
+
 É uma conta pura sobre o histórico recebido: nada aqui lê ou grava no banco.
 """
 
 import zlib
+from bisect import bisect_left
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -38,7 +44,7 @@ from enum import IntEnum
 import numpy as np
 import pandas as pd
 
-from backend.core.enum import IndicatorSeries
+from backend.core.enum import CorporateEventKind, IndicatorSeries
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR, MONTHS_PER_YEAR
 from backend.core.utils import (
     business_days_between,
@@ -81,6 +87,21 @@ QUARTER_DAYS = 63
 
 PRICE_COLUMNS = ["open", "high", "low", "close", "volume"]
 
+# Anos reais (de 12 meses completos) que calibram o rendimento do dividendo
+DIVIDEND_YEARS = 5
+# Anos sem dividendo, os mais recentes, a partir dos quais o ativo deixa de pagar
+SILENT_YEARS = 2
+# O rendimento de cada ano gerado varia em torno da média por até esta fração
+DIVIDEND_VARIATION = 0.3
+DIVIDEND_SALT = zlib.crc32(b"dividend")
+# Um pagamento nunca tira mais que esta fração do preço
+MAX_PAYMENT_SHARE = 0.5
+# Sem histórico para calibrar, o ativo paga a média do segmento nestes meses, no dia 15
+NEW_ASSET_PAY_MONTHS = (3, 6, 9, 12)
+NEW_ASSET_PAY_DAY = 15
+# Dia máximo do mês da data ex típica: todo mês tem
+MAX_PAY_DAY = 28
+
 
 class Regime(IntEnum):
     """Bioma de um trecho, pelo tercil da volatilidade do Ibovespa nele."""
@@ -97,6 +118,12 @@ class AssetHistory:
     bars: pd.DataFrame
     segment: str | None = None
     sector: str | None = None
+    # Razão do desdobramento (2 é 2:1) e dividendo bruto por cota, por data ex; os
+    # preços de `bars` são os negociados na época
+    splits: pd.Series = field(default_factory=lambda: pd.Series(dtype=float))
+    dividends: pd.Series = field(default_factory=lambda: pd.Series(dtype=float))
+    # Cripto não paga dividendo
+    pays_dividends: bool = True
 
 
 @dataclass(frozen=True)
@@ -111,11 +138,32 @@ class MarketHistory:
 
 
 @dataclass(frozen=True)
+class GeneratedEvent:
+    """Provento gerado: dividendo bruto por cota na data ex."""
+
+    ex_date: date
+    kind: CorporateEventKind
+    value: float
+
+
+@dataclass(frozen=True)
 class GeneratedSeries:
     """Linhas geradas, no mesmo formato da entrada, prontas para gravar como geradas."""
 
     assets: dict[str, pd.DataFrame] = field(default_factory=dict)
     indicators: dict[IndicatorSeries, pd.Series] = field(default_factory=dict)
+    events: dict[str, list[GeneratedEvent]] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class _DividendProfile:
+    """O que o histórico diz do pagamento: anos completos, rendimento médio e calendário."""
+
+    years: int
+    average_yield: float
+    # Mês do pagamento e o dia típico dele
+    calendar: dict[int, int]
+    silent: bool
 
 
 def _clean(returns: np.ndarray) -> np.ndarray:
@@ -229,6 +277,7 @@ class SeriesGenerator:
         self._paths: dict[tuple[int, float], _Path] = {}
         self._bars: dict[str, pd.DataFrame] = {}
         self._returns: dict[str, np.ndarray] = {}
+        self._profiles: dict[str, _DividendProfile] = {}
         self._group_means: dict[tuple[str, str], np.ndarray] = {}
 
     def _prepare_economy(self) -> None:
@@ -336,9 +385,9 @@ class SeriesGenerator:
         selected = self.history.assets if tickers is None else tickers
         result = GeneratedSeries()
         for ticker in selected:
-            bars = self._generate_asset(draw, ticker, until)
-            if bars is not None:
-                result.assets[ticker] = bars
+            generated = self._generate_asset(draw, ticker, until)
+            if generated is not None:
+                result.assets[ticker], result.events[ticker] = generated
         self._generate_indicators(draw, until, result.indicators)
         return result
 
@@ -492,9 +541,24 @@ class SeriesGenerator:
             self._bars[ticker] = _by_datetime(self.history.assets[ticker].bars)
         return self._bars[ticker]
 
+    def _total_return_level(self, ticker: str) -> pd.Series:
+        """
+        O fechamento com os eventos embutidos: o desdobramento não derruba o nível e
+        o dividendo entra como se fosse reinvestido na data ex. O retorno dele é o
+        que o ativo deu a quem o segurou.
+        """
+        bars = self._asset_bars(ticker)
+        asset = self.history.assets[ticker]
+        close = bars["close"]
+        ratio = _by_datetime(asset.splits).reindex(bars.index).fillna(1.0)
+        dividend = _by_datetime(asset.dividends).reindex(bars.index).fillna(0.0)
+        with np.errstate(all="ignore"):
+            step = np.where(close > 0, ratio * (close + dividend) / close, 1.0)
+        return pd.Series(close.to_numpy() * np.cumprod(step), index=bars.index)
+
     def _asset_returns(self, ticker: str) -> np.ndarray:
         if ticker not in self._returns:
-            close = self._asset_bars(ticker)["close"]
+            close = self._total_return_level(ticker)
             levels = close.reindex(self.calendar).to_numpy()
             returns = np.concatenate([[np.nan], np.log(levels[1:] / levels[:-1])])
             self._returns[ticker] = _clean(returns)
@@ -525,7 +589,7 @@ class SeriesGenerator:
 
     def _generate_asset(
         self, draw: "_Draw", ticker: str, until: date
-    ) -> pd.DataFrame | None:
+    ) -> tuple[pd.DataFrame, list[GeneratedEvent]] | None:
         bars = self._asset_bars(ticker)
         returns = self._asset_returns(ticker)
         own = ~np.isnan(returns)
@@ -604,10 +668,139 @@ class SeriesGenerator:
         volume = np.round(
             volume_ratio.fillna(1.0).to_numpy()[ratio_day] * recent_volume
         ).astype(np.int64)
-        return pd.DataFrame(
-            {"open": open_, "high": high, "low": low, "close": close, "volume": volume},
+
+        # O caminho acima é de retorno total: cada data ex tira do preço, daquele dia
+        # em diante, o dividendo pago
+        events, markdown = self._dividends(draw, ticker, days, close, last_close)
+        frame = pd.DataFrame(
+            {
+                "open": open_ * markdown,
+                "high": high * markdown,
+                "low": low * markdown,
+                "close": close * markdown,
+                "volume": volume,
+            },
             index=pd.Index(days, name="date"),
         )
+        return frame, events
+
+    # ------------------------------------------------------------------
+    # Dividendos
+
+    def _dividend_profile(self, ticker: str) -> _DividendProfile:
+        """
+        Os últimos anos reais do ativo, de 12 meses completos contados do último
+        pregão (até `DIVIDEND_YEARS`): o rendimento anual de cada um é o que ele
+        pagou sobre o preço médio do ano.
+        """
+        if ticker in self._profiles:
+            return self._profiles[ticker]
+        bars = self._asset_bars(ticker)
+        dividends = pd.Series(_by_datetime(self.history.assets[ticker].dividends))
+        last, first = bars.index[-1], bars.index[0]
+        yields: list[float] = []
+        days_of_month: dict[int, list[int]] = {}
+        for k in range(DIVIDEND_YEARS):
+            end = last - pd.DateOffset(months=12 * k)
+            start = last - pd.DateOffset(months=12 * (k + 1))
+            if start < first:
+                break
+            closes = bars["close"].loc[(bars.index > start) & (bars.index <= end)]
+            paid = dividends.loc[(dividends.index > start) & (dividends.index <= end)]
+            if closes.empty:
+                break
+            yields.append(float(paid.sum() / closes.mean()))
+            for day in paid.index:
+                days_of_month.setdefault(day.month, []).append(day.day)
+        profile = _DividendProfile(
+            years=len(yields),
+            average_yield=float(np.mean(yields)) if yields else 0.0,
+            calendar={
+                month: int(np.median(days)) for month, days in days_of_month.items()
+            },
+            silent=len(yields) >= SILENT_YEARS and not any(yields[:SILENT_YEARS]),
+        )
+        self._profiles[ticker] = profile
+        return profile
+
+    def _segment_yield(self, ticker: str) -> float:
+        """Rendimento médio dos outros ativos do segmento (senão do setor) com histórico para calibrar."""
+        asset = self.history.assets[ticker]
+        for group in ("segment", "sector"):
+            key = getattr(asset, group)
+            if key is None:
+                continue
+            peers = [
+                self._dividend_profile(t)
+                for t, other in self.history.assets.items()
+                if t != ticker and other.pays_dividends and getattr(other, group) == key
+            ]
+            yields = [p.average_yield for p in peers if p.years >= SILENT_YEARS]
+            if yields:
+                return float(np.mean(yields))
+        return 0.0
+
+    def _payment_plan(self, ticker: str) -> tuple[float, dict[int, int]]:
+        """Rendimento anual e calendário (mês e dia típico) com que o ativo paga; vazio quando não paga."""
+        if not self.history.assets[ticker].pays_dividends:
+            return 0.0, {}
+        profile = self._dividend_profile(ticker)
+        if profile.years >= SILENT_YEARS:
+            if profile.silent:
+                return 0.0, {}
+            return profile.average_yield, profile.calendar
+        return self._segment_yield(ticker), dict.fromkeys(
+            NEW_ASSET_PAY_MONTHS, NEW_ASSET_PAY_DAY
+        )
+
+    def _dividends(
+        self,
+        draw: "_Draw",
+        ticker: str,
+        days: list[date],
+        total_return: np.ndarray,
+        last_close: float,
+    ) -> tuple[list[GeneratedEvent], np.ndarray]:
+        """
+        Os dividendos gerados e o fator que cada pregão aplica ao caminho de retorno
+        total. O valor de cada pagamento é a fatia do rendimento do ano sobre o
+        fechamento da véspera já com as quedas anteriores; a queda da data ex é essa
+        mesma fatia do preço.
+        """
+        markdown = np.ones(len(days))
+        annual_yield, calendar = self._payment_plan(ticker)
+        if annual_yield <= 0 or not calendar:
+            return [], markdown
+
+        salt = zlib.crc32(ticker.encode())
+        pay_days: dict[int, float] = {}
+        for year in range(days[0].year, days[-1].year + 1):
+            rng = np.random.default_rng([draw.seed, year, salt, DIVIDEND_SALT])
+            varied = annual_yield * (
+                1 + DIVIDEND_VARIATION * (2 * float(rng.random()) - 1)
+            )
+            share = min(varied / len(calendar), MAX_PAYMENT_SHARE)
+            for month, day in calendar.items():
+                target = date(year, month, min(day, MAX_PAY_DAY))
+                if not days[0] <= target <= days[-1]:
+                    continue
+                pay_days.setdefault(bisect_left(days, target), share)
+
+        events: list[GeneratedEvent] = []
+        level = 1.0
+        for index in sorted(pay_days):
+            share = pay_days[index]
+            before = last_close if index == 0 else float(total_return[index - 1])
+            events.append(
+                GeneratedEvent(
+                    ex_date=days[index],
+                    kind=CorporateEventKind.DIVIDEND,
+                    value=round(share * before * level, 6),
+                )
+            )
+            level *= 1 - share
+            markdown[index:] = level
+        return events, markdown
 
     # ------------------------------------------------------------------
     # Indicadores

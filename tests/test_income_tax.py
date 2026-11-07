@@ -388,3 +388,33 @@ def test_crypto_sales_do_not_count_toward_the_stock_exemption():
     assert february.stock_sales == Decimal("15000")
     assert february.exempt_profit == Decimal("2500")
     assert february.tax == Decimal("1500.00")
+
+
+def test_split_keeps_the_cost_and_lowers_the_average_price():
+    """Comprou 1.000 a 40 e, depois do 2:1, vende 1.000 a 30: o médio é 20, o lucro é 10 por ação."""
+    split = _event(EquityEventType.SPLIT, "ABCD3", date(2024, 1, 20), 1000, "0")
+    months = _assess(
+        _buy("ABCD3", date(2024, 1, 10), 1000, "40"),
+        split,
+        _sell("ABCD3", date(2024, 2, 5), 1000, "30"),
+    )
+
+    # 30 mil vendidos com 10 mil de lucro passam dos 20 mil isentos: 15% de 10 mil
+    assert months[(2024, 2)].tax == Decimal("1500.00")
+
+
+def test_fraction_sale_is_taxed_as_a_sale():
+    """A fração vendida ao close entra nas vendas do mês, sobre o preço médio."""
+    months = _assess(
+        _buy("ABCD3", date(2024, 1, 10), 15, "10"),
+        _event(EquityEventType.SPLIT, "ABCD3", date(2024, 2, 5), Decimal("1.5"), "0"),
+        _event(
+            EquityEventType.FRACTION_SELL,
+            "ABCD3",
+            date(2024, 2, 5),
+            Decimal("0.5"),
+            "20",
+        ),
+    )
+
+    assert months[(2024, 2)].exempt_profit > 0

@@ -476,3 +476,22 @@ def test_strategy_market_buy_keeps_the_exact_quantity(history, captured_events):
         matching.submit(order)
 
     assert engine.cash[BUYER] == Decimal("1000")
+
+
+def test_cancel_ticker_returns_the_reservations_of_that_asset_only(history):
+    """O desdobramento tira do book as ordens do ativo; a liquidez sintética fica."""
+    history({"seller": [(EquityEventType.BUY, "8", 10)]})
+    broker, engine = _broker(buyer="1000")
+    matching = MatchingEngine(broker)
+    buy = _limit(BUYER, OrderAction.BUY, 12, 10)
+    sell = _limit(SELLER, OrderAction.SELL, 20, 10)
+    liquidity = _limit(MARKET, OrderAction.SELL, 30, 5)
+    for order in (buy, sell, liquidity):
+        matching.submit(order)
+
+    assert matching.cancel_ticker("ABCD") == 2
+    assert matching.cancel_ticker("OTHER") == 0
+
+    assert engine.cash[BUYER] == Decimal("1000")
+    assert broker.get_available_position(SELLER, "ABCD") == 10
+    assert matching.order_book.find(liquidity.id) is liquidity

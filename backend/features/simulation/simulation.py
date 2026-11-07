@@ -1054,6 +1054,7 @@ class Simulation:
             raise StopIteration()
 
         # Avança para o próximo dia útil; passou do fim, a simulação terminou
+        previous_date = self._current_date
         if self._current_date <= self.settings.end_date:
             self._current_date = next_business_day(self._current_date)
         if self._current_date > self.settings.end_date:
@@ -1073,10 +1074,20 @@ class Simulation:
             self._engine.current_date = self._current_date
             # Obtém os dados do dia atual e atualiza o buffer
             stocks = self.get_stocks()
-            self._engine.update_market_data(stocks)
 
             # Só quem estava na sala ao iniciar participa: é quem tem depósito e cor
             users = repository.simulation_player.participants(self.settings.id)
+
+            # Desdobramentos e dividendos entram na abertura, antes de o book executar
+            # qualquer ordem do dia: a posição e as ordens já valem na unidade nova
+            self._engine.apply_corporate_events(
+                repository.corporate_event.get_between(
+                    previous_date, self._current_date, self.settings.id
+                ),
+                stocks,
+                [user.client_id for user in users],
+            )
+            self._engine.update_market_data(stocks)
 
         # Juros da renda fixa e, em seguida, as estratégias ligadas operam o dia
         with metrics.measure("engine", ENGINE_FIXED_INCOME):

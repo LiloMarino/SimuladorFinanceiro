@@ -57,9 +57,17 @@ def monthly_volume(
         lambda: defaultdict(int)
     )
     for trade in trades:
+        if not trade.event_type.is_trade:
+            continue
         month = trade.event_date.replace(day=1)
-        totals[month][trade.event_type] += trade.quantity * trade.price
-        counts[month][trade.event_type] += 1
+        # A venda da fração do desdobramento conta como venda
+        side = (
+            EquityEventType.BUY
+            if trade.event_type.quantity_sign > 0
+            else EquityEventType.SELL
+        )
+        totals[month][side] += trade.quantity * trade.price
+        counts[month][side] += 1
 
     months = {h.snapshot_date.replace(day=1) for h in history} | totals.keys()
     return [
@@ -90,7 +98,10 @@ def impact_cost(trades: list[EquityEventDTO], impact: PriceImpact) -> Decimal | 
         ticker_trades = list(group)
         factors = impact.factors_on(ticker, [t.event_date for t in ticker_trades])
         for trade in ticker_trades:
+            # Só a compra e a venda de mercado carregam o impacto de preço
+            if trade.event_type not in (EquityEventType.BUY, EquityEventType.SELL):
+                continue
             historical = trade.price / Decimal(str(factors[trade.event_date]))
-            sign = 1 if trade.event_type is EquityEventType.BUY else -1
+            sign = trade.event_type.quantity_sign
             total += sign * trade.quantity * (trade.price - historical)
     return total

@@ -8,6 +8,7 @@ from uuid import UUID
 
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
+from backend.core.dto.corporate_event import CorporateEventDTO
 from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
@@ -19,6 +20,7 @@ from backend.core.dto.stock import StockDTO
 from backend.core.enum import (
     AssetClass,
     CashflowEventType,
+    CorporateEventKind,
     EquityEventType,
     OrderAction,
 )
@@ -40,6 +42,7 @@ from backend.features.realtime.schemas import AutoRedeemEventDTO, CashUpdateEven
 from backend.features.statistics.sectors import effective_sectors
 from backend.features.tax_policy import DEFAULT_TAX_POLICY, PolicyOn, TaxPolicy
 from backend.features.variable_income.broker import Broker, to_money
+from backend.features.variable_income.corporate_actions import PlayerCorporateActions
 from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.order import MarketOrder
 from backend.features.variable_income.entities.position import Position
@@ -190,6 +193,7 @@ class SimulationEngine:
         delta: Decimal,
         event_type: CashflowEventType,
         life_event_key: str | None = None,
+        ticker: str | None = None,
     ) -> None:
         with self._lock:
             self._cash[client_id] += delta
@@ -202,9 +206,38 @@ class SimulationEngine:
                 amount=abs(delta),
                 event_date=self.current_date,
                 life_event_key=life_event_key,
+                ticker=ticker,
             )
         )
         notify("cash_update", CashUpdateEventDTO(cash=new_cash).to_json(), to=client_id)
+
+    def pay_dividend(self, client_id: UUID, ticker: str, amount: Decimal) -> None:
+        """Provento bruto de `ticker` no caixa do jogador."""
+        self._move_cash(client_id, amount, CashflowEventType.DIVIDEND, ticker=ticker)
+
+    def apply_corporate_events(
+        self,
+        events: list[CorporateEventDTO],
+        candles: list[CandleDTO],
+        client_ids: list[UUID],
+    ) -> dict[UUID, PlayerCorporateActions]:
+        """
+        Aplica à abertura do dia os eventos com data ex em (dia anterior, hoje]. As
+        ordens abertas do ativo saem do book antes do desdobramento: o preço delas
+        está na unidade antiga. Devolve, por jogador, o que foi aplicado.
+        """
+        if not events:
+            return {}
+        tickers = {stock.id: ticker for ticker, stock in self.stocks.items()}
+        splits = {e.stock_id for e in events if e.kind is CorporateEventKind.SPLIT}
+        for stock_id in splits:
+            if stock_id in tickers:
+                self.matching_engine.cancel_ticker(tickers[stock_id])
+        closes = {c.ticker: to_money(c.close) for c in candles}
+        classes = {ticker: stock.asset_class for ticker, stock in self.stocks.items()}
+        return self.broker.apply_corporate_events(
+            events, tickers, classes, closes, client_ids
+        )
 
     def add_cash(self, client_id: UUID, cash: Decimal) -> None:
         self._move_cash(

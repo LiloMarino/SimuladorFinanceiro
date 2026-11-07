@@ -312,6 +312,9 @@ class Stock(Base):
     stock_price_history: Mapped[list["StockPriceHistory"]] = relationship(
         "StockPriceHistory", back_populates="stock"
     )
+    stock_corporate_event: Mapped[list["StockCorporateEvent"]] = relationship(
+        "StockCorporateEvent", back_populates="stock"
+    )
 
 
 class Simulations(Base):
@@ -480,6 +483,13 @@ class EventCashflow(Base):
             name="event_cashflow_simulation_id_fkey",
         ),
         ForeignKeyConstraint(
+            ["stock_id"],
+            ["stock.id"],
+            ondelete="RESTRICT",
+            onupdate="CASCADE",
+            name="event_cashflow_stock_id_fkey",
+        ),
+        ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],
             ondelete="CASCADE",
@@ -527,6 +537,8 @@ class EventCashflow(Base):
     amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     # Qual imprevisto foi, para o histórico; nulo nos outros eventos
     life_event_key: Mapped[str | None] = mapped_column(Text)
+    # O ativo de que veio o dividendo; nulo nos eventos que não vêm de um ativo
+    stock_id: Mapped[int | None] = mapped_column(Integer)
     event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
@@ -582,7 +594,8 @@ class EventEquity(Base):
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
     stock_id: Mapped[int] = mapped_column(Integer, nullable=False)
     event_type: Mapped[str] = mapped_column(
-        Enum("BUY", "SELL", name="equity_event_type"), nullable=False
+        Enum("BUY", "SELL", "SPLIT", "FRACTION_SELL", name="equity_event_type"),
+        nullable=False,
     )
     quantity: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 8), nullable=False)
     price: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
@@ -1153,6 +1166,49 @@ class StockPriceHistory(Base):
     )
 
     stock: Mapped["Stock"] = relationship("Stock", back_populates="stock_price_history")
+
+
+class StockCorporateEvent(Base):
+    """Desdobramento ou dividendo de um ativo, no formato de `StockPriceHistory`."""
+
+    __tablename__ = "stock_corporate_event"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["stock_id"],
+            ["stock.id"],
+            ondelete="RESTRICT",
+            onupdate="CASCADE",
+            name="stock_corporate_event_stock_id_fkey",
+        ),
+        PrimaryKeyConstraint(
+            "stock_id",
+            "ex_date",
+            "kind",
+            "version",
+            name="stock_corporate_event_pkey",
+        ),
+    )
+
+    stock_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    ex_date: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
+    kind: Mapped[str] = mapped_column(
+        Enum("SPLIT", "DIVIDEND", name="corporate_event_kind"), primary_key=True
+    )
+    # Razão do desdobramento (2 é 2:1; 0,1 é grupamento 10:1) ou dividendo por cota, bruto
+    value: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 8), nullable=False)
+    origin: Mapped[str] = mapped_column(
+        Enum("REAL", "GENERATED", name="data_origin"),
+        nullable=False,
+        server_default=text("'REAL'"),
+    )
+    # 0 é a série comum; N é a cópia congelada da partida simulations.id = N
+    version: Mapped[int] = mapped_column(
+        BigInteger, primary_key=True, server_default=text("0")
+    )
+
+    stock: Mapped["Stock"] = relationship(
+        "Stock", back_populates="stock_corporate_event"
+    )
 
 
 class TickerProfile(Base):

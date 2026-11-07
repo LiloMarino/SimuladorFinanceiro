@@ -110,6 +110,8 @@ Médias de 50 futuros de 10 anos, com intensidade 6. Mesmo com 0 surtos o histó
 
 **Erro de dado da fonte.** Alguns ativos têm, no histórico baixado, dias em que o preço vai a quase zero e volta no dia seguinte. Uma alta acima de 100% ou uma queda abaixo de 50% num dia é tratada como dia sem pregão, para o erro não ser copiado para o futuro.
 
+**Dividendos.** O sorteio dos trechos usa o **retorno total** do ativo: o preço mais os dividendos, como se cada um fosse reinvestido na data ex. Assim a ação que pagava bem continua dando o mesmo retorno a quem a segura. O ativo que pagava continua pagando: o rendimento anual e os meses de pagamento vêm dos últimos cinco anos reais (até 12 meses completos cada um), com variação de até 30% de um ano para o outro, e cada data ex gerada tira do preço o valor pago. Um ativo que ficou os últimos dois anos sem pagar deixa de pagar, e a cripto não paga. O gerador não sorteia desdobramento.
+
 **Abertura, máxima, mínima e volume** vêm do mesmo dia real sorteado, como proporção do fechamento e do volume típico do ativo naquela época.
 
 ---

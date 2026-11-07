@@ -68,7 +68,14 @@ class PortfolioRepository:
                 (SimulationPlayers.simulation_id == EventEquity.simulation_id)
                 & (SimulationPlayers.user_id == EventEquity.user_id),
             )
-            .where(Stock.ticker == ticker, EventEquity.simulation_id == simulation_id)
+            .where(
+                Stock.ticker == ticker,
+                EventEquity.simulation_id == simulation_id,
+                # O desdobramento e a venda da fração não passam pelo book
+                EventEquity.event_type.in_(
+                    (EquityEventType.BUY.value, EquityEventType.SELL.value)
+                ),
+            )
             .order_by(EventEquity.event_date.desc(), EventEquity.id.desc())
             .limit(limit)
         ).all()

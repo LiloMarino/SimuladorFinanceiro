@@ -21,6 +21,7 @@ from backend.core.models.models import (
     Sectors,
     Segments,
     Stock,
+    StockCorporateEvent,
     StockPriceHistory,
     TickerProfile,
 )
@@ -68,6 +69,9 @@ class StockRepository:
             freeze_generated(session, StockPriceHistory, same_stock)
             if drop_generated(session, StockPriceHistory, same_stock) is not None:
                 mark_real_advanced(session, real_end)
+            event_stock = [StockCorporateEvent.stock_id == stock_id]
+            freeze_generated(session, StockCorporateEvent, event_stock)
+            drop_generated(session, StockCorporateEvent, event_stock)
             session.execute(
                 delete(StockPriceHistory).where(
                     *same_stock, StockPriceHistory.version == COMMON_VERSION
@@ -76,6 +80,12 @@ class StockRepository:
         else:
             replaced = swap_generated_for_real(
                 session, StockPriceHistory, same_stock, real_end
+            )
+            swap_generated_for_real(
+                session,
+                StockCorporateEvent,
+                [StockCorporateEvent.stock_id == stock_id],
+                real_end,
             )
         session.add_all(rows)
         return replaced
@@ -514,6 +524,9 @@ class StockRepository:
         # O histórico sai antes da ação: a FK de preço para ação é RESTRICT.
         session.execute(
             delete(StockPriceHistory).where(StockPriceHistory.stock_id == stock.id)
+        )
+        session.execute(
+            delete(StockCorporateEvent).where(StockCorporateEvent.stock_id == stock.id)
         )
         session.execute(delete(TickerProfile).where(TickerProfile.ticker == ticker))
         session.delete(stock)

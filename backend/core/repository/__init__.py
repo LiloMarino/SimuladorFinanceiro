@@ -1,5 +1,6 @@
 from backend.core.repository.achievements import AchievementsRepository
 from backend.core.repository.candle_challenge import CandleChallengeRepository
+from backend.core.repository.corporate_event import CorporateEventRepository
 from backend.core.repository.credit import CreditRepository
 from backend.core.repository.economic import EconomicRepository
 from backend.core.repository.event import EventRepository
@@ -24,6 +25,7 @@ from backend.core.repository.summaries import SummaryRepository
 from backend.core.repository.user import UserRepository
 
 stock = StockRepository()
+corporate_event = CorporateEventRepository()
 economic = EconomicRepository()
 user = UserRepository()
 event = EventRepository()

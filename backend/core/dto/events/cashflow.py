@@ -9,3 +9,5 @@ class CashflowEventDTO(BaseEventDTO):
     amount: Decimal
     # Qual imprevisto foi; nulo nos outros eventos
     life_event_key: str | None = None
+    # O ativo de que veio o dividendo; nulo nos eventos que não vêm de um ativo
+    ticker: str | None = None

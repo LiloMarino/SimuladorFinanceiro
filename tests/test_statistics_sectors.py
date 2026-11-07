@@ -84,3 +84,27 @@ def test_sector_profit_counts_open_positions_at_last_price():
         (None, Decimal("20")),
         ("Materiais Básicos", Decimal("-50")),
     ]
+
+
+def test_split_adds_shares_and_fraction_sale_removes_them():
+    """100 ações com bonificação de 10% viram 110; a fração de 0,5 sai numa venda."""
+    trades = [
+        trade("ITUB4", BUY, 100, "30"),
+        trade("ITUB4", EquityEventType.SPLIT, 10, "0"),
+        trade("ITUB4", EquityEventType.FRACTION_SELL, 1, "30"),
+    ]
+
+    assert sectors.final_quantities(trades) == {"ITUB4": Decimal(109)}
+
+
+def test_sector_profit_ignores_the_split_and_counts_the_fraction_as_a_sale():
+    trades = [
+        trade("ITUB4", BUY, 100, "30"),
+        trade("ITUB4", EquityEventType.SPLIT, 100, "0"),
+        trade("ITUB4", EquityEventType.FRACTION_SELL, 1, "15"),
+    ]
+
+    profit = sectors.sector_profit(trades, {"ITUB4": Decimal("15")}, CLASSIFICATION)
+
+    # Pagou 3.000, recebeu 15 da fração e tem 199 ações a 15
+    assert profit[0].profit == Decimal("-3000") + 15 + 199 * 15

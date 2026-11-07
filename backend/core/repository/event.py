@@ -55,8 +55,9 @@ class EventRepository:
         self, session: Session, simulation_id: int, user_id: int
     ) -> list[CashflowEventDTO]:
         """Os eventos de caixa do jogador na ordem em que aconteceram."""
-        rows = session.scalars(
-            select(EventCashflow)
+        rows = session.execute(
+            select(EventCashflow, Stock.ticker)
+            .outerjoin(Stock, Stock.id == EventCashflow.stock_id)
             .where(
                 EventCashflow.simulation_id == simulation_id,
                 EventCashflow.user_id == user_id,
@@ -72,8 +73,9 @@ class EventRepository:
                 event_date=row.event_date,
                 created_at=row.created_at,
                 life_event_key=row.life_event_key,
+                ticker=ticker,
             )
-            for row in rows
+            for row, ticker in rows
         ]
 
     @transactional
@@ -103,7 +105,10 @@ class EventRepository:
         since: date | None = None,
         ticker: str | None = None,
     ) -> list[DailyEquityFlowDTO]:
-        """Quantidade líquida (compras - vendas) por ativo e dia, a partir de `since`."""
+        """
+        Quantidade líquida (compras - vendas) por ativo e dia, a partir de `since`.
+        Desdobramento e venda de fração são ajustes da empresa, não pressão de mercado.
+        """
         quantity = func.sum(
             Case(
                 (EventEquity.event_type == "BUY", EventEquity.quantity),
@@ -132,6 +137,11 @@ class EventRepository:
     def _insert_cashflows(
         self, session: Session, cashflow_events: list[CashflowEventDTO]
     ) -> None:
+        tickers = {e.ticker for e in cashflow_events if e.ticker is not None}
+        stock_map = {
+            s.ticker: s.id
+            for s in session.query(Stock).filter(Stock.ticker.in_(tickers)).all()
+        }
         cashflow_models = [
             EventCashflow(
                 simulation_id=e.simulation_id,
@@ -141,6 +151,7 @@ class EventRepository:
                 event_date=e.event_date,
                 created_at=e.created_at,
                 life_event_key=e.life_event_key,
+                stock_id=stock_map[e.ticker] if e.ticker is not None else None,
             )
             for e in cashflow_events
         ]

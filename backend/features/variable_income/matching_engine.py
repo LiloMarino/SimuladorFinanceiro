@@ -120,6 +120,16 @@ class MatchingEngine:
         self._closed(order)
         return True
 
+    def cancel_ticker(self, ticker: str) -> int:
+        """Cancela as ordens abertas dos jogadores no ativo, devolvendo caixa e posição reservados."""
+        canceled = 0
+        for order in self.order_book.get_orders(ticker):
+            if order.client_id == MARKET_CLIENT_ID:
+                continue
+            if self.cancel(order_id=order.id, client_id=order.client_id):
+                canceled += 1
+        return canceled
+
     def cancel_all(self, client_id: UUID | None = None) -> int:
         """Cancela as ordens abertas de um jogador, ou de todos quando `client_id` é None.
 

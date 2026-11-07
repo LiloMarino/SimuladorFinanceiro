@@ -53,7 +53,9 @@ class CoverEngine(FakeSimulationEngine):
         self.marked_allowed = False
         self.use_cover_marked(lambda _client: self.marked_allowed)
 
-    def _move_cash(self, client_id, delta, event_type, life_event_key=None) -> None:
+    def _move_cash(
+        self, client_id, delta, event_type, life_event_key=None, ticker=None
+    ) -> None:
         self.cash[client_id] += delta
 
     def hold(self, asset: FixedIncomeAssetDTO, applied: str, current: str) -> None:

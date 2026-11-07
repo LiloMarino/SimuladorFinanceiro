@@ -21,6 +21,12 @@ from backend.core.exceptions.http_exceptions import (
     ServiceUnavailableError,
 )
 from backend.core.models.models import StockPriceHistory
+from backend.features.import_data.corporate_events import (
+    PRICE_COLUMNS,
+    events_from_frame,
+    has_actions,
+    to_raw_prices,
+)
 from backend.features.import_data.price_errors import fix_price_errors
 
 logger = logging.getLogger(__name__)
@@ -49,6 +55,7 @@ def yfinance_symbol(ticker: str) -> str:
 def from_yfinance(
     ticker: str, start: str | None = None, end: str | None = None
 ) -> pd.DataFrame:
+    """O histórico no preço bruto, com as colunas de dividendo e desdobramento."""
     symbol = yfinance_symbol(ticker)
     if start:
         end = end or datetime.today().strftime("%Y-%m-%d")  # noqa: DTZ002
@@ -59,7 +66,8 @@ def from_yfinance(
             symbol,
             start=start,
             end=end,
-            auto_adjust=True,
+            auto_adjust=False,
+            actions=True,
             multi_level_index=False,
         )
     else:
@@ -67,13 +75,14 @@ def from_yfinance(
         df = yf.download(
             symbol,
             period="max",
-            auto_adjust=True,
+            auto_adjust=False,
+            actions=True,
             multi_level_index=False,
         )
     if df is None or df.empty:
         logger.warning(f"Nenhum dado retornado para {ticker}.")
         raise NotFoundError(f"Nenhum dado retornado para {ticker}.")
-    return df
+    return to_raw_prices(df)
 
 
 def from_csv(file: UploadFile, fillzero: bool = True) -> pd.DataFrame:
@@ -297,7 +306,16 @@ def upsert_dataframe(
     if not classified and (segment := suggest_segment(info)):
         repository.stock.classify(ticker, segment)
 
-    # 2. Incremental a partir do último pregão real: o gerado depois dele é
+    # 2. Os eventos reais valem pelo histórico inteiro que a fonte devolveu; a cripto
+    # não paga provento nem desdobra
+    if has_actions(df) and not df.empty and stock.asset_class is not AssetClass.CRYPTO:
+        repository.corporate_event.replace_real(
+            stock.id,
+            events_from_frame(df, stock.id),
+            df.index.to_numpy().astype("datetime64[D]").min().item(),
+        )
+
+    # 3. Incremental a partir do último pregão real: o gerado depois dele é
     # trocado pelo real que chegou
     anchor_close = None
     if overwrite:
@@ -311,7 +329,7 @@ def upsert_dataframe(
                 logger.debug("'%s' já está atualizado.", ticker)
                 return None
 
-    # 3. Dia de erro da fonte vira interpolação quando o host deixa a correção ligada;
+    # 4. Dia de erro da fonte vira interpolação quando o host deixa a correção ligada;
     # a cripto fica como veio, porque o pico que volta no dia seguinte é mercado
     corrected: list[pd.Timestamp] = []
     if (
@@ -323,7 +341,7 @@ def upsert_dataframe(
             logger.info("%s dias de erro corrigidos em '%s'.", len(corrected), ticker)
     corrected_days = {day.date() for day in corrected}
 
-    # 4. Inserir dados no banco
+    # 5. Inserir dados no banco
     registros = [
         StockPriceHistory(
             stock_id=stock.id,
@@ -411,7 +429,8 @@ def from_yfinance_batch(tickers: list[str]) -> dict[str, pd.DataFrame]:
         list(symbols.values()),
         period="max",
         group_by="ticker",
-        auto_adjust=True,
+        auto_adjust=False,
+        actions=True,
     )
 
     if df is None:
@@ -420,9 +439,10 @@ def from_yfinance_batch(tickers: list[str]) -> dict[str, pd.DataFrame]:
     result = {}
     for ticker, symbol in symbols.items():
         try:
-            ticker_df = df[symbol].dropna(how="all")
+            # O pregão sem preço some, mesmo com a coluna de evento zerada
+            ticker_df = pd.DataFrame(df[symbol]).dropna(subset=PRICE_COLUMNS, how="all")
             if not ticker_df.empty:
-                result[ticker] = ticker_df
+                result[ticker] = to_raw_prices(ticker_df)
             else:
                 logger.warning(f"Nenhum dado retornado para {ticker} no lote.")
         except KeyError:

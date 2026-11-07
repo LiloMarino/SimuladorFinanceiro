@@ -32,6 +32,7 @@ from backend.core.models.models import (
     GeneratedFuture,
     Simulations,
     Snapshots,
+    StockCorporateEvent,
     StockPriceHistory,
 )
 from backend.core.repository.series_version import COMMON_VERSION, SeriesModel
@@ -41,6 +42,8 @@ from backend.core.repository.simulation import decode_settings
 def _date_column(model: SeriesModel) -> InstrumentedAttribute[date]:
     if model is StockPriceHistory:
         return StockPriceHistory.price_date
+    if model is StockCorporateEvent:
+        return StockCorporateEvent.ex_date
     return EconomicIndicatorHistory.ref_date
 
 

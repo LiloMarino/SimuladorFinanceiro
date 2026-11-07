@@ -115,6 +115,17 @@ O preço desses dias é inventado: a troca é essa. A linha da série mostra o s
 - **Corrigir ao importar** (chave no topo da tabela): ligada por padrão, a importação já corrige os dias de erro. Desligada, o dado entra como o Yahoo Finance mandou. Vale para as próximas importações.
 - **Corrigir erros de dado** (botão): aplica a correção ao que já está na base e mostra quantos dias foram trocados e em quantos ativos. Rodar de novo não acha mais nada. A correção sobrescreve o preço original, então, para voltar ao dado da fonte, é preciso desligar **Corrigir ao importar** e importar o ativo de novo com **Substituir o que já existe**.
 
+### Preço bruto, desdobramentos e dividendos
+
+A importação pelo Yahoo Finance guarda o **preço que o mercado negociou na época**, e não o preço "ajustado" que o Yahoo devolve por padrão. O Yahoo desfaz os desdobramentos no passado: depois de um desdobramento de 2 para 1, ele divide por dois todos os preços anteriores. A série fica contínua, mas mostra preços que nunca existiram. O simulador desfaz esse ajuste.
+
+Os desdobramentos e os dividendos viram **eventos** da ação, cada um na sua **data ex** (o primeiro dia em que quem compra a ação já não tem direito ao provento). Na partida, o desdobramento muda a quantidade da posição e o dividendo cai no caixa (veja [Dividendos e desdobramentos](./investimentos/renda-variavel.md#dividendos-e-desdobramentos)).
+
+- **Desdobramento**: a razão é de novos para antigos. Um 2 para 1 vale `2`: quem tinha 100 ações passa a ter 200, e o preço cai pela metade. Um agrupamento de 10 para 1 vale `0,1`: 100 ações viram 10, e o preço sobe dez vezes.
+- **Dividendo**: o valor bruto pago por ação. Ex.: R$ 0,45 por ação, com 150 ações, são R$ 67,50 no caixa.
+
+O CSV do Investing.com não traz eventos: o ativo importado por CSV tem só os preços, e o preço é o que o arquivo trouxer. Os ativos já importados antes desta versão precisam ser importados de novo, com **Substituir o que já existe**, para ganhar o preço bruto e os eventos.
+
 ---
 
 ## Métodos de Importação

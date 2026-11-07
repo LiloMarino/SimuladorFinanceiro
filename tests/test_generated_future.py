@@ -24,6 +24,7 @@ from backend.core.indicators import annual_index_rate
 from backend.core.models.models import (
     EconomicIndicatorHistory,
     Snapshots,
+    StockCorporateEvent,
     StockPriceHistory,
 )
 from backend.features.import_data import future
@@ -335,3 +336,60 @@ def test_gdp_and_unemployment_appear_apart_from_the_market_indicators(base: Engi
 
     assert kinds["IBOV"] is SeriesKind.INDICATOR
     assert kinds["GDP_GROWTH"] is kinds["UNEMPLOYMENT"] is SeriesKind.MACRO
+
+
+def put_generated_dividends(engine: Engine, *days: date) -> int:
+    """Dividendos gerados da série comum de BANK_A nas datas ex dadas."""
+    stock = repository.stock.get_by_ticker("BANK_A")
+    assert stock is not None
+    with Session(engine) as session:
+        session.add_all(
+            StockCorporateEvent(
+                stock_id=stock.id,
+                ex_date=day,
+                kind="DIVIDEND",
+                value=Decimal("0.5"),
+                origin=DataOrigin.GENERATED.value,
+                version=0,
+            )
+            for day in days
+        )
+        session.commit()
+    return stock.id
+
+
+def events_of(engine: Engine, version: int) -> list[date]:
+    with Session(engine) as session:
+        return list(
+            session.scalars(
+                select(StockCorporateEvent.ex_date)
+                .where(StockCorporateEvent.version == version)
+                .order_by(StockCorporateEvent.ex_date)
+            )
+        )
+
+
+def test_regenerating_freezes_the_played_dividends_and_drops_the_rest(base: Engine):
+    future.record(params(1))
+    simulation_id = saved_match(base, date(2004, 10, 1), PLAYED_UNTIL)
+    put_generated_dividends(base, date(2005, 1, 10), date(2005, 4, 11))
+
+    future.record(params(2))
+
+    assert events_of(base, simulation_id) == [date(2005, 1, 10)]
+    assert date(2005, 1, 10) not in events_of(base, 0)
+
+
+def test_real_arriving_takes_the_place_of_the_generated_dividends(base: Engine):
+    future.record(params(1))
+    put_generated_dividends(base, date(2005, 1, 10), date(2005, 4, 11))
+    days = [d for d in generated_closes(base) if d <= date(2005, 1, 31)]
+    real = pd.DataFrame(
+        {"Open": 1.0, "High": 1.0, "Low": 1.0, "Close": 1.0, "Volume": 1},
+        index=pd.to_datetime(days),
+    )
+
+    upsert_dataframe(real, "BANK_A")
+
+    # O dividendo gerado coberto pelo real sai; o que ficou depois dele permanece
+    assert events_of(base, 0) == [date(2005, 4, 11)]

@@ -1,5 +1,5 @@
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal
 
@@ -15,6 +15,7 @@ from backend.core.models.models import (
     EconomicIndicatorHistory,
     GeneratedFuture,
     Stock,
+    StockCorporateEvent,
     StockPriceHistory,
 )
 from backend.core.repository.generated_swap import (
@@ -35,6 +36,8 @@ class GeneratedRows:
     kind: SeriesKind
     key: str
     rows: list[dict]
+    # Proventos do ativo (`ex_date`, `kind`, `value`), gravados com as linhas dele
+    events: list[dict] = field(default_factory=list)
 
 
 class GeneratedFutureRepository:
@@ -146,7 +149,25 @@ class GeneratedFutureRepository:
             .group_by(EconomicIndicatorHistory.series)
             .order_by(EconomicIndicatorHistory.series)
         ).all()
-        return tuple(map(tuple, prices)), tuple(map(tuple, indicators))
+        events = session.execute(
+            select(
+                StockCorporateEvent.stock_id,
+                func.count(),
+                func.max(StockCorporateEvent.ex_date),
+                func.sum(StockCorporateEvent.value),
+            )
+            .where(
+                StockCorporateEvent.version == COMMON_VERSION,
+                StockCorporateEvent.origin == DataOrigin.REAL.value,
+            )
+            .group_by(StockCorporateEvent.stock_id)
+            .order_by(StockCorporateEvent.stock_id)
+        ).all()
+        return (
+            tuple(map(tuple, prices)),
+            tuple(map(tuple, indicators)),
+            tuple(map(tuple, events)),
+        )
 
     @transactional
     def replace(
@@ -163,7 +184,7 @@ class GeneratedFutureRepository:
         roda antes de cada série e pode interromper a troca levantando exceção,
         o que desfaz tudo.
         """
-        for model in (StockPriceHistory, EconomicIndicatorHistory):
+        for model in (StockPriceHistory, EconomicIndicatorHistory, StockCorporateEvent):
             freeze_generated(session, model, [])
             drop_generated(session, model, [])
 
@@ -188,6 +209,19 @@ class GeneratedFutureRepository:
                     for row in generated.rows
                 ],
             )
+            if generated.events:
+                session.execute(
+                    insert(StockCorporateEvent),
+                    [
+                        {
+                            **event,
+                            **key,
+                            "origin": DataOrigin.GENERATED.value,
+                            "version": COMMON_VERSION,
+                        }
+                        for event in generated.events
+                    ],
+                )
 
         values = {
             "seed": params.seed,

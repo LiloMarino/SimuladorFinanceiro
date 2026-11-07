@@ -154,11 +154,14 @@ def _sales_results(
     positions: dict[str, Position] = {}
     for event in settled:
         position = positions.setdefault(event.ticker, Position(event.ticker))
-        if event.event_type is EquityEventType.BUY:
-            position.update_buy(event.price, event.quantity)
-            continue
-        yield event, (event.price - position.avg_price) * event.quantity
-        position.update_sell(event.quantity)
+        match event.event_type:
+            case EquityEventType.BUY:
+                position.update_buy(event.price, event.quantity)
+            case EquityEventType.SPLIT:
+                position.update_split(event.quantity)
+            case EquityEventType.SELL | EquityEventType.FRACTION_SELL:
+                yield event, (event.price - position.avg_price) * event.quantity
+                position.update_sell(event.quantity)
 
 
 def _pool(asset_class: AssetClass, day_trade: bool) -> LossPool:

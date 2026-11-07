@@ -31,7 +31,12 @@ from backend.core.dto.generated_future import (
     SeriesStartDTO,
 )
 from backend.core.dto.series_coverage import SeriesKind
-from backend.core.enum import IndicatorSeries, MarketRegime
+from backend.core.enum import (
+    AssetClass,
+    CorporateEventKind,
+    IndicatorSeries,
+    MarketRegime,
+)
 from backend.core.exceptions.http_exceptions import BadRequestError, ConflictError
 from backend.core.repository.generated_future import GeneratedRows
 from backend.core.utils import (
@@ -76,17 +81,27 @@ class RecordingCancelledError(Exception):
 def load_market_history() -> MarketHistory:
     """O real da série comum no formato do gerador, com o setor e o segmento de cada ativo."""
     classification = repository.stock.get_classification()
+    stocks = {stock.id: stock for stock in repository.stock.get_stocks()}
     bars: dict[str, list[tuple]] = defaultdict(list)
     for ticker, *bar in repository.generated_future.get_real_prices():
         bars[ticker].append(tuple(bar))
+    splits: dict[str, dict[date, float]] = defaultdict(dict)
+    dividends: dict[str, dict[date, float]] = defaultdict(dict)
+    for event in repository.corporate_event.get_real():
+        target = splits if event.kind is CorporateEventKind.SPLIT else dividends
+        target[stocks[event.stock_id].ticker][event.ex_date] = event.value
     assets = {}
     for ticker, rows in bars.items():
         frame = pd.DataFrame(rows, columns=["date", *PRICE_COLUMNS]).set_index("date")
         segment = classification.get(ticker)
+        stock = repository.stock.get_by_ticker(ticker)
         assets[ticker] = AssetHistory(
             frame,
             segment=segment.segment if segment else None,
             sector=segment.sector if segment else None,
+            splits=pd.Series(splits[ticker], dtype=float),
+            dividends=pd.Series(dividends[ticker], dtype=float),
+            pays_dividends=stock is None or stock.asset_class is not AssetClass.CRYPTO,
         )
 
     values: dict[str, list[tuple[date, Decimal]]] = defaultdict(list)
@@ -398,7 +413,7 @@ def preview(request: FuturePreviewRequest) -> FuturePreviewDTO:
 
 
 def _rows(generated: GeneratedSeries) -> list[GeneratedRows]:
-    """O futuro nas colunas das tabelas; indicador como Decimal do valor já arredondado."""
+    """O futuro nas colunas das tabelas; indicador como Decimal do valor já arredondado, provento junto da série do ativo."""
     series = []
     for indicator, values in generated.indicators.items():
         line = _Line.of(values)
@@ -426,6 +441,14 @@ def _rows(generated: GeneratedSeries) -> list[GeneratedRows]:
                         "volume": int(columns["volume"][i]),
                     }
                     for i, day in enumerate(days)
+                ],
+                events=[
+                    {
+                        "ex_date": event.ex_date,
+                        "kind": event.kind.value,
+                        "value": Decimal(str(event.value)),
+                    }
+                    for event in generated.events.get(ticker, [])
                 ],
             )
         )

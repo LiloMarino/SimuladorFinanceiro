@@ -30,6 +30,11 @@ class Position:
         self.size -= size
         self.avg_price = (self.total_cost / self.size) if self.size > 0 else Decimal(0)
 
+    def update_split(self, delta: Decimal):
+        """Aplica um desdobramento ou grupamento: o tamanho muda e o custo total fica."""
+        self.size += delta
+        self.avg_price = (self.total_cost / self.size) if self.size > 0 else Decimal(0)
+
     def reserve(self, size: Decimal):
         """Reserva parte da posição para ordens em aberto."""
         if self.size - self.reserved < size:

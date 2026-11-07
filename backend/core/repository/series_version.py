@@ -9,12 +9,18 @@ gerado ser trocado, e lê a própria cópia onde ela existe e a comum no resto.
 from sqlalchemy import ColumnElement, and_, exists, or_
 from sqlalchemy.orm import aliased
 
-from backend.core.models.models import EconomicIndicatorHistory, StockPriceHistory
+from backend.core.models.models import (
+    EconomicIndicatorHistory,
+    StockCorporateEvent,
+    StockPriceHistory,
+)
 from backend.core.runtime.simulation_manager import SimulationManager
 
 COMMON_VERSION = 0
 
-type SeriesModel = type[StockPriceHistory] | type[EconomicIndicatorHistory]
+type SeriesModel = (
+    type[StockPriceHistory] | type[EconomicIndicatorHistory] | type[StockCorporateEvent]
+)
 
 
 def reading_version(simulation_id: int | None = None) -> int:
@@ -25,10 +31,12 @@ def reading_version(simulation_id: int | None = None) -> int:
     return COMMON_VERSION if active is None else active
 
 
-def _key(model: SeriesModel) -> tuple[str, str]:
+def _key(model: SeriesModel) -> tuple[str, ...]:
     if model is StockPriceHistory:
-        return "stock_id", "price_date"
-    return "series", "ref_date"
+        return ("stock_id", "price_date")
+    if model is StockCorporateEvent:
+        return ("stock_id", "ex_date", "kind")
+    return ("series", "ref_date")
 
 
 def seen_by(model: SeriesModel, version: int) -> ColumnElement[bool]:

@@ -504,7 +504,12 @@ def build_highlights(simulation_ids: list[int], nickname: str | None) -> Highlig
             )
         if (drawdown := risk.max_drawdown(days)) is not None:
             drawdowns.append(_highlight(player, drawdown))
-        trade_counts.append(_highlight(player, Decimal(len(trades.get(key, [])))))
+        market_trades = [
+            t
+            for t in trades.get(key, [])
+            if t.event_type in (EquityEventType.BUY, EquityEventType.SELL)
+        ]
+        trade_counts.append(_highlight(player, Decimal(len(market_trades))))
         tax_paid.append(_highlight(player, taxes.get(key, Decimal(0))))
         if player.player_nickname == nickname and (
             months := risk.monthly_returns(days)

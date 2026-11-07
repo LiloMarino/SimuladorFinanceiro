@@ -130,6 +130,29 @@ class OrderStatus(Enum):
 class EquityEventType(Enum):
     BUY = "BUY"
     SELL = "SELL"
+    # Desdobramento, grupamento ou bonificação: `quantity` é a variação de cotas, sem preço
+    SPLIT = "SPLIT"
+    # Venda da fração que sobra do desdobramento numa classe sem fração
+    FRACTION_SELL = "FRACTION_SELL"
+
+    @property
+    def quantity_sign(self) -> int:
+        """+1 quando o evento soma cotas à posição, -1 quando tira: `quantity` é sempre positiva, salvo no SPLIT."""
+        return QUANTITY_SIGN[self]
+
+    @property
+    def is_trade(self) -> bool:
+        """Compra ou venda de verdade; o desdobramento só reescreve a quantidade."""
+        return self is not EquityEventType.SPLIT
+
+
+QUANTITY_SIGN: dict[EquityEventType, int] = {
+    EquityEventType.BUY: 1,
+    EquityEventType.SELL: -1,
+    # A variação já vem com o sinal: negativa no grupamento
+    EquityEventType.SPLIT: 1,
+    EquityEventType.FRACTION_SELL: -1,
+}
 
 
 class AssetClass(Enum):
@@ -369,6 +392,11 @@ class IndicatorSeries(Enum):
 class DataOrigin(Enum):
     REAL = "REAL"
     GENERATED = "GENERATED"
+
+
+class CorporateEventKind(Enum):
+    SPLIT = "SPLIT"
+    DIVIDEND = "DIVIDEND"
 
 
 class MarketRegime(Enum):

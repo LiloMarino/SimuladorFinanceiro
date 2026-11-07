@@ -93,12 +93,17 @@ class FakeSimulationEngine(SimulationEngine):
         self.cash: defaultdict[uuid.UUID, Decimal] = defaultdict(Decimal, cash or {})
         self.stocks = {}
         self.fixed_broker = NoFixedIncome()
+        self.dividends: list[tuple[uuid.UUID, str, Decimal]] = []
 
     def get_cash(self, client_id: uuid.UUID) -> Decimal:
         return self.cash[client_id]
 
     def add_cash(self, client_id: uuid.UUID, cash: Decimal) -> None:
         self.cash[client_id] += cash
+
+    def pay_dividend(self, client_id: uuid.UUID, ticker: str, amount: Decimal) -> None:
+        self.cash[client_id] += amount
+        self.dividends.append((client_id, ticker, amount))
 
     def get_current_price(self, position: Position) -> Decimal:
         return position.avg_price

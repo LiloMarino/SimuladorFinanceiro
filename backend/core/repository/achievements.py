@@ -260,10 +260,11 @@ class AchievementsRepository:
 
 
 def _signed_quantity():
-    """Compra soma e venda subtrai, para o saldo de cada ativo."""
+    """Compra e desdobramento somam, venda e venda de fração subtraem, para o saldo de cada ativo."""
     return case(
-        (EventEquity.event_type == "BUY", EventEquity.quantity),
-        else_=-EventEquity.quantity,
+        (EventEquity.event_type.in_(("BUY", "SPLIT")), EventEquity.quantity),
+        (EventEquity.event_type.in_(("SELL", "FRACTION_SELL")), -EventEquity.quantity),
+        else_=0,
     )
 
 

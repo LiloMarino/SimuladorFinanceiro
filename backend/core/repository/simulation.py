@@ -18,6 +18,7 @@ from backend.core.models.models import (
     EconomicIndicatorHistory,
     SimulationPlayers,
     Simulations,
+    StockCorporateEvent,
     StockPriceHistory,
     Users,
 )
@@ -184,6 +185,11 @@ class SimulationRepository:
         )
         session.execute(
             delete(StockPriceHistory).where(StockPriceHistory.version == simulation_id)
+        )
+        session.execute(
+            delete(StockCorporateEvent).where(
+                StockCorporateEvent.version == simulation_id
+            )
         )
         deleted_id = session.scalar(
             delete(Simulations)
