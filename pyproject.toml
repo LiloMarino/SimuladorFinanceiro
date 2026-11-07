@@ -17,8 +17,12 @@ dependencies = [
     "toml>=0.10.2",
     "uvicorn[standard]>=0.54.0",
     "yappi>=1.7.6",
-    "yfinance>=1.8.0",
+    "yfinance>=1.4.1",
 ]
+
+[tool.uv]
+# O curl-cffi 0.17 trava toda requisição do yfinance até o timeout (os downloads voltam vazios)
+constraint-dependencies = ["curl-cffi<0.17"]
 
 [tool.deptry]
 known_first_party = ["backend"]

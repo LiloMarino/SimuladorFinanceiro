@@ -45,6 +45,7 @@ setup_logging(
 import asyncio
 import logging
 import sys
+import warnings
 import webbrowser
 from contextlib import asynccontextmanager
 from threading import Thread, Timer
@@ -69,6 +70,12 @@ from backend.features.simulation.simulation_loop import simulation_controller
 from backend.routes import register_routes
 
 logger = logging.getLogger("backend.main")
+
+# O yfinance ainda chama o `inplace` do pandas, e o aviso sairia a cada download; o
+# filtro vale só para o código do yfinance, e os avisos do nosso código seguem visíveis.
+warnings.filterwarnings(
+    "ignore", message=r"The inplace keyword", module=r"yfinance(\.|$)"
+)
 
 LOCAL_URL = f"http://localhost:{config.toml.server.port}"
 
