@@ -61,7 +61,7 @@ def build_panel(
     # Os números de campanha chegam a hoje com a queda do tempo aplicada
     state.advance(today)
     people = {user.id: user for user in users}
-    phase = _phase(state, book.cycle(), today)
+    phase = phase_of(state, book.cycle(), today)
     # Entre a apuração e a posse o ciclo já avançou: as datas são as da eleição que acabou
     cycle = book.cycle(
         state.cycle - 1 if phase is ElectionPhase.AWAITING_TERM else None
@@ -226,7 +226,9 @@ def _moves(state: GovernmentState, party: Party) -> list[ProfileMoveDTO]:
     ]
 
 
-def _phase(state: GovernmentState, cycle: ElectionCycle, today: date) -> ElectionPhase:
+def phase_of(
+    state: GovernmentState, cycle: ElectionCycle, today: date
+) -> ElectionPhase:
     if state.runoff is not None:
         return ElectionPhase.BETWEEN_ROUNDS
     if state.pending_term is not None:

@@ -25,6 +25,7 @@ from backend.core.dto.government import (
     GuidanceRequest,
     GuidanceRuleRequest,
     JoinPartyRequest,
+    MapPanelDTO,
     MeasurePreviewDTO,
     PartyFlagsRequest,
     PromisesPanelDTO,
@@ -49,6 +50,16 @@ government_router = APIRouter(prefix="/api/government", tags=["Government"])
 )
 def get_election(simulation: ActiveSimulation, user: CurrentUser):
     return simulation.get_election(user)
+
+
+@government_router.get(
+    "/map",
+    response_model=MapPanelDTO,
+    summary="Obter o mapa do Brasil",
+    description="Retorna os 27 estados e as 5 regiões, cada um com o eleitorado, a margem da pesquisa e a mistura de grupos de eleitores; a pesquisa atual em cada lugar (com a variação desde a anterior; entre os turnos, só os finalistas), o resultado do último turno, a rejeição de cada partido e a aprovação do governo. A região é a soma dos estados pesada pelo eleitorado. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+)
+def get_map(simulation: ActiveSimulation, user: CurrentUser):
+    return simulation.get_map(user)
 
 
 @government_router.post(

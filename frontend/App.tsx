@@ -15,6 +15,7 @@ import {
   Medal,
   Banknote,
   Landmark,
+  Map as MapIcon,
   Gavel,
   GraduationCap,
   LineChart,
@@ -26,6 +27,7 @@ import VariableIncomeDetailPage from "@/features/variable-income/pages/variable-
 import EconomyPage from "./features/economy/pages/economy";
 import ElectionPage from "./features/government/pages/election";
 import GovernmentPage from "./features/government/pages/government";
+import MapPage from "./features/government/pages/map";
 import PortfolioPage from "./features/portfolio/pages/portfolio";
 import SettingsPage from "./features/settings/pages/settings";
 import FixedIncomePage from "./features/fixed-income/pages/fixed-income";
@@ -89,6 +91,14 @@ const navItems: NavItem[] = [
     group: "Expansões",
     expansion: "government",
     pendingTypes: ["VICE_INVITE", "CAMPAIGN_OPEN"],
+  },
+  {
+    key: "map",
+    label: "Mapa",
+    endpoint: "/map",
+    icon: MapIcon,
+    group: "Expansões",
+    expansion: "government",
   },
   {
     key: "government",
@@ -173,6 +183,7 @@ export default function App() {
                           <Route path="/economy" element={<EconomyPage />} />
                           <Route path="/journal" element={<JournalPage />} />
                           <Route path="/election" element={<ElectionPage />} />
+                          <Route path="/map" element={<MapPage />} />
                           <Route path="/government" element={<GovernmentPage />} />
                         </Route>
                         <Route element={<SimulationModeLayout navItems={navItems} />}>

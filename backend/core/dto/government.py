@@ -24,6 +24,8 @@ from backend.core.enum import (
     GroupVerdict,
     MeasureKind,
     MeasureStatus,
+    PlaceKind,
+    Region,
     VicePhase,
     VoterGroup,
     VoterValue,
@@ -1128,3 +1130,108 @@ class RunoffContributionRequest(BaseDTO):
 class EndorsementRequest(BaseDTO):
     # Nulo é neutralidade
     party_id: int | None = None
+
+
+# O mapa do Brasil
+
+
+class MapPlaceDTO(BaseDTO):
+    """Um estado ou uma região: o tamanho, a margem da pesquisa e a mistura de grupos de eleitores."""
+
+    code: str
+    name: str
+    kind: PlaceKind
+    # A região do estado; nula na própria região
+    region: Region | None
+    electorate: int
+    # Fatia do eleitorado do país, de 0 a 1
+    electorate_share: Decimal
+    # Pontos para mais ou para menos da pesquisa no lugar; zero quando a sala desligou a margem
+    margin: int
+    # Fatia de cada grupo no eleitorado do lugar, de 0 a 1
+    groups: list[GroupScoreDTO]
+
+
+class MapPartyDTO(BaseDTO):
+    id: int
+    abbr: str
+    name: str
+    color: str | None
+
+
+class MapPollPlaceDTO(BaseDTO):
+    code: str
+    entries: list[PollEntryDTO]
+    undecided: Decimal
+    # A pesquisa anterior no mesmo lugar; vazia quando é a primeira
+    previous_entries: list[PollEntryDTO]
+
+
+class MapPollDTO(BaseDTO):
+    """A pesquisa atual em cada lugar, publicada com o erro de cada lugar; entre os turnos, só os finalistas."""
+
+    previous_date: date | None
+    next_date: date | None
+    date: date
+    runoff: bool
+    places: list[MapPollPlaceDTO]
+
+
+class MapResultEntryDTO(BaseDTO):
+    party_id: int
+    # Fatia nos votos válidos, de 0 a 100
+    share: Decimal
+    # Pontos em cada 100 eleitores
+    points: Decimal
+
+
+class MapResultPlaceDTO(BaseDTO):
+    code: str
+    entries: list[MapResultEntryDTO]
+
+
+class MapResultDTO(BaseDTO):
+    """A apuração do último turno em cada lugar, sem margem."""
+
+    round: int
+    date: date
+    national: list[MapResultEntryDTO]
+    places: list[MapResultPlaceDTO]
+
+
+class MapValueDTO(BaseDTO):
+    code: str
+    value: Decimal
+
+
+class MapRejectionDTO(BaseDTO):
+    """Em cada 100 eleitores do lugar, quantos não votam no partido de jeito nenhum."""
+
+    party_id: int
+    national: Decimal
+    places: list[MapValueDTO]
+
+
+class MapApprovalDTO(BaseDTO):
+    """A aprovação do governo em cada lugar, de 0 a 100."""
+
+    national: Decimal
+    places: list[MapValueDTO]
+
+
+class MapPanelDTO(BaseDTO):
+    places: list[MapPlaceDTO]
+    national_groups: list[GroupScoreDTO]
+    parties: list[MapPartyDTO]
+    viewer_party_id: int | None
+    # Nulo antes da primeira pesquisa da campanha
+    poll: MapPollDTO | None
+    # Nulo sem turno apurado ou sem o voto por grupo
+    result: MapResultDTO | None
+    rejection: list[MapRejectionDTO]
+    # Nulo quando o governo é o neutro do computador
+    approval: MapApprovalDTO | None
+    # O dia em que sai a primeira pesquisa da campanha
+    opens_on: date
+    first_round: date
+    phase: ElectionPhase

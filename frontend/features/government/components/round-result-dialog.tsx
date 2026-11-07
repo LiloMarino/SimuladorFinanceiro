@@ -1,4 +1,5 @@
 import { Gavel, Trophy } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
@@ -18,6 +19,8 @@ import { ElectedHouse } from "./elected-house";
 import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 import { PromiseBadges } from "./promise-badges";
 import { partyColor } from "@/shared/lib/party-colors";
+import { RoundResultMap, RoundResultSentence } from "./round-result-map";
+import { mapLink } from "../lib/map-url";
 import { RunoffResult } from "./runoff-result";
 
 type RoundResultDialogProps = {
@@ -86,6 +89,8 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
                   </div>
                 )}
 
+                <RoundResultMap result={result} />
+
                 {winner ? (
                   <Alert variant="success">
                     <Trophy />
@@ -119,6 +124,8 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
                   </Alert>
                 )}
 
+                <RoundResultSentence result={result} />
+
                 {house && <ElectedHouse house={house} />}
 
                 {canDonate && panel && (
@@ -150,6 +157,14 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
             </DialogBody>
 
             <DialogFooter variant="divided" className="sm:justify-end">
+              <Button
+                variant="ghost"
+                nativeButton={false}
+                render={<Link to={mapLink("result", "state")} />}
+                onClick={onClose}
+              >
+                Ver no mapa
+              </Button>
               <Button variant="outline" onClick={onClose}>
                 Fechar
               </Button>

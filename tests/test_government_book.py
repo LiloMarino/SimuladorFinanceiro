@@ -51,6 +51,7 @@ from backend.features.government.calendar import election_cycle
 from backend.features.government.campaign_panel import build_campaign, build_history
 from backend.features.government.governance import build_governance
 from backend.features.government.government_book import GovernmentBook
+from backend.features.government.map_panel import build_map
 from backend.features.government.panel import build_panel
 from backend.features.government.state import Party, replay
 from backend.features.notifications.news import Headline
@@ -1410,6 +1411,84 @@ def test_panel_publishes_the_poll_with_margin_and_the_exact_standing_to_members(
             assert abs(shown.points - value.points) <= group.margin
     assert poll.entries != truth.entries
     assert published.runoff_race is None
+
+
+def test_first_round_keeps_the_vote_of_each_group(book: GovernmentBook):
+    found(book, ALICE, "AAA", RED, "8000")
+    found(book, BOB, "BBB", BLUE, "2000", NICHE)
+    run_campaign(book)
+    book.on_tick(USERS, FIRST_ROUND, False)
+
+    first = book.state.results[-1]
+
+    assert first.round == 1
+    assert set(first.groups) == set(VoterGroup)
+
+
+def test_map_publishes_the_poll_in_every_place_with_its_own_margin(
+    book: GovernmentBook,
+):
+    found(book, ALICE, "AAA", RED)
+    run_campaign(book)
+
+    shown = build_map(book, settings(), ALICE, date(2021, 9, 10))
+
+    assert shown.poll is not None
+    assert shown.poll.runoff is False
+    assert len(shown.places) == len(shown.poll.places) == 32
+    margins = {p.code: p.margin for p in shown.places}
+    assert (margins["SP"], margins["BA"], margins["AC"]) == (3, 5, 12)
+    parties = {p.id for p in shown.parties}
+    for local in shown.poll.places:
+        assert {e.party_id for e in local.entries} == parties
+    assert shown.viewer_party_id == party_of(book, ALICE).id
+    assert shown.result is None
+
+
+def test_map_without_poll_margin_is_exact_and_marks_no_margin(book: GovernmentBook):
+    found(book, ALICE, "AAA", RED)
+    run_campaign(book)
+    exact_rules = settings().model_copy(update={"poll_margin": False})
+
+    shown = build_map(book, exact_rules, ALICE, date(2021, 9, 10))
+
+    assert {p.margin for p in shown.places} == {0}
+
+
+def test_map_before_the_campaign_has_no_poll_but_keeps_the_rejection(
+    book: GovernmentBook,
+):
+    found(book, ALICE, "AAA", RED)
+
+    shown = build_map(book, settings(), ALICE, date(2020, 5, 1))
+
+    assert shown.phase is ElectionPhase.BEFORE_CAMPAIGN
+    assert shown.poll is None
+    assert shown.result is None
+    assert party_of(book, ALICE).id in {r.party_id for r in shown.rejection}
+    assert all(len(r.places) == 32 for r in shown.rejection)
+
+
+def test_map_between_the_rounds_has_only_the_finalists_and_the_result(
+    book: GovernmentBook,
+):
+    found(book, ALICE, "AAA", RED, "8000")
+    found(book, BOB, "BBB", BLUE, "2000", NICHE)
+    run_campaign(book)
+    book.on_tick(USERS, FIRST_ROUND, False)
+    finalists = set(book.state.results[-1].finalists)
+    assert len(finalists) == 2
+
+    shown = build_map(book, settings(), BOB, date(2021, 10, 10))
+
+    assert shown.phase is ElectionPhase.BETWEEN_ROUNDS
+    assert shown.result is not None
+    assert shown.result.round == 1
+    assert len(shown.result.places) == 32
+    if shown.poll is not None:
+        assert shown.poll.runoff is True
+        for local in shown.poll.places:
+            assert {e.party_id for e in local.entries} <= finalists
 
 
 # Ações avulsas de campanha

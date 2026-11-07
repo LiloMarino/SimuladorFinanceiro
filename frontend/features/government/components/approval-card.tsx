@@ -23,6 +23,7 @@ import type { Selection } from "../lib/approval";
 import { approvalTone, signedPoints } from "../lib/government";
 import { APPROVAL } from "../lib/government-metrics";
 import { ApprovalChart } from "./approval-chart";
+import { ApprovalRegions } from "./approval-regions";
 import { ApprovalGroups } from "./approval-groups";
 import { ApprovalReasons } from "./approval-reasons";
 import { ImpeachmentFloor } from "./impeachment-floor";
@@ -111,6 +112,9 @@ export function ApprovalCard({ panel }: ApprovalCardProps) {
           </p>
 
           <ApprovalChart approval={approval} selection={selection} />
+
+          {/* Aprovação por região */}
+          <ApprovalRegions />
 
           {/* Grupos de eleitores */}
           <div className="grid gap-2">

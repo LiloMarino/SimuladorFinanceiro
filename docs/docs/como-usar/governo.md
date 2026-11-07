@@ -95,6 +95,37 @@ Entre os dois turnos, os filiados de partidos que **ficaram de fora** podem **do
 
 Os eleitores dos partidos eliminados vão para o **finalista de promessa mais próxima** na régua; em distância igual, para o que tinha mais votos. Quem somar mais votos vence. O painel mostra uma **simulação do 2º turno** entre os dois primeiros de hoje, que se atualiza com a pesquisa.
 
+## Por estado e por região
+
+O **mapa do Brasil** (item **Mapa** do menu, com a expansão do governo ligada) mostra o mesmo eleitorado dividido em **27 estados** e **5 regiões**. Cada estado tem a sua **mistura** dos 6 grupos de eleitores: o Piauí tem mais gente que depende de auxílio, São Paulo tem mais investidores. A pesquisa e a apuração do mapa saem dessa mistura, e a soma dos estados fecha com o eleitorado do país.
+
+### De onde vem a mistura
+
+Cada grupo parte de um número real por estado, de fontes públicas: o eleitorado de cada estado vem do **TSE** (eleição de 2022); os beneficiários de auxílio, do **Bolsa Família** (abril de 2026, o último mês com recorte por estado); os aposentados, do **INSS** (benefícios emitidos do RGPS); os investidores, da **B3** (dezembro de 2025); e a ocupação das pessoas, do **IBGE** (PNAD Contínua). Como cada fonte tem a sua escala, os números não fecham entre si, e o jogo os ajusta.
+
+### O ajuste proporcional iterativo
+
+Duas somas precisam fechar ao mesmo tempo: **cada estado** soma a fatia dele no eleitorado do país, e **cada grupo** soma o peso dele no país. O ajuste reescala as linhas (estados) e as colunas (grupos), uma depois da outra, até a tabela parar de mudar. Exemplo com 2 estados e 2 grupos:
+
+- O estado A tem 60% do eleitorado e o B tem 40%. O grupo X pesa 50% no país e o Y também.
+- Os números brutos são A: X 30 e Y 10; B: X 10 e Y 10.
+- **Linhas:** A soma 40 e precisa de 0,6, então vira X 0,45 e Y 0,15; B soma 20 e precisa de 0,4, então vira 0,20 e 0,20.
+- **Colunas:** X soma 0,65 e precisa de 0,5, então encolhe para A 0,346 e B 0,154; Y soma 0,35 e precisa de 0,5, então cresce para A 0,214 e B 0,286.
+- As linhas deixaram de fechar (A soma 0,56 em vez de 0,6), então a rodada repete. Depois de poucas rodadas a tabela para em A: X 0,364 e Y 0,236; B: X 0,136 e Y 0,264.
+- Dividindo pela fatia do estado, a mistura de A é **61% X e 39% Y**, e a de B é **34% X e 66% Y**. A região é a média dos estados dela, pelo tamanho do eleitorado.
+
+### A margem de erro de cada lugar
+
+A pesquisa ouve **4.800 pessoas** no país, repartidas pelo tamanho de cada lugar. Lugar pequeno recebe poucas entrevistas e erra mais. A margem é
+
+> margem = 98 ÷ √(entrevistas do lugar), arredondada e mantida entre ±3 e ±12 pontos
+
+Exemplo: um estado com 4% do eleitorado recebe 192 entrevistas (4% de 4.800); 98 ÷ √192 ≈ 7, então a margem é **±7**. Um líder com 40% e margem ±7 pode ter de 33% a 47%.
+
+### Empate técnico no mapa
+
+O lugar fica **listrado** quando a diferença entre o 1º e o 2º é **menor ou igual à margem do lugar**: a pesquisa não consegue dizer quem lidera. Se o 3º também cabe na margem do 1º, o empate é entre três. Ex.: PTD com 36% e UPR com 33% num estado de margem ±4 têm diferença de 3, então o estado é listrado; com 41% contra 33%, a diferença é 8 e o PTD lidera. Na **apuração não existe margem**: vence quem tem mais voto, e a cor é cheia.
+
 ## Partidos do computador
 
 O computador completa a disputa com **partidos próprios** (UPR, MNV e ACI) até haver três partidos na eleição. Cada um gasta, por mês, um múltiplo da **verba média dos partidos de jogadores**, definido pela **dificuldade do computador** nas regras: Fácil (0,5×), Normal (1×) ou Difícil (1,5×). Ex.: com os partidos de jogadores gastando em média R$ 10.000 por mês, cada partido do computador gasta R$ 5.000 no Fácil e R$ 15.000 no Difícil. Sem partidos de jogadores, o computador não gasta nada.

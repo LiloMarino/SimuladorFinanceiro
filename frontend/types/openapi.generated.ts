@@ -1724,6 +1724,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/government/map": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter o mapa do Brasil
+         * @description Retorna os 27 estados e as 5 regiões, cada um com o eleitorado, a margem da pesquisa e a mistura de grupos de eleitores; a pesquisa atual em cada lugar (com a variação desde a anterior; entre os turnos, só os finalistas), o resultado do último turno, a rejeição de cada partido e a aprovação do governo. A região é a soma dos estados pesada pelo eleitorado. Recusa com 409 quando a partida não usa a expansão Governo & Política.
+         */
+        get: operations["get_map_api_government_map_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/government/parties": {
         parameters: {
             query?: never;
@@ -7253,6 +7273,156 @@ export interface components {
             /** Histogram */
             histogram: components["schemas"]["IndicatorPointDTO"][];
         };
+        /**
+         * MapApprovalDTO
+         * @description A aprovação do governo em cada lugar, de 0 a 100.
+         */
+        MapApprovalDTO: {
+            /** National */
+            national: string;
+            /** Places */
+            places: components["schemas"]["MapValueDTO"][];
+        };
+        /** MapPanelDTO */
+        MapPanelDTO: {
+            /** Places */
+            places: components["schemas"]["MapPlaceDTO"][];
+            /** National Groups */
+            national_groups: components["schemas"]["GroupScoreDTO"][];
+            /** Parties */
+            parties: components["schemas"]["MapPartyDTO"][];
+            /** Viewer Party Id */
+            viewer_party_id: number | null;
+            poll: components["schemas"]["MapPollDTO"] | null;
+            result: components["schemas"]["MapResultDTO"] | null;
+            /** Rejection */
+            rejection: components["schemas"]["MapRejectionDTO"][];
+            approval: components["schemas"]["MapApprovalDTO"] | null;
+            /**
+             * Opens On
+             * Format: date
+             */
+            opens_on: string;
+            /**
+             * First Round
+             * Format: date
+             */
+            first_round: string;
+            phase: components["schemas"]["ElectionPhase"];
+        };
+        /** MapPartyDTO */
+        MapPartyDTO: {
+            /** Id */
+            id: number;
+            /** Abbr */
+            abbr: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string | null;
+        };
+        /**
+         * MapPlaceDTO
+         * @description Um estado ou uma região: o tamanho, a margem da pesquisa e a mistura de grupos de eleitores.
+         */
+        MapPlaceDTO: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            kind: components["schemas"]["PlaceKind"];
+            region: components["schemas"]["Region"] | null;
+            /** Electorate */
+            electorate: number;
+            /** Electorate Share */
+            electorate_share: string;
+            /** Margin */
+            margin: number;
+            /** Groups */
+            groups: components["schemas"]["GroupScoreDTO"][];
+        };
+        /**
+         * MapPollDTO
+         * @description A pesquisa atual em cada lugar, publicada com o erro de cada lugar; entre os turnos, só os finalistas.
+         */
+        MapPollDTO: {
+            /** Previous Date */
+            previous_date: string | null;
+            /** Next Date */
+            next_date: string | null;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Runoff */
+            runoff: boolean;
+            /** Places */
+            places: components["schemas"]["MapPollPlaceDTO"][];
+        };
+        /** MapPollPlaceDTO */
+        MapPollPlaceDTO: {
+            /** Code */
+            code: string;
+            /** Entries */
+            entries: components["schemas"]["PollEntryDTO"][];
+            /** Undecided */
+            undecided: string;
+            /** Previous Entries */
+            previous_entries: components["schemas"]["PollEntryDTO"][];
+        };
+        /**
+         * MapRejectionDTO
+         * @description Em cada 100 eleitores do lugar, quantos não votam no partido de jeito nenhum.
+         */
+        MapRejectionDTO: {
+            /** Party Id */
+            party_id: number;
+            /** National */
+            national: string;
+            /** Places */
+            places: components["schemas"]["MapValueDTO"][];
+        };
+        /**
+         * MapResultDTO
+         * @description A apuração do último turno em cada lugar, sem margem.
+         */
+        MapResultDTO: {
+            /** Round */
+            round: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** National */
+            national: components["schemas"]["MapResultEntryDTO"][];
+            /** Places */
+            places: components["schemas"]["MapResultPlaceDTO"][];
+        };
+        /** MapResultEntryDTO */
+        MapResultEntryDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Share */
+            share: string;
+            /** Points */
+            points: string;
+        };
+        /** MapResultPlaceDTO */
+        MapResultPlaceDTO: {
+            /** Code */
+            code: string;
+            /** Entries */
+            entries: components["schemas"]["MapResultEntryDTO"][];
+        };
+        /** MapValueDTO */
+        MapValueDTO: {
+            /** Code */
+            code: string;
+            /** Value */
+            value: string;
+        };
         /** MarketQuoteDTO */
         MarketQuoteDTO: {
             /** Id */
@@ -8102,6 +8272,12 @@ export interface components {
          * @enum {string}
          */
         PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING";
+        /**
+         * PlaceKind
+         * @description Um lugar do mapa é um estado ou uma região.
+         * @enum {string}
+         */
+        PlaceKind: "STATE" | "REGION";
         /**
          * PlayerActivity
          * @description O que o jogador está fazendo na sala: a tela em que está, ou fora da aba do jogo.
@@ -9104,6 +9280,12 @@ export interface components {
             /** Amount */
             amount: number | string;
         };
+        /**
+         * Region
+         * @description As 5 regiões do IBGE; o código é por extenso porque SE já é a UF de Sergipe.
+         * @enum {string}
+         */
+        Region: "NORTH" | "NORTHEAST" | "MIDWEST" | "SOUTHEAST" | "SOUTH";
         /** RenamePresetRequest */
         RenamePresetRequest: {
             /** Name */
@@ -15212,6 +15394,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ElectionPanelDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_map_api_government_map_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapPanelDTO"];
                 };
             };
             /** @description Unprocessable Content */

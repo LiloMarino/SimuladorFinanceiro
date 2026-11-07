@@ -365,16 +365,22 @@ def restrict(result: Vote, finalists: Iterable[int]) -> Vote:
     return combine(groups)
 
 
-def combine(groups: dict[VoterGroup, GroupVote]) -> Vote:
-    """O total do país a partir do voto de cada grupo, somado pelo peso do grupo."""
+def combine(
+    groups: dict[VoterGroup, GroupVote],
+    weights: Mapping[VoterGroup, Decimal] = WEIGHTS,
+) -> Vote:
+    """
+    O total a partir do voto de cada grupo, somado pelo peso do grupo: o do país por
+    padrão, ou o de um estado ou região quando `weights` é a mistura do lugar.
+    """
     parties = {pid for gv in groups.values() for pid in gv.shares}
     total = {
         pid: sum(
-            (WEIGHTS[g] * gv.shares.get(pid, ZERO) for g, gv in groups.items()), ZERO
+            (weights[g] * gv.shares.get(pid, ZERO) for g, gv in groups.items()), ZERO
         )
         for pid in parties
     }
-    undecided = sum((WEIGHTS[g] * gv.undecided for g, gv in groups.items()), ZERO)
+    undecided = sum((weights[g] * gv.undecided for g, gv in groups.items()), ZERO)
     return Vote(groups=groups, total=total, undecided=undecided)
 
 

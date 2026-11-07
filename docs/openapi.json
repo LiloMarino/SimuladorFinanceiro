@@ -5049,6 +5049,53 @@
         ]
       }
     },
+    "/api/government/map": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter o mapa do Brasil",
+        "description": "Retorna os 27 estados e as 5 regiões, cada um com o eleitorado, a margem da pesquisa e a mistura de grupos de eleitores; a pesquisa atual em cada lugar (com a variação desde a anterior; entre os turnos, só os finalistas), o resultado do último turno, a rejeição de cada partido e a aprovação do governo. A região é a soma dos estados pesada pelo eleitorado. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+        "operationId": "get_map_api_government_map_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MapPanelDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/government/parties": {
       "post": {
         "tags": [
@@ -20570,6 +20617,445 @@
         ],
         "title": "MacdSeriesDTO"
       },
+      "MapApprovalDTO": {
+        "properties": {
+          "national": {
+            "type": "string",
+            "title": "National"
+          },
+          "places": {
+            "items": {
+              "$ref": "#/components/schemas/MapValueDTO"
+            },
+            "type": "array",
+            "title": "Places"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "national",
+          "places"
+        ],
+        "title": "MapApprovalDTO",
+        "description": "A aprovação do governo em cada lugar, de 0 a 100."
+      },
+      "MapPanelDTO": {
+        "properties": {
+          "places": {
+            "items": {
+              "$ref": "#/components/schemas/MapPlaceDTO"
+            },
+            "type": "array",
+            "title": "Places"
+          },
+          "national_groups": {
+            "items": {
+              "$ref": "#/components/schemas/GroupScoreDTO"
+            },
+            "type": "array",
+            "title": "National Groups"
+          },
+          "parties": {
+            "items": {
+              "$ref": "#/components/schemas/MapPartyDTO"
+            },
+            "type": "array",
+            "title": "Parties"
+          },
+          "viewer_party_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Viewer Party Id"
+          },
+          "poll": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MapPollDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MapResultDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rejection": {
+            "items": {
+              "$ref": "#/components/schemas/MapRejectionDTO"
+            },
+            "type": "array",
+            "title": "Rejection"
+          },
+          "approval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MapApprovalDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "opens_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Opens On"
+          },
+          "first_round": {
+            "type": "string",
+            "format": "date",
+            "title": "First Round"
+          },
+          "phase": {
+            "$ref": "#/components/schemas/ElectionPhase"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "places",
+          "national_groups",
+          "parties",
+          "viewer_party_id",
+          "poll",
+          "result",
+          "rejection",
+          "approval",
+          "opens_on",
+          "first_round",
+          "phase"
+        ],
+        "title": "MapPanelDTO"
+      },
+      "MapPartyDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "abbr",
+          "name",
+          "color"
+        ],
+        "title": "MapPartyDTO"
+      },
+      "MapPlaceDTO": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PlaceKind"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Region"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "electorate": {
+            "type": "integer",
+            "title": "Electorate"
+          },
+          "electorate_share": {
+            "type": "string",
+            "title": "Electorate Share"
+          },
+          "margin": {
+            "type": "integer",
+            "title": "Margin"
+          },
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/GroupScoreDTO"
+            },
+            "type": "array",
+            "title": "Groups"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "name",
+          "kind",
+          "region",
+          "electorate",
+          "electorate_share",
+          "margin",
+          "groups"
+        ],
+        "title": "MapPlaceDTO",
+        "description": "Um estado ou uma região: o tamanho, a margem da pesquisa e a mistura de grupos de eleitores."
+      },
+      "MapPollDTO": {
+        "properties": {
+          "previous_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Date"
+          },
+          "next_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Date"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "runoff": {
+            "type": "boolean",
+            "title": "Runoff"
+          },
+          "places": {
+            "items": {
+              "$ref": "#/components/schemas/MapPollPlaceDTO"
+            },
+            "type": "array",
+            "title": "Places"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "previous_date",
+          "next_date",
+          "date",
+          "runoff",
+          "places"
+        ],
+        "title": "MapPollDTO",
+        "description": "A pesquisa atual em cada lugar, publicada com o erro de cada lugar; entre os turnos, só os finalistas."
+      },
+      "MapPollPlaceDTO": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/PollEntryDTO"
+            },
+            "type": "array",
+            "title": "Entries"
+          },
+          "undecided": {
+            "type": "string",
+            "title": "Undecided"
+          },
+          "previous_entries": {
+            "items": {
+              "$ref": "#/components/schemas/PollEntryDTO"
+            },
+            "type": "array",
+            "title": "Previous Entries"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "entries",
+          "undecided",
+          "previous_entries"
+        ],
+        "title": "MapPollPlaceDTO"
+      },
+      "MapRejectionDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "national": {
+            "type": "string",
+            "title": "National"
+          },
+          "places": {
+            "items": {
+              "$ref": "#/components/schemas/MapValueDTO"
+            },
+            "type": "array",
+            "title": "Places"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "national",
+          "places"
+        ],
+        "title": "MapRejectionDTO",
+        "description": "Em cada 100 eleitores do lugar, quantos não votam no partido de jeito nenhum."
+      },
+      "MapResultDTO": {
+        "properties": {
+          "round": {
+            "type": "integer",
+            "title": "Round"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "national": {
+            "items": {
+              "$ref": "#/components/schemas/MapResultEntryDTO"
+            },
+            "type": "array",
+            "title": "National"
+          },
+          "places": {
+            "items": {
+              "$ref": "#/components/schemas/MapResultPlaceDTO"
+            },
+            "type": "array",
+            "title": "Places"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "round",
+          "date",
+          "national",
+          "places"
+        ],
+        "title": "MapResultDTO",
+        "description": "A apuração do último turno em cada lugar, sem margem."
+      },
+      "MapResultEntryDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          },
+          "points": {
+            "type": "string",
+            "title": "Points"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "share",
+          "points"
+        ],
+        "title": "MapResultEntryDTO"
+      },
+      "MapResultPlaceDTO": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/MapResultEntryDTO"
+            },
+            "type": "array",
+            "title": "Entries"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "entries"
+        ],
+        "title": "MapResultPlaceDTO"
+      },
+      "MapValueDTO": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "value"
+        ],
+        "title": "MapValueDTO"
+      },
       "MarketQuoteDTO": {
         "properties": {
           "id": {
@@ -22979,6 +23465,15 @@
         ],
         "title": "PendingType",
         "description": "Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar."
+      },
+      "PlaceKind": {
+        "type": "string",
+        "enum": [
+          "STATE",
+          "REGION"
+        ],
+        "title": "PlaceKind",
+        "description": "Um lugar do mapa é um estado ou uma região."
       },
       "PlayerActivity": {
         "type": "string",
@@ -26048,6 +26543,18 @@
           "amount"
         ],
         "title": "RedeemFixedIncomeRequest"
+      },
+      "Region": {
+        "type": "string",
+        "enum": [
+          "NORTH",
+          "NORTHEAST",
+          "MIDWEST",
+          "SOUTHEAST",
+          "SOUTH"
+        ],
+        "title": "Region",
+        "description": "As 5 regiões do IBGE; o código é por extenso porque SE já é a UF de Sergipe."
       },
       "RenamePresetRequest": {
         "properties": {

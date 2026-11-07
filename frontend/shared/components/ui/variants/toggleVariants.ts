@@ -9,6 +9,8 @@ export const toggleVariants = cva(
         outline: "border border-input bg-transparent hover:bg-muted",
         segmented:
           "rounded-md px-3 text-[13px] text-secondary-foreground hover:bg-transparent hover:text-foreground aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-xs",
+        // Lista vertical de opções (as lentes do mapa): a ligada ganha fundo suave e uma barra à esquerda
+        list: "relative rounded-lg text-[13px] text-faint-foreground before:absolute before:inset-y-2 before:left-0 before:w-[3px] before:rounded-full before:bg-info before:opacity-0 aria-pressed:bg-info-soft aria-pressed:text-info aria-pressed:before:opacity-100 aria-pressed:hover:bg-info-soft aria-pressed:hover:text-info",
         // Troca de modo da página (manual | automático): itens altos, em destaque
         mode: "rounded-[9px] text-[15px] font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-sm",
       },
@@ -34,6 +36,8 @@ export const toggleVariants = cva(
         // Grupo segmentado de 40 px de altura total, com os 3 px de trilho de cada lado
         // Item do seletor de modo: 44 px, com o ícone ao lado do rótulo
         mode: "h-11 min-w-8 gap-2 px-[18px] [&_svg:not([class*='size-'])]:size-[18px]",
+        // Linha da lista vertical: 36 px, rótulo à esquerda e o atalho à direita
+        list: "h-9 w-full justify-start gap-2 px-3",
         field: "h-8.5 min-w-8 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
       },
     },

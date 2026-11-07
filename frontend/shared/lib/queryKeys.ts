@@ -93,6 +93,7 @@ export const queryKeys = {
   tunnelStatus: () => ["tunnel", "status"] as const,
   achievements: () => ["achievements"] as const,
   election: () => ["government", "election"] as const,
+  electionMap: () => ["government", "map"] as const,
   government: () => ["government", "panel"] as const,
   campaign: () => ["government", "campaign"] as const,
   campaignHistory: () => ["government", "campaign", "history"] as const,

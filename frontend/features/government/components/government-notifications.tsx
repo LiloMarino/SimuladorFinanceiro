@@ -63,6 +63,7 @@ export function GovernmentNotifications() {
         break;
       case "ELECTION_RESULT":
         // O resultado só chega depois de o painel atualizar: o aviso lê o turno apurado do cache
+        void queryClient.invalidateQueries({ queryKey: queryKeys.electionMap() });
         void queryClient.refetchQueries({ queryKey: queryKeys.election() }).then(() => {
           const panel = queryClient.getQueryData<ElectionPanel>(queryKeys.election());
           const last = panel?.last_result;

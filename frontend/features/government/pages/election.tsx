@@ -29,6 +29,7 @@ import { FoundPartyDialog } from "../components/found-party-dialog";
 import { JoinPartyDialog } from "../components/join-party-dialog";
 import { LeavePartyDialog } from "../components/leave-party-dialog";
 import { PartyProfilesCard } from "../components/party-profiles-card";
+import { PartyRegionsCard } from "../components/party-regions-card";
 import { PollCard } from "../components/poll-card";
 import { PromisesDialog } from "../components/promises-dialog";
 import { RankingCard } from "../components/ranking-card";
@@ -154,6 +155,7 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
       {runoffResult && <RunoffGroupsCard panel={panel} result={runoffResult} />}
       {/* Entre os turnos a pesquisa vigente é a do 2º turno; a do 1º volta ao ar depois da apuração final */}
       {campaignOpen && !panel.runoff_race && <PollCard panel={panel} />}
+      {campaignOpen && !panel.runoff_race && <PartyRegionsCard />}
       {/* Com mandato, o cartão dele fica ao lado dos partidos; sem, os partidos usam a largura toda */}
       <div className={cn("grid items-start gap-5", hasTerm && "xl:grid-cols-[minmax(0,1fr)_380px]")}>
         <div className="min-w-0">{panel.parties.length > 0 && <PartyProfilesCard panel={panel} />}</div>

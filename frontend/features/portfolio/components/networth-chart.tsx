@@ -12,7 +12,7 @@ import { usePatrimonialHistory } from "@/shared/hooks/queries/usePatrimonialHist
 import { displayGoalPercent, goalFraction } from "@/shared/lib/goal";
 import { displayMoney, displayPercent, displaySignedMoney } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
-import { useElementWidth } from "../hooks/useElementWidth";
+import { useElementWidth } from "@/shared/hooks/useElementWidth";
 import {
   goalOnScale,
   heldTypes,

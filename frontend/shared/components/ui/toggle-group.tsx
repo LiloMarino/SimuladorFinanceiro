@@ -22,7 +22,7 @@ function ToggleGroup({
   className,
   variant,
   size,
-  spacing = variant === "segmented" ? 0.5 : variant === "mode" ? 1 : 2,
+  spacing = variant === "segmented" || variant === "list" ? 0.5 : variant === "mode" ? 1 : 2,
   orientation = "horizontal",
   children,
   ...props

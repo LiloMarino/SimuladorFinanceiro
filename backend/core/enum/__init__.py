@@ -776,6 +776,55 @@ class VoterGroup(Enum):
     WELFARE = "WELFARE"
 
 
+class BrazilState(Enum):
+    """As 27 unidades da federação (26 estados e o Distrito Federal), pela sigla da UF."""
+
+    AC = "AC"
+    AL = "AL"
+    AP = "AP"
+    AM = "AM"
+    BA = "BA"
+    CE = "CE"
+    DF = "DF"
+    ES = "ES"
+    GO = "GO"
+    MA = "MA"
+    MT = "MT"
+    MS = "MS"
+    MG = "MG"
+    PA = "PA"
+    PB = "PB"
+    PR = "PR"
+    PE = "PE"
+    PI = "PI"
+    RJ = "RJ"
+    RN = "RN"
+    RS = "RS"
+    RO = "RO"
+    RR = "RR"
+    SC = "SC"
+    SP = "SP"
+    SE = "SE"
+    TO = "TO"
+
+
+class Region(Enum):
+    """As 5 regiões do IBGE; o código é por extenso porque SE já é a UF de Sergipe."""
+
+    NORTH = "NORTH"
+    NORTHEAST = "NORTHEAST"
+    MIDWEST = "MIDWEST"
+    SOUTHEAST = "SOUTHEAST"
+    SOUTH = "SOUTH"
+
+
+class PlaceKind(Enum):
+    """Um lugar do mapa é um estado ou uma região."""
+
+    STATE = "STATE"
+    REGION = "REGION"
+
+
 class VoterValue(Enum):
     """As bandeiras de um partido e os eixos do perfil dele."""
 

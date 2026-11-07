@@ -9,6 +9,16 @@ export const GROUP_INFO: Record<VoterGroup, { label: string; short: string }> = 
   WELFARE: { label: "Quem depende de auxílio", short: "Auxílio" },
 };
 
+/** As duas pontas da escala de cada grupo no mapa: o claro (pouco) e o escuro (muito). */
+export const GROUP_MAP_COLOR: Record<VoterGroup, { light: string; dark: string }> = {
+  INVESTORS: { light: "var(--map-group-investors-light)", dark: "var(--map-group-investors-dark)" },
+  ENTREPRENEURS: { light: "var(--map-group-entrepreneurs-light)", dark: "var(--map-group-entrepreneurs-dark)" },
+  FORMAL_WORKERS: { light: "var(--map-group-formal-workers-light)", dark: "var(--map-group-formal-workers-dark)" },
+  PUBLIC_SERVANTS: { light: "var(--map-group-public-servants-light)", dark: "var(--map-group-public-servants-dark)" },
+  RETIREES: { light: "var(--map-group-retirees-light)", dark: "var(--map-group-retirees-dark)" },
+  WELFARE: { light: "var(--map-group-welfare-light)", dark: "var(--map-group-welfare-dark)" },
+};
+
 export const READING_LABEL: Record<VoterGroupInfo["readings"][number], string> = {
   INFLATION: "inflação",
   REAL_RATE: "juro real",

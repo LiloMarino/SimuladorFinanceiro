@@ -191,9 +191,12 @@ def month_label(day: date) -> str:
     return f"{rules.MONTHS[day.month - 1]} {day.year}"
 
 
-def overall(values: Mapping[VoterGroup, Decimal]) -> Decimal:
-    """A média dos grupos pesada pelo tamanho de cada um no eleitorado."""
-    return sum((voters.WEIGHTS[g] * v for g, v in values.items()), ZERO)
+def overall(
+    values: Mapping[VoterGroup, Decimal],
+    weights: Mapping[VoterGroup, Decimal] = voters.WEIGHTS,
+) -> Decimal:
+    """A média dos grupos pesada pelo tamanho de cada um: no eleitorado do país, ou num lugar com a mistura dele."""
+    return sum((weights[g] * v for g, v in values.items()), ZERO)
 
 
 def _clip(value: Decimal, limit: Decimal) -> Decimal:

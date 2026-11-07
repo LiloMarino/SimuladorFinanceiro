@@ -318,7 +318,7 @@ class RoundResult:
     # No 2º turno: para qual finalista foram os eleitores de cada partido que saiu
     transfers: dict[int, int]
     donations: dict[int, Decimal]
-    # No 2º turno: o voto de cada grupo entre os finalistas e quem não votou, em pontos do eleitorado
+    # O voto de cada grupo no turno (no 2º, entre os finalistas) e quem não votou, em pontos do eleitorado
     groups: dict[VoterGroup, voters.GroupVote] = field(default_factory=dict)
     not_voted: Decimal = Decimal(0)
 

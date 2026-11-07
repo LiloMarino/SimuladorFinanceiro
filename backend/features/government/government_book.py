@@ -2857,6 +2857,7 @@ class GovernmentBook:
             satisfaction=(
                 election.start_satisfaction(vote, winner) if winner is not None else {}
             ),
+            groups=vote.groups,
         )
 
     def _elect_house(self, cycle: ElectionCycle, today: date) -> None:
