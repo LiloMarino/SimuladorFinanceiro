@@ -29,11 +29,11 @@
 | **N9** | — | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — | — | — | — |
 | **N10** | — | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | — | [F28](#f28), [F202](#f202) | — | — | — |
 | **N11** | — | Que o cenário econômico simulado seja o histórico real | — | [F194](#f194) | — | — | — |
-| **N12** | — | Continuar jogando depois do último dia com dado real | — | [F192](#f192) | — | — | — |
+| **N12** | — | Continuar jogando depois do último dia com dado real | — | — | — | — | — |
 | **N13** | — | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — | — |
 | **N14** | — | Atualizar para uma versão nova sem perder as partidas salvas | — | [F56](#f56) | — | — | — |
-| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211), [F216](#f216), [F217](#f217), [F218](#f218), [F220](#f220) | — | — | — |
-| **N16** | — | Ver a carteira e o mercado por setor e segmento | — | [F196](#f196) | — | — | — |
+| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211), [F220](#f220) | — | — | — |
+| **N16** | — | Ver a carteira e o mercado por setor e segmento | — | — | — | — | — |
 | **N17** | — | Enxergar a estrutura do banco e esboçar mudanças nela | — | — | — | — | — |
 | **N18** | — | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — | — | — | — |
 | **N19** | — | Analisar um ativo com as ferramentas de um trader | — | [F34](#f34), [F131](#f131), [F193](#f193) | — | — | — |
@@ -43,7 +43,7 @@
 | **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F44](#f44), [F55](#f55), [F69](#f69), [F101](#f101), [F102](#f102), [F103](#f103), [F104](#f104), [F105](#f105) | — | — | — |
 | **N24** | — | Saber onde está a lentidão durante uma partida | — | — | — | — | — |
 | **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F193](#f193), [F225](#f225) | — | — | — |
-| **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | [F219](#f219) | — | — | — |
+| **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | — | — | — | — |
 | **N27** | — | Entrar numa partida que já começou | — | — | — | — | — |
 | **N28** | — | Liberar uma vaga sem depender de o jogador sair | — | — | — | — | — |
 | **N29** | — | Saber o que cada jogador está fazendo enquanto a partida não começa | — | — | — | — | — |
@@ -51,14 +51,14 @@
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93), [F226](#f226) | — | — | — |
 | **N32** | — | Saber como foi o mês sem montar a conta | — | — | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F97](#f97), [F164](#f164), [F165](#f165), [F175](#f175), [F176](#f176), [F177](#f177), [F191](#f191), [F194](#f194), [F195](#f195), [F216](#f216), [F222](#f222), [F223](#f223), [F224](#f224), [F226](#f226), [F227](#f227), [F228](#f228), [F229](#f229), [F230](#f230), [F231](#f231), [F232](#f232) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F164](#f164), [F175](#f175), [F176](#f176), [F194](#f194), [F195](#f195), [F226](#f226), [F227](#f227), [F232](#f232) | — | — | — |
 | **N35** | — | Tirar da lista as partidas que não interessam mais | — | — | — | — | — |
 | **N36** | — | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — | — |
 | **N37** | — | Comprar bitcoin do jeito que dá na vida real, em frações | — | — | — | — | — |
 | **N38** | — | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — | — | — | — |
 | **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | — | — | — | — |
 | **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F221](#f221) | — | — | — |
-| **N41** | — | Aprender como a economia real funciona, jogando | — | [F224](#f224), [F225](#f225), [F226](#f226), [F227](#f227) | — | — | — |
+| **N41** | — | Aprender como a economia real funciona, jogando | — | [F225](#f225), [F226](#f226), [F227](#f227) | — | — | — |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.5 | — | — | — | 🔍 |
 | [**F6**](#f6) | Feature | Link de convite pela internet no lobby | M27 · 4.5 | — | Médio | Bom | ⏳ |
 | [**F14**](#f14) | Feature | Janela desktop nativa | — | — | Baixo | Bom | 💤 |
@@ -111,7 +111,7 @@
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (37 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -127,31 +127,14 @@
 | **D11** | — | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | — | — | — | ✅ |
 | **D12** | — | Como numerar as versões | — | [F22](#f22) | — | — | ✅ |
 | **D13** | — | Um canal de tempo real só: Socket.IO, com fallback de polling | — | — | — | — | ✅ |
-| **D14** | — | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | — | [F97](#f97) | — | — | ✅ |
+| **D14** | — | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | — | — | — | — | ✅ |
 | **D15** | — | Lint com oxlint, formatação com oxfmt e o TypeScript 7 com a API do 6 ao lado | — | — | — | — | ✅ |
 | **D16** | — | Estratégias do app no host, personalização pela API | — | — | — | — | ✅ |
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
-| **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F175](#f175), [F176](#f176) | — | — | ✅ |
-| **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F97](#f97), [F191](#f191), [F194](#f194), [F223](#f223), [F224](#f224), [F226](#f226), [F227](#f227), [F228](#f228), [F229](#f229), [F230](#f230), [F231](#f231), [F232](#f232) | — | — | ✅ |
+| **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F164](#f164), [F175](#f175), [F176](#f176) | — | — | ✅ |
+| **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
-| [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 | — | — | — | ✅ |
-| [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 | — | — | — | ✅ |
-| [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | M21 · 3.4 | — | — | — | ✅ |
-| [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | ✅ |
-| [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M21 · 3.4 | — | — | — | ✅ |
-| [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | — | — | ✅ |
-| [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 | — | — | — | ✅ |
-| [**F217**](#f217) | Correção | Correções da 3.4 | M21 · 3.4 | — | — | — | ✅ |
-| [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 | — | — | — | ✅ |
-| [**F219**](#f219) | Correção | Terminal do backend sem o aviso do pandas do yfinance | M21 · 3.4 | — | — | — | ✅ |
-| [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | M21 · 3.4 | — | — | — | ✅ |
-| [**F223**](#f223) | Correção | Credibilidade do Banco Central medida contra a história | M21 · 3.4 | — | — | — | ✅ |
-| [**F224**](#f224) | Feature | Primário que estabiliza a dívida no painel da Economia | M21 · 3.4 | — | — | — | ✅ |
-| [**F228**](#f228) | Correção | Gasto do governo contado uma vez só na inflação | M21 · 3.4 | — | — | — | ✅ |
-| [**F229**](#f229) | Spike | Calibragem da economia numa partida de 10 anos | M21 · 3.4 | — | — | — | ✅ |
-| [**F230**](#f230) | Correção | Desemprego da partida volta devagar ao normal da época | M21 · 3.4 | — | — | — | ✅ |
-| [**F231**](#f231) | Melhoria | SELIC do presidente livre até 3 pontos por reunião | M21 · 3.4 | — | — | — | ✅ |
 
 </details>
 
@@ -160,33 +143,6 @@
 ## 🚀 Próximas versões
 
 > O que entra em cada versão, na ordem de trabalho. Item arquivado conta como concluído.
-
-### 3.4 — Juros e Tesouro (M21)
-
-> **Objetivo:** O governo decide a SELIC, e os títulos do Tesouro rendem pelo risco que ele cria.
->
-> **Serve:** N34, N39
->
-> **Progresso:** 16/16 concluídos
-
-| # | ID | Tipo | Resumo | Depende de | Status |
-| --- | --- | --- | --- | --- | --- |
-| 1 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | — | ✅ Concluído |
-| 2 | [**F217**](#f217) | Correção | Correções da 3.4 | — | ✅ Concluído |
-| 3 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | — | ✅ Concluído |
-| 4 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | — | ✅ Concluído |
-| 5 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | — | ✅ Concluído |
-| 6 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ✅ Concluído |
-| 7 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | — | ✅ Concluído |
-| 8 | [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | — | ✅ Concluído |
-| 9 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | ✅ Concluído |
-| 10 | [**F219**](#f219) | Correção | Terminal do backend sem o aviso do pandas do yfinance | — | ✅ Concluído |
-| 11 | [**F223**](#f223) | Correção | Credibilidade do Banco Central medida contra a história | — | ✅ Concluído |
-| 12 | [**F224**](#f224) | Feature | Primário que estabiliza a dívida no painel da Economia | — | ✅ Concluído |
-| 13 | [**F228**](#f228) | Correção | Gasto do governo contado uma vez só na inflação | — | ✅ Concluído |
-| 14 | [**F230**](#f230) | Correção | Desemprego da partida volta devagar ao normal da época | — | ✅ Concluído |
-| 15 | [**F231**](#f231) | Melhoria | SELIC do presidente livre até 3 pontos por reunião | — | ✅ Concluído |
-| 16 | [**F229**](#f229) | Spike | Calibragem da economia numa partida de 10 anos | — | ✅ Concluído |
 
 ### 3.5 — Congresso e eleição (M23)
 
@@ -275,7 +231,7 @@
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | [F191](#f191) | 🔍 Em avaliação |
+| 1 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | — | 🔍 Em avaliação |
 
 ### 4.5 — Jogo pela internet (M27)
 
@@ -470,7 +426,7 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 | **F158** | Melhoria | Animações do Como jogar revistas | N25 | — | M28 · 4.6 | — | O visual numa rodada no canvas dedicada: animações atuais contra as primeiras, número do passo fora da cena, cursor e destaque, e o palco em tamanho real mostrando só o trecho do passo |
 | **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.1 | [F44](#f44) | Escolher a variante entre as do canvas, já com o layout das Gestoras |
 | **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | D21 | M28 · 4.6 | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
-| **F194** | Feature | Dólar e ativos internacionais | N34, N11 | D20 | M26 · 4.4 | [F191](#f191) | Como o dólar do jogo reage (desconfiança, juro real), a camada pelo desvio sobre BDR e IVVB11 e onde o seletor de origem aparece. |
+| **F194** | Feature | Dólar e ativos internacionais | N34, N11 | D20 | M26 · 4.4 | — | Como o dólar do jogo reage (desconfiança, juro real), a camada pelo desvio sobre BDR e IVVB11 e onde o seletor de origem aparece. |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.3 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M24 · 4.2 | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
 | **F226** | Feature | Mercado reage à surpresa: o Focus da partida | N34, N31, N41 | D20 | M25 · 4.3 | — | Como a expectativa se forma, se o governo pode sinalizar, se o Focus entra na Central de dados e o que fica do efeito por tamanho do desvio |
@@ -621,112 +577,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 ## ✅ Concluído
 
-| ID | Tipo | Resumo | Serve | D# | Marco |
-| --- | --- | --- | --- | --- | --- |
-| **F97** | Feature | SELIC nas mãos do governo | N34 | D19, D14, D20 | M21 · 3.4 |
-| **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 |
-| **F177** | Feature | Marcação a mercado do Tesouro | N34 | — | M21 · 3.4 |
-| **F191** | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | N34 | D20 | M21 · 3.4 |
-| **F192** | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | N12 | — | M21 · 3.4 |
-| **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — |
-| **F216** | Correção | Pontas soltas das features entregues | N15, N34 | — | M21 · 3.4 |
-| **F217** | Correção | Correções da 3.4 | N15 | — | M21 · 3.4 |
-| **F218** | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | N15 | — | M21 · 3.4 |
-| **F219** | Correção | Terminal do backend sem o aviso do pandas do yfinance | N26 | — | M21 · 3.4 |
-| **F222** | Feature | Resgate automático de renda fixa para cobrir despesas | N34 | — | M21 · 3.4 |
-| **F223** | Correção | Credibilidade do Banco Central medida contra a história | N34 | D20 | M21 · 3.4 |
-| **F224** | Feature | Primário que estabiliza a dívida no painel da Economia | N34, N41 | D20 | M21 · 3.4 |
-| **F228** | Correção | Gasto do governo contado uma vez só na inflação | N34 | D20 | M21 · 3.4 |
-| **F229** | Spike | Calibragem da economia numa partida de 10 anos | N34 | D20 | M21 · 3.4 |
-| **F230** | Correção | Desemprego da partida volta devagar ao normal da época | N34 | D20 | M21 · 3.4 |
-| **F231** | Melhoria | SELIC do presidente livre até 3 pontos por reunião | N34 | D20 | M21 · 3.4 |
-
-<a id="f97"></a>
-**F97 — SELIC nas mãos do governo.** Ligado à N34; uma opção da expansão "Governo & Política" (F95), no lugar do Banco Central autônomo, que continua sendo o padrão. (1) **Ritmo do Copom:** o governo decide a SELIC em reuniões a cada 45 dias, como o Copom, que se reúne 8 vezes por ano desde 2006; entre reuniões ela não muda. (2) **Teto por reunião, pelo que aconteceu de verdade.** Das 150 mudanças da meta da SELIC entre 2000 e outubro de 2026 (série do Banco Central): 34 foram de 0,25 ponto, 67 de 0,5, 19 de 0,75, 19 de 1, 7 de 1,5, uma de 2, uma de 2,5 e duas de 3; desde 2006, nunca passou de 1,5. O teto vem do IPCA de 12 meses: 0,75 ponto em tempo normal (80% das mudanças reais), 1,5 com o IPCA acima do teto da meta (a meta mais a tolerância de 1,5 ponto), como em 2021 e 2022, e 3 com o IPCA acima de 15%, o que só aconteceu em 2002 e 2003. (3) **O efeito vem do juro real, contínuo e sem faixa morta.** Juro real é a SELIC menos o IPCA de 12 meses; o juro neutro, que nem aquece nem esfria, é 5%, perto da estimativa do Banco Central. A distância até o neutro age pelo mecanismo de efeito por cima das séries da F106: cada ponto abaixo do neutro, mantido por um ano, sobe o IPCA em uns 0,3 ponto ao longo dos 4 trimestres seguintes, com o pico no 2º e no 3º (o modelo Samba do Banco Central), e cada ponto acima o derruba na mesma medida. Abaixo do neutro o crescimento aquece na hora; acima, esfria e a bolsa cai pelo coeficiente da D14. Como o efeito é contínuo, nenhuma faixa de juro sai de graça. Os limites de 2% e 7% de juro real servem só para os avisos e para a reação dos grupos (D19): abaixo de 2%, aposentados e quem vive de investimento perdem apoio; acima de 7%, quem trabalha e empreende. (4) **Credibilidade.** Cada reunião que deixa o juro real abaixo do neutro com o IPCA acima da meta gasta credibilidade; cada reunião que aperta devolve um pouco, devagar. Com pouca credibilidade a inflação reage mais rápido ao juro baixo, porque o mercado já espera que ela suba, e o prêmio de risco dos títulos (F128) sobe: o governo que usou a SELIC para ganhar a eleição herda uma inflação que não cede. A tela mostra a credibilidade com uma dica do que ela mede e do que a move. O 0,3 é ordem de grandeza dos modelos semiestruturais e se calibra no playtest; não se mede no histórico do banco, porque a SELIC reage à inflação e a regressão direta sai com o sinal trocado. Fontes: [Relatório de Inflação de junho de 2013, box do Samba](https://www.bcb.gov.br/content/ri/relatorioinflacao/201306/RELINF201306-ri201306b6p.pdf); [um modelo semiestrutural simples](https://coolassessor.substack.com/p/um-modelo-semiestrutural-simples); [Blog do IBRE sobre o efeito da SELIC](https://blogdoibre.fgv.br/posts/deve-o-bc-reduzir-selic-replica-jose-julio-senna).
-
-**Entregue em 05/11.** Decidido com a Lilo na implementação: (1) o efeito na inflação mede o desvio da história, 0,3 × (juro real da história − juro real da partida), como o crescimento (D20); o neutro de 5% fica para a credibilidade, os avisos e os grupos. (2) O efeito vale nos dois modos: no Banco Central autônomo, a reação de 1,5 ponto de SELIC por ponto de IPCA passa a trazer a inflação de volta. (3) Os grupos reagem ao juro real com a faixa de 2% a 7% em toda partida, no lugar do fator da SELIC nominal contra 10%. (4) A reunião não pausa o jogo: o presidente marca a decisão antes, ela vale do dia seguinte à reunião, uma pendência avisa nos 7 dias anteriores sem decisão, sem decisão a SELIC fica, e o presidente do computador decide como o Banco Central autônomo, dentro do teto. Até o primeiro presidente de jogador tomar posse, o Banco Central decide como na história. A credibilidade perde 4 por ponto de juro real abaixo do neutro (até 20 por reunião) com o IPCA acima da meta e ganha 3 a cada alta; em 0, soma 2 pontos ao prêmio da dívida e dobra o efeito, que chega mais cedo. A janela da reunião parte da SELIC efetiva guardada (13,65% com a meta em 13,75%) e vai nos passos de 0,25 dentro do teto. Card do governo na aba Contas e escolha no lobby; retrato do card no canvas. Fica para o playtest: calibrar o 0,3, a perda de credibilidade e a faixa dos grupos; e mostrar a escolha da SELIC no resumo do lobby.
-
-<a id="f165"></a>
-**F165 — Tela do Tesouro: títulos pelo risco do governo.** Serve N34. Com o prêmio de risco (F128), a taxa dos títulos conta a história do governo: sobe quando a dívida cresce. Hoje o Tesouro sai misturado na vitrine mensal da renda fixa, sorteado como os títulos dos bancos e com o prêmio somado à taxa (`fixed_income/factory/__init__.py`). (1) **O Tesouro sai da renda fixa e ganha item próprio** no menu Mercado, logo abaixo de Renda fixa; a renda fixa fica com CDB, LCI e LCA, no sorteio de hoje, e aponta para o Tesouro. (2) **Catálogo fixo, como o Tesouro Direto:** seis títulos sempre à venda, numa escada de prazos: um Selic de uns 3 anos, dois Prefixados (uns 3 e uns 7 anos) e três IPCA+ (uns 5, 10 e 20 anos), com vencimento em datas fixas (Selic em 1º de março, Prefixado em 1º de janeiro, IPCA+ em 15 de maio). No fechamento do ano, o título cujo prazo caiu abaixo do piso do degrau sai da vitrine e entra o seguinte da escada (ex.: o Prefixado 2029 dá lugar ao Prefixado 2032); quem comprou segue com ele na carteira. Quem quer reinvestir no mesmo título o acha por anos. (3) **Taxa revista todo mês, sem sorteio**, no fechamento, junto com o prêmio: Selic = SELIC + 0,10 + prêmio; Prefixado = SELIC − 1 + 0,15 por ano de prazo + prêmio; IPCA+ = IPCA + (SELIC − IPCA + 0,10 por ano de prazo + prêmio). Quem compra trava a taxa do dia; duas compras do mesmo título em meses diferentes são duas posições. (4) **A tela mostra** os títulos à venda, com a taxa aberta em "taxa base + prêmio de risco do país" e a compra dali mesmo; a taxa de cada tipo ao longo da partida, em "equivale hoje" (% ao ano, com o IPCA de 12 meses no IPCA+), com a dívida pública ÷ PIB no mesmo eixo de tempo; e o termômetro do risco: o prêmio atual, a dívida ÷ PIB e quanto falta para a próxima faixa. As faixas são só de leitura, a fórmula do prêmio segue contínua: Sem prêmio (até 50% do PIB), Moderado (50% a 80%), Alto (80% a 100%) e Crítico (acima de 100%); a dica da dívida ÷ PIB passa a usar as mesmas faixas. Cada métrica tem uma descrição curta e uma dica com a definição e como ler. Para o gráfico, o backend guarda a taxa de cada título e o prêmio em cada fechamento de mês. (5) Sem a expansão Governo & Política, a tela existe com a taxa base, sem prêmio e sem termômetro. A marcação a mercado (F177) se faz junto: o desenho das duas está no canvas, na linha do Tesouro.
-
-<a id="f177"></a>
-**F177 — Marcação a mercado do Tesouro.** Serve N34; feita junto com a tela do Tesouro (F165), no mesmo desenho do canvas. Na vida real, quem compra um Prefixado e vê as taxas subirem perde dinheiro se vender antes do vencimento: um título de 12% ao ano vale menos quando o mercado paga 15%, porque ninguém paga o mesmo preço por 12% podendo ter 15%. Os títulos do Tesouro ganham resgate antes do vencimento, em qualquer dia, inteiro ou em parte: o Selic pelo valor acumulado, o Prefixado e o IPCA+ pelo preço de hoje, o valor no vencimento trazido a valor presente pela taxa de hoje do mesmo título (o catálogo da F165 é fixo, então o título vendido é o mesmo que está à venda). O Tesouro recompra pela mesma taxa em que vende, sem diferença; o ganho ou a perda vem só da taxa ter mudado desde a compra. IR regressivo sobre o ganho, como no vencimento; com perda, sem IR. Como a taxa muda no fechamento do mês, o preço anda todo dia pelo tempo e salta no fechamento. A tela do Tesouro lista os títulos do jogador com a taxa da compra, a de hoje, o valor de hoje, a marcação e o valor no vencimento, e a venda mostra o que se recebe hoje ao lado do que se receberia esperando; a carteira mostra o ganho ou a perda da marcação ao lado do rendimento. O risco do governo fica palpável para quem investe, e o presidente com Prefixado na carteira perde com a própria gastança. Mexe na renda fixa toda (`liquidity.py`, `fixed_broker.redeem`), que hoje só resgata antes do vencimento o que tem liquidez diária.
-
-<a id="f191"></a>
-**F191 — Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida.** Serve N34; condicionado por D20. A economia da partida passou a ser a história mais o desvio que o governo causa. Cada fechamento de mês calcula a partida e a história lado a lado (`government/linked_economy.py`, o `LinkedEconomy`, chamado no tick antes dos preços do dia), e as ligações saem da diferença entre as duas (`economy/links.py`):
-- **Curva de Phillips:** cada ponto de desemprego abaixo da história soma 0,35 ponto ao IPCA.
-- **Risco fiscal:** cada ponto de prêmio acima da história soma 0,5 ponto ao IPCA, pesa na bolsa como um ponto de SELIC (−2,9%) e encarece o crédito na mesma medida.
-- **PIB → bolsa e arrecadação:** cada 1% de PIB acima da história levanta a bolsa em 2,5% (pelo beta) e soma 0,06 ponto do PIB de receita.
-- **Ciclo fiscal:** o seguro-desemprego custa 0,05% do PIB por ponto de desemprego acima da história, e o impulso fiscal (a piora do primário sem obras em 12 meses) soma metade ao crescimento.
-
-O overlay das séries (`economy/layer.py`, `EconomyLayer`) soma os pontos do gasto e das ligações, e a reação do Banco Central (1,5 vez a inflação somada) virou a função única `central_bank_reaction`, que a SELIC do governo vai trocar. Cada mês fechado vale a partir do dia 1 do mês seguinte.
-
-O crescimento do PIB e o desemprego viraram séries baixadas do SGS (PIB do IBGE em 4 trimestres e desocupação da PNAD Contínua), na Central de dados, e são a história da partida; o modelo cobre só onde não há dado. A dívida paga taxa mista (45% na SELIC do dia, 55% na média de 36 meses do que os títulos travaram) e o prêmio segue sem teto. O juro do mês passou a incidir sobre a dívida anterior. A dívida ÷ PIB reproduzida com a série da partida fecha: o resultado é nominal, e a razão anda pelo juro menos a inflação e o crescimento. O que a subia com SELIC baixa era o prêmio cobrado sobre a dívida inteira, que a taxa mista corrige. O painel agora abre a variação em juro, crescimento, inflação e primário.
-
-Na tela de Economia, o cartão de efeitos lista medidas e ligações; o do crescimento mostra a série do IBGE mais as quatro parcelas (juro real, bolsa, obras, impulso); o do desemprego, a história mais o que a partida somou; o da dívida, a taxa média e de onde veio a variação de 12 meses. A seção "A economia interligada" do guia do governo explica tudo. O peso da bolsa no crescimento era 0,05 mesmo: o "5" do registro antigo era erro de digitação.
-
-Limitação: as linhas das ligações no painel foram conferidas em teste automatizado, mas não numa partida com medidas aprovadas no app. O banco principal precisa da migration e de baixar as duas séries novas na Central de dados.
-
-<a id="f192"></a>
-**F192 — Gerador de futuro: inflação por regime e horizonte em anos.** Serve N12. O choque de inflação, que era um pulso no começo do futuro, virou dois controles: o nível (de −5 a +20 pontos, permanente: a SELIC sobe 1,5× na subida e assenta em 1×) e os surtos (frequência de 0 a 5 por década e intensidade de 2 a 20 pontos, sorteados por ano a partir da semente). O "Começar em" saiu. O "até quando" virou escolha de ano, com teto de 30 anos: a prévia de 30 anos leva 0,41 s, abaixo do 1 s que pediria um aviso, então não há aviso.
-
-A prévia ganhou o crescimento do PIB e o desemprego, calculados mês a mês pelo modelo de `economy/growth.py` a partir da SELIC, do IPCA e da bolsa gerados, sem gravar nada. Na Central, o PIB e o desemprego aparecem com uma cor e uma legenda próprias, "calculado na partida", no trecho depois do dado real.
-
-Decidido na revisão, em 06/11: no nível, a bolsa reage ao juro real (a SELIC acima da inflação somada), e não à SELIC inteira, e todo ativo recebe a inflação do nível no nominal, qualquer que seja o beta. Com +10, o Ibovespa descontada a inflação fica 13% abaixo do futuro sem nível no sexto mês e volta em uns 4 anos; em 10 anos a bolsa real fica parecida em qualquer nível. O alvo do crescimento do PIB passou a descontar a inflação da bolsa, como já descontava do juro, na partida e na prévia: com +10, o PIB cai na transição e, depois de 10 anos, fica a menos de 0,5 ponto do PIB sem nível. O tempo do nível e dos surtos conta os pregões do calendário gerado (260,9 por ano), para que um ano deles seja um ano do IPCA mensal. Fica para o playtest: arrastar o slider do nível no navegador e ver a prévia reagir.
-
-<a id="f196"></a>
-**F196 — Evolução do patrimônio por tipo de renda variável.** Serve N16. Hoje a evolução do patrimônio (`portfolio/components/networth-chart.tsx`) tem as visões "Ganho" e "Por classe", que separa renda fixa, renda variável e caixa, um painel por classe. O playtest de 31/out pediu ver a renda variável aberta por tipo.
-
-**O que muda:** uma visão "Por tipo", ao lado de "Por classe", com um painel por tipo de renda variável (Ações, FII, ETF, BDR e Cripto) no mesmo estilo dos painéis de hoje; o tipo que a carteira nunca teve não ganha painel. O backend soma a série da carteira pelo tipo do ativo, que já está no cadastro, no mesmo endpoint da visão por classe. Sem rodada no canvas: o layout é o da visão por classe.
-
-<a id="f216"></a>
-**F216 — Pontas soltas das features entregues.** Serve N15 e N34. Perguntas que ficaram abertas em features já concluídas e arquivadas, decididas uma a uma em 05/nov. Três viram conserto aqui. (1) **Governo do computador eleito:** o partido do computador que vence a eleição toma posse sem presidente (`state.py`, `pending_term` com `president_id` nulo), e `caretaker()` em `government_book.py` só reconhece o computador que assume por impeachment sem vice (`term.succession`); o mandato eleito passa quatro anos sem medida. O conserto é `caretaker()` (e com ele `governs()` e `_propose_as_caretaker`) valer para todo mandato de partido do computador sem presidente, eleito ou herdado; teste de que o computador eleito propõe com a fila vazia. (2) **Parcela com o jogador negativado:** reproduzir no app de teste (banco de teste, backend 8100 e Vite 5273) a parcela que vence sem caixa, o selo "Negativado", a pendência de atraso e o pagamento por ela, conferindo caixa, multa, juros de atraso e a pendência que some; o backend já tem os testes em `test_credit_book.py`, e o bug que aparecer na tela é consertado aqui. (3) **Logs do bot e da estratégia:** `bot-log-sheet.tsx` e `strategy-log.tsx` trocam o texto fixo "A conexão com a partida caiu…" pela mensagem de erro do servidor, como nas páginas do governo. Ficam assim, decididas: o artigo masculino antes da sigla do partido ("ao ACI"), que é o uso comum para sigla; o erro único por página em Governo, Eleição e Economia, que leem o painel numa consulta só; as cinco peças do board da Campanha que o app não tem (passo "Rival" desabilitado, tabela "Comício: extremos dobrados", cartões de reparação, "O que a manchete conta" e do partido do computador), e o board deixa de ser referência para elas; as manchetes novas como estão escritas; o clique no interruptor do Especialista com o Personalizado ativo, que segue aplicando direto; e a meta de 250 pontos da nota de craque. Os marcadores de notícia no gráfico de preço, que não têm board, ficam na F167. Gatilho: a 3.4, na posição do plano.
-
-<a id="f217"></a>
-**F217 — Correções da 3.4.** Lote dos consertos achados no playtest de 04/11, em main, em `fix:`:
-- (1) **Log das ordens do bot** (`statistics-report/bot-log-sheet.tsx`): o painel tem 520 px e a tabela não quebra linha (`whitespace-nowrap` em `ui/table.tsx`), então rola na horizontal. Alargar o painel e deixar as colunas de texto quebrarem; a comparação com uma partida de versão antiga pelo navegador mostra como era.
-- (2) **Radar na aba Partido da preparação** (`preparation/party-found-tab.tsx`): o mesmo `ProfileRadar` da tela de fundar partido no jogo (`flags-picker.tsx`).
-- (3) **Pendências sempre na barra lateral** (`pending-menu-item.tsx`): o item aparece também sem pendência, e o clique abre "Sem pendências".
-- (4) **Selo de pausa só "Pausado"** (`layouts/partial/topbar.tsx`), com o motivo numa dica ao passar o mouse.
-- (5) **Jornal rola a página inteira** (`journal-paper.tsx`): a lista deixa de ter rolagem própria, e o "Arquivo da partida" fica fixo na lateral como navegação.
-- (6) **Estratégias repetem a ordem:** o comprar e segurar, e outras, tenta comprar todo dia que tem caixa para uma cota (`buy_and_hold.py`), e cada recusa vira uma linha de erro no log (`runner._execute`). Reproduzir, achar o motivo da recusa e fazer as estratégias esperarem em vez de repetir.
-- (7) **Selects de jogador e partido com avatar e marca**, na lista e no valor escolhido: candidato e vice em `ticket-dialog.tsx` e `party-found-tab.tsx`, com `PlayerOption` e `PartyMark`.
-
-<a id="f218"></a>
-**F218 — Textos que explicam o óbvio ou o sistema por dentro.** Serve N15. Cortados os textos das telas que o jogador vê e aprovou no app: o card de novo empréstimo, o card do partido, as telas de eleição e orientação do partido e a tela de governo antes da posse. Os diálogos e as telas que a varredura listou e não foram revisados no app ficaram como estão, sem corte.
-
-<a id="f219"></a>
-**F219 — Terminal do backend sem o aviso do pandas do yfinance.** Serve N26. Achado no playtest de 05/11: o yfinance, ao baixar as séries, disparava `Pandas4Warning` (o parâmetro `inplace` em `DataFrame.drop`, `rename` e `sort_index`) a cada download, e o aviso entupia o terminal do backend. A 1.8.0, que não usa mais `inplace`, exige o curl-cffi 0.17, que trava toda requisição até o timeout; o yfinance ficou na 1.7.0, com o curl-cffi limitado abaixo da 0.17, e o aviso é filtrado só quando vem do código do yfinance, no `main.py`.
-
-<a id="f222"></a>
-**F222 — Resgate automático de renda fixa para cobrir despesas.** Serve N34; vem junto com a tela do Tesouro (F165) e a marcação a mercado (F177). Hoje o caixa que não cobre a despesa do mês, o imposto de renda ou a parcela do empréstimo vira cheque especial ou parcela atrasada, mesmo com dinheiro parado na renda fixa. A regra nova põe uma porta só para os débitos automáticos, `SimulationEngine.cover_before_debit(client, needed, kind)`: se o caixa é menor que o necessário, ela vende títulos antes de debitar, na ordem (1) liquidez diária e Tesouro Selic, da menor taxa para a maior, e (2) só com a opção ligada, Prefixado e IPCA+, do que perde menos (ou ganha mais) para o que perde mais na marcação. Se não der para cobrir tudo, cobre o que dá; a venda é ação do sistema e não passa por `_ensure_can_operate`. Passam pela porta: despesa mensal e imprevisto do viver de renda, DARF, parcela de empréstimo (antes do teste de caixa, para a parcela não atrasar com saldo em renda fixa) e a contribuição mensal automática da campanha; o juro do cheque especial fica de fora, porque é consequência de não ter coberto. Cada resgate vira um toast para o jogador (`ToastType.AUTO_REDEEM`): "Resgatado R$ X de <título> para cobrir <despesa>". A opção `cover_with_treasury` (desligada por padrão) mora nas preferências do usuário, com o interruptor no cabeçalho de "Seus títulos" da tela do Tesouro. `overdraft_cover` e a ação de cobertura do card de vida saem; o card passa a mostrar uma linha dizendo se a cobertura está ligada, com link para o Tesouro.
-
-**Aceite:** ordem de resgate coberta por teste; opção desligada não vende Prefixado nem IPCA+; cobertura parcial; parcela de empréstimo coberta antes de atrasar; toast emitido; testes em `tests/test_auto_cover.py`.
-
-<a id="f223"></a>
-**F223 — Credibilidade do Banco Central medida contra a história.** Serve N34; condicionado por D20. **Sintoma:** na partida com a SELIC nas mãos do governo, um presidente que marca exatamente a SELIC da história em toda reunião perde credibilidade sem ter feito nada diferente. Simulada de 2001 a 2025, ela cai para 32 em 2012–2013, fica presa perto de 55 de 2016 a 2018, zera em dezembro de 2019 e fica em 0 até 2021. Com 0, a dívida paga 2 pontos de prêmio a mais, o que soma cerca de 1 ponto ao IPCA pelo risco fiscal, tira cerca de 5,8% da bolsa no trimestre e dobra o efeito do juro real na inflação. Com o Banco Central autônomo, a mesma janela fica em 100. **Reproduzir:** aplicar `next_credibility` às reuniões de `meeting_days` de 2001 a 2025, com a SELIC e o IPCA guardados. **Causa** (`next_credibility` em `backend/features/economy/monetary.py`, chamada por `_hold_selic_meeting` no `government_book.py`): (1) compara o juro real com o neutro fixo de 5%, e não com o juro real da história no mesmo dia, e cobra de novo o que a série real já contém, contra a D20; (2) só devolve credibilidade com alta da SELIC, e entregar a inflação na meta nunca a reconstrói (em 2016–2018 o IPCA caiu de 10,7% para 2,5% e a credibilidade não voltou); (3) dispara com o IPCA acima da meta, e não acima da meta mais a tolerância (em dezembro de 2019, 4,31% contra a meta de 4,25%, dentro da tolerância de 1,5 ponto, tirou 15,8 pontos). **Conserto:** (1) a reunião tira credibilidade quando o juro real da partida fica abaixo do da história (SELIC e IPCA guardados no dia) e o IPCA em 12 meses da partida passa da meta mais a tolerância: 4 pontos por ponto abaixo da história, até 20; (2) devolve 3 quando sobe a SELIC ou quando o juro real da partida fica igual ou acima do da história; (3) `_hold_selic_meeting` passa o juro real da história e a `inflation_tolerance` do dia. Os testes da credibilidade e o trecho da credibilidade em `docs/docs/como-usar/governo.md` mudam junto. **Aceite:** um presidente que copia a SELIC da história de 2001 a 2025 termina toda reunião com credibilidade 100. **Gatilho:** agora, antes do release da 3.4.
-
-<a id="f224"></a>
-**F224 — Primário que estabiliza a dívida no painel da Economia.** Serve N34 e N41; condicionado por D20. Hoje o painel da Economia mostra a dívida/PIB, a taxa média que ela paga e o que a moveu nos últimos meses (juros, crescimento, inflação e primário, em `debt_summary` de `backend/features/economy/panel.py`), mas não diz quanto superávit seguraria a dívida parada. O jogador passa a ver, ao lado do resultado primário, o **primário que estabiliza a dívida**: o superávit, em % do PIB, que mantém a dívida/PIB no mesmo lugar. A conta é s = d × (r − g) / (1 + g), com d a dívida/PIB, r a taxa nominal média que a dívida paga (a mista, que `budget.debt_rate` já calcula) e g o crescimento nominal do PIB em 12 meses (o crescimento real da partida mais o IPCA). Exemplo: dívida de 80% do PIB, taxa de 12% e PIB nominal crescendo 8% pedem 0,8 × 0,04 / 1,08 ≈ 3,0% do PIB de superávit; com um primário de 1%, a dívida sobe cerca de 2 pontos do PIB por ano. A linha mostra os dois números e a diferença em palavras ("faltam 2,0 pontos do PIB de superávit para a dívida parar de subir"), com o número da história ao lado, que é a régua da D20. A dica traz a definição, o exemplo e o que é bom e ruim: primário acima do que estabiliza faz a dívida cair; abaixo, ela sobe, e com r acima de g sobe sozinha, que é a espiral da dívida. **Mecanismo:** função pura `stabilizing_primary(debt, rate, nominal_growth)` em `backend/features/economy/`, no molde da de `backend/domain/debt.py` do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics); o `DebtSummaryDTO` ganha o primário que estabiliza da partida e o da história, e o `pnpm openapi` regenera os tipos do front. **Gatilho:** depois da credibilidade medida contra a história, antes do release da 3.4.
-
-<a id="f228"></a>
-**F228 — Gasto do governo contado uma vez só na inflação.** Serve N34; condicionado por D20. Uma medida de gasto chega à inflação por dois caminhos. O direto é `INFLATION_PER_STEP` em `backend/features/government/spending_effects.py`: cada passo de auxílio ou de reajuste de aposentado soma 0,25 ponto ao IPCA de 12 meses, o de servidor 0,20 e o de obras 0,15. O indireto passa pelo resto da economia. O gasto piora o primário, e o impulso fiscal (`IMPULSE` em `backend/features/economy/links.py`) empurra o PIB. As obras ainda somam PIB direto, por `GROWTH_PER_STEP`. O PIB maior baixa o desemprego pela lei de Okun (`OKUN` em `growth.py`), e o desemprego abaixo do normal soma inflação pela curva de Phillips (`PHILLIPS` em `links.py`). Se o passo direto foi pensado como o efeito inteiro, o indireto conta o mesmo gasto duas vezes. A estimativa, sem medição, é de 10 a 20% a mais. **Mecanismo:** script de CLI no molde de `.claude/trabalho/economia/calibrate.py`, sobre o banco de teste. Ele roda a mesma partida com e sem o caminho indireto (com o impulso e o PIB das obras zerados) para um passo de cada medida e mede, mês a mês por 36 meses, quanto de IPCA cada caminho soma. Se o indireto passar de 20% do direto no pico, `INFLATION_PER_STEP` é descontado até o total voltar ao valor de hoje, e o teste da medida passa a conferir o total. Abaixo disso, fica como está e entra como simplificação na página da docs sobre gasto e inflação. **Aceite:** a medição registrada com o número de cada medida, e o IPCA somado por um passo, pelos dois caminhos juntos, dentro de 10% do valor de `INFLATION_PER_STEP`. **Gatilho:** depois do primário que estabiliza a dívida, antes da calibragem da partida longa. **Medição:** `.claude/trabalho/economia/measure_f228.py`, sobre o banco de teste, um passo de cada medida vigente em janeiro, 36 meses, com e sem o impulso fiscal e o PIB das obras (o `MacroCourse` com os dois zerados); quatro partidas (2006, 2011, 2016 e 2021) deram o mesmo resultado dentro de meio ponto percentual. No mês em que o efeito direto enche (o 6º), o indireto soma ao IPCA 0,009 ponto no auxílio (3,5% dos 0,249 do direto), 0,002 nos servidores (0,9% de 0,199), 0,004 nos aposentados (1,7% de 0,249) e 0,013 nas obras (8,8% de 0,149). A soma dos dois caminhos no pico fica em 102,4% a 103,1% de `INFLATION_PER_STEP` no auxílio, 99,9% a 100,5% nos servidores, 100,7% a 101,3% nos aposentados e 107,3% a 108,5% nas obras, todas dentro dos 10% do aceite. Aos 24 meses o direto caiu a cerca de um terço do pico e o indireto, que chega devagar pelo desemprego, ficou em 0,033 no auxílio (0,083 de direto), 0,012 nos servidores (0,067), 0,029 nos aposentados (0,083) e 0,090 nas obras (0,050); nas obras ele ainda sobe aos 36 meses (0,113), porque o PIB a mais deixa o desemprego abaixo da história sem voltar. **Decisão:** o indireto fica abaixo dos 20% do direto no pico, então `INFLATION_PER_STEP` não muda e o número do passo vale como o efeito total; o indireto tardio das obras vai para a calibragem da partida longa. A simplificação entrou no trecho do gasto de `docs/docs/como-usar/governo.md`.
-
-<a id="f229"></a>
-**F229 — Calibragem da economia numa partida de 10 anos.** Serve N34; condicionado por D20. Mediu a partida longa com um presidente jogando, de jan/2001 a dez/2010, sobre o banco de teste, com os scripts `calibrate10.py`, `analyze10.py` e `report10.py` em `.claude/trabalho/economia/`. Cinco presidentes roteirizados rodaram, cada um com a SELIC do presidente e com o Banco Central autônomo: o que copia a história, o gastador, o gastador que corrige, o austero e o alternado. **Rodada 1:** achou dois defeitos, que viraram correções na 3.4: o desemprego da partida que nunca voltava ao normal e o teto da SELIC do presidente preso à inflação. **Rodada 2, depois das correções:**
-- **Quem copia a história:** fica a até 0,2 ponto da série real no IPCA, no desemprego e no prêmio, e a 0,12 ponto da SELIC em todas as 80 reuniões. A dívida termina 1,2 ponto do PIB acima, por arredondamentos que se somam em 10 anos.
-- **Gastador:** inflação +11 pontos e credibilidade a zero. A dívida cai pelo imposto inflacionário.
-- **Gastador que corrige:** o IPCA volta à história em 19 meses e a credibilidade volta a 100 em 44 meses.
-- **Austero:** o desemprego volta a menos de 1 ponto em 44 meses. A dívida sobe porque o roteiro também sobe a SELIC; com o Banco Central autônomo, tudo anda na direção certa.
-- **Gastador com Banco Central autônomo:** entra na espiral da dívida, a consequência de um rombo permanente.
-
-O único ponto implausível é o gastador que nunca para, que cresce no teto do jogo com um rombo de 22,7% do PIB. Ele virou o card do crescimento que sente o rombo do governo. O relatório completo está em `.claude/trabalho/economia/calibragem-10-anos.md`.
-
-<a id="f230"></a>
-**F230 — Desemprego da partida volta devagar ao normal da época.** Serve N34; condicionado por D20. Hoje, em `next_month` de `backend/features/economy/growth.py`, o desvio do desemprego só muda pela lei de Okun: cada ponto de crescimento acima da história baixa o desemprego em 0,5 ponto por ano. Nada fecha esse desvio, então ele fica para sempre. Na calibragem de 10 anos, um presidente austero deixou o desemprego 5,5 pontos acima da história sem volta, mesmo com o PIB crescendo igual ao da história. As obras, pelo mesmo motivo, deixam o desemprego baixo por anos e seguem somando inflação pela curva de Phillips (0,092 ponto de IPCA aos 24 meses contra 0,050 do efeito direto). Na economia real o desemprego volta à taxa natural, a que sobra sem a economia aquecida nem em recessão, e no jogo a história faz esse papel (D20). No Brasil a volta foi lenta: de 13,7% em 2017 para perto de 9% em 2022. O que o jogador fez continua na dívida, na folha, na credibilidade e na bolsa; só o desvio do desemprego se fecha. **Mecanismo:** o desvio do mês passa a ser o do mês anterior vezes um fator de volta, menos o termo de Okun de hoje. A constante `UNEMPLOYMENT_HALF_LIFE_MONTHS` em `growth.py` começa em 24 meses, ajustada por CLI para que um desvio de 5 pontos caia abaixo de 1 ponto em cerca de 5 anos. O teste da partida longa em `tests/` confere a volta. Na mesma entrega, a medição do gasto pelos dois caminhos da inflação roda de novo para as obras (os scripts estão em `.claude/trabalho/economia/measure_f228.py`). A frase de `docs/docs/como-usar/governo.md` sobre o indireto das obras "seguir crescendo" sai, e o parágrafo da economia interligada ganha a volta do desemprego. **Aceite:** austero com SELIC do presidente, depois de parar, com o desvio do desemprego abaixo de 1 ponto em até 5 anos; IPCA somado pelas obras, nos dois caminhos, dentro de 20% do passo aos 24 meses. **Medição:** `UNEMPLOYMENT_HALF_LIFE_MONTHS` ficou em 36 meses, não nos 24 do plano: com 24 o desemprego voltava tão depressa que as obras somavam 0,116 de IPCA aos 24 meses (77% do passo de 0,15, fora dos 20% do aceite); com 36 somam 0,123 e 0,121 (partidas de 2006 e de 2016, 82% e 81% do passo), e com 48 o austero deixaria 1,5 ponto de desvio no quinto ano. O austero com SELIC do presidente (`.claude/trabalho/economia/calibrate10.py`, 2001 a 2010) chegou a 3,1 pontos de desemprego acima da história em jan/2005, quando parou, e ficou em 2,6 pontos um ano depois, 1,6 três anos depois e 0,94 cinco anos depois (antes não voltava: +5,5 no fim). Nas obras, aos 24 meses, o direto é 0,050 e o indireto 0,073 (2006) e 0,071 (2016), contra 0,090 antes; aos 36 meses a soma é 0,083 e 0,099 (antes o indireto ainda subia). No pico (6º mês) os demais gastos seguem como na medição anterior: o indireto soma 3,4% do direto no auxílio, 0,8% nos servidores, 1,6% nos aposentados e 8,5% nas obras. **Decisão:** a meia-vida de 36 meses é a menor que fecha os dois aceites; um desvio isolado de 5 pontos leva cerca de 7 anos para cair abaixo de 1 ponto, mais lento que a estimativa do plano, mas o desvio que um mandato realmente deixa (3 pontos no austero) fecha em 5. A frase do indireto das obras que seguia crescendo saiu de `docs/docs/como-usar/governo.md`, e o parágrafo da economia interligada ganhou a volta do desemprego.
-
-<a id="f231"></a>
-**F231 — SELIC do presidente livre até 3 pontos por reunião.** Serve N34; condicionado por D20. Hoje, com a SELIC nas mãos do governo, cada reunião move no máximo 0,75 ponto, ou 1,5 com o IPCA acima do teto da meta e 3 com ele acima de 15% (`meeting_cap` em `backend/features/economy/monetary.py`). Essa é a regra de um Banco Central de verdade, imposta a um presidente que tirou a autonomia dele. Ela também impede copiar a história: o Copom real subiu 3 pontos em out/2002, com o IPCA perto de 8%, e cortou 1,5 em 2009, dentro da meta. Na calibragem de 10 anos, quem copiou a história ficou até 4,4 pontos de SELIC longe dela. A SELIC passa a ser estratégia do presidente: o limite vira um teto fixo de 3 pontos por reunião, para cima e para baixo, a maior alta do Copom desde 1999, sem depender da inflação. O custo de "meter o louco" vem do mercado e não da regra: a credibilidade já cobra de quem segura o juro real abaixo da história, e o mercado que reage à surpresa (4.3) cobrará de quem surpreende. **Mecanismo:** a janela da reunião é a SELIC guardada mais ou menos `PRESIDENT_CAP = Decimal("0.03")` (3 pontos, em passos de 0,25) e sempre inclui a SELIC da história no dia (passo mais próximo), por mais que ela tenha andado desde a reunião anterior: o piso é o menor entre a SELIC menos 3 pontos e a da história, o teto é o maior entre a SELIC mais 3 pontos e a da história, sem passar de zero. `cap_window` e `within_cap` em `backend/features/economy/monetary.py` recebem a SELIC da história como argumento; `meeting_cap` e as constantes `NORMAL_CAP`, `TOLERANCE_CAP`, `CRISIS_CAP` e `CRISIS_INFLATION` saem; `selic_cap` e `selic_history` em `backend/features/government/government_book.py` alimentam a janela do `set_selic` e do bot presidente, e o cartão monetário (`MonetaryDTO`) ganha `history_selic` para o controle da tela. O passo de 0,25 ponto e o calendário de 8 reuniões ficam. Os testes do teto passam a conferir a janela de 3 pontos com qualquer IPCA e o alcance da história, e a seção "O teto por reunião" de `docs/docs/como-usar/governo.md` (e a frase das fontes) é reescrita. O Banco Central autônomo não muda. **Aceite:** o presidente que copia a história fica dentro de 0,25 ponto da SELIC real em todas as reuniões de 2001 a 2010. **Medição:** só com o teto de 3 pontos, 2 das 80 reuniões ficavam fora de 0,25 (dez/2002, com a história 0,9 ponto abaixo da janela, e set/2003, 1,41 ponto), porque a história andou mais de 3 pontos entre duas reuniões; com a história sempre dentro da janela, as 80 reuniões de 2001 a 2010 ficam dentro de 0,25 ponto, com o maior desvio em 0,12 ponto (ago/2004, 16,00% contra 15,88%), a diferença do arredondamento ao passo de 0,25.
+> Nenhum item neste status.
 
 ---
 
