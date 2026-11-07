@@ -27,7 +27,8 @@ TREND = Decimal("0.02")
 # Cada ponto de juro real acima do neutro tira 0,4 ponto do alvo de crescimento
 NEUTRAL_REAL_RATE = Decimal("0.05")
 REAL_RATE_WEIGHT = Decimal("0.4")
-# Cada 10 pontos de alta do Ibovespa em 12 meses acima de 5% somam meio ponto ao alvo
+# Cada 10 pontos de alta do Ibovespa em 12 meses, descontada a inflação, acima de 5%
+# somam meio ponto ao alvo
 NEUTRAL_STOCKS = Decimal("0.05")
 STOCKS_WEIGHT = Decimal("0.05")
 # O crescimento anda 1/4 do caminho até o alvo a cada fechamento, dentro da faixa
@@ -62,7 +63,8 @@ class GrowthAim:
     # Juro real do dia (SELIC menos IPCA) e o quanto ele empurra o alvo
     real_rate: Decimal
     real_rate_part: Decimal
-    # Alta do Ibovespa em 12 meses (nula quando a série não cobre) e o quanto ela empurra
+    # Alta do Ibovespa em 12 meses descontado o IPCA (nula quando a série não cobre) e o
+    # quanto ela empurra
     stocks: Decimal | None
     stocks_part: Decimal
     # O que as obras do governo somam ao alvo, em fração ao ano
@@ -129,16 +131,21 @@ class MacroMonth:
 
 
 def aim_from(
-    real_rate: Decimal,
+    selic: Decimal,
+    inflation: Decimal,
     stocks: Decimal | None,
     spending: Decimal = ZERO,
     impulse: Decimal = ZERO,
 ) -> GrowthAim:
     """
-    O alvo do crescimento para o juro real e a alta do Ibovespa em 12 meses dados (frações
-    ao ano), mais o que as obras e o resultado primário somam. Sem série de bolsa, a bolsa
-    fica no neutro: não empurra nem puxa.
+    O alvo do crescimento para a SELIC, o IPCA de 12 meses e a alta nominal do Ibovespa em
+    12 meses dados (frações ao ano), mais o que as obras e o resultado primário somam. O
+    juro e a bolsa entram descontada a inflação, então inflação que só infla os preços não
+    mexe no crescimento. Sem série de bolsa, a bolsa fica no neutro: não empurra nem puxa.
     """
+    real_rate = selic - inflation
+    if stocks is not None:
+        stocks = (1 + stocks) / (1 + inflation) - 1
     return GrowthAim(
         trend=TREND,
         real_rate=real_rate,
@@ -163,15 +170,17 @@ def growth_aim(
     O alvo do crescimento com o que o jogador conhece em `day`, mais o que as obras e o
     resultado primário somam; com `stored`, o alvo da história, pelas séries guardadas.
     """
-    real_rate = annual_index_rate(
-        IndicatorSeries.SELIC, day, stored=stored
-    ) - annual_index_rate(IndicatorSeries.IPCA, day, stored=stored)
     now = last_known_value(IndicatorSeries.IBOV, day, stored=stored)
     before = last_known_value(
         IndicatorSeries.IBOV, day - timedelta(days=STOCKS_WINDOW_DAYS), stored=stored
     )
-    stocks = now / before - 1 if now is not None and before else None
-    return aim_from(real_rate, stocks, spending, impulse)
+    return aim_from(
+        annual_index_rate(IndicatorSeries.SELIC, day, stored=stored),
+        annual_index_rate(IndicatorSeries.IPCA, day, stored=stored),
+        now / before - 1 if now is not None and before else None,
+        spending,
+        impulse,
+    )
 
 
 def step_growth(previous: Decimal, aim_value: Decimal) -> Decimal:

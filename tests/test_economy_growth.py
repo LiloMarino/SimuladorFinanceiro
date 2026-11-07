@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
 
 from backend.core.enum import IndicatorSeries
+from backend.core.indicators import annual_index_rate, last_known_value
 from backend.features.economy import growth
 from backend.features.economy.growth import MacroCourse
 from tests.conftest import SetIndicator
@@ -68,18 +69,37 @@ def test_high_real_rate_pulls_the_aim_down_and_stocks_push_it_up(
 
     # Juro real de ~10,4%: bem acima do neutro de 5%
     assert aim.real_rate_part < 0
-    # Bolsa em +20% em 12 meses: 15 pontos acima do neutro de 5% somam 0,75 ponto
-    assert aim.stocks == Decimal("0.2")
-    assert aim.stocks_part == Decimal("0.0075")
+    # Bolsa em +20% em 12 meses com IPCA de 4% (0,33% ao mês): a alta real, de 15,3%,
+    # fica 10,3 pontos acima do neutro de 5% e soma 0,52 ponto
+    ipca = Decimal("1.0033") ** 12 - 1
+    assert aim.stocks is not None
+    assert aim.stocks == pytest.approx(Decimal("1.2") / (1 + ipca) - 1)
+    assert aim.stocks_part == growth.STOCKS_WEIGHT * (
+        aim.stocks - growth.NEUTRAL_STOCKS
+    )
+    assert round(aim.stocks_part, 4) == Decimal("0.0052")
 
 
 def test_aim_from_gives_the_aim_that_growth_aim_reads_from_the_series(
     flat_economy: None,
 ):
-    read = growth.growth_aim(date(2020, 6, 30), Decimal("0.01"), Decimal("0.002"))
+    day = date(2020, 6, 30)
+    read = growth.growth_aim(day, Decimal("0.01"), Decimal("0.002"))
+    ibov_now = last_known_value(IndicatorSeries.IBOV, day)
+    ibov_before = last_known_value(
+        IndicatorSeries.IBOV, day - timedelta(days=growth.STOCKS_WINDOW_DAYS)
+    )
 
     assert (
-        growth.aim_from(read.real_rate, read.stocks, Decimal("0.01"), Decimal("0.002"))
+        growth.aim_from(
+            annual_index_rate(IndicatorSeries.SELIC, day),
+            annual_index_rate(IndicatorSeries.IPCA, day),
+            ibov_now / ibov_before - 1
+            if ibov_now is not None and ibov_before
+            else None,
+            Decimal("0.01"),
+            Decimal("0.002"),
+        )
         == read
     )
 

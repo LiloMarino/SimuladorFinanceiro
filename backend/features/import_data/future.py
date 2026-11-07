@@ -236,15 +236,13 @@ def _macro_preview(
     """
 
     def aim_on(month_end: date) -> growth.GrowthAim:
-        real_rate = (_last_value(selic, month_end) or 0) - (
-            _last_value(ipca, month_end.replace(day=1)) or 0
-        )
         now = _last_value(ibov, month_end)
         before = _last_value(
             ibov, month_end - timedelta(days=growth.STOCKS_WINDOW_DAYS)
         )
         return growth.aim_from(
-            Decimal(real_rate) / 100,
+            Decimal(_last_value(selic, month_end) or 0) / 100,
+            Decimal(_last_value(ipca, month_end.replace(day=1)) or 0) / 100,
             Decimal(now / before - 1) if now is not None and before else None,
         )
 
