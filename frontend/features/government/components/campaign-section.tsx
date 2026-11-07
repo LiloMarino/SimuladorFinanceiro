@@ -19,6 +19,8 @@ type CampaignSectionProps = {
   onChangeContribution: () => void;
   onExpel: (nickname: string) => void;
   onLeave: () => void;
+  onProposeFederation: () => void;
+  onLeaveFederation: () => void;
 };
 
 /** A aba da campanha, cada informação num cartão só: ações, eleitorado, histórico e o partido. */
@@ -32,6 +34,8 @@ export function CampaignSection({
   onChangeContribution,
   onExpel,
   onLeave,
+  onProposeFederation,
+  onLeaveFederation,
 }: CampaignSectionProps) {
   const { data: campaign, error, refetch } = useCampaign();
   const history = useRef<HTMLDivElement>(null);
@@ -89,6 +93,8 @@ export function CampaignSection({
         onChangeContribution={onChangeContribution}
         onExpel={onExpel}
         onLeave={onLeave}
+        onProposeFederation={onProposeFederation}
+        onLeaveFederation={onLeaveFederation}
       />
     </div>
   );

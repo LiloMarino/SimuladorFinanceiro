@@ -67,6 +67,25 @@ class Bloc:
 
 
 @dataclass(frozen=True)
+class Alliance:
+    """Dois partidos que disputam a casa numa lista só: a federação."""
+
+    keys: tuple[int, int]
+    name: str
+
+
+@dataclass(frozen=True)
+class Slate:
+    """A lista de uma federação na casa: o que os dois partidos somaram juntos."""
+
+    keys: tuple[int, int]
+    name: str
+    # Em cada 100 votos válidos
+    votes: Decimal
+    seats: int
+
+
+@dataclass(frozen=True)
 class House:
     """A casa eleita: a bancada de cada partido que entrou na disputa."""
 
@@ -76,6 +95,12 @@ class House:
     # O quociente da última cadeira dada e o da primeira que ficou de fora
     last: Decimal = ZERO
     upcoming: Decimal = ZERO
+    # As listas das federações que disputaram a eleição da casa
+    slates: tuple[Slate, ...] = ()
+
+    def slate_of(self, key: int) -> Slate | None:
+        """A lista federada de que a bancada fez parte."""
+        return next((s for s in self.slates if key in s.keys), None)
 
     def bloc(self, key: int) -> Bloc | None:
         return next((b for b in self.blocs if b.key == key), None)
@@ -186,6 +211,36 @@ def distribute(
     return Distribution(won, below, last, upcoming)
 
 
+def distribute_lists(
+    votes: Mapping[int, Decimal],
+    alliances: Iterable[Alliance] = (),
+    seats: int = SEATS,
+    barrier: Decimal = BARRIER,
+) -> Distribution:
+    """
+    As cadeiras com as federações: a barreira e o D'Hondt rodam sobre a soma dos votos
+    de cada lista, e as cadeiras da lista federada se dividem entre os dois partidos por
+    um D'Hondt interno, sem barreira.
+    """
+    head = {a.keys[1]: a.keys[0] for a in alliances}
+    listed: dict[int, Decimal] = {}
+    for key, amount in votes.items():
+        top = head.get(key, key)
+        listed[top] = listed.get(top, ZERO) + amount
+    main = distribute(listed, seats, barrier)
+    won = dict.fromkeys(votes, 0)
+    for top, count_ in main.seats.items():
+        members = [k for k in votes if head.get(k, k) == top]
+        if len(members) == 1:
+            won[top] = count_
+            continue
+        inner = distribute({k: votes[k] for k in members}, count_, ZERO)
+        for key in members:
+            won[key] = inner.seats[key]
+    below = tuple(sorted(k for k in votes if head.get(k, k) in main.below))
+    return Distribution(won, below, main.last, main.upcoming)
+
+
 def electorate_mix(
     key: int, groups: Mapping[VoterGroup, voters.GroupVote]
 ) -> dict[VoterGroup, Decimal]:
@@ -202,10 +257,12 @@ def electorate_mix(
 def elect(
     candidates: Iterable[Candidate],
     strengths: Mapping[int, Mapping[VoterGroup, Decimal]],
+    alliances: Iterable[Alliance] = (),
 ) -> House:
-    """A casa de uma eleição: os votos de cada partido viram cadeiras pelo D'Hondt com barreira."""
+    """A casa de uma eleição: os votos de cada lista viram cadeiras pelo D'Hondt com barreira."""
     result = vote(strengths)
-    cut = distribute(result.total)
+    alliances = tuple(alliances)
+    cut = distribute_lists(result.total, alliances)
     total = sum(result.total.values(), ZERO)
     blocs = tuple(
         Bloc(
@@ -223,7 +280,17 @@ def elect(
         )
         for c in candidates
     )
-    return House(blocs, cut.below, cut.last, cut.upcoming)
+    by_key = {b.key: b for b in blocs}
+    slates = tuple(
+        Slate(
+            keys=a.keys,
+            name=a.name,
+            votes=sum((by_key[k].votes for k in a.keys if k in by_key), ZERO),
+            seats=sum(by_key[k].seats for k in a.keys if k in by_key),
+        )
+        for a in alliances
+    )
+    return House(blocs, cut.below, cut.last, cut.upcoming, slates)
 
 
 def initial_house() -> House:

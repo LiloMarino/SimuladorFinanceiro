@@ -1,14 +1,21 @@
-import { LogOut, UserMinus } from "lucide-react";
+import { Handshake, LogOut, UserMinus } from "lucide-react";
 import { Kpi } from "@/shared/components/kpi";
 import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { displayDayMonth, displayMoney, displayMoneyWhole, displayMonthShort } from "@/shared/lib/utils/display";
+import {
+  displayDayMonth,
+  displayMoney,
+  displayMoneyWhole,
+  displayMonthShort,
+  displayShortDate,
+} from "@/shared/lib/utils/display";
 import type { CampaignPanel, ElectionPanel, ElectionParty } from "@/types";
 import { BUDGET, SPENT, VOTE_YIELD } from "../lib/election-metrics";
 import { signed } from "../lib/campaign";
 import { monthYear } from "../lib/election";
+import { federationOf, partnerOf } from "../lib/federation";
 import { GuidanceRules } from "./guidance-rules";
 import { PartyMark } from "@/shared/components/party-mark";
 import { PromiseBadges } from "./promise-badges";
@@ -25,6 +32,8 @@ type MyPartyCardProps = {
   onChangeContribution: () => void;
   onExpel: (nickname: string) => void;
   onLeave: () => void;
+  onProposeFederation: () => void;
+  onLeaveFederation: () => void;
 };
 
 function roleOf(member: ElectionParty["members"][number]) {
@@ -47,8 +56,12 @@ export function MyPartyCard({
   onChangeContribution,
   onExpel,
   onLeave,
+  onProposeFederation,
+  onLeaveFederation,
 }: MyPartyCardProps) {
   const mine = panel.my_party;
+  const federation = federationOf(panel.federations, party.id);
+  const partner = federation && panel.parties.find((candidate) => candidate.id === partnerOf(federation, party.id));
   const locked = panel.phase === "BETWEEN_ROUNDS";
 
   return (
@@ -192,6 +205,46 @@ export function MyPartyCard({
             {/* Orientação da bancada */}
             <div className="grid content-start gap-4">
               {mine && <GuidanceRules rules={mine.guidance} isLeader={mine.is_founder} abbr={party.abbr} />}
+              {/* Federação */}
+              {(federation || mine?.is_founder) && (
+                <div className="grid gap-1.5">
+                  <span className="text-sm font-medium">Federação</span>
+                  {federation ? (
+                    <>
+                      <span className="text-xs text-muted-foreground">
+                        {federation.name}, com o {partner?.abbr}, até {displayShortDate(federation.ends_on)}.
+                      </span>
+                      {panel.can_federate && (
+                        <Button
+                          variant="outline-destructive"
+                          size="sm"
+                          className="justify-self-start"
+                          onClick={onLeaveFederation}
+                        >
+                          Sair da federação
+                        </Button>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-xs text-muted-foreground">
+                        {panel.federation_block ??
+                          "Dois partidos viram uma lista só no Congresso e somam os votos na barreira."}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="justify-self-start"
+                        disabled={!panel.can_federate || panel.federation_block !== null}
+                        onClick={onProposeFederation}
+                      >
+                        <Handshake />
+                        Propor federação
+                      </Button>
+                    </>
+                  )}
+                </div>
+              )}
               <Button
                 variant="outline-destructive"
                 size="sm"

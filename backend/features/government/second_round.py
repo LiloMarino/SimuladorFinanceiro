@@ -133,14 +133,16 @@ def start(
     standings: Mapping[int, Mapping[VoterGroup, voters.Standing]],
     nets: Mapping[int, Mapping[VoterGroup, Decimal]],
     finalists: tuple[int, int],
+    leaders: Mapping[int, int] | None = None,
 ) -> Race:
     """
     O 2º turno a partir do 1º: em cada grupo, os votos de cada eliminado se dividem entre
     os finalistas pela afinidade do grupo com cada um (descontada a rejeição), e uma
     parte fica indecisa, maior quando o grupo gosta pouco dos dois. `nets` é a afinidade
-    menos a rejeição de cada partido em cada grupo.
+    menos a rejeição de cada partido em cada grupo. `leaders` leva a fatia de cada
+    partido federado ao líder da chapa, como no 1º turno.
     """
-    first = voters.vote(standings)
+    first = voters.merge(voters.vote(standings), leaders or {})
     groups = {}
     for group in VoterGroup:
         first_vote = first.groups[group]

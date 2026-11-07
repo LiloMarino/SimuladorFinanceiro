@@ -249,3 +249,154 @@ def test_start_passes_with_distinct_parties():
     choose(BIA, PreparationKind.FOUND, identity=party("BET", "#2563eb", "Beta"))
 
     RoomPreparation.ensure_ready(HUMANS)
+
+
+# Federação no lobby
+
+
+def two_founders() -> None:
+    choose(ANA, PreparationKind.FOUND, identity=party("ALF"))
+    choose(BIA, PreparationKind.FOUND, identity=party("BET", "#2563eb", "Beta"))
+
+
+def combined(user: UserDTO):
+    return next(
+        p
+        for p in RoomPreparation.snapshot(HUMANS).players
+        if p.nickname == user.nickname
+    ).federation
+
+
+def test_a_proposal_waits_for_the_answer_and_becomes_a_federation_when_accepted():
+    two_founders()
+
+    RoomPreparation.propose_federation(ANA, HUMANS, "Bia", "Frente", "Bia")
+
+    assert RoomPreparation.mine(ANA, HUMANS).federation_invited == "Bia"
+    invite = RoomPreparation.mine(BIA, HUMANS).federation_invite
+    assert invite is not None
+    assert (invite.name, invite.candidate) == ("Frente", "Bia")
+    assert combined(ANA) is None
+
+    RoomPreparation.answer_federation(BIA, True)
+
+    for user, partner in ((ANA, "Bia"), (BIA, "Ana")):
+        federation = combined(user)
+        assert federation is not None
+        assert (federation.partner, federation.name, federation.candidate) == (
+            partner,
+            "Frente",
+            "Bia",
+        )
+    assert RoomPreparation.mine(ANA, HUMANS).federation_invited is None
+
+
+def test_the_federation_name_defaults_to_the_abbreviations():
+    two_founders()
+
+    RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
+    RoomPreparation.answer_federation(BIA, True)
+
+    federation = combined(ANA)
+    assert federation is not None
+    assert (federation.name, federation.candidate) == ("Federação ALF–BET", "Ana")  # noqa: RUF001
+
+
+def test_declining_clears_the_proposal():
+    two_founders()
+    RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
+
+    RoomPreparation.answer_federation(BIA, False)
+
+    assert RoomPreparation.mine(ANA, HUMANS).federation_invited is None
+    assert RoomPreparation.mine(BIA, HUMANS).federation_invite is None
+    assert combined(ANA) is None
+
+
+def test_either_founder_undoes_the_combined_federation():
+    two_founders()
+    RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
+    RoomPreparation.answer_federation(BIA, True)
+
+    RoomPreparation.propose_federation(BIA, HUMANS, None, None, None)
+
+    assert combined(ANA) is None
+    assert combined(BIA) is None
+
+
+def test_the_proposer_withdraws_the_open_proposal():
+    two_founders()
+    RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
+
+    RoomPreparation.propose_federation(ANA, HUMANS, None, None, None)
+
+    assert RoomPreparation.mine(BIA, HUMANS).federation_invite is None
+
+
+def test_only_a_founder_proposes_and_only_to_another_founder():
+    choose(ANA, PreparationKind.FOUND, identity=party("ALF"))
+    choose(BIA, PreparationKind.JOIN, founder="Ana")
+
+    assert "Só quem funda" in refusal(
+        lambda: RoomPreparation.propose_federation(BIA, HUMANS, "Ana", None, None)
+    )
+    assert "não preparou" in refusal(
+        lambda: RoomPreparation.propose_federation(ANA, HUMANS, "Caio", None, None),
+        404,
+    )
+    assert "próprio partido" in refusal(
+        lambda: RoomPreparation.propose_federation(ANA, HUMANS, "Ana", None, None)
+    )
+
+
+def test_one_proposal_at_a_time_per_party():
+    two_founders()
+    choose(CAIO, PreparationKind.FOUND, identity=party("GAM", "#16a34a", "Gama"))
+    RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
+
+    assert "já tem uma proposta" in refusal(
+        lambda: RoomPreparation.propose_federation(CAIO, HUMANS, "Bia", None, None)
+    )
+    assert "já tem uma proposta" in refusal(
+        lambda: RoomPreparation.propose_federation(ANA, HUMANS, "Caio", None, None)
+    )
+
+
+def test_the_candidate_belongs_to_one_of_the_two_parties():
+    two_founders()
+    choose(CAIO, PreparationKind.JOIN, founder="Bia")
+
+    assert "candidato" in refusal(
+        lambda: RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, "Dana"),
+        422,
+    )
+    RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, "Caio")
+
+
+def test_answering_without_a_proposal_is_refused():
+    two_founders()
+
+    assert "para responder" in refusal(
+        lambda: RoomPreparation.answer_federation(BIA, True), 404
+    )
+
+
+def test_the_federation_falls_when_the_partner_stops_founding():
+    two_founders()
+    RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
+    RoomPreparation.answer_federation(BIA, True)
+
+    choose(BIA, PreparationKind.JOIN, founder="Ana")
+
+    assert combined(ANA) is None
+    assert RoomPreparation.mine(ANA, HUMANS).federation_invited is None
+
+
+def test_the_federation_falls_when_the_partner_leaves_the_room():
+    two_founders()
+    RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
+    RoomPreparation.answer_federation(BIA, True)
+
+    assert combined(ANA) is not None
+    present = [ANA, CAIO]
+    assert RoomPreparation.snapshot(present).players[0].federation is None

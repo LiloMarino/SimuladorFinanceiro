@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { displayShortDate } from "@/shared/lib/utils/display";
 import { BARRIER, DHONDT } from "../lib/government-metrics";
 import { partySeats, seatChange, type House } from "../lib/house";
+import { Badge } from "@/shared/components/ui/badge";
 import { Hemicycle } from "./hemicycle";
 import { PartyMark } from "@/shared/components/party-mark";
 import { partyColor } from "@/shared/lib/party-colors";
@@ -72,6 +73,26 @@ export function ElectedHouse({ house }: { house: House }) {
           })}
         </TableBody>
       </Table>
+      {house.slates
+        .filter((slate) => slate.keys.length > 1)
+        .map((slate) => {
+          const members = blocs.filter((bloc) => slate.keys.includes(bloc.key));
+          return (
+            <div key={slate.name} className="grid gap-1 rounded-lg border px-3 py-2 text-[13px]">
+              <span className="flex items-center gap-2">
+                <Badge variant="federation" size="sm">
+                  {slate.name}
+                </Badge>
+                <span className="font-mono">{decimal(Number(slate.votes), 1)}%</span>
+                <span className="text-muted-foreground">dos votos válidos somados · {slate.seats} cadeiras</span>
+              </span>
+              <span className="text-xs text-muted-foreground">
+                A barreira e a divisão das cadeiras usaram a soma; depois, as cadeiras se repartiram entre{" "}
+                {members.map((bloc) => `${bloc.abbr} (${bloc.seats})`).join(" e ")}.
+              </span>
+            </div>
+          );
+        })}
       {out.length > 0 && (
         <Alert variant="muted">
           <Info />
@@ -109,6 +130,12 @@ function DhondtHint({ house }: { house: House }) {
             </li>
             <li>Os votos de cada partido são divididos por 1, 2, 3 e assim por diante.</li>
             <li>As {house.seats} maiores divisões, de qualquer partido, levam uma cadeira cada.</li>
+            {house.slates.some((slate) => slate.keys.length > 1) && (
+              <li>
+                Os dois partidos de uma federação entram como uma lista só: somam os votos e depois repartem as cadeiras
+                entre si.
+              </li>
+            )}
           </ol>
           <Table>
             <TableHeader>

@@ -52,6 +52,8 @@
   --color-expansion-government: var(--expansion-government);
   --color-secret: var(--secret);
   --color-secret-soft: var(--secret-soft);
+  --color-federation: var(--federation);
+  --color-federation-soft: var(--federation-soft);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
   --color-info-soft: var(--info-soft);
@@ -168,6 +170,8 @@
   --expansion-government: #9a3412;
   --secret: #6b3fc4;
   --secret-soft: #f1eafe;
+  --federation: #5b30c9;
+  --federation-soft: #f1ecfe;
   --info: #1a3da8;
   --info-foreground: #ffffff;
   --info-soft: #eaf0ff;

@@ -28,6 +28,8 @@ const NOTICE: GovernmentNotice = {
   campaign_action: null,
   group: null,
   rival_abbr: null,
+  federation_name: null,
+  partner_abbr: null,
   seats_before: 46,
   seats_after: 74,
   broken_by_ally: null,

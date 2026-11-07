@@ -12,6 +12,7 @@ export const badgeVariants = cva(
         destructive: "bg-destructive-soft text-destructive",
         info: "bg-info-soft text-info",
         secret: "bg-secret-soft text-secret",
+        federation: "bg-federation-soft text-federation",
         outline: "border-input bg-card text-foreground",
         // Selo de destaque sobre fundo claro: o contraste máximo do tema
         inverse: "bg-foreground text-background",

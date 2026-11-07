@@ -23,6 +23,7 @@ import { useSaveMyParty } from "../../hooks/mutations/useSaveMyParty";
 import { useSavePartyContribution } from "../../hooks/mutations/useSavePartyContribution";
 import { useSetPreparation } from "../../hooks/mutations/useSetPreparation";
 import { cashShare, closeRivalTag, rivalsOf, sharedFlags, type Rival } from "../../lib/preparation";
+import { PartyFederationSection } from "./party-federation-section";
 import { PreparationFooter } from "./preparation-footer";
 import { PreparationSection } from "./preparation-section";
 import type { PartyModeProps } from "./party-tab";
@@ -217,6 +218,10 @@ export function PartyFoundTab({
                 note={`${cashShare(contributionAmount(amount), rules.starting_cash)} do saldo inicial desta sala (${displayMoneyWhole(rules.starting_cash)}). Cobrada no 1º dia útil de cada mês da campanha. Mês sem caixa vira pendência.`}
               />
             </PreparationSection>
+
+            {founding && (
+              <PartyFederationSection preparations={preparations} mine={mine} me={founding} humans={humans} />
+            )}
 
             <SharedVoters flags={flags} rivals={rivals} />
           </div>

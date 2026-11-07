@@ -60,9 +60,28 @@ export function causeLabel(bloc: Pick<BlocVote, "abbr" | "cause" | "cause_share"
   return `${group}, ${share}% dos eleitores do ${bloc.abbr}, ${bloc.orientation ? "rejeitam" : "querem"} ${subject}`;
 }
 
-/** Quanto cada bancada pesa no total de cadeiras que ela tem hoje, em ordem de tamanho. */
+/**
+ * As bancadas com cadeira em ordem de tamanho. Os dois partidos de uma federação formam uma lista só: ficam lado a
+ * lado, e a lista se ordena pela soma das cadeiras.
+ */
 export function bySeats(blocs: Bloc[]): Bloc[] {
-  return blocs.filter((bloc) => bloc.seats > 0).sort((a, b) => b.seats - a.seats || a.key - b.key);
+  const seated = blocs.filter((bloc) => bloc.seats > 0);
+  const listOf = (bloc: Bloc) =>
+    bloc.federation_id === null ? `bloc-${bloc.key}` : `federation-${bloc.federation_id}`;
+  const listSeats = new Map<string, number>();
+  for (const bloc of seated) listSeats.set(listOf(bloc), (listSeats.get(listOf(bloc)) ?? 0) + bloc.seats);
+  return seated.sort(
+    (a, b) =>
+      (listSeats.get(listOf(b)) ?? 0) - (listSeats.get(listOf(a)) ?? 0) ||
+      listOf(a).localeCompare(listOf(b)) ||
+      b.seats - a.seats ||
+      a.key - b.key,
+  );
+}
+
+/** Os dois partidos de uma federação são desta bancada para aquele que orienta a lista. */
+export function followsPartner(bloc: Pick<Bloc, "party_id" | "orienting_party_id" | "federation_id">) {
+  return bloc.federation_id !== null && bloc.orienting_party_id !== bloc.party_id;
 }
 
 /** A mudança de cadeiras desde a casa anterior: "+6", "-3" ou "0". */

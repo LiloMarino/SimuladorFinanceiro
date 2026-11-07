@@ -8,7 +8,7 @@ import { MetricLabel } from "@/shared/components/metric-hint";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import { DEFECTION_RATE, WITH_GOVERNMENT } from "../lib/government-metrics";
-import { bySeats, partySeats, seatChange, shareOfVotes, type House } from "../lib/house";
+import { bySeats, followsPartner, partySeats, seatChange, shareOfVotes, type House } from "../lib/house";
 import { ElectedHouseDialog } from "./elected-house-dialog";
 import { Hemicycle } from "./hemicycle";
 import { PartyMark } from "@/shared/components/party-mark";
@@ -69,6 +69,20 @@ export function HouseCard({ house }: HouseCardProps) {
                   </span>
                 ))}
               </div>
+              {house.federations.map((federation) => {
+                const members = blocs.filter((bloc) => bloc.federation_id === federation.id);
+                return (
+                  <span key={federation.id} className="flex flex-wrap items-center justify-center gap-1.5 text-xs">
+                    <Badge variant="federation" size="sm">
+                      {federation.name}
+                    </Badge>
+                    <span className="text-muted-foreground">
+                      {members.map((bloc) => `${bloc.abbr} ${bloc.seats}`).join(" + ")} ={" "}
+                      {members.reduce((sum, bloc) => sum + bloc.seats, 0)} cadeiras numa lista só
+                    </span>
+                  </span>
+                );
+              })}
               {house.elected && (
                 <span className="text-xs text-muted-foreground">
                   Eleita em {displayDayMonth(house.elected)}
@@ -105,6 +119,11 @@ export function HouseCard({ house }: HouseCardProps) {
                             <Badge variant="info" size="sm">
                               governo
                             </Badge>
+                          )}
+                          {followsPartner(bloc) && (
+                            <span className="text-xs text-muted-foreground">
+                              segue o {house.blocs.find((other) => other.party_id === bloc.orienting_party_id)?.abbr}
+                            </span>
                           )}
                         </span>
                       </TableCell>

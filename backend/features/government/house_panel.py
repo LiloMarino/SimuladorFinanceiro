@@ -14,6 +14,7 @@ from backend.core.dto.government import (
     HouseDTO,
     ImpeachmentRequestDTO,
     PastVoteDTO,
+    SlateDTO,
     ValueMoveDTO,
     VoteDTO,
 )
@@ -21,6 +22,8 @@ from backend.core.dto.user import UserDTO
 from backend.core.enum import MeasureStatus, VoterGroup, VoterValue
 from backend.features.government import congress, house, voters
 from backend.features.government import measures as rules
+from backend.features.government.federation_panel import congress_federations
+from backend.features.government.federations import Federation
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.state import ElectedHouse, Measure, Party
 
@@ -42,10 +45,10 @@ def build_congress(
     stats = _stats(book)
     return CongressDTO(
         house=_house(
-            book, in_office, elected_in_office(book, today), leader_bloc, stats
+            book, in_office, elected_in_office(book, today), leader_bloc, stats, today
         ),
         elected=(
-            _house(book, waiting.house, waiting, leader_bloc, stats)
+            _house(book, waiting.house, waiting, leader_bloc, stats, today)
             if waiting is not None
             else None
         ),
@@ -381,6 +384,7 @@ def _house(
     elected: ElectedHouse | None,
     leader_bloc: house.Bloc | None,
     stats: dict[int, tuple[int, int, int, int]],
+    today: date,
 ) -> HouseDTO:
     state = book.state
     term = state.term
@@ -399,12 +403,21 @@ def _house(
                 term is not None and bloc.party_id == term.party_id,
                 leader_bloc is not None and leader_bloc.key == bloc.key,
                 stats.get(bloc.key),
+                state.congress_federation(bloc.party_id, today)
+                if bloc.party_id is not None
+                else None,
+                book.orienting_party(bloc, today),
             )
             for bloc in sorted(current.blocs, key=lambda b: (-b.seats, b.key))
         ],
         below=[b.abbr for b in current.blocs if b.key in current.below],
         last_quotient=current.last,
         next_quotient=current.upcoming,
+        slates=[
+            SlateDTO(keys=list(s.keys), name=s.name, votes=s.votes, seats=s.seats)
+            for s in current.slates
+        ],
+        federations=congress_federations(book, today),
     )
 
 
@@ -423,6 +436,8 @@ def _bloc(
     governing: bool,
     mine: bool,
     stat: tuple[int, int, int, int] | None,
+    federation: Federation | None,
+    orienting_party_id: int | None,
 ) -> BlocDTO:
     votes, yes, seats, defected = stat or (0, 0, 0, 0)
     before = previous.bloc(bloc.key) if previous is not None else None
@@ -445,4 +460,6 @@ def _bloc(
         yes_share=PERCENT * yes / seats if seats else None,
         defection_share=PERCENT * defected / seats if seats else None,
         is_mine=mine,
+        federation_id=federation.id if federation is not None else None,
+        orienting_party_id=orienting_party_id,
     )

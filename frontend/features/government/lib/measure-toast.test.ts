@@ -28,6 +28,8 @@ const EMPTY_NOTICE: GovernmentNotice = {
   campaign_action: null,
   group: null,
   rival_abbr: null,
+  federation_name: null,
+  partner_abbr: null,
   seats_before: null,
   seats_after: null,
   broken_by_ally: null,

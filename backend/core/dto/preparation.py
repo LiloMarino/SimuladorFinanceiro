@@ -43,6 +43,28 @@ class ViceAnswerRequest(BaseDTO):
     accept: bool
 
 
+class FederationOfferRequest(BaseDTO):
+    """A federação que o fundador propõe a outro fundador da sala; sem `partner`, retira a proposta."""
+
+    partner: str | None = None
+    name: PartyName | None = None
+    # Quem encabeça a chapa dos dois: o próprio fundador, o do parceiro ou um filiado de qualquer um dos dois; vazio é o próprio fundador
+    candidate: str | None = None
+
+
+class FederationAnswerRequest(BaseDTO):
+    accept: bool
+
+
+class PreparationFederationDTO(BaseDTO):
+    """A federação combinada no lobby, vista pelos dois fundadores e pela sala."""
+
+    # O fundador do outro partido
+    partner: str
+    name: str
+    candidate: str
+
+
 class PlayerPreparationDTO(BaseDTO):
     nickname: str
     kind: PreparationKind
@@ -54,6 +76,8 @@ class PlayerPreparationDTO(BaseDTO):
     # O vice que aceitou o convite; o convite sem resposta só os dois enxergam
     vice: str | None = None
     vice_accepted: bool = False
+    # A federação que o partido combinou; a proposta sem resposta só os dois enxergam
+    federation: PreparationFederationDTO | None = None
 
 
 class ReservedPartyDTO(BaseDTO):
@@ -88,6 +112,15 @@ class ViceInviteDTO(BaseDTO):
     candidate: str
 
 
+class FederationInviteDTO(BaseDTO):
+    """Uma proposta de federação sem resposta: de quem veio, o nome e o candidato dos dois partidos."""
+
+    owner: str
+    abbr: str
+    name: str
+    candidate: str
+
+
 class MyPreparationDTO(BaseDTO):
     """O que da preparação só o próprio jogador vê."""
 
@@ -97,3 +130,7 @@ class MyPreparationDTO(BaseDTO):
     invited: str | None = None
     # A sigla do partido em que o jogador entrou e que saiu da preparação; some na próxima escolha
     left_party: str | None = None
+    # A proposta de federação que o jogador recebeu e ainda não respondeu
+    federation_invite: FederationInviteDTO | None = None
+    # O fundador a quem o jogador propôs federação e ainda não respondeu
+    federation_invited: str | None = None

@@ -5,7 +5,7 @@ fila do Congresso e a aprovação. `apply` é o único lugar que muda o estado, 
 rodando e na retomada.
 """
 
-from collections.abc import Iterable
+from collections.abc import Container, Iterable
 from dataclasses import dataclass, field, replace
 from datetime import date, timedelta
 from decimal import Decimal
@@ -17,6 +17,8 @@ from backend.core.enum import (
     DealBreaker,
     DealStatus,
     DiceBand,
+    FederationProposalStatus,
+    FederationStatus,
     MeasureKind,
     MeasureStatus,
     VoterGroup,
@@ -35,8 +37,12 @@ from backend.features.government import (
 from backend.features.government import (
     deals as deal_rules,
 )
+from backend.features.government import (
+    federations as federation_rules,
+)
 from backend.features.government.computer_parties import COMPUTER_FLAGS
 from backend.features.government.deals import Deal
+from backend.features.government.federations import Federation, FederationProposal
 from backend.features.government.promises import GroupEffects, Promise
 
 # A medida aprovada vale depois da noventena
@@ -104,6 +110,8 @@ class Party:
     spent: Decimal = Decimal(0)
     # Os valores em que o líder trocou a orientação padrão da bancada
     guidance: dict[VoterValue, bool] = field(default_factory=dict)
+    # Os parceiros da federação que disputa a eleição em curso; o estado religa a cada evento
+    partners: list["Party"] = field(default_factory=list, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         if not self.radar:
@@ -114,8 +122,14 @@ class Party:
         """Verba por mês: a soma das contribuições."""
         return sum(self.members.values(), Decimal(0))
 
+    def felt_rejection(self, group: VoterGroup) -> Decimal:
+        """A rejeição que o eleitor sente: a do partido mais metade da de cada parceiro da federação."""
+        return federation_rules.effective_rejection(
+            self.rejection[group], [a.rejection[group] for a in self.partners]
+        )
+
     def standing(self, group: VoterGroup) -> voters.Standing:
-        rejection = self.rejection[group]
+        rejection = self.felt_rejection(group)
         return voters.standing(
             group,
             self.radar,
@@ -207,6 +221,12 @@ class Poll:
 
     day: date
     standings: dict[int, dict[VoterGroup, voters.Standing]]
+    # O líder da chapa de cada partido federado que segue: a pesquisa soma os dois
+    leaders: dict[int, int] = field(default_factory=dict)
+
+    @property
+    def vote(self) -> voters.Vote:
+        return voters.merge(voters.vote(self.standings), self.leaders)
 
 
 @dataclass(frozen=True)
@@ -471,6 +491,15 @@ class GovernmentState:
     selic_board: SelicBoard = field(default_factory=SelicBoard)
     last_meeting: date | None = None
     selic_plan: Decimal | None = None
+    # O dia do último evento aplicado
+    today: date | None = None
+    # As federações e as propostas, da proposta ao fim, e o partido que saiu de uma
+    # federação, com a eleição em que fica impedido de se federar
+    federations: dict[int, Federation] = field(default_factory=dict)
+    proposals: dict[int, FederationProposal] = field(default_factory=dict)
+    next_federation_id: int = 1
+    next_proposal_id: int = 1
+    blocked: dict[int, int] = field(default_factory=dict)
 
     @property
     def satisfaction(self) -> dict[VoterGroup, Decimal]:
@@ -524,12 +553,75 @@ class GovernmentState:
         ]
         return max(days, default=None)
 
+    def federation_of(self, party_id: int, cycle: int) -> Federation | None:
+        """A federação do partido para a eleição `cycle`, formada e não desfeita."""
+        return next(
+            (
+                f
+                for f in self.federations.values()
+                if f.status is FederationStatus.ACTIVE
+                and f.cycle == cycle
+                and f.includes(party_id)
+            ),
+            None,
+        )
+
+    def is_federated(self, party_id: int) -> bool:
+        """O partido tem federação de pé, em vigor ou agendada."""
+        return any(
+            f.status is FederationStatus.ACTIVE and f.includes(party_id)
+            for f in self.federations.values()
+        )
+
+    def federation_blocked(self, party_id: int, cycle: int) -> bool:
+        """O partido que saiu de uma federação fica impedido de se federar até a eleição seguinte à dela."""
+        return cycle <= self.blocked.get(party_id, -1)
+
+    def leaders_among(self, running: Container[int]) -> dict[int, int]:
+        """
+        O líder da chapa de cada partido que segue, nas federações da eleição em curso cujo
+        líder concorre: o voto do que segue soma ao dele.
+        """
+        return {
+            f.other(f.candidate_party_id): f.candidate_party_id
+            for f in self.federations.values()
+            if f.status is FederationStatus.ACTIVE
+            and f.cycle == self.cycle
+            and f.candidate_party_id in running
+        }
+
+    def congress_federation(self, party_id: int, day: date) -> Federation | None:
+        """A federação cuja lista o partido integra no Congresso do dia."""
+        return next(
+            (
+                f
+                for f in self.federations.values()
+                if f.includes(party_id) and f.in_congress(day)
+            ),
+            None,
+        )
+
+    def congress_federations(self, day: date) -> list[Federation]:
+        return [f for f in self.federations.values() if f.in_congress(day)]
+
+    def open_proposal_of(self, party_id: int, day: date) -> FederationProposal | None:
+        """A proposta aberta em que o partido é uma das partes: só uma por vez."""
+        return next(
+            (
+                p
+                for p in self.proposals.values()
+                if p.is_open(day) and p.involves(party_id)
+            ),
+            None,
+        )
+
     def elected_house(self) -> ElectedHouse | None:
         """A última casa eleita, tenha ou não tomado posse."""
         return self.houses[-1] if self.houses else None
 
     def advance(self, day: date) -> None:
         """Leva o apoio de campanha de todos os partidos até `day`, aplicando a queda do tempo."""
+        self.today = day
         for party in self.parties.values():
             party.decay_to(day)
 
@@ -686,6 +778,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 Poll(
                     day,
                     {pid: party.standings() for pid, party in state.parties.items()},
+                    state.leaders_among(state.parties),
                 )
             )
         case Event.DONATION_MADE:
@@ -798,6 +891,124 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             )
             state.last_meeting = date.fromisoformat(_str(p, "meeting"))
             state.selic_plan = None
+        case Event.FEDERATION_PROPOSED:
+            _apply_federation_proposed(state, event)
+        case Event.FEDERATION_WITHDRAWN:
+            proposal = state.proposals[_int(p, "proposal_id")]
+            proposal.status = FederationProposalStatus.WITHDRAWN
+            proposal.answered_on = day
+        case Event.FEDERATION_ANSWERED:
+            _apply_federation_answered(state, event)
+        case Event.FEDERATION_LEFT:
+            _apply_federation_left(state, event)
+        case Event.FEDERATION_ENDED:
+            for federation_id in _list(p, "federation_ids"):
+                state.federations[int(federation_id)].status = FederationStatus.ENDED  # type: ignore[call-overload]
+    _link_partners(state)
+
+
+def _link_partners(state: GovernmentState) -> None:
+    """Cada partido aponta para o parceiro da federação que disputa a eleição em curso."""
+    for party in state.parties.values():
+        federation = state.federation_of(party.id, state.cycle)
+        partner = state.parties.get(federation.other(party.id)) if federation else None
+        party.partners = [partner] if partner else []
+
+
+def _apply_federation_proposed(
+    state: GovernmentState, event: GovernmentEventDTO
+) -> None:
+    p = event.payload
+    proposal_id = _int(p, "proposal_id")
+    state.proposals[proposal_id] = FederationProposal(
+        id=proposal_id,
+        from_party_id=_int(p, "from_party_id"),
+        to_party_id=_int(p, "to_party_id"),
+        name=_str(p, "name"),
+        candidate_party_id=_int(p, "candidate_party_id"),
+        candidate_id=_opt_int(p, "candidate_id"),
+        cycle=_int(p, "cycle"),
+        sent_on=event.event_date,
+        expires_on=date.fromisoformat(_str(p, "expires_on")),
+    )
+    state.next_proposal_id = max(state.next_proposal_id, proposal_id + 1)
+
+
+def _apply_federation_answered(
+    state: GovernmentState, event: GovernmentEventDTO
+) -> None:
+    """A resposta aceita forma a federação e deixa sem efeito as outras propostas abertas dos dois partidos para a mesma eleição."""
+    p = event.payload
+    day = event.event_date
+    proposal = state.proposals[_int(p, "proposal_id")]
+    proposal.answered_on = day
+    if not p["accepted"]:
+        proposal.status = FederationProposalStatus.DECLINED
+        return
+    proposal.status = FederationProposalStatus.ACCEPTED
+    federation_id = _int(p, "federation_id")
+    state.federations[federation_id] = Federation(
+        id=federation_id,
+        parties=(proposal.from_party_id, proposal.to_party_id),
+        candidate_party_id=proposal.candidate_party_id,
+        candidate_id=proposal.candidate_id,
+        name=proposal.name,
+        cycle=proposal.cycle,
+        formed_on=day,
+        in_force_from=date.fromisoformat(_str(p, "in_force_from")),
+        ends_on=date.fromisoformat(_str(p, "ends_on")),
+    )
+    state.next_federation_id = max(state.next_federation_id, federation_id + 1)
+    # As promessas do parceiro saem sem custo: quem disputa é a chapa do líder
+    if proposal.cycle == state.cycle:
+        follower = state.parties.get(
+            proposal.from_party_id
+            if proposal.candidate_party_id == proposal.to_party_id
+            else proposal.to_party_id
+        )
+        if follower is not None:
+            follower.promises = []
+    for other in state.proposals.values():
+        if (
+            other.id != proposal.id
+            and other.status is FederationProposalStatus.OPEN
+            and other.cycle == proposal.cycle
+            and (
+                other.involves(proposal.from_party_id)
+                or other.involves(proposal.to_party_id)
+            )
+        ):
+            other.status = FederationProposalStatus.VOID
+
+
+def _apply_federation_left(state: GovernmentState, event: GovernmentEventDTO) -> None:
+    """
+    Sair desfaz a federação na hora para os dois, e a federação agendada de qualquer um
+    dos dois para uma eleição mais à frente cai junto. Quem saiu fica impedido de se
+    federar na eleição que vem.
+    """
+    p = event.payload
+    day = event.event_date
+    federation = state.federations[_int(p, "federation_id")]
+    leaver = _int(p, "party_id")
+    federation.status = FederationStatus.LEFT
+    federation.left_by = leaver
+    federation.left_on = day
+    state.blocked[leaver] = federation.cycle + 1
+    for other in state.federations.values():
+        if (
+            other.status is FederationStatus.ACTIVE
+            and other.cycle > federation.cycle
+            and any(other.includes(pid) for pid in federation.parties)
+        ):
+            other.status = FederationStatus.ENDED
+    for proposal in state.proposals.values():
+        if (
+            proposal.status is FederationProposalStatus.OPEN
+            and proposal.cycle > federation.cycle
+            and any(proposal.involves(pid) for pid in federation.parties)
+        ):
+            proposal.status = FederationProposalStatus.VOID
 
 
 def _reset_government(state: GovernmentState, day: date) -> None:
@@ -941,6 +1152,22 @@ def _apply_deal_broken(state: GovernmentState, event: GovernmentEventDTO) -> Non
         victim.rejection[group] = voters.add_rejection(victim.rejection[group], amount)
 
 
+def _dissolve_federations(state: GovernmentState, party_id: int) -> None:
+    """O partido que deixa de existir desfaz as federações dele e anula as propostas abertas, sem impedir o parceiro."""
+    for federation in state.federations.values():
+        if federation.status is FederationStatus.ACTIVE and federation.includes(
+            party_id
+        ):
+            federation.status = FederationStatus.LEFT
+            federation.left_by = party_id
+            federation.left_on = state.today
+    for proposal in state.proposals.values():
+        if proposal.status is FederationProposalStatus.OPEN and proposal.involves(
+            party_id
+        ):
+            proposal.status = FederationProposalStatus.VOID
+
+
 def _remove_member(state: GovernmentState, user_id: int) -> None:
     state.unpaid.pop(user_id, None)
     party = state.party_of(user_id)
@@ -948,6 +1175,7 @@ def _remove_member(state: GovernmentState, user_id: int) -> None:
         return
     del party.members[user_id]
     if not party.members:
+        _dissolve_federations(state, party.id)
         del state.parties[party.id]
         return
     # A fundação passa ao filiado mais antigo que ficou
@@ -1106,7 +1334,7 @@ def _party_net(party: Party, group: VoterGroup) -> Decimal:
     return (
         voters.affinity(group, party.radar)
         + party.loyalty[group]
-        - party.rejection[group]
+        - party.felt_rejection(group)
     )
 
 
@@ -1114,11 +1342,15 @@ def _start_race(
     state: GovernmentState, result: RoundResult, tickets: dict[int, Ticket]
 ) -> None:
     """O 1º turno sem vencedor abre o 2º: a transferência dos eliminados é calculada ali."""
-    running = [state.parties[pid] for pid in tickets if pid in state.parties]
+    leaders = state.leaders_among(tickets)
+    running = [
+        state.parties[pid] for pid in (*tickets, *leaders) if pid in state.parties
+    ]
     state.race = second_round.start(
         {p.id: p.standings() for p in running},
         {p.id: {g: _party_net(p, g) for g in VoterGroup} for p in running},
         (result.finalists[0], result.finalists[1]),
+        leaders,
     )
     state.race_started = result.day
     state.race_polls = []
@@ -1136,7 +1368,7 @@ def _apply_endorsement(state: GovernmentState, event: GovernmentEventDTO) -> Non
     endorsed = _opt_int(p, "endorsed_id")
     trust = {
         g: second_round.trust(
-            voters.affinity(g, party.radar) + party.loyalty[g], party.rejection[g]
+            voters.affinity(g, party.radar) + party.loyalty[g], party.felt_rejection(g)
         )
         for g in VoterGroup
     }
@@ -1330,11 +1562,23 @@ def _apply_house(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 below=tuple(int(k) for k in _list(p, "below")),  # type: ignore[call-overload]
                 last=_money(p, "last"),
                 upcoming=_money(p, "upcoming"),
+                slates=tuple(_slate(s) for s in _opt_list(p, "slates")),  # type: ignore[arg-type]
             ),
         )
     )
     for party in state.parties.values():
         party.reset_house_campaign()
+
+
+def _slate(s: dict[str, Any]) -> house.Slate:
+    """A lista federada guardada na casa eleita; ausente nas casas de antes das federações."""
+    first, second = s["keys"]
+    return house.Slate(
+        keys=(int(first), int(second)),
+        name=str(s["name"]),
+        votes=Decimal(str(s["votes"])),
+        seats=int(s["seats"]),
+    )
 
 
 def _apply_impeachment_vote(state: GovernmentState, event: GovernmentEventDTO) -> None:

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  bySeats,
   causeLabel,
+  followsPartner,
   outlook,
   outlookLabel,
   partySeats,
@@ -30,6 +32,8 @@ const bloc = (overrides: Partial<Bloc>): Bloc => ({
   yes_share: null,
   defection_share: null,
   is_mine: false,
+  federation_id: null,
+  orienting_party_id: null,
   ...overrides,
 });
 
@@ -173,5 +177,26 @@ describe("unguidedCount", () => {
 
   it("não conta a que ele já orientou", () => {
     expect(unguidedCount({ impeachment_request: null } as Parameters<typeof unguidedCount>[0], queue(true))).toBe(0);
+  });
+});
+
+describe("bySeats", () => {
+  it("põe os dois partidos da federação lado a lado, ordenando a lista pela soma das cadeiras", () => {
+    const blocs = [
+      bloc({ key: 1, abbr: "AAA", seats: 20 }),
+      bloc({ key: 2, abbr: "BBB", seats: 15, federation_id: 7 }),
+      bloc({ key: 3, abbr: "CCC", seats: 8, federation_id: 7 }),
+      bloc({ key: 4, abbr: "DDD", seats: 0 }),
+    ];
+
+    expect(bySeats(blocs).map((item) => item.abbr)).toEqual(["BBB", "CCC", "AAA"]);
+  });
+});
+
+describe("followsPartner", () => {
+  it("só segue o parceiro quem está numa federação orientada por outro partido", () => {
+    expect(followsPartner({ party_id: 2, orienting_party_id: 1, federation_id: 7 })).toBe(true);
+    expect(followsPartner({ party_id: 1, orienting_party_id: 1, federation_id: 7 })).toBe(false);
+    expect(followsPartner({ party_id: 3, orienting_party_id: 3, federation_id: null })).toBe(false);
   });
 });

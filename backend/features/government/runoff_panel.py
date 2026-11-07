@@ -123,7 +123,7 @@ def _transfer(
             sent_total[finalist] += weight * amount
         trust = second_round.trust(
             voters.affinity(group, party.radar) + party.loyalty[group],
-            party.rejection[group],
+            party.felt_rejection(group),
         )
         pool = disputed.pools.get(eliminated, ZERO)
         groups.append(

@@ -12,6 +12,8 @@ from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.goal import GoalProgressDTO
 from backend.core.dto.life import LifeHistoryPageDTO, LifeStatusDTO
 from backend.core.dto.preparation import (
+    FederationAnswerRequest,
+    FederationOfferRequest,
     MyPreparationDTO,
     PreparationRequest,
     PreparationsDTO,
@@ -604,6 +606,46 @@ def answer_preparation_vice(payload: ViceAnswerRequest, client_id: ClientID):
     if user is None:
         raise NotFoundError("Usuário não encontrado.")
     RoomPreparation.answer_vice(user, payload.accept)
+    return _notify_preparations()
+
+
+@simulation_router.put(
+    "/players/me/preparation/federation",
+    response_model=PreparationsDTO,
+    summary="Propor federação no lobby",
+    description="O fundador propõe federação ao fundador de outro partido preparado, nomeando a federação e o candidato da chapa. Sem `partner`, retira a proposta ou desfaz a federação combinada. Recusa com 409 se um dos dois já tem proposta ou federação combinada.",
+)
+def propose_preparation_federation(
+    payload: FederationOfferRequest, client_id: ClientID
+):
+    """
+    Propõe ou retira a federação do lobby.
+    """
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    RoomPreparation.propose_federation(
+        user, _room_humans(), payload.partner, payload.name, payload.candidate
+    )
+    return _notify_preparations()
+
+
+@simulation_router.put(
+    "/players/me/preparation/federation/answer",
+    response_model=PreparationsDTO,
+    summary="Responder à proposta de federação do lobby",
+    description="O fundador convidado aceita ou recusa a federação que outro propôs. Recusa com 404 se não há proposta.",
+)
+def answer_preparation_federation(
+    payload: FederationAnswerRequest, client_id: ClientID
+):
+    """
+    Aceita ou recusa a proposta de federação do lobby.
+    """
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    RoomPreparation.answer_federation(user, payload.accept)
     return _notify_preparations()
 
 

@@ -30,9 +30,16 @@ from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import ElectionPhase, GameType, VicePhase, VoterGroup, VoterValue
 from backend.core.runtime.user_manager import UserManager
-from backend.features.government import election, voters
+from backend.features.government import election, federations, voters
 from backend.features.government import measures as rules
 from backend.features.government.calendar import ElectionCycle
+from backend.features.government.federation_panel import (
+    options as federation_options,
+)
+from backend.features.government.federation_panel import (
+    proposal_dto,
+    standing_federations,
+)
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.house_panel import guidance_rules
 from backend.features.government.poll_panel import group_polls, poll_dto, publish
@@ -67,8 +74,7 @@ def build_panel(
         state.cycle - 1 if phase is ElectionPhase.AWAITING_TERM else None
     )
     published = [
-        publish(voters.vote(p.standings), p.day, book.seed, settings.poll_margin)
-        for p in state.polls
+        publish(p.vote, p.day, book.seed, settings.poll_margin) for p in state.polls
     ]
     latest = published[-1] if published else None
 
@@ -140,6 +146,7 @@ def build_panel(
         ),
         can_edit_ticket=(
             is_founder
+            and not _follows_leader(state, mine)
             and phase is not ElectionPhase.BETWEEN_ROUNDS
             and cycle.campaign_start <= today <= cycle.ticket_deadline
         ),
@@ -159,7 +166,39 @@ def build_panel(
         player_standings=_players(state, users, networths),
         party_standings=_parties(state, people, networths),
         computer_budget_factor=settings.computer_difficulty.budget_factor,
+        federations=standing_federations(book, today),
+        sent_proposal=(
+            proposal_dto(book, sent, today)
+            if (sent := _sent(book, mine, today))
+            else None
+        ),
+        received_proposal=(
+            proposal_dto(book, received, today)
+            if (received := _received(book, mine, today))
+            else None
+        ),
+        federation_options=(
+            federation_options(book, mine, today)
+            if mine is not None and is_founder
+            else []
+        ),
+        can_federate=is_founder and phase is not ElectionPhase.BETWEEN_ROUNDS,
+        federation_block=(
+            book.federation_ban(mine, state.cycle) if mine is not None else None
+        ),
     )
+
+
+def _sent(
+    book: GovernmentBook, mine: Party | None, today: date
+) -> federations.FederationProposal | None:
+    return book.sent_federation(mine, today) if mine is not None else None
+
+
+def _received(
+    book: GovernmentBook, mine: Party | None, today: date
+) -> federations.FederationProposal | None:
+    return book.received_federation(mine, today) if mine is not None else None
 
 
 def _scores(scores: dict[VoterValue, Decimal]) -> list[ValueScoreDTO]:
@@ -258,6 +297,14 @@ def _vice_phase(party: Party, user_id: int) -> VicePhase:
     if party.vice_id != user_id:
         return VicePhase.NONE
     return VicePhase.ACCEPTED if party.vice_accepted else VicePhase.PENDING
+
+
+def _follows_leader(state: GovernmentState, party: Party | None) -> bool:
+    """O partido está numa federação desta eleição cuja chapa é do parceiro: candidato, vice e promessas vêm de lá."""
+    if party is None:
+        return False
+    federation = state.federation_of(party.id, state.cycle)
+    return federation is not None and federation.candidate_party_id != party.id
 
 
 def _my_vice(state: GovernmentState, user_id: int) -> MyViceDTO | None:

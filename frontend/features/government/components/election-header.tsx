@@ -7,6 +7,7 @@ import { cn } from "@/shared/lib/utils";
 import { displayList, displayMoneyWhole, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionPhase } from "@/types";
 import { useToday } from "../hooks/useToday";
+import { federationOf } from "../lib/federation";
 import { affiliationNote, countdownLabel, monthYear, phaseLabel } from "../lib/election";
 import { PartyMark } from "@/shared/components/party-mark";
 
@@ -108,6 +109,7 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
   const runoffSkipped = phase === "AWAITING_TERM" && panel.last_result?.round === 1;
   const current = CURRENT_STEP[phase];
   const matchup = runoffMatchup(panel);
+  const federation = badge ? federationOf(panel.federations, badge.party.id) : undefined;
 
   const steps = [
     {
@@ -141,6 +143,11 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
                   <Badge variant="info">
                     {badge.role}
                     <PartyMark abbr={badge.party.abbr} color={badge.party.color} size="sm" />
+                  </Badge>
+                )}
+                {badge && federation && (
+                  <Badge variant="federation">
+                    {badge.party.abbr} na {federation.name}
                   </Badge>
                 )}
                 {vice && (

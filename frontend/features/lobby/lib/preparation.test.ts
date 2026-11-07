@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Preparations } from "@/types";
-import { cashShare, closeRivalTag, partyOf, rivalsOf } from "./preparation";
+import { cashShare, closeRivalTag, federationCandidates, federationPartners, partyOf, rivalsOf } from "./preparation";
 
 const PREPARATIONS: Preparations = {
   players: [
@@ -17,6 +17,7 @@ const PREPARATIONS: Preparations = {
       candidate: "Duda",
       vice: null,
       vice_accepted: false,
+      federation: null,
     },
     {
       nickname: "Duda",
@@ -26,6 +27,7 @@ const PREPARATIONS: Preparations = {
       candidate: null,
       vice: null,
       vice_accepted: false,
+      federation: null,
     },
     {
       nickname: "Caio",
@@ -35,6 +37,7 @@ const PREPARATIONS: Preparations = {
       candidate: null,
       vice: null,
       vice_accepted: false,
+      federation: null,
     },
   ],
   reserved: [{ name: "Movimento Nacional", abbr: "MNV", flags: ["FREE_MARKET", "STABILITY", "DEVELOPMENT"] }],
@@ -86,5 +89,40 @@ describe("cashShare", () => {
 
   it("é zero sem saldo inicial", () => {
     expect(cashShare("500", "0")).toBe("0%");
+  });
+});
+
+describe("federationPartners", () => {
+  const founder = (nickname: string, federated: boolean): Preparations["players"][number] => ({
+    ...PREPARATIONS.players[0]!,
+    nickname,
+    federation: federated ? { partner: "Lilo", name: "Federação", candidate: "Lilo" } : null,
+  });
+
+  it("lista os outros fundadores sem federação", () => {
+    const preparations = {
+      ...PREPARATIONS,
+      players: [...PREPARATIONS.players, founder("Bia", false), founder("Zé", true)],
+    };
+    expect(federationPartners(preparations, "Lilo").map((player) => player.nickname)).toEqual(["Bia"]);
+  });
+});
+
+describe("federationCandidates", () => {
+  it("põe os fundadores primeiro e os filiados dos dois partidos depois", () => {
+    const preparations: Preparations = {
+      ...PREPARATIONS,
+      players: [
+        ...PREPARATIONS.players,
+        { ...PREPARATIONS.players[0]!, nickname: "Bia" },
+        { ...PREPARATIONS.players[1]!, nickname: "Edu", founder: "Bia" },
+      ],
+    };
+    expect(federationCandidates(preparations, "Lilo", "Bia").map((entry) => entry.nickname)).toEqual([
+      "Lilo",
+      "Bia",
+      "Duda",
+      "Edu",
+    ]);
   });
 });

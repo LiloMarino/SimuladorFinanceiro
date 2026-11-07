@@ -531,6 +531,14 @@ class GovernmentEventType(Enum):
     SELIC_SET = "SELIC_SET"
     # A reunião do Copom fixa a SELIC, com a credibilidade do Banco Central depois dela
     SELIC_DECIDED = "SELIC_DECIDED"
+    # O fundador propõe a federação a outro partido, retira a proposta ou o outro responde
+    FEDERATION_PROPOSED = "FEDERATION_PROPOSED"
+    FEDERATION_WITHDRAWN = "FEDERATION_WITHDRAWN"
+    FEDERATION_ANSWERED = "FEDERATION_ANSWERED"
+    # Um dos partidos sai antes do prazo e a federação se desfaz para os dois
+    FEDERATION_LEFT = "FEDERATION_LEFT"
+    # O mandato da federação acaba na posse
+    FEDERATION_ENDED = "FEDERATION_ENDED"
 
 
 class ElectionPhase(Enum):
@@ -599,6 +607,9 @@ class GovernmentNoticeKind(Enum):
     DEAL_ENDED = "DEAL_ENDED"
     # A bancada saiu da base porque o governo recusou a cobrança por aprovação baixa
     DEAL_LEFT = "DEAL_LEFT"
+    FEDERATION_PROPOSED = "FEDERATION_PROPOSED"
+    FEDERATION_ANSWERED = "FEDERATION_ANSWERED"
+    FEDERATION_LEFT = "FEDERATION_LEFT"
 
 
 class CampaignActionKind(Enum):
@@ -722,6 +733,28 @@ class DealStatus(Enum):
     BROKEN = "BROKEN"
     # Encerrado antes do prazo sem quebra: o governo mudou
     CUT = "CUT"
+
+
+class FederationStatus(Enum):
+    """Onde está uma federação partidária depois de formada."""
+
+    # De pé: concorre junta e, no prazo, vale no Congresso
+    ACTIVE = "ACTIVE"
+    # Um dos partidos saiu antes do prazo: desfeita na hora para os dois
+    LEFT = "LEFT"
+    # O prazo acabou na posse
+    ENDED = "ENDED"
+
+
+class FederationProposalStatus(Enum):
+    """Onde está a proposta de federação."""
+
+    OPEN = "OPEN"
+    WITHDRAWN = "WITHDRAWN"
+    DECLINED = "DECLINED"
+    ACCEPTED = "ACCEPTED"
+    # O outro partido se federou antes da resposta
+    VOID = "VOID"
 
 
 class DealBreaker(Enum):
@@ -914,6 +947,7 @@ class PendingType(Enum):
     CAMPAIGN_OPEN = "CAMPAIGN_OPEN"
     UNPAID_CONTRIBUTION = "UNPAID_CONTRIBUTION"
     UNGUIDED_VOTE = "UNGUIDED_VOTE"
+    FEDERATION_PROPOSAL = "FEDERATION_PROPOSAL"
     DEAL_PROPOSAL = "DEAL_PROPOSAL"
     DEAL_DEMAND = "DEAL_DEMAND"
     SELIC_MEETING = "SELIC_MEETING"

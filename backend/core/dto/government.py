@@ -368,6 +368,83 @@ class ViceOptionDTO(BaseDTO):
     blocked: str | None
 
 
+class FederationDTO(BaseDTO):
+    """Uma federação de pé: dois partidos numa lista e numa chapa só, presos pelo mandato."""
+
+    id: int
+    name: str
+    # Quem propôs e quem aceitou, nesta ordem
+    parties: list[int]
+    # O partido do candidato é o líder da chapa
+    candidate_party_id: int
+    candidate: str
+    # O ano do 1º turno da eleição em que concorre junta
+    election_year: int
+    formed_on: date
+    # Vale no Congresso de `in_force_from` a `ends_on`
+    in_force_from: date
+    ends_on: date
+    # O partido que orienta a bancada pelas cadeiras de hoje; o outro segue
+    orienting_party_id: int
+
+
+class FederationProposalDTO(BaseDTO):
+    """A proposta de federação aberta: vence em 7 dias, ou antes se o outro partido se federar."""
+
+    id: int
+    from_party_id: int
+    to_party_id: int
+    name: str
+    candidate_party_id: int
+    candidate: str
+    election_year: int
+    sent_on: date
+    expires_on: date
+    # Até quando a federação vale se for aceita
+    ends_on: date
+    # O partido que orienta a bancada: o de mais cadeiras, ou o proponente em empate
+    orienting_party_id: int
+
+
+class FederationOptionDTO(BaseDTO):
+    """Um partido a quem o do fundador pode propor federação."""
+
+    party_id: int
+    # Por que não pode ("o NOV já tem federação"); nulo quando pode
+    blocked: str | None
+    # Sozinho, o partido ficaria abaixo da barreira da casa hoje
+    below_barrier: bool
+
+
+class FederationRejectionDTO(BaseDTO):
+    """A rejeição de um grupo: a do proponente hoje, a do parceiro e a que o proponente sente federado."""
+
+    group: VoterGroup
+    own: Decimal
+    partner: Decimal
+    federated: Decimal
+
+
+class FederationPreviewDTO(BaseDTO):
+    """O que a federação muda para o partido do fundador, antes de enviar a proposta."""
+
+    election_year: int
+    # A fatia de cada um nos votos válidos da casa, sem federação, e a barreira (frações de 0 a 1)
+    own_share: Decimal
+    partner_share: Decimal
+    barrier: Decimal
+    orienting_party_id: int
+    # Promessas do partido que não lidera: saem sem custo
+    leaving_promises: int
+    own_budget: Decimal
+    partner_budget: Decimal
+    in_force_from: date
+    ends_on: date
+    # O último dia para o outro partido responder
+    answer_until: date
+    rejection: list[FederationRejectionDTO]
+
+
 class ElectionPanelDTO(BaseDTO):
     today: date
     phase: ElectionPhase
@@ -411,6 +488,15 @@ class ElectionPanelDTO(BaseDTO):
     party_standings: list[PartyStandingDTO]
     # Quantas vezes a verba média dos partidos de jogadores cada partido do computador gasta
     computer_budget_factor: Decimal
+    # As federações de pé (em vigor ou agendadas) e as propostas do partido de quem vê
+    federations: list[FederationDTO]
+    sent_proposal: FederationProposalDTO | None
+    received_proposal: FederationProposalDTO | None
+    # Só para quem funda: com quem o partido pode se federar
+    federation_options: list[FederationOptionDTO]
+    can_federate: bool
+    # O partido de quem vê saiu de uma federação e só volta depois da eleição seguinte
+    federation_block: str | None
 
 
 # Congresso
@@ -438,6 +524,19 @@ class BlocDTO(BaseDTO):
     defection_share: Decimal | None
     # Quem vê é o líder desta bancada
     is_mine: bool
+    # A federação cuja lista a bancada integra no Congresso de hoje, e o partido que a orienta
+    federation_id: int | None
+    orienting_party_id: int | None
+
+
+class SlateDTO(BaseDTO):
+    """A lista de uma federação na eleição da casa: o que os dois partidos somaram juntos."""
+
+    keys: list[int]
+    name: str
+    # Em cada 100 votos válidos
+    votes: Decimal
+    seats: int
 
 
 class HouseDTO(BaseDTO):
@@ -455,6 +554,10 @@ class HouseDTO(BaseDTO):
     # O quociente da última cadeira dada e o da primeira que ficou de fora (D'Hondt)
     last_quotient: Decimal
     next_quotient: Decimal
+    # As listas das federações que disputaram a eleição desta casa
+    slates: list[SlateDTO]
+    # As federações cuja lista vale no Congresso de hoje
+    federations: list[FederationDTO]
 
 
 class BlocVoteDTO(BaseDTO):
@@ -1116,6 +1219,24 @@ class TicketRequest(BaseDTO):
 
 class ViceAnswerRequest(BaseDTO):
     accept: bool
+
+
+class ProposeFederationRequest(BaseDTO):
+    partner_id: int
+    name: PartyName
+    # O partido do candidato da chapa: o próprio ou o do parceiro
+    candidate_party_id: int
+    # Apelido de um filiado do partido do candidato; nulo quando o líder é o partido do computador
+    candidate: str | None = None
+
+
+class AnswerFederationRequest(BaseDTO):
+    accept: bool
+
+
+class PreviewFederationRequest(BaseDTO):
+    partner_id: int
+    candidate_party_id: int
 
 
 class DonationRequest(BaseDTO):

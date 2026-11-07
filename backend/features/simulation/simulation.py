@@ -37,6 +37,7 @@ from backend.core.dto.government import (
     CongressBaseDTO,
     DealPreviewDTO,
     ElectionPanelDTO,
+    FederationPreviewDTO,
     FoundPartyRequest,
     GovernmentPanelDTO,
     MapPanelDTO,
@@ -154,6 +155,7 @@ from backend.features.government.campaign_panel import (
     build_history,
     build_roll,
 )
+from backend.features.government.federation_panel import preview_dto
 from backend.features.government.governance import build_governance, sector_options
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.map_panel import build_map
@@ -657,6 +659,49 @@ class Simulation:
     @synchronized
     def answer_vice(self, user: UserDTO, accept: bool) -> None:
         self._ensure_government().answer_vice(user, self._current_date, accept)
+
+    @synchronized
+    def preview_federation(
+        self, user: UserDTO, partner_id: int, candidate_party_id: int
+    ) -> FederationPreviewDTO:
+        book = self._ensure_government()
+        return preview_dto(
+            book,
+            book.federation_preview(
+                user, self._current_date, partner_id, candidate_party_id
+            ),
+        )
+
+    @synchronized
+    def propose_federation(
+        self,
+        founder: UserDTO,
+        partner_id: int,
+        name: str,
+        candidate_party_id: int,
+        candidate: str | None,
+    ) -> None:
+        self._ensure_government().propose_federation(
+            founder,
+            self._current_date,
+            partner_id,
+            name,
+            candidate_party_id,
+            candidate,
+            repository.simulation_player.participants(self.settings.id),
+        )
+
+    @synchronized
+    def withdraw_federation(self, founder: UserDTO) -> None:
+        self._ensure_government().withdraw_federation(founder, self._current_date)
+
+    @synchronized
+    def answer_federation(self, user: UserDTO, accept: bool) -> None:
+        self._ensure_government().answer_federation(user, self._current_date, accept)
+
+    @synchronized
+    def leave_federation(self, founder: UserDTO) -> None:
+        self._ensure_government().leave_federation(founder, self._current_date)
 
     @synchronized
     def donate_to_party(self, user: UserDTO, party_id: int, amount: Decimal) -> None:

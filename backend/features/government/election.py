@@ -52,13 +52,17 @@ def effective_ticket(
     """
     if party.is_computer:
         return None, None
+    federation = state.federation_of(party.id, state.cycle)
+    # Na federação a chapa é a do líder: o parceiro não lança candidato
+    if federation is not None and federation.candidate_party_id != party.id:
+        return None, None
 
     def can_run(user_id: int) -> bool:
         return (
             is_eligible(state, user_id) and vice_of_other(state, party, user_id) is None
         )
 
-    candidate = party.candidate_id
+    candidate = federation.candidate_id if federation else party.candidate_id
     if candidate is None or not can_run(candidate):
         candidate = next((u for u in _founder_first(party) if can_run(u)), None)
     vice = party.vice_id if party.vice_accepted and party.vice_id != candidate else None
@@ -82,14 +86,33 @@ def vice_blocker(state: GovernmentState, party: Party, user_id: int) -> str | No
 
 
 def runs(state: GovernmentState, party: Party) -> bool:
-    """O partido do computador sempre concorre; o de jogadores precisa de quem possa ser candidato."""
+    """
+    O partido do computador sempre concorre; o de jogadores precisa de quem possa ser
+    candidato. O parceiro de uma federação vai na chapa do líder e não concorre sozinho.
+    """
+    federation = state.federation_of(party.id, state.cycle)
+    if federation is not None and federation.candidate_party_id != party.id:
+        return False
     return party.is_computer or effective_ticket(state, party)[0] is not None
 
 
+def leaders(state: GovernmentState) -> dict[int, int]:
+    """O líder da chapa de cada partido que segue, entre as federações cujo líder concorre."""
+    return state.leaders_among({p.id for p in state.parties.values() if runs(state, p)})
+
+
 def intention(state: GovernmentState) -> voters.Vote:
-    """O voto de hoje, exato, entre os partidos que concorrem."""
-    return voters.vote(
-        {p.id: p.standings() for p in state.parties.values() if runs(state, p)}
+    """O voto de hoje, exato, entre as chapas; a fatia do partido que segue soma à do líder."""
+    follow = leaders(state)
+    return voters.merge(
+        voters.vote(
+            {
+                p.id: p.standings()
+                for p in state.parties.values()
+                if runs(state, p) or p.id in follow
+            }
+        ),
+        follow,
     )
 
 

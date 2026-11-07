@@ -10,6 +10,7 @@ import { cn } from "@/shared/lib/utils";
 import { displayMoneyWhole, displayPercent, displayShortMonthYear } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty, VoterGroup, VoterGroupInfo } from "@/types";
 import { AFFINITY, BUDGET, INTENTION, SPENT } from "../lib/election-metrics";
+import { raceRows } from "../lib/federation";
 import { VALUE_INFO, VOTER_VALUES } from "@/shared/lib/party-flags";
 import {
   GROUP_INFO,
@@ -24,6 +25,7 @@ import {
 } from "../lib/voters";
 import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 import { ProfileRadar } from "@/shared/components/profile-radar";
+import { FederationTile } from "./federation-tile";
 import { PromiseBadges } from "./promise-badges";
 import { ValueChips } from "@/shared/components/value-chip";
 import { partyColor } from "@/shared/lib/party-colors";
@@ -44,6 +46,8 @@ export function PartyProfilesCard({ panel }: PartyProfilesCardProps) {
   const campaignOpen = panel.phase !== "BEFORE_CAMPAIGN";
   const ticketOpen = panel.phase === "CAMPAIGN" && panel.today <= panel.dates.ticket_deadline;
   const margin = panel.polls.at(-1)?.margin ?? 0;
+  // Os dois partidos de uma federação ocupam um cartão só
+  const rows = raceRows(parties, panel.federations, Number(panel.dates.first_round.slice(0, 4)));
 
   return (
     <div className="@container grid gap-4">
@@ -57,18 +61,32 @@ export function PartyProfilesCard({ panel }: PartyProfilesCardProps) {
 
       {/* Um bloco por partido */}
       <div className="grid items-stretch gap-4 @2xl:grid-cols-2 @6xl:grid-cols-3">
-        {parties.map((party) => (
-          <PartyTile
-            key={party.id}
-            party={party}
-            selected={party.id === comparing}
-            current={party.id === panel.my_party?.party_id}
-            campaignOpen={campaignOpen}
-            ticketOpen={ticketOpen}
-            margin={margin}
-            onCompare={() => setComparing(party.id)}
-          />
-        ))}
+        {rows.map((row) => {
+          const [party] = row.parties;
+          if (!party) return null;
+          if (row.federation) {
+            return (
+              <FederationTile
+                key={row.key}
+                row={{ ...row, federation: row.federation }}
+                current={row.parties.some((member) => member.id === panel.my_party?.party_id)}
+                margin={margin}
+              />
+            );
+          }
+          return (
+            <PartyTile
+              key={row.key}
+              party={party}
+              selected={party.id === comparing}
+              current={party.id === panel.my_party?.party_id}
+              campaignOpen={campaignOpen}
+              ticketOpen={ticketOpen}
+              margin={margin}
+              onCompare={() => setComparing(party.id)}
+            />
+          );
+        })}
       </div>
 
       {/* Partido contra um grupo */}

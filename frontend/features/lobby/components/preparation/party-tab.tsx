@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CircleAlert, Flag, Lock, Mail, SlidersHorizontal } from "lucide-react";
+import { CircleAlert, Flag, Handshake, Lock, Mail, SlidersHorizontal } from "lucide-react";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -19,6 +19,7 @@ import type {
   RoomPlayer,
   SimulationSettings,
 } from "@/types";
+import { useAnswerPreparationFederation } from "../../hooks/mutations/useAnswerPreparationFederation";
 import { useAnswerPreparationVice } from "../../hooks/mutations/useAnswerPreparationVice";
 import { PartyFoundTab } from "./party-found-tab";
 import { PartyJoinTab } from "./party-join-tab";
@@ -52,6 +53,7 @@ export function PartyTab(props: PartyTabProps) {
   const [mode, setMode] = useState<Choice>(me?.kind ?? "NONE");
   const [refusal, setRefusal] = useState<string | null>(null);
   const answerVice = useAnswerPreparationVice();
+  const answerFederation = useAnswerPreparationFederation();
 
   if (!rules.government_enabled) {
     return (
@@ -108,6 +110,42 @@ export function PartyTab(props: PartyTabProps) {
                 variant="outline"
                 disabled={answerVice.isPending}
                 onClick={() => answerVice.mutate({ accept: false }, { onError: (err) => setRefusal(err.message) })}
+              >
+                Recusar
+              </Button>
+            </div>
+          </AlertAction>
+        </Alert>
+      )}
+      {/* Proposta de federação */}
+      {mine.federation_invite && !locked && (
+        <Alert variant="info">
+          <Handshake />
+          <AlertTitle>
+            {mine.federation_invite.owner} propõe federação do {mine.federation_invite.abbr} com o seu partido
+          </AlertTitle>
+          <AlertDescription>
+            {mine.federation_invite.name}, com {mine.federation_invite.candidate} de candidato. Os dois partidos viram
+            uma lista só no Congresso e somam os votos na barreira.
+          </AlertDescription>
+          <AlertAction>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                disabled={answerFederation.isPending}
+                onClick={() => answerFederation.mutate({ accept: true }, { onError: (err) => setRefusal(err.message) })}
+              >
+                Aceitar
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={answerFederation.isPending}
+                onClick={() =>
+                  answerFederation.mutate({ accept: false }, { onError: (err) => setRefusal(err.message) })
+                }
               >
                 Recusar
               </Button>

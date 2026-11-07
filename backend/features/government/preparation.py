@@ -1,6 +1,6 @@
 """
 A preparação que cada jogador deixa no lobby: fundar um partido, filiar-se ao de outro jogador,
-a chapa e o vice. Ela vira um evento da partida: os partidos nascem no 1º dia, e a chapa entra
+a chapa, o vice e a federação com o partido de outro fundador. Ela vira um evento da partida: os partidos nascem no 1º dia, e a chapa entra
 quando a campanha abre.
 """
 
@@ -36,6 +36,11 @@ class Prepared:
     vice_accepted: bool = False
     # A contribuição mensal salva no perfil, com que o jogador nasce no partido
     contribution: Decimal = Decimal(0)
+    # A federação que o fundador propôs a outro fundador: o parceiro, o nome e o candidato (de qualquer um dos dois partidos); vale quando o parceiro aceita
+    federation_partner_id: int | None = None
+    federation_name: str | None = None
+    federation_candidate_id: int | None = None
+    federation_accepted: bool = False
 
     def to_payload(self) -> dict[str, object]:
         return {
@@ -53,6 +58,10 @@ class Prepared:
             "vice_id": self.vice_id,
             "vice_accepted": self.vice_accepted,
             "contribution": str(self.contribution),
+            "federation_partner_id": self.federation_partner_id,
+            "federation_name": self.federation_name,
+            "federation_candidate_id": self.federation_candidate_id,
+            "federation_accepted": self.federation_accepted,
         }
 
     @classmethod
@@ -73,6 +82,12 @@ class Prepared:
             vice_id=_opt(data, "vice_id"),
             vice_accepted=bool(data.get("vice_accepted", False)),
             contribution=Decimal(str(data.get("contribution", "0"))),
+            federation_partner_id=_opt(data, "federation_partner_id"),
+            federation_name=None
+            if data.get("federation_name") is None
+            else str(data["federation_name"]),
+            federation_candidate_id=_opt(data, "federation_candidate_id"),
+            federation_accepted=bool(data.get("federation_accepted", False)),
         )
 
 

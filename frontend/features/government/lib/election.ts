@@ -3,7 +3,7 @@ import { displayMonthShort, displayShortDate, parseLocalDate } from "@/shared/li
 import type { ElectionPanel, ElectionPhase } from "@/types";
 
 /** Os diálogos da página da eleição que um atalho de fora (as pendências, o diálogo da campanha) abre ao chegar. */
-export type ElectionShortcut = "found" | "join" | "contribution" | "vice" | "campaign";
+export type ElectionShortcut = "found" | "join" | "contribution" | "vice" | "campaign" | "federation-answer";
 
 /** "out 2020": o mês e o ano de uma data. */
 export function monthYear(isoDate: string) {

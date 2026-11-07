@@ -257,6 +257,9 @@ class GovernmentUpdateEventDTO(BaseDTO):
     seats_before: int | None = None
     seats_after: int | None = None
     broken_by_ally: bool | None = None
+    # Nas federações: o nome dela e a sigla do outro partido (party_abbr é quem agiu)
+    federation_name: str | None = None
+    partner_abbr: str | None = None
 
 
 class StrategyUpdateEventDTO(BaseDTO):

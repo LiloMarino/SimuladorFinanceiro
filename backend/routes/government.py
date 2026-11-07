@@ -13,6 +13,7 @@ from backend.core.dto.campaign import (
 )
 from backend.core.dto.government import (
     AnswerDealRequest,
+    AnswerFederationRequest,
     CongressBaseDTO,
     ContributionRequest,
     DealPreviewDTO,
@@ -20,6 +21,7 @@ from backend.core.dto.government import (
     ElectionPanelDTO,
     EndorsementRequest,
     ExpelRequest,
+    FederationPreviewDTO,
     FoundPartyRequest,
     GovernmentPanelDTO,
     GuidanceRequest,
@@ -28,8 +30,10 @@ from backend.core.dto.government import (
     MapPanelDTO,
     MeasurePreviewDTO,
     PartyFlagsRequest,
+    PreviewFederationRequest,
     PromisesPanelDTO,
     ProposeDealRequest,
+    ProposeFederationRequest,
     ProposeMeasureRequest,
     RunoffContributionRequest,
     SelicRequest,
@@ -271,6 +275,76 @@ def answer_vice(
     simulation: ActiveSimulation, user: CurrentUser, payload: ViceAnswerRequest
 ):
     simulation.answer_vice(user, payload.accept)
+
+
+@government_router.post(
+    "/federations/preview",
+    response_model=FederationPreviewDTO,
+    summary="Ver o que a federação muda antes de propor",
+    description="Para o parceiro `partner_id` e o partido do candidato `candidate_party_id`, retorna a fatia de cada um nos votos da casa e a barreira, o partido que orienta a bancada, quantas promessas saem sem custo, a verba de cada um, as datas em que a federação vale e a rejeição de cada grupo hoje, a do parceiro e a federada. Só o fundador. Recusa com 409 quando os dois não podem se federar.",
+)
+def preview_federation(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    payload: PreviewFederationRequest,
+):
+    return simulation.preview_federation(
+        user, payload.partner_id, payload.candidate_party_id
+    )
+
+
+@government_router.post(
+    "/federations",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Propor uma federação",
+    description="O fundador propõe a outro partido que os dois concorram numa lista e numa chapa só: o candidato é de um dos dois, e o partido dele lidera. A federação vale na eleição em curso (ou na seguinte, se um dos dois já tem federação) e até a posse depois da eleição seguinte. A proposta vence em 7 dias, ou antes se o outro partido se federar; o partido do computador responde no pregão seguinte. Recusa com 409 quando um dos dois já tem proposta aberta, já está federado nas duas eleições, saiu de uma federação ou entre os turnos.",
+)
+def propose_federation(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    payload: ProposeFederationRequest,
+):
+    simulation.propose_federation(
+        user,
+        payload.partner_id,
+        payload.name,
+        payload.candidate_party_id,
+        payload.candidate,
+    )
+
+
+@government_router.delete(
+    "/federations/proposal",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Retirar a proposta de federação",
+    description="O fundador retira a proposta que enviou antes da resposta. Recusa com 409 sem proposta enviada.",
+)
+def withdraw_federation(simulation: ActiveSimulation, user: CurrentUser):
+    simulation.withdraw_federation(user)
+
+
+@government_router.put(
+    "/federations/answer",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Responder a proposta de federação",
+    description="O fundador do partido convidado aceita ou recusa; recusar não custa nada. Aceitar forma a federação na hora e o jornal noticia. Recusa com 404 sem proposta e com 409 quando ela deixou de valer.",
+)
+def answer_federation(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    payload: AnswerFederationRequest,
+):
+    simulation.answer_federation(user, payload.accept)
+
+
+@government_router.delete(
+    "/federations",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Sair da federação",
+    description="Sair antes do prazo desfaz a federação na hora para os dois partidos. Quem saiu fica impedido de se federar até a eleição seguinte. O jornal noticia. Recusa com 404 quando o partido não está numa federação.",
+)
+def leave_federation(simulation: ActiveSimulation, user: CurrentUser):
+    simulation.leave_federation(user)
 
 
 @government_router.post(

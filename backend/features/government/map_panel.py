@@ -121,7 +121,7 @@ def _poll(
         next_date = next((d for d in days if d > today), None)
     elif phase is ElectionPhase.CAMPAIGN:
         runoff = False
-        series = [(p.day, voters.vote(p.standings)) for p in state.polls]
+        series = [(p.day, p.vote) for p in state.polls]
         following = next_month_turn(today)
         next_date = following if following < cycle.first_round else None
     else:
@@ -194,13 +194,14 @@ def _result_entries(points: dict[int, Decimal]) -> list[MapResultEntryDTO]:
 
 
 def _rejection(party: Party, all_places: list[places.Place]) -> MapRejectionDTO:
+    felt = {g: party.felt_rejection(g) for g in VoterGroup}
     return MapRejectionDTO(
         party_id=party.id,
-        national=approval.overall(party.rejection),
+        national=approval.overall(felt),
         places=[
             MapValueDTO(
                 code=places.code(p),
-                value=approval.overall(party.rejection, places.mixture(p)),
+                value=approval.overall(felt, places.mixture(p)),
             )
             for p in all_places
         ],

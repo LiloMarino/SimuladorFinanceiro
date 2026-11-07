@@ -365,6 +365,25 @@ def restrict(result: Vote, finalists: Iterable[int]) -> Vote:
     return combine(groups)
 
 
+def merge(
+    result: Vote,
+    leaders: Mapping[int, int],
+    weights: Mapping[VoterGroup, Decimal] = WEIGHTS,
+) -> Vote:
+    """
+    O voto com cada partido de `leaders` somado ao líder dele: a chapa federada recebe a
+    fatia dos dois partidos em cada grupo, e o partido que segue deixa de aparecer sozinho.
+    """
+    groups = {}
+    for g, gv in result.groups.items():
+        shares: dict[int, Decimal] = {}
+        for pid, share in gv.shares.items():
+            target = leaders.get(pid, pid)
+            shares[target] = shares.get(target, ZERO) + share
+        groups[g] = GroupVote(shares=shares, undecided=gv.undecided)
+    return combine(groups, weights)
+
+
 def combine(
     groups: dict[VoterGroup, GroupVote],
     weights: Mapping[VoterGroup, Decimal] = WEIGHTS,

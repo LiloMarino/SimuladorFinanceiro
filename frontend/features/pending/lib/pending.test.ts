@@ -29,6 +29,7 @@ describe("pendingTarget", () => {
       state: { dialog: "vice" },
     });
     expect(pendingTarget(pending({ type: "CAMPAIGN_OPEN" })).state).toEqual({ dialog: "campaign" });
+    expect(pendingTarget(pending({ type: "FEDERATION_PROPOSAL" })).state).toEqual({ dialog: "federation-answer" });
   });
 });
 

@@ -6005,6 +6005,241 @@
         ]
       }
     },
+    "/api/government/federations/preview": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Ver o que a federação muda antes de propor",
+        "description": "Para o parceiro `partner_id` e o partido do candidato `candidate_party_id`, retorna a fatia de cada um nos votos da casa e a barreira, o partido que orienta a bancada, quantas promessas saem sem custo, a verba de cada um, as datas em que a federação vale e a rejeição de cada grupo hoje, a do parceiro e a federada. Só o fundador. Recusa com 409 quando os dois não podem se federar.",
+        "operationId": "preview_federation_api_government_federations_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewFederationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FederationPreviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/federations": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Propor uma federação",
+        "description": "O fundador propõe a outro partido que os dois concorram numa lista e numa chapa só: o candidato é de um dos dois, e o partido dele lidera. A federação vale na eleição em curso (ou na seguinte, se um dos dois já tem federação) e até a posse depois da eleição seguinte. A proposta vence em 7 dias, ou antes se o outro partido se federar; o partido do computador responde no pregão seguinte. Recusa com 409 quando um dos dois já tem proposta aberta, já está federado nas duas eleições, saiu de uma federação ou entre os turnos.",
+        "operationId": "propose_federation_api_government_federations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposeFederationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Sair da federação",
+        "description": "Sair antes do prazo desfaz a federação na hora para os dois partidos. Quem saiu fica impedido de se federar até a eleição seguinte. O jornal noticia. Recusa com 404 quando o partido não está numa federação.",
+        "operationId": "leave_federation_api_government_federations_delete",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/federations/proposal": {
+      "delete": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Retirar a proposta de federação",
+        "description": "O fundador retira a proposta que enviou antes da resposta. Recusa com 409 sem proposta enviada.",
+        "operationId": "withdraw_federation_api_government_federations_proposal_delete",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/federations/answer": {
+      "put": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Responder a proposta de federação",
+        "description": "O fundador do partido convidado aceita ou recusa; recusar não custa nada. Aceitar forma a federação na hora e o jornal noticia. Recusa com 404 sem proposta e com 409 quando ela deixou de valer.",
+        "operationId": "answer_federation_api_government_federations_answer_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerFederationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/government/donations": {
       "post": {
         "tags": [
@@ -8274,6 +8509,120 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ViceAnswerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparationsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/players/me/preparation/federation": {
+      "put": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Propor federação no lobby",
+        "description": "O fundador propõe federação ao fundador de outro partido preparado, nomeando a federação e o candidato da chapa. Sem `partner`, retira a proposta ou desfaz a federação combinada. Recusa com 409 se um dos dois já tem proposta ou federação combinada.",
+        "operationId": "propose_preparation_federation_api_simulation_players_me_preparation_federation_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FederationOfferRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparationsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/players/me/preparation/federation/answer": {
+      "put": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Responder à proposta de federação do lobby",
+        "description": "O fundador convidado aceita ou recusa a federação que outro propôs. Recusa com 404 se não há proposta.",
+        "operationId": "answer_preparation_federation_api_simulation_players_me_preparation_federation_answer_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FederationAnswerRequest"
               }
             }
           },
@@ -10739,6 +11088,20 @@
         ],
         "title": "AnswerDealRequest"
       },
+      "AnswerFederationRequest": {
+        "properties": {
+          "accept": {
+            "type": "boolean",
+            "title": "Accept"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "accept"
+        ],
+        "title": "AnswerFederationRequest"
+      },
       "AppFoldersResponse": {
         "properties": {
           "config": {
@@ -12115,6 +12478,28 @@
           "is_mine": {
             "type": "boolean",
             "title": "Is Mine"
+          },
+          "federation_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Federation Id"
+          },
+          "orienting_party_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orienting Party Id"
           }
         },
         "additionalProperties": false,
@@ -12133,7 +12518,9 @@
           "votes_cast",
           "yes_share",
           "defection_share",
-          "is_mine"
+          "is_mine",
+          "federation_id",
+          "orienting_party_id"
         ],
         "title": "BlocDTO",
         "description": "A bancada de um partido na casa."
@@ -16501,6 +16888,55 @@
           "computer_budget_factor": {
             "type": "string",
             "title": "Computer Budget Factor"
+          },
+          "federations": {
+            "items": {
+              "$ref": "#/components/schemas/FederationDTO"
+            },
+            "type": "array",
+            "title": "Federations"
+          },
+          "sent_proposal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FederationProposalDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "received_proposal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FederationProposalDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "federation_options": {
+            "items": {
+              "$ref": "#/components/schemas/FederationOptionDTO"
+            },
+            "type": "array",
+            "title": "Federation Options"
+          },
+          "can_federate": {
+            "type": "boolean",
+            "title": "Can Federate"
+          },
+          "federation_block": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Federation Block"
           }
         },
         "additionalProperties": false,
@@ -16535,7 +16971,13 @@
           "decides_match",
           "player_standings",
           "party_standings",
-          "computer_budget_factor"
+          "computer_budget_factor",
+          "federations",
+          "sent_proposal",
+          "received_proposal",
+          "federation_options",
+          "can_federate",
+          "federation_block"
         ],
         "title": "ElectionPanelDTO"
       },
@@ -16706,6 +17148,364 @@
           "nickname"
         ],
         "title": "ExpelRequest"
+      },
+      "FederationAnswerRequest": {
+        "properties": {
+          "accept": {
+            "type": "boolean",
+            "title": "Accept"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "accept"
+        ],
+        "title": "FederationAnswerRequest"
+      },
+      "FederationDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "parties": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Parties"
+          },
+          "candidate_party_id": {
+            "type": "integer",
+            "title": "Candidate Party Id"
+          },
+          "candidate": {
+            "type": "string",
+            "title": "Candidate"
+          },
+          "election_year": {
+            "type": "integer",
+            "title": "Election Year"
+          },
+          "formed_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Formed On"
+          },
+          "in_force_from": {
+            "type": "string",
+            "format": "date",
+            "title": "In Force From"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Ends On"
+          },
+          "orienting_party_id": {
+            "type": "integer",
+            "title": "Orienting Party Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "parties",
+          "candidate_party_id",
+          "candidate",
+          "election_year",
+          "formed_on",
+          "in_force_from",
+          "ends_on",
+          "orienting_party_id"
+        ],
+        "title": "FederationDTO",
+        "description": "Uma federação de pé: dois partidos numa lista e numa chapa só, presos pelo mandato."
+      },
+      "FederationInviteDTO": {
+        "properties": {
+          "owner": {
+            "type": "string",
+            "title": "Owner"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "candidate": {
+            "type": "string",
+            "title": "Candidate"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "owner",
+          "abbr",
+          "name",
+          "candidate"
+        ],
+        "title": "FederationInviteDTO",
+        "description": "Uma proposta de federação sem resposta: de quem veio, o nome e o candidato dos dois partidos."
+      },
+      "FederationOfferRequest": {
+        "properties": {
+          "partner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Partner"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "candidate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "FederationOfferRequest",
+        "description": "A federação que o fundador propõe a outro fundador da sala; sem `partner`, retira a proposta."
+      },
+      "FederationOptionDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "blocked": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocked"
+          },
+          "below_barrier": {
+            "type": "boolean",
+            "title": "Below Barrier"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "blocked",
+          "below_barrier"
+        ],
+        "title": "FederationOptionDTO",
+        "description": "Um partido a quem o do fundador pode propor federação."
+      },
+      "FederationPreviewDTO": {
+        "properties": {
+          "election_year": {
+            "type": "integer",
+            "title": "Election Year"
+          },
+          "own_share": {
+            "type": "string",
+            "title": "Own Share"
+          },
+          "partner_share": {
+            "type": "string",
+            "title": "Partner Share"
+          },
+          "barrier": {
+            "type": "string",
+            "title": "Barrier"
+          },
+          "orienting_party_id": {
+            "type": "integer",
+            "title": "Orienting Party Id"
+          },
+          "leaving_promises": {
+            "type": "integer",
+            "title": "Leaving Promises"
+          },
+          "own_budget": {
+            "type": "string",
+            "title": "Own Budget"
+          },
+          "partner_budget": {
+            "type": "string",
+            "title": "Partner Budget"
+          },
+          "in_force_from": {
+            "type": "string",
+            "format": "date",
+            "title": "In Force From"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Ends On"
+          },
+          "answer_until": {
+            "type": "string",
+            "format": "date",
+            "title": "Answer Until"
+          },
+          "rejection": {
+            "items": {
+              "$ref": "#/components/schemas/FederationRejectionDTO"
+            },
+            "type": "array",
+            "title": "Rejection"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "election_year",
+          "own_share",
+          "partner_share",
+          "barrier",
+          "orienting_party_id",
+          "leaving_promises",
+          "own_budget",
+          "partner_budget",
+          "in_force_from",
+          "ends_on",
+          "answer_until",
+          "rejection"
+        ],
+        "title": "FederationPreviewDTO",
+        "description": "O que a federação muda para o partido do fundador, antes de enviar a proposta."
+      },
+      "FederationProposalDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "from_party_id": {
+            "type": "integer",
+            "title": "From Party Id"
+          },
+          "to_party_id": {
+            "type": "integer",
+            "title": "To Party Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "candidate_party_id": {
+            "type": "integer",
+            "title": "Candidate Party Id"
+          },
+          "candidate": {
+            "type": "string",
+            "title": "Candidate"
+          },
+          "election_year": {
+            "type": "integer",
+            "title": "Election Year"
+          },
+          "sent_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Sent On"
+          },
+          "expires_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Expires On"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Ends On"
+          },
+          "orienting_party_id": {
+            "type": "integer",
+            "title": "Orienting Party Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "from_party_id",
+          "to_party_id",
+          "name",
+          "candidate_party_id",
+          "candidate",
+          "election_year",
+          "sent_on",
+          "expires_on",
+          "ends_on",
+          "orienting_party_id"
+        ],
+        "title": "FederationProposalDTO",
+        "description": "A proposta de federação aberta: vence em 7 dias, ou antes se o outro partido se federar."
+      },
+      "FederationRejectionDTO": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/VoterGroup"
+          },
+          "own": {
+            "type": "string",
+            "title": "Own"
+          },
+          "partner": {
+            "type": "string",
+            "title": "Partner"
+          },
+          "federated": {
+            "type": "string",
+            "title": "Federated"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group",
+          "own",
+          "partner",
+          "federated"
+        ],
+        "title": "FederationRejectionDTO",
+        "description": "A rejeição de um grupo: a do proponente hoje, a do parceiro e a que o proponente sente federado."
       },
       "FixedAssetsUpdateEventDTO": {
         "properties": {
@@ -17905,7 +18705,10 @@
           "DEAL_ANSWERED",
           "DEAL_BROKEN",
           "DEAL_ENDED",
-          "DEAL_LEFT"
+          "DEAL_LEFT",
+          "FEDERATION_PROPOSED",
+          "FEDERATION_ANSWERED",
+          "FEDERATION_LEFT"
         ],
         "title": "GovernmentNoticeKind",
         "description": "O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."
@@ -18392,6 +19195,28 @@
               }
             ],
             "title": "Broken By Ally"
+          },
+          "federation_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Federation Name"
+          },
+          "partner_abbr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Partner Abbr"
           }
         },
         "additionalProperties": false,
@@ -18424,7 +19249,9 @@
           "rival_abbr",
           "seats_before",
           "seats_after",
-          "broken_by_ally"
+          "broken_by_ally",
+          "federation_name",
+          "partner_abbr"
         ],
         "title": "GovernmentUpdateEventDTO",
         "description": "A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve."
@@ -18954,6 +19781,20 @@
           "next_quotient": {
             "type": "string",
             "title": "Next Quotient"
+          },
+          "slates": {
+            "items": {
+              "$ref": "#/components/schemas/SlateDTO"
+            },
+            "type": "array",
+            "title": "Slates"
+          },
+          "federations": {
+            "items": {
+              "$ref": "#/components/schemas/FederationDTO"
+            },
+            "type": "array",
+            "title": "Federations"
           }
         },
         "additionalProperties": false,
@@ -18968,7 +19809,9 @@
           "blocs",
           "below",
           "last_quotient",
-          "next_quotient"
+          "next_quotient",
+          "slates",
+          "federations"
         ],
         "title": "HouseDTO"
       },
@@ -21819,6 +22662,27 @@
               }
             ],
             "title": "Left Party"
+          },
+          "federation_invite": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FederationInviteDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "federation_invited": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Federation Invited"
           }
         },
         "additionalProperties": false,
@@ -21826,7 +22690,9 @@
         "required": [
           "invite",
           "invited",
-          "left_party"
+          "left_party",
+          "federation_invite",
+          "federation_invited"
         ],
         "title": "MyPreparationDTO",
         "description": "O que da preparação só o próprio jogador vê."
@@ -23459,6 +24325,7 @@
           "CAMPAIGN_OPEN",
           "UNPAID_CONTRIBUTION",
           "UNGUIDED_VOTE",
+          "FEDERATION_PROPOSAL",
           "DEAL_PROPOSAL",
           "DEAL_DEMAND",
           "SELIC_MEETING"
@@ -23839,6 +24706,16 @@
             "type": "boolean",
             "title": "Vice Accepted",
             "default": false
+          },
+          "federation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PreparationFederationDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -23850,7 +24727,8 @@
           "founder",
           "candidate",
           "vice",
-          "vice_accepted"
+          "vice_accepted",
+          "federation"
         ],
         "title": "PlayerPreparationDTO"
       },
@@ -24978,6 +25856,31 @@
         "title": "PremiumPointDTO",
         "description": "Um ponto da curva do prêmio de risco: a dívida em fração do PIB e o prêmio que ela cobra."
       },
+      "PreparationFederationDTO": {
+        "properties": {
+          "partner": {
+            "type": "string",
+            "title": "Partner"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "candidate": {
+            "type": "string",
+            "title": "Candidate"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "partner",
+          "name",
+          "candidate"
+        ],
+        "title": "PreparationFederationDTO",
+        "description": "A federação combinada no lobby, vista pelos dois fundadores e pela sala."
+      },
       "PreparationKind": {
         "type": "string",
         "enum": [
@@ -25318,6 +26221,25 @@
         ],
         "title": "PresetRuleGroup",
         "description": "As regras de um preset agrupadas como o painel as mostra."
+      },
+      "PreviewFederationRequest": {
+        "properties": {
+          "partner_id": {
+            "type": "integer",
+            "title": "Partner Id"
+          },
+          "candidate_party_id": {
+            "type": "integer",
+            "title": "Candidate Party Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "partner_id",
+          "candidate_party_id"
+        ],
+        "title": "PreviewFederationRequest"
       },
       "PreviewPointDTO": {
         "properties": {
@@ -25980,6 +26902,43 @@
           "bloc_key"
         ],
         "title": "ProposeDealRequest"
+      },
+      "ProposeFederationRequest": {
+        "properties": {
+          "partner_id": {
+            "type": "integer",
+            "title": "Partner Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "candidate_party_id": {
+            "type": "integer",
+            "title": "Candidate Party Id"
+          },
+          "candidate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "partner_id",
+          "name",
+          "candidate_party_id"
+        ],
+        "title": "ProposeFederationRequest"
       },
       "ProposeMeasureRequest": {
         "properties": {
@@ -29086,6 +30045,39 @@
           "current_date"
         ],
         "title": "SimulationTickUpdateEventDTO"
+      },
+      "SlateDTO": {
+        "properties": {
+          "keys": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Keys"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "votes": {
+            "type": "string",
+            "title": "Votes"
+          },
+          "seats": {
+            "type": "integer",
+            "title": "Seats"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "keys",
+          "name",
+          "votes",
+          "seats"
+        ],
+        "title": "SlateDTO",
+        "description": "A lista de uma federação na eleição da casa: o que os dois partidos somaram juntos."
       },
       "SnapshotDTO": {
         "properties": {

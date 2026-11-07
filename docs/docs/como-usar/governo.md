@@ -63,6 +63,24 @@ Cada partido assume uma posição de 1 a 5 numa régua entre **impostos baixos**
 
 A promessa decide para onde vão os votos de quem sai no 2º turno (veja abaixo) e pesa na aprovação de quem governa (veja [Governar](#governar)).
 
+### Federações
+
+Dois partidos podem se unir numa **federação**: uma chapa só na eleição e uma lista só no Congresso. Serve para quem, sozinho, ficaria abaixo da **barreira** (a fatia mínima de votos que um partido precisa para ter cadeira). Ex.: dois partidos com 3% e 4% passam juntos de uma barreira de 5%; sozinhos, nenhum dos dois elege deputado.
+
+**Propor e responder.** O fundador propõe a qualquer momento, inclusive no lobby, escolhendo o partido (de jogadores ou do computador), o **candidato da chapa** e o nome. A proposta vence em 7 dias, ou antes se o outro partido se federar com outro. Quem responde é o fundador do partido convidado, e os filiados veem o aviso. Não se propõe entre o 1º e o 2º turno. Cada partido tem no máximo uma federação por eleição e uma proposta aberta por vez.
+
+**Quanto dura.** A federação nasce para uma eleição e vale no Congresso do dia em que se forma até a posse depois da eleição seguinte. Para a eleição depois dessa, os dois renovam ou cada um se federa com outro; a federação combinada de antemão concorre na eleição dela e entra no Congresso na posse. **Sair antes do prazo** desfaz a federação na hora para os dois, e quem saiu fica impedido de se federar na eleição seguinte.
+
+**A chapa.** O partido do candidato é o **líder**: o fundador dele escolhe o vice e as promessas. As promessas do parceiro saem sem custo, e ele não define promessas enquanto a federação disputa.
+
+**A eleição.** As intenções de voto dos dois somam na chapa. Cada partido continua com a própria verba e com as próprias ações de campanha; as ações do parceiro sobem o apoio dele, que entra na soma. Cada partido herda **metade da rejeição** que o parceiro tem em cada grupo de eleitores, calculada na hora da leitura.
+
+**O Congresso.** A barreira e a divisão de cadeiras (método D'Hondt, que reparte as cadeiras pelas maiores médias de votos por cadeira) usam a **soma** dos votos da lista. Depois, as cadeiras se repartem entre os dois partidos pelo mesmo método, sem barreira. A **orientação** da bancada é a do partido com mais cadeiras, ou a do proponente em caso de empate ou se ninguém tem cadeira. O parceiro não orienta, e os deputados dele desobedecem pelo sorteio.
+
+**Partidos do computador.** No fechamento do mês, o computador propõe se, sozinho, ficaria abaixo da barreira: escolhe o partido com mais bandeiras em comum e nenhuma oposta e, no empate, o de mais votos. Responde no dia seguinte e aceita se, sozinho, ficaria abaixo da barreira e tem ao menos uma bandeira em comum e nenhuma oposta. O computador nunca sai de uma federação.
+
+Os avisos de proposta, resposta e saída chegam em tempo real, e o jornal noticia a formação e a saída.
+
 ## Como a verba vira votos
 
 O **apoio** de um partido cresce pela **raiz quadrada** do que ele gasta: dobrar a verba **não** dobra os votos. A conta de cada mês é

@@ -104,6 +104,41 @@ def test_an_election_turns_votes_into_a_house_of_101_seats():
         assert sum(each.mix.values()) == pytest.approx(1)
 
 
+def test_a_federation_passes_the_barrier_on_the_sum_of_its_votes():
+    votes = {1: Decimal(3), 2: Decimal(3), 3: Decimal(94)}
+
+    alone = house.distribute_lists(votes)
+    together = house.distribute_lists(votes, [house.Alliance((1, 2), "Frente")])
+
+    assert alone.below == (1, 2)
+    assert together.below == ()
+    assert sum(together.seats.values()) == house.SEATS
+    assert together.seats[1] + together.seats[2] > 0
+
+
+def test_the_seats_of_a_federation_split_between_its_parties_without_a_barrier():
+    votes = {1: Decimal(2), 2: Decimal(28), 3: Decimal(70)}
+
+    cut = house.distribute_lists(votes, [house.Alliance((1, 2), "Frente")])
+
+    # O D'Hondt interno divide as cadeiras da lista pelos votos de cada partido, sem barreira
+    inner = house.distribute(
+        {1: Decimal(2), 2: Decimal(28)}, cut.seats[1] + cut.seats[2], Decimal(0)
+    )
+    assert (cut.seats[1], cut.seats[2]) == (inner.seats[1], inner.seats[2])
+    assert cut.seats[2] > cut.seats[1]
+    assert cut.below == ()
+
+
+def test_a_federation_under_the_barrier_loses_both_parties():
+    votes = {1: Decimal(2), 2: Decimal(2), 3: Decimal(96)}
+
+    cut = house.distribute_lists(votes, [house.Alliance((1, 2), "Frente")])
+
+    assert cut.below == (1, 2)
+    assert cut.seats[1] == cut.seats[2] == 0
+
+
 # Orientação
 
 

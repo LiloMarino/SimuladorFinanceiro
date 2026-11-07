@@ -9,6 +9,7 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import type { ElectionPanel, GovernmentPanel } from "@/types";
 import { campaignToast, toastEffect } from "../lib/campaign";
 import { dealAnsweredToast, dealBrokenToast, dealEndedToast, dealLeftToast } from "../lib/deal-toast";
+import { federationAnsweredToast, federationLeftToast, federationProposedToast } from "../lib/federation-toast";
 import { impeachmentToast, measureVotedToast, monthClosedToast } from "../lib/measure-toast";
 import { endorsementToast, roundResultToast } from "../lib/runoff-toast";
 import { campaignQuery } from "../hooks/queries/useCampaign";
@@ -41,6 +42,7 @@ export function GovernmentNotifications() {
 
   const openGovernment = () => void navigate("/government");
   const openBase = () => void navigate("/government?tab=accounts");
+  const openElection = () => void navigate("/election");
   const openCampaign = () => void navigate("/election", { state: { tab: "campaign" } });
 
   useRealtime("government_update", (event) => {
@@ -180,6 +182,37 @@ export function GovernmentNotifications() {
         }
         break;
       }
+      case "FEDERATION_PROPOSED":
+        // A proposta chega ao fundador do partido convidado; a resposta abre o diálogo da Eleição
+        if (event.target === me) {
+          const notice = federationProposedToast(event);
+          toast[notice.tone](notice.title, {
+            description: notice.description,
+            action: {
+              label: "Responder",
+              onClick: () => void navigate("/election", { state: { dialog: "federation-answer" } }),
+            },
+          });
+        }
+        break;
+      case "FEDERATION_ANSWERED":
+        if (event.target === me) {
+          const notice = federationAnsweredToast(event);
+          toast[notice.tone](notice.title, {
+            description: notice.description,
+            action: { label: "Ver", onClick: openElection },
+          });
+        }
+        break;
+      case "FEDERATION_LEFT":
+        if (event.target === me) {
+          const notice = federationLeftToast(event);
+          toast[notice.tone](notice.title, {
+            description: notice.description,
+            action: { label: "Ver", onClick: openElection },
+          });
+        }
+        break;
       // O jornal da partida conta estes fatos (news_published) e as pendências, os que pedem ação; aqui só renovam a tela
       case "CAMPAIGN_OPENED":
       case "VICE_INVITED":

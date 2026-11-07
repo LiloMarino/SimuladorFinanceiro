@@ -28,6 +28,7 @@ from backend.core.enum import (
     ComputerDifficulty,
     DealBreaker,
     DealStatus,
+    FederationStatus,
     GovernmentEventType,
     GovernmentNoticeKind,
     GroupVerdict,
@@ -64,6 +65,7 @@ from backend.features.government import (
     congress,
     deals,
     election,
+    federations,
     headlines,
     house,
     promises,
@@ -323,6 +325,8 @@ class GovernmentBook:
             items.append(risk)
         if proposal := self._deal_proposal(user):
             items.append(proposal)
+        if offer := self._federation_proposal(user, today):
+            items.append(offer)
         items.extend(self._deal_demands(user, today))
         items.extend(self._unguided_votes(user, today))
         if unpaid := self._unpaid_contribution(user, today):
@@ -355,6 +359,22 @@ class GovernmentBook:
                 )
             )
         return items
+
+    def _federation_proposal(self, user: UserDTO, today: date) -> PendingDTO | None:
+        """A proposta de federação que espera a resposta do fundador do partido convidado."""
+        party = self.state.party_of(user.id)
+        if party is None or party.founder_id != user.id:
+            return None
+        proposal = self.received_federation(party, today)
+        if proposal is None:
+            return None
+        sender = self._party(proposal.from_party_id)
+        proposer = self._founder_of(sender)
+        return registry.pending(
+            PendingType.FEDERATION_PROPOSAL,
+            f"{proposer.nickname if proposer else sender.name} propõe federar o "
+            f"{sender.abbr} com o {party.abbr} · responda até {proposal.expires_on:%d/%m}",
+        )
 
     def _unpaid_contribution(self, user: UserDTO, today: date) -> PendingDTO | None:
         """A contribuição que a última cobrança da campanha não conseguiu tirar do caixa."""
@@ -421,6 +441,8 @@ class GovernmentBook:
             return []
         bloc = self.state.house_on(today).of_party(party.id)
         if bloc is None or bloc.seats == 0:
+            return []
+        if self.orienting_party(bloc, today) != party.id:
             return []
         items = []
         vote_day = congress.next_vote_date(today)
@@ -539,6 +561,7 @@ class GovernmentBook:
         self._announce_in_force(previous, today)
         self._resolve_deals(today)
         self._announce_deals_ended(previous, today)
+        self._resolve_federations(today)
         if (
             month_changed
             and self.state.runoff is None
@@ -659,6 +682,39 @@ class GovernmentBook:
                         item.contribution,
                     )
                 )
+        self._apply_prepared_federations(today, present)
+
+    def _apply_prepared_federations(self, today: date, present: list[Prepared]) -> None:
+        """A federação combinada no lobby nasce já no 1º dia: o fundador propõe e o parceiro aceita."""
+        for item in (p for p in present if p.federation_accepted):
+            self._apply_prepared_federation(item, today)
+
+    def _apply_prepared_federation(self, item: Prepared, today: date) -> None:
+        proposer = self._people.get(item.user_id)
+        partner = self._people.get(item.federation_partner_id or 0)
+        partner_party = self.state.party_of(item.federation_partner_id or 0)
+        nominee = self._people.get(item.federation_candidate_id or item.user_id)
+        nominee_party = self.state.party_of(nominee.id) if nominee else None
+        if (
+            proposer is None
+            or partner is None
+            or partner_party is None
+            or nominee is None
+            or nominee_party is None
+        ):
+            return
+        self._attempt(
+            lambda: self.propose_federation(
+                proposer,
+                today,
+                partner_party.id,
+                item.federation_name or "",
+                nominee_party.id,
+                nominee.nickname,
+                list(self._people.values()),
+            )
+        )
+        self._attempt(lambda: self.answer_federation(partner, today, True))
 
     def _apply_prepared_tickets(self, today: date) -> None:
         """
@@ -827,6 +883,7 @@ class GovernmentBook:
         acordo, e o líder confirma isso com `breaks_deal`.
         """
         party = self._leader_party(user)
+        self._ensure_orients(party, today)
         bloc = self.state.house_on(today).of_party(party.id)
         if bloc is None or bloc.seats == 0:
             raise ConflictError("O partido não tem bancada na casa.")
@@ -864,6 +921,7 @@ class GovernmentBook:
     ) -> None:
         """O líder troca a orientação padrão do partido para um valor."""
         party = self._leader_party(user)
+        self._ensure_orients(party, today)
         self._emit(
             GovernmentEventType.GUIDANCE_RULE_SET,
             today,
@@ -873,6 +931,18 @@ class GovernmentBook:
             user_id=user.id,
         )
         self._notice(GovernmentNoticeKind.UPDATED, user, party_abbr=party.abbr)
+
+    def _ensure_orients(self, party: Party, today: date) -> None:
+        """Na federação com Congresso em exercício a orientação é de um partido só; o outro segue."""
+        federation = self.state.congress_federation(party.id, today)
+        if federation is None:
+            return
+        bloc = self.state.house_on(today).of_party(party.id)
+        lead = self.orienting_party(bloc, today) if bloc else None
+        if lead is not None and lead != party.id:
+            raise ForbiddenError(
+                f"A orientação da federação é do {self._party(lead).abbr}."
+            )
 
     def _leader_party(self, user: UserDTO) -> Party:
         party = self._my_party(user)
@@ -886,24 +956,37 @@ class GovernmentBook:
             return {}
         return voters.measure_effects(measure.kind, measure.value, measure.before)
 
+    def orienting_party(self, bloc: house.Bloc, day: date) -> int | None:
+        """O partido que orienta a bancada: o dela, ou o da federação com mais cadeiras (o proponente em empate)."""
+        if bloc.party_id is None:
+            return None
+        federation = self.state.congress_federation(bloc.party_id, day)
+        if federation is None:
+            return bloc.party_id
+        seats = {
+            b.party_id: b.seats
+            for b in self.state.house_on(day).blocs
+            if b.party_id is not None
+        }
+        return federations.orientation_party(federation.parties, seats)
+
     def bloc_orientation(
         self,
         bloc: house.Bloc,
         ref: str,
         default: Callable[[dict[VoterValue, bool]], bool],
+        day: date,
     ) -> tuple[bool, bool]:
-        """A orientação da bancada numa votação e se o líder a deu; sem ela vale a regra padrão do partido."""
-        party_id = bloc.party_id
-        chosen = (
-            self.state.orientations.get(ref, {}).get(party_id) if party_id else None
-        )
+        """A orientação da bancada numa votação e se o líder a deu; sem ela vale a regra padrão de quem orienta."""
+        lead = self.orienting_party(bloc, day)
+        chosen = self.state.orientations.get(ref, {}).get(lead) if lead else None
         if chosen is not None:
             return chosen, True
-        return default(self._bloc_rules(bloc)), False
+        return default(self._bloc_rules(bloc, lead)), False
 
-    def _bloc_rules(self, bloc: house.Bloc) -> dict[VoterValue, bool]:
-        """A regra de orientação da bancada: a do partido (do jogador ou do computador) ou, sem partido, Não em tudo."""
-        party = self.state.parties.get(bloc.party_id) if bloc.party_id else None
+    def _bloc_rules(self, bloc: house.Bloc, lead: int | None) -> dict[VoterValue, bool]:
+        """A regra de orientação da bancada: a de quem orienta (jogador ou computador) ou, sem partido, Não em tudo."""
+        party = self.state.parties.get(lead) if lead else None
         if party is not None:
             return party.rules
         flags = COMPUTER_FLAGS.get(bloc.abbr) if bloc.is_computer else None
@@ -924,13 +1007,15 @@ class GovernmentBook:
                 wanted[bloc.key] = house.wants(bloc.mix, by_group)
                 continue
             # A bancada do partido que propôs a medida vota Sim sem orientação
-            own = proposer is not None and proposer.id == bloc.party_id
+            lead = self.orienting_party(bloc, day)
+            own = proposer is not None and proposer.id in (bloc.party_id, lead)
             orientations[bloc.key], guided[bloc.key] = self.bloc_orientation(
                 bloc,
                 measure_ref(measure.id),
                 lambda rules, effects=effects, own=own: (
                     own or house.default_orientation(rules, effects)
                 ),
+                day,
             )
             wanted[bloc.key] = house.wants(bloc.mix, by_group)
         return orientations, guided, wanted
@@ -944,13 +1029,15 @@ class GovernmentBook:
         orientations, guided, wanted = {}, {}, {}
         for bloc in self.state.house_on(day).seated:
             mood = house.mood(bloc.mix, self.state.satisfaction)
-            governing = term is not None and bloc.party_id == term.party_id
+            lead = self.orienting_party(bloc, day)
+            governing = term is not None and term.party_id in (bloc.party_id, lead)
             orientations[bloc.key], guided[bloc.key] = self.bloc_orientation(
                 bloc,
                 IMPEACHMENT_REF,
                 lambda _rules, mood=mood, governing=governing: (
                     not governing and house.impeachment_orientation(mood)
                 ),
+                day,
             )
             wanted[bloc.key] = house.wants(bloc.mix, by_group)
         return orientations, guided, wanted
@@ -1417,6 +1504,11 @@ class GovernmentBook:
     ) -> None:
         self._ensure_membership_open()
         party = self._founded_party(founder)
+        federation = self.state.federation_of(party.id, self.state.cycle)
+        if federation is not None and federation.candidate_party_id != party.id:
+            raise ConflictError(
+                f"A chapa da federação é do {self._party(federation.candidate_party_id).abbr}."
+            )
         cycle = self.cycle()
         if today < cycle.campaign_start:
             raise ConflictError(
@@ -1429,6 +1521,12 @@ class GovernmentBook:
         candidate_user = members.get(candidate)
         if candidate_user is None:
             raise NotFoundError("O candidato precisa ser filiado ao partido.")
+        if (
+            federation is not None
+            and federation.candidate_id is not None
+            and federation.candidate_id != candidate_user.id
+        ):
+            raise ConflictError("O candidato da federação foi nomeado na proposta.")
         self._ensure_affiliated_in_time(candidate_user, cycle)
         if not election.is_eligible(self.state, candidate_user.id):
             raise ConflictError(
@@ -1517,6 +1615,432 @@ class GovernmentBook:
             target=founder,
             party_abbr=party.abbr,
             accepted=accept,
+        )
+
+    # Federações partidárias
+
+    def federation_cycle(self, party: Party, partner: Party) -> int | None:
+        """A eleição para a qual os dois se federam: a em curso ou, se um deles já tem federação nela, a seguinte; nulo com as duas preenchidas."""
+        for cycle in (self.state.cycle, self.state.cycle + 1):
+            if not any(self.state.federation_of(p.id, cycle) for p in (party, partner)):
+                return cycle
+        return None
+
+    def federation_ban(self, party: Party, cycle: int) -> str | None:
+        """Por que o partido que saiu de uma federação não se federa para a eleição `cycle`; nulo quando pode."""
+        if not self.state.federation_blocked(party.id, cycle):
+            return None
+        return (
+            f"O {party.abbr} saiu de uma federação e só volta a se federar "
+            "depois da eleição seguinte."
+        )
+
+    def federation_blocker(
+        self, party: Party, partner: Party, today: date, answering: bool = False
+    ) -> str | None:
+        """Por que os dois não se federam hoje; nulo quando podem. Quem responde já conta com a proposta aberta."""
+        if party.id == partner.id:
+            return "Um partido não se federa com ele mesmo."
+        cycle = self.federation_cycle(party, partner)
+        if cycle is None:
+            return "Um dos dois já tem federação para esta eleição e para a seguinte."
+        for side in (party, partner):
+            if ban := self.federation_ban(side, cycle):
+                return ban
+            if not answering and self.state.open_proposal_of(side.id, today):
+                return f"O {side.abbr} já tem uma proposta de federação aberta."
+        return None
+
+    def sent_federation(
+        self, party: Party, today: date
+    ) -> federations.FederationProposal | None:
+        """A proposta aberta que o partido enviou."""
+        proposal = self.state.open_proposal_of(party.id, today)
+        return proposal if proposal and proposal.from_party_id == party.id else None
+
+    def received_federation(
+        self, party: Party, today: date
+    ) -> federations.FederationProposal | None:
+        """A proposta aberta que espera a resposta do partido."""
+        proposal = self.state.open_proposal_of(party.id, today)
+        return proposal if proposal and proposal.to_party_id == party.id else None
+
+    def federation_in_effect(
+        self, party_id: int, today: date
+    ) -> federations.Federation | None:
+        """A federação de pé do partido; com duas (a atual e a agendada), a atual."""
+        standing = [
+            f
+            for f in self.state.federations.values()
+            if f.includes(party_id) and f.stands(today)
+        ]
+        return min(standing, key=lambda f: f.cycle, default=None)
+
+    def propose_federation(
+        self,
+        founder: UserDTO,
+        today: date,
+        partner_id: int,
+        name: str,
+        candidate_party_id: int,
+        candidate: str | None,
+        users: list[UserDTO],
+    ) -> None:
+        """O fundador propõe a federação a outro partido, nomeando o partido do candidato e o candidato; a proposta vale 7 dias."""
+        self._ensure_person(founder)
+        self._ensure_membership_open()
+        party = self._founded_party(founder)
+        partner = self._party(partner_id)
+        if blocker := self.federation_blocker(party, partner, today):
+            raise ConflictError(blocker)
+        if candidate_party_id not in (party.id, partner.id):
+            raise UnprocessableEntityError(
+                "O candidato é de um dos dois partidos da federação."
+            )
+        label = name.strip()
+        if not label:
+            raise UnprocessableEntityError("Dê um nome à federação.")
+        cycle = required(self.federation_cycle(party, partner))
+        leader = party if candidate_party_id == party.id else partner
+        candidate_id = self._federation_candidate(leader, candidate, users, cycle)
+        expires = federations.expires_on(today)
+        self._emit(
+            GovernmentEventType.FEDERATION_PROPOSED,
+            today,
+            proposal_id=self.state.next_proposal_id,
+            from_party_id=party.id,
+            to_party_id=partner.id,
+            name=label,
+            candidate_party_id=leader.id,
+            candidate_id=candidate_id,
+            cycle=cycle,
+            expires_on=expires.isoformat(),
+        )
+        self._notice(
+            GovernmentNoticeKind.FEDERATION_PROPOSED,
+            founder,
+            target=self._founder_of(partner),
+            party_abbr=party.abbr,
+            partner_abbr=partner.abbr,
+            federation_name=label,
+            effective=expires,
+        )
+
+    def _federation_candidate(
+        self, leader: Party, nickname: str | None, users: list[UserDTO], cycle: int
+    ) -> int | None:
+        """O candidato da federação: um filiado do partido líder que pode concorrer; o partido do computador traz o dele."""
+        if leader.is_computer:
+            if nickname is not None:
+                raise UnprocessableEntityError(
+                    "O candidato do partido do computador já vem com ele."
+                )
+            return None
+        person = next(
+            (u for u in users if u.id in leader.members and u.nickname == nickname),
+            None,
+        )
+        if person is None:
+            raise NotFoundError("O candidato precisa ser filiado ao partido dele.")
+        self._ensure_affiliated_in_time(person, self.cycle(cycle))
+        if not election.is_eligible(self.state, person.id):
+            raise ConflictError(
+                f"{person.nickname} cumpriu dois mandatos seguidos e não concorre de novo."
+            )
+        rival = election.vice_of_other(self.state, leader, person.id)
+        if rival is not None:
+            raise ConflictError(
+                f"{person.nickname} é vice do {rival.abbr} e não concorre."
+            )
+        return person.id
+
+    def withdraw_federation(self, founder: UserDTO, today: date) -> None:
+        """O fundador retira a proposta enviada antes da resposta."""
+        self._ensure_person(founder)
+        party = self._founded_party(founder)
+        proposal = self.sent_federation(party, today)
+        if proposal is None:
+            raise ConflictError("Você não tem proposta de federação para retirar.")
+        self._emit(
+            GovernmentEventType.FEDERATION_WITHDRAWN, today, proposal_id=proposal.id
+        )
+        self._notice(GovernmentNoticeKind.UPDATED, founder, party_abbr=party.abbr)
+
+    def answer_federation(self, user: UserDTO, today: date, accept: bool) -> None:
+        """O fundador do partido convidado aceita ou recusa; recusar não custa nada."""
+        self._ensure_person(user)
+        self._ensure_membership_open()
+        party = self._founded_party(user)
+        proposal = self.received_federation(party, today)
+        if proposal is None:
+            raise NotFoundError("Você não tem proposta de federação para responder.")
+        if accept:
+            self._ensure_federation_valid(proposal, today)
+        self._answer_federation(proposal, today, accept, user)
+
+    def _ensure_federation_valid(
+        self, proposal: federations.FederationProposal, today: date
+    ) -> None:
+        """A proposta só vira federação se os dois ainda podem se federar para a mesma eleição e o candidato segue apto."""
+        sender = self._party(proposal.from_party_id)
+        receiver = self._party(proposal.to_party_id)
+        blocker = self.federation_blocker(sender, receiver, today, answering=True)
+        if blocker is not None:
+            raise ConflictError(blocker)
+        if self.federation_cycle(sender, receiver) != proposal.cycle:
+            raise ConflictError("A proposta era para outra eleição e não vale mais.")
+        leader = self._party(proposal.candidate_party_id)
+        if proposal.candidate_id is not None and (
+            proposal.candidate_id not in leader.members
+            or not election.is_eligible(self.state, proposal.candidate_id)
+        ):
+            raise ConflictError("O candidato da proposta não concorre mais.")
+
+    def _answer_federation(
+        self,
+        proposal: federations.FederationProposal,
+        today: date,
+        accept: bool,
+        user: UserDTO | None,
+    ) -> None:
+        in_force, ends = self._federation_dates(
+            proposal.cycle, (proposal.from_party_id, proposal.to_party_id), today
+        )
+        self._emit(
+            GovernmentEventType.FEDERATION_ANSWERED,
+            today,
+            proposal_id=proposal.id,
+            accepted=accept,
+            federation_id=self.state.next_federation_id if accept else None,
+            in_force_from=in_force.isoformat(),
+            ends_on=ends.isoformat(),
+        )
+        sender = self._party(proposal.from_party_id)
+        receiver = self._party(proposal.to_party_id)
+        self._notice(
+            GovernmentNoticeKind.FEDERATION_ANSWERED,
+            user,
+            target=self._founder_of(sender),
+            party_abbr=receiver.abbr,
+            partner_abbr=sender.abbr,
+            federation_name=proposal.name,
+            accepted=accept,
+            effective=ends if accept else None,
+        )
+        if accept:
+            leader = self._party(proposal.candidate_party_id)
+            self._on_news(
+                today,
+                headlines.federation_formed(
+                    sender.name,
+                    receiver.name,
+                    self.candidate_name(leader, proposal.candidate_id),
+                    ends,
+                ),
+            )
+
+    def _federation_dates(
+        self, cycle: int, party_ids: tuple[int, int], today: date
+    ) -> tuple[date, date]:
+        """Vale no Congresso da formação (ou da posse em que a federação anterior dos dois acaba) até a posse depois da eleição seguinte."""
+        ends = self.cycle(cycle + 1).inauguration - timedelta(days=1)
+        starts = today
+        for federation in self.state.federations.values():
+            if (
+                federation.status is FederationStatus.ACTIVE
+                and federation.cycle < cycle
+                and any(federation.includes(p) for p in party_ids)
+            ):
+                starts = max(starts, federation.ends_on + timedelta(days=1))
+        return starts, ends
+
+    def federation_preview(
+        self,
+        founder: UserDTO,
+        today: date,
+        partner_id: int,
+        candidate_party_id: int,
+    ) -> federations.Preview:
+        """O que a federação com `partner_id` muda para o partido do fundador, antes de propor."""
+        self._ensure_person(founder)
+        party = self._founded_party(founder)
+        partner = self._party(partner_id)
+        if blocker := self.federation_blocker(party, partner, today):
+            raise ConflictError(blocker)
+        if candidate_party_id not in (party.id, partner.id):
+            raise UnprocessableEntityError(
+                "O candidato é de um dos dois partidos da federação."
+            )
+        cycle = required(self.federation_cycle(party, partner))
+        shares = self.house_shares()
+        seats = {
+            b.party_id: b.seats
+            for b in self.state.house_on(today).blocs
+            if b.party_id is not None
+        }
+        follower = partner if candidate_party_id == party.id else party
+        in_force, ends = self._federation_dates(cycle, (party.id, partner.id), today)
+        return federations.Preview(
+            cycle=cycle,
+            own_share=shares.get(self.house_key(party), Decimal(0)),
+            partner_share=shares.get(self.house_key(partner), Decimal(0)),
+            barrier=house.BARRIER,
+            orienting_party_id=federations.orientation_party(
+                (party.id, partner.id), seats
+            ),
+            leaving_promises=len(follower.promises),
+            own_budget=party.budget,
+            partner_budget=partner.budget,
+            in_force_from=in_force,
+            ends_on=ends,
+            answer_until=federations.expires_on(today),
+            rejection=tuple(
+                federations.RejectionRow(
+                    group=g,
+                    own=party.rejection[g],
+                    partner=partner.rejection[g],
+                    federated=federations.effective_rejection(
+                        party.rejection[g], [partner.rejection[g]]
+                    ),
+                )
+                for g in VoterGroup
+            ),
+        )
+
+    def leave_federation(self, founder: UserDTO, today: date) -> None:
+        """Sair antes do prazo desfaz a federação na hora para os dois; quem saiu fica impedido de se federar até a eleição seguinte."""
+        self._ensure_person(founder)
+        self._ensure_membership_open()
+        party = self._founded_party(founder)
+        federation = self.federation_in_effect(party.id, today)
+        if federation is None:
+            raise NotFoundError("Seu partido não está em nenhuma federação.")
+        other = self._party(federation.other(party.id))
+        self._emit(
+            GovernmentEventType.FEDERATION_LEFT,
+            today,
+            federation_id=federation.id,
+            party_id=party.id,
+        )
+        self._notice(
+            GovernmentNoticeKind.FEDERATION_LEFT,
+            founder,
+            target=self._founder_of(other),
+            party_abbr=party.abbr,
+            partner_abbr=other.abbr,
+            federation_name=federation.name,
+        )
+        self._on_news(today, headlines.federation_left(party.name, other.abbr))
+
+    def _founder_of(self, party: Party) -> UserDTO | None:
+        return self._people.get(party.founder_id) if party.founder_id else None
+
+    def _resolve_federations(self, today: date) -> None:
+        """O computador responde no pregão seguinte à proposta; a federação que passou do prazo acaba."""
+        for proposal in sorted(self.state.proposals.values(), key=lambda p: p.id):
+            target = self.state.parties.get(proposal.to_party_id)
+            if (
+                not proposal.is_open(today)
+                or proposal.sent_on >= today
+                or target is None
+                or not target.is_computer
+            ):
+                continue
+            self._answer_federation(
+                proposal, today, self._computer_accepts(proposal, target, today), None
+            )
+        ended = [
+            f.id
+            for f in sorted(self.state.federations.values(), key=lambda f: f.id)
+            if f.status is FederationStatus.ACTIVE and f.ends_on < today
+        ]
+        if ended:
+            self._emit(
+                GovernmentEventType.FEDERATION_ENDED, today, federation_ids=ended
+            )
+
+    def _computer_accepts(
+        self, proposal: federations.FederationProposal, own: Party, today: date
+    ) -> bool:
+        """Aceita quem, sozinho, ficaria abaixo da barreira, com bandeira em comum e nenhuma oposta, desde que a federação ainda seja possível."""
+        sender = self._party(proposal.from_party_id)
+        try:
+            self._ensure_federation_valid(proposal, today)
+        except ConflictError:
+            return False
+        return federations.computer_accepts(
+            self.below_barrier(own), own.flags, sender.flags
+        )
+
+    def house_key(self, party: Party) -> int:
+        """A chave da bancada do partido na casa: a fixa do computador, o id do partido de jogador."""
+        return house.COMPUTER_KEYS[party.abbr] if party.is_computer else party.id
+
+    def house_shares(self) -> dict[int, Decimal]:
+        """A fatia de cada partido nos votos válidos da casa, como estão hoje e sem federação."""
+        _, strengths = self._house_field()
+        total = house.vote(strengths).total
+        everything = sum(total.values(), Decimal(0))
+        return {
+            key: (value / everything if everything > 0 else Decimal(0))
+            for key, value in total.items()
+        }
+
+    def below_barrier(self, party: Party) -> bool:
+        """Sozinho, o partido ficaria abaixo da barreira da casa hoje."""
+        return (
+            self.house_shares().get(self.house_key(party), Decimal(0)) < house.BARRIER
+        )
+
+    def _propose_computer_federations(self, today: date) -> None:
+        """No fechamento do mês, o computador que sozinho ficaria abaixo da barreira propõe ao partido de mais bandeiras em comum e nenhuma oposta."""
+        if self.state.runoff is not None:
+            return
+        shares = self.house_shares()
+        for party in sorted(self.state.computer_parties(), key=lambda p: p.id):
+            if (
+                self.state.federation_of(party.id, self.state.cycle)
+                or self.state.open_proposal_of(party.id, today)
+                or shares.get(self.house_key(party), Decimal(0)) >= house.BARRIER
+            ):
+                continue
+            options = [
+                (other.id, other.flags, shares.get(self.house_key(other), Decimal(0)))
+                for other in self.state.parties.values()
+                if self.federation_blocker(party, other, today) is None
+                and self._has_candidate(other)
+            ]
+            partner_id = federations.computer_partner(party.flags, options)
+            if partner_id is None:
+                continue
+            partner = self._party(partner_id)
+            expires = federations.expires_on(today)
+            self._emit(
+                GovernmentEventType.FEDERATION_PROPOSED,
+                today,
+                proposal_id=self.state.next_proposal_id,
+                from_party_id=party.id,
+                to_party_id=partner.id,
+                name=federations.default_name(party.abbr, partner.abbr),
+                candidate_party_id=partner.id,
+                candidate_id=election.effective_ticket(self.state, partner)[0],
+                cycle=required(self.federation_cycle(party, partner)),
+                expires_on=expires.isoformat(),
+            )
+            self._notice(
+                GovernmentNoticeKind.FEDERATION_PROPOSED,
+                target=self._founder_of(partner),
+                party_abbr=party.abbr,
+                partner_abbr=partner.abbr,
+                federation_name=federations.default_name(party.abbr, partner.abbr),
+                effective=expires,
+            )
+
+    def _has_candidate(self, party: Party) -> bool:
+        """O partido tem quem leve a chapa: o do computador sempre, o de jogadores precisa de um filiado elegível."""
+        return (
+            party.is_computer
+            or election.effective_ticket(self.state, party)[0] is not None
         )
 
     def donate(
@@ -1740,6 +2264,8 @@ class GovernmentBook:
             raise NotFoundError("Escolha um partido rival que esteja na eleição.")
         if rival.id == party.id:
             raise ConflictError("O ataque vai a um partido rival, e não ao seu.")
+        if rival in party.partners:
+            raise ConflictError("O ataque não vai ao parceiro da federação.")
         if self.state.runoff is not None and rival.id not in self.state.runoff:
             raise ConflictError("No 2º turno o ataque vai ao outro finalista.")
         return rival
@@ -1811,6 +2337,8 @@ class GovernmentBook:
         self, today: date, party: Party | None = None
     ) -> str | None:
         """Por que a chapa (`party`, quando dada) não mexe nas promessas hoje; nulo quando pode."""
+        if party is not None and self._follows_ticket(party):
+            return "Na federação, as promessas da chapa são do partido do candidato."
         cycle = self.cycle()
         runoff = self.state.runoff
         if runoff is not None:
@@ -1824,6 +2352,11 @@ class GovernmentBook:
         if today > cycle.ticket_deadline:
             return "As promessas travam quando as chapas fecham."
         return None
+
+    def _follows_ticket(self, party: Party) -> bool:
+        """O partido está numa federação da eleição em curso cuja chapa é do parceiro."""
+        federation = self.state.federation_of(party.id, self.state.cycle)
+        return federation is not None and federation.candidate_party_id != party.id
 
     def founded_party(self, user: UserDTO) -> Party:
         """O partido que `user` fundou (ou herdou)."""
@@ -1925,7 +2458,7 @@ class GovernmentBook:
             if (value := self.promise_baseline(kind, today)) is not None
         }
         for party in sorted(self.state.computer_parties(), key=lambda p: p.id):
-            if party.promises:
+            if party.promises or self._follows_ticket(party):
                 continue
             picks = promises.computer_picks(party.radar, baselines, today)
             if picks:
@@ -2738,6 +3271,7 @@ class GovernmentBook:
             return
         self._ensure_computers(today)
         self._announce_computer_promises(today)
+        self._propose_computer_federations(today)
 
         spent: dict[str, str] = {}
         to_house: dict[str, str] = {}
@@ -2827,7 +3361,11 @@ class GovernmentBook:
 
     def _attack_target(self, party: Party) -> tuple[Party, VoterGroup] | None:
         """O líder da pesquisa entre os rivais e o grupo em que ele está mais forte."""
-        rivals = [p for p in self.running_parties() if p.id != party.id]
+        rivals = [
+            p
+            for p in self.running_parties()
+            if p.id != party.id and p not in party.partners
+        ]
         if not rivals:
             return None
         totals = election.intention(self.state).total
@@ -2867,12 +3405,21 @@ class GovernmentBook:
         tiver filiado.
         """
         candidates, strengths = self._house_field()
-        elected = house.elect(candidates, strengths)
+        elected = house.elect(candidates, strengths, self.house_alliances())
         self._emit(
             GovernmentEventType.HOUSE_ELECTED,
             today,
             cycle=self.state.cycle,
             takes_office=cycle.inauguration.isoformat(),
+            slates=[
+                {
+                    "keys": list(s.keys),
+                    "name": s.name,
+                    "votes": str(s.votes),
+                    "seats": s.seats,
+                }
+                for s in elected.slates
+            ],
             blocs=[
                 {
                     "key": b.key,
@@ -2892,6 +3439,29 @@ class GovernmentBook:
             upcoming=str(elected.upcoming),
         )
         self._notice(GovernmentNoticeKind.HOUSE_ELECTED)
+
+    def house_alliances(self) -> list[house.Alliance]:
+        """As federações que disputam a casa na eleição em curso, cada uma com a lista encabeçada pelo partido do candidato."""
+        alliances: list[house.Alliance] = []
+        for federation in sorted(self.state.federations.values(), key=lambda f: f.id):
+            if (
+                federation.status is not FederationStatus.ACTIVE
+                or federation.cycle != self.state.cycle
+            ):
+                continue
+            parties = [self.state.parties.get(p) for p in federation.parties]
+            if any(p is None for p in parties):
+                continue
+            head, tail = sorted(
+                (p for p in parties if p is not None),
+                key=lambda p: p.id != federation.candidate_party_id,
+            )
+            alliances.append(
+                house.Alliance(
+                    (self.house_key(head), self.house_key(tail)), federation.name
+                )
+            )
+        return alliances
 
     def house_field(
         self,
@@ -2921,7 +3491,7 @@ class GovernmentBook:
                     g,
                     radar,
                     party.loyalty[g] if party else zero[g],
-                    party.rejection[g] if party else zero[g],
+                    party.felt_rejection(g) if party else zero[g],
                     party.house_campaign[g] if party else zero[g],
                 )
                 for g in VoterGroup
@@ -2937,7 +3507,7 @@ class GovernmentBook:
                     g,
                     party.radar,
                     party.loyalty[g],
-                    party.rejection[g],
+                    party.felt_rejection(g),
                     party.house_campaign[g],
                 )
                 for g in VoterGroup
@@ -3133,7 +3703,7 @@ class GovernmentBook:
                 today,
                 headlines.round_won(
                     round_number,
-                    self._candidate_name(winner_party, candidate),
+                    self.candidate_name(winner_party, candidate),
                     winner_party.abbr,
                     shares[winner_party.id],
                     self._turned_from(round_number, finalists, winner_party.id),
@@ -3212,7 +3782,7 @@ class GovernmentBook:
             ),
         )
 
-    def _candidate_name(self, party: Party, candidate_id: int | None) -> str:
+    def candidate_name(self, party: Party, candidate_id: int | None) -> str:
         """O nome na urna: o do computador vem da chapa, o do jogador é o apelido."""
         person = self._people.get(candidate_id) if candidate_id is not None else None
         if person is not None:
@@ -3228,7 +3798,7 @@ class GovernmentBook:
             tickets.append(
                 (
                     party.abbr,
-                    self._candidate_name(party, candidate),
+                    self.candidate_name(party, candidate),
                     vice_person.nickname if vice_person else None,
                 )
             )
@@ -3242,8 +3812,16 @@ class GovernmentBook:
         wanted = max(
             0, election.PARTIES_PER_ELECTION - len(self.state.player_parties())
         )
-        computers = sorted(self.state.computer_parties(), key=lambda p: p.id)
-        while len(computers) > wanted:
+        # Partido do computador numa federação fica até ela acabar
+        computers = sorted(
+            (
+                p
+                for p in self.state.computer_parties()
+                if not self.state.is_federated(p.id)
+            ),
+            key=lambda p: p.id,
+        )
+        while computers and len(self.state.computer_parties()) > wanted:
             removed = computers.pop()
             self._emit(
                 GovernmentEventType.COMPUTER_PARTY_REMOVED, today, party_id=removed.id
@@ -3339,6 +3917,8 @@ class GovernmentBook:
         seats_before: int | None = None,
         seats_after: int | None = None,
         broken_by_ally: bool | None = None,
+        federation_name: str | None = None,
+        partner_abbr: str | None = None,
     ) -> None:
         notify(
             "government_update",
@@ -3371,6 +3951,8 @@ class GovernmentBook:
                 seats_before=seats_before,
                 seats_after=seats_after,
                 broken_by_ally=broken_by_ally,
+                federation_name=federation_name,
+                partner_abbr=partner_abbr,
             ).to_json(),
         )
 

@@ -366,6 +366,25 @@ def expelled(member: str, abbr: str) -> Headline:
     return Headline(NewsType.PARTY_LIFE, f"{member} é expulso do {abbr}")
 
 
+def federation_formed(first: str, second: str, candidate: str, ends: date) -> Headline:
+    """A federação formada: os dois partidos vão numa chapa e numa lista só até o fim do prazo."""
+    return Headline(
+        NewsType.PARTY_LIFE,
+        f"{first} e {second} formam federação e vão juntos até {ends.year}",
+        f"{candidate} será o candidato dos dois partidos, e o voto de cada um soma na lista da Câmara.",
+    )
+
+
+def federation_left(leaver: str, other_abbr: str) -> Headline:
+    """Quem sai antes do prazo desfaz a federação (`leaver` é o nome do partido, `other_abbr` a sigla do parceiro)."""
+    return Headline(
+        NewsType.PARTY_LIFE,
+        f"{leaver} deixa a federação com o {other_abbr} antes do prazo",
+        f"Com a saída, a federação se desfaz. {leaver} fica impedido de se federar "
+        "na eleição seguinte e passa a disputar sozinho.",
+    )
+
+
 def deal_made(
     president: str,
     ally_abbr: str,

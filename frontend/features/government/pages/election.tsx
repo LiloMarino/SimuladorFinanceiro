@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Flag, Lock, MailQuestion, UserPlus, HandCoins, Megaphone, PiggyBank, ScrollText } from "lucide-react";
+import {
+  Flag,
+  Handshake,
+  Lock,
+  MailQuestion,
+  UserPlus,
+  HandCoins,
+  Megaphone,
+  PiggyBank,
+  ScrollText,
+} from "lucide-react";
 import { CardState } from "@/shared/components/card-state";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { cn } from "@/shared/lib/utils";
@@ -25,6 +35,9 @@ import { EndorseDialog } from "../components/endorse-dialog";
 import { ElectionHeader } from "../components/election-header";
 import { BeforeCampaignEmpty } from "../components/election-states";
 import { ExpelDialog } from "../components/expel-dialog";
+import { FederationAnswerDialog } from "../components/federation-answer-dialog";
+import { FederationLeaveDialog } from "../components/federation-leave-dialog";
+import { FederationProposeDialog } from "../components/federation-propose-dialog";
 import { FoundPartyDialog } from "../components/found-party-dialog";
 import { JoinPartyDialog } from "../components/join-party-dialog";
 import { LeavePartyDialog } from "../components/leave-party-dialog";
@@ -40,6 +53,8 @@ import { RunoffPollCard } from "../components/runoff-poll-card";
 import { TermCard } from "../components/term-card";
 import { TicketDialog } from "../components/ticket-dialog";
 import { ViceInviteDialog } from "../components/vice-invite-dialog";
+import { useWithdrawFederation } from "../hooks/mutations/useWithdrawFederation";
+import { federationOf } from "../lib/federation";
 import { affiliationNote, campaignEnded, collectionNote, type ElectionShortcut } from "../lib/election";
 import { useElection } from "@/shared/hooks/queries/useElection";
 
@@ -101,7 +116,10 @@ type Dialog =
   | "donate"
   | "flags"
   | "endorse"
-  | "runoff-contribution";
+  | "runoff-contribution"
+  | "federation-propose"
+  | "federation-answer"
+  | "federation-leave";
 type Tab = "race" | "campaign";
 
 type ElectionContentProps = { panel: ElectionPanel; initialDialog: Dialog | null; initialTab: Tab };
@@ -114,6 +132,7 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
   const [joinPartyId, setJoinPartyId] = useState<number | undefined>();
   const [expelling, setExpelling] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>(initialTab);
+  const withdraw = useWithdrawFederation();
 
   const cash = portfolio?.cash;
   const nickname = user?.nickname ?? "";
@@ -136,6 +155,13 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
   // Vaga de vice aberta: a chapa tem candidato e ainda não tem vice nem convite pendente
   const viceOpen =
     !!party && !!mine?.is_founder && panel.can_edit_ticket && party.vice === null && party.vice_phase === "NONE";
+
+  // A federação do partido de quem vê e as propostas abertas dele
+  const federation = party ? federationOf(panel.federations, party.id) : undefined;
+  const receivedProposal = panel.received_proposal;
+  const sentProposal = panel.sent_proposal;
+  const sentTo = panel.parties.find((candidate) => candidate.id === sentProposal?.to_party_id);
+  const receivedFrom = panel.parties.find((candidate) => candidate.id === receivedProposal?.from_party_id);
 
   // A disputa do 2º turno, quando há
   const runoffRace = panel.runoff_race;
@@ -184,6 +210,41 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
               Responder
             </Button>
           </AlertAction>
+        </Alert>
+      )}
+
+      {party && receivedProposal && receivedFrom && (
+        <Alert variant="info">
+          <Handshake />
+          <AlertTitle>
+            O {receivedFrom.abbr} propõe federação ao {party.abbr}
+          </AlertTitle>
+          <AlertDescription>
+            Responda até {displayDayMonth(receivedProposal.expires_on)}; sem resposta, a proposta expira. Também está em
+            Pendências.
+          </AlertDescription>
+          <AlertAction>
+            <Button size="sm" onClick={() => setDialog("federation-answer")}>
+              Responder
+            </Button>
+          </AlertAction>
+        </Alert>
+      )}
+
+      {party && sentProposal && sentTo && (
+        <Alert variant="info">
+          <Handshake />
+          <AlertTitle>Proposta enviada ao {sentTo.abbr}</AlertTitle>
+          <AlertDescription>
+            {sentProposal.name} · o {sentTo.abbr} responde até {displayDayMonth(sentProposal.expires_on)}.
+          </AlertDescription>
+          {panel.can_federate && (
+            <AlertAction>
+              <Button size="sm" variant="outline" disabled={withdraw.isPending} onClick={() => withdraw.mutate()}>
+                Retirar
+              </Button>
+            </AlertAction>
+          )}
         </Alert>
       )}
 
@@ -316,6 +377,8 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
                 onChangeContribution={() => setDialog("contribution")}
                 onExpel={setExpelling}
                 onLeave={() => setDialog("leave")}
+                onProposeFederation={() => setDialog("federation-propose")}
+                onLeaveFederation={() => setDialog("federation-leave")}
               />
             </TabsContent>
           </Tabs>
@@ -372,6 +435,24 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
             isFounder={mine.is_founder}
             isVice={panel.my_vice?.party_id === party.id && panel.my_vice.phase === "ACCEPTED"}
           />
+          <FederationProposeDialog
+            open={dialog === "federation-propose"}
+            onOpenChange={close}
+            panel={panel}
+            party={party}
+          />
+          {receivedProposal && (
+            <FederationAnswerDialog
+              open={dialog === "federation-answer"}
+              onOpenChange={close}
+              panel={panel}
+              party={party}
+              proposal={receivedProposal}
+            />
+          )}
+          {federation && (
+            <FederationLeaveDialog open={dialog === "federation-leave"} onOpenChange={close} federation={federation} />
+          )}
           <ExpelDialog nickname={expelling} onClose={() => setExpelling(null)} party={party} />
           {mine.is_founder && party.flags === null && (
             <ChooseFlagsDialog open={dialog === "flags"} onOpenChange={close} panel={panel} party={party} />

@@ -2104,6 +2104,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/government/federations/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ver o que a federação muda antes de propor
+         * @description Para o parceiro `partner_id` e o partido do candidato `candidate_party_id`, retorna a fatia de cada um nos votos da casa e a barreira, o partido que orienta a bancada, quantas promessas saem sem custo, a verba de cada um, as datas em que a federação vale e a rejeição de cada grupo hoje, a do parceiro e a federada. Só o fundador. Recusa com 409 quando os dois não podem se federar.
+         */
+        post: operations["preview_federation_api_government_federations_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/federations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Propor uma federação
+         * @description O fundador propõe a outro partido que os dois concorram numa lista e numa chapa só: o candidato é de um dos dois, e o partido dele lidera. A federação vale na eleição em curso (ou na seguinte, se um dos dois já tem federação) e até a posse depois da eleição seguinte. A proposta vence em 7 dias, ou antes se o outro partido se federar; o partido do computador responde no pregão seguinte. Recusa com 409 quando um dos dois já tem proposta aberta, já está federado nas duas eleições, saiu de uma federação ou entre os turnos.
+         */
+        post: operations["propose_federation_api_government_federations_post"];
+        /**
+         * Sair da federação
+         * @description Sair antes do prazo desfaz a federação na hora para os dois partidos. Quem saiu fica impedido de se federar até a eleição seguinte. O jornal noticia. Recusa com 404 quando o partido não está numa federação.
+         */
+        delete: operations["leave_federation_api_government_federations_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/federations/proposal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Retirar a proposta de federação
+         * @description O fundador retira a proposta que enviou antes da resposta. Recusa com 409 sem proposta enviada.
+         */
+        delete: operations["withdraw_federation_api_government_federations_proposal_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/federations/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Responder a proposta de federação
+         * @description O fundador do partido convidado aceita ou recusa; recusar não custa nada. Aceitar forma a federação na hora e o jornal noticia. Recusa com 404 sem proposta e com 409 quando ela deixou de valer.
+         */
+        put: operations["answer_federation_api_government_federations_answer_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/government/donations": {
         parameters: {
             query?: never;
@@ -2901,6 +2985,46 @@ export interface paths {
          * @description O jogador convidado para vice na chapa que outro preparou aceita ou recusa. Recusa com 404 se não há convite.
          */
         put: operations["answer_preparation_vice_api_simulation_players_me_preparation_vice_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/players/me/preparation/federation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Propor federação no lobby
+         * @description O fundador propõe federação ao fundador de outro partido preparado, nomeando a federação e o candidato da chapa. Sem `partner`, retira a proposta ou desfaz a federação combinada. Recusa com 409 se um dos dois já tem proposta ou federação combinada.
+         */
+        put: operations["propose_preparation_federation_api_simulation_players_me_preparation_federation_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/players/me/preparation/federation/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Responder à proposta de federação do lobby
+         * @description O fundador convidado aceita ou recusa a federação que outro propôs. Recusa com 404 se não há proposta.
+         */
+        put: operations["answer_preparation_federation_api_simulation_players_me_preparation_federation_answer_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -3795,6 +3919,11 @@ export interface components {
             /** Accept */
             accept: boolean;
         };
+        /** AnswerFederationRequest */
+        AnswerFederationRequest: {
+            /** Accept */
+            accept: boolean;
+        };
         /** AppFoldersResponse */
         AppFoldersResponse: {
             /** Config */
@@ -4304,6 +4433,10 @@ export interface components {
             defection_share: string | null;
             /** Is Mine */
             is_mine: boolean;
+            /** Federation Id */
+            federation_id: number | null;
+            /** Orienting Party Id */
+            orienting_party_id: number | null;
         };
         /**
          * BlocVoteDTO
@@ -5795,6 +5928,16 @@ export interface components {
             party_standings: components["schemas"]["PartyStandingDTO"][];
             /** Computer Budget Factor */
             computer_budget_factor: string;
+            /** Federations */
+            federations: components["schemas"]["FederationDTO"][];
+            sent_proposal: components["schemas"]["FederationProposalDTO"] | null;
+            received_proposal: components["schemas"]["FederationProposalDTO"] | null;
+            /** Federation Options */
+            federation_options: components["schemas"]["FederationOptionDTO"][];
+            /** Can Federate */
+            can_federate: boolean;
+            /** Federation Block */
+            federation_block: string | null;
         };
         /**
          * ElectionPhase
@@ -5850,6 +5993,173 @@ export interface components {
         ExpelRequest: {
             /** Nickname */
             nickname: string;
+        };
+        /** FederationAnswerRequest */
+        FederationAnswerRequest: {
+            /** Accept */
+            accept: boolean;
+        };
+        /**
+         * FederationDTO
+         * @description Uma federação de pé: dois partidos numa lista e numa chapa só, presos pelo mandato.
+         */
+        FederationDTO: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Parties */
+            parties: number[];
+            /** Candidate Party Id */
+            candidate_party_id: number;
+            /** Candidate */
+            candidate: string;
+            /** Election Year */
+            election_year: number;
+            /**
+             * Formed On
+             * Format: date
+             */
+            formed_on: string;
+            /**
+             * In Force From
+             * Format: date
+             */
+            in_force_from: string;
+            /**
+             * Ends On
+             * Format: date
+             */
+            ends_on: string;
+            /** Orienting Party Id */
+            orienting_party_id: number;
+        };
+        /**
+         * FederationInviteDTO
+         * @description Uma proposta de federação sem resposta: de quem veio, o nome e o candidato dos dois partidos.
+         */
+        FederationInviteDTO: {
+            /** Owner */
+            owner: string;
+            /** Abbr */
+            abbr: string;
+            /** Name */
+            name: string;
+            /** Candidate */
+            candidate: string;
+        };
+        /**
+         * FederationOfferRequest
+         * @description A federação que o fundador propõe a outro fundador da sala; sem `partner`, retira a proposta.
+         */
+        FederationOfferRequest: {
+            /** Partner */
+            partner?: string | null;
+            /** Name */
+            name?: string | null;
+            /** Candidate */
+            candidate?: string | null;
+        };
+        /**
+         * FederationOptionDTO
+         * @description Um partido a quem o do fundador pode propor federação.
+         */
+        FederationOptionDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Blocked */
+            blocked: string | null;
+            /** Below Barrier */
+            below_barrier: boolean;
+        };
+        /**
+         * FederationPreviewDTO
+         * @description O que a federação muda para o partido do fundador, antes de enviar a proposta.
+         */
+        FederationPreviewDTO: {
+            /** Election Year */
+            election_year: number;
+            /** Own Share */
+            own_share: string;
+            /** Partner Share */
+            partner_share: string;
+            /** Barrier */
+            barrier: string;
+            /** Orienting Party Id */
+            orienting_party_id: number;
+            /** Leaving Promises */
+            leaving_promises: number;
+            /** Own Budget */
+            own_budget: string;
+            /** Partner Budget */
+            partner_budget: string;
+            /**
+             * In Force From
+             * Format: date
+             */
+            in_force_from: string;
+            /**
+             * Ends On
+             * Format: date
+             */
+            ends_on: string;
+            /**
+             * Answer Until
+             * Format: date
+             */
+            answer_until: string;
+            /** Rejection */
+            rejection: components["schemas"]["FederationRejectionDTO"][];
+        };
+        /**
+         * FederationProposalDTO
+         * @description A proposta de federação aberta: vence em 7 dias, ou antes se o outro partido se federar.
+         */
+        FederationProposalDTO: {
+            /** Id */
+            id: number;
+            /** From Party Id */
+            from_party_id: number;
+            /** To Party Id */
+            to_party_id: number;
+            /** Name */
+            name: string;
+            /** Candidate Party Id */
+            candidate_party_id: number;
+            /** Candidate */
+            candidate: string;
+            /** Election Year */
+            election_year: number;
+            /**
+             * Sent On
+             * Format: date
+             */
+            sent_on: string;
+            /**
+             * Expires On
+             * Format: date
+             */
+            expires_on: string;
+            /**
+             * Ends On
+             * Format: date
+             */
+            ends_on: string;
+            /** Orienting Party Id */
+            orienting_party_id: number;
+        };
+        /**
+         * FederationRejectionDTO
+         * @description A rejeição de um grupo: a do proponente hoje, a do parceiro e a que o proponente sente federado.
+         */
+        FederationRejectionDTO: {
+            group: components["schemas"]["VoterGroup"];
+            /** Own */
+            own: string;
+            /** Partner */
+            partner: string;
+            /** Federated */
+            federated: string;
         };
         /** FixedAssetsUpdateEventDTO */
         FixedAssetsUpdateEventDTO: {
@@ -6240,7 +6550,7 @@ export interface components {
          * @description O que o aviso em tempo real conta; o front escolhe o toast pelo tipo.
          * @enum {string}
          */
-        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED" | "ENDORSEMENT" | "HOUSE_ELECTED" | "IMPEACHMENT_REQUESTED" | "IMPEACHMENT_VOTED" | "DEAL_PROPOSED" | "DEAL_ANSWERED" | "DEAL_BROKEN" | "DEAL_ENDED" | "DEAL_LEFT";
+        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED" | "ENDORSEMENT" | "HOUSE_ELECTED" | "IMPEACHMENT_REQUESTED" | "IMPEACHMENT_VOTED" | "DEAL_PROPOSED" | "DEAL_ANSWERED" | "DEAL_BROKEN" | "DEAL_ENDED" | "DEAL_LEFT" | "FEDERATION_PROPOSED" | "FEDERATION_ANSWERED" | "FEDERATION_LEFT";
         /** GovernmentPanelDTO */
         GovernmentPanelDTO: {
             /**
@@ -6347,6 +6657,10 @@ export interface components {
             seats_after: number | null;
             /** Broken By Ally */
             broken_by_ally: boolean | null;
+            /** Federation Name */
+            federation_name: string | null;
+            /** Partner Abbr */
+            partner_abbr: string | null;
         };
         /**
          * GroupApprovalDTO
@@ -6531,6 +6845,10 @@ export interface components {
             last_quotient: string;
             /** Next Quotient */
             next_quotient: string;
+            /** Slates */
+            slates: components["schemas"]["SlateDTO"][];
+            /** Federations */
+            federations: components["schemas"]["FederationDTO"][];
         };
         /** ImpeachmentDTO */
         ImpeachmentDTO: {
@@ -7693,6 +8011,9 @@ export interface components {
             invited: string | null;
             /** Left Party */
             left_party: string | null;
+            federation_invite: components["schemas"]["FederationInviteDTO"] | null;
+            /** Federation Invited */
+            federation_invited: string | null;
         };
         /** MyStrategyDTO */
         MyStrategyDTO: {
@@ -8271,7 +8592,7 @@ export interface components {
          * @description Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar.
          * @enum {string}
          */
-        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING";
+        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "FEDERATION_PROPOSAL" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING";
         /**
          * PlaceKind
          * @description Um lugar do mapa é um estado ou uma região.
@@ -8387,6 +8708,7 @@ export interface components {
              * @default false
              */
             vice_accepted: boolean;
+            federation: components["schemas"]["PreparationFederationDTO"] | null;
         };
         /**
          * PlayerPresenceEventDTO
@@ -8748,6 +9070,18 @@ export interface components {
             premium: string;
         };
         /**
+         * PreparationFederationDTO
+         * @description A federação combinada no lobby, vista pelos dois fundadores e pela sala.
+         */
+        PreparationFederationDTO: {
+            /** Partner */
+            partner: string;
+            /** Name */
+            name: string;
+            /** Candidate */
+            candidate: string;
+        };
+        /**
          * PreparationKind
          * @description O que o jogador prepara no lobby para a campanha: fundar um partido, entrar no de outro ou nada.
          * @enum {string}
@@ -8863,6 +9197,13 @@ export interface components {
          * @enum {string}
          */
         PresetRuleGroup: "PERIOD" | "STARTING_CASH" | "MONTHLY_CONTRIBUTION" | "GROUPING" | "GAME_TYPE" | "VICTORY" | "GOAL" | "LIFE" | "ASSISTANCES" | "PRICE_IMPACT" | "EXPANSIONS";
+        /** PreviewFederationRequest */
+        PreviewFederationRequest: {
+            /** Partner Id */
+            partner_id: number;
+            /** Candidate Party Id */
+            candidate_party_id: number;
+        };
         /** PreviewPointDTO */
         PreviewPointDTO: {
             /**
@@ -9111,6 +9452,17 @@ export interface components {
         ProposeDealRequest: {
             /** Bloc Key */
             bloc_key: number;
+        };
+        /** ProposeFederationRequest */
+        ProposeFederationRequest: {
+            /** Partner Id */
+            partner_id: number;
+            /** Name */
+            name: string;
+            /** Candidate Party Id */
+            candidate_party_id: number;
+            /** Candidate */
+            candidate?: string | null;
         };
         /** ProposeMeasureRequest */
         ProposeMeasureRequest: {
@@ -10266,6 +10618,20 @@ export interface components {
              * Format: date
              */
             current_date: string;
+        };
+        /**
+         * SlateDTO
+         * @description A lista de uma federação na eleição da casa: o que os dois partidos somaram juntos.
+         */
+        SlateDTO: {
+            /** Keys */
+            keys: number[];
+            /** Name */
+            name: string;
+            /** Votes */
+            votes: string;
+            /** Seats */
+            seats: number;
         };
         /** SnapshotDTO */
         SnapshotDTO: {
@@ -16164,6 +16530,200 @@ export interface operations {
             };
         };
     };
+    preview_federation_api_government_federations_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreviewFederationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FederationPreviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    propose_federation_api_government_federations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProposeFederationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    leave_federation_api_government_federations_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    withdraw_federation_api_government_federations_proposal_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    answer_federation_api_government_federations_answer_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnswerFederationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     donate_api_government_donations_post: {
         parameters: {
             query?: never;
@@ -17907,6 +18467,90 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ViceAnswerRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreparationsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    propose_preparation_federation_api_simulation_players_me_preparation_federation_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FederationOfferRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreparationsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    answer_preparation_federation_api_simulation_players_me_preparation_federation_answer_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FederationAnswerRequest"];
             };
         };
         responses: {

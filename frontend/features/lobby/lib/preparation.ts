@@ -64,3 +64,22 @@ export function adjustedStrategies(strategies: StrategyInfo[], saved: SavedStrat
       .map((strategy) => strategy.key),
   );
 }
+
+/** Os fundadores a quem o jogador propõe federação: os outros que já prepararam um partido, sem os já federados. */
+export function federationPartners(preparations: Preparations, nickname: string) {
+  return preparations.players.filter(
+    (player) => player.kind === "FOUND" && player.party && player.nickname !== nickname && !player.federation,
+  );
+}
+
+/** Quem pode encabeçar a chapa dos dois: cada fundador e os filiados dos dois partidos, o do jogador primeiro. */
+export function federationCandidates(preparations: Preparations, nickname: string, partner: string) {
+  const owners = [nickname, partner];
+  const members = preparations.players
+    .filter((player) => player.kind === "JOIN" && player.founder !== null && owners.includes(player.founder))
+    .map((player) => ({ nickname: player.nickname, founder: player.founder }));
+  return [
+    ...owners.map((owner) => ({ nickname: owner, founder: owner })),
+    ...members.sort((a, b) => owners.indexOf(a.founder ?? "") - owners.indexOf(b.founder ?? "")),
+  ];
+}

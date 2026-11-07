@@ -99,6 +99,7 @@ export const queryKeys = {
   campaignHistory: () => ["government", "campaign", "history"] as const,
   budget: () => ["government", "budget"] as const,
   base: () => ["government", "base"] as const,
+  federationPreview: (request: object) => ["government", "election", "federation-preview", request] as const,
   dealPreview: (blocKey: number) => ["government", "base", "preview", blocKey] as const,
   initialAccount: (start: string) => ["government", "initial-account", start] as const,
   measurePreview: (request: object) => ["government", "preview", request] as const,

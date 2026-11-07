@@ -330,6 +330,8 @@ Com a expansão [Governo & Política](./governo.md) ligada numa partida nova, ca
 
 Quem foi convidado para vice vê **"X te convidou para vice"** com **Aceitar** e **Recusar**. O vice vale só para aquela partida e não fica no perfil.
 
+O fundador também pode propor uma [federação](./governo.md#federações) a outro fundador da sala, escolhendo o partido, o candidato da chapa e o nome. O outro fundador vê **"X propõe federação"** com **Aceitar** e **Recusar**, e os dois podem desfazer antes da partida começar. A federação combinada vale no 1º dia da partida.
+
 Os partidos e as filiações valem no 1º dia da partida, com contribuição zero (dá para ajustar depois, como sempre); a chapa e o vice entram quando a campanha abre. Quem não estiver na sala quando a partida começar não tem a preparação aplicada, e bots não têm preparação.
 
 Se dois partidos preparados repetem **sigla, nome ou cor**, ou usam a sigla ou o nome de um partido do computador, o card avisa na hora e o **Iniciar** do host fica bloqueado até alguém trocar. Com uma partida salva selecionada, ou com a expansão desligada, o card fica travado e mostra o motivo.

@@ -122,6 +122,32 @@ def test_the_vice_invite_is_a_pending_until_the_answer(book: GovernmentBook):
     assert book.pending(BOB, CAMPAIGN_OPEN) == []
 
 
+def test_a_federation_proposal_is_a_pending_for_the_guest_founder_until_it_ends(
+    book: GovernmentBook,
+):
+    found(book, ALICE, "AAA", RED)
+    found(book, BOB, "BBB", "#2563eb")
+    book.propose_federation(
+        ALICE,
+        CAMPAIGN_OPEN,
+        party_of(book, BOB).id,
+        "Frente",
+        party_of(book, ALICE).id,
+        "Alice",
+        USERS,
+    )
+
+    [pending] = book.pending(BOB, CAMPAIGN_OPEN)
+    assert pending.type is PendingType.FEDERATION_PROPOSAL
+    assert book.pending(ALICE, CAMPAIGN_OPEN) == []
+
+    # A proposta vence em 7 dias e a pendência some com ela
+    assert book.pending(BOB, CAMPAIGN_OPEN + timedelta(days=8)) == []
+
+    book.answer_federation(BOB, CAMPAIGN_OPEN + timedelta(days=1), False)
+    assert book.pending(BOB, CAMPAIGN_OPEN + timedelta(days=1)) == []
+
+
 def test_a_player_in_another_party_still_gets_the_vice_invite(book: GovernmentBook):
     found(book, ALICE, "AAA", RED)
     found(book, CARLA, "CCC", "#2563eb")

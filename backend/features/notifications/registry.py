@@ -265,6 +265,12 @@ PENDING: tuple[PendingSpec, ...] = (
         "Só para o líder do partido; some ao orientar a bancada ou quando a casa vota",
     ),
     PendingSpec(
+        PendingType.FEDERATION_PROPOSAL,
+        PendingSeverity.WARNING,
+        "Proposta de federação",
+        "Só para o líder do partido; some ao responder ou quando o prazo de 7 dias vence",
+    ),
+    PendingSpec(
         PendingType.DEAL_PROPOSAL,
         PendingSeverity.WARNING,
         "Proposta de acordo de apoio",

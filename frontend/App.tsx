@@ -90,7 +90,7 @@ const navItems: NavItem[] = [
     icon: Landmark,
     group: "Expansões",
     expansion: "government",
-    pendingTypes: ["VICE_INVITE", "CAMPAIGN_OPEN"],
+    pendingTypes: ["VICE_INVITE", "CAMPAIGN_OPEN", "FEDERATION_PROPOSAL"],
   },
   {
     key: "map",

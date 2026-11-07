@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { displayList, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty, ElectionPoll } from "@/types";
 import { campaignEnded } from "../lib/election";
+import { raceRows, type RaceRow } from "../lib/federation";
 import { INTENTION, POLL_MARGIN, VALID_SHARE } from "../lib/election-metrics";
 import {
   GROUP_INFO,
@@ -16,6 +17,7 @@ import {
 } from "../lib/voters";
 import { GroupPollRows } from "./group-poll-rows";
 import { PartyMark } from "@/shared/components/party-mark";
+import { PartyMarkPair } from "@/shared/components/party-mark-pair";
 import { PollChart } from "./poll-chart";
 import { PollLegend } from "./poll-legend";
 import { PromiseBadges } from "./promise-badges";
@@ -87,8 +89,12 @@ type PollBodyProps = { panel: ElectionPanel; poll: ElectionPoll; parties: Electi
 function PollBody({ panel, poll, parties }: PollBodyProps) {
   const points = pollPoints(poll.entries);
   const margin = poll.margin;
-  const [leader, runnerUp] = [...parties].sort((a, b) => Number(b.valid_share) - Number(a.valid_share));
-  const decidedInFirstRound = leader !== undefined && Number(leader.valid_share) > WIN_LINE;
+  // Os dois partidos de uma federação disputam como uma linha só, somando os votos
+  const rows = raceRows(parties, panel.federations, Number(panel.dates.first_round.slice(0, 4)));
+  const share = (row: RaceRow) => row.parties.reduce((sum, party) => sum + Number(party.valid_share), 0);
+  const [leader, runnerUp] = [...rows].sort((a, b) => share(b) - share(a));
+  const mention = (row: RaceRow) => (row.federation ? `a ${row.federation.name}` : `o ${row.parties[0]?.abbr}`);
+  const decidedInFirstRound = leader !== undefined && share(leader) > WIN_LINE;
   const example = parties[0] ? (points.get(parties[0].id) ?? 0) : 0;
   const [exampleLow, exampleHigh] = marginRange(example, margin);
 
@@ -112,14 +118,16 @@ function PollBody({ panel, poll, parties }: PollBodyProps) {
             <MetricHint metric={VALID_SHARE} />
           </span>
           <div className="grid gap-2.5">
-            {parties.map((party) => {
-              const own = points.get(party.id) ?? 0;
-              const others = parties.filter((other) => other.id !== party.id).map((other) => points.get(other.id) ?? 0);
+            {rows.map((row) => {
+              const total = (candidate: RaceRow) =>
+                candidate.parties.reduce((sum, party) => sum + (points.get(party.id) ?? 0), 0);
+              const own = total(row);
+              const others = rows.filter((other) => other.key !== row.key).map(total);
               return (
                 <TodayRow
-                  key={party.id}
-                  party={party}
-                  points={own}
+                  key={row.key}
+                  row={row}
+                  points={points}
                   margin={margin}
                   tie={inTechnicalTie(own, others, margin)}
                 />
@@ -128,15 +136,15 @@ function PollBody({ panel, poll, parties }: PollBodyProps) {
             <div className="grid grid-cols-[minmax(0,190px)_80px_120px_1fr] items-center gap-3">
               <span className="text-[13px] text-muted-foreground">Indecisos</span>
               <span className="font-mono text-muted-foreground">{pollPercent(Number(poll.undecided), margin)}</span>
-              <RangeBar points={Number(poll.undecided)} margin={0} color="var(--faint-foreground)" />
+              <RangeBar slices={[{ points: Number(poll.undecided), color: "var(--faint-foreground)" }]} margin={0} />
               <span />
             </div>
           </div>
           <span className="text-xs text-muted-foreground">
             {decidedInFirstRound
-              ? `Nos votos válidos, ${leader.abbr} passa de 50% e venceria já no 1º turno.`
+              ? `Nos votos válidos, ${mention(leader)} passa de 50% e venceria já no 1º turno.`
               : leader && runnerUp
-                ? `Ninguém passa de 50% dos votos válidos: haveria 2º turno entre o ${leader.abbr} e o ${runnerUp.abbr}.`
+                ? `Ninguém passa de 50% dos votos válidos: haveria 2º turno entre ${mention(leader)} e ${mention(runnerUp)}.`
                 : "Ainda não há partidos suficientes para uma disputa."}
           </span>
           {margin > 0 && parties[0] && (
@@ -155,21 +163,30 @@ function PollBody({ panel, poll, parties }: PollBodyProps) {
   );
 }
 
-type TodayRowProps = { party: ElectionParty; points: number; margin: number; tie: boolean };
+type TodayRowProps = { row: RaceRow; points: Map<number, number>; margin: number; tie: boolean };
 
-function TodayRow({ party, points, margin, tie }: TodayRowProps) {
+function TodayRow({ row, points, margin, tie }: TodayRowProps) {
+  const [first] = row.parties;
+  if (!first) return null;
+  const slices = row.parties.map((party) => ({ points: points.get(party.id) ?? 0, color: partyColor(party) }));
+  const total = slices.reduce((sum, slice) => sum + slice.points, 0);
+
   return (
     <div className="grid gap-1.5">
       <div className="grid grid-cols-[minmax(0,190px)_80px_120px_1fr] items-center gap-3">
         <span className="flex min-w-0 items-center gap-2">
-          <PartyMark abbr={party.abbr} color={party.color} size="sm" />
-          <span className="truncate text-[13px]">{party.candidate?.name ?? party.name}</span>
+          {row.federation ? (
+            <PartyMarkPair parties={row.parties} size="sm" />
+          ) : (
+            <PartyMark abbr={first.abbr} color={first.color} size="sm" />
+          )}
+          <span className="truncate text-[13px]">{row.federation?.name ?? first.candidate?.name ?? first.name}</span>
         </span>
         <span className="font-mono text-[15px] font-semibold whitespace-nowrap">
-          {pollPercent(points, margin)}
+          {pollPercent(total, margin)}
           {margin > 0 && <span className="font-normal text-faint-foreground"> ±{margin}</span>}
         </span>
-        <RangeBar points={points} margin={margin} color={partyColor(party)} />
+        <RangeBar slices={slices} margin={margin} />
         <span>
           {tie && (
             <Badge variant="warning" size="sm">
@@ -178,34 +195,54 @@ function TodayRow({ party, points, margin, tie }: TodayRowProps) {
           )}
         </span>
       </div>
-      {party.promises.length > 0 && (
+      {row.federation && (
+        <span className="pl-8 text-xs text-muted-foreground">
+          {row.parties
+            .map((party, index) => `${party.abbr} ${displayPercent((slices[index]?.points ?? 0) / 100, 1)}`)
+            .join(" + ")}
+        </span>
+      )}
+      {first.promises.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 pl-8">
           <span className="text-xs text-muted-foreground">
-            {party.is_computer ? "Promete pelos valores dele" : "Promessas"}
+            {first.is_computer ? "Promete pelos valores dele" : "Promessas"}
           </span>
-          <PromiseBadges promises={party.promises} computer={party.is_computer} />
+          <PromiseBadges promises={first.promises} computer={first.is_computer} />
         </div>
       )}
     </div>
   );
 }
 
-/** A barra de um número da pesquisa: cheia até o número, e a faixa clara da margem em volta. */
-function RangeBar({ points, margin, color }: { points: number; margin: number; color: string }) {
+/** A barra de um número da pesquisa: uma fatia por partido empilhadas até o total, e a faixa clara da margem em volta. */
+function RangeBar({ slices, margin }: { slices: { points: number; color: string }[]; margin: number }) {
   const scale = (value: number) => `${Math.min(value / BAR_SCALE, 1) * 100}%`;
-  const [low, high] = marginRange(points, margin);
+  const total = slices.reduce((sum, slice) => sum + slice.points, 0);
+  const [low, high] = marginRange(total, margin);
+  // Onde cada fatia começa: a soma das anteriores
+  const starts = slices.map((_, index) => slices.slice(0, index).reduce((sum, slice) => sum + slice.points, 0));
   return (
-    <span className="relative h-2.5 w-30 rounded-xs bg-muted">
+    <span className="relative h-2.5 w-30 overflow-hidden rounded-xs bg-muted">
       {margin > 0 && (
         <span
           className="absolute inset-y-0 rounded-xs opacity-25"
-          style={{ left: scale(low), width: `calc(${scale(high)} - ${scale(low)})`, backgroundColor: color }}
+          style={{ left: scale(low), width: `calc(${scale(high)} - ${scale(low)})`, backgroundColor: slices[0]?.color }}
         />
       )}
-      <span
-        className="absolute inset-y-0 left-0 rounded-xs opacity-85"
-        style={{ width: scale(points), backgroundColor: color }}
-      />
+      {slices.map((slice, index) => {
+        const left = scale(starts[index] ?? 0);
+        return (
+          <span
+            key={index}
+            className="absolute inset-y-0 opacity-85"
+            style={{
+              left,
+              width: `calc(${scale((starts[index] ?? 0) + slice.points)} - ${left})`,
+              backgroundColor: slice.color,
+            }}
+          />
+        );
+      })}
     </span>
   );
 }
