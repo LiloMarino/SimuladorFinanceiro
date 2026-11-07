@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-07):** Concluídas as constantes de calendário unificadas
+> **Última mudança (2026-11-07):** Descartadas duas manutenções adiadas
 
 ## Glossário
 
@@ -119,14 +119,12 @@
 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | Alto | Médio | ⏳ |
 | [**F246**](#f246) | Manutenção | Payload dos eventos do governo tipado | — | — | Alto | Médio | 💤 |
 | [**F247**](#f247) | Manutenção | Trava do gerenciador de usuários garantida pelo código | — | — | Baixo | Bom | 💤 |
-| [**F248**](#f248) | Manutenção | Eleição determinística nos testes do livro de acordos | — | — | Médio | Bom | 💤 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | — | Alto | Médio | 💤 |
 | [**F250**](#f250) | Manutenção | Livro do governo quebrado por assunto | — | — | Alto | Médio | 💤 |
-| [**F251**](#f251) | Manutenção | Testes para túnel, fábrica de renda fixa, importação de ativos e crédito | — | — | Alto | Médio | 💤 |
 | [**F252**](#f252) | Manutenção | Aviso local de testes de banco pulados | — | — | Baixo | Bom | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -152,6 +150,8 @@
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F233**](#f233) | Manutenção | Constantes de calendário unificadas no core | — | — | — | — | ✅ |
 | [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | — | — | — | ✅ |
+| [**F248**](#f248) | Manutenção | Eleição determinística nos testes do livro de acordos | — | — | — | — | 🚫 |
+| [**F251**](#f251) | Manutenção | Testes para túnel, fábrica de renda fixa, importação de ativos e crédito | — | — | — | — | 🚫 |
 
 </details>
 
@@ -618,10 +618,8 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F176** | Feature | Cadeiras do Congresso por região | N34 | D19 | — | — | Médio | Médio | Médio | Médio |
 | **F246** | Manutenção | Payload dos eventos do governo tipado | — | — | — | — | Alto | Médio | Médio | Médio |
 | **F247** | Manutenção | Trava do gerenciador de usuários garantida pelo código | — | — | — | — | Baixo | Baixo | Médio | Bom |
-| **F248** | Manutenção | Eleição determinística nos testes do livro de acordos | — | — | — | — | Médio | Baixo | Médio | Bom |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | — | — | Alto | Médio | Médio | Médio |
 | **F250** | Manutenção | Livro do governo quebrado por assunto | — | — | — | — | Alto | Médio | Médio | Médio |
-| **F251** | Manutenção | Testes para túnel, fábrica de renda fixa, importação de ativos e crédito | — | — | — | — | Alto | Baixo | Médio | Médio |
 | **F252** | Manutenção | Aviso local de testes de banco pulados | — | — | — | — | Baixo | Baixo | Baixo | Bom |
 
 <a id="f14"></a>
@@ -676,11 +674,6 @@ Cada tipo de evento ganha um `TypedDict` (ou dataclass) para o payload, e o desp
 
 Os métodos passam a ter nome que diz a exigência (sufixo `_locked`) ou um `assert self._lock.locked()` na entrada, e o comentário sai. Por fora nada muda; confere-se com `uv run pytest -n 4`. Sem decisão de fazer agora.
 
-<a id="f248"></a>
-**F248 — Eleição determinística nos testes do livro de acordos.** `tests/test_deals_book.py` pula 4 testes porque o resultado da eleição depende do acaso.
-
-Uma fixture monta a eleição com semente e resultado fixos, e os 4 skips saem. Por fora nada muda; confere-se com `uv run pytest -n 4` sem nenhum skip nesse arquivo. Sem decisão de fazer agora.
-
 <a id="f249"></a>
 **F249 — Núcleo do backend sem import de features.** `core/` importa de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
 
@@ -690,11 +683,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 **F250 — Livro do governo quebrado por assunto.** `government_book.py` reúne campanha, bancadas, política tributária e emissão de rodada num arquivo só.
 
 O livro vira um pacote com um módulo por assunto e um `__init__` que mantém a mesma superfície, de modo que os chamadores não mudam. Por fora nada muda; confere-se com `uv run pyright` e `uv run pytest -n 4`. Sem decisão de fazer agora.
-
-<a id="f251"></a>
-**F251 — Testes para túnel, fábrica de renda fixa, importação de ativos e crédito.** `tunnel/`, `fixed_income/factory/`, `import-assets` e `credit` não têm teste próprio.
-
-Um módulo de teste por área, cobrindo o fluxo comum e o caso crítico de cada uma, sem mudar código de produção; os bugs que aparecerem viram `fix:` à parte. Confere-se com `uv run pytest -n 4`. Sem decisão de fazer agora.
 
 <a id="f252"></a>
 **F252 — Aviso local de testes de banco pulados.** Sem `POSTGRES_DATABASE_URL`, os testes com banco são pulados em silêncio e a suíte local parece verde.
@@ -724,4 +712,13 @@ Por fora nada mudou: os números exibidos são os mesmos, `pyright` e `pytest` p
 
 ## 🚫 Descartado
 
-> Nenhum item neste status.
+| ID | Tipo | Resumo | Serve |
+| --- | --- | --- | --- |
+| **F248** | Manutenção | Eleição determinística nos testes do livro de acordos | — |
+| **F251** | Manutenção | Testes para túnel, fábrica de renda fixa, importação de ativos e crédito | — |
+
+<a id="f248"></a>
+**F248 — Descartado.** 🚫 Fora do que foi planejado para o roadmap; descartada a pedido.
+
+<a id="f251"></a>
+**F251 — Descartado.** 🚫 Fora do que foi planejado para o roadmap; descartada a pedido.
