@@ -81,13 +81,14 @@ export const TEMPERATURE_MARKS = [
 
 export const displayTemperature = (temperature: number) => displayNumber(temperature, 1);
 
-// Medianas de 50 futuros de 10 anos partindo de hoje, para cada marca do nível; a bolsa é a
-// variação do Ibovespa em 10 anos já descontada a inflação
+// Medianas de 50 futuros de 10 anos partindo de hoje, para cada marca do nível. A bolsa é o
+// pior momento do Ibovespa frente ao mesmo futuro sem nível, descontada a inflação, que
+// chega no sexto mês, e os anos até voltar a ficar a 1% dele; é igual em todo futuro
 export const INFLATION_LEVEL_TABLE = [
-  { level: -5, inflation: 1, selic: 9, stocksReal: 35 },
-  { level: 0, inflation: 6, selic: 14, stocksReal: 21 },
-  { level: 10, inflation: 16, selic: 24, stocksReal: -4 },
-  { level: 20, inflation: 26, selic: 35, stocksReal: -23 },
+  { level: -5, inflation: 1, selic: 9, stocksSwing: 7, recoveryYears: 3 },
+  { level: 0, inflation: 6, selic: 14, stocksSwing: 0, recoveryYears: 0 },
+  { level: 10, inflation: 16, selic: 24, stocksSwing: -13, recoveryYears: 4 },
+  { level: 20, inflation: 26, selic: 35, stocksSwing: -24, recoveryYears: 4 },
 ] as const;
 
 // Médias de 50 futuros de 10 anos com surtos de 6 pontos: em quantos anos a inflação

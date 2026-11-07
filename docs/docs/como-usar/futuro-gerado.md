@@ -67,16 +67,16 @@ Os controles ficam no diálogo "Gerar dados futuros" da [Central de dados](./imp
 
 O ano mais agitado desde 2000 foi 2008, com volatilidade de 52%. A temperatura 2 fica perto dele; a 3 é o "modo apocalipse": todo ano é pior que 2008.
 
-**Nível da inflação**, de −5 a +20 pontos, padrão 0. Os trechos reais nunca passam do que já aconteceu desde 2000; o nível é o jeito de sair disso. Ele soma pontos à inflação anual de forma permanente: cresce em seis meses e fica. A SELIC reage subindo **1,5 vez** o que a inflação subiu, e depois assenta em 1 vez: o juro real (o juro descontado da inflação) fica perto do de hoje. Esse é o **princípio de Taylor** (Taylor, 1993): para conter a inflação, o Banco Central sobe o juro mais do que a inflação subiu, senão o juro descontado da inflação cai e a alta continua. A bolsa leva um tombo na subida do juro, como sentiu no histórico (em média, o Ibovespa caiu 2,9% no trimestre para cada ponto de alta da SELIC) e depois volta a subir com a inflação, porque os preços das empresas sobem junto com os dos outros produtos.
+**Nível da inflação**, de −5 a +20 pontos, padrão 0. Os trechos reais nunca passam do que já aconteceu desde 2000; o nível é o jeito de sair disso. Ele soma pontos à inflação anual de forma permanente: cresce em seis meses e fica. A SELIC reage subindo **1,5 vez** o que a inflação subiu, e depois assenta em 1 vez: o juro real (o juro descontado da inflação) fica perto do de hoje. Esse é o **princípio de Taylor** (Taylor, 1993): para conter a inflação, o Banco Central sobe o juro mais do que a inflação subiu, senão o juro descontado da inflação cai e a alta continua. A bolsa leva um tombo enquanto o juro real está alto, como sentiu no histórico (em média, o Ibovespa caiu 2,9% no trimestre para cada ponto de alta da SELIC), e recupera quando a SELIC assenta. Por cima disso, todo ativo sobe com a inflação somada, porque os preços das empresas sobem junto com os dos outros produtos: no longo prazo, inflação mais alta não deixa a bolsa mais rica nem mais pobre em poder de compra.
 
-| Nível | Inflação média no ano | SELIC média | Ibovespa em 10 anos, descontada a inflação |
-| --- | --- | --- | --- |
-| −5 | 1% | 9% | +35% |
-| 0 | 6% | 14% | +21% |
-| +10 | 16% | 24% | −4% |
-| +20 | 26% | 35% | −23% |
+| Nível | Inflação média no ano | SELIC média | Tombo da bolsa na transição | Volta em |
+| --- | --- | --- | --- | --- |
+| −5 | 1% | 9% | +7% | 3 anos |
+| 0 | 6% | 14% | — | — |
+| +10 | 16% | 24% | −13% | 4 anos |
+| +20 | 26% | 35% | −24% | 4 anos |
 
-Medianas de 50 futuros de 10 anos partindo de hoje, com a SELIC em 13,65%. "Descontada a inflação" quer dizer em poder de compra: +21% é o quanto a carteira de ações compra a mais no fim dos 10 anos.
+Medianas de 50 futuros de 10 anos partindo de hoje, com a SELIC em 13,65%. O tombo é o quanto o Ibovespa, descontada a inflação (em poder de compra), chega a ficar abaixo do mesmo futuro sem nível: −13% quer dizer que, no pior momento, a carteira de ações compra 13% a menos do que compraria sem a inflação extra. Ele chega no sexto mês, quando o juro real está no ponto mais alto, e "volta em" é quando a diferença cai para menos de 1%. Com −5 é o inverso: o juro cai e a bolsa sobe na transição. Em 10 anos a bolsa real fica parecida em qualquer nível, uns +19% no futuro do meio.
 
 **Frequência dos surtos**, de 0 a 5 por década, padrão 0. Um surto é uma alta de inflação que passa: sobe em meio ano e perde metade da força a cada ano, como a de 2015. A SELIC sobe 1,5 vez o que a inflação subiu e a bolsa leva o tombo do juro, sem a compensação do nível, porque o preço das empresas não fica mais alto de forma permanente. Os surtos são sorteados ano a ano e podem se somar. A frequência 1 quer dizer que, em média, 1 ano em 10 abre um surto; com 5, a chance sobe a 1 em 2. Com 0, não há surtos e a intensidade não conta.
 
@@ -91,7 +91,7 @@ Medianas de 50 futuros de 10 anos partindo de hoje, com a SELIC em 13,65%. "Desc
 
 Médias de 50 futuros de 10 anos, com intensidade 6. Mesmo com 0 surtos o histórico traz uns 0,8 ano acima de 10% em 10 anos, porque o futuro de hoje parte de uma inflação alta.
 
-**PIB e desemprego na prévia.** A prévia também mostra o crescimento do PIB (em 12 meses) e o desemprego, para ver o que o nível e os surtos fazem com a economia. Eles não são sorteados nem gravados: saem de uma conta mês a mês, a partir do último valor real, com a SELIC e a inflação do futuro e a alta da bolsa em 12 meses. Juro real alto (a SELIC descontada a inflação, acima de 5% ao ano) freia o crescimento; bolsa em alta ajuda um pouco. O desemprego sobe quando o PIB cresce menos que 2% ao ano e cai quando cresce mais (a regra de Okun: quando a economia anda mais devagar que o normal, sobra gente sem emprego). A partida usa a mesma conta, mês a mês, e soma a ela os gastos e as decisões do governo do jogo; a prévia mostra a economia sem essa parte.
+**PIB e desemprego na prévia.** A prévia também mostra o crescimento do PIB (em 12 meses) e o desemprego, para ver o que o nível e os surtos fazem com a economia. Eles não são sorteados nem gravados: saem de uma conta mês a mês, a partir do último valor real, com a SELIC e a inflação do futuro e a alta da bolsa em 12 meses. Juro real alto (a SELIC descontada a inflação, acima de 5% ao ano) freia o crescimento; bolsa em alta, também descontada a inflação, ajuda um pouco. O desemprego sobe quando o PIB cresce menos que 2% ao ano e cai quando cresce mais (a regra de Okun: quando a economia anda mais devagar que o normal, sobra gente sem emprego). A partida usa a mesma conta, mês a mês, e soma a ela os gastos e as decisões do governo do jogo; a prévia mostra a economia sem essa parte.
 
 ---
 

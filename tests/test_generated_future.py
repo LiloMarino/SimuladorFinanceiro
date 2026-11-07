@@ -317,7 +317,7 @@ def test_a_higher_inflation_level_drops_gdp_in_the_transition_and_settles_close_
     # A subida do juro derruba o crescimento nos primeiros três anos
     assert min(raised[:36]) < min(calm[:36]) - 1
     # Depois de 10 anos o nível assentou: o último ano fica perto do sem nível
-    assert abs(sum(raised[-12:]) / 12 - sum(calm[-12:]) / 12) < 1.5
+    assert abs(sum(raised[-12:]) / 12 - sum(calm[-12:]) / 12) < 0.5
 
 
 def test_horizon_stops_thirty_years_after_the_last_real_day(base: Engine):

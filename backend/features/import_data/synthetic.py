@@ -18,9 +18,10 @@ Inflação por regime: duas camadas por cima do sorteio, que mudam os níveis se
 mudar os trechos.
 - O nível sobe em seis meses e fica. Soma X pontos à inflação anual; a SELIC
   reage 1,5·X na subida (princípio de Taylor: o juro sobe mais que a inflação) e
-  assenta em +X, de modo que o juro real volta ao de antes. A bolsa leva a
-  reação histórica do Ibovespa à SELIC, cada ativo pelo seu beta, e depois sobe
-  com a inflação somada no nominal.
+  assenta em +X, de modo que o juro real volta ao de antes. A bolsa reage ao
+  juro real pela reação histórica do Ibovespa à SELIC, cada ativo pelo seu beta:
+  cai enquanto a SELIC está acima da inflação somada e recupera quando ela
+  assenta. Por cima, todo ativo sobe com a inflação somada no nominal.
 - Os surtos são pulsos que sobem em seis meses e decaem pela metade a cada ano,
   sorteados ano a ano pela semente. Cada um soma pontos à inflação anual, 1,5x
   isso à SELIC e a reação da bolsa à SELIC, sem repasse nominal.
@@ -71,6 +72,9 @@ MIN_SURGE_INTENSITY, MAX_SURGE_INTENSITY = 2.0, 20.0
 SURGES_DECADE_YEARS = 10
 SURGE_SALT = zlib.crc32(b"inflation-surge")
 SHOCK_RAMP_YEARS, SHOCK_HALF_LIFE_YEARS = 0.5, 1.0
+# O calendário gerado tem um pregão por dia útil da semana, sem feriado: é a régua do
+# tempo do nível e dos surtos, para que um ano deles seja um ano do IPCA mensal
+BUSINESS_DAYS_PER_YEAR = 365.25 * 5 / 7
 SELIC_SHOCK_RESPONSE = 1.5
 SELIC_FLOOR = 0.005
 QUARTER_DAYS = 63
@@ -446,7 +450,7 @@ class SeriesGenerator:
         é um pulso que sobe em seis meses e decai pela metade a cada ano, com a SELIC
         a 1,5x.
         """
-        elapsed = (numbers - self.shock_start) / TRADING_DAYS_PER_YEAR
+        elapsed = (numbers - self.shock_start) / BUSINESS_DAYS_PER_YEAR
         years = np.maximum(elapsed, 0.0)
         level = draw.level * _ramp(years)
         inflation = level.copy()
@@ -460,8 +464,9 @@ class SeriesGenerator:
 
     def _shock_moves(self, draw: "_Draw", days: list[date]) -> np.ndarray:
         """
-        Retorno extra do Ibovespa em cada dia: a reação à SELIC que o nível e os
-        surtos empurraram, mais o repasse nominal da inflação do nível.
+        Retorno extra do Ibovespa em cada dia pelo juro que o nível e os surtos
+        empurraram. Do nível conta só o que a SELIC sobe além da inflação dele (o juro
+        real), que se desfaz quando a SELIC assenta; dos surtos conta a SELIC inteira.
         """
         if not draw.level and not draw.surge_frequency:
             return np.zeros(len(days))
@@ -469,9 +474,15 @@ class SeriesGenerator:
         numbers = np.array([_day_number(d) for d in days])
         numbers = np.concatenate([[numbers[0] - 1], numbers])
         _, selic_push = self._effects(draw, numbers)
-        years = np.maximum(numbers[1:] - self.shock_start, 0) / TRADING_DAYS_PER_YEAR
-        passthrough = np.log1p(draw.level * _ramp(years)) / TRADING_DAYS_PER_YEAR
-        return self.market_selic_beta * np.diff(selic_push) + passthrough
+        years = np.maximum(numbers - self.shock_start, 0) / BUSINESS_DAYS_PER_YEAR
+        rate_push = selic_push - draw.level * _ramp(years)
+        return self.market_selic_beta * np.diff(rate_push)
+
+    def _passthrough(self, draw: "_Draw", days: list[date]) -> np.ndarray:
+        """Retorno extra de cada dia pelo repasse nominal da inflação do nível, igual em todo ativo."""
+        numbers = np.array([_day_number(d) for d in days])
+        years = np.maximum(numbers - self.shock_start, 0) / BUSINESS_DAYS_PER_YEAR
+        return np.log1p(draw.level * _ramp(years)) / BUSINESS_DAYS_PER_YEAR
 
     # ------------------------------------------------------------------
     # Ativos
@@ -573,9 +584,11 @@ class SeriesGenerator:
                     beta * ref[source] + residuals[rng.integers(len(residuals))]
                 )
 
-        # O nível e os surtos chegam ao ativo pelo beta dele contra o Ibovespa
+        # A reação à SELIC chega ao ativo pelo beta dele contra o Ibovespa; o repasse
+        # da inflação, inteiro
         market_beta = next((b for ref, b, _ in fits if ref is self.market), 1.0)
         generated += market_beta * self._shock_moves(draw, days)
+        generated += self._passthrough(draw, days)
 
         last_close = float(bars["close"].iloc[-1])
         close = last_close * np.exp(np.cumsum(generated))
@@ -607,7 +620,9 @@ class SeriesGenerator:
         days = _business_days(_last_day(ibov), until)
         if days:
             moves = self.market[self._sources(draw, days)]
-            moves = moves + self._shock_moves(draw, days)
+            moves = (
+                moves + self._shock_moves(draw, days) + self._passthrough(draw, days)
+            )
             out[IndicatorSeries.IBOV] = pd.Series(
                 float(ibov.iloc[-1]) * np.exp(np.cumsum(moves)), index=days
             )

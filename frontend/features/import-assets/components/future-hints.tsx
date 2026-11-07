@@ -82,28 +82,32 @@ export function InflationLevelHint() {
         <p>
           Soma pontos à inflação anual do futuro inteiro: a alta leva seis meses e fica. A SELIC sobe 1,5 vez o que a
           inflação subiu, como o Banco Central faz para conter a alta, e depois assenta em 1 vez, de modo que o juro
-          real volta ao de antes. A bolsa cai na subida do juro e depois sobe com a inflação somada.
+          real volta ao de antes. A bolsa cai enquanto o juro real está alto e recupera quando a SELIC assenta: no longo
+          prazo a inflação só infla os preços, e a bolsa acompanha.
         </p>
         <p>
           <b>Juro real</b> é a SELIC descontada a inflação: SELIC de 14% com inflação de 6% rende uns 8% acima dos
-          preços. <b>Bolsa real</b> é a variação do Ibovespa já descontada a inflação: +21% quer dizer que o dinheiro na
-          bolsa compra 21% a mais depois de 10 anos.
+          preços. <b>Tombo da bolsa</b> é o quanto o Ibovespa, descontada a inflação, chega a ficar abaixo do mesmo
+          futuro sem nível: −13% quer dizer que, no pior momento, o dinheiro na bolsa compra 13% a menos do que
+          compraria sem a inflação extra.
         </p>
         <HintTable
-          head={["Nível", "Inflação média", "SELIC média", "Bolsa real em 10 anos"]}
+          head={["Nível", "Inflação média", "SELIC média", "Tombo da bolsa", "Volta em"]}
           rows={INFLATION_LEVEL_TABLE.map((row) => ({
-            values: [row.level, row.inflation, row.selic, row.stocksReal],
+            values: [row.level, row.inflation, row.selic, row.stocksSwing, row.recoveryYears],
             cells: [
               signedLevel(row.level),
               `${row.inflation}% ao ano`,
               `${row.selic}% ao ano`,
-              withMinus(`${row.stocksReal > 0 ? "+" : ""}${row.stocksReal}%`),
+              row.stocksSwing === 0 ? "—" : withMinus(`${row.stocksSwing > 0 ? "+" : ""}${row.stocksSwing}%`),
+              row.recoveryYears === 0 ? "—" : `${row.recoveryYears} anos`,
             ],
           }))}
         />
         <p className="opacity-70">
-          Medianas de 50 futuros de 10 anos partindo de hoje. A bolsa varia muito de um futuro para outro: o do meio
-          sobe 21% sem nível, e os extremos vão de −67% a +343%.
+          Medianas de 50 futuros de 10 anos partindo de hoje; o tombo chega no sexto mês. Com o nível negativo é o
+          inverso: o juro cai e a bolsa sobe na transição. Em 10 anos a bolsa real fica parecida em qualquer nível, uns
+          +19% no futuro do meio, com extremos de −67% a +337%.
         </p>
       </div>
     </InfoHint>

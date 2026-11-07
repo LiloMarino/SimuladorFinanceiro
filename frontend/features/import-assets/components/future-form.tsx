@@ -57,7 +57,6 @@ import {
   TEMPERATURE,
   TEMPERATURE_MARKS,
   temperatureReading,
-  withMinus,
 } from "../lib/future-readings";
 import { InflationLevelHint, SurgeFrequencyHint, SurgeIntensityHint, TemperatureHint } from "./future-hints";
 import { FuturePreviewPanel } from "./future-preview-panel";
@@ -472,8 +471,16 @@ export function FutureForm({ future, coverage, redrawSeed, onClose, onRecordingC
                       <p>
                         <b>{field.value === 0 ? "Sem nível extra." : `${displayLevel(field.value)}.`}</b> A inflação
                         média fica em uns <b>{levelReading.inflation}% ao ano</b> e a SELIC em{" "}
-                        <b>{levelReading.selic}%</b>; a bolsa, já descontada a inflação, anda uns{" "}
-                        <b>{withMinus(`${levelReading.stocksReal}`)}%</b> em 10 anos.{" "}
+                        <b>{levelReading.selic}%</b>.{" "}
+                        {levelReading.stocksSwing !== 0 && (
+                          <>
+                            Na transição a bolsa, descontada a inflação, chega a ficar{" "}
+                            <b>
+                              {Math.abs(levelReading.stocksSwing)}% {levelReading.stocksSwing < 0 ? "abaixo" : "acima"}
+                            </b>{" "}
+                            de um futuro sem nível e volta em uns <b>{levelReading.recoveryYears} anos</b>.{" "}
+                          </>
+                        )}
                         <span className="text-muted-foreground">Medianas de 50 futuros de 10 anos.</span>
                       </p>
                     </Alert>
