@@ -4,6 +4,19 @@ Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais anti
 O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
 deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
+## 3.5.0 Federações e Estados (07/11/2026)
+
+A política ganha geografia: um mapa do Brasil por região e por estado mostra quem lidera, a aprovação do presidente e onde vive cada grupo de eleitores, e a pesquisa sai também por estado. Partidos podem se unir em federações para escapar da barreira e somar votos no Congresso, pagando com o candidato próprio e a rejeição do parceiro. O acordo de base passa a valer até o fim do mandato, e as bancadas cobram mais quando o governo fica fraco.
+
+Suas partidas salvas e o `config.toml` continuam valendo.
+
+
+### Novidades
+
+- Adicionado o acordo de base até o fim do mandato
+- Adicionado o mapa do Brasil por região e por estado
+- Adicionadas as federações partidárias
+
 ## 3.4.0 Juros e Tesouro (07/11/2026)
 
 O governo ganha a SELIC nas mãos, e o Tesouro ganha tela própria, com marcação a mercado e resgate automático da renda fixa para cobrir despesas. A economia fica interligada: PIB, desemprego, juros e bolsa passam a se influenciar na partida, e o gerador de futuro troca o choque de inflação por nível e surtos.
