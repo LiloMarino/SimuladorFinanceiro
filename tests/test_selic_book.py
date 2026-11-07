@@ -131,27 +131,49 @@ def test_without_a_plan_the_selic_stays(selic_book: GovernmentBook, engine):
     )
 
 
-def test_holding_the_rate_with_inflation_high_costs_credibility(
+def test_cutting_below_the_history_with_inflation_high_costs_credibility(
     selic_book: GovernmentBook, engine, indicators: SetIndicator
 ):
-    # IPCA de 0,5% ao mês: 6,2% em 12 meses, acima do teto da meta, e juro real negativo
+    # IPCA de 0,5% ao mês: 6,2% em 12 meses, acima da meta mais a tolerância; a SELIC da
+    # história fica em 10,44% (0,0394% ao dia)
     indicators(
         IndicatorSeries.IPCA,
         {date(2021, m, 1): Decimal("0.5") for m in range(1, 13)}
         | {date(2022, m, 1): Decimal("0.5") for m in (1, 2)},
     )
+    indicators(IndicatorSeries.SELIC, {date(2021, 1, 1): Decimal("0.0394")})
+    govern(selic_book, engine)
+    selic_book.set_selic(ALICE, TERM_START, Decimal("0.09"))
+
+    selic_book.on_tick(USERS, MEETING, False)
+
+    # Cortar de 10,44% para 9%: o juro real fica 1,44 ponto abaixo da história e perde uns 5,75
+    credibility = selic_book.state.selic_board.credibility_on(MEETING + timedelta(1))
+    assert credibility == pytest.approx(94.25, abs=0.05)
+    card = monetary_card(selic_book, MEETING)
+    assert card is not None
+    assert card.credibility == credibility
+    assert card.credibility_premium == pytest.approx(
+        Decimal("0.00115"), abs=Decimal("0.00001")
+    )
+    # Com o IPCA acima da meta mais a tolerância, a SELIC anda até 1,5 ponto por reunião
+    assert card.cap == Decimal("0.015")
+
+
+def test_holding_the_rate_of_the_history_keeps_credibility_full(
+    selic_book: GovernmentBook, engine, indicators: SetIndicator
+):
+    indicators(
+        IndicatorSeries.IPCA,
+        {date(2021, m, 1): Decimal("0.5") for m in range(1, 13)}
+        | {date(2022, m, 1): Decimal("0.5") for m in (1, 2)},
+    )
+    indicators(IndicatorSeries.SELIC, {date(2021, 1, 1): Decimal("0.0394")})
     govern(selic_book, engine)
 
     selic_book.on_tick(USERS, MEETING, False)
 
-    credibility = selic_book.state.selic_board.credibility_on(MEETING + timedelta(1))
-    assert credibility == 80
-    card = monetary_card(selic_book, MEETING)
-    assert card is not None
-    assert card.credibility == 80
-    assert card.credibility_premium == Decimal("0.004")
-    # Com o IPCA acima do teto da meta, a SELIC anda até 1,5 ponto por reunião
-    assert card.cap == Decimal("0.015")
+    assert selic_book.state.selic_board.credibility_on(MEETING + timedelta(1)) == 100
 
 
 def test_the_computer_moves_toward_the_central_bank_within_the_cap(

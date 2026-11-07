@@ -272,9 +272,9 @@ export const CREDIBILITY: MetricInfo = {
   label: "Credibilidade",
   description: "O quanto o mercado confia que a SELIC vai segurar a inflação, de 0 a 100",
   definition:
-    "Começa em 100. Cada reunião que mantém ou corta a SELIC com o juro real abaixo do neutro (5%) e o IPCA acima da meta tira 4 pontos por ponto de juro real abaixo do neutro, até 20 por reunião; cada alta devolve 3. Sem credibilidade, a dívida paga até 2 pontos de prêmio de risco a mais, e o juro real baixo pesa até o dobro na inflação, mais cedo.",
+    "Começa em 100, e a régua é a história. Cada reunião com o juro real da partida abaixo do da história e o IPCA acima da meta mais a tolerância tira 4 pontos por ponto abaixo da história, até 20 por reunião; cada alta da SELIC, ou juro real igual ou acima do da história, devolve 3. Sem credibilidade, a dívida paga até 2 pontos de prêmio de risco a mais, e o juro real baixo pesa até o dobro na inflação, mais cedo.",
   example:
-    "Ex.: juro real de 0% com o IPCA acima da meta fica 5 pontos abaixo do neutro: a reunião tira 20 e a credibilidade vai a 80, com 0,4 ponto de prêmio a mais e o efeito do juro na inflação 1,2 vez maior.",
-  reading: "100 é a confiança toda. Abaixo de 80 já custa prêmio e inflação; recuperar é lento, 3 pontos por alta.",
+    "Ex.: a história com juro real de 5% e a partida com 1%, com o IPCA acima da meta mais a tolerância: fica 4 pontos abaixo, a reunião tira 16 e a credibilidade vai a 84, com 0,32 ponto de prêmio a mais e o efeito do juro na inflação 1,16 vez maior.",
+  reading: "100 é a confiança toda, e copiar a SELIC da história a mantém. Abaixo de 80 já custa prêmio e inflação; recuperar é lento, 3 pontos por reunião.",
   format: (value) => `${Math.round(Number(value))} de 100`,
 };

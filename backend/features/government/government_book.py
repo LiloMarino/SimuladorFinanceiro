@@ -2194,11 +2194,18 @@ class GovernmentBook:
             else monetary.within_cap(wanted, current, self.selic_cap(today))
         )
         ipca = annual_index_rate(IndicatorSeries.IPCA, today)
+        tomorrow = today + timedelta(days=1)
+        # O juro real da história é o da SELIC e do IPCA guardados, sem o desvio do governo
+        history_real_rate = annual_index_rate(
+            IndicatorSeries.SELIC, tomorrow, stored=True
+        ) - annual_index_rate(IndicatorSeries.IPCA, today, stored=True)
         credibility = monetary.next_credibility(
-            self.state.selic_board.credibility_on(today + timedelta(days=1)),
+            self.state.selic_board.credibility_on(tomorrow),
             selic - ipca,
+            history_real_rate,
             ipca,
             inflation_target(today),
+            inflation_tolerance(today),
             raised=selic > current,
         )
         self._emit(

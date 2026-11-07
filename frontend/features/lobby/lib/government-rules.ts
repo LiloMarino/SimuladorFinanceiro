@@ -31,7 +31,7 @@ export const SELIC_CONTROLS: Record<SelicControl, { label: string; description: 
   GOVERNMENT: {
     label: "Nas mãos do governo",
     description:
-      "O presidente decide a SELIC nas 8 reuniões do Copom do ano, até 0,75 ponto por reunião (1,5 com a inflação acima da meta). Juro real abaixo da história sobe a inflação com até um ano de atraso, e segurar o juro com a inflação alta custa credibilidade ao Banco Central.",
+      "O presidente decide a SELIC nas 8 reuniões do Copom do ano, até 0,75 ponto por reunião (1,5 com a inflação acima da meta). Juro real abaixo da história sobe a inflação com até um ano de atraso, e cortar o juro abaixo da história com a inflação fora da meta custa credibilidade ao Banco Central.",
     example:
       "SELIC de 10,75% com inflação de 4,5% dá juro real de 6,25%. Cortar para 8,75% leva o juro real a 4,25%: 2 pontos abaixo, por um ano, somam uns 0,6 ponto à inflação do ano seguinte.",
   },

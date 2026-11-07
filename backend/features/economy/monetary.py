@@ -13,7 +13,6 @@ from decimal import ROUND_CEILING, ROUND_FLOOR, ROUND_HALF_UP, Decimal
 from typing import Protocol
 
 from backend.core.utils import is_business_day, next_business_day
-from backend.features.economy.growth import NEUTRAL_REAL_RATE
 
 # O Copom se reúne 8 vezes por ano, a cada 45 dias; a reunião cai no dia útil seguinte
 MEETINGS_PER_YEAR = 8
@@ -36,11 +35,14 @@ QUARTER_WEIGHTS = (0.15, 0.35, 0.35, 0.15)
 HURRIED_WEIGHTS = (0.35, 0.35, 0.2, 0.1)
 
 FULL_CREDIBILITY = 100.0
-# Cada reunião com juro real abaixo do neutro e o IPCA acima da meta tira 4 pontos de
-# credibilidade por ponto abaixo do neutro, até 20; cada alta devolve 3
+# Cada reunião com o juro real abaixo do da história e o IPCA acima da meta mais a
+# tolerância tira 4 pontos de credibilidade por ponto abaixo da história, até 20; cada
+# alta da SELIC, ou juro real na história, devolve 3. A SELIC decide em passos de 0,25 e
+# a da história é fracionária: meio passo de diferença ainda é a história
 CREDIBILITY_LOSS = 4.0
 MAX_CREDIBILITY_LOSS = 20.0
 CREDIBILITY_GAIN = 3.0
+HISTORY_MARGIN = SELIC_STEP / 2
 # Sem credibilidade nenhuma, a dívida paga 2 pontos de prêmio a mais
 CREDIBILITY_PREMIUM = Decimal("0.02")
 
@@ -129,21 +131,26 @@ def rate_inflation_points(gaps: Sequence[Decimal], credibility: float) -> float:
 def next_credibility(
     credibility: float,
     real_rate: Decimal,
+    history_real_rate: Decimal,
     ipca: Decimal,
     target: Decimal,
+    tolerance: Decimal,
     *,
     raised: bool,
 ) -> float:
     """
-    A credibilidade depois de uma reunião, de 0 a 100. Subir a SELIC devolve um pouco
-    por vez; manter ou cortar com o juro real abaixo do neutro e o IPCA em 12 meses
-    acima da meta custa caro.
+    A credibilidade depois de uma reunião, de 0 a 100. O juro real da partida abaixo do
+    da história com o IPCA em 12 meses acima da meta mais a tolerância custa caro; subir
+    a SELIC ou manter o juro real da história devolve um pouco por vez.
     """
-    if raised:
+    below = history_real_rate - real_rate
+    if below > HISTORY_MARGIN and not raised:
+        if ipca > target + tolerance:
+            credibility -= min(
+                MAX_CREDIBILITY_LOSS, CREDIBILITY_LOSS * float(below) * 100
+            )
+    else:
         credibility += CREDIBILITY_GAIN
-    elif real_rate < NEUTRAL_REAL_RATE and ipca > target:
-        below = float(NEUTRAL_REAL_RATE - real_rate) * 100
-        credibility -= min(MAX_CREDIBILITY_LOSS, CREDIBILITY_LOSS * below)
     return round(max(0.0, min(FULL_CREDIBILITY, credibility)), 2)
 
 

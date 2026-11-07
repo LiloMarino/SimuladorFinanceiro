@@ -108,31 +108,113 @@ def test_no_credibility_doubles_the_effect() -> None:
     assert rate_inflation_points(gaps, 0) == pytest.approx(0.6)
 
 
-def test_cutting_with_inflation_above_target_loses_credibility() -> None:
-    # Juro real de 2%, 3 pontos abaixo do neutro: perde 12
+# Meta de 3,75% com tolerância de 1,5: o teto é 5,25%
+HISTORY_REAL = Decimal("0.05")
+
+
+def test_cutting_below_the_history_with_inflation_above_the_band_loses_credibility() -> (
+    None
+):
+    # Juro real de 3,5% contra 5% da história: 1,5 ponto abaixo perde 6
     after = next_credibility(
-        100, Decimal("0.02"), Decimal("0.06"), TARGET, raised=False
+        100,
+        Decimal("0.035"),
+        HISTORY_REAL,
+        Decimal("0.06"),
+        TARGET,
+        TOLERANCE,
+        raised=False,
     )
 
-    assert after == 88
+    assert after == 94
 
 
 def test_the_loss_per_meeting_has_a_ceiling() -> None:
-    after = next_credibility(50, Decimal("-0.05"), Decimal("0.1"), TARGET, raised=False)
+    after = next_credibility(
+        50,
+        Decimal("-0.05"),
+        HISTORY_REAL,
+        Decimal("0.1"),
+        TARGET,
+        TOLERANCE,
+        raised=False,
+    )
 
     assert after == 30
 
 
-def test_raising_recovers_slowly() -> None:
-    after = next_credibility(50, Decimal("0.01"), Decimal("0.1"), TARGET, raised=True)
+def test_inflation_inside_the_tolerance_costs_nothing() -> None:
+    # 4,31% contra a meta de 3,75% mais 1,5: dentro da faixa, mesmo com o juro real abaixo
+    after = next_credibility(
+        70,
+        Decimal("0.01"),
+        HISTORY_REAL,
+        Decimal("0.0431"),
+        TARGET,
+        TOLERANCE,
+        raised=False,
+    )
+
+    assert after == 70
+
+
+def test_raising_the_selic_recovers_slowly() -> None:
+    after = next_credibility(
+        50,
+        Decimal("0.01"),
+        HISTORY_REAL,
+        Decimal("0.1"),
+        TARGET,
+        TOLERANCE,
+        raised=True,
+    )
 
     assert after == 53
 
 
-def test_keeping_with_inflation_on_target_costs_nothing() -> None:
-    after = next_credibility(70, Decimal("0.01"), Decimal("0.03"), TARGET, raised=False)
+def test_matching_or_beating_the_history_rebuilds_credibility() -> None:
+    # Sem subir a SELIC, juro real igual ou acima do da história devolve 3, mesmo com a inflação alta
+    for real_rate in (HISTORY_REAL, Decimal("0.07")):
+        after = next_credibility(
+            50,
+            real_rate,
+            HISTORY_REAL,
+            Decimal("0.1"),
+            TARGET,
+            TOLERANCE,
+            raised=False,
+        )
 
-    assert after == 70
+        assert after == 53
+
+
+def test_half_a_step_below_the_history_is_still_the_history() -> None:
+    # A SELIC decide em passos de 0,25: 0,125 ponto abaixo é o arredondamento, não desvio
+    after = next_credibility(
+        50,
+        HISTORY_REAL - Decimal("0.00125"),
+        HISTORY_REAL,
+        Decimal("0.1"),
+        TARGET,
+        TOLERANCE,
+        raised=False,
+    )
+
+    assert after == 53
+
+
+def test_credibility_never_passes_the_full_mark() -> None:
+    after = next_credibility(
+        99,
+        HISTORY_REAL,
+        HISTORY_REAL,
+        Decimal("0.03"),
+        TARGET,
+        TOLERANCE,
+        raised=False,
+    )
+
+    assert after == 100
 
 
 def test_credibility_premium_is_two_points_at_zero() -> None:

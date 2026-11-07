@@ -167,10 +167,10 @@ Ex.: SELIC de 10,75% com o IPCA dentro da meta: a próxima reunião decide entre
 
 **O juro real.** O efeito da SELIC na inflação vem pelo juro real (SELIC menos IPCA de 12 meses), pela [ligação do juro real](#a-economia-interligada). Um juro real perto de **5%** é o **neutro**: nem esquenta nem esfria a economia. Ex.: SELIC de 10,75% com IPCA de 4,5% dão juro real de 6,25%, um pouco acima do neutro; cortar a SELIC para 8,75% com a história parada em 10,75% deixa o juro real em 4,25%, 2 pontos abaixo da história, e, mantido por um ano, soma uns 0,6 ponto ao IPCA no ano seguinte.
 
-**A credibilidade.** A credibilidade do Banco Central vai de 0 a 100 e começa em 100. Ela mede o quanto o mercado acredita que a inflação vai voltar para a meta:
+**A credibilidade.** A credibilidade do Banco Central vai de 0 a 100 e começa em 100. Ela mede o quanto o mercado acredita que a inflação vai voltar para a meta, e a régua é a história: quem marca a SELIC que a história teve no dia mantém os 100.
 
-- Cada reunião com o juro real abaixo do neutro e o IPCA acima da meta tira **4 pontos por ponto** de juro real abaixo do neutro, até 20 por reunião. Ex.: juro real de 2% com o IPCA acima da meta tira 12 pontos.
-- Cada alta da SELIC devolve **3 pontos**.
+- Cada reunião em que o juro real da partida fica abaixo do da história (por mais de meio passo de 0,25, que é a folga do arredondamento) e o IPCA em 12 meses passa da **meta mais a tolerância** tira **4 pontos por ponto** abaixo da história, até 20 por reunião. Ex.: com a história em 5% de juro real, um juro real de 3,5% e o IPCA acima da faixa tiram 6 pontos. Com o IPCA dentro da faixa, o corte não custa credibilidade.
+- Cada alta da SELIC, ou reunião com o juro real igual ou acima do da história, devolve **3 pontos**.
 - Credibilidade baixa custa de três jeitos: a dívida paga até **2 pontos de prêmio de risco** a mais (com 80 de credibilidade, 0,4 ponto); o efeito do juro real na inflação cresce até **2 vezes** (com 80, 1,2 vez); e chega mais cedo, porque o mercado reajusta preço antes.
 
 Credibilidade acima de 80 é boa; abaixo de 50, a dívida e a inflação já sentem.
