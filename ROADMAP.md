@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-07):** Os conceitos de economia real ganharam o cartão na tela: o nome sublinhado abre a definição, o conceito aplicado à partida e o Saiba mais.
+> **Última mudança (2026-11-07):** A calibragem de 10 anos achou dois defeitos na 3.4: o desemprego da partida que nunca volta ao normal e o teto da SELIC do presidente preso à inflação; a calibragem roda de novo depois das duas correções.
 
 ## Glossário
 
@@ -51,7 +51,7 @@
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93), [F226](#f226) | — | — | — |
 | **N32** | — | Saber como foi o mês sem montar a conta | — | — | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F97](#f97), [F164](#f164), [F165](#f165), [F175](#f175), [F176](#f176), [F177](#f177), [F191](#f191), [F194](#f194), [F195](#f195), [F216](#f216), [F222](#f222), [F223](#f223), [F224](#f224), [F226](#f226), [F227](#f227), [F228](#f228), [F229](#f229) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F97](#f97), [F164](#f164), [F165](#f165), [F175](#f175), [F176](#f176), [F177](#f177), [F191](#f191), [F194](#f194), [F195](#f195), [F216](#f216), [F222](#f222), [F223](#f223), [F224](#f224), [F226](#f226), [F227](#f227), [F228](#f228), [F229](#f229), [F230](#f230), [F231](#f231) | — | — | — |
 | **N35** | — | Tirar da lista as partidas que não interessam mais | — | — | — | — | — |
 | **N36** | — | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — | — |
 | **N37** | — | Comprar bitcoin do jeito que dá na vida real, em frações | — | — | — | — | — |
@@ -109,6 +109,8 @@
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M25 · 4.3 | — | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F229**](#f229) | Spike | Calibragem da economia numa partida de 10 anos | M21 · 3.4 | — | Médio | Excelente | ⏳ |
+| [**F230**](#f230) | Correção | Desemprego da partida volta devagar ao normal da época | M21 · 3.4 | — | Baixo | Excelente | ⏳ |
+| [**F231**](#f231) | Melhoria | SELIC do presidente livre até 3 pontos por reunião | M21 · 3.4 | — | Baixo | Excelente | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (34 itens — clique pra expandir)</strong></summary>
@@ -133,7 +135,7 @@
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F175](#f175), [F176](#f176) | — | — | ✅ |
-| **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F97](#f97), [F191](#f191), [F194](#f194), [F223](#f223), [F224](#f224), [F226](#f226), [F227](#f227), [F228](#f228), [F229](#f229) | — | — | ✅ |
+| **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F97](#f97), [F191](#f191), [F194](#f194), [F223](#f223), [F224](#f224), [F226](#f226), [F227](#f227), [F228](#f228), [F229](#f229), [F230](#f230), [F231](#f231) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 | — | — | — | ✅ |
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 | — | — | — | ✅ |
@@ -164,7 +166,7 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 13/14 concluídos
+> **Progresso:** 13/16 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -181,7 +183,9 @@
 | 11 | [**F223**](#f223) | Correção | Credibilidade do Banco Central medida contra a história | — | ✅ Concluído |
 | 12 | [**F224**](#f224) | Feature | Primário que estabiliza a dívida no painel da Economia | — | ✅ Concluído |
 | 13 | [**F228**](#f228) | Correção | Gasto do governo contado uma vez só na inflação | — | ✅ Concluído |
-| 14 | [**F229**](#f229) | Spike | Calibragem da economia numa partida de 10 anos | [F228](#f228) | ⏳ Pendente |
+| 14 | [**F230**](#f230) | Correção | Desemprego da partida volta devagar ao normal da época | — | ⏳ Pendente |
+| 15 | [**F231**](#f231) | Melhoria | SELIC do presidente livre até 3 pontos por reunião | — | ⏳ Pendente |
+| 16 | [**F229**](#f229) | Spike | Calibragem da economia numa partida de 10 anos | [F230](#f230), [F231](#f231) | ⏳ Pendente |
 
 ### 3.5 — Congresso e eleição (M23)
 
@@ -325,7 +329,8 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F229**](#f229) | Spike | Calibragem da economia numa partida de 10 anos | M21 · 3.4 · 14º | 0 | Médio | Excelente | ⏳ |
+| [**F230**](#f230) | Correção | Desemprego da partida volta devagar ao normal da época | M21 · 3.4 · 14º | 1 | Baixo | Excelente | ⏳ |
+| [**F231**](#f231) | Melhoria | SELIC do presidente livre até 3 pontos por reunião | M21 · 3.4 · 15º | 1 | Baixo | Excelente | ⏳ |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M23 · 3.5 · 2º | 1 | Médio | Bom | ⏳ |
 | [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 · 3º | 0 | Alto | Bom | ⏳ |
@@ -373,7 +378,9 @@
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
-| **F229** | Spike | Calibragem da economia numa partida de 10 anos | N34 | D20 | M21 · 3.4 | [F228](#f228) | Médio | Baixo | Alto | Excelente |
+| **F229** | Spike | Calibragem da economia numa partida de 10 anos | N34 | D20 | M21 · 3.4 | [F230](#f230), [F231](#f231) | Médio | Baixo | Alto | Excelente |
+| **F230** | Correção | Desemprego da partida volta devagar ao normal da época | N34 | D20 | M21 · 3.4 | — | Baixo | Médio | Alto | Excelente |
+| **F231** | Melhoria | SELIC do presidente livre até 3 pontos por reunião | N34 | D20 | M21 · 3.4 | — | Baixo | Baixo | Alto | Excelente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -444,7 +451,19 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 **F225 — Conceitos de economia real na docs e nomeados na tela.** Serve N41 e N25; condicionado por D21. **Para quem:** quem joga e quer entender por que a economia da partida reagiu como reagiu, e quem lê a docs sem jogar. **O que cobre:** uma página por conceito na categoria de explicação que a reorganização da docs cria: juro real e juro real neutro, curva IS, lei de Okun, curva de Phillips, princípio de Taylor e a reação do Banco Central, defasagem da política monetária, meta de inflação e tolerância, credibilidade e expectativas, prêmio de risco, dinâmica da dívida (r − g) e espiral da dívida, primário que estabiliza a dívida e dominância fiscal. Cada página diz o que o conceito mede, um exemplo numérico, o que é valor bom e ruim, a fonte (relatório do Banco Central, artigo ou livro-texto) e como o jogo o implementa, com a fórmula e os coeficientes: é o lugar único dos números do modelo (D21), e a seção de economia interligada de `docs/docs/como-usar/governo.md` passa a apontar para as páginas. Cada página fecha com o que o jogo simplifica em relação à economia real, e uma página própria reúne as simplificações do modelo inteiro: as defasagens comprimidas, os coeficientes fixos em todas as épocas, o Banco Central que reage só à inflação (e não ao hiato do PIB) e o câmbio representado pelo prêmio de risco enquanto o dólar não entra na partida. O conteúdo parte dos conceitos e das explicações do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) (`frontend/shared/concepts/concepts.tsx` e `frontend/features/explainers/`), adaptado ao que o jogo faz, e as fórmulas entram com KaTeX no Docusaurus (`remark-math` e `rehype-katex`). **Na tela:** onde um texto do jogo cita um conceito ("segue o princípio de Taylor"), o nome dele vem com o sublinhado pontilhado do app e o cursor de interrogação, o mesmo `HoverCardTrigger term` de `frontend/shared/components/ui/hover-card.tsx` que o nome do padrão de candle usa no desafio. Passar o mouse ou focar abre um cartão no molde de `pattern-hint.tsx`, com três blocos. Primeiro, o nome e uma frase do que o conceito é, sem fórmula. Depois, "Na partida agora": o conceito aplicado ao estado da partida, como "IPCA 6,2% contra meta de 3,0%: o Copom tende a subir a SELIC na próxima reunião". Por fim, o "Saiba mais" para a página da docs. Os dois primeiros funcionam sem rede, e só o link depende dela. **Mecanismo:** um componente `ConceptTerm` em `frontend/shared/components/` e um catálogo dos conceitos em `frontend/shared/lib/` (chave, nome, frase e caminho da página da docs). Cada tela que cita o conceito passa o trecho da partida que o cartão lê, já resolvido pela tela, e o "Na partida agora" é montado a partir desse trecho. No mesmo bloco de texto, só a primeira menção ao conceito leva o sublinhado. Um teste confere que o caminho de cada conceito do catálogo existe em `docs/docs/`. Os pontos de partida são o painel da Economia (cada parcela leva o nome do conceito), a decisão do Copom, o prêmio de risco do Tesouro e o card da dívida. **Onde mora:** `docs/docs/`, na categoria de explicação. **Gatilho:** depois da reorganização da docs.
 
 <a id="f229"></a>
-**F229 — Calibragem da economia numa partida de 10 anos.** Serve N34; condicionado por D20. Cada ligação da economia foi calibrada sozinha ou em mandato curto. Ninguém mediu uma partida longa com um presidente jogando, que é onde os efeitos se somam. A pergunta que o spike fecha: a economia da 3.4 fecha em 10 anos? **Mecanismo:** script de CLI no molde de `.claude/trabalho/economia/calibrate.py`, sobre o banco de teste, a partir de 2001. Ele roda quatro presidentes roteirizados: o que copia a história (SELIC e medidas da série real), o gastador (auxílio e reajustes todo ano, SELIC abaixo da história), o austero (cortes e SELIC acima) e o que alterna, gastador num mandato e austero no outro. A cada semestre ele despeja a partida contra a história: IPCA, SELIC, PIB, desemprego, dívida/PIB, prêmio de risco, credibilidade e bolsa. **O que conta como fechar:** o que copia a história fica dentro de 0,5 ponto da série real em todos os indicadores; o gastador vê inflação subindo, o Copom subindo a SELIC, a credibilidade e o prêmio piorando e a dívida crescendo, e o austero vê o contrário; nenhum indicador diverge sem volta (IPCA de 12 meses e dívida/PIB voltam para perto da história em até 3 anos depois que o presidente para). **Saída:** o relatório em `.claude/trabalho/economia/` e um card de correção para cada ligação que não fechar. **Gatilho:** depois do gasto contado uma vez só na inflação, antes do release da 3.4.
+**F229 — Calibragem da economia numa partida de 10 anos.** Serve N34; condicionado por D20. Cada ligação da economia foi calibrada sozinha ou em mandato curto; o spike mede a partida longa com um presidente jogando, onde os efeitos se somam, e responde se a economia da 3.4 é plausível em 10 anos. **Mecanismo:** scripts de CLI em `.claude/trabalho/economia/` (`calibrate10.py`, `analyze10.py`, `report10.py`), sobre o banco de teste, de jan/2001 a dez/2010. Os presidentes roteirizados são: o que copia a história; o gastador (auxílio e reajustes todo ano, SELIC abaixo da história); o gastador que corrige (gasta dois anos e depois sobe o juro real acima da história); o austero (cortes e SELIC acima); e o alternado (gastador num mandato, austero no outro). Cada um roda com a SELIC do presidente e com o Banco Central autônomo. O despejo é semestral, partida contra história: IPCA, SELIC, PIB, desemprego, dívida/PIB, prêmio de risco, credibilidade e bolsa. **O que conta como plausível:**
+- Quem copia a história fica dentro de 0,5 ponto da série real em todos os indicadores.
+- Gastador e austero movem tudo na direção certa: o gastador tem inflação, prêmio e dívida subindo e credibilidade caindo; o austero, o contrário.
+- O gastador que corrige traz o IPCA de volta à história em até 3 anos.
+- Depois que o presidente para, o desvio do desemprego volta em até 5 anos, e o desvio da dívida/PIB para de crescer quando o primário volta ao da história.
+
+A dívida é um estoque, então ela fica no nível que o mandato deixou. Três comportamentos são plausíveis e não contam como falha: a inflação alta com juro baixo corroendo a dívida (o imposto inflacionário); a espiral de quem deixa um rombo permanente; e o prêmio sem teto na espiral. A primeira rodada, antes das correções do desemprego e do teto da SELIC, está em `.claude/trabalho/economia/calibragem-10-anos.md`. **Saída:** o relatório refeito e um card de correção para cada ligação implausível. **Gatilho:** depois do desemprego que volta e da SELIC livre, antes do release da 3.4.
+
+<a id="f230"></a>
+**F230 — Desemprego da partida volta devagar ao normal da época.** Serve N34; condicionado por D20. Hoje, em `next_month` de `backend/features/economy/growth.py`, o desvio do desemprego só muda pela lei de Okun: cada ponto de crescimento acima da história baixa o desemprego em 0,5 ponto por ano. Nada fecha esse desvio, então ele fica para sempre. Na calibragem de 10 anos, um presidente austero deixou o desemprego 5,5 pontos acima da história sem volta, mesmo com o PIB crescendo igual ao da história. As obras, pelo mesmo motivo, deixam o desemprego baixo por anos e seguem somando inflação pela curva de Phillips (0,092 ponto de IPCA aos 24 meses contra 0,050 do efeito direto). Na economia real o desemprego volta à taxa natural, a que sobra sem a economia aquecida nem em recessão, e no jogo a história faz esse papel (D20). No Brasil a volta foi lenta: de 13,7% em 2017 para perto de 9% em 2022. O que o jogador fez continua na dívida, na folha, na credibilidade e na bolsa; só o desvio do desemprego se fecha. **Mecanismo:** o desvio do mês passa a ser o do mês anterior vezes um fator de volta, menos o termo de Okun de hoje. A constante `UNEMPLOYMENT_HALF_LIFE_MONTHS` em `growth.py` começa em 24 meses, ajustada por CLI para que um desvio de 5 pontos caia abaixo de 1 ponto em cerca de 5 anos. O teste da partida longa em `tests/` confere a volta. Na mesma entrega, a medição do gasto pelos dois caminhos da inflação roda de novo para as obras (os scripts estão em `.claude/trabalho/economia/measure_f228.py`). A frase de `docs/docs/como-usar/governo.md` sobre o indireto das obras "seguir crescendo" sai, e o parágrafo da economia interligada ganha a volta do desemprego. **Aceite:** austero com SELIC do presidente, depois de parar, com o desvio do desemprego abaixo de 1 ponto em até 5 anos; IPCA somado pelas obras, nos dois caminhos, dentro de 20% do passo aos 24 meses.
+
+<a id="f231"></a>
+**F231 — SELIC do presidente livre até 3 pontos por reunião.** Serve N34; condicionado por D20. Hoje, com a SELIC nas mãos do governo, cada reunião move no máximo 0,75 ponto, ou 1,5 com o IPCA acima do teto da meta e 3 com ele acima de 15% (`meeting_cap` em `backend/features/economy/monetary.py`). Essa é a regra de um Banco Central de verdade, imposta a um presidente que tirou a autonomia dele. Ela também impede copiar a história: o Copom real subiu 3 pontos em out/2002, com o IPCA perto de 8%, e cortou 1,5 em 2009, dentro da meta. Na calibragem de 10 anos, quem copiou a história ficou até 4,4 pontos de SELIC longe dela. A SELIC passa a ser estratégia do presidente: o limite vira um teto fixo de 3 pontos por reunião, para cima e para baixo, a maior alta do Copom desde 1999, sem depender da inflação. O custo de "meter o louco" vem do mercado e não da regra: a credibilidade já cobra de quem segura o juro real abaixo da história, e o mercado que reage à surpresa (4.3) cobrará de quem surpreende. **Mecanismo:** `meeting_cap` e as constantes `NORMAL_CAP`, `TOLERANCE_CAP`, `CRISIS_CAP` e `CRISIS_INFLATION` dão lugar a uma constante `PRESIDENT_CAP = Decimal("0.03")`; `selic_cap` em `backend/features/government/government_book.py` devolve ela, e o bot presidente usa a mesma janela. O passo de 0,25 ponto e o calendário de 8 reuniões ficam. Os testes do teto em `tests/` passam a conferir a janela de 3 pontos com qualquer IPCA, e a seção "O teto por reunião" de `docs/docs/como-usar/governo.md` (e a frase das fontes) é reescrita. O Banco Central autônomo não muda: ele segue a história mais a reação à inflação. **Aceite:** o presidente que copia a história fica dentro de 0,25 ponto da SELIC real em todas as reuniões de 2001 a 2010.
 
 ---
 
