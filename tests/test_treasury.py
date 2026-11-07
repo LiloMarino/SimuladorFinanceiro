@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 import threading
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import ROUND_DOWN, Decimal
@@ -736,13 +736,13 @@ def test_a_title_that_left_the_catalog_is_still_sellable(holding: Holding):
 
 
 @pytest.mark.parametrize(
-    ("asset", "sellable", "free_of_loss"),
+    ("make_asset", "sellable", "free_of_loss"),
     [
-        (cdb(daily_liquidity=True), True, True),
-        (cdb(daily_liquidity=False), False, False),
-        (issued(PREFIXED), True, False),
-        (issued(IPCA), True, False),
-        (issued(SELIC), True, True),
+        (lambda: cdb(daily_liquidity=True), True, True),
+        (lambda: cdb(daily_liquidity=False), False, False),
+        (lambda: issued(PREFIXED), True, False),
+        (lambda: issued(IPCA), True, False),
+        (lambda: issued(SELIC), True, True),
     ],
     ids=[
         "cdb-daily",
@@ -753,8 +753,9 @@ def test_a_title_that_left_the_catalog_is_still_sellable(holding: Holding):
     ],
 )
 def test_liquidity_comes_from_the_type_of_the_title(
-    asset: FixedIncomeAssetDTO, sellable: bool, free_of_loss: bool
+    make_asset: Callable[[], FixedIncomeAssetDTO], sellable: bool, free_of_loss: bool
 ):
+    asset = make_asset()
     assert sellable_any_day(asset) is sellable
     assert loss_free(asset) is free_of_loss
 
