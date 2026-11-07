@@ -96,7 +96,6 @@
 | [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 | — | Alto | Bom | ⏳ |
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.1 | — | — | — | 🔍 |
-| [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M21 · 3.4 | — | — | — | 🔍 |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | M28 · 4.6 | — | — | — | 🔍 |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.4 | — | — | — | 🔍 |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 | — | Médio | Bom | ⏳ |
@@ -108,7 +107,7 @@
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -135,6 +134,7 @@
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 | — | — | — | ✅ |
 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | M21 · 3.4 | — | — | — | ✅ |
 | [**F191**](#f191) | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | M21 · 3.4 | — | — | — | ✅ |
+| [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M21 · 3.4 | — | — | — | ✅ |
 | [**F196**](#f196) | Melhoria | Evolução do patrimônio por tipo de renda variável | — | — | — | — | ✅ |
 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 | — | — | — | ✅ |
 | [**F217**](#f217) | Correção | Correções da 3.4 | M21 · 3.4 | — | — | — | ✅ |
@@ -155,7 +155,7 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 8/10 concluídos
+> **Progresso:** 9/10 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -167,7 +167,7 @@
 | 6 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | — | ✅ Concluído |
 | 7 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | — | ✅ Concluído |
 | 8 | [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | — | ✅ Concluído |
-| 9 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | 🔍 Em avaliação |
+| 9 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | ✅ Concluído |
 | 10 | [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | — | ⏳ Pendente |
 
 ### 3.5 — Congresso e eleição (M23)
@@ -320,7 +320,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | M21 · 3.4 · 9º | 0 | — | — | 🔍 |
 | [**F219**](#f219) | Correção | Correções da 3.4: playtest de 05/11 | M21 · 3.4 · 10º | 0 | Baixo | Bom | ⏳ |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M23 · 3.5 · 2º | 1 | Médio | Bom | ⏳ |
@@ -458,7 +457,6 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 | **F131** | Feature | Catálogo de padrões de vela | N19 | — | M28 · 4.6 | — | Tópico do Como jogar com cada padrão animado |
 | **F158** | Melhoria | Animações do Como jogar revistas | N25 | — | M28 · 4.6 | — | O visual numa rodada no canvas dedicada: animações atuais contra as primeiras, número do passo fora da cena, cursor e destaque, e o palco em tamanho real mostrando só o trecho do passo |
 | **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.1 | [F44](#f44) | Escolher a variante entre as do canvas, já com o layout das Gestoras |
-| **F192** | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | N12 | — | M21 · 3.4 | — | A forma dos controles de regime, a reprodutibilidade pela semente, o teto medido do horizonte e a relação com a economia interligada (F191). |
 | **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | — | M28 · 4.6 | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
 | **F194** | Feature | Dólar e ativos internacionais | N34, N11 | D20 | M26 · 4.4 | [F191](#f191) | Como o dólar do jogo reage (desconfiança, juro real), a camada pelo desvio sobre BDR e IVVB11 e onde o seletor de origem aparece. |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.3 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
@@ -509,13 +507,6 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 
 <a id="f179"></a>
 **F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: depois do selo de pausa vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Hoje isso é um caso extremo; com as Gestoras, governo, gestora e corrida pela meta ligados juntos passam a ser o caso comum, e é lá que o desenho se decide. O desenho no canvas já inclui o layout com as Gestoras, então a topbar é resolvida na 4.1, depois da F44, e entra no app já certa para o conjunto. A topbar não quebra linha, então a variante em duas linhas fica fora. Das outras, o canvas compara: (a) a velocidade num botão só ("10×") que abre as opções; (b) a corrida e o governo como selos compactos, com o detalhe ao passar o mouse. A referência é 1920 de largura, e em 1366 nada pode quebrar; o estado de teste é corrida, governo e gestora ligados, pausa com o motivo mais longo e o x100 destacado. O selo de pausa já sai só com "Pausado" e o motivo numa dica no lote de correções da 3.4 (F217), pedido dos playtests de 31/out e 04/11. Sai daqui para Pendente com a variante escolhida.
-
-<a id="f192"></a>
-**F192 — Gerador de futuro: inflação por regime e horizonte em anos.** Serve N12. Hoje o choque de inflação é um pulso: sobe em seis meses e cai pela metade a cada ano, então no máximo faz um pico no começo do futuro gerado; o playtest de 31/out esperava um controle da inflação do futuro inteiro. O "Começar em", que só decide onde o gerado encaixa no real, pesa pouco. E o "até quando" é um campo de data livre: apagar ou errar um dígito já dispara a prévia, e milhares de anos travam (o limite no backend vai no lote de correções, F184).
-
-A direção do playtest: (1) o choque vira regime, com um controle do nível (a inflação média do futuro inteiro sobe ou desce, com a SELIC e a bolsa reagindo pelos coeficientes de hoje) e outro dos ciclos (com que frequência e intensidade vêm os períodos de inflação alta); (2) o "Começar em" sai; (3) o "até quando" vira escolha de ano, com teto medido e aviso a partir do ponto em que a prévia fica lenta.
-
-O playtest de 05/11 notou que o futuro gerado parece não contemplar PIB nem desemprego. O gerador produz a bolsa, a SELIC, o IPCA e o CDI; o PIB e o desemprego do futuro saem do modelo de crescimento da economia interligada (`economy/growth.py`), a partir da SELIC, do IPCA e da bolsa gerados, e a prévia do diálogo mostra só bolsa, SELIC e IPCA. Isso cabe aqui: com o regime de inflação, o PIB e o desemprego passam a reagir ao nível e aos ciclos, e a prévia ganha as duas linhas para o jogador ver o efeito. A decisão em aberto é se o PIB e o desemprego também aparecem na Central, no trecho gerado.
 
 <a id="f193"></a>
 **F193 — Indicadores técnicos e padrões de vela explicados no Como jogar.** Serve N25 e N19. Hoje cada indicador técnico diz Compra, Venda ou Neutro, com um "i" de texto curto que não ensina a ler, e o "i" dos padrões de vela nem abre. A ideia do playtest de 31/out: um tópico por indicador no Como jogar, em fases: o que é e como se calcula; por que ele aponta compra ou venda; um caso em que acerta; as ressalvas, quando ele engana. O "i" do indicador abre o tópico na aba dele. O mesmo molde serve aos padrões de vela, junto do catálogo (F131). As ordens a mercado e limitada já têm o tópico "Ordem a mercado e limitada" (`tutorial/topics/order-types.tsx`), que mostra a limitada esperando o preço chegar ao limite, e ficam como estão.
@@ -612,6 +603,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F165** | Feature | Tela do Tesouro: títulos pelo risco do governo | N34 | — | M21 · 3.4 |
 | **F177** | Feature | Marcação a mercado do Tesouro | N34 | — | M21 · 3.4 |
 | **F191** | Feature | Economia interligada: bolsa, PIB, IPCA, SELIC, desemprego e dívida | N34 | D20 | M21 · 3.4 |
+| **F192** | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | N12 | — | M21 · 3.4 |
 | **F196** | Melhoria | Evolução do patrimônio por tipo de renda variável | N16 | — | — |
 | **F216** | Correção | Pontas soltas das features entregues | N15, N34 | — | M21 · 3.4 |
 | **F217** | Correção | Correções da 3.4 | N15 | — | M21 · 3.4 |
@@ -643,6 +635,11 @@ O crescimento do PIB e o desemprego viraram séries baixadas do SGS (PIB do IBGE
 Na tela de Economia, o cartão de efeitos lista medidas e ligações; o do crescimento mostra a série do IBGE mais as quatro parcelas (juro real, bolsa, obras, impulso); o do desemprego, a história mais o que a partida somou; o da dívida, a taxa média e de onde veio a variação de 12 meses. A seção "A economia interligada" do guia do governo explica tudo. O peso da bolsa no crescimento era 0,05 mesmo: o "5" do registro antigo era erro de digitação.
 
 Limitação: as linhas das ligações no painel foram conferidas em teste automatizado, mas não numa partida com medidas aprovadas no app. O banco principal precisa da migration e de baixar as duas séries novas na Central de dados.
+
+<a id="f192"></a>
+**F192 — Gerador de futuro: inflação por regime e horizonte em anos.** Serve N12. O choque de inflação, que era um pulso no começo do futuro, virou dois controles: o nível (de −5 a +20 pontos, permanente: a SELIC sobe 1,5× na subida e assenta em 1×, a bolsa leva o tombo e depois sobe com a inflação somada) e os surtos (frequência de 0 a 5 por década e intensidade de 2 a 20 pontos, sorteados por ano a partir da semente). O "Começar em" saiu. O "até quando" virou escolha de ano, com teto de 30 anos: a prévia de 30 anos leva 0,41 s, abaixo do 1 s que pediria um aviso, então não há aviso.
+
+A prévia ganhou o crescimento do PIB e o desemprego, calculados mês a mês pelo modelo de `economy/growth.py` a partir da SELIC, do IPCA e da bolsa gerados, sem gravar nada. Na Central, o PIB e o desemprego aparecem com uma cor e uma legenda próprias, "calculado na partida", no trecho depois do dado real. Com nível +10, o PIB cai na transição e termina cerca de 0,8 ponto abaixo do PIB sem nível depois de 10 anos, porque o alvo do PIB soma a bolsa em termos nominais; deflacionar a bolsa nesse alvo é uma mudança de calibração do jogo, que fica para decisão própria.
 
 <a id="f196"></a>
 **F196 — Evolução do patrimônio por tipo de renda variável.** Serve N16. Hoje a evolução do patrimônio (`portfolio/components/networth-chart.tsx`) tem as visões "Ganho" e "Por classe", que separa renda fixa, renda variável e caixa, um painel por classe. O playtest de 31/out pediu ver a renda variável aberta por tipo.
