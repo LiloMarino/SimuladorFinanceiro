@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-07):** Dividida a partida do lobby em arquivos por parte
+> **Última mudança (2026-11-07):** Dividida a folha de regras do lobby em arquivos por parte
 
 ## Glossário
 
@@ -106,12 +106,11 @@
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M25 · 4.3 | — | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | — | — | — | 🔍 |
-| [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | M22 · 4.0 | — | Alto | Bom | ⏳ |
 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | M22 · 4.0 | — | Alto | Médio | ⏳ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | — | Alto | Médio | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (31 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (32 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -145,6 +144,7 @@
 | [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | M22 · 4.0 | — | — | — | ✅ |
 | [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | M22 · 4.0 | — | — | — | ✅ |
 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | M22 · 4.0 | — | — | — | ✅ |
+| [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | M22 · 4.0 | — | — | — | ✅ |
 | [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | M22 · 4.0 | — | — | — | ✅ |
 
 </details>
@@ -161,7 +161,7 @@
 >
 > **Serve:** N3, N7
 >
-> **Progresso:** 11/15 concluídos
+> **Progresso:** 12/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -177,7 +177,7 @@
 | 10 | [**F240**](#f240) | Manutenção | Badge de passo como variante do design system | — | ✅ Concluído |
 | 11 | [**F241**](#f241) | Manutenção | Card de ações de campanha em arquivos por parte | — | ✅ Concluído |
 | 12 | [**F242**](#f242) | Manutenção | Partida do lobby em arquivos por parte | — | ✅ Concluído |
-| 13 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | ⏳ Pendente |
+| 13 | [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | — | ✅ Concluído |
 | 14 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | ⏳ Pendente |
 | 15 | [**F245**](#f245) | Manutenção | Limpeza de scripts e docs | — | ✅ Concluído |
 
@@ -298,7 +298,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F22**](#f22) | Feature | Preço bruto, desdobramentos e dividendos na partida | M22 · 4.0 · 1º | 2 | Alto | Bom | ⏳ |
-| [**F243**](#f243) | Manutenção | Folha de regras do lobby em arquivos por parte | M22 · 4.0 · 13º | 0 | Alto | Bom | ⏳ |
 | [**F244**](#f244) | Manutenção | Gráfico de ações em arquivos por parte e um hook | M22 · 4.0 · 14º | 0 | Alto | Médio | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.2 · 1º | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 · 2º | 0 | — | — | 🔍 |
@@ -341,7 +340,6 @@
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
-| **F243** | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | M22 · 4.0 | — | Alto | Médio | Médio | Bom |
 | **F244** | Manutenção | Gráfico de ações em arquivos por parte e um hook | — | — | M22 · 4.0 | — | Alto | Alto | Médio | Médio |
 
 <a id="f6"></a>
@@ -390,13 +388,6 @@
 
 <a id="f225"></a>
 **F225 — Conceitos de economia real na docs e nomeados na tela.** Serve N41 e N25; condicionado por D21. **Para quem:** quem joga e quer entender por que a economia da partida reagiu como reagiu, e quem lê a docs sem jogar. **O que cobre:** uma página por conceito na categoria de explicação que a reorganização da docs cria: juro real e juro real neutro, curva IS, lei de Okun, curva de Phillips, princípio de Taylor e a reação do Banco Central, defasagem da política monetária, meta de inflação e tolerância, credibilidade e expectativas, prêmio de risco, dinâmica da dívida (r − g) e espiral da dívida, primário que estabiliza a dívida e dominância fiscal. Cada página diz o que o conceito mede, um exemplo numérico, o que é valor bom e ruim, a fonte (relatório do Banco Central, artigo ou livro-texto) e como o jogo o implementa, com a fórmula e os coeficientes: é o lugar único dos números do modelo (D21), e a seção de economia interligada de `docs/docs/como-usar/governo.md` passa a apontar para as páginas. Cada página fecha com o que o jogo simplifica em relação à economia real, e uma página própria reúne as simplificações do modelo inteiro: as defasagens comprimidas, os coeficientes fixos em todas as épocas, o Banco Central que reage só à inflação (e não ao hiato do PIB) e o câmbio representado pelo prêmio de risco enquanto o dólar não entra na partida. O conteúdo parte dos conceitos e das explicações do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) (`frontend/shared/concepts/concepts.tsx` e `frontend/features/explainers/`), adaptado ao que o jogo faz, e as fórmulas entram com KaTeX no Docusaurus (`remark-math` e `rehype-katex`). **Na tela:** onde um texto do jogo cita um conceito ("segue o princípio de Taylor"), o nome dele vem com o sublinhado pontilhado do app e o cursor de interrogação, o mesmo `HoverCardTrigger term` de `frontend/shared/components/ui/hover-card.tsx` que o nome do padrão de candle usa no desafio. Passar o mouse ou focar abre um cartão no molde de `pattern-hint.tsx`, com três blocos. Primeiro, o nome e uma frase do que o conceito é, sem fórmula. Depois, "Na partida agora": o conceito aplicado ao estado da partida, como "IPCA 6,2% contra meta de 3,0%: o Copom tende a subir a SELIC na próxima reunião". Por fim, o "Saiba mais" para a página da docs. Os dois primeiros funcionam sem rede, e só o link depende dela. **Mecanismo:** um componente `ConceptTerm` em `frontend/shared/components/` e um catálogo dos conceitos em `frontend/shared/lib/` (chave, nome, frase e caminho da página da docs). Cada tela que cita o conceito passa o trecho da partida que o cartão lê, já resolvido pela tela, e o "Na partida agora" é montado a partir desse trecho. No mesmo bloco de texto, só a primeira menção ao conceito leva o sublinhado. Um teste confere que o caminho de cada conceito do catálogo existe em `docs/docs/`. Os pontos de partida são o painel da Economia (cada parcela leva o nome do conceito), a decisão do Copom, o prêmio de risco do Tesouro e o card da dívida. **Onde mora:** `docs/docs/`, na categoria de explicação. **Gatilho:** depois da reorganização da docs.
-
-<a id="f243"></a>
-**F243 — Folha de regras do lobby em arquivos por parte.** `lobby/components/rules-sheet.tsx` tem o hook `useNow`, o `SaveStatus` e as seções do formulário (Básico, Modo de jogo, Tipo de partida, Meta, Quem vence, Impacto de preço) no mesmo arquivo.
-
-`useNow` vai para `shared/hooks` e `SaveStatus` para arquivo próprio. Cada `FieldSet` vira um componente que recebe `form`, `readOnly` e os valores observados, numa pasta `rules-sheet/` com `index.tsx`; `selectGameType` e o `useWatch` ficam no principal.
-
-Por fora nada muda. Confere-se com `pnpm --dir frontend run check`, `vitest` e a folha de regras aberta no app de teste, nas abas e salvando.
 
 <a id="f244"></a>
 **F244 — Gráfico de ações em arquivos por parte e um hook.** `variable-income/components/stock-chart.tsx` tem constantes, helpers puros, três subcomponentes (`PopRow`, `LegendItem`, `PaneLabel`) e um efeito de criação do gráfico com dois `oxlint-disable` de exhaustive-deps, sem teste de componente. É o mais delicado dos quatro e o último da fila.
@@ -596,6 +587,7 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F240** | Manutenção | Badge de passo como variante do design system | — | — | M22 · 4.0 |
 | **F241** | Manutenção | Card de ações de campanha em arquivos por parte | — | — | M22 · 4.0 |
 | **F242** | Manutenção | Partida do lobby em arquivos por parte | — | — | M22 · 4.0 |
+| **F243** | Manutenção | Folha de regras do lobby em arquivos por parte | — | — | M22 · 4.0 |
 | **F245** | Manutenção | Limpeza de scripts e docs | — | — | M22 · 4.0 |
 
 <a id="f233"></a>
@@ -659,6 +651,13 @@ Por fora nada mudou.
 `dateField`, `simulationFormSchema` e o tipo `SimulationFormValues` foram para `lobby/lib/simulation-form.ts`, que já era dono de `toFormValues` e `toSettingsBody`; os oito arquivos que importavam o tipo do card agora importam de lá, e a lib deixou de depender de um componente.
 
 As linhas do resumo ficaram como função (`summaryRows`) e não como componente, porque o `index.tsx` também usa os rótulos delas no esqueleto de carregamento.
+
+Por fora nada mudou.
+
+<a id="f243"></a>
+**F243 — Folha de regras do lobby em arquivos por parte.** `rules-sheet.tsx` virou a pasta `rules-sheet/`, com `index.tsx` (a folha, as abas, o `useWatch` e as escolhas de tipo de partida e de impacto de preço) e um arquivo por seção do formulário: `basics-fields.tsx`, `grouping-fields.tsx`, `game-type-fields.tsx`, `goal-fields.tsx`, `victory-fields.tsx` e `price-impact-fields.tsx`. Cada seção recebe o `form`, o `readOnly` e só os valores observados que usa. Quem importa a folha continua com o mesmo caminho.
+
+O `SaveStatus` ganhou arquivo próprio, com o tipo `RulesSaveStatus` que a folha e o lobby passam a compartilhar, e o `useNow` foi para `shared/hooks`.
 
 Por fora nada mudou.
 
