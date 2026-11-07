@@ -30,6 +30,7 @@ from backend.core.indicators import (
     last_known_value,
 )
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR
+from backend.core.rates import compose, period_rate
 from backend.core.utils import is_business_day, next_business_day
 from backend.features.tax_policy import DEFAULT_TAX_POLICY, TaxPolicy
 
@@ -75,13 +76,13 @@ def effective_annual_rate(asset: FixedIncomeAssetDTO, index_rate: Decimal) -> De
         case RateIndexType.CDI:
             return index_rate * asset.interest_rate
         case RateIndexType.IPCA | RateIndexType.SELIC:
-            return (1 + index_rate) * (1 + asset.interest_rate) - 1
+            return compose(index_rate, asset.interest_rate)
 
 
 @lru_cache(maxsize=1024)
 def annual_to_daily_factor(annual_rate: Decimal) -> Decimal:
     """Fator de um dia útil: (1 + taxa anual) ^ (1/252)."""
-    return (1 + annual_rate) ** (Decimal(1) / BUSINESS_DAYS_PER_YEAR)
+    return 1 + period_rate(annual_rate, BUSINESS_DAYS_PER_YEAR)
 
 
 def daily_factor(asset: FixedIncomeAssetDTO, index_rate: Decimal | None) -> Decimal:

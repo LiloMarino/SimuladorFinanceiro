@@ -14,6 +14,7 @@ from decimal import Decimal
 from backend.core.enum import LifeEventEffect
 from backend.core.life_budget import cents
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR, MONTHS_PER_YEAR
+from backend.core.rates import compound
 from backend.core.utils import is_business_day, next_business_day
 
 
@@ -110,7 +111,5 @@ def overdraft_interest(cash: Decimal, monthly_rate: Decimal) -> Decimal:
     """Juro de um pregão sobre o caixa negativo; a taxa mensal vira diária na base de 252 pregões."""
     if cash >= 0:
         return Decimal(0)
-    daily = (1 + monthly_rate) ** (
-        Decimal(MONTHS_PER_YEAR) / BUSINESS_DAYS_PER_YEAR
-    ) - 1
+    daily = compound(monthly_rate, Decimal(MONTHS_PER_YEAR) / BUSINESS_DAYS_PER_YEAR)
     return cents(-cash * daily)

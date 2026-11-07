@@ -22,6 +22,7 @@ from backend.core.indicators import (
     primary_result_ratio,
 )
 from backend.core.periods import MONTHS_PER_YEAR
+from backend.core.rates import compose, period_rate
 from backend.core.utils import last_day_of_month
 from backend.features.economy.growth import MacroCourse
 from backend.features.government import measures as rules
@@ -286,9 +287,9 @@ def step(
     A dívida um mês depois: ela rende a taxa média, encolhe com o crescimento e a
     inflação (que aumentam o PIB) e o resultado primário a abate.
     """
-    charged = debt * (1 + rate) ** ONE_TWELFTH
-    grown = charged / (1 + growth) ** ONE_TWELFTH
-    deflated = grown / (1 + ipca) ** ONE_TWELFTH
+    charged = debt * (1 + period_rate(rate, MONTHS_PER_YEAR))
+    grown = charged / (1 + period_rate(growth, MONTHS_PER_YEAR))
+    deflated = grown / (1 + period_rate(ipca, MONTHS_PER_YEAR))
     paid = primary * ONE_TWELFTH
     return deflated - paid, DebtChange(
         interest=charged - debt,
@@ -556,7 +557,8 @@ class BudgetCourse:
             result=primary - previous.debt * rate,
             debt=debt,
             premium=premium(debt) + self._extra_premium(month_end),
-            gdp=previous.gdp * (((1 + growth) * (1 + ipca)) ** ONE_TWELFTH),
+            gdp=previous.gdp
+            * (1 + period_rate(compose(growth, ipca), MONTHS_PER_YEAR)),
             rate=rate,
             window=window,
             change=change,

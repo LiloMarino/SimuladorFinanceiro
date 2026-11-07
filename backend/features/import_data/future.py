@@ -33,7 +33,6 @@ from backend.core.dto.generated_future import (
 from backend.core.dto.series_coverage import SeriesKind
 from backend.core.enum import IndicatorSeries, MarketRegime
 from backend.core.exceptions.http_exceptions import BadRequestError, ConflictError
-from backend.core.periods import BUSINESS_DAYS_PER_YEAR
 from backend.core.repository.generated_future import GeneratedRows
 from backend.core.utils import (
     business_days_between,
@@ -48,6 +47,7 @@ from backend.features.import_data.synthetic import (
     GeneratedSeries,
     MarketHistory,
     SeriesGenerator,
+    to_annual,
 )
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import FutureRecordingProgressEventDTO
@@ -193,9 +193,7 @@ def _preview_series(key: str, real: _Line, generated: _Line) -> PreviewSeriesDTO
 
 def _annual_selic(daily: _Line) -> _Line:
     """SELIC em % ao ano a partir da taxa em % ao dia útil."""
-    return _Line(
-        daily.days, ((1 + daily.values / 100) ** BUSINESS_DAYS_PER_YEAR - 1) * 100
-    )
+    return _Line(daily.days, to_annual(daily.values) * 100)
 
 
 def _ipca_12m(real: _Line, generated: _Line) -> tuple[_Line, _Line]:

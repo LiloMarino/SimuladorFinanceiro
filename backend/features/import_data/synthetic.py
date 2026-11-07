@@ -124,11 +124,11 @@ def _clean(returns: np.ndarray) -> np.ndarray:
     return out
 
 
-def _to_annual(daily_pct: np.ndarray) -> np.ndarray:
+def to_annual(daily_pct: np.ndarray) -> np.ndarray:
     return (1 + daily_pct / 100) ** BUSINESS_DAYS_PER_YEAR - 1
 
 
-def _to_daily(annual: np.ndarray) -> np.ndarray:
+def to_daily(annual: np.ndarray) -> np.ndarray:
     return ((1 + annual) ** (1 / BUSINESS_DAYS_PER_YEAR) - 1) * 100
 
 
@@ -242,10 +242,10 @@ class SeriesGenerator:
         self.selic_annual = np.full(n, np.nan)
         self.last_selic = np.nan
         if selic is not None:
-            self.selic_annual = _to_annual(
+            self.selic_annual = to_annual(
                 selic.reindex(self.calendar, method="ffill").to_numpy()
             )
-            self.last_selic = float(_to_annual(np.array([selic.iloc[-1]]))[0])
+            self.last_selic = float(to_annual(np.array([selic.iloc[-1]]))[0])
         self.selic_changes = np.nan_to_num(np.diff(self.selic_annual, prepend=np.nan))
         with np.errstate(all="ignore"):
             self.selic_floor = np.nanmin(self.selic_annual, initial=np.inf)
@@ -651,14 +651,14 @@ class SeriesGenerator:
         if not days:
             return
         path = self._path(draw, days[-1]).selic
-        spread = self.last_selic - float(_to_annual(np.array([cdi.iloc[-1]]))[0])
+        spread = self.last_selic - float(to_annual(np.array([cdi.iloc[-1]]))[0])
         selic_days = [day for day in days if day in path]
         _, push = self._effects(draw, np.array([_day_number(d) for d in selic_days]))
         annual = np.maximum(
             np.array([path[day] for day in selic_days]) + push, SELIC_FLOOR
         )
         out[IndicatorSeries.SELIC] = pd.Series(
-            np.round(_to_daily(annual), 6), index=selic_days
+            np.round(to_daily(annual), 6), index=selic_days
         )
         cdi_annual = {
             day: rate - spread for day, rate in zip(selic_days, annual, strict=True)
@@ -667,7 +667,7 @@ class SeriesGenerator:
         # Dia em que só o CDI falta (o real da SELIC já saiu) segue o último real
         out[IndicatorSeries.CDI] = pd.Series(
             np.round(
-                _to_daily(
+                to_daily(
                     np.array(
                         [
                             cdi_annual.get(day, self.last_selic - spread)

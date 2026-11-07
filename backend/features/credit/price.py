@@ -13,6 +13,7 @@ from datetime import date
 from decimal import ROUND_HALF_EVEN, Decimal
 
 from backend.core.periods import MONTHS_PER_YEAR
+from backend.core.rates import compound, period_rate
 from backend.features.credit.rules import (
     LATE_FEE,
     LATE_INTEREST_PER_MONTH,
@@ -35,7 +36,7 @@ def add_months(day: date, months: int) -> date:
 
 
 def monthly_rate(annual_rate: Decimal) -> Decimal:
-    return (1 + annual_rate) ** (Decimal(1) / MONTHS_PER_YEAR) - 1
+    return period_rate(annual_rate, MONTHS_PER_YEAR)
 
 
 def installment(principal: Decimal, annual_rate: Decimal, months: int) -> Decimal:
@@ -57,8 +58,8 @@ def grown_balance(
     """
     cycle_days = (next_due - cycle_start).days
     elapsed = min(max((day - cycle_start).days, 0), cycle_days)
-    return cycle_balance * (1 + monthly_rate(annual_rate)) ** (
-        Decimal(elapsed) / cycle_days
+    return cycle_balance * (
+        1 + compound(monthly_rate(annual_rate), Decimal(elapsed) / cycle_days)
     )
 
 

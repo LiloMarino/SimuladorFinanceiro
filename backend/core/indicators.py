@@ -12,6 +12,7 @@ from backend.core import repository
 from backend.core.enum import IndicatorSeries
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR
+from backend.core.rates import compound, period_rate
 from backend.core.utils import business_days_in_month
 
 IPCA_WINDOW_MONTHS = 12
@@ -164,7 +165,7 @@ def daily_rate(series: IndicatorSeries, value: Decimal, day: date) -> Decimal:
     """
     if series is IndicatorSeries.IPCA:
         days = business_days_in_month(day)
-        return (1 + value / 100) ** (Decimal(1) / days) - 1
+        return period_rate(value / 100, days)
     return value / 100
 
 
@@ -176,7 +177,7 @@ def index_daily_rate(series: IndicatorSeries, day: date) -> Decimal | None:
 
 def annualize_daily(value: Decimal) -> Decimal:
     """Taxa anual (0.149) de uma taxa diária em % (0.0551), composta por 252 dias úteis."""
-    return (1 + value / 100) ** BUSINESS_DAYS_PER_YEAR - 1
+    return compound(value / 100, BUSINESS_DAYS_PER_YEAR)
 
 
 def annual_index_rate(

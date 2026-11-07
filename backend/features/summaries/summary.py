@@ -6,10 +6,10 @@ guarda.
 from collections import OrderedDict
 from collections.abc import Sequence
 from decimal import Decimal
-from math import prod
 
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.summaries import YearMonthDTO, YearReviewDTO
+from backend.core.rates import compose
 from backend.features.statistics import risk
 
 
@@ -47,8 +47,8 @@ def year_review(
         year=year,
         networth_start=start.total_networth if start else starting_cash,
         networth_end=end.total_networth,
-        return_pct=_compound([m.return_pct for m in measured]) if measured else None,
-        cdi_pct=_compound([m.cdi for m in monthly]),
+        return_pct=compose(*(m.return_pct for m in measured)) if measured else None,
+        cdi_pct=compose(*(m.cdi for m in monthly)),
         ibov_pct=ibov_pct,
         contributions=end.total_contribution
         - (start.total_contribution if start else Decimal(0)),
@@ -58,7 +58,3 @@ def year_review(
         if len(measured) > 1
         else None,
     )
-
-
-def _compound(rates: Sequence[Decimal]) -> Decimal:
-    return prod((1 + r for r in rates), start=Decimal(1)) - 1

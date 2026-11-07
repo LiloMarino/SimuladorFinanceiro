@@ -14,6 +14,7 @@ from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.enum import IndicatorSeries
 from backend.core.indicators import index_daily_rate
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR
+from backend.core.rates import compound
 from backend.core.repository.economic import IndicatorHistory
 from backend.core.utils import subtract_business_days
 
@@ -119,14 +120,19 @@ def rolling_volatility(
     return series
 
 
+def annualize_growth(cumulative: Decimal, periods: int) -> Decimal:
+    """Um acumulado de `periods` pregões composto para um ano."""
+    if cumulative <= -1:
+        return Decimal(-1)
+    return compound(cumulative, Decimal(BUSINESS_DAYS_PER_YEAR) / periods)
+
+
 def annual_return(days: DailyReturns) -> Decimal | None:
     """Retorno da cota composto para um ano: cota_final^(252/n) - 1."""
     if not days:
         return None
     quota = quota_series([r for _, r in days])[-1]
-    if quota <= 0:
-        return Decimal(-1)
-    return quota ** (Decimal(BUSINESS_DAYS_PER_YEAR) / len(days)) - 1
+    return annualize_growth(quota - 1, len(days))
 
 
 # As taxas já calculadas valem para a série em memória a que pertencem: quando o

@@ -150,20 +150,20 @@ def test_prices_continue_from_the_last_close_with_coherent_bars(generator, histo
 
 
 def test_selic_stays_within_history_and_cdi_keeps_the_spread(generator, history):
-    selic_real = synthetic._to_annual(
+    selic_real = synthetic.to_annual(
         history.indicators[IndicatorSeries.SELIC].to_numpy()
     )
     last_spread = (
         selic_real[-1]
-        - synthetic._to_annual(history.indicators[IndicatorSeries.CDI].to_numpy())[-1]
+        - synthetic.to_annual(history.indicators[IndicatorSeries.CDI].to_numpy())[-1]
     )
 
     for seed in range(20):
         generated = generator.generate(UNTIL, seed=seed)
-        selic = synthetic._to_annual(
+        selic = synthetic.to_annual(
             generated.indicators[IndicatorSeries.SELIC].to_numpy()
         )
-        cdi = synthetic._to_annual(generated.indicators[IndicatorSeries.CDI].to_numpy())
+        cdi = synthetic.to_annual(generated.indicators[IndicatorSeries.CDI].to_numpy())
         assert selic.min() >= selic_real.min() - 1e-6
         assert selic.max() <= selic_real.max() + 1e-6
         np.testing.assert_allclose(selic - cdi, last_spread, atol=1e-4)
@@ -222,9 +222,9 @@ def test_inflation_level_raises_rates_and_hits_the_market(generator):
 
     # O nível é camada por cima dos mesmos trechos: tudo muda na mesma direção
     selic_days = list(calm.indicators[IndicatorSeries.SELIC].index)
-    selic_push = synthetic._to_annual(
+    selic_push = synthetic.to_annual(
         raised.indicators[IndicatorSeries.SELIC].to_numpy()
-    ) - synthetic._to_annual(calm.indicators[IndicatorSeries.SELIC].to_numpy())
+    ) - synthetic.to_annual(calm.indicators[IndicatorSeries.SELIC].to_numpy())
     assert (selic_push[5:] > 0).all()
 
     # No pico, seis meses depois, a SELIC subiu 1,5x o que subiu a inflação anual
@@ -287,7 +287,7 @@ def test_surges_are_pulses_over_the_same_stretches(generator):
 
 def test_next_stretch_starts_close_to_the_current_economy(generator, history):
     # O encaixe de nível sorteia o trecho que começa com SELIC parecida com a de hoje
-    today = synthetic._to_annual(
+    today = synthetic.to_annual(
         history.indicators[IndicatorSeries.SELIC].to_numpy()[-1:]
     )[0]
     chosen = [

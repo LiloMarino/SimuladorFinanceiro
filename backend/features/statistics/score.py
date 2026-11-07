@@ -22,7 +22,7 @@ from backend.core.dto.statistics_report import (
 from backend.core.enum import IndicatorSeries
 from backend.core.indicators import last_known_value
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR
-from backend.features.statistics import returns, risk
+from backend.features.statistics import risk
 
 # Abaixo de ~3 meses, anualizar engana: 10 dias com +2% viram ~64% ao ano
 MIN_SCORE_DAYS = risk.ROLLING_WINDOW
@@ -154,14 +154,10 @@ class _ScoreWalk:
         if n < MIN_SCORE_DAYS:
             return None
 
-        annual = (
-            self._quota ** (Decimal(BUSINESS_DAYS_PER_YEAR) / n) - 1
-            if self._quota > 0
-            else Decimal(-1)
-        )
-        cdi = returns.annualize_growth(self._cdi_growth - 1, self._periods)
+        annual = risk.annualize_growth(self._quota - 1, n)
+        cdi = risk.annualize_growth(self._cdi_growth - 1, self._periods)
         ibov = (
-            returns.annualize_growth(
+            risk.annualize_growth(
                 self._ibov_level / self._ibov_base - 1
                 if self._ibov_level
                 else Decimal(0),

@@ -2,10 +2,12 @@
 
 from decimal import Decimal
 
+from backend.core.rates import compose
+
 
 def nominal_growth(real_growth: Decimal, inflation: Decimal) -> Decimal:
     """O crescimento do PIB em reais correntes, em fração ao ano: o real composto com a inflação."""
-    return (1 + real_growth) * (1 + inflation) - 1
+    return compose(real_growth, inflation)
 
 
 def stabilizing_primary(
