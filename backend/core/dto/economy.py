@@ -93,6 +93,12 @@ class DebtSummaryDTO(BaseDTO):
     debt_amount: Decimal
     gdp: Decimal
     month_result: Decimal | None
+    # Em fração do PIB ao ano: o resultado primário do último fechamento, o primário que
+    # mantém a dívida ÷ PIB parada (o da partida e o da história, cada um com a sua dívida,
+    # taxa e crescimento nominal)
+    primary: Decimal
+    stabilizing_primary: Decimal
+    history_stabilizing_primary: Decimal
 
 
 class ActiveEffectDTO(BaseDTO):

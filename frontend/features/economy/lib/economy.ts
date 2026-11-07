@@ -127,6 +127,14 @@ export function lastMonthChange(points: EconomyPoint[], key: MonthlySeries): num
 
 const POINTS_FORMAT = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
+/** A diferença entre o primário da partida e o que estabiliza a dívida, em palavras (frações do PIB ao ano). */
+export function stabilizingNote(primary: number, stabilizing: number): string {
+  const gap = Math.round((stabilizing - primary) * 1000) / 10;
+  if (gap === 0) return "O primário segura a dívida onde está.";
+  const text = `${POINTS_FORMAT.format(Math.abs(gap))} ${Math.abs(gap) < 2 ? "ponto" : "pontos"} do PIB de primário`;
+  return gap > 0 ? `Faltam ${text} para a dívida parar de subir.` : `Sobram ${text}: a dívida cai.`;
+}
+
 /** "▲ 0,3 no mês" / "▼ 0,3 no mês" / "estável no mês"; sem fechamento ainda, o aviso de que o mês não fechou. */
 export function monthChangeNote(change: number | null): string {
   if (change === null) return "ainda sem fechamento";

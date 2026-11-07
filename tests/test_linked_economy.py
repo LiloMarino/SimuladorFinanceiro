@@ -240,6 +240,10 @@ def test_the_panel_splits_the_debt_the_links_and_the_growth_by_cause(
     )
     assert debt.history_debt == linked.base_budget().latest(end).debt
     assert debt.debt > debt.history_debt
+    # O primário do fechamento e o que estabiliza a dívida, da partida e da história
+    assert debt.primary == linked.budget.latest(end).primary
+    assert math.isfinite(debt.stabilizing_primary)
+    assert math.isfinite(debt.history_stabilizing_primary)
 
     links = {effect.link: effect for effect in panel.links or []}
     risk = links[EconomyLink.FISCAL_RISK]

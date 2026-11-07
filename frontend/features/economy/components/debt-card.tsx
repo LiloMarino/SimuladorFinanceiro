@@ -6,8 +6,8 @@ import { DEBT_GDP, RISK_PREMIUM } from "@/shared/lib/budget-metrics";
 import { cn } from "@/shared/lib/utils";
 import { displayMoneyLarge, displayPercent } from "@/shared/lib/utils/display";
 import type { EconomyPanel } from "@/types";
-import { economyRows } from "../lib/economy";
-import { DEBT_CAUSES, DEBT_RATE } from "../lib/economy-metrics";
+import { economyRows, stabilizingNote } from "../lib/economy";
+import { DEBT_CAUSES, DEBT_RATE, STABILIZING_PRIMARY } from "../lib/economy-metrics";
 import { SeriesChart } from "./series-chart";
 
 type DebtCardProps = {
@@ -87,6 +87,7 @@ export function DebtCard({ panel, debt }: DebtCardProps) {
                 </div>
               )}
             </div>
+            <StabilizingPrimary debt={debt} />
             {debt.causes.months > 0 && <DebtCauses causes={debt.causes} />}
             <Link to="/government?tab=accounts" className="text-[13px] font-medium text-primary hover:underline">
               Ver o orçamento no Governo ›
@@ -95,6 +96,38 @@ export function DebtCard({ panel, debt }: DebtCardProps) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+type StabilizingPrimaryProps = { debt: NonNullable<EconomyPanel["debt"]> };
+
+/** O primário da partida ao lado do que mantém a dívida parada, com o da história como régua. */
+function StabilizingPrimary({ debt }: StabilizingPrimaryProps) {
+  const primary = Number(debt.primary);
+  const stabilizing = Number(debt.stabilizing_primary);
+
+  return (
+    <div className="grid gap-1.5 border-t pt-2.5 text-[13px]">
+      <span className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground">
+        {STABILIZING_PRIMARY.label}
+        <MetricHint metric={STABILIZING_PRIMARY} />
+      </span>
+      <div className="flex items-center justify-between gap-4">
+        <span>Resultado primário</span>
+        <span className="font-mono font-semibold">{STABILIZING_PRIMARY.format(primary)}</span>
+      </div>
+      <div className="flex items-center justify-between gap-4">
+        <span>Estabiliza a dívida</span>
+        <span className="font-mono font-semibold">{STABILIZING_PRIMARY.format(stabilizing)}</span>
+      </div>
+      <div className="flex items-center justify-between gap-4">
+        <span>Na história</span>
+        <span className="font-mono font-semibold">{STABILIZING_PRIMARY.format(debt.history_stabilizing_primary)}</span>
+      </div>
+      <p className={cn("font-medium", primary >= stabilizing ? "text-success" : "text-destructive")}>
+        {stabilizingNote(primary, stabilizing)}
+      </p>
+    </div>
   );
 }
 

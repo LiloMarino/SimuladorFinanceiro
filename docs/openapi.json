@@ -15678,6 +15678,18 @@
               }
             ],
             "title": "Month Result"
+          },
+          "primary": {
+            "type": "string",
+            "title": "Primary"
+          },
+          "stabilizing_primary": {
+            "type": "string",
+            "title": "Stabilizing Primary"
+          },
+          "history_stabilizing_primary": {
+            "type": "string",
+            "title": "History Stabilizing Primary"
           }
         },
         "additionalProperties": false,
@@ -15691,7 +15703,10 @@
           "causes",
           "debt_amount",
           "gdp",
-          "month_result"
+          "month_result",
+          "primary",
+          "stabilizing_primary",
+          "history_stabilizing_primary"
         ],
         "title": "DebtSummaryDTO",
         "description": "A dívida do governo no último fechamento de mês."

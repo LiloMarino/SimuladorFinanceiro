@@ -16,6 +16,7 @@ import {
   lastMonthChange,
   monthChangeNote,
   selicExample,
+  stabilizingNote,
   targetNote,
   unemploymentExample,
 } from "./economy";
@@ -276,5 +277,23 @@ describe("efeitos das medidas", () => {
     const today = { ...point("2020-04-14", "0.05", "0.03"), ibovespa: "75700", stored_ibovespa: "78800" };
     expect(stocksEffect(today)).toBeCloseTo(-0.0393, 3);
     expect(stocksEffect(point("2020-04-14", "0.05", "0.03"))).toBeNull();
+  });
+});
+
+describe("stabilizingNote", () => {
+  it("diz quanto falta quando o primário está abaixo do que estabiliza", () => {
+    expect(stabilizingNote(0.01, 0.0296)).toBe("Faltam 2,0 pontos do PIB de primário para a dívida parar de subir.");
+  });
+
+  it("diz quanto sobra quando o primário passa do que estabiliza", () => {
+    expect(stabilizingNote(0.03, 0.0184)).toBe("Sobram 1,2 ponto do PIB de primário: a dívida cai.");
+  });
+
+  it("conta o déficit que a dívida aguenta como primário a menos", () => {
+    expect(stabilizingNote(-0.02, -0.005)).toBe("Faltam 1,5 ponto do PIB de primário para a dívida parar de subir.");
+  });
+
+  it("reconhece o primário que já segura a dívida", () => {
+    expect(stabilizingNote(0.02, 0.02)).toBe("O primário segura a dívida onde está.");
   });
 });

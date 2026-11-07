@@ -28,6 +28,7 @@ from backend.core.indicators import (
     inflation_tolerance,
     last_known_value,
 )
+from backend.features.economy.debt import nominal_growth, stabilizing_primary
 from backend.features.economy.growth import MacroCourse
 from backend.features.economy.layer import central_bank_reaction
 from backend.features.government import measures as rules
@@ -121,11 +122,13 @@ def debt_summary(linked: LinkedEconomy, today: date) -> DebtSummaryDTO:
     month = linked.budget.latest(today)
     recent = linked.budget.months_until(today)[-CAUSES_MONTHS:]
     causes = sum((m.change for m in recent), DebtChange())
+    history = linked.base_budget().latest(today)
+    country = linked.macro.latest(today)
     return DebtSummaryDTO(
         month_end=month.month_end,
         debt=month.debt,
         premium=month.premium,
-        history_debt=linked.base_budget().latest(today).debt,
+        history_debt=history.debt,
         rate=month.rate,
         causes=DebtCausesDTO(
             months=len(recent),
@@ -137,6 +140,22 @@ def debt_summary(linked: LinkedEconomy, today: date) -> DebtSummaryDTO:
         debt_amount=month.debt * month.gdp,
         gdp=month.gdp,
         month_result=month.monthly(month.result) if month.closed else None,
+        primary=month.primary,
+        stabilizing_primary=stabilizing_primary(
+            month.debt,
+            month.rate,
+            nominal_growth(
+                country.growth, annual_index_rate(IndicatorSeries.IPCA, today)
+            ),
+        ),
+        history_stabilizing_primary=stabilizing_primary(
+            history.debt,
+            history.rate,
+            nominal_growth(
+                country.base_growth,
+                annual_index_rate(IndicatorSeries.IPCA, today, stored=True),
+            ),
+        ),
     )
 
 

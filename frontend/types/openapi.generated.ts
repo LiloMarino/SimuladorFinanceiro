@@ -5507,6 +5507,12 @@ export interface components {
             gdp: string;
             /** Month Result */
             month_result: string | null;
+            /** Primary */
+            primary: string;
+            /** Stabilizing Primary */
+            stabilizing_primary: string;
+            /** History Stabilizing Primary */
+            history_stabilizing_primary: string;
         };
         /** DeclarationDTO */
         DeclarationDTO: {

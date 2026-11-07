@@ -146,6 +146,18 @@ export const DEBT_RATE: MetricInfo = {
   format: percent,
 };
 
+export const STABILIZING_PRIMARY: MetricInfo = {
+  label: "Primário que estabiliza a dívida",
+  description: "O superávit, em % do PIB, que mantém a dívida ÷ PIB no mesmo lugar",
+  definition:
+    "O resultado primário (o que o governo arrecada menos o que gasta, sem contar os juros) que deixa a dívida ÷ PIB parada. A conta é dívida × (taxa da dívida − crescimento nominal do PIB) ÷ (1 + crescimento nominal), com o crescimento nominal sendo o crescimento real do PIB composto com o IPCA.",
+  example:
+    "Ex.: dívida de 80% do PIB, taxa de 12% e PIB nominal crescendo 8% pedem 0,8 × 4% ÷ 1,08 ≈ 3,0% do PIB de superávit; com primário de 1%, a dívida sobe cerca de 2 pontos do PIB por ano.",
+  reading:
+    "Primário acima do que estabiliza faz a dívida cair; abaixo, ela sobe. Com a taxa da dívida acima do crescimento nominal, ela sobe sozinha até com o governo no zero a zero: é a espiral da dívida. Com a taxa abaixo do crescimento, o número fica negativo e a dívida para até com déficit.",
+  format: (value) => displayPercent(value, 1),
+};
+
 export const DEBT_CAUSES: MetricInfo = {
   label: "De onde veio a dívida",
   description: "A variação da dívida ÷ PIB nos últimos meses, por causa",
