@@ -1,3 +1,4 @@
+import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { CopyButton } from "./copy-button";
 
@@ -73,8 +74,8 @@ export function PySpyCard({ pid }: PySpyCardProps) {
 
 function Step({ n }: { n: number }) {
   return (
-    <span className="inline-flex size-5.5 items-center justify-center rounded-full bg-muted text-xs font-semibold text-secondary-foreground">
+    <Badge variant="secondary" size="step">
       {n}
-    </span>
+    </Badge>
   );
 }

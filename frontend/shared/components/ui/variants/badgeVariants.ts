@@ -38,6 +38,8 @@ export const badgeVariants = cva(
         status: "h-8 px-3 text-[13px]",
         // Contador ao lado do rótulo de um botão
         count: "h-5 min-w-5 px-1.5 text-xs",
+        // Círculo numerado de um passo
+        step: "size-5.5 px-0 font-semibold",
       },
       // Pulsação lenta, para o estado que o jogador não pode esquecer
       pulse: {
