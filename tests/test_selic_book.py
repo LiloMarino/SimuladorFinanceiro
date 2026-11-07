@@ -16,7 +16,7 @@ from backend.core.exceptions.http_exceptions import (
     ForbiddenError,
     UnprocessableEntityError,
 )
-from backend.features.economy.monetary import meeting_days
+from backend.features.economy.monetary import PRESIDENT_CAP, meeting_days
 from backend.features.government.governance import monetary_card
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.state import replay
@@ -39,8 +39,8 @@ from tests.test_government_book import (
 
 # A primeira reunião do mandato que começa em 03/01/2022
 MEETING = meeting_days(2022)[0]
-# Com as séries vazias, a SELIC e o IPCA da partida são zero e o teto é de 0,75 ponto
-CAP = Decimal("0.0075")
+# Com as séries vazias, a SELIC e o IPCA da partida são zero
+CAP = PRESIDENT_CAP
 
 
 @pytest.fixture
@@ -98,7 +98,8 @@ def test_only_the_president_marks_in_steps_within_the_cap(
     with pytest.raises(UnprocessableEntityError):
         selic_book.set_selic(ALICE, TERM_START, Decimal("0.001"))
     with pytest.raises(UnprocessableEntityError):
-        selic_book.set_selic(ALICE, TERM_START, Decimal("0.01"))
+        selic_book.set_selic(ALICE, TERM_START, CAP + Decimal("0.0025"))
+    selic_book.set_selic(ALICE, TERM_START, Decimal("0.01"))
 
 
 def test_the_autonomous_match_refuses_the_marking(book: GovernmentBook, engine):
@@ -156,8 +157,30 @@ def test_cutting_below_the_history_with_inflation_high_costs_credibility(
     assert card.credibility_premium == pytest.approx(
         Decimal("0.00115"), abs=Decimal("0.00001")
     )
-    # Com o IPCA acima da meta mais a tolerância, a SELIC anda até 1,5 ponto por reunião
-    assert card.cap == Decimal("0.015")
+    # Com o IPCA acima da meta mais a tolerância, a janela segue a de 3 pontos
+    assert card.cap == CAP
+
+
+@pytest.mark.parametrize("monthly_ipca", ["0.1", "0.5", "1.5"])
+def test_the_window_is_three_points_for_any_ipca(
+    selic_book: GovernmentBook,
+    engine,
+    indicators: SetIndicator,
+    monthly_ipca: str,
+):
+    indicators(
+        IndicatorSeries.IPCA,
+        {date(2021, m, 1): Decimal(monthly_ipca) for m in range(1, 13)}
+        | {date(2022, m, 1): Decimal(monthly_ipca) for m in (1, 2)},
+    )
+    govern(selic_book, engine)
+    card = monetary_card(selic_book, MEETING)
+    assert card is not None
+    assert card.cap == PRESIDENT_CAP == Decimal("0.03")
+
+    selic_book.set_selic(ALICE, TERM_START, Decimal("0.03"))
+    with pytest.raises(UnprocessableEntityError):
+        selic_book.set_selic(ALICE, TERM_START, Decimal("0.0325"))
 
 
 def test_holding_the_rate_of_the_history_keeps_credibility_full(
@@ -180,8 +203,8 @@ def test_the_computer_moves_toward_the_central_bank_within_the_cap(
     selic_book: GovernmentBook, engine, monkeypatch: pytest.MonkeyPatch
 ):
     govern(selic_book, engine)
-    # 2 pontos de IPCA a mais pedem 3 pontos de SELIC; a reunião anda só 0,75
-    monkeypatch.setattr(selic_book.linked().layer, "inflation_points", lambda _d: 2.0)
+    # 3 pontos de IPCA a mais pedem 4,5 pontos de SELIC; a reunião anda só 3
+    monkeypatch.setattr(selic_book.linked().layer, "inflation_points", lambda _d: 3.0)
     monkeypatch.setattr(selic_book, "president", lambda: None)
 
     selic_book.on_tick(USERS, MEETING, False)

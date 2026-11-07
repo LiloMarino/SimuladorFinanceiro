@@ -1,6 +1,6 @@
 """
-A política monetária da partida: o calendário das reuniões do Copom, o teto de cada
-decisão, o efeito defasado do juro real na inflação e a credibilidade do Banco Central.
+A política monetária da partida: o calendário das reuniões do Copom, a janela de
+cada decisão, o efeito defasado do juro real na inflação e a credibilidade do Banco Central.
 As decisões tomadas ficam no quadro da SELIC; sem nenhuma, a SELIC é a do Banco Central
 autônomo e a credibilidade fica cheia. Os números calibram no playtest.
 """
@@ -17,13 +17,10 @@ from backend.core.utils import is_business_day, next_business_day
 # O Copom se reúne 8 vezes por ano, a cada 45 dias; a reunião cai no dia útil seguinte
 MEETINGS_PER_YEAR = 8
 MEETING_SPACING_DAYS = 45
-# A SELIC anda em passos de 0,25 ponto, até 0,75 por reunião. Com o IPCA em 12 meses acima
-# do teto da meta o passo vai a 1,5; acima de 15%, a 3 (o Copom de 2021 subiu 1,5 por reunião)
+# A SELIC anda em passos de 0,25 ponto. O presidente move até 3 pontos por reunião, para
+# cima ou para baixo, qualquer que seja o IPCA: a maior alta do Copom desde 1999
 SELIC_STEP = Decimal("0.0025")
-NORMAL_CAP = Decimal("0.0075")
-TOLERANCE_CAP = Decimal("0.015")
-CRISIS_CAP = Decimal("0.03")
-CRISIS_INFLATION = Decimal("0.15")
+PRESIDENT_CAP = Decimal("0.03")
 
 # Cada ponto de juro real abaixo da história soma 0,3 ponto ao IPCA em 12 meses, um ano
 # depois (a ordem de grandeza do modelo Samba do Banco Central). O efeito de cada mês se
@@ -68,15 +65,6 @@ def next_meeting(day: date) -> date:
 
 def is_meeting_day(day: date) -> bool:
     return day in meeting_days(day.year)
-
-
-def meeting_cap(ipca: Decimal, target: Decimal, tolerance: Decimal) -> Decimal:
-    """O quanto a SELIC pode andar numa reunião com o IPCA em 12 meses `ipca` (frações)."""
-    if ipca > CRISIS_INFLATION:
-        return CRISIS_CAP
-    if ipca > target + tolerance:
-        return TOLERANCE_CAP
-    return NORMAL_CAP
 
 
 def to_step(selic: Decimal) -> Decimal:

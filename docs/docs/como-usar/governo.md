@@ -157,15 +157,9 @@ Na preparação da partida com governo, o campo **Juros** escolhe quem decide a 
 
 **As reuniões.** O Copom se reúne 8 vezes por ano, a cada 45 dias (no dia útil seguinte quando cai em fim de semana ou feriado). O jogo não pausa: o presidente marca a decisão antes, no cartão **SELIC no Copom** da aba de contas do **Governo**, e pode trocar ou desmarcar até o dia da reunião. A SELIC nova vale a partir do dia seguinte. Sem decisão marcada, a SELIC fica onde está; nos 7 dias antes de uma reunião sem decisão, o presidente recebe uma pendência. Um presidente do computador decide como o Banco Central autônomo decidiria.
 
-**O teto por reunião.** A SELIC anda em passos de 0,25 ponto e cada reunião a move no máximo:
+**O teto por reunião.** A SELIC anda em passos de 0,25 ponto e cada reunião a move no máximo **3 pontos**, para cima ou para baixo, com qualquer IPCA. O presidente decide a estratégia: pode copiar a história, segurar o juro ou pisar fundo, e o custo vem do mercado, não da regra (a credibilidade, logo abaixo, cobra de quem segura o juro real abaixo da história).
 
-| IPCA de 12 meses | Teto por reunião |
-| --- | --- |
-| Dentro da meta mais a tolerância | 0,75 ponto |
-| Acima da meta mais a tolerância | 1,5 ponto |
-| Acima de 15% | 3 pontos |
-
-Ex.: SELIC de 10,75% com o IPCA dentro da meta: a próxima reunião decide entre 10% e 11,5%. Uma decisão marcada fora do teto do dia da reunião anda só até o teto.
+Ex.: SELIC de 10,75%: a próxima reunião decide entre 7,75% e 13,75%. Uma decisão marcada fora dessa janela anda só até a borda.
 
 **O juro real.** O efeito da SELIC na inflação vem pelo juro real (SELIC menos IPCA de 12 meses), pela [ligação do juro real](#a-economia-interligada). Um juro real perto de **5%** é o **neutro**: nem esquenta nem esfria a economia. Ex.: SELIC de 10,75% com IPCA de 4,5% dão juro real de 6,25%, um pouco acima do neutro; cortar a SELIC para 8,75% com a história parada em 10,75% deixa o juro real em 4,25%, 2 pontos abaixo da história, e, mantido por um ano, soma uns 0,6 ponto ao IPCA no ano seguinte.
 
@@ -179,7 +173,7 @@ Credibilidade acima de 80 é boa; abaixo de 50, a dívida e a inflação já sen
 
 **Os grupos de eleitores.** Em toda partida com governo, os grupos reagem ao juro real com uma faixa de **2% a 7%**. Abaixo de 2%, aposentados e investidores, que vivem de renda, reclamam; acima de 7%, trabalhadores com carteira e empreendedores, que tomam crédito, reclamam. Cada ponto fora da faixa tira de 1,5 a 2 pontos de aprovação do grupo, até 6 pontos fora.
 
-**As fontes.** O calendário de 8 reuniões e os passos de 0,25 ponto seguem o Copom; o teto de 1,5 ponto é o ritmo do Copom em 2021. O efeito de 0,3 ponto de IPCA por ponto de juro real, com defasagem de 6 a 9 meses, é a ordem de grandeza do modelo Samba, o modelo de projeção do Banco Central. Os números se calibram no playtest.
+**As fontes.** O calendário de 8 reuniões e os passos de 0,25 ponto seguem o Copom; o teto de 3 pontos por reunião é a maior alta que o Copom deu desde 1999 (out/2002, com o IPCA perto de 8%). O efeito de 0,3 ponto de IPCA por ponto de juro real, com defasagem de 6 a 9 meses, é a ordem de grandeza do modelo Samba, o modelo de projeção do Banco Central. Os números se calibram no playtest.
 
 ### O Congresso
 

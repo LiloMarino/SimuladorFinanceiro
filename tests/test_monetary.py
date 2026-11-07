@@ -1,4 +1,4 @@
-"""A política monetária: calendário do Copom, teto por reunião, defasagem do juro real e credibilidade."""
+"""A política monetária: calendário do Copom, janela por reunião, defasagem do juro real e credibilidade."""
 
 from __future__ import annotations
 
@@ -8,13 +8,13 @@ from decimal import Decimal
 import pytest
 
 from backend.features.economy.monetary import (
+    PRESIDENT_CAP,
     SelicBoard,
     SelicDecision,
     cap_window,
     credibility_premium,
     is_meeting_day,
     lag_weights,
-    meeting_cap,
     meeting_days,
     next_credibility,
     next_meeting,
@@ -43,16 +43,14 @@ def test_next_meeting_crosses_the_year() -> None:
     assert not is_meeting_day(date(2021, 2, 16))
 
 
-@pytest.mark.parametrize(
-    ("ipca", "cap"),
-    [
-        ("0.04", "0.0075"),
-        ("0.06", "0.015"),
-        ("0.16", "0.03"),
-    ],
-)
-def test_cap_grows_with_inflation(ipca: str, cap: str) -> None:
-    assert meeting_cap(Decimal(ipca), TARGET, TOLERANCE) == Decimal(cap)
+def test_the_president_window_is_three_points_each_way() -> None:
+    assert Decimal("0.03") == PRESIDENT_CAP
+    assert cap_window(Decimal("0.1"), PRESIDENT_CAP) == (
+        Decimal("0.07"),
+        Decimal("0.13"),
+    )
+    assert within_cap(Decimal("0.2"), Decimal("0.1"), PRESIDENT_CAP) == Decimal("0.13")
+    assert within_cap(Decimal("0"), Decimal("0.1"), PRESIDENT_CAP) == Decimal("0.07")
 
 
 def test_wanted_rate_stays_within_the_cap_and_the_step() -> None:

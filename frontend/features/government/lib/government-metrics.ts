@@ -262,9 +262,9 @@ export const MEETING_CAP: MetricInfo = {
   label: "Teto da reunião",
   description: "O quanto a SELIC pode andar numa reunião, para cima ou para baixo",
   definition:
-    "Cada reunião anda em passos de 0,25 ponto, até 0,75 ponto. Com o IPCA de 12 meses acima da meta mais a tolerância, o teto sobe a 1,5 ponto; com o IPCA acima de 15%, a 3 pontos. A decisão marcada é limitada de novo pelo teto do dia da reunião.",
-  example: "Ex.: SELIC de 10,75% com teto de 0,75 ponto: a reunião pode levá-la de 10% a 11,5%.",
-  reading: "O teto impede choque de um dia para o outro: mudar muito o juro leva várias reuniões.",
+    "Cada reunião anda em passos de 0,25 ponto, até 3 pontos, para cima ou para baixo, com qualquer IPCA. É a maior alta que o Copom deu desde 1999.",
+  example: "Ex.: SELIC de 10,75% com teto de 3 pontos: a reunião pode levá-la de 7,75% a 13,75%.",
+  reading: "O juro que foge muito da história tem custo: a credibilidade cai e o mercado cobra prêmio de risco.",
   format: (value) => displayPoints(Number(value) * 100, 2),
 };
 

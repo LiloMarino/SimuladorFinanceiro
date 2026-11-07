@@ -2129,18 +2129,14 @@ class GovernmentBook:
             return last.selic
         return annual_index_rate(IndicatorSeries.SELIC, today)
 
-    def selic_cap(self, today: date) -> Decimal:
-        """O quanto a SELIC anda numa reunião com o IPCA em 12 meses de hoje."""
-        return monetary.meeting_cap(
-            annual_index_rate(IndicatorSeries.IPCA, today),
-            inflation_target(today),
-            inflation_tolerance(today),
-        )
+    def selic_cap(self) -> Decimal:
+        """O quanto a SELIC anda numa reunião: a janela do presidente, igual para qualquer IPCA."""
+        return monetary.PRESIDENT_CAP
 
     def set_selic(self, user: UserDTO, today: date, selic: Decimal | None) -> None:
         """
-        O presidente marca a SELIC da próxima reunião, no passo de 0,25 e dentro do teto
-        de hoje; a reunião re-limita pelo teto do dia dela. Nula desmarca.
+        O presidente marca a SELIC da próxima reunião, no passo de 0,25 e dentro da janela
+        da reunião. Nula desmarca.
         """
         if self._settings.selic_control is not SelicControl.GOVERNMENT:
             raise ConflictError("Nesta partida a SELIC é do Banco Central autônomo.")
@@ -2151,11 +2147,11 @@ class GovernmentBook:
             if selic != monetary.to_step(selic):
                 raise UnprocessableEntityError("A SELIC anda em passos de 0,25 ponto.")
             current = self.selic_now(today)
-            cap = self.selic_cap(today)
+            cap = self.selic_cap()
             low, high = monetary.cap_window(current, cap)
             if not low <= selic <= high:
                 raise UnprocessableEntityError(
-                    f"Nesta reunião a SELIC anda até {rules.number(cap * 100)} ponto "
+                    f"Nesta reunião a SELIC anda até {rules.number(cap * 100)} pontos "
                     f"a partir de {rules.percent(current)}."
                 )
         self._emit(
@@ -2168,8 +2164,8 @@ class GovernmentBook:
     def _hold_selic_meeting(self, today: date) -> None:
         """
         No dia da reunião do Copom, ou no primeiro pregão depois dele, a SELIC muda para a
-        decisão: a que o presidente marcou, re-limitada pelo teto do dia; no governo do
-        computador, a reação do Banco Central autônomo dentro do teto. Sem decisão marcada
+        decisão: a que o presidente marcou, dentro da janela da reunião; no governo do
+        computador, a reação do Banco Central autônomo dentro da janela. Sem decisão marcada
         a SELIC fica. A taxa nova vale do dia seguinte, e a credibilidade anda com ela.
         """
         if not self.selic_by_government():
@@ -2191,7 +2187,7 @@ class GovernmentBook:
         selic = (
             current
             if wanted == current
-            else monetary.within_cap(wanted, current, self.selic_cap(today))
+            else monetary.within_cap(wanted, current, self.selic_cap())
         )
         ipca = annual_index_rate(IndicatorSeries.IPCA, today)
         tomorrow = today + timedelta(days=1)
