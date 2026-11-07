@@ -11,7 +11,8 @@ const monetary: GovernmentMonetary = {
   target: "0.03",
   tolerance: "0.015",
   next_meeting: "2022-02-14",
-  cap: "0.0075",
+  cap: "0.03",
+  history_selic: "0.1075",
   step: "0.0025",
   plan: null,
   credibility: 100,
@@ -27,13 +28,13 @@ describe("toPoints", () => {
 
 describe("selicWindow", () => {
   it("vai da SELIC menos o teto à SELIC mais o teto, em passos de 0,25", () => {
-    expect(selicWindow(monetary)).toEqual({ min: 10, max: 11.5, step: 0.25, selic: 10.75, nearest: 10.75 });
+    expect(selicWindow(monetary)).toEqual({ min: 7.75, max: 13.75, step: 0.25, selic: 10.75, nearest: 10.75 });
   });
 
   it("fica na grade de 0,25 quando a SELIC de hoje é a efetiva, fora dela", () => {
-    expect(selicWindow({ ...monetary, selic: "0.2365" })).toEqual({
-      min: 23,
-      max: 24.25,
+    expect(selicWindow({ ...monetary, selic: "0.2365", history_selic: "0.2365" })).toEqual({
+      min: 20.75,
+      max: 26.5,
       step: 0.25,
       selic: 23.65,
       nearest: 23.75,
@@ -41,7 +42,15 @@ describe("selicWindow", () => {
   });
 
   it("nunca passa de zero", () => {
-    expect(selicWindow({ ...monetary, selic: "0.0050" }).min).toBe(0);
+    expect(selicWindow({ ...monetary, selic: "0.0050", history_selic: "0.0050" }).min).toBe(0);
+  });
+
+  it("alcança a SELIC da história acima da janela", () => {
+    expect(selicWindow({ ...monetary, selic: "0.21", history_selic: "0.25" }).max).toBe(25);
+  });
+
+  it("alcança a SELIC da história abaixo da janela", () => {
+    expect(selicWindow({ ...monetary, selic: "0.21", history_selic: "0.165" }).min).toBe(16.5);
   });
 });
 

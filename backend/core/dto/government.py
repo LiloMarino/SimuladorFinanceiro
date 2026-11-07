@@ -924,8 +924,10 @@ class MonetaryDTO(BaseDTO):
     target: Decimal
     tolerance: Decimal
     next_meeting: date
-    # O quanto a SELIC anda na próxima reunião, com a inflação de hoje, e o passo
+    # O quanto a SELIC anda na próxima reunião para cada lado, e o passo; a janela também
+    # alcança a SELIC da história de hoje
     cap: Decimal
+    history_selic: Decimal
     step: Decimal
     # A SELIC que o presidente marcou para a próxima reunião
     plan: Decimal | None

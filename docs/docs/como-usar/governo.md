@@ -159,7 +159,9 @@ Na preparação da partida com governo, o campo **Juros** escolhe quem decide a 
 
 **O teto por reunião.** A SELIC anda em passos de 0,25 ponto e cada reunião a move no máximo **3 pontos**, para cima ou para baixo, com qualquer IPCA. O presidente decide a estratégia: pode copiar a história, segurar o juro ou pisar fundo, e o custo vem do mercado, não da regra (a credibilidade, logo abaixo, cobra de quem segura o juro real abaixo da história).
 
-Ex.: SELIC de 10,75%: a próxima reunião decide entre 7,75% e 13,75%. Uma decisão marcada fora dessa janela anda só até a borda.
+A janela sempre alcança a **SELIC da história no dia**, por mais que ela tenha andado desde a reunião anterior: a regra dos 3 pontos nunca impede o presidente de copiar a história.
+
+Ex.: SELIC de 10,75%: a próxima reunião decide entre 7,75% e 13,75%. Com a SELIC em 21% e a história em 25% no dia, a reunião pode levá-la até 25%. Uma decisão marcada fora dessa janela anda só até a borda.
 
 **O juro real.** O efeito da SELIC na inflação vem pelo juro real (SELIC menos IPCA de 12 meses), pela [ligação do juro real](#a-economia-interligada). Um juro real perto de **5%** é o **neutro**: nem esquenta nem esfria a economia. Ex.: SELIC de 10,75% com IPCA de 4,5% dão juro real de 6,25%, um pouco acima do neutro; cortar a SELIC para 8,75% com a história parada em 10,75% deixa o juro real em 4,25%, 2 pontos abaixo da história, e, mantido por um ano, soma uns 0,6 ponto ao IPCA no ano seguinte.
 

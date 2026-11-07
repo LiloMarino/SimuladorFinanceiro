@@ -2130,13 +2130,17 @@ class GovernmentBook:
         return annual_index_rate(IndicatorSeries.SELIC, today)
 
     def selic_cap(self) -> Decimal:
-        """O quanto a SELIC anda numa reunião: a janela do presidente, igual para qualquer IPCA."""
+        """O quanto a SELIC anda numa reunião: igual para qualquer IPCA."""
         return monetary.PRESIDENT_CAP
+
+    def selic_history(self, today: date) -> Decimal:
+        """A SELIC da história no dia, que a janela da reunião sempre alcança."""
+        return annual_index_rate(IndicatorSeries.SELIC, today, stored=True)
 
     def set_selic(self, user: UserDTO, today: date, selic: Decimal | None) -> None:
         """
         O presidente marca a SELIC da próxima reunião, no passo de 0,25 e dentro da janela
-        da reunião. Nula desmarca.
+        da reunião (3 pontos de cada lado, e sempre até a SELIC da história). Nula desmarca.
         """
         if self._settings.selic_control is not SelicControl.GOVERNMENT:
             raise ConflictError("Nesta partida a SELIC é do Banco Central autônomo.")
@@ -2148,11 +2152,13 @@ class GovernmentBook:
                 raise UnprocessableEntityError("A SELIC anda em passos de 0,25 ponto.")
             current = self.selic_now(today)
             cap = self.selic_cap()
-            low, high = monetary.cap_window(current, cap)
+            history = self.selic_history(today)
+            low, high = monetary.cap_window(current, cap, history)
             if not low <= selic <= high:
                 raise UnprocessableEntityError(
                     f"Nesta reunião a SELIC anda até {rules.number(cap * 100)} pontos "
-                    f"a partir de {rules.percent(current)}."
+                    f"a partir de {rules.percent(current)}, ou até a da história "
+                    f"({rules.percent(history)})."
                 )
         self._emit(
             GovernmentEventType.SELIC_SET,
@@ -2179,7 +2185,7 @@ class GovernmentBook:
         if plan is not None:
             wanted = plan
         elif president is None or president.is_bot:
-            stored = annual_index_rate(IndicatorSeries.SELIC, today, stored=True)
+            stored = self.selic_history(today)
             reaction = central_bank_reaction(self._linked.layer.inflation_points(today))
             wanted = stored + Decimal(str(round(reaction / 100, 6)))
         else:
@@ -2187,7 +2193,9 @@ class GovernmentBook:
         selic = (
             current
             if wanted == current
-            else monetary.within_cap(wanted, current, self.selic_cap())
+            else monetary.within_cap(
+                wanted, current, self.selic_cap(), self.selic_history(today)
+            )
         )
         ipca = annual_index_rate(IndicatorSeries.IPCA, today)
         tomorrow = today + timedelta(days=1)

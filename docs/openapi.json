@@ -20998,6 +20998,10 @@
             "type": "string",
             "title": "Cap"
           },
+          "history_selic": {
+            "type": "string",
+            "title": "History Selic"
+          },
           "step": {
             "type": "string",
             "title": "Step"
@@ -21034,6 +21038,7 @@
           "tolerance",
           "next_meeting",
           "cap",
+          "history_selic",
           "step",
           "plan",
           "credibility",

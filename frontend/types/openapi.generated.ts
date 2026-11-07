@@ -7413,6 +7413,8 @@ export interface components {
             next_meeting: string;
             /** Cap */
             cap: string;
+            /** History Selic */
+            history_selic: string;
             /** Step */
             step: string;
             /** Plan */

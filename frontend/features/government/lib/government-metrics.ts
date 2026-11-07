@@ -262,8 +262,9 @@ export const MEETING_CAP: MetricInfo = {
   label: "Teto da reunião",
   description: "O quanto a SELIC pode andar numa reunião, para cima ou para baixo",
   definition:
-    "Cada reunião anda em passos de 0,25 ponto, até 3 pontos, para cima ou para baixo, com qualquer IPCA. É a maior alta que o Copom deu desde 1999.",
-  example: "Ex.: SELIC de 10,75% com teto de 3 pontos: a reunião pode levá-la de 7,75% a 13,75%.",
+    "Cada reunião anda em passos de 0,25 ponto, até 3 pontos, para cima ou para baixo, com qualquer IPCA (a maior alta do Copom desde 1999). A janela sempre alcança a SELIC da história no dia, por mais que ela tenha andado desde a reunião anterior.",
+  example:
+    "Ex.: SELIC de 10,75% com teto de 3 pontos: a reunião pode levá-la de 7,75% a 13,75%. Com a SELIC em 21% e a história em 25% no dia, a janela vai até 25%.",
   reading: "O juro que foge muito da história tem custo: a credibilidade cai e o mercado cobra prêmio de risco.",
   format: (value) => displayPoints(Number(value) * 100, 2),
 };

@@ -17,8 +17,9 @@ from backend.core.utils import is_business_day, next_business_day
 # O Copom se reúne 8 vezes por ano, a cada 45 dias; a reunião cai no dia útil seguinte
 MEETINGS_PER_YEAR = 8
 MEETING_SPACING_DAYS = 45
-# A SELIC anda em passos de 0,25 ponto. O presidente move até 3 pontos por reunião, para
-# cima ou para baixo, qualquer que seja o IPCA: a maior alta do Copom desde 1999
+# A SELIC anda em passos de 0,25 ponto. A janela da reunião vai 3 pontos para cima e para
+# baixo, qualquer que seja o IPCA (a maior alta do Copom desde 1999), e sempre alcança a
+# SELIC da história no dia, por mais que ela tenha andado desde a reunião anterior
 SELIC_STEP = Decimal("0.0025")
 PRESIDENT_CAP = Decimal("0.03")
 
@@ -72,21 +73,27 @@ def to_step(selic: Decimal) -> Decimal:
     return (selic / SELIC_STEP).quantize(Decimal(1), ROUND_HALF_UP) * SELIC_STEP
 
 
-def cap_window(current: Decimal, cap: Decimal) -> tuple[Decimal, Decimal]:
+def cap_window(
+    current: Decimal, cap: Decimal, history: Decimal
+) -> tuple[Decimal, Decimal]:
     """
     Os passos de 0,25 que a reunião alcança: a SELIC guardada é a efetiva (13,65% com a meta
-    em 13,75%), fora da grade, e a janela fica nos passos dentro de `cap` dela, sem passar de zero.
+    em 13,75%), fora da grade, e a janela fica nos passos dentro de `cap` dela, sem passar
+    de zero. A janela sempre inclui o passo mais próximo da SELIC da história no dia.
     """
     low = ((current - cap) / SELIC_STEP).quantize(
         Decimal(1), ROUND_CEILING
     ) * SELIC_STEP
     high = ((current + cap) / SELIC_STEP).quantize(Decimal(1), ROUND_FLOOR) * SELIC_STEP
-    return max(Decimal(0), low), high
+    history_step = to_step(history)
+    return max(Decimal(0), min(low, history_step)), max(high, history_step)
 
 
-def within_cap(wanted: Decimal, current: Decimal, cap: Decimal) -> Decimal:
+def within_cap(
+    wanted: Decimal, current: Decimal, cap: Decimal, history: Decimal
+) -> Decimal:
     """A taxa pedida no passo de 0,25 mais próximo dentro da janela da reunião."""
-    low, high = cap_window(current, cap)
+    low, high = cap_window(current, cap, history)
     return max(low, min(high, to_step(wanted)))
 
 

@@ -16,7 +16,11 @@ from backend.core.exceptions.http_exceptions import (
     ForbiddenError,
     UnprocessableEntityError,
 )
-from backend.features.economy.monetary import PRESIDENT_CAP, meeting_days
+from backend.features.economy.monetary import (
+    PRESIDENT_CAP,
+    SelicDecision,
+    meeting_days,
+)
 from backend.features.government.governance import monetary_card
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.state import replay
@@ -181,6 +185,29 @@ def test_the_window_is_three_points_for_any_ipca(
     selic_book.set_selic(ALICE, TERM_START, Decimal("0.03"))
     with pytest.raises(UnprocessableEntityError):
         selic_book.set_selic(ALICE, TERM_START, Decimal("0.0325"))
+
+
+def test_the_window_reaches_the_history_even_when_it_moved_more_than_three_points(
+    selic_book: GovernmentBook, engine, indicators: SetIndicator
+):
+    # A SELIC da história fica em 10,44% (0,0394% ao dia) e a do governo em 5%
+    indicators(IndicatorSeries.SELIC, {date(2021, 1, 1): Decimal("0.0394")})
+    govern(selic_book, engine)
+    selic_book.state.selic_board.record(
+        SelicDecision(TERM_START - timedelta(days=1), Decimal("0.05"), 100)
+    )
+    card = monetary_card(selic_book, TERM_START)
+    assert card is not None
+    assert card.history_selic == pytest.approx(Decimal("0.1044"), abs=Decimal("0.001"))
+
+    # A janela de 3 pontos pararia em 8%; a história, em 10,5%, entra nela
+    selic_book.set_selic(ALICE, TERM_START, Decimal("0.105"))
+    with pytest.raises(UnprocessableEntityError):
+        selic_book.set_selic(ALICE, TERM_START, Decimal("0.1075"))
+
+    selic_book.on_tick(USERS, MEETING, False)
+
+    assert decided(selic_book) == Decimal("0.105")
 
 
 def test_holding_the_rate_of_the_history_keeps_credibility_full(

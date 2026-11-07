@@ -10,15 +10,17 @@ export const toPoints = (fraction: string | number) => Math.round(Number(fractio
 /**
  * A janela do controle da SELIC, nos passos de 0,25 que a reunião alcança. A SELIC de hoje é a
  * efetiva (13,65% com a meta em 13,75%), fora da grade: a janela fica nos passos dentro do teto
- * dela, sem passar de zero, e o controle começa no passo mais próximo dela.
+ * dela, sem passar de zero, sempre alcança o passo mais próximo da SELIC da história de hoje, e
+ * o controle começa no passo mais próximo da SELIC de hoje.
  */
 export function selicWindow(monetary: GovernmentMonetary) {
   // Em centésimos de ponto, inteiros, para a grade não sofrer com ponto flutuante
   const selic = Math.round(toPoints(monetary.selic) * 100);
   const cap = Math.round(toPoints(monetary.cap) * 100);
   const step = Math.round(toPoints(monetary.step) * 100);
-  const min = Math.max(0, Math.ceil((selic - cap) / step) * step);
-  const max = Math.floor((selic + cap) / step) * step;
+  const history = Math.round(Math.round(toPoints(monetary.history_selic) * 100) / step) * step;
+  const min = Math.max(0, Math.min(Math.ceil((selic - cap) / step) * step, history));
+  const max = Math.max(Math.floor((selic + cap) / step) * step, history);
   const nearest = Math.min(max, Math.max(min, Math.round(selic / step) * step));
   return { min: min / 100, max: max / 100, step: step / 100, selic: selic / 100, nearest: nearest / 100 };
 }
