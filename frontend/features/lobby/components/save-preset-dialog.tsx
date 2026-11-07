@@ -18,7 +18,7 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import type { SavePresetRequest } from "@/types";
 import { useSavePreset } from "../hooks/mutations/useSavePreset";
 import { NAME_TAKEN_MESSAGE, NAME_TAKEN_STATUS, PRESET_NAME_MAX, presetIncludes } from "../lib/preset";
-import type { SimulationFormValues } from "./lobby-match";
+import type { SimulationFormValues } from "../lib/simulation-form";
 
 const nameSchema = z.object({
   name: z.string().trim().min(1, "Dê um nome para o preset").max(PRESET_NAME_MAX, `Até ${PRESET_NAME_MAX} letras`),

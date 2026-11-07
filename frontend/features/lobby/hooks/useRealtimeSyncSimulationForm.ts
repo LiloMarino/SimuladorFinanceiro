@@ -3,7 +3,7 @@ import { useWatch, type UseFormReturn } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { CreateSimulationRequest, SimulationSettingsData } from "@/types";
-import type { SimulationFormValues } from "../components/lobby-match";
+import type { SimulationFormValues } from "../lib/simulation-form";
 import { useAsyncLock } from "@/shared/hooks/useAsyncLock";
 import { ASSISTANCES, type AssistanceField } from "@/shared/lib/assistance";
 import { toFormValues, toSettingsBody } from "../lib/simulation-form";

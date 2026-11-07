@@ -63,7 +63,7 @@ import { AssistanceFields } from "./assistance-fields";
 import { CoverageAlerts } from "./coverage-alerts";
 import { ExpansionFields } from "./expansion-fields";
 import { LifeFields } from "./life-fields";
-import type { SimulationFormValues } from "./lobby-match";
+import type { SimulationFormValues } from "../lib/simulation-form";
 import { PresetBar } from "./preset-bar";
 import { PriceImpactExample } from "./price-impact-example";
 

@@ -19,7 +19,7 @@ import { usePresets } from "../hooks/queries/usePresets";
 import { changedGroups, lowercaseGroups, presetSummary } from "../lib/preset";
 import { toSettingsBody } from "../lib/simulation-form";
 import { ManagePresetsDialog } from "./manage-presets-dialog";
-import type { SimulationFormValues } from "./lobby-match";
+import type { SimulationFormValues } from "../lib/simulation-form";
 import { SavePresetDialog } from "./save-preset-dialog";
 
 type PresetBarProps = {

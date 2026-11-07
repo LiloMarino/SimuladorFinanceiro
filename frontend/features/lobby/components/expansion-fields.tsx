@@ -27,7 +27,7 @@ import {
   wholeYears,
 } from "../lib/government-rules";
 import { useInitialAccount } from "../hooks/queries/useInitialAccount";
-import type { SimulationFormValues } from "./lobby-match";
+import type { SimulationFormValues } from "../lib/simulation-form";
 
 const GOVERNMENT = EXPANSIONS.government;
 

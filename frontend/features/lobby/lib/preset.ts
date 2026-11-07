@@ -5,7 +5,7 @@ import { GAME_TYPES, winRuleLabel } from "@/shared/lib/game-types";
 import { isIsoDate } from "@/shared/lib/utils/date-field";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type { Preset, PresetRuleGroup, SimulationSettingsData } from "@/types";
-import type { SimulationFormValues } from "../components/lobby-match";
+import type { SimulationFormValues } from "./simulation-form";
 import { joinNames } from "./join-names";
 import { PRICE_IMPACT_MODE_LABELS, priceImpactModeOf } from "@/shared/lib/price-impact";
 

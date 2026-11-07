@@ -28,7 +28,7 @@ import { normalizeNumberString } from "@/shared/lib/utils";
 import { displayMoney, displayMoneyCompact, displayMoneyWhole } from "@/shared/lib/utils/display";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { calculatedGoal, isPositiveMoney, withdrawalRateFraction } from "../lib/life-rules";
-import type { SimulationFormValues } from "./lobby-match";
+import type { SimulationFormValues } from "../lib/simulation-form";
 
 type LifeFieldsProps = {
   form: UseFormReturn<SimulationFormValues>;

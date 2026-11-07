@@ -16,7 +16,7 @@ import {
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Switch } from "@/shared/components/ui/switch";
 import { ASSISTANCES, summarizeAssistances } from "@/shared/lib/assistance";
-import type { SimulationFormValues } from "./lobby-match";
+import type { SimulationFormValues } from "../lib/simulation-form";
 
 type AssistanceFieldsProps = {
   form: UseFormReturn<SimulationFormValues>;
