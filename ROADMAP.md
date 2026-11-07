@@ -138,7 +138,7 @@
 | [**F216**](#f216) | Correção | Pontas soltas das features entregues | M21 · 3.4 | — | — | — | ✅ |
 | [**F217**](#f217) | Correção | Correções da 3.4 | M21 · 3.4 | — | — | — | ✅ |
 | [**F218**](#f218) | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | M21 · 3.4 | — | — | — | ✅ |
-| [**F219**](#f219) | Correção | Atualização do yfinance sem o aviso do pandas | M21 · 3.4 | — | — | — | ✅ |
+| [**F219**](#f219) | Correção | Terminal do backend sem o aviso do pandas do yfinance | M21 · 3.4 | — | — | — | ✅ |
 | [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | M21 · 3.4 | — | — | — | ✅ |
 
 </details>
@@ -168,7 +168,7 @@
 | 7 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | — | ✅ Concluído |
 | 8 | [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | — | ✅ Concluído |
 | 9 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | ✅ Concluído |
-| 10 | [**F219**](#f219) | Correção | Atualização do yfinance sem o aviso do pandas | — | ✅ Concluído |
+| 10 | [**F219**](#f219) | Correção | Terminal do backend sem o aviso do pandas do yfinance | — | ✅ Concluído |
 
 ### 3.5 — Congresso e eleição (M23)
 
@@ -602,7 +602,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F216** | Correção | Pontas soltas das features entregues | N15, N34 | — | M21 · 3.4 |
 | **F217** | Correção | Correções da 3.4 | N15 | — | M21 · 3.4 |
 | **F218** | Melhoria | Textos que explicam o óbvio ou o sistema por dentro | N15 | — | M21 · 3.4 |
-| **F219** | Correção | Atualização do yfinance sem o aviso do pandas | N26 | — | M21 · 3.4 |
+| **F219** | Correção | Terminal do backend sem o aviso do pandas do yfinance | N26 | — | M21 · 3.4 |
 | **F222** | Feature | Resgate automático de renda fixa para cobrir despesas | N34 | — | M21 · 3.4 |
 
 <a id="f97"></a>
@@ -658,7 +658,7 @@ A prévia ganhou o crescimento do PIB e o desemprego, calculados mês a mês pel
 **F218 — Textos que explicam o óbvio ou o sistema por dentro.** Serve N15. Cortados os textos das telas que o jogador vê e aprovou no app: o card de novo empréstimo, o card do partido, as telas de eleição e orientação do partido e a tela de governo antes da posse. Os diálogos e as telas que a varredura listou e não foram revisados no app ficaram como estão, sem corte.
 
 <a id="f219"></a>
-**F219 — Atualização do yfinance sem o aviso do pandas.** Serve N26. Achado no playtest de 05/11: o yfinance, ao baixar as séries, disparava `Pandas4Warning` (o parâmetro `inplace` em `DataFrame.drop`, `rename` e `sort_index`) a cada download, e o aviso entupia o terminal do backend. Conserto: yfinance atualizado para a 1.8.0, que não usa mais `inplace`; nenhum filtro de aviso foi preciso.
+**F219 — Terminal do backend sem o aviso do pandas do yfinance.** Serve N26. Achado no playtest de 05/11: o yfinance, ao baixar as séries, disparava `Pandas4Warning` (o parâmetro `inplace` em `DataFrame.drop`, `rename` e `sort_index`) a cada download, e o aviso entupia o terminal do backend. A 1.8.0, que não usa mais `inplace`, exige o curl-cffi 0.17, que trava toda requisição até o timeout; o yfinance ficou na 1.7.0, com o curl-cffi limitado abaixo da 0.17, e o aviso é filtrado só quando vem do código do yfinance, no `main.py`.
 
 <a id="f222"></a>
 **F222 — Resgate automático de renda fixa para cobrir despesas.** Serve N34; vem junto com a tela do Tesouro (F165) e a marcação a mercado (F177). Hoje o caixa que não cobre a despesa do mês, o imposto de renda ou a parcela do empréstimo vira cheque especial ou parcela atrasada, mesmo com dinheiro parado na renda fixa. A regra nova põe uma porta só para os débitos automáticos, `SimulationEngine.cover_before_debit(client, needed, kind)`: se o caixa é menor que o necessário, ela vende títulos antes de debitar, na ordem (1) liquidez diária e Tesouro Selic, da menor taxa para a maior, e (2) só com a opção ligada, Prefixado e IPCA+, do que perde menos (ou ganha mais) para o que perde mais na marcação. Se não der para cobrir tudo, cobre o que dá; a venda é ação do sistema e não passa por `_ensure_can_operate`. Passam pela porta: despesa mensal e imprevisto do viver de renda, DARF, parcela de empréstimo (antes do teste de caixa, para a parcela não atrasar com saldo em renda fixa) e a contribuição mensal automática da campanha; o juro do cheque especial fica de fora, porque é consequência de não ter coberto. Cada resgate vira um toast para o jogador (`ToastType.AUTO_REDEEM`): "Resgatado R$ X de <título> para cobrir <despesa>". A opção `cover_with_treasury` (desligada por padrão) mora nas preferências do usuário, com o interruptor no cabeçalho de "Seus títulos" da tela do Tesouro. `overdraft_cover` e a ação de cobertura do card de vida saem; o card passa a mostrar uma linha dizendo se a cobertura está ligada, com link para o Tesouro.
