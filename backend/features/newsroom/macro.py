@@ -6,6 +6,7 @@ from decimal import Decimal
 
 from backend.core.enum import NewsType
 from backend.core.indicators import annualize_daily
+from backend.core.rates import Percent
 from backend.features.economy.panel import MIN_COPOM_STEP
 from backend.features.newsroom.market import MarketDay
 from backend.features.newsroom.text import MONTH_NAMES, grouped, number, pick
@@ -26,7 +27,10 @@ def copom_decision(market: MarketDay) -> list[Headline]:
     before = market.selic.last_known(market.previous)
     if today is None or before is None:
         return []
-    level, previous_level = annualize_daily(today), annualize_daily(before)
+    level, previous_level = (
+        annualize_daily(Percent(today)),
+        annualize_daily(Percent(before)),
+    )
     step = level - previous_level
     if abs(step) < MIN_COPOM_STEP:
         return []

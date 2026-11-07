@@ -26,8 +26,10 @@ from backend.core.indicators import (
     annualize_daily,
     inflation_target,
     inflation_tolerance,
+    last_known_rate,
     last_known_value,
 )
+from backend.core.rates import Percent
 from backend.features.economy.debt import nominal_growth, stabilizing_primary
 from backend.features.economy.growth import MacroCourse
 from backend.features.economy.layer import central_bank_reaction
@@ -100,14 +102,14 @@ def point_on(
 def copom_changes(start: date, end: date) -> list[CopomChangeDTO]:
     """Os dias entre `start` e `end` em que a SELIC mudou de nível."""
     history = repository.economic.get_history(IndicatorSeries.SELIC)
-    before = last_known_value(IndicatorSeries.SELIC, start - timedelta(days=1))
+    before = last_known_rate(IndicatorSeries.SELIC, start - timedelta(days=1))
     level = None if before is None else annualize_daily(before)
 
     changes: list[CopomChangeDTO] = []
     for day in history.dates:
         if day < start or day > end:
             continue
-        annual = annualize_daily(history.values[day])
+        annual = annualize_daily(Percent(history.values[day]))
         if level is None:
             level = annual
         elif abs(annual - level) >= MIN_COPOM_STEP:

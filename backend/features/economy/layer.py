@@ -19,6 +19,7 @@ from backend.core import repository
 from backend.core.enum import IndicatorSeries
 from backend.core.indicators import annual_index_rate, annualize_daily
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR, DAYS_PER_MONTH
+from backend.core.rates import Percent
 from backend.core.repository.economic import IndicatorHistory
 from backend.features.economy.links import NO_LINK, LinkMonth
 from backend.features.economy.monetary import AutonomousBank, Monetary
@@ -272,7 +273,10 @@ class EconomyLayer:
                 # A série é mensal em %: os pontos em 12 meses se dividem pelos meses
                 return value + Decimal(str(round(self.inflation_points(day) / 12, 6)))
             case IndicatorSeries.SELIC | IndicatorSeries.CDI:
-                annual = float(annualize_daily(value)) + self.selic_points(day) / 100
+                annual = (
+                    float(annualize_daily(Percent(value)))
+                    + self.selic_points(day) / 100
+                )
                 return Decimal(str(round(annual_to_daily(annual), 6)))
             case IndicatorSeries.IBOV:
                 return Decimal(str(round(float(value) * self.level(day), 2)))

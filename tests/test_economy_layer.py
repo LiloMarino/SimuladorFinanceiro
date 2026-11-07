@@ -10,6 +10,7 @@ import pytest
 
 from backend.core.enum import IndicatorSeries, MeasureKind, MeasureStatus
 from backend.core.indicators import annualize_daily
+from backend.core.rates import Percent
 from backend.core.repository.economic import IndicatorHistory
 from backend.features.economy import layer
 from backend.features.economy.layer import EconomyLayer
@@ -80,12 +81,12 @@ def test_the_ipca_gets_the_monthly_share_of_the_points_and_the_past_stays(econom
 
 def test_selic_and_cdi_rise_together_by_the_reaction_of_the_central_bank(economy):
     day = date(2021, 8, 2)
-    base = annualize_daily(Decimal("0.05"))
+    base = annualize_daily(Percent(Decimal("0.05")))
 
     for series in (IndicatorSeries.SELIC, IndicatorSeries.CDI):
         adjusted = economy.adjust(series, history_of(series))
         assert adjusted.values[day] > Decimal("0.05")
-        assert annualize_daily(adjusted.values[day]) == pytest.approx(
+        assert annualize_daily(Percent(adjusted.values[day])) == pytest.approx(
             base + Decimal(str(economy.selic_points(day) / 100)), abs=Decimal("0.0001")
         )
         assert adjusted.values[date(2020, 6, 1)] == Decimal("0.05")

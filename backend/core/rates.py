@@ -2,11 +2,21 @@
 Juros compostos, em Decimal.
 
 Uma taxa é a fração que rende no período (0,12 = 12%) e `periods` conta períodos,
-inteiros ou fracionários (meio período = Decimal("0.5")).
+inteiros ou fracionários (meio período = Decimal("0.5")). O percentual é o valor
+como o Banco Central publica, e `from_percent` o leva para fração.
 """
 
 from decimal import Decimal
 from math import prod
+from typing import NewType
+
+# Valor como o BCB publica: 0,0551 = 0,0551%, e não a fração 0,0551
+Percent = NewType("Percent", Decimal)
+
+
+def from_percent(value: Percent) -> Decimal:
+    """A fração de um percentual: 0,0551 (%) vira 0,000551."""
+    return value / 100
 
 
 def compound(rate: Decimal, periods: Decimal | int) -> Decimal:

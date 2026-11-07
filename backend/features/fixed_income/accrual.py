@@ -27,7 +27,7 @@ from backend.core.indicators import (
     annual_index_rate,
     daily_rate,
     index_daily_rate,
-    last_known_value,
+    last_known_rate,
 )
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR
 from backend.core.rates import compose, period_rate
@@ -308,7 +308,7 @@ def project(
     redeem_on = redemption_date(asset.maturity_date)
 
     series = INDEX_SERIES.get(asset.rate_index)
-    frozen = None if series is None else last_known_value(series, on)
+    frozen = None if series is None else last_known_rate(series, on)
 
     def frozen_rate(day: date) -> Decimal | None:
         if series is None:

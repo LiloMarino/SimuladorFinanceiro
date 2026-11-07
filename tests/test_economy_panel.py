@@ -9,6 +9,7 @@ import pytest
 
 from backend.core.enum import EffectPhase, IndicatorSeries, MeasureKind, MeasureStatus
 from backend.core.indicators import annualize_daily, inflation_tolerance
+from backend.core.rates import Percent
 from backend.features.economy.growth import MacroCourse
 from backend.features.economy.panel import build_economy_panel, month_ends
 from backend.features.government.spending_effects import SpendingEconomy
@@ -17,9 +18,9 @@ from tests.conftest import SetIndicator
 from tests.fakes import daily_series, monthly_series
 
 # 0.0551% ao dia compõe, em 252 dias úteis, cerca de 14,9% ao ano
-DAILY_LOW = Decimal("0.0551")
+DAILY_LOW = Percent(Decimal("0.0551"))
 # 0.0577% ao dia compõe cerca de 15,6% ao ano: um degrau de uns 0,7 ponto
-DAILY_HIGH = Decimal("0.0577")
+DAILY_HIGH = Percent(Decimal("0.0577"))
 
 
 def test_month_ends_lists_start_each_month_end_and_today():

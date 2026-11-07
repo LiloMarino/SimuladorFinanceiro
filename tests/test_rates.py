@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from backend.core.rates import compose, compound, period_rate
+from backend.core.rates import Percent, compose, compound, from_percent, period_rate
 
 
 def test_compound_grows_the_rate_by_the_number_of_periods() -> None:
@@ -23,3 +23,7 @@ def test_compose_chains_the_rates_one_after_the_other() -> None:
 
 def test_compose_of_nothing_is_zero() -> None:
     assert compose() == 0
+
+
+def test_from_percent_turns_the_published_value_into_a_fraction() -> None:
+    assert from_percent(Percent(Decimal("0.0551"))) == Decimal("0.000551")

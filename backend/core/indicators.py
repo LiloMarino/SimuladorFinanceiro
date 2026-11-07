@@ -12,7 +12,7 @@ from backend.core import repository
 from backend.core.enum import IndicatorSeries
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR
-from backend.core.rates import compound, period_rate
+from backend.core.rates import Percent, compose, compound, from_percent, period_rate
 from backend.core.utils import business_days_in_month
 
 IPCA_WINDOW_MONTHS = 12
@@ -132,9 +132,9 @@ NOMINAL_GDP: dict[int, Decimal] = {
 }
 
 
-def index_value_on(series: IndicatorSeries, day: date) -> Decimal | None:
+def index_value_on(series: IndicatorSeries, day: date) -> Percent | None:
     """
-    Valor publicado que vale para o dia útil `day`.
+    Valor publicado do indexador que vale para o dia útil `day`.
 
     Dentro da série, um dia sem valor de CDI/SELIC é dia sem pregão (feriado) e
     devolve None. Depois do fim da série vale o último valor conhecido, como no
@@ -142,31 +142,41 @@ def index_value_on(series: IndicatorSeries, day: date) -> Decimal | None:
     """
     history = repository.economic.get_history(series)
     if series is IndicatorSeries.IPCA:
-        return history.last_known(day.replace(day=1))
-    if history.end is not None and day <= history.end:
-        return history.value_on(day)
-    return history.last_known(day)
+        value = history.last_known(day.replace(day=1))
+    elif history.end is not None and day <= history.end:
+        value = history.value_on(day)
+    else:
+        value = history.last_known(day)
+    return None if value is None else Percent(value)
 
 
 def last_known_value(
     series: IndicatorSeries, on: date, *, stored: bool = False
 ) -> Decimal | None:
-    """Último valor publicado até `on`: o que um investidor conhece naquele dia; com `stored`, o da série guardada."""
+    """Último valor publicado de uma série de nível, como o IBOV, até `on`; com `stored`, o da série guardada."""
+    return repository.economic.get_history(series, stored=stored).last_known(on)
+
+
+def last_known_rate(
+    series: IndicatorSeries, on: date, *, stored: bool = False
+) -> Percent | None:
+    """Último valor de CDI/SELIC/IPCA publicado até `on`: o que um investidor conhece naquele dia; com `stored`, o da série guardada."""
     history = repository.economic.get_history(series, stored=stored)
-    if series is IndicatorSeries.IPCA:
-        return history.last_known(on.replace(day=1))
-    return history.last_known(on)
+    value = history.last_known(
+        on.replace(day=1) if series is IndicatorSeries.IPCA else on
+    )
+    return None if value is None else Percent(value)
 
 
-def daily_rate(series: IndicatorSeries, value: Decimal, day: date) -> Decimal:
+def daily_rate(series: IndicatorSeries, value: Percent, day: date) -> Decimal:
     """
     Fração que `value` rende num dia útil: CDI/SELIC já são diários; o IPCA do
     mês se distribui pelos dias úteis do mês, que juntos fecham a taxa mensal.
     """
     if series is IndicatorSeries.IPCA:
         days = business_days_in_month(day)
-        return period_rate(value / 100, days)
-    return value / 100
+        return period_rate(from_percent(value), days)
+    return from_percent(value)
 
 
 def index_daily_rate(series: IndicatorSeries, day: date) -> Decimal | None:
@@ -175,9 +185,9 @@ def index_daily_rate(series: IndicatorSeries, day: date) -> Decimal | None:
     return None if value is None else daily_rate(series, value, day)
 
 
-def annualize_daily(value: Decimal) -> Decimal:
+def annualize_daily(value: Percent) -> Decimal:
     """Taxa anual (0.149) de uma taxa diária em % (0.0551), composta por 252 dias úteis."""
-    return compound(value / 100, BUSINESS_DAYS_PER_YEAR)
+    return compound(from_percent(value), BUSINESS_DAYS_PER_YEAR)
 
 
 def annual_index_rate(
@@ -191,12 +201,10 @@ def annual_index_rate(
     """
     if series is IndicatorSeries.IPCA:
         history = repository.economic.get_history(series, stored=stored)
-        growth = Decimal(1)
-        for value in history.values_until(on.replace(day=1), IPCA_WINDOW_MONTHS):
-            growth *= 1 + value / 100
-        return growth - 1
+        monthly = history.values_until(on.replace(day=1), IPCA_WINDOW_MONTHS)
+        return compose(*(from_percent(Percent(value)) for value in monthly))
 
-    value = last_known_value(series, on, stored=stored)
+    value = last_known_rate(series, on, stored=stored)
     if value is None:
         return Decimal(0)
     return annualize_daily(value)
@@ -204,13 +212,13 @@ def annual_index_rate(
 
 def inflation_target(day: date) -> Decimal:
     if day.year in INFLATION_TARGETS:
-        return INFLATION_TARGETS[day.year] / 100
-    return DEFAULT_TARGET / 100
+        return from_percent(Percent(INFLATION_TARGETS[day.year]))
+    return from_percent(Percent(DEFAULT_TARGET))
 
 
 def inflation_tolerance(day: date) -> Decimal:
     """Folga da meta do ano, em fração: 0.015 vale 1,5 ponto para cima e para baixo."""
-    return INFLATION_TOLERANCES.get(day.year, DEFAULT_TOLERANCE) / 100
+    return from_percent(Percent(INFLATION_TOLERANCES.get(day.year, DEFAULT_TOLERANCE)))
 
 
 def ensure_indicator_coverage(start_date: date) -> None:
@@ -218,7 +226,7 @@ def ensure_indicator_coverage(start_date: date) -> None:
     missing = [
         series.value
         for series in RATE_SERIES
-        if last_known_value(series, start_date) is None
+        if last_known_rate(series, start_date) is None
     ]
 
     if missing:
@@ -262,12 +270,12 @@ def nearest_year_value(table: dict[int, Decimal], year: int) -> Decimal:
 
 def gross_debt_ratio(year: int) -> Decimal:
     """Dívida bruta do governo geral no fim do ano, em fração do PIB (0.698)."""
-    return nearest_year_value(GROSS_DEBT, year) / 100
+    return from_percent(Percent(nearest_year_value(GROSS_DEBT, year)))
 
 
 def primary_result_ratio(year: int) -> Decimal:
     """Resultado primário do ano, em fração do PIB por ano; negativo é déficit."""
-    return nearest_year_value(PRIMARY_RESULT, year) / 100
+    return from_percent(Percent(nearest_year_value(PRIMARY_RESULT, year)))
 
 
 def nominal_gdp(year: int) -> Decimal:
