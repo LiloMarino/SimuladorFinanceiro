@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-05):** Decididas as nove pontas soltas das features entregues: três consertos e seis ficam assim.
+> **Última mudança (2026-11-07):** Juntada a 4.7 na 4.6; adicionadas a credibilidade medida contra a história e o primário que estabiliza a dívida na 3.4, o mercado que reage à surpresa na 4.3 e os conceitos de economia real e a intensidade das ligações na 4.6.
 
 ## Glossário
 
@@ -42,22 +42,23 @@
 | **N22** | — | Ter objetivos para buscar além de vencer a partida | — | [F90](#f90), [F123](#f123), [F159](#f159) | — | — | — |
 | **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F44](#f44), [F55](#f55), [F69](#f69), [F101](#f101), [F102](#f102), [F103](#f103), [F104](#f104), [F105](#f105) | — | — | — |
 | **N24** | — | Saber onde está a lentidão durante uma partida | — | — | — | — | — |
-| **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F193](#f193) | — | — | — |
+| **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F193](#f193), [F225](#f225) | — | — | — |
 | **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | [F219](#f219) | — | — | — |
 | **N27** | — | Entrar numa partida que já começou | — | — | — | — | — |
 | **N28** | — | Liberar uma vaga sem depender de o jogador sair | — | — | — | — | — |
 | **N29** | — | Saber o que cada jogador está fazendo enquanto a partida não começa | — | — | — | — | — |
 | **N30** | — | Repetir uma configuração de partida sem montá-la de novo | — | — | — | — | — |
-| **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93) | — | — | — |
+| **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93), [F226](#f226) | — | — | — |
 | **N32** | — | Saber como foi o mês sem montar a conta | — | — | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F97](#f97), [F164](#f164), [F165](#f165), [F175](#f175), [F176](#f176), [F177](#f177), [F191](#f191), [F194](#f194), [F195](#f195), [F216](#f216), [F222](#f222) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F97](#f97), [F164](#f164), [F165](#f165), [F175](#f175), [F176](#f176), [F177](#f177), [F191](#f191), [F194](#f194), [F195](#f195), [F216](#f216), [F222](#f222), [F223](#f223), [F224](#f224), [F226](#f226), [F227](#f227) | — | — | — |
 | **N35** | — | Tirar da lista as partidas que não interessam mais | — | — | — | — | — |
 | **N36** | — | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — | — |
 | **N37** | — | Comprar bitcoin do jeito que dá na vida real, em frações | — | — | — | — | — |
 | **N38** | — | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — | — | — | — |
 | **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | — | — | — | — |
 | **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F221](#f221) | — | — | — |
+| **N41** | — | Aprender como a economia real funciona, jogando | — | [F224](#f224), [F225](#f225), [F226](#f226), [F227](#f227) | — | — | — |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.5 | — | — | — | 🔍 |
 | [**F6**](#f6) | Feature | Link de convite pela internet no lobby | M27 · 4.5 | — | Médio | Bom | ⏳ |
 | [**F14**](#f14) | Feature | Janela desktop nativa | — | — | Baixo | Bom | 💤 |
@@ -86,9 +87,9 @@
 | [**F131**](#f131) | Feature | Catálogo de padrões de vela | M28 · 4.6 | — | — | — | 🔍 |
 | [**F132**](#f132) | Feature | Tópicos de "como se joga" do Como jogar | M28 · 4.6 | — | Médio | Bom | ⏳ |
 | [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | M28 · 4.6 | — | Baixo | Bom | ⏳ |
-| [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | M29 · 4.7 | — | Médio | Bom | ⏳ |
-| [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | M29 · 4.7 | — | Alto | Bom | ⏳ |
-| [**F141**](#f141) | Docs | README com as features de hoje | M29 · 4.7 | — | Baixo | Excelente | ⏳ |
+| [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | M28 · 4.6 | — | Médio | Bom | ⏳ |
+| [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | M28 · 4.6 | — | Alto | Bom | ⏳ |
+| [**F141**](#f141) | Docs | README com as features de hoje | M28 · 4.6 | — | Baixo | Excelente | ⏳ |
 | [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | M28 · 4.6 | — | — | — | 🔍 |
 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | M18 · 4.1 | — | Baixo | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M23 · 3.5 | — | Médio | Bom | ⏳ |
@@ -104,9 +105,14 @@
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.2 | — | — | — | 🔍 |
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | — | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | — | Médio | Bom | ⏳ |
+| [**F223**](#f223) | Correção | Credibilidade do Banco Central medida contra a história | M21 · 3.4 | — | Baixo | Excelente | ⏳ |
+| [**F224**](#f224) | Feature | Primário que estabiliza a dívida no painel da Economia | M21 · 3.4 | — | Baixo | Excelente | ⏳ |
+| [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | M28 · 4.6 | — | Médio | Bom | ⏳ |
+| [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M25 · 4.3 | — | — | — | 🔍 |
+| [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (30 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (31 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -128,7 +134,8 @@
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F97](#f97), [F164](#f164), [F175](#f175), [F176](#f176) | — | — | ✅ |
-| **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F97](#f97), [F191](#f191), [F194](#f194) | — | — | ✅ |
+| **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F97](#f97), [F191](#f191), [F194](#f194), [F223](#f223), [F224](#f224), [F226](#f226), [F227](#f227) | — | — | ✅ |
+| **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F97**](#f97) | Feature | SELIC nas mãos do governo | M21 · 3.4 | — | — | — | ✅ |
 | [**F165**](#f165) | Feature | Tela do Tesouro: títulos pelo risco do governo | M21 · 3.4 | — | — | — | ✅ |
 | [**F177**](#f177) | Feature | Marcação a mercado do Tesouro | M21 · 3.4 | — | — | — | ✅ |
@@ -155,7 +162,7 @@
 >
 > **Serve:** N34, N39
 >
-> **Progresso:** 10/10 concluídos
+> **Progresso:** 10/12 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -169,6 +176,8 @@
 | 8 | [**F222**](#f222) | Feature | Resgate automático de renda fixa para cobrir despesas | — | ✅ Concluído |
 | 9 | [**F192**](#f192) | Melhoria | Gerador de futuro: inflação por regime e horizonte em anos | — | ✅ Concluído |
 | 10 | [**F219**](#f219) | Correção | Terminal do backend sem o aviso do pandas do yfinance | — | ✅ Concluído |
+| 11 | [**F223**](#f223) | Correção | Credibilidade do Banco Central medida contra a história | — | ⏳ Pendente |
+| 12 | [**F224**](#f224) | Feature | Primário que estabiliza a dívida no painel da Economia | [F223](#f223) | ⏳ Pendente |
 
 ### 3.5 — Congresso e eleição (M23)
 
@@ -237,7 +246,7 @@
 >
 > **Serve:** N10, N12, N22, N31
 >
-> **Progresso:** 0/4 concluídos
+> **Progresso:** 0/5 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -245,6 +254,7 @@
 | 2 | [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | — | 🔍 Em avaliação |
 | 3 | [**F90**](#f90) | Feature | Cenários | — | 🔍 Em avaliação |
 | 4 | [**F93**](#f93) | Feature | Rumores antecipados | — | 🔍 Em avaliação |
+| 5 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | — | 🔍 Em avaliação |
 
 ### 4.4 — Dólar (M26)
 
@@ -274,11 +284,11 @@
 
 ### 4.6 — Ensino (M28)
 
-> **Objetivo:** O Como jogar ensina o jogo e os conceitos sobre as telas mais recentes.
+> **Objetivo:** O Como jogar ensina o jogo e os conceitos sobre as telas mais recentes, e a docs, a demonstração e o README mostram o jogo com tudo que entrou.
 >
-> **Serve:** N25, N19, N22, N15
+> **Serve:** N25, N19, N22, N15, N41
 >
-> **Progresso:** 0/6 concluídos
+> **Progresso:** 0/11 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -288,20 +298,11 @@
 | 4 | [**F131**](#f131) | Feature | Catálogo de padrões de vela | — | 🔍 Em avaliação |
 | 5 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | [F158](#f158) | 🔍 Em avaliação |
 | 6 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | — | 🔍 Em avaliação |
-
-### 4.7 — Vitrine (M29)
-
-> **Objetivo:** Demonstração, docs e README mostram o jogo com tudo que entrou.
->
-> **Serve:** N25
->
-> **Progresso:** 0/3 concluídos
-
-| # | ID | Tipo | Resumo | Depende de | Status |
-| --- | --- | --- | --- | --- | --- |
-| 1 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | [F44](#f44) | ⏳ Pendente |
-| 2 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | [F44](#f44) | ⏳ Pendente |
-| 3 | [**F141**](#f141) | Docs | README com as features de hoje | [F139](#f139) | ⏳ Pendente |
+| 7 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | — | 🔍 Em avaliação |
+| 8 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | [F44](#f44) | ⏳ Pendente |
+| 9 | [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | [F140](#f140) | ⏳ Pendente |
+| 10 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | [F44](#f44) | ⏳ Pendente |
+| 11 | [**F141**](#f141) | Docs | README com as features de hoje | [F139](#f139) | ⏳ Pendente |
 
 ### Sem versão
 
@@ -320,6 +321,7 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| [**F223**](#f223) | Correção | Credibilidade do Banco Central medida contra a história | M21 · 3.4 · 11º | 1 | Baixo | Excelente | ⏳ |
 | [**F195**](#f195) | Feature | Acordo de base até o fim do mandato | M23 · 3.5 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F164**](#f164) | Feature | Mapa do Brasil por região na eleição | M23 · 3.5 · 2º | 1 | Médio | Bom | ⏳ |
 | [**F175**](#f175) | Feature | Federações partidárias | M23 · 3.5 · 3º | 0 | Alto | Bom | ⏳ |
@@ -331,6 +333,7 @@
 | [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | M25 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F90**](#f90) | Feature | Cenários | M25 · 4.3 · 3º | 0 | — | — | 🔍 |
 | [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.3 · 4º | 0 | — | — | 🔍 |
+| [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M25 · 4.3 · 5º | 0 | — | — | 🔍 |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.4 · 1º | 0 | — | — | 🔍 |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.5 · 1º | 2 | — | — | 🔍 |
 | [**F56**](#f56) | Feature | Novidades no app | M27 · 4.5 · 3º | 0 | Baixo | Bom | ⏳ |
@@ -339,6 +342,7 @@
 | [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | M28 · 4.6 · 3º | 0 | Baixo | Bom | ⏳ |
 | [**F131**](#f131) | Feature | Catálogo de padrões de vela | M28 · 4.6 · 4º | 0 | — | — | 🔍 |
 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 · 6º | 0 | — | — | 🔍 |
+| [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 · 7º | 0 | — | — | 🔍 |
 | [**F220**](#f220) | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | — | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | — | 0 | Médio | Bom | ⏳ |
 
@@ -352,11 +356,11 @@
 | **F22** | Feature | Preço bruto, desdobramentos e dividendos na partida | N3, N7 | D1, D3, D7, D12 | M22 · 4.0 | — | Alto | Alto | Alto | Bom |
 | **F56** | Feature | Novidades no app | N14 | — | M27 · 4.5 | — | Baixo | Baixo | Médio | Bom |
 | **F100** | Feature | Proventos na carteira e nas telas | N3, N7 | D3 | M22 · 4.0 | [F22](#f22) | Médio | Médio | Médio | Bom |
-| **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | — | M28 · 4.6 | — | Médio | Baixo | Alto | Bom |
-| **F133** | Feature | Tópicos de conceitos do Como jogar | N25 | — | M28 · 4.6 | — | Baixo | Baixo | Médio | Bom |
-| **F139** | Docs | Demonstração regravada com o jogo de hoje | N25 | — | M29 · 4.7 | [F44](#f44) | Médio | Baixo | Alto | Bom |
-| **F140** | Docs | Docs reorganizada por tipo de leitor | N25 | — | M29 · 4.7 | [F44](#f44) | Alto | Baixo | Alto | Bom |
-| **F141** | Docs | README com as features de hoje | N25 | — | M29 · 4.7 | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
+| **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | D21 | M28 · 4.6 | — | Médio | Baixo | Alto | Bom |
+| **F133** | Feature | Tópicos de conceitos do Como jogar | N25 | D21 | M28 · 4.6 | — | Baixo | Baixo | Médio | Bom |
+| **F139** | Docs | Demonstração regravada com o jogo de hoje | N25 | — | M28 · 4.6 | [F44](#f44) | Médio | Baixo | Alto | Bom |
+| **F140** | Docs | Docs reorganizada por tipo de leitor | N25 | D21 | M28 · 4.6 | [F44](#f44) | Alto | Baixo | Alto | Bom |
+| **F141** | Docs | README com as features de hoje | N25 | — | M28 · 4.6 | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
 | **F159** | Feature | Conquista "Ordem com paciência" | N22 | D1 | M18 · 4.1 | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
 | **F164** | Feature | Mapa do Brasil por região na eleição | N34 | D19 | M23 · 3.5 | — | Médio | Baixo | Médio | Bom |
 | **F175** | Feature | Federações partidárias | N34 | D19 | M23 · 3.5 | — | Alto | Médio | Médio | Bom |
@@ -364,6 +368,9 @@
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.2 | — | Médio | Médio | Médio | Bom |
 | **F220** | Melhoria | Jornal: voltar para hoje e edição destacada no arquivo | N15 | — | — | — | Médio | Baixo | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | — | — | Médio | Médio | Médio | Bom |
+| **F223** | Correção | Credibilidade do Banco Central medida contra a história | N34 | D20 | M21 · 3.4 | — | Baixo | Baixo | Alto | Excelente |
+| **F224** | Feature | Primário que estabiliza a dívida no painel da Economia | N34, N41 | D20 | M21 · 3.4 | [F223](#f223) | Baixo | Baixo | Alto | Excelente |
+| **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Médio | Baixo | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -430,6 +437,15 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 <a id="f221"></a>
 **F221 — Lista de ações que aguenta muitas ações.** Serve N40. A tela de ações (`variable-income.tsx`) busca todas as cotações de uma vez (`useVariableIncomeStocks`), filtra e ordena no navegador e desenha um mini gráfico por linha. A cada pregão chega um `stocks_update` com todas as ações, e a tabela inteira renderiza de novo. Com poucas ações não pesa; com muitas (uma base importada grande) o navegador trava. O playtest de 05/11 sugeriu paginar com carregamento por rolagem (como no Jornal) e só atualizar o que está na tela. O primeiro passo é medir: o custo do render por pregão com 100, 1.000 e 5.000 ações, para escolher entre paginar a busca, virtualizar as linhas (só as visíveis existem no DOM) ou assinar a atualização só das linhas visíveis. O filtro e a ordenação hoje são do navegador; paginar do lado do servidor leva os dois junto.
 
+<a id="f223"></a>
+**F223 — Credibilidade do Banco Central medida contra a história.** Serve N34; condicionado por D20. **Sintoma:** na partida com a SELIC nas mãos do governo, um presidente que marca exatamente a SELIC da história em toda reunião perde credibilidade sem ter feito nada diferente. Simulada de 2001 a 2025, ela cai para 32 em 2012–2013, fica presa perto de 55 de 2016 a 2018, zera em dezembro de 2019 e fica em 0 até 2021. Com 0, a dívida paga 2 pontos de prêmio a mais, o que soma cerca de 1 ponto ao IPCA pelo risco fiscal, tira cerca de 5,8% da bolsa no trimestre e dobra o efeito do juro real na inflação. Com o Banco Central autônomo, a mesma janela fica em 100. **Reproduzir:** aplicar `next_credibility` às reuniões de `meeting_days` de 2001 a 2025, com a SELIC e o IPCA guardados. **Causa** (`next_credibility` em `backend/features/economy/monetary.py`, chamada por `_hold_selic_meeting` no `government_book.py`): (1) compara o juro real com o neutro fixo de 5%, e não com o juro real da história no mesmo dia, e cobra de novo o que a série real já contém, contra a D20; (2) só devolve credibilidade com alta da SELIC, e entregar a inflação na meta nunca a reconstrói (em 2016–2018 o IPCA caiu de 10,7% para 2,5% e a credibilidade não voltou); (3) dispara com o IPCA acima da meta, e não acima da meta mais a tolerância (em dezembro de 2019, 4,31% contra a meta de 4,25%, dentro da tolerância de 1,5 ponto, tirou 15,8 pontos). **Conserto:** (1) a reunião tira credibilidade quando o juro real da partida fica abaixo do da história (SELIC e IPCA guardados no dia) e o IPCA em 12 meses da partida passa da meta mais a tolerância: 4 pontos por ponto abaixo da história, até 20; (2) devolve 3 quando sobe a SELIC ou quando o juro real da partida fica igual ou acima do da história; (3) `_hold_selic_meeting` passa o juro real da história e a `inflation_tolerance` do dia. Os testes da credibilidade e o trecho da credibilidade em `docs/docs/como-usar/governo.md` mudam junto. **Aceite:** um presidente que copia a SELIC da história de 2001 a 2025 termina toda reunião com credibilidade 100. **Gatilho:** agora, antes do release da 3.4.
+
+<a id="f224"></a>
+**F224 — Primário que estabiliza a dívida no painel da Economia.** Serve N34 e N41; condicionado por D20. Hoje o painel da Economia mostra a dívida/PIB, a taxa média que ela paga e o que a moveu nos últimos meses (juros, crescimento, inflação e primário, em `debt_summary` de `backend/features/economy/panel.py`), mas não diz quanto superávit seguraria a dívida parada. O jogador passa a ver, ao lado do resultado primário, o **primário que estabiliza a dívida**: o superávit, em % do PIB, que mantém a dívida/PIB no mesmo lugar. A conta é s = d × (r − g) / (1 + g), com d a dívida/PIB, r a taxa nominal média que a dívida paga (a mista, que `budget.debt_rate` já calcula) e g o crescimento nominal do PIB em 12 meses (o crescimento real da partida mais o IPCA). Exemplo: dívida de 80% do PIB, taxa de 12% e PIB nominal crescendo 8% pedem 0,8 × 0,04 / 1,08 ≈ 3,0% do PIB de superávit; com um primário de 1%, a dívida sobe cerca de 2 pontos do PIB por ano. A linha mostra os dois números e a diferença em palavras ("faltam 2,0 pontos do PIB de superávit para a dívida parar de subir"), com o número da história ao lado, que é a régua da D20. A dica traz a definição, o exemplo e o que é bom e ruim: primário acima do que estabiliza faz a dívida cair; abaixo, ela sobe, e com r acima de g sobe sozinha, que é a espiral da dívida. **Mecanismo:** função pura `stabilizing_primary(debt, rate, nominal_growth)` em `backend/features/economy/`, no molde da de `backend/domain/debt.py` do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics); o `DebtSummaryDTO` ganha o primário que estabiliza da partida e o da história, e o `pnpm openapi` regenera os tipos do front. **Gatilho:** depois da credibilidade medida contra a história, antes do release da 3.4.
+
+<a id="f225"></a>
+**F225 — Conceitos de economia real na docs e nomeados na tela.** Serve N41 e N25; condicionado por D21. **Para quem:** quem joga e quer entender por que a economia da partida reagiu como reagiu, e quem lê a docs sem jogar. **O que cobre:** uma página por conceito na categoria de explicação que a reorganização da docs cria: juro real e juro real neutro, curva IS, lei de Okun, curva de Phillips, princípio de Taylor e a reação do Banco Central, defasagem da política monetária, meta de inflação e tolerância, credibilidade e expectativas, prêmio de risco, dinâmica da dívida (r − g) e espiral da dívida, primário que estabiliza a dívida e dominância fiscal. Cada página diz o que o conceito mede, um exemplo numérico, o que é valor bom e ruim, a fonte (relatório do Banco Central, artigo ou livro-texto) e como o jogo o implementa, com a fórmula e os coeficientes: é o lugar único dos números do modelo (D21), e a seção de economia interligada de `docs/docs/como-usar/governo.md` passa a apontar para as páginas. O conteúdo parte dos conceitos e das explicações do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) (`frontend/shared/concepts/concepts.tsx` e `frontend/features/explainers/`), adaptado ao que o jogo faz, e as fórmulas entram com KaTeX no Docusaurus (`remark-math` e `rehype-katex`). **Na tela:** cada parcela do painel da Economia leva o nome do conceito, e a dica dela ganha o "Saiba mais" para a página. **Onde mora:** `docs/docs/`, na categoria de explicação. **Gatilho:** depois da reorganização da docs.
+
 ---
 
 ## 🔍 Em avaliação
@@ -451,10 +467,12 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 | **F131** | Feature | Catálogo de padrões de vela | N19 | — | M28 · 4.6 | — | Tópico do Como jogar com cada padrão animado |
 | **F158** | Melhoria | Animações do Como jogar revistas | N25 | — | M28 · 4.6 | — | O visual numa rodada no canvas dedicada: animações atuais contra as primeiras, número do passo fora da cena, cursor e destaque, e o palco em tamanho real mostrando só o trecho do passo |
 | **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.1 | [F44](#f44) | Escolher a variante entre as do canvas, já com o layout das Gestoras |
-| **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | — | M28 · 4.6 | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
+| **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | D21 | M28 · 4.6 | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
 | **F194** | Feature | Dólar e ativos internacionais | N34, N11 | D20 | M26 · 4.4 | [F191](#f191) | Como o dólar do jogo reage (desconfiança, juro real), a camada pelo desvio sobre BDR e IVVB11 e onde o seletor de origem aparece. |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.3 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M24 · 4.2 | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
+| **F226** | Feature | Mercado reage à surpresa: o Focus da partida | N34, N31, N41 | D20 | M25 · 4.3 | — | Como a expectativa se forma, se o governo pode sinalizar, se o Focus entra na Central de dados e o que fica do efeito por tamanho do desvio |
+| **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Se entram as duas regras ou uma, se contam no placar e nas conquistas e se o laboratório mostra o coeficiente |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -526,6 +544,12 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 - **O livro não vem ordenado por preço**: `order_book.py:93-107` devolve o heap na ordem interna e a tela não define ordenação inicial (`order-book-card.tsx:69`), por isso a ordem do jogador aparece no meio.
 
 **Falta** desenhar, numa rodada no canvas em Opus com variantes e estados (como numa feature nova), a tela do livro. O desenho de 03/11 parte de: a ordem aberta do jogador numa faixa no topo com Cancelar à mão; o livro em duas colunas, Compra (maior preço no topo) e Venda (menor preço no topo), com a melhor compra e a melhor venda em destaque, ligadas à boleta; uma barra de quantidade; a coluna Situação sai (repetia "Aberta"); o balão "Tópico" some. O usuário gostou do rumo e pediu o refinamento pelo método completo. A rodada decide também o que o livro diz sobre si mesmo (que é a pressão ao redor do preço do candle de hoje) e se a ordenação por preço passa a vir do backend. Fica fora de versão.
+
+<a id="f226"></a>
+**F226 — Mercado reage à surpresa: o Focus da partida.** Serve N34, N31 e N41; condicionado por D20. Hoje a bolsa e o prêmio de risco reagem ao tamanho do desvio: cada ponto de SELIC acima da história tira 2,9% da bolsa, anunciado ou não. No mercado real o preço já carrega o esperado, e o que move é a surpresa: uma alta que todo mundo esperava mexe pouco, uma que ninguém esperava mexe muito. A ideia é a partida ter a própria pesquisa Focus (a do Banco Central reúne as projeções do mercado para IPCA, SELIC, PIB e câmbio): a da história é a série real, publicada desde 2001, e a da partida é ela mais o desvio que o governo causa. A bolsa e o prêmio passam a reagir à diferença entre o decidido e o esperado, e o jogador vê antes da reunião o que o mercado espera, como quem lê o noticiário. Conversa com os rumores antecipados, que também falam do que vai acontecer. **Falta definir:** (1) como a expectativa da partida se forma: o Focus real mais o desvio, uma regra adaptativa (segue o realizado com atraso) ou a projeção do próprio modelo; (2) se o governo pode sinalizar, com um comunicado do Copom que mexe na expectativa e cobra credibilidade se não for cumprido; (3) se a série do Focus entra na Central de dados como as outras; (4) o que acontece com o efeito por tamanho do desvio, já calibrado.
+
+<a id="f227"></a>
+**F227 — Intensidade das ligações e laboratório da economia.** Serve N41 e N34; condicionado por D20 e D21. Duas regras da partida, no lobby, para quem quer aprender vendo o mecanismo. **Intensidade:** Suave, Real e Exagerada multiplicam o desvio de todas as ligações por 0,5, 1 e 2. Como o multiplicador age sobre "partida menos história", sem governo a partida continua sendo a história; a Exagerada serve para ver o efeito com clareza num mandato curto. **Laboratório:** cada ligação (curva de Phillips, reação do Banco Central, risco fiscal, juro real na inflação, PIB na bolsa, ciclo fiscal) liga e desliga, para ver o que cada uma faz sozinha, e o painel da Economia mostra quais estão desligadas. **Falta definir:** (1) se entram as duas regras ou uma só; (2) se a partida Exagerada ou de laboratório conta no placar e nas conquistas; (3) se o laboratório só liga e desliga ou também mostra o coeficiente, que a D21 deixa na docs.
 
 ---
 

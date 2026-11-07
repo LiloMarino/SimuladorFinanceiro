@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança (2026-10-30):** Reescrita a N39: a preparação do lobby serve para não refazer a cada partida o que se repete entre elas.
+> **Última mudança (2026-11-07):** Adicionadas a N41 (aprender a economia real jogando) e a D21 (o jogo ensina a jogar, a docs explica o modelo).
 
 ---
 
@@ -144,6 +144,9 @@ Na espera do lobby, só o host mexe em alguma coisa: o resto da sala espera. Tud
 
 **N40. Jogar partidas longas e na velocidade máxima sem a tela travar**
 No playtest, a tela de estatísticas demorou a abrir numa partida longa e o x100 andou quase como o x1. Atravessar anos de mercado depressa é parte do jogo, e uma partida longa não pode ficar mais pesada a cada mês jogado.
+
+**N41. Aprender como a economia real funciona, jogando**
+Na partida com governo, juro, inflação, desemprego, bolsa e dívida reagem pelos mecanismos que os economistas usam: a curva de Phillips, a regra de Taylor, o juro real neutro, a espiral da dívida. Quem joga quer sair da partida sabendo o nome de cada mecanismo e por que a economia reagiu daquele jeito, aprendendo brincando, sem abrir um livro de economia.
 
 ---
 
@@ -359,3 +362,19 @@ Os indicadores saem do caminho: a SELIC soma as variações dos trechos ao últi
 - O efeito do governo fica mensurável e explicável: cada número da tela de Economia se abre em "na história" mais o que cada medida e cada ligação somaram.
 - O mês de defasagem corta o laço "o fechamento lê a série ajustada, e a série ajustada depende do fechamento", e o resultado não depende de quem leu primeiro.
 **Consequências:** custa calcular o orçamento e a macroeconomia duas vezes por mês. Toda ligação nova (o dólar, o juro real decidido pelo governo) entra no mesmo molde, como mais uma parcela do desvio. A espiral da dívida não tem teto: o prêmio cresce sem limite e só um superávit primário a segura.
+
+### D21 — O jogo ensina a jogar, a docs explica o modelo
+**Status:** ✅ Decidida
+
+**Decisão:** o que se lê sobre o simulador fica em duas camadas, e a interseção tem um sentido só.
+- **No jogo** (a janela "Como jogar", as dicas das métricas, os textos de cada tela): o que é preciso para jogar aquela tela. É curto, traz o exemplo numérico e o "bom e ruim" de cada métrica e diz o mecanismo em palavras ("desemprego abaixo do normal empurra a inflação"), sem os coeficientes do modelo. Funciona sem internet, como o executável, e termina num "Saiba mais" que abre a página da docs.
+- **No site da docs** (um site só, no GitHub Pages, para vários leitores): a primeira partida, o guia de cada tela, a referência campo a campo, a explicação de como o simulador calcula (com a fórmula, os números e a fonte), o caminho de quem contribui e a API.
+- Os números do modelo (o 0,35 da curva de Phillips, o 1,5 da reação do Banco Central) moram num lugar só: a página de explicação da docs, que muda junto com o código que os define.
+- A docs aprofunda tudo o que o jogo diz; o jogo não repete a explicação da docs, aponta para ela.
+
+**Por quê:**
+- O site mistura leitores: o guia do lobby tem 3 mil palavras com a metodologia no meio, e o app já manda o jogador para três leituras diferentes no mesmo site (a metodologia do futuro gerado, a configuração de rede do multijogador e a investigação de lentidão de quem desenvolve).
+- O jogador no meio da partida quer saber o que fazer na tela; quem quer entender o modelo quer a fórmula e a fonte. O texto que tenta servir os dois fica longo para um e raso para o outro.
+- Um coeficiente escrito em dois lugares diverge calado no dia em que o playtest o recalibra.
+
+**Consequências:** toda dica ou tópico do jogo que cita um conceito nasce com o "Saiba mais" para a página dele, e a página nasce junto. A reorganização da docs ganha uma categoria de explicação, que é a wiki do projeto. Sem internet, só o "Saiba mais" deixa de abrir; o resto do jogo se basta.
