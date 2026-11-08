@@ -1472,6 +1472,141 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 
 **Aceite:** um mandato inteiro sem renovar acordo; uma queda abaixo de 35 gera uma cobrança por bancada, uma vez só até a aprovação passar de 45; recusar tira a bancada sem a rejeição da quebra; testes em `tests/test_deals.py` e `tests/test_deals_book.py`.
 
+### F22 · arquivado em 2026-11-08
+
+*Kanban:* Preço bruto, desdobramentos e dividendos na partida · Feature · ✅ Concluído · atende N3, N7 · decisões D1, D3, D7, D12 · marco M22
+
+**F22 — Preço bruto, desdobramentos e dividendos na partida.** Serve N3 e N7; segue a D1, a D3, a D7 e a D12. A importação do Yahoo Finance passou a `auto_adjust=False, actions=True`, e `features/import_data/corporate_events.py` reconstrói o preço bruto: cada pregão e cada dividendo é multiplicado pelo produto das razões dos desdobramentos com data ex posterior, e o volume é dividido por ele. Como toda atualização baixa o histórico inteiro, o bruto de um dia antigo não muda, e uma atualização depois de um 2:1 novo não cria queda de 50%. Desdobramentos e dividendos moram na tabela `stock_corporate_event` (data ex, tipo, razão ou valor por cota, origem e versão, no formato das séries da D7), com o repositório `corporate_event`; o congelar, o apagar e a troca do futuro gerado cobrem os eventos junto das séries. Na partida, `Simulation.next_tick` aplica os eventos da data ex antes de atualizar o mercado: o desdobramento muda a quantidade pela razão como evento `SPLIT` (o custo total fica, e o preço médio acompanha), a fração que sobra numa classe sem fração vira `FRACTION_SELL` ao close do dia (a cripto guarda a fração), as ordens abertas do ativo são canceladas e o dividendo entra no caixa como `DIVIDEND` com o ativo de origem (`event_cashflow.stock_id`), valor por cota vezes a quantidade da abertura, truncado ao centavo. O replay, as estatísticas, os setores, o imposto de renda e as conquistas leem `SPLIT` como mais quantidade e `FRACTION_SELL` como venda. O gerador do futuro calibra pelo retorno total (preço corrigido por desdobramento mais dividendos) e escreve o dividendo sintético na mesma tabela, com origem gerada e a mesma semente: o rendimento é a média dos últimos anos reais, com variação sorteada, nos meses do histórico; quem ficou 2 anos sem pagar continua sem pagar; a cripto não paga; e cada data ex gerada tira do preço o valor pago. Como não há banco anterior a converter, a migration é a da linha recomeçada da 4.0 mais a dos eventos, sem marca de série bruta. A F100 lê o `PlayerCorporateActions` que `apply_corporate_events` devolve.
+
+### F100 · arquivado em 2026-11-08
+
+*Kanban:* Proventos na carteira e nas telas · Feature · ✅ Concluído · atende N3, N7 · decisões D3 · marco M22 · dependência de F105
+
+**F100 — Proventos na carteira e nas telas.** Serve N3 e N7; segue a D3. Continua a F22, que guarda os dividendos de cada ativo, reais e gerados, e os credita no caixa na data ex com o ativo de origem; aqui o provento passa a aparecer no jogo. O provento cai no caixa e nunca reinveste sozinho: o que fazer com o dinheiro é do jogador. As telas passam antes pelo canvas. Plano: (1) **Carteira:** o total de proventos recebidos aparece no resumo e, em cada posição, o rendimento (proventos dos últimos 12 meses sobre o valor da posição hoje), em Decimal (D3), com a dica do que ele mede e de como ler. (2) **Detalhe do ativo:** a tela do ativo ganha o histórico de proventos (data ex, valor por cota, total recebido pelo jogador). (3) **Estatísticas e fechamento:** o que entrou como provento soma ao relatório da partida e à decomposição do retorno. (4) **IR:** dividendo e rendimento de FII são isentos para pessoa física, e a regra do simulador trata todo provento como isento; o `yfinance` não separa o JCP (juros sobre capital próprio, com 15% retidos na fonte) do dividendo, e essa simplificação entra escrita na página de impostos dos docs. Gatilho: F22 concluída; sai com ela na 4.0 e destrava os rendimentos mensais da gestora (F105).
+**Aceite:** num ativo que pagou dividendos, o total recebido na carteira bate com a soma dos créditos no caixa na data ex, e o rendimento da posição bate com a conta feita à mão.
+
+### F220 · arquivado em 2026-11-08
+
+*Kanban:* Jornal: voltar para hoje e edição destacada no arquivo · Melhoria · ✅ Concluído · atende N15 · marco M22
+
+**F220 — Jornal: voltar para hoje.** Serve N15. Com a rolagem infinita do Jornal (a lista rola a página inteira, e o "Arquivo da partida" fica fixo na lateral), quem desceu muito pelas edições antigas só volta a hoje rolando de volta até o topo. O pedido do playtest de 05/11: um botão "Voltar para hoje" que aparece assim que a página desce da primeira edição, e um scroll spy que marca na lateral a edição que está na tela. A decisão em aberto é o desenho: onde o botão fica, o que o destaque do arquivo mostra e como os dois convivem com o carregamento de mais edições ao rolar. É tela nova, então vai ao canvas.
+
+### F233 · arquivado em 2026-11-08
+
+*Kanban:* Constantes de calendário unificadas no core · Manutenção · ✅ Concluído · marco M22
+
+**F233 — Constantes de calendário unificadas no core.** Nasceu `backend/core/periods.py` com `BUSINESS_DAYS_PER_YEAR = 252` (movido de `core/indicators.py`), `CALENDAR_DAYS_PER_YEAR = Decimal("365.25")`, `MONTHS_PER_YEAR = 12` e `DAYS_PER_MONTH`, e a docstring afirma que dia útil é sessão da B3 e dia corrido é dia de calendário. O tesouro, as estatísticas (`risk`, `returns`, `score`), o gerador sintético, o futuro gerado, o orçamento de vida, os efeitos do governo e o crédito importam de lá; os cinco `MONTHS_PER_YEAR` e os dois `DAYS_PER_MONTH` locais saíram, e o literal `12` virou a constante. As janelas de "um ano de pregões" (`achievements/metrics.py`, `newsroom/companies.py` e `newsroom/newsroom.py`) usam `BUSINESS_DAYS_PER_YEAR`. O `synthetic.py` renomeou a régua de dias sem feriado para `WEEKDAYS_PER_YEAR` e a manteve local. `economy/layer.py` ganhou `months_to_days`, que converte meses em dias corridos no mês médio, e `statistics/risk.py` ganhou `VOLATILITY_ANNUALIZER` (√252) em Decimal. Ficaram como estavam as janelas ajustáveis que só coincidem com 252 (`strategy/momentum.py`, `base_strategy.py`) e o `MONTH_DAYS = 30` do crédito, que é outra convenção.
+
+As regras da corrida à meta e de viver de renda, antes escritas duas vezes (no DTO e na requisição da rota), viraram `validate_goal` e `validate_independence` em `core/dto/simulation.py`, no padrão de `validate_government`; a requisição continua validando na entrada (422) e chama as mesmas funções do DTO.
+
+Por fora nada mudou: os números exibidos são os mesmos, `pyright` e `pytest` passam sem nenhum valor esperado alterado.
+
+### F234 · arquivado em 2026-11-08
+
+*Kanban:* Juros compostos num módulo só · Manutenção · ✅ Concluído · marco M22
+
+**F234 — Juros compostos num módulo só.** Nasceu `backend/core/rates.py`, só em Decimal, com `compound(rate, periods)` = (1+r)^n − 1, `period_rate(rate, periods)` = (1+r)^(1/n) − 1 e `compose(*rates)` = ∏(1+r) − 1, com teste próprio. Passam a chamá-las `credit/price.py` (taxa mensal e saldo do ciclo), `fixed_income/accrual.py` (`annual_to_daily_factor` virou `1 + period_rate(...)` e manteve o `lru_cache`; o spread composto virou `compose`), `economy/debt.py`, `government/budget.py` (a dívida e o PIB do mês), `simulation/life_events.py` (juro do cheque especial), `core/indicators.py` (`daily_rate` e `annualize_daily`) e `summaries/summary.py` (o composto dos meses, que tinha o seu `_compound`).
+
+`annualize_growth` mudou de `statistics/returns.py` para `statistics/risk.py`, porque o `returns` já importa do `risk` e o `risk` precisava dela; o `returns` importa de lá e o `score.py` a chama como `risk.annualize_growth`. Com isso `risk.annual_return` e a nota anual do `score.py` deixaram de repetir a conta e o guarda de acumulado ≤ −100%. Os caminhos em float/numpy (`economy/layer.annual_to_daily` e os helpers do `synthetic.py`) ficaram com os helpers próprios; `to_annual` e `to_daily` do `synthetic.py` passaram a públicos e o `future.py` chama `to_annual` em vez de repetir a conta.
+
+Por fora nada mudou: o resultado em Decimal é idêntico e nenhum valor esperado dos testes foi alterado.
+
+### F235 · arquivado em 2026-11-08
+
+*Kanban:* Tipo Percent no indicador do BCB · Manutenção · ✅ Concluído · marco M22
+
+**F235 — Tipo Percent no indicador do BCB.** `Percent = NewType("Percent", Decimal)` e `from_percent(value: Percent) -> Decimal` moram em `core/rates.py`, com a afirmação de que o valor é como o BCB publica (0,0551 = 0,0551%). `index_value_on` devolve `Percent`; `daily_rate` e `annualize_daily` só aceitam `Percent`, e os `/ 100` de `core/indicators.py` e das tabelas de meta, tolerância, dívida bruta e resultado primário viraram `from_percent`. Como `last_known_value` também lê o IBOV, que é nível de índice em pontos, a leitura das taxas ganhou `last_known_rate` (CDI/SELIC/IPCA, devolve `Percent`) e `last_known_value` ficou só para as séries de nível; `accrual.py`, `economy/panel.py` e a checagem de cobertura migraram para `last_known_rate`. Onde a história é lida direto (`economy/panel.py`, `economy/layer.py`, `newsroom/macro.py`) o `Percent(...)` nasce na leitura, e os testes de `economy_layer` e `economy_panel` passam `Percent`. A chamada de prova com um `Decimal` cru em `annualize_daily` falhou no pyright e foi removida.
+
+Por fora nada mudou: os valores são os mesmos; `pyright` e `pytest` passam sem nenhum valor esperado alterado.
+
+### F236 · arquivado em 2026-11-08
+
+*Kanban:* Prévia do impacto de preço fora da rota · Manutenção · ✅ Concluído · marco M22
+
+**F236 — Prévia do impacto de preço fora da rota.** A conta da curva saiu de `routes/simulation.py` e virou `preview_curve(k, decay_days)` em `features/variable_income/price_impact.py`, junto de `impact()` e `decay()`, levando `PREVIEW_VOLUME_SHARE` e o volume médio fixo do exemplo (`PREVIEW_AVERAGE_VOLUME`, 1 milhão). A função devolve o impacto de cada pregão afetado, e a rota só chama `preview_curve` e monta o `PriceImpactPreviewDTO`. Um teste novo confere `preview_curve` contra `impact()` e `decay()`.
+
+Por fora nada mudou: a resposta da rota é a mesma e o `docs/openapi.json` não mudou.
+
+### F237 · arquivado em 2026-11-08
+
+*Kanban:* Componentes do mercado na pasta da renda variável · Manutenção · ✅ Concluído · marco M22
+
+**F237 — Componentes do mercado na pasta da renda variável.** `market-mark.tsx` e `scale-ruler.tsx` saíram de `shared/components/` e foram para `features/variable-income/components/`, a única feature que os usa (`order-book-card.tsx` e `indicator-selector.tsx`). `chart-scale.ts` e `tutorial-topic-ids.ts` ficam em `shared/`, porque também têm consumidores lá.
+
+Por fora nada mudou: só os caminhos de import.
+
+### F238 · arquivado em 2026-11-08
+
+*Kanban:* Features do front sem import atravessado · Manutenção · ✅ Concluído · marco M22
+
+**F238 — Features do front sem import atravessado.** Os padrões de vela passaram a ser compartilhados: `candle-patterns.ts`, `pattern-geometry.ts`, `pattern-view.ts` (com o seu teste) foram para `shared/lib/`, e `pattern-drawing.tsx` com o `pattern-drawing-animated.tsx` que ele carrega foram para `shared/components/candle-patterns/`. A geometria e o desenho animado subiram junto porque o desenho depende deles e nenhum outro código os usa; assim `shared/` não importa de feature. O resto de `candle-patterns/` (cartão, lista, controles) ficou em variable-income.
+
+O minigame de candles desceu para dentro do lobby, o único que o usa: `features/candle-challenge/` virou `features/lobby/candle-challenge/`, com `components/`, `hooks/` e `lib/` preservados. O `lobby-button.tsx` do tutorial desceu para `lobby/components/`.
+
+Dentro de `features/`, a única aresta entre features que sobra é a do tutorial para variable-income, aceita como exceção.
+
+### F239 · arquivado em 2026-11-08
+
+*Kanban:* Formatadores de percentual unificados · Manutenção · ✅ Concluído · marco M22
+
+**F239 — Formatadores de percentual unificados.** `displayPercent` ganhou a opção `{ trim: true }`, que mostra casas só quando há (0,4 → "40%", 0,0025 → "0,25%"). O `chancePercent` do governo saiu e seus 4 usos viraram `displayPercent(x, 2, { trim: true })`; os três `formatPercent(Number(x) * 100, 1)` dos cards do mapa viraram `displayPercent(x, 1)`. O `formatPercent` ficou, porque é o formatador de pontos (52 = "52%"), unidade só do governo, e a docstring dele agora afirma isso.
+
+Uma varredura das formatações à mão trocou mais cinco pontos por `displayPercent`: `percentLabel` (governo), o toast do 2º turno, `percentOf` do tesouro, as três linhas da ilustração de alavancagem do tutorial e `cashShare` do lobby. O texto exibido é o mesmo de antes.
+
+Ficaram de fora, por não terem equivalente exato: `yearShare` (mínimo de 2 e máximo de 3 casas) e os formatadores de valores que já chegam na escala 0–100, ou sem o "%" (`pointsOf`, `signedPointsOf`, `pollPercent`, os de pontos percentuais do mapa).
+
+### F240 · arquivado em 2026-11-08
+
+*Kanban:* Badge de passo como variante do design system · Manutenção · ✅ Concluído · marco M22
+
+**F240 — Badge de passo como variante do design system.** O círculo numerado do `Step` em `pyspy-card.tsx` era um `Badge` reimplementado com classes inline. O `Badge` ganhou `size="step"` (`size-5.5 px-0 font-semibold`) em `badgeVariants.ts`, e o `Step` passou a `<Badge variant="secondary" size="step">`.
+
+O círculo de `measure-steps.tsx` ficou de fora: é outro selo, maior (`size-7`), em tom de informação e com fonte mono, e não o mesmo círculo do py-spy.
+
+### F241 · arquivado em 2026-11-08
+
+*Kanban:* Card de ações de campanha em arquivos por parte · Manutenção · ✅ Concluído · marco M22
+
+**F241 — Card de ações de campanha em arquivos por parte.** `campaign-actions-card.tsx` virou a pasta `campaign-actions-card/`, com `index.tsx` (o card e o subtítulo do dado) e um arquivo por parte: `action-body.tsx`, `tv-reach.tsx`, `action-choice.tsx`, `group-choices.tsx`, `group-poll-cell.tsx`, `summary-body.tsx`, `summary-row.tsx` e `summary-title.ts`, no padrão de `statistics-report/`. Quem importa o card continua com o mesmo caminho.
+
+O rival antes era resolvido duas vezes, no card e no corpo da ação. Agora o `index.tsx` resolve uma vez e passa o `rival` pronto ao `ActionBody`, com o tipo tirado do `CampaignPanel`.
+
+Por fora nada mudou.
+
+### F242 · arquivado em 2026-11-08
+
+*Kanban:* Partida do lobby em arquivos por parte · Manutenção · ✅ Concluído · marco M22
+
+**F242 — Partida do lobby em arquivos por parte.** `lobby-match.tsx` virou a pasta `lobby-match/`, com `index.tsx` (o card, os hooks e as duas folhas de regras) e um arquivo por parte: `summary-rows.tsx` (as linhas do resumo das regras), `newcomers-alert.tsx`, `teams-block.tsx` e `start-actions.tsx` (continuar, iniciar nova e esperar o host). Quem importa o card continua com o mesmo caminho.
+
+`dateField`, `simulationFormSchema` e o tipo `SimulationFormValues` foram para `lobby/lib/simulation-form.ts`, que já era dono de `toFormValues` e `toSettingsBody`; os oito arquivos que importavam o tipo do card agora importam de lá, e a lib deixou de depender de um componente.
+
+As linhas do resumo ficaram como função (`summaryRows`) e não como componente, porque o `index.tsx` também usa os rótulos delas no esqueleto de carregamento.
+
+Por fora nada mudou.
+
+### F243 · arquivado em 2026-11-08
+
+*Kanban:* Folha de regras do lobby em arquivos por parte · Manutenção · ✅ Concluído · marco M22
+
+**F243 — Folha de regras do lobby em arquivos por parte.** `rules-sheet.tsx` virou a pasta `rules-sheet/`, com `index.tsx` (a folha, as abas, o `useWatch` e as escolhas de tipo de partida e de impacto de preço) e um arquivo por seção do formulário: `basics-fields.tsx`, `grouping-fields.tsx`, `game-type-fields.tsx`, `goal-fields.tsx`, `victory-fields.tsx` e `price-impact-fields.tsx`. Cada seção recebe o `form`, o `readOnly` e só os valores observados que usa. Quem importa a folha continua com o mesmo caminho.
+
+O `SaveStatus` ganhou arquivo próprio, com o tipo `RulesSaveStatus` que a folha e o lobby passam a compartilhar, e o `useNow` foi para `shared/hooks`.
+
+Por fora nada mudou.
+
+### F244 · arquivado em 2026-11-08
+
+*Kanban:* Gráfico de ações em arquivos por parte e um hook · Manutenção · ✅ Concluído · marco M22
+
+**F244 — Gráfico de ações em arquivos por parte e um hook.** `stock-chart.tsx` (994 linhas) virou a pasta `stock-chart/`: `index.tsx` com o componente e a composição, `chart-config.ts` (constantes, formatos e tipos), `chart-helpers.ts` (funções puras do dia, do período e dos textos da mira), `pop-row.tsx`, `legend-item.tsx`, `pane-label.tsx` e o hook `useStockChartInstance.ts`, que cria o gráfico, mantém as séries preenchidas e assina a mira. O corpo do efeito de criação e o preenchimento das séries foram movidos sem mudança de lógica; os efeitos mantêm a ordem de antes.
+
+### F245 · arquivado em 2026-11-08
+
+*Kanban:* Limpeza de scripts e docs · Manutenção · ✅ Concluído · marco M22
+
+**F245 — Limpeza de scripts e docs.** Saíram `scripts/plot_beta_distribution.py`, `scripts/tree.py` e `scripts/tree_descriptions.yaml`, junto com a seção "Atualização da Árvore de Estrutura" de `docs/docs/desenvolvimento/estrutura-pastas.md`, que ensinava a rodá-los. Os scripts `profile:line` e `profile:line:view` saíram do `package.json`, e com eles `line-profiler` (`pyproject.toml`, exclude do `.spec`) e `cross-env`; os dois lockfiles foram regenerados e o deptry confirma. O padrão `*.lprof` saiu do script `clean`. Na docs de estrutura de pastas, o exemplo `base-card.tsx`, que não existe, passou a `shared/components/kpi.tsx`. O `matplotlib`, que só o `plot_beta_distribution.py` usava, continua no grupo `dev` do `pyproject.toml`.
+
 ## Itens descartados
 
 ### F15 · arquivado em 2026-10-17
@@ -1607,6 +1742,12 @@ As constantes novas (o limite, os 50% e a volta acima de 45) moram em `deals.py`
 *Marco:* Congresso e eleição · versão 3.5 · serve N34 · itens F195, F164, F175
 
 > **Objetivo:** As bancadas, as regiões e as federações viram decisões de governo e de campanha.
+
+### M22 · arquivado em 2026-11-08
+
+*Marco:* Dividendos · versão 4.0 · serve N3, N7 · itens F22, F100, F233, F234, F235, F236, F237, F238, F239, F240, F241, F242, F243, F244, F245, F220
+
+> **Objetivo:** O preço é o negociado na época, e o ativo desdobra e paga dividendo na partida, no real e no futuro gerado.
 
 ## Decisões
 
