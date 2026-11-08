@@ -137,6 +137,27 @@ def test_a_guided_bloc_follows_the_leader_and_an_unguided_one_follows_the_defaul
     assert orientations[key] is True
 
 
+def test_the_leader_overrides_the_default_on_a_computer_government_measure(
+    book: GovernmentBook, engine, market, bleak
+):
+    govern(book, engine)
+    close_months(book, 19)
+    day = date(2023, 8, 1)
+    book.on_tick(USERS, day, False)
+    [measure] = book._queue()
+    bloc = book.state.house_on(day).of_party(party_of(book, ALICE).id)
+    if bloc is None or bloc.seats == 0:
+        pytest.skip("o partido de teste não elegeu cadeiras")
+    default, guided, _ = book.measure_orientations(measure, day)
+    assert guided[bloc.key] is False
+
+    # Orientar o contrário do padrão vale, seja o padrão Sim ou Não
+    for yes in (not default[bloc.key], default[bloc.key]):
+        book.guide(ALICE, day, measure.id, yes)
+        orientations, guided, _ = book.measure_orientations(measure, day)
+        assert (orientations[bloc.key], guided[bloc.key]) == (yes, True)
+
+
 def test_the_computer_blocs_vote_by_their_own_flags_without_a_leader(
     book: GovernmentBook, engine, market
 ):
