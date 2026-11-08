@@ -1,5 +1,4 @@
 import { MetricHint } from "@/shared/components/metric-hint";
-import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { useElementWidth } from "@/shared/hooks/useElementWidth";
 import { partyColor } from "@/shared/lib/party-colors";
@@ -75,16 +74,7 @@ export function MapView({ map, division, lens, view, selected, onSelect }: MapVi
           {view.sentence && <p className="text-[13px]">{view.sentence}</p>}
 
           {/* Rodapé */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-3 text-xs text-muted-foreground">
-            <span>{footer}</span>
-            <Button
-              variant="link"
-              size="sm"
-              onClick={() => document.getElementById("map-table")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              Ver como tabela
-            </Button>
-          </div>
+          <div className="border-t pt-3 text-xs text-muted-foreground">{footer}</div>
         </div>
       </CardContent>
     </Card>

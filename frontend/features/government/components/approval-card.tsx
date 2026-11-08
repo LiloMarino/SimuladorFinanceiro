@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Info, Users } from "lucide-react";
+import { ArrowRight, Info, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
 import { displayDayMonth, displayMonthShort } from "@/shared/lib/utils/display";
@@ -21,9 +23,9 @@ import {
 } from "../lib/approval";
 import type { Selection } from "../lib/approval";
 import { approvalTone, signedPoints } from "../lib/government";
+import { mapLink } from "../lib/map-url";
 import { APPROVAL } from "../lib/government-metrics";
 import { ApprovalChart } from "./approval-chart";
-import { ApprovalRegions } from "./approval-regions";
 import { ApprovalGroups } from "./approval-groups";
 import { ApprovalReasons } from "./approval-reasons";
 import { ImpeachmentFloor } from "./impeachment-floor";
@@ -114,7 +116,16 @@ export function ApprovalCard({ panel }: ApprovalCardProps) {
           <ApprovalChart approval={approval} selection={selection} />
 
           {/* Aprovação por região */}
-          <ApprovalRegions />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="justify-self-start"
+            nativeButton={false}
+            render={<Link to={mapLink("approval", "region")} />}
+          >
+            Ver no mapa
+            <ArrowRight />
+          </Button>
 
           {/* Grupos de eleitores */}
           <div className="grid gap-2">

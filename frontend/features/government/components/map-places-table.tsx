@@ -38,7 +38,7 @@ export function MapPlacesTable({ map, division, party, selected, onSelect, showR
   const unit = division === "state" ? "Estados" : "Regiões";
 
   return (
-    <Card id="map-table">
+    <Card>
       <CardContent>
         <div className="grid gap-3">
           <b className="text-[15px]">{unit}, do maior para o menor</b>

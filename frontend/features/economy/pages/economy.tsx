@@ -6,7 +6,6 @@ import { DebtCard } from "../components/debt-card";
 import { EconomyChart } from "../components/economy-chart";
 import { EffectsCard } from "../components/effects-card";
 import { EconomyKpis } from "../components/economy-kpis";
-import { EconomyTable } from "../components/economy-table";
 import { GrowthCard } from "../components/growth-card";
 import { UnemploymentCard } from "../components/unemployment-card";
 import { useEconomyPanel } from "../hooks/queries/useEconomyPanel";
@@ -52,7 +51,6 @@ function EconomyContent({ panel }: { panel: EconomyPanel }) {
         <UnemploymentCard panel={panel} />
       </div>
       {panel.debt && <DebtCard panel={panel} debt={panel.debt} />}
-      <EconomyTable panel={panel} />
     </div>
   );
 }
