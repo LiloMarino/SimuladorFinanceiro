@@ -24,7 +24,7 @@ class SnapshotRepository:
         total_equity: Decimal,
         total_fixed: Decimal,
         total_debt: Decimal,
-        equity_by_class: dict[AssetClass, Decimal] | None = None,
+        equity_by_class: dict[AssetClass, Decimal],
     ) -> SnapshotDTO:
         """O snapshot de um jogador só, pelo mesmo caminho do dia de todos."""
         balance = DayBalanceDTO(total_equity, total_fixed, total_debt, equity_by_class)

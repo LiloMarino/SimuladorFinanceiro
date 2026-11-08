@@ -31,10 +31,21 @@ class Base(DeclarativeBase):
 
 
 class FixedIncomeAsset(Base):
+    """O título que um jogador comprou, da vitrine da partida."""
+
     __tablename__ = "fixed_income_asset"
     __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fixed_income_asset_simulation_id_fkey",
+        ),
         PrimaryKeyConstraint("id", name="fixed_income_asset_pkey"),
-        UniqueConstraint("asset_uuid", name="fixed_income_asset_uuid_key"),
+        UniqueConstraint(
+            "simulation_id", "asset_uuid", name="fixed_income_asset_simulation_uuid_key"
+        ),
     )
 
     id: Mapped[int] = mapped_column(
@@ -50,6 +61,7 @@ class FixedIncomeAsset(Base):
         ),
         primary_key=True,
     )
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     asset_uuid: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
     name: Mapped[str] = mapped_column(Text, nullable=False)
     issuer: Mapped[str] = mapped_column(Text, nullable=False)
@@ -145,10 +157,10 @@ class GeneratedFuture(Base):
         Numeric(5, 2), nullable=False
     )
     surge_frequency: Mapped[decimal.Decimal] = mapped_column(
-        Numeric(4, 2), nullable=False, server_default="0"
+        Numeric(4, 2), nullable=False
     )
     surge_intensity: Mapped[decimal.Decimal] = mapped_column(
-        Numeric(5, 2), nullable=False, server_default="6"
+        Numeric(5, 2), nullable=False
     )
     until: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     generated_at: Mapped[datetime.datetime] = mapped_column(
@@ -497,6 +509,12 @@ class EventCashflow(Base):
             name="event_cashflow_user_id_fkey",
         ),
         PrimaryKeyConstraint("id", name="event_cashflow_pkey"),
+        Index(
+            "event_cashflow_simulation_user_idx",
+            "simulation_id",
+            "user_id",
+            "event_date",
+        ),
     )
 
     id: Mapped[int] = mapped_column(
@@ -514,26 +532,8 @@ class EventCashflow(Base):
     )
     simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    event_type: Mapped[str] = mapped_column(
-        Enum(
-            "DEPOSIT",
-            "WITHDRAW",
-            "DIVIDEND",
-            "CONTRIBUTION",
-            "TAX",
-            "SALARY",
-            "EXPENSE",
-            "UNEXPECTED_EXPENSE",
-            "OVERDRAFT_INTEREST",
-            "LOAN_PROCEEDS",
-            "LOAN_PAYMENT",
-            "CAMPAIGN_CONTRIBUTION",
-            "CAMPAIGN_DONATION",
-            "CAMPAIGN_ACTION",
-            name="cashflow_event_type",
-        ),
-        nullable=False,
-    )
+    # Um valor de `CashflowEventType`
+    event_type: Mapped[str] = mapped_column(Text, nullable=False)
     amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     # Qual imprevisto foi, para o histórico; nulo nos outros eventos
     life_event_key: Mapped[str | None] = mapped_column(Text)
@@ -575,6 +575,9 @@ class EventEquity(Base):
             name="event_equity_user_id_fkey",
         ),
         PrimaryKeyConstraint("id", name="event_equity_pkey"),
+        Index(
+            "event_equity_simulation_user_idx", "simulation_id", "user_id", "event_date"
+        ),
     )
 
     id: Mapped[int] = mapped_column(
@@ -593,10 +596,8 @@ class EventEquity(Base):
     simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
     stock_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    event_type: Mapped[str] = mapped_column(
-        Enum("BUY", "SELL", "SPLIT", "FRACTION_SELL", name="equity_event_type"),
-        nullable=False,
-    )
+    # Um valor de `EquityEventType`
+    event_type: Mapped[str] = mapped_column(Text, nullable=False)
     quantity: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 8), nullable=False)
     price: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
@@ -624,7 +625,7 @@ class EventFixedIncome(Base):
         ForeignKeyConstraint(
             ["asset_id"],
             ["fixed_income_asset.id"],
-            ondelete="RESTRICT",
+            ondelete="CASCADE",
             onupdate="CASCADE",
             name="event_fixed_income_asset_id_fkey",
         ),
@@ -636,6 +637,12 @@ class EventFixedIncome(Base):
             name="event_fixed_income_user_id_fkey",
         ),
         PrimaryKeyConstraint("id", name="event_fixed_income_pkey"),
+        Index(
+            "event_fixed_income_simulation_user_idx",
+            "simulation_id",
+            "user_id",
+            "event_date",
+        ),
     )
 
     id: Mapped[int] = mapped_column(
@@ -654,13 +661,12 @@ class EventFixedIncome(Base):
     simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
     asset_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    event_type: Mapped[str] = mapped_column(
-        Enum("BUY", "REDEEM", name="fixed_income_event_type"), nullable=False
-    )
+    # Um valor de `FixedIncomeEventType`
+    event_type: Mapped[str] = mapped_column(Text, nullable=False)
     amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     # IR e IOF retidos no resgate (bruto - líquido); zero na aplicação
     tax_withheld: Mapped[decimal.Decimal] = mapped_column(
-        Numeric(20, 6), nullable=False, server_default=text("0")
+        Numeric(20, 6), nullable=False
     )
     event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
@@ -694,6 +700,9 @@ class EventCredit(Base):
             name="event_credit_user_id_fkey",
         ),
         PrimaryKeyConstraint("id", name="event_credit_pkey"),
+        Index(
+            "event_credit_simulation_user_idx", "simulation_id", "user_id", "event_date"
+        ),
     )
 
     id: Mapped[int] = mapped_column(
@@ -712,18 +721,8 @@ class EventCredit(Base):
     simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
     loan_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
-    event_type: Mapped[str] = mapped_column(
-        Enum(
-            "CONTRACT",
-            "INSTALLMENT_PAID",
-            "INSTALLMENT_LATE",
-            "OVERDUE_PAID",
-            "PREPAYMENT",
-            "PAYOFF",
-            name="credit_event_type",
-        ),
-        nullable=False,
-    )
+    # Um valor de `CreditEventType`
+    event_type: Mapped[str] = mapped_column(Text, nullable=False)
     amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     # Número da parcela, nos eventos de parcela
     installment_number: Mapped[int | None] = mapped_column(Integer)
@@ -773,55 +772,8 @@ class GovernmentEvent(Base):
         primary_key=True,
     )
     simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    event_type: Mapped[str] = mapped_column(
-        Enum(
-            "PARTY_FOUNDED",
-            "COMPUTER_PARTY_ADDED",
-            "COMPUTER_PARTY_REMOVED",
-            "PARTY_JOINED",
-            "PARTY_LEFT",
-            "MEMBER_EXPELLED",
-            "CONTRIBUTION_SET",
-            "TICKET_SET",
-            "VICE_ANSWERED",
-            "CAMPAIGN_SPENT",
-            "DONATION_MADE",
-            "ELECTION_ROUND",
-            "TERM_STARTED",
-            "MEASURE_PROPOSED",
-            "MEASURE_WITHDRAWN",
-            "MEASURE_VOTED",
-            "APPROVAL_MEASURED",
-            "IMPEACHED",
-            "PARTY_VALUES_SET",
-            "CAMPAIGN_ACTION",
-            "PROMISES_SET",
-            "PROMISES_WEIGHED",
-            "PROMISES_SETTLED",
-            "HOUSE_ELECTED",
-            "BLOC_GUIDED",
-            "GUIDANCE_RULE_SET",
-            "IMPEACHMENT_REQUESTED",
-            "IMPEACHMENT_VOTED",
-            "DEAL_PROPOSED",
-            "DEAL_ANSWERED",
-            "DEAL_WITHDRAWN",
-            "DEAL_BROKEN",
-            "RUNOFF_ENDORSED",
-            "RUNOFF_CONTRIBUTION",
-            "RUNOFF_POLL",
-            "PARTIES_PREPARED",
-            "SELIC_SET",
-            "SELIC_DECIDED",
-            "FEDERATION_PROPOSED",
-            "FEDERATION_WITHDRAWN",
-            "FEDERATION_ANSWERED",
-            "FEDERATION_LEFT",
-            "FEDERATION_ENDED",
-            name="government_event_type",
-        ),
-        nullable=False,
-    )
+    # Um valor de `GovernmentEventType`
+    event_type: Mapped[str] = mapped_column(Text, nullable=False)
     # Os dados do evento; o formato de cada tipo mora no DTO de `GovernmentEventDTO`
     payload: Mapped[dict] = mapped_column(JSONB, nullable=False)
     event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
@@ -948,14 +900,12 @@ class Snapshots(Base):
         Numeric(20, 6), nullable=False
     )
     # O patrimônio já desconta a dívida; ela fica à parte para o histórico e a nota de risco
-    total_debt: Mapped[decimal.Decimal] = mapped_column(
-        Numeric(20, 6), nullable=False, server_default=text("0")
-    )
+    total_debt: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     total_networth: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False
     )
-    # {tipo: valor} da renda variável; nulo nos snapshots anteriores à divisão por tipo
-    equity_by_class: Mapped[dict | None] = mapped_column(JSONB)
+    # {tipo: valor} da renda variável
+    equity_by_class: Mapped[dict] = mapped_column(JSONB, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )
@@ -1101,25 +1051,8 @@ class News(Base):
     )
     simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     news_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
-    news_type: Mapped[str] = mapped_column(
-        Enum(
-            "ELECTION_CALENDAR",
-            "ELECTION_RESULT",
-            "TERM_STARTED",
-            "MEASURE_PROPOSED",
-            "MEASURE_VOTED",
-            "PARTY_LIFE",
-            "CAMPAIGN",
-            "COPOM_DECISION",
-            "MONTHLY_INFLATION",
-            "IBOVESPA_EXTREME",
-            "STRONG_MOVE",
-            "WEEK_HIGH",
-            "HISTORICAL_MILESTONE",
-            name="news_type",
-        ),
-        nullable=False,
-    )
+    # Um valor de `NewsType`
+    news_type: Mapped[str] = mapped_column(Text, nullable=False)
     headline: Mapped[str] = mapped_column(Text, nullable=False)
     dek: Mapped[str | None] = mapped_column(Text)
     # Os ativos de que a manchete fala, para o filtro "só minha carteira"

@@ -83,7 +83,9 @@ def saved_match(engine: Engine, start: date, played_until: date) -> int:
                 total_fixed=Decimal(0),
                 total_cash=Decimal(0),
                 total_contribution=Decimal(0),
+                total_debt=Decimal(0),
                 total_networth=Decimal(0),
+                equity_by_class={},
                 created_at=datetime.now(UTC),
             )
         )

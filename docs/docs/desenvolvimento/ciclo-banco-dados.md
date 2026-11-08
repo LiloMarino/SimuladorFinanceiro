@@ -56,11 +56,13 @@ O banco do `.env` precisa estar no head antes de gerar uma revisão nova: subir 
 
 ### O que o autogenerate não cobre
 
-* **Valor novo num `ENUM` nativo do Postgres** (`cashflow_event_type`, `equity_event_type` etc.) entra à mão na migration:
+* **Valor novo num `ENUM` nativo do Postgres** (`asset_class`, `indicator_series` etc.) entra à mão na migration:
 
   ```python
-  op.execute("ALTER TYPE cashflow_event_type ADD VALUE 'TAX'")
+  op.execute("ALTER TYPE asset_class ADD VALUE 'BOND'")
   ```
+
+  Os tipos de evento (`event_type` das tabelas `event_*` e de `government_event`, e `news.news_type`) são texto: o valor válido é o do enum do Python, e o tipo novo nasce nele, sem migration.
 
 * **`ENUM` removido no `downgrade`** sobrevive ao `drop_table` e é dropado explicitamente: `sa.Enum(name="...").drop(op.get_bind())`.
 * **Coluna `NOT NULL` nova em tabela com dado** precisa de valor para as linhas existentes: `server_default` na coluna ou um `UPDATE` na própria migration, antes de tornar a coluna obrigatória.

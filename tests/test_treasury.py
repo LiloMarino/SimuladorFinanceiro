@@ -85,7 +85,9 @@ def fixed_income_db(
         repository.fixed_income, "get_events", lambda simulation_id, user_id: []
     )
     monkeypatch.setattr(
-        repository.fixed_income, "get_or_create_asset", lambda asset: ASSET_ID
+        repository.fixed_income,
+        "get_or_create_asset",
+        lambda simulation_id, asset: ASSET_ID,
     )
 
 
@@ -358,7 +360,7 @@ def test_issue_uuids_are_stable_in_the_month_and_distinct_across_months_and_game
 
 @pytest.fixture
 def market(monkeypatch: pytest.MonkeyPatch, captured_events) -> FixedIncomeMarket:
-    monkeypatch.setattr(repository.fixed_income, "get_asset_by_uuid", lambda _: None)
+    monkeypatch.setattr(repository.fixed_income, "get_asset_by_uuid", lambda *_: None)
     return FixedIncomeMarket(1, date(2040, 1, 1), start_date=START)
 
 

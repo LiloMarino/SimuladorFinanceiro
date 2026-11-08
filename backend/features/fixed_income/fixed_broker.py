@@ -182,7 +182,9 @@ class FixedBroker:
                     first_applied_date=today,
                 )
 
-        asset_id = repository.fixed_income.get_or_create_asset(asset)
+        asset_id = repository.fixed_income.get_or_create_asset(
+            self._simulation_engine.simulation_id, asset
+        )
         EventManager.push_event(
             FixedIncomeEventDTO(
                 simulation_id=self._simulation_engine.simulation_id,
@@ -231,7 +233,9 @@ class FixedBroker:
                 position.withdraw(breakdown.gross)
             self._simulation_engine.add_cash(client_id, breakdown.net)
 
-        asset_id = repository.fixed_income.get_or_create_asset(asset)
+        asset_id = repository.fixed_income.get_or_create_asset(
+            self._simulation_engine.simulation_id, asset
+        )
         EventManager.push_event(
             FixedIncomeEventDTO(
                 simulation_id=self._simulation_engine.simulation_id,
@@ -291,7 +295,9 @@ class FixedBroker:
                 position.withdraw(curve_amount)
             self._simulation_engine.add_cash(client_id, breakdown.net)
 
-        asset_id = repository.fixed_income.get_or_create_asset(asset)
+        asset_id = repository.fixed_income.get_or_create_asset(
+            self._simulation_engine.simulation_id, asset
+        )
         EventManager.push_event(
             FixedIncomeEventDTO(
                 simulation_id=self._simulation_engine.simulation_id,
@@ -398,7 +404,9 @@ class FixedBroker:
         )
 
         self._simulation_engine.add_cash(client_id, breakdown.net)
-        asset_id = repository.fixed_income.get_or_create_asset(position.asset)
+        asset_id = repository.fixed_income.get_or_create_asset(
+            self._simulation_engine.simulation_id, position.asset
+        )
         simulation_id = self._simulation_engine.simulation_id
         EventManager.push_event(
             FixedIncomeEventDTO(

@@ -30745,17 +30745,10 @@
             "title": "Total Networth"
           },
           "equity_by_class": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "type": "string"
-                },
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
             "title": "Equity By Class"
           },
           "created_at": {

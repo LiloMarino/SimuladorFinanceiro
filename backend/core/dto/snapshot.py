@@ -21,7 +21,7 @@ class DayBalanceDTO(NamedTuple):
     total_equity: Decimal
     total_fixed: Decimal
     total_debt: Decimal
-    equity_by_class: dict[AssetClass, Decimal] | None
+    equity_by_class: dict[AssetClass, Decimal]
 
 
 class SnapshotDTO(BaseDTO):
@@ -33,17 +33,14 @@ class SnapshotDTO(BaseDTO):
     total_contribution: Decimal
     total_debt: Decimal
     total_networth: Decimal
-    # Nulo nos snapshots gravados antes de o snapshot guardar a renda variável por tipo
-    equity_by_class: dict[AssetClass, Decimal] | None
+    equity_by_class: dict[AssetClass, Decimal]
     created_at: datetime
 
     @field_serializer("equity_by_class")
     def _serialize_equity_by_class(
-        self, value: dict[AssetClass, Decimal] | None
-    ) -> dict[str, str] | None:
+        self, value: dict[AssetClass, Decimal]
+    ) -> dict[str, str]:
         """Sai pronto para a coluna JSONB, na escala das colunas `Numeric(20, 6)` do snapshot."""
-        if value is None:
-            return None
         return {
             asset_class.value: str(total.quantize(SCALE))
             for asset_class, total in value.items()

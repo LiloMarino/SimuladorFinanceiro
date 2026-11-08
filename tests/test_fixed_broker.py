@@ -36,7 +36,9 @@ def fixed_income_db(
         repository.fixed_income, "get_events", lambda simulation_id, user_id: []
     )
     monkeypatch.setattr(
-        repository.fixed_income, "get_or_create_asset", lambda asset: ASSET_ID
+        repository.fixed_income,
+        "get_or_create_asset",
+        lambda simulation_id, asset: ASSET_ID,
     )
 
 

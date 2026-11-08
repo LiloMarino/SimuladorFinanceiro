@@ -102,7 +102,7 @@ def test_return_flows_stop_at_the_last_snapshot(match: tuple[int, int]):
                 total_contribution=Decimal(0),
                 total_debt=Decimal(0),
                 total_networth=Decimal(0),
-                equity_by_class=None,
+                equity_by_class={},
                 created_at=datetime.now(UTC),
             )
         ],

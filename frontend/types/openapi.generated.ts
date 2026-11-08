@@ -10882,7 +10882,7 @@ export interface components {
             /** Equity By Class */
             equity_by_class: {
                 [key: string]: string;
-            } | null;
+            };
             /**
              * Created At
              * Format: date-time

@@ -29,16 +29,18 @@ def _to_asset_dto(asset: FixedIncomeAsset) -> FixedIncomeAssetDTO:
 
 class FixedIncomeRepository:
     @transactional
-    def get_or_create_asset(self, session: Session, asset: FixedIncomeAssetDTO) -> int:
-        # Verifica se o ativo existe
+    def get_or_create_asset(
+        self, session: Session, simulation_id: int, asset: FixedIncomeAssetDTO
+    ) -> int:
         stmt = select(FixedIncomeAsset.id).where(
-            FixedIncomeAsset.asset_uuid == asset.asset_uuid
+            FixedIncomeAsset.simulation_id == simulation_id,
+            FixedIncomeAsset.asset_uuid == asset.asset_uuid,
         )
         existing_id = session.scalar(stmt)
         if existing_id:
             return existing_id
-        # Cria o ativo e retorna
         db_asset = FixedIncomeAsset(
+            simulation_id=simulation_id,
             asset_uuid=asset.asset_uuid,
             name=asset.name,
             issuer=asset.issuer,
@@ -58,9 +60,12 @@ class FixedIncomeRepository:
 
     @transactional
     def get_asset_by_uuid(
-        self, session: Session, asset_uuid: str
+        self, session: Session, simulation_id: int, asset_uuid: str
     ) -> FixedIncomeAssetDTO | None:
-        stmt = select(FixedIncomeAsset).where(FixedIncomeAsset.asset_uuid == asset_uuid)
+        stmt = select(FixedIncomeAsset).where(
+            FixedIncomeAsset.simulation_id == simulation_id,
+            FixedIncomeAsset.asset_uuid == asset_uuid,
+        )
         asset = session.scalar(stmt)
         if not asset:
             return None

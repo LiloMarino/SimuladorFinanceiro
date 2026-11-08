@@ -53,7 +53,7 @@ def snapshot(
         total_cash=Decimal(cash if cash is not None else networth),
         total_contribution=Decimal(contribution),
         total_networth=Decimal(networth),
-        equity_by_class=None,
+        equity_by_class={},
         created_at=datetime(2020, 1, 2, tzinfo=UTC),
     )
 

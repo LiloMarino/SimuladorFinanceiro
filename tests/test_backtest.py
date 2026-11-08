@@ -193,6 +193,7 @@ def test_light_snapshots_match_the_values_the_events_add_up_to(events, market: E
             total_equity=Decimal(0),
             total_fixed=Decimal(0),
             total_debt=Decimal(0),
+            equity_by_class={},
         )
         assert stored[bot.id].total_cash == full.total_cash
         assert stored[bot.id].total_contribution == full.total_contribution

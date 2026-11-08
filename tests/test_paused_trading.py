@@ -184,7 +184,7 @@ def test_matured_offer_cannot_be_projected_or_bought(paused_match):
     asset = sim.get_fixed_assets()[0].model_copy(
         update={"maturity_date": sim.get_current_date()}
     )
-    repository.fixed_income.get_or_create_asset(asset)
+    repository.fixed_income.get_or_create_asset(sim._engine.simulation_id, asset)
     asset_id = str(asset.asset_uuid)
     sim._engine.fixed_income_market._issued_assets[asset_id] = asset
     cash = sim.get_cash(users[0].client_id)

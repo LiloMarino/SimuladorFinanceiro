@@ -67,7 +67,7 @@ class FixedIncomeMarket:
         if asset:
             return asset
 
-        asset = repository.fixed_income.get_asset_by_uuid(uuid)
+        asset = repository.fixed_income.get_asset_by_uuid(self._simulation_id, uuid)
         return asset
 
     def _generate_assets(self):

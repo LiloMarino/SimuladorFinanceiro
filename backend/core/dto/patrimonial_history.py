@@ -13,7 +13,7 @@ class PatrimonialHistoryDTO(BaseDTO):
     total_cash: Decimal
     total_contribution: Decimal
     total_debt: Decimal = Decimal(0)
-    # A renda variável por tipo; nula nos dias gravados antes de o snapshot guardá-la
+    # A renda variável por tipo; nula na leitura que não a carrega
     equity_by_class: dict[AssetClass, Decimal] | None = None
 
 

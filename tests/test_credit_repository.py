@@ -124,7 +124,7 @@ def test_snapshot_networth_discounts_the_debt(match: tuple[int, int]):
     )
 
     snapshot = repository.snapshot.create_snapshot(
-        user_id, DAY, Decimal(0), Decimal(0), Decimal(5000)
+        user_id, DAY, Decimal(0), Decimal(0), Decimal(5000), {}
     )
 
     # Caixa de 15.000 menos a dívida de 5.000: tomar o empréstimo não muda o patrimônio

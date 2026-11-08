@@ -91,7 +91,9 @@ def fixed_income_db(
     monkeypatch.setattr(
         repository.fixed_income, "get_events", lambda simulation_id, user_id: []
     )
-    monkeypatch.setattr(repository.fixed_income, "get_or_create_asset", lambda asset: 7)
+    monkeypatch.setattr(
+        repository.fixed_income, "get_or_create_asset", lambda simulation_id, asset: 7
+    )
 
 
 @pytest.fixture
