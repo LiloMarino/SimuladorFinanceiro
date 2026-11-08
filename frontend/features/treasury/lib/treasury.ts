@@ -6,8 +6,19 @@ import {
   displayPercent,
   displayRateLabel,
   parseLocalDate,
+  toCentsString,
 } from "@/shared/lib/utils/display";
 import type { RateIndex, TreasuryHistoryPoint } from "@/types";
+
+/** As frações dos atalhos de valor: um quarto, metade e o total. */
+export const VALUE_SHARES = [
+  { label: "25%", share: 0.25 },
+  { label: "50%", share: 0.5 },
+  { label: "Tudo", share: 1 },
+] as const;
+
+/** Uma fração do total em reais, truncada nos centavos para nunca passar do total: (1000.01, 0.25) → "250.00". */
+export const shareOfMoney = (total: string | number, share: number) => toCentsString(String(Number(total) * share));
 
 /** A régua do termômetro vai de 0% a 150% de dívida ÷ PIB; passando disso o marcador fica na ponta. */
 export const GAUGE_MAX_DEBT = 1.5;

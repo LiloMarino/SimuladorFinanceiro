@@ -24,7 +24,16 @@ import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { TreasuryTitle } from "@/types";
-import { baseRateCaption, displayDay, displayMonthYear, percentOf, pointsOf, treasuryRateLabel } from "../lib/treasury";
+import {
+  baseRateCaption,
+  displayDay,
+  displayMonthYear,
+  percentOf,
+  pointsOf,
+  shareOfMoney,
+  treasuryRateLabel,
+} from "../lib/treasury";
+import { ShareShortcuts } from "./share-shortcuts";
 
 type BuyDialogProps = {
   title: TreasuryTitle;
@@ -49,6 +58,12 @@ export function BuyDialog({ title, currentDate, onClose }: BuyDialogProps) {
   const overCash = quote !== undefined && amount > cash;
   const invalid = zero || overCash;
   const showError = touched && invalid;
+
+  // As frações valem sobre o caixa; "Tudo" investe o caixa inteiro
+  const fillShare = (share: number) => {
+    setTouched(true);
+    setAmountText(formatMoney(shareOfMoney(cash, share)));
+  };
 
   const submit = () =>
     buy.mutate(
@@ -77,19 +92,22 @@ export function BuyDialog({ title, currentDate, onClose }: BuyDialogProps) {
           {/* Valor */}
           <Field data-invalid={showError}>
             <FieldLabel htmlFor="treasury-buy-amount">Quanto investir</FieldLabel>
-            <Input
-              id="treasury-buy-amount"
-              fieldSize="xl"
-              numeric
-              inputMode="decimal"
-              disabled={locked}
-              value={amountText}
-              aria-invalid={showError}
-              onChange={(event) => {
-                setTouched(true);
-                setAmountText(formatMoney(event.target.value));
-              }}
-            />
+            <div className="flex gap-1.5">
+              <Input
+                id="treasury-buy-amount"
+                fieldSize="xl"
+                numeric
+                inputMode="decimal"
+                disabled={locked}
+                value={amountText}
+                aria-invalid={showError}
+                onChange={(event) => {
+                  setTouched(true);
+                  setAmountText(formatMoney(event.target.value));
+                }}
+              />
+              <ShareShortcuts disabled={locked || !quote} onPick={fillShare} />
+            </div>
             {showError ? (
               <FieldError>
                 {zero ? "Digite quanto quer investir." : `Você tem ${displayMoney(cash)} em caixa.`}

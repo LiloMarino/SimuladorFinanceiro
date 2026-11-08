@@ -109,6 +109,7 @@ São títulos públicos emitidos pelo **Governo Federal** para financiar a dívi
 * Os títulos do governo têm tela própria, **Tesouro**, no menu Mercado: seis títulos sempre à venda (um Selic, dois Prefixados e três IPCA+), com a taxa revista a cada fechamento de mês
 * Com a expansão Governo & Política, a taxa de todos soma o **prêmio de risco** do país, que sobe quando a dívida do governo cresce; a tela mostra a taxa em duas partes (base + prêmio) e o termômetro do risco
 * Quem compra trava a taxa do dia. Dá para vender em qualquer dia, inteiro ou em parte, pelo preço de hoje (**marcação a mercado**): se a taxa subiu desde a compra, o Prefixado e o IPCA+ valem menos que a curva; se caiu, valem mais. O Tesouro Selic vale o que acumulou
+* Na compra e na venda, os botões **25%**, **50%** e **Tudo** preenchem o valor com essa fração do caixa (compra) ou da posição (venda)
 * O IR é regressivo sobre o ganho; com perda, não há IR
 * Quando o caixa não cobre uma despesa, o imposto ou a parcela do empréstimo, o simulador vende sozinho a liquidez diária e o Tesouro Selic antes de usar o cheque especial. Uma chave na tela do Tesouro estende isso ao Prefixado e ao IPCA+, a preço de mercado, o que pode realizar perda
 

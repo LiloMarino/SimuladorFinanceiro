@@ -13,7 +13,6 @@ import {
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
-import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { KeyValueRow } from "@/shared/components/key-value-row";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
@@ -23,15 +22,14 @@ import { displayMoney } from "@/shared/lib/utils/display";
 import type { TreasuryPosition, TreasurySaleQuote } from "@/types";
 import { useSellTreasury } from "../hooks/mutations/useSellTreasury";
 import { useTreasurySaleQuote } from "../hooks/queries/useTreasurySaleQuote";
-import { displayDay, displayGain, percentOf, termLabel, treasuryRateLabel } from "../lib/treasury";
+import { displayDay, displayGain, percentOf, shareOfMoney, termLabel, treasuryRateLabel } from "../lib/treasury";
+import { ShareShortcuts } from "./share-shortcuts";
 
 type SellDialogProps = {
   position: TreasuryPosition;
   currentDate: string;
   onClose: () => void;
 };
-
-type Mode = "all" | "part";
 
 const orDash = (value: string | null | undefined, format: (value: string) => string) =>
   value === null || value === undefined ? "—" : format(value);
@@ -52,29 +50,37 @@ function marketSentence(position: TreasuryPosition) {
 export function SellDialog({ position, currentDate, onClose }: SellDialogProps) {
   const { asset } = position;
   const selic = asset.rate_index === "SELIC";
-  const [mode, setMode] = useState<Mode>("all");
+  // `all` marca a posição inteira: o campo mostra o valor de mercado e o envio vai sem valor
+  const [all, setAll] = useState(true);
   const [partText, setPartText] = useState(formatMoney("0"));
+  const amountText = all ? formatMoney(shareOfMoney(position.market_value, 1)) : partText;
   const partString = normalizeNumberString(partText);
 
   // Vender tudo cota o valor de mercado inteiro da posição
-  const gross = mode === "all" ? position.market_value : partString;
+  const gross = all ? position.market_value : partString;
   const { data: latestQuote } = useTreasurySaleQuote(asset.asset_uuid, gross, currentDate);
   const sell = useSellTreasury(asset.asset_uuid);
   const tradeLock = useTradeLock();
 
   const max = Number(position.market_value);
   const partAmount = Number(partString) || 0;
-  const overMax = mode === "part" && partAmount > max;
-  const empty = mode === "part" && partAmount <= 0;
+  const overMax = !all && partAmount > max;
+  const empty = !all && partAmount <= 0;
   // Sem valor digitado não há venda a cotar: o resumo fica em branco
   const quote = empty ? undefined : latestQuote;
   const invalid = tradeLock !== null || overMax || empty || !quote || quote.net_amount === null;
 
   const net = quote?.net_amount;
 
+  // Tudo vende o título inteiro; as frações valem sobre o valor de mercado da posição
+  const fillShare = (share: number) => {
+    setAll(share === 1);
+    setPartText(formatMoney(shareOfMoney(position.market_value, share)));
+  };
+
   const submit = () =>
     sell.mutate(
-      { gross: mode === "all" ? null : partString },
+      { gross: all ? null : partString },
       {
         onSuccess: () => {
           toast.success(`${asset.name} vendido`);
@@ -91,9 +97,9 @@ export function SellDialog({ position, currentDate, onClose }: SellDialogProps) 
           <DialogDescription>
             Comprado em {displayDay(position.first_applied_date)}
             {selic
-              ? mode === "part"
-                ? " · venda de uma parte"
-                : ""
+              ? all
+                ? ""
+                : " · venda de uma parte"
               : ` a ${treasuryRateLabel(asset.rate_index, position.bought_rate)}`}
             {asset.rate_index === "IPCA" && " ao ano"}
           </DialogDescription>
@@ -104,39 +110,30 @@ export function SellDialog({ position, currentDate, onClose }: SellDialogProps) 
 
           {/* Quanto vender */}
           <Field data-invalid={overMax}>
-            <FieldLabel>Quanto vender</FieldLabel>
-            <div className="flex items-center gap-2">
-              <ToggleGroup
-                variant="segmented"
-                size="field"
-                aria-label="Quanto vender"
-                value={[mode]}
-                onValueChange={(values) => values[0] && setMode(values[0] as Mode)}
-              >
-                <ToggleGroupItem value="all">Tudo</ToggleGroupItem>
-                <ToggleGroupItem value="part">Uma parte</ToggleGroupItem>
-              </ToggleGroup>
-              {mode === "part" && (
-                <Input
-                  fieldSize="xl"
-                  numeric
-                  inputMode="decimal"
-                  aria-label="Valor a vender"
-                  aria-invalid={overMax}
-                  value={partText}
-                  onChange={(event) => setPartText(formatMoney(event.target.value))}
-                />
-              )}
+            <FieldLabel htmlFor="treasury-sell-amount">Quanto vender</FieldLabel>
+            <div className="flex gap-1.5">
+              <Input
+                id="treasury-sell-amount"
+                fieldSize="xl"
+                numeric
+                inputMode="decimal"
+                aria-invalid={overMax}
+                value={amountText}
+                onChange={(event) => {
+                  setAll(false);
+                  setPartText(formatMoney(event.target.value));
+                }}
+              />
+              <ShareShortcuts disabled={tradeLock !== null} onPick={fillShare} />
             </div>
-            {mode === "part" &&
-              (overMax ? (
-                <FieldError>Você tem {displayMoney(max)} nele.</FieldError>
-              ) : (
-                <FieldDescription>
-                  Você tem {displayMoney(max)} nele.
-                  {quote?.remaining != null && ` Fica ${displayMoney(quote.remaining)}.`}
-                </FieldDescription>
-              ))}
+            {overMax ? (
+              <FieldError>Você tem {displayMoney(max)} nele.</FieldError>
+            ) : (
+              <FieldDescription>
+                Você tem {displayMoney(max)} nele.
+                {!all && quote?.remaining != null && ` Fica ${displayMoney(quote.remaining)}.`}
+              </FieldDescription>
+            )}
           </Field>
 
           {selic ? (
