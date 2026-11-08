@@ -106,7 +106,6 @@
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | 💤 |
 | [**F250**](#f250) | Correção | Correções da 4.1 | M26 · 4.1 | — | Médio | Excelente | ⏳ |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 | — | — | — | 🔍 |
-| [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | M26 · 4.1 | — | — | — | 🔍 |
 | [**F254**](#f254) | Feature | Programas de governo com nome | M26 · 4.1 | — | — | — | 🔍 |
 | [**F255**](#f255) | Feature | Estatais | M26 · 4.1 | — | — | — | 🔍 |
@@ -114,7 +113,7 @@
 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -138,6 +137,7 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176), [F254](#f254) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F253](#f253), [F255](#f255), [F256](#f256), [F257](#f257) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
+| [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
 
@@ -153,12 +153,12 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 0/13 concluídos
+> **Progresso:** 1/13 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F250**](#f250) | Correção | Correções da 4.1 | — | ⏳ Pendente |
-| 2 | [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | — | ⏳ Pendente |
+| 2 | [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | — | ✅ Concluído |
 | 3 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | — | 🔍 Em avaliação |
 | 4 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | 🔍 Em avaliação |
 | 5 | [**F254**](#f254) | Feature | Programas de governo com nome | — | 🔍 Em avaliação |
@@ -275,7 +275,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F250**](#f250) | Correção | Correções da 4.1 | M26 · 4.1 · 1º | 0 | Médio | Excelente | ⏳ |
-| [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | M26 · 4.1 · 2º | 0 | Médio | Bom | ⏳ |
 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | M26 · 4.1 · 3º | 0 | — | — | 🔍 |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | M26 · 4.1 · 4º | 0 | — | — | 🔍 |
 | [**F254**](#f254) | Feature | Programas de governo com nome | M26 · 4.1 · 5º | 0 | — | — | 🔍 |
@@ -320,7 +319,6 @@
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F250** | Correção | Correções da 4.1 | N15, N34 | — | M26 · 4.1 | — | Médio | Baixo | Alto | Excelente |
-| **F252** | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | N15 | — | M26 · 4.1 | — | Médio | Baixo | Médio | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -367,9 +365,6 @@
 4. **Sai o aviso "Novo: indicadores técnicos".** O aviso (`stock-chart/index.tsx:338`) aparece sempre que nenhum indicador está ligado e não tem botão de dispensar. Ele depende do estado, e não de um "já visto": volta toda vez que o jogador desliga o último indicador, e em toda conta nova. Os indicadores já não são novidade, então o aviso sai, e o botão de indicadores do gráfico continua.
 5. **Abertura da campanha na janela central do Jornal.** O resultado de turno e o "vão ao 2º turno" saem na janela central, porque o tipo resultado de eleição tem o nível janela fixo (`features/notifications/registry.py:108`). A manchete da abertura da campanha é do tipo calendário eleitoral, que sai como cartão por padrão (`registry.py:130`, `government/headlines.py:73`). Ela passa a sair na janela central, com o nível fixo como o do resultado de turno, e o diálogo de campanha aberta que pausa a partida continua. A janela do Jornal e o diálogo da pausa aparecem um depois do outro, sem se cobrir.
 6. **Triagem pendente: orientar a bancada num governo do computador.** No playtest, a orientação da bancada não pegou num governo do bot, e a votação saiu com a orientação padrão. Pelo código, quem fundou um partido com cadeira orienta qualquer medida da fila, quem quer que governe (`government_book.py:872`), até a véspera da votação, que cai no último dia útil do mês (`congress.next_vote_date`). O controle só aparece dentro do diálogo da votação (`vote-dialog.tsx:108`) e some na véspera (`house_panel.py:172`). Suspeitas: em velocidade alta o mês passa antes de o jogador abrir o diálogo; a federação tem outro partido como líder da orientação; ou a medida do bot entra na fila e é votada no mesmo mês. O primeiro passo é reproduzir pelo CLI, com um governo do computador e uma bancada do jogador. Se a causa for a janela curta, o conserto pede desenho (avisar ou pausar quando a medida entra na fila) e vira card próprio.
-
-<a id="f252"></a>
-**F252 — Atalhos de valor no Tesouro e varredura de qualidade de vida.** Serve N15. (1) **Tesouro:** a compra (`frontend/features/treasury/components/buy-dialog.tsx:80`) só tem o campo de valor, e a venda (`sell-dialog.tsx:110`) só tem "Tudo" ou "Uma parte". A boleta de ações tem 25%, 50% e Máx (`variable-income/components/order-ticket.tsx:28`), e a renda fixa tem valores prontos, "Máx", "Metade" e "Tudo". A compra do Tesouro ganha 25%, 50% e Tudo do caixa, e a venda, 25%, 50% e Tudo da posição, no molde da boleta de ações. Se as duas telas passarem a usar a função de preenchimento de `order-ticket.tsx:123`, ela sobe para o ancestral comum. (2) **Varredura:** o playtest pediu procurar o mesmo tipo de falta no resto da plataforma. Cada boleta, formulário e diálogo de ação passa por uma lista fixa: atalho de valor, Enter que confirma, foco no primeiro campo, valor máximo à vista, motivo dito quando o botão fica desabilitado e teclas de atalho onde a tela já usa. O resultado é uma tabela por tela, entregue ao usuário. Entra neste card só o que ele escolher, e o resto fica no relatório.
 
 ---
 
@@ -607,7 +602,12 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 
 ## ✅ Concluído
 
-> Nenhum item neste status.
+| ID | Tipo | Resumo | Serve | D# | Marco |
+| --- | --- | --- | --- | --- | --- |
+| **F252** | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | N15 | — | M26 · 4.1 |
+
+<a id="f252"></a>
+**F252 — Atalhos de valor no Tesouro e varredura de qualidade de vida.** Atalhos de 25%, 50% e Tudo na compra e na venda do Tesouro (a venda perdeu o seletor e ganhou o campo sempre visível). Varredura: Enter confirma, foco no primeiro campo e motivo do botão desabilitado (dica ao passar o mouse) nas telas de valor e de ação; atalhos de valor no pagamento antecipado do crédito.
 
 ---
 
