@@ -51,7 +51,7 @@
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93), [F226](#f226), [F254](#f254) | — | — | — |
 | **N32** | — | Saber como foi o mês sem montar a conta | — | — | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F250](#f250), [F251](#f251), [F253](#f253), [F254](#f254), [F255](#f255), [F256](#f256), [F257](#f257) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F250](#f250), [F251](#f251), [F253](#f253), [F254](#f254), [F255](#f255), [F256](#f256), [F257](#f257), [F258](#f258) | — | — | — |
 | **N35** | — | Tirar da lista as partidas que não interessam mais | — | — | — | — | — |
 | **N36** | — | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — | — |
 | **N37** | — | Comprar bitcoin do jeito que dá na vida real, em frações | — | — | — | — | — |
@@ -110,6 +110,7 @@
 | [**F255**](#f255) | Feature | Estatais | M26 · 4.1 | — | — | — | 🔍 |
 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | M26 · 4.1 | — | — | — | 🔍 |
 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 | — | — | — | 🔍 |
+| [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 | — | — | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
@@ -153,7 +154,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 2/13 concluídos
+> **Progresso:** 2/14 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -170,6 +171,7 @@
 | 11 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | 💤 Sem prioridade |
 | 12 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | — | 🔍 Em avaliação |
 | 13 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | — | 🔍 Em avaliação |
+| 14 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | 🔍 Em avaliação |
 
 ### 4.2 — Expansão Gestoras (M18)
 
@@ -283,6 +285,7 @@
 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 · 10º | 0 | — | — | 🔍 |
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M26 · 4.1 · 12º | 0 | — | — | 🔍 |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.1 · 13º | 0 | — | — | 🔍 |
+| [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 · 14º | 0 | — | — | 🔍 |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.3 · 3º | 0 | — | — | 🔍 |
@@ -388,6 +391,7 @@
 | **F255** | Feature | Estatais | N34, N41 | D20 | M26 · 4.1 | — | Quais ações entram (fundar, segurar preço, privatizar), se a estatal é um ativo negociável ou uma linha do orçamento e o tamanho dos efeitos. |
 | **F256** | Melhoria | SELIC abaixo de zero em futuro com deflação | N34 | D20 | M26 · 4.1 | — | O piso, o que acontece com o caixa do jogador e como a renda fixa pós-fixada mostra o rendimento negativo. |
 | **F257** | Feature | Viver de renda que sente a economia | N23, N34 | D20 | M26 · 4.1 | — | Quais candidatos entram (demissão pelo desemprego, reajuste pelo PIB, profissão, cheque especial pela SELIC, imposto sobre o salário), o tamanho de cada efeito e como a tela mostra a origem de cada mudança. |
+| **F258** | Melhoria | Orientação da bancada que se explica | N34 | — | M26 · 4.1 | — | Desenho: como mostrar o acordo de apoio, a federação e a janela curta |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -519,6 +523,9 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 Tudo depende de a economia mexida pelo governo existir, e sem governo os mesmos efeitos seguem a história.
 
 **Falta:** quais candidatos entram; o tamanho de cada efeito, calibrado pelo CLI para a meta de independência continuar alcançável; e como a tela do modo mostra de onde veio cada mudança no salário e na despesa.
+
+<a id="f258"></a>
+**F258 — Orientação da bancada que se explica.** Origem: triagem do playtest de 08/11. O backend respeita a orientação do líder da bancada num governo do computador, mas a tela esconde três limites. (1) O acordo de apoio força Sim: o seletor só muda para Não depois de "Orientar Não e romper", e quem escolhe Não e fecha continua com Sim. (2) Com outro partido líder na federação, o controle aparece e o clique volta 403. (3) O controle some no último dia útil do mês, e em velocidade alta o mês passa antes de a medida ser orientada. A decidir no desenho: mostrar o Não como pendente com o aviso de rompimento em destaque, esconder ou explicar o controle quando a federação não é do jogador, e avisar ou pausar quando a medida entra na fila.
 
 ---
 
