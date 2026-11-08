@@ -34,6 +34,7 @@ mercado. O gerador não sorteia desdobramento.
 É uma conta pura sobre o histórico recebido: nada aqui lê ou grava no banco.
 """
 
+import logging
 import zlib
 from bisect import bisect_left
 from collections.abc import Iterable
@@ -51,6 +52,8 @@ from backend.core.utils import (
     next_business_day,
     subtract_months,
 )
+
+logger = logging.getLogger(__name__)
 
 BLOCK_DAYS = 60
 MIN_TEMPERATURE, MAX_TEMPERATURE = 0.0, 3.0
@@ -170,6 +173,21 @@ def _clean(returns: np.ndarray) -> np.ndarray:
     out = returns.copy()
     out[(out > MAX_DAILY_UP) | (out < MAX_DAILY_DOWN)] = np.nan
     return out
+
+
+def _warn_missing_prices(ticker: str, level: pd.Series) -> None:
+    """Avisa no log os pregões reais sem preço, que o gerador lê como dia sem negócio."""
+    zeros = _dates(level.index[level.to_numpy() <= 0])
+    if len(zeros):
+        logger.warning(
+            "'%s' tem fechamento zerado em %s pregões reais (de %s a %s): o gerador "
+            "os trata como dias sem negócio. Corrija com 'Corrigir erros' ou "
+            "reimportando o ativo.",
+            ticker,
+            len(zeros),
+            zeros[0],
+            zeros[-1],
+        )
 
 
 def to_annual(daily_pct: np.ndarray) -> np.ndarray:
@@ -559,7 +577,10 @@ class SeriesGenerator:
     def _asset_returns(self, ticker: str) -> np.ndarray:
         if ticker not in self._returns:
             close = self._total_return_level(ticker)
+            _warn_missing_prices(ticker, close)
+            # Fechamento zerado é pregão sem preço: entra como dia sem negócio
             levels = close.reindex(self.calendar).to_numpy()
+            levels = np.where(levels > 0, levels, np.nan)
             returns = np.concatenate([[np.nan], np.log(levels[1:] / levels[:-1])])
             self._returns[ticker] = _clean(returns)
         return self._returns[ticker]

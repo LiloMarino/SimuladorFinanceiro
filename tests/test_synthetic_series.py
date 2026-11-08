@@ -331,6 +331,26 @@ def test_source_errors_never_reach_the_generated_series():
         assert moves.min() >= synthetic.MAX_DAILY_DOWN
 
 
+def test_zero_close_is_a_day_without_trade_and_warns(caplog):
+    history = build_history()
+    bars = history.assets["BANK_A"].bars.copy()
+    bars.iloc[100:103, bars.columns.get_loc("close")] = 0.0
+    broken = MarketHistory(
+        {**history.assets, "BANK_A": AssetHistory(bars, "Bancos", "Financeiro")},
+        history.indicators,
+    )
+
+    generator = SeriesGenerator(broken)
+    with np.errstate(all="raise"):
+        returns = generator._asset_returns("BANK_A")
+
+    first, last = pd.Timestamp(bars.index[100]), pd.Timestamp(bars.index[102])
+    zeroed = generator.calendar.get_indexer(pd.date_range(first, last, freq="B"))
+    assert np.isnan(returns[zeroed]).all()
+    assert "'BANK_A' tem fechamento zerado em 3 pregões" in caplog.text
+    assert f"de {first.date()} a {last.date()}" in caplog.text
+
+
 def test_market_index_is_required(history):
     without_ibov = MarketHistory(
         history.assets,
