@@ -13,7 +13,7 @@ export function JournalDayRows({ items, held }: JournalDayRowsProps) {
   return (
     <>
       {groupByDay(items).map((group) => (
-        <section key={group.day}>
+        <section key={group.day} data-day={group.day} className="scroll-mt-(--topbar-height)">
           <DayHeading>{displayWeekdayDate(group.day)}</DayHeading>
           {group.items.map((item) => (
             <article

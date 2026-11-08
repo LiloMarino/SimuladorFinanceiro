@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ErrorState } from "@/shared/components/error-state";
 import { Card } from "@/shared/components/ui/card";
 import { useNotificationCatalog } from "@/shared/hooks/queries/useNotificationCatalog";
@@ -8,6 +8,7 @@ import { displayWeekdayDate } from "@/shared/lib/utils/display";
 import type { News } from "@/types";
 import { useNewsHistory } from "../hooks/queries/useNewsHistory";
 import { useNewsMonth } from "../hooks/queries/useNewsMonth";
+import { useReadingDay } from "../hooks/useReadingDay";
 import { sectionOf } from "../lib/catalog";
 import { filterNews, levelFor, type JournalFilter } from "../lib/filter";
 import { monthOf, type Month } from "../lib/months";
@@ -67,8 +68,31 @@ export function JournalPaper({ simulationId, startDate, currentDate }: JournalPa
   const ready = Boolean(catalog && preferences && monthNews.data && history.data);
   const nothing = ready && today.length === 0 && earlier.length === 0 && !history.hasNextPage;
 
+  // O arquivo segue o dia em leitura; no topo, destaca o mês em que a lista abre
+  const paperRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const historyRef = useRef<HTMLDivElement>(null);
+  const reading = useReadingDay(listRef);
+  const highlighted = reading ? monthOf(reading) : fromMonth;
+
+  // Um mês já carregado na lista é alcançado rolando; um mês fora dela reabre a lista a partir dele
+  const selectMonth = (month: Month) => {
+    const firstDay = listRef.current?.querySelector(`[data-day^="${month}-"]`);
+    if (firstDay) {
+      firstDay.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    setPicked(month);
+    if (reading) historyRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const backToToday = () => {
+    setPicked(null);
+    paperRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
-    <Card variant="paper" size="flush" className="min-h-136">
+    <Card ref={paperRef} variant="paper" size="flush" className="min-h-136 scroll-mt-(--topbar-height)">
       {/* Cabeçalho do jornal */}
       <div className="grid gap-3 border-b-[3px] border-double border-foreground px-7 pt-4 pb-3">
         <div className="grid grid-cols-[1fr_auto_1fr] items-end">
@@ -83,7 +107,7 @@ export function JournalPaper({ simulationId, startDate, currentDate }: JournalPa
 
       <div className="grid flex-1 grid-cols-[minmax(0,1fr)_300px]">
         {/* Hoje e lista dos dias anteriores */}
-        <div className="flex flex-col">
+        <div ref={listRef} className="flex flex-col">
           {failed ? (
             <div className="px-7">
               <ErrorState
@@ -101,7 +125,7 @@ export function JournalPaper({ simulationId, startDate, currentDate }: JournalPa
                 <JournalToday date={currentDate} items={today} held={held} />
               </div>
               {/* A lista nasce de novo a cada mês escolhido no arquivo */}
-              <div key={fromMonth} className="px-7">
+              <div key={fromMonth} ref={historyRef} className="scroll-mt-(--topbar-height) px-7">
                 {!ready || !history.data ? (
                   <JournalSkeleton />
                 ) : nothing ? (
@@ -130,9 +154,11 @@ export function JournalPaper({ simulationId, startDate, currentDate }: JournalPa
         <JournalArchive
           startMonth={startMonth}
           currentMonth={currentMonth}
-          selected={fromMonth}
-          onSelect={setPicked}
-          onReset={() => setPicked(null)}
+          highlighted={highlighted}
+          readingDay={reading}
+          showBackToToday={reading !== null || fromMonth !== currentMonth}
+          onSelect={selectMonth}
+          onBackToToday={backToToday}
         />
       </div>
     </Card>

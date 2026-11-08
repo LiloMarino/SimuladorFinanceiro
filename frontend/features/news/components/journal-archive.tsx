@@ -1,30 +1,47 @@
+import { ArrowUp } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import { displayMonthShort } from "@/shared/lib/utils/display";
+import { displayMonthShort, displayWeekdayDate } from "@/shared/lib/utils/display";
 import { archiveMonths, type Month } from "../lib/months";
 import { DayHeading } from "./news-parts";
 
 type JournalArchiveProps = {
   startMonth: Month;
   currentMonth: Month;
-  /** O mês em que a lista abre */
-  selected: Month;
+  /** O mês em leitura, ou o mês em que a lista abre enquanto a página está no topo */
+  highlighted: Month;
+  /** O dia que está na tela; nulo enquanto "Hoje" está à vista */
+  readingDay: string | null;
+  showBackToToday: boolean;
   onSelect: (month: Month) => void;
-  onReset: () => void;
+  onBackToToday: () => void;
 };
 
-/** O arquivo da partida: os meses vividos, por ano; cada um reinicia a lista a partir dele. Fica sob o topo da página enquanto ela rola. */
-export function JournalArchive({ startMonth, currentMonth, selected, onSelect, onReset }: JournalArchiveProps) {
+/** O arquivo da partida: os meses vividos, por ano, com o mês em leitura destacado. Fica sob o topo da página enquanto ela rola. */
+export function JournalArchive({
+  startMonth,
+  currentMonth,
+  highlighted,
+  readingDay,
+  showBackToToday,
+  onSelect,
+  onBackToToday,
+}: JournalArchiveProps) {
   return (
     <aside className="border-l border-paper-border">
       <div className="sticky top-(--topbar-height) max-h-[calc(100svh-var(--topbar-height))] overflow-y-auto px-6 pt-5 pb-7">
         <DayHeading className="pt-0">Arquivo da partida</DayHeading>
         <p className="mt-2.5 text-[13px] leading-[19px] text-muted-foreground">
-          Cada mês abre a edição daquele mês, do dia mais novo ao mais antigo.
+          Cada mês leva à edição daquele mês, do dia mais novo ao mais antigo; o mês em leitura fica destacado.
         </p>
-        {selected !== currentMonth && (
-          <Button variant="link" size="sm" className="mt-2" onClick={onReset}>
-            Voltar a hoje
+        {showBackToToday && (
+          <Button variant="outline" size="sm" className="mt-3 w-full" onClick={onBackToToday}>
+            <ArrowUp />
+            Voltar para hoje
           </Button>
+        )}
+        {/* Dia em leitura */}
+        {readingDay && (
+          <p className="mt-2 font-mono text-xs text-muted-foreground">Lendo: {displayWeekdayDate(readingDay)}</p>
         )}
         {archiveMonths(startMonth, currentMonth).map(({ year, months }) => (
           <div key={year}>
@@ -34,8 +51,8 @@ export function JournalArchive({ startMonth, currentMonth, selected, onSelect, o
                 <Button
                   key={month}
                   size="sm"
-                  variant={month === selected ? "dark" : "outline"}
-                  aria-pressed={month === selected}
+                  variant={month === highlighted ? "dark" : "outline"}
+                  aria-current={month === highlighted ? "true" : undefined}
                   onClick={() => onSelect(month)}
                 >
                   {displayMonthShort(`${month}-01`)}
