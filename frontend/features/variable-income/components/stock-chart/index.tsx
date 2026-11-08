@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { AlertCircle, Settings, Sparkles, X } from "lucide-react";
+import { AlertCircle, Settings, X } from "lucide-react";
 import { Alert, AlertAction, AlertDescription } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -250,8 +250,6 @@ export function StockChart({
   };
   const todayPattern = [...periodPatterns].reverse().find((pattern) => pattern.end === lastDay);
   const notice = patternNotice();
-  const turnOnFirstAverage = () =>
-    onSettingsChange(toggled(withParams(settings, { averages: [{ kind: "sma", period: 20 }] }), "averages", true));
 
   /** O aviso de padrões acima do gráfico, quando há o que dizer. */
   function patternNotice(): PatternNoticeProps | null {
@@ -335,26 +333,6 @@ export function StockChart({
 
       <CardContent>
         <div className="grid gap-2.5">
-          {/* Primeiro uso */}
-          {settings.visible.length === 0 && hasHistory && (
-            <Alert variant="info">
-              <Sparkles />
-              <AlertDescription>
-                <b>Novo: indicadores técnicos.</b> Linhas e painéis que resumem a tendência e a força do preço.
-              </AlertDescription>
-              <AlertAction>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" onClick={turnOnFirstAverage}>
-                    Ligar a média de 20
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => setSelectorOpen(true)}>
-                    Ver todos
-                  </Button>
-                </div>
-              </AlertAction>
-            </Alert>
-          )}
-
           {/* Legenda do que está sobre o preço e o seletor */}
           <div className="flex items-start justify-between gap-2.5">
             <div className="flex flex-wrap gap-1.5">

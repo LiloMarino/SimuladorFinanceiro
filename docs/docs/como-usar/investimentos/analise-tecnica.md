@@ -19,7 +19,7 @@ Cada linha tem uma chave para ligar e desligar e, à direita, os parâmetros atu
 
 As escolhas valem para todas as ações da partida e ficam salvas para o seu jogador. **Restaurar padrão** volta os parâmetros aos valores da tabela abaixo.
 
-Na primeira visita nada vem ligado. O aviso **Novo: indicadores técnicos** oferece **Ligar a média de 20**, o jeito mais simples de começar.
+Na primeira visita nada vem ligado: o botão **Indicadores** abre a lista para você escolher o que mostrar.
 
 A legenda acima do gráfico traz o valor de cada linha no último pregão. Com o mouse sobre o gráfico, um quadro ao lado da mira mostra a data, o fechamento e as linhas sobre o preço, e a legenda e os rótulos dos painéis passam a mostrar o dia apontado.
 
