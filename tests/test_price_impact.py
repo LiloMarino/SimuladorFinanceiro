@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
+from functools import cache
 
 import pytest
 
@@ -319,6 +320,8 @@ def test_the_window_of_each_day_matches_the_full_recalculation(
         return stored_flows(simulation_id, since, ticker)
 
     monkeypatch.setattr(repository.event, "get_daily_equity_flow", _counted)
+    # As janelas se sobrepõem: o recálculo completo de cada dia é feito uma vez só
+    expected = cache(lambda on: _full_factor(match, on))
 
     # Retomada no meio da partida: a primeira janela pega dias de antes do primeiro refresh
     played = [f.flow_date for f in match[:85]]
@@ -331,7 +334,7 @@ def test_the_window_of_each_day_matches_the_full_recalculation(
 
         factors = price_impact.factors_on("ABCD", window)
 
-        assert factors == {d: _full_factor(match, d) for d in window}
+        assert factors == {d: expected(d) for d in window}
         day = next_business_day(day)
 
     assert reads == 1
