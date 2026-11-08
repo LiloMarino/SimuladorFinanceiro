@@ -37,6 +37,10 @@ STOCKS_WEIGHT = Decimal("0.05")
 GROWTH_STEP = Decimal("0.25")
 MIN_GROWTH = Decimal("-0.06")
 MAX_GROWTH = Decimal("0.08")
+# O desvio do governo derruba o crescimento da partida até -15% ao ano; para cima não há
+# teto. O ciclo crescimento → dívida ÷ PIB → prêmio → crescimento só fecha com números
+# finitos com esse piso (o PIB nunca chega a -100%, onde a dívida ÷ PIB deixa de ter valor)
+COLLAPSE_GROWTH = Decimal("-0.15")
 # Lei de Okun: cada ponto de crescimento acima da tendência baixa o desemprego em meio ponto ao ano
 OKUN = Decimal("0.5")
 NEUTRAL_UNEMPLOYMENT = Decimal("0.09")
@@ -48,6 +52,10 @@ MAX_UNEMPLOYMENT = Decimal("0.18")
 UNEMPLOYMENT_HALF_LIFE_MONTHS = 36
 UNEMPLOYMENT_RETURN = Decimal("0.5") ** (Decimal(1) / UNEMPLOYMENT_HALF_LIFE_MONTHS)
 STOCKS_WINDOW_DAYS = 365
+# Inflação alta tira crescimento: o IPCA de 12 meses acima de 12% ao ano tira 1,2 ponto do
+# alvo a cada ponto acima do limiar (Khan e Senhadji, 2001); abaixo dele, nada
+INFLATION_THRESHOLD = Decimal("0.12")
+INFLATION_WEIGHT = Decimal("1.2")
 
 GrowthSource = Callable[[date], Decimal]
 
@@ -76,9 +84,19 @@ class GrowthAim:
     spending_part: Decimal = ZERO
     # O que o resultado primário do governo, fora as obras, soma ao alvo
     impulse_part: Decimal = ZERO
+    # O IPCA de 12 meses e o que a parte acima do limiar tira do alvo
+    inflation: Decimal = ZERO
+    inflation_part: Decimal = ZERO
+    # O que o prêmio de risco acima da história tira do alvo, pelo crédito mais caro
+    crowding_part: Decimal = ZERO
 
     @property
     def value(self) -> Decimal:
+        """
+        O alvo do modelo da história: a tendência, o juro real, a bolsa, as obras e o
+        impulso. A inflação alta e o crédito caro são desvios contra a história e agem
+        só pelo `GrowthGap`.
+        """
         return (
             self.trend
             + self.real_rate_part
@@ -100,10 +118,19 @@ class GrowthGap:
     stocks: Decimal = ZERO
     spending: Decimal = ZERO
     impulse: Decimal = ZERO
+    inflation: Decimal = ZERO
+    crowding: Decimal = ZERO
 
     @property
     def total(self) -> Decimal:
-        return self.real_rate + self.stocks + self.spending + self.impulse
+        return (
+            self.real_rate
+            + self.stocks
+            + self.spending
+            + self.impulse
+            + self.inflation
+            + self.crowding
+        )
 
     def toward(self, game: GrowthAim, base: GrowthAim) -> "GrowthGap":
         def step(part: Decimal, aim: Decimal) -> Decimal:
@@ -114,6 +141,8 @@ class GrowthGap:
             stocks=step(self.stocks, game.stocks_part - base.stocks_part),
             spending=step(self.spending, game.spending_part),
             impulse=step(self.impulse, game.impulse_part),
+            inflation=step(self.inflation, game.inflation_part - base.inflation_part),
+            crowding=step(self.crowding, game.crowding_part),
         )
 
 
@@ -141,14 +170,17 @@ def aim_from(
     stocks: Decimal | None,
     spending: Decimal = ZERO,
     impulse: Decimal = ZERO,
+    crowding: Decimal = ZERO,
 ) -> GrowthAim:
     """
     O alvo do crescimento para a SELIC, o IPCA de 12 meses e a alta nominal do Ibovespa em
-    12 meses dados (frações ao ano), mais o que as obras e o resultado primário somam. O
-    juro e a bolsa entram descontada a inflação, então inflação que só infla os preços não
-    mexe no crescimento. Sem série de bolsa, a bolsa fica no neutro: não empurra nem puxa.
+    12 meses dados (frações ao ano), mais o que as obras, o resultado primário e o crédito
+    caro somam. O juro e a bolsa entram descontada a inflação, então inflação que só infla
+    os preços não mexe neles; só a parte do IPCA acima do limiar tira crescimento. Sem
+    série de bolsa, a bolsa fica no neutro: não empurra nem puxa.
     """
     real_rate = selic - inflation
+    inflation_part = -INFLATION_WEIGHT * max(ZERO, inflation - INFLATION_THRESHOLD)
     if stocks is not None:
         stocks = (1 + stocks) / (1 + inflation) - 1
     return GrowthAim(
@@ -161,6 +193,9 @@ def aim_from(
         ),
         spending_part=spending,
         impulse_part=impulse,
+        inflation=inflation,
+        inflation_part=inflation_part,
+        crowding_part=crowding,
     )
 
 
@@ -168,12 +203,14 @@ def growth_aim(
     day: date,
     spending: Decimal = ZERO,
     impulse: Decimal = ZERO,
+    crowding: Decimal = ZERO,
     *,
     stored: bool = False,
 ) -> GrowthAim:
     """
-    O alvo do crescimento com o que o jogador conhece em `day`, mais o que as obras e o
-    resultado primário somam; com `stored`, o alvo da história, pelas séries guardadas.
+    O alvo do crescimento com o que o jogador conhece em `day`, mais o que as obras, o
+    resultado primário e o crédito caro somam; com `stored`, o alvo da história, pelas
+    séries guardadas.
     """
     now = last_known_value(IndicatorSeries.IBOV, day, stored=stored)
     before = last_known_value(
@@ -185,6 +222,7 @@ def growth_aim(
         now / before - 1 if now is not None and before else None,
         spending,
         impulse,
+        crowding,
     )
 
 
@@ -245,12 +283,14 @@ def next_month(
     month_end: date,
     spending: Decimal = ZERO,
     impulse: Decimal = ZERO,
+    crowding: Decimal = ZERO,
 ) -> MacroMonth:
     """
     O fechamento seguinte. A base é a série guardada; onde ela não cobre, o modelo anda
     1/4 até o alvo da história e o desemprego segue o Okun. A partida soma à base o
-    desvio de cada parte do alvo; o desvio do desemprego volta devagar a zero e segue
-    o Okun sobre o desvio do crescimento.
+    desvio de cada parte do alvo, sem faixa: quem segura o crescimento são o juro, a
+    inflação e o crédito, cada um com a sua parcela. O desvio do desemprego volta
+    devagar a zero e segue o Okun sobre o desvio do crescimento.
     """
     base_aim = growth_aim(month_end, stored=True)
     base_growth = recorded_growth(month_end)
@@ -260,14 +300,9 @@ def next_month(
     if base_unemployment is None:
         base_unemployment = step_unemployment(previous.base_unemployment, base_growth)
 
-    # A faixa vale para o desvio: a história fica como foi, mesmo fora dela
-    aim = growth_aim(month_end, spending, impulse)
+    aim = growth_aim(month_end, spending, impulse, crowding)
     gap = previous.gap.toward(aim, base_aim)
-    growth = clamp(
-        base_growth + gap.total,
-        min(MIN_GROWTH, base_growth),
-        max(MAX_GROWTH, base_growth),
-    )
+    growth = max(COLLAPSE_GROWTH, base_growth + gap.total)
     unemployment_gap = (
         previous.unemployment - previous.base_unemployment
     ) * UNEMPLOYMENT_RETURN - OKUN * (growth - base_growth) / MONTHS_PER_YEAR
@@ -299,11 +334,18 @@ class MacroCourse:
         self._months: list[MacroMonth] = []
         self._spending_on: GrowthSource = no_push
         self._impulse_on: GrowthSource = no_push
+        self._crowding_on: GrowthSource = no_push
 
-    def use_government(self, spending: GrowthSource, impulse: GrowthSource) -> None:
-        """O que as obras e o resultado primário do governo somam ao alvo do crescimento em cada dia."""
+    def use_government(
+        self,
+        spending: GrowthSource,
+        impulse: GrowthSource,
+        crowding: GrowthSource = no_push,
+    ) -> None:
+        """O que as obras, o resultado primário e o crédito caro do governo somam ao alvo do crescimento em cada dia."""
         self._spending_on = spending
         self._impulse_on = impulse
+        self._crowding_on = crowding
 
     def months_until(self, day: date) -> list[MacroMonth]:
         """Os meses já fechados em `day`: o fim do mês é hoje ou já passou."""
@@ -319,6 +361,7 @@ class MacroCourse:
                         following,
                         self._spending_on(following),
                         self._impulse_on(following),
+                        self._crowding_on(following),
                     )
                 )
             return [m for m in self._months if m.month_end <= day]

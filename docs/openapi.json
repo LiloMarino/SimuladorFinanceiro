@@ -16875,7 +16875,9 @@
           "FISCAL_RISK",
           "GDP",
           "REAL_RATE",
-          "SELIC"
+          "SELIC",
+          "INFLATION_BRAKE",
+          "CROWDING_OUT"
         ],
         "title": "EconomyLink",
         "description": "Uma ligação da economia interligada: o desvio da partida contra a história que mexe nas séries."
@@ -19870,6 +19872,14 @@
             "type": "string",
             "title": "Impulse"
           },
+          "inflation": {
+            "type": "string",
+            "title": "Inflation"
+          },
+          "crowding_out": {
+            "type": "string",
+            "title": "Crowding Out"
+          },
           "growth": {
             "type": "string",
             "title": "Growth"
@@ -19891,6 +19901,8 @@
           "stocks",
           "works",
           "impulse",
+          "inflation",
+          "crowding_out",
           "growth",
           "history_unemployment",
           "unemployment"
@@ -21653,6 +21665,10 @@
           "stocks": {
             "type": "string",
             "title": "Stocks"
+          },
+          "growth": {
+            "type": "string",
+            "title": "Growth"
           }
         },
         "additionalProperties": false,
@@ -21662,7 +21678,8 @@
           "gap",
           "inflation",
           "selic",
-          "stocks"
+          "stocks",
+          "growth"
         ],
         "title": "LinkEffectDTO",
         "description": "Uma ligação da economia interligada hoje: o desvio do último mês fechado e o que ele soma."

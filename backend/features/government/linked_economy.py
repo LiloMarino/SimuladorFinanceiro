@@ -87,7 +87,9 @@ class LinkedEconomy:
         )
         self.layer = EconomyLayer(simulation_id, start, spending, self, monetary)
         spending.use_on_change(self.layer.refresh)
-        macro.use_government(spending.growth_points, self._impulse_on)
+        macro.use_government(
+            spending.growth_points, self._impulse_on, self._crowding_on
+        )
         repository.economic.use_adjustment(simulation_id, self.layer)
 
     @property
@@ -159,6 +161,9 @@ class LinkedEconomy:
 
     def _impulse_on(self, day: date) -> Decimal:
         return self.links_on(day).impulse
+
+    def _crowding_on(self, day: date) -> Decimal:
+        return self.links_on(day).crowding_out
 
     def _credibility_premium_on(self, day: date) -> Decimal:
         return credibility_premium(self._monetary.credibility_on(day))

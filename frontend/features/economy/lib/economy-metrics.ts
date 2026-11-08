@@ -179,3 +179,27 @@ export const FISCAL_IMPULSE: MetricInfo = {
   reading: "Positivo empurra o crescimento; negativo (o governo apertando as contas) freia.",
   format: gapPoints,
 };
+
+export const INFLATION_BRAKE: MetricInfo = {
+  label: "Freio da inflação",
+  description: "A inflação alta demais tira crescimento do PIB",
+  definition:
+    "Acima de 12% ao ano a inflação deixa de ser só um número: os preços perdem a referência, as empresas investem menos e as famílias gastam menos. O jogo tira 1,2 ponto do crescimento para cada ponto de IPCA (a inflação em 12 meses) acima de 12%, e só conta o excesso que a partida tem a mais do que a história teve.",
+  example:
+    "Ex.: IPCA de 17% numa história com 6% tem 5 pontos de excesso contra a história: o alvo do crescimento perde 6 pontos (5 × 1,2).",
+  reading:
+    "Zero é o normal: abaixo de 12% nada acontece. Negativo é ruim: a inflação do governo está pesando no crescimento, e o efeito entra aos poucos, um quarto do trecho por mês.",
+  format: gapPoints,
+};
+
+export const CROWDING_OUT: MetricInfo = {
+  label: "Crédito encarecido",
+  description: "O prêmio de risco acima da história encarece o crédito e segura o investimento",
+  definition:
+    "Quando a dívida sobe, o governo paga mais para se financiar (o prêmio de risco) e as empresas e as famílias pagam mais para tomar emprestado: o governo tira o crédito delas, o chamado efeito expulsão. Cada ponto de prêmio acima do que a história teve tira três quartos de ponto do alvo do crescimento.",
+  example:
+    "Ex.: prêmio 4 pontos acima da história (6% contra 2%) tira 3 pontos do alvo do crescimento (4 × 0,75), com um mês de atraso.",
+  reading:
+    "Zero é o normal. Negativo é ruim: o crédito está caro por causa da dívida. Se o crescimento cai, a dívida ÷ PIB sobe, o prêmio sobe e o crescimento cai de novo: é o ciclo vicioso das crises de dívida.",
+  format: gapPoints,
+};

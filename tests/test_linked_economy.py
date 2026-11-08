@@ -291,6 +291,8 @@ def test_the_panel_splits_the_debt_the_links_and_the_growth_by_cause(
         + parts.stocks
         + parts.works
         + parts.impulse
+        + parts.inflation
+        + parts.crowding_out
     )
 
 

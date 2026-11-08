@@ -268,3 +268,52 @@ def test_the_impulse_pushes_the_game_away_from_the_history(flat_economy: None):
     assert month.gap.impulse > 0
     assert month.growth == month.base_growth + month.gap.total
     assert month.unemployment < month.base_unemployment
+
+
+def test_inflation_takes_growth_only_above_the_threshold():
+    below = growth.aim_from(Decimal("0.10"), Decimal("0.10"), None)
+    above = growth.aim_from(Decimal("0.22"), Decimal("0.22"), None)
+
+    assert below.inflation_part == 0
+    # Cada ponto acima de 12% tira 1,2 ponto do alvo: 10 pontos acima tiram 12
+    assert above.inflation_part == Decimal("-0.12")
+    # O modelo da história não conhece o freio da inflação: ele só age pelo desvio
+    assert above.value == above.trend + above.real_rate_part
+
+
+def test_inflation_gap_is_the_game_excess_over_the_history_excess():
+    game = growth.aim_from(Decimal("0.22"), Decimal("0.22"), None)
+    history = growth.aim_from(Decimal("0.14"), Decimal("0.14"), None)
+
+    gap = growth.GrowthGap().toward(game, history)
+
+    # O desvio anda 1/4 do caminho até (alvo da partida - alvo da história)
+    expected = growth.GROWTH_STEP * (game.inflation_part - history.inflation_part)
+    assert gap.inflation == expected < 0
+    assert gap.total == gap.inflation + gap.real_rate
+
+
+def test_the_credit_squeeze_pulls_the_game_below_the_history(flat_economy: None):
+    course = MacroCourse(START)
+    course.use_government(growth.no_push, growth.no_push, lambda _day: Decimal("-0.02"))
+
+    month = course.latest(date(2020, 12, 31))
+
+    assert month.gap.crowding < 0
+    assert month.growth == month.base_growth + month.gap.total
+    assert month.growth < month.base_growth
+
+
+def test_the_deviation_has_no_ceiling_but_the_game_growth_has_a_floor(
+    flat_economy: None,
+):
+    boosted = MacroCourse(START)
+    boosted.use_government(growth.no_push, lambda _day: Decimal("0.3"))
+    crushed = MacroCourse(START)
+    crushed.use_government(growth.no_push, growth.no_push, lambda _day: Decimal("-0.9"))
+    end = date(2022, 12, 31)
+
+    # A faixa do modelo da história não segura o desvio do governo para cima
+    assert boosted.latest(end).growth > growth.MAX_GROWTH
+    # Para baixo o fundo é o piso da partida
+    assert crushed.latest(end).growth == growth.COLLAPSE_GROWTH

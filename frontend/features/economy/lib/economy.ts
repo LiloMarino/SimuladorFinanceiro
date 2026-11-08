@@ -10,10 +10,12 @@ import { isSpending, SPENDING_LABEL } from "@/shared/lib/spending-kinds";
 import type { MetricInfo } from "@/shared/lib/metric-info";
 import type { EconomyEffect, EconomyLinkEffect, EconomyPanel } from "@/types";
 import {
+  CROWDING_OUT,
   FISCAL_IMPULSE,
   FISCAL_RISK,
   GDP_GAP,
   GOVERNMENT_SELIC,
+  INFLATION_BRAKE,
   PHILLIPS,
   REAL_RATE_GAP,
   signedPoints,
@@ -162,7 +164,10 @@ export type GrowthLine = {
 /** Os textos de uma parcela do crescimento: o que ela é quando empurra, quando freia e quando não mexe. */
 type GrowthPartText = { label: string; up: string; down: string; neutral: string; metric?: MetricInfo };
 
-const GROWTH_PARTS: Record<"real_rate" | "stocks" | "works" | "impulse", GrowthPartText> = {
+const GROWTH_PARTS: Record<
+  "real_rate" | "stocks" | "works" | "impulse" | "inflation" | "crowding_out",
+  GrowthPartText
+> = {
   real_rate: {
     label: "Juro real",
     up: "Abaixo do da história: crédito mais barato empurra",
@@ -188,11 +193,25 @@ const GROWTH_PARTS: Record<"real_rate" | "stocks" | "works" | "impulse", GrowthP
     neutral: "As contas do governo no mesmo patamar de 12 meses atrás",
     metric: FISCAL_IMPULSE,
   },
+  inflation: {
+    label: "Freio da inflação",
+    up: "A inflação está abaixo do que a história teve",
+    down: "Inflação acima de 12% ao ano e acima da história: tira crescimento",
+    neutral: "Inflação no mesmo patamar da história, ou abaixo de 12%",
+    metric: INFLATION_BRAKE,
+  },
+  crowding_out: {
+    label: "Crédito encarecido",
+    up: "Prêmio de risco abaixo da história: crédito mais barato empurra",
+    down: "Prêmio de risco acima da história: o crédito fica mais caro e freia",
+    neutral: "Prêmio de risco igual ao da história",
+    metric: CROWDING_OUT,
+  },
 };
 
 /** O que a partida somou ao crescimento da história, parcela por parcela, com o motivo de cada uma. */
 export function growthLines(parts: GrowthParts): GrowthLine[] {
-  return (["real_rate", "stocks", "works", "impulse"] as const).map((key) => {
+  return (["real_rate", "stocks", "works", "impulse", "inflation", "crowding_out"] as const).map((key) => {
     const text = GROWTH_PARTS[key];
     const part = Number(parts[key]);
     const tone = Math.abs(part) < 0.0005 ? "neutral" : part > 0 ? "up" : "down";
@@ -235,11 +254,18 @@ export const LINK_METRIC: Record<EconomyLinkEffect["link"], MetricInfo> = {
   GDP: GDP_GAP,
   REAL_RATE: REAL_RATE_GAP,
   SELIC: GOVERNMENT_SELIC,
+  INFLATION_BRAKE,
+  CROWDING_OUT,
 };
 
 /** As ligações que mexem em algo hoje: as outras somam menos que a última casa mostrada. */
 export const activeLinks = (links: readonly EconomyLinkEffect[]) =>
-  links.filter((link) => Math.abs(Number(link.inflation)) >= 0.005 || Math.abs(Number(link.stocks)) >= 0.0005);
+  links.filter(
+    (link) =>
+      Math.abs(Number(link.inflation)) >= 0.005 ||
+      Math.abs(Number(link.stocks)) >= 0.0005 ||
+      Math.abs(Number(link.growth)) >= 0.0005,
+  );
 
 /** A SELIC é do governo quando a ligação dela aparece: só existe com a taxa decidida no Copom. */
 export const selicByGovernment = (links: readonly EconomyLinkEffect[]) => links.some((link) => link.link === "SELIC");

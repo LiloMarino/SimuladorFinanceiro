@@ -74,6 +74,14 @@ def test_the_primary_worsening_in_a_year_pushes_growth_by_half_of_it():
     assert gap(change="0.01").impulse == Decimal("-0.005")
 
 
+def test_premium_above_history_takes_three_quarters_of_it_from_the_growth_aim():
+    # Prêmio 2 pontos acima da história encarece o crédito e tira 1,5 ponto do alvo
+    assert gap(premium="0.02").crowding_out == Decimal("-0.015")
+    # Prêmio abaixo da história não empurra o crescimento
+    assert gap(premium="-0.02").crowding_out == 0
+    assert gap().crowding_out == 0
+
+
 def test_a_deficit_that_stays_put_for_a_year_stops_pushing():
     cut = link_month(
         None,

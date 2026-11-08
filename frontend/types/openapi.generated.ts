@@ -5933,7 +5933,7 @@ export interface components {
          * @description Uma ligação da economia interligada: o desvio da partida contra a história que mexe nas séries.
          * @enum {string}
          */
-        EconomyLink: "PHILLIPS" | "FISCAL_RISK" | "GDP" | "REAL_RATE" | "SELIC";
+        EconomyLink: "PHILLIPS" | "FISCAL_RISK" | "GDP" | "REAL_RATE" | "SELIC" | "INFLATION_BRAKE" | "CROWDING_OUT";
         /** EconomyPanelDTO */
         EconomyPanelDTO: {
             /** Points */
@@ -6892,6 +6892,10 @@ export interface components {
             works: string;
             /** Impulse */
             impulse: string;
+            /** Inflation */
+            inflation: string;
+            /** Crowding Out */
+            crowding_out: string;
             /** Growth */
             growth: string;
             /** History Unemployment */
@@ -7667,6 +7671,8 @@ export interface components {
             selic: string;
             /** Stocks */
             stocks: string;
+            /** Growth */
+            growth: string;
         };
         /** LoanDTO */
         LoanDTO: {

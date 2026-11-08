@@ -45,7 +45,9 @@ const growthParts: EconomyPanel["growth_parts"] = {
   stocks: "0.003",
   works: "0",
   impulse: "0.005",
-  growth: "0.024",
+  inflation: "-0.008",
+  crowding_out: "0",
+  growth: "0.016",
   history_unemployment: "0.09",
   unemployment: "0.088",
 };
@@ -170,8 +172,8 @@ describe("signedPoints", () => {
 });
 
 describe("growthLines", () => {
-  it("abre o que a partida somou à história em quatro parcelas, cada uma com o motivo", () => {
-    const [realRate, stocks, works, impulse] = growthLines(growthParts);
+  it("abre o que a partida somou à história em seis parcelas, cada uma com o motivo", () => {
+    const [realRate, stocks, works, impulse, inflation, crowding] = growthLines(growthParts);
 
     expect(realRate?.value).toBe("−0,4");
     expect(realRate?.tone).toBe("down");
@@ -180,6 +182,11 @@ describe("growthLines", () => {
     expect(works?.tone).toBe("neutral");
     expect(impulse?.value).toBe("+0,5");
     expect(impulse?.metric?.label).toBe("Impulso fiscal");
+    expect(inflation?.value).toBe("−0,8");
+    expect(inflation?.tone).toBe("down");
+    expect(inflation?.detail).toContain("acima de 12%");
+    expect(crowding?.tone).toBe("neutral");
+    expect(crowding?.metric?.label).toBe("Crédito encarecido");
   });
 });
 
@@ -208,12 +215,13 @@ const effect = (kind: EconomyEffect["kind"], inflation: string, curve: string[] 
   elapsed_months: 2,
 });
 
-const link = (kind: EconomyLinkEffect["link"], inflation: string, stocks = "0"): EconomyLinkEffect => ({
+const link = (kind: EconomyLinkEffect["link"], inflation: string, stocks = "0", growth = "0"): EconomyLinkEffect => ({
   link: kind,
   gap: "0.02",
   inflation,
   selic: String(Number(inflation) * 1.5),
   stocks,
+  growth,
 });
 
 describe("efeitos das medidas", () => {
@@ -253,6 +261,11 @@ describe("efeitos das medidas", () => {
   it("guarda só as ligações que mexem em algo hoje", () => {
     const links = [link("FISCAL_RISK", "0.004", "0.0001"), link("PHILLIPS", "0.2"), link("GDP", "0", "0.03")];
     expect(activeLinks(links).map((item) => item.link)).toEqual(["PHILLIPS", "GDP"]);
+  });
+
+  it("guarda a ligação que só mexe no crescimento", () => {
+    const links = [link("CROWDING_OUT", "0", "0", "-0.012"), link("INFLATION_BRAKE", "0", "0", "0.0001")];
+    expect(activeLinks(links).map((item) => item.link)).toEqual(["CROWDING_OUT"]);
   });
 
   it("vê a SELIC do governo pela ligação que só existe com ela", () => {

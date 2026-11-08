@@ -51,11 +51,14 @@ class GrowthPartsDTO(BaseDTO):
 
     history_growth: Decimal
     # O que a partida soma ao crescimento, por causa: o juro real e a bolsa diferentes da
-    # história, as obras e o impulso fiscal (o primário que piorou em 12 meses)
+    # história, as obras, o impulso fiscal (o primário que piorou em 12 meses), a inflação
+    # acima do limiar e o crédito encarecido pelo prêmio de risco (os dois últimos tiram)
     real_rate: Decimal
     stocks: Decimal
     works: Decimal
     impulse: Decimal
+    inflation: Decimal
+    crowding_out: Decimal
     growth: Decimal
     history_unemployment: Decimal
     unemployment: Decimal
@@ -129,12 +132,15 @@ class LinkEffectDTO(BaseDTO):
 
     link: EconomyLink
     # O desvio da partida contra a história, em fração: o desemprego, o prêmio de risco, o
-    # nível do PIB, o juro real ou a SELIC
+    # nível do PIB, o juro real, a SELIC ou o IPCA acima do limiar
     gap: Decimal
     # Pontos de IPCA e de SELIC em 12 meses e a variação da bolsa (fração) no trimestre
     inflation: Decimal
     selic: Decimal
     stocks: Decimal
+    # O que a ligação soma ao crescimento do PIB ao ano, em fração (nula nas ligações que
+    # não mexem nele)
+    growth: Decimal
 
 
 class EconomyPanelDTO(BaseDTO):

@@ -1,4 +1,14 @@
-import { Landmark, Percent, ShieldAlert, TrendingUp, TriangleAlert, Users, type LucideIcon } from "lucide-react";
+import {
+  CreditCard,
+  Flame,
+  Landmark,
+  Percent,
+  ShieldAlert,
+  TrendingUp,
+  TriangleAlert,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { EffectSpark } from "@/shared/components/effect-spark";
 import { InfoHint } from "@/shared/components/info-hint";
@@ -22,7 +32,7 @@ import {
   sumEffects,
   type InflationPart,
 } from "../lib/economy";
-import { EFFECT_IPCA, EFFECT_SELIC, EFFECT_STOCKS } from "../lib/economy-metrics";
+import { EFFECT_IPCA, EFFECT_SELIC, EFFECT_STOCKS, signedPoints } from "../lib/economy-metrics";
 
 const TONE = { destructive: "text-destructive", success: "text-success", default: "text-muted-foreground" } as const;
 const BIG_SHIFT = 2;
@@ -40,6 +50,8 @@ const LINK_ROW: Record<EconomyLinkEffect["link"], { icon: LucideIcon; subject: s
   GDP: { icon: TrendingUp, subject: "PIB" },
   REAL_RATE: { icon: Percent, subject: "Juro real" },
   SELIC: { icon: Landmark, subject: "SELIC" },
+  INFLATION_BRAKE: { icon: Flame, subject: "IPCA acima de 12%" },
+  CROWDING_OUT: { icon: CreditCard, subject: "Prêmio de risco" },
 };
 
 type EffectsCardProps = { panel: EconomyPanel; effects: EconomyEffect[]; links: EconomyLinkEffect[] };
@@ -164,8 +176,9 @@ function EffectsBody({ panel, effects, links, byGovernment }: EffectsBodyProps) 
           ? "A SELIC é a que o presidente fixou no Copom: o Banco Central não reage ao que as medidas e as ligações somam à inflação."
           : "O Banco Central sobe a SELIC 1,5 vez o que as medidas e as ligações somam à inflação."}{" "}
         Cada ponto de SELIC ou de prêmio de risco tira 2,9% da bolsa no trimestre, mais nas ações de beta alto (as que
-        se mexem mais que o Ibovespa); o PIB acima da história a levanta. A ligação de um mês vale a partir do seguinte.
-        Cortar gasto faz o caminho inverso.
+        se mexem mais que o Ibovespa); o PIB acima da história a levanta. A inflação acima de 12% e o prêmio de risco
+        acima da história tiram crescimento do PIB, e o PIB menor sobe a dívida. A ligação de um mês vale a partir do
+        seguinte. Cortar gasto faz o caminho inverso.
       </p>
     </>
   );
@@ -245,8 +258,13 @@ function LinkRow({ link }: { link: EconomyLinkEffect }) {
         </span>
       </TableCell>
       <TableCell>
-        <span className="text-[12.5px] whitespace-normal text-muted-foreground">
-          {subject} {metric.format(link.gap)} contra a história
+        <span className="grid text-[12.5px] whitespace-normal text-muted-foreground">
+          <span>
+            {subject} {metric.format(link.gap)} contra a história
+          </span>
+          {Math.abs(Number(link.growth)) >= 0.0005 && (
+            <span>Soma {signedPoints(Number(link.growth))} ao crescimento do PIB</span>
+          )}
         </span>
       </TableCell>
       <TableCell numeric className={TONE[inflationTone(link.inflation)]}>

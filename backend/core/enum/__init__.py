@@ -735,6 +735,10 @@ class EconomyLink(Enum):
     REAL_RATE = "REAL_RATE"
     # A SELIC que o governo fixou acima da história derruba a bolsa
     SELIC = "SELIC"
+    # A inflação acima do limiar tira crescimento
+    INFLATION_BRAKE = "INFLATION_BRAKE"
+    # O prêmio de risco acima da história encarece o crédito e tira crescimento
+    CROWDING_OUT = "CROWDING_OUT"
 
 
 class MeasureStatus(Enum):

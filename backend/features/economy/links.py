@@ -28,6 +28,10 @@ INSURANCE = Decimal("0.05")
 # que fica no mesmo patamar deixa o PIB mais alto, mas não o faz crescer mais rápido
 IMPULSE = Decimal("0.5")
 IMPULSE_MONTHS = 12
+# Efeito expulsão: cada ponto de prêmio de risco acima da história encarece o crédito das
+# empresas e tira três quartos de ponto do alvo do crescimento, mesmo com a SELIC baixa;
+# prêmio abaixo da história não empurra o crescimento
+CROWDING_OUT = Decimal("0.75")
 
 
 @dataclass(frozen=True)
@@ -79,6 +83,10 @@ class LinkMonth:
     @property
     def impulse(self) -> Decimal:
         return -IMPULSE * self.primary_change
+
+    @property
+    def crowding_out(self) -> Decimal:
+        return -CROWDING_OUT * max(Decimal(0), self.premium_gap)
 
     @property
     def is_zero(self) -> bool:

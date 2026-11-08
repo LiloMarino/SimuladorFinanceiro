@@ -31,8 +31,8 @@ export function GrowthCard({ panel }: GrowthCardProps) {
                 <p>{GROWTH.definition}</p>
                 <p>
                   A história é a série do IBGE. Com a expansão Governo, a partida soma a ela o que o juro real e a bolsa
-                  mudaram contra a história, as obras e o impulso fiscal; cada parcela caminha um quarto do trecho por
-                  mês.
+                  mudaram contra a história, as obras e o impulso fiscal, e tira o que a inflação acima de 12% e o
+                  crédito encarecido pelo prêmio de risco custam; cada parcela caminha um quarto do trecho por mês.
                 </p>
                 <p>{GROWTH.example}</p>
               </div>

@@ -31,7 +31,7 @@ from backend.core.indicators import (
 )
 from backend.core.rates import Percent
 from backend.features.economy.debt import nominal_growth, stabilizing_primary
-from backend.features.economy.growth import MacroCourse
+from backend.features.economy.growth import INFLATION_THRESHOLD, MacroCourse
 from backend.features.economy.layer import central_bank_reaction
 from backend.features.government import measures as rules
 from backend.features.government import spending_effects
@@ -170,6 +170,8 @@ def growth_parts(macro: MacroCourse, today: date) -> GrowthPartsDTO:
         stocks=month.gap.stocks,
         works=month.gap.spending,
         impulse=month.gap.impulse,
+        inflation=month.gap.inflation,
+        crowding_out=month.gap.crowding,
         growth=month.growth,
         history_unemployment=month.base_unemployment,
         unemployment=month.unemployment,
@@ -189,9 +191,14 @@ def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
     link = linked.links_on(today)
     stocks = linked.layer.stocks_parts(today)
     reacts = linked.layer.reacts(today)
+    country = linked.macro.latest(today)
 
     def effect(
-        kind: EconomyLink, gap: Decimal, inflation: float, exponent: float
+        kind: EconomyLink,
+        gap: Decimal,
+        inflation: float,
+        exponent: float,
+        growth: Decimal = Decimal(0),
     ) -> LinkEffectDTO:
         return LinkEffectDTO(
             link=kind,
@@ -199,7 +206,11 @@ def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
             inflation=points(inflation),
             selic=points(central_bank_reaction(inflation) if reacts else 0.0),
             stocks=points(math.exp(exponent) - 1),
+            growth=growth,
         )
+
+    def excess(inflation: Decimal) -> Decimal:
+        return max(Decimal(0), inflation - INFLATION_THRESHOLD)
 
     government: list[LinkEffectDTO] = []
     if not reacts:
@@ -211,6 +222,7 @@ def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
                 inflation=Decimal(0),
                 selic=points(selic),
                 stocks=points(math.exp(stocks.selic) - 1),
+                growth=Decimal(0),
             )
         )
     return [
@@ -234,6 +246,20 @@ def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
             stocks.fiscal_risk,
         ),
         effect(EconomyLink.GDP, link.gdp_gap, 0.0, stocks.gdp),
+        effect(
+            EconomyLink.INFLATION_BRAKE,
+            excess(country.aim.inflation) - excess(country.base_aim.inflation),
+            0.0,
+            0.0,
+            country.gap.inflation,
+        ),
+        effect(
+            EconomyLink.CROWDING_OUT,
+            link.premium_gap,
+            0.0,
+            0.0,
+            country.gap.crowding,
+        ),
     ]
 
 
