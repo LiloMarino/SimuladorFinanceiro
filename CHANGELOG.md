@@ -4,6 +4,27 @@ Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais anti
 O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
 deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
+## 4.0.0 Dividendos (08/11/2026)
+
+As ações passam a andar com o preço de verdade: a partida usa o preço bruto do pregão, aplica os desdobramentos na quantidade e paga os dividendos no caixa na data ex, inclusive no futuro gerado. Os proventos aparecem na carteira, com o rendimento de cada posição, no detalhe do ativo e nas estatísticas da partida. O Jornal ganha o botão de voltar para hoje e destaca no arquivo o mês em leitura, e a Central de dados arruma a listagem das séries. A linha de migrations recomeça na 4.0: um banco da 3.x não atualiza, e as partidas salvas antes dela não abrem.
+
+**Atenção, esta versão quebra a compatibilidade:** algo que funcionava deixa de funcionar para quem atualiza.
+
+### Quebras
+
+- Recomeçada a linha de migrations na 4.0
+- Adicionados o preço bruto, os desdobramentos e os dividendos na partida
+
+
+### Novidades
+
+- Adicionados os proventos na carteira, no detalhe do ativo e nas estatísticas
+- Adicionados o voltar para hoje e o mês em leitura no arquivo do Jornal
+
+### Correções
+
+- Corrigida a listagem de séries da Central de dados
+
 ## 3.5.0 Federações e Estados (07/11/2026)
 
 A política ganha geografia: um mapa do Brasil por região e por estado mostra quem lidera, a aprovação do presidente e onde vive cada grupo de eleitores, e a pesquisa sai também por estado. Partidos podem se unir em federações para escapar da barreira e somar votos no Congresso, pagando com o candidato próprio e a rejeição do parceiro. O acordo de base passa a valer até o fim do mandato, e as bancadas cobram mais quando o governo fica fraco.
