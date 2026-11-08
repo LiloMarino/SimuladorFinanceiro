@@ -15,9 +15,12 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/compon
 import { Input } from "@/shared/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+import { DisabledHint } from "@/shared/components/disabled-hint";
+import { ShareShortcuts } from "@/shared/components/share-shortcuts";
 import { cn, normalizeNumberString } from "@/shared/lib/utils";
 import { displayMoney, displayPercent, toCentsString } from "@/shared/lib/utils/display";
 import { formatMoney } from "@/shared/lib/utils/format";
+import { shareToField } from "@/shared/lib/utils/money-field";
 import type { CreditLoan, PrepaymentMode } from "@/types";
 import { usePayoffLoan } from "../hooks/mutations/usePayoffLoan";
 import { usePrepayLoan } from "../hooks/mutations/usePrepayLoan";
@@ -66,6 +69,24 @@ export function PrepayDialog({ loan, open, onOpenChange, initialChoice, initialA
   const canPrepay = preview !== undefined && amount > 0 && partError === null && deferredAmount === amount;
   const canPayoff = preview !== undefined && missingCash === 0;
 
+  // O teto dos atalhos: pagar o saldo inteiro é quitar, então a parte para um centavo antes
+  const partCeiling = Math.max(Math.min(cash, balance - 0.01), 0);
+  const fillShare = (share: number) => setAmountText(shareToField(partCeiling, share));
+
+  const submitPart = () => {
+    if (canPrepay && !prepay.isPending) {
+      prepay.mutate({ amount: normalizeNumberString(amountText), mode }, { onSuccess: close });
+    }
+  };
+
+  // O motivo de cada botão apagado
+  const prepayReason = !preview
+    ? "Carregando o saldo e o caixa."
+    : amount <= 0
+      ? "Digite quanto quer pagar."
+      : partError;
+  const payoffReason = missingCash > 0 ? `Faltam ${displayMoney(missingCash)} no caixa.` : null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col sm:max-w-130">
@@ -92,26 +113,38 @@ export function PrepayDialog({ loan, open, onOpenChange, initialChoice, initialA
             {choice === "part" ? (
               <>
                 {/* Quanto pagar */}
-                <Field data-invalid={amount > 0 && partError !== null}>
-                  <FieldLabel htmlFor="prepay-amount">Quanto pagar agora</FieldLabel>
-                  <Input
-                    id="prepay-amount"
-                    fieldSize="xl"
-                    numeric
-                    inputMode="decimal"
-                    value={amountText}
-                    aria-invalid={amount > 0 && partError !== null}
-                    onChange={(event) => setAmountText(formatMoney(event.target.value))}
-                  />
-                  {amount > 0 && partError ? (
-                    <FieldError>{partError}</FieldError>
-                  ) : (
-                    <FieldDescription>
-                      Saldo devedor <span className="font-mono">{displayMoney(balance)}</span> · caixa{" "}
-                      <span className="font-mono">{displayMoney(cash)}</span>
-                    </FieldDescription>
-                  )}
-                </Field>
+                <form
+                  id="prepay-form"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    submitPart();
+                  }}
+                >
+                  <Field data-invalid={amount > 0 && partError !== null}>
+                    <FieldLabel htmlFor="prepay-amount">Quanto pagar agora</FieldLabel>
+                    <div className="flex gap-1.5">
+                      <Input
+                        id="prepay-amount"
+                        autoFocus
+                        fieldSize="xl"
+                        numeric
+                        inputMode="decimal"
+                        value={amountText}
+                        aria-invalid={amount > 0 && partError !== null}
+                        onChange={(event) => setAmountText(formatMoney(event.target.value))}
+                      />
+                      <ShareShortcuts maxLabel="Máx" disabled={!preview} onPick={fillShare} />
+                    </div>
+                    {amount > 0 && partError ? (
+                      <FieldError>{partError}</FieldError>
+                    ) : (
+                      <FieldDescription>
+                        Saldo devedor <span className="font-mono">{displayMoney(balance)}</span> · caixa{" "}
+                        <span className="font-mono">{displayMoney(cash)}</span>
+                      </FieldDescription>
+                    )}
+                  </Field>
+                </form>
 
                 {/* O que fazer com o que sobra */}
                 <div className="grid gap-2">
@@ -176,19 +209,20 @@ export function PrepayDialog({ loan, open, onOpenChange, initialChoice, initialA
             Cancelar
           </Button>
           {choice === "part" ? (
-            <Button
-              disabled={!canPrepay || prepay.isPending}
-              onClick={() => prepay.mutate({ amount: normalizeNumberString(amountText), mode }, { onSuccess: close })}
-            >
-              Pagar {displayMoney(amount)}
-            </Button>
+            <DisabledHint reason={canPrepay ? null : prepayReason}>
+              <Button type="submit" form="prepay-form" disabled={!canPrepay || prepay.isPending}>
+                Pagar {displayMoney(amount)}
+              </Button>
+            </DisabledHint>
           ) : (
-            <Button
-              disabled={!canPayoff || payoff.isPending}
-              onClick={() => payoff.mutate(undefined, { onSuccess: close })}
-            >
-              Quitar {preview ? displayMoney(payoffAmount) : ""}
-            </Button>
+            <DisabledHint reason={canPayoff ? null : payoffReason}>
+              <Button
+                disabled={!canPayoff || payoff.isPending}
+                onClick={() => payoff.mutate(undefined, { onSuccess: close })}
+              >
+                Quitar {preview ? displayMoney(payoffAmount) : ""}
+              </Button>
+            </DisabledHint>
           )}
         </DialogFooter>
       </DialogContent>

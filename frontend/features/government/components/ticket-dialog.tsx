@@ -15,6 +15,7 @@ import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/fiel
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { KeyValueRow } from "@/shared/components/key-value-row";
 import { PlayerOption } from "@/shared/components/player-option";
+import { DisabledHint } from "@/shared/components/disabled-hint";
 import { displayDayMonth, displayMoney } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty } from "@/types";
 import { useSetTicket } from "../hooks/mutations/useSetTicket";
@@ -59,6 +60,9 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
   const myMonthly = Number(panel.my_party?.contribution ?? 0);
   const myShare = myMonthly * collections;
   const overCash = cash !== undefined && myShare > Number(cash);
+
+  // O motivo do botão apagado: o que falta para inscrever a chapa
+  const blockedReason = !candidate && !setTicket.isPending ? "Escolha um candidato." : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -151,17 +155,19 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button
-            disabled={!candidate || setTicket.isPending}
-            onClick={() =>
-              setTicket.mutate(
-                { candidate, vice: effectiveVice === NO_VICE ? null : effectiveVice },
-                { onSuccess: () => onOpenChange(false) },
-              )
-            }
-          >
-            Inscrever a chapa
-          </Button>
+          <DisabledHint reason={blockedReason}>
+            <Button
+              disabled={!candidate || setTicket.isPending}
+              onClick={() =>
+                setTicket.mutate(
+                  { candidate, vice: effectiveVice === NO_VICE ? null : effectiveVice },
+                  { onSuccess: () => onOpenChange(false) },
+                )
+              }
+            >
+              Inscrever a chapa
+            </Button>
+          </DisabledHint>
         </DialogFooter>
       </DialogContent>
     </Dialog>

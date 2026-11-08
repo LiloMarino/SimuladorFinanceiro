@@ -24,6 +24,7 @@ import { countdownLabel, monthlyYield } from "../lib/election";
 import { contributionText } from "@/shared/lib/contribution";
 import { runoffLeaderId } from "../lib/runoff";
 import { PartyMark, PersonMark } from "@/shared/components/party-mark";
+import { DisabledHint } from "@/shared/components/disabled-hint";
 
 type DonateDialogProps = {
   open: boolean;
@@ -47,6 +48,23 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
   const amount = Number(normalizeNumberString(text)) || 0;
   const target = finalists.find((party) => party.id === partyId);
   const overCash = cash !== undefined && amount > Number(cash);
+
+  const canSubmit = !!target && amount > 0 && !overCash && !donate.isPending;
+  // O motivo do botão apagado: o que falta para doar
+  const blockedReason = !target
+    ? "Escolha um finalista."
+    : amount <= 0
+      ? "Digite quanto quer doar."
+      : overCash
+        ? `Seu caixa hoje é ${displayMoney(cash)}.`
+        : null;
+
+  const submit = () =>
+    target &&
+    donate.mutate(
+      { party_id: target.id, amount: normalizeNumberString(text) },
+      { onSuccess: () => onOpenChange(false) },
+    );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -94,40 +112,49 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
               })}
             </div>
 
-            <Field data-invalid={overCash}>
-              <FieldLabel htmlFor="donation-amount">Quanto</FieldLabel>
-              <Input
-                id="donation-amount"
-                fieldSize="xl"
-                numeric
-                inputMode="decimal"
-                placeholder="R$ 0,00"
-                value={text}
-                aria-invalid={overCash}
-                onChange={(event) => setText(formatMoney(event.target.value))}
-              />
-              <div className="flex flex-wrap gap-1.5">
-                {SHORTCUTS.map((shortcut) => (
-                  <Button
-                    key={shortcut}
-                    type="button"
-                    size="xs"
-                    variant={amount === shortcut ? "info" : "outline"}
-                    onClick={() => setText(contributionText(String(shortcut)))}
-                  >
-                    {displayMoneyCompact(shortcut)}
-                  </Button>
-                ))}
-              </div>
-              {overCash ? (
-                <FieldError>Seu caixa hoje é {displayMoney(cash)}.</FieldError>
-              ) : (
-                <FieldDescription>
-                  Sai do seu caixa de uma vez e vira verba do {target?.abbr ?? "finalista"} nos{" "}
-                  {countdownLabel(today, panel.dates.runoff)} até o 2º turno.
-                </FieldDescription>
-              )}
-            </Field>
+            <form
+              id="donation-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (canSubmit) submit();
+              }}
+            >
+              <Field data-invalid={overCash}>
+                <FieldLabel htmlFor="donation-amount">Quanto</FieldLabel>
+                <Input
+                  id="donation-amount"
+                  autoFocus
+                  fieldSize="xl"
+                  numeric
+                  inputMode="decimal"
+                  placeholder="R$ 0,00"
+                  value={text}
+                  aria-invalid={overCash}
+                  onChange={(event) => setText(formatMoney(event.target.value))}
+                />
+                <div className="flex flex-wrap gap-1.5">
+                  {SHORTCUTS.map((shortcut) => (
+                    <Button
+                      key={shortcut}
+                      type="button"
+                      size="xs"
+                      variant={amount === shortcut ? "info" : "outline"}
+                      onClick={() => setText(contributionText(String(shortcut)))}
+                    >
+                      {displayMoneyCompact(shortcut)}
+                    </Button>
+                  ))}
+                </div>
+                {overCash ? (
+                  <FieldError>Seu caixa hoje é {displayMoney(cash)}.</FieldError>
+                ) : (
+                  <FieldDescription>
+                    Sai do seu caixa de uma vez e vira verba do {target?.abbr ?? "finalista"} nos{" "}
+                    {countdownLabel(today, panel.dates.runoff)} até o 2º turno.
+                  </FieldDescription>
+                )}
+              </Field>
+            </form>
 
             {target && amount > 0 && (
               <dl className="grid divide-y rounded-lg border px-3 text-[13px]">
@@ -165,18 +192,11 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button
-            disabled={!target || amount <= 0 || overCash || donate.isPending}
-            onClick={() =>
-              target &&
-              donate.mutate(
-                { party_id: target.id, amount: normalizeNumberString(text) },
-                { onSuccess: () => onOpenChange(false) },
-              )
-            }
-          >
-            Doar{target ? ` ao ${target.abbr}` : ""}
-          </Button>
+          <DisabledHint reason={blockedReason}>
+            <Button type="submit" form="donation-form" disabled={!canSubmit}>
+              Doar{target ? ` ao ${target.abbr}` : ""}
+            </Button>
+          </DisabledHint>
         </DialogFooter>
       </DialogContent>
     </Dialog>

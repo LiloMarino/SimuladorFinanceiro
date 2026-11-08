@@ -15,15 +15,18 @@ type ContributionFieldProps = {
   /** Explicação sob o campo; some quando há erro */
   note: ReactNode;
   error?: string | null | undefined;
+  /** O campo recebe o foco ao abrir o diálogo */
+  autoFocus?: boolean;
 };
 
 /** "Sua contribuição mensal": campo de valor, atalhos e a nota de como o dinheiro sai. */
-export function ContributionField({ id, value, onChange, note, error }: ContributionFieldProps) {
+export function ContributionField({ id, value, onChange, note, error, autoFocus }: ContributionFieldProps) {
   return (
     <Field data-invalid={!!error}>
       <FieldLabel htmlFor={id}>Sua contribuição mensal</FieldLabel>
       <Input
         id={id}
+        autoFocus={autoFocus}
         numeric
         inputMode="decimal"
         placeholder="R$ 0,00"

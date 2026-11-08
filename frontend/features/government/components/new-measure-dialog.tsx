@@ -38,7 +38,8 @@ import {
   signedPoints,
 } from "../lib/government";
 import { isSpending, SPENDING_KINDS, type SpendingKind } from "@/shared/lib/spending-kinds";
-import { checkValue } from "../lib/spending";
+import { checkValue, outsideSentence } from "../lib/spending";
+import { DisabledHint } from "@/shared/components/disabled-hint";
 
 type Mode = "general" | "sector" | "spending";
 type ExemptionRule = "keep" | "end" | "change";
@@ -126,6 +127,37 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
   const preview = useMeasurePreview(request);
   // A prévia anterior fica à vista enquanto a nova carrega, mas some quando o pedido deixa de estar completo
   const data = request && !preview.isError ? preview.data : undefined;
+
+  // O motivo do botão apagado: o que falta para enviar a medida
+  const modeReason =
+    mode === "spending"
+      ? spendingRow?.pending
+        ? "Já tem uma medida desse tipo na fila."
+        : spendingCheck?.status === "empty"
+          ? "Digite o novo valor da medida."
+          : spendingCheck?.status === "same"
+            ? "Esse valor é igual ao de hoje."
+            : spendingRow && spendingCheck?.status === "outside"
+              ? outsideSentence(spendingKind, spendingRow, spendingText)
+              : null
+      : mode === "sector"
+        ? !sector
+          ? "Escolha um setor."
+          : change === "tax" && !rateToFraction(pointsText)
+            ? "Digite quantos pontos a mais."
+            : null
+        : kind === "STOCK_EXEMPTION"
+          ? rule === "keep"
+            ? "Escolha acabar com a regra ou mudar o limite."
+            : !request
+              ? "Digite o novo limite por mês."
+              : null
+          : !request
+            ? "Digite a nova alíquota."
+            : null;
+  const blockedReason = propose.isPending
+    ? null
+    : (modeReason ?? (preview.isError ? "Essa medida não dá para enviar." : null));
 
   return (
     <>
@@ -418,12 +450,14 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
         <Button variant="outline" onClick={onClose}>
           Cancelar
         </Button>
-        <Button
-          disabled={!request || !data || propose.isPending}
-          onClick={() => request && propose.mutate(request, { onSuccess: onClose })}
-        >
-          Enviar ao Congresso
-        </Button>
+        <DisabledHint reason={blockedReason}>
+          <Button
+            disabled={!request || !data || propose.isPending}
+            onClick={() => request && propose.mutate(request, { onSuccess: onClose })}
+          >
+            Enviar ao Congresso
+          </Button>
+        </DisabledHint>
       </DialogFooter>
     </>
   );

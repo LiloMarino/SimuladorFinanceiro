@@ -26,6 +26,7 @@ import { ActiveMark } from "./active-mark";
 import { SignalChart, type SavedSignalLine } from "./signal-chart";
 import { StrategyDataBlock } from "./strategy-data-block";
 import { StrategyParamsForm } from "@/shared/components/strategy-params-form";
+import { DisabledHint } from "@/shared/components/disabled-hint";
 
 type StrategyDetailProps = {
   strategy: StrategyInfo;
@@ -115,6 +116,15 @@ export function StrategyDetail({
     signalReady && signal.data.available_days < signal.data.needed_days
       ? `${watched} tem ${signal.data.available_days} dias de histórico nesta partida, e a estratégia pede ${signal.data.needed_days}.`
       : null;
+
+  // O motivo dos botões apagados: o que falta para salvar ou ligar a estratégia
+  const blockedReason = saving
+    ? null
+    : values === null || Object.keys(errors).length > 0
+      ? "Corrija os parâmetros marcados."
+      : active && !changed
+        ? "Mude algum parâmetro para salvar."
+        : null;
 
   return (
     <Card>
@@ -268,15 +278,19 @@ export function StrategyDetail({
                 ))}
               {active ? (
                 strategy.params.length > 0 && (
-                  <Button disabled={!valid || !changed || saving} onClick={() => values && onSave(values)}>
-                    Salvar parâmetros
-                  </Button>
+                  <DisabledHint reason={blockedReason}>
+                    <Button disabled={!valid || !changed || saving} onClick={() => values && onSave(values)}>
+                      Salvar parâmetros
+                    </Button>
+                  </DisabledHint>
                 )
               ) : (
-                <Button disabled={!valid || saving} onClick={() => values && onTurnOn(values)}>
-                  <Power />
-                  Ligar esta estratégia
-                </Button>
+                <DisabledHint reason={blockedReason}>
+                  <Button disabled={!valid || saving} onClick={() => values && onTurnOn(values)}>
+                    <Power />
+                    Ligar esta estratégia
+                  </Button>
+                </DisabledHint>
               )}
             </div>
           </div>

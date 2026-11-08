@@ -7,6 +7,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/compon
 import { Input } from "@/shared/components/ui/input";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { DisabledHint } from "@/shared/components/disabled-hint";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { ErrorState } from "@/shared/components/error-state";
@@ -119,6 +120,25 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
     ? `O caixa tem ${displayMoney(cash)}.`
     : `${displayMoney(amountNumber)} não paga ${minimumUnit} ${ticker} (${displayMoney(preview?.price ?? 0)}).`;
 
+  // O motivo do botão apagado: o primeiro que impede a ordem
+  const blockedReason = error
+    ? "Atualize a prévia antes de enviar."
+    : !requestMatches || !preview
+      ? "Conferindo a ordem…"
+      : !hasSize
+        ? byAmount
+          ? "Digite o valor da ordem."
+          : "Digite a quantidade."
+        : kind === "limit" && !limitPrice
+          ? "Digite o preço limite."
+          : invalidSize
+            ? byAmount
+              ? amountError
+              : quantityError
+            : !preview.price
+              ? "Não há preço de mercado agora."
+              : null;
+
   // Tudo gasta o caixa inteiro, em reais; as frações valem na unidade do modo ativo
   const fillShortcut = (share: number) => {
     if (!preview) return;
@@ -193,67 +213,79 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
               </ToggleGroup>
 
               {/* Quantidade ou valor */}
-              <Field data-invalid={invalidSize}>
-                <div className="flex min-h-6.5 items-center justify-between">
-                  <FieldLabel htmlFor="order-size">{byAmount ? "Valor" : "Quantidade"}</FieldLabel>
-                  {buyingAtMarket && (
-                    <ToggleGroup
-                      variant="segmented"
-                      size="xs"
-                      aria-label="Medir a ordem por"
-                      value={[mode]}
-                      onValueChange={(values) => values[0] && setMode(values[0] as SizeMode)}
-                    >
-                      <ToggleGroupItem value="quantity">Quantidade</ToggleGroupItem>
-                      <ToggleGroupItem value="amount">Valor</ToggleGroupItem>
-                    </ToggleGroup>
+              <form
+                id="order-form"
+                className="grid gap-4"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (canSubmit && !submit.isPending) sendOrder();
+                }}
+              >
+                <Field data-invalid={invalidSize}>
+                  <div className="flex min-h-6.5 items-center justify-between">
+                    <FieldLabel htmlFor="order-size">{byAmount ? "Valor" : "Quantidade"}</FieldLabel>
+                    {buyingAtMarket && (
+                      <ToggleGroup
+                        variant="segmented"
+                        size="xs"
+                        aria-label="Medir a ordem por"
+                        value={[mode]}
+                        onValueChange={(values) => values[0] && setMode(values[0] as SizeMode)}
+                      >
+                        <ToggleGroupItem value="quantity">Quantidade</ToggleGroupItem>
+                        <ToggleGroupItem value="amount">Valor</ToggleGroupItem>
+                      </ToggleGroup>
+                    )}
+                  </div>
+                  <div className="flex gap-1.5">
+                    <Input
+                      id="order-size"
+                      autoFocus
+                      numeric
+                      inputMode={byAmount || !fractional ? "numeric" : "decimal"}
+                      value={byAmount ? amountText : quantityText}
+                      aria-invalid={invalidSize}
+                      onChange={(e) =>
+                        byAmount
+                          ? setAmountText(formatMoney(e.target.value))
+                          : setQuantityText(formatQuantityInput(e.target.value, fractional))
+                      }
+                    />
+                    {SHORTCUTS.map((s) => (
+                      <Button key={s.label} type="button" variant="outline" onClick={() => fillShortcut(s.share)}>
+                        {buyingAtMarket && s.share === 1 ? "Tudo" : s.label}
+                      </Button>
+                    ))}
+                  </div>
+                  {invalidSize ? (
+                    <FieldError>{byAmount ? amountError : quantityError}</FieldError>
+                  ) : (
+                    <FieldDescription>{byAmount ? amountHint : quantityHint}</FieldDescription>
                   )}
-                </div>
-                <div className="flex gap-1.5">
-                  <Input
-                    id="order-size"
-                    numeric
-                    inputMode={byAmount || !fractional ? "numeric" : "decimal"}
-                    value={byAmount ? amountText : quantityText}
-                    aria-invalid={invalidSize}
-                    onChange={(e) =>
-                      byAmount
-                        ? setAmountText(formatMoney(e.target.value))
-                        : setQuantityText(formatQuantityInput(e.target.value, fractional))
-                    }
-                  />
-                  {SHORTCUTS.map((s) => (
-                    <Button key={s.label} variant="outline" onClick={() => fillShortcut(s.share)}>
-                      {buyingAtMarket && s.share === 1 ? "Tudo" : s.label}
-                    </Button>
-                  ))}
-                </div>
-                {invalidSize ? (
-                  <FieldError>{byAmount ? amountError : quantityError}</FieldError>
-                ) : (
-                  <FieldDescription>{byAmount ? amountHint : quantityHint}</FieldDescription>
-                )}
-              </Field>
-
-              {kind === "limit" && (
-                <Field>
-                  <FieldLabel htmlFor="order-limit">Preço limite</FieldLabel>
-                  <Input
-                    id="order-limit"
-                    numeric
-                    inputMode="decimal"
-                    value={limitText}
-                    onChange={(e) => setLimitText(e.target.value)}
-                    placeholder="0,00"
-                  />
-                  <FieldDescription>
-                    Só executa se alguém {selling ? "comprar" : "vender"} a{" "}
-                    <b className="font-mono text-foreground">{limitPrice ? displayMoney(limitPrice) : "esse preço"}</b>{" "}
-                    ou {selling ? "mais" : "menos"}. Hoje:{" "}
-                    <b className="font-mono text-foreground">{displayMoney(todayPrice)}</b>.
-                  </FieldDescription>
                 </Field>
-              )}
+
+                {kind === "limit" && (
+                  <Field>
+                    <FieldLabel htmlFor="order-limit">Preço limite</FieldLabel>
+                    <Input
+                      id="order-limit"
+                      numeric
+                      inputMode="decimal"
+                      value={limitText}
+                      onChange={(e) => setLimitText(e.target.value)}
+                      placeholder="0,00"
+                    />
+                    <FieldDescription>
+                      Só executa se alguém {selling ? "comprar" : "vender"} a{" "}
+                      <b className="font-mono text-foreground">
+                        {limitPrice ? displayMoney(limitPrice) : "esse preço"}
+                      </b>{" "}
+                      ou {selling ? "mais" : "menos"}. Hoje:{" "}
+                      <b className="font-mono text-foreground">{displayMoney(todayPrice)}</b>.
+                    </FieldDescription>
+                  </Field>
+                )}
+              </form>
 
               {error && (
                 <ErrorState
@@ -316,21 +348,24 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                 <TaxEstimate preview={preview} assetClass={assetClass} />
               )}
 
-              <Button
-                size="lg"
-                variant={selling ? "destructive" : "success"}
-                disabled={!canSubmit || submit.isPending}
-                onClick={sendOrder}
-              >
-                {submit.isPending && <Spinner />}
-                {selling ? "Vender" : "Comprar"}{" "}
-                {byAmount ? (amountNumber > 0 ? `${amountText} em ${ticker}` : ticker) : `${quantityText} ${ticker}`}
-                {!byAmount && preview?.price && quantityNumber > 0
-                  ? kind === "limit"
-                    ? ` a ${displayMoney(preview.price)}`
-                    : ` · ${displayMoney(preview.total)}`
-                  : ""}
-              </Button>
+              <DisabledHint reason={submit.isPending ? null : blockedReason} className="flex *:flex-1">
+                <Button
+                  type="submit"
+                  form="order-form"
+                  size="lg"
+                  variant={selling ? "destructive" : "success"}
+                  disabled={!canSubmit || submit.isPending}
+                >
+                  {submit.isPending && <Spinner />}
+                  {selling ? "Vender" : "Comprar"}{" "}
+                  {byAmount ? (amountNumber > 0 ? `${amountText} em ${ticker}` : ticker) : `${quantityText} ${ticker}`}
+                  {!byAmount && preview?.price && quantityNumber > 0
+                    ? kind === "limit"
+                      ? ` a ${displayMoney(preview.price)}`
+                      : ` · ${displayMoney(preview.total)}`
+                    : ""}
+                </Button>
+              </DisabledHint>
             </>
           )}
         </div>

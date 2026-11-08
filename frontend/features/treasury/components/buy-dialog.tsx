@@ -15,6 +15,8 @@ import {
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { DisabledHint } from "@/shared/components/disabled-hint";
+import { ShareShortcuts } from "@/shared/components/share-shortcuts";
 import { KeyValueRow } from "@/shared/components/key-value-row";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { useBuyFixedIncome } from "@/shared/hooks/mutations/useBuyFixedIncome";
@@ -22,18 +24,10 @@ import { useFixedIncomeProjection } from "@/shared/hooks/queries/useFixedIncomeP
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
+import { shareToField } from "@/shared/lib/utils/money-field";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { TreasuryTitle } from "@/types";
-import {
-  baseRateCaption,
-  displayDay,
-  displayMonthYear,
-  percentOf,
-  pointsOf,
-  shareOfMoney,
-  treasuryRateLabel,
-} from "../lib/treasury";
-import { ShareShortcuts } from "./share-shortcuts";
+import { baseRateCaption, displayDay, displayMonthYear, percentOf, pointsOf, treasuryRateLabel } from "../lib/treasury";
 
 type BuyDialogProps = {
   title: TreasuryTitle;
@@ -58,12 +52,20 @@ export function BuyDialog({ title, currentDate, onClose }: BuyDialogProps) {
   const overCash = quote !== undefined && amount > cash;
   const invalid = zero || overCash;
   const showError = touched && invalid;
+  // O motivo do botão apagado: o que falta para investir
+  const blockedReason = zero
+    ? "Digite quanto quer investir."
+    : overCash
+      ? `Você tem ${displayMoney(cash)} em caixa.`
+      : null;
 
   // As frações valem sobre o caixa; "Tudo" investe o caixa inteiro
   const fillShare = (share: number) => {
     setTouched(true);
-    setAmountText(formatMoney(shareOfMoney(cash, share)));
+    setAmountText(shareToField(cash, share));
   };
+
+  const canSubmit = !locked && !invalid && !buy.isPending;
 
   const submit = () =>
     buy.mutate(
@@ -90,32 +92,40 @@ export function BuyDialog({ title, currentDate, onClose }: BuyDialogProps) {
           {tradeLock && <TradeLockNotice lock={tradeLock} />}
 
           {/* Valor */}
-          <Field data-invalid={showError}>
-            <FieldLabel htmlFor="treasury-buy-amount">Quanto investir</FieldLabel>
-            <div className="flex gap-1.5">
-              <Input
-                id="treasury-buy-amount"
-                fieldSize="xl"
-                numeric
-                inputMode="decimal"
-                disabled={locked}
-                value={amountText}
-                aria-invalid={showError}
-                onChange={(event) => {
-                  setTouched(true);
-                  setAmountText(formatMoney(event.target.value));
-                }}
-              />
-              <ShareShortcuts disabled={locked || !quote} onPick={fillShare} />
-            </div>
-            {showError ? (
-              <FieldError>
-                {zero ? "Digite quanto quer investir." : `Você tem ${displayMoney(cash)} em caixa.`}
-              </FieldError>
-            ) : (
-              quote && <FieldDescription>Caixa: {displayMoney(cash)}</FieldDescription>
-            )}
-          </Field>
+          <form
+            id="treasury-buy-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (canSubmit) submit();
+            }}
+          >
+            <Field data-invalid={showError}>
+              <FieldLabel htmlFor="treasury-buy-amount">Quanto investir</FieldLabel>
+              <div className="flex gap-1.5">
+                <Input
+                  id="treasury-buy-amount"
+                  fieldSize="xl"
+                  numeric
+                  inputMode="decimal"
+                  disabled={locked}
+                  value={amountText}
+                  aria-invalid={showError}
+                  onChange={(event) => {
+                    setTouched(true);
+                    setAmountText(formatMoney(event.target.value));
+                  }}
+                />
+                <ShareShortcuts disabled={locked || !quote} onPick={fillShare} />
+              </div>
+              {showError ? (
+                <FieldError>
+                  {zero ? "Digite quanto quer investir." : `Você tem ${displayMoney(cash)} em caixa.`}
+                </FieldError>
+              ) : (
+                quote && <FieldDescription>Caixa: {displayMoney(cash)}</FieldDescription>
+              )}
+            </Field>
+          </form>
 
           {/* Taxa travada */}
           <div className="flex items-center justify-between gap-3 rounded-lg border border-border px-3.5 py-3">
@@ -175,10 +185,12 @@ export function BuyDialog({ title, currentDate, onClose }: BuyDialogProps) {
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button disabled={locked || invalid || buy.isPending} onClick={submit}>
-            {buy.isPending && <Spinner />}
-            {invalid ? "Investir" : `Investir ${displayMoney(amount)}`}
-          </Button>
+          <DisabledHint reason={locked ? null : blockedReason}>
+            <Button type="submit" form="treasury-buy-form" disabled={!canSubmit}>
+              {buy.isPending && <Spinner />}
+              {invalid ? "Investir" : `Investir ${displayMoney(amount)}`}
+            </Button>
+          </DisabledHint>
         </DialogFooter>
       </DialogContent>
     </Dialog>

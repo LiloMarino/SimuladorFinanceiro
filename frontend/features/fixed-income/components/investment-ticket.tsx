@@ -11,6 +11,7 @@ import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Progress } from "@/shared/components/ui/progress";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { DisabledHint } from "@/shared/components/disabled-hint";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import {
@@ -101,6 +102,9 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
   // Sem o teto, o atalho "Tudo" leva ao caixa; com ele, "Máx" leva ao que cabe
   const maxLabel = cap === null ? "Tudo" : "Máx";
 
+  const canSubmit = !locked && !zero && !overCash && !overCap && !invest.isPending;
+  const submit = () => invest.mutate({ quantity: normalizeNumberString(amountText) });
+
   return (
     <>
       {tradeLock && <TradeLockNotice lock={tradeLock} />}
@@ -109,22 +113,31 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
           <RareOfferCap cap={cap} applied={applied} room={room} offeredUntil={offer.offered_until} />
         )}
 
-        <Field data-invalid={invalid}>
-          <FieldLabel htmlFor="invest-amount">Quanto investir</FieldLabel>
-          <Input
-            id="invest-amount"
-            fieldSize="xl"
-            numeric
-            inputMode="decimal"
-            value={amountText}
-            aria-invalid={invalid}
-            onChange={(e) => {
-              setTouched(true);
-              onAmountChange(formatMoney(e.target.value));
-            }}
-          />
-          {invalid && <FieldError>{errorText}</FieldError>}
-        </Field>
+        <form
+          id="invest-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (canSubmit) submit();
+          }}
+        >
+          <Field data-invalid={invalid}>
+            <FieldLabel htmlFor="invest-amount">Quanto investir</FieldLabel>
+            <Input
+              id="invest-amount"
+              autoFocus
+              fieldSize="xl"
+              numeric
+              inputMode="decimal"
+              value={amountText}
+              aria-invalid={invalid}
+              onChange={(e) => {
+                setTouched(true);
+                onAmountChange(formatMoney(e.target.value));
+              }}
+            />
+            {invalid && <FieldError>{errorText}</FieldError>}
+          </Field>
+        </form>
 
         <div className="grid grid-cols-3 gap-1.5">
           {SHORTCUTS.map((s) => (
@@ -168,15 +181,12 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
           )}
         </dl>
 
-        <Button
-          size="lg"
-          variant="success"
-          disabled={locked || zero || overCash || overCap || invest.isPending}
-          onClick={() => invest.mutate({ quantity: normalizeNumberString(amountText) })}
-        >
-          {invest.isPending && <Spinner />}
-          {invest.isPending ? "Investindo…" : invalid && !zero ? "Investir" : `Investir ${displayMoney(amount)}`}
-        </Button>
+        <DisabledHint reason={canSubmit || locked || invest.isPending ? null : errorText} className="flex *:flex-1">
+          <Button type="submit" form="invest-form" size="lg" variant="success" disabled={!canSubmit}>
+            {invest.isPending && <Spinner />}
+            {invest.isPending ? "Investindo…" : invalid && !zero ? "Investir" : `Investir ${displayMoney(amount)}`}
+          </Button>
+        </DisabledHint>
       </div>
     </>
   );

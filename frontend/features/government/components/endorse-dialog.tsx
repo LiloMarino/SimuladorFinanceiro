@@ -16,6 +16,7 @@ import type { ElectionPanel, ElectionParty, RunoffRace } from "@/types";
 import { useEndorse } from "../hooks/mutations/useEndorse";
 import { followTotal } from "../lib/runoff";
 import { PartyMark, PersonMark } from "@/shared/components/party-mark";
+import { DisabledHint } from "@/shared/components/disabled-hint";
 
 type EndorseDialogProps = {
   open: boolean;
@@ -37,6 +38,9 @@ export function EndorseDialog({ open, onOpenChange, panel, race, party }: Endors
   const weights = new Map(panel.groups.map((group) => [group.group, group.weight]));
   const follow = transfer ? followTotal(transfer, weights) : 0;
   const chosen = finalists.find((candidate) => candidate.id === choice);
+
+  // O motivo do botão apagado: o que falta para declarar o apoio
+  const blockedReason = choice === undefined && !endorse.isPending ? "Escolha um finalista ou fique neutro." : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -89,14 +93,16 @@ export function EndorseDialog({ open, onOpenChange, panel, race, party }: Endors
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button
-            disabled={choice === undefined || endorse.isPending}
-            onClick={() =>
-              choice !== undefined && endorse.mutate({ party_id: choice }, { onSuccess: () => onOpenChange(false) })
-            }
-          >
-            {choice === null ? "Declarar neutralidade" : `Apoiar${chosen ? ` o ${chosen.abbr}` : ""}`}
-          </Button>
+          <DisabledHint reason={blockedReason}>
+            <Button
+              disabled={choice === undefined || endorse.isPending}
+              onClick={() =>
+                choice !== undefined && endorse.mutate({ party_id: choice }, { onSuccess: () => onOpenChange(false) })
+              }
+            >
+              {choice === null ? "Declarar neutralidade" : `Apoiar${chosen ? ` o ${chosen.abbr}` : ""}`}
+            </Button>
+          </DisabledHint>
         </DialogFooter>
       </DialogContent>
     </Dialog>

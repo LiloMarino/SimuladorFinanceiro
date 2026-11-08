@@ -17,6 +17,9 @@ import { useContributeRunoff } from "../hooks/mutations/useContributeRunoff";
 import { contributionAmount } from "@/shared/lib/contribution";
 import { monthlyYield } from "../lib/election";
 import { ContributionField } from "@/shared/components/contribution-field";
+import { DisabledHint } from "@/shared/components/disabled-hint";
+
+const FORM_ID = "runoff-contribution-form";
 
 type RunoffContributionDialogProps = {
   open: boolean;
@@ -46,6 +49,14 @@ export function RunoffContributionDialog({
     .reduce((sum, item) => sum + Number(item.amount), 0);
   const effect = monthlyYield(before + amount) - monthlyYield(before);
 
+  const canSubmit = amount > 0 && !overCash && !contribute.isPending;
+  // O motivo do botão apagado: o que falta para contribuir
+  const blockedReason =
+    amount <= 0 ? "Digite quanto quer contribuir." : overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null;
+
+  const submit = () =>
+    contribute.mutate({ amount: contributionAmount(text) }, { onSuccess: () => onOpenChange(false) });
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-110">
@@ -57,13 +68,22 @@ export function RunoffContributionDialog({
         </DialogHeader>
         <DialogBody>
           <div className="grid gap-3.5">
-            <ContributionField
-              id="runoff-contribution"
-              value={text}
-              onChange={setText}
-              error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}
-              note="Vira verba da campanha do partido no 2º turno e entra no ranking como gasto seu."
-            />
+            <form
+              id={FORM_ID}
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (canSubmit) submit();
+              }}
+            >
+              <ContributionField
+                id="runoff-contribution"
+                autoFocus
+                value={text}
+                onChange={setText}
+                error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}
+                note="Vira verba da campanha do partido no 2º turno e entra no ranking como gasto seu."
+              />
+            </form>
             {amount > 0 && (
               <dl className="grid divide-y rounded-lg border px-3 text-[13px]">
                 <div className="flex justify-between gap-3 py-1.5">
@@ -85,14 +105,11 @@ export function RunoffContributionDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button
-            disabled={amount <= 0 || overCash || contribute.isPending}
-            onClick={() =>
-              contribute.mutate({ amount: contributionAmount(text) }, { onSuccess: () => onOpenChange(false) })
-            }
-          >
-            Contribuir
-          </Button>
+          <DisabledHint reason={blockedReason}>
+            <Button type="submit" form={FORM_ID} disabled={!canSubmit}>
+              Contribuir
+            </Button>
+          </DisabledHint>
         </DialogFooter>
       </DialogContent>
     </Dialog>

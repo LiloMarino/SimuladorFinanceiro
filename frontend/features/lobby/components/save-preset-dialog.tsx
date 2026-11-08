@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Info } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
+import { DisabledHint } from "@/shared/components/disabled-hint";
 import {
   Dialog,
   DialogContent,
@@ -53,6 +54,10 @@ function SavePresetForm({ values, rules, onClose }: SavePresetFormProps) {
   });
   const { mutate: save, isPending: saving } = useSavePreset();
   const canSave = form.formState.isValid && !form.formState.errors.name && !saving;
+  // O motivo do botão apagado: o que falta para salvar o preset
+  const blockedReason = saving
+    ? null
+    : (form.formState.errors.name?.message ?? (canSave ? null : "Dê um nome para o preset."));
 
   const submit = form.handleSubmit(({ name }) => {
     save(
@@ -127,10 +132,12 @@ function SavePresetForm({ values, rules, onClose }: SavePresetFormProps) {
         <Button type="button" variant="outline" onClick={onClose}>
           Cancelar
         </Button>
-        <Button type="submit" disabled={!canSave}>
-          {saving && <Spinner />}
-          Salvar preset
-        </Button>
+        <DisabledHint reason={blockedReason}>
+          <Button type="submit" disabled={!canSave}>
+            {saving && <Spinner />}
+            Salvar preset
+          </Button>
+        </DisabledHint>
       </DialogFooter>
     </form>
   );

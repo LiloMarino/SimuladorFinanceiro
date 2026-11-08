@@ -13,17 +13,19 @@ import {
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { DisabledHint } from "@/shared/components/disabled-hint";
+import { ShareShortcuts } from "@/shared/components/share-shortcuts";
 import { KeyValueRow } from "@/shared/components/key-value-row";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
+import { shareToField } from "@/shared/lib/utils/money-field";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { TreasuryPosition, TreasurySaleQuote } from "@/types";
 import { useSellTreasury } from "../hooks/mutations/useSellTreasury";
 import { useTreasurySaleQuote } from "../hooks/queries/useTreasurySaleQuote";
-import { displayDay, displayGain, percentOf, shareOfMoney, termLabel, treasuryRateLabel } from "../lib/treasury";
-import { ShareShortcuts } from "./share-shortcuts";
+import { displayDay, displayGain, percentOf, termLabel, treasuryRateLabel } from "../lib/treasury";
 
 type SellDialogProps = {
   position: TreasuryPosition;
@@ -53,7 +55,7 @@ export function SellDialog({ position, currentDate, onClose }: SellDialogProps) 
   // `all` marca a posição inteira: o campo mostra o valor de mercado e o envio vai sem valor
   const [all, setAll] = useState(true);
   const [partText, setPartText] = useState(formatMoney("0"));
-  const amountText = all ? formatMoney(shareOfMoney(position.market_value, 1)) : partText;
+  const amountText = all ? shareToField(position.market_value, 1) : partText;
   const partString = normalizeNumberString(partText);
 
   // Vender tudo cota o valor de mercado inteiro da posição
@@ -69,13 +71,16 @@ export function SellDialog({ position, currentDate, onClose }: SellDialogProps) 
   // Sem valor digitado não há venda a cotar: o resumo fica em branco
   const quote = empty ? undefined : latestQuote;
   const invalid = tradeLock !== null || overMax || empty || !quote || quote.net_amount === null;
+  // O motivo do botão apagado: o que falta para vender
+  const blockedReason = empty ? "Digite quanto quer vender." : overMax ? `Você tem ${displayMoney(max)} nele.` : null;
+  const canSubmit = !invalid && !sell.isPending;
 
   const net = quote?.net_amount;
 
   // Tudo vende o título inteiro; as frações valem sobre o valor de mercado da posição
   const fillShare = (share: number) => {
     setAll(share === 1);
-    setPartText(formatMoney(shareOfMoney(position.market_value, share)));
+    setPartText(shareToField(position.market_value, share));
   };
 
   const submit = () =>
@@ -109,32 +114,40 @@ export function SellDialog({ position, currentDate, onClose }: SellDialogProps) 
           {tradeLock && <TradeLockNotice lock={tradeLock} />}
 
           {/* Quanto vender */}
-          <Field data-invalid={overMax}>
-            <FieldLabel htmlFor="treasury-sell-amount">Quanto vender</FieldLabel>
-            <div className="flex gap-1.5">
-              <Input
-                id="treasury-sell-amount"
-                fieldSize="xl"
-                numeric
-                inputMode="decimal"
-                aria-invalid={overMax}
-                value={amountText}
-                onChange={(event) => {
-                  setAll(false);
-                  setPartText(formatMoney(event.target.value));
-                }}
-              />
-              <ShareShortcuts disabled={tradeLock !== null} onPick={fillShare} />
-            </div>
-            {overMax ? (
-              <FieldError>Você tem {displayMoney(max)} nele.</FieldError>
-            ) : (
-              <FieldDescription>
-                Você tem {displayMoney(max)} nele.
-                {!all && quote?.remaining != null && ` Fica ${displayMoney(quote.remaining)}.`}
-              </FieldDescription>
-            )}
-          </Field>
+          <form
+            id="treasury-sell-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (canSubmit) submit();
+            }}
+          >
+            <Field data-invalid={overMax}>
+              <FieldLabel htmlFor="treasury-sell-amount">Quanto vender</FieldLabel>
+              <div className="flex gap-1.5">
+                <Input
+                  id="treasury-sell-amount"
+                  fieldSize="xl"
+                  numeric
+                  inputMode="decimal"
+                  aria-invalid={overMax}
+                  value={amountText}
+                  onChange={(event) => {
+                    setAll(false);
+                    setPartText(formatMoney(event.target.value));
+                  }}
+                />
+                <ShareShortcuts disabled={tradeLock !== null} onPick={fillShare} />
+              </div>
+              {overMax ? (
+                <FieldError>Você tem {displayMoney(max)} nele.</FieldError>
+              ) : (
+                <FieldDescription>
+                  Você tem {displayMoney(max)} nele.
+                  {!all && quote?.remaining != null && ` Fica ${displayMoney(quote.remaining)}.`}
+                </FieldDescription>
+              )}
+            </Field>
+          </form>
 
           {selic ? (
             <SelicSummary quote={quote} />
@@ -147,10 +160,12 @@ export function SellDialog({ position, currentDate, onClose }: SellDialogProps) 
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button variant="dark" disabled={invalid || sell.isPending} onClick={submit}>
-            {sell.isPending && <Spinner />}
-            {net ? `Vender por ${displayMoney(net)}` : "Vender"}
-          </Button>
+          <DisabledHint reason={blockedReason}>
+            <Button type="submit" form="treasury-sell-form" variant="dark" disabled={!canSubmit}>
+              {sell.isPending && <Spinner />}
+              {net ? `Vender por ${displayMoney(net)}` : "Vender"}
+            </Button>
+          </DisabledHint>
         </DialogFooter>
       </DialogContent>
     </Dialog>

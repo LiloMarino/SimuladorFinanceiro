@@ -17,6 +17,8 @@ import { contributionAmount, contributionText } from "@/shared/lib/contribution"
 import { ContributionField } from "@/shared/components/contribution-field";
 import { ContributionSplit } from "./contribution-split";
 
+const FORM_ID = "change-contribution-form";
+
 type ContributionDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -46,6 +48,15 @@ export function ContributionDialog({
   const monthly = Number(contributionAmount(text));
   const overCash = cash !== undefined && monthly > Number(cash);
 
+  const save = () =>
+    set.mutate(
+      {
+        contribution: contributionAmount(text),
+        congress: congressAmount(monthly, share, party.candidate !== null),
+      },
+      { onSuccess: () => onOpenChange(false) },
+    );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-110">
@@ -54,31 +65,29 @@ export function ContributionDialog({
           <DialogDescription>Vale a partir do próximo dia 1º; pode ser zero.{collectionNote}</DialogDescription>
         </DialogHeader>
         <DialogBody>
-          <ContributionField
-            id="change-contribution"
-            value={text}
-            onChange={setText}
-            error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}
-            note={`Hoje você contribui com ${displayMoney(current)} por mês.`}
-          />
+          <form
+            id={FORM_ID}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!set.isPending) save();
+            }}
+          >
+            <ContributionField
+              id="change-contribution"
+              autoFocus
+              value={text}
+              onChange={setText}
+              error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}
+              note={`Hoje você contribui com ${displayMoney(current)} por mês.`}
+            />
+          </form>
           <ContributionSplit share={share} onShare={setShare} monthly={monthly} runs={party.candidate !== null} />
         </DialogBody>
         <DialogFooter variant="divided" className="sm:justify-end">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button
-            disabled={set.isPending}
-            onClick={() =>
-              set.mutate(
-                {
-                  contribution: contributionAmount(text),
-                  congress: congressAmount(monthly, share, party.candidate !== null),
-                },
-                { onSuccess: () => onOpenChange(false) },
-              )
-            }
-          >
+          <Button type="submit" form={FORM_ID} disabled={set.isPending}>
             Salvar
           </Button>
         </DialogFooter>

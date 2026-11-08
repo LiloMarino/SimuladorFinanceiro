@@ -88,6 +88,7 @@ export function LoginPage() {
                     <Input
                       {...field}
                       id="nickname"
+                      autoFocus
                       fieldSize="lg"
                       autoComplete="off"
                       aria-invalid={fieldState.invalid}

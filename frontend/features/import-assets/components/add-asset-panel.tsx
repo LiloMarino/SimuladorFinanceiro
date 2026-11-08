@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
 import { Button } from "@/shared/components/ui/button";
+import { DisabledHint } from "@/shared/components/disabled-hint";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Field, FieldContent, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
@@ -63,6 +64,15 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
 
   const imported = importAsset.data?.coverage;
   const failedTicker = importAsset.variables?.ticker;
+
+  // O motivo do botão apagado: o que falta para importar
+  const blockedReason = importAsset.isPending
+    ? null
+    : source === "CSV" && !file
+      ? "Escolha o arquivo CSV."
+      : !request.ticker
+        ? "Digite o código do ativo."
+        : null;
 
   return (
     <Card>
@@ -181,10 +191,12 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
                 </Alert>
               )}
 
-              <Button disabled={!ready || importAsset.isPending} onClick={submit}>
-                {importAsset.isPending && <Spinner />}
-                {importAsset.isPending ? "Importando…" : importAsset.isError ? "Tentar de novo" : "Importar"}
-              </Button>
+              <DisabledHint reason={blockedReason}>
+                <Button disabled={!ready || importAsset.isPending} onClick={submit}>
+                  {importAsset.isPending && <Spinner />}
+                  {importAsset.isPending ? "Importando…" : importAsset.isError ? "Tentar de novo" : "Importar"}
+                </Button>
+              </DisabledHint>
             </>
           )}
         </div>

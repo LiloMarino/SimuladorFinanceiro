@@ -10,6 +10,7 @@ import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { DisabledHint } from "@/shared/components/disabled-hint";
 import { cn, normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import {
@@ -171,34 +172,53 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
 
   const notice = current && noticeFor(current, today);
 
+  const canSubmit = !locked && !!current && !redeem.isPending;
+  // O motivo do botão apagado: o que falta para resgatar
+  const blockedReason = zero
+    ? "Digite quanto quer receber."
+    : over
+      ? `Dá pra receber até ${displayMoney(max)} hoje.`
+      : error && !quote
+        ? "Não deu para calcular o resgate."
+        : "Calculando o resgate…";
+
   return (
     <>
       {tradeLock && <TradeLockNotice lock={tradeLock} />}
       <div inert={locked} className={cn("grid gap-4", locked && "opacity-55")}>
         {leftCatalogOn && <LeftCatalog date={leftCatalogOn} offer={offer} />}
 
-        <Field data-invalid={invalid}>
-          <FieldLabel htmlFor="redeem-amount">Quanto quer receber no caixa</FieldLabel>
-          <Input
-            id="redeem-amount"
-            fieldSize="xl"
-            numeric
-            inputMode="decimal"
-            value={amountText}
-            aria-invalid={invalid}
-            onChange={(e) => {
-              setTouched(true);
-              setAmountText(formatMoney(e.target.value));
-            }}
-          />
-          {invalid && (
-            <FieldError>
-              {zero
-                ? "Digite quanto quer receber."
-                : `Dá pra receber até ${displayMoney(max)} hoje, já descontado o IR. Use “Tudo” pra resgatar tudo.`}
-            </FieldError>
-          )}
-        </Field>
+        <form
+          id="redeem-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (canSubmit) submit();
+          }}
+        >
+          <Field data-invalid={invalid}>
+            <FieldLabel htmlFor="redeem-amount">Quanto quer receber no caixa</FieldLabel>
+            <Input
+              id="redeem-amount"
+              autoFocus
+              fieldSize="xl"
+              numeric
+              inputMode="decimal"
+              value={amountText}
+              aria-invalid={invalid}
+              onChange={(e) => {
+                setTouched(true);
+                setAmountText(formatMoney(e.target.value));
+              }}
+            />
+            {invalid && (
+              <FieldError>
+                {zero
+                  ? "Digite quanto quer receber."
+                  : `Dá pra receber até ${displayMoney(max)} hoje, já descontado o IR. Use “Tudo” pra resgatar tudo.`}
+              </FieldError>
+            )}
+          </Field>
+        </form>
 
         <div className="grid grid-cols-4 gap-1.5">
           {SHORTCUTS.map((s) => (
@@ -278,16 +298,18 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
 
         {leftCatalogOn && permanentCdbId && <PermanentCdbLink id={permanentCdbId} />}
 
-        <Button size="lg" variant="dark" disabled={locked || !current || redeem.isPending} onClick={submit}>
-          {redeem.isPending && <Spinner />}
-          {redeem.isPending
-            ? "Resgatando…"
-            : !current
-              ? "Resgatar"
-              : current.full
-                ? `Resgatar tudo · ${displayMoney(current.net_amount ?? 0)} no caixa`
-                : `Receber ${displayMoney(current.net_amount ?? 0)} no caixa`}
-        </Button>
+        <DisabledHint reason={canSubmit || locked || redeem.isPending ? null : blockedReason} className="flex *:flex-1">
+          <Button type="submit" form="redeem-form" size="lg" variant="dark" disabled={!canSubmit}>
+            {redeem.isPending && <Spinner />}
+            {redeem.isPending
+              ? "Resgatando…"
+              : !current
+                ? "Resgatar"
+                : current.full
+                  ? `Resgatar tudo · ${displayMoney(current.net_amount ?? 0)} no caixa`
+                  : `Receber ${displayMoney(current.net_amount ?? 0)} no caixa`}
+          </Button>
+        </DisabledHint>
       </div>
     </>
   );

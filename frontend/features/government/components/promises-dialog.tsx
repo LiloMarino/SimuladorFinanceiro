@@ -38,6 +38,7 @@ import { GROUP_INFO } from "../lib/voters";
 import { PromiseEditor } from "./promise-editor";
 import { SignedDecimal } from "./signed-decimal";
 import { GroupIcon, ValueChip } from "@/shared/components/value-chip";
+import { DisabledHint } from "@/shared/components/disabled-hint";
 
 type PromisesDialogProps = {
   open: boolean;
@@ -119,6 +120,19 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
   const previewOf = (draft: PromiseDraft) => data?.items.find((item) => promiseKey(item.promise) === promiseKey(draft));
   const changed = JSON.stringify(complete.map(toRequest)) !== JSON.stringify(initial.map(toRequest));
   const retreat = data?.totals.filter((row) => Number(row.retreat) > 0) ?? [];
+
+  // O motivo do botão apagado: o que falta para anunciar as promessas
+  const blockedReason = setPromises.isPending
+    ? null
+    : locked
+      ? panel.closed_reason
+      : hasIncomplete
+        ? "Defina o alvo de todas as promessas."
+        : preview.isError
+          ? "Não deu para calcular o que as promessas rendem."
+          : !changed
+            ? "Mude alguma promessa para anunciar."
+            : null;
 
   const update = (draft: PromiseDraft) =>
     setDrafts((list) => list.map((item, index) => (index === selected ? draft : item)));
@@ -318,12 +332,14 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
         <Button variant="outline" onClick={onClose}>
           Cancelar
         </Button>
-        <Button
-          disabled={locked || hasIncomplete || preview.isError || recalculating || !changed || setPromises.isPending}
-          onClick={() => request && setPromises.mutate(request, { onSuccess: onClose })}
-        >
-          {retreat.length > 0 ? "Anunciar e pagar o custo" : "Anunciar promessas"}
-        </Button>
+        <DisabledHint reason={blockedReason}>
+          <Button
+            disabled={locked || hasIncomplete || preview.isError || recalculating || !changed || setPromises.isPending}
+            onClick={() => request && setPromises.mutate(request, { onSuccess: onClose })}
+          >
+            {retreat.length > 0 ? "Anunciar e pagar o custo" : "Anunciar promessas"}
+          </Button>
+        </DisabledHint>
       </DialogFooter>
     </>
   );

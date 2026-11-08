@@ -21,6 +21,7 @@ import { contributionAmount } from "@/shared/lib/contribution";
 import { ContributionField } from "@/shared/components/contribution-field";
 import { ContributionSplit } from "./contribution-split";
 import { PartyMark } from "@/shared/components/party-mark";
+import { DisabledHint } from "@/shared/components/disabled-hint";
 
 type JoinPartyDialogProps = {
   open: boolean;
@@ -50,6 +51,9 @@ export function JoinPartyDialog({
   const party = parties.find((candidate) => candidate.id === partyId);
   const monthly = Number(contributionAmount(contribution));
   const overCash = cash !== undefined && monthly > Number(cash);
+
+  // O motivo do botão apagado: o que falta para filiar-se
+  const blockedReason = !party && !join.isPending ? "Escolha um partido." : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -122,20 +126,22 @@ export function JoinPartyDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button
-            disabled={!party || join.isPending}
-            onClick={() =>
-              join.mutate(
-                {
-                  contribution: contributionAmount(contribution),
-                  congress: congressAmount(monthly, share, party?.candidate !== null),
-                },
-                { onSuccess: () => onOpenChange(false) },
-              )
-            }
-          >
-            Filiar-se{party ? ` ao ${party.abbr}` : ""}
-          </Button>
+          <DisabledHint reason={blockedReason}>
+            <Button
+              disabled={!party || join.isPending}
+              onClick={() =>
+                join.mutate(
+                  {
+                    contribution: contributionAmount(contribution),
+                    congress: congressAmount(monthly, share, party?.candidate !== null),
+                  },
+                  { onSuccess: () => onOpenChange(false) },
+                )
+              }
+            >
+              Filiar-se{party ? ` ao ${party.abbr}` : ""}
+            </Button>
+          </DisabledHint>
         </DialogFooter>
       </DialogContent>
     </Dialog>
