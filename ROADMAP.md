@@ -102,7 +102,6 @@
 | [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | M28 · 4.6 | — | Alto | Bom | ⏳ |
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M26 · 4.1 | — | Alto | Bom | ⏳ |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
-| [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | M26 · 4.1 | — | Médio | Excelente | ⏳ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 | — | — | — | 🔍 |
 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | M26 · 4.1 | — | Alto | Bom | ⏳ |
@@ -116,7 +115,7 @@
 | [**F261**](#f261) | Feature | Profissão no viver de renda | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -140,6 +139,7 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176), [F254](#f254), [F261](#f261) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F253](#f253), [F255](#f255), [F256](#f256), [F257](#f257) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
+| [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | M26 · 4.1 | — | — | — | ✅ |
 | [**F250**](#f250) | Correção | Correções da 4.1 | M26 · 4.1 | — | — | — | ✅ |
 | [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | M26 · 4.1 | — | — | — | ✅ |
 
@@ -157,14 +157,14 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 2/13 concluídos
+> **Progresso:** 3/13 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F250**](#f250) | Correção | Correções da 4.1 | — | ✅ Concluído |
 | 2 | [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | — | ✅ Concluído |
 | 3 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | — | ⏳ Pendente |
-| 4 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | ⏳ Pendente |
+| 4 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | ✅ Concluído |
 | 5 | [**F254**](#f254) | Feature | Programas de governo com nome | — | ⏳ Pendente |
 | 6 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | — | ⏳ Pendente |
 | 7 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | — | 🔍 Em avaliação |
@@ -289,7 +289,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | M26 · 4.1 · 3º | 2 | Alto | Bom | ⏳ |
-| [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | M26 · 4.1 · 4º | 0 | Médio | Excelente | ⏳ |
 | [**F254**](#f254) | Feature | Programas de governo com nome | M26 · 4.1 · 5º | 0 | Médio | Bom | ⏳ |
 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | M26 · 4.1 · 6º | 0 | Baixo | Médio | ⏳ |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 · 7º | 0 | — | — | 🔍 |
@@ -352,7 +351,6 @@
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F226** | Feature | Mercado reage à surpresa: o Focus da partida | N34, N31, N41 | D20 | M26 · 4.1 | — | Alto | Médio | Alto | Bom |
-| **F232** | Correção | Crescimento que sente o rombo do governo | N34 | D20 | M26 · 4.1 | — | Médio | Médio | Alto | Excelente |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
 | **F253** | Melhoria | Impostos e cortes que fecham a conta do governo | N34, N41 | D20 | M26 · 4.1 | — | Alto | Médio | Alto | Bom |
 | **F254** | Feature | Programas de governo com nome | N34, N31 | D19 | M26 · 4.1 | — | Médio | Baixo | Médio | Bom |
@@ -460,19 +458,6 @@ A calibragem dos pesos usa o CLI da economia (`.claude/trabalho/economia/calibra
 4. **Na tela,** antes da reunião, o painel da SELIC mostra o que o mercado espera ("Focus: 13,25%"), com a dica do que é o Focus e de como a surpresa mexe na bolsa. O comunicado do Copom, que move a expectativa e cobra credibilidade, fica fora. Conversa com os rumores antecipados, que também falam do que vai acontecer.
 
 **Aceite:** sem governo, bolsa e prêmio saem iguais aos de antes da mudança; com o desvio mantido por um ano, o efeito acumulado na bolsa fica a menos de 10% do de hoje; um presidente que segue a regra move a bolsa antes da reunião e menos de um quarto do efeito no dia, e um que fica 2 pontos abaixo da regra leva o efeito inteiro desses 2 pontos no dia da reunião.
-
-<a id="f232"></a>
-**F232 — Crescimento que sente o rombo do governo.** Serve N34; condicionado por D20. Na calibragem de 10 anos, o presidente que dá reajuste real de 15% ao ano por 10 anos chega a um primário de −22,7% do PIB e mesmo assim cresce 8% ao ano, o teto do jogo (`MAX_GROWTH` em `backend/features/economy/growth.py`), em 78 de 120 meses, com o desemprego no piso de 4% em 81. O crescimento do jogo já é o real, descontada a inflação, então o número é implausível de fato. O impulso fiscal (`IMPULSE` em `backend/features/economy/links.py`) empurra o PIB a cada piora do primário, e nada do outro lado segura o crescimento. Pior: o presidente que gasta e segura a SELIC baixa gera inflação alta e juro real muito negativo, e o modelo lê o juro real negativo como estímulo, então a inflação alta empurra o PIB para cima.
-
-**Plano.** Duas ligações novas no alvo de crescimento (`GrowthAim`), cada uma sobre "partida menos história" (D20), uma linha própria no detalhe do PIB e uma entrada no `EconomyLink`, com a fonte na docs da economia:
-1. **Inflação acima do limiar tira crescimento.** O IPCA de 12 meses acima de 12% ao ano tira crescimento a cada ponto acima do limiar; abaixo dele, nada. Base: Khan e Senhadji (FMI, 2001) acharam que, em países emergentes, a inflação acima de 11 a 12% ao ano passa a reduzir o crescimento, porque a incerteza trava o investimento; Bruno e Easterly (1998) mostram a queda forte do crescimento nas crises acima de 40% ao ano, como a dos anos 1980 no Brasil.
-2. **O prêmio de risco encarece o crédito (efeito expulsão).** O prêmio acima da história tira crescimento mesmo com a SELIC baixa, porque o juro longo que as empresas pagam sobe com a desconfiança no governo, e elas investem menos. Foi o caminho do Brasil em 2002 e de 2014 a 2016.
-
-**Sai a faixa do crescimento da partida:** o teto de 8% e o piso de −6% deixam de valer para o desvio (`next_month`), e quem segura o crescimento passa a ser o freio, com cada número explicado por uma ligação. A faixa do modelo da história onde a série não cobre (`step_growth`) fica, porque ali nenhuma medida do governo age.
-
-**Calibragem** pelo CLI, com os cinco presidentes do roteiro em `.claude/trabalho/economia/calibrate10.py`, junto com a dos impostos e cortes (F253), que mexe na mesma conta.
-
-**Aceite:** na calibragem de 10 anos, o gastador que nunca para cresce abaixo da história na média dos anos 6 a 10 e entra em recessão quando o prêmio dispara; os outros quatro presidentes ficam a menos de 0,5 ponto do crescimento médio que já fecharam; nenhum mês de nenhum presidente passa de 15% ou de −15% ao ano.
 
 <a id="f249"></a>
 **F249 — Núcleo do backend sem import de features.** `core/` importa de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
@@ -699,8 +684,22 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
+| **F232** | Correção | Crescimento que sente o rombo do governo | N34 | D20 | M26 · 4.1 |
 | **F250** | Correção | Correções da 4.1 | N15, N34 | — | M26 · 4.1 |
 | **F252** | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | N15 | — | M26 · 4.1 |
+
+<a id="f232"></a>
+**F232 — Crescimento que sente o rombo do governo.** Serve N34; condicionado por D20. Na calibragem de 10 anos, o presidente que dá reajuste real de 15% ao ano por 10 anos chega a um primário de −22,7% do PIB e mesmo assim cresce 8% ao ano, o teto do jogo (`MAX_GROWTH` em `backend/features/economy/growth.py`), em 78 de 120 meses, com o desemprego no piso de 4% em 81. O crescimento do jogo já é o real, descontada a inflação, então o número é implausível de fato. O impulso fiscal (`IMPULSE` em `backend/features/economy/links.py`) empurra o PIB a cada piora do primário, e nada do outro lado segura o crescimento. Pior: o presidente que gasta e segura a SELIC baixa gera inflação alta e juro real muito negativo, e o modelo lê o juro real negativo como estímulo, então a inflação alta empurra o PIB para cima.
+
+**Plano.** Duas ligações novas no alvo de crescimento (`GrowthAim`), cada uma sobre "partida menos história" (D20), uma linha própria no detalhe do PIB e uma entrada no `EconomyLink`, com a fonte na docs da economia:
+1. **Inflação acima do limiar tira crescimento.** O IPCA de 12 meses acima de 12% ao ano tira crescimento a cada ponto acima do limiar; abaixo dele, nada. Base: Khan e Senhadji (FMI, 2001) acharam que, em países emergentes, a inflação acima de 11 a 12% ao ano passa a reduzir o crescimento, porque a incerteza trava o investimento; Bruno e Easterly (1998) mostram a queda forte do crescimento nas crises acima de 40% ao ano, como a dos anos 1980 no Brasil.
+2. **O prêmio de risco encarece o crédito (efeito expulsão).** O prêmio acima da história tira crescimento mesmo com a SELIC baixa, porque o juro longo que as empresas pagam sobe com a desconfiança no governo, e elas investem menos. Foi o caminho do Brasil em 2002 e de 2014 a 2016.
+
+**Sai a faixa do crescimento da partida:** o teto de 8% e o piso de −6% deixam de valer para o desvio (`next_month`), e quem segura o crescimento passa a ser o freio, com cada número explicado por uma ligação. Só sobra um piso de −15% ao ano (`COLLAPSE_GROWTH`), porque abaixo disso o ciclo dívida, prêmio e crescimento deixa de ser finito; para cima não há teto. Calibrado em 1,2 ponto por ponto de IPCA acima de 12% e 0,75 ponto por ponto de prêmio acima da história. A faixa do modelo da história onde a série não cobre (`step_growth`) fica, porque ali nenhuma medida do governo age.
+
+**Calibragem** pelo CLI, com os cinco presidentes do roteiro em `.claude/trabalho/economia/calibrate10.py`, junto com a dos impostos e cortes (F253), que mexe na mesma conta.
+
+**Aceite:** na calibragem de 10 anos, o gastador que nunca para cresce abaixo da história na média dos anos 6 a 10 e entra em recessão quando o prêmio dispara; os presidentes que não geram inflação acima de 12% (historiador, austero, austero com Banco Central autônomo) ficam a menos de 0,5 ponto do crescimento médio que já fecharam; nenhum mês de nenhum presidente passa de 15% ou de −15% ao ano. Quem gasta por 4 anos passa de 12% de IPCA e perde crescimento pelo freio, que é o efeito pedido.
 
 <a id="f250"></a>
 **F250 — Correções da 4.1.** Lote do playtest de 08/11. Serve N15 e N34.
