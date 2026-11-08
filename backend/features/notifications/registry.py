@@ -115,6 +115,14 @@ NEWS: tuple[NewsSpec, ...] = (
         fixed=True,
     ),
     NewsSpec(
+        NewsType.CAMPAIGN_OPENED,
+        NewsSection.POLITICS,
+        "Abertura da campanha",
+        "A janela abre no centro, com as datas da chapa e do 1º turno",
+        NewsLevel.WINDOW,
+        fixed=True,
+    ),
+    NewsSpec(
         NewsType.TERM_STARTED,
         NewsSection.POLITICS,
         "Posse",
@@ -132,7 +140,7 @@ NEWS: tuple[NewsSpec, ...] = (
         NewsType.ELECTION_CALENDAR,
         NewsSection.POLITICS,
         "Calendário da eleição",
-        "Campanha abre, chapas fecham, véspera do turno",
+        "Chapas fecham, chapas fechadas, véspera do turno",
         NewsLevel.JOURNAL,
     ),
     NewsSpec(

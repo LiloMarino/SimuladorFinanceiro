@@ -72,7 +72,7 @@ def _join(items: list[str]) -> str:
 
 def campaign_opened(first_round: date, ticket_deadline: date) -> Headline:
     return Headline(
-        NewsType.ELECTION_CALENDAR,
+        NewsType.CAMPAIGN_OPENED,
         f"Começa a campanha para a eleição de {_month_year(first_round)}",
         f"As chapas fecham em {_day_month(ticket_deadline)} e o 1º turno é em "
         f"{_day_month(first_round)}. Já dá para inscrever a chapa, fazer comício, evento "

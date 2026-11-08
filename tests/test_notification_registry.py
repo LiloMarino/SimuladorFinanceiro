@@ -24,7 +24,10 @@ def test_news_follow_the_section_order() -> None:
 def test_fixed_types_open_the_window() -> None:
     fixed = [spec for spec in registry.NEWS if spec.fixed]
 
-    assert [spec.type for spec in fixed] == [NewsType.ELECTION_RESULT]
+    assert [spec.type for spec in fixed] == [
+        NewsType.ELECTION_RESULT,
+        NewsType.CAMPAIGN_OPENED,
+    ]
     assert all(spec.default_level is NewsLevel.WINDOW for spec in fixed)
 
 

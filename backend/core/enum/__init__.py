@@ -927,6 +927,8 @@ class NewsType(Enum):
     """Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro."""
 
     ELECTION_CALENDAR = "ELECTION_CALENDAR"
+    # Abertura da campanha: a janela abre no centro da tela para todos
+    CAMPAIGN_OPENED = "CAMPAIGN_OPENED"
     # Resultado de turno e impeachment: a sala pausa e a janela abre para todos
     ELECTION_RESULT = "ELECTION_RESULT"
     TERM_STARTED = "TERM_STARTED"

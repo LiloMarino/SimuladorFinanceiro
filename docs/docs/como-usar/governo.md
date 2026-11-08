@@ -24,6 +24,8 @@ Quem governa pode concorrer a **uma reeleição**; depois de dois mandatos segui
 
 Os dois turnos **pausam a partida** quando o resultado sai: todos veem o diálogo do resultado e retomam pelo controle de velocidade no topo.
 
+A **abertura da campanha** também pausa a partida e aparece numa janela no centro da tela, que não dá para desligar nas notificações. As outras datas do calendário (chapas fecham, chapas fechadas, véspera do turno) são manchetes do Jornal e seguem o nível que você escolher.
+
 ## Partidos
 
 Só se concorre por partido, e o partido existe desde o 1º dia da partida:

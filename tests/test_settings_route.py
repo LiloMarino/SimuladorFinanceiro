@@ -216,8 +216,8 @@ def test_notification_types_list_the_registry_in_importance_order(
     catalog = client.get("/api/settings/notification-types").json()
 
     assert catalog["news"][0]["type"] == "COPOM_DECISION"
-    [fixed] = [n for n in catalog["news"] if n["fixed"]]
-    assert fixed["type"] == "ELECTION_RESULT"
+    fixed = {n["type"] for n in catalog["news"] if n["fixed"]}
+    assert fixed == {"ELECTION_RESULT", "CAMPAIGN_OPENED"}
     held_only = {n["type"] for n in catalog["news"] if n["portfolio_filter"]}
     assert held_only == {"STRONG_MOVE", "WEEK_HIGH"}
     assert [s["section"] for s in catalog["sections"]] == [

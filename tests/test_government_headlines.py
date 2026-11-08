@@ -214,3 +214,13 @@ def test_going_back_on_a_promise_names_what_was_given_up():
     assert none.text == "AAA retira as promessas de campanha"
     assert none.dek is not None and "Obras: 1% do PIB" in none.dek
     assert two.text == "AAA volta atrás em 2 promessas de campanha"
+
+
+def test_the_campaign_opening_has_its_own_window_type_and_the_rest_of_the_calendar_is_configurable():
+    opened = headlines.campaign_opened(date(2022, 10, 2), date(2022, 9, 30))
+    closing = headlines.tickets_closing(date(2022, 9, 30))
+    eve = headlines.election_eve(date(2022, 10, 2))
+
+    assert opened.news_type is NewsType.CAMPAIGN_OPENED
+    assert closing.news_type is NewsType.ELECTION_CALENDAR
+    assert eve.news_type is NewsType.ELECTION_CALENDAR
