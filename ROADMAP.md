@@ -104,7 +104,6 @@
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | M26 · 4.1 | — | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | 💤 |
-| [**F250**](#f250) | Correção | Correções da 4.1 | M26 · 4.1 | — | Médio | Excelente | ⏳ |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 | — | — | — | 🔍 |
 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | M26 · 4.1 | — | — | — | 🔍 |
 | [**F254**](#f254) | Feature | Programas de governo com nome | M26 · 4.1 | — | — | — | 🔍 |
@@ -113,7 +112,7 @@
 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -137,6 +136,7 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176), [F254](#f254) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F253](#f253), [F255](#f255), [F256](#f256), [F257](#f257) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
+| [**F250**](#f250) | Correção | Correções da 4.1 | M26 · 4.1 | — | — | — | ✅ |
 | [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
@@ -153,11 +153,11 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 1/13 concluídos
+> **Progresso:** 2/13 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [**F250**](#f250) | Correção | Correções da 4.1 | — | ⏳ Pendente |
+| 1 | [**F250**](#f250) | Correção | Correções da 4.1 | — | ✅ Concluído |
 | 2 | [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | — | ✅ Concluído |
 | 3 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | — | 🔍 Em avaliação |
 | 4 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | 🔍 Em avaliação |
@@ -274,7 +274,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F250**](#f250) | Correção | Correções da 4.1 | M26 · 4.1 · 1º | 0 | Médio | Excelente | ⏳ |
 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | M26 · 4.1 · 3º | 0 | — | — | 🔍 |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | M26 · 4.1 · 4º | 0 | — | — | 🔍 |
 | [**F254**](#f254) | Feature | Programas de governo com nome | M26 · 4.1 · 5º | 0 | — | — | 🔍 |
@@ -318,7 +317,6 @@
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
-| **F250** | Correção | Correções da 4.1 | N15, N34 | — | M26 · 4.1 | — | Médio | Baixo | Alto | Excelente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -355,16 +353,6 @@
 
 <a id="f225"></a>
 **F225 — Conceitos de economia real na docs e nomeados na tela.** Serve N41 e N25; condicionado por D21. **Para quem:** quem joga e quer entender por que a economia da partida reagiu como reagiu, e quem lê a docs sem jogar. **O que cobre:** uma página por conceito na categoria de explicação que a reorganização da docs cria: juro real e juro real neutro, curva IS, lei de Okun, curva de Phillips, princípio de Taylor e a reação do Banco Central, defasagem da política monetária, meta de inflação e tolerância, credibilidade e expectativas, prêmio de risco, dinâmica da dívida (r − g) e espiral da dívida, primário que estabiliza a dívida e dominância fiscal. Cada página diz o que o conceito mede, um exemplo numérico, o que é valor bom e ruim, a fonte (relatório do Banco Central, artigo ou livro-texto) e como o jogo o implementa, com a fórmula e os coeficientes: é o lugar único dos números do modelo (D21), e a seção de economia interligada de `docs/docs/como-usar/governo.md` passa a apontar para as páginas. Cada página fecha com o que o jogo simplifica em relação à economia real, e uma página própria reúne as simplificações do modelo inteiro: as defasagens comprimidas, os coeficientes fixos em todas as épocas, o Banco Central que reage só à inflação (e não ao hiato do PIB) e o câmbio representado pelo prêmio de risco enquanto o dólar não entra na partida. O conteúdo parte dos conceitos e das explicações do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) (`frontend/shared/concepts/concepts.tsx` e `frontend/features/explainers/`), adaptado ao que o jogo faz, e as fórmulas entram com KaTeX no Docusaurus (`remark-math` e `rehype-katex`). **Na tela:** onde um texto do jogo cita um conceito ("segue o princípio de Taylor"), o nome dele vem com o sublinhado pontilhado do app e o cursor de interrogação, o mesmo `HoverCardTrigger term` de `frontend/shared/components/ui/hover-card.tsx` que o nome do padrão de candle usa no desafio. Passar o mouse ou focar abre um cartão no molde de `pattern-hint.tsx`, com três blocos. Primeiro, o nome e uma frase do que o conceito é, sem fórmula. Depois, "Na partida agora": o conceito aplicado ao estado da partida, como "IPCA 6,2% contra meta de 3,0%: o Copom tende a subir a SELIC na próxima reunião". Por fim, o "Saiba mais" para a página da docs. Os dois primeiros funcionam sem rede, e só o link depende dela. **Mecanismo:** um componente `ConceptTerm` em `frontend/shared/components/` e um catálogo dos conceitos em `frontend/shared/lib/` (chave, nome, frase e caminho da página da docs). Cada tela que cita o conceito passa o trecho da partida que o cartão lê, já resolvido pela tela, e o "Na partida agora" é montado a partir desse trecho. No mesmo bloco de texto, só a primeira menção ao conceito leva o sublinhado. Um teste confere que o caminho de cada conceito do catálogo existe em `docs/docs/`. Os pontos de partida são o painel da Economia (cada parcela leva o nome do conceito), a decisão do Copom, o prêmio de risco do Tesouro e o card da dívida. **Onde mora:** `docs/docs/`, na categoria de explicação. **Gatilho:** depois da reorganização da docs.
-
-<a id="f250"></a>
-**F250 — Correções da 4.1.** Lote do playtest de 08/11. Serve N15 e N34.
-
-1. **Nome do jogador com limite.** O apelido não tem tamanho máximo em lugar nenhum (`backend/routes/auth.py:16`, `frontend/features/auth/pages/login.tsx:17`; a coluna `users.nickname` é `Text`), e um apelido gigante quebrou os diálogos da partida. Entra o limite de 20 caracteres no DTO e no formulário do login. Na mesma varredura, o nome do bot (30 no front e sem limite no backend, `routes/simulation.py:198`), o nome da partida e o do backtest (sem limite nos dois lados) ganham o mesmo limite no DTO e no formulário, e a sigla do partido aceita o mesmo tamanho nos dois lados (o front aceita de 2 a 8 letras e o DTO recusa acima de 5, `core/dto/government.py:44`). Os diálogos que mostram o apelido inteiro cortam com reticências e mostram o nome completo numa dica: `lobby-player-menu.tsx:52`, `expel-dialog.tsx:30`, `danger-zone-card.tsx:60` e `frozen-portfolio-card.tsx:38`. Os apelidos longos das partidas salvas continuam valendo e aparecem cortados; confere-se abrindo uma partida salva com o apelido longo.
-2. **"Ver como tabela" do Mapa e tabela da Economia.** No Mapa, o link (`map-view.tsx:80`) rola até a tabela de lugares, e com pouca página para rolar o clique parece não fazer nada: sai o link, e a tabela de lugares fica no fim da página. Na Economia sai a tabela que abre e fecha (`economy-table.tsx`, usada só em `economy.tsx:55`), porque os gráficos já mostram os números.
-3. **Card da aprovação sem o mapa.** O mini mapa de `approval-regions.tsx` abre um vão grande no card da aprovação (`approval-card.tsx`). Sai o mapa, e ficam o gráfico e um botão "Ver no mapa", que abre o Mapa na lente de aprovação (`mapLink("approval", "region")` de `lib/map-url.ts`, que o Mapa já lê da URL).
-4. **Sai o aviso "Novo: indicadores técnicos".** O aviso (`stock-chart/index.tsx:338`) aparece sempre que nenhum indicador está ligado e não tem botão de dispensar. Ele depende do estado, e não de um "já visto": volta toda vez que o jogador desliga o último indicador, e em toda conta nova. Os indicadores já não são novidade, então o aviso sai, e o botão de indicadores do gráfico continua.
-5. **Abertura da campanha na janela central do Jornal.** O resultado de turno e o "vão ao 2º turno" saem na janela central, porque o tipo resultado de eleição tem o nível janela fixo (`features/notifications/registry.py:108`). A manchete da abertura da campanha é do tipo calendário eleitoral, que sai como cartão por padrão (`registry.py:130`, `government/headlines.py:73`). Ela passa a sair na janela central, com o nível fixo como o do resultado de turno, e o diálogo de campanha aberta que pausa a partida continua. A janela do Jornal e o diálogo da pausa aparecem um depois do outro, sem se cobrir.
-6. **Triagem pendente: orientar a bancada num governo do computador.** No playtest, a orientação da bancada não pegou num governo do bot, e a votação saiu com a orientação padrão. Pelo código, quem fundou um partido com cadeira orienta qualquer medida da fila, quem quer que governe (`government_book.py:872`), até a véspera da votação, que cai no último dia útil do mês (`congress.next_vote_date`). O controle só aparece dentro do diálogo da votação (`vote-dialog.tsx:108`) e some na véspera (`house_panel.py:172`). Suspeitas: em velocidade alta o mês passa antes de o jogador abrir o diálogo; a federação tem outro partido como líder da orientação; ou a medida do bot entra na fila e é votada no mesmo mês. O primeiro passo é reproduzir pelo CLI, com um governo do computador e uma bancada do jogador. Se a causa for a janela curta, o conserto pede desenho (avisar ou pausar quando a medida entra na fila) e vira card próprio.
 
 ---
 
@@ -604,7 +592,18 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
+| **F250** | Correção | Correções da 4.1 | N15, N34 | — | M26 · 4.1 |
 | **F252** | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | N15 | — | M26 · 4.1 |
+
+<a id="f250"></a>
+**F250 — Correções da 4.1.** Lote do playtest de 08/11. Serve N15 e N34.
+
+1. **Nome do jogador com limite.** O apelido não tem tamanho máximo em lugar nenhum (`backend/routes/auth.py:16`, `frontend/features/auth/pages/login.tsx:17`; a coluna `users.nickname` é `Text`), e um apelido gigante quebrou os diálogos da partida. Entra o limite de 20 caracteres no DTO e no formulário do login. Na mesma varredura, o nome do bot (30 no front e sem limite no backend, `routes/simulation.py:198`), o nome da partida e o do backtest (sem limite nos dois lados) ganham o mesmo limite no DTO e no formulário, e a sigla do partido aceita o mesmo tamanho nos dois lados (o front aceita de 2 a 8 letras e o DTO recusa acima de 5, `core/dto/government.py:44`). Os diálogos que mostram o apelido inteiro cortam com reticências e mostram o nome completo numa dica: `lobby-player-menu.tsx:52`, `expel-dialog.tsx:30`, `danger-zone-card.tsx:60` e `frozen-portfolio-card.tsx:38`. Os apelidos longos das partidas salvas continuam valendo e aparecem cortados; confere-se abrindo uma partida salva com o apelido longo.
+2. **"Ver como tabela" do Mapa e tabela da Economia.** No Mapa, o link (`map-view.tsx:80`) rola até a tabela de lugares, e com pouca página para rolar o clique parece não fazer nada: sai o link, e a tabela de lugares fica no fim da página. Na Economia sai a tabela que abre e fecha (`economy-table.tsx`, usada só em `economy.tsx:55`), porque os gráficos já mostram os números.
+3. **Card da aprovação sem o mapa.** O mini mapa de `approval-regions.tsx` abre um vão grande no card da aprovação (`approval-card.tsx`). Sai o mapa, e ficam o gráfico e um botão "Ver no mapa", que abre o Mapa na lente de aprovação (`mapLink("approval", "region")` de `lib/map-url.ts`, que o Mapa já lê da URL).
+4. **Sai o aviso "Novo: indicadores técnicos".** O aviso (`stock-chart/index.tsx:338`) aparece sempre que nenhum indicador está ligado e não tem botão de dispensar. Ele depende do estado, e não de um "já visto": volta toda vez que o jogador desliga o último indicador, e em toda conta nova. Os indicadores já não são novidade, então o aviso sai, e o botão de indicadores do gráfico continua.
+5. **Abertura da campanha na janela central do Jornal.** O resultado de turno e o "vão ao 2º turno" saem na janela central, porque o tipo resultado de eleição tem o nível janela fixo (`features/notifications/registry.py:108`). A manchete da abertura da campanha é do tipo calendário eleitoral, que sai como cartão por padrão (`registry.py:130`, `government/headlines.py:73`). Ela passa a sair na janela central, com o nível fixo como o do resultado de turno, e o diálogo de campanha aberta que pausa a partida continua. A janela do Jornal e o diálogo da pausa aparecem um depois do outro, sem se cobrir.
+6. **Triagem: orientar a bancada num governo do computador.** O backend respeita a orientação do líder da bancada num governo do computador (teste em `tests/test_congress.py`). O relato de que a orientação Sim por padrão não podia ser recusada tem três causas de desenho, sem bug de código: o acordo de apoio força Sim e o Não só pega depois de "Orientar Não e romper"; o controle aparece mesmo quando a federação tem outro partido como líder e o clique volta 403; e em velocidade alta o mês passa antes de a medida ser orientada, porque a janela vai até a véspera, o último dia útil do mês.
 
 <a id="f252"></a>
 **F252 — Atalhos de valor no Tesouro e varredura de qualidade de vida.** Atalhos de 25%, 50% e Tudo na compra e na venda do Tesouro (a venda perdeu o seletor e ganhou o campo sempre visível). Varredura: Enter confirma, foco no primeiro campo e motivo do botão desabilitado (dica ao passar o mouse) nas telas de valor e de ação; atalhos de valor no pagamento antecipado do crédito.
