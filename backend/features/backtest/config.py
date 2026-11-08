@@ -10,6 +10,7 @@ from backend.core.dto.backtest import (
     BacktestParticipantDTO,
     BacktestSetupDTO,
 )
+from backend.core.dto.base import NAME_MAX_LENGTH
 from backend.core.dto.series_coverage import SeriesKind
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.enum import BacktestPriceImpact, GameType, IndicatorSeries
@@ -159,7 +160,8 @@ def config_of(simulation_id: int) -> BacktestConfigDTO:
         for bot, config in sorted(saved_bots(simulation_id), key=lambda b: b[0].id)
     ]
     return BacktestConfigDTO(
-        name=summary.name,
+        # Backtests salvos antes do limite podem ter nome maior; a cópia nasce com o nome cabendo
+        name=summary.name[:NAME_MAX_LENGTH],
         start_date=summary.start_date,
         end_date=summary.end_date,
         starting_cash=summary.starting_cash,
@@ -184,7 +186,8 @@ def unique_name(base: str) -> str:
     name, n = base, 1
     while name in taken:
         n += 1
-        name = f"{base} ({n})"
+        suffix = f" ({n})"
+        name = f"{base[: NAME_MAX_LENGTH - len(suffix)]}{suffix}"
     return name
 
 

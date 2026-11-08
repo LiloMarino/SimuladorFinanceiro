@@ -2,6 +2,7 @@ import { Dices } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { NAME_MAX_LENGTH } from "@/shared/lib/name-limit";
 
 type BotNameFieldProps = {
   id: string;
@@ -24,6 +25,7 @@ export function BotNameField({ id, value, onChange, onBlur, onDraw, error, help 
           id={id}
           value={value}
           autoComplete="off"
+          maxLength={NAME_MAX_LENGTH}
           aria-invalid={!!error}
           onChange={(event) => onChange(event.target.value)}
           onBlur={onBlur}

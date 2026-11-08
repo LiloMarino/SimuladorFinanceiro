@@ -43,7 +43,7 @@ PartyName = Annotated[
 ]
 PartyAbbr = Annotated[
     str,
-    StringConstraints(strip_whitespace=True, to_upper=True, min_length=2, max_length=5),
+    StringConstraints(strip_whitespace=True, to_upper=True, min_length=2, max_length=8),
 ]
 Contribution = Annotated[Decimal, Field(ge=0, max_digits=14, decimal_places=2)]
 

@@ -10,6 +10,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/compon
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { NAME_MAX_LENGTH, NAME_TOO_LONG } from "@/shared/lib/name-limit";
 import { LoginShowcase } from "../components/login-showcase";
 import { useClaimUser } from "../hooks/mutations/useClaimUser";
 import { useRegisterUser } from "../hooks/mutations/useRegisterUser";
@@ -19,6 +20,7 @@ const nicknameSchema = z.object({
     .string()
     .trim()
     .min(1, "Escolha um nome para entrar.")
+    .max(NAME_MAX_LENGTH, NAME_TOO_LONG)
     .regex(/^[^#]+$/, "Tire o # do nome: ele é reservado para identificar a partida."),
 });
 
@@ -88,6 +90,7 @@ export function LoginPage() {
                     <Input
                       {...field}
                       id="nickname"
+                      maxLength={NAME_MAX_LENGTH}
                       autoFocus
                       fieldSize="lg"
                       autoComplete="off"

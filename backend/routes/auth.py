@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 from backend.core import repository
 from backend.core.dependencies import ClientID
+from backend.core.dto.base import NAME_MAX_LENGTH
 from backend.core.dto.session import SessionDTO
 from backend.core.dto.user import UserDTO
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
@@ -15,7 +16,7 @@ auth_router = APIRouter(prefix="/api", tags=["Authentication"])
 
 class UserRegisterRequest(BaseModel):
     # "#" separa jogador e simulação nos rótulos da comparação ("Nick#Simulação")
-    nickname: str = Field(min_length=1, pattern=r"^[^#]+$")
+    nickname: str = Field(min_length=1, max_length=NAME_MAX_LENGTH, pattern=r"^[^#]+$")
 
 
 class UserClaimRequest(BaseModel):

@@ -34,3 +34,14 @@ describe("isDrawnName", () => {
     expect(isDrawnName("Meu bot", strategy)).toBe(false);
   });
 });
+
+describe("nome numerado dentro do limite", () => {
+  const long = { name: "Cruzamento de médias 50/200", bot_names: [] } as unknown as StrategyInfo;
+
+  it("corta o nome da estratégia para caber em 20 caracteres", () => {
+    const drawn = drawBotName(long, []);
+    expect(drawn).toBe("Cruzamento de méd #2");
+    expect(drawn.length).toBeLessThanOrEqual(20);
+    expect(isDrawnName(drawn, long)).toBe(true);
+  });
+});

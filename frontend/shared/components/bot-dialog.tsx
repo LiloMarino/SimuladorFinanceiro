@@ -19,13 +19,13 @@ import { useBotStrategies } from "@/shared/hooks/queries/useBotStrategies";
 import { useBotTickers } from "@/shared/hooks/queries/useBotTickers";
 import type { BotFormValues, TakenSlot } from "@/shared/lib/bot-form";
 import { drawBotName, isDrawnName, nameTaken } from "@/shared/lib/bot-names";
+import { NAME_MAX_LENGTH, NAME_TOO_LONG } from "@/shared/lib/name-limit";
 import { GROUP_SECTION } from "@/shared/lib/strategy-groups";
 import { defaultValues, draftErrors, fromDraft, toDraft, type ParamValues } from "@/shared/lib/strategy-params";
 import { cn } from "@/shared/lib/utils";
 import type { StrategyGroup, StrategyInfo } from "@/types";
 
 const GROUPS: StrategyGroup[] = ["reference", "tactic"];
-const BOT_NAME_MAX = 30;
 
 /** O que o diálogo entrega ao confirmar: os campos do formulário e os parâmetros já como números. */
 export type BotSubmit = BotFormValues & { params: ParamValues };
@@ -162,7 +162,7 @@ function BotForm({
       .string()
       .trim()
       .min(1, "Dê um nome ao bot.")
-      .max(BOT_NAME_MAX, `Use até ${BOT_NAME_MAX} letras.`)
+      .max(NAME_MAX_LENGTH, NAME_TOO_LONG)
       .refine((name) => !nameTaken(name, takenNames), nameTakenMessage),
     strategyKey: z.string(),
     color: z.string(),

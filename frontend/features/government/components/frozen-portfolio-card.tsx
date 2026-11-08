@@ -3,6 +3,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/aler
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Kpi } from "@/shared/components/kpi";
 import { StackedBar } from "@/shared/components/stacked-bar";
+import { TruncatedText } from "@/shared/components/truncated-text";
 import { displayDayMonth, displayMoneyWhole, displayShortDate } from "@/shared/lib/utils/display";
 import type { GovernmentPanel } from "@/types";
 import { shareLabel } from "../lib/government";
@@ -35,7 +36,13 @@ export function FrozenPortfolioCard({ panel }: FrozenPortfolioCardProps) {
       <CardContent>
         <div className="grid min-w-0 content-start gap-3.5">
           <h2 className="text-[15px] font-semibold">
-            {panel.is_president ? "Sua carteira congelada" : `Carteira congelada de ${portfolio.nickname}`}
+            {panel.is_president ? (
+              "Sua carteira congelada"
+            ) : (
+              <>
+                Carteira congelada de <TruncatedText inline>{portfolio.nickname}</TruncatedText>
+              </>
+            )}
           </h2>
 
           <div className="grid grid-cols-2 gap-4">
@@ -75,7 +82,13 @@ export function FrozenPortfolioCard({ panel }: FrozenPortfolioCardProps) {
               <TriangleAlert />
               <AlertTitle>
                 {interest.sector} é {shareLabel(interest.share)} da{" "}
-                {panel.is_president ? "sua carteira" : `carteira de ${portfolio.nickname}`}
+                {panel.is_president ? (
+                  "sua carteira"
+                ) : (
+                  <>
+                    carteira de <TruncatedText inline>{portfolio.nickname}</TruncatedText>
+                  </>
+                )}
               </AlertTitle>
               <AlertDescription>
                 {interest.vote_date

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { editValues, type BotFormValues } from "@/shared/lib/bot-form";
 import { nameTaken } from "@/shared/lib/bot-names";
+import { NAME_MAX_LENGTH, NAME_TOO_LONG } from "@/shared/lib/name-limit";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { dateFieldError, isIsoDate, toIso } from "@/shared/lib/utils/date-field";
 import { displayIsoDate, parseLocalDate } from "@/shared/lib/utils/display";
@@ -17,7 +18,6 @@ import { MIN_TRADING_DAYS, weekdaysBetween } from "./period";
 
 /** O teto é o das vagas da sala. */
 export const MAX_PARTICIPANTS = 10;
-const BOT_NAME_MAX = 30;
 
 export type BacktestFormValues = {
   name: string;
@@ -100,7 +100,7 @@ const dateField = (emptyMessage: string) =>
 export function backtestSchema(coverage: BacktestCoverage, strategies: StrategyInfo[]) {
   return z
     .object({
-      name: z.string().trim().min(1, "Dê um nome ao backtest."),
+      name: z.string().trim().min(1, "Dê um nome ao backtest.").max(NAME_MAX_LENGTH, NAME_TOO_LONG),
       startDate: dateField("Escolha a data de início"),
       endDate: dateField("Escolha a data de fim"),
       startingCash: z
@@ -150,11 +150,11 @@ export function backtestSchema(coverage: BacktestCoverage, strategies: StrategyI
       data.participants.forEach((participant, index) => {
         const name = participant.nickname.trim();
         const others = data.participants.filter((_, other) => other !== index);
-        if (!name || name.length > BOT_NAME_MAX)
+        if (!name || name.length > NAME_MAX_LENGTH)
           ctx.addIssue({
             code: "custom",
             path: ["participants", index, "nickname"],
-            message: name ? `Use até ${BOT_NAME_MAX} letras.` : "Dê um nome à estratégia.",
+            message: name ? NAME_TOO_LONG : "Dê um nome à estratégia.",
           });
         else if (
           nameTaken(

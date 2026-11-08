@@ -1,5 +1,8 @@
 from pydantic import BaseModel, ConfigDict
 
+# Tamanho máximo de apelido, nome de bot, nome de partida e nome de backtest
+NAME_MAX_LENGTH = 20
+
 
 class BaseDTO(BaseModel):
     model_config = ConfigDict(

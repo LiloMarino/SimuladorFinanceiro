@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from backend import config
 from backend.core import repository
 from backend.core.dependencies import ClientID, HostVerified
+from backend.core.dto.base import NAME_MAX_LENGTH
 from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.goal import GoalProgressDTO
 from backend.core.dto.life import LifeHistoryPageDTO, LifeStatusDTO
@@ -73,7 +74,7 @@ simulation_router = APIRouter(prefix="/api/simulation", tags=["Simulation"])
 
 
 class SimulationRulesRequest(BaseModel):
-    name: str
+    name: str = Field(min_length=1, max_length=NAME_MAX_LENGTH)
     start_date: date
     end_date: date
     starting_cash: Decimal = Field(gt=0)
@@ -197,7 +198,7 @@ class PlayerNickname(BaseModel):
 
 class RoomBotRequest(BaseModel):
     # Nome do bot na sala; ao configurar, o novo nome (o atual vai na rota)
-    nickname: str
+    nickname: str = Field(min_length=1, max_length=NAME_MAX_LENGTH)
     strategy_key: str
     # Os parâmetros que faltarem ficam no padrão do catálogo
     params: dict[str, StrategyParamValue] = Field(default_factory=dict)

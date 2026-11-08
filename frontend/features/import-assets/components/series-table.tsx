@@ -30,7 +30,7 @@ import { ClassifyRow } from "./classify-row";
 import { CorrectedDaysHint } from "./corrected-days-hint";
 import { CoverageBar } from "./coverage-bar";
 import { DeleteStockButton } from "./delete-stock-button";
-import { TruncatedText } from "./truncated-text";
+import { TruncatedText } from "@/shared/components/truncated-text";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";

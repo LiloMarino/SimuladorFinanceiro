@@ -2,6 +2,7 @@ import { Controller, type UseFormReturn } from "react-hook-form";
 import { PeriodPicker } from "@/shared/components/period-picker";
 import { Field, FieldError, FieldLabel, FieldLegend, FieldSet } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { NAME_MAX_LENGTH } from "@/shared/lib/name-limit";
 import { formatMoney } from "@/shared/lib/utils/format";
 import type { CoverageCheck } from "../../lib/coverage";
 import type { SimulationFormValues } from "../../lib/simulation-form";
@@ -26,7 +27,7 @@ export function BasicsFields({ form, readOnly, coverageCheck, startDate, gameTyp
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
             <FieldLabel htmlFor="rules-name">Nome</FieldLabel>
-            <Input {...field} id="rules-name" aria-invalid={fieldState.invalid} />
+            <Input {...field} id="rules-name" maxLength={NAME_MAX_LENGTH} aria-invalid={fieldState.invalid} />
             <FieldError errors={[fieldState.error]} />
           </Field>
         )}

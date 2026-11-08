@@ -8,6 +8,7 @@ import {
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
 import { Button } from "@/shared/components/ui/button";
+import { TruncatedText } from "@/shared/components/truncated-text";
 import type { ElectionParty } from "@/types";
 import { useExpelMember } from "../hooks/mutations/useExpelMember";
 
@@ -27,7 +28,7 @@ export function ExpelDialog({ nickname, onClose, party }: ExpelDialogProps) {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Expulsar {nickname} do {party.abbr}?
+            Expulsar <TruncatedText inline>{nickname}</TruncatedText> do {party.abbr}?
           </AlertDialogTitle>
           <AlertDialogDescription>
             A expulsão é pública: a sala vê o aviso. Se {nickname} era candidato ou vice, a vaga abre e a chapa concorre

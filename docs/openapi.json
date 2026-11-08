@@ -11650,6 +11650,7 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 20,
             "minLength": 1,
             "title": "Name"
           },
@@ -11718,6 +11719,7 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 20,
             "minLength": 1,
             "title": "Name"
           },
@@ -15363,6 +15365,8 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
             "title": "Name"
           },
           "start_date": {
@@ -18589,7 +18593,7 @@
           },
           "abbr": {
             "type": "string",
-            "maxLength": 5,
+            "maxLength": 8,
             "minLength": 2,
             "title": "Abbr"
           },
@@ -23336,6 +23340,7 @@
         "type": "string",
         "enum": [
           "ELECTION_CALENDAR",
+          "CAMPAIGN_OPENED",
           "ELECTION_RESULT",
           "TERM_STARTED",
           "MEASURE_PROPOSED",
@@ -24341,7 +24346,7 @@
           },
           "abbr": {
             "type": "string",
-            "maxLength": 5,
+            "maxLength": 8,
             "minLength": 2,
             "title": "Abbr"
           },
@@ -28331,6 +28336,8 @@
         "properties": {
           "nickname": {
             "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
             "title": "Nickname"
           },
           "strategy_key": {
@@ -30153,6 +30160,8 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
             "title": "Name"
           },
           "start_date": {
@@ -34241,6 +34250,8 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
             "title": "Name"
           },
           "start_date": {
@@ -34483,6 +34494,7 @@
         "properties": {
           "nickname": {
             "type": "string",
+            "maxLength": 20,
             "minLength": 1,
             "pattern": "^[^#]+$",
             "title": "Nickname"

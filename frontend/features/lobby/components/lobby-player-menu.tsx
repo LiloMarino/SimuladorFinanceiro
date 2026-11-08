@@ -10,6 +10,7 @@ import {
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
 import { Button } from "@/shared/components/ui/button";
+import { TruncatedText } from "@/shared/components/truncated-text";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,7 +50,9 @@ export function LobbyPlayerMenu({ player }: LobbyPlayerMenuProps) {
       <AlertDialog open={confirming} onOpenChange={setConfirming}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remover {player.nickname} da sala?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Remover <TruncatedText inline>{player.nickname}</TruncatedText> da sala?
+            </AlertDialogTitle>
             <AlertDialogDescription>
               Sai da sala agora, com o aviso de que o host a removeu, e a vaga e a cor ficam livres. A conta continua:
               quem entrar de novo com o apelido ocupa uma vaga outra vez.

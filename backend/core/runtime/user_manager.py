@@ -9,6 +9,7 @@ from uuid import UUID, uuid4
 
 from backend.config import toml as app_toml
 from backend.core import repository
+from backend.core.dto.base import NAME_MAX_LENGTH
 from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.strategy import StrategyParamValue
 from backend.core.dto.user import UserDTO
@@ -39,7 +40,6 @@ ROOM_RESERVED = (
     "Peça pro host escolher outra partida ou espere essas pessoas voltarem."
 )
 BOT_NAME_TAKEN = "Já tem um jogador com esse nome na sala. Sorteie outro ou mude."
-BOT_NAME_MAX = 30
 
 
 @dataclass(frozen=True)
@@ -949,9 +949,13 @@ class UserManager:
     @classmethod
     def bot_nickname(cls, nickname: str) -> str:
         nickname = nickname.strip()
-        if not nickname or len(nickname) > BOT_NAME_MAX or {"#", "/"} & set(nickname):
+        if (
+            not nickname
+            or len(nickname) > NAME_MAX_LENGTH
+            or {"#", "/"} & set(nickname)
+        ):
             raise UnprocessableEntityError(
-                f"O nome do bot precisa ter de 1 a {BOT_NAME_MAX} caracteres, sem # nem /."
+                f"O nome do bot precisa ter de 1 a {NAME_MAX_LENGTH} caracteres, sem # nem /."
             )
         return nickname
 

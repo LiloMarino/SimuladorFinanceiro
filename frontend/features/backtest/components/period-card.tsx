@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+import { NAME_MAX_LENGTH } from "@/shared/lib/name-limit";
 import { cn } from "@/shared/lib/utils";
 import { isIsoDate } from "@/shared/lib/utils/date-field";
 import { displayMonthSlashYear } from "@/shared/lib/utils/display";
@@ -45,7 +46,13 @@ export function PeriodCard({ form, coverage, layout }: PeriodCardProps) {
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid} className="min-w-0">
           <FieldLabel htmlFor="backtest-name">Nome</FieldLabel>
-          <Input {...field} id="backtest-name" autoComplete="off" aria-invalid={fieldState.invalid} />
+          <Input
+            {...field}
+            id="backtest-name"
+            maxLength={NAME_MAX_LENGTH}
+            autoComplete="off"
+            aria-invalid={fieldState.invalid}
+          />
           <FieldError errors={[fieldState.error]} />
         </Field>
       )}

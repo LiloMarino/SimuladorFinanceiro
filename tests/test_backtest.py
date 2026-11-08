@@ -59,7 +59,7 @@ def participant(nickname: str, color: str, key: str = "buy_and_hold"):
 
 def config(**changes: object) -> BacktestConfigDTO:
     base = {
-        "name": "Médias contra o mercado",
+        "name": "Médias x mercado",
         "start_date": START,
         "end_date": END,
         "starting_cash": Decimal(10000),
@@ -393,7 +393,7 @@ def test_setup_reopens_the_latest_backtest_with_a_free_name(events):
 
     again = backtest_config.setup(None)
     assert again.config is not None
-    assert again.config.name == "Médias contra o mercado (2)"
+    assert again.config.name == "Médias x mercado (2)"
     assert backtest_config.setup(simulation_id).config == again.config
 
 

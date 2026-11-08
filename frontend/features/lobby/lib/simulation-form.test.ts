@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { SimulationSettingsData } from "@/types";
-import { toFormValues, toSettingsBody } from "./simulation-form";
+import { NAME_MAX_LENGTH } from "@/shared/lib/name-limit";
+import { simulationFormSchema, toFormValues, toSettingsBody } from "./simulation-form";
 
 // Regras como a API devolve: dinheiro com duas casas e a taxa com quatro
 const settings: SimulationSettingsData = {
@@ -58,5 +59,17 @@ describe("regras da partida ↔ formulário do lobby", () => {
     const body = toSettingsBody(values);
     expect(body.starting_cash).toBe("1234.56");
     expect(body.monthly_contribution).toBe("0.00");
+  });
+});
+
+describe("nome da partida", () => {
+  const nameIssue = (name: string) =>
+    simulationFormSchema
+      .safeParse({ ...toFormValues(settings), name })
+      .error?.issues.find((issue) => issue.path[0] === "name");
+
+  it("aceita até o limite e recusa um caractere a mais", () => {
+    expect(nameIssue("a".repeat(NAME_MAX_LENGTH))).toBeUndefined();
+    expect(nameIssue("a".repeat(NAME_MAX_LENGTH + 1))?.message).toBe(`Use até ${NAME_MAX_LENGTH} caracteres.`);
   });
 });

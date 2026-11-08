@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { UNEXPECTED_OPTIONS, withdrawalRateToField } from "@/shared/lib/financial-independence";
 import { GAME_TYPES } from "@/shared/lib/game-types";
+import { NAME_MAX_LENGTH, NAME_TOO_LONG } from "@/shared/lib/name-limit";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { dateFieldError, isIsoDate } from "@/shared/lib/utils/date-field";
 import { displayDecimal, displayMoneyWhole } from "@/shared/lib/utils/display";
@@ -39,7 +40,7 @@ const dateField = (emptyMessage: string) =>
 
 export const simulationFormSchema = z
   .object({
-    name: z.string().min(1, "Dê um nome para a partida"),
+    name: z.string().min(1, "Dê um nome para a partida").max(NAME_MAX_LENGTH, NAME_TOO_LONG),
     startDate: dateField("Escolha a data de início"),
     endDate: dateField("Escolha a data de fim"),
     startingCash: z

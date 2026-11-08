@@ -13,6 +13,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { TruncatedText } from "@/shared/components/truncated-text";
 import { useAuth } from "@/shared/hooks/useAuth";
 import type ApiError from "@/shared/lib/models/ApiError";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
@@ -57,7 +58,9 @@ export function DangerZoneCard({ nickname }: { nickname: string }) {
       <AlertDialog open={confirming} onOpenChange={open}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir a conta {nickname}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Excluir a conta <TruncatedText inline>{nickname}</TruncatedText>?
+            </AlertDialogTitle>
             <AlertDialogDescription>
               Seu nickname e seu histórico somem de todas as partidas. Isso não pode ser desfeito.
             </AlertDialogDescription>

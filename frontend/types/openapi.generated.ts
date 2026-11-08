@@ -8245,7 +8245,7 @@ export interface components {
          * @description Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro.
          * @enum {string}
          */
-        NewsType: "ELECTION_CALENDAR" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN" | "COPOM_DECISION" | "MONTHLY_INFLATION" | "IBOVESPA_EXTREME" | "STRONG_MOVE" | "WEEK_HIGH" | "HISTORICAL_MILESTONE";
+        NewsType: "ELECTION_CALENDAR" | "CAMPAIGN_OPENED" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN" | "COPOM_DECISION" | "MONTHLY_INFLATION" | "IBOVESPA_EXTREME" | "STRONG_MOVE" | "WEEK_HIGH" | "HISTORICAL_MILESTONE";
         /** NewsTypeInfo */
         NewsTypeInfo: {
             type: components["schemas"]["NewsType"];

@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from pydantic import Field, model_validator
 
-from backend.core.dto.base import BaseDTO
+from backend.core.dto.base import NAME_MAX_LENGTH, BaseDTO
 from backend.core.dto.strategy import StrategyParamValue
 from backend.core.enum import BacktestPriceImpact
 from backend.core.player_colors import MAX_PLAYERS
@@ -22,7 +22,7 @@ class BacktestParticipantDTO(BaseDTO):
 class BacktestConfigDTO(BaseDTO):
     """Tudo o que o host escolhe para um backtest: o período, o dinheiro e as estratégias."""
 
-    name: str = Field(min_length=1)
+    name: str = Field(min_length=1, max_length=NAME_MAX_LENGTH)
     start_date: date
     end_date: date
     starting_cash: Decimal = Field(gt=0)
