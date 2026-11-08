@@ -27,7 +27,7 @@ import { useRefreshOutdatedStocks } from "../hooks/mutations/useRefreshOutdatedS
 import { useRefreshSeries } from "../hooks/mutations/useRefreshSeries";
 import { timelineRange, timelineTicks } from "../lib/timeline";
 import { ClassifyRow } from "./classify-row";
-import { CorrectedDaysBadge } from "./corrected-days-badge";
+import { CorrectedDaysHint } from "./corrected-days-hint";
 import { CoverageBar } from "./coverage-bar";
 import { DeleteStockButton } from "./delete-stock-button";
 import { TruncatedText } from "./truncated-text";
@@ -43,7 +43,7 @@ const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
   CRYPTO: "Cripto",
 };
 
-const COLUMNS = 5;
+const COLUMNS = 6;
 
 // O que cada série da economia do país mede, na dica ao lado do nome
 const MACRO_HINTS: Record<string, MetricInfo> = { GDP_GROWTH: GROWTH, UNEMPLOYMENT: UNEMPLOYMENT };
@@ -73,6 +73,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
   const attentionCount = series.filter(needsAttention).length;
   const sorting = useTableSort(filter === "ATTENTION" ? series.filter(needsAttention) : series, {
     series: (s) => s.key,
+    assetClass: (s) => (s.asset_class ? ASSET_CLASS_LABELS[s.asset_class] : null),
     sector: (s) => (s.segment ? `${s.segment.sector} · ${s.segment.segment}` : null),
     end: (s) => s.real_end,
     status: (s) =>
@@ -128,9 +129,10 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
 
       <Table className="table-fixed">
         <TableHeader>
-          <TableRow>
-            <SortableTableHead label="Série" {...sorting.header("series")} className="w-[24%]" />
-            <SortableTableHead label="Setor · segmento" {...sorting.header("sector")} className="w-[18%]" />
+          <TableRow className="*:align-top">
+            <SortableTableHead label="Série" {...sorting.header("series")} className="w-[18%]" />
+            <SortableTableHead label="Classe" {...sorting.header("assetClass")} className="w-24" />
+            <SortableTableHead label="Setor · segmento" {...sorting.header("sector")} className="w-[16%]" />
             <SortableTableHead label="Dados reais até" {...sorting.header("end")}>
               {/* Eixo comum da linha do tempo */}
               <div className="relative h-4">
@@ -147,7 +149,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
               </div>
             </SortableTableHead>
             <SortableTableHead label="Situação" {...sorting.header("status")} className="w-44" />
-            <TableHead className="w-44">
+            <TableHead className="w-40">
               <span className="sr-only">Ações</span>
             </TableHead>
           </TableRow>
@@ -185,29 +187,35 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                             )}
                           </div>
                           {hint && <MetricHint metric={hint} />}
-                          <CorrectedDaysBadge days={item.corrected_days} />
-                          {item.asset_class && (
-                            <Select
-                              items={ASSET_CLASS_LABELS}
-                              value={item.asset_class}
-                              disabled={assetClass.isPending}
-                              onValueChange={(value) =>
-                                assetClass.mutate({ ticker: item.key, value: value as AssetClass })
-                              }
-                            >
-                              <SelectTrigger size="sm" aria-label={`Classe de ${item.key}`}>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.entries(ASSET_CLASS_LABELS).map(([value, label]) => (
-                                  <SelectItem key={value} value={value}>
-                                    {label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
+                          <CorrectedDaysHint days={item.corrected_days} />
                         </div>
+                      </TableCell>
+
+                      {/* Classe */}
+                      <TableCell>
+                        {item.asset_class ? (
+                          <Select
+                            items={ASSET_CLASS_LABELS}
+                            value={item.asset_class}
+                            disabled={assetClass.isPending}
+                            onValueChange={(value) =>
+                              assetClass.mutate({ ticker: item.key, value: value as AssetClass })
+                            }
+                          >
+                            <SelectTrigger size="sm" aria-label={`Classe de ${item.key}`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(ASSET_CLASS_LABELS).map(([value, label]) => (
+                                <SelectItem key={value} value={value}>
+                                  {label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <span className="text-faint-foreground">—</span>
+                        )}
                       </TableCell>
 
                       {/* Setor · segmento */}
@@ -261,7 +269,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                       </TableCell>
 
                       <TableCell>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center justify-end gap-1">
                           {/* Só a linha desatualizada pede a ação por extenso */}
                           {stale ? (
                             <Button variant="outline" size="sm" disabled={busy} onClick={() => refreshOne.mutate(item)}>
