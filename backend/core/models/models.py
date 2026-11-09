@@ -104,6 +104,7 @@ class EconomicIndicatorHistory(Base):
             "IBOV",
             "GDP_GROWTH",
             "UNEMPLOYMENT",
+            "PTAX",
             name="indicator_series",
         ),
         primary_key=True,
@@ -131,6 +132,7 @@ class FetchLog(Base):
             "IBOV",
             "GDP_GROWTH",
             "UNEMPLOYMENT",
+            "PTAX",
             name="indicator_series",
         ),
         primary_key=True,
@@ -312,6 +314,12 @@ class Stock(Base):
     name: Mapped[str] = mapped_column(Text, nullable=False)
     asset_class: Mapped[str] = mapped_column(
         Enum("STOCK", "FII", "ETF", "BDR", "CRYPTO", name="asset_class"), nullable=False
+    )
+    # Moeda em que a fonte cota o ativo; o preço guardado é sempre em real
+    currency: Mapped[str] = mapped_column(
+        Enum("BRL", "USD", name="currency"),
+        nullable=False,
+        server_default=text("'BRL'"),
     )
     segment_id: Mapped[int | None] = mapped_column(Integer)
 

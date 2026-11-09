@@ -76,7 +76,7 @@ def fetch_failed(series: list[IndicatorSeries]) -> BadGatewayError:
     "/indicators",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Atualizar todos os indicadores",
-    description="Busca CDI, SELIC e IPCA no Banco Central e o Ibovespa no yfinance, a partir do último valor guardado.",
+    description="Busca CDI, SELIC, IPCA e PTAX no Banco Central e o Ibovespa no yfinance, a partir do último valor guardado.",
 )
 def refresh_all_indicators():
     if failed := refresh_indicators(force=True):

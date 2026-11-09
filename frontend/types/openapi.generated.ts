@@ -719,7 +719,7 @@ export interface paths {
         put?: never;
         /**
          * Atualizar todos os indicadores
-         * @description Busca CDI, SELIC e IPCA no Banco Central e o Ibovespa no yfinance, a partir do último valor guardado.
+         * @description Busca CDI, SELIC, IPCA e PTAX no Banco Central e o Ibovespa no yfinance, a partir do último valor guardado.
          */
         post: operations["refresh_all_indicators_api_import_assets_indicators_post"];
         delete?: never;
@@ -7268,7 +7268,7 @@ export interface components {
          * IndicatorSeries
          * @enum {string}
          */
-        IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV" | "GDP_GROWTH" | "UNEMPLOYMENT";
+        IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV" | "GDP_GROWTH" | "UNEMPLOYMENT" | "PTAX";
         /**
          * IndicatorSeriesDTO
          * @description Só os pedidos vêm preenchidos; cada série começa no primeiro pregão com valor.

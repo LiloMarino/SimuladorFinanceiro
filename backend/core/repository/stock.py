@@ -15,7 +15,7 @@ from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
 from backend.core.dto.ticker_profile import TickerProfileDTO
-from backend.core.enum import AssetClass, DataOrigin
+from backend.core.enum import AssetClass, Currency, DataOrigin
 from backend.core.models.models import (
     EventEquity,
     Sectors,
@@ -41,12 +41,35 @@ from backend.core.repository.series_version import (
 class StockRepository:
     @transactional
     def add_stock(
-        self, session: Session, ticker: str, name: str, asset_class: AssetClass
+        self,
+        session: Session,
+        ticker: str,
+        name: str,
+        asset_class: AssetClass,
+        currency: Currency = Currency.BRL,
     ) -> StockDTO:
-        stock = Stock(ticker=ticker, name=name, asset_class=asset_class.value)
+        stock = Stock(
+            ticker=ticker,
+            name=name,
+            asset_class=asset_class.value,
+            currency=currency.value,
+        )
         session.add(stock)
         session.flush()
         return StockDTO.from_model(stock)
+
+    @transactional
+    def get_currency(self, session: Session, ticker: str) -> Currency | None:
+        value = session.execute(
+            select(Stock.currency).where(Stock.ticker == ticker)
+        ).scalar_one_or_none()
+        return Currency(value) if value else None
+
+    @transactional
+    def set_currency(self, session: Session, stock_id: int, currency: Currency) -> None:
+        session.execute(
+            update(Stock).where(Stock.id == stock_id).values(currency=currency.value)
+        )
 
     @transactional
     def save_real_prices(

@@ -304,7 +304,11 @@ class EconomyLayer:
                 return Decimal(str(round(annual_to_daily(annual), 6)))
             case IndicatorSeries.IBOV:
                 return Decimal(str(round(float(value) * self.level(day), 2)))
-            case IndicatorSeries.GDP_GROWTH | IndicatorSeries.UNEMPLOYMENT:
+            case (
+                IndicatorSeries.GDP_GROWTH
+                | IndicatorSeries.UNEMPLOYMENT
+                | IndicatorSeries.PTAX
+            ):
                 return value
 
     def stock_factor(self, ticker: str, day: date) -> float:

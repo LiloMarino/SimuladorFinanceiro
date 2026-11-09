@@ -33,7 +33,7 @@ A tela tem duas partes: o painel **Adicionar ativo** (explicado em [Métodos de 
 
 ### Séries da base
 
-A tabela lista todas as séries guardadas no banco: primeiro os indicadores econômicos (CDI, SELIC, IPCA e Ibovespa), depois a economia do país (crescimento do PIB e desemprego) e por fim cada ativo importado. O filtro **Todas** / **Precisam de atenção** deixa só as séries que pedem uma olhada (sem dado real, desatualizadas ou sem classificação). Em cada linha:
+A tabela lista todas as séries guardadas no banco: primeiro os indicadores econômicos (CDI, SELIC, IPCA, Ibovespa e PTAX), depois a economia do país (crescimento do PIB e desemprego) e por fim cada ativo importado. O filtro **Todas** / **Precisam de atenção** deixa só as séries que pedem uma olhada (sem dado real, desatualizadas ou sem classificação). Em cada linha:
 
 - **Série**: nome do indicador ou do ticker.
 - **Setor · segmento**: a classificação da ação (ver abaixo). Indicadores mostram "—".
@@ -57,6 +57,8 @@ Cada ação pertence a um **setor** (ex.: Financeiro) e, dentro dele, a um **seg
 - **IPCA**: inflação oficial, medida por mês. Ex.: um IPCA de 0,5% no mês significa que os preços subiram 0,5% naquele mês.
 - **Ibovespa**: índice que acompanha o desempenho das ações mais negociadas da B3, a bolsa brasileira. Ex.: de 100.000 para 101.000 pontos é uma alta de 1%.
 
+- **PTAX**: a cotação oficial do dólar em reais, publicada pelo Banco Central por dia útil, desde 1º de julho de 1994 (o nascimento do real). Ex.: PTAX de 5,50 quer dizer que US$ 1 custa R$ 5,50. Ela converte para real o preço dos ativos cotados em dólar (veja [Yahoo Finance](#1-yahoo-finance-yfinance)) e não tem futuro gerado.
+
 A economia do país aparece num grupo próprio:
 
 - **Crescimento do PIB**: quanto o país produziu a mais nos últimos 4 trimestres, contra os 4 trimestres anteriores, já descontada a inflação. Um valor por trimestre, desde o fim de 1997. Ex.: 2% quer dizer que a economia produziu 2% a mais do que no ano anterior; 2020 marca −3,3% (a pandemia) e 2021, +4,8%. Perto de 2% é o ritmo normal do Brasil; abaixo de zero é recessão.
@@ -64,7 +66,7 @@ A economia do país aparece num grupo próprio:
 
 Na partida, essas duas séries são a história do crescimento e do desemprego: a página **Economia** parte delas e soma o que o governo muda (veja [A economia interligada](./governo.md#a-economia-interligada)). Onde não há dado real (o PIB antes de 1997, o desemprego antes de 2012 e as duas depois do último dado), a partida segue o modelo do jogo, que anda com o juro real e a bolsa. Elas não limitam o período da partida, não entram no aviso de "dado acaba antes do fim" do lobby e não ganham futuro gerado.
 
-**Fontes:** CDI, SELIC e IPCA vêm do Banco Central, pelo sistema SGS (Sistema Gerenciador de Séries Temporais), nas séries 12 (CDI diário), 11 (SELIC diária) e 433 (IPCA mensal). O Ibovespa vem do Yahoo Finance (ticker `^BVSP`). O crescimento do PIB e o desemprego são do IBGE e chegam pelo mesmo SGS, que os republica: o PIB sai do índice do PIB real trimestral (série 22099, sem ajuste sazonal), somando os 4 últimos trimestres contra os 4 anteriores, e o desemprego é a taxa de desocupação da PNAD Contínua (série 24369).
+**Fontes:** CDI, SELIC, IPCA e PTAX vêm do Banco Central, pelo sistema SGS (Sistema Gerenciador de Séries Temporais), nas séries 12 (CDI diário), 11 (SELIC diária), 433 (IPCA mensal) e 1 (PTAX, o dólar comercial de venda). O Ibovespa vem do Yahoo Finance (ticker `^BVSP`). O crescimento do PIB e o desemprego são do IBGE e chegam pelo mesmo SGS, que os republica: o PIB sai do índice do PIB real trimestral (série 22099, sem ajuste sazonal), somando os 4 últimos trimestres contra os 4 anteriores, e o desemprego é a taxa de desocupação da PNAD Contínua (série 24369).
 
 ### Gerar dados futuros
 
@@ -147,7 +149,9 @@ O simulador pode buscar dados diretamente do **Yahoo Finance** usando a bibliote
 - FIIs: `XPML11`, `HGLG11`, `MXRF11`
 - ETFs: `BOVA11` (Ibovespa), `SMAL11` (Small Caps)
 
-O campo sugere os códigos da B3 enquanto você digita. O simulador guarda o código da B3 sem o sufixo `.SA` do Yahoo Finance e o acrescenta sozinho ao buscar; se você digitar `PETR4.SA`, ele vira `PETR4`. Cripto e ativos de outras bolsas (`BTC-USD`, `AAPL`) seguem como o Yahoo Finance os conhece; uma criptomoeda entra com a classe **Cripto**, a única negociada em fração de unidade.
+O campo sugere os códigos da B3 enquanto você digita. O simulador guarda o código da B3 sem o sufixo `.SA` do Yahoo Finance e o acrescenta sozinho ao buscar; se você digitar `PETR4.SA`, ele vira `PETR4`. Cripto e ativos de outras bolsas (`BTC-USD`, `AAPL`) seguem o código do Yahoo Finance; uma criptomoeda entra com a classe **Cripto**, a única negociada em fração de unidade.
+
+O ativo cotado em dólar (`AAPL`, `MSFT`, `BTC-USD`) entra na base já convertido para real: o preço e o dividendo de cada dia são multiplicados pela [PTAX](#indicadores-econômicos) daquele dia, e fim de semana e feriado usam a última PTAX publicada. Ex.: uma ação a US$ 200 num dia de PTAX 5,50 entra a R$ 1.100,00. Os pregões anteriores a julho de 1994 ficam de fora, porque a PTAX começa ali. Ativo cotado em outra moeda (`VOD.L`, em libras) é recusado, com o motivo. Ao atualizar um ativo que já estava na base em real, o histórico inteiro é refeito com a conversão.
 
 :::warning Limitações do Yahoo Finance
 A importação via Yahoo Finance depende da **API externa** deles, que pode ter:

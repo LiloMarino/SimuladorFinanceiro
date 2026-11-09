@@ -155,6 +155,11 @@ QUANTITY_SIGN: dict[EquityEventType, int] = {
 }
 
 
+class Currency(Enum):
+    BRL = "BRL"
+    USD = "USD"
+
+
 class AssetClass(Enum):
     STOCK = "STOCK"
     FII = "FII"
@@ -382,6 +387,8 @@ class IndicatorSeries(Enum):
     # Crescimento real do PIB em 4 trimestres e taxa de desemprego, ambos em %
     GDP_GROWTH = "GDP_GROWTH"
     UNEMPLOYMENT = "UNEMPLOYMENT"
+    # Dólar comercial (venda) em reais, que converte o preço dos ativos cotados em dólar
+    PTAX = "PTAX"
 
     @property
     def is_macro(self) -> bool:

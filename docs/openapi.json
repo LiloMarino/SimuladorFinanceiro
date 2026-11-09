@@ -2237,7 +2237,7 @@
           "Import Assets"
         ],
         "summary": "Atualizar todos os indicadores",
-        "description": "Busca CDI, SELIC e IPCA no Banco Central e o Ibovespa no yfinance, a partir do último valor guardado.",
+        "description": "Busca CDI, SELIC, IPCA e PTAX no Banco Central e o Ibovespa no yfinance, a partir do último valor guardado.",
         "operationId": "refresh_all_indicators_api_import_assets_indicators_post",
         "responses": {
           "204": {
@@ -20749,7 +20749,8 @@
           "IPCA",
           "IBOV",
           "GDP_GROWTH",
-          "UNEMPLOYMENT"
+          "UNEMPLOYMENT",
+          "PTAX"
         ],
         "title": "IndicatorSeries"
       },

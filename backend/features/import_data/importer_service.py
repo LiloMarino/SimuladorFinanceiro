@@ -14,11 +14,12 @@ from backend.core.dto.price_correction import PriceCorrectionResultDTO
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
 from backend.core.dto.ticker_profile import TickerProfileDTO, TickerSuggestionDTO
-from backend.core.enum import AssetClass, DataOrigin
+from backend.core.enum import AssetClass, Currency, DataOrigin
 from backend.core.exceptions.http_exceptions import (
     BadGatewayError,
     NotFoundError,
     ServiceUnavailableError,
+    UnprocessableEntityError,
 )
 from backend.core.models.models import StockPriceHistory
 from backend.features.import_data.corporate_events import (
@@ -27,6 +28,7 @@ from backend.features.import_data.corporate_events import (
     has_actions,
     to_raw_prices,
 )
+from backend.features.import_data.currency import ptax_by_day, to_brl
 from backend.features.import_data.price_errors import fix_price_errors
 
 logger = logging.getLogger(__name__)
@@ -45,6 +47,24 @@ def yfinance_symbol(ticker: str) -> str:
     """O símbolo que o yfinance conhece: o código da B3 ganha o `.SA`; cripto, bolsa
     estrangeira e índice (`BTC-USD`, `AAPL`, `^BVSP`) seguem como estão."""
     return f"{ticker}{B3_SUFFIX}" if B3_TICKER.fullmatch(ticker) else ticker
+
+
+def fetch_currency(ticker: str) -> Currency:
+    """A moeda em que o Yahoo cota o ativo; só real e dólar entram na base."""
+    symbol = yfinance_symbol(ticker)
+    try:
+        code = str(yf.Ticker(symbol).fast_info["currency"])
+    except Exception as e:
+        logger.warning(f"Não foi possível ler a moeda de '{symbol}' no yfinance: {e}")
+        raise BadGatewayError(
+            f"Não foi possível ler a moeda de {ticker} no yfinance."
+        ) from e
+    try:
+        return Currency(code)
+    except ValueError:
+        raise UnprocessableEntityError(
+            f"{ticker} é cotado em {code}; só real e dólar são aceitos."
+        ) from None
 
 
 # -------------------
@@ -286,9 +306,14 @@ def search_tickers(query: str) -> list[TickerSuggestionDTO]:
 
 
 def upsert_dataframe(
-    df: pd.DataFrame, ticker: str, overwrite: bool = False
+    df: pd.DataFrame,
+    ticker: str,
+    overwrite: bool = False,
+    currency: Currency | None = None,
 ) -> ReplacedGeneratedDTO | None:
-    """Grava os pregões reais e devolve os dias gerados que eles ocuparam."""
+    """Grava os pregões reais e devolve os dias gerados que eles ocuparam. O quadro
+    chega em real; `currency` é a moeda em que a fonte cota o ativo (sem ela, vale a
+    guardada, e o ativo novo nasce em real)."""
     # 1. Garante que o ativo existe e, enquanto não tiver classificação, sugere a
     # do yfinance; a que o usuário escolheu na Central de dados fica como está
     stock = repository.stock.get_by_ticker(ticker)
@@ -298,10 +323,17 @@ def upsert_dataframe(
     if not stock:
         nome = info.get("longName") or info.get("shortName") or ticker
         asset_class = infer_asset_class(ticker, info)
-        stock = repository.stock.add_stock(ticker, nome, asset_class)
+        stock = repository.stock.add_stock(
+            ticker, nome, asset_class, currency or Currency.BRL
+        )
         logger.info(
             f"Ativo '{ticker}' ({nome}) criado no banco como {asset_class.value}."
         )
+
+    # A moeda lida difere da guardada: o histórico inteiro vem convertido de novo
+    if currency and repository.stock.get_currency(ticker) != currency:
+        repository.stock.set_currency(stock.id, currency)
+        overwrite = True
 
     if not classified and (segment := suggest_segment(info)):
         repository.stock.classify(ticker, segment)
@@ -454,8 +486,17 @@ def from_yfinance_batch(tickers: list[str]) -> dict[str, pd.DataFrame]:
 def update_from_yfinance_batch(tickers: list[str], overwrite: bool = False):
     try:
         batch = from_yfinance_batch(tickers)
+        ptax = None
         for ticker, df in batch.items():
-            upsert_dataframe(df, ticker, overwrite=overwrite)
+            try:
+                currency = fetch_currency(ticker)
+            except UnprocessableEntityError as e:
+                logger.warning("'%s' fora do lote: %s", ticker, e.detail)
+                continue
+            if currency is not Currency.BRL:
+                ptax = ptax if ptax is not None else ptax_by_day()
+                df = to_brl(df, currency, ptax)  # noqa: PLW2901
+            upsert_dataframe(df, ticker, overwrite=overwrite, currency=currency)
     except Exception:
         logger.exception("Erro ao baixar dados em lote do YFinance")
         raise
@@ -465,10 +506,13 @@ def update_from_yfinance(
     ticker: str, overwrite: bool = False
 ) -> ReplacedGeneratedDTO | None:
     try:
+        currency = fetch_currency(ticker)
         df = from_yfinance(ticker)
         if df.empty:
             return None
-        return upsert_dataframe(df, ticker, overwrite=overwrite)
+        if currency is not Currency.BRL:
+            df = to_brl(df, currency, ptax_by_day())
+        return upsert_dataframe(df, ticker, overwrite=overwrite, currency=currency)
     except Exception:
         logger.exception("Erro ao baixar dados do YFinance")
         raise

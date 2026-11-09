@@ -1,6 +1,6 @@
 """
-Atualização dos indicadores econômicos: CDI, SELIC e IPCA pelo SGS do Banco
-Central e o Ibovespa pelo yfinance. O crescimento do PIB e o desemprego são do
+Atualização dos indicadores econômicos: CDI, SELIC, IPCA e PTAX (o dólar) pelo SGS
+do Banco Central e o Ibovespa pelo yfinance. O crescimento do PIB e o desemprego são do
 IBGE e chegam pelo mesmo SGS, que os republica.
 """
 
@@ -48,6 +48,8 @@ GDP_INDEX_START = date(1996, 1, 1)
 QUARTERS_PER_YEAR = 4
 # Taxa de desocupação da PNAD Contínua: % da força de trabalho, trimestre móvel datado no último mês
 UNEMPLOYMENT_SGS = 24369
+# Dólar comercial (venda), a PTAX; o real nasce em 01/07/1994, antes disso a série é de outras moedas
+PTAX_SGS = 1
 
 
 def gdp_growth(index: list[tuple[date, Decimal]]) -> list[tuple[date, Decimal]]:
@@ -101,6 +103,9 @@ INDICATOR_SOURCES: dict[IndicatorSeries, IndicatorSource] = {
         "Desemprego (PNAD Contínua)",
         date(2012, 3, 1),
         partial(fetch_sgs, UNEMPLOYMENT_SGS),
+    ),
+    IndicatorSeries.PTAX: IndicatorSource(
+        "PTAX (dólar)", date(1994, 7, 1), partial(fetch_sgs, PTAX_SGS)
     ),
 }
 
