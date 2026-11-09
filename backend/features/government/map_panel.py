@@ -27,7 +27,7 @@ from backend.features.government.calendar import ElectionCycle
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import phase_of
 from backend.features.government.poll_panel import entries, place_vote
-from backend.features.government.state import GovernmentState, Party
+from backend.features.government.state import GovernmentState, Party, RoundResult
 
 
 def build_map(
@@ -52,7 +52,7 @@ def build_map(
         ],
         viewer_party_id=(mine.id if mine is not None and mine in running else None),
         poll=_poll(book, settings, state, cycle, phase, today),
-        result=_result(state, phase),
+        result=_result(book, settings, phase),
         rejection=[_rejection(p, all_places) for p in running],
         approval=(
             MapApprovalDTO(
@@ -70,6 +70,7 @@ def build_map(
         ),
         opens_on=_opens_on(cycle),
         first_round=cycle.first_round,
+        runoff=cycle.runoff,
         phase=phase,
     )
 
@@ -128,8 +129,20 @@ def _poll(
         return None
     if not series:
         return None
-    day, exact = series[-1]
-    before = series[-2] if len(series) > 1 else None
+    return _poll_at(book, settings, series, len(series) - 1, runoff, next_date)
+
+
+def _poll_at(
+    book: GovernmentBook,
+    settings: SimulationDTO,
+    series: list[tuple[date, voters.Vote]],
+    index: int,
+    runoff: bool,
+    next_date: date | None,
+) -> MapPollDTO:
+    """A pesquisa do item `index` da série, com a anterior dela para a variação."""
+    day, exact = series[index]
+    before = series[index - 1] if index > 0 else None
 
     def local(vote: voters.Vote, on: date, place: places.Place) -> voters.Vote:
         return place_vote(vote, place, on, book.seed, settings.poll_margin)
@@ -161,22 +174,50 @@ def _poll_place(
     )
 
 
-def _result(state: GovernmentState, phase: ElectionPhase) -> MapResultDTO | None:
+def _result(
+    book: GovernmentBook, settings: SimulationDTO, phase: ElectionPhase
+) -> MapResultDTO | None:
+    state = book.state
     if phase in (ElectionPhase.BEFORE_CAMPAIGN, ElectionPhase.CAMPAIGN):
         return None
     last = state.results[-1] if state.results else None
     if last is None or not last.groups:
         return None
+    return _result_of(last, poll_before(book, settings, last))
+
+
+def poll_before(
+    book: GovernmentBook, settings: SimulationDTO, result: RoundResult
+) -> MapPollDTO | None:
+    """A última pesquisa antes do turno: a mensal antes do 1º e a semanal antes do 2º."""
+    history = book.state.history_of(result.cycle)
+    if history is None:
+        return None
+    series = (
+        [(p.day, p.vote) for p in history.race_polls]
+        if result.round == 2
+        else [(p.day, p.vote) for p in history.polls]
+    )
+    if not series:
+        return None
+    return _poll_at(book, settings, series, len(series) - 1, result.round == 2, None)
+
+
+def _result_of(result: RoundResult, previous: MapPollDTO | None) -> MapResultDTO:
+    """A apuração do turno em cada lugar, com a pesquisa anterior para a variação."""
+    before = {p.code: p.entries for p in previous.places} if previous else {}
     return MapResultDTO(
-        round=last.round,
-        date=last.day,
-        national=_result_entries(last.points),
+        round=result.round,
+        date=result.day,
+        previous_date=previous.date if previous else None,
+        national=_result_entries(result.points),
         places=[
             MapResultPlaceDTO(
                 code=places.code(p),
                 entries=_result_entries(
-                    voters.combine(last.groups, weights=places.mixture(p)).total
+                    voters.combine(result.groups, weights=places.mixture(p)).total
                 ),
+                previous_entries=before.get(places.code(p), []),
             )
             for p in places.all_places()
         ],

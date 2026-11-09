@@ -12,6 +12,9 @@ import {
   paintedParty,
   placesOf,
   resultSentence,
+  isDatedLens,
+  momentSource,
+  previousDate,
   scaleCenter,
   scalePosition,
   standings,
@@ -195,7 +198,25 @@ describe("classifyPlace", () => {
 describe("lensAvailability", () => {
   it("as lentes da eleição ficam apagadas sem pesquisa, com a data em que abrem", () => {
     expect(lensAvailability(withoutPoll, "leads")).toEqual({ available: false, reason: "abre em 1 mar" });
-    expect(lensAvailability(withoutPoll, "result")).toEqual({ available: false, reason: "em 3 out" });
+    expect(lensAvailability(withoutPoll, "performance")).toEqual({ available: false, reason: "abre em 1 mar" });
+  });
+
+  it("num ponto de resultado, quem lidera, desempenho e variação ligam pela apuração", () => {
+    const decided = {
+      ...withoutPoll,
+      result: { round: 2, date: "2027-10-24", previous_date: "2027-10-17", national: [], places: [] },
+    } as unknown as ElectionMap;
+    expect(momentSource(decided)).toBe("result");
+    expect(lensAvailability(decided, "leads")).toEqual({ available: true });
+    expect(lensAvailability(decided, "performance")).toEqual({ available: true });
+    expect(lensAvailability(decided, "change")).toEqual({ available: true });
+    expect(previousDate(decided)).toBe("2027-10-17");
+  });
+
+  it("só as lentes da eleição têm data", () => {
+    expect(
+      ["leads", "performance", "change", "rejection", "approval", "group"].map((l) => isDatedLens(l as never)),
+    ).toEqual([true, true, true, false, false, false]);
   });
 
   it("rejeição, aprovação e eleitorado ligam quando têm dado", () => {
@@ -223,6 +244,21 @@ describe("dados por lugar", () => {
 
   it("sem pesquisa anterior no lugar não há variação", () => {
     expect(changeOf(map, "SOUTH", 1)).toBeNull();
+  });
+
+  it("num ponto de resultado a variação compara com a última pesquisa antes dele", () => {
+    const decided = {
+      ...map,
+      poll: null,
+      result: {
+        round: 1,
+        date: "2027-10-03",
+        previous_date: "2027-09-03",
+        national: [],
+        places: [{ code: "BA", entries: entries([[1, "50"]]), previous_entries: entries([[1, "44"]]) }],
+      },
+    } as unknown as ElectionMap;
+    expect(changeOf(decided, "BA", 1)).toBe(6);
   });
 
   it("o lugar de abertura é o maior eleitorado da divisão", () => {

@@ -17,6 +17,7 @@ from backend.core.dto.promises import (
 )
 from backend.core.enum import (
     ApprovalFactorKind,
+    CampaignActionKind,
     DealStatus,
     EffectPhase,
     ElectionPhase,
@@ -24,8 +25,11 @@ from backend.core.enum import (
     GroupVerdict,
     MeasureKind,
     MeasureStatus,
+    MilestoneKind,
     PlaceKind,
     Region,
+    TimelinePointKind,
+    TimelineYearStatus,
     VicePhase,
     VoterGroup,
     VoterValue,
@@ -1334,12 +1338,16 @@ class MapResultEntryDTO(BaseDTO):
 class MapResultPlaceDTO(BaseDTO):
     code: str
     entries: list[MapResultEntryDTO]
+    # A última pesquisa antes do turno no mesmo lugar; vazia quando não houve
+    previous_entries: list[PollEntryDTO]
 
 
 class MapResultDTO(BaseDTO):
     """A apuração do último turno em cada lugar, sem margem."""
 
     round: int
+    # O dia da última pesquisa antes do turno
+    previous_date: date | None
     date: date
     national: list[MapResultEntryDTO]
     places: list[MapResultPlaceDTO]
@@ -1380,4 +1388,70 @@ class MapPanelDTO(BaseDTO):
     # O dia em que sai a primeira pesquisa da campanha
     opens_on: date
     first_round: date
+    # O dia do 2º turno do ciclo, que só acontece se o 1º não decidir
+    runoff: date
     phase: ElectionPhase
+
+
+# A linha do tempo do mapa
+
+
+class MapTimelineYearDTO(BaseDTO):
+    """Um ano de eleição no seletor da linha do tempo."""
+
+    year: int
+    cycle: int
+    status: TimelineYearStatus
+    # O dia em que a campanha do ano abre
+    opens_on: date
+    # Quem venceu, com o nome e a cor da época; nulo no ano que não acabou
+    winner: MapPartyDTO | None
+
+
+class MapTimelinePointDTO(BaseDTO):
+    """Um ponto da régua: o mapa daquele dia, como o painel do mapa o mostra."""
+
+    date: date
+    kind: TimelinePointKind
+    # Já aconteceu; o ponto futuro não traz pesquisa nem resultado
+    happened: bool
+    # A cor do ponto: o líder nacional, os dois do empate técnico, os finalistas ou o vencedor
+    leaders: list[int]
+    # A pesquisa mensal só traz `poll`, o 1º turno e o 2º só `result`, e a pesquisa semanal os dois
+    poll: MapPollDTO | None
+    result: MapResultDTO | None
+
+
+class MapMilestoneItemDTO(BaseDTO):
+    day: date
+    # Na ação de campanha, qual foi, o grupo mirado e o rival atacado
+    action: CampaignActionKind | None
+    group: VoterGroup | None
+    rival_id: int | None
+    # Na aliança, o parceiro da federação ou o apoiado no 2º turno
+    partner_id: int | None
+    # O nome da promessa ou da federação
+    title: str | None
+
+
+class MapMilestoneDTO(BaseDTO):
+    """O que um partido fez entre duas pesquisas: promessas, ações de campanha ou alianças."""
+
+    # Os dois pontos que cercam o marco
+    after: date
+    before: date
+    party_id: int
+    kind: MilestoneKind
+    items: list[MapMilestoneItemDTO]
+    # Só nas ações: a região onde o grupo mais mirado tem mais peso
+    region: Region | None
+
+
+class MapTimelineDTO(BaseDTO):
+    years: list[MapTimelineYearDTO]
+    # O ano mostrado
+    year: int
+    # Quem concorreu no ano
+    parties: list[MapPartyDTO]
+    points: list[MapTimelinePointDTO]
+    milestones: list[MapMilestoneDTO]

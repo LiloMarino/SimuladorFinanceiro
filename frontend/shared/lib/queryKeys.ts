@@ -96,6 +96,7 @@ export const queryKeys = {
   achievements: () => ["achievements"] as const,
   election: () => ["government", "election"] as const,
   electionMap: () => ["government", "map"] as const,
+  electionTimeline: (year: number | null) => ["government", "map", "timeline", year] as const,
   government: () => ["government", "panel"] as const,
   campaign: () => ["government", "campaign"] as const,
   campaignHistory: () => ["government", "campaign", "history"] as const,

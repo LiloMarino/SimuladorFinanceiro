@@ -9,6 +9,7 @@ import type { ElectionMap, MapParty } from "@/types";
 import {
   classifyPlace,
   formatPercent,
+  momentSource,
   partyOf,
   placesOf,
   pointsOf,
@@ -23,16 +24,14 @@ type MapPlacesTableProps = {
   party: MapParty | undefined;
   selected: string;
   onSelect: (code: string) => void;
-  /** Com a lente Resultado a tabela mostra a apuração; nas demais, a pesquisa. */
-  showResult: boolean;
 };
 
 const COLLAPSED_ROWS = 7;
 
 /** Os lugares do maior eleitorado ao menor: quem lidera, por quanto e o desempenho do partido escolhido. */
-export function MapPlacesTable({ map, division, party, selected, onSelect, showResult }: MapPlacesTableProps) {
+export function MapPlacesTable({ map, division, party, selected, onSelect }: MapPlacesTableProps) {
   const [expanded, setExpanded] = useState(false);
-  const source: "poll" | "result" | null = map.poll && !showResult ? "poll" : map.result ? "result" : null;
+  const source = momentSource(map);
   const all = [...placesOf(map, division)].sort((a, b) => b.electorate - a.electorate);
   const shown = expanded ? all : all.slice(0, COLLAPSED_ROWS);
   const unit = division === "state" ? "Estados" : "Regiões";

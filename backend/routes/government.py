@@ -28,6 +28,7 @@ from backend.core.dto.government import (
     GuidanceRuleRequest,
     JoinPartyRequest,
     MapPanelDTO,
+    MapTimelineDTO,
     MeasurePreviewDTO,
     PartyFlagsRequest,
     PreviewFederationRequest,
@@ -64,6 +65,18 @@ def get_election(simulation: ActiveSimulation, user: CurrentUser):
 )
 def get_map(simulation: ActiveSimulation, user: CurrentUser):
     return simulation.get_map(user)
+
+
+@government_router.get(
+    "/map/timeline",
+    response_model=MapTimelineDTO,
+    summary="Obter a linha do tempo do mapa",
+    description="Retorna os anos de eleição, os pontos da régua do ano escolhido (as pesquisas mensais, o 1º turno, as pesquisas semanais e o 2º turno, com o que cada um mostrou no mapa) e os marcos entre dois pontos (promessas, campanha e alianças). Sem `year`, vale o ciclo em curso. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+)
+def get_map_timeline(
+    simulation: ActiveSimulation, user: CurrentUser, year: int | None = None
+):
+    return simulation.get_map_timeline(user, year)
 
 
 @government_router.post(

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { PartyMark } from "@/shared/components/party-mark";
 import { Badge } from "@/shared/components/ui/badge";
@@ -5,7 +6,7 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
 import { partyColor } from "@/shared/lib/party-colors";
-import { displayMonthShort, displayPercent } from "@/shared/lib/utils/display";
+import { displayPercent } from "@/shared/lib/utils/display";
 import type { ElectionMap, MapPlace, VoterGroup } from "@/types";
 import { PLACE_MARGIN } from "../lib/map-metrics";
 import {
@@ -14,9 +15,11 @@ import {
   dayMonth,
   formatPercent,
   groupShare,
+  momentSource,
   nationalGroupShare,
   partyOf,
   placeByCode,
+  previousDate,
   standings,
 } from "../lib/map-lenses";
 import { GROUP_INFO } from "../lib/voters";
@@ -24,8 +27,8 @@ import { GROUP_INFO } from "../lib/voters";
 type MapPlaceCardProps = {
   map: ElectionMap;
   place: MapPlace;
-  /** Com a lente Resultado o card mostra a apuração; nas demais, a pesquisa. */
-  showResult: boolean;
+  /** O gráfico do lugar ao longo da campanha; só existe com a linha do tempo à vista. */
+  trend?: ReactNode;
 };
 
 type Row = { partyId: number; value: number; change: number | null };
@@ -33,18 +36,11 @@ type Row = { partyId: number; value: number; change: number | null };
 /** Uma linha por partido: a pesquisa com a margem do lugar ou, sem pesquisa, a apuração em votos válidos. */
 function rowsOf(map: ElectionMap, place: MapPlace, source: "poll" | "result"): Row[] {
   const ranked = standings(map, place.code, source);
-  if (source === "poll") {
-    return ranked.map((row) => ({
-      partyId: row.partyId,
-      value: row.points,
-      change: changeOf(map, place.code, row.partyId),
-    }));
-  }
   const total = ranked.reduce((sum, row) => sum + row.points, 0);
   return ranked.map((row) => ({
     partyId: row.partyId,
-    value: total > 0 ? (row.points / total) * 100 : 0,
-    change: null,
+    value: source === "poll" ? row.points : total > 0 ? (row.points / total) * 100 : 0,
+    change: changeOf(map, place.code, row.partyId),
   }));
 }
 
@@ -57,8 +53,9 @@ function signedArrow(change: number) {
 }
 
 /** O lugar selecionado: tamanho, quem lidera, a intenção de voto com a margem e os grupos que votam ali. */
-export function MapPlaceCard({ map, place, showResult }: MapPlaceCardProps) {
-  const source: "poll" | "result" | null = map.poll && !showResult ? "poll" : map.result ? "result" : null;
+export function MapPlaceCard({ map, place, trend }: MapPlaceCardProps) {
+  const source = momentSource(map);
+  const previous = previousDate(map);
   const region = place.region ? placeByCode(map, place.region) : undefined;
   const rows = source ? rowsOf(map, place, source) : [];
   const margin = source === "poll" ? place.margin : 0;
@@ -84,7 +81,7 @@ export function MapPlaceCard({ map, place, showResult }: MapPlaceCardProps) {
               <div className="pt-1">
                 {verdict.kind === "leads" ? (
                   <Badge variant="success">
-                    {leaderAbbr} {showResult && !map.poll ? "venceu" : "à frente"} por{" "}
+                    {leaderAbbr} {source === "result" ? "venceu" : "à frente"} por{" "}
                     {verdict.lead.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} p.p.
                   </Badge>
                 ) : (
@@ -102,11 +99,7 @@ export function MapPlaceCard({ map, place, showResult }: MapPlaceCardProps) {
                   {source === "poll" ? `Intenção de voto · margem ±${margin}` : "Votos válidos da apuração"}
                   {source === "poll" && <MetricHint metric={PLACE_MARGIN} />}
                 </span>
-                {source === "poll" && map.poll?.previous_date && (
-                  <span className="text-xs text-muted-foreground">
-                    ▲▼ desde {displayMonthShort(map.poll.previous_date)}
-                  </span>
-                )}
+                {previous && <span className="text-xs text-muted-foreground">▲▼ desde {dayMonth(previous)}</span>}
               </div>
               <ul className="grid gap-1.5">
                 {rows.map((row) => {
@@ -155,6 +148,9 @@ export function MapPlaceCard({ map, place, showResult }: MapPlaceCardProps) {
               Sem pesquisa ainda: a primeira abre em {dayMonth(map.opens_on)}.
             </p>
           )}
+
+          {/* Ao longo da campanha */}
+          {trend}
 
           <Separator />
 

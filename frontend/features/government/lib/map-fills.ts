@@ -1,5 +1,4 @@
 import { partyColor, partyForeground } from "@/shared/lib/party-colors";
-import { displayMonthShort } from "@/shared/lib/utils/display";
 import type { ElectionMap, MapParty, VoterGroup } from "@/types";
 import type { MapFill } from "../components/brazil-map";
 import {
@@ -9,11 +8,15 @@ import {
   lensSentence,
   lensValues,
   mixColor,
+  momentSource,
   partyOf,
   placesOf,
+  pollDateLabel,
+  previousDate,
   scaleCenter,
   scalePosition,
   standings,
+  dayMonth,
   type MapDivision,
   type MapLensId,
 } from "./map-lenses";
@@ -31,7 +34,7 @@ export type LensView = {
   fills: Record<string, MapFill>;
   legend: MapLegend;
   sentence: string;
-  /** O número de cada lugar nas lentes de escala, já formatado; vazio em Quem lidera e Resultado. */
+  /** O número de cada lugar nas lentes de escala, já formatado; vazio em Quem lidera. */
   valueText: Record<string, string>;
 };
 
@@ -70,8 +73,6 @@ function lensTitle(lens: MapLensId, abbr: string, group: VoterGroup, since: stri
   switch (lens) {
     case "leads":
       return "Quem lidera";
-    case "result":
-      return "Quem venceu";
     case "performance":
       return `Desempenho do ${abbr}`;
     case "change":
@@ -85,12 +86,26 @@ function lensTitle(lens: MapLensId, abbr: string, group: VoterGroup, since: stri
   }
 }
 
-function lensExplanation(lens: MapLensId, unit: string) {
+function leadsExplanation(map: ElectionMap, unit: string) {
+  if (map.poll) {
+    const finalists = map.poll.runoff ? ", só os dois finalistas" : "";
+    return `Pesquisa de ${pollDateLabel(map.poll.date)}${finalists}. Listrado: a diferença cabe na margem do ${unit}.`;
+  }
+  const winner = nationalWinner(map);
+  return `Cor cheia: resultado não tem margem.${winner ? ` ${winner.abbr} venceu com ${formatPercent(winner.share)} no país.` : ""}`;
+}
+
+// O partido com mais votos válidos no país no turno apurado
+function nationalWinner(map: ElectionMap) {
+  const top = map.result?.national.reduce((best, row) => (Number(row.share) > Number(best.share) ? row : best));
+  const party = top ? partyOf(map, top.party_id) : undefined;
+  return top && party ? { abbr: party.abbr, share: Number(top.share) } : null;
+}
+
+function lensExplanation(map: ElectionMap, lens: MapLensId, unit: string) {
   switch (lens) {
     case "leads":
-      return `A cor é o partido à frente no ${unit}. Listrado: a diferença entre o 1º e o 2º cabe na margem do ${unit}, e a pesquisa não diz quem lidera.`;
-    case "result":
-      return `A cor é o partido com mais votos válidos no ${unit}. No resultado não há margem: a cor é cheia.`;
+      return leadsExplanation(map, unit);
     case "performance":
       return `A intenção de voto do partido em cada ${unit}: quanto mais escuro, mais voto.`;
     case "change":
@@ -98,10 +113,16 @@ function lensExplanation(lens: MapLensId, unit: string) {
     case "rejection":
       return `De cada 100 eleitores do ${unit}, quantos não votam no partido de jeito nenhum: quanto mais escuro, mais rejeição.`;
     case "approval":
-      return `A aprovação do governo em cada ${unit}, calculada pela mistura de grupos de eleitores dele.`;
+      return `A aprovação do governo em cada ${unit}, calculada pela mistura de grupos de eleitores dele. Esta lente só existe para o dia de hoje.`;
     case "group":
       return `Que fatia do eleitorado do ${unit} é do grupo: quanto mais escuro, mais gente do grupo.`;
   }
+}
+
+// "Quem lidera" vira "Quem venceu" no ponto de resultado, e a data entra no título fora do hoje
+function leadsTitle(map: ElectionMap, past: boolean, unit: string) {
+  if (map.poll) return `Quem lidera · ${past ? pollDateLabel(map.poll.date) : `por ${unit}`}`;
+  return `Quem venceu · ${map.result ? `${map.result.round}º turno de ${map.result.date.slice(0, 4)}` : `por ${unit}`}`;
 }
 
 function textOn(position: number, centered: boolean) {
@@ -116,15 +137,18 @@ export function lensView(
   lens: MapLensId,
   party: MapParty | undefined,
   group: VoterGroup,
+  /** O momento mostrado não é o de hoje: a data entra no título. */
+  past = false,
 ): LensView {
   const unit = division === "state" ? "estado" : "região";
-  const sinceLabel = map.poll?.previous_date ? displayMonthShort(map.poll.previous_date) : null;
-  const title = `${lensTitle(lens, party?.abbr ?? "", group, sinceLabel)} · por ${unit}`;
-  const explanation = lensExplanation(lens, unit);
+  const previous = previousDate(map);
+  const sinceLabel = previous ? dayMonth(previous) : null;
+  const explanation = lensExplanation(map, lens, unit);
 
-  if (lens === "leads" || lens === "result") {
-    return leaderView(map, division, lens, { title, explanation });
+  if (lens === "leads") {
+    return leaderView(map, division, { title: leadsTitle(map, past, unit), explanation });
   }
+  const title = `${lensTitle(lens, party?.abbr ?? "", group, sinceLabel)} · por ${unit}`;
 
   const values = lensValues(map, division, lens, party?.id ?? null, group);
   const ends = scaleEnds(lens, party, group);
@@ -164,19 +188,14 @@ function signedPercent(value: number) {
   return `${rounded > 0 ? "+" : rounded < 0 ? "−" : ""}${Math.abs(rounded)} p.p.`;
 }
 
-function leaderView(
-  map: ElectionMap,
-  division: MapDivision,
-  lens: "leads" | "result",
-  head: { title: string; explanation: string },
-): LensView {
-  const source = lens === "leads" ? "poll" : "result";
+function leaderView(map: ElectionMap, division: MapDivision, head: { title: string; explanation: string }): LensView {
+  const source = momentSource(map) ?? "poll";
   const fills: Record<string, MapFill> = {};
   const seen = new Set<number>();
   let tie = false;
   for (const place of placesOf(map, division)) {
     const ranked = standings(map, place.code, source);
-    const result = classifyPlace(ranked, lens === "leads" ? place.margin : 0);
+    const result = classifyPlace(ranked, source === "poll" ? place.margin : 0);
     if (!result) {
       fills[place.code] = { kind: "empty" };
       continue;
@@ -208,6 +227,6 @@ function leaderView(
     fills,
     valueText: {},
     legend: { kind: "parties", parties: shown, tie },
-    sentence: lensSentence({ map, division, lens, abbr: "", values: {} }),
+    sentence: lensSentence({ map, division, lens: "leads", abbr: "", values: {} }),
   };
 }

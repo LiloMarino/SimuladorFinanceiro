@@ -23,8 +23,11 @@ from backend.core.enum import (
     GovernmentNoticeKind,
     MeasureKind,
     MeasureStatus,
+    MilestoneKind,
     NewsType,
     PauseReason,
+    TimelinePointKind,
+    TimelineYearStatus,
     VicePhase,
     VoterGroup,
     VoterValue,
@@ -52,6 +55,7 @@ from backend.features.government.campaign_panel import build_campaign, build_his
 from backend.features.government.governance import build_governance
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.map_panel import build_map
+from backend.features.government.map_timeline import build_timeline
 from backend.features.government.panel import build_panel
 from backend.features.government.state import Party, replay
 from backend.features.notifications.news import Headline
@@ -1489,6 +1493,128 @@ def test_map_between_the_rounds_has_only_the_finalists_and_the_result(
         assert shown.poll.runoff is True
         for local in shown.poll.places:
             assert {e.party_id for e in local.entries} <= finalists
+
+
+# Linha do tempo do mapa
+
+
+def timeline_race(book: GovernmentBook) -> None:
+    found(book, ALICE, "AAA", RED, "8000")
+    found(book, BOB, "BBB", BLUE, "2000", NICHE)
+    run_campaign(book)
+
+
+def test_timeline_in_the_campaign_has_the_polls_and_the_days_to_come(
+    book: GovernmentBook,
+):
+    timeline_race(book)
+
+    shown = build_timeline(book, settings(), date(2021, 9, 10), None)
+
+    assert [(y.year, y.status) for y in shown.years] == [
+        (2021, TimelineYearStatus.CURRENT)
+    ]
+    assert shown.year == 2021
+    assert {p.id for p in shown.parties} >= {party_of(book, ALICE).id}
+    kinds = [p.kind for p in shown.points]
+    assert kinds.count(TimelinePointKind.FIRST_ROUND) == 1
+    assert kinds.count(TimelinePointKind.RUNOFF) == 1
+    assert kinds[-1] is TimelinePointKind.RUNOFF
+    # As pesquisas mensais acontecidas trazem a pesquisa e um líder; as futuras, nada
+    for point in shown.points:
+        if point.happened:
+            assert point.poll is not None
+            assert point.poll.runoff is False
+            assert 1 <= len(point.leaders) <= 2
+        else:
+            assert (point.poll, point.result, point.leaders) == (None, None, [])
+    dates = [p.date for p in shown.points]
+    assert dates == sorted(dates)
+    assert not shown.points[-1].happened
+
+
+def test_timeline_between_the_rounds_has_the_first_round_and_the_weekly_polls(
+    book: GovernmentBook,
+):
+    timeline_race(book)
+    book.on_tick(USERS, FIRST_ROUND, False)
+    finalists = set(book.state.results[-1].finalists)
+
+    shown = build_timeline(book, settings(), date(2021, 10, 10), None)
+
+    first = next(p for p in shown.points if p.kind is TimelinePointKind.FIRST_ROUND)
+    assert first.happened
+    assert first.result is not None and first.result.round == 1
+    # A apuração traz a última pesquisa antes do turno para comparar
+    assert first.result.previous_date is not None
+    assert first.result.previous_date < FIRST_ROUND
+    weekly = [p for p in shown.points if p.kind is TimelinePointKind.RUNOFF_POLL]
+    assert weekly
+    assert all(p.date > FIRST_ROUND for p in weekly)
+    for point in weekly:
+        if point.happened:
+            assert point.poll is not None and point.poll.runoff
+            assert set(point.leaders) <= finalists
+    assert not shown.points[-1].happened
+
+
+def test_timeline_of_a_finished_year_is_all_history_with_the_winner(
+    book: GovernmentBook,
+):
+    timeline_race(book)
+    book.on_tick(USERS, FIRST_ROUND, False)
+    book.on_tick(USERS, RUNOFF, False)
+    winner = book.state.results[-1].winner_id
+    assert winner is not None
+
+    shown = build_timeline(book, settings(), date(2021, 11, 10), 2021)
+
+    done = next(y for y in shown.years if y.year == 2021)
+    assert done.status is TimelineYearStatus.DONE
+    assert done.winner is not None and done.winner.id == winner
+    assert all(p.happened for p in shown.points)
+    last = shown.points[-1]
+    assert last.kind is TimelinePointKind.RUNOFF
+    assert last.leaders == [winner]
+    assert last.result is not None and last.result.round == 2
+    # O ciclo que acabou não perde a série de pesquisas
+    assert any(p.kind is TimelinePointKind.POLL for p in shown.points)
+
+
+def test_timeline_unknown_year_falls_back_to_the_current_cycle(book: GovernmentBook):
+    timeline_race(book)
+
+    shown = build_timeline(book, settings(), date(2021, 9, 10), 1990)
+
+    assert shown.year == 2021
+
+
+def test_timeline_milestones_sit_between_the_two_polls_that_surround_them(
+    book: GovernmentBook,
+):
+    found(book, ALICE, "AAA", RED, "8000")
+    found(book, BOB, "BBB", BLUE, "2000", NICHE)
+    for month in range(11, 13):
+        book.on_tick(USERS, date(2020, month, 3), True)
+    # No mesmo intervalo da promessa de um partido do computador
+    action_day = date(2020, 11, 10)
+    book.campaign_action(ALICE, action_day, CampaignActionKind.EVENT, RETIREES, None)
+    for month in range(1, 10):
+        book.on_tick(USERS, date(2021, month, 3), True)
+
+    shown = build_timeline(book, settings(), date(2021, 9, 10), None)
+
+    acted = [m for m in shown.milestones if m.kind is MilestoneKind.CAMPAIGN]
+    assert len(acted) == 1
+    same_slot = [m for m in shown.milestones if m.after == acted[0].after]
+    assert {m.kind for m in same_slot} >= {
+        MilestoneKind.CAMPAIGN,
+        MilestoneKind.PROMISE,
+    }
+    assert acted[0].party_id == party_of(book, ALICE).id
+    assert acted[0].after <= action_day < acted[0].before
+    assert [i.group for i in acted[0].items] == [RETIREES]
+    assert acted[0].region is not None
 
 
 # Ações avulsas de campanha

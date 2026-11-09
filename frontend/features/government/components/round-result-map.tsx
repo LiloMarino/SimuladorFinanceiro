@@ -29,7 +29,8 @@ export function RoundResultMap({ result }: RoundResultMapProps) {
   if (!map?.result || map.result.round !== result.round) return null;
 
   const states = placesOf(map, "state");
-  const view = lensView(map, "state", "result", undefined, DEFAULT_GROUP);
+  // O resultado do turno aberto: sem a pesquisa de hoje, "Quem lidera" é "Quem venceu"
+  const view = lensView({ ...map, poll: null }, "state", "leads", undefined, DEFAULT_GROUP);
   const ranking = [...statesWon(map).entries()]
     .map(([partyId, count]) => ({ party: partyOf(map, partyId), count }))
     .sort((a, b) => b.count - a.count);

@@ -13,16 +13,19 @@ import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { Separator } from "@/shared/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { partyColor } from "@/shared/lib/party-colors";
-import { displayMonthShort } from "@/shared/lib/utils/display";
 import type { ElectionMap, MapParty, VoterGroup } from "@/types";
 import { scaleEnds, scaleGradient } from "../lib/map-fills";
 import {
+  dayMonth,
+  isDatedLens,
   lensAvailability,
   MAP_LENSES,
   MAP_SECTIONS,
   type MapDivision,
   type MapLens,
   type MapLensId,
+  momentSource,
+  previousDate,
 } from "../lib/map-lenses";
 import { GROUP_INFO } from "../lib/voters";
 
@@ -63,9 +66,15 @@ export function MapLensMenu({
   onGroupChange,
 }: MapLensMenuProps) {
   const swatch = (item: MapLens) =>
-    item.id === "leads" || item.id === "result"
-      ? stripes(map.parties)
-      : scaleGradient(scaleEnds(item.id, party, group));
+    item.id === "leads" ? stripes(map.parties) : scaleGradient(scaleEnds(item.id, party, group));
+
+  // Num ponto de resultado a primeira lente conta quem venceu; num de pesquisa, quem lidera
+  const labelOf = (item: MapLens) => {
+    if (item.id === "leads") return momentSource(map) === "result" ? "Quem venceu" : item.label;
+    const previous = previousDate(map);
+    if (item.id === "change" && previous) return `Variação desde ${dayMonth(previous)}`;
+    return item.label;
+  };
 
   return (
     <Card>
@@ -106,7 +115,7 @@ export function MapLensMenu({
               <div key={section} className="grid gap-0.5 pt-1.5 first:pt-0">
                 <div className="flex items-center justify-between px-1 pb-0.5">
                   <span className={CAPTION}>{section}</span>
-                  {section === "Seu partido" && party && map.parties.length > 1 && (
+                  {section === "Partido em foco" && party && map.parties.length > 1 && (
                     <PartyChoice parties={map.parties} party={party} onChange={onPartyChange} />
                   )}
                 </div>
@@ -115,9 +124,7 @@ export function MapLensMenu({
                   return (
                     <ToggleGroupItem key={item.id} value={item.id} disabled={!availability.available}>
                       <span aria-hidden className="size-4 shrink-0 rounded-sm" style={{ background: swatch(item) }} />
-                      {item.id === "change" && map.poll?.previous_date
-                        ? `Variação desde ${displayMonthShort(map.poll.previous_date)}`
-                        : item.label}
+                      {labelOf(item)}
                       {availability.available ? (
                         item.key && <Kbd>{item.key}</Kbd>
                       ) : (
@@ -145,8 +152,8 @@ export function MapLensMenu({
           <Separator />
 
           <p className="text-xs text-muted-foreground">
-            As teclas 1 a 6 trocam a lente. Toda lente sai do mesmo eleitorado em grupos: muda só a pergunta que o mapa
-            responde.
+            As teclas 1 a 6 trocam a lente
+            {isDatedLens(lens) ? "; ← e → andam a linha do tempo." : "."}
           </p>
         </div>
       </CardContent>

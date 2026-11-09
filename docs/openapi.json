@@ -5257,6 +5257,71 @@
         ]
       }
     },
+    "/api/government/map/timeline": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter a linha do tempo do mapa",
+        "description": "Retorna os anos de eleição, os pontos da régua do ano escolhido (as pesquisas mensais, o 1º turno, as pesquisas semanais e o 2º turno, com o que cada um mostrou no mapa) e os marcos entre dois pontos (promessas, campanha e alianças). Sem `year`, vale o ciclo em curso. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+        "operationId": "get_map_timeline_api_government_map_timeline_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MapTimelineDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/government/parties": {
       "post": {
         "tags": [
@@ -22450,6 +22515,129 @@
         "title": "MapApprovalDTO",
         "description": "A aprovação do governo em cada lugar, de 0 a 100."
       },
+      "MapMilestoneDTO": {
+        "properties": {
+          "after": {
+            "type": "string",
+            "format": "date",
+            "title": "After"
+          },
+          "before": {
+            "type": "string",
+            "format": "date",
+            "title": "Before"
+          },
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/MilestoneKind"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MapMilestoneItemDTO"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Region"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "after",
+          "before",
+          "party_id",
+          "kind",
+          "items",
+          "region"
+        ],
+        "title": "MapMilestoneDTO",
+        "description": "O que um partido fez entre duas pesquisas: promessas, ações de campanha ou alianças."
+      },
+      "MapMilestoneItemDTO": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "action": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CampaignActionKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "group": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VoterGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rival_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rival Id"
+          },
+          "partner_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Partner Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "day",
+          "action",
+          "group",
+          "rival_id",
+          "partner_id",
+          "title"
+        ],
+        "title": "MapMilestoneItemDTO"
+      },
       "MapPanelDTO": {
         "properties": {
           "places": {
@@ -22531,6 +22719,11 @@
             "format": "date",
             "title": "First Round"
           },
+          "runoff": {
+            "type": "string",
+            "format": "date",
+            "title": "Runoff"
+          },
           "phase": {
             "$ref": "#/components/schemas/ElectionPhase"
           }
@@ -22548,6 +22741,7 @@
           "approval",
           "opens_on",
           "first_round",
+          "runoff",
           "phase"
         ],
         "title": "MapPanelDTO"
@@ -22770,6 +22964,18 @@
             "type": "integer",
             "title": "Round"
           },
+          "previous_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Date"
+          },
           "date": {
             "type": "string",
             "format": "date",
@@ -22794,6 +23000,7 @@
         "type": "object",
         "required": [
           "round",
+          "previous_date",
           "date",
           "national",
           "places"
@@ -22837,15 +23044,165 @@
             },
             "type": "array",
             "title": "Entries"
+          },
+          "previous_entries": {
+            "items": {
+              "$ref": "#/components/schemas/PollEntryDTO"
+            },
+            "type": "array",
+            "title": "Previous Entries"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
           "code",
-          "entries"
+          "entries",
+          "previous_entries"
         ],
         "title": "MapResultPlaceDTO"
+      },
+      "MapTimelineDTO": {
+        "properties": {
+          "years": {
+            "items": {
+              "$ref": "#/components/schemas/MapTimelineYearDTO"
+            },
+            "type": "array",
+            "title": "Years"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "parties": {
+            "items": {
+              "$ref": "#/components/schemas/MapPartyDTO"
+            },
+            "type": "array",
+            "title": "Parties"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/MapTimelinePointDTO"
+            },
+            "type": "array",
+            "title": "Points"
+          },
+          "milestones": {
+            "items": {
+              "$ref": "#/components/schemas/MapMilestoneDTO"
+            },
+            "type": "array",
+            "title": "Milestones"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "years",
+          "year",
+          "parties",
+          "points",
+          "milestones"
+        ],
+        "title": "MapTimelineDTO"
+      },
+      "MapTimelinePointDTO": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/TimelinePointKind"
+          },
+          "happened": {
+            "type": "boolean",
+            "title": "Happened"
+          },
+          "leaders": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Leaders"
+          },
+          "poll": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MapPollDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MapResultDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "kind",
+          "happened",
+          "leaders",
+          "poll",
+          "result"
+        ],
+        "title": "MapTimelinePointDTO",
+        "description": "Um ponto da régua: o mapa daquele dia, como o painel do mapa o mostra."
+      },
+      "MapTimelineYearDTO": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "cycle": {
+            "type": "integer",
+            "title": "Cycle"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TimelineYearStatus"
+          },
+          "opens_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Opens On"
+          },
+          "winner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MapPartyDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "year",
+          "cycle",
+          "status",
+          "opens_on",
+          "winner"
+        ],
+        "title": "MapTimelineYearDTO",
+        "description": "Um ano de eleição no seletor da linha do tempo."
       },
       "MapValueDTO": {
         "properties": {
@@ -23353,6 +23710,16 @@
           "traffic_window_s"
         ],
         "title": "MetricsResponse"
+      },
+      "MilestoneKind": {
+        "type": "string",
+        "enum": [
+          "PROMISE",
+          "CAMPAIGN",
+          "ALLIANCE"
+        ],
+        "title": "MilestoneKind",
+        "description": "O que um marco da linha do tempo junta: promessas, ações de campanha ou alianças."
       },
       "MonetaryDTO": {
         "properties": {
@@ -33941,6 +34308,27 @@
           "candidate"
         ],
         "title": "TicketRequest"
+      },
+      "TimelinePointKind": {
+        "type": "string",
+        "enum": [
+          "POLL",
+          "FIRST_ROUND",
+          "RUNOFF_POLL",
+          "RUNOFF"
+        ],
+        "title": "TimelinePointKind",
+        "description": "Os quatro tipos de ponto da régua: a pesquisa mensal, o 1º turno, a pesquisa semanal e o 2º turno."
+      },
+      "TimelineYearStatus": {
+        "type": "string",
+        "enum": [
+          "DONE",
+          "CURRENT",
+          "UPCOMING"
+        ],
+        "title": "TimelineYearStatus",
+        "description": "Como um ano de eleição aparece no seletor da linha do tempo do mapa."
       },
       "ToastType": {
         "type": "string",

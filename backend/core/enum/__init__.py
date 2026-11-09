@@ -1007,6 +1007,32 @@ class PlaceKind(Enum):
     REGION = "REGION"
 
 
+class TimelineYearStatus(Enum):
+    """Como um ano de eleição aparece no seletor da linha do tempo do mapa."""
+
+    DONE = "DONE"
+    CURRENT = "CURRENT"
+    # A campanha ainda não abriu
+    UPCOMING = "UPCOMING"
+
+
+class TimelinePointKind(Enum):
+    """Os quatro tipos de ponto da régua: a pesquisa mensal, o 1º turno, a pesquisa semanal e o 2º turno."""
+
+    POLL = "POLL"
+    FIRST_ROUND = "FIRST_ROUND"
+    RUNOFF_POLL = "RUNOFF_POLL"
+    RUNOFF = "RUNOFF"
+
+
+class MilestoneKind(Enum):
+    """O que um marco da linha do tempo junta: promessas, ações de campanha ou alianças."""
+
+    PROMISE = "PROMISE"
+    CAMPAIGN = "CAMPAIGN"
+    ALLIANCE = "ALLIANCE"
+
+
 class VoterValue(Enum):
     """As bandeiras de um partido e os eixos do perfil dele."""
 

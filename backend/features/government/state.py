@@ -440,6 +440,17 @@ class ImpeachmentVote:
     approved: bool
 
 
+@dataclass(frozen=True)
+class CycleHistory:
+    """As pesquisas e os marcos de uma eleição, guardados para a linha do tempo do mapa."""
+
+    cycle: int
+    polls: list[Poll]
+    race_polls: list[RunoffPoll]
+    actions: list[CampaignRecord]
+    declarations: list[Declaration]
+
+
 @dataclass
 class GovernmentState:
     parties: dict[int, Party] = field(default_factory=dict)
@@ -450,6 +461,8 @@ class GovernmentState:
     polls: list[Poll] = field(default_factory=list)
     donations: list[Donation] = field(default_factory=list)
     results: list[RoundResult] = field(default_factory=list)
+    # As eleições encerradas, na ordem, com o que a campanha de cada uma deixou
+    past_cycles: list[CycleHistory] = field(default_factory=list)
     # Finalistas enquanto o 2º turno não acontece
     runoff: list[int] | None = None
     # A disputa do 2º turno por grupo, o dia do 1º turno, as pesquisas semanais, as
@@ -557,6 +570,15 @@ class GovernmentState:
             and d.answered is not None
         ]
         return max(days, default=None)
+
+    def history_of(self, cycle: int) -> CycleHistory | None:
+        """O que a eleição `cycle` deixou: a encerrada vem guardada, a em curso vem do estado."""
+        past = next((h for h in self.past_cycles if h.cycle == cycle), None)
+        if past is not None or cycle != self.cycle:
+            return past
+        return CycleHistory(
+            cycle, self.polls, self.race_polls, self.actions, self.declarations
+        )
 
     def federation_of(self, party_id: int, cycle: int) -> Federation | None:
         """A federação do partido para a eleição `cycle`, formada e não desfeita."""
@@ -1269,6 +1291,16 @@ def _apply_round(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 )
             )
             party.promises = []
+    # O ciclo encerrado guarda as pesquisas e os marcos para a linha do tempo
+    state.past_cycles.append(
+        CycleHistory(
+            cycle=result.cycle,
+            polls=state.polls,
+            race_polls=state.race_polls,
+            actions=state.actions,
+            declarations=state.declarations,
+        )
+    )
     # A campanha seguinte recomeça do zero: os partidos ficam, o apoio não
     state.runoff = None
     state.race = None

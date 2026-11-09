@@ -1804,6 +1804,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/government/map/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter a linha do tempo do mapa
+         * @description Retorna os anos de eleição, os pontos da régua do ano escolhido (as pesquisas mensais, o 1º turno, as pesquisas semanais e o 2º turno, com o que cada um mostrou no mapa) e os marcos entre dois pontos (promessas, campanha e alianças). Sem `year`, vale o ciclo em curso. Recusa com 409 quando a partida não usa a expansão Governo & Política.
+         */
+        get: operations["get_map_timeline_api_government_map_timeline_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/government/parties": {
         parameters: {
             query?: never;
@@ -7921,6 +7941,44 @@ export interface components {
             /** Places */
             places: components["schemas"]["MapValueDTO"][];
         };
+        /**
+         * MapMilestoneDTO
+         * @description O que um partido fez entre duas pesquisas: promessas, ações de campanha ou alianças.
+         */
+        MapMilestoneDTO: {
+            /**
+             * After
+             * Format: date
+             */
+            after: string;
+            /**
+             * Before
+             * Format: date
+             */
+            before: string;
+            /** Party Id */
+            party_id: number;
+            kind: components["schemas"]["MilestoneKind"];
+            /** Items */
+            items: components["schemas"]["MapMilestoneItemDTO"][];
+            region: components["schemas"]["Region"] | null;
+        };
+        /** MapMilestoneItemDTO */
+        MapMilestoneItemDTO: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            action: components["schemas"]["CampaignActionKind"] | null;
+            group: components["schemas"]["VoterGroup"] | null;
+            /** Rival Id */
+            rival_id: number | null;
+            /** Partner Id */
+            partner_id: number | null;
+            /** Title */
+            title: string | null;
+        };
         /** MapPanelDTO */
         MapPanelDTO: {
             /** Places */
@@ -7946,6 +8004,11 @@ export interface components {
              * Format: date
              */
             first_round: string;
+            /**
+             * Runoff
+             * Format: date
+             */
+            runoff: string;
             phase: components["schemas"]["ElectionPhase"];
         };
         /** MapPartyDTO */
@@ -8028,6 +8091,8 @@ export interface components {
         MapResultDTO: {
             /** Round */
             round: number;
+            /** Previous Date */
+            previous_date: string | null;
             /**
              * Date
              * Format: date
@@ -8053,6 +8118,56 @@ export interface components {
             code: string;
             /** Entries */
             entries: components["schemas"]["MapResultEntryDTO"][];
+            /** Previous Entries */
+            previous_entries: components["schemas"]["PollEntryDTO"][];
+        };
+        /** MapTimelineDTO */
+        MapTimelineDTO: {
+            /** Years */
+            years: components["schemas"]["MapTimelineYearDTO"][];
+            /** Year */
+            year: number;
+            /** Parties */
+            parties: components["schemas"]["MapPartyDTO"][];
+            /** Points */
+            points: components["schemas"]["MapTimelinePointDTO"][];
+            /** Milestones */
+            milestones: components["schemas"]["MapMilestoneDTO"][];
+        };
+        /**
+         * MapTimelinePointDTO
+         * @description Um ponto da régua: o mapa daquele dia, como o painel do mapa o mostra.
+         */
+        MapTimelinePointDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            kind: components["schemas"]["TimelinePointKind"];
+            /** Happened */
+            happened: boolean;
+            /** Leaders */
+            leaders: number[];
+            poll: components["schemas"]["MapPollDTO"] | null;
+            result: components["schemas"]["MapResultDTO"] | null;
+        };
+        /**
+         * MapTimelineYearDTO
+         * @description Um ano de eleição no seletor da linha do tempo.
+         */
+        MapTimelineYearDTO: {
+            /** Year */
+            year: number;
+            /** Cycle */
+            cycle: number;
+            status: components["schemas"]["TimelineYearStatus"];
+            /**
+             * Opens On
+             * Format: date
+             */
+            opens_on: string;
+            winner: components["schemas"]["MapPartyDTO"] | null;
         };
         /** MapValueDTO */
         MapValueDTO: {
@@ -8219,6 +8334,12 @@ export interface components {
             /** Traffic Window S */
             traffic_window_s: number;
         };
+        /**
+         * MilestoneKind
+         * @description O que um marco da linha do tempo junta: promessas, ações de campanha ou alianças.
+         * @enum {string}
+         */
+        MilestoneKind: "PROMISE" | "CAMPAIGN" | "ALLIANCE";
         /**
          * MonetaryDTO
          * @description A SELIC nas mãos do governo: a taxa de hoje, a próxima reunião do Copom e a credibilidade.
@@ -11838,6 +11959,18 @@ export interface components {
             /** Vice */
             vice?: string | null;
         };
+        /**
+         * TimelinePointKind
+         * @description Os quatro tipos de ponto da régua: a pesquisa mensal, o 1º turno, a pesquisa semanal e o 2º turno.
+         * @enum {string}
+         */
+        TimelinePointKind: "POLL" | "FIRST_ROUND" | "RUNOFF_POLL" | "RUNOFF";
+        /**
+         * TimelineYearStatus
+         * @description Como um ano de eleição aparece no seletor da linha do tempo do mapa.
+         * @enum {string}
+         */
+        TimelineYearStatus: "DONE" | "CURRENT" | "UPCOMING";
         /**
          * ToastType
          * @description Um aviso do que acontece com o próprio jogador, ligado ou desligado por tipo.
@@ -16380,6 +16513,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MapPanelDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_map_timeline_api_government_map_timeline_get: {
+        parameters: {
+            query?: {
+                year?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapTimelineDTO"];
                 };
             };
             /** @description Unprocessable Content */

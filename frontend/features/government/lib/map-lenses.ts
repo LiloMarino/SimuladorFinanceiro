@@ -6,7 +6,7 @@ export function dayMonth(isoDate: string) {
   return `${parseLocalDate(isoDate).getDate()} ${displayMonthShort(isoDate)}`;
 }
 
-export type MapLensId = "leads" | "result" | "performance" | "change" | "rejection" | "approval" | "group";
+export type MapLensId = "leads" | "performance" | "change" | "rejection" | "approval" | "group";
 export type MapDivision = "state" | "region";
 
 /** O grupo aberto na lente do eleitorado e o que sustenta as lentes que não dependem de grupo. */
@@ -15,17 +15,16 @@ export const DEFAULT_GROUP: VoterGroup = "WELFARE";
 export type MapLens = {
   id: MapLensId;
   label: string;
-  section: "Eleição" | "Seu partido" | "Governo" | "Eleitorado";
+  section: "Eleição" | "Partido em foco" | "Governo" | "Eleitorado";
   key: string | null;
 };
 
 // As lentes na ordem do menu; a tecla de cada uma troca a lente em qualquer tela do mapa
 export const MAP_LENSES: MapLens[] = [
   { id: "leads", label: "Quem lidera", section: "Eleição", key: "1" },
-  { id: "result", label: "Resultado", section: "Eleição", key: null },
-  { id: "performance", label: "Desempenho", section: "Seu partido", key: "2" },
-  { id: "change", label: "Variação", section: "Seu partido", key: "3" },
-  { id: "rejection", label: "Rejeição", section: "Seu partido", key: "4" },
+  { id: "performance", label: "Desempenho", section: "Partido em foco", key: "2" },
+  { id: "change", label: "Variação", section: "Partido em foco", key: "3" },
+  { id: "rejection", label: "Rejeição", section: "Partido em foco", key: "4" },
   { id: "approval", label: "Aprovação", section: "Governo", key: "5" },
   { id: "group", label: "Onde vive cada grupo", section: "Eleitorado", key: "6" },
 ];
@@ -35,7 +34,27 @@ export const MAP_LENS_BY_KEY = Object.fromEntries(MAP_LENSES.filter((l) => l.key
   MapLensId
 >;
 
-export const MAP_SECTIONS = ["Eleição", "Seu partido", "Governo", "Eleitorado"] as const;
+export const MAP_SECTIONS = ["Eleição", "Partido em foco", "Governo", "Eleitorado"] as const;
+
+// Só as lentes da eleição têm data: as demais mostram sempre o hoje, e a linha do tempo some com elas
+const DATED_LENSES: MapLensId[] = ["leads", "performance", "change"];
+
+export function isDatedLens(lens: MapLensId) {
+  return DATED_LENSES.includes(lens);
+}
+
+export type MomentSource = "poll" | "result";
+
+/** O que o mapa mostra da eleição neste momento: a pesquisa, e sem ela a apuração do último turno. */
+export function momentSource(map: ElectionMap): MomentSource | null {
+  if (map.poll) return "poll";
+  return map.result ? "result" : null;
+}
+
+/** O dia da pesquisa anterior à do momento, o que a Variação compara. */
+export function previousDate(map: ElectionMap) {
+  return map.poll ? map.poll.previous_date : (map.result?.previous_date ?? null);
+}
 
 /** Os lugares da divisão escolhida, na ordem da API. */
 export function placesOf(map: ElectionMap, division: MapDivision) {
@@ -63,14 +82,16 @@ export function paintedParty(map: ElectionMap, chosen: number | null): MapParty 
     if (found) return found;
   }
   if (map.viewer_party_id !== null) return partyOf(map, map.viewer_party_id);
-  const leader = map.poll ? nationalLeader(map) : undefined;
-  return leader ?? map.parties[0];
+  return nationalLeader(map) ?? map.parties[0];
 }
 
 // A pesquisa nacional é a soma dos lugares, pesada pelo eleitorado; o líder dela abre a página sem partido do jogador
 function nationalLeader(map: ElectionMap) {
   const poll = map.poll;
-  if (!poll) return undefined;
+  if (!poll) {
+    const winner = map.result?.national.reduce((best, row) => (Number(row.points) > Number(best.points) ? row : best));
+    return winner ? partyOf(map, winner.party_id) : undefined;
+  }
   const totals = new Map<number, number>();
   for (const place of placesOf(map, "region")) {
     const entry = poll.places.find((item) => item.code === place.code);
@@ -89,12 +110,12 @@ export function lensAvailability(map: ElectionMap, lens: MapLensId): LensAvailab
   switch (lens) {
     case "leads":
     case "performance":
-      return map.poll ? { available: true } : { available: false, reason: `abre em ${dayMonth(map.opens_on)}` };
+      return momentSource(map)
+        ? { available: true }
+        : { available: false, reason: `abre em ${dayMonth(map.opens_on)}` };
     case "change":
-      if (!map.poll) return { available: false, reason: `abre em ${dayMonth(map.opens_on)}` };
-      return map.poll.previous_date ? { available: true } : { available: false, reason: "precisa de 2 pesquisas" };
-    case "result":
-      return map.result ? { available: true } : { available: false, reason: `em ${dayMonth(map.first_round)}` };
+      if (!momentSource(map)) return { available: false, reason: `abre em ${dayMonth(map.opens_on)}` };
+      return previousDate(map) ? { available: true } : { available: false, reason: "precisa de 2 pesquisas" };
     case "rejection":
       return map.rejection.length > 0 ? { available: true } : { available: false, reason: "sem partidos" };
     case "approval":
@@ -151,7 +172,7 @@ export function pointsOf(ranked: Standing[], partyId: number) {
 
 /** Variação do partido desde a pesquisa anterior, em pontos; sem pesquisa anterior, null. */
 export function changeOf(map: ElectionMap, code: string, partyId: number) {
-  const place = map.poll?.places.find((item) => item.code === code);
+  const place = (map.poll ?? map.result)?.places.find((item) => item.code === code);
   if (!place || place.previous_entries.length === 0) return null;
   const now = place.entries.find((entry) => entry.party_id === partyId);
   const before = place.previous_entries.find((entry) => entry.party_id === partyId);
@@ -180,11 +201,11 @@ export function nationalGroupShare(map: ElectionMap, group: VoterGroup) {
   return score === undefined ? 0 : Number(score) * 100;
 }
 
-/** O número de cada lugar da divisão na lente de escala (todas, menos Quem lidera e Resultado). */
+/** O número de cada lugar da divisão na lente de escala (todas, menos Quem lidera). */
 export function lensValues(
   map: ElectionMap,
   division: MapDivision,
-  lens: Exclude<MapLensId, "leads" | "result">,
+  lens: Exclude<MapLensId, "leads">,
   partyId: number | null,
   group: VoterGroup,
 ): Record<string, number | null> {
@@ -198,13 +219,13 @@ export function lensValues(
 function valueOf(
   map: ElectionMap,
   place: MapPlace,
-  lens: Exclude<MapLensId, "leads" | "result">,
+  lens: Exclude<MapLensId, "leads">,
   partyId: number | null,
   group: VoterGroup,
 ) {
   switch (lens) {
     case "performance":
-      return partyId === null ? null : pointsOf(standings(map, place.code, "poll"), partyId);
+      return partyId === null ? null : pointsOf(standings(map, place.code, momentSource(map) ?? "poll"), partyId);
     case "change":
       return partyId === null ? null : changeOf(map, place.code, partyId);
     case "rejection":
@@ -305,8 +326,6 @@ export function lensSentence({ map, division, lens, abbr, values }: SentenceInpu
   switch (lens) {
     case "leads":
       return leadsSentence(map, division);
-    case "result":
-      return "";
     case "performance":
       return range
         ? `Mais forte: ${names[range.max.code]}, ${formatPercent(range.max.value)}. Mais fraco: ${names[range.min.code]}, ${formatPercent(range.min.value)}.`
@@ -331,6 +350,7 @@ export function lensSentence({ map, division, lens, abbr, values }: SentenceInpu
 function leadsSentence(map: ElectionMap, division: MapDivision) {
   const all = placesOf(map, division);
   const unit = division === "state" ? "estados" : "regiões";
+  if (momentSource(map) === "result") return "";
   if (all.every((place) => place.margin === 0)) return "Sem margem de erro na partida: nenhum lugar fica listrado.";
   const tied = all.filter((place) => classifyPlace(standings(map, place.code, "poll"), place.margin)?.kind === "tie");
   if (tied.length === 0)
@@ -365,7 +385,8 @@ function changeSentence(map: ElectionMap, division: MapDivision, values: Record<
   };
   const grew = describe(1);
   const fell = describe(-1);
-  const since = map.poll?.previous_date ? ` desde ${dayMonth(map.poll.previous_date)}` : "";
+  const previous = previousDate(map);
+  const since = previous ? ` desde ${dayMonth(previous)}` : "";
   const pieces = [
     grew.length ? `Cresceu em ${joinList(grew)}` : "",
     fell.length ? `${grew.length ? "caiu" : "Caiu"} em ${joinList(fell)}` : "",

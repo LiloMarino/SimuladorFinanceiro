@@ -160,7 +160,7 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
               <Button
                 variant="ghost"
                 nativeButton={false}
-                render={<Link to={mapLink("result", "state")} />}
+                render={<Link to={mapLink("leads", "state", { year: result.election_year, point: result.date })} />}
                 onClick={onClose}
               >
                 Ver no mapa

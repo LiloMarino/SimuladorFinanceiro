@@ -2,10 +2,9 @@ import type { VoterGroup } from "@/types";
 import { GROUP_INFO } from "./voters";
 import type { MapDivision, MapLensId } from "./map-lenses";
 
-// O estado do mapa vive na URL: ?lente=&divisao=&partido=&grupo=&lugar=
+// O estado do mapa vive na URL: ?lente=&divisao=&partido=&grupo=&lugar=&ano=&ponto=
 const LENS_PARAM: Record<MapLensId, string> = {
   leads: "lidera",
-  result: "resultado",
   performance: "desempenho",
   change: "variacao",
   rejection: "rejeicao",
@@ -42,8 +41,23 @@ export function groupToParam(group: VoterGroup) {
   return group.toLowerCase();
 }
 
-/** O endereço do mapa já com a lente e a divisão escolhidas. */
-export function mapLink(lens: MapLensId, division: MapDivision) {
+/** O ano de eleição da URL; qualquer outra coisa vale como "o ciclo em curso". */
+export function yearFromParam(value: string | null) {
+  const year = Number(value);
+  return Number.isInteger(year) && year > 1900 ? year : null;
+}
+
+/** O ponto da régua da URL: um dia ISO (aaaa-mm-dd), senão nenhum. */
+export function pointFromParam(value: string | null) {
+  return value !== null && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : null;
+}
+
+/** O endereço do mapa já com a lente e a divisão escolhidas, e o ponto da linha do tempo quando há. */
+export function mapLink(lens: MapLensId, division: MapDivision, moment?: { year: number; point: string }) {
   const params = new URLSearchParams({ lente: LENS_PARAM[lens], divisao: DIVISION_PARAM[division] });
+  if (moment) {
+    params.set("ano", String(moment.year));
+    params.set("ponto", moment.point);
+  }
   return `/map?${params.toString()}`;
 }

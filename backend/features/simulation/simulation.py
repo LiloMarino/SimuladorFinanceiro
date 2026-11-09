@@ -43,6 +43,7 @@ from backend.core.dto.government import (
     FoundPartyRequest,
     GovernmentPanelDTO,
     MapPanelDTO,
+    MapTimelineDTO,
     MeasurePreviewDTO,
     PromisesPanelDTO,
     ProposeMeasureRequest,
@@ -172,6 +173,7 @@ from backend.features.government.federation_panel import preview_dto
 from backend.features.government.governance import build_governance, sector_options
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.map_panel import build_map
+from backend.features.government.map_timeline import build_timeline
 from backend.features.government.panel import build_panel
 from backend.features.government.promise_panel import (
     build_balances,
@@ -512,6 +514,12 @@ class Simulation:
         # Os números de campanha chegam a hoje com a queda do tempo aplicada
         book.state.advance(self._current_date)
         return build_map(book, self.settings, user, self._current_date)
+
+    @synchronized
+    def get_map_timeline(self, user: UserDTO, year: int | None) -> MapTimelineDTO:
+        book = self._ensure_government()
+        book.state.advance(self._current_date)
+        return build_timeline(book, self.settings, self._current_date, year)
 
     @synchronized
     def get_campaign(self, user: UserDTO) -> CampaignPanelDTO:

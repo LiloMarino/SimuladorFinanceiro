@@ -9,6 +9,7 @@ import {
   classifyPlace,
   dayMonth,
   formatPercent,
+  momentSource,
   partyOf,
   placeByCode,
   placesOf,
@@ -36,12 +37,11 @@ export function MapView({ map, division, lens, view, selected, onSelect }: MapVi
   const [attachWidth, width] = useElementWidth<HTMLDivElement>();
   const mapWidth = Math.min(MAX_MAP_WIDTH, Math.max(MIN_MAP_WIDTH, width));
   const places = placesOf(map, division);
-  const showResult = lens === "result";
 
-  const footer = showResult
-    ? map.result && `Apuração do ${map.result.round}º turno de ${pollDateLabel(map.result.date)}`
-    : map.poll &&
-      `Pesquisa de ${pollDateLabel(map.poll.date)}${map.poll.next_date ? ` · próxima em ${dayMonth(map.poll.next_date)}` : ""}`;
+  // O momento do mapa é a pesquisa; sem ela, a apuração do último turno
+  const footer = map.poll
+    ? `Pesquisa de ${pollDateLabel(map.poll.date)}${map.poll.next_date ? ` · próxima em ${dayMonth(map.poll.next_date)}` : ""}`
+    : map.result && `Apuração do ${map.result.round}º turno de ${pollDateLabel(map.result.date)}`;
 
   return (
     <Card>
@@ -135,7 +135,7 @@ function PlaceTip({ map, code, lens, view }: { map: ElectionMap; code: string; l
   if (!place) return null;
   const heading = <b className="block text-[13px]">{place.name}</b>;
 
-  if (lens !== "leads" && lens !== "result") {
+  if (lens !== "leads") {
     return (
       <>
         {heading}
@@ -146,7 +146,8 @@ function PlaceTip({ map, code, lens, view }: { map: ElectionMap; code: string; l
     );
   }
 
-  const source = lens === "leads" ? "poll" : "result";
+  const source = momentSource(map);
+  if (!source) return heading;
   const ranked = standings(map, code, source);
   const total = ranked.reduce((sum, row) => sum + row.points, 0);
   const line = ranked
