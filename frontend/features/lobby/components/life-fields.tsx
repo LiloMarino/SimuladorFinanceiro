@@ -29,6 +29,7 @@ import { displayMoney, displayMoneyCompact, displayMoneyWhole } from "@/shared/l
 import { formatMoney } from "@/shared/lib/utils/format";
 import { calculatedGoal, isPositiveMoney, withdrawalRateFraction } from "../lib/life-rules";
 import type { SimulationFormValues } from "../lib/simulation-form";
+import { LifeEventsEditor } from "./life-events-editor";
 
 type LifeFieldsProps = {
   form: UseFormReturn<SimulationFormValues>;
@@ -136,6 +137,9 @@ export function LifeFields({ form, readOnly }: LifeFieldsProps) {
           </Field>
         )}
       />
+
+      {/* Tipos de imprevisto */}
+      <LifeEventsEditor form={form} readOnly={readOnly} />
 
       {/* Correção pelo IPCA */}
       <Controller

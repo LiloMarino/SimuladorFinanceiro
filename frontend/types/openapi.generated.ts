@@ -5424,6 +5424,8 @@ export interface components {
              * @default 0
              */
             unexpected_per_year: number;
+            /** Life Events */
+            life_events?: components["schemas"]["LifeEventTypeDTO-Input"][];
             /**
              * Withdrawal Rate
              * @default 0.04
@@ -7568,6 +7570,40 @@ export interface components {
          * @enum {string}
          */
         LifeEventEffect: "CASH_OUT" | "SKIP_NEXT_SALARY";
+        /**
+         * LifeEventTypeDTO
+         * @description Um tipo de imprevisto das regras da partida: o motor, o histórico e a tela leem a mesma lista.
+         */
+        "LifeEventTypeDTO-Input": {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            effect: components["schemas"]["LifeEventEffect"];
+            /** Weight */
+            weight: number;
+            /** Expense Multiple */
+            expense_multiple: number | string;
+            /** Enabled */
+            enabled: boolean;
+        };
+        /**
+         * LifeEventTypeDTO
+         * @description Um tipo de imprevisto das regras da partida: o motor, o histórico e a tela leem a mesma lista.
+         */
+        "LifeEventTypeDTO-Output": {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            effect: components["schemas"]["LifeEventEffect"];
+            /** Weight */
+            weight: number;
+            /** Expense Multiple */
+            expense_multiple: string;
+            /** Enabled */
+            enabled: boolean;
+        };
         /**
          * LifeHistoryCategory
          * @description Os filtros do histórico do viver de renda.
@@ -10142,6 +10178,8 @@ export interface components {
             monthly_expense: string;
             /** Unexpected Per Year */
             unexpected_per_year: number;
+            /** Life Events */
+            life_events: components["schemas"]["LifeEventTypeDTO-Output"][];
             /** Withdrawal Rate */
             withdrawal_rate: string;
             /** Inflation Adjusted */
@@ -10578,6 +10616,8 @@ export interface components {
             monthly_expense: string;
             /** Unexpected Per Year */
             unexpected_per_year: number;
+            /** Life Events */
+            life_events: components["schemas"]["LifeEventTypeDTO-Output"][];
             /** Withdrawal Rate */
             withdrawal_rate: string;
             /** Inflation Adjusted */
@@ -10688,6 +10728,8 @@ export interface components {
              * @default 0
              */
             unexpected_per_year: number;
+            /** Life Events */
+            life_events?: components["schemas"]["LifeEventTypeDTO-Input"][];
             /**
              * Withdrawal Rate
              * @default 0.04
@@ -10775,6 +10817,8 @@ export interface components {
             monthly_expense: string;
             /** Unexpected Per Year */
             unexpected_per_year: number;
+            /** Life Events */
+            life_events: components["schemas"]["LifeEventTypeDTO-Output"][];
             /** Withdrawal Rate */
             withdrawal_rate: string;
             /** Inflation Adjusted */
@@ -12053,6 +12097,8 @@ export interface components {
              * @default 0
              */
             unexpected_per_year: number;
+            /** Life Events */
+            life_events?: components["schemas"]["LifeEventTypeDTO-Input"][];
             /**
              * Withdrawal Rate
              * @default 0.04

@@ -15472,6 +15472,13 @@
             "title": "Unexpected Per Year",
             "default": 0
           },
+          "life_events": {
+            "items": {
+              "$ref": "#/components/schemas/LifeEventTypeDTO-Input"
+            },
+            "type": "array",
+            "title": "Life Events"
+          },
           "withdrawal_rate": {
             "anyOf": [
               {
@@ -21396,6 +21403,103 @@
           "SKIP_NEXT_SALARY"
         ],
         "title": "LifeEventEffect"
+      },
+      "LifeEventTypeDTO-Input": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "effect": {
+            "$ref": "#/components/schemas/LifeEventEffect"
+          },
+          "weight": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Weight"
+          },
+          "expense_multiple": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 24.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Expense Multiple"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "effect",
+          "weight",
+          "expense_multiple",
+          "enabled"
+        ],
+        "title": "LifeEventTypeDTO",
+        "description": "Um tipo de imprevisto das regras da partida: o motor, o histórico e a tela leem a mesma lista."
+      },
+      "LifeEventTypeDTO-Output": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "effect": {
+            "$ref": "#/components/schemas/LifeEventEffect"
+          },
+          "weight": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Weight"
+          },
+          "expense_multiple": {
+            "type": "string",
+            "title": "Expense Multiple"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "effect",
+          "weight",
+          "expense_multiple",
+          "enabled"
+        ],
+        "title": "LifeEventTypeDTO",
+        "description": "Um tipo de imprevisto das regras da partida: o motor, o histórico e a tela leem a mesma lista."
       },
       "LifeHistoryCategory": {
         "type": "string",
@@ -28938,6 +29042,13 @@
             "minimum": 0.0,
             "title": "Unexpected Per Year"
           },
+          "life_events": {
+            "items": {
+              "$ref": "#/components/schemas/LifeEventTypeDTO-Output"
+            },
+            "type": "array",
+            "title": "Life Events"
+          },
           "withdrawal_rate": {
             "type": "string",
             "title": "Withdrawal Rate"
@@ -29098,6 +29209,7 @@
           "monthly_salary",
           "monthly_expense",
           "unexpected_per_year",
+          "life_events",
           "withdrawal_rate",
           "inflation_adjusted",
           "player_grouping",
@@ -30078,6 +30190,13 @@
             "minimum": 0.0,
             "title": "Unexpected Per Year"
           },
+          "life_events": {
+            "items": {
+              "$ref": "#/components/schemas/LifeEventTypeDTO-Output"
+            },
+            "type": "array",
+            "title": "Life Events"
+          },
           "withdrawal_rate": {
             "type": "string",
             "title": "Withdrawal Rate"
@@ -30165,6 +30284,7 @@
           "monthly_salary",
           "monthly_expense",
           "unexpected_per_year",
+          "life_events",
           "withdrawal_rate",
           "inflation_adjusted",
           "player_grouping",
@@ -30330,6 +30450,13 @@
             "minimum": 0.0,
             "title": "Unexpected Per Year",
             "default": 0
+          },
+          "life_events": {
+            "items": {
+              "$ref": "#/components/schemas/LifeEventTypeDTO-Input"
+            },
+            "type": "array",
+            "title": "Life Events"
           },
           "withdrawal_rate": {
             "anyOf": [
@@ -30503,6 +30630,13 @@
             "minimum": 0.0,
             "title": "Unexpected Per Year"
           },
+          "life_events": {
+            "items": {
+              "$ref": "#/components/schemas/LifeEventTypeDTO-Output"
+            },
+            "type": "array",
+            "title": "Life Events"
+          },
           "withdrawal_rate": {
             "type": "string",
             "title": "Withdrawal Rate"
@@ -30586,6 +30720,7 @@
           "monthly_salary",
           "monthly_expense",
           "unexpected_per_year",
+          "life_events",
           "withdrawal_rate",
           "inflation_adjusted",
           "player_grouping",
@@ -34437,6 +34572,13 @@
             "minimum": 0.0,
             "title": "Unexpected Per Year",
             "default": 0
+          },
+          "life_events": {
+            "items": {
+              "$ref": "#/components/schemas/LifeEventTypeDTO-Input"
+            },
+            "type": "array",
+            "title": "Life Events"
           },
           "withdrawal_rate": {
             "anyOf": [

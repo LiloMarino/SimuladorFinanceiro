@@ -22,6 +22,7 @@ export type SummaryRow = { label: string; value: ReactNode };
 function typeRows(rules: SimulationFormValues): SummaryRow[] {
   if (rules.gameType === "FINANCIAL_INDEPENDENCE") {
     const goal = calculatedGoal(rules.monthlyExpense, rules.withdrawalRate);
+    const activeLifeEvents = rules.lifeEvents.filter((event) => event.enabled).length;
     return [
       {
         label: "Salário · despesa",
@@ -43,7 +44,7 @@ function typeRows(rules: SimulationFormValues): SummaryRow[] {
       },
       {
         label: "Imprevistos",
-        value: `${unexpectedLabel(rules.unexpectedPerYear)} · ${rules.unexpectedPerYear} por ano`,
+        value: `${unexpectedLabel(rules.unexpectedPerYear)} · ${rules.unexpectedPerYear} por ano · ${activeLifeEvents} de ${rules.lifeEvents.length} tipos`,
       },
       {
         label: "Inflação",

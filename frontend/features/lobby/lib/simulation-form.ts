@@ -12,6 +12,7 @@ import type {
   CreateSimulationRequest,
   GameType,
   InitialAccount,
+  LifeEventEffect,
   PlayerGrouping,
   SelicControl,
   SimulationSettingsData,
@@ -37,6 +38,50 @@ const dateField = (emptyMessage: string) =>
       const message = dateFieldError(value);
       if (message) ctx.addIssue({ code: "custom", message });
     });
+
+// Os tipos de fábrica do servidor: ficam sempre na lista e só se desligam
+export const FACTORY_LIFE_EVENT_KEYS: ReadonlySet<string> = new Set(["REPAIR", "HEALTH", "LAYOFF"]);
+
+export const LIFE_EVENT_EFFECTS: readonly (readonly [LifeEventEffect, string])[] = [
+  ["CASH_OUT", "Sai do caixa"],
+  ["SKIP_NEXT_SALARY", "Corta o salário do mês seguinte"],
+];
+
+const LIFE_EVENT_LABEL_MAX_LENGTH = 40;
+const LIFE_EVENT_MAX_EXPENSE_MULTIPLE = 24;
+
+const lifeEventSchema = z
+  .object({
+    key: z.string(),
+    label: z.string().trim().min(1, "Dê um nome ao imprevisto").max(LIFE_EVENT_LABEL_MAX_LENGTH, "Nome longo demais"),
+    effect: z.custom<LifeEventEffect>((value) => LIFE_EVENT_EFFECTS.some(([effect]) => effect === value)),
+    weight: z.number(),
+    // Em despesas mensais, como o host digita: "0,5" é meia despesa
+    expenseMultiple: z.string(),
+    enabled: z.boolean(),
+  })
+  .superRefine((event, ctx) => {
+    if (event.effect !== "CASH_OUT") return;
+    const multiple = Number(normalizeNumberString(event.expenseMultiple));
+    if (event.expenseMultiple !== "" && multiple >= 0 && multiple <= LIFE_EVENT_MAX_EXPENSE_MULTIPLE) return;
+    ctx.addIssue({
+      code: "custom",
+      message: `Informe de 0 a ${LIFE_EVENT_MAX_EXPENSE_MULTIPLE} despesas`,
+      path: ["expenseMultiple"],
+    });
+  });
+
+/** Um tipo próprio recém-criado: sai do caixa, pesa 1 no sorteio e tem chave só dele. */
+export function newLifeEvent(): LifeEventFormValues {
+  return {
+    key: `custom-${crypto.randomUUID().slice(0, 8)}`,
+    label: "Novo imprevisto",
+    effect: "CASH_OUT",
+    weight: 1,
+    expenseMultiple: "1",
+    enabled: true,
+  };
+}
 
 export const simulationFormSchema = z
   .object({
@@ -73,6 +118,7 @@ export const simulationFormSchema = z
       .min(1, "Informe a despesa")
       .refine(isPositiveMoney, "A despesa tem que ser maior que zero"),
     unexpectedPerYear: z.number().refine((value) => UNEXPECTED_OPTIONS.some((o) => o.perYear === value)),
+    lifeEvents: z.array(lifeEventSchema),
     // Percentual ao ano como o jogador digita: "4" é 4%
     withdrawalRate: z
       .string()
@@ -139,6 +185,7 @@ export const simulationFormSchema = z
   });
 
 export type SimulationFormValues = z.infer<typeof simulationFormSchema>;
+export type LifeEventFormValues = z.infer<typeof lifeEventSchema>;
 
 /** As regras da partida como o formulário do lobby as mostra. */
 export function toFormValues(settings: SimulationSettingsData): SimulationFormValues {
@@ -157,6 +204,14 @@ export function toFormValues(settings: SimulationSettingsData): SimulationFormVa
     monthlySalary: moneyToField(settings.monthly_salary),
     monthlyExpense: moneyToField(settings.monthly_expense),
     unexpectedPerYear: settings.unexpected_per_year,
+    lifeEvents: settings.life_events.map((event) => ({
+      key: event.key,
+      label: event.label,
+      effect: event.effect,
+      weight: event.weight,
+      expenseMultiple: displayDecimal(Number(event.expense_multiple)),
+      enabled: event.enabled,
+    })),
     withdrawalRate: withdrawalRateToField(settings.withdrawal_rate),
     inflationAdjusted: settings.inflation_adjusted,
     playerGrouping: settings.player_grouping,
@@ -193,6 +248,15 @@ export function toSettingsBody(values: SimulationFormValues): CreateSimulationRe
     monthly_salary: moneyToBody(values.monthlySalary),
     monthly_expense: moneyToBody(values.monthlyExpense),
     unexpected_per_year: values.unexpectedPerYear,
+    life_events: values.lifeEvents.map((event) => ({
+      key: event.key,
+      label: event.label.trim(),
+      effect: event.effect,
+      weight: event.weight,
+      // O corte do salário não usa valor
+      expense_multiple: event.effect === "CASH_OUT" ? normalizeNumberString(event.expenseMultiple) : "0",
+      enabled: event.enabled,
+    })),
     withdrawal_rate: withdrawalRateToBody(values.withdrawalRate),
     inflation_adjusted: values.inflationAdjusted,
     player_grouping: values.playerGrouping,

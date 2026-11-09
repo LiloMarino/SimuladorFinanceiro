@@ -247,6 +247,15 @@ Os tipos são:
 
 Cada imprevisto aparece num aviso na tela.
 
+**Tipos de imprevisto.** O host edita a lista de tipos no lobby:
+
+- O valor de cada tipo é em despesas mensais, de 0 a 24. Ex.: com despesa de R$ 5.000 e conserto em 2, cada conserto tira R$ 10.000 do caixa de cada jogador.
+- Cada tipo liga e desliga. Tipo desligado não é sorteado, e a frequência por ano continua a mesma: os imprevistos que sobram ficam mais frequentes.
+- Os três de fábrica (conserto, saúde e demissão) não se removem, só se desligam; o efeito deles não muda.
+- Dá para criar até 12 tipos no total, cada um com nome, valor e efeito: tirar do caixa ou cortar o salário do mês seguinte. A chance de um tipo próprio é a da demissão; as de fábrica seguem 3 para o conserto, 2 para a saúde e 1 para a demissão.
+
+A lista vale para a partida salva e entra no preset, no grupo de regras de vida.
+
 **Caixa negativo.** Se o caixa ficar no negativo, ele cai no **cheque especial**: juros cobrados a cada pregão até o caixa voltar ao positivo. O juro mensal é a **SELIC** da partida (a taxa básica de juros) mais um adicional fixo de 7 pontos; na SELIC média da história, dá cerca de 8% ao mês. Ex.: com a SELIC em 1% ao mês, o cheque especial cobra uns 8% ao mês, e R$ 1.000 no vermelho custam cerca de R$ 80 em juros; com a SELIC em 2%, são uns 9%. Para sair, venda ou resgate algo.
 
 **Correção pelo IPCA (opcional).** O IPCA é o índice oficial de inflação: mede a alta média dos preços para o consumidor. Quando a correção está ligada, uma vez por ano, no aniversário da partida, salário e despesa sobem pela inflação dos 12 meses anteriores, como um reajuste, e a meta sobe junto. O salário ainda ganha metade do crescimento do **PIB** (a soma de tudo que o país produz) nos 12 meses, quando ele é positivo; na recessão, só a inflação. Ex.: inflação de 5% e PIB de 3% fazem o salário de R$ 8.000 virar R$ 8.520 (alta de 6,5%), e a despesa de R$ 5.000 virar R$ 5.250. Desligada, tudo fica nos reais do início.

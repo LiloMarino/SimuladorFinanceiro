@@ -44,7 +44,6 @@ from backend.core.enum import (
 )
 from backend.core.sectors import allocate_by_sector
 from backend.features.government.standings import party_ranking
-from backend.features.simulation.life_events import LIFE_EVENTS_BY_KEY
 from backend.features.statistics import operations, returns, risk, sectors
 from backend.features.statistics.credit import CreditStanding, credit_standing
 from backend.features.statistics.goal import goal_on, goal_steps
@@ -99,17 +98,34 @@ def _party_ranking(
 
 def _unexpected_counts(simulation_ids: list[int]) -> dict[tuple[int, str], int]:
     """Os imprevistos de cada jogador; a demissão tem categoria própria no histórico e fica fora."""
+    layoff_keys = {
+        simulation_id: _layoff_keys(simulation_id) for simulation_id in simulation_ids
+    }
     return {
-        player: sum(total for key, total in by_key.items() if not _is_layoff(key))
-        for player, by_key in repository.statistics.get_players_unexpected(
+        (simulation_id, nickname): sum(
+            total
+            for key, total in by_key.items()
+            if key not in layoff_keys[simulation_id]
+        )
+        for (
+            simulation_id,
+            nickname,
+        ), by_key in repository.statistics.get_players_unexpected(
             simulation_ids
         ).items()
     }
 
 
-def _is_layoff(life_event_key: str) -> bool:
-    kind = LIFE_EVENTS_BY_KEY.get(life_event_key)
-    return kind is not None and kind.effect is LifeEventEffect.SKIP_NEXT_SALARY
+def _layoff_keys(simulation_id: int) -> frozenset[str]:
+    """As chaves dos tipos que cortam o salário, nos tipos de imprevisto da partida."""
+    summary = repository.simulation.get_simulation(simulation_id)
+    if summary is None:
+        return frozenset()
+    return frozenset(
+        kind.key
+        for kind in summary.life_events
+        if kind.effect is LifeEventEffect.SKIP_NEXT_SALARY
+    )
 
 
 def _credit_standings(

@@ -13,6 +13,7 @@ from pydantic import ValidationError
 
 from backend import config
 from backend.core.dto.events.cashflow import CashflowEventDTO
+from backend.core.dto.life import DEFAULT_LIFE_EVENTS, LifeEventTypeDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     CASH_SIGN,
@@ -20,6 +21,7 @@ from backend.core.enum import (
     CashflowEventType,
     GameType,
     IndicatorSeries,
+    LifeEventEffect,
     LifeHistoryCategory,
     LifeHistoryKind,
     LifeHistorySort,
@@ -82,7 +84,7 @@ def test_every_cashflow_type_has_a_sign():
 
 
 def test_history_rows_follow_the_rebuilt_cash():
-    rows = build_history(EVENTS)
+    rows = build_history(EVENTS, DEFAULT_LIFE_EVENTS)
 
     assert [r.kind for r in rows] == [
         LifeHistoryKind.UNEXPECTED_EXPENSE,
@@ -106,7 +108,9 @@ def test_history_rows_follow_the_rebuilt_cash():
 
 
 def test_page_is_newest_first_with_counts_per_category():
-    page = history_page(build_history(EVENTS), LifeHistoryCategory.OVERDRAFT, 1, 2)
+    page = history_page(
+        build_history(EVENTS, DEFAULT_LIFE_EVENTS), LifeHistoryCategory.OVERDRAFT, 1, 2
+    )
 
     assert page.total == 4
     assert [r.kind for r in page.items] == [
@@ -117,7 +121,7 @@ def test_page_is_newest_first_with_counts_per_category():
 
 
 def test_interest_paid_sums_the_whole_match_whatever_the_filter():
-    rows = build_history(EVENTS)
+    rows = build_history(EVENTS, DEFAULT_LIFE_EVENTS)
 
     assert history_page(rows, None, 0, 6).interest_paid == Decimal("25.89")
     assert history_page(
@@ -127,7 +131,7 @@ def test_interest_paid_sums_the_whole_match_whatever_the_filter():
 
 
 def test_amount_sort_is_numeric_global_and_keeps_missing_last():
-    rows = build_history(EVENTS)
+    rows = build_history(EVENTS, DEFAULT_LIFE_EVENTS)
     ascending = history_page(rows, None, 0, 6, LifeHistorySort.AMOUNT, "asc")
     descending = history_page(rows, None, 0, 6, LifeHistorySort.AMOUNT, "desc")
     assert [r.amount for r in ascending.items] == [
@@ -151,11 +155,11 @@ def test_amount_sort_is_numeric_global_and_keeps_missing_last():
         history_page(rows, None, 2, 2, LifeHistorySort.AMOUNT, "asc").items
         == ascending.items[2:4]
     )
-    assert rows == build_history(EVENTS)
+    assert rows == build_history(EVENTS, DEFAULT_LIFE_EVENTS)
 
 
 def test_sorting_filter_and_counts_work_together():
-    rows = build_history(EVENTS)
+    rows = build_history(EVENTS, DEFAULT_LIFE_EVENTS)
     page = history_page(
         rows, LifeHistoryCategory.OVERDRAFT, 0, 10, LifeHistorySort.CASH, "asc"
     )
@@ -168,7 +172,7 @@ def test_sorting_filter_and_counts_work_together():
 
 
 def test_text_sort_uses_the_labels_displayed_in_the_table():
-    rows = build_history(EVENTS)
+    rows = build_history(EVENTS, DEFAULT_LIFE_EVENTS)
     by_type = history_page(rows, None, 0, 6, LifeHistorySort.TYPE, "asc")
     assert [r.category for r in by_type.items] == [
         LifeHistoryCategory.OVERDRAFT
@@ -189,7 +193,9 @@ def test_history_route_validates_and_applies_sorting(monkeypatch: pytest.MonkeyP
     monkeypatch.setattr(
         SimulationManager,
         "get_active_simulation",
-        lambda: SimpleNamespace(get_life_history=lambda _client: build_history(EVENTS)),
+        lambda: SimpleNamespace(
+            get_life_history=lambda _client: build_history(EVENTS, DEFAULT_LIFE_EVENTS)
+        ),
     )
     app = FastAPI()
     app.include_router(simulation_router)
@@ -208,13 +214,16 @@ def test_history_route_validates_and_applies_sorting(monkeypatch: pytest.MonkeyP
 def test_layoff_is_known_only_after_the_day_it_happens():
     seed, per_year, start = 3, 6, date(2020, 1, 2)
     month = date(2020, 1, 1)
-    while (day := layoff_in(seed, month, per_year, start)) is None:
+    while (day := layoff_in(seed, month, per_year, start, DEFAULT_LIFE_EVENTS)) is None:
         month = date(month.year + month.month // 12, month.month % 12 + 1, 1)
 
-    assert layoff_in(seed, day, per_year, start, until=day) == day
+    assert layoff_in(seed, day, per_year, start, DEFAULT_LIFE_EVENTS, until=day) == day
     if day.day > 1:
         before = date(day.year, day.month, day.day - 1)
-        assert layoff_in(seed, day, per_year, start, until=before) is None
+        assert (
+            layoff_in(seed, day, per_year, start, DEFAULT_LIFE_EVENTS, until=before)
+            is None
+        )
 
 
 def _life_request(**changes: object) -> CreateSimulationRequest:
@@ -295,17 +304,23 @@ def test_first_trading_day_pays_salary_then_expense_and_draws_the_event(
     captured_events: list,
 ):
     day = date(2020, 3, 2)
-    seed = next(s for s in range(500) if unexpected_on(s, day, 6) is not None)
+    seed = next(
+        s
+        for s in range(500)
+        if unexpected_on(s, day, 6, DEFAULT_LIFE_EVENTS) is not None
+    )
     engine = _RecordingEngine()
     fake, life = _living(day, seed, engine)
-    drawn = unexpected_on(seed, day, 6)
+    drawn = unexpected_on(seed, day, 6, DEFAULT_LIFE_EVENTS)
     assert drawn is not None
 
     Simulation._live(
         fake, life, [UserDTO(id=1, client_id=client("Ana"), nickname="Ana")], True
     )
 
-    skipped = salary_skipped(seed, day, 6, fake.settings.start_date)
+    skipped = salary_skipped(
+        seed, day, 6, fake.settings.start_date, DEFAULT_LIFE_EVENTS
+    )
     expected = [] if skipped else [("salary", Decimal(8000))]
     expected += [("expense", Decimal(5000)), (drawn.key, drawn.expense_multiple * 5000)]
     assert engine.calls == expected
@@ -364,6 +379,7 @@ def _months_without_salary(unemployment: str, seed: int) -> int:
             month,
             6,
             start,
+            DEFAULT_LIFE_EVENTS,
             layoff_factor_on=partial(Simulation._layoff_factor, fake),
         )
         for month in months
@@ -435,7 +451,9 @@ def test_history_interleaves_budget_changes_by_date_and_cites_unemployment():
         ),
     ]
 
-    rows = build_history(EVENTS, changes, lambda _day: Decimal("0.123"))
+    rows = build_history(
+        EVENTS, DEFAULT_LIFE_EVENTS, changes, lambda _day: Decimal("0.123")
+    )
 
     assert [r.kind for r in rows][:2] == [
         LifeHistoryKind.OVERDRAFT_RATE_CHANGED,
@@ -448,3 +466,26 @@ def test_history_interleaves_budget_changes_by_date_and_cites_unemployment():
     assert layoff.label == "Desemprego de 12,3%"
     page = history_page(rows, LifeHistoryCategory.BUDGET, 0, 10)
     assert page.total == page.counts.budget == 3
+
+
+def test_history_reads_label_and_effect_from_the_match_types():
+    fine = LifeEventTypeDTO(
+        key="FINE",
+        label="Multa",
+        effect=LifeEventEffect.CASH_OUT,
+        weight=1,
+        expense_multiple=Decimal("0.5"),
+        enabled=True,
+    )
+    events = [
+        event(date(2012, 6, 1), T.DEPOSIT, "9000"),
+        event(date(2012, 6, 8), T.UNEXPECTED_EXPENSE, "2500", "FINE"),
+        event(date(2012, 6, 9), T.UNEXPECTED_EXPENSE, "100", "GONE"),
+    ]
+
+    custom, removed = build_history(events, [*DEFAULT_LIFE_EVENTS, fine])
+
+    assert custom.label == "Multa"
+    assert custom.kind is LifeHistoryKind.UNEXPECTED_EXPENSE
+    # A chave de um tipo que saiu da lista aparece como está
+    assert removed.label == "GONE"

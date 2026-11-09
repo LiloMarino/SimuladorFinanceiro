@@ -2,16 +2,16 @@
 Regras do viver de renda, puras: os imprevistos sorteados e o juro do cheque
 especial. Salário, despesa e meta ficam no `LifeBudget`.
 
-Os imprevistos vêm de um registro de tipos: o motor, o histórico e as telas leem
-`LIFE_EVENTS`, então um tipo novo é uma entrada nova na tupla.
+Os imprevistos vêm da lista de tipos das regras da partida (`life_events`): quem
+sorteia recebe a lista, então um tipo novo é uma entrada nova nela.
 """
 
 import random
-from collections.abc import Callable
-from dataclasses import dataclass
+from collections.abc import Callable, Sequence
 from datetime import date, timedelta
 from decimal import Decimal
 
+from backend.core.dto.life import LifeEventTypeDTO
 from backend.core.enum import LifeEventEffect
 from backend.core.life_budget import cents
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR, MONTHS_PER_YEAR
@@ -19,42 +19,6 @@ from backend.core.rates import compound
 from backend.core.utils import is_business_day, next_business_day
 from backend.features.economy.growth import NEUTRAL_UNEMPLOYMENT
 from backend.features.tax_policy import DEFAULT_TAX_POLICY
-
-
-@dataclass(frozen=True)
-class LifeEventType:
-    key: str
-    label: str
-    effect: LifeEventEffect
-    # Chance relativa entre os tipos quando sai um imprevisto
-    weight: int
-    expense_multiple: Decimal = Decimal(0)
-
-
-LIFE_EVENTS: tuple[LifeEventType, ...] = (
-    LifeEventType(
-        key="REPAIR",
-        label="Conserto do carro",
-        effect=LifeEventEffect.CASH_OUT,
-        weight=3,
-        expense_multiple=Decimal(1),
-    ),
-    LifeEventType(
-        key="HEALTH",
-        label="Despesa de saúde",
-        effect=LifeEventEffect.CASH_OUT,
-        weight=2,
-        expense_multiple=Decimal(2),
-    ),
-    LifeEventType(
-        key="LAYOFF",
-        label="Demissão",
-        effect=LifeEventEffect.SKIP_NEXT_SALARY,
-        weight=1,
-    ),
-)
-
-LIFE_EVENTS_BY_KEY = {event.key: event for event in LIFE_EVENTS}
 
 
 def layoff_factor_of(unemployment: Decimal) -> float:
@@ -73,15 +37,16 @@ def unexpected_on(
     seed: int,
     day: date,
     per_year: int,
-    events: tuple[LifeEventType, ...] = LIFE_EVENTS,
+    events: Sequence[LifeEventTypeDTO],
     layoff_factor: float = 1.0,
-) -> LifeEventType | None:
+) -> LifeEventTypeDTO | None:
     """
     O imprevisto do pregão `day`, ou None. O gerador nasce da semente da partida e
     do dia: todos os jogadores recebem o mesmo, e a retomada sorteia igual.
     A chance de um tipo por pregão é `per_year / 252` na fatia do seu peso; a da
     demissão, multiplicada por `layoff_factor`.
     """
+    events = [event for event in events if event.enabled]
     if per_year <= 0 or not events:
         return None
     draw = random.Random(f"{seed}:{day.isoformat()}").random()
@@ -102,8 +67,8 @@ def layoff_in(
     month: date,
     per_year: int,
     start_date: date,
+    events: Sequence[LifeEventTypeDTO],
     until: date | None = None,
-    events: tuple[LifeEventType, ...] = LIFE_EVENTS,
     layoff_factor_on: Callable[[date], float] = neutral_layoff_factor,
 ) -> date | None:
     """O pregão do mês de `month` (a partir do início da partida e até `until`) em que saiu uma demissão."""
@@ -125,7 +90,7 @@ def salary_skipped(
     month: date,
     per_year: int,
     start_date: date,
-    events: tuple[LifeEventType, ...] = LIFE_EVENTS,
+    events: Sequence[LifeEventTypeDTO],
     layoff_factor_on: Callable[[date], float] = neutral_layoff_factor,
 ) -> bool:
     """O salário de `month` não entra quando saiu uma demissão em algum pregão do mês anterior."""

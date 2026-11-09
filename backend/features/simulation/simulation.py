@@ -1368,6 +1368,7 @@ class Simulation:
                 day,
                 per_year,
                 self.settings.start_date,
+                self.settings.life_events,
                 layoff_factor_on=self._layoff_factor,
             )
             salary = self._net_salary(life, day)
@@ -1377,7 +1378,11 @@ class Simulation:
                 self._engine.pay_expense(user.client_id, life.expense_on(day))
 
         event = unexpected_on(
-            self._random_seed, day, per_year, layoff_factor=self._layoff_factor(day)
+            self._random_seed,
+            day,
+            per_year,
+            self.settings.life_events,
+            layoff_factor=self._layoff_factor(day),
         )
         if event is None:
             return
@@ -1438,6 +1443,7 @@ class Simulation:
                 day.replace(day=1) - timedelta(days=1),
                 per_year,
                 start,
+                self.settings.life_events,
                 layoff_factor_on=self._layoff_factor,
             ),
             next_salary_skipped_by=layoff_in(
@@ -1445,6 +1451,7 @@ class Simulation:
                 day,
                 per_year,
                 start,
+                self.settings.life_events,
                 until=day,
                 layoff_factor_on=self._layoff_factor,
             ),
@@ -1469,7 +1476,7 @@ class Simulation:
             self.settings.id, UserManager.get_user_id(client_id)
         )
         if self._life is None:
-            return build_life_history(events)
+            return build_life_history(events, self.settings.life_events)
         changes = budget_changes(
             self._life,
             self._current_date,
@@ -1477,7 +1484,10 @@ class Simulation:
             _overdraft_rate,
         )
         return build_life_history(
-            events, changes, lambda day: self._macro.latest(day).unemployment
+            events,
+            self.settings.life_events,
+            changes,
+            lambda day: self._macro.latest(day).unemployment,
         )
 
     @synchronized

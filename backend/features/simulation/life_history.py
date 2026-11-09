@@ -14,6 +14,7 @@ from typing import Literal
 
 from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.life import (
+    LifeEventTypeDTO,
     LifeHistoryCountsDTO,
     LifeHistoryPageDTO,
     LifeHistoryRowDTO,
@@ -29,10 +30,7 @@ from backend.core.enum import (
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
 from backend.core.utils import format_money
-from backend.features.simulation.life_events import (
-    LIFE_EVENTS_BY_KEY,
-    net_salary,
-)
+from backend.features.simulation.life_events import net_salary
 from backend.features.tax_policy import DEFAULT_TAX_POLICY
 
 
@@ -112,15 +110,19 @@ def budget_changes(
 
 def build_history(
     events: list[CashflowEventDTO],
+    life_events: Sequence[LifeEventTypeDTO],
     changes: Sequence[BudgetChange] = (),
     unemployment_on: Callable[[date], Decimal] | None = None,
 ) -> list[LifeHistoryRowDTO]:
     """
     As linhas do mais antigo ao mais novo, a partir de todos os eventos de caixa do
-    jogador em ordem e das mudanças do orçamento, na ordem das datas. O juro é
+    jogador em ordem e das mudanças do orçamento, na ordem das datas. O rótulo e o
+    efeito de cada imprevisto vêm dos tipos das regras da partida (`life_events`);
+    a chave de um tipo que saiu da lista aparece como está. O juro é
     cobrado por pregão e vira uma linha por mês, datada do último pregão cobrado
     nele. Com `unemployment_on`, a demissão cita o desemprego do dia.
     """
+    kinds = {kind.key: kind for kind in life_events}
     rows: list[LifeHistoryRowDTO] = []
     interest: LifeHistoryRowDTO | None = None
     cash = Decimal(0)
@@ -164,7 +166,7 @@ def build_history(
 
         if event.event_type is CashflowEventType.UNEXPECTED_EXPENSE:
             flush_interest()
-            rows.append(_unexpected_row(event, cash, unemployment_on))
+            rows.append(_unexpected_row(event, kinds, cash, unemployment_on))
 
         if before >= 0 > cash:
             flush_interest()
@@ -290,10 +292,11 @@ def _description_key(row: LifeHistoryRowDTO) -> str:
 
 def _unexpected_row(
     event: CashflowEventDTO,
+    kinds: dict[str, LifeEventTypeDTO],
     cash: Decimal,
     unemployment_on: Callable[[date], Decimal] | None,
 ) -> LifeHistoryRowDTO:
-    kind = LIFE_EVENTS_BY_KEY.get(event.life_event_key or "")
+    kind = kinds.get(event.life_event_key or "")
     if kind is not None and kind.effect is LifeEventEffect.SKIP_NEXT_SALARY:
         label = (
             kind.label

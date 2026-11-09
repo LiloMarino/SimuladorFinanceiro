@@ -5,13 +5,17 @@ from datetime import date
 from decimal import Decimal
 
 import pytest
+from pydantic import ValidationError
 
+from backend.core.dto.life import (
+    DEFAULT_LIFE_EVENTS,
+    LifeEventTypeDTO,
+    validate_life_events,
+)
 from backend.core.enum import IndicatorSeries, LifeEventEffect
 from backend.core.life_budget import LifeBudget
 from backend.core.utils import next_business_day
 from backend.features.simulation.life_events import (
-    LIFE_EVENTS,
-    LifeEventType,
     layoff_factor_of,
     net_salary,
     overdraft_interest,
@@ -35,7 +39,7 @@ def trading_days(start: date, count: int) -> list[date]:
 YEARS = trading_days(START, 252 * 20)
 
 
-def draws(seed: int, per_year: int, events=LIFE_EVENTS) -> list:
+def draws(seed: int, per_year: int, events=DEFAULT_LIFE_EVENTS) -> list:
     return [unexpected_on(seed, day, per_year, events) for day in YEARS]
 
 
@@ -63,31 +67,69 @@ def test_a_layoff_skips_the_salary_of_the_next_month():
     layoff = next(
         (day, event)
         for day in YEARS
-        if (event := unexpected_on(3, day, 6)) and event.key == "LAYOFF"
+        if (event := unexpected_on(3, day, 6, DEFAULT_LIFE_EVENTS))
+        and event.key == "LAYOFF"
     )
     day = layoff[0]
     next_month = date(day.year + day.month // 12, day.month % 12 + 1, 1)
 
-    assert salary_skipped(3, next_month, 6, START)
+    assert salary_skipped(3, next_month, 6, START, DEFAULT_LIFE_EVENTS)
 
 
 def test_a_month_without_layoff_pays_the_salary():
-    assert not salary_skipped(3, date(2020, 2, 1), 0, START)
+    assert not salary_skipped(3, date(2020, 2, 1), 0, START, DEFAULT_LIFE_EVENTS)
+
+
+FINE = LifeEventTypeDTO(
+    key="FINE",
+    label="Multa",
+    effect=LifeEventEffect.CASH_OUT,
+    weight=1,
+    expense_multiple=Decimal("0.5"),
+    enabled=True,
+)
 
 
 def test_a_new_event_type_is_drawn_without_touching_the_engine():
-    """O registro é a única fonte: um tipo novo, sozinho na tupla, é o único sorteado."""
-    car = LifeEventType(
-        key="CAR",
-        label="Multa",
-        effect=LifeEventEffect.CASH_OUT,
-        weight=1,
-        expense_multiple=Decimal("0.5"),
-    )
+    """A lista é a única fonte: um tipo novo, sozinho nela, é o único sorteado."""
+    drawn = {e.key for e in draws(42, 6, (FINE,)) if e is not None}
 
-    drawn = {e for e in draws(42, 6, (car,)) if e is not None}
+    assert drawn == {FINE.key}
 
-    assert drawn == {car}
+
+def test_a_disabled_type_is_never_drawn():
+    types = [
+        e.model_copy(update={"enabled": e.key != "HEALTH"}) for e in DEFAULT_LIFE_EVENTS
+    ]
+
+    drawn = {e.key for e in draws(42, 12, types) if e is not None}
+
+    assert drawn == {"REPAIR", "LAYOFF"}
+
+
+def test_a_custom_type_joins_the_draw_next_to_the_defaults():
+    drawn = {
+        e.key for e in draws(42, 12, (*DEFAULT_LIFE_EVENTS, FINE)) if e is not None
+    }
+
+    assert drawn == {"REPAIR", "HEALTH", "LAYOFF", "FINE"}
+
+
+def test_without_enabled_types_nothing_is_drawn():
+    types = [e.model_copy(update={"enabled": False}) for e in DEFAULT_LIFE_EVENTS]
+
+    assert all(e is None for e in draws(42, 12, types))
+
+
+def test_the_frequency_holds_when_a_type_is_disabled():
+    """Desligar um tipo troca quem sai, não quantos imprevistos saem por ano."""
+    types = [
+        e.model_copy(update={"enabled": e.key == "REPAIR"}) for e in DEFAULT_LIFE_EVENTS
+    ]
+
+    per_year = sum(e is not None for e in draws(42, 6, types)) / 20
+
+    assert per_year == pytest.approx(6, rel=0.25)
 
 
 def budget(inflation_adjusted: bool, growth: str | None = None) -> LifeBudget:
@@ -142,7 +184,12 @@ def test_overdraft_pays_8_percent_a_month_compounded_by_trading_day():
 def layoffs(seed: int, unemployment: str) -> int:
     factor = layoff_factor_of(Decimal(unemployment))
     return sum(
-        (event := unexpected_on(seed, day, 6, layoff_factor=factor)) is not None
+        (
+            event := unexpected_on(
+                seed, day, 6, DEFAULT_LIFE_EVENTS, layoff_factor=factor
+            )
+        )
+        is not None
         and event.effect is LifeEventEffect.SKIP_NEXT_SALARY
         for day in YEARS
     )
@@ -170,7 +217,10 @@ def test_unemployment_changes_only_the_layoff_chance():
 
 
 def draws_with_factor(seed: int, factor: float) -> list:
-    return [unexpected_on(seed, day, 6, layoff_factor=factor) for day in YEARS]
+    return [
+        unexpected_on(seed, day, 6, DEFAULT_LIFE_EVENTS, layoff_factor=factor)
+        for day in YEARS
+    ]
 
 
 def test_layoff_draw_is_deterministic_with_the_unemployment_factor():
@@ -214,3 +264,48 @@ def test_income_tax_above_the_reference_discounts_the_salary():
     # 5 pontos acima da referência descontam 5% do salário; abaixo, somam
     assert net_salary(Decimal(8000), reference + Decimal("0.05")) == Decimal(7600)
     assert net_salary(Decimal(8000), reference - Decimal("0.05")) == Decimal(8400)
+
+
+def test_the_factory_types_may_be_edited_and_custom_ones_added():
+    repair = DEFAULT_LIFE_EVENTS[0].model_copy(update={"expense_multiple": Decimal(2)})
+
+    types = [repair, *DEFAULT_LIFE_EVENTS[1:], FINE]
+
+    assert validate_life_events(types) == types
+
+
+@pytest.mark.parametrize(
+    "types",
+    [
+        [*DEFAULT_LIFE_EVENTS, DEFAULT_LIFE_EVENTS[0]],
+        list(DEFAULT_LIFE_EVENTS[1:]),
+        [
+            *DEFAULT_LIFE_EVENTS[:2],
+            DEFAULT_LIFE_EVENTS[2].model_copy(
+                update={"effect": LifeEventEffect.CASH_OUT}
+            ),
+        ],
+        [
+            *DEFAULT_LIFE_EVENTS,
+            *(FINE.model_copy(update={"key": f"X{n}"}) for n in range(10)),
+        ],
+    ],
+    ids=["duplicate key", "factory type removed", "factory effect changed", "too many"],
+)
+def test_invalid_type_lists_are_rejected(types: list[LifeEventTypeDTO]):
+    with pytest.raises(ValueError, match=r"única|removido|efeito|No máximo"):
+        validate_life_events(types)
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"label": ""},
+        {"expense_multiple": Decimal(-1)},
+        {"expense_multiple": Decimal(25)},
+        {"weight": 0},
+    ],
+)
+def test_a_type_needs_a_label_a_sane_value_and_a_positive_weight(changes: dict):
+    with pytest.raises(ValidationError):
+        LifeEventTypeDTO.model_validate({**FINE.model_dump(), **changes})

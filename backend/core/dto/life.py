@@ -1,8 +1,84 @@
 from datetime import date
 from decimal import Decimal
+from typing import Annotated
+
+from pydantic import AfterValidator, Field
 
 from backend.core.dto.base import BaseDTO
 from backend.core.enum import LifeEventEffect, LifeHistoryCategory, LifeHistoryKind
+
+LIFE_EVENT_LABEL_MAX_LENGTH = 40
+LIFE_EVENT_MAX_EXPENSE_MULTIPLE = 24
+LIFE_EVENTS_MAX_COUNT = 12
+
+
+class LifeEventTypeDTO(BaseDTO):
+    """Um tipo de imprevisto das regras da partida: o motor, o histórico e a tela leem a mesma lista."""
+
+    key: str = Field(min_length=1, max_length=40)
+    label: str = Field(min_length=1, max_length=LIFE_EVENT_LABEL_MAX_LENGTH)
+    effect: LifeEventEffect
+    # Chance relativa entre os tipos quando sai um imprevisto
+    weight: int = Field(ge=1)
+    # Quantas despesas mensais saem do caixa; a demissão não usa
+    expense_multiple: Decimal = Field(ge=0, le=LIFE_EVENT_MAX_EXPENSE_MULTIPLE)
+    enabled: bool
+
+
+DEFAULT_LIFE_EVENTS: tuple[LifeEventTypeDTO, ...] = (
+    LifeEventTypeDTO(
+        key="REPAIR",
+        label="Conserto do carro",
+        effect=LifeEventEffect.CASH_OUT,
+        weight=3,
+        expense_multiple=Decimal(1),
+        enabled=True,
+    ),
+    LifeEventTypeDTO(
+        key="HEALTH",
+        label="Despesa de saúde",
+        effect=LifeEventEffect.CASH_OUT,
+        weight=2,
+        expense_multiple=Decimal(2),
+        enabled=True,
+    ),
+    LifeEventTypeDTO(
+        key="LAYOFF",
+        label="Demissão",
+        effect=LifeEventEffect.SKIP_NEXT_SALARY,
+        weight=1,
+        expense_multiple=Decimal(0),
+        enabled=True,
+    ),
+)
+
+
+def validate_life_events(
+    events: list[LifeEventTypeDTO],
+) -> list[LifeEventTypeDTO]:
+    """Os tipos de fábrica ficam sempre na lista (só se desligam) e as chaves não se repetem."""
+    keys = [event.key for event in events]
+    if len(set(keys)) != len(keys):
+        raise ValueError("Cada tipo de imprevisto precisa de uma chave única.")
+    if len(events) > LIFE_EVENTS_MAX_COUNT:
+        raise ValueError(
+            f"No máximo {LIFE_EVENTS_MAX_COUNT} tipos de imprevisto por partida."
+        )
+    for default in DEFAULT_LIFE_EVENTS:
+        found = next((e for e in events if e.key == default.key), None)
+        if found is None:
+            raise ValueError(f"O tipo «{default.label}» não pode ser removido.")
+        if found.effect is not default.effect:
+            raise ValueError(f"O efeito do tipo «{default.label}» não muda.")
+    return events
+
+
+# A lista de tipos das regras da partida; o padrão é o catálogo de fábrica
+LifeEventTypes = Annotated[list[LifeEventTypeDTO], AfterValidator(validate_life_events)]
+
+
+def default_life_events() -> list[LifeEventTypeDTO]:
+    return list(DEFAULT_LIFE_EVENTS)
 
 
 class LifeEventDTO(BaseDTO):

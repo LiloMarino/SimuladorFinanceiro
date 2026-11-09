@@ -169,6 +169,8 @@ export type SimulationState = Partial<components["schemas"]["SimulationStateResp
 export type SimulationData = components["schemas"]["SimulationDTO"];
 export type CreateSimulationRequest = components["schemas"]["CreateSimulationRequest"];
 export type SimulationSettingsData = components["schemas"]["SimulationSettingsDTO"];
+// O efeito de um tipo de imprevisto no caixa
+export type LifeEventEffect = SimulationSettingsData["life_events"][number]["effect"];
 export type SetSpeedResponse = components["schemas"]["SetSpeedResponse"];
 export type UpdateSettingsRequest = components["schemas"]["UpdateSettingsRequest"];
 export type SimulationSettings = components["schemas"]["SimulationSettingsResponse"];
