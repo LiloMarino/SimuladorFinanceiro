@@ -2,7 +2,7 @@
 Atualização dos indicadores econômicos: CDI, SELIC, IPCA e PTAX (o dólar) pelo SGS
 do Banco Central e o Ibovespa pelo yfinance. O crescimento do PIB e o desemprego são do
 IBGE e chegam pelo mesmo SGS, que os republica. As projeções do mercado vêm do Focus do
-Banco Central.
+Banco Central e o juro americano (Fed Funds) vem do FRED.
 """
 
 import logging
@@ -23,6 +23,7 @@ from backend.features.import_data.bcb_focus import (
     fetch_focus_selic,
 )
 from backend.features.import_data.bcb_sgs import fetch_sgs
+from backend.features.import_data.fred import fetch_fed_funds
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +129,9 @@ INDICATOR_SOURCES: dict[IndicatorSeries, IndicatorSource] = {
         "Focus: câmbio do fim do ano",
         date(2000, 1, 1),
         partial(fetch_focus_annual, "Câmbio"),
+    ),
+    IndicatorSeries.FED_FUNDS: IndicatorSource(
+        "Fed Funds (juro americano)", date(1994, 7, 1), fetch_fed_funds
     ),
 }
 

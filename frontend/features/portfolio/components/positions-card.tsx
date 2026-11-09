@@ -8,11 +8,18 @@ import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { DailyLiquidityBadge } from "@/shared/components/daily-liquidity-badge";
+import { FlagUs } from "@/shared/components/icons/flag-us";
 import { InfoHint } from "@/shared/components/info-hint";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { DIVIDEND_YIELD, YIELD_ON_COST } from "@/shared/lib/dividend-metrics";
 import { MARK_TO_MARKET } from "@/shared/lib/treasury-metrics";
-import { displayMoney, displayPercent, displayQuantity, displayRateLabel } from "@/shared/lib/utils/display";
+import {
+  displayDollars,
+  displayMoney,
+  displayPercent,
+  displayQuantity,
+  displayRateLabel,
+} from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
@@ -276,6 +283,7 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
                     <TableCell>
                       <span className="grid">
                         <span className="flex items-center gap-1.5 font-semibold">
+                          {p.usd_amount && <FlagUs size={16} />}
                           {p.asset.name}
                           {p.asset.daily_liquidity && (
                             <DailyLiquidityBadge size="sm">liquidez diária</DailyLiquidityBadge>
@@ -285,7 +293,16 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
                       </span>
                     </TableCell>
                     <TableCell numeric>{displayMoney(p.total_applied)}</TableCell>
-                    <TableCell numeric>{displayMoney(p.current_value)}</TableCell>
+                    <TableCell numeric>
+                      {p.usd_amount ? (
+                        <span className="grid">
+                          <span>{displayMoney(p.current_value)}</span>
+                          <span className="text-xs text-muted-foreground">{displayDollars(p.usd_amount)}</span>
+                        </span>
+                      ) : (
+                        displayMoney(p.current_value)
+                      )}
+                    </TableCell>
                     <TableCell>{displayRateLabel(p.asset.rate_index, p.asset.interest_rate)}</TableCell>
                     <TableCell numeric>{displayPercent(p.portfolio_pct)}</TableCell>
                     <TableCell>

@@ -38,6 +38,7 @@ from backend.features.fixed_income.entities.fixed_income_position import (
 from backend.features.fixed_income.fixed_broker import FixedBroker
 from backend.features.fixed_income.liquidity import redeemable_today, total_redeemable
 from backend.features.fixed_income.market import FixedIncomeMarket
+from backend.features.fixed_income.quotes import FixedIncomeQuotes
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import AutoRedeemEventDTO, CashUpdateEventDTO
 from backend.features.statistics.sectors import effective_sectors
@@ -149,6 +150,40 @@ class SimulationEngine:
     def treasury_premium(self) -> Decimal:
         """O prêmio que o Tesouro cobra no mês corrente; é o que marca os títulos a mercado."""
         return self.risk_premium_on(self.current_date.replace(day=1))
+
+    def fixed_quotes(self) -> FixedIncomeQuotes:
+        """As cotações de hoje que marcam a renda fixa: o prêmio do Tesouro e o dólar da conta em dólar."""
+        return FixedIncomeQuotes(self.treasury_premium(), self.dollar_today())
+
+    # O dólar da partida em cada dia é o da história (a PTAX, ou a paridade onde ela não
+    # cobre) vezes o fator do governo; sem a expansão o fator é 1 e o dólar é a história
+    _dollar_history_source: Callable[[date], Decimal] | None = None
+    _dollar_factor_source: Callable[[date], float] | None = None
+    _dollar_cache: tuple[date, Decimal] | None = None
+
+    def use_dollar_history(self, source: Callable[[date], Decimal]) -> None:
+        self._dollar_history_source = source
+        self._dollar_cache = None
+
+    def use_dollar_factor(self, source: Callable[[date], float]) -> None:
+        self._dollar_factor_source = source
+        self._dollar_cache = None
+
+    def dollar_on(self, day: date) -> Decimal:
+        """Quantos reais vale US$ 1 em `day`; 1 enquanto a partida não tem fonte do dólar."""
+        cached = self._dollar_cache
+        if cached is not None and cached[0] == day:
+            return cached[1]
+        history = self._dollar_history_source
+        factor = self._dollar_factor_source
+        dollar = Decimal(1) if history is None else history(day)
+        if factor is not None:
+            dollar *= Decimal(str(round(factor(day), 6)))
+        self._dollar_cache = (day, dollar)
+        return dollar
+
+    def dollar_today(self) -> Decimal:
+        return self.dollar_on(self.current_date)
 
     # O prêmio de risco acima da história, que o banco soma ao juro do crédito; sem a
     # expansão é zero
@@ -480,9 +515,9 @@ class SimulationEngine:
 
     def fixed_market_value(self, positions: Iterable[FixedIncomePosition]) -> Decimal:
         """O que a renda fixa vale vendida hoje: o Tesouro entra pelo preço de mercado."""
-        premium = self.treasury_premium()
+        quotes = self.fixed_quotes()
         return sum(
-            (p.market_value(self.current_date, premium) for p in positions), Decimal(0)
+            (p.market_value(self.current_date, quotes) for p in positions), Decimal(0)
         )
 
     def balance_sheet(self, client_id: UUID) -> BalanceSheet:
@@ -516,7 +551,7 @@ class SimulationEngine:
         policy = self.tax_policy_on(self.current_date)
 
         variable_income_value = sum((p.current_value for p in equity), Decimal(0))
-        premium = self.treasury_premium()
+        quotes = self.fixed_quotes()
         fixed_income_value = self.fixed_market_value(fixed)
         invested_value = variable_income_value + fixed_income_value
         # Os percentuais de alocação são sobre os ativos; o patrimônio é o líquido da dívida
@@ -565,7 +600,7 @@ class SimulationEngine:
             variable_income_value=variable_income_value,
             fixed_income_value=fixed_income_value,
             fixed_income_redeemable=total_redeemable(
-                fixed, self.current_date, policy, premium
+                fixed, self.current_date, policy, quotes
             ),
             invested_pct=ratio(invested_value, assets_value),
             variable_income_pct=ratio(variable_income_value, invested_value),
@@ -597,7 +632,7 @@ class SimulationEngine:
             sectors=sectors,
             effective_sectors=effective_sectors(sectors),
             fixed_income=[
-                self._fixed_position_dto(pos, premium, policy, invested_value)
+                self._fixed_position_dto(pos, quotes, policy, invested_value)
                 for pos in fixed
             ],
         )
@@ -642,22 +677,25 @@ class SimulationEngine:
     def _fixed_position_dto(
         self,
         pos: FixedIncomePosition,
-        premium: Decimal,
+        quotes: FixedIncomeQuotes,
         policy: TaxPolicy,
         invested_value: Decimal,
     ) -> FixedIncomePositionDTO:
-        market_value = pos.market_value(self.current_date, premium)
+        market_value = pos.market_value(self.current_date, quotes)
+        value = pos.reais_value(quotes)
         return FixedIncomePositionDTO(
             asset=pos.asset,
             total_applied=pos.total_applied,
-            current_value=pos.current_value,
+            current_value=value,
             market_value=market_value,
-            mark=market_value - pos.current_value,
+            mark=market_value - value,
             first_applied_date=pos.first_applied_date,
-            return_value=pos.current_value - pos.total_applied,
-            return_pct=ratio(pos.current_value - pos.total_applied, pos.total_applied),
+            return_value=value - pos.total_applied,
+            return_pct=ratio(value - pos.total_applied, pos.total_applied),
             portfolio_pct=ratio(market_value, invested_value),
-            redeemable_today=redeemable_today(pos, self.current_date, policy, premium),
+            redeemable_today=redeemable_today(pos, self.current_date, policy, quotes),
+            usd_amount=pos.current_value if pos.marked_by_dollar else None,
+            fx_rate=quotes.dollar if pos.marked_by_dollar else None,
         )
 
     def next(self, current_date: date) -> None:

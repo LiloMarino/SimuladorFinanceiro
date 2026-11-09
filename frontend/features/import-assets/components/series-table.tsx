@@ -28,6 +28,7 @@ import { useChangeAssetOrigin } from "../hooks/mutations/useChangeAssetOrigin";
 import { useCorrectPriceErrors } from "../hooks/mutations/useCorrectPriceErrors";
 import { useRefreshOutdatedStocks } from "../hooks/mutations/useRefreshOutdatedStocks";
 import { useRefreshSeries } from "../hooks/mutations/useRefreshSeries";
+import { FED_FUNDS_HINT } from "../lib/fed-metrics";
 import { FOCUS_HINTS } from "../lib/focus-metrics";
 import { timelineRange, timelineTicks } from "../lib/timeline";
 import { ClassifyRow } from "./classify-row";
@@ -50,7 +51,12 @@ const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
 const COLUMNS = 7;
 
 // O que cada série da economia do país e do Focus mede, na dica ao lado do nome
-const SERIES_HINTS: Record<string, MetricInfo> = { GDP_GROWTH: GROWTH, UNEMPLOYMENT: UNEMPLOYMENT, ...FOCUS_HINTS };
+const SERIES_HINTS: Record<string, MetricInfo> = {
+  GDP_GROWTH: GROWTH,
+  UNEMPLOYMENT: UNEMPLOYMENT,
+  FED_FUNDS: FED_FUNDS_HINT,
+  ...FOCUS_HINTS,
+};
 
 type Filter = "ALL" | "ATTENTION";
 

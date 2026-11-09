@@ -19,6 +19,12 @@ const MONEY_FORMAT = new Intl.NumberFormat("pt-BR", {
   minimumFractionDigits: 2,
 });
 
+const DOLLAR_FORMAT = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "USD",
+  minimumFractionDigits: 2,
+});
+
 const MONEY_COMPACT_FORMAT = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
@@ -39,6 +45,11 @@ export function displayMoneyWhole(value: Numeric) {
 
 export function displayMoney(value: Numeric) {
   return MONEY_FORMAT.format(value as Intl.StringNumericLiteral | number);
+}
+
+/** Dólares ("US$ 1.978,00"), o saldo da conta em dólar. */
+export function displayDollars(value: Numeric) {
+  return DOLLAR_FORMAT.format(value as Intl.StringNumericLiteral | number);
 }
 
 /** Reais com o sinal de menos tipográfico para negativos ("−R$ 2.340,00"), como as telas de saldo. */
@@ -139,7 +150,7 @@ export function isLoss(value: string) {
   return value.trim().startsWith("-");
 }
 
-/** Taxa do título como o mercado escreve: "110,00% do CDI", "IPCA + 6,00%", "12,00% a.a.". */
+/** Taxa do título como o mercado escreve: "110,00% do CDI", "IPCA + 6,00%", "12,00% a.a.", "100,00% do juro americano". */
 export function displayRateLabel(rateIndex: RateIndex, interestRate: string) {
   switch (rateIndex) {
     case "CDI":
@@ -150,6 +161,8 @@ export function displayRateLabel(rateIndex: RateIndex, interestRate: string) {
       return `SELIC + ${displayPercent(interestRate)}`;
     case "Prefixado":
       return `${displayPercent(interestRate)} a.a.`;
+    case "Fed Funds":
+      return `${displayPercent(interestRate)} do juro americano`;
   }
 }
 

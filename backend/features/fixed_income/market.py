@@ -19,7 +19,7 @@ class FixedIncomeMarket:
 
     Responsável por:
     - Gerar novos ativos mensalmente usando FixedIncomeFactory, com o CDB de liquidez
-      diária fixo e, de vez em quando, a oferta rara
+      diária e a conta em dólar fixos e, de vez em quando, a oferta rara
     - Emitir todo mês os seis títulos do catálogo do Tesouro, com a taxa travada do mês
     - Manter catálogo de ativos disponíveis por UUID
     - Notificar players sobre atualizações do hall via realtime
@@ -81,9 +81,12 @@ class FixedIncomeMarket:
         fixed = FixedIncomeFactory.daily_liquidity_cdb(
             self._simulation_id, self._end_date
         )
+        dollar = FixedIncomeFactory.dollar_account(self._simulation_id, self._end_date)
         rare = FixedIncomeFactory.rare_daily_liquidity_offer(current_date)
         self._assets = {
-            str(asset.asset_uuid): asset for asset in (fixed, rare) if asset is not None
+            str(asset.asset_uuid): asset
+            for asset in (fixed, dollar, rare)
+            if asset is not None
         }
         self._assets.update(FixedIncomeFactory.generate_assets(current_date, n=10))
         self._start_date = self._start_date or current_date

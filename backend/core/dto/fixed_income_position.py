@@ -8,7 +8,7 @@ from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 class FixedIncomePositionDTO(BaseDTO):
     asset: FixedIncomeAssetDTO
     total_applied: Decimal
-    # O montante da curva (o aplicado mais o que rendeu)
+    # O montante em reais: o da curva (o aplicado mais o que rendeu), ou o saldo em US$ ao dólar de hoje
     current_value: Decimal
     # O que vale vendido hoje: a curva mais a marcação; só o Tesouro marca
     market_value: Decimal
@@ -20,3 +20,6 @@ class FixedIncomePositionDTO(BaseDTO):
     portfolio_pct: Decimal
     # Líquido que o resgate de hoje manda ao caixa; None em título sem liquidez diária
     redeemable_today: Decimal | None
+    # Só a conta em dólar: o saldo em US$ e o dólar de hoje em reais
+    usd_amount: Decimal | None = None
+    fx_rate: Decimal | None = None

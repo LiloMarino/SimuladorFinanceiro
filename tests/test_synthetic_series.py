@@ -87,6 +87,8 @@ def build_history() -> MarketHistory:
         IndicatorSeries.SELIC: pd.Series(selic, index=days),
         IndicatorSeries.CDI: pd.Series(cdi, index=days),
         IndicatorSeries.IPCA: pd.Series(ipca, index=[m.date() for m in months]),
+        # Fed Funds em % ao ano, parado em 6%
+        IndicatorSeries.FED_FUNDS: pd.Series(np.full(len(days), 6.0), index=days),
     }
     return MarketHistory(assets, indicators)
 
@@ -167,6 +169,25 @@ def test_selic_stays_within_history_and_cdi_keeps_the_spread(generator, history)
         assert selic.min() >= selic_real.min() - 1e-6
         assert selic.max() <= selic_real.max() + 1e-6
         np.testing.assert_allclose(selic - cdi, last_spread, atol=1e-4)
+
+
+def test_fed_funds_halves_the_distance_to_three_percent_every_two_years(generator):
+    fed = generator.generate(date(2008, 12, 31), seed=2).indicators[
+        IndicatorSeries.FED_FUNDS
+    ]
+
+    # De 6% para 3%: a distância é 3 pontos e cai à metade a cada 2 anos
+    two_years = fed.loc[date(2006, 12, 31) :]
+    assert fed.iloc[0] == pytest.approx(6.0, abs=0.01)
+    assert two_years.iloc[0] == pytest.approx(4.5, abs=0.02)
+    assert fed.is_monotonic_decreasing
+
+
+def test_fed_funds_future_does_not_depend_on_the_seed(generator):
+    one = generator.generate(UNTIL, seed=1).indicators[IndicatorSeries.FED_FUNDS]
+    other = generator.generate(UNTIL, seed=99).indicators[IndicatorSeries.FED_FUNDS]
+
+    pd.testing.assert_series_equal(one, other)
 
 
 def test_ipca_repeats_a_historical_month(generator, history):

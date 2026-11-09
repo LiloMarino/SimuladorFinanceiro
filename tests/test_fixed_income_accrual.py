@@ -289,7 +289,7 @@ def test_net_redemption_taxes_only_profit_and_rounds_half_even():
 
 def test_iof_table_is_regressive_for_thirty_days():
     """O IOF começa em 96% no 1º dia, cai até 3% no 29º e some a partir do 30º."""
-    assert [iof_rate(d) for d in (1, 2, 3, 4, 12, 29, 30, 31)] == [
+    assert [iof_rate(FixedIncomeType.CDB, d) for d in (1, 2, 3, 4, 12, 29, 30, 31)] == [
         Decimal("0.96"),
         Decimal("0.93"),
         Decimal("0.90"),
@@ -299,7 +299,7 @@ def test_iof_table_is_regressive_for_thirty_days():
         Decimal(0),
         Decimal(0),
     ]
-    assert iof_rate(0) == iof_rate(1)
+    assert iof_rate(FixedIncomeType.CDB, 0) == iof_rate(FixedIncomeType.CDB, 1)
 
 
 def test_partial_redemption_gives_the_exact_net_wanted():

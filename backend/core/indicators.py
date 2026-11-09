@@ -1,8 +1,9 @@
 """
-Taxas dos indexadores (CDI, SELIC, IPCA) lidas das séries históricas.
+Taxas dos indexadores (CDI, SELIC, IPCA, Fed Funds) lidas das séries históricas.
 
-As séries guardam o valor como o Banco Central publica: CDI e SELIC em % ao dia,
-um valor por dia útil; IPCA em % ao mês, um valor por mês (datado no dia 1).
+As séries guardam o valor como a fonte publica: CDI e SELIC em % ao dia, um valor por
+dia útil; IPCA em % ao mês, um valor por mês (datado no dia 1); Fed Funds em % ao ano,
+um valor por dia corrido.
 """
 
 from datetime import date
@@ -143,6 +144,9 @@ def index_value_on(series: IndicatorSeries, day: date) -> Percent | None:
     history = repository.economic.get_history(series)
     if series is IndicatorSeries.IPCA:
         value = history.last_known(day.replace(day=1))
+    elif series is IndicatorSeries.FED_FUNDS:
+        # O calendário americano não é o do jogo: o dia sem valor segue o último
+        value = history.last_known(day)
     elif history.end is not None and day <= history.end:
         value = history.value_on(day)
     else:
@@ -160,7 +164,7 @@ def last_known_value(
 def last_known_rate(
     series: IndicatorSeries, on: date, *, stored: bool = False
 ) -> Percent | None:
-    """Último valor de CDI/SELIC/IPCA publicado até `on`: o que um investidor conhece naquele dia; com `stored`, o da série guardada."""
+    """Último valor de CDI/SELIC/IPCA/Fed Funds publicado até `on`: o que um investidor conhece naquele dia; com `stored`, o da série guardada."""
     history = repository.economic.get_history(series, stored=stored)
     value = history.last_known(
         on.replace(day=1) if series is IndicatorSeries.IPCA else on
@@ -171,11 +175,14 @@ def last_known_rate(
 def daily_rate(series: IndicatorSeries, value: Percent, day: date) -> Decimal:
     """
     Fração que `value` rende num dia útil: CDI/SELIC já são diários; o IPCA do
-    mês se distribui pelos dias úteis do mês, que juntos fecham a taxa mensal.
+    mês se distribui pelos dias úteis do mês, que juntos fecham a taxa mensal; o Fed
+    Funds é anual e se distribui pelos 252 dias úteis do ano.
     """
     if series is IndicatorSeries.IPCA:
         days = business_days_in_month(day)
         return period_rate(from_percent(value), days)
+    if series is IndicatorSeries.FED_FUNDS:
+        return period_rate(from_percent(value), BUSINESS_DAYS_PER_YEAR)
     return from_percent(value)
 
 
@@ -197,7 +204,7 @@ def annual_index_rate(
     Taxa anual do indexador conhecida em `on` (0.149 = 14,9% a.a.); com `stored`, a da série guardada, sem o efeito das medidas do governo.
 
     CDI/SELIC: a taxa do dia composta por 252 dias úteis. IPCA: o acumulado dos
-    últimos 12 meses.
+    últimos 12 meses. Fed Funds: a própria taxa publicada.
     """
     if series is IndicatorSeries.IPCA:
         history = repository.economic.get_history(series, stored=stored)
@@ -207,6 +214,8 @@ def annual_index_rate(
     value = last_known_rate(series, on, stored=stored)
     if value is None:
         return Decimal(0)
+    if series is IndicatorSeries.FED_FUNDS:
+        return from_percent(value)
     return annualize_daily(value)
 
 

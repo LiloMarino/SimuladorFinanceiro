@@ -48,6 +48,7 @@ from backend.features.fixed_income.liquidity import (
     total_redeemable,
 )
 from backend.features.fixed_income.market import FixedIncomeMarket
+from backend.features.fixed_income.quotes import FixedIncomeQuotes
 from backend.features.government import budget
 from backend.features.government.budget import BudgetCourse
 from backend.features.tax_policy import DEFAULT_TAX_POLICY
@@ -60,6 +61,7 @@ INVESTOR = client("investor")
 ASSET_ID = 7
 CENT = Decimal("0.01")
 PREMIUM = Decimal("0.02")
+QUOTES = FixedIncomeQuotes(premium=PREMIUM)
 
 PREFIXED = RateIndexType.PREFIXADO
 SELIC = RateIndexType.SELIC
@@ -469,8 +471,8 @@ def test_market_value_and_mark_come_from_the_curve_amount():
 
     factor = treasury.mark_factor(asset, today, PREMIUM)
 
-    assert held.market_value(today, PREMIUM) == Decimal("10500") * factor
-    assert held.mark(today, PREMIUM) == held.market_value(today, PREMIUM) - Decimal(
+    assert held.market_value(today, QUOTES) == Decimal("10500") * factor
+    assert held.mark(today, QUOTES) == held.market_value(today, QUOTES) - Decimal(
         "10500"
     )
 
@@ -478,8 +480,8 @@ def test_market_value_and_mark_come_from_the_curve_amount():
 def test_a_selic_position_is_worth_its_curve():
     held = position(issued(SELIC), current="10500")
 
-    assert held.market_value(date(2031, 3, 3), PREMIUM) == Decimal("10500")
-    assert held.mark(date(2031, 3, 3), PREMIUM) == 0
+    assert held.market_value(date(2031, 3, 3), QUOTES) == Decimal("10500")
+    assert held.mark(date(2031, 3, 3), QUOTES) == 0
 
 
 # ---------------------------------------------------------------- venda a mercado
@@ -540,7 +542,9 @@ def test_iof_still_charges_a_gain_sold_within_thirty_days():
         None,
     )
 
-    assert sale.iof.quantize(CENT) == (Decimal(100) * iof_rate(10)).quantize(CENT)
+    assert sale.iof.quantize(CENT) == (
+        Decimal(100) * iof_rate(FixedIncomeType.TESOURO_DIRETO, 10)
+    ).quantize(CENT)
     assert sale.iof > 0
 
 
@@ -611,7 +615,7 @@ def test_full_sale_credits_the_market_net_and_closes_the_position(
 ):
     before = live(holding)
     curve = before.current_value
-    market = before.market_value(holding.today, PREMIUM)
+    market = before.market_value(holding.today, QUOTES)
     expected = sale_breakdown(
         market,
         before.total_applied,
@@ -638,7 +642,7 @@ def test_partial_sale_leaves_the_matching_share_of_the_curve(
 ):
     before = live(holding)
     curve, applied = before.current_value, before.total_applied
-    market = before.market_value(holding.today, PREMIUM)
+    market = before.market_value(holding.today, QUOTES)
     gross = (market / 2).quantize(CENT)
 
     net = holding.broker.sell_treasury(INVESTOR, holding.asset, gross)
@@ -651,7 +655,7 @@ def test_partial_sale_leaves_the_matching_share_of_the_curve(
     assert after.total_applied == pytest.approx(
         applied * (1 - curve_part / curve), abs=Decimal("0.0001")
     )
-    assert after.market_value(holding.today, PREMIUM) == pytest.approx(
+    assert after.market_value(holding.today, QUOTES) == pytest.approx(
         market - gross, abs=CENT
     )
     assert holding.engine.cash[INVESTOR] == net
@@ -659,7 +663,7 @@ def test_partial_sale_leaves_the_matching_share_of_the_curve(
 
 
 def test_selling_all_but_a_fraction_of_a_cent_sells_everything(holding: Holding):
-    market = live(holding).market_value(holding.today, PREMIUM)
+    market = live(holding).market_value(holding.today, QUOTES)
 
     holding.broker.sell_treasury(
         INVESTOR, holding.asset, market.quantize(CENT, ROUND_DOWN)
@@ -671,7 +675,7 @@ def test_selling_all_but_a_fraction_of_a_cent_sells_everything(holding: Holding)
 def test_selling_more_than_the_market_value_is_rejected(
     holding: Holding, captured_events
 ):
-    market = live(holding).market_value(holding.today, PREMIUM)
+    market = live(holding).market_value(holding.today, QUOTES)
 
     with pytest.raises(UnprocessableEntityError):
         holding.broker.sell_treasury(INVESTOR, holding.asset, market + 1)
@@ -702,7 +706,7 @@ def test_selling_a_title_without_a_position_is_rejected(holding: Holding):
 def test_replay_of_a_partial_sale_matches_the_live_position(
     holding: Holding, captured_events, monkeypatch: pytest.MonkeyPatch
 ):
-    market = live(holding).market_value(holding.today, PREMIUM)
+    market = live(holding).market_value(holding.today, QUOTES)
     holding.broker.sell_treasury(INVESTOR, holding.asset, (market / 3).quantize(CENT))
     tick_until(holding.broker, holding.engine, date(2031, 3, 12))
     monkeypatch.setattr(
@@ -768,9 +772,9 @@ def test_treasury_is_redeemable_today_at_its_market_net():
     held = position(issued(PREFIXED), current="10500")
     today = date(2030, 10, 24)
 
-    net = redeemable_today(held, today, DEFAULT_TAX_POLICY, PREMIUM)
+    net = redeemable_today(held, today, DEFAULT_TAX_POLICY, QUOTES)
 
-    assert net == held.sell_breakdown(today, None, PREMIUM, DEFAULT_TAX_POLICY).net
+    assert net == held.sell_breakdown(today, None, QUOTES, DEFAULT_TAX_POLICY).net
 
 
 def test_a_locked_cdb_is_not_redeemable_today():
@@ -780,10 +784,10 @@ def test_a_locked_cdb_is_not_redeemable_today():
 def test_total_redeemable_counts_treasury_and_skips_locked_titles():
     treasury_position = position(issued(PREFIXED), current="10500")
     today = date(2030, 10, 24)
-    expected = redeemable_today(treasury_position, today, DEFAULT_TAX_POLICY, PREMIUM)
+    expected = redeemable_today(treasury_position, today, DEFAULT_TAX_POLICY, QUOTES)
 
     total = total_redeemable(
-        [treasury_position, position(cdb())], today, DEFAULT_TAX_POLICY, PREMIUM
+        [treasury_position, position(cdb())], today, DEFAULT_TAX_POLICY, QUOTES
     )
 
     assert total == expected
@@ -797,7 +801,7 @@ def test_net_worth_counts_the_treasury_at_the_market_price():
 
     value = engine.fixed_market_value([held, selic])
 
-    assert value == held.market_value(engine.current_date, PREMIUM) + Decimal(3000)
+    assert value == held.market_value(engine.current_date, QUOTES) + Decimal(3000)
     assert value < Decimal(13500)
 
 
@@ -1018,7 +1022,7 @@ def sale_position() -> tuple[FixedIncomePosition, date]:
 def test_position_panel_splits_yield_from_marking():
     held, today = sale_position()
 
-    panel = treasury_panel.build_position(held, today, PREMIUM)
+    panel = treasury_panel.build_position(held, today, QUOTES)
 
     assert panel.total_applied == Decimal(20000)
     assert panel.yield_amount == Decimal("6682.67")
@@ -1034,11 +1038,11 @@ def test_position_panel_splits_yield_from_marking():
 def test_sale_quote_adds_up_to_the_gross_sold():
     """Aplicado + rendimento da curva + marcação reconstituem o bruto vendido."""
     held, today = sale_position()
-    market = held.market_value(today, PREMIUM)
+    market = held.market_value(today, QUOTES)
     amount = (market / 2).quantize(CENT)
 
     quote = treasury_panel.build_sale_quote(
-        held, amount, Decimal(500), today, PREMIUM, DEFAULT_TAX_POLICY
+        held, amount, Decimal(500), today, QUOTES, DEFAULT_TAX_POLICY
     )
 
     assert quote.max_amount == market
@@ -1061,10 +1065,10 @@ def test_sale_quote_adds_up_to_the_gross_sold():
 
 def test_sale_quote_compares_with_waiting_for_the_maturity():
     held, today = sale_position()
-    market = held.market_value(today, PREMIUM)
+    market = held.market_value(today, QUOTES)
 
     quote = treasury_panel.build_sale_quote(
-        held, market / 2, Decimal(0), today, PREMIUM, DEFAULT_TAX_POLICY
+        held, market / 2, Decimal(0), today, QUOTES, DEFAULT_TAX_POLICY
     )
 
     assert quote.maturity_gross_amount is not None
@@ -1081,10 +1085,10 @@ def test_sale_quote_compares_with_waiting_for_the_maturity():
 
 def test_selling_the_whole_market_value_quotes_a_full_sale():
     held, today = sale_position()
-    market = held.market_value(today, PREMIUM)
+    market = held.market_value(today, QUOTES)
 
     quote = treasury_panel.build_sale_quote(
-        held, market, Decimal(0), today, PREMIUM, DEFAULT_TAX_POLICY
+        held, market, Decimal(0), today, QUOTES, DEFAULT_TAX_POLICY
     )
 
     assert quote.full is True
@@ -1096,11 +1100,11 @@ def test_sale_quote_leaves_the_values_empty_for_an_amount_that_cannot_be_sold(
     which: str,
 ):
     held, today = sale_position()
-    market = held.market_value(today, PREMIUM)
+    market = held.market_value(today, QUOTES)
     amount = Decimal(0) if which == "zero" else market + 1
 
     quote = treasury_panel.build_sale_quote(
-        held, amount, Decimal(500), today, PREMIUM, DEFAULT_TAX_POLICY
+        held, amount, Decimal(500), today, QUOTES, DEFAULT_TAX_POLICY
     )
 
     assert quote.max_amount == market

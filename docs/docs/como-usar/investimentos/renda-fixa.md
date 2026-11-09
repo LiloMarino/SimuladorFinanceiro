@@ -266,6 +266,22 @@ O simulador calcula automaticamente e desconta o Imposto de Renda sobre o resgat
 
 ---
 
+## Conta em dólar
+
+A **Conta em dólar** fica ao lado do CDB sempre disponível, no topo da **Renda fixa**. O seu dinheiro vira dólar ao câmbio do dia, rende o **juro americano** (Fed Funds, a taxa básica dos Estados Unidos) todo dia útil e volta ao caixa em qualquer pregão. É a forma de ter dólar na carteira e de se proteger de uma crise, em que o dólar costuma subir.
+
+- **Saldo e valor em reais:** o saldo é em US$ e só cresce com o juro. O valor em reais é o saldo vezes o dólar de hoje: `valor em reais = saldo em US$ × dólar do dia`. Com US$ 2.000 e o dólar a R$ 5,00, a conta vale R$ 10.000; com o dólar a R$ 5,50, vale R$ 11.000, sem o saldo mudar.
+- **IOF de câmbio na entrada:** 1,1% do valor aplicado, descontado antes de comprar os dólares. Ex.: R$ 10.000 a R$ 5,00 pagam R$ 110 de IOF e compram US$ 1.978,00. No resgate não há IOF.
+- **IR de 15% no resgate:** incide sobre o **ganho em reais**, que junta o juro do Fed e a variação do dólar, e é retido na hora. Se o valor em reais está abaixo do que você aplicou, não há IR: perda não paga imposto. A alíquota é fixa e não muda com a medida do governo.
+- **Liquidez diária:** o resgate leva o valor do dia, parcial ou total. Se o caixa não cobre uma despesa, o resgate automático da reserva também vende a conta em dólar.
+- **Sem empréstimo em dólar:** a conta não serve de garantia nem se empresta em dólar.
+
+**O que decide se vale a pena** é o dólar contra a diferença entre o CDI e o juro americano. O cartão da conta mostra o **empate**: quanto o dólar precisa subir em 12 meses para a conta render o mesmo que o CDI, a conta `(1 + CDI) ÷ (1 + juro do Fed) − 1`. Ex.: com CDI de 13% e Fed de 5%, o empate é 7,6%. R$ 10.000 aplicados a R$ 5,00 viram US$ 1.978,00; em um ano, com o Fed a 5%, são US$ 2.076,90. Com o dólar a R$ 5,50 (alta de 10%), valem R$ 11.422,95, contra os R$ 11.300 de um CDB de 100% do CDI, antes do IR. Com o dólar a R$ 5,20, valem R$ 10.799,88 e o CDI ganha. O IOF de 1,1% soma mais uns 1,1 ponto ao empate, e o IR de 15% corta o ganho dos dois lados.
+
+**O juro americano na partida.** A história é a série do Fed publicada pelo FRED (veja [Importação de ativos](../importacao-ativos.md#indicadores-econômicos)). Depois do último dado real, o juro volta para **3% ao ano**, a projeção de longo prazo do próprio Fed, perdendo metade da distância a cada 2 anos: com o Fed a 5%, ele passa a uns 4% em 2 anos e a uns 3,5% em 4. O juro americano não depende do governo da partida (veja [Governo](../governo.md)).
+
+---
+
 ## Estratégias Comuns
 
 ### Reserva de Emergência

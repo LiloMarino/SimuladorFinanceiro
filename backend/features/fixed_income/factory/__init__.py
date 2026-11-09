@@ -23,6 +23,10 @@ DAILY_LIQUIDITY_CDI_PCT = Decimal("1")
 # Vence um ano depois do fim da partida, para nunca vencer durante ela
 DAILY_LIQUIDITY_MATURITY_AFTER_END = timedelta(days=365)
 
+# Conta em dólar: rende o juro americano, sempre disponível, sem vencer na partida
+DOLLAR_ACCOUNT_ISSUER = "Nomad"
+DOLLAR_ACCOUNT_FED_PCT = Decimal("1")
+
 # Oferta rara de liquidez diária acima de 100% do CDI: sai no catálogo do mês
 RARE_OFFER_CHANCE = 1 / 3
 RARE_OFFER_CDI_PCT_RANGE = (Decimal("1.02"), Decimal("1.10"))
@@ -119,6 +123,20 @@ class FixedIncomeFactory:
             rate_index=RateIndexType.CDI,
             maturity_date=end_date + DAILY_LIQUIDITY_MATURITY_AFTER_END,
             interest_rate=DAILY_LIQUIDITY_CDI_PCT,
+            daily_liquidity=True,
+        )
+
+    @classmethod
+    def dollar_account(cls, simulation_id: int, end_date: date) -> FixedIncomeAssetDTO:
+        """A conta em dólar a 100% do juro americano; o UUID é estável por partida, então a retomada mostra o mesmo título."""
+        return FixedIncomeAssetDTO(
+            asset_uuid=uuid5(NAMESPACE_URL, f"dollar-account/{simulation_id}"),
+            name=f"Conta em dólar {DOLLAR_ACCOUNT_ISSUER}",
+            issuer=DOLLAR_ACCOUNT_ISSUER,
+            investment_type=FixedIncomeType.DOLLAR_ACCOUNT,
+            rate_index=RateIndexType.FED_FUNDS,
+            maturity_date=end_date + DAILY_LIQUIDITY_MATURITY_AFTER_END,
+            interest_rate=DOLLAR_ACCOUNT_FED_PCT,
             daily_liquidity=True,
         )
 

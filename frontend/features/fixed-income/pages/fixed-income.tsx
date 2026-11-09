@@ -35,7 +35,8 @@ import {
 } from "@/shared/lib/utils/display";
 import type { FixedIncomeOffer } from "@/types";
 import { useFixedIncomeAssets } from "../hooks/queries/useFixedIncomeAssets";
-import { displayCap, isPermanentCdb, isRareOffer } from "../lib/daily-liquidity";
+import { DollarAccountCard } from "../components/dollar-account-card";
+import { displayCap, isDollarAccount, isPermanentCdb, isRareOffer } from "../lib/daily-liquidity";
 import { INVESTMENT_TYPE_LABELS, timeToMaturity } from "../lib/labels";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
@@ -82,9 +83,10 @@ export default function FixedIncomePage() {
   const [onlyDaily, setOnlyDaily] = useState(searchParams.get("liquidity") === "daily");
 
   const held = new Map((portfolio?.fixed_income ?? []).map((p) => [p.asset.asset_uuid, p]));
-  // O CDB de 100% do CDI mora no destaque do topo; a tabela lista o resto da vitrine
+  // O CDB de 100% do CDI e a conta em dólar moram nos destaques do topo; a tabela lista o resto da vitrine
   const permanentCdb = (offers ?? []).find(isPermanentCdb);
-  const listed = (offers ?? []).filter((o) => o !== permanentCdb);
+  const dollarAccount = (offers ?? []).find(isDollarAccount);
+  const listed = (offers ?? []).filter((o) => o !== permanentCdb && o !== dollarAccount);
   const heldCount = listed.filter((o) => held.has(o.asset_uuid)).length;
   const filtered = listed
     .filter((o) => !onlyHeld || held.has(o.asset_uuid))
@@ -296,49 +298,56 @@ export default function FixedIncomePage() {
         </Alert>
       </Link>
 
-      {/* CDB de 100% do CDI */}
-      {permanentCdb && (
-        <Card variant="success">
-          <CardContent>
-            <div className="flex flex-wrap items-center gap-5">
-              <div className="grid min-w-64 flex-1 gap-1">
-                <span className="flex flex-wrap items-center gap-2">
-                  <DailyLiquidityBadge>Sempre disponível</DailyLiquidityBadge>
-                  <b className="text-[15px] font-semibold">{permanentCdb.name}</b>
-                  {held.has(permanentCdb.asset_uuid) && (
-                    <Badge variant="info" size="sm">
-                      na carteira
-                    </Badge>
-                  )}
-                </span>
-                <span className="text-[13px] text-muted-foreground">
-                  A reserva que rende: {displayRateLabel(permanentCdb.rate_index, permanentCdb.interest_rate)} todo dia
-                  útil, e o dinheiro volta ao caixa em qualquer pregão. Fica aberta a partida inteira.
-                </span>
-              </div>
-              <HighlightMetric label="Rentabilidade">
-                {displayRateLabel(permanentCdb.rate_index, permanentCdb.interest_rate)}
-              </HighlightMetric>
-              {showRate && permanentCdb.effective_annual_rate !== null && (
-                <HighlightMetric label="Equivale hoje">
-                  {displayPercent(permanentCdb.effective_annual_rate)} a.a.
+      {/* Destaques: o CDB de 100% do CDI e a conta em dólar */}
+      <div className="grid items-stretch gap-5 lg:grid-cols-2">
+        {permanentCdb && (
+          <Card variant="success" className="h-full">
+            <CardContent className="h-full">
+              <div className="flex h-full flex-wrap content-between items-center gap-5">
+                <div className="grid min-w-64 flex-1 basis-full gap-1">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <DailyLiquidityBadge>Sempre disponível</DailyLiquidityBadge>
+                    <b className="text-[15px] font-semibold">{permanentCdb.name}</b>
+                    {held.has(permanentCdb.asset_uuid) && (
+                      <Badge variant="info" size="sm">
+                        na carteira
+                      </Badge>
+                    )}
+                  </span>
+                  <span className="text-[13px] text-muted-foreground">
+                    A reserva que rende: {displayRateLabel(permanentCdb.rate_index, permanentCdb.interest_rate)} todo
+                    dia útil, e o dinheiro volta ao caixa em qualquer pregão. Fica aberta a partida inteira.
+                  </span>
+                </div>
+                <HighlightMetric label="Rentabilidade">
+                  {displayRateLabel(permanentCdb.rate_index, permanentCdb.interest_rate)}
                 </HighlightMetric>
-              )}
-              <HighlightMetric label="IR">
-                <Badge variant="secondary">22,5% → {displayPercent(permanentCdb.income_tax_rate_at_maturity, 1)}</Badge>
-              </HighlightMetric>
-              <Button
-                variant="outline"
-                size="sm"
-                nativeButton={false}
-                render={<Link to={`/fixed-income/${permanentCdb.asset_uuid}`} />}
-              >
-                Investir
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                {showRate && permanentCdb.effective_annual_rate !== null && (
+                  <HighlightMetric label="Equivale hoje">
+                    {displayPercent(permanentCdb.effective_annual_rate)} a.a.
+                  </HighlightMetric>
+                )}
+                <HighlightMetric label="IR">
+                  <Badge variant="secondary">
+                    22,5% → {displayPercent(permanentCdb.income_tax_rate_at_maturity, 1)}
+                  </Badge>
+                </HighlightMetric>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  nativeButton={false}
+                  render={<Link to={`/fixed-income/${permanentCdb.asset_uuid}`} />}
+                >
+                  Investir
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        {dollarAccount && (
+          <DollarAccountCard offer={dollarAccount} held={held.has(dollarAccount.asset_uuid)} showHelp={showRate} />
+        )}
+      </div>
 
       <Card className="overflow-hidden">
         {/* Filtros */}

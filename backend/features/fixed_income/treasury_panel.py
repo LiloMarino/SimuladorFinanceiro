@@ -31,6 +31,7 @@ from backend.features.fixed_income.accrual import (
 from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
+from backend.features.fixed_income.quotes import FixedIncomeQuotes
 from backend.features.government.budget import BudgetCourse
 from backend.features.government.budget import premium as debt_premium
 from backend.features.tax_policy import TaxPolicy
@@ -163,20 +164,20 @@ def build_history(
 
 
 def build_position(
-    position: FixedIncomePosition, today: date, premium: Decimal
+    position: FixedIncomePosition, today: date, quotes: FixedIncomeQuotes
 ) -> TreasuryPositionDTO:
-    market_value = position.market_value(today, premium)
+    market_value = position.market_value(today, quotes)
     asset = position.asset
     return TreasuryPositionDTO(
         asset=asset,
         first_applied_date=position.first_applied_date,
         bought_rate=asset.interest_rate,
         today_rate=treasury.rate_on(
-            asset.rate_index, asset.maturity_date, today, premium
+            asset.rate_index, asset.maturity_date, today, quotes.premium
         ),
         total_applied=position.total_applied,
         yield_amount=position.current_value - position.total_applied,
-        mark=market_value - position.current_value,
+        mark=position.mark(today, quotes),
         market_value=market_value,
     )
 
@@ -186,17 +187,17 @@ def build_sale_quote(
     amount: Decimal,
     cash: Decimal,
     today: date,
-    premium: Decimal,
+    quotes: FixedIncomeQuotes,
     policy: TaxPolicy,
 ) -> TreasurySaleQuoteDTO:
     """A venda de `amount` bruto hoje, lado a lado com esperar a mesma parte até o vencimento."""
     asset = position.asset
-    market_value = position.market_value(today, premium)
+    market_value = position.market_value(today, quotes)
     days_held = (today - position.first_applied_date).days
     maturity = redemption_date(asset.maturity_date)
 
     sale = (
-        position.sell_breakdown(today, amount, premium, policy)
+        position.sell_breakdown(today, amount, quotes, policy)
         if 0 < amount <= market_value
         else None
     )
@@ -239,10 +240,10 @@ def build_sale_quote(
         first_applied_date=position.first_applied_date,
         bought_rate=asset.interest_rate,
         today_rate=treasury.rate_on(
-            asset.rate_index, asset.maturity_date, today, premium
+            asset.rate_index, asset.maturity_date, today, quotes.premium
         ),
         days_held=days_held,
-        iof_rate=iof_rate(days_held),
+        iof_rate=iof_rate(asset.investment_type, days_held),
         iof=sale and sale.iof,
         income_tax_rate=income_tax_rate(asset.investment_type, days_held, policy),
         income_tax=sale and sale.income_tax,

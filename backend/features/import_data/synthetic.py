@@ -87,6 +87,10 @@ WEEKDAYS_PER_YEAR = 365.25 * 5 / 7
 SELIC_SHOCK_RESPONSE = 1.5
 SELIC_FLOOR = 0.005
 QUARTER_DAYS = 63
+# O juro americano do futuro volta ao patamar de longo prazo do Fed (3% ao ano), perdendo
+# metade da distância a cada 2 anos; é um caminho único, sem sorteio
+FED_LONG_RUN = 3.0
+FED_HALF_LIFE_YEARS = 2.0
 
 PRICE_COLUMNS = ["open", "high", "low", "close", "volume"]
 
@@ -847,6 +851,23 @@ class SeriesGenerator:
             self._generate_rates(draw, until, selic, cdi, out)
         if self.ipca_end is not None:
             self._generate_ipca(draw, until, out)
+        fed = self.indicators.get(IndicatorSeries.FED_FUNDS)
+        if fed is not None:
+            self._generate_fed(until, fed, out)
+
+    def _generate_fed(
+        self, until: date, fed: pd.Series, out: dict[IndicatorSeries, pd.Series]
+    ) -> None:
+        """O Fed Funds em % ao ano, do último valor real até o patamar de longo prazo."""
+        last_day, last = _last_day(fed), float(fed.iloc[-1])
+        days = _business_days(last_day, until)
+        if not days:
+            return
+        years = np.array([(day - last_day).days for day in days]) / 365.25
+        values = FED_LONG_RUN + (last - FED_LONG_RUN) * 0.5 ** (
+            years / FED_HALF_LIFE_YEARS
+        )
+        out[IndicatorSeries.FED_FUNDS] = pd.Series(np.round(values, 4), index=days)
 
     def _generate_rates(
         self,

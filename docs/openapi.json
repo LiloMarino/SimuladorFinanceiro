@@ -16981,6 +16981,10 @@
           "cdi": {
             "type": "string",
             "title": "Cdi"
+          },
+          "fed": {
+            "type": "string",
+            "title": "Fed"
           }
         },
         "additionalProperties": false,
@@ -16988,7 +16992,8 @@
         "required": [
           "ipca",
           "selic",
-          "cdi"
+          "cdi",
+          "fed"
         ],
         "title": "EconomicIndicatorsDTO"
       },
@@ -18286,6 +18291,28 @@
           "income_tax_rate_at_maturity": {
             "type": "string",
             "title": "Income Tax Rate At Maturity"
+          },
+          "fx_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fx Rate"
+          },
+          "fx_iof_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fx Iof Rate"
           }
         },
         "additionalProperties": false,
@@ -18305,7 +18332,9 @@
           "index_rate",
           "effective_annual_rate",
           "tax_exempt",
-          "income_tax_rate_at_maturity"
+          "income_tax_rate_at_maturity",
+          "fx_rate",
+          "fx_iof_rate"
         ],
         "title": "FixedIncomeOfferDTO",
         "description": "O título com o que ele rende hoje e o IR que paga se levado ao vencimento."
@@ -18358,6 +18387,28 @@
               }
             ],
             "title": "Redeemable Today"
+          },
+          "usd_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usd Amount"
+          },
+          "fx_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fx Rate"
           }
         },
         "additionalProperties": false,
@@ -18372,7 +18423,9 @@
           "return_value",
           "return_pct",
           "portfolio_pct",
-          "redeemable_today"
+          "redeemable_today",
+          "usd_amount",
+          "fx_rate"
         ],
         "title": "FixedIncomePositionDTO"
       },
@@ -18730,7 +18783,8 @@
           "CDB",
           "LCI",
           "LCA",
-          "Tesouro Direto"
+          "Tesouro Direto",
+          "Conta em dólar"
         ],
         "title": "FixedIncomeType"
       },
@@ -20900,7 +20954,8 @@
           "FOCUS_SELIC",
           "FOCUS_IPCA",
           "FOCUS_GDP",
-          "FOCUS_FX"
+          "FOCUS_FX",
+          "FED_FUNDS"
         ],
         "title": "IndicatorSeries"
       },
@@ -27998,7 +28053,8 @@
           "CDI",
           "IPCA",
           "SELIC",
-          "Prefixado"
+          "Prefixado",
+          "Fed Funds"
         ],
         "title": "RateIndexType"
       },

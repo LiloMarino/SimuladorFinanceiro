@@ -403,3 +403,8 @@ class MacroCourse:
         """O último mês fechado em `day`; antes do primeiro, o ponto de partida."""
         closed = self.months_until(day)
         return closed[-1] if closed else self._initial
+
+
+def history_dollar(day: date, macro: MacroCourse) -> Decimal:
+    """O dólar da história em `day`: a PTAX guardada até o último dado real e, depois, o do último mês fechado, pela paridade."""
+    return recorded_dollar(day) or macro.latest(day).base_dollar

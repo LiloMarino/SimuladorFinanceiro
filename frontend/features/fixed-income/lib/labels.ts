@@ -7,6 +7,7 @@ export const INVESTMENT_TYPE_LABELS: Record<FixedIncomeOffer["investment_type"],
   LCI: "LCI",
   LCA: "LCA",
   "Tesouro Direto": "Tesouro",
+  "Conta em dólar": "Conta em dólar",
 };
 
 export const RATE_KIND_LABELS: Record<FixedIncomeOffer["rate_index"], string> = {
@@ -14,6 +15,7 @@ export const RATE_KIND_LABELS: Record<FixedIncomeOffer["rate_index"], string> = 
   SELIC: "pós-fixado",
   IPCA: "híbrido",
   Prefixado: "prefixado",
+  "Fed Funds": "juro americano",
 };
 
 /** "em 2 anos", "em 8 meses": quanto falta para o vencimento, contado da data da simulação. */

@@ -15,6 +15,7 @@ import { cn, normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import {
   displayDate,
+  displayDollars,
   displayMoney,
   displayPercent,
   displayRateLabel,
@@ -24,6 +25,7 @@ import {
 import type { FixedIncomeOffer, FixedIncomePosition, FixedIncomeRedemptionQuote } from "@/types";
 import { useRedeemFixedIncome } from "@/shared/hooks/mutations/useRedeemFixedIncome";
 import { useFixedIncomeRedemption } from "../hooks/queries/useFixedIncomeRedemption";
+import { isDollarAccount } from "../lib/daily-liquidity";
 
 const SHORTCUTS = [
   { label: "R$ 1 mil", value: "1000" },
@@ -139,10 +141,19 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
   };
 
   const iof = current ? Number(current.iof) : 0;
+  // Na conta em dólar o ganho em reais junta o juro do Fed e a variação do dólar, e o IR é fixo
+  const dollar = isDollarAccount(offer);
   const rows = [
-    { label: "Sai do título", value: current && displayMoney(current.gross_amount ?? 0) },
     {
-      label: current?.full ? "Rendimento" : "Rendimento nessa parte",
+      label: dollar ? "Sai da conta" : "Sai do título",
+      value:
+        current &&
+        (dollar && offer.fx_rate
+          ? `${displayDollars(Number(current.gross_amount) / Number(offer.fx_rate))} · ${displayMoney(current.gross_amount ?? 0)}`
+          : displayMoney(current.gross_amount ?? 0)),
+    },
+    {
+      label: dollar ? "Ganho em reais" : current?.full ? "Rendimento" : "Rendimento nessa parte",
       value: current && `+${displayMoney(current.yield_amount ?? 0)}`,
       tone: "up" as const,
     },
@@ -161,9 +172,11 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
         ]
       : [
           {
-            label: current
-              ? `IR · ${displayPercent(current.income_tax_rate, 1)} (${current.days_held} ${current.days_held === 1 ? "dia" : "dias"} aplicado)`
-              : "IR",
+            label: !current
+              ? "IR"
+              : dollar
+                ? `IR · ${displayPercent(current.income_tax_rate, 0)} sobre o ganho em reais`
+                : `IR · ${displayPercent(current.income_tax_rate, 1)} (${current.days_held} ${current.days_held === 1 ? "dia" : "dias"} aplicado)`,
             value: current && `−${displayMoney(current.income_tax ?? 0)}`,
             tone: "down" as const,
           },

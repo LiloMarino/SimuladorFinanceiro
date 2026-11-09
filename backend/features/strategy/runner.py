@@ -622,10 +622,12 @@ class StrategyRunner:
                 FixedHolding(
                     p.asset.asset_uuid,
                     p.asset.name,
-                    p.market_value(today, engine.treasury_premium()),
+                    p.market_value(today, engine.fixed_quotes()),
                     p.asset.daily_liquidity,
                     # O robô resgata só liquidez diária; o Tesouro fica até o vencimento
-                    redeemable_today(p, today, engine.tax_policy_on(today))
+                    redeemable_today(
+                        p, today, engine.tax_policy_on(today), engine.fixed_quotes()
+                    )
                     if p.asset.daily_liquidity
                     else None,
                 )

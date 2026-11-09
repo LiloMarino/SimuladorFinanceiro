@@ -186,8 +186,9 @@ class GovernmentBook:
         )
         self._macro = self._linked.macro
         self._budget = self._linked.budget
-        # O engine lê os impostos, o prêmio de risco e o prêmio a mais do crédito de cada dia
+        # O engine lê os impostos, o prêmio de risco, o prêmio a mais do crédito e o desvio do dólar de cada dia
         engine.use_tax_policy(self.policy)
+        engine.use_dollar_factor(self._linked.layer.dollar_factor)
         engine.use_risk_premium(self._linked.premium_on)
         engine.use_premium_gap(self._linked.premium_gap_on)
 

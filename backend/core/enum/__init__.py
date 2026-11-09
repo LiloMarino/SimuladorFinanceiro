@@ -7,6 +7,7 @@ class FixedIncomeType(Enum):
     LCI = "LCI"
     LCA = "LCA"
     TESOURO_DIRETO = "Tesouro Direto"
+    DOLLAR_ACCOUNT = "Conta em dólar"
 
     @property
     def db_value(self) -> str:
@@ -15,6 +16,7 @@ class FixedIncomeType(Enum):
             FixedIncomeType.LCI: "LCI",
             FixedIncomeType.LCA: "LCA",
             FixedIncomeType.TESOURO_DIRETO: "TESOURO_DIRETO",
+            FixedIncomeType.DOLLAR_ACCOUNT: "DOLLAR_ACCOUNT",
         }[self]
 
     @classmethod
@@ -24,6 +26,7 @@ class FixedIncomeType(Enum):
             "LCI": cls.LCI,
             "LCA": cls.LCA,
             "TESOURO_DIRETO": cls.TESOURO_DIRETO,
+            "DOLLAR_ACCOUNT": cls.DOLLAR_ACCOUNT,
         }
         return mapping[value]
 
@@ -33,6 +36,7 @@ class RateIndexType(Enum):
     IPCA = "IPCA"
     SELIC = "SELIC"
     PREFIXADO = "Prefixado"
+    FED_FUNDS = "Fed Funds"
 
     @property
     def db_value(self) -> str:
@@ -41,6 +45,7 @@ class RateIndexType(Enum):
             RateIndexType.IPCA: "IPCA",
             RateIndexType.SELIC: "SELIC",
             RateIndexType.PREFIXADO: "PREFIXADO",
+            RateIndexType.FED_FUNDS: "FED_FUNDS",
         }[self]
 
     @classmethod
@@ -50,6 +55,7 @@ class RateIndexType(Enum):
             "IPCA": cls.IPCA,
             "SELIC": cls.SELIC,
             "PREFIXADO": cls.PREFIXADO,
+            "FED_FUNDS": cls.FED_FUNDS,
         }
         return mapping[value]
 
@@ -410,14 +416,24 @@ class IndicatorSeries(Enum):
     FOCUS_IPCA = "FOCUS_IPCA"
     FOCUS_GDP = "FOCUS_GDP"
     FOCUS_FX = "FOCUS_FX"
+    # Fed Funds, o juro básico americano, em % ao ano: rende a conta em dólar
+    FED_FUNDS = "FED_FUNDS"
 
     @property
     def is_macro(self) -> bool:
-        """Série da economia do país: mostrada na Central, fora do mercado e do período da partida."""
+        """Série da economia, do país ou do exterior: mostrada na Central, fora do mercado e do período da partida."""
         return self in (
             IndicatorSeries.GDP_GROWTH,
             IndicatorSeries.UNEMPLOYMENT,
             IndicatorSeries.PTAX,
+            IndicatorSeries.FED_FUNDS,
+        )
+
+    @property
+    def has_generated_future(self) -> bool:
+        """O gerador cria o futuro dela: o PIB, o desemprego e o dólar seguem o modelo da partida e o Focus não tem futuro."""
+        return self is IndicatorSeries.FED_FUNDS or not (
+            self.is_macro or self.is_expectation
         )
 
     @property

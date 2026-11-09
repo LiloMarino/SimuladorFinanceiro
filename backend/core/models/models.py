@@ -66,11 +66,19 @@ class FixedIncomeAsset(Base):
     name: Mapped[str] = mapped_column(Text, nullable=False)
     issuer: Mapped[str] = mapped_column(Text, nullable=False)
     investment_type: Mapped[str] = mapped_column(
-        Enum("CDB", "LCI", "LCA", "TESOURO_DIRETO", name="investment_type"),
+        Enum(
+            "CDB",
+            "LCI",
+            "LCA",
+            "TESOURO_DIRETO",
+            "DOLLAR_ACCOUNT",
+            name="investment_type",
+        ),
         nullable=False,
     )
     rate_type: Mapped[str] = mapped_column(
-        Enum("SELIC", "IPCA", "CDI", "PREFIXADO", name="rate_type"), nullable=False
+        Enum("SELIC", "IPCA", "CDI", "PREFIXADO", "FED_FUNDS", name="rate_type"),
+        nullable=False,
     )
     maturity_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     interest_rate: Mapped[decimal.Decimal] = mapped_column(
@@ -109,6 +117,7 @@ class EconomicIndicatorHistory(Base):
             "FOCUS_IPCA",
             "FOCUS_GDP",
             "FOCUS_FX",
+            "FED_FUNDS",
             name="indicator_series",
         ),
         primary_key=True,
@@ -141,6 +150,7 @@ class FetchLog(Base):
             "FOCUS_IPCA",
             "FOCUS_GDP",
             "FOCUS_FX",
+            "FED_FUNDS",
             name="indicator_series",
         ),
         primary_key=True,
@@ -690,6 +700,8 @@ class EventFixedIncome(Base):
     tax_withheld: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False
     )
+    # Dólar do dia em reais; só a conta em dólar guarda
+    fx_rate: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 8))
     event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False

@@ -10,13 +10,16 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { ErrorPage } from "@/pages/error";
 import { DailyLiquidityBadge } from "@/shared/components/daily-liquidity-badge";
 import { ErrorState } from "@/shared/components/error-state";
+import { MetricHint } from "@/shared/components/metric-hint";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
+import type { MetricInfo } from "@/shared/lib/metric-info";
 import { cn, normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import {
   displayDate,
+  displayDollars,
   displayMoney,
   displayPercent,
   displayRateLabel,
@@ -31,7 +34,8 @@ import { useFixedIncomeAsset } from "../hooks/queries/useFixedIncomeAsset";
 import { useFixedIncomeAssets } from "../hooks/queries/useFixedIncomeAssets";
 import { useFixedIncomeProjection } from "@/shared/hooks/queries/useFixedIncomeProjection";
 import { useFixedIncomeRedemption } from "../hooks/queries/useFixedIncomeRedemption";
-import { isPermanentCdb, isRareOffer } from "../lib/daily-liquidity";
+import { isDollarAccount, isPermanentCdb, isRareOffer } from "../lib/daily-liquidity";
+import { DOLLAR_BALANCE } from "../lib/dollar-account-metrics";
 import { INVESTMENT_TYPE_LABELS, RATE_KIND_LABELS, timeToMaturity } from "../lib/labels";
 
 const NOT_FOUND = (
@@ -111,39 +115,53 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
   const bracketIndex = quote?.income_tax_brackets.findIndex((b) => b.max_days === null || heldDays <= b.max_days) ?? -1;
   const taxToday = quote?.income_tax_brackets[bracketIndex]?.rate ?? null;
 
+  const dollar = isDollarAccount(offer);
+
   const metrics: Metric[] = [
     { label: "Rentabilidade", value: displayRateLabel(offer.rate_index, offer.interest_rate) },
-    ...(offer.effective_annual_rate === null
-      ? []
-      : [
-          {
-            label: "Equivale hoje",
-            value: `${displayPercent(offer.effective_annual_rate)} a.a.`,
-            detail:
-              offer.rate_index !== "Prefixado"
-                ? `${offer.rate_index} ${displayPercent(offer.index_rate)} · Banco Central`
-                : null,
-          },
-        ]),
+    ...(dollar && offer.fx_rate
+      ? [{ label: "Dólar hoje", value: `US$ 1 = ${displayMoney(offer.fx_rate)}`, detail: "converte o saldo em reais" }]
+      : offer.effective_annual_rate === null
+        ? []
+        : [
+            {
+              label: "Equivale hoje",
+              value: `${displayPercent(offer.effective_annual_rate)} a.a.`,
+              detail:
+                offer.rate_index !== "Prefixado"
+                  ? `${offer.rate_index} ${displayPercent(offer.index_rate)} · Banco Central`
+                  : null,
+            },
+          ]),
     ...(liquid
       ? [{ label: "Resgate", value: "Qualquer dia", detail: "pelo valor do dia", tone: "success" as const }]
       : []),
-    {
-      label: "Vencimento",
-      value: displayDate(parseLocalDate(offer.maturity_date)),
-      detail: daysToRedeem !== null ? `em ${daysToRedeem.toLocaleString("pt-BR")} dias` : null,
-    },
-    liquid
+    ...(dollar
+      ? []
+      : [
+          {
+            label: "Vencimento",
+            value: displayDate(parseLocalDate(offer.maturity_date)),
+            detail: daysToRedeem !== null ? `em ${daysToRedeem.toLocaleString("pt-BR")} dias` : null,
+          },
+        ]),
+    dollar
       ? {
-          label: "IR se resgatar hoje",
-          value: taxToday === null ? "—" : displayPercent(taxToday),
-          detail: position ? `aplicado há ${heldDays} dias` : "dinheiro novo começa aqui",
+          label: "IR no resgate",
+          value: displayPercent(offer.income_tax_rate_at_maturity, 0),
+          detail: "sobre o ganho em reais",
         }
-      : {
-          label: "IR nesse prazo",
-          value: offer.tax_exempt ? "Isento" : displayPercent(offer.income_tax_rate_at_maturity),
-          detail: offer.tax_exempt ? "LCI e LCA não pagam IR" : "tabela regressiva",
-        },
+      : liquid
+        ? {
+            label: "IR se resgatar hoje",
+            value: taxToday === null ? "—" : displayPercent(taxToday),
+            detail: position ? `aplicado há ${heldDays} dias` : "dinheiro novo começa aqui",
+          }
+        : {
+            label: "IR nesse prazo",
+            value: offer.tax_exempt ? "Isento" : displayPercent(offer.income_tax_rate_at_maturity),
+            detail: offer.tax_exempt ? "LCI e LCA não pagam IR" : "tabela regressiva",
+          },
   ];
 
   const permanentCdbId = offers?.find(isPermanentCdb)?.asset_uuid;
@@ -210,7 +228,7 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
         {isLoading && <Skeleton className="h-64" />}
         <div className="grid gap-5">
           {liquid ? <LiquidityInfo offer={offer} alternatives={offers ?? []} /> : quote && <Projection quote={quote} />}
-          {quote && daysToRedeem !== null && (liquid || !offer.tax_exempt) && (
+          {quote && daysToRedeem !== null && (liquid || !offer.tax_exempt) && !dollar && (
             <TaxSteps
               quote={quote}
               days={liquid ? heldDays : daysToRedeem}
@@ -305,9 +323,19 @@ function PositionCard({
             >
               {displayMoney(position.total_applied)}
             </PositionFigure>
-            <PositionFigure label="Valor hoje" detail="bruto, antes do IR">
-              {displayMoney(position.current_value)}
-            </PositionFigure>
+            {position.usd_amount && position.fx_rate ? (
+              <PositionFigure
+                label="Saldo em dólar"
+                metric={DOLLAR_BALANCE}
+                detail={`${displayMoney(position.current_value)} a ${displayMoney(position.fx_rate)}`}
+              >
+                {displayDollars(position.usd_amount)}
+              </PositionFigure>
+            ) : (
+              <PositionFigure label="Valor hoje" detail="bruto, antes do IR">
+                {displayMoney(position.current_value)}
+              </PositionFigure>
+            )}
             <PositionFigure label="Rendimento" detail={displaySignedPercent(position.return_pct)} positive={gain >= 0}>
               {gain >= 0 ? "+" : ""}
               {displaySignedMoney(gain)}
@@ -339,16 +367,21 @@ function PositionFigure({
   label,
   detail,
   positive,
+  metric,
   children,
 }: {
   label: string;
   detail: string;
   positive?: boolean;
+  metric?: MetricInfo;
   children: ReactNode;
 }) {
   return (
     <div className="grid gap-0.5">
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+        {label}
+        {metric && <MetricHint metric={metric} />}
+      </span>
       <span className={cn("font-mono font-semibold", positive && "text-success")}>{children}</span>
       <span className="text-xs text-muted-foreground">{detail}</span>
     </div>
@@ -370,19 +403,25 @@ function LiquidityInfo({ offer, alternatives }: { offer: FixedIncomeOffer; alter
   const blocks = [
     { label: "Rende até o resgate", value: rate, detail: "todo dia útil, como no vencimento" },
     { label: "Quando cai no caixa", value: "no mesmo pregão", detail: "sem esperar o vencimento" },
-    costs
+    isDollarAccount(offer)
       ? {
           label: "O custo",
-          value: "rende menos",
-          detail: `o ${locked.name}, que trava até ${parseLocalDate(locked.maturity_date).getFullYear()}, paga ${displayRateLabel(locked.rate_index, locked.interest_rate)}. Liquidez diária acima de 100% só em oferta rara, com teto`,
+          value: "IOF de câmbio",
+          detail: "1,1% na entrada. O juro americano costuma ser menor que o CDI: o dólar subindo é que fecha a conta",
         }
-      : {
-          label: "O custo",
-          value: isRareOffer(offer) ? "teto e prazo" : "rende menos",
-          detail: isRareOffer(offer)
-            ? "oferta rara: tem teto por jogador e sai do catálogo no fim do mês"
-            : "títulos que travam o dinheiro até o vencimento costumam pagar mais",
-        },
+      : costs
+        ? {
+            label: "O custo",
+            value: "rende menos",
+            detail: `o ${locked.name}, que trava até ${parseLocalDate(locked.maturity_date).getFullYear()}, paga ${displayRateLabel(locked.rate_index, locked.interest_rate)}. Liquidez diária acima de 100% só em oferta rara, com teto`,
+          }
+        : {
+            label: "O custo",
+            value: isRareOffer(offer) ? "teto e prazo" : "rende menos",
+            detail: isRareOffer(offer)
+              ? "oferta rara: tem teto por jogador e sai do catálogo no fim do mês"
+              : "títulos que travam o dinheiro até o vencimento costumam pagar mais",
+          },
   ];
 
   return (

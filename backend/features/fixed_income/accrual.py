@@ -51,6 +51,7 @@ INDEX_SERIES: dict[RateIndexType, IndicatorSeries] = {
     RateIndexType.CDI: IndicatorSeries.CDI,
     RateIndexType.IPCA: IndicatorSeries.IPCA,
     RateIndexType.SELIC: IndicatorSeries.SELIC,
+    RateIndexType.FED_FUNDS: IndicatorSeries.FED_FUNDS,
 }
 
 
@@ -66,14 +67,14 @@ def effective_annual_rate(asset: FixedIncomeAssetDTO, index_rate: Decimal) -> De
     Taxa anual que o título rende, combinando o indexador com a taxa do título.
 
     - Prefixado: a própria taxa (0.12 = 12% a.a.).
-    - CDI: percentual do CDI (interest_rate 1.05 = 105% do CDI).
+    - CDI e Fed Funds: percentual do indexador (interest_rate 1.05 = 105% do CDI).
     - IPCA/SELIC: spread composto sobre o índice, como no mercado:
       (1 + índice) * (1 + spread) - 1.
     """
     match asset.rate_index:
         case RateIndexType.PREFIXADO:
             return asset.interest_rate
-        case RateIndexType.CDI:
+        case RateIndexType.CDI | RateIndexType.FED_FUNDS:
             return index_rate * asset.interest_rate
         case RateIndexType.IPCA | RateIndexType.SELIC:
             return compose(index_rate, asset.interest_rate)
@@ -91,7 +92,7 @@ def daily_factor(asset: FixedIncomeAssetDTO, index_rate: Decimal | None) -> Deci
     rendeu no dia. None é dia sem pregão no indexador: nada rende.
 
     - Prefixado: (1 + taxa) ^ (1/252).
-    - CDI: 1 + CDI do dia x percentual do CDI.
+    - CDI e Fed Funds: 1 + taxa do dia x percentual do indexador.
     - IPCA/SELIC: (1 + índice do dia) x (1 + spread) ^ (1/252).
     """
     if index_rate is None:
@@ -100,7 +101,7 @@ def daily_factor(asset: FixedIncomeAssetDTO, index_rate: Decimal | None) -> Deci
     match asset.rate_index:
         case RateIndexType.PREFIXADO:
             return annual_to_daily_factor(asset.interest_rate)
-        case RateIndexType.CDI:
+        case RateIndexType.CDI | RateIndexType.FED_FUNDS:
             return 1 + index_rate * asset.interest_rate
         case RateIndexType.IPCA | RateIndexType.SELIC:
             return (1 + index_rate) * annual_to_daily_factor(asset.interest_rate)
@@ -123,7 +124,9 @@ def income_tax_rate(
     days_held: int,
     policy: TaxPolicy = DEFAULT_TAX_POLICY,
 ) -> Decimal:
-    """Alíquota de IR pelos dias corridos de aplicação; LCI e LCA têm alíquota própria."""
+    """Alíquota de IR pelos dias corridos de aplicação; LCI e LCA e a conta em dólar têm alíquota própria."""
+    if investment_type is FixedIncomeType.DOLLAR_ACCOUNT:
+        return policy.foreign_rate
     if investment_type in (FixedIncomeType.LCI, FixedIncomeType.LCA):
         return policy.lci_lca_rate
 
@@ -133,9 +136,9 @@ def income_tax_rate(
     return policy.fixed_income_floor
 
 
-def iof_rate(days_held: int) -> Decimal:
-    """Alíquota do IOF pelos dias corridos de aplicação; o dia da compra paga como o 1º."""
-    if days_held >= IOF_FREE_DAYS:
+def iof_rate(investment_type: FixedIncomeType, days_held: int) -> Decimal:
+    """Alíquota do IOF sobre o rendimento pelos dias corridos de aplicação; o dia da compra paga como o 1º. A conta em dólar paga o IOF só na entrada."""
+    if investment_type is FixedIncomeType.DOLLAR_ACCOUNT or days_held >= IOF_FREE_DAYS:
         return Decimal(0)
     return IOF_TABLE[max(days_held, 1) - 1]
 
@@ -189,7 +192,7 @@ def redemption_breakdown(
     recebe o líquido. `net_wanted` é o líquido que o jogador quer receber (G sai do
     inverso da fórmula); sem ele, ou com um valor que pede o título inteiro, resgata tudo.
     """
-    iof = iof_rate(days_held)
+    iof = iof_rate(investment_type, days_held)
     ir = income_tax_rate(investment_type, days_held, policy)
     profit_share = _profit_share(current_value, total_applied)
 
@@ -244,7 +247,7 @@ def sale_breakdown(
     yield_amount, iof_amount, ir_amount = _taxes_on(
         gross,
         profit_share,
-        iof_rate(days_held),
+        iof_rate(investment_type, days_held),
         income_tax_rate(investment_type, days_held, policy),
     )
     return RedemptionBreakdown(
@@ -272,7 +275,11 @@ def next_tax_drop(
     policy: TaxPolicy = DEFAULT_TAX_POLICY,
 ) -> TaxDrop | None:
     """A próxima queda do IR; None quando já está na alíquota final ou o título é isento."""
-    if investment_type in (FixedIncomeType.LCI, FixedIncomeType.LCA):
+    if investment_type in (
+        FixedIncomeType.LCI,
+        FixedIncomeType.LCA,
+        FixedIncomeType.DOLLAR_ACCOUNT,
+    ):
         return None
 
     days_held = (today - first_applied).days
@@ -357,10 +364,14 @@ def project(
 
 
 def offer(
-    asset: FixedIncomeAssetDTO, on: date, policy: TaxPolicy = DEFAULT_TAX_POLICY
+    asset: FixedIncomeAssetDTO,
+    on: date,
+    policy: TaxPolicy = DEFAULT_TAX_POLICY,
+    dollar: Decimal | None = None,
 ) -> FixedIncomeOfferDTO:
-    """O título com a taxa equivalente de `on` e a alíquota de IR se levado ao vencimento."""
+    """O título com a taxa equivalente de `on` e a alíquota de IR se levado ao vencimento; a conta em dólar leva o dólar de `on`."""
     index_rate = index_rate_on(asset.rate_index, on)
+    in_dollar = asset.investment_type is FixedIncomeType.DOLLAR_ACCOUNT
     return FixedIncomeOfferDTO(
         **asset.model_dump(),
         index_rate=index_rate,
@@ -372,6 +383,8 @@ def offer(
             (redemption_date(asset.maturity_date) - on).days,
             policy,
         ),
+        fx_rate=dollar if in_dollar else None,
+        fx_iof_rate=policy.fx_iof_rate if in_dollar else None,
     )
 
 

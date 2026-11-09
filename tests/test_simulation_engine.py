@@ -425,3 +425,19 @@ def test_fraction_is_refused_outside_crypto(crypto_book):
         engine.check_quantity("ABCD", Decimal("1.5"))
     engine.check_quantity("ABCD", Decimal("2.00000000"))
     engine.check_quantity("BTC", Decimal("0.00000001"))
+
+
+def test_dollar_of_the_day_is_one_without_a_history_source():
+    assert _engine().dollar_on(TODAY) == Decimal(1)
+
+
+def test_dollar_of_the_day_is_the_history_and_the_government_deviation_scales_it():
+    engine = _engine()
+    engine.use_dollar_history(lambda _day: Decimal(5))
+
+    assert engine.dollar_today() == Decimal(5)
+
+    # O governo desvia o dólar da história por um fator do dia
+    engine.use_dollar_factor(lambda _day: 1.1)
+
+    assert engine.dollar_today() == Decimal("5.5")

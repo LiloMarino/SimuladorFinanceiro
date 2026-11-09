@@ -191,6 +191,7 @@ class EventRepository:
                 event_type=e.event_type.value,
                 amount=e.amount,
                 tax_withheld=e.tax_withheld,
+                fx_rate=e.fx_rate,
                 event_date=e.event_date,
                 created_at=e.created_at,
             )

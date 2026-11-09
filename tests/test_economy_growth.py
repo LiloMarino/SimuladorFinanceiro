@@ -363,3 +363,16 @@ def test_a_dearer_payroll_adds_to_the_unemployment_each_year(flat_economy: None)
     # Sem outra força, o desvio do desemprego soma 1/12 do que a folha põe por ano a cada mês
     assert month.unemployment > month.base_unemployment
     assert month.growth == month.base_growth
+
+
+def test_history_dollar_is_the_ptax_and_falls_back_to_the_walk_after_the_last_record(
+    flat_economy: None, indicators: SetIndicator
+):
+    indicators(IndicatorSeries.PTAX, daily_series(START, date(2020, 6, 30), "5"))
+    macro = MacroCourse(START)
+
+    assert growth.history_dollar(date(2020, 3, 10), macro) == Decimal(5)
+    # Depois do último dado real vale o dólar do mês pela paridade do poder de compra
+    later = growth.history_dollar(date(2020, 9, 15), macro)
+    assert later == macro.latest(date(2020, 9, 15)).base_dollar
+    assert later > Decimal(5)

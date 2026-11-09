@@ -17,6 +17,7 @@ from backend.core.enum import (
     CashflowEventType,
     CreditEventType,
     CreditGrade,
+    FixedIncomeType,
     IndicatorSeries,
     PendingType,
     PrepaymentMode,
@@ -365,7 +366,8 @@ class CreditBook:
         rates = [
             rate
             for asset in self._engine.fixed_income_market.get_available_assets()
-            if (rate := fixed_income_offer(asset, day).effective_annual_rate)
+            if asset.investment_type is not FixedIncomeType.DOLLAR_ACCOUNT
+            and (rate := fixed_income_offer(asset, day).effective_annual_rate)
             is not None
         ]
         return max(rates, default=None)

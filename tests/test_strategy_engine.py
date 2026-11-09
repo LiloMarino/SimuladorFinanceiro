@@ -13,6 +13,7 @@ from backend.core.dto.strategy import StrategyParamValue
 from backend.core.enum import (
     OrderAction,
     PendingType,
+    RateIndexType,
     StrategyAction,
     StrategyGroup,
     StrategyLogKind,
@@ -84,7 +85,11 @@ class InvestThenRedeem(BaseStrategy):
             ctx.redeem(held[0].asset_uuid, held[0].redeemable / 2, "Resgatou metade")
             return
         [cdb] = [
-            o for o in ctx.fixed_offers if o.daily_liquidity and o.player_cap is None
+            o
+            for o in ctx.fixed_offers
+            if o.daily_liquidity
+            and o.player_cap is None
+            and o.rate_index is RateIndexType.CDI
         ]
         ctx.invest(cdb.asset_uuid, Decimal(1000), "Aplicou 1.000")
 

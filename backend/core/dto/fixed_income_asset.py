@@ -36,3 +36,6 @@ class FixedIncomeOfferDTO(FixedIncomeAssetDTO):
     effective_annual_rate: Decimal | None
     tax_exempt: bool
     income_tax_rate_at_maturity: Decimal
+    # Só a conta em dólar: o dólar de hoje em reais e o IOF do câmbio cobrado na entrada
+    fx_rate: Decimal | None = None
+    fx_iof_rate: Decimal | None = None

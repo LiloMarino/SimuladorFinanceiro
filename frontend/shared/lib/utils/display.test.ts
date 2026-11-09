@@ -18,6 +18,7 @@ import {
   displayPercent,
   displayPercentagePoints,
   displayQuantity,
+  displayDollars,
   displayRateLabel,
   displayShortDate,
   displayShortMonthYear,
@@ -100,6 +101,11 @@ describe("percentuais", () => {
   it("taxa da renda fixa", () => {
     expect(displayRateLabel("CDI", "1.1")).toBe("110,00% do CDI");
     expect(displayRateLabel("IPCA", "0.055")).toBe("IPCA + 5,50%");
+    expect(displayRateLabel("Fed Funds", "1")).toBe("100,00% do juro americano");
+  });
+
+  it("dólares", () => {
+    expect(displayDollars("1978")).toBe(`US$${NBSP}1.978,00`);
   });
 });
 

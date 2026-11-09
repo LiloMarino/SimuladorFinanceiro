@@ -27,6 +27,7 @@ from backend.features.fixed_income.entities.fixed_income_position import (
 )
 from backend.features.fixed_income.fixed_broker import FixedBroker
 from backend.features.fixed_income.market import FixedIncomeMarket
+from backend.features.fixed_income.quotes import FixedIncomeQuotes
 from tests.conftest import SetIndicator
 from tests.fakes import FakeSimulationEngine, client, daily_series, monthly_series
 
@@ -35,6 +36,7 @@ START = date(2030, 9, 2)
 FIRST_MONTH = date(2030, 10, 1)
 TODAY = date(2031, 3, 3)
 PREMIUM = Decimal("0.02")
+QUOTES = FixedIncomeQuotes(premium=PREMIUM)
 CENT = Decimal("0.01")
 
 PREFIXED = RateIndexType.PREFIXADO
@@ -219,7 +221,7 @@ def test_option_on_sells_the_marked_title_that_loses_least_first(sent: Sent):
     engine.hold(near, "10000", "10500")
     near_position = engine.fixed_broker.get_fixed_positions(INVESTOR)[near.asset_uuid]
     far_position = engine.fixed_broker.get_fixed_positions(INVESTOR)[far.asset_uuid]
-    assert near_position.mark(TODAY, PREMIUM) > far_position.mark(TODAY, PREMIUM)
+    assert near_position.mark(TODAY, QUOTES) > far_position.mark(TODAY, QUOTES)
 
     engine.cover_before_debit(INVESTOR, Decimal(1000), CashflowEventType.EXPENSE)
 
@@ -312,3 +314,26 @@ def test_loan_installment_is_covered_before_it_becomes_late(
         "a parcela do empréstimo"
     ]
     assert Decimal(sent[0][1]["net_amount"]) == installment
+
+
+def test_covers_a_debit_selling_dollars_of_the_dollar_account(sent: Sent):
+    """A conta em dólar vende como os demais títulos de liquidez diária: tira US$ ao dólar de hoje e cobre o débito em reais."""
+    engine = CoverEngine("0")
+    engine.use_dollar_history(lambda _day: Decimal("5"))
+    account = FixedIncomeAssetDTO(
+        name="Conta em dólar",
+        issuer="Banco Teste",
+        investment_type=FixedIncomeType.DOLLAR_ACCOUNT,
+        rate_index=RateIndexType.FED_FUNDS,
+        maturity_date=date(2032, 1, 4),
+        interest_rate=Decimal(1),
+        daily_liquidity=True,
+    )
+    engine.hold(account, "8000", "2000")
+
+    engine.cover_before_debit(INVESTOR, Decimal(3000), CashflowEventType.EXPENSE)
+
+    assert names(sent) == [account.name]
+    assert engine.cash[INVESTOR] >= Decimal(3000) - CENT
+    [position] = engine.fixed_broker.get_fixed_positions(INVESTOR).values()
+    assert Decimal(1300) < position.current_value < Decimal(1500)

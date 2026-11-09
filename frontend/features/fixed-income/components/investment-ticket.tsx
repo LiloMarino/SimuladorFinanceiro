@@ -16,6 +16,7 @@ import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import {
   displayDate,
+  displayDollars,
   displayMoney,
   displayMoneyWhole,
   displayRateLabel,
@@ -24,6 +25,7 @@ import {
 } from "@/shared/lib/utils/display";
 import type { FixedIncomeOffer, FixedIncomeQuote } from "@/types";
 import { useBuyFixedIncome } from "@/shared/hooks/mutations/useBuyFixedIncome";
+import { dollarPurchase } from "../lib/carry";
 
 const SHORTCUTS = [
   { label: "R$ 1 mil", value: "1000" },
@@ -50,6 +52,9 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
   // Quanto ainda cabe no teto da oferta; sem teto, cabe tudo
   const room = cap === null ? Infinity : Math.max(cap - applied, 0);
   const overCap = amount > room;
+  // Só a conta em dólar converte: o IOF do câmbio sai do valor e o resto compra dólares ao dólar de hoje
+  const dollarBuy =
+    offer.fx_rate && offer.fx_iof_rate ? dollarPurchase(amount, Number(offer.fx_rate), offer.fx_iof_rate) : null;
 
   const invest = useBuyFixedIncome(assetId);
   // Com o automático ligado a boleta fica só para leitura
@@ -162,6 +167,21 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
             <dt className="text-muted-foreground">Caixa depois</dt>
             <dd className="font-mono">{overCash || overCap ? "—" : displayMoney(quote.cash_after)}</dd>
           </div>
+          {offer.fx_rate && dollarBuy && (
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">Você compra</dt>
+              <dd className="text-right font-mono">
+                {zero || overCash || overCap
+                  ? "—"
+                  : `${displayDollars(dollarBuy.dollars)} a ${displayMoney(offer.fx_rate)}`}
+                {!zero && (
+                  <span className="block text-xs text-muted-foreground">
+                    IOF de câmbio de {displayMoney(dollarBuy.iof)}
+                  </span>
+                )}
+              </dd>
+            </div>
+          )}
           {offer.daily_liquidity ? (
             <div className="flex justify-between gap-3">
               <dt className="text-muted-foreground">Rende</dt>

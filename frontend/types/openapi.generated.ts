@@ -5979,6 +5979,8 @@ export interface components {
             selic: string;
             /** Cdi */
             cdi: string;
+            /** Fed */
+            fed: string;
         };
         /**
          * EconomyLink
@@ -6454,6 +6456,10 @@ export interface components {
             tax_exempt: boolean;
             /** Income Tax Rate At Maturity */
             income_tax_rate_at_maturity: string;
+            /** Fx Rate */
+            fx_rate: string | null;
+            /** Fx Iof Rate */
+            fx_iof_rate: string | null;
         };
         /** FixedIncomePositionDTO */
         FixedIncomePositionDTO: {
@@ -6479,6 +6485,10 @@ export interface components {
             portfolio_pct: string;
             /** Redeemable Today */
             redeemable_today: string | null;
+            /** Usd Amount */
+            usd_amount: string | null;
+            /** Fx Rate */
+            fx_rate: string | null;
         };
         /**
          * FixedIncomeQuoteDTO
@@ -6583,7 +6593,7 @@ export interface components {
          * FixedIncomeType
          * @enum {string}
          */
-        FixedIncomeType: "CDB" | "LCI" | "LCA" | "Tesouro Direto";
+        FixedIncomeType: "CDB" | "LCI" | "LCA" | "Tesouro Direto" | "Conta em dólar";
         /** FoundPartyRequest */
         FoundPartyRequest: {
             /** Name */
@@ -7325,7 +7335,7 @@ export interface components {
          * IndicatorSeries
          * @enum {string}
          */
-        IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV" | "GDP_GROWTH" | "UNEMPLOYMENT" | "PTAX" | "FOCUS_SELIC" | "FOCUS_IPCA" | "FOCUS_GDP" | "FOCUS_FX";
+        IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV" | "GDP_GROWTH" | "UNEMPLOYMENT" | "PTAX" | "FOCUS_SELIC" | "FOCUS_IPCA" | "FOCUS_GDP" | "FOCUS_FX" | "FED_FUNDS";
         /**
          * IndicatorSeriesDTO
          * @description Só os pedidos vêm preenchidos; cada série começa no primeiro pregão com valor.
@@ -9833,7 +9843,7 @@ export interface components {
          * RateIndexType
          * @enum {string}
          */
-        RateIndexType: "CDI" | "IPCA" | "SELIC" | "Prefixado";
+        RateIndexType: "CDI" | "IPCA" | "SELIC" | "Prefixado" | "Fed Funds";
         /** RatingDTO */
         RatingDTO: {
             grade: components["schemas"]["CreditGrade"];

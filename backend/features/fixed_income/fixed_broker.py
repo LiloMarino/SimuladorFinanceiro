@@ -30,6 +30,7 @@ from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
 from backend.features.fixed_income.liquidity import cover_order, redeemable_today
+from backend.features.fixed_income.quotes import FixedIncomeQuotes
 from backend.features.tax_policy import TaxPolicy
 
 if TYPE_CHECKING:
@@ -38,6 +39,15 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 CENT = Decimal("0.01")
+# O saldo em US$ vai ao evento com a precisão da coluna: o centavo de dólar vale mais de R$ 0,02
+MICRO_DOLLAR = Decimal("0.000001")
+
+
+def _event_amount(position: FixedIncomePosition, units: Decimal) -> Decimal:
+    """O `amount` do resgate: reais em centavos, ou US$ com a precisão da coluna na conta em dólar."""
+    return units.quantize(
+        MICRO_DOLLAR if position.marked_by_dollar else CENT, ROUND_HALF_EVEN
+    )
 
 
 def _withheld(breakdown: RedemptionBreakdown) -> Decimal:
@@ -62,18 +72,20 @@ def load_fixed_assets(
     Repete a ordem do jogo ao vivo: em cada dia útil, primeiro o rendimento do
     dia (o tick) e depois as compras e os resgates daquele dia, na ordem em que
     aconteceram. O `amount` do resgate é o que saiu do título; um resgate em ou
-    depois do vencimento fecha a posição inteira, como o vencimento ao vivo.
+    depois do vencimento fecha a posição inteira, como o vencimento ao vivo. Na conta
+    em dólar o `amount` da compra é em reais e o do resgate, em US$, cada um com o dólar
+    do dia no `fx_rate`; o IOF do câmbio é o da política padrão, que nenhuma medida muda.
     """
     user_id = UserManager.get_user_id(client_id)
 
     assets: dict[UUID, FixedIncomeAssetDTO] = {}
-    trades: dict[UUID, dict[date, list[tuple[FixedIncomeEventType, Decimal]]]] = (
-        defaultdict(lambda: defaultdict(list))
-    )
+    trades: dict[
+        UUID, dict[date, list[tuple[FixedIncomeEventType, Decimal, Decimal | None]]]
+    ] = defaultdict(lambda: defaultdict(list))
     for asset, event in repository.fixed_income.get_events(simulation_id, user_id):
         assets[asset.asset_uuid] = asset
         trades[asset.asset_uuid][event.event_date].append(
-            (event.event_type, event.amount)
+            (event.event_type, event.amount, event.fx_rate)
         )
 
     positions: dict[UUID, FixedIncomePosition] = {}
@@ -83,16 +95,16 @@ def load_fixed_assets(
         while day <= until:
             if position is not None:
                 position.accrue(day)
-            for event_type, amount in trades_by_day.get(day, []):
+            for event_type, amount, fx_rate in trades_by_day.get(day, []):
                 if event_type is FixedIncomeEventType.BUY:
+                    # A compra na conta em dólar guarda o dólar do dia em que entrou
+                    quotes = FixedIncomeQuotes(dollar=fx_rate or Decimal(1))
                     if position is None:
-                        position = FixedIncomePosition(
-                            asset=assets[asset_uuid],
-                            total_applied=amount,
-                            first_applied_date=day,
+                        position = FixedIncomePosition.open(
+                            assets[asset_uuid], amount, day, quotes
                         )
                     else:
-                        position.invest(amount)
+                        position.invest(amount, quotes)
                 elif position is not None:
                     if day >= position.redemption_date:
                         position = None
@@ -173,14 +185,15 @@ class FixedBroker:
 
             self._simulation_engine.add_cash(client_id, -value)
 
+            quotes = self._simulation_engine.fixed_quotes()
+            policy = self._simulation_engine.tax_policy_on(today)
             if asset.asset_uuid in positions:
-                positions[asset.asset_uuid].invest(value)
+                positions[asset.asset_uuid].invest(value, quotes, policy)
             else:
-                positions[asset.asset_uuid] = FixedIncomePosition(
-                    asset=asset,
-                    total_applied=value,
-                    first_applied_date=today,
+                positions[asset.asset_uuid] = FixedIncomePosition.open(
+                    asset, value, today, quotes, policy
                 )
+            marked_by_dollar = positions[asset.asset_uuid].marked_by_dollar
 
         asset_id = repository.fixed_income.get_or_create_asset(
             self._simulation_engine.simulation_id, asset
@@ -192,6 +205,7 @@ class FixedBroker:
                 event_type=FixedIncomeEventType.BUY,
                 asset_id=asset_id,
                 amount=value,
+                fx_rate=quotes.dollar if marked_by_dollar else None,
                 event_date=today,
             )
         )
@@ -220,17 +234,21 @@ class FixedBroker:
                 raise NotFoundError(f"Você não tem posição em {asset.name}")
 
             policy = self._simulation_engine.tax_policy_on(today)
-            maximum = position.breakdown(today, None, policy).net
+            quotes = self._simulation_engine.fixed_quotes()
+            maximum = position.breakdown(today, None, policy, quotes).net
             if net_wanted > maximum:
                 raise UnprocessableEntityError(
                     f"Você pode resgatar até {format_money(maximum)} hoje."
                 )
 
-            breakdown = position.breakdown(today, net_wanted, policy)
+            breakdown = position.breakdown(today, net_wanted, policy, quotes)
+            # O título perde o bruto na unidade do montante: reais, ou US$ na conta em dólar
+            units = position.units_for(breakdown.gross, quotes)
+            fx_rate = quotes.dollar if position.marked_by_dollar else None
             if breakdown.full:
                 del positions[asset.asset_uuid]
             else:
-                position.withdraw(breakdown.gross)
+                position.withdraw(units)
             self._simulation_engine.add_cash(client_id, breakdown.net)
 
         asset_id = repository.fixed_income.get_or_create_asset(
@@ -242,8 +260,9 @@ class FixedBroker:
                 user_id=UserManager.get_user_id(client_id),
                 event_type=FixedIncomeEventType.REDEEM,
                 asset_id=asset_id,
-                amount=breakdown.gross.quantize(CENT, ROUND_HALF_EVEN),
+                amount=_event_amount(position, units),
                 tax_withheld=_withheld(breakdown),
+                fx_rate=fx_rate,
                 event_date=today,
             )
         )
@@ -274,9 +293,9 @@ class FixedBroker:
             if position is None:
                 raise NotFoundError(f"Você não tem posição em {asset.name}")
 
-            premium = self._simulation_engine.treasury_premium()
+            quotes = self._simulation_engine.fixed_quotes()
             policy = self._simulation_engine.tax_policy_on(today)
-            market = position.market_value(today, premium)
+            market = position.market_value(today, quotes)
             if gross is not None and gross - market >= CENT:
                 raise UnprocessableEntityError(
                     f"Você pode vender até {format_money(market)} hoje."
@@ -285,7 +304,7 @@ class FixedBroker:
             if gross is not None and market - gross < CENT:
                 gross = None
 
-            breakdown = position.sell_breakdown(today, gross, premium, policy)
+            breakdown = position.sell_breakdown(today, gross, quotes, policy)
             curve_amount = (breakdown.gross / market * position.current_value).quantize(
                 CENT, ROUND_HALF_EVEN
             )
@@ -321,11 +340,11 @@ class FixedBroker:
         trava de operação do jogador.
         """
         today = self._simulation_engine.current_date
-        premium = self._simulation_engine.treasury_premium()
+        quotes = self._simulation_engine.fixed_quotes()
         policy = self._simulation_engine.tax_policy_on(today)
         with self._lock:
             order = cover_order(
-                self._assets[client_id].values(), today, include_marked, premium
+                self._assets[client_id].values(), today, include_marked, quotes
             )
 
         sales: list[CoverSale] = []
@@ -334,7 +353,7 @@ class FixedBroker:
             if remaining <= 0:
                 break
             asset = position.asset
-            full_net = redeemable_today(position, today, policy, premium)
+            full_net = redeemable_today(position, today, policy, quotes)
             if full_net is None or full_net <= 0:
                 continue
             try:
@@ -343,7 +362,7 @@ class FixedBroker:
                         None
                         if remaining >= full_net
                         else self._gross_for_net(
-                            position, remaining, full_net, today, premium, policy
+                            position, remaining, full_net, today, quotes, policy
                         )
                     )
                     net = self.sell_treasury(client_id, asset, gross)
@@ -363,15 +382,15 @@ class FixedBroker:
         net: Decimal,
         full_net: Decimal,
         today: date,
-        premium: Decimal,
+        quotes: FixedIncomeQuotes,
         policy: TaxPolicy,
     ) -> Decimal:
         """O bruto a vender para o caixa receber `net`: a fração do mercado, ajustada ao centavo dos impostos."""
-        gross = (position.market_value(today, premium) * net / full_net).quantize(
+        gross = (position.market_value(today, quotes) * net / full_net).quantize(
             CENT, ROUND_HALF_EVEN
         )
         for _ in range(3):
-            received = position.sell_breakdown(today, gross, premium, policy).net
+            received = position.sell_breakdown(today, gross, quotes, policy).net
             if received >= net:
                 break
             gross += net - received
@@ -397,10 +416,12 @@ class FixedBroker:
         user_id: int,
         position: FixedIncomePosition,
     ) -> None:
+        quotes = self._simulation_engine.fixed_quotes()
         breakdown = position.breakdown(
             position.redemption_date,
             None,
             self._simulation_engine.tax_policy_on(position.redemption_date),
+            quotes,
         )
 
         self._simulation_engine.add_cash(client_id, breakdown.net)
@@ -414,8 +435,11 @@ class FixedBroker:
                 user_id=user_id,
                 event_type=FixedIncomeEventType.REDEEM,
                 asset_id=asset_id,
-                amount=breakdown.gross.quantize(CENT, ROUND_HALF_EVEN),
+                amount=_event_amount(
+                    position, position.units_for(breakdown.gross, quotes)
+                ),
                 tax_withheld=_withheld(breakdown),
+                fx_rate=quotes.dollar if position.marked_by_dollar else None,
                 event_date=current_date,
             )
         )

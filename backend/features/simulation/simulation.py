@@ -128,7 +128,7 @@ from backend.features.credit.overview import (
     build_prepayment_preview,
 )
 from backend.features.credit.overview import build_quote as build_loan_quote
-from backend.features.economy.growth import MacroCourse
+from backend.features.economy.growth import MacroCourse, history_dollar
 from backend.features.economy.panel import build_economy_panel
 from backend.features.fixed_income import treasury, treasury_panel
 from backend.features.fixed_income.accrual import (
@@ -316,6 +316,8 @@ class Simulation:
 
         # Crescimento e desemprego do país: o painel da economia e a aprovação leem o mesmo curso
         self._macro = MacroCourse(settings.start_date)
+        # O dólar da partida parte da história: a PTAX e, depois dela, a paridade do curso
+        self._engine.use_dollar_history(lambda day: history_dollar(day, self._macro))
 
         # Expansão Governo & Política: o estado político volta dos eventos gravados
         self._government = (
@@ -899,7 +901,13 @@ class Simulation:
     def get_fixed_offers(self) -> list[FixedIncomeOfferDTO]:
         return [
             apply_offer_assistance(
-                offer(a, self._current_date, self._tax_policy()), self.settings
+                offer(
+                    a,
+                    self._current_date,
+                    self._tax_policy(),
+                    self._engine.dollar_today(),
+                ),
+                self.settings,
             )
             for a in self.get_fixed_assets()
             if a.investment_type is not FixedIncomeType.TESOURO_DIRETO
@@ -911,7 +919,13 @@ class Simulation:
         if not asset:
             return None
         return apply_offer_assistance(
-            offer(asset, self._current_date, self._tax_policy()), self.settings
+            offer(
+                asset,
+                self._current_date,
+                self._tax_policy(),
+                self._engine.dollar_today(),
+            ),
+            self.settings,
         )
 
     @synchronized
@@ -954,9 +968,12 @@ class Simulation:
 
         today = self._current_date
         policy = self._tax_policy()
-        maximum = position.breakdown(today, None, policy).net
+        quotes = self._engine.fixed_quotes()
+        maximum = position.breakdown(today, None, policy, quotes).net
         redemption = (
-            position.breakdown(today, amount, policy) if 0 < amount <= maximum else None
+            position.breakdown(today, amount, policy, quotes)
+            if 0 < amount <= maximum
+            else None
         )
         cash = self.get_cash(client_id)
         first = position.first_applied_date
@@ -965,13 +982,13 @@ class Simulation:
         return FixedIncomeRedemptionQuoteDTO(
             amount=amount,
             max_amount=maximum,
-            position_value=position.current_value,
+            position_value=position.reais_value(quotes),
             total_applied=position.total_applied,
             first_applied_date=first,
             days_held=days_held,
             gross_amount=redemption and redemption.gross,
             yield_amount=redemption and redemption.yield_amount,
-            iof_rate=iof_rate(days_held),
+            iof_rate=iof_rate(asset.investment_type, days_held),
             iof=redemption and redemption.iof,
             income_tax_rate=income_tax_rate(asset.investment_type, days_held, policy),
             income_tax=redemption and redemption.income_tax,
@@ -1014,9 +1031,9 @@ class Simulation:
 
     @synchronized
     def get_treasury_positions(self, client_id: UUID) -> list[TreasuryPositionDTO]:
-        premium = self._engine.treasury_premium()
+        quotes = self._engine.fixed_quotes()
         return [
-            treasury_panel.build_position(position, self._current_date, premium)
+            treasury_panel.build_position(position, self._current_date, quotes)
             for position in self.get_fixed_positions(client_id).values()
             if position.asset.investment_type is FixedIncomeType.TESOURO_DIRETO
         ]
@@ -1041,7 +1058,7 @@ class Simulation:
             amount,
             self.get_cash(client_id),
             self._current_date,
-            self._engine.treasury_premium(),
+            self._engine.fixed_quotes(),
             self._tax_policy(),
         )
 
@@ -1431,7 +1448,7 @@ class Simulation:
         positions = list(self.get_fixed_positions(client_id).values())
         policy = self._tax_policy()
         daily_liquidity = total_redeemable(
-            positions, day, policy, self._engine.treasury_premium()
+            positions, day, policy, self._engine.fixed_quotes()
         )
         reserve = max(cash + daily_liquidity, Decimal(0))
         reserve_cash = max(cash, Decimal(0))
@@ -1631,6 +1648,7 @@ class Simulation:
             ipca=annual_index_rate(IndicatorSeries.IPCA, self._current_date),
             selic=annual_index_rate(IndicatorSeries.SELIC, self._current_date),
             cdi=annual_index_rate(IndicatorSeries.CDI, self._current_date),
+            fed=annual_index_rate(IndicatorSeries.FED_FUNDS, self._current_date),
         )
 
     @synchronized

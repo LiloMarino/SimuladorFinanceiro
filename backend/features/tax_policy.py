@@ -55,6 +55,10 @@ class TaxPolicy:
     fixed_income_brackets: tuple[tuple[int, Decimal], ...]
     fixed_income_floor: Decimal
     lci_lca_rate: Decimal
+    # IR da conta em dólar sobre o ganho em reais (juro mais câmbio), retido no resgate
+    foreign_rate: Decimal
+    # IOF do câmbio na entrada da conta em dólar
+    fx_iof_rate: Decimal
     # Alíquota efetiva dos impostos que financiam o gasto-base do país
     consumption_rate: Decimal
     corporate_rate: Decimal
@@ -117,6 +121,8 @@ DEFAULT_TAX_POLICY = TaxPolicy(
     ),
     fixed_income_floor=Decimal("0.15"),
     lci_lca_rate=Decimal(0),
+    foreign_rate=Decimal("0.15"),
+    fx_iof_rate=Decimal("0.011"),
     consumption_rate=Decimal("0.18"),
     corporate_rate=Decimal("0.34"),
     personal_rate=Decimal("0.15"),

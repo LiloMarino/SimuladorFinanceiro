@@ -340,6 +340,21 @@ def test_gdp_and_unemployment_appear_apart_from_the_market_indicators(base: Engi
     assert kinds["GDP_GROWTH"] is kinds["UNEMPLOYMENT"] is SeriesKind.MACRO
 
 
+def test_fed_funds_is_macro_but_keeps_a_generated_future(base: Engine):
+    coverage = {s.key: s for s in get_series_coverage()}
+
+    assert coverage["FED_FUNDS"].kind is SeriesKind.MACRO
+    assert coverage["FED_FUNDS"].real_end == LAST_REAL
+    assert coverage["FED_FUNDS"].generated_end is None
+
+
+def test_recording_writes_the_fed_funds_future(base: Engine, progress: list[dict]):
+    future.record(params(7))
+
+    coverage = {s.key: s for s in get_series_coverage()}
+    assert coverage["FED_FUNDS"].generated_end == UNTIL
+
+
 def test_the_focus_series_appear_as_expectations(base: Engine):
     kinds = {s.key: s.kind for s in get_series_coverage()}
 
