@@ -35,6 +35,7 @@ SPENDING_NOUNS: dict[MeasureKind, str] = {
     MeasureKind.SERVANT_RAISE: "servidores",
     MeasureKind.RETIREE_RAISE: "aposentadorias",
     MeasureKind.PUBLIC_WORKS: "obras",
+    MeasureKind.OPERATING_COST: "custeio",
 }
 
 

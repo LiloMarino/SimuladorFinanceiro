@@ -686,14 +686,20 @@ class MeasureKind(Enum):
     # Tabela única: a mesma alíquota em qualquer prazo
     FIXED_INCOME_TABLE = "FIXED_INCOME_TABLE"
     LCI_LCA_RATE = "LCI_LCA_RATE"
+    # Os impostos que financiam o gasto-base: a alíquota efetiva de cada base do país
+    CONSUMPTION_TAX_RATE = "CONSUMPTION_TAX_RATE"
+    CORPORATE_INCOME_TAX_RATE = "CORPORATE_INCOME_TAX_RATE"
+    PERSONAL_INCOME_TAX_RATE = "PERSONAL_INCOME_TAX_RATE"
+    PAYROLL_TAX_RATE = "PAYROLL_TAX_RATE"
     SECTOR_EXEMPT = "SECTOR_EXEMPT"
     # Soma pontos à alíquota do ganho do setor
     SECTOR_TAX = "SECTOR_TAX"
-    # Gasto público: o auxílio e as obras em fração do PIB por ano, os reajustes em fração ao ano
+    # Gasto público: o auxílio, as obras e o custeio em fração do PIB por ano, os reajustes em fração ao ano
     WELFARE_SPENDING = "WELFARE_SPENDING"
     SERVANT_RAISE = "SERVANT_RAISE"
     RETIREE_RAISE = "RETIREE_RAISE"
     PUBLIC_WORKS = "PUBLIC_WORKS"
+    OPERATING_COST = "OPERATING_COST"
 
     @property
     def is_sector(self) -> bool:
@@ -706,6 +712,7 @@ class MeasureKind(Enum):
             MeasureKind.SERVANT_RAISE,
             MeasureKind.RETIREE_RAISE,
             MeasureKind.PUBLIC_WORKS,
+            MeasureKind.OPERATING_COST,
         )
 
 
@@ -739,6 +746,12 @@ class EconomyLink(Enum):
     INFLATION_BRAKE = "INFLATION_BRAKE"
     # O prêmio de risco acima da história encarece o crédito e tira crescimento
     CROWDING_OUT = "CROWDING_OUT"
+    # O imposto sobre o consumo acima do padrão sobe a inflação na hora
+    CONSUMPTION_TAX = "CONSUMPTION_TAX"
+    # O IR das empresas acima do padrão tira lucro e derruba a bolsa
+    CORPORATE_TAX = "CORPORATE_TAX"
+    # A contribuição sobre a folha acima do padrão encarece contratar e sobe o desemprego
+    PAYROLL_TAX = "PAYROLL_TAX"
 
 
 class MeasureStatus(Enum):

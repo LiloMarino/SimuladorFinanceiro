@@ -141,6 +141,8 @@ class PromiseOptionDTO(BaseDTO):
     kind: MeasureKind
     baseline: Decimal
     step: Decimal
+    # Menor alvo possível: zero, ou o piso do reajuste real
+    floor: Decimal
     # Maior alvo possível; nulo no teto de isenção, que não tem limite
     limit: Decimal | None
 

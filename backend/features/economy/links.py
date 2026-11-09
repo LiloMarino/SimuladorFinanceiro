@@ -32,6 +32,15 @@ IMPULSE_MONTHS = 12
 # empresas e tira três quartos de ponto do alvo do crescimento, mesmo com a SELIC baixa;
 # prêmio abaixo da história não empurra o crescimento
 CROWDING_OUT = Decimal("0.75")
+# Imposto sobre o consumo: cada ponto de alíquota a mais, repassado aos preços ao longo de 12
+# meses, soma meio ponto ao IPCA em 12 meses
+CONSUMPTION_PASS_THROUGH = 0.5
+# IR das empresas: cada ponto de alíquota acima do padrão tira 1,2% do nível da bolsa, pelo
+# lucro menor das empresas (o corte levanta)
+CORPORATE_STOCKS = 0.012
+# Contribuição sobre a folha: cada ponto de alíquota acima do padrão soma 0,06 ponto ao ano
+# ao desemprego, porque contratar fica mais caro
+PAYROLL_JOBS = Decimal("0.0006")
 
 
 @dataclass(frozen=True)
@@ -55,6 +64,12 @@ class LinkMonth:
     real_rate_gap: Decimal = ZERO
     # O que os juros reais dos últimos 12 meses somam ao IPCA em 12 meses, já pela defasagem
     rate_points: float = 0.0
+    # A alíquota em vigor menos a padrão (0.02 = 2 pontos) no imposto sobre o consumo, no IR
+    # das empresas e na contribuição sobre a folha; no consumo, também quanto ela mudou em 12 meses
+    consumption_gap: Decimal = ZERO
+    consumption_change: Decimal = ZERO
+    corporate_gap: Decimal = ZERO
+    payroll_gap: Decimal = ZERO
 
     @cached_property
     def phillips_points(self) -> float:
@@ -69,8 +84,27 @@ class LinkMonth:
         return PREMIUM_INFLATION * self.premium_points
 
     @cached_property
+    def consumption_points(self) -> float:
+        return CONSUMPTION_PASS_THROUGH * float(self.consumption_change) * HUNDRED
+
+    @cached_property
+    def corporate_points(self) -> float:
+        """O expoente do nível da bolsa que o IR das empresas põe."""
+        return -CORPORATE_STOCKS * float(self.corporate_gap) * HUNDRED
+
+    @cached_property
     def inflation_points(self) -> float:
-        return self.phillips_points + self.premium_inflation_points + self.rate_points
+        return (
+            self.phillips_points
+            + self.premium_inflation_points
+            + self.rate_points
+            + self.consumption_points
+        )
+
+    @property
+    def payroll_jobs(self) -> Decimal:
+        """O que a contribuição sobre a folha soma ao desemprego, em fração ao ano."""
+        return PAYROLL_JOBS * self.payroll_gap * HUNDRED
 
     @property
     def cycle_revenue(self) -> Decimal:
@@ -98,6 +132,10 @@ class LinkMonth:
             or self.primary_change
             or self.real_rate_gap
             or self.rate_points
+            or self.consumption_gap
+            or self.consumption_change
+            or self.corporate_gap
+            or self.payroll_gap
         )
 
     def same_effect(self, other: "LinkMonth") -> bool:
@@ -110,6 +148,10 @@ class LinkMonth:
             and self.primary_change == other.primary_change
             and self.real_rate_gap == other.real_rate_gap
             and self.rate_points == other.rate_points
+            and self.consumption_gap == other.consumption_gap
+            and self.consumption_change == other.consumption_change
+            and self.corporate_gap == other.corporate_gap
+            and self.payroll_gap == other.payroll_gap
         )
 
 
@@ -124,6 +166,10 @@ def link_month(
     primary_gap_year_ago: Decimal,
     real_rate_gap: Decimal = ZERO,
     rate_points: float = 0.0,
+    consumption_gap: Decimal = ZERO,
+    consumption_gap_year_ago: Decimal = ZERO,
+    corporate_gap: Decimal = ZERO,
+    payroll_gap: Decimal = ZERO,
 ) -> LinkMonth:
     """
     O mês fechado: o nível do PIB acumula o crescimento a mais do mês, um doze avos do
@@ -139,6 +185,10 @@ def link_month(
         primary_change=primary_gap - primary_gap_year_ago,
         real_rate_gap=real_rate_gap,
         rate_points=rate_points,
+        consumption_gap=consumption_gap,
+        consumption_change=consumption_gap - consumption_gap_year_ago,
+        corporate_gap=corporate_gap,
+        payroll_gap=payroll_gap,
     )
 
 

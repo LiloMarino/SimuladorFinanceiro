@@ -8,6 +8,7 @@ from decimal import Decimal
 
 import pytest
 
+from backend.core.dto.sector import StockSegmentDTO
 from backend.core.enum import IndicatorSeries, MeasureKind, MeasureStatus
 from backend.core.indicators import annualize_daily
 from backend.core.rates import Percent
@@ -120,6 +121,51 @@ def test_a_stock_follows_the_market_level_raised_to_its_beta(economy, monkeypatc
     # Sem beta medido, o ativo anda como o mercado
     assert economy.stock_factor("NEW", day) == pytest.approx(level)
     assert economy.stock_factor("HIGH", day) < economy.stock_factor("LOW", day)
+
+
+# A isenção do IR de um setor
+
+
+def exempt_layer(since: date | None) -> EconomyLayer:
+    nothing = EconomyLayer(1, START, fx.SpendingEconomy())
+    nothing._classification = {
+        "ENER3": StockSegmentDTO(sector="Energia", segment="Transmissão"),
+        "BANK3": StockSegmentDTO(sector="Bancos", segment="Bancos"),
+    }
+    nothing.use_sector_exemption(
+        lambda sector, segment, day: since if sector == "Energia" else None
+    )
+    return nothing
+
+
+def test_an_exempt_sector_stock_rises_in_a_straight_line_to_the_ceiling():
+    since = date(2021, 1, 1)
+    economy = exempt_layer(since)
+    months = layer.SECTOR_EXEMPT_RAMP_MONTHS
+
+    assert economy.stock_factor("ENER3", since) == pytest.approx(1.0)
+    half = since + timedelta(days=layer.months_to_days(months / 2))
+    assert economy.stock_factor("ENER3", half) == pytest.approx(
+        1 + layer.SECTOR_EXEMPT_BOOST / 2, abs=0.001
+    )
+    later = since + timedelta(days=layer.months_to_days(months * 3))
+    assert economy.stock_factor("ENER3", later) == pytest.approx(
+        1 + layer.SECTOR_EXEMPT_BOOST
+    )
+
+
+def test_the_exemption_leaves_other_sectors_and_unclassified_stocks_alone():
+    economy = exempt_layer(date(2021, 1, 1))
+    day = date(2022, 1, 1)
+
+    assert economy.stock_factor("BANK3", day) == 1.0
+    assert economy.stock_factor("NEW3", day) == 1.0
+
+
+def test_without_an_exemption_the_stock_factor_is_the_market_alone():
+    economy = exempt_layer(None)
+
+    assert economy.stock_factor("ENER3", date(2022, 1, 1)) == 1.0
 
 
 # O beta de cada ativo

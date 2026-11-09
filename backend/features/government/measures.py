@@ -57,6 +57,14 @@ def apply_measure(policy: TaxPolicy, measure: Measure) -> TaxPolicy:
             )
         case MeasureKind.LCI_LCA_RATE:
             return replace(policy, lci_lca_rate=required(value))
+        case MeasureKind.CONSUMPTION_TAX_RATE:
+            return replace(policy, consumption_rate=required(value))
+        case MeasureKind.CORPORATE_INCOME_TAX_RATE:
+            return replace(policy, corporate_rate=required(value))
+        case MeasureKind.PERSONAL_INCOME_TAX_RATE:
+            return replace(policy, personal_rate=required(value))
+        case MeasureKind.PAYROLL_TAX_RATE:
+            return replace(policy, payroll_rate=required(value))
         case MeasureKind.SECTOR_EXEMPT | MeasureKind.SECTOR_TAX:
             rule = SectorRule(
                 sector=required(measure.sector),
@@ -70,6 +78,7 @@ def apply_measure(policy: TaxPolicy, measure: Measure) -> TaxPolicy:
             | MeasureKind.SERVANT_RAISE
             | MeasureKind.RETIREE_RAISE
             | MeasureKind.PUBLIC_WORKS
+            | MeasureKind.OPERATING_COST
         ):
             # O gasto público não mexe nos impostos; vive na linha do tempo do gasto
             return policy
@@ -88,6 +97,14 @@ def general_value(policy: TaxPolicy, kind: MeasureKind) -> Decimal | None:
             return policy.fixed_income_top_rate
         case MeasureKind.LCI_LCA_RATE:
             return policy.lci_lca_rate
+        case MeasureKind.CONSUMPTION_TAX_RATE:
+            return policy.consumption_rate
+        case MeasureKind.CORPORATE_INCOME_TAX_RATE:
+            return policy.corporate_rate
+        case MeasureKind.PERSONAL_INCOME_TAX_RATE:
+            return policy.personal_rate
+        case MeasureKind.PAYROLL_TAX_RATE:
+            return policy.payroll_rate
         case _:
             return None
 
@@ -123,6 +140,16 @@ class PolicyTimeline:
         """A política depois de todas as medidas aprovadas valerem."""
         return self._policies[-1] if self._policies else DEFAULT_TAX_POLICY
 
+    def exempt_since(self, sector: str, segment: str, day: date) -> date | None:
+        """O dia em que a isenção que cobre o ativo passou a valer, sem interrupção, até `day`; nulo sem isenção no dia."""
+        since = None
+        for index in range(bisect_right(self._days, day) - 1, -1, -1):
+            rule = self._policies[index].sector_rule(sector, segment)
+            if rule is None or not rule.exempt:
+                break
+            since = self._days[index]
+        return since
+
 
 def title(measure: Measure) -> str:
     value = measure.value
@@ -141,6 +168,14 @@ def title(measure: Measure) -> str:
             if not value:
                 return "LCI e LCA: isentas de IR"
             return f"LCI e LCA: IR de {percent(value)}"
+        case MeasureKind.CONSUMPTION_TAX_RATE:
+            return f"Consumo: imposto de {percent(value)}"
+        case MeasureKind.CORPORATE_INCOME_TAX_RATE:
+            return f"Empresas: IR de {percent(value)} sobre o lucro"
+        case MeasureKind.PERSONAL_INCOME_TAX_RATE:
+            return f"Pessoas: IR médio de {percent(value)}"
+        case MeasureKind.PAYROLL_TAX_RATE:
+            return f"Folha de pagamento: contribuição de {percent(value)}"
         case MeasureKind.SECTOR_EXEMPT:
             return f"{target_name(measure)}: IR isento"
         case MeasureKind.SECTOR_TAX:
@@ -156,6 +191,8 @@ def title(measure: Measure) -> str:
             return f"Aposentadorias: reajuste de {percent(value)} acima da inflação"
         case MeasureKind.PUBLIC_WORKS:
             return f"Obras: {percent(value)} do PIB"
+        case MeasureKind.OPERATING_COST:
+            return f"Custeio: {percent(value)} do PIB"
 
 
 def promise_title(promise: Promise) -> str:

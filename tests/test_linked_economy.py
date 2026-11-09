@@ -14,6 +14,7 @@ from decimal import Decimal
 import pytest
 
 from backend.core import repository
+from backend.core.dto.economy import LinkEffectDTO
 from backend.core.enum import (
     EconomyLink,
     IndicatorSeries,
@@ -37,7 +38,7 @@ from backend.features.government.budget import base_spending_on
 from backend.features.government.linked_economy import LinkedEconomy
 from backend.features.government.spending_effects import SpendingEconomy
 from backend.features.government.state import Measure
-from backend.features.tax_policy import DEFAULT_TAX_POLICY
+from backend.features.tax_policy import DEFAULT_TAX_POLICY, TaxPolicy
 from tests.fakes import monthly_series
 
 START = date(2020, 1, 1)
@@ -104,6 +105,7 @@ def economy(
     measures: list[Measure] | None = None,
     extra_spending: Callable[[date], Decimal] = lambda _day: Decimal(0),
     monetary: Monetary | None = None,
+    policy_on: Callable[[date], TaxPolicy] = lambda _day: DEFAULT_TAX_POLICY,
 ) -> LinkedEconomy:
     spending = SpendingEconomy()
     linked = LinkedEconomy(
@@ -111,7 +113,7 @@ def economy(
         START,
         MacroCourse(START),
         budget.initial_account(START, InitialAccount.PLAYABLE),
-        lambda _day: DEFAULT_TAX_POLICY,
+        policy_on,
         lambda day: base_spending_on(day) + extra_spending(day),
         lambda _day: Decimal(0),
         spending,
@@ -351,3 +353,78 @@ def test_lost_credibility_costs_premium_and_inflation(stored_series: None):
     assert (
         doubted.links_until(end)[-1].rate_points > calm.links_until(end)[-1].rate_points
     )
+
+
+def taxer(**rates: Decimal) -> LinkedEconomy:
+    """Os impostos dados sobem de abril de 2020 em diante; o resto fica no padrão."""
+    raised = replace(DEFAULT_TAX_POLICY, **rates)
+    return economy(
+        policy_on=lambda day: raised if day >= date(2020, 4, 1) else DEFAULT_TAX_POLICY
+    )
+
+
+def effects_of_links(
+    linked: LinkedEconomy, end: date
+) -> dict[EconomyLink, LinkEffectDTO]:
+    panel = build_economy_panel(START, end, linked.macro, linked)
+    return {effect.link: effect for effect in panel.links or []}
+
+
+def test_a_higher_consumption_tax_improves_the_primary_and_raises_prices(
+    stored_series: None,
+):
+    linked = taxer(
+        consumption_rate=DEFAULT_TAX_POLICY.consumption_rate + Decimal("0.02")
+    )
+    end = date(2020, 12, 31)
+
+    linked.close_until(end)
+
+    last = linked.links_until(end)[-1]
+    assert last.consumption_gap == Decimal("0.02")
+    assert last.primary_gap > 0
+    # A alta de 12 meses repassada aos preços: ainda vale no fim do primeiro ano
+    assert last.consumption_points > 0
+    effect = effects_of_links(linked, end)[EconomyLink.CONSUMPTION_TAX]
+    assert effect.inflation > 0
+    assert effect.selic > 0
+
+
+def test_a_higher_corporate_tax_costs_the_stocks_and_a_cut_lifts_them(
+    stored_series: None,
+):
+    up = taxer(corporate_rate=DEFAULT_TAX_POLICY.corporate_rate + Decimal("0.05"))
+    down = taxer(corporate_rate=DEFAULT_TAX_POLICY.corporate_rate - Decimal("0.05"))
+    end = date(2020, 12, 31)
+    up.close_until(end)
+    down.close_until(end)
+
+    assert up.layer.stocks_parts(end).corporate < 0
+    assert down.layer.stocks_parts(end).corporate > 0
+    assert up.layer.level(end) < down.layer.level(end)
+    assert effects_of_links(up, end)[EconomyLink.CORPORATE_TAX].stocks < 0
+
+
+def test_a_higher_payroll_tax_raises_the_unemployment(stored_series: None):
+    linked = taxer(payroll_rate=DEFAULT_TAX_POLICY.payroll_rate + Decimal("0.05"))
+    end = date(2021, 12, 31)
+
+    linked.close_until(end)
+
+    country = linked.macro.latest(end)
+    assert country.unemployment > country.base_unemployment
+    effect = effects_of_links(linked, end)[EconomyLink.PAYROLL_TAX]
+    assert effect.unemployment > 0
+    # A Phillips leva o emprego menor para os preços, sem nenhum gasto a mais
+    assert linked.layer.inflation_points(end) != 0
+
+
+def test_the_personal_income_tax_changes_the_primary_but_no_link(stored_series: None):
+    linked = taxer(personal_rate=DEFAULT_TAX_POLICY.personal_rate + Decimal("0.05"))
+    end = date(2020, 12, 31)
+
+    linked.close_until(end)
+
+    last = linked.links_until(end)[-1]
+    assert last.primary_gap > 0
+    assert last.consumption_gap == last.corporate_gap == last.payroll_gap == 0

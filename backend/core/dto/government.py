@@ -938,8 +938,9 @@ class SpendingRowDTO(BaseDTO):
     # Quanto a medida pesa no gasto do país, em fração do PIB por ano e em reais por ano
     cost: Decimal
     cost_amount: Decimal
-    # O quanto o valor anda por passo de referência (também o máximo de uma medida) e o teto
+    # O quanto o valor anda por passo de referência (também o máximo de uma medida), o piso e o teto
     step: Decimal
+    floor: Decimal
     limit: Decimal
     # Pontos de IPCA que a última mudança soma hoje, a fase dela e o desenho mês a mês
     inflation: Decimal
@@ -1102,8 +1103,9 @@ class SelicRequest(BaseDTO):
 
 class ProposeMeasureRequest(BaseDTO):
     kind: MeasureKind
-    # Alíquota (0.20), teto em reais ou pontos somados, conforme o tipo
-    value: Annotated[Decimal, Field(ge=0, max_digits=14, decimal_places=4)] | None = (
+    # Alíquota (0.20), teto em reais ou pontos somados, conforme o tipo; o reajuste real
+    # pode ser negativo (o piso de cada tipo é validado pelo governo)
+    value: Annotated[Decimal, Field(ge=-1, max_digits=14, decimal_places=4)] | None = (
         None
     )
     sector: str | None = None

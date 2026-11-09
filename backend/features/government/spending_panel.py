@@ -102,6 +102,7 @@ def spending_card(
                 cost=cost,
                 cost_amount=cost * gdp,
                 step=spending.STEPS[kind],
+                floor=spending.floor_of(kind),
                 limit=spending.LIMITS[kind],
                 inflation=points(economy.inflation_of(kind, today)),
                 phase=spending_effects.phase_of(latest, today) if latest else None,

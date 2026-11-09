@@ -222,6 +222,7 @@ const link = (kind: EconomyLinkEffect["link"], inflation: string, stocks = "0", 
   selic: String(Number(inflation) * 1.5),
   stocks,
   growth,
+  unemployment: "0",
 });
 
 describe("efeitos das medidas", () => {

@@ -16,23 +16,29 @@ export function signedPointsOf(fraction: string | number) {
   return SIGNED_NUMBER.format(Math.round(Number(fraction) * 10000) / 100).replace("-", MINUS);
 }
 
-/** O valor da medida como o jogo escreve: "1,4% do PIB" ou "ganho real de 2% ao ano". */
+/** O valor da medida como o jogo escreve: "1,4% do PIB", "ganho real de 2% ao ano" ou "perda real de 2% ao ano". */
 export function spendingValue(kind: SpendingKind, value: string | number) {
-  return isRaise(kind) ? `ganho real de ${pointsOf(value)}% ao ano` : `${pointsOf(value)}% do PIB`;
+  if (!isRaise(kind)) return `${pointsOf(value)}% do PIB`;
+  return Number(value) < 0
+    ? `perda real de ${pointsOf(Math.abs(Number(value)))}% ao ano`
+    : `ganho real de ${pointsOf(value)}% ao ano`;
 }
 
 /** A unidade que o campo de valor mostra ao lado do rótulo. */
 export function spendingUnit(kind: SpendingKind) {
-  return isRaise(kind) ? "em % ao ano, além da inflação" : "em % do PIB por ano";
+  return isRaise(kind) ? "em % ao ano, além da inflação (negativo é perda real)" : "em % do PIB por ano";
 }
 
 type Window = { min: number; max: number };
 
-/** A janela de uma medida: o passo para baixo (com piso em 0) e para cima (com o teto da medida). */
-export function valueWindow(row: Pick<SpendingRow, "value" | "step" | "limit">): Window {
+/** A janela de uma medida: o passo para baixo (com o piso da medida) e para cima (com o teto). */
+export function valueWindow(row: Pick<SpendingRow, "value" | "step" | "floor" | "limit">): Window {
   const value = Number(row.value);
   const step = Number(row.step);
-  return { min: Math.max(0, round(value - step)), max: Math.min(Number(row.limit), round(value + step)) };
+  return {
+    min: Math.max(Number(row.floor), round(value - step)),
+    max: Math.min(Number(row.limit), round(value + step)),
+  };
 }
 
 /** "ponto" até 1 ponto ("0,5 ponto"), "pontos" acima. */
@@ -42,7 +48,7 @@ const round = (value: number) => Math.round(value * 10000) / 10000;
 
 /** Os atalhos de passo do campo, em pontos: o auxílio e as obras andam em meios pontos, o reajuste em pontos inteiros. */
 export function stepChips(kind: SpendingKind): number[] {
-  return isRaise(kind) ? [-1, 1, 2, 3] : [-0.5, -0.25, 0.25, 0.5];
+  return isRaise(kind) ? [-2, -1, 1, 3] : [-0.5, -0.25, 0.25, 0.5];
 }
 
 /** O texto do atalho: "+0,5", "−0,25". */
@@ -54,7 +60,7 @@ export function chipValueText(row: Pick<SpendingRow, "value">, points: number) {
 }
 
 /** O atalho cai fora da janela quando passa do passo, do teto ou do piso. */
-export function chipFits(row: Pick<SpendingRow, "value" | "step" | "limit">, points: number) {
+export function chipFits(row: Pick<SpendingRow, "value" | "step" | "floor" | "limit">, points: number) {
   const target = round(Number(row.value) + points / 100);
   const { min, max } = valueWindow(row);
   return target >= min - 1e-9 && target <= max + 1e-9;
@@ -67,7 +73,7 @@ export type ValueCheck =
   | { status: "ok"; fraction: string };
 
 /** O que o texto digitado (em %) diz da medida: vazio, igual a hoje, fora da janela do passo ou pronto para enviar. */
-export function checkValue(row: Pick<SpendingRow, "value" | "step" | "limit">, text: string): ValueCheck {
+export function checkValue(row: Pick<SpendingRow, "value" | "step" | "floor" | "limit">, text: string): ValueCheck {
   const typed = Number(text.replace(",", "."));
   if (text.trim() === "" || !Number.isFinite(typed)) return { status: "empty" };
   const fraction = round(typed / 100);
@@ -78,23 +84,37 @@ export function checkValue(row: Pick<SpendingRow, "value" | "step" | "limit">, t
 }
 
 /** "Hoje 1,4%. Numa medida, de 0,9% a 1,9%: até 0,5 ponto para cima ou para baixo." */
-export function windowSentence(kind: SpendingKind, row: Pick<SpendingRow, "value" | "step" | "limit">) {
+export function windowSentence(kind: SpendingKind, row: Pick<SpendingRow, "value" | "step" | "floor" | "limit">) {
   const { min, max } = valueWindow(row);
   const step = pointsOf(row.step);
   const unit = pointUnit(row.step);
   const range = `de ${pointsOf(min)}% a ${pointsOf(max)}%`;
   if (isRaise(kind)) {
+    const floor = `O piso é ${pointsOf(row.floor)}% ao ano.`;
     return Number(row.value) === 0
-      ? `Hoje 0%: a folha sobe só a inflação todo janeiro. Numa medida, até ${step} ${unit}: ${range} ao ano. Com ganho real, todo janeiro a folha sobe a inflação mais esse tanto.`
-      : `Hoje ${pointsOf(row.value)}% de ganho real ao ano. Numa medida, ${range}: até ${step} ${unit} para cima ou para baixo, sem ficar abaixo de 0%.`;
+      ? `Hoje 0%: a folha sobe só a inflação todo janeiro. Numa medida, até ${step} ${unit} para cada lado: ${range} ao ano. Ganho real faz a folha subir acima da inflação; perda real, abaixo dela. ${floor}`
+      : `Hoje ${spendingValue(kind, row.value)}. Numa medida, ${range}: até ${step} ${unit} para cima ou para baixo. ${floor}`;
   }
   return `Hoje ${pointsOf(row.value)}%. Numa medida, ${range}: até ${step} ${unit} para cima ou para baixo.`;
 }
 
+/** Como a frase de aviso chama cada medida. */
+const OUTSIDE_LABEL: Record<SpendingKind, string> = {
+  WELFARE_SPENDING: "o auxílio",
+  SERVANT_RAISE: "o reajuste real",
+  RETIREE_RAISE: "o reajuste real",
+  PUBLIC_WORKS: "as obras",
+  OPERATING_COST: "o custeio",
+};
+
 /** O aviso do número fora da janela, com o caminho para chegar mais longe. */
-export function outsideSentence(kind: SpendingKind, row: Pick<SpendingRow, "value" | "step" | "limit">, text: string) {
+export function outsideSentence(
+  kind: SpendingKind,
+  row: Pick<SpendingRow, "value" | "step" | "floor" | "limit">,
+  text: string,
+) {
   const { min, max } = valueWindow(row);
-  const label = isRaise(kind) ? "o ganho real" : kind === "WELFARE_SPENDING" ? "o auxílio" : "as obras";
+  const label = OUTSIDE_LABEL[kind];
   const typed = Number(text.replace(",", ".")) / 100;
   const edge = typed > Number(row.value) ? max : min;
   return `Numa medida, ${label} muda até ${pointsOf(row.step)} ${pointUnit(row.step)}: de ${pointsOf(min)}% a ${pointsOf(max)}%. Para chegar a ${pointsOf(typed)}%, proponha ${pointsOf(edge)}% agora e outra medida depois que esta valer.`;
@@ -114,6 +134,9 @@ const DIRECT_REASON: Partial<Record<SpendingKind, Partial<Record<VoterGroup, Rea
   PUBLIC_WORKS: {
     ENTREPRENEURS: { gain: "obras puxam os negócios", loss: "menos obra, menos negócio" },
     FORMAL_WORKERS: { gain: "obras criam vagas", loss: "menos obra, menos vaga" },
+  },
+  OPERATING_COST: {
+    PUBLIC_SERVANTS: { gain: "mais verba para o serviço público", loss: "o corte atinge o serviço público" },
   },
 };
 

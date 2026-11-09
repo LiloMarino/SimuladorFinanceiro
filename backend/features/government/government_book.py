@@ -179,6 +179,11 @@ class GovernmentBook:
             self.state.selic_board,
         )
         self._economy.update(self.state.measures.values())
+        self._linked.layer.use_sector_exemption(
+            lambda sector, segment, day: self._timeline.exempt_since(
+                sector, segment, day
+            )
+        )
         self._macro = self._linked.macro
         self._budget = self._linked.budget
         # O engine lê os impostos, o prêmio de risco e o prêmio a mais do crédito de cada dia
@@ -2439,7 +2444,11 @@ class GovernmentBook:
             raise UnprocessableEntityError("Essa medida não é de um setor.")
         limit = promises.limit_of(kind)
         target = item.target
-        if target is None or target < 0 or (limit is not None and target > limit):
+        if (
+            target is None
+            or target < spending.floor_of(kind)
+            or (limit is not None and target > limit)
+        ):
             raise UnprocessableEntityError("Informe um alvo válido para a promessa.")
         baseline = old.baseline if old else self.promise_baseline(kind, today)
         if target == baseline:
@@ -2659,7 +2668,11 @@ class GovernmentBook:
             if sector is not None or segment is not None:
                 raise UnprocessableEntityError("Essa medida não é de um setor.")
             limit = promises.limit_of(kind)
-            if value is None or value < 0 or (limit is not None and value > limit):
+            if (
+                value is None
+                or value < spending.floor_of(kind)
+                or (limit is not None and value > limit)
+            ):
                 raise UnprocessableEntityError("Informe um valor válido para a medida.")
             before = self.latest_value(kind)
             if value == before:

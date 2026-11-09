@@ -78,8 +78,31 @@ def course(kind: InitialAccount = InitialAccount.PLAYABLE) -> BudgetCourse:
     )
 
 
-def test_default_policy_collects_sixty_nine_hundredths_of_gdp():
-    assert Decimal("0.0069") == budget.DEFAULT_GAME_REVENUE
+def test_default_policy_collects_the_whole_base_spending():
+    assert budget.DEFAULT_GAME_REVENUE == budget.BASE_SPENDING
+
+
+def test_investment_taxes_collect_sixty_nine_hundredths_of_gdp():
+    rows = {r.key: r for r in budget.tax_rows(DEFAULT_TAX_POLICY)}
+    investment = ("STOCK_PROFIT", "DAY_TRADE", "FIXED_INCOME", "LCI_LCA")
+
+    assert sum(rows[key].revenue for key in investment) == Decimal("0.0069")
+
+
+def test_country_taxes_pay_most_of_the_base_spending():
+    rows = {r.key: r for r in budget.tax_rows(DEFAULT_TAX_POLICY)}
+    country = ("CONSUMPTION", "PAYROLL", "PERSONAL_INCOME", "CORPORATE_INCOME")
+
+    assert sum(rows[key].revenue for key in country) == Decimal("0.1831")
+
+
+def test_raising_a_country_tax_collects_more_but_less_than_proportionally():
+    default = DEFAULT_TAX_POLICY
+    higher = replace(default, consumption_rate=default.consumption_rate * 2)
+
+    gained = budget.game_revenue(higher) - budget.game_revenue(default)
+
+    assert 0 < gained < budget.CONSUMPTION.revenue(default.consumption_rate)
 
 
 def test_halving_a_rate_loses_less_than_half_the_revenue():

@@ -1,5 +1,5 @@
 """
-As medidas de gasto público: o auxílio e as obras (em fração do PIB por ano) e o
+As medidas de gasto público: o auxílio, as obras e o custeio (em fração do PIB por ano) e o
 reajuste real dos servidores e das aposentadorias (em fração ao ano, acima da
 inflação). A linha do tempo diz o valor de cada medida em cada dia e o gasto total do
 governo que sai delas; tudo é função pura sobre `Measure`.
@@ -22,14 +22,15 @@ if TYPE_CHECKING:
 ZERO = Decimal(0)
 ONE = Decimal(1)
 
-# Gasto base do governo, em fração do PIB por ano: as quatro categorias abaixo estão dentro dele
+# Gasto base do governo, em fração do PIB por ano: as cinco categorias abaixo estão dentro dele
 BASE_SPENDING = Decimal("0.19")
 
-# O valor em vigor antes de qualquer medida: o auxílio e as obras são o gasto da
+# O valor em vigor antes de qualquer medida: o auxílio, as obras e o custeio são o gasto da
 # categoria; o reajuste real parte de zero, que só mantém o poder de compra
 DEFAULTS: dict[MeasureKind, Decimal] = {
     MeasureKind.WELFARE_SPENDING: Decimal("0.015"),
     MeasureKind.PUBLIC_WORKS: Decimal("0.007"),
+    MeasureKind.OPERATING_COST: Decimal("0.020"),
     MeasureKind.SERVANT_RAISE: ZERO,
     MeasureKind.RETIREE_RAISE: ZERO,
 }
@@ -39,13 +40,18 @@ STEPS: dict[MeasureKind, Decimal] = {
     kind: voters.EFFECT_STEPS[kind] for kind in DEFAULTS
 }
 
-# Teto do valor em vigor: o auxílio e as obras, em fração do PIB; os reajustes, ao ano
+# Teto do valor em vigor: o auxílio, as obras e o custeio, em fração do PIB; os reajustes, ao ano
 LIMITS: dict[MeasureKind, Decimal] = {
     MeasureKind.WELFARE_SPENDING: Decimal("0.05"),
     MeasureKind.PUBLIC_WORKS: Decimal("0.03"),
+    MeasureKind.OPERATING_COST: Decimal("0.035"),
     MeasureKind.SERVANT_RAISE: Decimal("0.15"),
     MeasureKind.RETIREE_RAISE: Decimal("0.15"),
 }
+
+# Piso do reajuste real, ao ano: a folha pode perder poder de compra até esse ponto.
+# O auxílio, as obras e o custeio descem só até zero
+MIN_RAISE = Decimal("-0.10")
 
 # Gasto de hoje com a folha que o reajuste multiplica, em fração do PIB por ano
 RAISE_BASES: dict[MeasureKind, Decimal] = {
@@ -60,12 +66,17 @@ DEFAULT_COSTS: dict[MeasureKind, Decimal] = {
     kind: RAISE_BASES.get(kind, DEFAULTS[kind]) for kind in KINDS
 }
 
-# O resto do gasto do país, que as medidas não mexem
+# O resto do gasto do país (saúde e educação), que as medidas não mexem
 REST_SPENDING = BASE_SPENDING - sum(DEFAULT_COSTS.values(), ZERO)
 
 
 def is_raise(kind: MeasureKind) -> bool:
     return kind in RAISE_BASES
+
+
+def floor_of(kind: MeasureKind) -> Decimal:
+    """O menor valor que a medida aceita: zero, ou o piso do reajuste real."""
+    return MIN_RAISE if is_raise(kind) else ZERO
 
 
 def steps_of(

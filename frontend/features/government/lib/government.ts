@@ -26,6 +26,10 @@ export const GENERAL_KINDS = [
   "STOCK_EXEMPTION",
   "FIXED_INCOME_TABLE",
   "LCI_LCA_RATE",
+  "CONSUMPTION_TAX_RATE",
+  "CORPORATE_INCOME_TAX_RATE",
+  "PERSONAL_INCOME_TAX_RATE",
+  "PAYROLL_TAX_RATE",
 ] as const satisfies readonly GeneralKind[];
 
 export const isGeneral = (kind: MeasureKind): kind is GeneralKind => GENERAL_KINDS.includes(kind as GeneralKind);
@@ -58,6 +62,14 @@ export function generalLabel(kind: GeneralKind, value: string) {
       return "Renda fixa · tabela regressiva";
     case "LCI_LCA_RATE":
       return "LCI e LCA";
+    case "CONSUMPTION_TAX_RATE":
+      return "Imposto sobre o consumo";
+    case "CORPORATE_INCOME_TAX_RATE":
+      return "IR das empresas";
+    case "PERSONAL_INCOME_TAX_RATE":
+      return "IR das pessoas";
+    case "PAYROLL_TAX_RATE":
+      return "Contribuição sobre a folha";
   }
 }
 

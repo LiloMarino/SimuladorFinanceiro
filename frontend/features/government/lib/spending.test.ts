@@ -15,13 +15,16 @@ import {
   windowSentence,
 } from "./spending";
 
-const AUXILIO = { value: "0.014", step: "0.005", limit: "0.05" };
-const RAISE_AT_FLOOR = { value: "0", step: "0.03", limit: "0.15" };
+const AUXILIO = { value: "0.014", step: "0.005", floor: "0", limit: "0.05" };
+const RAISE_AT_ZERO = { value: "0", step: "0.03", floor: "-0.1", limit: "0.15" };
+const RAISE_AT_FLOOR = { value: "-0.1", step: "0.03", floor: "-0.1", limit: "0.15" };
 
 describe("rótulos", () => {
   it("escreve o auxílio como fatia do PIB e o reajuste como ganho real", () => {
     expect(spendingValue("WELFARE_SPENDING", "0.014")).toBe("1,4% do PIB");
     expect(spendingValue("SERVANT_RAISE", "0.02")).toBe("ganho real de 2% ao ano");
+    expect(spendingValue("SERVANT_RAISE", "-0.03")).toBe("perda real de 3% ao ano");
+    expect(spendingValue("OPERATING_COST", "0.02")).toBe("2% do PIB");
     expect(pointsOf("0.0125")).toBe("1,25");
     expect(signedPointsOf("-0.005")).toBe("−0,5");
   });
@@ -39,15 +42,21 @@ describe("janela do passo", () => {
     expect(valueWindow(AUXILIO)).toEqual({ min: 0.009, max: 0.019 });
   });
 
-  it("não desce abaixo de 0% nem passa do teto", () => {
-    expect(valueWindow(RAISE_AT_FLOOR)).toEqual({ min: 0, max: 0.03 });
-    expect(valueWindow({ value: "0.049", step: "0.005", limit: "0.05" }).max).toBe(0.05);
+  it("não desce abaixo do piso nem passa do teto", () => {
+    expect(valueWindow(RAISE_AT_FLOOR)).toEqual({ min: -0.1, max: -0.07 });
+    expect(valueWindow({ value: "0.002", step: "0.005", floor: "0", limit: "0.05" }).min).toBe(0);
+    expect(valueWindow({ value: "0.049", step: "0.005", floor: "0", limit: "0.05" }).max).toBe(0.05);
+  });
+
+  it("deixa o reajuste descer abaixo de zero, até o piso", () => {
+    expect(valueWindow(RAISE_AT_ZERO)).toEqual({ min: -0.03, max: 0.03 });
   });
 
   it("marca os atalhos que cabem na janela", () => {
     expect(stepChips("WELFARE_SPENDING")).toEqual([-0.5, -0.25, 0.25, 0.5]);
     expect(chipFits(RAISE_AT_FLOOR, -1)).toBe(false);
     expect(chipFits(RAISE_AT_FLOOR, 3)).toBe(true);
+    expect(chipFits(RAISE_AT_ZERO, -2)).toBe(true);
     expect(chipValueText(AUXILIO, 0.5)).toBe("1,9");
     expect(chipValueText(AUXILIO, -0.25)).toBe("1,15");
   });
@@ -61,7 +70,8 @@ describe("checkValue", () => {
 
   it("trava o número fora do passo", () => {
     expect(checkValue(AUXILIO, "2,4")).toMatchObject({ status: "outside" });
-    expect(checkValue(RAISE_AT_FLOOR, "-1")).toMatchObject({ status: "outside" });
+    expect(checkValue(RAISE_AT_FLOOR, "-11")).toMatchObject({ status: "outside" });
+    expect(checkValue(RAISE_AT_ZERO, "-4")).toMatchObject({ status: "outside" });
   });
 
   it("não envia campo vazio nem o valor de hoje", () => {

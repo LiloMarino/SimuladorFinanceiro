@@ -8,7 +8,7 @@ import type { Budget, GovernmentPanel, MeasureKind } from "@/types";
 import { useToday } from "../hooks/useToday";
 import { shareLabel, signedShareLabel } from "../lib/budget";
 import { generalLabel, generalToday, isGeneral, measureTarget, monthYear, sectorEffect } from "../lib/government";
-import { REVENUE } from "../lib/government-metrics";
+import { REVENUE, TAX_PRICE, type TaxPrice } from "../lib/government-metrics";
 import { MeasureAction } from "./measure-action";
 
 type TaxRow = GovernmentPanel["taxes"][number];
@@ -57,11 +57,9 @@ export function TaxesCard({ panel, budget, onPropose }: TaxesCardProps) {
                 </InfoHint>
               </div>
               <span className="text-[13px] text-muted-foreground">
-                Imposto não mexe em preço: muda quanto cada um paga ao vender com lucro.
-              </span>
-              <span className="text-[13px] text-muted-foreground">
-                Cada imposto do jogo tem uma base no PIB. Mudar a alíquota muda a receita dele, mas um pouco menos que
-                proporcionalmente: quem paga menos passa a operar mais.
+                Cada imposto tem uma base no PIB. Mudar a alíquota muda a receita dele, mas menos que proporcionalmente:
+                quem paga menos passa a operar mais. Os do investimento só mudam o que cada um paga ao vender com lucro;
+                consumo, IR das empresas e folha cobram também da economia.
               </span>
             </div>
             {panel.is_president && (
@@ -95,16 +93,29 @@ export function TaxesCard({ panel, budget, onPropose }: TaxesCardProps) {
                 />
               ))}
 
-              {/* O resto da arrecadação e o total */}
-              <TableRow>
-                <TableCell className="whitespace-normal">Resto da arrecadação do país</TableCell>
-                <TableCell colSpan={2} />
-                <TableCell numeric>{shareLabel(budget.fixed_revenue)}</TableCell>
-                <TableCell numeric variant="note">
-                  fixo
-                </TableCell>
-                <TableCell />
-              </TableRow>
+              {/* O ajuste ao primário real e o total */}
+              {Number(budget.fixed_revenue) !== 0 && (
+                <TableRow>
+                  <TableCell className="whitespace-normal">
+                    <span className="flex items-center gap-1.5">
+                      Ajuste ao primário real do país
+                      <InfoHint label="O que é o ajuste ao primário">
+                        <p className="text-left">
+                          Os impostos acima fecham o gasto-base do país. Esta linha soma (ou tira) o que faltou ou
+                          sobrou no resultado primário real na posse, para a conta partir do primário que o país tinha.
+                          Não muda com as medidas.
+                        </p>
+                      </InfoHint>
+                    </span>
+                  </TableCell>
+                  <TableCell colSpan={2} />
+                  <TableCell numeric>{shareLabel(budget.fixed_revenue)}</TableCell>
+                  <TableCell numeric variant="note">
+                    fixo
+                  </TableCell>
+                  <TableCell />
+                </TableRow>
+              )}
               <TableRow variant="current">
                 <TableCell>Receita total, por ano</TableCell>
                 <TableCell colSpan={2} />
@@ -181,6 +192,7 @@ function TaxRateRow({ row, exemption, isPresident, onPropose }: TaxRateRowProps)
         <span className="grid gap-1">
           <span className="flex flex-wrap items-center gap-1.5">
             {generalLabel(kind, row.value)}
+            {TAX_PRICE[kind] && <TaxPriceHint label={generalLabel(kind, row.value)} price={TAX_PRICE[kind]} />}
             {row.promised && (
               <Badge variant="info" size="sm">
                 prometido
@@ -223,5 +235,19 @@ function TaxRateRow({ row, exemption, isPresident, onPropose }: TaxRateRowProps)
         <MeasureAction pending={row.pending} isPresident={isPresident} onPropose={() => onPropose(kind)} />
       </TableCell>
     </TableRow>
+  );
+}
+
+type TaxPriceHintProps = { label: string; price: TaxPrice };
+
+function TaxPriceHint({ label, price }: TaxPriceHintProps) {
+  return (
+    <InfoHint label={`O que ${label} cobra`}>
+      <div className="space-y-1 text-left">
+        <p>{price.definition}</p>
+        <p>{price.example}</p>
+        <p>{price.reading}</p>
+      </div>
+    </InfoHint>
   );
 }

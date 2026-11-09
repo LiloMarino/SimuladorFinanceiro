@@ -1,9 +1,12 @@
 import {
+  Briefcase,
+  Building2,
   CreditCard,
   Flame,
   Landmark,
   Percent,
   ShieldAlert,
+  ShoppingCart,
   TrendingUp,
   TriangleAlert,
   Users,
@@ -52,6 +55,9 @@ const LINK_ROW: Record<EconomyLinkEffect["link"], { icon: LucideIcon; subject: s
   SELIC: { icon: Landmark, subject: "SELIC" },
   INFLATION_BRAKE: { icon: Flame, subject: "IPCA acima de 12%" },
   CROWDING_OUT: { icon: CreditCard, subject: "Prêmio de risco" },
+  CONSUMPTION_TAX: { icon: ShoppingCart, subject: "Alíquota do consumo" },
+  CORPORATE_TAX: { icon: Building2, subject: "Alíquota do IR das empresas" },
+  PAYROLL_TAX: { icon: Briefcase, subject: "Alíquota da folha" },
 };
 
 type EffectsCardProps = { panel: EconomyPanel; effects: EconomyEffect[]; links: EconomyLinkEffect[] };
@@ -264,6 +270,9 @@ function LinkRow({ link }: { link: EconomyLinkEffect }) {
           </span>
           {Math.abs(Number(link.growth)) >= 0.0005 && (
             <span>Soma {signedPoints(Number(link.growth))} ao crescimento do PIB</span>
+          )}
+          {Math.abs(Number(link.unemployment)) >= 0.0001 && (
+            <span>Soma {signedPoints(Number(link.unemployment))} ao desemprego por ano</span>
           )}
         </span>
       </TableCell>

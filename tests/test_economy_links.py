@@ -19,6 +19,10 @@ def gap(
     gdp: str = "0",
     primary: str = "0",
     change: str = "0",
+    consumption: str = "0",
+    consumption_change: str = "0",
+    corporate: str = "0",
+    payroll: str = "0",
 ) -> LinkMonth:
     return LinkMonth(
         MONTH,
@@ -27,6 +31,10 @@ def gap(
         Decimal(gdp),
         Decimal(primary),
         Decimal(change),
+        consumption_gap=Decimal(consumption),
+        consumption_change=Decimal(consumption_change),
+        corporate_gap=Decimal(corporate),
+        payroll_gap=Decimal(payroll),
     )
 
 
@@ -113,3 +121,45 @@ def test_no_deviation_has_no_effect():
     assert NO_LINK.impulse == 0
     assert gap().same_effect(NO_LINK)
     assert not gap(premium="0.001").same_effect(NO_LINK)
+
+
+def test_a_dearer_consumption_tax_passes_half_of_its_change_to_prices():
+    # Dois pontos a mais de alíquota em 12 meses somam um ponto ao IPCA
+    link = gap(consumption="0.02", consumption_change="0.02")
+
+    assert link.consumption_points == pytest.approx(1.0)
+    assert link.inflation_points == pytest.approx(1.0)
+    # Alíquota alta mantida por um ano não pressiona mais os preços
+    kept = gap(consumption="0.02", consumption_change="0")
+    assert kept.consumption_points == 0
+    assert not kept.same_effect(NO_LINK)
+
+
+def test_the_consumption_tax_change_is_the_gap_against_a_year_ago():
+    month = link_month(
+        None,
+        MONTH,
+        unemployment_gap=Decimal(0),
+        premium_gap=Decimal(0),
+        growth_gap=Decimal(0),
+        primary_gap=Decimal(0),
+        primary_gap_year_ago=Decimal(0),
+        consumption_gap=Decimal("0.03"),
+        consumption_gap_year_ago=Decimal("0.01"),
+    )
+
+    assert month.consumption_change == Decimal("0.02")
+
+
+def test_the_corporate_tax_above_the_default_pulls_the_stocks_down():
+    # Dez pontos acima do padrão tiram 12% do expoente da bolsa; a redução levanta
+    assert gap(corporate="0.10").corporate_points == pytest.approx(-0.12)
+    assert gap(corporate="-0.10").corporate_points == pytest.approx(0.12)
+    assert gap(corporate="0.10").inflation_points == 0
+
+
+def test_the_payroll_tax_adds_to_the_unemployment_per_year():
+    # Dois pontos de alíquota a mais somam 0,12 ponto de desemprego ao ano
+    assert gap(payroll="0.02").payroll_jobs == Decimal("0.0012")
+    assert gap(payroll="-0.02").payroll_jobs == Decimal("-0.0012")
+    assert gap().payroll_jobs == 0

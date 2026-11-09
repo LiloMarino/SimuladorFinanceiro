@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from backend.core.enum import MeasureKind, VoterGroup
-from backend.features.government import house, promises, voters
+from backend.features.government import house, promises, spending, voters
 
 ZERO = Decimal(0)
 
@@ -78,7 +78,7 @@ def pick(
         step = voters.EFFECT_STEPS[kind]
         limit = promises.limit_of(kind)
         for value in (before - step, before + step):
-            if value < 0 or (limit is not None and value > limit):
+            if value < spending.floor_of(kind) or (limit is not None and value > limit):
                 continue
             score = wanted(mix, kind, value, before)
             if score > 0 and (best is None or score > best.score):

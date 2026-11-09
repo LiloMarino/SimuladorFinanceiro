@@ -268,3 +268,22 @@ def test_a_hypothetical_timeline_does_not_change_the_real_one():
 
     assert hypothetical.value_on(AUX, date(2022, 5, 1)) == Decimal("0.02")
     assert timeline.value_on(AUX, date(2022, 5, 1)) == spending.DEFAULTS[AUX]
+
+
+def test_the_operating_cost_moves_prices_but_growth_only_through_the_fiscal_impulse():
+    cost = MeasureKind.OPERATING_COST
+    full = after_months(6)
+
+    assert fx.inflation_points([one_step_up(cost)], full) == pytest.approx(
+        0.10, rel=5e-3
+    )
+    assert fx.growth_points([one_step_up(cost)], full) == 0
+
+
+def test_a_cut_of_the_operating_cost_lowers_the_prices():
+    cost = MeasureKind.OPERATING_COST
+    cut = fx.effects_of(
+        [measure(cost, str(spending.DEFAULTS[cost] - spending.STEPS[cost]), "0.02")]
+    )
+
+    assert fx.inflation_points(cut, after_months(6)) == pytest.approx(-0.10, rel=5e-3)

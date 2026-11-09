@@ -141,6 +141,8 @@ class LinkEffectDTO(BaseDTO):
     # O que a ligação soma ao crescimento do PIB ao ano, em fração (nula nas ligações que
     # não mexem nele)
     growth: Decimal
+    # O que a ligação soma ao desemprego ao ano, em fração (nula nas ligações que não mexem nele)
+    unemployment: Decimal = Decimal(0)
 
 
 class EconomyPanelDTO(BaseDTO):

@@ -185,7 +185,8 @@ function TargetField({ draft, option, disabled, onChange }: TargetFieldProps) {
   const limit = Number(option.limit ?? 1) * 100;
   // O auxílio e as obras andam em décimos de ponto; os reajustes, em meios pontos
   const sliderStep = isSpending(option.kind) && !isRaise(option.kind) ? SPENDING_SLIDER_STEP : SLIDER_STEP;
-  const sliderValue = Math.min(Math.max(Number(draft.target ?? option.baseline) * 100, 0), limit);
+  const floor = Number(option.floor) * 100;
+  const sliderValue = Math.min(Math.max(Number(draft.target ?? option.baseline) * 100, floor), limit);
 
   return (
     <Field>
@@ -196,7 +197,7 @@ function TargetField({ draft, option, disabled, onChange }: TargetFieldProps) {
       <div className="grid grid-cols-[minmax(0,1fr)_84px] items-center gap-3.5">
         <Slider
           aria-label="Alvo da promessa"
-          min={0}
+          min={floor}
           max={limit}
           step={sliderStep}
           disabled={disabled}

@@ -203,3 +203,39 @@ export const CROWDING_OUT: MetricInfo = {
     "Zero é o normal. Negativo é ruim: o crédito está caro por causa da dívida. Se o crescimento cai, a dívida ÷ PIB sobe, o prêmio sobe e o crescimento cai de novo: é o ciclo vicioso das crises de dívida.",
   format: gapPoints,
 };
+
+export const CONSUMPTION_TAX: MetricInfo = {
+  label: "Imposto sobre o consumo",
+  description: "A alíquota acima da padrão encarece tudo o que se compra",
+  definition:
+    "O imposto sobre o consumo entra no preço do que as famílias compram. Cada ponto de alíquota que sobe em 12 meses soma meio ponto ao IPCA (a inflação em 12 meses) e, com a inflação maior, o Banco Central sobe a SELIC e a bolsa sofre.",
+  example:
+    "Ex.: alíquota subindo de 18% para 22% em um ano (4 pontos a mais) soma 2 pontos ao IPCA (4 × 0,5); baixar a alíquota tira inflação na mesma conta.",
+  reading:
+    "Zero é a alíquota padrão. O número mostra quantos pontos a alíquota está acima (+) ou abaixo (−) da padrão; o preço na inflação vem só da mudança nos últimos 12 meses, então um imposto alto e parado deixa de pesar no IPCA depois de um ano.",
+  format: gapPoints,
+};
+
+export const CORPORATE_TAX: MetricInfo = {
+  label: "IR das empresas",
+  description: "A alíquota acima da padrão tira lucro das empresas e derruba a bolsa",
+  definition:
+    "O imposto de renda das empresas sai do lucro delas. Cada ponto de alíquota acima da padrão tira 1,2% do nível da bolsa; cortar o imposto faz o caminho inverso e levanta as ações.",
+  example:
+    "Ex.: alíquota 5 pontos acima da padrão (39% contra 34%) tira 6% da bolsa (5 × 1,2%); 5 pontos abaixo levanta 6%.",
+  reading:
+    "Zero é a alíquota padrão. Positivo (alíquota acima) é ruim para a bolsa; negativo (alíquota abaixo) é bom para a bolsa e ruim para as contas do governo.",
+  format: gapPoints,
+};
+
+export const PAYROLL_TAX: MetricInfo = {
+  label: "Contribuição sobre a folha",
+  description: "A alíquota acima da padrão encarece contratar e sobe o desemprego",
+  definition:
+    "A contribuição sobre a folha é paga pela empresa em cima de cada salário. Com ela mais alta, contratar custa mais: cada ponto de alíquota acima da padrão soma 0,06 ponto por ano à taxa de desemprego. Com mais desemprego, a curva de Phillips (a relação entre desemprego e inflação) tira inflação.",
+  example:
+    "Ex.: alíquota 5 pontos acima da padrão (25% contra 20%) soma 0,3 ponto de desemprego por ano, até o imposto voltar ao padrão.",
+  reading:
+    "Zero é a alíquota padrão. Positivo (alíquota acima) arrecada mais, mas é ruim para o emprego; negativo (alíquota abaixo) cria vagas e arrecada menos.",
+  format: gapPoints,
+};

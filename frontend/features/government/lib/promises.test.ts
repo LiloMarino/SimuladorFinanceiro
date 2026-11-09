@@ -13,7 +13,7 @@ import {
   weightedSupport,
 } from "./promises";
 
-const options: PromiseOption[] = [{ kind: "DAY_TRADE_RATE", baseline: "0.15", step: "0.10", limit: "1" }];
+const options: PromiseOption[] = [{ kind: "DAY_TRADE_RATE", baseline: "0.15", step: "0.10", floor: "0", limit: "1" }];
 
 describe("signedDecimal", () => {
   it("escreve o sinal e a vírgula", () => {

@@ -58,6 +58,31 @@ DAY_TRADE_FII = Tax(Decimal("0.0003"), Decimal("0.20"), Decimal("0.3"))
 FIXED_INCOME = Tax(Decimal("0.0060"), Decimal("0.175"), Decimal("0.15"))
 LCI_LCA = Tax(Decimal("0.0012"), Decimal("0.15"), Decimal("0.3"))
 
+# Os impostos do país dividem o que o gasto-base pede além dos impostos do investimento:
+# com as alíquotas padrão eles fecham BASE_SPENDING, então o governo que não mexe em nada
+# arrecada o mesmo de sempre. As fatias são a carga de cada base na economia; a última
+# é o que sobra, para a soma ser exata
+_INVESTMENT_REVENUE = (
+    COMMON.revenue(DEFAULT_TAX_POLICY.rates[LossPool.COMMON])
+    + DAY_TRADE_FII.revenue(DEFAULT_TAX_POLICY.rates[LossPool.DAY_TRADE])
+    + FIXED_INCOME.revenue(DEFAULT_TAX_POLICY.fixed_income_average_rate)
+    + LCI_LCA.revenue(DEFAULT_TAX_POLICY.lci_lca_rate)
+)
+_COUNTRY_REVENUE = BASE_SPENDING - _INVESTMENT_REVENUE
+_CONSUMPTION_BASE = (_COUNTRY_REVENUE * Decimal("0.48")).quantize(Decimal("0.000001"))
+_PAYROLL_BASE = (_COUNTRY_REVENUE * Decimal("0.29")).quantize(Decimal("0.000001"))
+_PERSONAL_BASE = (_COUNTRY_REVENUE * Decimal("0.12")).quantize(Decimal("0.000001"))
+CONSUMPTION = Tax(
+    _CONSUMPTION_BASE, DEFAULT_TAX_POLICY.consumption_rate, Decimal("0.15")
+)
+PAYROLL = Tax(_PAYROLL_BASE, DEFAULT_TAX_POLICY.payroll_rate, Decimal("0.25"))
+PERSONAL_INCOME = Tax(_PERSONAL_BASE, DEFAULT_TAX_POLICY.personal_rate, Decimal("0.35"))
+CORPORATE_INCOME = Tax(
+    _COUNTRY_REVENUE - _CONSUMPTION_BASE - _PAYROLL_BASE - _PERSONAL_BASE,
+    DEFAULT_TAX_POLICY.corporate_rate,
+    Decimal("0.45"),
+)
+
 # A isenção das vendas até R$ 20 mil deixa 30% do ganho comum fora do IR; a fração
 # cresce com a raiz do teto, até 90%
 EXEMPT_SHARE = Decimal("0.3")
@@ -189,6 +214,38 @@ def tax_rows(policy: TaxPolicy) -> list[TaxRow]:
             LCI_LCA.revenue(policy.lci_lca_rate),
             LCI_LCA.revenue(default.lci_lca_rate),
         ),
+        row(
+            "CONSUMPTION",
+            "Consumo · imposto sobre vendas",
+            policy.consumption_rate,
+            default.consumption_rate,
+            CONSUMPTION.revenue(policy.consumption_rate),
+            CONSUMPTION.revenue(default.consumption_rate),
+        ),
+        row(
+            "PAYROLL",
+            "Folha de pagamento · contribuição",
+            policy.payroll_rate,
+            default.payroll_rate,
+            PAYROLL.revenue(policy.payroll_rate),
+            PAYROLL.revenue(default.payroll_rate),
+        ),
+        row(
+            "PERSONAL_INCOME",
+            "Pessoas · IR sobre a renda",
+            policy.personal_rate,
+            default.personal_rate,
+            PERSONAL_INCOME.revenue(policy.personal_rate),
+            PERSONAL_INCOME.revenue(default.personal_rate),
+        ),
+        row(
+            "CORPORATE_INCOME",
+            "Empresas · IR sobre o lucro",
+            policy.corporate_rate,
+            default.corporate_rate,
+            CORPORATE_INCOME.revenue(policy.corporate_rate),
+            CORPORATE_INCOME.revenue(default.corporate_rate),
+        ),
     ]
     # O setor com regra ajusta o IR do ganho comum da linha de cima: isento tira a fatia dele
     rows.extend(
@@ -210,7 +267,7 @@ def game_revenue(policy: TaxPolicy) -> Decimal:
     return sum((r.revenue for r in tax_rows(policy)), ZERO)
 
 
-# Com a política padrão os impostos do jogo somam 0,69% do PIB
+# Com a política padrão os impostos do jogo somam o gasto-base inteiro
 DEFAULT_GAME_REVENUE = game_revenue(DEFAULT_TAX_POLICY)
 
 

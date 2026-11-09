@@ -55,6 +55,11 @@ class TaxPolicy:
     fixed_income_brackets: tuple[tuple[int, Decimal], ...]
     fixed_income_floor: Decimal
     lci_lca_rate: Decimal
+    # Alíquota efetiva dos impostos que financiam o gasto-base do país
+    consumption_rate: Decimal
+    corporate_rate: Decimal
+    personal_rate: Decimal
+    payroll_rate: Decimal
     # Da regra mais antiga para a mais nova
     sector_rules: tuple[SectorRule, ...] = ()
 
@@ -112,6 +117,10 @@ DEFAULT_TAX_POLICY = TaxPolicy(
     ),
     fixed_income_floor=Decimal("0.15"),
     lci_lca_rate=Decimal(0),
+    consumption_rate=Decimal("0.18"),
+    corporate_rate=Decimal("0.34"),
+    personal_rate=Decimal("0.15"),
+    payroll_rate=Decimal("0.20"),
 )
 
 # A política em vigor num dia; sem governo, é sempre a padrão

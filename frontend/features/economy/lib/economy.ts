@@ -10,12 +10,15 @@ import { isSpending, SPENDING_LABEL } from "@/shared/lib/spending-kinds";
 import type { MetricInfo } from "@/shared/lib/metric-info";
 import type { EconomyEffect, EconomyLinkEffect, EconomyPanel } from "@/types";
 import {
+  CONSUMPTION_TAX,
+  CORPORATE_TAX,
   CROWDING_OUT,
   FISCAL_IMPULSE,
   FISCAL_RISK,
   GDP_GAP,
   GOVERNMENT_SELIC,
   INFLATION_BRAKE,
+  PAYROLL_TAX,
   PHILLIPS,
   REAL_RATE_GAP,
   signedPoints,
@@ -181,10 +184,10 @@ const GROWTH_PARTS: Record<
     neutral: "Igual à da história",
   },
   works: {
-    label: "Obras",
-    up: "O gasto com obras aquece a economia",
-    down: "O corte de obras esfria a economia",
-    neutral: "Sem obras a mais nem a menos",
+    label: "Obras e custeio",
+    up: "O gasto com obras e custeio aquece a economia",
+    down: "O corte de obras e custeio esfria a economia",
+    neutral: "Sem obras nem custeio a mais ou a menos",
   },
   impulse: {
     label: "Impulso fiscal",
@@ -256,6 +259,9 @@ export const LINK_METRIC: Record<EconomyLinkEffect["link"], MetricInfo> = {
   SELIC: GOVERNMENT_SELIC,
   INFLATION_BRAKE,
   CROWDING_OUT,
+  CONSUMPTION_TAX,
+  CORPORATE_TAX,
+  PAYROLL_TAX,
 };
 
 /** As ligações que mexem em algo hoje: as outras somam menos que a última casa mostrada. */
@@ -264,7 +270,8 @@ export const activeLinks = (links: readonly EconomyLinkEffect[]) =>
     (link) =>
       Math.abs(Number(link.inflation)) >= 0.005 ||
       Math.abs(Number(link.stocks)) >= 0.0005 ||
-      Math.abs(Number(link.growth)) >= 0.0005,
+      Math.abs(Number(link.growth)) >= 0.0005 ||
+      Math.abs(Number(link.unemployment)) >= 0.0001,
   );
 
 /** A SELIC é do governo quando a ligação dela aparece: só existe com a taxa decidida no Copom. */

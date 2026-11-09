@@ -16877,7 +16877,10 @@
           "REAL_RATE",
           "SELIC",
           "INFLATION_BRAKE",
-          "CROWDING_OUT"
+          "CROWDING_OUT",
+          "CONSUMPTION_TAX",
+          "CORPORATE_TAX",
+          "PAYROLL_TAX"
         ],
         "title": "EconomyLink",
         "description": "Uma ligação da economia interligada: o desvio da partida contra a história que mexe nas séries."
@@ -21669,6 +21672,11 @@
           "growth": {
             "type": "string",
             "title": "Growth"
+          },
+          "unemployment": {
+            "type": "string",
+            "title": "Unemployment",
+            "default": "0"
           }
         },
         "additionalProperties": false,
@@ -21679,7 +21687,8 @@
           "inflation",
           "selic",
           "stocks",
-          "growth"
+          "growth",
+          "unemployment"
         ],
         "title": "LinkEffectDTO",
         "description": "Uma ligação da economia interligada hoje: o desvio do último mês fechado e o que ele soma."
@@ -22644,12 +22653,17 @@
           "STOCK_EXEMPTION",
           "FIXED_INCOME_TABLE",
           "LCI_LCA_RATE",
+          "CONSUMPTION_TAX_RATE",
+          "CORPORATE_INCOME_TAX_RATE",
+          "PERSONAL_INCOME_TAX_RATE",
+          "PAYROLL_TAX_RATE",
           "SECTOR_EXEMPT",
           "SECTOR_TAX",
           "WELFARE_SPENDING",
           "SERVANT_RAISE",
           "RETIREE_RAISE",
-          "PUBLIC_WORKS"
+          "PUBLIC_WORKS",
+          "OPERATING_COST"
         ],
         "title": "MeasureKind",
         "description": "O que uma medida muda: um imposto geral, a regra de um setor ou segmento ou um gasto público."
@@ -27105,6 +27119,10 @@
             "type": "string",
             "title": "Step"
           },
+          "floor": {
+            "type": "string",
+            "title": "Floor"
+          },
           "limit": {
             "anyOf": [
               {
@@ -27123,6 +27141,7 @@
           "kind",
           "baseline",
           "step",
+          "floor",
           "limit"
         ],
         "title": "PromiseOptionDTO",
@@ -27557,7 +27576,7 @@
             "anyOf": [
               {
                 "type": "number",
-                "minimum": 0.0
+                "minimum": -1.0
               },
               {
                 "type": "string"
@@ -30908,6 +30927,10 @@
             "type": "string",
             "title": "Step"
           },
+          "floor": {
+            "type": "string",
+            "title": "Floor"
+          },
           "limit": {
             "type": "string",
             "title": "Limit"
@@ -30968,6 +30991,7 @@
           "cost",
           "cost_amount",
           "step",
+          "floor",
           "limit",
           "inflation",
           "phase",

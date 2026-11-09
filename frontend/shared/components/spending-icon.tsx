@@ -1,4 +1,4 @@
-import { HandCoins, HardHat, Landmark, PiggyBank } from "lucide-react";
+import { Building2, HandCoins, HardHat, Landmark, PiggyBank } from "lucide-react";
 import type { ComponentType } from "react";
 import type { SpendingKind } from "@/shared/lib/spending-kinds";
 
@@ -7,6 +7,7 @@ const ICONS: Record<SpendingKind, ComponentType<{ className?: string | undefined
   SERVANT_RAISE: Landmark,
   RETIREE_RAISE: PiggyBank,
   PUBLIC_WORKS: HardHat,
+  OPERATING_COST: Building2,
 };
 
 /** O ícone de cada medida de gasto público. */

@@ -192,6 +192,41 @@ def test_policy_timeline_switches_on_the_effective_day():
     assert timeline.on(date(2022, 4, 30)).rates[common] == Decimal("0.15")
     assert timeline.on(date(2022, 5, 1)).rates[common] == Decimal("0.20")
     assert timeline.on(date(2022, 9, 1)).rates[common] == Decimal("0.25")
+
+
+def test_exemption_runs_from_the_day_it_starts_until_a_rule_ends_it():
+    timeline = rules.PolicyTimeline(
+        [
+            measure(
+                MeasureKind.SECTOR_EXEMPT, sector="Energia", effective=date(2022, 5, 1)
+            ),
+            # Outra medida do mesmo setor que não muda a isenção mantém o dia de início
+            measure(
+                MeasureKind.STOCK_PROFIT_RATE,
+                "0.20",
+                "0.15",
+                effective=date(2022, 6, 1),
+                id=2,
+            ),
+            measure(
+                MeasureKind.SECTOR_TAX,
+                "0.05",
+                sector="Energia",
+                effective=date(2022, 9, 1),
+                id=3,
+            ),
+        ]
+    )
+
+    assert timeline.exempt_since("Energia", "Transmissão", date(2022, 4, 30)) is None
+    assert timeline.exempt_since("Energia", "Transmissão", date(2022, 5, 1)) == date(
+        2022, 5, 1
+    )
+    assert timeline.exempt_since("Energia", "Transmissão", date(2022, 8, 31)) == date(
+        2022, 5, 1
+    )
+    assert timeline.exempt_since("Energia", "Transmissão", date(2022, 9, 1)) is None
+    assert timeline.exempt_since("Bancos", "Bancos", date(2022, 8, 31)) is None
     assert timeline.on(date(2022, 9, 1)).rates[LossPool.DAY_TRADE] == Decimal("0.20")
 
 

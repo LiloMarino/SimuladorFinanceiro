@@ -39,8 +39,10 @@ INFLATION_PER_STEP: dict[MeasureKind, float] = {
     MeasureKind.SERVANT_RAISE: 0.20,
     MeasureKind.RETIREE_RAISE: 0.25,
     MeasureKind.PUBLIC_WORKS: 0.15,
+    MeasureKind.OPERATING_COST: 0.10,
 }
-# Pontos de crescimento do PIB que um passo soma, com a mesma forma do efeito na inflação
+# Pontos de crescimento do PIB que um passo soma, com a mesma forma do efeito na inflação;
+# o custeio, como o auxílio e os reajustes, age pelo impulso fiscal do primário
 GROWTH_PER_STEP: dict[MeasureKind, float] = {MeasureKind.PUBLIC_WORKS: 0.6}
 
 

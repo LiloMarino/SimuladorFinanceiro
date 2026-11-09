@@ -199,6 +199,7 @@ def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
         inflation: float,
         exponent: float,
         growth: Decimal = Decimal(0),
+        unemployment: Decimal = Decimal(0),
     ) -> LinkEffectDTO:
         return LinkEffectDTO(
             link=kind,
@@ -207,6 +208,7 @@ def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
             selic=points(central_bank_reaction(inflation) if reacts else 0.0),
             stocks=points(math.exp(exponent) - 1),
             growth=growth,
+            unemployment=unemployment,
         )
 
     def excess(inflation: Decimal) -> Decimal:
@@ -259,6 +261,25 @@ def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
             0.0,
             0.0,
             country.gap.crowding,
+        ),
+        effect(
+            EconomyLink.CONSUMPTION_TAX,
+            link.consumption_gap,
+            link.consumption_points,
+            stocks.consumption,
+        ),
+        effect(
+            EconomyLink.CORPORATE_TAX,
+            link.corporate_gap,
+            0.0,
+            stocks.corporate,
+        ),
+        effect(
+            EconomyLink.PAYROLL_TAX,
+            link.payroll_gap,
+            0.0,
+            0.0,
+            unemployment=link.payroll_jobs,
         ),
     ]
 

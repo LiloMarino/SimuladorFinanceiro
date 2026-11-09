@@ -266,3 +266,38 @@ def test_reaction_is_the_group_position_times_what_the_measure_moves():
     result = voters.reaction(G.INVESTORS, effects)
 
     assert result == positions[V.FREE_MARKET] * 2 + positions[V.SOCIAL_JUSTICE] * -3
+
+
+@pytest.mark.parametrize(
+    ("kind", "before", "group"),
+    [
+        (MeasureKind.CONSUMPTION_TAX_RATE, "0.18", G.WELFARE),
+        (MeasureKind.CORPORATE_INCOME_TAX_RATE, "0.34", G.ENTREPRENEURS),
+        (MeasureKind.PERSONAL_INCOME_TAX_RATE, "0.15", G.INVESTORS),
+        (MeasureKind.PAYROLL_TAX_RATE, "0.20", G.FORMAL_WORKERS),
+    ],
+)
+def test_a_tax_cut_pleases_who_pays_it_and_a_hike_displeases(
+    kind: MeasureKind, before: str, group: VoterGroup
+):
+    step = voters.EFFECT_STEPS[kind]
+    base = Decimal(before)
+
+    cut = voters.measure_reaction(group, kind, base - step, base)
+    hike = voters.measure_reaction(group, kind, base + step, base)
+
+    assert voters.measure_steps(kind, base - step, base) == 1
+    assert voters.measure_steps(kind, base + step, base) == -1
+    assert cut > 0 > hike
+    assert cut == -hike
+
+
+def test_cutting_the_operating_cost_displeases_the_public_servants():
+    kind = MeasureKind.OPERATING_COST
+    step = voters.EFFECT_STEPS[kind]
+    before = Decimal("0.02")
+
+    cut = voters.measure_reaction(G.PUBLIC_SERVANTS, kind, before - step, before)
+    raise_ = voters.measure_reaction(G.PUBLIC_SERVANTS, kind, before + step, before)
+
+    assert cut < 0 < raise_

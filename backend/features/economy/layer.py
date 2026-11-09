@@ -16,6 +16,7 @@ from itertools import pairwise
 from typing import Protocol
 
 from backend.core import repository
+from backend.core.dto.sector import StockSegmentDTO
 from backend.core.enum import IndicatorSeries
 from backend.core.indicators import annual_index_rate, annualize_daily
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR, DAYS_PER_MONTH
@@ -31,6 +32,11 @@ STOCKS_PER_SELIC = 0.029
 STOCKS_WINDOW_MONTHS = 3
 # A bolsa sobe 2,5% por ponto de PIB acima da história
 STOCKS_PER_GDP = 2.5
+
+# A isenção do IR de um setor levanta o preço das ações dele em 10%, subindo em linha reta
+# nos 6 primeiros meses da isenção
+SECTOR_EXEMPT_BOOST = 0.10
+SECTOR_EXEMPT_RAMP_MONTHS = 6.0
 
 # Janela do histórico, antes do início da partida, que mede o beta de cada ativo contra o Ibovespa
 BETA_WINDOW_DAYS = 730
@@ -81,6 +87,10 @@ class StocksParts:
     gdp: float
     real_rate: float = 0.0
     selic: float = 0.0
+    # A SELIC que a inflação do imposto sobre o consumo põe e o lucro menor das empresas
+    # pelo IR delas
+    consumption: float = 0.0
+    corporate: float = 0.0
 
     @property
     def total(self) -> float:
@@ -91,6 +101,8 @@ class StocksParts:
             + self.gdp
             + self.real_rate
             + self.selic
+            + self.consumption
+            + self.corporate
         )
 
 
@@ -108,6 +120,10 @@ class Links(Protocol):
     def first_day(self) -> date | None: ...
 
     def links_on(self, day: date) -> LinkMonth: ...
+
+
+# O dia em que a isenção do setor (e segmento) passou a valer, ou nulo sem isenção no dia
+ExemptSince = Callable[[str, str, date], date | None]
 
 
 class NoLinks:
@@ -141,6 +157,12 @@ class EconomyLayer:
         self._levels: dict[date, float] = {}
         self._values: dict[IndicatorSeries, dict[date, Decimal]] = {}
         self._betas: dict[str, float] | None = None
+        self._classification: dict[str, StockSegmentDTO] | None = None
+        self._exempt_since: ExemptSince | None = None
+
+    def use_sector_exemption(self, exempt_since: ExemptSince) -> None:
+        """As ações de um setor isento pelo governo ganham o preço da isenção."""
+        self._exempt_since = exempt_since
 
     def refresh(self) -> None:
         """As medidas de gasto mudaram: as séries lidas de novo refazem todos os dias."""
@@ -244,6 +266,8 @@ class EconomyLayer:
             gdp=STOCKS_PER_GDP * float(links(day).gdp_gap),
             real_rate=mean(reaction(lambda d: links(d).rate_points)),
             selic=mean(lambda d: 0.0 if self.reacts(d) else self.selic_points(d)),
+            consumption=mean(reaction(lambda d: links(d).consumption_points)),
+            corporate=links(day).corporate_points,
         )
 
     # Contrato com o repositório das séries
@@ -285,7 +309,24 @@ class EconomyLayer:
 
     def stock_factor(self, ticker: str, day: date) -> float:
         level = self.level(day)
-        return 1.0 if level == 1.0 else level ** self._beta(ticker)
+        market = 1.0 if level == 1.0 else level ** self._beta(ticker)
+        return market * self._sector_factor(ticker, day)
+
+    def _sector_factor(self, ticker: str, day: date) -> float:
+        """O preço a mais da isenção do setor: sobe em linha reta até o teto e fica; sem isenção no dia vale 1."""
+        # Sem governo não há isenção: o preço não consulta a classificação
+        if self._exempt_since is None:
+            return 1.0
+        if self._classification is None:
+            self._classification = repository.stock.get_classification()
+        located = self._classification.get(ticker)
+        if located is None:
+            return 1.0
+        since = self._exempt_since(located.sector, located.segment, day)
+        if since is None:
+            return 1.0
+        months = (day - since).days / float(DAYS_PER_MONTH)
+        return 1.0 + SECTOR_EXEMPT_BOOST * min(1.0, months / SECTOR_EXEMPT_RAMP_MONTHS)
 
     def _beta(self, ticker: str) -> float:
         if self._betas is None:

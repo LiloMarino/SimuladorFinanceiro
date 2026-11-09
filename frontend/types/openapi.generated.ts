@@ -5933,7 +5933,7 @@ export interface components {
          * @description Uma ligação da economia interligada: o desvio da partida contra a história que mexe nas séries.
          * @enum {string}
          */
-        EconomyLink: "PHILLIPS" | "FISCAL_RISK" | "GDP" | "REAL_RATE" | "SELIC" | "INFLATION_BRAKE" | "CROWDING_OUT";
+        EconomyLink: "PHILLIPS" | "FISCAL_RISK" | "GDP" | "REAL_RATE" | "SELIC" | "INFLATION_BRAKE" | "CROWDING_OUT" | "CONSUMPTION_TAX" | "CORPORATE_TAX" | "PAYROLL_TAX";
         /** EconomyPanelDTO */
         EconomyPanelDTO: {
             /** Points */
@@ -7673,6 +7673,11 @@ export interface components {
             stocks: string;
             /** Growth */
             growth: string;
+            /**
+             * Unemployment
+             * @default 0
+             */
+            unemployment: string;
         };
         /** LoanDTO */
         LoanDTO: {
@@ -7994,7 +7999,7 @@ export interface components {
          * @description O que uma medida muda: um imposto geral, a regra de um setor ou segmento ou um gasto público.
          * @enum {string}
          */
-        MeasureKind: "STOCK_PROFIT_RATE" | "DAY_TRADE_RATE" | "STOCK_EXEMPTION" | "FIXED_INCOME_TABLE" | "LCI_LCA_RATE" | "SECTOR_EXEMPT" | "SECTOR_TAX" | "WELFARE_SPENDING" | "SERVANT_RAISE" | "RETIREE_RAISE" | "PUBLIC_WORKS";
+        MeasureKind: "STOCK_PROFIT_RATE" | "DAY_TRADE_RATE" | "STOCK_EXEMPTION" | "FIXED_INCOME_TABLE" | "LCI_LCA_RATE" | "CONSUMPTION_TAX_RATE" | "CORPORATE_INCOME_TAX_RATE" | "PERSONAL_INCOME_TAX_RATE" | "PAYROLL_TAX_RATE" | "SECTOR_EXEMPT" | "SECTOR_TAX" | "WELFARE_SPENDING" | "SERVANT_RAISE" | "RETIREE_RAISE" | "PUBLIC_WORKS" | "OPERATING_COST";
         /** MeasurePreviewDTO */
         MeasurePreviewDTO: {
             /** Title */
@@ -9519,6 +9524,8 @@ export interface components {
             baseline: string;
             /** Step */
             step: string;
+            /** Floor */
+            floor: string;
             /** Limit */
             limit: string | null;
         };
@@ -10937,6 +10944,8 @@ export interface components {
             cost_amount: string;
             /** Step */
             step: string;
+            /** Floor */
+            floor: string;
             /** Limit */
             limit: string;
             /** Inflation */

@@ -35,6 +35,13 @@ WEIGHED_SHARE = Decimal("0.5")
 COMPUTER_PROMISES = 2
 # As medidas gerais que se prometem: as que têm um valor em vigor
 GENERAL_KINDS = tuple(kind for kind in MeasureKind if not kind.is_sector)
+# Teto da alíquota de cada imposto sobre a economia do país
+TAX_LIMITS: dict[MeasureKind, Decimal] = {
+    MeasureKind.CONSUMPTION_TAX_RATE: Decimal("0.40"),
+    MeasureKind.CORPORATE_INCOME_TAX_RATE: Decimal("0.60"),
+    MeasureKind.PERSONAL_INCOME_TAX_RATE: Decimal("0.40"),
+    MeasureKind.PAYROLL_TAX_RATE: Decimal("0.40"),
+}
 # Entre elas, os impostos; o resto é gasto público
 TAX_KINDS = tuple(kind for kind in GENERAL_KINDS if not kind.is_spending)
 
@@ -73,7 +80,7 @@ def limit_of(kind: MeasureKind) -> Decimal | None:
     """O maior valor que uma medida geral leva: 100% nas alíquotas, o teto do gasto nos gastos e nenhum na isenção das vendas."""
     if kind is MeasureKind.STOCK_EXEMPTION:
         return None
-    return spending.LIMITS.get(kind, ONE)
+    return spending.LIMITS.get(kind) or TAX_LIMITS.get(kind, ONE)
 
 
 def promisable(kind: MeasureKind) -> bool:
@@ -288,7 +295,9 @@ def computer_picks(
         best: tuple[Decimal, Promise] | None = None
         for target in (baseline - reference, baseline + reference):
             limit = limit_of(kind)
-            if target < 0 or (limit is not None and target > limit):
+            if target < spending.floor_of(kind) or (
+                limit is not None and target > limit
+            ):
                 continue
             promise = Promise(kind, target, baseline, None, None, day)
             score = sum(

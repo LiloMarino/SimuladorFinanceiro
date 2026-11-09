@@ -61,6 +61,7 @@ AUX = MeasureKind.WELFARE_SPENDING
 SERVANTS = MeasureKind.SERVANT_RAISE
 RETIREES = MeasureKind.RETIREE_RAISE
 WORKS = MeasureKind.PUBLIC_WORKS
+OPERATING = MeasureKind.OPERATING_COST
 
 
 @pytest.fixture(autouse=True)
@@ -127,11 +128,25 @@ def test_a_measure_moves_one_reference_step_at_most(
 
 
 @pytest.mark.parametrize("kind", [SERVANTS, RETIREES])
-def test_the_raises_never_go_below_zero(book: GovernmentBook, engine, market, kind):
+def test_the_raises_go_down_to_the_floor_and_not_below(
+    book: GovernmentBook, engine, market, monkeypatch, kind
+):
     govern(book, engine)
+    monkeypatch.setattr(spending, "MIN_RAISE", Decimal("-0.005"))
 
     with pytest.raises(UnprocessableEntityError):
         propose(book, kind, "-0.01")
+    propose(book, kind, "-0.005")
+
+
+@pytest.mark.parametrize("kind", [AUX, WORKS, OPERATING])
+def test_the_other_spending_never_goes_below_zero(
+    book: GovernmentBook, engine, market, kind
+):
+    govern(book, engine)
+
+    with pytest.raises(UnprocessableEntityError):
+        propose(book, kind, "-0.001")
 
 
 def test_the_ceiling_of_the_value_in_force_is_respected(
@@ -555,7 +570,7 @@ def test_the_computer_promises_stay_within_the_step_and_the_limit_of_the_measure
         assert (
             abs(pick.target - pick.baseline) == promises.voters.EFFECT_STEPS[pick.kind]
         )
-        assert 0 <= pick.target <= spending.LIMITS[pick.kind]
+        assert spending.floor_of(pick.kind) <= pick.target <= spending.LIMITS[pick.kind]
 
 
 def test_the_promise_limit_is_per_measure():

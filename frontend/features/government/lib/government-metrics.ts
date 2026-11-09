@@ -2,6 +2,7 @@ import type { MetricInfo } from "@/shared/lib/metric-info";
 import { signedIpca } from "@/shared/lib/effects";
 import { displayPoints } from "@/shared/lib/budget-metrics";
 import { displayPercent } from "@/shared/lib/utils/display";
+import type { GeneralKind } from "./government";
 
 export const APPROVAL: MetricInfo = {
   label: "Aprovação",
@@ -140,11 +141,46 @@ export const REVENUE: MetricInfo = {
   label: "Receita",
   description: "O que o governo arrecada no país em um ano",
   definition:
-    "Tudo o que o governo recebe em impostos, medido em % do PIB por ano. Os impostos do jogo (ações, day trade, renda fixa) são uma fatia pequena; o resto da arrecadação do país é fixo. O IR que os jogadores pagam não entra: as operações da sala são pequenas perto do país.",
+    "Tudo o que o governo recebe em impostos, medido em % do PIB por ano. Os impostos que o presidente muda são o consumo, o IR das empresas, o IR das pessoas, a contribuição sobre a folha e os do investimento (ações, day trade, renda fixa). O IR que os jogadores pagam não entra: as operações da sala são pequenas perto do país.",
   example: "Ex.: 18,38% de um PIB de R$ 7,4 tri são R$ 1,36 tri por ano, ou uns R$ 113 bi por mês.",
   reading:
     "Mexer na alíquota muda a receita, mas menos que proporcionalmente: quem paga menos passa a operar mais. Receita acima do gasto sobra e a dívida cai; abaixo, falta e a dívida sobe.",
   format: (value) => displayPercent(value, 2),
+};
+
+export type TaxPrice = { definition: string; example: string; reading: string };
+
+/** O que cada imposto do país cobra além da arrecadação: o preço que o presidente paga ao mexer na alíquota. */
+export const TAX_PRICE: Partial<Record<GeneralKind, TaxPrice>> = {
+  CONSUMPTION_TAX_RATE: {
+    definition:
+      "Imposto embutido no preço do que as famílias compram. É a maior fonte de receita e a que menos reage à alíquota: aumentar arrecada quase na mesma proporção.",
+    example:
+      "Ex.: subir a alíquota de 18% para 22% em um ano soma uns 2 pontos ao IPCA (a inflação em 12 meses); a SELIC sobe com ela e a bolsa cai.",
+    reading:
+      "Cortar o imposto tira inflação e levanta a bolsa, mas abre um buraco na receita. Beneficiários, trabalhadores formais e aposentados são os que mais reclamam do aumento.",
+  },
+  CORPORATE_INCOME_TAX_RATE: {
+    definition:
+      "Imposto sobre o lucro das empresas. Quem paga mais vê o lucro encolher, e a bolsa desconta isso no preço das ações. É o imposto que mais reage à alíquota: subir muito arrecada menos que o esperado.",
+    example: "Ex.: alíquota 5 pontos acima da padrão (39% contra 34%) tira 6% da bolsa; 5 pontos abaixo levanta 6%.",
+    reading: "Cortar levanta a bolsa e agrada empreendedores e investidores; subir enche o caixa, mas pesa nas ações.",
+  },
+  PERSONAL_INCOME_TAX_RATE: {
+    definition:
+      "Imposto de renda descontado dos salários e das aposentadorias privadas. Não mexe na inflação nem na bolsa: o preço é político.",
+    example:
+      "Ex.: subir a alíquota em 3 pontos arrecada mais, mas quem paga (investidores, empreendedores, trabalhadores formais e servidores) perde satisfação.",
+    reading: "Cortar agrada quem paga, mas tira receita; a conta é entre o caixa e a aprovação.",
+  },
+  PAYROLL_TAX_RATE: {
+    definition:
+      "Contribuição que a empresa paga em cima de cada salário. Com ela mais alta, contratar custa mais e o desemprego sobe aos poucos.",
+    example:
+      "Ex.: alíquota 5 pontos acima da padrão (25% contra 20%) soma 0,3 ponto por ano à taxa de desemprego, até a alíquota voltar.",
+    reading:
+      "Cortar cria vagas e arrecada menos; subir arrecada mais, mas o trabalhador formal e a inflação (pela curva de Phillips) sentem.",
+  },
 };
 
 export const PRIMARY_RESULT: MetricInfo = {

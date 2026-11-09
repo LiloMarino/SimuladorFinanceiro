@@ -163,9 +163,15 @@ EFFECT_STEPS: dict[MeasureKind, Decimal] = {
     MeasureKind.FIXED_INCOME_TABLE: Decimal("0.05"),
     MeasureKind.LCI_LCA_RATE: Decimal("0.15"),
     MeasureKind.SECTOR_TAX: Decimal("0.05"),
-    # Meio ponto do PIB no auxílio e nas obras; 3 pontos nos reajustes
+    # 2 pontos nos impostos sobre consumo, folha e renda das pessoas; 5 no das empresas
+    MeasureKind.CONSUMPTION_TAX_RATE: Decimal("0.02"),
+    MeasureKind.CORPORATE_INCOME_TAX_RATE: Decimal("0.05"),
+    MeasureKind.PERSONAL_INCOME_TAX_RATE: Decimal("0.02"),
+    MeasureKind.PAYROLL_TAX_RATE: Decimal("0.02"),
+    # Meio ponto do PIB no auxílio, nas obras e no custeio; 3 pontos nos reajustes
     MeasureKind.WELFARE_SPENDING: Decimal("0.005"),
     MeasureKind.PUBLIC_WORKS: Decimal("0.005"),
+    MeasureKind.OPERATING_COST: Decimal("0.005"),
     MeasureKind.SERVANT_RAISE: Decimal("0.03"),
     MeasureKind.RETIREE_RAISE: Decimal("0.03"),
 }
@@ -199,6 +205,31 @@ EFFECTS: dict[MeasureKind, dict[VoterValue, Decimal]] = {
         V.DEVELOPMENT: Decimal("-0.3"),
         V.SAVER_PROTECTION: Decimal(-1),
     },
+    # Por corte de 2 pontos no imposto sobre o consumo
+    MeasureKind.CONSUMPTION_TAX_RATE: {
+        V.FREE_MARKET: Decimal("0.3"),
+        V.SOCIAL_JUSTICE: Decimal("0.5"),
+        V.STABILITY: Decimal("-0.3"),
+    },
+    # Por corte de 5 pontos no IR das empresas
+    MeasureKind.CORPORATE_INCOME_TAX_RATE: {
+        V.FREE_MARKET: Decimal("0.5"),
+        V.SOCIAL_JUSTICE: Decimal("-0.5"),
+        V.DEVELOPMENT: Decimal("0.8"),
+        V.STABILITY: Decimal("-0.3"),
+    },
+    # Por corte de 2 pontos no IR médio das pessoas
+    MeasureKind.PERSONAL_INCOME_TAX_RATE: {
+        V.FREE_MARKET: Decimal("0.5"),
+        V.SOCIAL_JUSTICE: Decimal("-0.8"),
+        V.STABILITY: Decimal("-0.3"),
+    },
+    # Por corte de 2 pontos na contribuição sobre a folha
+    MeasureKind.PAYROLL_TAX_RATE: {
+        V.FREE_MARKET: Decimal("0.3"),
+        V.DEVELOPMENT: Decimal("0.5"),
+        V.STABILITY: Decimal("-0.3"),
+    },
     MeasureKind.SECTOR_EXEMPT: {
         V.FREE_MARKET: Decimal("0.3"),
         V.SOCIAL_JUSTICE: Decimal("-0.5"),
@@ -208,6 +239,11 @@ EFFECTS: dict[MeasureKind, dict[VoterValue, Decimal]] = {
     MeasureKind.WELFARE_SPENDING: {
         V.SOCIAL_JUSTICE: Decimal(1),
         V.STABILITY: Decimal("-0.5"),
+    },
+    # Por meio ponto do PIB a mais em custeio
+    MeasureKind.OPERATING_COST: {
+        V.PUBLIC_SERVICE: Decimal("0.5"),
+        V.FREE_MARKET: Decimal("-0.5"),
     },
     # Por 3 pontos de reajuste real dos servidores
     MeasureKind.SERVANT_RAISE: {V.PUBLIC_SERVICE: Decimal(1)},
@@ -219,6 +255,25 @@ EFFECTS: dict[MeasureKind, dict[VoterValue, Decimal]] = {
 # O agrado direto de uma medida de gasto a quem recebe o dinheiro, por passo de referência;
 # vai além dos valores que ela move
 DIRECT: dict[MeasureKind, dict[VoterGroup, Decimal]] = {
+    # O corte de imposto agrada a quem o paga: o consumo pesa no bolso de quem tem renda
+    # baixa, o IR das pessoas em quem tem renda alta
+    MeasureKind.CONSUMPTION_TAX_RATE: {
+        G.WELFARE: Decimal("1.0"),
+        G.FORMAL_WORKERS: Decimal("0.8"),
+        G.RETIREES: Decimal("0.5"),
+    },
+    MeasureKind.CORPORATE_INCOME_TAX_RATE: {G.ENTREPRENEURS: Decimal("1.0")},
+    MeasureKind.PERSONAL_INCOME_TAX_RATE: {
+        G.INVESTORS: Decimal("0.8"),
+        G.ENTREPRENEURS: Decimal("0.5"),
+        G.FORMAL_WORKERS: Decimal("0.5"),
+        G.PUBLIC_SERVANTS: Decimal("0.5"),
+    },
+    MeasureKind.PAYROLL_TAX_RATE: {
+        G.FORMAL_WORKERS: Decimal("0.8"),
+        G.ENTREPRENEURS: Decimal("0.5"),
+    },
+    MeasureKind.OPERATING_COST: {G.PUBLIC_SERVANTS: Decimal("0.5")},
     MeasureKind.WELFARE_SPENDING: {G.WELFARE: Decimal("1.5")},
     MeasureKind.SERVANT_RAISE: {G.PUBLIC_SERVANTS: Decimal("0.5")},
     MeasureKind.RETIREE_RAISE: {G.RETIREES: Decimal(1)},
@@ -233,6 +288,10 @@ _CUT_IS_POSITIVE = frozenset(
         MeasureKind.STOCK_PROFIT_RATE,
         MeasureKind.DAY_TRADE_RATE,
         MeasureKind.FIXED_INCOME_TABLE,
+        MeasureKind.CONSUMPTION_TAX_RATE,
+        MeasureKind.CORPORATE_INCOME_TAX_RATE,
+        MeasureKind.PERSONAL_INCOME_TAX_RATE,
+        MeasureKind.PAYROLL_TAX_RATE,
     }
 )
 

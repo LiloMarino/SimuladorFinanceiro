@@ -317,3 +317,19 @@ def test_the_deviation_has_no_ceiling_but_the_game_growth_has_a_floor(
     assert boosted.latest(end).growth > growth.MAX_GROWTH
     # Para baixo o fundo é o piso da partida
     assert crushed.latest(end).growth == growth.COLLAPSE_GROWTH
+
+
+def test_a_dearer_payroll_adds_to_the_unemployment_each_year(flat_economy: None):
+    course = MacroCourse(START)
+    course.use_government(
+        growth.no_push,
+        growth.no_push,
+        growth.no_push,
+        lambda _day: Decimal("0.012"),
+    )
+
+    month = course.latest(date(2020, 12, 31))
+
+    # Sem outra força, o desvio do desemprego soma 1/12 do que a folha põe por ano a cada mês
+    assert month.unemployment > month.base_unemployment
+    assert month.growth == month.base_growth

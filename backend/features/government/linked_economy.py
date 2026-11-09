@@ -66,6 +66,7 @@ class LinkedEconomy:
         governo e a credibilidade, que pesam só na partida; a base é a história.
         """
         self._macro = macro
+        self._policy_on = policy_on
         self._monetary = monetary
         self._works_on = works_on
         self._lock = threading.RLock()
@@ -88,7 +89,10 @@ class LinkedEconomy:
         self.layer = EconomyLayer(simulation_id, start, spending, self, monetary)
         spending.use_on_change(self.layer.refresh)
         macro.use_government(
-            spending.growth_points, self._impulse_on, self._crowding_on
+            spending.growth_points,
+            self._impulse_on,
+            self._crowding_on,
+            self._payroll_on,
         )
         repository.economic.use_adjustment(simulation_id, self.layer)
 
@@ -126,6 +130,15 @@ class LinkedEconomy:
         rate_points = rate_inflation_points(
             [*gaps, real_rate_gap], self._monetary.credibility_on(month_end)
         )
+        # Cada imposto do país pesa pela alíquota em vigor contra a padrão; o consumo repassa
+        # aos preços pela mudança em 12 meses
+        policy = self._policy_on(month_end)
+        consumption_gap = policy.consumption_rate - DEFAULT_TAX_POLICY.consumption_rate
+        consumption_year_ago = (
+            self._links[-IMPULSE_MONTHS].consumption_gap
+            if len(self._links) >= IMPULSE_MONTHS
+            else ZERO
+        )
         link = link_month(
             previous if self._links else None,
             month_end,
@@ -136,6 +149,10 @@ class LinkedEconomy:
             primary_gap_year_ago=year_ago,
             real_rate_gap=real_rate_gap,
             rate_points=rate_points,
+            consumption_gap=consumption_gap,
+            consumption_gap_year_ago=consumption_year_ago,
+            corporate_gap=policy.corporate_rate - DEFAULT_TAX_POLICY.corporate_rate,
+            payroll_gap=policy.payroll_rate - DEFAULT_TAX_POLICY.payroll_rate,
         )
         # A lista das ligações cresce antes da dos dias: quem lê sem a trava acha as duas coerentes
         self._links.append(link)
@@ -164,6 +181,9 @@ class LinkedEconomy:
 
     def _crowding_on(self, day: date) -> Decimal:
         return self.links_on(day).crowding_out
+
+    def _payroll_on(self, day: date) -> Decimal:
+        return self.links_on(day).payroll_jobs
 
     def _credibility_premium_on(self, day: date) -> Decimal:
         return credibility_premium(self._monetary.credibility_on(day))

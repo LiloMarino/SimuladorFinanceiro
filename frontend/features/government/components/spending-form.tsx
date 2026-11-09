@@ -88,7 +88,7 @@ type KindCardProps = { kind: SpendingKind; row: SpendingRow; selected: boolean; 
 
 function KindCard({ kind, row, selected, onSelect }: KindCardProps) {
   const queued = row.pending !== null;
-  const atFloor = (kind === "SERVANT_RAISE" || kind === "RETIREE_RAISE") && Number(row.value) === 0;
+  const atFloor = Number(row.value) <= Number(row.floor);
   return (
     <button
       type="button"

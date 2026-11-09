@@ -284,13 +284,15 @@ def next_month(
     spending: Decimal = ZERO,
     impulse: Decimal = ZERO,
     crowding: Decimal = ZERO,
+    payroll: Decimal = ZERO,
 ) -> MacroMonth:
     """
     O fechamento seguinte. A base é a série guardada; onde ela não cobre, o modelo anda
     1/4 até o alvo da história e o desemprego segue o Okun. A partida soma à base o
     desvio de cada parte do alvo, sem faixa: quem segura o crescimento são o juro, a
     inflação e o crédito, cada um com a sua parcela. O desvio do desemprego volta
-    devagar a zero e segue o Okun sobre o desvio do crescimento.
+    devagar a zero e segue o Okun sobre o desvio do crescimento, mais o que a contribuição
+    sobre a folha soma ao ano (`payroll`).
     """
     base_aim = growth_aim(month_end, stored=True)
     base_growth = recorded_growth(month_end)
@@ -305,7 +307,9 @@ def next_month(
     growth = max(COLLAPSE_GROWTH, base_growth + gap.total)
     unemployment_gap = (
         previous.unemployment - previous.base_unemployment
-    ) * UNEMPLOYMENT_RETURN - OKUN * (growth - base_growth) / MONTHS_PER_YEAR
+    ) * UNEMPLOYMENT_RETURN + (
+        payroll - OKUN * (growth - base_growth)
+    ) / MONTHS_PER_YEAR
     return MacroMonth(
         month_end=month_end,
         growth=growth,
@@ -335,17 +339,20 @@ class MacroCourse:
         self._spending_on: GrowthSource = no_push
         self._impulse_on: GrowthSource = no_push
         self._crowding_on: GrowthSource = no_push
+        self._payroll_on: GrowthSource = no_push
 
     def use_government(
         self,
         spending: GrowthSource,
         impulse: GrowthSource,
         crowding: GrowthSource = no_push,
+        payroll: GrowthSource = no_push,
     ) -> None:
-        """O que as obras, o resultado primário e o crédito caro do governo somam ao alvo do crescimento em cada dia."""
+        """O que o gasto, o resultado primário e o crédito caro do governo somam ao alvo do crescimento em cada dia, e o que a folha mais cara soma ao desemprego ao ano."""
         self._spending_on = spending
         self._impulse_on = impulse
         self._crowding_on = crowding
+        self._payroll_on = payroll
 
     def months_until(self, day: date) -> list[MacroMonth]:
         """Os meses já fechados em `day`: o fim do mês é hoje ou já passou."""
@@ -362,6 +369,7 @@ class MacroCourse:
                         self._spending_on(following),
                         self._impulse_on(following),
                         self._crowding_on(following),
+                        self._payroll_on(following),
                     )
                 )
             return [m for m in self._months if m.month_end <= day]

@@ -20,6 +20,7 @@ const SUBTITLE: Record<SpendingKind, string> = {
   SERVANT_RAISE: "Ganho acima da inflação, todo janeiro",
   RETIREE_RAISE: "Ganho acima da inflação, todo janeiro",
   PUBLIC_WORKS: "Também soma ao crescimento do PIB",
+  OPERATING_COST: "Manutenção da máquina pública; cortar freia o PIB",
 };
 
 const TONE_CLASS = {
@@ -33,7 +34,7 @@ type SpendingCardProps = {
   onPropose: (kind?: MeasureKind) => void;
 };
 
-/** O gasto público em vigor: as quatro medidas que o presidente muda, o resto do gasto e o quanto cada uma pesa na inflação. */
+/** O gasto público em vigor: as medidas que o presidente muda, a parte fixa do gasto e o quanto cada uma pesa na inflação. */
 export function SpendingCard({ panel, onPropose }: SpendingCardProps) {
   const { spending } = panel;
 
@@ -77,14 +78,12 @@ export function SpendingCard({ panel, onPropose }: SpendingCardProps) {
                 <SpendingRowView key={row.kind} row={row} isPresident={panel.is_president} onPropose={onPropose} />
               ))}
 
-              {/* Resto do gasto do país */}
+              {/* Parte fixa do gasto */}
               <TableRow>
                 <TableCell className="whitespace-normal">
                   <span className="grid gap-0.5 pl-11">
-                    <span>Resto do gasto do país</span>
-                    <span className="text-xs text-muted-foreground">
-                      Saúde, educação, custeio. Não muda com as medidas.
-                    </span>
+                    <span>Saúde e educação</span>
+                    <span className="text-xs text-muted-foreground">Gasto fixo: não muda com as medidas.</span>
                   </span>
                 </TableCell>
                 <TableCell variant="note">—</TableCell>

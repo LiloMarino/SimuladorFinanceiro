@@ -21,7 +21,13 @@ from backend.core.dto.promises import (
 )
 from backend.core.dto.user import UserDTO
 from backend.core.enum import VoterGroup
-from backend.features.government import congress, promises, second_round, voters
+from backend.features.government import (
+    congress,
+    promises,
+    second_round,
+    spending,
+    voters,
+)
 from backend.features.government import measures as rules
 from backend.features.government.government_book import (
     GovernmentBook,
@@ -97,6 +103,7 @@ def build_promises_panel(
                 kind=kind,
                 baseline=baseline,
                 step=voters.EFFECT_STEPS[kind],
+                floor=spending.floor_of(kind),
                 limit=promises.limit_of(kind),
             )
             for kind in promises.GENERAL_KINDS
