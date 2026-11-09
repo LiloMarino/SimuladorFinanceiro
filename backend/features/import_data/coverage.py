@@ -7,7 +7,7 @@ from backend.core.dto.series_coverage import (
     SeriesCoverageDTO,
     SeriesKind,
 )
-from backend.core.enum import AssetClass, DataOrigin
+from backend.core.enum import AssetClass, AssetOrigin, DataOrigin
 from backend.features.import_data.indicators import INDICATOR_SOURCES
 
 
@@ -33,6 +33,7 @@ def get_series_coverage() -> list[SeriesCoverageDTO]:
             stocks,
             stock.asset_class,
             classification.get(stock.ticker),
+            stock.origin,
         )
         for stock in repository.stock.get_stocks()
     ]
@@ -54,6 +55,7 @@ def _series(
     coverage: dict[str, dict[DataOrigin, OriginCoverageDTO]],
     asset_class: AssetClass | None = None,
     segment: StockSegmentDTO | None = None,
+    origin: AssetOrigin | None = None,
 ) -> SeriesCoverageDTO:
     origins = coverage.get(key, {})
     real = origins.get(DataOrigin.REAL)
@@ -69,4 +71,5 @@ def _series(
         corrected_days=real.corrected_days if real else 0,
         asset_class=asset_class,
         segment=segment,
+        origin=origin,
     )

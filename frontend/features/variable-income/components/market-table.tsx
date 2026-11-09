@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import { AssetOriginFlag } from "@/shared/components/asset-origin-flag";
 import { Badge } from "@/shared/components/ui/badge";
 import { Table, TableBody, TableCell, TableEmptyRow, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { displayCompactNumber, displayMoney, displayQuantity, displaySignedPercent } from "@/shared/lib/utils/display";
@@ -111,6 +112,7 @@ export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
                 <div className="grid">
                   <span className="flex items-center gap-2">
                     <span className="font-mono font-semibold">{q.ticker}</span>
+                    {q.origin === "FOREIGN" && <AssetOriginFlag origin={q.origin} size={14} />}
                     {classLabel && (
                       <Badge variant="secondary" size="sm">
                         {classLabel}

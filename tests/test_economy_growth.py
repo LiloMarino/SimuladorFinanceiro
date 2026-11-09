@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 from decimal import Decimal
+from itertools import pairwise
 
 import pytest
 
@@ -243,6 +244,35 @@ def test_the_base_follows_the_recorded_series_and_the_game_matches_it(
             month.base_growth,
             month.base_unemployment,
         )
+
+
+def test_the_history_dollar_is_the_ptax_and_then_walks_by_purchasing_power_parity(
+    flat_economy: None, indicators: SetIndicator
+):
+    indicators(IndicatorSeries.PTAX, daily_series(START, date(2020, 6, 30), "5"))
+
+    months = MacroCourse(START).months_until(date(2020, 9, 30))
+
+    # Onde a PTAX guardada cobre, o dólar da história é ela
+    assert [m.base_dollar for m in months[:6]] == [Decimal(5)] * 6
+    # Depois do último dado real sobe um doze avos da diferença entre o IPCA e os 2,5% dos EUA
+    for before, after in pairwise(months[5:9]):
+        assert after.base_dollar == growth.step_dollar(
+            before.base_dollar, after.base_aim.inflation
+        )
+        assert after.base_dollar > before.base_dollar
+
+
+def test_the_dollar_step_follows_the_inflation_gap_against_the_us():
+    five = Decimal(5)
+
+    # IPCA de 6% ao ano contra 2,5%: 3,5% ao ano, um doze avos por mês
+    assert growth.step_dollar(five, Decimal("0.06")) == five * (
+        1 + Decimal("0.035") / 12
+    )
+    # IPCA igual ao dos EUA deixa o dólar parado; abaixo dele, o dólar cai
+    assert growth.step_dollar(five, growth.US_INFLATION) == five
+    assert growth.step_dollar(five, Decimal("0.01")) < five
 
 
 def test_before_the_unemployment_series_starts_the_model_runs(

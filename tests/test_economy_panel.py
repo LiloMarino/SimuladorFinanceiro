@@ -165,6 +165,25 @@ def test_panel_without_the_government_has_no_effects_and_no_stored_series(
     )
 
 
+def test_panel_without_the_government_has_the_ptax_as_the_dollar_and_no_parts(
+    indicators: SetIndicator,
+):
+    start = date(2022, 1, 3)
+    indicators(IndicatorSeries.SELIC, {start: DAILY_LOW})
+    indicators(IndicatorSeries.IPCA, {date(2022, 1, 1): Decimal("0.5")})
+    indicators(IndicatorSeries.IBOV, {start: Decimal(100000)})
+    indicators(IndicatorSeries.PTAX, daily_series(date(2021, 12, 1), start, "5.2"))
+
+    panel = build_economy_panel(start, start, MacroCourse(start))
+
+    [point] = panel.points
+    assert point.dollar == Decimal("5.2")
+    assert point.stored_dollar is None
+    parts = panel.dollar_parts
+    assert (parts.history, parts.total) == (Decimal("5.2"), Decimal("5.2"))
+    assert (parts.premium, parts.real_rate, parts.inflation) == (0, 0, 0)
+
+
 def test_panel_with_the_government_lists_the_effects_and_keeps_the_stored_series(
     indicators: SetIndicator,
 ):

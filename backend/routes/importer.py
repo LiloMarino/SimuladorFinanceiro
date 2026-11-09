@@ -19,7 +19,7 @@ from backend.core.dto.price_correction import PriceCorrectionResultDTO
 from backend.core.dto.sector import SectorDTO, StockSegmentDTO
 from backend.core.dto.series_coverage import SeriesCoverageDTO
 from backend.core.dto.ticker_profile import TickerSuggestionDTO
-from backend.core.enum import AssetClass, IndicatorSeries
+from backend.core.enum import AssetClass, AssetOrigin, IndicatorSeries
 from backend.core.exceptions.http_exceptions import (
     BadGatewayError,
     ConflictError,
@@ -108,6 +108,21 @@ class AssetClassRequest(BaseModel):
 )
 def update_asset_class(ticker: str, request: AssetClassRequest):
     if repository.stock.set_asset_class(ticker, request.asset_class) is None:
+        raise NotFoundError(f"Ativo '{ticker}' não encontrado.")
+
+
+class AssetOriginRequest(BaseModel):
+    origin: AssetOrigin
+
+
+@import_router.put(
+    "/stocks/{ticker}/origin",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Alterar a origem de um ativo",
+    description="Define se o ativo é nacional ou internacional: o internacional anda com o dólar da partida, o nacional com a bolsa daqui.",
+)
+def update_asset_origin(ticker: str, request: AssetOriginRequest):
+    if repository.stock.set_origin(ticker, request.origin) is None:
         raise NotFoundError(f"Ativo '{ticker}' não encontrado.")
 
 

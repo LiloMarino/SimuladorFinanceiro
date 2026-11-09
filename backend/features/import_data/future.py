@@ -107,13 +107,11 @@ def load_market_history() -> MarketHistory:
     values: dict[str, list[tuple[date, Decimal]]] = defaultdict(list)
     for series, day, value in repository.generated_future.get_real_indicators():
         values[series].append((day, value))
-    # O futuro gerado é do mercado; o PIB e o desemprego seguem o modelo da partida e a
-    # PTAX só converte o preço na importação
+    # O futuro gerado é do mercado; o PIB, o desemprego e o dólar seguem o modelo da partida
     values = {
         series: rows
         for series, rows in values.items()
         if not IndicatorSeries(series).is_macro
-        and IndicatorSeries(series) is not IndicatorSeries.PTAX
     }
     indicators = {
         IndicatorSeries(series): pd.Series(

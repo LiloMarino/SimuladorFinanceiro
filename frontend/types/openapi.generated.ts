@@ -768,6 +768,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/import-assets/stocks/{ticker}/origin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Alterar a origem de um ativo
+         * @description Define se o ativo é nacional ou internacional: o internacional anda com o dólar da partida, o nacional com a bolsa daqui.
+         */
+        put: operations["update_asset_origin_api_import_assets_stocks__ticker__origin_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/import-assets/stocks/{ticker}/segment": {
         parameters: {
             query?: never;
@@ -4104,6 +4124,16 @@ export interface components {
             events: components["schemas"]["AssetCorporateEventDTO"][];
         };
         /**
+         * AssetOrigin
+         * @description De onde vem o ativo: o internacional anda com o dólar da partida, o nacional com a bolsa daqui.
+         * @enum {string}
+         */
+        AssetOrigin: "DOMESTIC" | "FOREIGN";
+        /** AssetOriginRequest */
+        AssetOriginRequest: {
+            origin: components["schemas"]["AssetOrigin"];
+        };
+        /**
          * AutoRedeemEventDTO
          * @description Um título vendido pelo sistema para cobrir um débito automático.
          */
@@ -4983,6 +5013,8 @@ export interface components {
             /** Name */
             name: string;
             asset_class: components["schemas"]["AssetClass"];
+            /** @default DOMESTIC */
+            origin: components["schemas"]["AssetOrigin"];
             /** Open */
             open: number;
             /** High */
@@ -5885,6 +5917,24 @@ export interface components {
             /** Share */
             share: string;
         };
+        /**
+         * DollarPartsDTO
+         * @description O dólar da partida em reais: o da história mais o que o prêmio de risco e o juro real
+         *     diferentes da história somam (a soma das quatro é o dólar da partida), e os pontos de
+         *     IPCA em 12 meses que a alta do dólar repassa aos preços no último fechamento de mês.
+         */
+        DollarPartsDTO: {
+            /** History */
+            history: string;
+            /** Premium */
+            premium: string;
+            /** Real Rate */
+            real_rate: string;
+            /** Total */
+            total: string;
+            /** Inflation */
+            inflation: string;
+        };
         /** DonationDTO */
         DonationDTO: {
             /**
@@ -5935,7 +5985,7 @@ export interface components {
          * @description Uma ligação da economia interligada: o desvio da partida contra a história que mexe nas séries.
          * @enum {string}
          */
-        EconomyLink: "PHILLIPS" | "FISCAL_RISK" | "GDP" | "REAL_RATE" | "SELIC" | "INFLATION_BRAKE" | "CROWDING_OUT" | "CONSUMPTION_TAX" | "CORPORATE_TAX" | "PAYROLL_TAX";
+        EconomyLink: "PHILLIPS" | "FISCAL_RISK" | "DOLLAR" | "GDP" | "REAL_RATE" | "SELIC" | "INFLATION_BRAKE" | "CROWDING_OUT" | "CONSUMPTION_TAX" | "CORPORATE_TAX" | "PAYROLL_TAX";
         /** EconomyPanelDTO */
         EconomyPanelDTO: {
             /** Points */
@@ -5943,6 +5993,7 @@ export interface components {
             /** Copom Changes */
             copom_changes: components["schemas"]["CopomChangeDTO"][];
             growth_parts: components["schemas"]["GrowthPartsDTO"];
+            dollar_parts: components["schemas"]["DollarPartsDTO"];
             debt: components["schemas"]["DebtSummaryDTO"] | null;
             /** Effects */
             effects: components["schemas"]["ActiveEffectDTO"][] | null;
@@ -5985,6 +6036,10 @@ export interface components {
             stored_ipca: string | null;
             /** Stored Ibovespa */
             stored_ibovespa: string | null;
+            /** Dollar */
+            dollar: string;
+            /** Stored Dollar */
+            stored_dollar: string | null;
         };
         /**
          * EffectPhase
@@ -7957,6 +8012,8 @@ export interface components {
             /** Name */
             name: string;
             asset_class: components["schemas"]["AssetClass"];
+            /** @default DOMESTIC */
+            origin: components["schemas"]["AssetOrigin"];
             /** Open */
             open: number;
             /** High */
@@ -10380,6 +10437,7 @@ export interface components {
             /** Corrected Days */
             corrected_days: number;
             asset_class: components["schemas"]["AssetClass"] | null;
+            origin: components["schemas"]["AssetOrigin"] | null;
             segment: components["schemas"]["StockSegmentDTO"] | null;
         };
         /**
@@ -11061,6 +11119,8 @@ export interface components {
             /** Name */
             name: string;
             asset_class: components["schemas"]["AssetClass"];
+            /** @default DOMESTIC */
+            origin: components["schemas"]["AssetOrigin"];
             /** Open */
             open: number;
             /** High */
@@ -14050,6 +14110,48 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["AssetClassRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    update_asset_origin_api_import_assets_stocks__ticker__origin_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssetOriginRequest"];
             };
         };
         responses: {

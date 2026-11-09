@@ -1,5 +1,5 @@
 import type { MetricInfo } from "@/shared/lib/metric-info";
-import { displayPercent } from "@/shared/lib/utils/display";
+import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
 
 const percent = (value: string | number) => displayPercent(value, 2);
 
@@ -93,11 +93,55 @@ export const FISCAL_RISK: MetricInfo = {
   label: "Risco fiscal",
   description: "O prêmio de risco da dívida acima da história",
   definition:
-    "Quando a dívida cresce, quem empresta ao governo cobra um prêmio a mais. O real perde valor e os importados encarecem: cada ponto de prêmio acima da história soma meio ponto ao IPCA, encarece o crédito na mesma medida e pesa na bolsa como um ponto de SELIC.",
-  example:
-    "Ex.: prêmio de 3 pontos contra 1 na história (2 a mais) soma 1 ponto ao IPCA e tira uns 5,8% da bolsa no trimestre.",
+    "Quando a dívida cresce, quem empresta ao governo cobra um prêmio a mais. O crédito encarece na mesma medida, o dólar sobe (o efeito aparece na linha do câmbio) e a bolsa sofre como se a SELIC tivesse subido um ponto por ponto de prêmio.",
+  example: "Ex.: prêmio de 3 pontos contra 1 na história (2 a mais) tira uns 5,8% da bolsa no trimestre.",
   reading:
-    "Zero é a dívida igual à da história. Quanto maior, mais caro o governo se financia, e o juro faz a dívida crescer ainda mais: o prêmio não tem teto.",
+    "Zero é a dívida igual à da história. Quanto maior, mais caro o governo se financia, e o juro faz a dívida crescer ainda mais, até o limite de 300% do PIB de dívida.",
+  format: gapPoints,
+};
+
+export const DOLLAR: MetricInfo = {
+  label: "Dólar",
+  description: "Quantos reais custa um dólar",
+  definition:
+    "A cotação do dólar na partida: a da história (a PTAX, a taxa oficial do Banco Central) mais o que o governo causa. Cada ponto de prêmio de risco acima da história soma 4% ao dólar, e cada ponto de juro real acima da história tira 2%. Onde a história acaba, o dólar anda pela diferença entre a inflação daqui e os 2,5% ao ano dos Estados Unidos.",
+  example: "Ex.: dólar de R$ 5,00 na história com 3 pontos de prêmio a mais passa a custar uns R$ 5,64 (5,00 × 1,04³).",
+  reading:
+    "Dólar mais caro encarece o que se importa e empurra a inflação; também valoriza em reais os ativos internacionais, que andam só com o dólar. Dólar mais barato faz o contrário.",
+  format: (value) => displayMoney(value),
+};
+
+/** O quanto o dólar da partida se afasta da história, em fração: o desvio é um expoente de e. */
+const dollarGapPercent = (value: string | number) => `${signedPoints(Math.expm1(Number(value)))}%`;
+
+export const DOLLAR_LINK: MetricInfo = {
+  label: "Câmbio",
+  description: "O dólar acima da história empurra a inflação",
+  definition:
+    "O dólar da partida é o da história vezes o desvio que o prêmio de risco e o juro real causam. Cada 1% de alta do dólar em 12 meses soma 0,07 ponto ao IPCA de 12 meses, porque o importado e o combustível encarecem; o Banco Central reage a esse repasse subindo a SELIC, e a bolsa sente.",
+  example: "Ex.: dólar 10% mais caro em 12 meses soma 0,7 ponto ao IPCA (10 × 0,07).",
+  reading:
+    "O número é o quanto o dólar da partida está acima (+) ou abaixo (−) do da história. O repasse vem da alta em 12 meses: um dólar caro e parado deixa de pesar na inflação depois de um ano.",
+  format: dollarGapPercent,
+};
+
+export const DOLLAR_PREMIUM: MetricInfo = {
+  label: "Prêmio de risco",
+  description: "O prêmio acima da história afasta o investidor de fora e o dólar sobe",
+  definition:
+    "Com a dívida crescendo, quem investe de fora foge do real e compra dólar. Cada ponto de prêmio acima da história soma 4% ao dólar, até o teto de 4,5 vezes o da história.",
+  example: "Ex.: prêmio 5 pontos acima da história soma 20% ao dólar: de R$ 5,00 para uns R$ 6,10 (5,00 × e^0,2).",
+  reading: "Positivo encarece o dólar; zero é a dívida igual à da história.",
+  format: gapPoints,
+};
+
+export const DOLLAR_REAL_RATE: MetricInfo = {
+  label: "Juro real",
+  description: "O juro real acima da história atrai o dinheiro de fora e o dólar cai",
+  definition:
+    "Juro real alto paga bem em reais: o dinheiro de fora vem atrás dele, vende dólar e o real se valoriza. Cada ponto de juro real acima da história tira 2% do dólar; abaixo da história, soma.",
+  example: "Ex.: juro real 3 pontos acima da história tira 6% do dólar: de R$ 5,00 para uns R$ 4,71 (5,00 × e^−0,06).",
+  reading: "Positivo derruba o dólar; negativo (juro real abaixo da história) o encarece.",
   format: gapPoints,
 };
 

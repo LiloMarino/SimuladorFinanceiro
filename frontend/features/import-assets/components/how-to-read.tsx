@@ -30,7 +30,7 @@ export function HowToRead() {
             </span>
             <span className="flex items-start gap-2">
               <span className="mt-1 h-2.5 w-8 shrink-0 rounded-full bg-chart-2" />
-              <span>Calculado na partida a partir da SELIC, do IPCA e da bolsa (PIB e desemprego)</span>
+              <span>Calculado na partida a partir da SELIC, do IPCA e da bolsa (PIB, desemprego e dólar)</span>
             </span>
           </div>
           <p>

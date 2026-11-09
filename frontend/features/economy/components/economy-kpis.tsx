@@ -7,6 +7,7 @@ import { GROWTH, UNEMPLOYMENT } from "@/shared/lib/budget-metrics";
 import { displayPercent } from "@/shared/lib/utils/display";
 import type { EconomyPanel } from "@/types";
 import {
+  dollarNote,
   governmentShift,
   ipcaExample,
   lastCopomNote,
@@ -18,7 +19,7 @@ import {
   targetNote,
   unemploymentExample,
 } from "../lib/economy";
-import { IBOVESPA, IPCA, REAL_RATE, SELIC } from "../lib/economy-metrics";
+import { DOLLAR, IBOVESPA, IPCA, REAL_RATE, SELIC } from "../lib/economy-metrics";
 
 type EconomyKpisProps = { panel: EconomyPanel };
 
@@ -73,7 +74,7 @@ export function EconomyKpis({ panel }: EconomyKpisProps) {
   const stocksShift = stocksEffect(today);
 
   return (
-    <div className={cn("grid gap-3 sm:grid-cols-3", effects ? "xl:grid-cols-6" : "xl:grid-cols-5")}>
+    <div className={cn("grid gap-3 sm:grid-cols-3", effects ? "xl:grid-cols-7" : "xl:grid-cols-6")}>
       {/* SELIC */}
       <Tile
         metric={SELIC}
@@ -111,6 +112,14 @@ export function EconomyKpis({ panel }: EconomyKpisProps) {
         value={IPCA.format(today.ipca)}
         note={ipcaShift !== null ? governmentNote(signedIpca(ipcaShift)) : targetNote(today)}
         description={`${ipcaExample(today)}${historyNote(today.stored_ipca, (value) => displayPercent(value, 2))}`}
+      />
+
+      {/* Dólar */}
+      <Tile
+        metric={DOLLAR}
+        value={DOLLAR.format(today.dollar)}
+        note={dollarNote(today)}
+        description={`${DOLLAR.description}.${historyNote(today.stored_dollar, DOLLAR.format)}`}
       />
 
       {/* Juro real */}

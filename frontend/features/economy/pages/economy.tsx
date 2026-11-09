@@ -3,6 +3,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import type { EconomyPanel } from "@/types";
 import { DebtCard } from "../components/debt-card";
+import { DollarCard } from "../components/dollar-card";
 import { EconomyChart } from "../components/economy-chart";
 import { EffectsCard } from "../components/effects-card";
 import { EconomyKpis } from "../components/economy-kpis";
@@ -49,6 +50,7 @@ function EconomyContent({ panel }: { panel: EconomyPanel }) {
       <div className="grid items-start gap-5 lg:grid-cols-2">
         <GrowthCard panel={panel} />
         <UnemploymentCard panel={panel} />
+        <DollarCard panel={panel} />
       </div>
       {panel.debt && <DebtCard panel={panel} debt={panel.debt} />}
     </div>

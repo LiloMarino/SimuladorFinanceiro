@@ -1,6 +1,7 @@
 import { subMonths } from "date-fns";
 import {
   displayMoney,
+  displaySignedMoney,
   displayPercent,
   displayPercentagePoints,
   displayShortMonthYear,
@@ -13,6 +14,9 @@ import {
   CONSUMPTION_TAX,
   CORPORATE_TAX,
   CROWDING_OUT,
+  DOLLAR_LINK,
+  DOLLAR_PREMIUM,
+  DOLLAR_REAL_RATE,
   FISCAL_IMPULSE,
   FISCAL_RISK,
   GDP_GAP,
@@ -39,6 +43,8 @@ export type EconomyRow = {
   band: [number, number];
   growth: number;
   unemployment: number;
+  /** O dólar da partida, em reais */
+  dollar: number;
   /** Só nas partidas com a expansão Governo */
   debt: number | null;
   /** O Ibovespa, em pontos; nulo quando a série não cobre o dia */
@@ -72,6 +78,7 @@ export function economyRows(panel: EconomyPanel, range: EconomyRange = "all"): E
       ],
       growth: Number(point.growth),
       unemployment: Number(point.unemployment),
+      dollar: Number(point.dollar),
       debt: point.debt === null ? null : Number(point.debt),
       ibovespa: nullable(point.ibovespa),
       storedSelic: nullable(point.stored_selic),
@@ -111,6 +118,13 @@ export function selicExample(point: EconomyPoint): string {
 /** O que custava R$ 100 há um ano. */
 export function ipcaExample(point: EconomyPoint): string {
   return `A inflação: o que custava R$ 100 há um ano custa ${displayMoney(100 * (1 + Number(point.ipca)))}.`;
+}
+
+/** O dólar contra a história: "+12,3% pelo governo", ou "sem efeito do governo" quando coincide. */
+export function dollarNote(point: EconomyPoint): string {
+  if (point.stored_dollar === null) return "a PTAX, em reais";
+  const shift = Number(point.dollar) / Number(point.stored_dollar) - 1;
+  return Math.abs(shift) < 0.0005 ? "sem efeito do governo" : `${signedPoints(shift)}% pelo governo`;
 }
 
 /** Juro real negativo é dinheiro perdendo da inflação. */
@@ -254,6 +268,7 @@ export const sumEffects = (
 export const LINK_METRIC: Record<EconomyLinkEffect["link"], MetricInfo> = {
   PHILLIPS,
   FISCAL_RISK,
+  DOLLAR: DOLLAR_LINK,
   GDP: GDP_GAP,
   REAL_RATE: REAL_RATE_GAP,
   SELIC: GOVERNMENT_SELIC,
@@ -273,6 +288,49 @@ export const activeLinks = (links: readonly EconomyLinkEffect[]) =>
       Math.abs(Number(link.growth)) >= 0.0005 ||
       Math.abs(Number(link.unemployment)) >= 0.0001,
   );
+
+type DollarParts = EconomyPanel["dollar_parts"];
+
+export type DollarLine = {
+  label: string;
+  detail: string;
+  /** Reais a mais ou a menos no dólar, com sinal */
+  value: string;
+  tone: "up" | "down" | "neutral";
+  metric: MetricInfo;
+};
+
+/** Os textos de uma parcela do dólar: o que ela é quando o encarece, quando o barateia e quando não mexe. */
+type DollarPartText = { label: string; up: string; down: string; neutral: string; metric: MetricInfo };
+
+const DOLLAR_PARTS: Record<"premium" | "real_rate", DollarPartText> = {
+  premium: {
+    label: "Prêmio de risco",
+    up: "Acima da história: o investidor de fora foge e o dólar sobe",
+    down: "Abaixo da história: o real atrai e o dólar cai",
+    neutral: "Igual ao da história",
+    metric: DOLLAR_PREMIUM,
+  },
+  real_rate: {
+    label: "Juro real",
+    up: "Abaixo da história: o juro paga menos e o dólar sobe",
+    down: "Acima da história: o dinheiro de fora vem atrás do juro e o dólar cai",
+    neutral: "Igual ao da história",
+    metric: DOLLAR_REAL_RATE,
+  },
+};
+
+const signedMoney = (value: number) => (value > 0 ? `+${displaySignedMoney(value)}` : displaySignedMoney(value));
+
+/** O que a partida somou ao dólar da história, parcela por parcela, com o motivo de cada uma. */
+export function dollarLines(parts: DollarParts): DollarLine[] {
+  return (["premium", "real_rate"] as const).map((key) => {
+    const text = DOLLAR_PARTS[key];
+    const part = Number(parts[key]);
+    const tone = Math.abs(part) < 0.005 ? "neutral" : part > 0 ? "up" : "down";
+    return { label: text.label, detail: text[tone], value: signedMoney(part), tone, metric: text.metric };
+  });
+}
 
 /** A SELIC é do governo quando a ligação dela aparece: só existe com a taxa decidida no Copom. */
 export const selicByGovernment = (links: readonly EconomyLinkEffect[]) => links.some((link) => link.link === "SELIC");

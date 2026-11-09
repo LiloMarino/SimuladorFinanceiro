@@ -1,5 +1,6 @@
 import { Fragment, useState } from "react";
 import { ChevronDown, Eraser, RefreshCw, TriangleAlert } from "lucide-react";
+import { AssetOriginFlag } from "@/shared/components/asset-origin-flag";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -15,13 +16,15 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+import { ASSET_ORIGIN_LABELS, ASSET_ORIGINS } from "@/shared/lib/asset-origin";
 import { GROWTH, UNEMPLOYMENT } from "@/shared/lib/budget-metrics";
 import type { MetricInfo } from "@/shared/lib/metric-info";
 import { isOutdatedStock } from "@/shared/lib/series-coverage";
 import { cn } from "@/shared/lib/utils";
 import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
-import type { AssetClass, SeriesCoverage } from "@/types";
+import type { AssetClass, AssetOrigin, SeriesCoverage } from "@/types";
 import { useChangeAssetClass } from "../hooks/mutations/useChangeAssetClass";
+import { useChangeAssetOrigin } from "../hooks/mutations/useChangeAssetOrigin";
 import { useCorrectPriceErrors } from "../hooks/mutations/useCorrectPriceErrors";
 import { useRefreshOutdatedStocks } from "../hooks/mutations/useRefreshOutdatedStocks";
 import { useRefreshSeries } from "../hooks/mutations/useRefreshSeries";
@@ -43,7 +46,7 @@ const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
   CRYPTO: "Cripto",
 };
 
-const COLUMNS = 6;
+const COLUMNS = 7;
 
 // O que cada série da economia do país mede, na dica ao lado do nome
 const MACRO_HINTS: Record<string, MetricInfo> = { GDP_GROWTH: GROWTH, UNEMPLOYMENT: UNEMPLOYMENT };
@@ -66,6 +69,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
   const refreshOutdated = useRefreshOutdatedStocks();
   const correctErrors = useCorrectPriceErrors();
   const assetClass = useChangeAssetClass();
+  const assetOrigin = useChangeAssetOrigin();
 
   const range = timelineRange(series);
   const ticks = timelineTicks(range);
@@ -74,6 +78,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
   const sorting = useTableSort(filter === "ATTENTION" ? series.filter(needsAttention) : series, {
     series: (s) => s.key,
     assetClass: (s) => (s.asset_class ? ASSET_CLASS_LABELS[s.asset_class] : null),
+    origin: (s) => (s.origin ? ASSET_ORIGIN_LABELS[s.origin] : null),
     sector: (s) => (s.segment ? `${s.segment.sector} · ${s.segment.segment}` : null),
     end: (s) => s.real_end,
     status: (s) =>
@@ -132,6 +137,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
           <TableRow className="*:align-top">
             <SortableTableHead label="Série" {...sorting.header("series")} className="w-[18%]" />
             <SortableTableHead label="Classe" {...sorting.header("assetClass")} className="w-24" />
+            <SortableTableHead label="Origem" {...sorting.header("origin")} className="w-44" />
             <SortableTableHead label="Setor · segmento" {...sorting.header("sector")} className="w-[16%]" />
             <SortableTableHead label="Dados reais até" {...sorting.header("end")}>
               {/* Eixo comum da linha do tempo */}
@@ -213,6 +219,31 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                               ))}
                             </SelectContent>
                           </Select>
+                        ) : (
+                          <span className="text-faint-foreground">—</span>
+                        )}
+                      </TableCell>
+
+                      {/* Origem */}
+                      <TableCell>
+                        {item.origin ? (
+                          <ToggleGroup
+                            variant="segmented"
+                            size="sm"
+                            aria-label={`Origem de ${item.key}`}
+                            value={[item.origin]}
+                            disabled={assetOrigin.isPending}
+                            onValueChange={(values) =>
+                              values[0] && assetOrigin.mutate({ ticker: item.key, value: values[0] as AssetOrigin })
+                            }
+                          >
+                            {ASSET_ORIGINS.map((origin) => (
+                              <ToggleGroupItem key={origin} value={origin} aria-label={ASSET_ORIGIN_LABELS[origin]}>
+                                <AssetOriginFlag origin={origin} size={14} />
+                                {item.origin === origin && ASSET_ORIGIN_LABELS[origin]}
+                              </ToggleGroupItem>
+                            ))}
+                          </ToggleGroup>
                         ) : (
                           <span className="text-faint-foreground">—</span>
                         )}

@@ -4,7 +4,7 @@ import type { EconomyRow } from "../lib/economy";
 
 const TICK = { fontSize: 10.5, fill: "var(--faint-foreground)" };
 
-type SeriesKey = "growth" | "unemployment" | "debt";
+type SeriesKey = "growth" | "unemployment" | "debt" | "dollar";
 
 type SeriesChartProps = {
   rows: EconomyRow[];
@@ -15,16 +15,20 @@ type SeriesChartProps = {
   /** Linha de referência tracejada, como o limite em que a dívida passa a cobrar prêmio */
   reference?: { value: number; label: string };
   height?: number;
+  /** Como o valor aparece no eixo e no tooltip; o padrão é percentual */
+  format?: (value: number, digits: number) => string;
 };
 
 function SeriesTooltip({
   active,
   payload,
   seriesName,
+  format,
 }: {
   active?: boolean;
   payload?: { payload: EconomyRow; value: number | null }[];
   seriesName: string;
+  format: (value: number, digits: number) => string;
 }) {
   const entry = payload?.[0];
   if (!active || !entry || entry.value === null) return null;
@@ -33,14 +37,22 @@ function SeriesTooltip({
       <span className="text-muted-foreground">{displayDate(new Date(entry.payload.time))}</span>
       <span className="flex items-center justify-between gap-6">
         <span>{seriesName}</span>
-        <span className="font-mono font-semibold">{displayPercent(entry.value, 1)}</span>
+        <span className="font-mono font-semibold">{format(entry.value, 1)}</span>
       </span>
     </div>
   );
 }
 
 /** Uma série da economia ao longo da partida, em % no eixo vertical. */
-export function SeriesChart({ rows, dataKey, label, color, reference, height = 190 }: SeriesChartProps) {
+export function SeriesChart({
+  rows,
+  dataKey,
+  label,
+  color,
+  reference,
+  height = 190,
+  format = displayPercent,
+}: SeriesChartProps) {
   if (rows.length < 2) {
     return (
       <div
@@ -67,16 +79,16 @@ export function SeriesChart({ rows, dataKey, label, color, reference, height = 1
           tickLine={false}
         />
         <YAxis
-          domain={[(min: number) => Math.min(0, min), "auto"]}
-          tickFormatter={(value: number) => displayPercent(value, 0)}
+          domain={dataKey === "dollar" ? ["auto", "auto"] : [(min: number) => Math.min(0, min), "auto"]}
+          tickFormatter={(value: number) => format(value, dataKey === "dollar" ? 2 : 0)}
           tick={TICK}
           axisLine={false}
           tickLine={false}
-          width={40}
+          width={dataKey === "dollar" ? 56 : 40}
         />
         <Tooltip
           cursor={{ stroke: "var(--foreground)", strokeOpacity: 0.4 }}
-          content={<SeriesTooltip seriesName={label} />}
+          content={<SeriesTooltip seriesName={label} format={format} />}
         />
         {reference && (
           <ReferenceLine

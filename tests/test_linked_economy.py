@@ -279,11 +279,20 @@ def test_the_panel_splits_the_debt_the_links_and_the_growth_by_cause(
     links = {effect.link: effect for effect in panel.links or []}
     risk = links[EconomyLink.FISCAL_RISK]
     assert risk.gap == linked.links_on(end).premium_gap > 0
-    assert risk.inflation > 0
-    assert risk.selic == pytest.approx(
-        risk.inflation * Decimal("1.5"), abs=Decimal("0.001")
-    )
+    # O prêmio não soma IPCA direto: ele passa pelo dólar
+    assert risk.inflation == 0
     assert risk.stocks < 0
+    dollar = links[EconomyLink.DOLLAR]
+    assert dollar.gap == pytest.approx(
+        Decimal(str(linked.links_on(end).dollar_gap)), abs=Decimal("1e-6")
+    )
+    assert dollar.gap > 0
+    assert dollar.inflation > 0
+    assert dollar.selic == pytest.approx(
+        dollar.inflation * Decimal("1.5"), abs=Decimal("0.001")
+    )
+    assert panel.dollar_parts.total > panel.dollar_parts.history
+    assert panel.dollar_parts.inflation == dollar.inflation
     assert links[EconomyLink.GDP].inflation == 0
 
     parts = panel.growth_parts

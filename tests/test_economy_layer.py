@@ -9,7 +9,7 @@ from decimal import Decimal
 import pytest
 
 from backend.core.dto.sector import StockSegmentDTO
-from backend.core.enum import IndicatorSeries, MeasureKind, MeasureStatus
+from backend.core.enum import AssetOrigin, IndicatorSeries, MeasureKind, MeasureStatus
 from backend.core.indicators import annualize_daily
 from backend.core.rates import Percent
 from backend.core.repository.economic import IndicatorHistory
@@ -229,10 +229,12 @@ def test_the_links_add_their_ipca_points_from_the_day_they_hold(indicators):
 
     adjusted = layer.adjust(IndicatorSeries.IPCA, history)
 
-    # 0,7 ponto da curva de Phillips e 1 ponto do risco fiscal, um doze avos por mês
+    # 0,7 ponto da curva de Phillips e o repasse do dólar que o prêmio levanta (2 pontos de
+    # prêmio sobem o dólar 8,3%, e cada 1% de alta repassa 0,07 ponto), um doze avos por mês
+    passed = 0.07 * math.expm1(0.08) * 100
     assert adjusted.values[date(2021, 1, 1)] == Decimal("0.30")
     assert adjusted.values[date(2021, 3, 1)] == Decimal("0.30") + Decimal(
-        str(round(1.7 / 12, 6))
+        str(round((0.7 + passed) / 12, 6))
     )
 
 
@@ -253,6 +255,34 @@ def test_the_gdp_above_history_lifts_the_stocks(indicators):
 
     assert layer.level(day) == pytest.approx(math.exp(0.025))
     assert layer.level(date(2021, 1, 15)) == 1.0
+
+
+def test_a_foreign_asset_follows_only_the_dollar_and_a_domestic_one_keeps_the_market(
+    indicators,
+):
+    economy = linked(premium="0.02")
+    economy._origins = {"AAPL": AssetOrigin.FOREIGN, "PETR4": AssetOrigin.DOMESTIC}
+    economy._betas = {"PETR4": 1.0}
+    day = date(2021, 6, 1)
+
+    # 2 pontos de prêmio sobem o dólar 8,3% (e^0,08) e derrubam a bolsa daqui
+    assert economy.dollar_factor(day) == pytest.approx(math.exp(0.08))
+    assert economy.stock_factor("AAPL", day) == pytest.approx(math.exp(0.08))
+    assert economy.stock_factor("PETR4", day) == pytest.approx(economy.level(day))
+    assert economy.stock_factor("PETR4", day) < 1 < economy.stock_factor("AAPL", day)
+
+
+def test_a_foreign_asset_is_untouched_before_the_links_and_without_government(
+    indicators,
+):
+    economy = linked(premium="0.02")
+    economy._origins = {"AAPL": AssetOrigin.FOREIGN}
+
+    assert economy.stock_factor("AAPL", date(2021, 1, 15)) == 1.0
+
+    nothing = EconomyLayer(1, START, fx.SpendingEconomy())
+    nothing._origins = {"AAPL": AssetOrigin.FOREIGN}
+    assert nothing.stock_factor("AAPL", date(2021, 8, 2)) == 1.0
 
 
 class GrowingLinks:

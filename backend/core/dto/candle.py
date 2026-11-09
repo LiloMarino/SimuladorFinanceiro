@@ -4,7 +4,7 @@ from datetime import date
 
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
-from backend.core.enum import AssetClass
+from backend.core.enum import AssetClass, AssetOrigin
 from backend.core.models.models import Stock, StockPriceHistory
 
 
@@ -29,6 +29,7 @@ class CandleDTO(StockDTO):
             ticker=stock.ticker,
             name=stock.name,
             asset_class=AssetClass(stock.asset_class),
+            origin=AssetOrigin(stock.origin),
             open=prices.open,
             high=prices.high,
             low=prices.low,

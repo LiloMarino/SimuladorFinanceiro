@@ -12,9 +12,11 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { ErrorState } from "@/shared/components/error-state";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useVariableIncomeStocks } from "@/shared/hooks/queries/useVariableIncomeStocks";
+import { AssetOriginFlag } from "@/shared/components/asset-origin-flag";
 import { ASSET_CLASSES, ASSET_CLASS_LABELS } from "@/shared/lib/asset-class";
+import { ASSET_ORIGIN_LABELS, ASSET_ORIGINS } from "@/shared/lib/asset-origin";
 import { MarketTable } from "../components/market-table";
-import type { AssetClass } from "@/types";
+import type { AssetClass, AssetOrigin } from "@/types";
 
 type Filter = "ALL" | AssetClass;
 const ALL_SECTORS = "__all__";
@@ -25,6 +27,8 @@ export default function VariableIncomePage() {
   const { data: portfolio } = usePortfolio();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("ALL");
+  // Nenhuma origem marcada mostra todas
+  const [origins, setOrigins] = useState<AssetOrigin[]>([]);
   const [onlyHeld, setOnlyHeld] = useState(false);
   const [sector, setSector] = useState(ALL_SECTORS);
 
@@ -46,12 +50,14 @@ export default function VariableIncomePage() {
     (q) =>
       (!term || q.ticker.toLowerCase().includes(term) || q.name.toLowerCase().includes(term)) &&
       (filter === "ALL" || q.asset_class === filter) &&
+      (origins.length === 0 || origins.includes(q.origin)) &&
       (!onlyHeld || holdings.has(q.ticker)) &&
       (sector === ALL_SECTORS || (sector === NO_SECTOR ? !q.sector : q.sector === sector)),
   );
   const clearFilters = () => {
     setSearch("");
     setFilter("ALL");
+    setOrigins([]);
     setOnlyHeld(false);
     setSector(ALL_SECTORS);
   };
@@ -125,6 +131,21 @@ export default function VariableIncomePage() {
             {ASSET_CLASSES.map((value) => (
               <ToggleGroupItem key={value} value={value}>
                 {ASSET_CLASS_LABELS[value]}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+          <ToggleGroup
+            multiple
+            variant="segmented"
+            size="field"
+            aria-label="Filtrar por origem"
+            value={origins}
+            onValueChange={(values) => setOrigins(values as AssetOrigin[])}
+          >
+            {ASSET_ORIGINS.map((origin) => (
+              <ToggleGroupItem key={origin} value={origin}>
+                <AssetOriginFlag origin={origin} />
+                {ASSET_ORIGIN_LABELS[origin]}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>

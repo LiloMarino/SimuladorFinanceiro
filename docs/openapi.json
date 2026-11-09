@@ -2382,6 +2382,62 @@
         }
       }
     },
+    "/api/import-assets/stocks/{ticker}/origin": {
+      "put": {
+        "tags": [
+          "Import Assets"
+        ],
+        "summary": "Alterar a origem de um ativo",
+        "description": "Define se o ativo é nacional ou internacional: o internacional anda com o dólar da partida, o nacional com a bolsa daqui.",
+        "operationId": "update_asset_origin_api_import_assets_stocks__ticker__origin_put",
+        "parameters": [
+          {
+            "name": "ticker",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticker"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssetOriginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/import-assets/stocks/{ticker}/segment": {
       "put": {
         "tags": [
@@ -11595,6 +11651,27 @@
         ],
         "title": "AssetCorporateEventsDTO"
       },
+      "AssetOrigin": {
+        "type": "string",
+        "enum": [
+          "DOMESTIC",
+          "FOREIGN"
+        ],
+        "title": "AssetOrigin",
+        "description": "De onde vem o ativo: o internacional anda com o dólar da partida, o nacional com a bolsa daqui."
+      },
+      "AssetOriginRequest": {
+        "properties": {
+          "origin": {
+            "$ref": "#/components/schemas/AssetOrigin"
+          }
+        },
+        "type": "object",
+        "required": [
+          "origin"
+        ],
+        "title": "AssetOriginRequest"
+      },
       "AutoRedeemEventDTO": {
         "properties": {
           "asset_name": {
@@ -14159,6 +14236,10 @@
           "asset_class": {
             "$ref": "#/components/schemas/AssetClass"
           },
+          "origin": {
+            "$ref": "#/components/schemas/AssetOrigin",
+            "default": "DOMESTIC"
+          },
           "open": {
             "type": "number",
             "title": "Open"
@@ -14200,6 +14281,7 @@
           "ticker",
           "name",
           "asset_class",
+          "origin",
           "open",
           "high",
           "low",
@@ -16768,6 +16850,41 @@
         ],
         "title": "DividendPayerDTO"
       },
+      "DollarPartsDTO": {
+        "properties": {
+          "history": {
+            "type": "string",
+            "title": "History"
+          },
+          "premium": {
+            "type": "string",
+            "title": "Premium"
+          },
+          "real_rate": {
+            "type": "string",
+            "title": "Real Rate"
+          },
+          "total": {
+            "type": "string",
+            "title": "Total"
+          },
+          "inflation": {
+            "type": "string",
+            "title": "Inflation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "history",
+          "premium",
+          "real_rate",
+          "total",
+          "inflation"
+        ],
+        "title": "DollarPartsDTO",
+        "description": "O dólar da partida em reais: o da história mais o que o prêmio de risco e o juro real\ndiferentes da história somam (a soma das quatro é o dólar da partida), e os pontos de\nIPCA em 12 meses que a alta do dólar repassa aos preços no último fechamento de mês."
+      },
       "DonationDTO": {
         "properties": {
           "date": {
@@ -16880,6 +16997,7 @@
         "enum": [
           "PHILLIPS",
           "FISCAL_RISK",
+          "DOLLAR",
           "GDP",
           "REAL_RATE",
           "SELIC",
@@ -16910,6 +17028,9 @@
           },
           "growth_parts": {
             "$ref": "#/components/schemas/GrowthPartsDTO"
+          },
+          "dollar_parts": {
+            "$ref": "#/components/schemas/DollarPartsDTO"
           },
           "debt": {
             "anyOf": [
@@ -16956,6 +17077,7 @@
           "points",
           "copom_changes",
           "growth_parts",
+          "dollar_parts",
           "debt",
           "effects",
           "links"
@@ -17062,6 +17184,21 @@
               }
             ],
             "title": "Stored Ibovespa"
+          },
+          "dollar": {
+            "type": "string",
+            "title": "Dollar"
+          },
+          "stored_dollar": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stored Dollar"
           }
         },
         "additionalProperties": false,
@@ -17080,7 +17217,9 @@
           "ibovespa",
           "stored_selic",
           "stored_ipca",
-          "stored_ibovespa"
+          "stored_ibovespa",
+          "dollar",
+          "stored_dollar"
         ],
         "title": "EconomyPointDTO",
         "description": "A economia num dia da partida; as taxas são frações (0.1425 = 14,25% ao ano)."
@@ -22501,6 +22640,10 @@
           "asset_class": {
             "$ref": "#/components/schemas/AssetClass"
           },
+          "origin": {
+            "$ref": "#/components/schemas/AssetOrigin",
+            "default": "DOMESTIC"
+          },
           "open": {
             "type": "number",
             "title": "Open"
@@ -22571,6 +22714,7 @@
           "ticker",
           "name",
           "asset_class",
+          "origin",
           "open",
           "high",
           "low",
@@ -29708,6 +29852,16 @@
               }
             ]
           },
+          "origin": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AssetOrigin"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "segment": {
             "anyOf": [
               {
@@ -29730,6 +29884,7 @@
           "generated_end",
           "corrected_days",
           "asset_class",
+          "origin",
           "segment"
         ],
         "title": "SeriesCoverageDTO"
@@ -31325,6 +31480,10 @@
           "asset_class": {
             "$ref": "#/components/schemas/AssetClass"
           },
+          "origin": {
+            "$ref": "#/components/schemas/AssetOrigin",
+            "default": "DOMESTIC"
+          },
           "open": {
             "type": "number",
             "title": "Open"
@@ -31373,6 +31532,7 @@
           "ticker",
           "name",
           "asset_class",
+          "origin",
           "open",
           "high",
           "low",

@@ -160,6 +160,13 @@ class Currency(Enum):
     USD = "USD"
 
 
+class AssetOrigin(Enum):
+    """De onde vem o ativo: o internacional anda com o dólar da partida, o nacional com a bolsa daqui."""
+
+    DOMESTIC = "DOMESTIC"
+    FOREIGN = "FOREIGN"
+
+
 class AssetClass(Enum):
     STOCK = "STOCK"
     FII = "FII"
@@ -393,13 +400,18 @@ class IndicatorSeries(Enum):
     # Crescimento real do PIB em 4 trimestres e taxa de desemprego, ambos em %
     GDP_GROWTH = "GDP_GROWTH"
     UNEMPLOYMENT = "UNEMPLOYMENT"
-    # Dólar comercial (venda) em reais, que converte o preço dos ativos cotados em dólar
+    # Dólar comercial (venda) em reais: converte o preço dos ativos cotados em dólar e é a
+    # história do dólar da partida
     PTAX = "PTAX"
 
     @property
     def is_macro(self) -> bool:
         """Série da economia do país: mostrada na Central, fora do mercado e do período da partida."""
-        return self in (IndicatorSeries.GDP_GROWTH, IndicatorSeries.UNEMPLOYMENT)
+        return self in (
+            IndicatorSeries.GDP_GROWTH,
+            IndicatorSeries.UNEMPLOYMENT,
+            IndicatorSeries.PTAX,
+        )
 
 
 class DataOrigin(Enum):
@@ -747,8 +759,10 @@ class EconomyLink(Enum):
 
     # Desemprego abaixo da história empurra a inflação (curva de Phillips)
     PHILLIPS = "PHILLIPS"
-    # O prêmio de risco da dívida acima da história sobe a inflação e derruba a bolsa
+    # O prêmio de risco da dívida acima da história derruba a bolsa e sobe o dólar
     FISCAL_RISK = "FISCAL_RISK"
+    # O dólar da partida acima da história sobe a inflação (o importado encarece) e levanta o ativo internacional
+    DOLLAR = "DOLLAR"
     # O PIB acima da história levanta a bolsa
     GDP = "GDP"
     # O juro real abaixo da história sobe a inflação, com defasagem de até um ano

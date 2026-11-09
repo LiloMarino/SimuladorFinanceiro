@@ -321,6 +321,12 @@ class Stock(Base):
         nullable=False,
         server_default=text("'BRL'"),
     )
+    # Nacional ou internacional: nasce pela moeda e pela classe, e a Central de dados troca
+    origin: Mapped[str] = mapped_column(
+        Enum("DOMESTIC", "FOREIGN", name="asset_origin"),
+        nullable=False,
+        server_default=text("'DOMESTIC'"),
+    )
     segment_id: Mapped[int | None] = mapped_column(Integer)
 
     segment: Mapped["Segments | None"] = relationship(

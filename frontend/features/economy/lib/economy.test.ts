@@ -3,6 +3,8 @@ import type { EconomyEffect, EconomyLinkEffect, EconomyPanel } from "@/types";
 import {
   activeLinks,
   copomLabel,
+  dollarLines,
+  dollarNote,
   economyRows,
   effectShares,
   governmentShift,
@@ -32,12 +34,22 @@ const point = (date: string, selic: string, ipca: string, target = "0.035", grow
   stored_selic: null,
   stored_ipca: null,
   stored_ibovespa: null,
+  dollar: "5",
+  stored_dollar: null,
   date,
   selic,
   ipca,
   real_rate: String(Number(selic) - Number(ipca)),
   target,
 });
+
+const dollarParts: EconomyPanel["dollar_parts"] = {
+  history: "5",
+  premium: "0.4",
+  real_rate: "-0.1",
+  total: "5.3",
+  inflation: "0.35",
+};
 
 const growthParts: EconomyPanel["growth_parts"] = {
   history_growth: "0.02",
@@ -60,6 +72,7 @@ describe("economyRows", () => {
       points: [point("2022-02-28", "0.1", "0.05"), point("2022-03-16", "0.1075", "0.06")],
       copom_changes: [rise],
       growth_parts: growthParts,
+      dollar_parts: dollarParts,
       debt: null,
       effects: null,
       links: null,
@@ -93,6 +106,7 @@ describe("economyRows", () => {
     ],
     copom_changes: [],
     growth_parts: growthParts,
+    dollar_parts: dollarParts,
     debt: null,
     effects: null,
     links: null,
@@ -247,11 +261,11 @@ describe("efeitos das medidas", () => {
   });
 
   it("põe as ligações que mexem na inflação junto das medidas, pelo nome da ligação", () => {
-    const links = [link("FISCAL_RISK", "0.4"), link("PHILLIPS", "-0.2"), link("GDP", "0", "0.03")];
+    const links = [link("DOLLAR", "0.4"), link("PHILLIPS", "-0.2"), link("GDP", "0", "0.03")];
     expect(inflationBreakdown(effects, links).map((part) => [part.label, Math.round(part.points * 100) / 100])).toEqual(
       [
         ["Auxílio", 0.8],
-        ["Risco fiscal", 0.4],
+        ["Câmbio", 0.4],
         ["Obras", 0.2],
         ["Reajuste dos servidores", -0.1],
         ["Desemprego baixo", -0.2],
@@ -309,5 +323,43 @@ describe("stabilizingNote", () => {
 
   it("reconhece o primário que já segura a dívida", () => {
     expect(stabilizingNote(0.02, 0.02)).toBe("O primário segura a dívida onde está.");
+  });
+});
+
+describe("dólar da partida", () => {
+  it("abre o dólar em parcelas do prêmio e do juro real, com o sinal e o tom de cada uma", () => {
+    const [premium, realRate] = dollarLines(dollarParts);
+    // R$ 0,40 de prêmio a mais encarece o dólar; R$ 0,10 de juro real a mais o barateia
+    expect([premium?.label, premium?.value, premium?.tone]).toEqual(["Prêmio de risco", "+R$ 0,40", "up"]);
+    expect([realRate?.label, realRate?.value, realRate?.tone]).toEqual(["Juro real", "−R$ 0,10", "down"]);
+  });
+
+  it("trata a parcela abaixo de meio centavo como sem efeito", () => {
+    const [premium] = dollarLines({ ...dollarParts, premium: "0.004" });
+    expect(premium?.tone).toBe("neutral");
+  });
+
+  it("compara o dólar com o da história em %", () => {
+    // R$ 5,50 contra R$ 5,00: 10% acima
+    expect(dollarNote({ ...point("2022-03-16", "0.1", "0.05"), dollar: "5.5", stored_dollar: "5" })).toBe(
+      "+10,0% pelo governo",
+    );
+    expect(dollarNote({ ...point("2022-03-16", "0.1", "0.05"), dollar: "5", stored_dollar: "5" })).toBe(
+      "sem efeito do governo",
+    );
+    expect(dollarNote(point("2022-03-16", "0.1", "0.05"))).toBe("a PTAX, em reais");
+  });
+
+  it("leva o dólar de cada ponto para a linha do gráfico", () => {
+    const panel: EconomyPanel = {
+      points: [point("2022-02-28", "0.1", "0.05"), point("2022-03-16", "0.1", "0.05")],
+      copom_changes: [],
+      growth_parts: growthParts,
+      dollar_parts: dollarParts,
+      debt: null,
+      effects: null,
+      links: null,
+    };
+    expect(economyRows(panel).map((row) => row.dollar)).toEqual([5, 5]);
   });
 });

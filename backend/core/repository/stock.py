@@ -15,7 +15,7 @@ from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
 from backend.core.dto.ticker_profile import TickerProfileDTO
-from backend.core.enum import AssetClass, Currency, DataOrigin
+from backend.core.enum import AssetClass, AssetOrigin, Currency, DataOrigin
 from backend.core.models.models import (
     EventEquity,
     Sectors,
@@ -47,12 +47,14 @@ class StockRepository:
         name: str,
         asset_class: AssetClass,
         currency: Currency = Currency.BRL,
+        origin: AssetOrigin = AssetOrigin.DOMESTIC,
     ) -> StockDTO:
         stock = Stock(
             ticker=ticker,
             name=name,
             asset_class=asset_class.value,
             currency=currency.value,
+            origin=origin.value,
         )
         session.add(stock)
         session.flush()
@@ -381,6 +383,23 @@ class StockRepository:
         if not stock:
             return None
         stock.asset_class = asset_class.value
+        return StockDTO.from_model(stock)
+
+    @transactional
+    def get_origins(self, session: Session) -> dict[str, AssetOrigin]:
+        rows = session.execute(select(Stock.ticker, Stock.origin)).all()
+        return {ticker: AssetOrigin(origin) for ticker, origin in rows}
+
+    @transactional
+    def set_origin(
+        self, session: Session, ticker: str, origin: AssetOrigin
+    ) -> StockDTO | None:
+        stock = session.execute(
+            select(Stock).where(Stock.ticker == ticker)
+        ).scalar_one_or_none()
+        if not stock:
+            return None
+        stock.origin = origin.value
         return StockDTO.from_model(stock)
 
     @transactional

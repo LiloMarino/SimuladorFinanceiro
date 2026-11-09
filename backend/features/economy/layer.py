@@ -17,7 +17,7 @@ from typing import Protocol
 
 from backend.core import repository
 from backend.core.dto.sector import StockSegmentDTO
-from backend.core.enum import IndicatorSeries
+from backend.core.enum import AssetOrigin, IndicatorSeries
 from backend.core.indicators import annual_index_rate, annualize_daily
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR, DAYS_PER_MONTH
 from backend.core.rates import Percent
@@ -76,8 +76,8 @@ class StocksParts:
     """
     O nível da bolsa por causa, como expoente: o nível é e elevado à soma. Com o Banco
     Central autônomo, a SELIC que as medidas de gasto põem, a que a curva de Phillips
-    põe, a que o juro real põe pela inflação dele e o risco fiscal (o prêmio e a SELIC
-    que a inflação dele põe). Com a SELIC do governo, ela pesa inteira em `selic` e as
+    põe, a que o juro real põe pela inflação dele, o risco fiscal (o prêmio) e o câmbio
+    (a SELIC que o repasse do dólar põe). Com a SELIC do governo, ela pesa inteira em `selic` e as
     outras partes ficam só com o que não é SELIC. Por fim, o PIB acima da história.
     """
 
@@ -91,6 +91,7 @@ class StocksParts:
     # pelo IR delas
     consumption: float = 0.0
     corporate: float = 0.0
+    dollar: float = 0.0
 
     @property
     def total(self) -> float:
@@ -103,6 +104,7 @@ class StocksParts:
             + self.selic
             + self.consumption
             + self.corporate
+            + self.dollar
         )
 
 
@@ -158,6 +160,7 @@ class EconomyLayer:
         self._values: dict[IndicatorSeries, dict[date, Decimal]] = {}
         self._betas: dict[str, float] | None = None
         self._classification: dict[str, StockSegmentDTO] | None = None
+        self._origins: dict[str, AssetOrigin] | None = None
         self._exempt_since: ExemptSince | None = None
 
     def use_sector_exemption(self, exempt_since: ExemptSince) -> None:
@@ -247,27 +250,19 @@ class EconomyLayer:
         def reaction(points: Callable[[date], float]) -> Callable[[date], float]:
             return lambda d: central_bank_reaction(points(d)) if self.reacts(d) else 0.0
 
-        def fiscal_risk(d: date) -> float:
-            link = links(d)
-            inflation = (
-                central_bank_reaction(link.premium_inflation_points)
-                if self.reacts(d)
-                else 0.0
-            )
-            return inflation + link.premium_points
-
         def mean(points: Callable[[date], float]) -> float:
             return -STOCKS_PER_SELIC * quarter_mean(points, day)
 
         return StocksParts(
             spending=mean(reaction(self.spending_points)),
             phillips=mean(reaction(lambda d: links(d).phillips_points)),
-            fiscal_risk=mean(fiscal_risk),
+            fiscal_risk=mean(lambda d: links(d).premium_points),
             gdp=STOCKS_PER_GDP * float(links(day).gdp_gap),
             real_rate=mean(reaction(lambda d: links(d).rate_points)),
             selic=mean(lambda d: 0.0 if self.reacts(d) else self.selic_points(d)),
             consumption=mean(reaction(lambda d: links(d).consumption_points)),
             corporate=links(day).corporate_points,
+            dollar=mean(reaction(lambda d: links(d).dollar_inflation_points)),
         )
 
     # Contrato com o repositório das séries
@@ -304,17 +299,41 @@ class EconomyLayer:
                 return Decimal(str(round(annual_to_daily(annual), 6)))
             case IndicatorSeries.IBOV:
                 return Decimal(str(round(float(value) * self.level(day), 2)))
-            case (
-                IndicatorSeries.GDP_GROWTH
-                | IndicatorSeries.UNEMPLOYMENT
-                | IndicatorSeries.PTAX
-            ):
+            case _:
+                # As séries do país (is_macro) chegam intactas
                 return value
 
+    def dollar_exponents(self, day: date) -> tuple[float, float]:
+        """
+        O desvio do dólar no dia, por causa: o do prêmio e o do juro real, cada um pela
+        média do trimestre. O dólar da partida é o da história vezes e elevado à soma.
+        """
+        links = self._links.links_on
+        return (
+            quarter_mean(lambda d: links(d).dollar_premium, day),
+            quarter_mean(lambda d: links(d).dollar_real_rate, day),
+        )
+
+    def dollar_factor(self, day: date) -> float:
+        """O dólar da partida contra o da história."""
+        return math.exp(sum(self.dollar_exponents(day)))
+
     def stock_factor(self, ticker: str, day: date) -> float:
+        # O ativo internacional anda só com o dólar: o nível da bolsa daqui e a isenção
+        # setorial não chegam a ele
+        if self._is_foreign(ticker):
+            return self.dollar_factor(day)
         level = self.level(day)
         market = 1.0 if level == 1.0 else level ** self._beta(ticker)
         return market * self._sector_factor(ticker, day)
+
+    def _is_foreign(self, ticker: str) -> bool:
+        # Sem ligações o dólar não se desvia: o preço não consulta a origem
+        if self._links.first_day() is None:
+            return False
+        if self._origins is None:
+            self._origins = repository.stock.get_origins()
+        return self._origins.get(ticker) is AssetOrigin.FOREIGN
 
     def _sector_factor(self, ticker: str, day: date) -> float:
         """O preço a mais da isenção do setor: sobe em linha reta até o teto e fica; sem isenção no dia vale 1."""

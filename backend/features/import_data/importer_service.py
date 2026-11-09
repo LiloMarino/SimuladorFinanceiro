@@ -14,7 +14,7 @@ from backend.core.dto.price_correction import PriceCorrectionResultDTO
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
 from backend.core.dto.ticker_profile import TickerProfileDTO, TickerSuggestionDTO
-from backend.core.enum import AssetClass, Currency, DataOrigin
+from backend.core.enum import AssetClass, AssetOrigin, Currency, DataOrigin
 from backend.core.exceptions.http_exceptions import (
     BadGatewayError,
     NotFoundError,
@@ -179,6 +179,13 @@ def _asset_class_by_suffix(ticker: str) -> AssetClass:
     return AssetClass.STOCK
 
 
+def infer_origin(asset_class: AssetClass, currency: Currency | None) -> AssetOrigin:
+    """Cotado em dólar ou BDR nasce internacional; o resto, nacional. A Central de dados troca."""
+    if currency is Currency.USD or asset_class is AssetClass.BDR:
+        return AssetOrigin.FOREIGN
+    return AssetOrigin.DOMESTIC
+
+
 # Fundo imobiliário pelo nome: "FII ...", "Fundo de Investimento Imobiliário ..."
 FII_NAME = re.compile(r"\bFII\b|fundo\s+(de\s+investimento\s+)?imobili", re.IGNORECASE)
 
@@ -324,7 +331,11 @@ def upsert_dataframe(
         nome = info.get("longName") or info.get("shortName") or ticker
         asset_class = infer_asset_class(ticker, info)
         stock = repository.stock.add_stock(
-            ticker, nome, asset_class, currency or Currency.BRL
+            ticker,
+            nome,
+            asset_class,
+            currency or Currency.BRL,
+            infer_origin(asset_class, currency),
         )
         logger.info(
             f"Ativo '{ticker}' ({nome}) criado no banco como {asset_class.value}."

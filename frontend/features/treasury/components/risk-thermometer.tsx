@@ -159,7 +159,7 @@ function NextBand({ thermometer }: { thermometer: TreasuryThermometer }) {
       <Kpi
         label="Próxima faixa"
         value="—"
-        note="já na última faixa: o prêmio não tem teto e cresce mais rápido a cada ponto"
+        note="já na última faixa: o prêmio cresce mais rápido a cada ponto, até a dívida chegar a 300% do PIB"
       />
     );
   }

@@ -21,6 +21,7 @@ from backend.core.periods import MONTHS_PER_YEAR
 from backend.core.utils import last_day_of_month
 
 ZERO = Decimal(0)
+ONE = Decimal(1)
 HUNDRED = Decimal(100)
 
 # Crescimento da tendência (0.02 = 2% ao ano)
@@ -56,6 +57,9 @@ STOCKS_WINDOW_DAYS = 365
 # alvo a cada ponto acima do limiar (Khan e Senhadji, 2001); abaixo dele, nada
 INFLATION_THRESHOLD = Decimal("0.12")
 INFLATION_WEIGHT = Decimal("1.2")
+# Paridade do poder de compra: onde a PTAX guardada não cobre, o dólar da história sobe ao
+# ano a diferença entre o IPCA da história e a inflação dos EUA
+US_INFLATION = Decimal("0.025")
 
 GrowthSource = Callable[[date], Decimal]
 
@@ -162,6 +166,8 @@ class MacroMonth:
     base_unemployment: Decimal
     base_aim: GrowthAim
     gap: GrowthGap = GrowthGap()
+    # O dólar da história em reais no fim do mês: a PTAX guardada ou, sem cobertura, a paridade
+    base_dollar: Decimal = ONE
 
 
 def aim_from(
@@ -242,6 +248,19 @@ def step_unemployment(previous: Decimal, growth: Decimal) -> Decimal:
     )
 
 
+def step_dollar(previous: Decimal, inflation: Decimal) -> Decimal:
+    """O dólar da história sobe, a cada mês, um doze avos da diferença entre o IPCA e a inflação dos EUA."""
+    return previous * (1 + (inflation - US_INFLATION) / MONTHS_PER_YEAR)
+
+
+def recorded_dollar(month_end: date) -> Decimal | None:
+    """A PTAX do último pregão guardado até o fechamento; nula antes da série e depois do último dado real."""
+    history = repository.economic.get_history(IndicatorSeries.PTAX, stored=True)
+    if history.end is None or history.end < month_end.replace(day=1):
+        return None
+    return history.last_known(month_end)
+
+
 def quarter_start(day: date) -> date:
     return date(day.year, 3 * ((day.month - 1) // 3) + 1, 1)
 
@@ -275,6 +294,7 @@ def starting_month(day: date) -> MacroMonth:
         base_growth=base_growth,
         base_unemployment=base_unemployment,
         base_aim=growth_aim(day, stored=True),
+        base_dollar=recorded_dollar(day) or ONE,
     )
 
 
@@ -302,6 +322,10 @@ def next_month(
     if base_unemployment is None:
         base_unemployment = step_unemployment(previous.base_unemployment, base_growth)
 
+    base_dollar = recorded_dollar(month_end)
+    if base_dollar is None:
+        base_dollar = step_dollar(previous.base_dollar, base_aim.inflation)
+
     aim = growth_aim(month_end, spending, impulse, crowding)
     gap = previous.gap.toward(aim, base_aim)
     growth = max(COLLAPSE_GROWTH, base_growth + gap.total)
@@ -323,6 +347,7 @@ def next_month(
         base_unemployment=base_unemployment,
         base_aim=base_aim,
         gap=gap,
+        base_dollar=base_dollar,
     )
 
 

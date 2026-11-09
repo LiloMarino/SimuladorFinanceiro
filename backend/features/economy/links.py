@@ -1,10 +1,11 @@
 """
 As ligações da economia interligada: o que o desvio da partida contra a história num
-mês fechado faz com a inflação, a bolsa, o crédito e o orçamento a partir do mês
+mês fechado faz com a inflação, o dólar, a bolsa, o crédito e o orçamento a partir do mês
 seguinte. A entrada é sempre o desvio (partida menos linha de base), então sem ação
 do governo toda ligação é zero e as séries ficam como a história.
 """
 
+import math
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
@@ -17,8 +18,21 @@ HUNDRED = 100
 
 # Curva de Phillips: cada ponto de desemprego abaixo da história soma 0,35 ponto ao IPCA em 12 meses
 PHILLIPS = 0.35
-# Risco fiscal: cada ponto de prêmio acima da história soma meio ponto ao IPCA (o real se desvaloriza)
-PREMIUM_INFLATION = 0.5
+# Câmbio: o dólar da partida é o da história vezes e elevado ao desvio. Cada ponto de prêmio
+# acima da história soma 4% ao dólar (o investidor de fora foge) e cada ponto de juro real
+# acima da história tira 2% (o dinheiro de fora vem atrás do juro)
+DOLLAR_PER_PREMIUM = 0.04
+DOLLAR_PER_REAL_RATE = 0.02
+# Cada causa mexe no expoente do dólar até o teto: o prêmio leva o dólar a no máximo 4,5
+# vezes o da história (e^1,5) e a no mínimo 0,6 (e^-0,5); o juro real, a e^±0,5. Com o
+# teto, o ciclo prêmio → dólar → inflação → juro → prêmio fecha com números finitos
+MAX_DOLLAR_PREMIUM = 1.5
+MIN_DOLLAR_PREMIUM = -0.5
+MAX_DOLLAR_REAL_RATE = 0.5
+# Repasse do câmbio: cada 1% de alta do dólar em 12 meses soma 0,07 ponto ao IPCA em 12
+# meses, porque o importado e o combustível encarecem. O repasse muda o patamar dos preços
+# uma vez, então conta a alta em 12 meses e não o nível do dólar
+DOLLAR_PASS_THROUGH = 0.07
 # Ciclo fiscal: a arrecadação acompanha o PIB, 6% de cada ponto de PIB acima da história
 CYCLE_REVENUE = Decimal("0.06")
 # Seguro-desemprego: cada ponto de desemprego acima da história custa 0,05% do PIB por ano
@@ -70,6 +84,8 @@ class LinkMonth:
     consumption_change: Decimal = ZERO
     corporate_gap: Decimal = ZERO
     payroll_gap: Decimal = ZERO
+    # O desvio do dólar do mês de 12 meses antes, de onde sai a alta que o IPCA repassa
+    dollar_gap_year_ago: float = 0.0
 
     @cached_property
     def phillips_points(self) -> float:
@@ -80,8 +96,32 @@ class LinkMonth:
         return float(self.premium_gap) * HUNDRED
 
     @cached_property
-    def premium_inflation_points(self) -> float:
-        return PREMIUM_INFLATION * self.premium_points
+    def dollar_premium(self) -> float:
+        """A parte do desvio do dólar que o prêmio acima da história põe."""
+        return max(
+            MIN_DOLLAR_PREMIUM,
+            min(MAX_DOLLAR_PREMIUM, DOLLAR_PER_PREMIUM * self.premium_points),
+        )
+
+    @cached_property
+    def dollar_real_rate(self) -> float:
+        """A parte do desvio do dólar que o juro real acima da história põe."""
+        raw = -DOLLAR_PER_REAL_RATE * float(self.real_rate_gap) * HUNDRED
+        return max(-MAX_DOLLAR_REAL_RATE, min(MAX_DOLLAR_REAL_RATE, raw))
+
+    @cached_property
+    def dollar_gap(self) -> float:
+        """O dólar da partida contra o da história, como expoente: o dólar é a história vezes e elevado a ele."""
+        return self.dollar_premium + self.dollar_real_rate
+
+    @cached_property
+    def dollar_change(self) -> float:
+        """A alta em 12 meses do dólar da partida contra a da história, em fração."""
+        return math.exp(self.dollar_gap - self.dollar_gap_year_ago) - 1
+
+    @cached_property
+    def dollar_inflation_points(self) -> float:
+        return DOLLAR_PASS_THROUGH * self.dollar_change * HUNDRED
 
     @cached_property
     def consumption_points(self) -> float:
@@ -96,7 +136,7 @@ class LinkMonth:
     def inflation_points(self) -> float:
         return (
             self.phillips_points
-            + self.premium_inflation_points
+            + self.dollar_inflation_points
             + self.rate_points
             + self.consumption_points
         )
@@ -136,6 +176,7 @@ class LinkMonth:
             or self.consumption_change
             or self.corporate_gap
             or self.payroll_gap
+            or self.dollar_gap_year_ago
         )
 
     def same_effect(self, other: "LinkMonth") -> bool:
@@ -152,6 +193,7 @@ class LinkMonth:
             and self.consumption_change == other.consumption_change
             and self.corporate_gap == other.corporate_gap
             and self.payroll_gap == other.payroll_gap
+            and self.dollar_gap_year_ago == other.dollar_gap_year_ago
         )
 
 
@@ -170,6 +212,7 @@ def link_month(
     consumption_gap_year_ago: Decimal = ZERO,
     corporate_gap: Decimal = ZERO,
     payroll_gap: Decimal = ZERO,
+    dollar_gap_year_ago: float = 0.0,
 ) -> LinkMonth:
     """
     O mês fechado: o nível do PIB acumula o crescimento a mais do mês, um doze avos do
@@ -189,6 +232,7 @@ def link_month(
         consumption_change=consumption_gap - consumption_gap_year_ago,
         corporate_gap=corporate_gap,
         payroll_gap=payroll_gap,
+        dollar_gap_year_ago=dollar_gap_year_ago,
     )
 
 

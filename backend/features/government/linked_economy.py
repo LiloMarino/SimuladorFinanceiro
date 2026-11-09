@@ -139,6 +139,12 @@ class LinkedEconomy:
             if len(self._links) >= IMPULSE_MONTHS
             else ZERO
         )
+        # O repasse do câmbio conta a alta do dólar em 12 meses: parte do desvio de 12 meses antes
+        dollar_year_ago = (
+            self._links[-IMPULSE_MONTHS].dollar_gap
+            if len(self._links) >= IMPULSE_MONTHS
+            else 0.0
+        )
         link = link_month(
             previous if self._links else None,
             month_end,
@@ -153,6 +159,7 @@ class LinkedEconomy:
             consumption_gap_year_ago=consumption_year_ago,
             corporate_gap=policy.corporate_rate - DEFAULT_TAX_POLICY.corporate_rate,
             payroll_gap=policy.payroll_rate - DEFAULT_TAX_POLICY.payroll_rate,
+            dollar_gap_year_ago=dollar_year_ago,
         )
         # A lista das ligações cresce antes da dos dias: quem lê sem a trava acha as duas coerentes
         self._links.append(link)

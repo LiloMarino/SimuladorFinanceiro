@@ -282,6 +282,9 @@ def measure_effect(policy_before: TaxPolicy, measure: Measure) -> Decimal:
 PREMIUM_FLOOR = Decimal("0.5")
 PREMIUM_PACE = Decimal("0.02")
 PREMIUM_SCALE = Decimal(2)
+# A dívida ÷ PIB para em 300%: acima do que qualquer país já carregou, o prêmio sem teto
+# faz a conta divergir para números sem sentido
+MAX_DEBT = Decimal(3)
 
 
 def premium(debt: Decimal) -> Decimal:
@@ -605,6 +608,7 @@ class BudgetCourse:
         window = (*previous.window[1:], selic + previous.premium)
         rate = debt_rate(selic, window)
         debt, change = step(previous.debt, rate, ipca, growth, primary)
+        debt = min(debt, MAX_DEBT)
         return BudgetMonth(
             month_end=month_end,
             revenue=revenue,

@@ -15,6 +15,7 @@ from backend.core.dto.economy import (
     CopomChangeDTO,
     DebtCausesDTO,
     DebtSummaryDTO,
+    DollarPartsDTO,
     EconomyPanelDTO,
     EconomyPointDTO,
     GrowthPartsDTO,
@@ -35,7 +36,7 @@ from backend.features.economy.growth import INFLATION_THRESHOLD, MacroCourse
 from backend.features.economy.layer import central_bank_reaction
 from backend.features.government import measures as rules
 from backend.features.government import spending_effects
-from backend.features.government.budget import BudgetCourse, DebtChange
+from backend.features.government.budget import DebtChange
 from backend.features.government.linked_economy import LinkedEconomy
 from backend.features.government.spending_effects import SpendingEconomy
 from backend.features.government.state import Measure
@@ -67,8 +68,9 @@ def ibovespa_on(day: date, *, stored: bool = False) -> Decimal | None:
 
 
 def point_on(
-    day: date, macro: MacroCourse, budget: BudgetCourse | None
+    day: date, macro: MacroCourse, linked: LinkedEconomy | None
 ) -> EconomyPointDTO:
+    budget = linked.budget if linked is not None else None
     selic = annual_index_rate(IndicatorSeries.SELIC, day)
     ipca = annual_index_rate(IndicatorSeries.IPCA, day)
     country = macro.latest(day)
@@ -96,7 +98,14 @@ def point_on(
             else None
         ),
         stored_ibovespa=ibovespa_on(day, stored=True) if budget is not None else None,
+        dollar=country.base_dollar * Decimal(str(layer_factor(linked, day))),
+        stored_dollar=country.base_dollar if linked is not None else None,
     )
+
+
+def layer_factor(linked: LinkedEconomy | None, day: date) -> float:
+    """O dólar da partida contra o da história; sem a expansão Governo os dois são o mesmo."""
+    return linked.layer.dollar_factor(day) if linked is not None else 1.0
 
 
 def copom_changes(start: date, end: date) -> list[CopomChangeDTO]:
@@ -178,6 +187,32 @@ def growth_parts(macro: MacroCourse, today: date) -> GrowthPartsDTO:
     )
 
 
+def dollar_parts(
+    macro: MacroCourse, linked: LinkedEconomy | None, today: date
+) -> DollarPartsDTO:
+    """O dólar de hoje: a história, o que o prêmio e o juro real somam e o repasse ao IPCA."""
+    history = macro.latest(today).base_dollar
+    if linked is None:
+        return DollarPartsDTO(
+            history=history,
+            premium=Decimal(0),
+            real_rate=Decimal(0),
+            total=history,
+            inflation=Decimal(0),
+        )
+    premium, real_rate = linked.layer.dollar_exponents(today)
+    total = history * Decimal(str(math.exp(premium + real_rate)))
+    # O prêmio põe a parte dele sobre a história e o juro real fecha a conta
+    with_premium = history * Decimal(str(math.exp(premium)))
+    return DollarPartsDTO(
+        history=history,
+        premium=with_premium - history,
+        real_rate=total - with_premium,
+        total=total,
+        inflation=points(linked.links_on(today).dollar_inflation_points),
+    )
+
+
 def points(value: float) -> Decimal:
     return Decimal(str(round(value, 4)))
 
@@ -244,8 +279,14 @@ def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
         effect(
             EconomyLink.FISCAL_RISK,
             link.premium_gap,
-            link.premium_inflation_points,
+            0.0,
             stocks.fiscal_risk,
+        ),
+        effect(
+            EconomyLink.DOLLAR,
+            Decimal(str(round(link.dollar_gap, 6))),
+            link.dollar_inflation_points,
+            stocks.dollar,
         ),
         effect(EconomyLink.GDP, link.gdp_gap, 0.0, stocks.gdp),
         effect(
@@ -335,19 +376,18 @@ def build_economy_panel(
     measures: Iterable[Measure] = (),
 ) -> EconomyPanelDTO:
     """`linked` e `economy` só existem nas partidas com a expansão Governo; sem eles a dívida, os efeitos e as ligações ficam de fora."""
-    budget = None
     if linked is not None:
         linked.close_until(today)
-        budget = linked.budget
     # Antes do primeiro pregão o painel já mostra o dia de partida
     end = max(start, today)
     changes = copom_changes(start, end)
     # Um ponto por mês e um em cada mudança da SELIC: o degrau cai sobre a linha
     days = sorted({*month_ends(start, end), *(change.date for change in changes)})
     return EconomyPanelDTO(
-        points=[point_on(day, macro, budget) for day in days],
+        points=[point_on(day, macro, linked) for day in days],
         copom_changes=changes,
         growth_parts=growth_parts(macro, today),
+        dollar_parts=dollar_parts(macro, linked, today),
         debt=debt_summary(linked, today) if linked is not None else None,
         effects=(
             active_effects(

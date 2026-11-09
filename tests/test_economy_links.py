@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from datetime import date
 from decimal import Decimal
 
@@ -23,6 +24,8 @@ def gap(
     consumption_change: str = "0",
     corporate: str = "0",
     payroll: str = "0",
+    real_rate: str = "0",
+    dollar_year_ago: float = 0.0,
 ) -> LinkMonth:
     return LinkMonth(
         MONTH,
@@ -35,6 +38,8 @@ def gap(
         consumption_change=Decimal(consumption_change),
         corporate_gap=Decimal(corporate),
         payroll_gap=Decimal(payroll),
+        real_rate_gap=Decimal(real_rate),
+        dollar_gap_year_ago=dollar_year_ago,
     )
 
 
@@ -45,12 +50,42 @@ def test_unemployment_two_points_below_history_adds_0_7_point_to_the_ipca():
     assert link.inflation_points == pytest.approx(0.7)
 
 
-def test_two_points_of_premium_add_one_point_to_the_ipca_and_two_to_the_stocks_window():
+def test_two_points_of_premium_weigh_on_the_stocks_window_and_not_directly_on_the_ipca():
     link = gap(premium="0.02")
 
     assert link.premium_points == pytest.approx(2.0)
-    assert link.premium_inflation_points == pytest.approx(1.0)
-    assert link.inflation_points == pytest.approx(1.0)
+    assert link.inflation_points == pytest.approx(link.dollar_inflation_points)
+
+
+def test_two_points_of_premium_lift_the_dollar_by_8_percent():
+    link = gap(premium="0.02")
+
+    assert link.dollar_gap == pytest.approx(0.08)
+    assert math.exp(link.dollar_gap) == pytest.approx(1.0833, abs=1e-4)
+
+
+def test_two_points_of_real_rate_above_history_pull_the_dollar_down_by_4_percent():
+    link = gap(real_rate="0.02")
+
+    assert link.dollar_real_rate == pytest.approx(-0.04)
+    assert link.dollar_gap == pytest.approx(-0.04)
+
+
+def test_the_dollar_pass_through_counts_the_rise_in_12_months_not_the_level():
+    risen = gap(premium="0.02")
+    steady = gap(premium="0.02", dollar_year_ago=0.08)
+
+    # Alta de 8,33% em 12 meses repassa 0,07 vezes 8,33 = 0,58 ponto; parado num patamar alto, nada
+    assert risen.dollar_inflation_points == pytest.approx(0.5833, abs=1e-3)
+    assert steady.dollar_inflation_points == pytest.approx(0.0)
+
+
+def test_without_deviation_the_dollar_is_the_history_and_passes_nothing_through():
+    link = gap()
+
+    assert link.dollar_gap == 0
+    assert link.dollar_inflation_points == 0
+    assert link.is_zero
 
 
 def test_the_gdp_level_adds_the_monthly_share_of_the_extra_growth():

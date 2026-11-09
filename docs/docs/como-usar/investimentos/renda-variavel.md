@@ -23,6 +23,12 @@ Aprenda a investir em ações, FIIs, ETFs e cripto no simulador.
 - ⚠️ Maior risco (volatilidade)
 - 💰 Possibilidade de dividendos/proventos
 
+### Ativos nacionais e internacionais
+
+Cada ativo é **Nacional** ou **Internacional**, e a listagem mostra a bandeira dos Estados Unidos ao lado do código dos internacionais (ex.: um BDR, uma ação cotada em dólar, o `IVVB11`). O filtro **Nacional** / **Internacional** acima da tabela separa os grupos; sem nenhum marcado, aparecem todos.
+
+Na partida com a expansão Governo, a diferença pesa no preço. O ativo nacional anda com a bolsa daqui: SELIC, prêmio de risco, PIB e impostos. O internacional anda só com o **dólar da partida** (veja [A economia interligada](../governo.md#a-economia-interligada)): quando um governo irresponsável faz o prêmio de risco subir, o dólar sobe e o ativo de fora se valoriza em reais, enquanto a bolsa daqui cai. Ex.: com o dólar 20% acima da história, um ativo internacional vale 20% mais em reais do que valeria sem o governo. Sem a expansão Governo, o preço é o da história, e a origem só serve de rótulo. O host troca a origem de um ativo na [Central de dados](../importacao-ativos.md#origem-do-ativo).
+
 ---
 
 ## Sistema de Ordens

@@ -33,14 +33,21 @@ A tela tem duas partes: o painel **Adicionar ativo** (explicado em [Métodos de 
 
 ### Séries da base
 
-A tabela lista todas as séries guardadas no banco: primeiro os indicadores econômicos (CDI, SELIC, IPCA, Ibovespa e PTAX), depois a economia do país (crescimento do PIB e desemprego) e por fim cada ativo importado. O filtro **Todas** / **Precisam de atenção** deixa só as séries que pedem uma olhada (sem dado real, desatualizadas ou sem classificação). Em cada linha:
+A tabela lista todas as séries guardadas no banco: primeiro os indicadores econômicos (CDI, SELIC, IPCA e Ibovespa), depois a economia do país (crescimento do PIB, desemprego e a PTAX) e por fim cada ativo importado. O filtro **Todas** / **Precisam de atenção** deixa só as séries que pedem uma olhada (sem dado real, desatualizadas ou sem classificação). Em cada linha:
 
 - **Série**: nome do indicador ou do ticker.
+- **Origem**: **Nacional** (bandeira do Brasil) ou **Internacional** (bandeira dos Estados Unidos), nos ativos. Na partida com governo, o ativo internacional anda só com o dólar da partida, e o nacional com a bolsa daqui (veja [Origem do ativo](#origem-do-ativo)). Indicadores mostram "—".
 - **Setor · segmento**: a classificação da ação (ver abaixo). Indicadores mostram "—".
 - **Linha do tempo**: barra com o período coberto. O trecho com dado real aparece em uma cor e, depois dele, o trecho gerado em outra cor. Todas as barras usam a mesma régua de tempo, então dá para comparar visualmente quais séries cobrem mais anos. Passe o mouse sobre a barra para ver as datas: "Real: início → fim · gerado até …". Séries sem futuro gravado não têm trecho gerado, e depois do fim do dado gerado a partida repete o último valor da série (ver "Gerar dados futuros", abaixo). O PIB e o desemprego não recebem futuro gravado: depois do dado real, a barra deles ganha uma terceira cor, "calculado na partida", porque a partida calcula esses dois mês a mês a partir da SELIC, da inflação e da bolsa.
 - **Situação**: se a série está em dia ou parou de atualizar. Uma ação que parou mostra o selo **Parou em** com a data do último preço.
 - **Ações**: o botão **Atualizar** da linha e, nas ações, a **classe do ativo** (Ação, FII, ETF, BDR ou Cripto).
 - **Apagar** (lixeira, só nos ativos): remove o ativo da base com os preços, o perfil e a classificação, depois de uma confirmação. É a saída para um ativo importado com dado errado. Um ativo negociado em alguma partida salva não pode ser apagado: a Central avisa em quantas partidas ele aparece, e é preciso excluir essas partidas no lobby antes. Depois de apagar, o futuro gerado passa a pedir recálculo.
+
+### Origem do ativo
+
+Todo ativo é **Nacional** ou **Internacional**. Na importação, o ativo cotado em dólar (`AAPL`, `BTC-USD`) ou da classe BDR nasce Internacional, e o resto nasce Nacional. O Yahoo Finance não separa um ETF de índice de fora (`IVVB11`, que replica o S&P 500) de um de índice daqui (`BOVA11`), então a Central deixa trocar: o seletor **Origem** da linha tem a bandeira de cada lado, e a escolha vale na hora. Uma origem escolhida à mão não é trocada nas próximas atualizações do ativo.
+
+Sem a expansão Governo, a origem não muda nada nos preços: eles são os da história. Com ela, o ativo internacional acompanha o dólar da partida (veja [A economia interligada](governo.md#a-economia-interligada)), e na listagem de **Renda variável** a bandeira aparece ao lado do código e um filtro separa os dois grupos.
 
 ### Setor e segmento das ações
 
@@ -57,10 +64,9 @@ Cada ação pertence a um **setor** (ex.: Financeiro) e, dentro dele, a um **seg
 - **IPCA**: inflação oficial, medida por mês. Ex.: um IPCA de 0,5% no mês significa que os preços subiram 0,5% naquele mês.
 - **Ibovespa**: índice que acompanha o desempenho das ações mais negociadas da B3, a bolsa brasileira. Ex.: de 100.000 para 101.000 pontos é uma alta de 1%.
 
-- **PTAX**: a cotação oficial do dólar em reais, publicada pelo Banco Central por dia útil, desde 1º de julho de 1994 (o nascimento do real). Ex.: PTAX de 5,50 quer dizer que US$ 1 custa R$ 5,50. Ela converte para real o preço dos ativos cotados em dólar (veja [Yahoo Finance](#1-yahoo-finance-yfinance)) e não tem futuro gerado.
-
 A economia do país aparece num grupo próprio:
 
+- **PTAX**: a cotação oficial do dólar em reais, publicada pelo Banco Central por dia útil, desde 1º de julho de 1994 (o nascimento do real). Ex.: PTAX de 5,50 quer dizer que US$ 1 custa R$ 5,50. Ela converte para real o preço dos ativos cotados em dólar (veja [Yahoo Finance](#1-yahoo-finance-yfinance)) e é a história do dólar da partida. Depois do último dado real a partida a calcula mês a mês pela paridade do poder de compra: o dólar sobe pela diferença entre o IPCA da história e os 2,5% ao ano de inflação dos Estados Unidos. Ex.: com IPCA de 6%, o dólar sobe uns 3,5% ao ano, e R$ 5,00 viram R$ 5,17 em um ano. Como o crescimento do PIB e o desemprego, ela não tem futuro gerado.
 - **Crescimento do PIB**: quanto o país produziu a mais nos últimos 4 trimestres, contra os 4 trimestres anteriores, já descontada a inflação. Um valor por trimestre, desde o fim de 1997. Ex.: 2% quer dizer que a economia produziu 2% a mais do que no ano anterior; 2020 marca −3,3% (a pandemia) e 2021, +4,8%. Perto de 2% é o ritmo normal do Brasil; abaixo de zero é recessão.
 - **Desemprego**: a parcela de quem procura trabalho e não acha, pela PNAD Contínua do IBGE. Um valor por mês, desde março de 2012. Ex.: 8% quer dizer que, de cada 100 pessoas que querem trabalhar, 8 estão sem vaga. Até uns 8% é um bom nível; acima de 12% é ruim.
 

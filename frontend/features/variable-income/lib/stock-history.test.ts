@@ -7,6 +7,7 @@ const candle = {
   ticker: "ABCD3",
   name: "Empresa",
   asset_class: "STOCK" as const,
+  origin: "DOMESTIC" as const,
   price_date: "2020-01-06",
   open: 10,
   close: 11,

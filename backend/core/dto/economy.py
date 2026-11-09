@@ -30,6 +30,10 @@ class EconomyPointDTO(BaseDTO):
     stored_selic: Decimal | None
     stored_ipca: Decimal | None
     stored_ibovespa: Decimal | None
+    # O dólar da partida em reais e o da história (a PTAX, ou a paridade do poder de compra
+    # depois do último dado real); o da história é nulo sem a expansão Governo
+    dollar: Decimal
+    stored_dollar: Decimal | None
 
 
 class CopomChangeDTO(BaseDTO):
@@ -62,6 +66,20 @@ class GrowthPartsDTO(BaseDTO):
     growth: Decimal
     history_unemployment: Decimal
     unemployment: Decimal
+
+
+class DollarPartsDTO(BaseDTO):
+    """
+    O dólar da partida em reais: o da história mais o que o prêmio de risco e o juro real
+    diferentes da história somam (a soma das quatro é o dólar da partida), e os pontos de
+    IPCA em 12 meses que a alta do dólar repassa aos preços no último fechamento de mês.
+    """
+
+    history: Decimal
+    premium: Decimal
+    real_rate: Decimal
+    total: Decimal
+    inflation: Decimal
 
 
 class DebtCausesDTO(BaseDTO):
@@ -132,7 +150,7 @@ class LinkEffectDTO(BaseDTO):
 
     link: EconomyLink
     # O desvio da partida contra a história, em fração: o desemprego, o prêmio de risco, o
-    # nível do PIB, o juro real, a SELIC ou o IPCA acima do limiar
+    # nível do PIB, o juro real, a SELIC, o IPCA acima do limiar ou o dólar (o expoente)
     gap: Decimal
     # Pontos de IPCA e de SELIC em 12 meses e a variação da bolsa (fração) no trimestre
     inflation: Decimal
@@ -149,6 +167,7 @@ class EconomyPanelDTO(BaseDTO):
     points: list[EconomyPointDTO]
     copom_changes: list[CopomChangeDTO]
     growth_parts: GrowthPartsDTO
+    dollar_parts: DollarPartsDTO
     # Só nas partidas com a expansão Governo & Política
     debt: DebtSummaryDTO | None
     # Os efeitos das medidas de gasto aprovadas e das ligações; nulos sem a expansão Governo

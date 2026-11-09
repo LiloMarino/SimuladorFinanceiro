@@ -2,6 +2,7 @@ import {
   Briefcase,
   Building2,
   CreditCard,
+  DollarSign,
   Flame,
   Landmark,
   Percent,
@@ -50,6 +51,7 @@ const stocksTone = (fraction: number) =>
 const LINK_ROW: Record<EconomyLinkEffect["link"], { icon: LucideIcon; subject: string }> = {
   PHILLIPS: { icon: Users, subject: "Desemprego" },
   FISCAL_RISK: { icon: ShieldAlert, subject: "Prêmio de risco" },
+  DOLLAR: { icon: DollarSign, subject: "Dólar" },
   GDP: { icon: TrendingUp, subject: "PIB" },
   REAL_RATE: { icon: Percent, subject: "Juro real" },
   SELIC: { icon: Landmark, subject: "SELIC" },

@@ -47,6 +47,7 @@ export type EconomyLinkEffect = NonNullable<EconomyPanel["links"]>[number];
 // Data center
 export type SeriesCoverage = components["schemas"]["SeriesCoverageDTO"];
 export type AssetClass = components["schemas"]["AssetClass"];
+export type AssetOrigin = components["schemas"]["AssetOrigin"];
 export type Sector = components["schemas"]["SectorDTO"];
 export type StockSegment = components["schemas"]["StockSegmentDTO"];
 export type TickerSuggestion = components["schemas"]["TickerSuggestionDTO"];
