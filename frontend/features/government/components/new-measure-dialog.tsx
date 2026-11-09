@@ -37,8 +37,8 @@ import {
   rateToFraction,
   signedPoints,
 } from "../lib/government";
-import { isSpending, SPENDING_KINDS, type SpendingKind } from "@/shared/lib/spending-kinds";
-import { checkValue, outsideSentence } from "../lib/spending";
+import { isNameable, isSpending, SPENDING_KINDS, type SpendingKind } from "@/shared/lib/spending-kinds";
+import { checkValue, isRenaming, outsideSentence } from "../lib/spending";
 import { DisabledHint } from "@/shared/components/disabled-hint";
 
 type Mode = "general" | "sector" | "spending";
@@ -93,10 +93,12 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
     SPENDING_KINDS[0];
 
   const [mode, setMode] = useState<Mode>(initialMode(initialKind));
-  const [spendingKind, setSpendingKind] = useState<SpendingKind>(
-    initialKind && isSpending(initialKind) ? initialKind : firstFreeSpending,
-  );
+  const initialSpendingKind = initialKind && isSpending(initialKind) ? initialKind : firstFreeSpending;
+  const [spendingKind, setSpendingKind] = useState<SpendingKind>(initialSpendingKind);
   const [spendingText, setSpendingText] = useState("");
+  const [spendingName, setSpendingName] = useState(
+    panel.spending.rows.find((candidate) => candidate.kind === initialSpendingKind)?.name ?? "",
+  );
   const [kind, setKind] = useState<GeneralKind>(initialKind && isGeneral(initialKind) ? initialKind : firstFree);
   const [rule, setRule] = useState<ExemptionRule>("keep");
   const [valueText, setValueText] = useState("");
@@ -111,7 +113,9 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
   const segmentOption = option?.segments.find((candidate) => candidate.name === segment);
 
   const spendingRow = panel.spending.rows.find((candidate) => candidate.kind === spendingKind);
-  const spendingCheck = spendingRow && !spendingRow.pending ? checkValue(spendingRow, spendingText) : null;
+  const spendingRenaming = !!spendingRow && isNameable(spendingKind) && isRenaming(spendingRow, spendingName);
+  const spendingCheck =
+    spendingRow && !spendingRow.pending ? checkValue(spendingRow, spendingText, spendingRenaming) : null;
   const request = buildRequest({
     mode,
     kind,
@@ -123,6 +127,7 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
     pointsText,
     spendingKind,
     spendingFraction: spendingCheck?.status === "ok" ? spendingCheck.fraction : null,
+    spendingName: isNameable(spendingKind) ? spendingName.trim() : "",
   });
   const preview = useMeasurePreview(request);
   // A prévia anterior fica à vista enquanto a nova carrega, mas some quando o pedido deixa de estar completo
@@ -188,9 +193,12 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
               onKindChange={(next) => {
                 setSpendingKind(next);
                 setSpendingText("");
+                setSpendingName(panel.spending.rows.find((candidate) => candidate.kind === next)?.name ?? "");
               }}
               valueText={spendingText}
               onValueTextChange={setSpendingText}
+              nameText={spendingName}
+              onNameTextChange={setSpendingName}
             />
           )}
 
@@ -484,6 +492,8 @@ type Draft = {
   spendingKind: SpendingKind;
   /** O valor novo da medida de gasto, em fração; nulo enquanto o campo não está pronto */
   spendingFraction: string | null;
+  /** O nome do programa, aparado; vazio quando a medida não tem nome */
+  spendingName: string;
 };
 
 /** A aba que abre: a da medida que "Mudar" trouxe, ou a dos impostos gerais. */
@@ -496,7 +506,10 @@ function initialMode(initialKind: MeasureKind | undefined): Mode {
 /** O pedido que o rascunho forma; nulo enquanto falta o valor, e a prévia só roda com pedido completo. */
 function buildRequest(draft: Draft): ProposeMeasureRequest | null {
   if (draft.mode === "spending") {
-    return draft.spendingFraction ? { kind: draft.spendingKind, value: draft.spendingFraction } : null;
+    if (!draft.spendingFraction) return null;
+    return draft.spendingName
+      ? { kind: draft.spendingKind, value: draft.spendingFraction, name: draft.spendingName }
+      : { kind: draft.spendingKind, value: draft.spendingFraction };
   }
   if (draft.mode === "sector") {
     if (!draft.sector) return null;

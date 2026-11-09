@@ -32,6 +32,8 @@ from backend.core.enum import (
 )
 
 PARTY_NAME_MAX_LENGTH = 60
+# Nome de programa de governo (auxílio, obras)
+PROGRAM_NAME_MAX_LENGTH = 30
 PARTY_ABBR_PATTERN = re.compile(r"^[A-ZÀ-Ý]{2,8}$")
 PARTY_COLOR_PATTERN = r"^#[0-9A-Fa-f]{6}$"
 
@@ -933,6 +935,8 @@ class SpendingRowDTO(BaseDTO):
     kind: MeasureKind
     # O valor em vigor: fração do PIB por ano (auxílio, obras) ou ganho real ao ano (reajustes)
     value: Decimal
+    # O programa em vigor, com o nome que o presidente deu; nulo sem programa nomeado
+    name: str | None
     # O dia em que esse valor passou a valer; nulo no valor de largada
     since: date | None
     # Quanto a medida pesa no gasto do país, em fração do PIB por ano e em reais por ano
@@ -1110,6 +1114,16 @@ class ProposeMeasureRequest(BaseDTO):
     )
     sector: str | None = None
     segment: str | None = None
+    # Só o auxílio e as obras têm nome; o nome em branco vale como sem nome
+    name: (
+        Annotated[
+            str,
+            StringConstraints(
+                strip_whitespace=True, max_length=PROGRAM_NAME_MAX_LENGTH
+            ),
+        ]
+        | None
+    ) = None
 
 
 class InflationCurvePointDTO(BaseDTO):

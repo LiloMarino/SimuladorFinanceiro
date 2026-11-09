@@ -27608,6 +27608,18 @@
               }
             ],
             "title": "Segment"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
           }
         },
         "additionalProperties": false,
@@ -30903,6 +30915,17 @@
             "type": "string",
             "title": "Value"
           },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
           "since": {
             "anyOf": [
               {
@@ -30987,6 +31010,7 @@
         "required": [
           "kind",
           "value",
+          "name",
           "since",
           "cost",
           "cost_amount",

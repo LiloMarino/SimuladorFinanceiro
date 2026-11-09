@@ -72,12 +72,29 @@ export type ValueCheck =
   | { status: "outside"; window: Window }
   | { status: "ok"; fraction: string };
 
-/** O que o texto digitado (em %) diz da medida: vazio, igual a hoje, fora da janela do passo ou pronto para enviar. */
-export function checkValue(row: Pick<SpendingRow, "value" | "step" | "floor" | "limit">, text: string): ValueCheck {
+/** O nome digitado dá outro nome ao programa em vigor (ou batiza um programa ainda sem nome). */
+export function isRenaming(row: Pick<SpendingRow, "name">, nameText: string) {
+  const name = nameText.trim();
+  return name !== "" && name !== (row.name ?? "");
+}
+
+/**
+ * O que o texto digitado (em %) diz da medida: vazio, igual a hoje, fora da janela do passo ou pronto para enviar.
+ * Com `renaming`, o valor de hoje (digitado ou deixado em branco) vale: a medida só muda o nome.
+ */
+export function checkValue(
+  row: Pick<SpendingRow, "value" | "step" | "floor" | "limit">,
+  text: string,
+  renaming = false,
+): ValueCheck {
   const typed = Number(text.replace(",", "."));
-  if (text.trim() === "" || !Number.isFinite(typed)) return { status: "empty" };
+  if (text.trim() === "" || !Number.isFinite(typed)) {
+    return renaming ? { status: "ok", fraction: String(Number(row.value)) } : { status: "empty" };
+  }
   const fraction = round(typed / 100);
-  if (Math.abs(fraction - Number(row.value)) < 1e-9) return { status: "same" };
+  if (Math.abs(fraction - Number(row.value)) < 1e-9) {
+    return renaming ? { status: "ok", fraction: String(fraction) } : { status: "same" };
+  }
   const window = valueWindow(row);
   if (fraction < window.min - 1e-9 || fraction > window.max + 1e-9) return { status: "outside", window };
   return { status: "ok", fraction: String(fraction) };

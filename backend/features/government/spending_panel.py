@@ -98,6 +98,7 @@ def spending_card(
             SpendingRowDTO(
                 kind=kind,
                 value=timeline.value_on(kind, today),
+                name=timeline.name_on(kind, today),
                 since=timeline.since(kind, today),
                 cost=cost,
                 cost_amount=cost * gdp,

@@ -9689,6 +9689,8 @@ export interface components {
             sector?: string | null;
             /** Segment */
             segment?: string | null;
+            /** Name */
+            name?: string | null;
         };
         /**
          * QueueBudgetDTO
@@ -10936,6 +10938,8 @@ export interface components {
             kind: components["schemas"]["MeasureKind"];
             /** Value */
             value: string;
+            /** Name */
+            name: string | null;
             /** Since */
             since: string | null;
             /** Cost */

@@ -6,15 +6,17 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { PROGRAM_NAME_MAX_LENGTH } from "@/shared/lib/name-limit";
 import { cn } from "@/shared/lib/utils";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { SpendingRow } from "@/types";
-import { SPENDING_KINDS, SPENDING_LABEL, type SpendingKind } from "@/shared/lib/spending-kinds";
+import { isNameable, SPENDING_KINDS, SPENDING_LABEL, type SpendingKind } from "@/shared/lib/spending-kinds";
 import {
   checkValue,
   chipFits,
   chipLabel,
   chipValueText,
+  isRenaming,
   outsideSentence,
   pointsOf,
   spendingUnit,
@@ -32,10 +34,20 @@ type SpendingFormProps = {
   onKindChange: (kind: SpendingKind) => void;
   valueText: string;
   onValueTextChange: (text: string) => void;
+  nameText: string;
+  onNameTextChange: (text: string) => void;
 };
 
 /** A escolha da medida de gasto e do valor novo: o campo, os atalhos de passo e a régua da janela que a medida alcança. */
-export function SpendingForm({ rows, kind, onKindChange, valueText, onValueTextChange }: SpendingFormProps) {
+export function SpendingForm({
+  rows,
+  kind,
+  onKindChange,
+  valueText,
+  onValueTextChange,
+  nameText,
+  onNameTextChange,
+}: SpendingFormProps) {
   const row = rows.find((candidate) => candidate.kind === kind);
   const raise = kind === "SERVANT_RAISE" || kind === "RETIREE_RAISE";
 
@@ -68,6 +80,10 @@ export function SpendingForm({ rows, kind, onKindChange, valueText, onValueTextC
           valueText={valueText}
           onValueTextChange={onValueTextChange}
         />
+      )}
+
+      {row && !row.pending && isNameable(kind) && (
+        <ProgramNameField kind={kind} row={row} nameText={nameText} onNameTextChange={onNameTextChange} />
       )}
 
       {row?.pending && (
@@ -124,6 +140,52 @@ function KindCard({ kind, row, selected, onSelect }: KindCardProps) {
         )}
       </span>
     </button>
+  );
+}
+
+type ProgramNameFieldProps = {
+  kind: SpendingKind;
+  row: SpendingRow;
+  nameText: string;
+  onNameTextChange: (text: string) => void;
+};
+
+/** O nome do programa: vem com o nome em vigor; mudar o nome mantendo o valor é um rebatismo, que também passa pelo Congresso. */
+function ProgramNameField({ kind, row, nameText, onNameTextChange }: ProgramNameFieldProps) {
+  const renaming = row.name !== null && isRenaming(row, nameText);
+  return (
+    <Field>
+      <FieldLabel htmlFor="measure-program-name">
+        Nome do programa <span className="font-normal text-muted-foreground">· opcional</span>
+        <InfoHint label="Como o nome funciona">
+          <div className="space-y-1 text-left">
+            <p>
+              O nome aparece no Jornal e no cartão de gasto público. Quem recebe o dinheiro lembra do programa: acabar
+              com ele (levar a verba a zero) soma rejeição ao seu partido nesses grupos.
+            </p>
+            <p>
+              Trocar o nome mantém a verba e o apoio, mas custa um pouco de aprovação geral e também passa pelo
+              Congresso.
+            </p>
+          </div>
+        </InfoHint>
+      </FieldLabel>
+      <Input
+        id="measure-program-name"
+        value={nameText}
+        autoComplete="off"
+        maxLength={PROGRAM_NAME_MAX_LENGTH}
+        placeholder={kind === "WELFARE_SPENDING" ? "Ex.: Bolsa Família" : "Ex.: Obras do PAC"}
+        onChange={(event) => onNameTextChange(event.target.value)}
+      />
+      <FieldDescription>
+        {renaming
+          ? `Rebatiza o ${row.name}: a verba e o apoio ficam, e a aprovação geral cai um pouco.`
+          : row.name
+            ? `Programa em vigor: ${row.name}.`
+            : "Sem nome, o gasto segue como medida comum."}
+      </FieldDescription>
+    </Field>
   );
 }
 

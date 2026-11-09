@@ -2558,9 +2558,10 @@ class GovernmentBook:
         value: Decimal | None,
         sector: str | None,
         segment: str | None,
+        name: str | None = None,
     ) -> None:
         self._ensure_president(user)
-        draft = self._draft(user, today, kind, value, sector, segment)
+        draft = self._draft(user, today, kind, value, sector, segment, name)
         self._ensure_not_queued(draft)
         self._emit(
             GovernmentEventType.MEASURE_PROPOSED,
@@ -2572,6 +2573,8 @@ class GovernmentBook:
             sector=draft.sector,
             segment=draft.segment,
             proposer_id=user.id,
+            name=draft.name,
+            renamed_from=draft.renamed_from,
         )
         self._notice(
             GovernmentNoticeKind.MEASURE_PROPOSED,
@@ -2587,7 +2590,9 @@ class GovernmentBook:
         old = self._measure(measure_id)
         if old.status is not MeasureStatus.REJECTED or not self.is_current(old):
             raise ConflictError("Só uma medida rejeitada deste governo volta à fila.")
-        self.propose(user, today, old.kind, old.value, old.sector, old.segment)
+        self.propose(
+            user, today, old.kind, old.value, old.sector, old.segment, old.name
+        )
 
     def withdraw(self, user: UserDTO, today: date, measure_id: int) -> None:
         self._ensure_president(user)
@@ -2612,10 +2617,11 @@ class GovernmentBook:
         value: Decimal | None,
         sector: str | None,
         segment: str | None,
+        name: str | None = None,
     ) -> MeasurePreviewDTO:
         """O que a medida faria, sem propô-la: perfil do partido, pontos na aprovação, voto e vigência."""
         self._ensure_president(user)
-        draft = self._draft(user, today, kind, value, sector, segment)
+        draft = self._draft(user, today, kind, value, sector, segment, name)
         vote = congress.next_vote_date(today)
         tickers = self.tickers(draft)
         moves = voters.radar_moves(draft.kind, draft.value, draft.before)
@@ -2652,10 +2658,16 @@ class GovernmentBook:
         value: Decimal | None,
         sector: str | None,
         segment: str | None,
+        name: str | None = None,
     ) -> Measure:
         """Valida o pedido e monta a medida como entraria na fila."""
         term = required(self.state.term)
         before: Decimal | None = None
+        name = name or None
+        if name is not None and kind not in spending.NAMEABLE:
+            raise UnprocessableEntityError("Só o auxílio e as obras têm nome.")
+        # O programa em vigor depois de todas as medidas aprovadas valerem
+        program = self._spending.latest_name(kind) if kind.is_spending else None
         if kind.is_sector:
             self._ensure_located(sector, segment)
             if kind is MeasureKind.SECTOR_EXEMPT:
@@ -2675,7 +2687,11 @@ class GovernmentBook:
             ):
                 raise UnprocessableEntityError("Informe um valor válido para a medida.")
             before = self.latest_value(kind)
-            if value == before:
+            # Verba zero extingue o programa em vigor, e a medida guarda o nome dele
+            if not value:
+                name = program
+            # Mesmo valor com outro nome é um rebatismo
+            if value == before and name in (None, program):
                 raise ConflictError(
                     "Esse já é o valor em vigor: a medida não muda nada."
                 )
@@ -2698,6 +2714,10 @@ class GovernmentBook:
             proposer_id=user.id,
             term_start=term.start,
             proposed=today,
+            name=name,
+            renamed_from=(
+                program if name is not None and program not in (None, name) else None
+            ),
         )
 
     def _ensure_located(self, sector: str | None, segment: str | None) -> None:
@@ -3264,6 +3284,12 @@ class GovernmentBook:
                         rules.title(measure),
                         spending_panel.peak_inflation(measure),
                         int(spending_effects.DELAY_MONTHS),
+                        headlines.program_event(
+                            self._spending.name_on(
+                                measure.kind, measure.effective - timedelta(days=1)
+                            ),
+                            self._spending.name_on(measure.kind, measure.effective),
+                        ),
                     )
                 else:
                     news = headlines.measure_in_force(

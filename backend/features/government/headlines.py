@@ -332,11 +332,25 @@ def spending_voted(
     )
 
 
-def spending_in_force(title: str, peak: Decimal, months_to_peak: int) -> Headline:
+def program_event(before: str | None, after: str | None) -> str | None:
+    """A manchete do programa que passa a valer: lançado, extinto ou rebatizado; nula quando o nome não muda."""
+    if after == before:
+        return None
+    if before is None:
+        return f"Governo lança o {after}"
+    if after is None:
+        return f"Governo extingue o {before}"
+    return f"Governo rebatiza o {before} como {after}"
+
+
+def spending_in_force(
+    title: str, peak: Decimal, months_to_peak: int, program: str | None = None
+) -> Headline:
+    """A medida de gasto que passa a valer; `program` é a manchete do programa, quando o nome muda."""
     direction = "soma" if peak >= 0 else "tira"
     return Headline(
         NewsType.MEASURE_VOTED,
-        f"Passa a valer: {title}",
+        program or f"Passa a valer: {title}",
         f"O efeito na inflação chega cheio em {months_to_peak} meses: a medida "
         f"{direction} até {_points(peak)} do IPCA em 12 meses.",
     )

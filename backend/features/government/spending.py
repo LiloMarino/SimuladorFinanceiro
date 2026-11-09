@@ -61,6 +61,9 @@ RAISE_BASES: dict[MeasureKind, Decimal] = {
 
 KINDS = tuple(DEFAULTS)
 
+# As medidas que o presidente batiza como programa de governo
+NAMEABLE = frozenset({MeasureKind.WELFARE_SPENDING, MeasureKind.PUBLIC_WORKS})
+
 # O peso de cada medida no gasto antes de qualquer mudança, em fração do PIB por ano
 DEFAULT_COSTS: dict[MeasureKind, Decimal] = {
     kind: RAISE_BASES.get(kind, DEFAULTS[kind]) for kind in KINDS
@@ -97,6 +100,13 @@ def cost_change(
     return moved * RAISE_BASES.get(kind, ONE)
 
 
+def program_after(previous: str | None, measure: "Measure") -> str | None:
+    """O programa que vale depois da medida: verba zero o encerra, um nome o rebatiza e a medida sem nome o mantém."""
+    if not measure.value:
+        return None
+    return measure.name or previous
+
+
 class SpendingTimeline:
     """O valor de cada medida de gasto ao longo da partida: o padrão mais cada medida aprovada, no dia em que vale."""
 
@@ -115,7 +125,10 @@ class SpendingTimeline:
         )
         self._days: dict[MeasureKind, list[date]] = {k: [] for k in KINDS}
         self._values: dict[MeasureKind, list[Decimal]] = {k: [] for k in KINDS}
+        self._names: dict[MeasureKind, list[str | None]] = {k: [] for k in KINDS}
         for measure in approved:
+            names = self._names[measure.kind]
+            names.append(program_after(names[-1] if names else None, measure))
             self._days[measure.kind].append(required(measure.effective))
             self._values[measure.kind].append(required(measure.value))
 
@@ -136,6 +149,16 @@ class SpendingTimeline:
         """O valor depois de todas as medidas aprovadas valerem."""
         values = self._values[kind]
         return values[-1] if values else DEFAULTS[kind]
+
+    def name_on(self, kind: MeasureKind, day: date) -> str | None:
+        """O nome do programa que vale no dia; nulo sem programa."""
+        index = bisect_right(self._days[kind], day)
+        return self._names[kind][index - 1] if index else None
+
+    def latest_name(self, kind: MeasureKind) -> str | None:
+        """O nome do programa depois de todas as medidas aprovadas valerem."""
+        names = self._names[kind]
+        return names[-1] if names else None
 
     def multiplier(self, kind: MeasureKind, day: date) -> Decimal:
         """

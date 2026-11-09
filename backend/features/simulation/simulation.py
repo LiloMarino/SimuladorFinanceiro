@@ -752,6 +752,7 @@ class Simulation:
             measure.value,
             measure.sector,
             measure.segment,
+            measure.name,
         )
 
     @synchronized
@@ -765,6 +766,7 @@ class Simulation:
             measure.value,
             measure.sector,
             measure.segment,
+            measure.name,
         )
 
     @synchronized

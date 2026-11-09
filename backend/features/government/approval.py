@@ -108,6 +108,8 @@ PREMIUM_WEIGHT: dict[VoterGroup, Decimal] = {
 # Medida: 6 pontos por unidade de reação do grupo, cheia ao valer e pela metade a cada 6 meses
 MEASURE_POINTS = Decimal(6)
 MEASURE_HALF_LIFE_MONTHS = Decimal(6)
+# Rebatizar um programa tira 2 pontos do alvo de todos os grupos, com a mesma meia-vida da medida
+RENAME_POINTS = Decimal(-2)
 
 SATISFACTION_PRECISION = Decimal("0.0001")
 
@@ -285,9 +287,12 @@ def measure_fade(measure: Measure, today: date) -> Decimal:
 
 
 def measure_reaction(group: VoterGroup, measure: Measure) -> Decimal:
-    """Pontos no alvo do grupo quando a medida vale cheia."""
-    return MEASURE_POINTS * voters.measure_reaction(
-        group, measure.kind, measure.value, measure.before
+    """Pontos no alvo do grupo quando a medida vale cheia; o rebatismo soma o custo dele em todos os grupos."""
+    rename = RENAME_POINTS if measure.renamed_from is not None else ZERO
+    return (
+        MEASURE_POINTS
+        * voters.measure_reaction(group, measure.kind, measure.value, measure.before)
+        + rename
     )
 
 

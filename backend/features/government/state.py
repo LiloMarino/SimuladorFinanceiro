@@ -389,6 +389,11 @@ class Measure:
     # Como a casa votou: nula na medida da fila ou votada antes da casa existir
     tally: house.Tally | None = None
     effective: date | None = None
+    # O nome do programa de auxílio ou de obras; na medida que leva a verba a zero, o do
+    # programa que ela extingue
+    name: str | None = None
+    # O nome do programa que a medida troca por `name`; nulo fora de um rebatismo
+    renamed_from: str | None = None
 
 
 @dataclass(frozen=True)
@@ -829,6 +834,8 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 term_start=required(state.term).start,
                 proposed=day,
                 party_id=required(state.term).party_id,
+                name=_opt_str(p, "name"),
+                renamed_from=_opt_str(p, "renamed_from"),
             )
             state.next_measure_id = max(state.next_measure_id, measure_id + 1)
         case Event.MEASURE_WITHDRAWN:
@@ -841,6 +848,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 measure.status = MeasureStatus.APPROVED
                 measure.effective = day + timedelta(days=VIGENCE_DAYS)
                 _move_profile(state, measure, day)
+                _end_program(state, measure)
             else:
                 measure.status = MeasureStatus.REJECTED
             _move_bloc_profiles(state, measure, day)
@@ -1621,6 +1629,20 @@ def _move_profile(state: GovernmentState, measure: Measure, day: date) -> None:
     if party is None or party.is_computer:
         return
     _move_party_profile(party, measure, day)
+
+
+def _end_program(state: GovernmentState, measure: Measure) -> None:
+    """Levar a verba de um programa com nome a zero soma rejeição ao partido que governa, nos grupos que o programa atendia."""
+    if measure.name is None or measure.value:
+        return
+    term = state.term
+    party = state.parties.get(term.party_id) if term and term.party_id else None
+    if party is None or party.is_computer:
+        return
+    for group in voters.program_groups(measure.kind):
+        party.rejection[group] = voters.add_rejection(
+            party.rejection[group], voters.PROGRAM_END_REJECTION
+        )
 
 
 def _move_party_profile(party: Party, measure: Measure, day: date) -> None:

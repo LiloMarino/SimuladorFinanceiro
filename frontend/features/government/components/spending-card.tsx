@@ -147,14 +147,16 @@ function SpendingRowView({ row, isPresident, onPropose }: SpendingRowViewProps) 
           </span>
           <span className="grid gap-0.5">
             <span className="flex flex-wrap items-center gap-1.5 font-medium">
-              {SPENDING_LABEL[kind]}
+              {row.name ?? SPENDING_LABEL[kind]}
               {row.promised && (
                 <Badge variant="info" size="sm">
                   prometido
                 </Badge>
               )}
             </span>
-            <span className="text-xs font-normal text-muted-foreground">{SUBTITLE[kind]}</span>
+            <span className="text-xs font-normal text-muted-foreground">
+              {row.name ? `${SPENDING_LABEL[kind]} · ${SUBTITLE[kind]}` : SUBTITLE[kind]}
+            </span>
           </span>
         </span>
       </TableCell>

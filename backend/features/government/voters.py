@@ -153,6 +153,9 @@ REPROVED_SUPPORT = Decimal(-1)
 REPROVED_REJECTION = Decimal("0.5")
 # O apoio que o mandato dá cai pela metade em 3 meses: a cada mês sobra 0,5 ** (1/3)
 SUPPORT_MONTHLY_KEEP = Decimal("0.5") ** (Decimal(1) / 3)
+# Extinguir um programa com nome soma 5 pontos de rejeição ao partido do governo em cada
+# grupo que o programa atendia; o que cai com a verba sem zerá-la não soma nada
+PROGRAM_END_REJECTION = Decimal(5)
 
 # O que cada tipo de medida avança ou recua nos valores, por passo de referência; o
 # passo no sentido contrário (subir o que a tabela corta) tem o efeito inverso
@@ -376,6 +379,11 @@ def standing(
         support=clamp(affinity(group, radar) + campaign),
         rejection=rejection,
     )
+
+
+def program_groups(kind: MeasureKind) -> tuple[VoterGroup, ...]:
+    """Os grupos que recebem o dinheiro do programa: os do agrado direto da medida de gasto."""
+    return tuple(DIRECT.get(kind, {}))
 
 
 def add_rejection(current: Decimal, amount: Decimal) -> Decimal:

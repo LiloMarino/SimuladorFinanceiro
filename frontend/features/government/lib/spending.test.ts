@@ -5,6 +5,7 @@ import {
   checkValue,
   chipFits,
   chipValueText,
+  isRenaming,
   pointsOf,
   reasonOf,
   signedPointsOf,
@@ -77,6 +78,20 @@ describe("checkValue", () => {
   it("não envia campo vazio nem o valor de hoje", () => {
     expect(checkValue(AUXILIO, "")).toEqual({ status: "empty" });
     expect(checkValue(AUXILIO, "1,4")).toEqual({ status: "same" });
+  });
+
+  it("com rebatismo, o valor de hoje (ou o campo vazio) segue para o envio", () => {
+    expect(checkValue(AUXILIO, "", true)).toEqual({ status: "ok", fraction: "0.014" });
+    expect(checkValue(AUXILIO, "1,4", true)).toEqual({ status: "ok", fraction: "0.014" });
+    expect(checkValue(AUXILIO, "2,4", true)).toMatchObject({ status: "outside" });
+  });
+
+  it("só é rebatismo quando o nome digitado difere do programa em vigor", () => {
+    expect(isRenaming({ name: "Bolsa Família" }, "Auxílio Brasil")).toBe(true);
+    expect(isRenaming({ name: "Bolsa Família" }, "  Bolsa Família ")).toBe(false);
+    expect(isRenaming({ name: "Bolsa Família" }, "")).toBe(false);
+    expect(isRenaming({ name: null }, "Bolsa Família")).toBe(true);
+    expect(isRenaming({ name: null }, "   ")).toBe(false);
   });
 
   it("explica a janela na frase de ajuda", () => {
