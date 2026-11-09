@@ -105,8 +105,8 @@
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 | — | — | — | 🔍 |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 | — | — | — | 🔍 |
-| [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | — | — | — | — | 🔍 |
-| [**F261**](#f261) | Feature | Profissão no viver de renda | — | — | — | — | 🔍 |
+| [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | M26 · 4.1 | — | — | — | 🔍 |
+| [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
@@ -153,11 +153,11 @@
 
 ### 4.1 — Economia: governo, Focus e dólar (M26)
 
-> **Objetivo:** O governo ganha impostos de verdade, cortes com preço e programas com nome; o crescimento sente o rombo; o mapa da eleição percorre o tempo; o viver de renda sente a economia e ganha imprevistos novos; a economia traz o Focus e o dólar reage, com os ativos de fora cotados em real e protegendo a carteira. Abre com os consertos e os atalhos que o playtest de 08/11 pediu.
+> **Objetivo:** O governo ganha impostos de verdade, cortes com preço e programas com nome; o crescimento sente o rombo; o mapa da eleição percorre o tempo; o viver de renda sente a economia, ganha imprevistos novos e a profissão de cada jogador; a economia traz o Focus e o dólar reage, com os ativos de fora cotados em real, protegendo a carteira, e o caixa em dólar rendendo o juro americano. Abre com os consertos e os atalhos que o playtest de 08/11 pediu.
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 9/13 concluídos
+> **Progresso:** 9/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -173,7 +173,9 @@
 | 10 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | — | ⏳ Pendente |
 | 11 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | — | ✅ Concluído |
 | 12 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | [F259](#f259) | ⏳ Pendente |
-| 13 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | 🔍 Em avaliação |
+| 13 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | [F194](#f194) | 🔍 Em avaliação |
+| 14 | [**F261**](#f261) | Feature | Profissão no viver de renda | [F257](#f257) | 🔍 Em avaliação |
+| 15 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | 🔍 Em avaliação |
 
 ### 4.2 — Expansão Gestoras (M18)
 
@@ -271,15 +273,6 @@
 | 11 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | [F44](#f44) | ⏳ Pendente |
 | 12 | [**F141**](#f141) | Docs | README com as features de hoje | [F139](#f139) | ⏳ Pendente |
 
-### Sem versão
-
-> Os itens ⏳ e 🔍 que ainda não entraram em nenhuma versão, do que mais destrava trabalho para o que menos ("Destrava" é quantos itens em aberto esperam por aquele). É daqui que sai a próxima versão; os 💤 ficam só no kanban.
-
-| ID | Tipo | Resumo | Serve | Depende de | Destrava | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | N41, N34 | [F194](#f194) | 0 | 🔍 Em avaliação |
-| [**F261**](#f261) | Feature | Profissão no viver de renda | N23, N34 | [F257](#f257) | 0 | 🔍 Em avaliação |
-
 ---
 
 ## 🚦 Livre pra pegar
@@ -291,7 +284,8 @@
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 · 7º | 0 | — | — | 🔍 |
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M26 · 4.1 · 10º | 0 | Alto | Bom | ⏳ |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.1 · 12º | 1 | Alto | Bom | ⏳ |
-| [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 · 13º | 0 | — | — | 🔍 |
+| [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 · 14º | 0 | — | — | 🔍 |
+| [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 · 15º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
@@ -317,7 +311,6 @@
 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 · 6º | 0 | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 · 7º | 0 | — | — | 🔍 |
 | [**F37**](#f37) | Feature | Tema escuro | M28 · 4.6 · 10º | 0 | Médio | Médio | ⏳ |
-| [**F261**](#f261) | Feature | Profissão no viver de renda | — | 0 | — | — | 🔍 |
 
 ---
 
@@ -480,8 +473,8 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F251** | Melhoria | Mapa da eleição ao longo do tempo | N34 | — | M26 · 4.1 | — | A rodada no canvas, em sessão própria, com o seletor de eleição e a linha do tempo das pesquisas juntos no Mapa. |
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Quanto do capital o governo mantém, quais ativos importados contam como estatal e como a estatal gera PIB e receita dentro da D20. |
 | **F258** | Melhoria | Orientação da bancada que se explica | N34 | — | M26 · 4.1 | — | Desenho: como mostrar o acordo de apoio, a federação e a janela curta |
-| **F260** | Feature | Caixa em dólar com o juro americano | N41, N34 | — | — | [F194](#f194) | O ativo (conta em dólar no juro do Fed ou título do Tesouro americano), se há empréstimo em dólar e com que juro, e o IR sobre a variação cambial. |
-| **F261** | Feature | Profissão no viver de renda | N23, N34 | D19 | — | [F257](#f257) | A lista de profissões e os números de cada uma, se a meta passa a ser de cada jogador ou o placar compensa de outro jeito, e qual profissão os bots escolhem. |
+| **F260** | Feature | Caixa em dólar com o juro americano | N41, N34 | — | M26 · 4.1 | [F194](#f194) | O ativo (conta em dólar no juro do Fed ou título do Tesouro americano), se há empréstimo em dólar e com que juro, e o IR sobre a variação cambial. |
+| **F261** | Feature | Profissão no viver de renda | N23, N34 | D19 | M26 · 4.1 | [F257](#f257) | A lista de profissões e os números de cada uma, se a meta passa a ser de cada jogador ou o placar compensa de outro jeito, e qual profissão os bots escolhem. |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -587,7 +580,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 - **Alvo das medidas:** o IR das pessoas ([F253](#f253)) e as medidas por grupo pesam mais em quem ganha mais.
 - **Vantagens próprias:** a estabilidade do servidor, o FGTS e o seguro-desemprego do CLT na demissão, o crédito do empresário.
 
-**Falta:** a lista de profissões e os números de cada uma; se a meta passa a ser de cada jogador ou se o placar compensa a renda de outro jeito; e qual profissão os bots escolhem.
+**Falta:** a lista de profissões e os números de cada uma; se a meta passa a ser de cada jogador ou se o placar compensa a renda de outro jeito; qual profissão os bots escolhem; e como o imprevisto, que é um múltiplo da despesa mensal ([F69](#f69)), se comporta com a despesa de cada jogador: o dia do sorteio segue igual para todos, e o valor sai da despesa de cada um.
 
 ---
 
