@@ -105,13 +105,12 @@
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 | — | — | — | 🔍 |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
-| [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 | — | — | — | 🔍 |
 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | — | — | — | — | 🔍 |
 | [**F261**](#f261) | Feature | Profissão no viver de renda | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -141,6 +140,7 @@
 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | M26 · 4.1 | — | — | — | ✅ |
 | [**F254**](#f254) | Feature | Programas de governo com nome | M26 · 4.1 | — | — | — | ✅ |
 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | M26 · 4.1 | — | — | — | ✅ |
+| [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 | — | — | — | ✅ |
 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
@@ -157,7 +157,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 7/13 concluídos
+> **Progresso:** 8/13 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -169,7 +169,7 @@
 | 6 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | — | ✅ Concluído |
 | 7 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | — | 🔍 Em avaliação |
 | 8 | [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | — | ⏳ Pendente |
-| 9 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | [F253](#f253) | ⏳ Pendente |
+| 9 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | — | ✅ Concluído |
 | 10 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | — | ⏳ Pendente |
 | 11 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | — | ✅ Concluído |
 | 12 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | [F259](#f259) | ⏳ Pendente |
@@ -290,7 +290,6 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 · 7º | 0 | — | — | 🔍 |
 | [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | M26 · 4.1 · 8º | 0 | Médio | Bom | ⏳ |
-| [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 · 9º | 1 | Médio | Bom | ⏳ |
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M26 · 4.1 · 10º | 0 | Alto | Bom | ⏳ |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.1 · 12º | 1 | Alto | Bom | ⏳ |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 · 13º | 0 | — | — | 🔍 |
@@ -319,6 +318,7 @@
 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 · 6º | 0 | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 · 7º | 0 | — | — | 🔍 |
 | [**F37**](#f37) | Feature | Tema escuro | M28 · 4.6 · 10º | 0 | Médio | Médio | ⏳ |
+| [**F261**](#f261) | Feature | Profissão no viver de renda | — | 0 | — | — | 🔍 |
 
 ---
 
@@ -350,7 +350,6 @@
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F226** | Feature | Mercado reage à surpresa: o Focus da partida | N34, N31, N41 | D20 | M26 · 4.1 | — | Alto | Médio | Alto | Bom |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
-| **F257** | Feature | Viver de renda que sente a economia | N23, N34 | D20 | M26 · 4.1 | [F253](#f253) | Médio | Baixo | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -457,19 +456,6 @@ A calibragem dos pesos usa o CLI da economia (`.claude/trabalho/economia/calibra
 **F249 — Núcleo do backend sem import de features.** `core/` importa de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
 
 Cada um desses módulos é movido para a feature que o consome ou passa a receber a dependência por injeção (o `core` define o protocolo, a feature implementa). Por fora nada muda; confere-se com `uv run pyright`, `uv run pytest -n 4` e um `grep "features" backend/core` vazio. Sem decisão de fazer agora.
-
-<a id="f257"></a>
-**F257 — Viver de renda que sente a economia.** Serve N23 e N34; condicionado por D20. No modo viver de renda, o salário e a despesa são valores fixos da partida (`backend/core/life_budget.py:39`). Eles só se corrigem pelo IPCA de 12 meses em cada aniversário do começo da partida, e só com a correção pela inflação ligada (`life_budget.py:55`, `core/indicators.py:254`). O IPCA lido é o da camada da economia (`features/economy/layer.py:270`), então o gasto do governo, que sobe a inflação, chega ao salário e à despesa por esse caminho indireto. Nada mais chega. O IR é só sobre o investimento (`simulation.py:1645`), sem tocar no salário. O juro do cheque especial é fixo e não segue a SELIC (`simulation.py:225`). A demissão é sorteada da semente com a mesma chance por pregão, sem ler o desemprego nem o PIB (`features/simulation/life_events.py:76`).
-
-**Plano.** Quatro ligações, cada uma lendo a série da partida, que sem governo é a história:
-1. **A demissão segue o desemprego:** a chance por pregão passa a ser a de hoje vezes o desemprego da partida sobre o neutro de 9%. Com 18% de desemprego, demite o dobro; com 4%, menos da metade. O sorteio continua saindo da semente.
-2. **Reajuste real pelo PIB:** no aniversário da partida, além da correção pelo IPCA, o salário ganha parte do crescimento real do PIB dos 12 meses quando ele é positivo; na recessão, não há reajuste real.
-3. **O cheque especial segue a SELIC:** o juro passa a ser a SELIC mais um spread fixo, escolhido para que, na SELIC média da história, dê o juro fixo de hoje.
-4. **O IR das pessoas desconta do salário:** o desvio da alíquota do IR das pessoas (F253) contra a referência desconta do salário. Sem governo, o salário líquido é o de hoje.
-
-O registro do orçamento mostra cada mudança no salário, na despesa e no juro com a origem ("reajuste pelo PIB de 3,1%", "demissão com desemprego de 14%"). A profissão do jogador, que liga o salário a um grupo do eleitorado, é um card próprio que parte deste.
-
-**Aceite:** com a mesma semente, uma partida sem governo e de desemprego alto sorteia mais demissões que uma de desemprego baixo, e o registro do orçamento mostra a origem de toda mudança de salário, despesa e juro.
 
 ---
 
@@ -631,6 +617,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F253** | Melhoria | Impostos e cortes que fecham a conta do governo | N34, N41 | D20 | M26 · 4.1 |
 | **F254** | Feature | Programas de governo com nome | N34, N31 | D19 | M26 · 4.1 |
 | **F256** | Melhoria | SELIC abaixo de zero em futuro com deflação | N34 | D20 | M26 · 4.1 |
+| **F257** | Feature | Viver de renda que sente a economia | N23, N34 | D20 | M26 · 4.1 |
 | **F259** | Correção | Preço dos ativos cotados em dólar convertido para real | N11, N34 | — | M26 · 4.1 |
 
 <a id="f232"></a>
@@ -700,6 +687,19 @@ Plano econômico com nome ("Plano Real") fica fora: não existe medida de plano 
 3. A renda fixa pós-fixada rende negativo e mostra isso como qualquer perda, e o IR sobre o rendimento negativo é zero; confere-se o cálculo do IR e do extrato com o rendimento abaixo de zero.
 
 **Aceite:** num futuro gerado com deflação, o presidente leva a SELIC a −0,5%, o Tesouro Selic perde valor dia a dia e o caixa não; com o IPCA de volta acima de zero, a reunião seguinte recusa valor abaixo de 0%.
+
+<a id="f257"></a>
+**F257 — Viver de renda que sente a economia.** Serve N23 e N34; condicionado por D20. No modo viver de renda, o salário e a despesa são valores fixos da partida (`backend/core/life_budget.py:39`). Eles só se corrigem pelo IPCA de 12 meses em cada aniversário do começo da partida, e só com a correção pela inflação ligada (`life_budget.py:55`, `core/indicators.py:254`). O IPCA lido é o da camada da economia (`features/economy/layer.py:270`), então o gasto do governo, que sobe a inflação, chega ao salário e à despesa por esse caminho indireto. Nada mais chega. O IR é só sobre o investimento (`simulation.py:1645`), sem tocar no salário. O juro do cheque especial é fixo e não segue a SELIC (`simulation.py:225`). A demissão é sorteada da semente com a mesma chance por pregão, sem ler o desemprego nem o PIB (`features/simulation/life_events.py:76`).
+
+**Plano.** Quatro ligações, cada uma lendo a série da partida, que sem governo é a história:
+1. **A demissão segue o desemprego:** a chance por pregão passa a ser a de hoje vezes o desemprego da partida sobre o neutro de 9%. Com 18% de desemprego, demite o dobro; com 4%, menos da metade. O sorteio continua saindo da semente.
+2. **Reajuste real pelo PIB:** no aniversário da partida, além da correção pelo IPCA, o salário ganha parte do crescimento real do PIB dos 12 meses quando ele é positivo; na recessão, não há reajuste real.
+3. **O cheque especial segue a SELIC:** o juro passa a ser a SELIC mais um spread fixo, escolhido para que, na SELIC média da história, dê o juro fixo de hoje.
+4. **O IR das pessoas desconta do salário:** o desvio da alíquota do IR das pessoas (F253) contra a referência desconta do salário. Sem governo, o salário líquido é o de hoje.
+
+O registro do orçamento mostra cada mudança no salário, na despesa e no juro com a origem ("reajuste pelo PIB de 3,1%", "demissão com desemprego de 14%"). A profissão do jogador, que liga o salário a um grupo do eleitorado, é um card próprio que parte deste.
+
+**Aceite:** com a mesma semente, uma partida sem governo e de desemprego alto sorteia mais demissões que uma de desemprego baixo, e o registro do orçamento mostra a origem de toda mudança de salário, despesa e juro.
 
 <a id="f259"></a>
 **F259 — Preço dos ativos cotados em dólar convertido para real.** Serve N11. O importador manda ao Yahoo Finance o ticker como está quando ele não é da B3 (`yfinance_symbol` em `backend/features/import_data/importer_service.py:44`), e o download (`from_yfinance`, linhas 55-85, e `from_yfinance_batch`) guarda o preço sem ler a moeda que o Yahoo devolve. A AAPL a US$ 200 entra como R$ 200, e o mesmo vale para a MSFT e para o BTC-USD; a tela formata tudo em real (`frontend/shared/lib/utils/format.ts:50`). Comprar uma ação americana sai cinco vezes mais barato do que na vida real, e a alta do dólar não mexe nela. Os BDRs (AAPL34) já vêm em reais e não mudam.
