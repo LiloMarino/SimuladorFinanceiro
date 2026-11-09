@@ -98,7 +98,6 @@
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.3 | — | — | — | 🔍 |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | M28 · 4.6 | — | Alto | Bom | ⏳ |
-| [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M26 · 4.1 | — | Alto | Bom | ⏳ |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 | — | — | — | 🔍 |
@@ -108,7 +107,7 @@
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (30 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (31 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -134,6 +133,7 @@
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | M26 · 4.1 | — | — | — | ✅ |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.1 | — | — | — | ✅ |
+| [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M26 · 4.1 | — | — | — | ✅ |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | M26 · 4.1 | — | — | — | ✅ |
 | [**F250**](#f250) | Correção | Correções da 4.1 | M26 · 4.1 | — | — | — | ✅ |
 | [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | M26 · 4.1 | — | — | — | ✅ |
@@ -157,7 +157,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 10/15 concluídos
+> **Progresso:** 11/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -170,7 +170,7 @@
 | 7 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | — | 🔍 Em avaliação |
 | 8 | [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | — | ✅ Concluído |
 | 9 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | — | ✅ Concluído |
-| 10 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | — | ⏳ Pendente |
+| 10 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | — | ✅ Concluído |
 | 11 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | — | ✅ Concluído |
 | 12 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | — | ✅ Concluído |
 | 13 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | [F194](#f194) | 🔍 Em avaliação |
@@ -282,7 +282,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 · 7º | 0 | — | — | 🔍 |
-| [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M26 · 4.1 · 10º | 0 | Alto | Bom | ⏳ |
 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | M26 · 4.1 · 13º | 0 | — | — | 🔍 |
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 · 14º | 0 | — | — | 🔍 |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 · 15º | 0 | — | — | 🔍 |
@@ -338,7 +337,6 @@
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
-| **F226** | Feature | Mercado reage à surpresa: o Focus da partida | N34, N31, N41 | D20 | M26 · 4.1 | — | Alto | Médio | Alto | Bom |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
 
 <a id="f6"></a>
@@ -412,19 +410,6 @@
 
 <a id="f225"></a>
 **F225 — Conceitos de economia real na docs e nomeados na tela.** Serve N41 e N25; condicionado por D21. **Para quem:** quem joga e quer entender por que a economia da partida reagiu como reagiu, e quem lê a docs sem jogar. **O que cobre:** uma página por conceito na categoria de explicação que a reorganização da docs cria: juro real e juro real neutro, curva IS, lei de Okun, curva de Phillips, princípio de Taylor e a reação do Banco Central, defasagem da política monetária, meta de inflação e tolerância, credibilidade e expectativas, prêmio de risco, dinâmica da dívida (r − g) e espiral da dívida, primário que estabiliza a dívida e dominância fiscal. Cada página diz o que o conceito mede, um exemplo numérico, o que é valor bom e ruim, a fonte (relatório do Banco Central, artigo ou livro-texto) e como o jogo o implementa, com a fórmula e os coeficientes: é o lugar único dos números do modelo (D21), e a seção de economia interligada de `docs/docs/como-usar/governo.md` passa a apontar para as páginas. Cada página fecha com o que o jogo simplifica em relação à economia real, e uma página própria reúne as simplificações do modelo inteiro: as defasagens comprimidas, os coeficientes fixos em todas as épocas, o Banco Central que reage só à inflação (e não ao hiato do PIB) e o câmbio representado pelo prêmio de risco enquanto o dólar não entra na partida. O conteúdo parte dos conceitos e das explicações do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) (`frontend/shared/concepts/concepts.tsx` e `frontend/features/explainers/`), adaptado ao que o jogo faz, e as fórmulas entram com KaTeX no Docusaurus (`remark-math` e `rehype-katex`). **Na tela:** onde um texto do jogo cita um conceito ("segue o princípio de Taylor"), o nome dele vem com o sublinhado pontilhado do app e o cursor de interrogação, o mesmo `HoverCardTrigger term` de `frontend/shared/components/ui/hover-card.tsx` que o nome do padrão de candle usa no desafio. Passar o mouse ou focar abre um cartão no molde de `pattern-hint.tsx`, com três blocos. Primeiro, o nome e uma frase do que o conceito é, sem fórmula. Depois, "Na partida agora": o conceito aplicado ao estado da partida, como "IPCA 6,2% contra meta de 3,0%: o Copom tende a subir a SELIC na próxima reunião". Por fim, o "Saiba mais" para a página da docs. Os dois primeiros funcionam sem rede, e só o link depende dela. **Mecanismo:** um componente `ConceptTerm` em `frontend/shared/components/` e um catálogo dos conceitos em `frontend/shared/lib/` (chave, nome, frase e caminho da página da docs). Cada tela que cita o conceito passa o trecho da partida que o cartão lê, já resolvido pela tela, e o "Na partida agora" é montado a partir desse trecho. No mesmo bloco de texto, só a primeira menção ao conceito leva o sublinhado. Um teste confere que o caminho de cada conceito do catálogo existe em `docs/docs/`. Os pontos de partida são o painel da Economia (cada parcela leva o nome do conceito), a decisão do Copom, o prêmio de risco do Tesouro e o card da dívida. **Onde mora:** `docs/docs/`, na categoria de explicação. **Gatilho:** depois da reorganização da docs.
-
-<a id="f226"></a>
-**F226 — Mercado reage à surpresa: o Focus da partida.** Serve N34, N31 e N41; condicionado por D20. Hoje a bolsa e o prêmio de risco reagem ao tamanho do desvio: cada ponto de SELIC acima da história tira 2,9% da bolsa, no mesmo dia da decisão, anunciado ou não. No mercado real o preço já carrega o esperado: o mercado vê a inflação subir, passa a esperar a alta do juro e a bolsa cai antes da reunião; no dia, só mexe a parte que ninguém esperava. A pesquisa Focus, do Banco Central, reúne toda semana as projeções do mercado para IPCA, SELIC, PIB e câmbio.
-
-**Por que o mercado antecipa pela regra:** pela D20, a ligação age sobre "partida menos história". Uma expectativa que só supõe que o desvio de hoje continua reduz a surpresa a "quanto o desvio mudou desde a última reunião", e a soma das reuniões dá exatamente o efeito de hoje. O "já está no preço" só existe se a expectativa da partida antecipa o que o governo vai fazer.
-
-**Plano.**
-1. **A série do Focus** entra como série nova, importada da API de expectativas do Banco Central (as medianas da SELIC da próxima reunião, do IPCA de 12 meses, do PIB do ano e do câmbio), desde 2001, e aparece na Central de dados como as outras.
-2. **A expectativa da partida** é o Focus real mais o desvio que a regra do Banco Central do jogo (a função de reação à inflação da D20) prevê para a inflação da partida contra a da história. Sem governo, a expectativa é o Focus real. Antes de 2001, sem Focus, a base é o último valor realizado.
-3. **A bolsa e o prêmio reagem em duas partes:** quando a expectativa da partida muda, o mercado precifica a alta ou a queda esperada; na reunião, reage só à surpresa, o decidido menos o esperado. O peso se recalibra para que um desvio mantido por um ano dê o mesmo efeito acumulado de hoje (2,9% da bolsa por ponto): muda o momento, não o tamanho. O presidente que segue a regra move a bolsa antes da reunião; o que segura a SELIC com a inflação alta surpreende no dia.
-4. **Na tela,** antes da reunião, o painel da SELIC mostra o que o mercado espera ("Focus: 13,25%"), com a dica do que é o Focus e de como a surpresa mexe na bolsa. O comunicado do Copom, que move a expectativa e cobra credibilidade, fica fora. Conversa com os rumores antecipados, que também falam do que vai acontecer.
-
-**Aceite:** sem governo, bolsa e prêmio saem iguais aos de antes da mudança; com o desvio mantido por um ano, o efeito acumulado na bolsa fica a menos de 10% do de hoje; um presidente que segue a regra move a bolsa antes da reunião e menos de um quarto do efeito no dia, e um que fica 2 pontos abaixo da regra leva o efeito inteiro desses 2 pontos no dia da reunião.
 
 <a id="f249"></a>
 **F249 — Núcleo do backend sem import de features.** `core/` importa de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
@@ -587,6 +572,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | --- | --- | --- | --- | --- | --- |
 | **F69** | Feature | Imprevistos configuráveis e tipos novos | N23 | — | M26 · 4.1 |
 | **F194** | Feature | Dólar e ativos internacionais | N34, N11 | D20 | M26 · 4.1 |
+| **F226** | Feature | Mercado reage à surpresa: o Focus da partida | N34, N31, N41 | D20 | M26 · 4.1 |
 | **F232** | Correção | Crescimento que sente o rombo do governo | N34 | D20 | M26 · 4.1 |
 | **F250** | Correção | Correções da 4.1 | N15, N34 | — | M26 · 4.1 |
 | **F252** | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | N15 | — | M26 · 4.1 |
@@ -609,6 +595,16 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 4. **Na tela:** card do dólar e KPI no painel da Economia, com o detalhe de cada ligação; seletor de origem com bandeirinha na Central de dados; filtro e bandeira na listagem de renda variável.
 
 **Fica de fora.** O caixa em dólar com o juro americano é a F260. A calibragem dos pesos usa o CLI da economia (`.claude/trabalho/economia/calibrate10.py`); o teto de 300% do PIB deixa o cenário de gasto desenfreado com o BC cooperando derrubar a bolsa a perto de 5 mil pontos em 2010.
+
+<a id="f226"></a>
+**F226 — Mercado reage à surpresa: o Focus da partida.** Serve N34, N31 e N41; condicionado por D20. Antes a bolsa reagia ao tamanho do desvio da SELIC no mesmo dia da decisão, anunciada ou não. No mercado real o preço já carrega o esperado, e no dia só mexe a parte que ninguém esperava. Agora a bolsa separa o esperado da surpresa, e a pesquisa Focus do Banco Central entra na base.
+
+**Feito.**
+1. **A bolsa reage em duas partes.** O esperado é a regra do Banco Central e se dilui no trimestre; a surpresa é o afastamento que o presidente mostrou na última reunião e entra inteira no dia em que a decisão passa a valer (o dia seguinte à reunião). Os 2,9% por ponto valem para as duas, então um desvio mantido por um ano dá o mesmo efeito acumulado de antes: muda o momento, não o tamanho. O presidente que segue a regra move a bolsa antes da reunião; quem segura a SELIC com a inflação alta surpreende no dia.
+2. **O Focus é importado:** a SELIC da próxima reunião, o IPCA dos próximos 12 meses, o PIB do ano e o câmbio do fim do ano, todos pela mediana da pesquisa inteira, a partir da API de expectativas do Banco Central. As quatro aparecem na Central de dados, num grupo próprio, com dica de como ler; não limitam o período da partida nem ganham futuro gerado.
+3. **No cartão da SELIC,** o KPI "Mercado espera": a mediana do Focus quando a última pesquisa tem até 30 dias (senão, a SELIC de hoje) mais o que o mercado espera do presidente, com a dica do que é o Focus e de como a surpresa mexe na bolsa.
+
+**Fica de fora.** Só a SELIC esperada entra na conta da bolsa; IPCA, PIB e câmbio do Focus ficam como informação. O comunicado do Copom, que move a expectativa e cobra credibilidade, segue fora.
 
 <a id="f232"></a>
 **F232 — Crescimento que sente o rombo do governo.** Serve N34; condicionado por D20. Na calibragem de 10 anos, o presidente que dá reajuste real de 15% ao ano por 10 anos chega a um primário de −22,7% do PIB e mesmo assim cresce 8% ao ano, o teto do jogo (`MAX_GROWTH` em `backend/features/economy/growth.py`), em 78 de 120 meses, com o desemprego no piso de 4% em 81. O crescimento do jogo já é o real, descontada a inflação, então o número é implausível de fato. O impulso fiscal (`IMPULSE` em `backend/features/economy/links.py`) empurra o PIB a cada piora do primário, e nada do outro lado segura o crescimento. Pior: o presidente que gasta e segura a SELIC baixa gera inflação alta e juro real muito negativo, e o modelo lê o juro real negativo como estímulo, então a inflação alta empurra o PIB para cima.
