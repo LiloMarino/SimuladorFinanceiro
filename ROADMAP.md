@@ -103,11 +103,10 @@
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 | — | — | — | 🔍 |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 | — | — | — | 🔍 |
-| [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | M26 · 4.1 | — | — | — | 🔍 |
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (31 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (32 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -142,6 +141,7 @@
 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | M26 · 4.1 | — | — | — | ✅ |
 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 | — | — | — | ✅ |
 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | M26 · 4.1 | — | — | — | ✅ |
+| [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
 
@@ -157,7 +157,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 11/15 concluídos
+> **Progresso:** 12/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -173,7 +173,7 @@
 | 10 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | — | ✅ Concluído |
 | 11 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | — | ✅ Concluído |
 | 12 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | — | ✅ Concluído |
-| 13 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | [F194](#f194) | 🔍 Em avaliação |
+| 13 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | — | ✅ Concluído |
 | 14 | [**F261**](#f261) | Feature | Profissão no viver de renda | [F257](#f257) | 🔍 Em avaliação |
 | 15 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | 🔍 Em avaliação |
 
@@ -282,7 +282,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 · 7º | 0 | — | — | 🔍 |
-| [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | M26 · 4.1 · 13º | 0 | — | — | 🔍 |
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 · 14º | 0 | — | — | 🔍 |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 · 15º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
@@ -444,7 +443,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F251** | Melhoria | Mapa da eleição ao longo do tempo | N34 | — | M26 · 4.1 | — | A rodada no canvas, em sessão própria, com o seletor de eleição e a linha do tempo das pesquisas juntos no Mapa. |
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Quanto do capital o governo mantém, quais ativos importados contam como estatal e como a estatal gera PIB e receita dentro da D20. |
 | **F258** | Melhoria | Orientação da bancada que se explica | N34 | — | M26 · 4.1 | — | Desenho: como mostrar o acordo de apoio, a federação e a janela curta |
-| **F260** | Feature | Caixa em dólar com o juro americano | N41, N34 | — | M26 · 4.1 | [F194](#f194) | O ativo (conta em dólar no juro do Fed ou título do Tesouro americano), se há empréstimo em dólar e com que juro, e o IR sobre a variação cambial. |
 | **F261** | Feature | Profissão no viver de renda | N23, N34 | D19 | M26 · 4.1 | [F257](#f257) | A lista de profissões e os números de cada uma, se a meta passa a ser de cada jogador ou o placar compensa de outro jeito, e qual profissão os bots escolhem. |
 
 <a id="f5"></a>
@@ -537,11 +535,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 <a id="f258"></a>
 **F258 — Orientação da bancada que se explica.** Origem: triagem do playtest de 08/11. O backend respeita a orientação do líder da bancada num governo do computador, mas a tela esconde três limites. (1) O acordo de apoio força Sim: o seletor só muda para Não depois de "Orientar Não e romper", e quem escolhe Não e fecha continua com Sim. (2) Com outro partido líder na federação, o controle aparece e o clique volta 403. (3) O controle some no último dia útil do mês, e em velocidade alta o mês passa antes de a medida ser orientada. A decidir no desenho: mostrar o Não como pendente com o aviso de rompimento em destaque, esconder ou explicar o controle quando a federação não é do jogador, e avisar ou pausar quando a medida entra na fila.
 
-<a id="f260"></a>
-**F260 — Caixa em dólar com o juro americano.** Serve N41 e N34; amplia o dólar e os ativos internacionais ([F194](#f194)). O carry trade é tomar dinheiro onde o juro é baixo e aplicar onde é alto, ganhando a diferença enquanto a moeda não vira contra. Exemplo: com o CDI a 13% e o juro americano a 5%, quem aplica em real ganha 8 pontos ao ano a mais, e uma alta de 10% do dólar come todo esse ganho. Com a [F194](#f194), o dólar já se move e os ativos de fora já protegem, mas não existe um ativo em dólar que só renda juro, então a escolha "CDI ou dólar com juro americano" não aparece. Sem ele, a proteção em dólar exige comprar ação de fora.
-
-**Falta:** o ativo (uma conta em dólar que rende o juro básico americano, com a série do Federal Reserve, ou um título do Tesouro americano); se o jogador pode tomar empréstimo em dólar, que é o carry trade inteiro, e com que juro; e como o IR trata a variação cambial.
-
 <a id="f261"></a>
 **F261 — Profissão no viver de renda.** Serve N23 e N34; parte do viver de renda que sente a economia ([F257](#f257)). Hoje o salário e a despesa são os mesmos para todos os jogadores da partida (`SimulationSettingsDTO`, `backend/core/dto/simulation.py:108`; `_live` em `simulation.py:1340`). A ideia do playtest de 08/11: uma opção do modo, "salário igual para todos" (o de hoje) ou "cada um escolhe a profissão", como uma classe de RPG. Cada profissão pertence a um grupo do eleitorado (D19), então a medida que taxa os mais ricos, reforça o auxílio ou reajusta as aposentadorias chega direto na renda dos jogadores daquele grupo: o jogador que governa mexe na vida dos outros, e o servidor sente na pele o ajuste fiscal que o presidente aprova.
 
@@ -581,6 +574,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F256** | Melhoria | SELIC abaixo de zero em futuro com deflação | N34 | D20 | M26 · 4.1 |
 | **F257** | Feature | Viver de renda que sente a economia | N23, N34 | D20 | M26 · 4.1 |
 | **F259** | Correção | Preço dos ativos cotados em dólar convertido para real | N11, N34 | — | M26 · 4.1 |
+| **F260** | Feature | Caixa em dólar com o juro americano | N41, N34 | — | M26 · 4.1 |
 
 <a id="f69"></a>
 **F69 — Imprevistos configuráveis e tipos novos.** Serve N23. O modo viver de renda (F53) já nasce com os tipos de imprevisto num registro, em que cada tipo é uma entrada com nome, múltiplo da despesa mensal, efeito (sai do caixa ou corta o salário do mês seguinte) e peso no sorteio; adicionar um tipo é acrescentar uma entrada, sem mexer no motor, no log nem nas telas. Esta feature expõe esse registro ao host: no lobby, o host edita o valor de cada tipo (por exemplo, o conserto passa de 1 para 2 despesas mensais), liga e desliga tipos e cria tipos próprios com nome, valor e efeito. O sorteio continua saindo da semente da partida, então todos os jogadores seguem recebendo os mesmos imprevistos nos mesmos dias, e a configuração vale para a partida salva.
@@ -697,6 +691,16 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 4. A docs da importação passa a dizer que o preço de fora vem convertido pela PTAX do dia.
 
 **Aceite:** a AAPL e o BTC-USD importados mostram, num dia qualquer, o fechamento do Yahoo vezes a PTAX daquele dia, ao centavo; os ativos da B3 saem iguais aos de antes.
+
+<a id="f260"></a>
+**F260 — Caixa em dólar com o juro americano.** Serve N41 e N34; amplia o dólar e os ativos internacionais ([F194](#f194)). O carry trade é tomar dinheiro onde o juro é baixo e aplicar onde é alto, ganhando a diferença enquanto a moeda não vira contra. Exemplo: com o CDI a 13% e o juro americano a 5%, quem aplica em real ganha 8 pontos ao ano a mais, e uma alta de 10% do dólar come todo esse ganho. Antes o dólar já se movia e os ativos de fora já protegiam, mas não existia um ativo em dólar que só rendesse juro, e a escolha "CDI ou dólar com juro americano" não aparecia. Agora ela aparece, com o dólar que empata a conta à vista.
+
+**Feito.**
+1. **O juro americano da partida:** a série Fed Funds (taxa básica dos EUA, em % ao ano, baixada do FRED na Central de dados) entra como série macro com início em jul/1994, o da PTAX. Depois do último dado real ela volta a 3% pela metade do caminho a cada 2 anos.
+2. **A conta em dólar (Nomad):** ativo de liquidez diária que rende 100% do juro americano, marcado pelo dólar da partida. A compra paga 1,1% de IOF de câmbio e vira dólares ao dólar do dia; o saldo em dólar cresce com o fator diário do Fed e o valor em reais acompanha o dólar. O resgate leva IR de 15% sobre o ganho em reais, sem IOF, e a cobertura automática do caixa vende a conta como vende o CDB de liquidez diária. A conta não entra no cálculo da melhor taxa de renda fixa do crédito.
+3. **Na tela:** dois cards lado a lado no topo da Renda fixa (CDB de liquidez diária e conta em dólar, com o "empata se o dólar subir"), prévia em dólares e IOF na boleta de investir, "sai da conta" e IR de 15% na de resgatar, saldo em dólar nos detalhes e na carteira, e a série do Fed com dica na Central de dados.
+
+**Fica de fora.** Empréstimo em dólar (o carry trade completo), título do Tesouro americano, apuração anual do IR sobre a variação cambial e alíquota de IR do câmbio definida pelo governo.
 
 ---
 
