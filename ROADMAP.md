@@ -93,7 +93,6 @@
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.2 | — | — | — | 🔍 |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | M28 · 4.6 | — | — | — | 🔍 |
-| [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.1 | — | Alto | Bom | ⏳ |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.4 | — | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.3 | — | — | — | 🔍 |
@@ -109,7 +108,7 @@
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (30 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -134,6 +133,7 @@
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F253](#f253), [F255](#f255), [F256](#f256), [F257](#f257) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | M26 · 4.1 | — | — | — | ✅ |
+| [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.1 | — | — | — | ✅ |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | M26 · 4.1 | — | — | — | ✅ |
 | [**F250**](#f250) | Correção | Correções da 4.1 | M26 · 4.1 | — | — | — | ✅ |
 | [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | M26 · 4.1 | — | — | — | ✅ |
@@ -157,7 +157,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 9/15 concluídos
+> **Progresso:** 10/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -172,7 +172,7 @@
 | 9 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | — | ✅ Concluído |
 | 10 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | — | ⏳ Pendente |
 | 11 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | — | ✅ Concluído |
-| 12 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | [F259](#f259) | ⏳ Pendente |
+| 12 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | — | ✅ Concluído |
 | 13 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | [F194](#f194) | 🔍 Em avaliação |
 | 14 | [**F261**](#f261) | Feature | Profissão no viver de renda | [F257](#f257) | 🔍 Em avaliação |
 | 15 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | 🔍 Em avaliação |
@@ -283,7 +283,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 · 7º | 0 | — | — | 🔍 |
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M26 · 4.1 · 10º | 0 | Alto | Bom | ⏳ |
-| [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.1 · 12º | 1 | Alto | Bom | ⏳ |
+| [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | M26 · 4.1 · 13º | 0 | — | — | 🔍 |
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 · 14º | 0 | — | — | 🔍 |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 · 15º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
@@ -335,7 +335,6 @@
 | **F141** | Docs | README com as features de hoje | N25 | — | M28 · 4.6 | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
 | **F159** | Feature | Conquista "Ordem com paciência" | N22 | D1 | M18 · 4.2 | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
 | **F167** | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | M24 · 4.3 | — | Baixo | Baixo | Médio | Bom |
-| **F194** | Feature | Dólar e ativos internacionais | N34, N11 | D20 | M26 · 4.1 | [F259](#f259) | Alto | Médio | Alto | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
@@ -402,19 +401,6 @@
 
 <a id="f167"></a>
 **F167 — Notícias do ativo como marcadores no gráfico de preço.** Serve N31. As manchetes de empresas do noticiário (F92) aparecem também na tela do ativo, como marcadores no gráfico de preço, com a manchete ao passar o mouse. Separada da F92 em 29/out: o noticiário sai na 3.1 só com as manchetes, e os marcadores pedem desenho no canvas antes do código. Gatilho: F92 concluída.
-
-<a id="f194"></a>
-**F194 — Dólar e ativos internacionais.** Serve N34 e N11; condicionado por D20. Ideia do playtest de 31/out: a cotação do dólar no jogo, subindo com a desconfiança na moeda e caindo com o juro real alto, e os ativos internacionais andando junto. Hoje tudo é em real: não existe a desvalorização da moeda, e investir fora não protege de nada. Com o dólar, ter ativo dolarizado vira estratégia de proteção, e o governo irresponsável passa a pesar no câmbio e, pelo câmbio, na inflação.
-
-**Plano.** Parte do preço em dólar já convertido pela PTAX real, a da [F259](#f259).
-1. **O dólar da partida** é a PTAX real mais o desvio que o governo causa (D20), com duas ligações novas: o prêmio de risco acima da história sobe o dólar (o investidor de fora foge) e o juro real acima da história baixa o dólar (o dinheiro de fora vem atrás do juro, a paridade de juros da teoria). Sem governo, o dólar da partida é a PTAX.
-2. **Repasse à inflação:** o dólar acima da história sobe o IPCA, porque o importado e o combustível ficam mais caros. Pelas estimativas do Banco Central, 10% de alta do dólar somam cerca de 0,5 a 1 ponto ao IPCA em um ano. Fecha o ciclo das crises de 2002 e 2015: rombo, prêmio, dólar, inflação e SELIC.
-3. **Os ativos de fora andam com o dólar da partida:** os cotados em dólar e os que já carregam o dólar no preço histórico (BDR, ETF de índice de fora como o IVVB11) recebem uma camada por cima, a razão entre o dólar da partida e a PTAX daquele dia, para o câmbio não contar duas vezes. A lista dos que carregam o dólar sai do perfil do ativo no Yahoo.
-4. **Na tela,** o dólar entra no painel da Economia com o detalhe de cada ligação e na Central de dados. Cada ativo ganha a origem, Nacional ou Internacional, num seletor de dois com bandeirinha na Central de dados e na listagem.
-
-A calibragem dos pesos usa o CLI da economia (`.claude/trabalho/economia/calibrate10.py`).
-
-**Aceite:** sem governo, o dólar da partida é a PTAX e os ativos de fora saem iguais aos de antes; no gastador da calibragem de 10 anos, o dólar sobe acima da história quando o prêmio dispara, e os ativos de fora protegem a carteira, valorizando-se em real.
 
 <a id="f197"></a>
 **F197 — Rebalanceamento por meta com várias classes.** Serve N4. Hoje o `TargetRebalance` (`backend/features/strategy/rebalance.py:55`) divide só entre um ativo de ações (BOVA11 por padrão) e a renda fixa de liquidez diária: a meta em ações vai de 10% a 90% (padrão 60%), e o desvio máximo, de 1 a 20 pontos (padrão 5). O playtest de 31/out pediu configurar a meta de cada classe.
@@ -600,6 +586,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F69** | Feature | Imprevistos configuráveis e tipos novos | N23 | — | M26 · 4.1 |
+| **F194** | Feature | Dólar e ativos internacionais | N34, N11 | D20 | M26 · 4.1 |
 | **F232** | Correção | Crescimento que sente o rombo do governo | N34 | D20 | M26 · 4.1 |
 | **F250** | Correção | Correções da 4.1 | N15, N34 | — | M26 · 4.1 |
 | **F252** | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | N15 | — | M26 · 4.1 |
@@ -611,6 +598,17 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 <a id="f69"></a>
 **F69 — Imprevistos configuráveis e tipos novos.** Serve N23. O modo viver de renda (F53) já nasce com os tipos de imprevisto num registro, em que cada tipo é uma entrada com nome, múltiplo da despesa mensal, efeito (sai do caixa ou corta o salário do mês seguinte) e peso no sorteio; adicionar um tipo é acrescentar uma entrada, sem mexer no motor, no log nem nas telas. Esta feature expõe esse registro ao host: no lobby, o host edita o valor de cada tipo (por exemplo, o conserto passa de 1 para 2 despesas mensais), liga e desliga tipos e cria tipos próprios com nome, valor e efeito. O sorteio continua saindo da semente da partida, então todos os jogadores seguem recebendo os mesmos imprevistos nos mesmos dias, e a configuração vale para a partida salva.
+
+<a id="f194"></a>
+**F194 — Dólar e ativos internacionais.** Serve N34 e N11; condicionado por D20. Ideia do playtest de 31/out: a cotação do dólar no jogo, subindo com a desconfiança na moeda e caindo com o juro real alto, e os ativos internacionais andando junto. Antes tudo era em real: não existia a desvalorização da moeda, e investir fora não protegia de nada. Agora ter ativo dolarizado é estratégia de proteção, e o governo irresponsável pesa no câmbio e, pelo câmbio, na inflação.
+
+**Feito.**
+1. **O dólar da partida** é a PTAX da história vezes e elevado ao desvio: cada ponto de prêmio de risco acima da história soma 4% ao dólar e cada ponto de juro real acima da história tira 2%, cada causa com teto no expoente. Sem governo, o dólar da partida é a PTAX. Depois do último dado real a PTAX vira série macro e anda pela paridade do poder de compra.
+2. **Repasse à inflação:** cada 1% de alta do dólar em 12 meses, contra a da história, soma 0,07 ponto ao IPCA em 12 meses. O prêmio de risco deixou de entrar direto no IPCA e chega a ele só pelo dólar. Para fechar o ciclo prêmio, dólar, inflação e juro com números finitos, a dívida do governo tem teto de 300% do PIB.
+3. **Origem do ativo:** Nacional ou Internacional, inferida na importação (moeda USD ou classe BDR é Internacional), com troca manual na Central de dados que a reimportação preserva. O ativo Internacional anda só com o fator do dólar da partida (a razão entre o dólar da partida e a PTAX do dia, para o câmbio não contar duas vezes).
+4. **Na tela:** card do dólar e KPI no painel da Economia, com o detalhe de cada ligação; seletor de origem com bandeirinha na Central de dados; filtro e bandeira na listagem de renda variável.
+
+**Fica de fora.** O caixa em dólar com o juro americano é a F260. A calibragem dos pesos usa o CLI da economia (`.claude/trabalho/economia/calibrate10.py`); o teto de 300% do PIB deixa o cenário de gasto desenfreado com o BC cooperando derrubar a bolsa a perto de 5 mil pontos em 2010.
 
 <a id="f232"></a>
 **F232 — Crescimento que sente o rombo do governo.** Serve N34; condicionado por D20. Na calibragem de 10 anos, o presidente que dá reajuste real de 15% ao ano por 10 anos chega a um primário de −22,7% do PIB e mesmo assim cresce 8% ao ano, o teto do jogo (`MAX_GROWTH` em `backend/features/economy/growth.py`), em 78 de 120 meses, com o desemprego no piso de 4% em 81. O crescimento do jogo já é o real, descontada a inflação, então o número é implausível de fato. O impulso fiscal (`IMPULSE` em `backend/features/economy/links.py`) empurra o PIB a cada piora do primário, e nada do outro lado segura o crescimento. Pior: o presidente que gasta e segura a SELIC baixa gera inflação alta e juro real muito negativo, e o modelo lê o juro real negativo como estímulo, então a inflação alta empurra o PIB para cima.
