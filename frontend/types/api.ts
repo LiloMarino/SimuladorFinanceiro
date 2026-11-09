@@ -200,6 +200,10 @@ export type GoalProgress = components["schemas"]["GoalProgressDTO"];
 export type GoalRunner = GoalProgress["players"][number];
 export type PlayerGrouping = components["schemas"]["PlayerGrouping"];
 export type TeamNaming = components["schemas"]["TeamNaming"];
+// Viver de renda: salário igual para todos ou uma profissão por jogador
+export type SalaryMode = components["schemas"]["SalaryMode"];
+export type Profession = components["schemas"]["Profession"];
+export type IncomeLoss = components["schemas"]["IncomeLoss"];
 
 // Governo & Política
 export type ElectionPanel = components["schemas"]["ElectionPanelDTO"];

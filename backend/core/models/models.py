@@ -509,6 +509,8 @@ class SimulationPlayers(Base):
     color: Mapped[str] = mapped_column(Text, nullable=False)
     # Índice da equipe (1 a 10); nulo fora do modo em equipes
     team: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    # Nome da profissão no viver de renda com profissões; nulo vale CLT
+    profession: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     user: Mapped["Users"] = relationship("Users", back_populates="simulation_players")
     simulation: Mapped["Simulations"] = relationship(

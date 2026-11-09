@@ -30,6 +30,7 @@ import { formatMoney } from "@/shared/lib/utils/format";
 import { calculatedGoal, isPositiveMoney, withdrawalRateFraction } from "../lib/life-rules";
 import type { SimulationFormValues } from "../lib/simulation-form";
 import { LifeEventsEditor } from "./life-events-editor";
+import { SalaryModeFields } from "./salary-mode-fields";
 
 type LifeFieldsProps = {
   form: UseFormReturn<SimulationFormValues>;
@@ -85,6 +86,9 @@ export function LifeFields({ form, readOnly }: LifeFieldsProps) {
           />
         ))}
       </div>
+
+      {/* Salário igual ou por profissão */}
+      <SalaryModeFields form={form} readOnly={readOnly} />
 
       {/* O que sobra por mês */}
       {budgetValid &&

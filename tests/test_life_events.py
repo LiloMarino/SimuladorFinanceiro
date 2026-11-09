@@ -14,10 +14,10 @@ from backend.core.dto.life import (
 )
 from backend.core.enum import IndicatorSeries, LifeEventEffect
 from backend.core.life_budget import LifeBudget
+from backend.core.professions import no_levers
 from backend.core.utils import next_business_day
 from backend.features.simulation.life_events import (
     layoff_factor_of,
-    net_salary,
     overdraft_interest,
     salary_skipped,
     unexpected_on,
@@ -260,10 +260,17 @@ def test_salary_stays_fixed_without_inflation_adjustment():
 def test_income_tax_above_the_reference_discounts_the_salary():
     reference = DEFAULT_TAX_POLICY.personal_rate
 
-    assert net_salary(Decimal(8000), reference) == Decimal(8000)
+    def net(rate: Decimal) -> Decimal:
+        levers = replace(no_levers(START), personal_rate=rate)
+        life = replace(
+            budget(False), monthly_salary=Decimal(8000), levers_on=lambda _day: levers
+        )
+        return life.net_salary_on(START)
+
+    assert net(reference) == Decimal(8000)
     # 5 pontos acima da referência descontam 5% do salário; abaixo, somam
-    assert net_salary(Decimal(8000), reference + Decimal("0.05")) == Decimal(7600)
-    assert net_salary(Decimal(8000), reference - Decimal("0.05")) == Decimal(8400)
+    assert net(reference + Decimal("0.05")) == Decimal(7600)
+    assert net(reference - Decimal("0.05")) == Decimal(8400)
 
 
 def test_the_factory_types_may_be_edited_and_custom_ones_added():

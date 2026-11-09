@@ -46,6 +46,7 @@ from backend.core.enum import (
     OrderAction,
     PauseReason,
     PlayerActivity,
+    Profession,
     VoterGroup,
 )
 from backend.features.variable_income.corporate_actions import PlayerCorporateActions
@@ -73,6 +74,8 @@ class PlayerPresenceEventDTO(BaseDTO):
     color: str
     # Índice da equipe (1 a 10); nulo fora do modo em equipes ou enquanto não escolheu
     team: int | None = None
+    # Profissão no viver de renda com profissões; nula nos outros modos
+    profession: Profession | None = None
     # O que o jogador está fazendo; nulo é "Online" (partida em andamento ou sem aviso ainda)
     activity: PlayerActivity | None = None
     # Presente quando o jogador é um bot da sala: a estratégia que ele joga
@@ -357,6 +360,7 @@ class RealtimeEventCatalog(BaseDTO):
     player_removed: PlayerRemovedEventDTO
     player_color: PlayerPresenceEventDTO
     player_team: PlayerPresenceEventDTO
+    player_profession: PlayerPresenceEventDTO
     player_activity: PlayerPresenceEventDTO
     player_bot: PlayerPresenceEventDTO
     preparations_update: PreparationsDTO

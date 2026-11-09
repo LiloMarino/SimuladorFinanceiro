@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 from functools import partial
@@ -29,6 +30,7 @@ from backend.core.enum import (
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
 from backend.core.periods import MONTHS_PER_YEAR
+from backend.core.professions import no_levers
 from backend.core.rates import period_rate
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.economy.growth import NEUTRAL_UNEMPLOYMENT
@@ -293,10 +295,12 @@ def _living(
             latest=lambda _day: SimpleNamespace(unemployment=unemployment)
         ),
         get_cash=lambda _client: engine.cash,
+        _professions={},
     )
     living = cast(Simulation, fake)
     fake._layoff_factor = partial(Simulation._layoff_factor, living)
-    fake._net_salary = partial(Simulation._net_salary, living)
+    fake._profession_of = partial(Simulation._profession_of, living)
+    fake._notify_life_event = partial(Simulation._notify_life_event, living)
     return living, LifeBudget.of(settings)
 
 
@@ -402,10 +406,14 @@ def test_budget_changes_carry_the_origin_of_each_change(indicators: SetIndicator
             "inflation_adjusted": True,
         }
     )
-    life = LifeBudget.of(settings, lambda _day: Decimal("0.031"))
+    life = LifeBudget.of(
+        settings,
+        lambda _day: Decimal("0.031"),
+        lambda day: replace(no_levers(day), personal_rate=Decimal("0.20")),
+    )
     until = date(2021, 6, 1)
 
-    changes = budget_changes(life, until, lambda _day: Decimal("0.20"), _overdraft_rate)
+    changes = budget_changes(life, until, _overdraft_rate)
 
     kinds = {c.kind for c in changes}
     assert kinds == {
@@ -430,9 +438,7 @@ def test_recession_raise_says_there_is_no_real_raise(indicators: SetIndicator):
     settings = simulation_settings().model_copy(update={"inflation_adjusted": True})
     life = LifeBudget.of(settings, lambda _day: Decimal("-0.02"))
 
-    changes = budget_changes(
-        life, date(2021, 6, 1), lambda _day: Decimal("0.15"), _overdraft_rate
-    )
+    changes = budget_changes(life, date(2021, 6, 1), _overdraft_rate)
 
     salary = next(c for c in changes if c.kind is LifeHistoryKind.SALARY_READJUSTED)
     assert "sem reajuste real (PIB de -2,0%)" in salary.label

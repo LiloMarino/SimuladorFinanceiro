@@ -47,6 +47,8 @@ from backend.core.enum import (
     PlayerActivity,
     PlayerGrouping,
     PreparationKind,
+    Profession,
+    SalaryMode,
     SelicControl,
     TeamNaming,
     VictoryCriterion,
@@ -98,6 +100,7 @@ class SimulationRulesRequest(BaseModel):
         ge=Decimal("0.01"), le=Decimal("0.10"), default=Decimal("0.04")
     )
     inflation_adjusted: bool = False
+    salary_mode: SalaryMode = SalaryMode.EQUAL
     player_grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL
     team_naming: TeamNaming = TeamNaming.COLOR
     show_equivalent_rate: bool = True
@@ -177,6 +180,10 @@ class PlayerTeamRequest(BaseModel):
     team: int
 
 
+class PlayerProfessionRequest(BaseModel):
+    profession: Profession
+
+
 class UpdateSettingsRequest(SimulationRulesRequest):
     pass
 
@@ -185,6 +192,8 @@ class JoinMatchRequest(BaseModel):
     color: str
     # Obrigatória quando a partida é em equipes
     team: int | None = None
+    # Obrigatória quando a partida é com profissões
+    profession: Profession | None = None
 
 
 class PlayerNickname(BaseModel):
@@ -196,6 +205,8 @@ class PlayerNickname(BaseModel):
     color: str
     # Índice da equipe (1 a 10); nulo fora do modo em equipes ou enquanto não escolheu
     team: int | None = None
+    # Profissão no viver de renda com profissões; nula nos outros modos
+    profession: Profession | None = None
     # O que o jogador está fazendo na sala; só a lista da sala preenche, nulo é "Online"
     activity: PlayerActivity | None = None
     # Presente quando o jogador é um bot: a estratégia que ele joga
@@ -311,6 +322,7 @@ def select_simulation(payload: SelectSimulationRequest, _: HostVerified):
         repository.simulation_player.colors(payload.id),
         repository.simulation_player.teams(payload.id),
         saved_bots(payload.id),
+        repository.simulation_player.professions(payload.id),
     )
     SettingsManager.select_simulation(payload.id)
     notify(
@@ -455,12 +467,14 @@ def get_active_players():
     """
     colors = UserManager.room_colors()
     teams = UserManager.room_teams()
+    professions = UserManager.room_professions()
     activities = UserManager.room_activities()
     return [
         PlayerNickname(
             nickname=p.nickname,
             color=colors[p.id],
             team=teams.get(p.id),
+            profession=professions.get(p.id),
             activity=activities.get(p.id),
             bot=UserManager.room_bot(p),
         )
@@ -512,6 +526,19 @@ def set_player_team(payload: PlayerTeamRequest, client_id: ClientID):
     Escolhe a equipe do jogador na sala.
     """
     UserManager.set_team(client_id, payload.team)
+
+
+@simulation_router.put(
+    "/players/me/profession",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Escolher a profissão do jogador",
+    description="Escolhe a profissão do jogador na sala, quando o viver de renda joga com profissões. Profissão não tem dono nem limite de jogadores; responde 409 fora desse modo, com a partida em andamento e para quem já jogou a partida salva selecionada.",
+)
+def set_player_profession(payload: PlayerProfessionRequest, client_id: ClientID):
+    """
+    Escolhe a profissão do jogador na sala.
+    """
+    UserManager.set_profession(client_id, payload.profession)
 
 
 def _room_humans() -> list[UserDTO]:
@@ -682,12 +709,19 @@ def get_match_players():
     simulation_id = SimulationManager.get_active_simulation_id()
     colors = repository.simulation_player.colors(simulation_id)
     teams = repository.simulation_player.teams(simulation_id)
+    uses_professions = (
+        SimulationManager.get_active_simulation().settings.uses_professions
+    )
+    professions = repository.simulation_player.professions(simulation_id)
     bots = saved_bot_infos(simulation_id)
     return [
         PlayerNickname(
             nickname=p.nickname,
             color=colors[p.id],
             team=teams.get(p.id),
+            profession=professions.get(p.id, Profession.CLT)
+            if uses_professions
+            else None,
             bot=bots.get(p.id),
         )
         for p in repository.simulation_player.participants(simulation_id)
@@ -782,6 +816,7 @@ def _room_player(player: UserDTO) -> PlayerNickname:
         nickname=player.nickname,
         color=UserManager.room_colors()[player.id],
         team=UserManager.room_teams().get(player.id),
+        profession=UserManager.room_professions().get(player.id),
         activity=UserManager.room_activities().get(player.id),
         bot=UserManager.room_bot(player),
     )
@@ -856,7 +891,7 @@ def join_match(payload: JoinMatchRequest, client_id: ClientID):
     """
     Entra na partida em andamento com a cor escolhida.
     """
-    UserManager.join_match(client_id, payload.color, payload.team)
+    UserManager.join_match(client_id, payload.color, payload.team, payload.profession)
 
 
 @simulation_router.get(

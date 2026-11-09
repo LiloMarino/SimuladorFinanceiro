@@ -10,12 +10,12 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from backend.core.dependencies import get_client_id, verify_host
-from backend.core.enum import PlayerGrouping
+from backend.core.enum import GameType, PlayerGrouping, Profession, SalaryMode
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.user_manager import UserManager
 from backend.routes.simulation import simulation_router
 from tests.conftest import Join
-from tests.fakes import client
+from tests.fakes import client, simulation_settings
 
 
 @pytest.fixture
@@ -43,6 +43,7 @@ def test_player_picks_a_team_and_the_room_list_shows_it(
             "nickname": "Ana",
             "color": "chart-1",
             "team": 4,
+            "profession": None,
             "activity": None,
             "bot": None,
         }
@@ -110,3 +111,39 @@ def test_keeping_the_grouping_keeps_the_teams(api: tuple[TestClient, Join]):
     http.put("/api/simulation/settings", json=settings_body(PlayerGrouping.TEAMS))
 
     assert http.get("/api/simulation/players").json()[0]["team"] == 2
+
+
+def test_profession_is_a_conflict_when_the_room_has_equal_salary(
+    api: tuple[TestClient, Join],
+):
+    http, join = api
+    join("Ana")
+
+    response = http.put(
+        "/api/simulation/players/me/profession", json={"profession": "RETIREE"}
+    )
+
+    assert response.status_code == 409
+
+
+def test_player_picks_a_profession_in_the_professions_room(
+    api: tuple[TestClient, Join], monkeypatch: pytest.MonkeyPatch
+):
+    http, join = api
+    ana = join("Ana")
+    settings = simulation_settings().model_copy(
+        update={
+            "game_type": GameType.FINANCIAL_INDEPENDENCE,
+            "salary_mode": SalaryMode.PROFESSIONS,
+        }
+    )
+    monkeypatch.setattr(SettingsManager, "_settings", settings)
+
+    response = http.put(
+        "/api/simulation/players/me/profession", json={"profession": "RETIREE"}
+    )
+
+    assert response.status_code == 204
+    assert UserManager.get_profession(ana.id) == Profession.RETIREE
+    listed = http.get("/api/simulation/players").json()
+    assert listed[0]["profession"] == "RETIREE"

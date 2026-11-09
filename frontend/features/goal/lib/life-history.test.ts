@@ -20,16 +20,16 @@ describe("texto do histórico da vida real", () => {
     expect(lifeRowText(row({ label: null }))).toBe("Imprevisto");
   });
 
-  it("a demissão tira o salário do mês seguinte", () => {
-    expect(lifeRowText(row({ category: "LAYOFF", kind: "LAYOFF" }))).toBe("Salário de novembro não entrou");
+  it("a perda de renda tira o mês seguinte", () => {
+    expect(lifeRowText(row({ category: "LAYOFF", kind: "LAYOFF" }))).toBe("Renda de novembro não entrou");
     expect(lifeRowText(row({ category: "LAYOFF", kind: "LAYOFF", event_date: "2024-12-20" }))).toBe(
-      "Salário de janeiro não entrou",
+      "Renda de janeiro não entrou",
     );
   });
 
   it("a demissão cita o desemprego da partida quando o servidor manda", () => {
     expect(lifeRowText(row({ category: "LAYOFF", kind: "LAYOFF", label: "Desemprego de 12,3%" }))).toBe(
-      "Salário de novembro não entrou · Desemprego de 12,3%",
+      "Renda de novembro não entrou · Desemprego de 12,3%",
     );
   });
 

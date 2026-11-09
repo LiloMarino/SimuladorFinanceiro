@@ -22,6 +22,7 @@ RULE_GROUP_FIELDS: dict[PresetRuleGroup, tuple[str, ...]] = {
         "life_events",
         "withdrawal_rate",
         "inflation_adjusted",
+        "salary_mode",
     ),
     PresetRuleGroup.ASSISTANCES: (
         "show_equivalent_rate",

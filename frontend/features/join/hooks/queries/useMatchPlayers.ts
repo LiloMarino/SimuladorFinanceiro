@@ -12,6 +12,7 @@ export function useMatchPlayers() {
   useRealtime("player_join", refresh);
   useRealtime("player_color", refresh);
   useRealtime("player_team", refresh);
+  useRealtime("player_profession", refresh);
 
   return useQuery({
     queryKey: queryKeys.matchPlayers(),

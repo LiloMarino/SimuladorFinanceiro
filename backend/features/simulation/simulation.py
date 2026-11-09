@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import threading
 from collections.abc import Callable
+from dataclasses import replace
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from functools import wraps
@@ -46,7 +47,12 @@ from backend.core.dto.government import (
     PromisesPanelDTO,
     ProposeMeasureRequest,
 )
-from backend.core.dto.life import LifeEventDTO, LifeHistoryRowDTO, LifeStatusDTO
+from backend.core.dto.life import (
+    LifeEventDTO,
+    LifeEventTypeDTO,
+    LifeHistoryRowDTO,
+    LifeStatusDTO,
+)
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.order_preview import OrderPreviewDTO
 from backend.core.dto.patrimonial_history import (
@@ -78,11 +84,14 @@ from backend.core.enum import (
     FixedIncomeType,
     GameType,
     IndicatorSeries,
+    LifeEventEffect,
+    MeasureKind,
     OrderAction,
     PauseReason,
     PendingType,
     PlayerGrouping,
     PrepaymentMode,
+    Profession,
     VoterValue,
 )
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
@@ -105,6 +114,7 @@ from backend.core.metrics import (
     metrics,
 )
 from backend.core.periods import MONTHS_PER_YEAR
+from backend.core.professions import HEALTH_EVENT_KEY, LifeLevers, RealRaise
 from backend.core.rates import period_rate
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
@@ -185,7 +195,6 @@ from backend.features.realtime.schemas import (
 from backend.features.simulation.life_events import (
     layoff_factor_of,
     layoff_in,
-    net_salary,
     overdraft_interest,
     salary_skipped,
     unexpected_on,
@@ -279,10 +288,14 @@ class Simulation:
         self.settings = settings
         self._random_seed = random_seed
         self._life = (
-            LifeBudget.of(settings, lambda day: self._macro.latest(day).growth)
+            LifeBudget.of(
+                settings, lambda day: self._macro.latest(day).growth, self._levers_on
+            )
             if settings.game_type is GameType.FINANCIAL_INDEPENDENCE
             else None
         )
+        # A profissão de cada jogador (user_id), lida da partida quando ela joga com profissões
+        self._professions: dict[int, Profession] = {}
         self._current_date = resume_from or self.settings.start_date - timedelta(days=1)
         self._engine = SimulationEngine(
             self._current_date,
@@ -1374,11 +1387,17 @@ class Simulation:
 
     def _live(self, life: LifeBudget, users: list[UserDTO], month_changed: bool):
         """
-        No 1º pregão do mês o salário entra (menos depois de uma demissão) e a despesa
-        sai; todo pregão pode sortear um imprevisto, o mesmo para todos.
+        No 1º pregão do mês a renda de cada jogador entra pela profissão dele (menos
+        depois de uma demissão sorteada, nas profissões que a sentem) e a despesa sai;
+        todo pregão pode sortear um imprevisto, o mesmo para todos, que cada profissão
+        sente à sua maneira.
         """
         day = self._current_date
         per_year = self.settings.unexpected_per_year
+        budgets = {
+            user.client_id: life.for_profession(self._profession_of(user.id))
+            for user in users
+        }
         if month_changed:
             skipped = salary_skipped(
                 self._random_seed,
@@ -1388,11 +1407,13 @@ class Simulation:
                 self.settings.life_events,
                 layoff_factor_on=self._layoff_factor,
             )
-            salary = self._net_salary(life, day)
             for user in users:
-                if not skipped:
+                budget = budgets[user.client_id]
+                loses_income = skipped and budget.income_loss() is not None
+                salary = budget.net_salary_on(day, income_lost=loses_income)
+                if salary > 0 or not loses_income:
                     self._engine.pay_salary(user.client_id, salary)
-                self._engine.pay_expense(user.client_id, life.expense_on(day))
+                self._engine.pay_expense(user.client_id, budget.expense_on(day))
 
         event = unexpected_on(
             self._random_seed,
@@ -1403,9 +1424,30 @@ class Simulation:
         )
         if event is None:
             return
-        amount = event.expense_multiple * life.expense_on(day)
+        is_layoff = event.effect is LifeEventEffect.SKIP_NEXT_SALARY
         for user in users:
+            budget = budgets[user.client_id]
+            # A profissão que não sente a demissão sorteada não a registra
+            if is_layoff and budget.income_loss() is None:
+                continue
+            health = budget.rule.health_multiple if event.key == HEALTH_EVENT_KEY else 1
+            amount = event.expense_multiple * budget.expense_on(day) * health
             self._engine.charge_unexpected(user.client_id, amount, event.key)
+            if self.settings.uses_professions and not user.is_bot:
+                self._notify_life_event(event, amount, budget, user)
+        if not self.settings.uses_professions:
+            budget = budgets[users[0].client_id] if users else life
+            amount = event.expense_multiple * budget.expense_on(day)
+            self._notify_life_event(event, amount, budget)
+
+    def _notify_life_event(
+        self,
+        event: LifeEventTypeDTO,
+        amount: Decimal,
+        budget: LifeBudget,
+        user: UserDTO | None = None,
+    ):
+        """O aviso do imprevisto: um só para a sala com salário igual, e o de cada jogador com profissões, com o valor e o efeito da dele."""
         notify(
             "life_event",
             LifeEventDTO(
@@ -1413,19 +1455,54 @@ class Simulation:
                 label=event.label,
                 effect=event.effect,
                 amount=amount,
-                event_date=day,
+                event_date=self._current_date,
+                income_loss=budget.income_loss(),
             ).to_json(),
+            to=user.client_id if user is not None else None,
         )
 
     def _layoff_factor(self, day: date) -> float:
         """A chance de demissão em `day` segue o desemprego da partida."""
         return layoff_factor_of(self._macro.latest(day).unemployment)
 
-    def _net_salary(self, life: LifeBudget, day: date) -> Decimal:
-        """O salário do dia depois do IR das pessoas da política vigente nele."""
-        return net_salary(
-            life.salary_on(day), self._engine.tax_policy_on(day).personal_rate
+    def _levers_on(self, day: date) -> LifeLevers:
+        """As medidas do governo que chegam à renda no dia; sem governo, o país padrão."""
+        policy = self._engine.tax_policy_on(day)
+        levers = LifeLevers(
+            personal_rate=policy.personal_rate,
+            corporate_rate=policy.corporate_rate,
+            consumption_rate=policy.consumption_rate,
         )
+        government = self._government
+        if government is None:
+            return levers
+        return replace(
+            levers,
+            servant_raise=self._in_force(
+                MeasureKind.SERVANT_RAISE, day, levers.servant_raise
+            ),
+            retiree_raise=self._in_force(
+                MeasureKind.RETIREE_RAISE, day, levers.retiree_raise
+            ),
+            welfare_spending=self._in_force(
+                MeasureKind.WELFARE_SPENDING, day, levers.welfare_spending
+            ),
+        )
+
+    def _in_force(self, kind: MeasureKind, day: date, default: Decimal) -> Decimal:
+        government = self._government
+        value = None if government is None else government.value_in_force(kind, day)
+        return default if value is None else value
+
+    def _profession_of(self, user_id: int) -> Profession:
+        """A profissão do jogador; sem o modo de profissões, todo mundo é CLT."""
+        if not self.settings.uses_professions:
+            return Profession.CLT
+        if user_id not in self._professions:
+            self._professions = repository.simulation_player.professions(
+                self.settings.id
+            )
+        return self._professions.get(user_id, Profession.CLT)
 
     def _charge_overdraft(self, users: list[UserDTO]):
         rate = _overdraft_rate(self._current_date)
@@ -1441,7 +1518,11 @@ class Simulation:
         day = self._current_date
         seed, per_year = self._random_seed, self.settings.unexpected_per_year
         start = self.settings.start_date
-        expense = self._life.expense_on(day)
+        budget = self._life.for_profession(
+            self._profession_of(UserManager.get_user_id(client_id))
+        )
+        loss = budget.income_loss()
+        expense = budget.expense_on(day)
         cash = self.get_cash(client_id)
         rate = _overdraft_rate(day)
         # A reserva soma o caixa e a liquidez diária líquida, e nunca fica negativa
@@ -1453,7 +1534,7 @@ class Simulation:
         reserve = max(cash + daily_liquidity, Decimal(0))
         reserve_cash = max(cash, Decimal(0))
         return LifeStatusDTO(
-            monthly_salary=self._net_salary(self._life, day),
+            monthly_salary=budget.net_salary_on(day),
             monthly_expense=expense,
             salary_skipped_by=layoff_in(
                 seed,
@@ -1462,7 +1543,9 @@ class Simulation:
                 start,
                 self.settings.life_events,
                 layoff_factor_on=self._layoff_factor,
-            ),
+            )
+            if loss is not None
+            else None,
             next_salary_skipped_by=layoff_in(
                 seed,
                 day,
@@ -1471,8 +1554,10 @@ class Simulation:
                 self.settings.life_events,
                 until=day,
                 layoff_factor_on=self._layoff_factor,
-            ),
-            goal=self._life.goal_on(day),
+            )
+            if loss is not None
+            else None,
+            goal=budget.goal_on(day),
             inflation_adjusted=self.settings.inflation_adjusted,
             withdrawal_rate=self.settings.withdrawal_rate,
             unexpected_per_year=per_year,
@@ -1484,7 +1569,29 @@ class Simulation:
             cover_with_treasury=repository.settings.get_cover_with_treasury(
                 UserManager.get_user_id(client_id)
             ),
+            **self._profession_status(budget, day),
         )
+
+    def _profession_status(self, budget: LifeBudget, day: date) -> dict:
+        """O que a profissão do jogador sente no dia; vazio com salário igual."""
+        if not self.settings.uses_professions:
+            return {}
+        rule = budget.rule
+        levers = budget.levers_on(day)
+        raised = rule.real_raise in (RealRaise.SERVANTS, RealRaise.RETIREES)
+        return {
+            "profession": budget.profession,
+            "income_loss": rule.loss,
+            "health_multiple": rule.health_multiple,
+            "tax": rule.tax,
+            "tax_rate": budget.tax_rate_on(day),
+            "tax_reference": budget.tax_reference(),
+            "real_raise": levers.real_raise_of(rule.real_raise) if raised else None,
+            "welfare_spending": levers.welfare_spending
+            if rule.benefit_multiple > 0
+            else None,
+            "gdp_growth": budget.growth_on(day) if rule.follows_gdp else None,
+        }
 
     @synchronized
     def get_life_history(self, client_id: UUID) -> list[LifeHistoryRowDTO]:
@@ -1494,17 +1601,16 @@ class Simulation:
         )
         if self._life is None:
             return build_life_history(events, self.settings.life_events)
-        changes = budget_changes(
-            self._life,
-            self._current_date,
-            lambda day: self._engine.tax_policy_on(day).personal_rate,
-            _overdraft_rate,
+        budget = self._life.for_profession(
+            self._profession_of(UserManager.get_user_id(client_id))
         )
+        changes = budget_changes(budget, self._current_date, _overdraft_rate)
         return build_life_history(
             events,
             self.settings.life_events,
             changes,
             lambda day: self._macro.latest(day).unemployment,
+            budget.income_loss(),
         )
 
     @synchronized

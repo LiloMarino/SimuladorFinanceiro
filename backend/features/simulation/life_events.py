@@ -1,6 +1,6 @@
 """
 Regras do viver de renda, puras: os imprevistos sorteados e o juro do cheque
-especial. Salário, despesa e meta ficam no `LifeBudget`.
+especial. Renda, despesa e meta ficam no `LifeBudget`.
 
 Os imprevistos vêm da lista de tipos das regras da partida (`life_events`): quem
 sorteia recebe a lista, então um tipo novo é uma entrada nova nela.
@@ -18,7 +18,6 @@ from backend.core.periods import BUSINESS_DAYS_PER_YEAR, MONTHS_PER_YEAR
 from backend.core.rates import compound
 from backend.core.utils import is_business_day, next_business_day
 from backend.features.economy.growth import NEUTRAL_UNEMPLOYMENT
-from backend.features.tax_policy import DEFAULT_TAX_POLICY
 
 
 def layoff_factor_of(unemployment: Decimal) -> float:
@@ -106,12 +105,6 @@ def salary_skipped(
         )
         is not None
     )
-
-
-def net_salary(salary: Decimal, personal_rate: Decimal) -> Decimal:
-    """O salário menos o desvio da alíquota do IR das pessoas contra a referência; alíquota abaixo dela soma."""
-    deviation = personal_rate - DEFAULT_TAX_POLICY.personal_rate
-    return cents(salary * (1 - deviation))
 
 
 def overdraft_interest(cash: Decimal, monthly_rate: Decimal) -> Decimal:

@@ -55,3 +55,15 @@ export const GOAL_ETA: MetricInfo = {
     "É uma conta em linha reta: mercado, imprevistos e a meta subindo com o IPCA mudam o resultado. Serve de bússola, não de promessa.",
   format: (value) => String(value),
 };
+
+export const PROFESSION_INCOME: MetricInfo = {
+  label: "Renda da profissão",
+  description: "O que a sua profissão rende por mês sobre o salário que o host definiu",
+  definition:
+    "Cada profissão paga um múltiplo do salário do host e sente a economia à sua maneira: o governo mexe no reajuste, no imposto ou no auxílio, e o sorteio de demissão tira uma parte diferente de cada uma.",
+  example:
+    "Ex.: salário do host de R$ 5.000 e Servidor (0,9×) → R$ 4.500 no 1º mês. Com o imposto de renda das pessoas 5 pontos acima da lei, a renda líquida cai 5%: R$ 4.275.",
+  reading:
+    "Não há profissão melhor: a de renda maior sente mais a economia, e a de renda menor é mais protegida. A despesa e a meta são as mesmas para todos.",
+  format: (value) => displayMoney(value),
+};

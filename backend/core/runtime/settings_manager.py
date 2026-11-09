@@ -208,6 +208,16 @@ class SettingsManager:
         return cls.get().player_grouping
 
     @classmethod
+    def effective_uses_professions(cls) -> bool:
+        """A sala joga com profissões: a partida salva selecionada manda; sem ela, as regras da nova."""
+        selected_id = cls.get_selected_simulation_id()
+        if selected_id is not None:
+            summary = repository.simulation.get_simulation(selected_id)
+            if summary is not None:
+                return summary.uses_professions
+        return cls.get().uses_professions
+
+    @classmethod
     def clear(cls) -> None:
         with cls._lock:
             cls._settings = None

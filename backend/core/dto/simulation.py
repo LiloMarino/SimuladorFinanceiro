@@ -11,6 +11,7 @@ from backend.core.enum import (
     GameType,
     InitialAccount,
     PlayerGrouping,
+    SalaryMode,
     SelicControl,
     SimulationStatus,
     TeamNaming,
@@ -115,6 +116,8 @@ class SimulationSettingsDTO(BaseDTO):
     life_events: LifeEventTypes = Field(default_factory=default_life_events)
     withdrawal_rate: Decimal = Field(ge=Decimal("0.01"), le=Decimal("0.10"))
     inflation_adjusted: bool
+    # Viver de renda: o mesmo salário para todos ou uma profissão para cada jogador
+    salary_mode: SalaryMode = SalaryMode.EQUAL
     player_grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL
     team_naming: TeamNaming = TeamNaming.COLOR
     # Ajudas da renda fixa: desligadas, o servidor omite os campos que dão a resposta
@@ -133,6 +136,14 @@ class SimulationSettingsDTO(BaseDTO):
     initial_account: InitialAccount = InitialAccount.PLAYABLE
     # Quem decide a SELIC: o Banco Central autônomo ou o presidente, nas reuniões do Copom
     selic_control: SelicControl = SelicControl.AUTONOMOUS
+
+    @property
+    def uses_professions(self) -> bool:
+        """Cada jogador escolhe a profissão: só no viver de renda com o modo de profissões."""
+        return (
+            self.game_type is GameType.FINANCIAL_INDEPENDENCE
+            and self.salary_mode is SalaryMode.PROFESSIONS
+        )
 
     @property
     def expert_mode(self) -> bool:

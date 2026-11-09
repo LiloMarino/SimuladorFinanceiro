@@ -298,6 +298,39 @@ class LifeEventEffect(Enum):
     SKIP_NEXT_SALARY = "SKIP_NEXT_SALARY"
 
 
+class SalaryMode(Enum):
+    """Como a renda do viver de renda se divide: o mesmo salário para todos ou uma profissão para cada jogador."""
+
+    EQUAL = "EQUAL"
+    PROFESSIONS = "PROFESSIONS"
+
+
+class Profession(Enum):
+    """A profissão do jogador no viver de renda; cada uma pertence a um grupo do eleitorado."""
+
+    CLT = "CLT"
+    PUBLIC_SERVANT = "PUBLIC_SERVANT"
+    ENTREPRENEUR = "ENTREPRENEUR"
+    RETIREE = "RETIREE"
+    WELFARE = "WELFARE"
+    LANDLORD = "LANDLORD"
+
+    @property
+    def voter_group(self) -> "VoterGroup":
+        return _PROFESSION_GROUPS[self]
+
+
+class IncomeLoss(Enum):
+    """O que a demissão sorteada do mês faz com a renda de quem está exposto a ela."""
+
+    # O salário do mês seguinte não entra
+    LAYOFF = "LAYOFF"
+    # Só a renda do bico do mês seguinte não entra
+    GIG_LOSS = "GIG_LOSS"
+    # O aluguel do mês seguinte não entra
+    VACANCY = "VACANCY"
+
+
 class LifeHistorySort(Enum):
     DATE = "date"
     TYPE = "type"
@@ -912,6 +945,17 @@ class VoterGroup(Enum):
     PUBLIC_SERVANTS = "PUBLIC_SERVANTS"
     RETIREES = "RETIREES"
     WELFARE = "WELFARE"
+
+
+# O grupo do eleitorado de cada profissão
+_PROFESSION_GROUPS = {
+    Profession.CLT: VoterGroup.FORMAL_WORKERS,
+    Profession.PUBLIC_SERVANT: VoterGroup.PUBLIC_SERVANTS,
+    Profession.ENTREPRENEUR: VoterGroup.ENTREPRENEURS,
+    Profession.RETIREE: VoterGroup.RETIREES,
+    Profession.WELFARE: VoterGroup.WELFARE,
+    Profession.LANDLORD: VoterGroup.INVESTORS,
+}
 
 
 class BrazilState(Enum):

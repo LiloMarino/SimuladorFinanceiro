@@ -1,4 +1,5 @@
 import logging
+import random
 from collections import Counter
 from dataclasses import dataclass, replace
 from datetime import date
@@ -13,7 +14,7 @@ from backend.core.dto.base import NAME_MAX_LENGTH
 from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.strategy import StrategyParamValue
 from backend.core.dto.user import UserDTO
-from backend.core.enum import PlayerActivity, PlayerGrouping
+from backend.core.enum import PlayerActivity, PlayerGrouping, Profession
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -60,6 +61,7 @@ class ParkedBot:
     config: BotConfig
     color: str
     team: int | None
+    profession: Profession
 
 
 class UserManager:
@@ -74,6 +76,7 @@ class UserManager:
     - Sincronizar estado com a simulação ativa
     - Dar a cada player da sala uma cor exclusiva da paleta
     - Guardar a equipe de cada player quando a sala joga em equipes
+    - Guardar a profissão de cada player quando a sala joga com profissões
     - Guardar o que cada player está fazendo, aba por aba, e avisar a sala quando muda
     - Manter os bots da sala: jogadores sem pessoa por trás, que moram em `_active_players`
       como os demais e saem dela na largada
@@ -95,6 +98,13 @@ class UserManager:
 
     # 🔹 Equipes guardadas da partida salva selecionada: quem já jogou fica travado nelas
     _saved_teams: ClassVar[dict[int, int]] = {}
+
+    # 🔹 Profissão de cada player da sala (user_id -> profissão); quem não escolheu é CLT e o
+    # bot recebe uma sorteada ao entrar. Só vale na sala com profissões, mas fica guardada
+    _professions: ClassVar[dict[int, Profession]] = {}
+
+    # 🔹 Profissões guardadas da partida salva selecionada: quem já jogou fica travado nelas
+    _saved_professions: ClassVar[dict[int, Profession]] = {}
 
     # 🔹 O que cada aba aberta do player está fazendo (client_id -> sid -> (ordem do aviso, atividade));
     # só memória. O selo da sala é o da aba mais relevante: aba à vista ganha de ausente, e entre
@@ -236,9 +246,16 @@ class UserManager:
         return match_colors is not None and user.id not in match_colors
 
     @classmethod
-    def join_match(cls, client_id: UUID, color: str, team: int | None = None) -> None:
+    def join_match(
+        cls,
+        client_id: UUID,
+        color: str,
+        team: int | None = None,
+        profession: Profession | None = None,
+    ) -> None:
         """
-        Entra na partida em andamento com `color` (e `team`, em partida em equipes).
+        Entra na partida em andamento com `color` (e `team`, em partida em equipes; e
+        `profession`, em partida com profissões).
         A cor vale para quem pediu primeiro: o teto da partida e a cor livre são
         conferidos e gravados sob o mesmo lock, então dois chegando juntos não passam
         da última vaga nem repetem cor.
@@ -258,6 +275,10 @@ class UserManager:
         in_teams = sim.settings.player_grouping is PlayerGrouping.TEAMS
         if in_teams and (team is None or not is_valid_team(team)):
             raise UnprocessableEntityError("Escolha uma equipe para entrar.")
+
+        uses_professions = sim.settings.uses_professions
+        if uses_professions and profession is None:
+            raise UnprocessableEntityError("Escolha uma profissão para entrar.")
 
         with cls._lock:
             colors = repository.simulation_player.colors(simulation_id)
@@ -279,6 +300,9 @@ class UserManager:
                 simulation_id,
                 {user.id: color},
                 {user.id: team} if in_teams and team is not None else None,
+                {user.id: profession}
+                if uses_professions and profession is not None
+                else None,
             )
             cls._active_players[client_id] = user
             cls._colors[user.id] = color
@@ -428,10 +452,11 @@ class UserManager:
         colors: dict[int, str],
         teams: dict[int, int] | None = None,
         bots: list[tuple[UserDTO, BotConfig]] | None = None,
+        professions: dict[int, Profession] | None = None,
     ) -> None:
         """
-        Ao selecionar uma partida salva: quem já jogou volta com a cor (e a equipe)
-        guardada e fica travado; quem nunca jogou mantém a sua, se sobrou, ou ganha
+        Ao selecionar uma partida salva: quem já jogou volta com a cor (a equipe e a
+        profissão) guardada e fica travado; quem nunca jogou mantém a sua, se sobrou, ou ganha
         uma livre. Os bots da partida salva (`bots`) entram na sala travados; os de
         partida nova ficam guardados até a seleção sair.
         """
@@ -464,11 +489,14 @@ class UserManager:
             before = dict(cls._colors)
             cls._saved_colors = dict(colors)
             cls._saved_teams = dict(teams or {})
+            cls._saved_professions = dict(professions or {})
             for player in cls._active_players.values():
                 if player.id in colors:
                     cls._colors[player.id] = colors[player.id]
                 if player.id in cls._saved_teams:
                     cls._teams[player.id] = cls._saved_teams[player.id]
+                if player.id in cls._saved_professions:
+                    cls._professions[player.id] = cls._saved_professions[player.id]
 
             # Cores guardadas valem para quem jogou; as dos ausentes ficam reservadas
             taken = set(colors.values())
@@ -498,6 +526,9 @@ class UserManager:
                 cls._bots[bot.client_id] = replace(config, locked=True)
                 if bot.id in cls._saved_teams:
                     cls._teams[bot.id] = cls._saved_teams[bot.id]
+                cls._professions[bot.id] = cls._saved_professions.get(
+                    bot.id, Profession.CLT
+                )
 
         for user, color, info in left:
             cls._emit_player_exit(user, color, info)
@@ -505,6 +536,8 @@ class UserManager:
             cls._emit_player_color(player, color, effective[player.id])
         for player in players:
             cls._emit_player_team(player, effective[player.id])
+            if player.id in cls._saved_professions:
+                cls._emit_player_profession(player)
         for bot, _ in saved_bots:
             cls._emit_player_join(bot, colors[bot.id])
 
@@ -523,6 +556,7 @@ class UserManager:
         with cls._lock:
             cls._saved_colors = {}
             cls._saved_teams = {}
+            cls._saved_professions = {}
             left = cls._take_out_bots(park=False)
             restored, dropped = cls._restore_parked_bots()
 
@@ -594,6 +628,68 @@ class UserManager:
 
         cls._emit_player_team(player, team)
 
+    # =========================
+    # Profissões
+    # =========================
+
+    @classmethod
+    def uses_professions(cls) -> bool:
+        """A sala joga com profissões: a partida em andamento manda; sem ela vale a selecionada ou a nova."""
+        if SimulationManager.has_active_simulation():
+            return SimulationManager.get_active_simulation().settings.uses_professions
+        return SettingsManager.effective_uses_professions()
+
+    @classmethod
+    def get_profession(cls, user_id: int) -> Profession | None:
+        """Profissão na sala; na partida em andamento vale a gravada nela. `None` fora do modo de profissões."""
+        if not cls.uses_professions():
+            return None
+        if SimulationManager.has_active_simulation():
+            return repository.simulation_player.professions(
+                SimulationManager.get_active_simulation_id()
+            ).get(user_id, Profession.CLT)
+        with cls._lock:
+            return cls._professions.get(user_id, Profession.CLT)
+
+    @classmethod
+    def room_professions(cls) -> dict[int, Profession]:
+        """Profissão de cada player presente na sala, por user_id; vazio fora do modo de profissões."""
+        if not cls.uses_professions():
+            return {}
+        return cls.chosen_professions()
+
+    @classmethod
+    def chosen_professions(cls) -> dict[int, Profession]:
+        """Profissões que a sala escolheu, valham ou não para o modo vigente (o host decide ao iniciar)."""
+        with cls._lock:
+            return {
+                p.id: cls._professions.get(p.id, Profession.CLT)
+                for p in cls._active_players.values()
+            }
+
+    @classmethod
+    def set_profession(cls, client_id: UUID, profession: Profession) -> None:
+        """Cada um escolhe a própria profissão; profissão não tem dono nem limite de jogadores."""
+        if not cls.uses_professions():
+            raise ConflictError("A sala joga com salário igual: não há profissões.")
+        if SimulationManager.has_active_simulation():
+            raise ConflictError("A partida já começou: as profissões ficam travadas.")
+
+        with cls._lock:
+            player = cls._active_players.get(client_id)
+            if player is None:
+                raise NotFoundError("Você não está na sala.")
+
+            if player.id in cls._saved_professions:
+                raise ConflictError("Sua profissão é a da partida selecionada.")
+
+            if cls._professions.get(player.id, Profession.CLT) == profession:
+                return
+
+            cls._professions[player.id] = profession
+
+        cls._emit_player_profession(player)
+
     @classmethod
     def distribute_teams(cls) -> None:
         """
@@ -640,9 +736,10 @@ class UserManager:
 
     @classmethod
     def release_room_teams(cls) -> None:
-        """A partida começou: as equipes passam a morar nela e a próxima sala começa sem equipe."""
+        """A partida começou: as equipes e as profissões passam a morar nela e a próxima sala começa sem elas."""
         with cls._lock:
             cls._teams.clear()
+            cls._professions.clear()
 
     @classmethod
     def ensure_teams_ready(cls, saved_teams: dict[int, int]) -> None:
@@ -759,6 +856,8 @@ class UserManager:
             cls._active_players[bot.client_id] = bot
             cls._colors[bot.id] = chosen
             cls._bots[bot.client_id] = config
+            # A profissão do bot sai no sorteio de quando ele entra e fica com ele
+            cls._professions[bot.id] = random.choice(list(Profession))
             if team is not None:
                 cls._teams[bot.id] = team
 
@@ -812,6 +911,7 @@ class UserManager:
             del cls._active_players[client_id]
             del cls._bots[client_id]
             cls._teams.pop(bot.id, None)
+            cls._professions.pop(bot.id, None)
             cls._activities.pop(client_id, None)
 
         repository.user.delete_user(bot.id)
@@ -890,10 +990,13 @@ class UserManager:
             del cls._active_players[client_id]
             color = cls._colors.pop(bot.id)
             team = cls._teams.pop(bot.id, None)
+            profession = cls._professions.pop(bot.id, Profession.CLT)
             cls._activities.pop(client_id, None)
             left.append((bot, color, info))
             if park and not config.locked:
-                cls._parked_bots[client_id] = ParkedBot(bot, config, color, team)
+                cls._parked_bots[client_id] = ParkedBot(
+                    bot, config, color, team, profession
+                )
         return left
 
     @classmethod
@@ -918,6 +1021,7 @@ class UserManager:
             cls._bots[client_id] = parked.config
             if parked.team is not None:
                 cls._teams[parked.user.id] = parked.team
+            cls._professions[parked.user.id] = parked.profession
             restored.append(parked.user)
         return restored, dropped
 
@@ -1039,6 +1143,7 @@ class UserManager:
                 nickname=user.nickname,
                 color=color,
                 team=cls.get_team(user.id),
+                profession=cls.get_profession(user.id),
                 activity=cls.room_activities().get(user.id),
                 bot=cls.room_bot(user),
             ).to_json(),
@@ -1088,6 +1193,7 @@ class UserManager:
                 nickname=user.nickname,
                 color=color,
                 team=team,
+                profession=cls.get_profession(user.id),
                 activity=cls.room_activities().get(user.id),
                 bot=cls.room_bot(user),
             ).to_json(),
@@ -1109,6 +1215,29 @@ class UserManager:
                 nickname=user.nickname,
                 color=color,
                 team=team,
+                profession=cls.get_profession(user.id),
+                activity=cls.room_activities().get(user.id),
+                bot=cls.room_bot(user),
+            ).to_json(),
+        )
+
+    @classmethod
+    def _emit_player_profession(cls, user: UserDTO):
+        from backend.features.realtime import notify  # noqa: PLC0415
+        from backend.features.realtime.schemas import (  # noqa: PLC0415
+            PlayerPresenceEventDTO,
+        )
+
+        color = cls.get_color(user.id)
+        if color is None:
+            return
+        notify(
+            "player_profession",
+            PlayerPresenceEventDTO(
+                nickname=user.nickname,
+                color=color,
+                team=cls.get_team(user.id),
+                profession=cls.get_profession(user.id),
                 activity=cls.room_activities().get(user.id),
                 bot=cls.room_bot(user),
             ).to_json(),
@@ -1130,6 +1259,7 @@ class UserManager:
                 nickname=user.nickname,
                 color=color,
                 team=cls.get_team(user.id),
+                profession=cls.get_profession(user.id),
                 activity=activity,
                 bot=cls.room_bot(user),
             ).to_json(),
@@ -1149,6 +1279,7 @@ class UserManager:
                 previous_nickname=previous_nickname,
                 color=color,
                 team=cls.get_team(user.id),
+                profession=cls.get_profession(user.id),
                 activity=cls.room_activities().get(user.id),
                 bot=cls.room_bot(user),
             ).to_json(),

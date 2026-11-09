@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useSimulation } from "@/shared/hooks/useSimulation";
+import { INCOME_LOSS_NAMES } from "@/shared/lib/professions";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayMonthName, displaySignedMoney } from "@/shared/lib/utils/display";
 
@@ -40,8 +41,9 @@ export function LifeNotifications() {
 
       // O imprevisto que corta o salário não tira dinheiro do caixa: o aviso fala do mês seguinte
       if (event.effect === "SKIP_NEXT_SALARY") {
-        toast.warning(`Imprevisto: ${event.label.toLowerCase()}`, {
-          description: `O salário de ${displayMonthName(event.event_date, 1)} não entra; a despesa continua`,
+        const lost = event.income_loss ? INCOME_LOSS_NAMES[event.income_loss] : null;
+        toast.warning(`Imprevisto: ${(lost?.event ?? event.label).toLowerCase()}`, {
+          description: `${lost ? lost.missing.charAt(0).toUpperCase() + lost.missing.slice(1) : "O salário"} de ${displayMonthName(event.event_date, 1)} não entra; a despesa continua`,
           action: showHistory(event.event_date),
         });
         return;

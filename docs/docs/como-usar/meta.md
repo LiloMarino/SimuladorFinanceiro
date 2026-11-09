@@ -27,11 +27,11 @@ O card **Corrida** lembra a regra do tipo de partida. Na corrida à meta e no vi
 
 ## Vida financeira (viver de renda)
 
-Só no viver de renda. O card **Vida financeira** resume o mês da partida: **Salário**, **Despesa** e **Sobra para investir**. Abaixo, a **Reserva de emergência** em meses de despesa: quanto tempo o seu caixa paga as contas sem salário. Se você é demitido, o card avisa a data.
+Só no viver de renda. O card **Vida financeira** resume o mês da partida: **Salário** (**Renda**, quando a partida tem profissões), **Despesa** e **Sobra para investir**. Abaixo, a **Reserva de emergência** em meses de despesa: quanto tempo o seu caixa paga as contas sem salário. Se você perde a renda (demissão, fim do bico ou vacância), o card avisa a data. Com profissões, o card mostra também a sua profissão, o que ela sente e os números do governo que mexem na sua renda.
 
 ## Histórico
 
-A lista do que aconteceu na sua vida financeira, com o filtro **Imprevistos**, **Demissões**, **Cheque especial** e **Orçamento**. O **Orçamento** lista cada reajuste de salário e despesa, mudança do imposto de renda das pessoas e do juro do cheque especial, com a origem (ex.: "IPCA de 4,5% e PIB de 3,1%" ou "SELIC de 10,5% ao ano"); a demissão mostra o desemprego do dia. As colunas são **Data na partida**, **Tipo**, **O que foi**, **Valor** e **Seu caixa depois**. Sem nada ainda, a lista diz "Nada aconteceu ainda".
+A lista do que aconteceu na sua vida financeira, com o filtro **Imprevistos**, **Demissões**, **Cheque especial** e **Orçamento**. O **Orçamento** lista cada reajuste de salário e despesa, mudança do imposto de renda das pessoas e do juro do cheque especial, com a origem (ex.: "IPCA de 4,5% e PIB de 3,1%" ou "SELIC de 10,5% ao ano"); a demissão mostra o desemprego do dia e a perda de renda diz "Renda de <mês> não entrou". As colunas são **Data na partida**, **Tipo**, **O que foi**, **Valor** e **Seu caixa depois**. Sem nada ainda, a lista diz "Nada aconteceu ainda".
 
 ## Ver também
 

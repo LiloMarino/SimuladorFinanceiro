@@ -14,7 +14,13 @@ from sqlalchemy import Engine, text
 from backend.core import repository
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
+from backend.core.enum import (
+    GameType,
+    PlayerGrouping,
+    Profession,
+    TeamNaming,
+    VictoryCriterion,
+)
 from backend.core.player_colors import MAX_PLAYERS, PLAYER_COLORS
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.settings_manager import SettingsManager
@@ -34,6 +40,8 @@ def join(monkeypatch: pytest.MonkeyPatch) -> Join:
     monkeypatch.setattr(UserManager, "_saved_colors", {})
     monkeypatch.setattr(UserManager, "_teams", {})
     monkeypatch.setattr(UserManager, "_saved_teams", {})
+    monkeypatch.setattr(UserManager, "_professions", {})
+    monkeypatch.setattr(UserManager, "_saved_professions", {})
     monkeypatch.setattr(SettingsManager, "_settings", simulation_settings())
     monkeypatch.setattr(SettingsManager, "_selected_simulation_id", None)
     monkeypatch.setattr(SimulationManager, "_active_simulation", None)
@@ -336,6 +344,7 @@ class MatchStore:
         _simulation_id: int,
         colors: dict[int, str],
         teams: dict[int, int] | None = None,
+        professions: dict[int, Profession] | None = None,
     ) -> None:
         for uid, color in colors.items():
             self.participants[uid] = (f"U{uid}", color)

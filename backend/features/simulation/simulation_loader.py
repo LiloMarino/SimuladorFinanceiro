@@ -54,7 +54,10 @@ class SimulationLoader:
         # O primeiro tick da Simulation já lê os participantes, que gravam antes dela
         room_colors = UserManager.room_colors()
         repository.simulation_player.save(
-            simulation_id, room_colors, UserManager.chosen_teams() if in_teams else None
+            simulation_id,
+            room_colors,
+            UserManager.chosen_teams() if in_teams else None,
+            UserManager.chosen_professions() if settings.uses_professions else None,
         )
         repository.user.seed_simulation_users(
             simulation_id,
@@ -138,11 +141,17 @@ class SimulationLoader:
             if user_id not in saved
         }
         room_teams = UserManager.chosen_teams() if in_teams else {}
+        room_professions = (
+            UserManager.chosen_professions() if summary.uses_professions else {}
+        )
         repository.simulation_player.save(
             summary.id,
             newcomers,
             {user_id: room_teams[user_id] for user_id in newcomers}
             if in_teams
+            else None,
+            {user_id: room_professions[user_id] for user_id in newcomers}
+            if summary.uses_professions
             else None,
         )
         repository.user.seed_simulation_users(

@@ -27,6 +27,7 @@ const settings: SimulationSettingsData = {
   ],
   withdrawal_rate: "0.0400",
   inflation_adjusted: true,
+  salary_mode: "PROFESSIONS",
   player_grouping: "TEAMS",
   team_naming: "NUMBER",
   show_equivalent_rate: false,

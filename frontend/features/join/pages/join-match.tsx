@@ -4,6 +4,8 @@ import { DoorOpen, TriangleAlert } from "lucide-react";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { GroupingBadge } from "@/shared/components/grouping-badge";
 import { PlayerColorGrid } from "@/shared/components/player-color-grid";
+import { ProfessionBadge } from "@/shared/components/profession-badge";
+import { ProfessionGrid } from "@/shared/components/profession-grid";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { TeamGrid } from "@/shared/components/team-grid";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
@@ -23,7 +25,7 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { toCentsString } from "@/shared/lib/utils/display";
 import { LoadingPage } from "@/pages/loading";
-import type { RoomPlayer, SimulationData } from "@/types";
+import type { Profession, RoomPlayer, SimulationData } from "@/types";
 import { useJoinMatch } from "../hooks/mutations/useJoinMatch";
 import { useMatchPlayers } from "../hooks/queries/useMatchPlayers";
 
@@ -76,6 +78,9 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
   // Em equipes a escolha é obrigatória e não tem padrão: quem entra decide em qual equipe joga
   const inTeams = match.player_grouping === "TEAMS";
   const [team, setTeam] = useState<number | null>(null);
+  // Com profissões a escolha também é obrigatória: quem entra decide o que faz da vida
+  const withProfessions = match.game_type === "FINANCIAL_INDEPENDENCE" && match.salary_mode === "PROFESSIONS";
+  const [profession, setProfession] = useState<Profession | null>(null);
 
   const isFree = (color: string | null): color is string => color !== null && !players.some((p) => p.color === color);
   const firstFree = PLAYER_COLORS.find((c) => isFree(c.key))?.key;
@@ -93,8 +98,9 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
             Entrar na partida
           </CardTitle>
           <CardDescription>
-            {match.name} já está em andamento. Escolha uma cor{inTeams ? " e uma equipe" : ""} e comece a jogar com o
-            saldo inicial de <span className="font-mono">{formatMoney(toCentsString(match.starting_cash))}</span>.
+            {match.name} já está em andamento. Escolha uma cor{inTeams ? ", uma equipe" : ""}
+            {withProfessions ? " e uma profissão" : ""} e comece a jogar com o saldo inicial de{" "}
+            <span className="font-mono">{formatMoney(toCentsString(match.starting_cash))}</span>.
           </CardDescription>
         </CardHeader>
 
@@ -125,6 +131,7 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
                           <Status status="offline">Offline</Status>
                         )}
                       </div>
+                      {withProfessions && <ProfessionBadge profession={player.profession} />}
                       {inTeams && <TeamBadge team={player.team} naming={match.team_naming} form="icon" />}
                     </div>
                   );
@@ -165,6 +172,21 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
               </div>
             )}
 
+            {/* Escolha da profissão */}
+            {withProfessions && (
+              <div className="grid gap-2">
+                <span className="text-xs font-semibold text-muted-foreground">Sua profissão</span>
+                <ProfessionGrid
+                  selected={profession}
+                  disabled={isPending}
+                  onSelect={(next) => {
+                    reset();
+                    setProfession(next);
+                  }}
+                />
+              </div>
+            )}
+
             {error && (
               <Alert variant="warning">
                 <TriangleAlert />
@@ -176,8 +198,12 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
             <div className="grid gap-2">
               <Button
                 size="lg"
-                disabled={!selected || isPending || (inTeams && team === null)}
-                onClick={() => selected && join({ color: selected, team: team ?? undefined })}
+                disabled={
+                  !selected || isPending || (inTeams && team === null) || (withProfessions && profession === null)
+                }
+                onClick={() =>
+                  selected && join({ color: selected, team: team ?? undefined, profession: profession ?? undefined })
+                }
               >
                 {isPending ? <Spinner /> : <DoorOpen />}
                 Entrar na partida

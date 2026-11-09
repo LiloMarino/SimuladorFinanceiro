@@ -67,7 +67,7 @@ export function LobbyPage() {
 
 function LobbyContent({ settings }: { settings: SimulationSettings }) {
   const [savedOpen, setSavedOpen] = useState(false);
-  const { grouping, naming } = useLobbyRules(settings);
+  const { grouping, naming, professions } = useLobbyRules(settings);
 
   return (
     <div className="mx-auto flex max-w-280 flex-col gap-5 px-7 py-10">
@@ -90,6 +90,7 @@ function LobbyContent({ settings }: { settings: SimulationSettings }) {
           selectedSimulationId={settings.selected_simulation_id}
           grouping={grouping}
           naming={naming}
+          professions={professions}
           governmentEnabled={settings.simulation.government_enabled}
         />
         <LobbyMatch

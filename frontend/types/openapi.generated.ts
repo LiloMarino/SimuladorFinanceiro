@@ -2988,6 +2988,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/players/me/profession": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Escolher a profissão do jogador
+         * @description Escolhe a profissão do jogador na sala, quando o viver de renda joga com profissões. Profissão não tem dono nem limite de jogadores; responde 409 fora desse modo, com a partida em andamento e para quem já jogou a partida salva selecionada.
+         */
+        put: operations["set_player_profession_api_simulation_players_me_profession_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/preparations": {
         parameters: {
             query?: never;
@@ -5468,6 +5488,8 @@ export interface components {
              * @default false
              */
             inflation_adjusted: boolean;
+            /** @default EQUAL */
+            salary_mode: components["schemas"]["SalaryMode"];
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -7162,6 +7184,12 @@ export interface components {
              */
             overwrite: boolean;
         };
+        /**
+         * IncomeLoss
+         * @description O que a demissão sorteada do mês faz com a renda de quem está exposto a ela.
+         * @enum {string}
+         */
+        IncomeLoss: "LAYOFF" | "GIG_LOSS" | "VACANCY";
         /** IncomeTaxBracketDTO */
         IncomeTaxBracketDTO: {
             /** Max Days */
@@ -7574,6 +7602,7 @@ export interface components {
             color: string;
             /** Team */
             team?: number | null;
+            profession?: components["schemas"]["Profession"] | null;
         };
         /** JoinPartyRequest */
         JoinPartyRequest: {
@@ -7614,7 +7643,7 @@ export interface components {
         };
         /**
          * LifeEventDTO
-         * @description Imprevisto sorteado no pregão: o mesmo para todos os jogadores.
+         * @description Imprevisto sorteado no pregão: o mesmo para todos os jogadores, que cada um sente pela profissão.
          */
         LifeEventDTO: {
             /** Key */
@@ -7629,6 +7658,7 @@ export interface components {
              * Format: date
              */
             event_date: string;
+            income_loss: components["schemas"]["IncomeLoss"] | null;
         };
         /**
          * LifeEventEffect
@@ -7759,6 +7789,24 @@ export interface components {
             reserve_daily_liquidity: string;
             /** Cover With Treasury */
             cover_with_treasury: boolean;
+            profession: components["schemas"]["Profession"] | null;
+            income_loss: components["schemas"]["IncomeLoss"] | null;
+            /**
+             * Health Multiple
+             * @default 1
+             */
+            health_multiple: string;
+            tax: components["schemas"]["TaxBase"] | null;
+            /** Tax Rate */
+            tax_rate: string | null;
+            /** Tax Reference */
+            tax_reference: string | null;
+            /** Real Raise */
+            real_raise: string | null;
+            /** Welfare Spending */
+            welfare_spending: string | null;
+            /** Gdp Growth */
+            gdp_growth: string | null;
         };
         /**
          * LinkEffectDTO
@@ -8946,6 +8994,7 @@ export interface components {
             color: string;
             /** Team */
             team: number | null;
+            profession: components["schemas"]["Profession"] | null;
             activity: components["schemas"]["PlayerActivity"] | null;
             bot: components["schemas"]["RoomBotDTO"] | null;
         };
@@ -9009,10 +9058,15 @@ export interface components {
             color: string;
             /** Team */
             team: number | null;
+            profession: components["schemas"]["Profession"] | null;
             activity: components["schemas"]["PlayerActivity"] | null;
             bot: components["schemas"]["RoomBotDTO"] | null;
             /** Previous Nickname */
             previous_nickname: string | null;
+        };
+        /** PlayerProfessionRequest */
+        PlayerProfessionRequest: {
+            profession: components["schemas"]["Profession"];
         };
         /** PlayerRankingDTO */
         PlayerRankingDTO: {
@@ -9576,6 +9630,12 @@ export interface components {
             curve: components["schemas"]["PriceImpactPointDTO"][];
         };
         /**
+         * Profession
+         * @description A profissão do jogador no viver de renda; cada uma pertence a um grupo do eleitorado.
+         * @enum {string}
+         */
+        Profession: "CLT" | "PUBLIC_SERVANT" | "ENTREPRENEUR" | "RETIREE" | "WELFARE" | "LANDLORD";
+        /**
          * ProfileMoveDTO
          * @description Uma medida aprovada que moveu o perfil do partido.
          */
@@ -9927,6 +9987,7 @@ export interface components {
             player_removed: components["schemas"]["PlayerRemovedEventDTO"];
             player_color: components["schemas"]["PlayerPresenceEventDTO"];
             player_team: components["schemas"]["PlayerPresenceEventDTO"];
+            player_profession: components["schemas"]["PlayerPresenceEventDTO"];
             player_activity: components["schemas"]["PlayerPresenceEventDTO"];
             player_bot: components["schemas"]["PlayerPresenceEventDTO"];
             preparations_update: components["schemas"]["PreparationsDTO"];
@@ -10207,6 +10268,12 @@ export interface components {
             /** Promise Limit */
             promise_limit: number;
         };
+        /**
+         * SalaryMode
+         * @description Como a renda do viver de renda se divide: o mesmo salário para todos ou uma profissão para cada jogador.
+         * @enum {string}
+         */
+        SalaryMode: "EQUAL" | "PROFESSIONS";
         /** SavePresetRequest */
         SavePresetRequest: {
             /** Name */
@@ -10253,6 +10320,8 @@ export interface components {
             withdrawal_rate: string;
             /** Inflation Adjusted */
             inflation_adjusted: boolean;
+            /** @default EQUAL */
+            salary_mode: components["schemas"]["SalaryMode"];
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -10692,6 +10761,8 @@ export interface components {
             withdrawal_rate: string;
             /** Inflation Adjusted */
             inflation_adjusted: boolean;
+            /** @default EQUAL */
+            salary_mode: components["schemas"]["SalaryMode"];
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -10810,6 +10881,8 @@ export interface components {
              * @default false
              */
             inflation_adjusted: boolean;
+            /** @default EQUAL */
+            salary_mode: components["schemas"]["SalaryMode"];
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -10893,6 +10966,8 @@ export interface components {
             withdrawal_rate: string;
             /** Inflation Adjusted */
             inflation_adjusted: boolean;
+            /** @default EQUAL */
+            salary_mode: components["schemas"]["SalaryMode"];
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -11485,6 +11560,12 @@ export interface components {
         };
         /** @enum {string} */
         SummaryVerdict: "strong_buy" | "buy" | "neutral" | "sell" | "strong_sell";
+        /**
+         * TaxBase
+         * @description O imposto cujo desvio contra a lei aumenta ou corta a renda líquida.
+         * @enum {string}
+         */
+        TaxBase: "PERSONAL" | "CORPORATE" | "CONSUMPTION";
         /** TaxRowDTO */
         TaxRowDTO: {
             kind: components["schemas"]["MeasureKind"];
@@ -12181,6 +12262,8 @@ export interface components {
              * @default false
              */
             inflation_adjusted: boolean;
+            /** @default EQUAL */
+            salary_mode: components["schemas"]["SalaryMode"];
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -18808,6 +18891,46 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["PlayerTeamRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_player_profession_api_simulation_players_me_profession_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlayerProfessionRequest"];
             };
         };
         responses: {

@@ -5,7 +5,14 @@ from typing import Annotated
 from pydantic import AfterValidator, Field
 
 from backend.core.dto.base import BaseDTO
-from backend.core.enum import LifeEventEffect, LifeHistoryCategory, LifeHistoryKind
+from backend.core.enum import (
+    IncomeLoss,
+    LifeEventEffect,
+    LifeHistoryCategory,
+    LifeHistoryKind,
+    Profession,
+)
+from backend.core.professions import TaxBase
 
 LIFE_EVENT_LABEL_MAX_LENGTH = 40
 LIFE_EVENT_MAX_EXPENSE_MULTIPLE = 24
@@ -82,7 +89,7 @@ def default_life_events() -> list[LifeEventTypeDTO]:
 
 
 class LifeEventDTO(BaseDTO):
-    """Imprevisto sorteado no pregão: o mesmo para todos os jogadores."""
+    """Imprevisto sorteado no pregão: o mesmo para todos os jogadores, que cada um sente pela profissão."""
 
     key: str
     label: str
@@ -90,6 +97,8 @@ class LifeEventDTO(BaseDTO):
     # Quanto saiu do caixa de cada jogador; zero na demissão, que tira o salário do mês seguinte
     amount: Decimal
     event_date: date
+    # O que a demissão sorteada é para quem recebe o aviso (demissão, queda do bico ou vacância)
+    income_loss: IncomeLoss | None = None
 
 
 class LifeStatusDTO(BaseDTO):
@@ -115,6 +124,22 @@ class LifeStatusDTO(BaseDTO):
     reserve_daily_liquidity: Decimal
     # A cobertura automática também vende Prefixado e IPCA+ (a mercado); os títulos sem perda sempre entram
     cover_with_treasury: bool
+    # Só no viver de renda com profissões: a do jogador e o que a atinge no dia
+    profession: Profession | None = None
+    # O que o sorteio da demissão é para a profissão; nulo quando ela o ignora
+    income_loss: IncomeLoss | None = None
+    # Quantas vezes o imprevisto de saúde pesa para a profissão
+    health_multiple: Decimal = Decimal(1)
+    # O imposto que mexe na renda da profissão, a alíquota em vigor e a da lei
+    tax: TaxBase | None = None
+    tax_rate: Decimal | None = None
+    tax_reference: Decimal | None = None
+    # O reajuste real em vigor (servidores ou aposentados); nulo nas outras profissões
+    real_raise: Decimal | None = None
+    # O gasto com auxílio em fração do PIB; nulo fora da profissão que o recebe
+    welfare_spending: Decimal | None = None
+    # O PIB de 12 meses que move a renda do empreendedor; nulo nas outras profissões
+    gdp_growth: Decimal | None = None
 
 
 class LifeHistoryRowDTO(BaseDTO):

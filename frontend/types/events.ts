@@ -34,6 +34,7 @@ export type SimulationEvents = {
   player_removed: RealtimeEventCatalog["player_removed"];
   player_color: RealtimeEventCatalog["player_color"];
   player_team: RealtimeEventCatalog["player_team"];
+  player_profession: RealtimeEventCatalog["player_profession"];
   player_activity: RealtimeEventCatalog["player_activity"];
   player_bot: RealtimeEventCatalog["player_bot"];
   preparations_update: RealtimeEventCatalog["preparations_update"];

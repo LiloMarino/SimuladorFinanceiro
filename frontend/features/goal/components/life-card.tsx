@@ -4,11 +4,13 @@ import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { ProfessionBadge } from "@/shared/components/profession-badge";
 import { StackedBar } from "@/shared/components/stacked-bar";
 import { cn } from "@/shared/lib/utils";
 import { displayAnnualExpenseMultiple, displayRatePercent } from "@/shared/lib/financial-independence";
 import { displayProjectionDistance, type GoalProjection } from "@/shared/lib/goal";
-import { GOAL_ETA, INDEPENDENCE_GOAL, RESERVE_MONTHS } from "@/shared/lib/life-metrics";
+import { GOAL_ETA, INDEPENDENCE_GOAL, PROFESSION_INCOME, RESERVE_MONTHS } from "@/shared/lib/life-metrics";
+import { INCOME_LOSS_NAMES, PROFESSIONS, TAX_NAMES } from "@/shared/lib/professions";
 import { displayMoney, displayMoneyWhole, displayMonthName, displaySignedMoney } from "@/shared/lib/utils/display";
 import type { LifeStatus, SimulationData } from "@/types";
 import { RESERVE_FRAGILE_MONTHS, RESERVE_FULL_MONTHS, reserveShares, reserveTone } from "../lib/reserve";
@@ -54,6 +56,7 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
   const salaryMissing = life.salary_skipped_by !== null || life.next_salary_skipped_by !== null;
   const leftover = (salaryMissing ? 0 : salary) - expense;
   const startYear = match.start_date.slice(0, 4);
+  const lossNames = life.income_loss ? INCOME_LOSS_NAMES[life.income_loss] : null;
 
   return (
     <Card>
@@ -82,13 +85,48 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
             </Alert>
           )}
 
+          {/* Profissão e o que mexe na renda dela */}
+          {life.profession && (
+            <div className="grid gap-1.5 rounded-[10px] border p-3">
+              <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <ProfessionBadge profession={life.profession} />
+                <MetricHint metric={PROFESSION_INCOME} />
+                <span className="text-xs text-muted-foreground">{PROFESSIONS[life.profession].feels}</span>
+              </span>
+              <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs">
+                {life.tax && life.tax_rate && life.tax_reference && (
+                  <span>
+                    {TAX_NAMES[life.tax]}: <b className="font-mono">{displayRatePercent(life.tax_rate)}</b> (lei:{" "}
+                    {displayRatePercent(life.tax_reference)})
+                  </span>
+                )}
+                {life.real_raise && (
+                  <span>
+                    Reajuste acima do IPCA: <b className="font-mono">{displayRatePercent(life.real_raise)}</b>
+                  </span>
+                )}
+                {life.welfare_spending && (
+                  <span>
+                    Gasto com auxílio: <b className="font-mono">{displayRatePercent(life.welfare_spending)}</b> do PIB
+                  </span>
+                )}
+                {life.gdp_growth && (
+                  <span>
+                    PIB em 12 meses: <b className="font-mono">{displayRatePercent(life.gdp_growth)}</b>
+                  </span>
+                )}
+                {Number(life.health_multiple) > 1 && <span>Imprevisto de saúde custa {life.health_multiple}×</span>}
+              </div>
+            </div>
+          )}
+
           <div className="grid gap-5 sm:grid-cols-2">
             {/* Todo mês */}
             <div className="grid content-start">
               <span className="mb-1.5 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
                 Todo mês
               </span>
-              <MonthRow label="Salário">
+              <MonthRow label={life.profession ? "Renda" : "Salário"}>
                 <span
                   className={cn(
                     "font-mono font-semibold",
@@ -100,13 +138,13 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
               </MonthRow>
               {life.salary_skipped_by && (
                 <span className="pb-1.5 text-xs text-destructive">
-                  Demitido em {displayMonthName(life.salary_skipped_by)}: o salário de{" "}
+                  {lossNames?.event} em {displayMonthName(life.salary_skipped_by)}: {lossNames?.missing} de{" "}
                   {displayMonthName(life.salary_skipped_by, 1)} não entrou
                 </span>
               )}
               {life.next_salary_skipped_by && (
                 <span className="pb-1.5 text-xs text-destructive">
-                  Demitido em {displayMonthName(life.next_salary_skipped_by)}: o salário de{" "}
+                  {lossNames?.event} em {displayMonthName(life.next_salary_skipped_by)}: {lossNames?.missing} de{" "}
                   {displayMonthName(life.next_salary_skipped_by, 1)} não entra
                 </span>
               )}

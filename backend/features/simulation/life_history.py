@@ -21,6 +21,7 @@ from backend.core.dto.life import (
 )
 from backend.core.enum import (
     CashflowEventType,
+    IncomeLoss,
     IndicatorSeries,
     LifeEventEffect,
     LifeHistoryCategory,
@@ -29,9 +30,8 @@ from backend.core.enum import (
 )
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
+from backend.core.professions import RealRaise, TaxBase, entrepreneur_gdp_factor
 from backend.core.utils import format_money
-from backend.features.simulation.life_events import net_salary
-from backend.features.tax_policy import DEFAULT_TAX_POLICY
 
 
 @dataclass(frozen=True)
@@ -43,32 +43,45 @@ class BudgetChange:
     label: str
 
 
+# O que o sorteio da demissão é para quem não é CLT; a demissão mantém o rótulo do tipo
+_LOSS_NAMES = {
+    IncomeLoss.GIG_LOSS: "Bico perdido",
+    IncomeLoss.VACANCY: "Vacância",
+}
+
+_TAX_NAMES = {
+    TaxBase.PERSONAL: "IR das pessoas",
+    TaxBase.CORPORATE: "IR das empresas",
+    TaxBase.CONSUMPTION: "Imposto sobre consumo",
+}
+
+_RAISE_NAMES = {
+    RealRaise.SERVANTS: "reajuste dos servidores",
+    RealRaise.RETIREES: "reajuste das aposentadorias",
+}
+
+
 def budget_changes(
     life: LifeBudget,
     until: date,
-    personal_rate_on: Callable[[date], Decimal],
     overdraft_rate_on: Callable[[date], Decimal],
 ) -> list[BudgetChange]:
     """
-    Cada reajuste de salário e despesa, cada mudança da alíquota do IR das pessoas e
-    cada mudança do juro do cheque especial (a taxa mensal mostrada com uma casa)
-    até `until`. O juro e o IR são lidos no primeiro dia de cada mês.
+    Cada reajuste de renda e despesa, cada mudança do imposto que mexe na renda da
+    profissão, do auxílio e do PIB que movem a renda dela e cada mudança do juro do
+    cheque especial (a taxa mensal mostrada com uma casa) até `until`. O que muda de
+    mês a mês é lido no primeiro dia de cada mês.
     """
     changes: list[BudgetChange] = []
     for anniversary in life.readjustments(until)[1:]:
         ipca, growth = life.salary_raise_inputs(anniversary)
-        origin = (
-            f"IPCA de {_percent(ipca)} e PIB de {_percent(growth)}"
-            if growth > 0
-            else f"IPCA de {_percent(ipca)}, sem reajuste real (PIB de {_percent(growth)})"
-        )
         salary = format_money(life.salary_on(anniversary))
         expense = format_money(life.expense_on(anniversary))
         changes.append(
             BudgetChange(
                 anniversary,
                 LifeHistoryKind.SALARY_READJUSTED,
-                f"Salário base reajustado para {salary}: {origin}",
+                f"Salário base reajustado para {salary}: {_raise_origin(life, anniversary, ipca, growth)}",
             )
         )
         changes.append(
@@ -79,9 +92,12 @@ def budget_changes(
             )
         )
 
-    reference = DEFAULT_TAX_POLICY.personal_rate
-    personal_rate = reference
+    tax_name = _TAX_NAMES[life.rule.tax]
+    reference = life.tax_reference()
+    tax_rate = reference
     shown_rate: Decimal | None = None
+    shown_welfare: Decimal | None = None
+    shown_growth: Decimal | None = None
     for day in _month_starts(life.start_date, until):
         rate = overdraft_rate_on(day)
         if round(rate * 100, 1) != shown_rate:
@@ -94,18 +110,61 @@ def budget_changes(
                     f"Juro do cheque especial a {_percent(rate)} ao mês: SELIC de {_percent(selic)} ao ano",
                 )
             )
-        current = personal_rate_on(day)
-        if current != personal_rate:
-            personal_rate = current
-            net = format_money(net_salary(life.salary_on(day), current))
+        current = life.tax_rate_on(day)
+        if current != tax_rate:
+            tax_rate = current
+            net = format_money(life.net_salary_on(day))
             changes.append(
                 BudgetChange(
                     day,
                     LifeHistoryKind.SALARY_TAX_CHANGED,
-                    f"IR das pessoas em {_percent(current)} (referência de {_percent(reference)}): salário líquido de {net}",
+                    f"{tax_name} em {_percent(current)} (referência de {_percent(reference)}): renda líquida de {net}",
                 )
             )
+        if life.rule.benefit_multiple > 0:
+            welfare = life.levers_on(day).welfare_spending
+            if welfare != shown_welfare:
+                if shown_welfare is not None:
+                    net = format_money(life.net_salary_on(day))
+                    changes.append(
+                        BudgetChange(
+                            day,
+                            LifeHistoryKind.SALARY_TAX_CHANGED,
+                            f"Auxílio do governo a {_percent(welfare)} do PIB: renda líquida de {net}",
+                        )
+                    )
+                shown_welfare = welfare
+        if life.rule.follows_gdp:
+            growth = round(life.growth_on(day) * 100, 1)
+            if growth != shown_growth:
+                if shown_growth is not None:
+                    factor = entrepreneur_gdp_factor(life.growth_on(day))
+                    net = format_money(life.net_salary_on(day))
+                    changes.append(
+                        BudgetChange(
+                            day,
+                            LifeHistoryKind.SALARY_TAX_CHANGED,
+                            f"Renda do mês com o PIB a {_percent(life.growth_on(day))} (fator de {factor:.2f}): {net} líquidos",
+                        )
+                    )
+                shown_growth = growth
     return sorted(changes, key=lambda change: change.day)
+
+
+def _raise_origin(
+    life: LifeBudget, anniversary: date, ipca: Decimal, growth: Decimal
+) -> str:
+    """O que reajustou a renda da profissão no aniversário: o IPCA e, acima dele, a parte que a profissão ganha."""
+    source = life.rule.real_raise
+    if source is RealRaise.GDP_SHARE:
+        return (
+            f"IPCA de {_percent(ipca)} e PIB de {_percent(growth)}"
+            if growth > 0
+            else f"IPCA de {_percent(ipca)}, sem reajuste real (PIB de {_percent(growth)})"
+        )
+    if source is RealRaise.NONE:
+        return f"IPCA de {_percent(ipca)}"
+    return f"IPCA de {_percent(ipca)} e {_RAISE_NAMES[source]} de {_percent(life.real_raise_on(anniversary))}"
 
 
 def build_history(
@@ -113,6 +172,7 @@ def build_history(
     life_events: Sequence[LifeEventTypeDTO],
     changes: Sequence[BudgetChange] = (),
     unemployment_on: Callable[[date], Decimal] | None = None,
+    loss: IncomeLoss | None = IncomeLoss.LAYOFF,
 ) -> list[LifeHistoryRowDTO]:
     """
     As linhas do mais antigo ao mais novo, a partir de todos os eventos de caixa do
@@ -120,7 +180,8 @@ def build_history(
     efeito de cada imprevisto vêm dos tipos das regras da partida (`life_events`);
     a chave de um tipo que saiu da lista aparece como está. O juro é
     cobrado por pregão e vira uma linha por mês, datada do último pregão cobrado
-    nele. Com `unemployment_on`, a demissão cita o desemprego do dia.
+    nele. Com `unemployment_on`, a demissão cita o desemprego do dia; `loss` diz o
+    que o sorteio da demissão é para a profissão do jogador.
     """
     kinds = {kind.key: kind for kind in life_events}
     rows: list[LifeHistoryRowDTO] = []
@@ -166,7 +227,7 @@ def build_history(
 
         if event.event_type is CashflowEventType.UNEXPECTED_EXPENSE:
             flush_interest()
-            rows.append(_unexpected_row(event, kinds, cash, unemployment_on))
+            rows.append(_unexpected_row(event, kinds, cash, unemployment_on, loss))
 
         if before >= 0 > cash:
             flush_interest()
@@ -295,14 +356,20 @@ def _unexpected_row(
     kinds: dict[str, LifeEventTypeDTO],
     cash: Decimal,
     unemployment_on: Callable[[date], Decimal] | None,
+    loss: IncomeLoss | None,
 ) -> LifeHistoryRowDTO:
     kind = kinds.get(event.life_event_key or "")
     if kind is not None and kind.effect is LifeEventEffect.SKIP_NEXT_SALARY:
-        label = (
-            kind.label
-            if unemployment_on is None
-            else f"Desemprego de {_percent(unemployment_on(event.event_date))}"
-        )
+        name = _LOSS_NAMES.get(loss) if loss is not None else None
+        if unemployment_on is None:
+            label = name or kind.label
+        else:
+            unemployment = _percent(unemployment_on(event.event_date))
+            label = (
+                f"{name} com desemprego de {unemployment}"
+                if name
+                else f"Desemprego de {unemployment}"
+            )
         return _row(
             event, LifeHistoryCategory.LAYOFF, LifeHistoryKind.LAYOFF, cash, label
         )

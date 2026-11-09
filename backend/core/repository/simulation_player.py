@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.user import UserDTO
+from backend.core.enum import Profession
 from backend.core.models.models import SimulationPlayers, Users
 from backend.core.repository.user import user_dto
 
@@ -16,14 +17,17 @@ class SimulationPlayerRepository:
         simulation_id: int,
         colors: dict[int, str],
         teams: dict[int, int] | None = None,
+        professions: dict[int, Profession] | None = None,
     ):
         """
         Grava a cor de cada jogador na partida; quem já tem linha troca de cor.
-        `teams` (user_id -> equipe) só vem em partida em equipes e grava junto com a cor.
+        `teams` (user_id -> equipe) só vem em partida em equipes e grava junto com a cor;
+        `professions` (user_id -> profissão) só vem no viver de renda com profissões.
         """
         if not colors:
             return
         teams = teams or {}
+        professions = professions or {}
         stmt = insert(SimulationPlayers).values(
             [
                 {
@@ -31,6 +35,9 @@ class SimulationPlayerRepository:
                     "user_id": user_id,
                     "color": color,
                     "team": teams.get(user_id),
+                    "profession": (
+                        professions[user_id].value if user_id in professions else None
+                    ),
                 }
                 for user_id, color in colors.items()
             ]
@@ -38,7 +45,11 @@ class SimulationPlayerRepository:
         session.execute(
             stmt.on_conflict_do_update(
                 index_elements=["simulation_id", "user_id"],
-                set_={"color": stmt.excluded.color, "team": stmt.excluded.team},
+                set_={
+                    "color": stmt.excluded.color,
+                    "team": stmt.excluded.team,
+                    "profession": stmt.excluded.profession,
+                },
             )
         )
 
@@ -62,6 +73,23 @@ class SimulationPlayerRepository:
             )
         ).all()
         return {user_id: team for user_id, team in rows if team is not None}
+
+    @transactional
+    def professions(
+        self, session: Session, simulation_id: int
+    ) -> dict[int, Profession]:
+        """Profissão de cada participante da partida, por `user_id`; vazio fora do modo de profissões."""
+        rows = session.execute(
+            select(SimulationPlayers.user_id, SimulationPlayers.profession).where(
+                SimulationPlayers.simulation_id == simulation_id,
+                SimulationPlayers.profession.is_not(None),
+            )
+        ).all()
+        return {
+            user_id: Profession(profession)
+            for user_id, profession in rows
+            if profession is not None
+        }
 
     @transactional
     def participants(self, session: Session, simulation_id: int) -> list[UserDTO]:

@@ -56,13 +56,13 @@ export function lifeRowIcon(row: LifeHistoryRow) {
   return (row.life_event_key && UNEXPECTED_ICONS[row.life_event_key]) || LIFE_HISTORY_KINDS[row.kind].icon;
 }
 
-/** O texto da coluna "O que foi"; as mudanças do orçamento e a demissão trazem a origem na economia da partida. */
+/** O texto da coluna "O que foi"; as mudanças do orçamento e a perda de renda trazem a origem na economia da partida. */
 export function lifeRowText(row: LifeHistoryRow) {
   switch (row.kind) {
     case "UNEXPECTED_EXPENSE":
       return row.label ?? LIFE_HISTORY_KINDS.UNEXPECTED_EXPENSE.tag;
     case "LAYOFF":
-      return `Salário de ${displayMonthName(row.event_date, 1)} não entrou${row.label ? ` · ${row.label}` : ""}`;
+      return `Renda de ${displayMonthName(row.event_date, 1)} não entrou${row.label ? ` · ${row.label}` : ""}`;
     case "OVERDRAFT_STARTED":
       return "Caixa ficou negativo";
     case "OVERDRAFT_ENDED":

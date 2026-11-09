@@ -8513,6 +8513,56 @@
         ]
       }
     },
+    "/api/simulation/players/me/profession": {
+      "put": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Escolher a profissão do jogador",
+        "description": "Escolhe a profissão do jogador na sala, quando o viver de renda joga com profissões. Profissão não tem dono nem limite de jogadores; responde 409 fora desse modo, com a partida em andamento e para quem já jogou a partida salva selecionada.",
+        "operationId": "set_player_profession_api_simulation_players_me_profession_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlayerProfessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/preparations": {
       "get": {
         "tags": [
@@ -15580,6 +15630,10 @@
             "title": "Inflation Adjusted",
             "default": false
           },
+          "salary_mode": {
+            "$ref": "#/components/schemas/SalaryMode",
+            "default": "EQUAL"
+          },
           "player_grouping": {
             "$ref": "#/components/schemas/PlayerGrouping",
             "default": "INDIVIDUAL"
@@ -20662,6 +20716,16 @@
         ],
         "title": "ImportYFinanceRequest"
       },
+      "IncomeLoss": {
+        "type": "string",
+        "enum": [
+          "LAYOFF",
+          "GIG_LOSS",
+          "VACANCY"
+        ],
+        "title": "IncomeLoss",
+        "description": "O que a demissão sorteada do mês faz com a renda de quem está exposto a ela."
+      },
       "IncomeTaxBracketDTO": {
         "properties": {
           "max_days": {
@@ -21453,6 +21517,16 @@
               }
             ],
             "title": "Team"
+          },
+          "profession": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Profession"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -21580,6 +21654,16 @@
             "type": "string",
             "format": "date",
             "title": "Event Date"
+          },
+          "income_loss": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IncomeLoss"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -21589,10 +21673,11 @@
           "label",
           "effect",
           "amount",
-          "event_date"
+          "event_date",
+          "income_loss"
         ],
         "title": "LifeEventDTO",
-        "description": "Imprevisto sorteado no pregão: o mesmo para todos os jogadores."
+        "description": "Imprevisto sorteado no pregão: o mesmo para todos os jogadores, que cada um sente pela profissão."
       },
       "LifeEventEffect": {
         "type": "string",
@@ -21938,6 +22023,96 @@
           "cover_with_treasury": {
             "type": "boolean",
             "title": "Cover With Treasury"
+          },
+          "profession": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Profession"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "income_loss": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IncomeLoss"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "health_multiple": {
+            "type": "string",
+            "title": "Health Multiple",
+            "default": "1"
+          },
+          "tax": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TaxBase"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tax_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Rate"
+          },
+          "tax_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Reference"
+          },
+          "real_raise": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Real Raise"
+          },
+          "welfare_spending": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Welfare Spending"
+          },
+          "gdp_growth": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gdp Growth"
           }
         },
         "additionalProperties": false,
@@ -21956,7 +22131,16 @@
           "reserve_months",
           "reserve_cash",
           "reserve_daily_liquidity",
-          "cover_with_treasury"
+          "cover_with_treasury",
+          "profession",
+          "income_loss",
+          "health_multiple",
+          "tax",
+          "tax_rate",
+          "tax_reference",
+          "real_raise",
+          "welfare_spending",
+          "gdp_growth"
         ],
         "title": "LifeStatusDTO",
         "description": "A vida financeira de quem pede, no pregão corrente do viver de renda."
@@ -25342,6 +25526,16 @@
             ],
             "title": "Team"
           },
+          "profession": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Profession"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "activity": {
             "anyOf": [
               {
@@ -25368,6 +25562,7 @@
           "nickname",
           "color",
           "team",
+          "profession",
           "activity",
           "bot"
         ],
@@ -25585,6 +25780,16 @@
             ],
             "title": "Team"
           },
+          "profession": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Profession"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "activity": {
             "anyOf": [
               {
@@ -25623,12 +25828,25 @@
           "nickname",
           "color",
           "team",
+          "profession",
           "activity",
           "bot",
           "previous_nickname"
         ],
         "title": "PlayerPresenceEventDTO",
         "description": "Entrada, saída e troca de cor, equipe ou atividade de um jogador: a cor é a chave da paleta."
+      },
+      "PlayerProfessionRequest": {
+        "properties": {
+          "profession": {
+            "$ref": "#/components/schemas/Profession"
+          }
+        },
+        "type": "object",
+        "required": [
+          "profession"
+        ],
+        "title": "PlayerProfessionRequest"
       },
       "PlayerRankingDTO": {
         "properties": {
@@ -27308,6 +27526,19 @@
         ],
         "title": "PriceImpactPreviewDTO"
       },
+      "Profession": {
+        "type": "string",
+        "enum": [
+          "CLT",
+          "PUBLIC_SERVANT",
+          "ENTREPRENEUR",
+          "RETIREE",
+          "WELFARE",
+          "LANDLORD"
+        ],
+        "title": "Profession",
+        "description": "A profissão do jogador no viver de renda; cada uma pertence a um grupo do eleitorado."
+      },
       "ProfileMoveDTO": {
         "properties": {
           "date": {
@@ -28314,6 +28545,9 @@
           "player_team": {
             "$ref": "#/components/schemas/PlayerPresenceEventDTO"
           },
+          "player_profession": {
+            "$ref": "#/components/schemas/PlayerPresenceEventDTO"
+          },
           "player_activity": {
             "$ref": "#/components/schemas/PlayerPresenceEventDTO"
           },
@@ -28423,6 +28657,7 @@
           "player_removed",
           "player_color",
           "player_team",
+          "player_profession",
           "player_activity",
           "player_bot",
           "preparations_update",
@@ -29170,6 +29405,15 @@
         "title": "RunoffRaceDTO",
         "description": "O 2º turno em andamento: pesquisa semanal, transferência dos eliminados e o que os partidos podem fazer."
       },
+      "SalaryMode": {
+        "type": "string",
+        "enum": [
+          "EQUAL",
+          "PROFESSIONS"
+        ],
+        "title": "SalaryMode",
+        "description": "Como a renda do viver de renda se divide: o mesmo salário para todos ou uma profissão para cada jogador."
+      },
       "SavePresetRequest": {
         "properties": {
           "name": {
@@ -29265,6 +29509,10 @@
           "inflation_adjusted": {
             "type": "boolean",
             "title": "Inflation Adjusted"
+          },
+          "salary_mode": {
+            "$ref": "#/components/schemas/SalaryMode",
+            "default": "EQUAL"
           },
           "player_grouping": {
             "$ref": "#/components/schemas/PlayerGrouping",
@@ -29421,6 +29669,7 @@
           "life_events",
           "withdrawal_rate",
           "inflation_adjusted",
+          "salary_mode",
           "player_grouping",
           "team_naming",
           "show_equivalent_rate",
@@ -30426,6 +30675,10 @@
             "type": "boolean",
             "title": "Inflation Adjusted"
           },
+          "salary_mode": {
+            "$ref": "#/components/schemas/SalaryMode",
+            "default": "EQUAL"
+          },
           "player_grouping": {
             "$ref": "#/components/schemas/PlayerGrouping",
             "default": "INDIVIDUAL"
@@ -30508,6 +30761,7 @@
           "life_events",
           "withdrawal_rate",
           "inflation_adjusted",
+          "salary_mode",
           "player_grouping",
           "team_naming",
           "show_equivalent_rate",
@@ -30698,6 +30952,10 @@
             "title": "Inflation Adjusted",
             "default": false
           },
+          "salary_mode": {
+            "$ref": "#/components/schemas/SalaryMode",
+            "default": "EQUAL"
+          },
           "player_grouping": {
             "$ref": "#/components/schemas/PlayerGrouping",
             "default": "INDIVIDUAL"
@@ -30866,6 +31124,10 @@
             "type": "boolean",
             "title": "Inflation Adjusted"
           },
+          "salary_mode": {
+            "$ref": "#/components/schemas/SalaryMode",
+            "default": "EQUAL"
+          },
           "player_grouping": {
             "$ref": "#/components/schemas/PlayerGrouping",
             "default": "INDIVIDUAL"
@@ -30944,6 +31206,7 @@
           "life_events",
           "withdrawal_rate",
           "inflation_adjusted",
+          "salary_mode",
           "player_grouping",
           "team_naming",
           "show_equivalent_rate",
@@ -32725,6 +32988,16 @@
           "sell",
           "strong_sell"
         ]
+      },
+      "TaxBase": {
+        "type": "string",
+        "enum": [
+          "PERSONAL",
+          "CORPORATE",
+          "CONSUMPTION"
+        ],
+        "title": "TaxBase",
+        "description": "O imposto cujo desvio contra a lei aumenta ou corta a renda líquida."
       },
       "TaxRowDTO": {
         "properties": {
@@ -34824,6 +35097,10 @@
             "type": "boolean",
             "title": "Inflation Adjusted",
             "default": false
+          },
+          "salary_mode": {
+            "$ref": "#/components/schemas/SalaryMode",
+            "default": "EQUAL"
           },
           "player_grouping": {
             "$ref": "#/components/schemas/PlayerGrouping",

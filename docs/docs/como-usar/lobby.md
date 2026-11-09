@@ -230,6 +230,22 @@ Ela vem do estudo **Trinity**, feito com dados dos EUA. O estudo viu que retirar
 
 **Sem aporte.** Nesta modalidade o host define o **salário** e a **despesa** mensais (padrão R$ 8.000 e R$ 5.000). No primeiro pregão de cada mês, o salário entra e a despesa sai; a sobra é o que dá para investir. Despesa maior que o salário é permitida, só aparece um aviso.
 
+**Salário (opcional).** O **modo de salário** do host define quem ganha o quê:
+
+- **Todos iguais** (padrão): todos são CLT e ganham o salário do host.
+- **Profissões:** cada jogador escolhe uma profissão ao entrar (no lobby ou na tela de entrada) e a vê no cartão dos outros jogadores. Quem já jogou a partida salva volta com a sua; os bots sorteiam uma ao entrar. A meta e a despesa continuam as do host: a profissão muda só a renda e o risco.
+
+| Profissão | Renda por mês | O que ela sente |
+| --- | --- | --- |
+| CLT | 1,0× o salário | Demissão pelo desemprego; reajuste de IPCA + metade do PIB; imposto de renda das pessoas |
+| Servidor | 0,9× | Nunca é demitido; reajuste de IPCA + o reajuste real dos servidores aprovado no governo |
+| Empreendedor | 1,2×, corrigido pelo PIB | A renda sobe e cai com o PIB dos últimos 12 meses; sente o imposto de renda das empresas |
+| Aposentado | 0,85× | O imprevisto de saúde custa o dobro; reajuste de IPCA + o reajuste real dos aposentados |
+| Auxílio | bico de 0,5× + auxílio | O bico some no sorteio de demissão; o auxílio cresce com o gasto do governo com auxílio; sente o imposto sobre consumo |
+| Locador | 1,0× de aluguel | A vacância (um mês sem aluguel) cai no sorteio de demissão; imposto de renda das pessoas |
+
+Ex.: salário do host de R$ 8.000 e Servidor: a renda é R$ 7.200 por mês. O sorteio de imprevistos é um só para a partida, então o mesmo dia que demite o CLT tira o bico do Auxílio e o aluguel do Locador; o Servidor, o Empreendedor e o Aposentado ignoram essa perda. O cartão de Vida financeira mostra a profissão e o que ela sente agora.
+
 **Imprevistos.** Eles são sorteados iguais para todos os jogadores, nos mesmos dias. A frequência define quantos imprevistos caem em cada ano:
 
 | Frequência | Quantos por ano |

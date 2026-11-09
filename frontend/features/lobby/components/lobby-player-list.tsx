@@ -3,6 +3,7 @@ import { Info, Plus, TriangleAlert } from "lucide-react";
 import { GroupingBadge } from "@/shared/components/grouping-badge";
 import { PartyMark } from "@/shared/components/party-mark";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
+import { ProfessionBadge } from "@/shared/components/profession-badge";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
@@ -26,6 +27,7 @@ import { LobbyBotDialog } from "./lobby-bot-dialog";
 import { LobbyBotMenu } from "./lobby-bot-menu";
 import { LobbyColorPicker } from "./lobby-color-picker";
 import { LobbyPlayerMenu } from "./lobby-player-menu";
+import { LobbyProfessionPicker } from "./lobby-profession-picker";
 import { LobbyTeamPicker } from "./lobby-team-picker";
 
 type LobbyPlayersListProps = {
@@ -38,6 +40,8 @@ type LobbyPlayersListProps = {
   /** Como a sala joga e como as equipes se chamam */
   grouping: PlayerGrouping;
   naming: TeamNaming;
+  /** Viver de renda com profissões: cada cartão mostra a profissão e cada um escolhe a sua */
+  professions: boolean;
   /** Governo & Política ligada: cada cartão mostra o partido preparado */
   governmentEnabled: boolean;
 };
@@ -50,6 +54,7 @@ export function LobbyPlayersList({
   selectedSimulationId,
   grouping,
   naming,
+  professions,
   governmentEnabled,
 }: LobbyPlayersListProps) {
   const { user } = useAuth();
@@ -151,6 +156,7 @@ export function LobbyPlayersList({
                         Novo
                       </Badge>
                     )}
+                    {professions && <ProfessionBadge profession={player.profession} />}
                   </span>
                   {bot ? (
                     <span className="truncate text-xs text-muted-foreground" title={bot.strategy_name}>
@@ -183,6 +189,14 @@ export function LobbyPlayersList({
                       savedPlayers={savedPlayers}
                       simulationName={simulationName}
                     />
+                    {professions && (
+                      <LobbyProfessionPicker
+                        nickname={player.nickname}
+                        players={sorted}
+                        savedPlayers={savedPlayers}
+                        simulationName={simulationName}
+                      />
+                    )}
                     {inTeams && (
                       <LobbyTeamPicker
                         nickname={player.nickname}
