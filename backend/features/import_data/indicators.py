@@ -1,7 +1,8 @@
 """
 Atualização dos indicadores econômicos: CDI, SELIC, IPCA e PTAX (o dólar) pelo SGS
 do Banco Central e o Ibovespa pelo yfinance. O crescimento do PIB e o desemprego são do
-IBGE e chegam pelo mesmo SGS, que os republica.
+IBGE e chegam pelo mesmo SGS, que os republica. As projeções do mercado vêm do Focus do
+Banco Central.
 """
 
 import logging
@@ -16,6 +17,11 @@ import yfinance as yf
 from backend.core import repository
 from backend.core.dto.generated_future import ReplacedGeneratedDTO
 from backend.core.enum import IndicatorSeries
+from backend.features.import_data.bcb_focus import (
+    fetch_focus_annual,
+    fetch_focus_ipca,
+    fetch_focus_selic,
+)
 from backend.features.import_data.bcb_sgs import fetch_sgs
 
 logger = logging.getLogger(__name__)
@@ -106,6 +112,22 @@ INDICATOR_SOURCES: dict[IndicatorSeries, IndicatorSource] = {
     ),
     IndicatorSeries.PTAX: IndicatorSource(
         "PTAX (dólar)", date(1994, 7, 1), partial(fetch_sgs, PTAX_SGS)
+    ),
+    IndicatorSeries.FOCUS_SELIC: IndicatorSource(
+        "Focus: SELIC da próxima reunião", date(2004, 11, 18), fetch_focus_selic
+    ),
+    IndicatorSeries.FOCUS_IPCA: IndicatorSource(
+        "Focus: IPCA dos próximos 12 meses", date(2001, 11, 7), fetch_focus_ipca
+    ),
+    IndicatorSeries.FOCUS_GDP: IndicatorSource(
+        "Focus: PIB do ano",
+        date(1999, 1, 1),
+        partial(fetch_focus_annual, "PIB Total"),
+    ),
+    IndicatorSeries.FOCUS_FX: IndicatorSource(
+        "Focus: câmbio do fim do ano",
+        date(2000, 1, 1),
+        partial(fetch_focus_annual, "Câmbio"),
     ),
 }
 

@@ -10,12 +10,13 @@ import pytest
 
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.enum import AssetOrigin, IndicatorSeries, MeasureKind, MeasureStatus
-from backend.core.indicators import annualize_daily
+from backend.core.indicators import annual_index_rate, annualize_daily
 from backend.core.rates import Percent
 from backend.core.repository.economic import IndicatorHistory
 from backend.features.economy import layer
 from backend.features.economy.layer import EconomyLayer
 from backend.features.economy.links import NO_LINK, LinkMonth
+from backend.features.economy.monetary import SelicBoard, SelicDecision, to_step
 from backend.features.government import spending_effects as fx
 from backend.features.government.state import Measure
 from tests.fakes import daily_series, monthly_series
@@ -342,3 +343,138 @@ def test_a_new_link_redoes_only_the_days_from_it_and_matches_a_fresh_reading(
         earlier, later = days[series]
         assert again.values[earlier] == old.values[earlier]
         assert again.values[later] != old.values[later]
+
+
+# A surpresa do Copom: o esperado se dilui no trimestre e a decisão fora dele entra no dia
+
+# Os pontos de IPCA da pressão são constantes; a regra do Banco Central soma 1,5 por ponto
+RULE_PRESSURE = 1.0
+RULE = layer.central_bank_reaction(RULE_PRESSURE)
+FIRST_MEETING = date(2021, 3, 1)
+MEETING_SPACING = timedelta(days=45)
+
+
+class SteadyPressure:
+    """Os pontos de IPCA que uma medida mantém, desde o início da partida."""
+
+    def first_day(self) -> date | None:
+        return START
+
+    def inflation_points(self, day: date) -> float:
+        return RULE_PRESSURE
+
+
+def stored_selic(day: date) -> Decimal:
+    return annual_index_rate(IndicatorSeries.SELIC, day, stored=True)
+
+
+def follows_the_rule(day: date) -> SelicDecision:
+    """A decisão do bot: a SELIC da história mais a regra, no passo de 0,25."""
+    wanted = stored_selic(day) + Decimal(str(RULE / 100))
+    return SelicDecision(day, to_step(wanted), 100.0)
+
+
+def away_from_the_rule(day: date, points: float) -> SelicDecision:
+    """A decisão que fica `points` pontos acima (ou abaixo, se negativo) da regra, sem arredondar."""
+    selic = stored_selic(day) + Decimal(str((RULE + points) / 100))
+    return SelicDecision(day, selic, 100.0)
+
+
+@pytest.fixture
+def board_economy(indicators):
+    indicators(IndicatorSeries.SELIC, daily_series(START, date(2026, 12, 31), "0.05"))
+    board = SelicBoard()
+    economy = EconomyLayer(1, START, SteadyPressure(), monetary=board)
+    return economy, board
+
+
+def jump(economy: EconomyLayer, meeting: date) -> float:
+    """Quanto a bolsa muda do dia da reunião para o dia em que a decisão passa a valer."""
+    return economy.level(meeting + timedelta(days=1)) / economy.level(meeting) - 1
+
+
+def test_a_president_who_follows_the_rule_has_a_gap_of_only_the_rounding(
+    board_economy,
+):
+    economy, board = board_economy
+    board.record(follows_the_rule(FIRST_MEETING))
+    day = FIRST_MEETING + timedelta(days=1)
+
+    assert abs(economy.surprise_points(day)) <= 0.125
+    assert economy.expected_selic_points(day) == pytest.approx(RULE, abs=0.125)
+
+
+def test_a_president_who_follows_the_rule_moves_the_stocks_before_the_meeting(
+    board_economy,
+):
+    economy, board = board_economy
+    board.record(follows_the_rule(FIRST_MEETING))
+    full_effect = math.exp(-layer.STOCKS_PER_SELIC * RULE) - 1
+
+    # A inflação da regra já pesa na bolsa antes da reunião; no dia dela o salto é menos de 1/4 do efeito
+    assert economy.level(FIRST_MEETING) - 1 == pytest.approx(full_effect, abs=1e-9)
+    assert abs(jump(economy, FIRST_MEETING)) < abs(full_effect) / 4
+
+
+def test_a_president_two_points_below_the_rule_hits_the_stocks_in_full_on_the_day_it_holds(
+    board_economy,
+):
+    economy, board = board_economy
+    board.record(away_from_the_rule(FIRST_MEETING, -2.0))
+
+    assert economy.surprise_points(FIRST_MEETING) == 0.0
+    assert economy.surprise_points(FIRST_MEETING + timedelta(days=1)) == pytest.approx(
+        -2.0
+    )
+    assert jump(economy, FIRST_MEETING) == pytest.approx(
+        math.exp(layer.STOCKS_PER_SELIC * 2) - 1
+    )
+
+
+def test_keeping_the_same_gap_does_not_jump_on_the_next_meeting(board_economy):
+    economy, board = board_economy
+    second = FIRST_MEETING + MEETING_SPACING
+    board.record(away_from_the_rule(FIRST_MEETING, -2.0))
+    board.record(away_from_the_rule(second, -2.0))
+
+    assert jump(economy, second) == pytest.approx(0.0, abs=1e-9)
+
+
+def test_a_deviation_held_for_a_year_settles_at_the_level_of_the_deviation(
+    board_economy,
+):
+    economy, board = board_economy
+    deviation = 3.0
+    meeting = FIRST_MEETING
+    while meeting < FIRST_MEETING + timedelta(days=365):
+        board.record(away_from_the_rule(meeting, deviation - RULE))
+        meeting += MEETING_SPACING
+    day = FIRST_MEETING + timedelta(days=365)
+
+    expected = math.exp(-layer.STOCKS_PER_SELIC * deviation)
+    assert economy.level(day) == pytest.approx(expected, rel=0.10)
+
+
+def test_without_a_decision_the_market_expects_the_rule(indicators):
+    economy = EconomyLayer(1, START, SteadyPressure())
+
+    assert economy.surprise_points(date(2021, 6, 1)) == 0.0
+    assert economy.expected_selic_points(date(2021, 6, 1)) == pytest.approx(RULE)
+
+
+def test_the_gap_of_a_meeting_survives_the_refresh_it_triggers(board_economy):
+    economy, board = board_economy
+    board.record(away_from_the_rule(FIRST_MEETING, -2.0))
+    economy.surprise_points(FIRST_MEETING + timedelta(days=1))
+
+    economy.refresh_from(FIRST_MEETING + timedelta(days=1))
+    assert FIRST_MEETING in economy._gaps
+
+    economy.refresh_from(FIRST_MEETING)
+    assert economy._gaps == {}
+
+
+def test_the_focus_series_come_back_untouched(economy):
+    history = history_of(IndicatorSeries.SELIC)
+
+    assert economy.adjust(IndicatorSeries.FOCUS_SELIC, history) is history

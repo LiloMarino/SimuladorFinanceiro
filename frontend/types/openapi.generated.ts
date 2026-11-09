@@ -719,7 +719,7 @@ export interface paths {
         put?: never;
         /**
          * Atualizar todos os indicadores
-         * @description Busca CDI, SELIC, IPCA e PTAX no Banco Central e o Ibovespa no yfinance, a partir do último valor guardado.
+         * @description Busca CDI, SELIC, IPCA, PTAX e o Focus no Banco Central e o Ibovespa no yfinance, a partir do último valor guardado.
          */
         post: operations["refresh_all_indicators_api_import_assets_indicators_post"];
         delete?: never;
@@ -7325,7 +7325,7 @@ export interface components {
          * IndicatorSeries
          * @enum {string}
          */
-        IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV" | "GDP_GROWTH" | "UNEMPLOYMENT" | "PTAX";
+        IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV" | "GDP_GROWTH" | "UNEMPLOYMENT" | "PTAX" | "FOCUS_SELIC" | "FOCUS_IPCA" | "FOCUS_GDP" | "FOCUS_FX";
         /**
          * IndicatorSeriesDTO
          * @description Só os pedidos vêm preenchidos; cada série começa no primeiro pregão com valor.
@@ -8174,6 +8174,8 @@ export interface components {
             ipca: string;
             /** Real Rate */
             real_rate: string;
+            /** Focus */
+            focus: string;
             /** Neutral Real Rate */
             neutral_real_rate: string;
             /** Target */
@@ -10444,7 +10446,7 @@ export interface components {
          * SeriesKind
          * @enum {string}
          */
-        SeriesKind: "STOCK" | "INDICATOR" | "MACRO";
+        SeriesKind: "STOCK" | "INDICATOR" | "MACRO" | "EXPECTATION";
         /** SeriesPointDTO */
         SeriesPointDTO: {
             /**

@@ -17,8 +17,10 @@ export function checkCoverage(coverage: SeriesCoverage[], startDate: string, end
     const reference = s.key === "IPCA" ? `${startDate.slice(0, 8)}01` : startDate;
     return !s.start || s.start > reference;
   });
-  // O PIB e o desemprego seguem o modelo da partida depois do fim do dado real
-  const endingBeforeEnd = coverage.filter((s) => s.kind !== "MACRO" && s.real_end && s.real_end < endDate);
+  // O PIB e o desemprego seguem o modelo da partida depois do fim do dado real, e o Focus não entra na partida
+  const endingBeforeEnd = coverage.filter(
+    (s) => s.kind !== "MACRO" && s.kind !== "EXPECTATION" && s.real_end && s.real_end < endDate,
+  );
 
   return { missingAtStart, endingBeforeEnd };
 }

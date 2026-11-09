@@ -46,3 +46,14 @@ def test_data_center_answers_only_outside_a_match(monkeypatch: pytest.MonkeyPatc
     monkeypatch.setattr(SimulationManager, "_active_simulation", object())
     with pytest.raises(ConflictError):
         require_no_active_simulation()
+
+
+def test_the_focus_does_not_limit_the_start_of_a_match(indicators):
+    """O Focus de SELIC começa em 2004: a partida de 2020 só pede CDI, SELIC e IPCA."""
+    _cover_all(indicators, date(2019, 12, 2))
+    indicators(
+        IndicatorSeries.FOCUS_SELIC,
+        daily_series(date(2020, 2, 3), date(2020, 3, 2), "4.5"),
+    )
+
+    ensure_indicator_coverage(START)

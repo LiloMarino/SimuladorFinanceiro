@@ -33,7 +33,7 @@ A tela tem duas partes: o painel **Adicionar ativo** (explicado em [Métodos de 
 
 ### Séries da base
 
-A tabela lista todas as séries guardadas no banco: primeiro os indicadores econômicos (CDI, SELIC, IPCA e Ibovespa), depois a economia do país (crescimento do PIB, desemprego e a PTAX) e por fim cada ativo importado. O filtro **Todas** / **Precisam de atenção** deixa só as séries que pedem uma olhada (sem dado real, desatualizadas ou sem classificação). Em cada linha:
+A tabela lista todas as séries guardadas no banco: primeiro os indicadores econômicos (CDI, SELIC, IPCA e Ibovespa), depois a economia do país (crescimento do PIB, desemprego e a PTAX), as expectativas do mercado (as quatro séries do Focus) e por fim cada ativo importado. O filtro **Todas** / **Precisam de atenção** deixa só as séries que pedem uma olhada (sem dado real, desatualizadas ou sem classificação). Em cada linha:
 
 - **Série**: nome do indicador ou do ticker.
 - **Origem**: **Nacional** (bandeira do Brasil) ou **Internacional** (bandeira dos Estados Unidos), nos ativos. Na partida com governo, o ativo internacional anda só com o dólar da partida, e o nacional com a bolsa daqui (veja [Origem do ativo](#origem-do-ativo)). Indicadores mostram "—".
@@ -72,7 +72,16 @@ A economia do país aparece num grupo próprio:
 
 Na partida, essas duas séries são a história do crescimento e do desemprego: a página **Economia** parte delas e soma o que o governo muda (veja [A economia interligada](./governo.md#a-economia-interligada)). Onde não há dado real (o PIB antes de 1997, o desemprego antes de 2012 e as duas depois do último dado), a partida segue o modelo do jogo, que anda com o juro real e a bolsa. Elas não limitam o período da partida, não entram no aviso de "dado acaba antes do fim" do lobby e não ganham futuro gerado.
 
-**Fontes:** CDI, SELIC, IPCA e PTAX vêm do Banco Central, pelo sistema SGS (Sistema Gerenciador de Séries Temporais), nas séries 12 (CDI diário), 11 (SELIC diária), 433 (IPCA mensal) e 1 (PTAX, o dólar comercial de venda). O Ibovespa vem do Yahoo Finance (ticker `^BVSP`). O crescimento do PIB e o desemprego são do IBGE e chegam pelo mesmo SGS, que os republica: o PIB sai do índice do PIB real trimestral (série 22099, sem ajuste sazonal), somando os 4 últimos trimestres contra os 4 anteriores, e o desemprego é a taxa de desocupação da PNAD Contínua (série 24369).
+**Expectativas do mercado (Focus).** O Focus é a pesquisa semanal em que o Banco Central pergunta a bancos e consultorias o que eles esperam da economia; cada série guarda a **mediana** (o valor do meio: metade das projeções passa dele e metade fica aquém, então um palpite fora da curva não a puxa), um valor por dia de pesquisa, em % como publicada:
+
+- **Focus: SELIC da próxima reunião**, desde 18 de nov. de 2004. Ex.: 13,25% quer dizer que o mercado espera a SELIC a 13,25% ao ano depois da próxima reunião do Copom. É a base do **Mercado espera** do cartão [SELIC no Copom](./governo.md#a-selic-no-copom).
+- **Focus: IPCA dos próximos 12 meses**, desde 7 de nov. de 2001. Ex.: 4,50% quer dizer que o mercado espera os preços 4,5% mais altos em um ano; perto da meta (3%) é tranquilo, e acima de 6% o mercado teme perder o controle da inflação.
+- **Focus: PIB do ano**, desde 1999. Ex.: 2,00% é o crescimento que o mercado espera para o ano da pesquisa.
+- **Focus: câmbio do fim do ano**, desde 2000. Ex.: 5,20 quer dizer R$ 5,20 por dólar esperados para dezembro do ano da pesquisa.
+
+Cada linha da tabela mostra uma dica com isso. As quatro séries são só informação: não limitam o período da partida, não entram no aviso de "dado acaba antes do fim" do lobby e não ganham futuro gerado. Hoje só a SELIC esperada entra na conta da bolsa, pela surpresa do Copom.
+
+**Fontes:** CDI, SELIC, IPCA e PTAX vêm do Banco Central, pelo sistema SGS (Sistema Gerenciador de Séries Temporais), nas séries 12 (CDI diário), 11 (SELIC diária), 433 (IPCA mensal) e 1 (PTAX, o dólar comercial de venda). O Ibovespa vem do Yahoo Finance (ticker `^BVSP`). O crescimento do PIB e o desemprego são do IBGE e chegam pelo mesmo SGS, que os republica: o PIB sai do índice do PIB real trimestral (série 22099, sem ajuste sazonal), somando os 4 últimos trimestres contra os 4 anteriores, e o desemprego é a taxa de desocupação da PNAD Contínua (série 24369). O Focus vem da API de expectativas do Banco Central (Olinda), com a mediana da pesquisa inteira.
 
 ### Gerar dados futuros
 

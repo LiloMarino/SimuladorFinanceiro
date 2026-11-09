@@ -28,6 +28,7 @@ import { useChangeAssetOrigin } from "../hooks/mutations/useChangeAssetOrigin";
 import { useCorrectPriceErrors } from "../hooks/mutations/useCorrectPriceErrors";
 import { useRefreshOutdatedStocks } from "../hooks/mutations/useRefreshOutdatedStocks";
 import { useRefreshSeries } from "../hooks/mutations/useRefreshSeries";
+import { FOCUS_HINTS } from "../lib/focus-metrics";
 import { timelineRange, timelineTicks } from "../lib/timeline";
 import { ClassifyRow } from "./classify-row";
 import { CorrectedDaysHint } from "./corrected-days-hint";
@@ -48,8 +49,8 @@ const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
 
 const COLUMNS = 7;
 
-// O que cada série da economia do país mede, na dica ao lado do nome
-const MACRO_HINTS: Record<string, MetricInfo> = { GDP_GROWTH: GROWTH, UNEMPLOYMENT: UNEMPLOYMENT };
+// O que cada série da economia do país e do Focus mede, na dica ao lado do nome
+const SERIES_HINTS: Record<string, MetricInfo> = { GDP_GROWTH: GROWTH, UNEMPLOYMENT: UNEMPLOYMENT, ...FOCUS_HINTS };
 
 type Filter = "ALL" | "ATTENTION";
 
@@ -94,6 +95,10 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
   const groups = [
     { label: "Indicadores · Banco Central e B3", items: visible.filter((s) => s.kind === "INDICATOR") },
     { label: "Economia do país · IBGE via Banco Central", items: visible.filter((s) => s.kind === "MACRO") },
+    {
+      label: "Expectativas do mercado · Focus do Banco Central",
+      items: visible.filter((s) => s.kind === "EXPECTATION"),
+    },
     { label: "Ativos", items: visible.filter((s) => s.kind === "STOCK") },
   ].filter((g) => g.items.length > 0);
 
@@ -177,7 +182,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
               </TableRow>
               {group.items.map((item) => {
                 const stale = isOutdatedStock(item);
-                const hint = MACRO_HINTS[item.key];
+                const hint = SERIES_HINTS[item.key];
                 return (
                   <Fragment key={`${item.kind}-${item.key}`}>
                     <TableRow variant={stale ? "warning" : "default"} className="h-15.5">

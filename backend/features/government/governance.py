@@ -4,6 +4,7 @@ from collections.abc import Callable
 from datetime import date, timedelta
 from decimal import Decimal
 
+from backend.core import repository
 from backend.core.dto.government import (
     ApprovalDTO,
     ApprovalFactorDTO,
@@ -220,6 +221,27 @@ def build_governance(
     )
 
 
+# A pesquisa do Focus mais velha que isto deixa de ser a base do que o mercado espera
+FOCUS_MAX_AGE = timedelta(days=30)
+
+
+def market_expected_selic(book: GovernmentBook, today: date) -> Decimal:
+    """
+    A SELIC que o mercado espera para a próxima reunião: a base mais o desvio que ele
+    espera do presidente (a regra do Banco Central mais o afastamento da última reunião).
+    A base é a mediana do Focus quando a última pesquisa tem até 30 dias; sem ela (antes
+    de nov/2004 ou no futuro gerado), é a SELIC da história no dia.
+    """
+    focus = repository.economic.get_history(IndicatorSeries.FOCUS_SELIC)
+    survey = focus.last_known_day(today)
+    if survey is not None and today - survey <= FOCUS_MAX_AGE:
+        base = focus.values[survey] / 100
+    else:
+        base = annual_index_rate(IndicatorSeries.SELIC, today, stored=True)
+    points = book.linked().layer.expected_selic_points(today)
+    return base + Decimal(str(round(points / 100, 6)))
+
+
 def monetary_card(book: GovernmentBook, today: date) -> MonetaryDTO | None:
     if book.selic_control() is not SelicControl.GOVERNMENT:
         return None
@@ -231,6 +253,7 @@ def monetary_card(book: GovernmentBook, today: date) -> MonetaryDTO | None:
         selic=selic,
         ipca=ipca,
         real_rate=selic - ipca,
+        focus=market_expected_selic(book, today),
         neutral_real_rate=NEUTRAL_REAL_RATE,
         target=inflation_target(today),
         tolerance=inflation_tolerance(today),

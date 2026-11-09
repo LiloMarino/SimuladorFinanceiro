@@ -5,12 +5,12 @@ import { MetricHint } from "@/shared/components/metric-hint";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { displayPremiumPoints } from "@/shared/lib/budget-metrics";
+import { displayPoints, displayPremiumPoints } from "@/shared/lib/budget-metrics";
 import { displayDayMonth, displayPercent } from "@/shared/lib/utils/display";
 import type { GovernmentMonetary } from "@/types";
 import { useSetSelic } from "../hooks/mutations/useSetSelic";
 import { daysUntil } from "../lib/government";
-import { COPOM_SELIC, CREDIBILITY, MEETING_CAP, POLICY_REAL_RATE } from "../lib/government-metrics";
+import { COPOM_FOCUS, COPOM_SELIC, CREDIBILITY, MEETING_CAP, POLICY_REAL_RATE } from "../lib/government-metrics";
 import { credibilityTone, moveLabel, realRateReading, realRateTone, selicWindow, toPoints } from "../lib/monetary";
 
 type SelicCardProps = {
@@ -43,7 +43,7 @@ export function SelicCard({ monetary, today, isPresident }: SelicCardProps) {
           </div>
 
           {/* Números de hoje */}
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             <Kpi
               label={
                 <>
@@ -53,6 +53,16 @@ export function SelicCard({ monetary, today, isPresident }: SelicCardProps) {
               }
               value={COPOM_SELIC.format(monetary.selic)}
               note={`IPCA de 12 meses em ${displayPercent(monetary.ipca)}, meta de ${displayPercent(monetary.target, 1)}.`}
+            />
+            <Kpi
+              label={
+                <>
+                  {COPOM_FOCUS.label}
+                  <MetricHint metric={COPOM_FOCUS} />
+                </>
+              }
+              value={COPOM_FOCUS.format(monetary.focus)}
+              note={focusNote(monetary)}
             />
             <Kpi
               label={
@@ -100,6 +110,16 @@ export function SelicCard({ monetary, today, isPresident }: SelicCardProps) {
       </CardContent>
     </Card>
   );
+}
+
+/** A distância entre o esperado e a SELIC de hoje, e o que a decisão diferente faz com a bolsa. */
+function focusNote({ focus, selic }: GovernmentMonetary) {
+  const gap = (Number(focus) - Number(selic)) * 100;
+  const reading =
+    Math.abs(gap) < 0.005
+      ? "Igual à SELIC de hoje."
+      : `${displayPoints(Math.abs(gap), 2)} ${gap > 0 ? "acima" : "abaixo"} da SELIC de hoje.`;
+  return `${reading} Decidir diferente move a bolsa no dia.`;
 }
 
 /** O controle da decisão: a SELIC dentro da janela que a reunião alcança, marcada para a próxima reunião. */

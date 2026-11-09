@@ -184,6 +184,8 @@ class Monetary(Protocol):
 
     def credibility_on(self, day: date) -> float: ...
 
+    def last_before(self, day: date) -> SelicDecision | None: ...
+
 
 class SelicBoard:
     """
@@ -234,3 +236,6 @@ class AutonomousBank:
 
     def credibility_on(self, day: date) -> float:
         return FULL_CREDIBILITY
+
+    def last_before(self, day: date) -> SelicDecision | None:
+        return None

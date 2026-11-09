@@ -49,6 +49,11 @@ class IndicatorHistory:
         index = bisect_right(self.dates, day)
         return self.values[self.dates[index - 1]] if index else None
 
+    def last_known_day(self, day: date) -> date | None:
+        """O último dia da série até `day`, inclusive."""
+        index = bisect_right(self.dates, day)
+        return self.dates[index - 1] if index else None
+
     def values_until(self, day: date, count: int) -> list[Decimal]:
         """Os últimos `count` valores da série até `day`, inclusive."""
         index = bisect_right(self.dates, day)

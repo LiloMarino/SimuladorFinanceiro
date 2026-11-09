@@ -113,7 +113,8 @@ export function dataFloor(coverage: SeriesCoverage[]): DataFloor | undefined {
 /** Até onde vai o dado real e o futuro gerado: o fim mais cedo entre as séries do mercado que os têm. */
 export function dataEnds(coverage: SeriesCoverage[]): DataEnds {
   const earliest = (dates: (string | null)[]) => dates.filter((d): d is string => !!d).sort()[0];
-  const market = coverage.filter((s) => s.kind !== "MACRO");
+  // O PIB, o desemprego e o Focus não limitam o dado do mercado
+  const market = coverage.filter((s) => s.kind !== "MACRO" && s.kind !== "EXPECTATION");
   return {
     realEnd: earliest(market.map((s) => s.real_end)),
     generatedEnd: earliest(market.map((s) => s.generated_end)),

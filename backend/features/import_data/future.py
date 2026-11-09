@@ -108,10 +108,13 @@ def load_market_history() -> MarketHistory:
     for series, day, value in repository.generated_future.get_real_indicators():
         values[series].append((day, value))
     # O futuro gerado é do mercado; o PIB, o desemprego e o dólar seguem o modelo da partida
+    # e as projeções do Focus não têm futuro
     values = {
         series: rows
         for series, rows in values.items()
-        if not IndicatorSeries(series).is_macro
+        if not (
+            IndicatorSeries(series).is_macro or IndicatorSeries(series).is_expectation
+        )
     }
     indicators = {
         IndicatorSeries(series): pd.Series(

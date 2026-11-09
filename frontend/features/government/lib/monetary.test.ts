@@ -7,6 +7,7 @@ const monetary: GovernmentMonetary = {
   selic: "0.1075",
   ipca: "0.0450",
   real_rate: "0.0625",
+  focus: "0.1075",
   neutral_real_rate: "0.05",
   target: "0.03",
   tolerance: "0.015",

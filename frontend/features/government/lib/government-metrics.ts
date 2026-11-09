@@ -284,6 +284,18 @@ export const COPOM_SELIC: MetricInfo = {
   format: (value) => displayPercent(value, 2),
 };
 
+export const COPOM_FOCUS: MetricInfo = {
+  label: "Mercado espera",
+  description: "A SELIC que o mercado espera para a próxima reunião do Copom",
+  definition:
+    "O Focus é a pesquisa semanal em que o Banco Central pergunta a bancos e consultorias a SELIC que eles esperam; vale a mediana. Fora da pesquisa (antes de nov/2004, no futuro gerado ou com a última pesquisa de mais de 30 dias), parte da SELIC de hoje. Sobre essa base o mercado soma o que espera do presidente: a regra do Banco Central e o quanto a última decisão ficou longe dela. A bolsa já tem esse número no preço.",
+  example:
+    "Ex.: o mercado espera 13,25% e o Copom decide 12,25%: é 1 ponto de surpresa para baixo, e a bolsa sobe uns 3% no dia em que a decisão passa a valer. Decidindo 13,25%, ela não se mexe.",
+  reading:
+    "A bolsa reage à distância entre a decisão e este número, e não à SELIC em si: 2,9% por ponto, para baixo se a decisão vier acima e para cima se vier abaixo. Decidir o que o mercado espera é neutro; quem se afasta da regra do Banco Central tem a surpresa cobrada no dia.",
+  format: (value) => displayPercent(value, 2),
+};
+
 export const POLICY_REAL_RATE: MetricInfo = {
   label: "Juro real",
   description: "A SELIC menos a inflação: quanto o dinheiro rende de verdade",

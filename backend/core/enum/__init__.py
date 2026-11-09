@@ -403,6 +403,13 @@ class IndicatorSeries(Enum):
     # Dólar comercial (venda) em reais: converte o preço dos ativos cotados em dólar e é a
     # história do dólar da partida
     PTAX = "PTAX"
+    # A mediana do Focus (a pesquisa semanal do Banco Central com as projeções do mercado),
+    # em % como publicada: a SELIC da próxima reunião, o IPCA de 12 meses e o PIB e o
+    # câmbio do ano
+    FOCUS_SELIC = "FOCUS_SELIC"
+    FOCUS_IPCA = "FOCUS_IPCA"
+    FOCUS_GDP = "FOCUS_GDP"
+    FOCUS_FX = "FOCUS_FX"
 
     @property
     def is_macro(self) -> bool:
@@ -411,6 +418,16 @@ class IndicatorSeries(Enum):
             IndicatorSeries.GDP_GROWTH,
             IndicatorSeries.UNEMPLOYMENT,
             IndicatorSeries.PTAX,
+        )
+
+    @property
+    def is_expectation(self) -> bool:
+        """Projeção do mercado (Focus): mostrada na Central, fora da camada, do gerador e do período da partida."""
+        return self in (
+            IndicatorSeries.FOCUS_SELIC,
+            IndicatorSeries.FOCUS_IPCA,
+            IndicatorSeries.FOCUS_GDP,
+            IndicatorSeries.FOCUS_FX,
         )
 
 

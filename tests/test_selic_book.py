@@ -309,3 +309,56 @@ def test_replay_rebuilds_the_decisions(selic_book: GovernmentBook, engine, store
 
     assert state.selic_board.decisions() == selic_book.state.selic_board.decisions()
     assert state.last_meeting == MEETING
+
+
+# O que o mercado espera para a próxima reunião (o Focus no cartão)
+
+
+def focus_card(
+    selic_book: GovernmentBook, engine, indicators: SetIndicator, survey: date | None
+):
+    """O cartão no dia da primeira reunião, com a SELIC da história em 10,44% e, se pedido, uma pesquisa do Focus em 12%."""
+    indicators(IndicatorSeries.SELIC, {date(2021, 1, 1): Decimal("0.0394")})
+    if survey is not None:
+        indicators(IndicatorSeries.FOCUS_SELIC, {survey: Decimal("12.0")})
+    govern(selic_book, engine)
+    card = monetary_card(selic_book, MEETING)
+    assert card is not None
+    return card
+
+
+def test_the_market_expects_the_focus_when_the_survey_is_recent(
+    selic_book: GovernmentBook, engine, indicators: SetIndicator
+):
+    card = focus_card(selic_book, engine, indicators, MEETING - timedelta(days=30))
+
+    # Sem regra a somar nem decisão do presidente, o desvio esperado é zero
+    assert card.focus == Decimal("0.12")
+
+
+def test_the_market_expects_the_history_without_a_recent_survey(
+    selic_book: GovernmentBook, engine, indicators: SetIndicator
+):
+    stale = focus_card(selic_book, engine, indicators, MEETING - timedelta(days=31))
+    assert stale.focus == stale.history_selic
+
+
+def test_the_market_expects_the_history_before_the_survey_exists(
+    selic_book: GovernmentBook, engine, indicators: SetIndicator
+):
+    absent = focus_card(selic_book, engine, indicators, None)
+    assert absent.focus == absent.history_selic
+
+
+def test_the_market_keeps_expecting_the_gap_the_president_showed(
+    selic_book: GovernmentBook, engine, indicators: SetIndicator
+):
+    focus_card(selic_book, engine, indicators, None)
+    selic_book.set_selic(ALICE, TERM_START, Decimal("0.0975"))
+    selic_book.on_tick(USERS, MEETING, False)
+
+    card = monetary_card(selic_book, MEETING + timedelta(days=1))
+
+    # A SELIC da história anda 10,44%; decidir 9,75% deixa o mercado esperando o mesmo corte
+    assert card is not None
+    assert card.focus == pytest.approx(card.selic, abs=Decimal("0.0001"))

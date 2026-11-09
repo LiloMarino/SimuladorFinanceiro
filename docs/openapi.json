@@ -2237,7 +2237,7 @@
           "Import Assets"
         ],
         "summary": "Atualizar todos os indicadores",
-        "description": "Busca CDI, SELIC, IPCA e PTAX no Banco Central e o Ibovespa no yfinance, a partir do último valor guardado.",
+        "description": "Busca CDI, SELIC, IPCA, PTAX e o Focus no Banco Central e o Ibovespa no yfinance, a partir do último valor guardado.",
         "operationId": "refresh_all_indicators_api_import_assets_indicators_post",
         "responses": {
           "204": {
@@ -20896,7 +20896,11 @@
           "IBOV",
           "GDP_GROWTH",
           "UNEMPLOYMENT",
-          "PTAX"
+          "PTAX",
+          "FOCUS_SELIC",
+          "FOCUS_IPCA",
+          "FOCUS_GDP",
+          "FOCUS_FX"
         ],
         "title": "IndicatorSeries"
       },
@@ -23129,6 +23133,10 @@
             "type": "string",
             "title": "Real Rate"
           },
+          "focus": {
+            "type": "string",
+            "title": "Focus"
+          },
           "neutral_real_rate": {
             "type": "string",
             "title": "Neutral Real Rate"
@@ -23189,6 +23197,7 @@
           "selic",
           "ipca",
           "real_rate",
+          "focus",
           "neutral_real_rate",
           "target",
           "tolerance",
@@ -29894,7 +29903,8 @@
         "enum": [
           "STOCK",
           "INDICATOR",
-          "MACRO"
+          "MACRO",
+          "EXPECTATION"
         ],
         "title": "SeriesKind"
       },

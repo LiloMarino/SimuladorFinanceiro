@@ -12,6 +12,8 @@ class SeriesKind(Enum):
     INDICATOR = "INDICATOR"
     # Séries da economia do país (PIB, desemprego e dólar): não limitam a partida
     MACRO = "MACRO"
+    # Projeções do mercado (Focus): não limitam a partida
+    EXPECTATION = "EXPECTATION"
 
 
 class OriginCoverageDTO(BaseDTO):

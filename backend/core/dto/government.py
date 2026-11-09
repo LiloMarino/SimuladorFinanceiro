@@ -1030,6 +1030,9 @@ class MonetaryDTO(BaseDTO):
     selic: Decimal
     ipca: Decimal
     real_rate: Decimal
+    # A SELIC que o mercado espera para a próxima reunião (o Focus): a bolsa já a tem no
+    # preço e reage só ao que a decisão tiver de diferente
+    focus: Decimal
     # O juro real que nem acelera nem freia a economia
     neutral_real_rate: Decimal
     target: Decimal

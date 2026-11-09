@@ -3,8 +3,10 @@ A camada que a partida põe por cima das séries guardadas: IPCA, SELIC, CDI e I
 ganham o efeito das medidas de gasto e das ligações da economia, e cada ação ganha o
 nível da bolsa elevado ao beta dela. A SELIC é a que o governo fixou na última reunião
 ou, sem decisão, a reação do Banco Central autônomo à inflação a mais; a bolsa cai com
-a SELIC e o prêmio de risco a mais e sobe com o PIB acima da história. As séries
-guardadas seguem como estavam.
+a SELIC e o prêmio de risco a mais e sobe com o PIB acima da história. O mercado espera
+a regra do Banco Central mais o afastamento que o presidente mostrou na última reunião:
+o esperado se dilui no trimestre e a surpresa, a decisão menos o esperado, entra inteira
+no dia em que a decisão passa a valer. As séries guardadas seguem como estavam.
 """
 
 import math
@@ -23,11 +25,16 @@ from backend.core.periods import BUSINESS_DAYS_PER_YEAR, DAYS_PER_MONTH
 from backend.core.rates import Percent
 from backend.core.repository.economic import IndicatorHistory
 from backend.features.economy.links import NO_LINK, LinkMonth
-from backend.features.economy.monetary import AutonomousBank, Monetary
+from backend.features.economy.monetary import (
+    AutonomousBank,
+    Monetary,
+    SelicDecision,
+)
 
 # A SELIC reage com 1,5 ponto por ponto de inflação a mais (Banco Central autônomo)
 SELIC_REACTION = 1.5
-# A bolsa cai 2,9% por ponto de alta da SELIC ou do prêmio de risco, espalhado pelo trimestre
+# A bolsa cai 2,9% por ponto de alta da SELIC ou do prêmio de risco: o esperado se espalha
+# pelo trimestre e a surpresa do Copom entra inteira no dia
 STOCKS_PER_SELIC = 0.029
 STOCKS_WINDOW_MONTHS = 3
 # A bolsa sobe 2,5% por ponto de PIB acima da história
@@ -77,8 +84,9 @@ class StocksParts:
     O nível da bolsa por causa, como expoente: o nível é e elevado à soma. Com o Banco
     Central autônomo, a SELIC que as medidas de gasto põem, a que a curva de Phillips
     põe, a que o juro real põe pela inflação dele, o risco fiscal (o prêmio) e o câmbio
-    (a SELIC que o repasse do dólar põe). Com a SELIC do governo, ela pesa inteira em `selic` e as
-    outras partes ficam só com o que não é SELIC. Por fim, o PIB acima da história.
+    (a SELIC que o repasse do dólar põe). Com a SELIC do governo, ela pesa inteira em `selic`
+    (a regra esperada, diluída no trimestre, e a surpresa do Copom, no dia) e as outras
+    partes ficam só com o que não é SELIC. Por fim, o PIB acima da história.
     """
 
     spending: float
@@ -156,6 +164,8 @@ class EconomyLayer:
         # dict inteiro e cada dia entra numa escrita só, que é atômica
         self._spending_points: dict[date, float] = {}
         self._selic_points: dict[date, float] = {}
+        # O afastamento de cada reunião, pelo dia dela
+        self._gaps: dict[date, float] = {}
         self._levels: dict[date, float] = {}
         self._values: dict[IndicatorSeries, dict[date, Decimal]] = {}
         self._betas: dict[str, float] | None = None
@@ -171,6 +181,7 @@ class EconomyLayer:
         """As medidas de gasto mudaram: as séries lidas de novo refazem todos os dias."""
         self._spending_points = {}
         self._selic_points = {}
+        self._gaps = {}
         self._levels = {}
         self._values = {}
         repository.economic.refresh_adjusted(self._simulation_id)
@@ -183,6 +194,9 @@ class EconomyLayer:
         self._selic_points = {
             d: v for d, v in self._selic_points.copy().items() if d < day
         }
+        # O afastamento de uma reunião é medido no dia dela: o refresh que a reunião dispara,
+        # a partir do dia seguinte, o preserva
+        self._gaps = {d: v for d, v in self._gaps.copy().items() if d < day}
         self._levels = {d: v for d, v in self._levels.copy().items() if d < day}
         self._values = {
             series: {d: v for d, v in values.copy().items() if d < day}
@@ -231,6 +245,28 @@ class EconomyLayer:
             self._selic_points[day] = selic
         return selic
 
+    def rule_points(self, day: date) -> float:
+        """Pontos de SELIC acima da história que a regra do Banco Central soma no dia: o que o presidente bot decide."""
+        return central_bank_reaction(self.inflation_points(day))
+
+    def _gap(self, decision: SelicDecision) -> float:
+        """Os pontos que a decisão da reunião ficou acima da regra do dia dela."""
+        gap = self._gaps.get(decision.day)
+        if gap is None:
+            stored = annual_index_rate(IndicatorSeries.SELIC, decision.day, stored=True)
+            gap = float(decision.selic - stored) * 100 - self.rule_points(decision.day)
+            self._gaps[decision.day] = gap
+        return gap
+
+    def surprise_points(self, day: date) -> float:
+        """O afastamento da última reunião antes do dia: o que o mercado já espera do próximo; antes da primeira vale 0."""
+        last = self._monetary.last_before(day)
+        return 0.0 if last is None else self._gap(last)
+
+    def expected_selic_points(self, day: date) -> float:
+        """Pontos de SELIC acima da história que o mercado espera para a próxima reunião: a regra mais o afastamento da última."""
+        return self.rule_points(day) + self.surprise_points(day)
+
     def level(self, day: date) -> float:
         """O nível da bolsa contra a série guardada."""
         if self.first_day() is None:
@@ -241,9 +277,10 @@ class EconomyLayer:
 
     def stocks_parts(self, day: date) -> StocksParts:
         """
-        O expoente do nível da bolsa por causa. A SELIC e o prêmio pesam pela média do
-        trimestre e o PIB pelo desvio do último mês fechado. Cada dia do trimestre conta
-        a SELIC de quem a decidia naquele dia.
+        O expoente do nível da bolsa por causa. A SELIC esperada e o prêmio pesam pela média
+        do trimestre e o PIB pelo desvio do último mês fechado. Cada dia do trimestre conta
+        a SELIC de quem a decidia naquele dia. Com a SELIC do governo, a surpresa (o
+        afastamento da última reunião) pesa inteira desde o dia em que a decisão vale.
         """
         links = self._links.links_on
 
@@ -253,13 +290,16 @@ class EconomyLayer:
         def mean(points: Callable[[date], float]) -> float:
             return -STOCKS_PER_SELIC * quarter_mean(points, day)
 
+        def expected(d: date) -> float:
+            return 0.0 if self.reacts(d) else self.rule_points(d)
+
         return StocksParts(
             spending=mean(reaction(self.spending_points)),
             phillips=mean(reaction(lambda d: links(d).phillips_points)),
             fiscal_risk=mean(lambda d: links(d).premium_points),
             gdp=STOCKS_PER_GDP * float(links(day).gdp_gap),
             real_rate=mean(reaction(lambda d: links(d).rate_points)),
-            selic=mean(lambda d: 0.0 if self.reacts(d) else self.selic_points(d)),
+            selic=mean(expected) - STOCKS_PER_SELIC * self.surprise_points(day),
             consumption=mean(reaction(lambda d: links(d).consumption_points)),
             corporate=links(day).corporate_points,
             dollar=mean(reaction(lambda d: links(d).dollar_inflation_points)),
@@ -271,7 +311,7 @@ class EconomyLayer:
         self, series: IndicatorSeries, history: IndicatorHistory
     ) -> IndicatorHistory:
         first = self.first_day()
-        if first is None or series.is_macro:
+        if first is None or series.is_macro or series.is_expectation:
             return history
         known = self._values.get(series, {})
         computed = {
@@ -300,7 +340,7 @@ class EconomyLayer:
             case IndicatorSeries.IBOV:
                 return Decimal(str(round(float(value) * self.level(day), 2)))
             case _:
-                # As séries do país (is_macro) chegam intactas
+                # As séries do país (is_macro) e as do Focus chegam intactas
                 return value
 
     def dollar_exponents(self, day: date) -> tuple[float, float]:

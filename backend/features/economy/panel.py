@@ -221,7 +221,8 @@ def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
     """
     As ligações que valem hoje, pelo desvio do último mês fechado. Com a SELIC do
     governo, a reação do Banco Central some de cada ligação e a SELIC entra como
-    ligação própria.
+    ligação própria, com a parte esperada (a regra, diluída no trimestre) e a surpresa
+    do Copom (o afastamento da última reunião, inteira desde o dia em que vale).
     """
     link = linked.links_on(today)
     stocks = linked.layer.stocks_parts(today)

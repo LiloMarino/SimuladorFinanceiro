@@ -340,6 +340,13 @@ def test_gdp_and_unemployment_appear_apart_from_the_market_indicators(base: Engi
     assert kinds["GDP_GROWTH"] is kinds["UNEMPLOYMENT"] is SeriesKind.MACRO
 
 
+def test_the_focus_series_appear_as_expectations(base: Engine):
+    kinds = {s.key: s.kind for s in get_series_coverage()}
+
+    focus = ("FOCUS_SELIC", "FOCUS_IPCA", "FOCUS_GDP", "FOCUS_FX")
+    assert all(kinds[key] is SeriesKind.EXPECTATION for key in focus)
+
+
 def put_generated_dividends(engine: Engine, *days: date) -> int:
     """Dividendos gerados da série comum de BANK_A nas datas ex dadas."""
     stock = repository.stock.get_by_ticker("BANK_A")

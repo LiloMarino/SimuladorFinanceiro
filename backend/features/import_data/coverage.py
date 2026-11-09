@@ -7,7 +7,7 @@ from backend.core.dto.series_coverage import (
     SeriesCoverageDTO,
     SeriesKind,
 )
-from backend.core.enum import AssetClass, AssetOrigin, DataOrigin
+from backend.core.enum import AssetClass, AssetOrigin, DataOrigin, IndicatorSeries
 from backend.features.import_data.indicators import INDICATOR_SOURCES
 
 
@@ -19,7 +19,7 @@ def get_series_coverage() -> list[SeriesCoverageDTO]:
 
     return [
         _series(
-            SeriesKind.MACRO if series.is_macro else SeriesKind.INDICATOR,
+            _kind(series),
             series.value,
             source.name,
             indicators,
@@ -37,6 +37,14 @@ def get_series_coverage() -> list[SeriesCoverageDTO]:
         )
         for stock in repository.stock.get_stocks()
     ]
+
+
+def _kind(series: IndicatorSeries) -> SeriesKind:
+    if series.is_macro:
+        return SeriesKind.MACRO
+    if series.is_expectation:
+        return SeriesKind.EXPECTATION
+    return SeriesKind.INDICATOR
 
 
 def _by_key(
