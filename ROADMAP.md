@@ -105,7 +105,6 @@
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 | — | — | — | 🔍 |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
-| [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | M26 · 4.1 | — | Baixo | Médio | ⏳ |
 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 | — | — | — | 🔍 |
 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | M26 · 4.1 | — | Médio | Excelente | ⏳ |
@@ -113,7 +112,7 @@
 | [**F261**](#f261) | Feature | Profissão no viver de renda | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -142,6 +141,7 @@
 | [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | M26 · 4.1 | — | — | — | ✅ |
 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | M26 · 4.1 | — | — | — | ✅ |
 | [**F254**](#f254) | Feature | Programas de governo com nome | M26 · 4.1 | — | — | — | ✅ |
+| [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
 
@@ -157,7 +157,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 5/13 concluídos
+> **Progresso:** 6/13 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -166,7 +166,7 @@
 | 3 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | — | ✅ Concluído |
 | 4 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | ✅ Concluído |
 | 5 | [**F254**](#f254) | Feature | Programas de governo com nome | — | ✅ Concluído |
-| 6 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | — | ⏳ Pendente |
+| 6 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | — | ✅ Concluído |
 | 7 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | — | 🔍 Em avaliação |
 | 8 | [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | — | ⏳ Pendente |
 | 9 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | [F253](#f253) | ⏳ Pendente |
@@ -288,7 +288,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | M26 · 4.1 · 6º | 0 | Baixo | Médio | ⏳ |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 · 7º | 0 | — | — | 🔍 |
 | [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | M26 · 4.1 · 8º | 0 | Médio | Bom | ⏳ |
 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 · 9º | 1 | Médio | Bom | ⏳ |
@@ -351,7 +350,6 @@
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F226** | Feature | Mercado reage à surpresa: o Focus da partida | N34, N31, N41 | D20 | M26 · 4.1 | — | Alto | Médio | Alto | Bom |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
-| **F256** | Melhoria | SELIC abaixo de zero em futuro com deflação | N34 | D20 | M26 · 4.1 | — | Baixo | Baixo | Baixo | Médio |
 | **F257** | Feature | Viver de renda que sente a economia | N23, N34 | D20 | M26 · 4.1 | [F253](#f253) | Médio | Baixo | Alto | Bom |
 | **F259** | Correção | Preço dos ativos cotados em dólar convertido para real | N11, N34 | — | M26 · 4.1 | — | Médio | Médio | Alto | Excelente |
 
@@ -460,16 +458,6 @@ A calibragem dos pesos usa o CLI da economia (`.claude/trabalho/economia/calibra
 **F249 — Núcleo do backend sem import de features.** `core/` importa de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
 
 Cada um desses módulos é movido para a feature que o consome ou passa a receber a dependência por injeção (o `core` define o protocolo, a feature implementa). Por fora nada muda; confere-se com `uv run pyright`, `uv run pytest -n 4` e um `grep "features" backend/core` vazio. Sem decisão de fazer agora.
-
-<a id="f256"></a>
-**F256 — SELIC abaixo de zero em futuro com deflação.** Serve N34; condicionado por D20. Hoje o piso da SELIC é 0%, no DTO (`SelicRequest`, `backend/core/dto/government.py:1098`) e na janela de cada reunião (`backend/features/economy/monetary.py:76` e `frontend/features/government/lib/monetary.ts:17`). No histórico do Brasil a inflação é sempre positiva, e com a SELIC a 0% o juro real já fica muito negativo. A SELIC negativa só faz sentido num futuro gerado com deflação (o regime de inflação do gerador vai até −5 pontos), como no Japão e na Europa dos anos 2010.
-
-**Plano.**
-1. Com o IPCA de 12 meses negativo, o piso da SELIC desce para −0,5%, o do Banco Central Europeu; com ele de volta acima de zero, a reunião seguinte volta a ter piso 0%. A regra vale no DTO, na janela da reunião e no formulário, e a dica da SELIC explica quando o piso abaixo de zero abre.
-2. O caixa do jogador continua rendendo 0%. Com a SELIC negativa, o dinheiro foge da renda fixa pós-fixada para o caixa, que é a lição real do piso perto de zero: os bancos centrais não descem muito porque as pessoas sacam o dinheiro.
-3. A renda fixa pós-fixada rende negativo e mostra isso como qualquer perda, e o IR sobre o rendimento negativo é zero; confere-se o cálculo do IR e do extrato com o rendimento abaixo de zero.
-
-**Aceite:** num futuro gerado com deflação, o presidente leva a SELIC a −0,5%, o Tesouro Selic perde valor dia a dia e o caixa não; com o IPCA de volta acima de zero, a reunião seguinte recusa valor abaixo de 0%.
 
 <a id="f257"></a>
 **F257 — Viver de renda que sente a economia.** Serve N23 e N34; condicionado por D20. No modo viver de renda, o salário e a despesa são valores fixos da partida (`backend/core/life_budget.py:39`). Eles só se corrigem pelo IPCA de 12 meses em cada aniversário do começo da partida, e só com a correção pela inflação ligada (`life_budget.py:55`, `core/indicators.py:254`). O IPCA lido é o da camada da economia (`features/economy/layer.py:270`), então o gasto do governo, que sobe a inflação, chega ao salário e à despesa por esse caminho indireto. Nada mais chega. O IR é só sobre o investimento (`simulation.py:1645`), sem tocar no salário. O juro do cheque especial é fixo e não segue a SELIC (`simulation.py:225`). A demissão é sorteada da semente com a mesma chance por pregão, sem ler o desemprego nem o PIB (`features/simulation/life_events.py:76`).
@@ -654,6 +642,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F252** | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | N15 | — | M26 · 4.1 |
 | **F253** | Melhoria | Impostos e cortes que fecham a conta do governo | N34, N41 | D20 | M26 · 4.1 |
 | **F254** | Feature | Programas de governo com nome | N34, N31 | D19 | M26 · 4.1 |
+| **F256** | Melhoria | SELIC abaixo de zero em futuro com deflação | N34 | D20 | M26 · 4.1 |
 
 <a id="f232"></a>
 **F232 — Crescimento que sente o rombo do governo.** Serve N34; condicionado por D20. Na calibragem de 10 anos, o presidente que dá reajuste real de 15% ao ano por 10 anos chega a um primário de −22,7% do PIB e mesmo assim cresce 8% ao ano, o teto do jogo (`MAX_GROWTH` em `backend/features/economy/growth.py`), em 78 de 120 meses, com o desemprego no piso de 4% em 81. O crescimento do jogo já é o real, descontada a inflação, então o número é implausível de fato. O impulso fiscal (`IMPULSE` em `backend/features/economy/links.py`) empurra o PIB a cada piora do primário, e nada do outro lado segura o crescimento. Pior: o presidente que gasta e segura a SELIC baixa gera inflação alta e juro real muito negativo, e o modelo lê o juro real negativo como estímulo, então a inflação alta empurra o PIB para cima.
@@ -712,6 +701,16 @@ A aba Contas mostra cada imposto e cada parte do gasto-base como card próprio, 
 4. O tamanho do custo de extinguir e de rebatizar se calibra jogando, como os outros números da D19.
 
 Plano econômico com nome ("Plano Real") fica fora: não existe medida de plano econômico.
+
+<a id="f256"></a>
+**F256 — SELIC abaixo de zero em futuro com deflação.** Serve N34; condicionado por D20. Hoje o piso da SELIC é 0%, no DTO (`SelicRequest`, `backend/core/dto/government.py:1098`) e na janela de cada reunião (`backend/features/economy/monetary.py:76` e `frontend/features/government/lib/monetary.ts:17`). No histórico do Brasil a inflação é sempre positiva, e com a SELIC a 0% o juro real já fica muito negativo. A SELIC negativa só faz sentido num futuro gerado com deflação (o regime de inflação do gerador vai até −5 pontos), como no Japão e na Europa dos anos 2010.
+
+**Plano.**
+1. Com o IPCA de 12 meses negativo, o piso da SELIC desce para −0,5%, o do Banco Central Europeu; com ele de volta acima de zero, a reunião seguinte volta a ter piso 0%. A regra vale no DTO, na janela da reunião e no formulário, e a dica da SELIC explica quando o piso abaixo de zero abre.
+2. O caixa do jogador continua rendendo 0%. Com a SELIC negativa, o dinheiro foge da renda fixa pós-fixada para o caixa, que é a lição real do piso perto de zero: os bancos centrais não descem muito porque as pessoas sacam o dinheiro.
+3. A renda fixa pós-fixada rende negativo e mostra isso como qualquer perda, e o IR sobre o rendimento negativo é zero; confere-se o cálculo do IR e do extrato com o rendimento abaixo de zero.
+
+**Aceite:** num futuro gerado com deflação, o presidente leva a SELIC a −0,5%, o Tesouro Selic perde valor dia a dia e o caixa não; com o IPCA de volta acima de zero, a reunião seguinte recusa valor abaixo de 0%.
 
 ---
 
