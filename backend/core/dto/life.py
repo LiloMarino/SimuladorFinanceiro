@@ -45,7 +45,8 @@ class LifeHistoryRowDTO(BaseDTO):
     event_date: date
     category: LifeHistoryCategory
     kind: LifeHistoryKind
-    # Chave e rótulo do imprevisto; nulos nas linhas do cheque especial
+    # Chave e rótulo do imprevisto; nulos nas linhas do cheque especial. Nas linhas de
+    # orçamento e na demissão, o rótulo traz o valor novo e a origem na economia
     life_event_key: str | None = None
     label: str | None = None
     # Efeito no caixa (negativo quando saiu); nulo quando o evento não moveu dinheiro
@@ -58,6 +59,7 @@ class LifeHistoryCountsDTO(BaseDTO):
     unexpected: int
     layoff: int
     overdraft: int
+    budget: int
 
 
 class LifeHistoryPageDTO(BaseDTO):

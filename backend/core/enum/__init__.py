@@ -299,6 +299,8 @@ class LifeHistoryCategory(Enum):
     UNEXPECTED = "UNEXPECTED"
     LAYOFF = "LAYOFF"
     OVERDRAFT = "OVERDRAFT"
+    # Mudanças de salário, despesa e juro com a origem na economia da partida
+    BUDGET = "BUDGET"
 
 
 class LifeHistoryKind(Enum):
@@ -308,6 +310,10 @@ class LifeHistoryKind(Enum):
     OVERDRAFT_ENDED = "OVERDRAFT_ENDED"
     # Soma do juro cobrado por pregão no mês
     OVERDRAFT_INTEREST = "OVERDRAFT_INTEREST"
+    SALARY_READJUSTED = "SALARY_READJUSTED"
+    EXPENSE_READJUSTED = "EXPENSE_READJUSTED"
+    SALARY_TAX_CHANGED = "SALARY_TAX_CHANGED"
+    OVERDRAFT_RATE_CHANGED = "OVERDRAFT_RATE_CHANGED"
 
 
 class PlayerGrouping(Enum):

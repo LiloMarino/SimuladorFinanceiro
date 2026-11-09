@@ -37,6 +37,7 @@ const FILTERS: {
   { value: "UNEXPECTED", label: "Imprevistos", count: (c) => c.unexpected },
   { value: "LAYOFF", label: "Demissões", count: (c) => c.layoff },
   { value: "OVERDRAFT", label: "Cheque especial", count: (c) => c.overdraft },
+  { value: "BUDGET", label: "Orçamento", count: (c) => c.budget },
 ];
 
 const COLUMNS = 5;
@@ -45,7 +46,7 @@ type LifeHistoryProps = {
   life: LifeStatus;
 };
 
-/** "Histórico" do viver de renda: imprevistos, demissões e cheque especial, do mais recente ao mais antigo. */
+/** "Histórico" do viver de renda: imprevistos, demissões, cheque especial e mudanças do orçamento, do mais recente ao mais antigo. */
 export function LifeHistory({ life }: LifeHistoryProps) {
   const [filter, setFilter] = useState<Filter>("ALL");
   const sorting = useTableSortState<LifeHistorySort>({ column: "date", direction: "desc" });
@@ -73,8 +74,9 @@ export function LifeHistory({ life }: LifeHistoryProps) {
       <CardHeader>
         <CardTitle>Histórico</CardTitle>
         <CardDescription>
-          O que aconteceu na partida. Clique nos cabeçalhos para ordenar todo o histórico. Os imprevistos são iguais
-          para todos; o caixa depois é o seu.
+          O que aconteceu na partida e por quê: cada reajuste de salário e despesa, mudança do imposto e do juro do
+          cheque especial traz a origem na economia. Clique nos cabeçalhos para ordenar todo o histórico. Os imprevistos
+          são iguais para todos; o caixa depois é o seu.
         </CardDescription>
         <CardAction>
           <ToggleGroup
@@ -140,7 +142,7 @@ export function LifeHistory({ life }: LifeHistoryProps) {
                   <TableCell>
                     <span className="flex items-center gap-2">
                       <Icon className="size-4 shrink-0 text-muted-foreground" />
-                      {lifeRowText(row, life.overdraft_monthly_rate)}
+                      {lifeRowText(row)}
                       {isNew && (
                         <Badge variant="info" size="sm">
                           novo

@@ -3245,7 +3245,7 @@ export interface paths {
         };
         /**
          * Histórico do viver de renda
-         * @description Imprevistos, demissões, entrada e saída do cheque especial e o juro de cada mês, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria e ordenável por `sort_by` e `sort_direction`. O padrão é data decrescente; a ordenação considera todo o histórico antes da paginação.
+         * @description Imprevistos, demissões, entrada e saída do cheque especial, o juro de cada mês e as mudanças de salário, despesa e juro com a origem na economia da partida, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria e ordenável por `sort_by` e `sort_direction`. O padrão é data decrescente; a ordenação considera todo o histórico antes da paginação.
          */
         get: operations["get_life_history_api_simulation_life_history_get"];
         put?: never;
@@ -7573,7 +7573,7 @@ export interface components {
          * @description Os filtros do histórico do viver de renda.
          * @enum {string}
          */
-        LifeHistoryCategory: "UNEXPECTED" | "LAYOFF" | "OVERDRAFT";
+        LifeHistoryCategory: "UNEXPECTED" | "LAYOFF" | "OVERDRAFT" | "BUDGET";
         /** LifeHistoryCountsDTO */
         LifeHistoryCountsDTO: {
             /** All */
@@ -7584,12 +7584,14 @@ export interface components {
             layoff: number;
             /** Overdraft */
             overdraft: number;
+            /** Budget */
+            budget: number;
         };
         /**
          * LifeHistoryKind
          * @enum {string}
          */
-        LifeHistoryKind: "UNEXPECTED_EXPENSE" | "LAYOFF" | "OVERDRAFT_STARTED" | "OVERDRAFT_ENDED" | "OVERDRAFT_INTEREST";
+        LifeHistoryKind: "UNEXPECTED_EXPENSE" | "LAYOFF" | "OVERDRAFT_STARTED" | "OVERDRAFT_ENDED" | "OVERDRAFT_INTEREST" | "SALARY_READJUSTED" | "EXPENSE_READJUSTED" | "SALARY_TAX_CHANGED" | "OVERDRAFT_RATE_CHANGED";
         /** LifeHistoryPageDTO */
         LifeHistoryPageDTO: {
             /** Items */

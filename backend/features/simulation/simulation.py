@@ -46,7 +46,7 @@ from backend.core.dto.government import (
     PromisesPanelDTO,
     ProposeMeasureRequest,
 )
-from backend.core.dto.life import LifeEventDTO, LifeStatusDTO
+from backend.core.dto.life import LifeEventDTO, LifeHistoryRowDTO, LifeStatusDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.order_preview import OrderPreviewDTO
 from backend.core.dto.patrimonial_history import (
@@ -104,6 +104,8 @@ from backend.core.metrics import (
     ENGINE_TAXES,
     metrics,
 )
+from backend.core.periods import MONTHS_PER_YEAR
+from backend.core.rates import period_rate
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
@@ -181,10 +183,18 @@ from backend.features.realtime.schemas import (
     StockUpdateEventDTO,
 )
 from backend.features.simulation.life_events import (
+    layoff_factor_of,
     layoff_in,
+    net_salary,
     overdraft_interest,
     salary_skipped,
     unexpected_on,
+)
+from backend.features.simulation.life_history import (
+    budget_changes,
+)
+from backend.features.simulation.life_history import (
+    build_history as build_life_history,
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.simulation.simulation_loop import simulation_controller
@@ -222,8 +232,12 @@ def synchronized(
     return call
 
 
-def _overdraft_rate() -> Decimal:
-    return Decimal(str(config.toml.simulation.overdraft_monthly_rate))
+def _overdraft_rate(day: date) -> Decimal:
+    """Juro mensal do cheque especial no dia: a SELIC da partida, em taxa mensal, mais o spread fixo."""
+    selic = period_rate(
+        annual_index_rate(IndicatorSeries.SELIC, day), Decimal(MONTHS_PER_YEAR)
+    )
+    return selic + Decimal(str(config.toml.simulation.overdraft_monthly_spread))
 
 
 class Simulation:
@@ -265,7 +279,7 @@ class Simulation:
         self.settings = settings
         self._random_seed = random_seed
         self._life = (
-            LifeBudget.of(settings)
+            LifeBudget.of(settings, lambda day: self._macro.latest(day).growth)
             if settings.game_type is GameType.FINANCIAL_INDEPENDENCE
             else None
         )
@@ -818,7 +832,9 @@ class Simulation:
         if cash < 0:
             detail = format_money(cash)
             if self._life is not None:
-                detail += f" · cheque especial a {_overdraft_rate() * 100:.0f}% ao mês"
+                detail += (
+                    f" · cheque especial a {_overdraft_rate(today) * 100:.1f}% ao mês"
+                )
             items.append(registry.pending(PendingType.NEGATIVE_CASH, detail))
         items += self._strategies.pending(user)
         if self._government is not None:
@@ -1348,14 +1364,21 @@ class Simulation:
         per_year = self.settings.unexpected_per_year
         if month_changed:
             skipped = salary_skipped(
-                self._random_seed, day, per_year, self.settings.start_date
+                self._random_seed,
+                day,
+                per_year,
+                self.settings.start_date,
+                layoff_factor_on=self._layoff_factor,
             )
+            salary = self._net_salary(life, day)
             for user in users:
                 if not skipped:
-                    self._engine.pay_salary(user.client_id, life.salary_on(day))
+                    self._engine.pay_salary(user.client_id, salary)
                 self._engine.pay_expense(user.client_id, life.expense_on(day))
 
-        event = unexpected_on(self._random_seed, day, per_year)
+        event = unexpected_on(
+            self._random_seed, day, per_year, layoff_factor=self._layoff_factor(day)
+        )
         if event is None:
             return
         amount = event.expense_multiple * life.expense_on(day)
@@ -1372,8 +1395,18 @@ class Simulation:
             ).to_json(),
         )
 
+    def _layoff_factor(self, day: date) -> float:
+        """A chance de demissão em `day` segue o desemprego da partida."""
+        return layoff_factor_of(self._macro.latest(day).unemployment)
+
+    def _net_salary(self, life: LifeBudget, day: date) -> Decimal:
+        """O salário do dia depois do IR das pessoas da política vigente nele."""
+        return net_salary(
+            life.salary_on(day), self._engine.tax_policy_on(day).personal_rate
+        )
+
     def _charge_overdraft(self, users: list[UserDTO]):
-        rate = _overdraft_rate()
+        rate = _overdraft_rate(self._current_date)
         for user in users:
             interest = overdraft_interest(self.get_cash(user.client_id), rate)
             if interest > 0:
@@ -1388,7 +1421,7 @@ class Simulation:
         start = self.settings.start_date
         expense = self._life.expense_on(day)
         cash = self.get_cash(client_id)
-        rate = _overdraft_rate()
+        rate = _overdraft_rate(day)
         # A reserva soma o caixa e a liquidez diária líquida, e nunca fica negativa
         positions = list(self.get_fixed_positions(client_id).values())
         policy = self._tax_policy()
@@ -1398,12 +1431,23 @@ class Simulation:
         reserve = max(cash + daily_liquidity, Decimal(0))
         reserve_cash = max(cash, Decimal(0))
         return LifeStatusDTO(
-            monthly_salary=self._life.salary_on(day),
+            monthly_salary=self._net_salary(self._life, day),
             monthly_expense=expense,
             salary_skipped_by=layoff_in(
-                seed, day.replace(day=1) - timedelta(days=1), per_year, start
+                seed,
+                day.replace(day=1) - timedelta(days=1),
+                per_year,
+                start,
+                layoff_factor_on=self._layoff_factor,
             ),
-            next_salary_skipped_by=layoff_in(seed, day, per_year, start, until=day),
+            next_salary_skipped_by=layoff_in(
+                seed,
+                day,
+                per_year,
+                start,
+                until=day,
+                layoff_factor_on=self._layoff_factor,
+            ),
             goal=self._life.goal_on(day),
             inflation_adjusted=self.settings.inflation_adjusted,
             withdrawal_rate=self.settings.withdrawal_rate,
@@ -1416,6 +1460,24 @@ class Simulation:
             cover_with_treasury=repository.settings.get_cover_with_treasury(
                 UserManager.get_user_id(client_id)
             ),
+        )
+
+    @synchronized
+    def get_life_history(self, client_id: UUID) -> list[LifeHistoryRowDTO]:
+        """O histórico do viver de renda de `client_id`: os eventos de caixa e, na ordem das datas, as mudanças do orçamento com a origem na economia."""
+        events = repository.event.get_cashflow_events(
+            self.settings.id, UserManager.get_user_id(client_id)
+        )
+        if self._life is None:
+            return build_life_history(events)
+        changes = budget_changes(
+            self._life,
+            self._current_date,
+            lambda day: self._engine.tax_policy_on(day).personal_rate,
+            _overdraft_rate,
+        )
+        return build_life_history(
+            events, changes, lambda day: self._macro.latest(day).unemployment
         )
 
     @synchronized

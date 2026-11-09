@@ -59,7 +59,7 @@ from backend.features.realtime.schemas import (
     SimulationEndedEventDTO,
     SimulationSelectedEventDTO,
 )
-from backend.features.simulation.life_history import build_history, history_page
+from backend.features.simulation.life_history import history_page
 from backend.features.simulation.saved_bots import saved_bot_infos, saved_bots
 from backend.features.simulation.saved_simulation import describe
 from backend.features.simulation.simulation_loader import SimulationLoader
@@ -821,7 +821,7 @@ def get_life_status(client_id: ClientID):
     "/life-history",
     response_model=LifeHistoryPageDTO,
     summary="Histórico do viver de renda",
-    description="Imprevistos, demissões, entrada e saída do cheque especial e o juro de cada mês, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria e ordenável por `sort_by` e `sort_direction`. O padrão é data decrescente; a ordenação considera todo o histórico antes da paginação.",
+    description="Imprevistos, demissões, entrada e saída do cheque especial, o juro de cada mês e as mudanças de salário, despesa e juro com a origem na economia da partida, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria e ordenável por `sort_by` e `sort_direction`. O padrão é data decrescente; a ordenação considera todo o histórico antes da paginação.",
 )
 def get_life_history(
     client_id: ClientID,
@@ -836,13 +836,8 @@ def get_life_history(
     """
     if not SimulationManager.has_active_simulation():
         raise ConflictError("Não há partida em andamento.")
-    events = repository.event.get_cashflow_events(
-        SimulationManager.get_active_simulation_id(),
-        UserManager.get_user_id(client_id),
-    )
-    return history_page(
-        build_history(events), category, offset, limit, sort_by, sort_direction
-    )
+    rows = SimulationManager.get_active_simulation().get_life_history(client_id)
+    return history_page(rows, category, offset, limit, sort_by, sort_direction)
 
 
 @simulation_router.post(

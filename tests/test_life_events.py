@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 
@@ -11,10 +12,13 @@ from backend.core.utils import next_business_day
 from backend.features.simulation.life_events import (
     LIFE_EVENTS,
     LifeEventType,
+    layoff_factor_of,
+    net_salary,
     overdraft_interest,
     salary_skipped,
     unexpected_on,
 )
+from backend.features.tax_policy import DEFAULT_TAX_POLICY
 from tests.conftest import SetIndicator
 from tests.fakes import monthly_series
 
@@ -86,14 +90,17 @@ def test_a_new_event_type_is_drawn_without_touching_the_engine():
     assert drawn == {car}
 
 
-def budget(inflation_adjusted: bool) -> LifeBudget:
-    return LifeBudget(
+def budget(inflation_adjusted: bool, growth: str | None = None) -> LifeBudget:
+    life = LifeBudget(
         monthly_salary=Decimal(5000),
         monthly_expense=Decimal(3000),
         withdrawal_rate=Decimal("0.04"),
         inflation_adjusted=inflation_adjusted,
         start_date=START,
     )
+    if growth is None:
+        return life
+    return replace(life, growth_on=lambda _day: Decimal(growth))
 
 
 def test_goal_is_25_times_the_yearly_expense_at_4_percent():
@@ -130,3 +137,80 @@ def test_overdraft_pays_8_percent_a_month_compounded_by_trading_day():
     assert overdraft_interest(Decimal(10), rate) == 0
     # 21 pregões são 1/12 de 252: o mês fecha em 8%
     assert balance == pytest.approx(Decimal(-1080), rel=Decimal("0.001"))
+
+
+def layoffs(seed: int, unemployment: str) -> int:
+    factor = layoff_factor_of(Decimal(unemployment))
+    return sum(
+        (event := unexpected_on(seed, day, 6, layoff_factor=factor)) is not None
+        and event.effect is LifeEventEffect.SKIP_NEXT_SALARY
+        for day in YEARS
+    )
+
+
+def test_layoff_chance_follows_unemployment():
+    """Na mesma semente, desemprego de 18% (o dobro do neutro) demite mais que o de 4%."""
+    assert layoff_factor_of(Decimal("0.09")) == pytest.approx(1)
+    assert layoff_factor_of(Decimal("0.18")) == pytest.approx(2)
+    assert layoffs(42, "0.18") > layoffs(42, "0.09") > layoffs(42, "0.04")
+
+
+def test_unemployment_changes_only_the_layoff_chance():
+    high = draws_with_factor(42, 2.0)
+    neutral = draws_with_factor(42, 1.0)
+
+    def others(drawn: list) -> list:
+        return [
+            e if e is None or e.effect is not LifeEventEffect.SKIP_NEXT_SALARY else None
+            for e in drawn
+        ]
+
+    # Os outros tipos mantêm o dia e o tipo sorteados; só a fatia da demissão cresce
+    assert [e for e in others(high) if e] == [e for e in others(neutral) if e]
+
+
+def draws_with_factor(seed: int, factor: float) -> list:
+    return [unexpected_on(seed, day, 6, layoff_factor=factor) for day in YEARS]
+
+
+def test_layoff_draw_is_deterministic_with_the_unemployment_factor():
+    assert draws_with_factor(7, 1.7) == draws_with_factor(7, 1.7)
+
+
+def test_salary_rises_by_ipca_plus_half_the_gdp_growth(indicators: SetIndicator):
+    # IPCA acumulado de ~12,68% e PIB de 3%: o salário sobe 12,68% + 1,5%
+    indicators(IndicatorSeries.IPCA, monthly_series(date(2019, 1, 1), 36, "1"))
+    ipca = Decimal("1.01") ** 12 - 1
+    life = budget(True, growth="0.03")
+
+    assert life.salary_on(date(2021, 6, 1)) == (
+        5000 * (1 + ipca + Decimal("0.015"))
+    ).quantize(Decimal("0.01"))
+    # A despesa e a meta seguem só o IPCA
+    assert life.expense_on(date(2021, 6, 1)) == (3000 * (1 + ipca)).quantize(
+        Decimal("0.01")
+    )
+
+
+def test_salary_gets_no_real_raise_in_a_recession(indicators: SetIndicator):
+    indicators(IndicatorSeries.IPCA, monthly_series(date(2019, 1, 1), 36, "1"))
+    ipca = Decimal("1.01") ** 12 - 1
+
+    life = budget(True, growth="-0.04")
+
+    assert life.salary_on(date(2021, 6, 1)) == (5000 * (1 + ipca)).quantize(
+        Decimal("0.01")
+    )
+
+
+def test_salary_stays_fixed_without_inflation_adjustment():
+    assert budget(False, growth="0.05").salary_on(date(2022, 6, 1)) == Decimal(5000)
+
+
+def test_income_tax_above_the_reference_discounts_the_salary():
+    reference = DEFAULT_TAX_POLICY.personal_rate
+
+    assert net_salary(Decimal(8000), reference) == Decimal(8000)
+    # 5 pontos acima da referência descontam 5% do salário; abaixo, somam
+    assert net_salary(Decimal(8000), reference + Decimal("0.05")) == Decimal(7600)
+    assert net_salary(Decimal(8000), reference - Decimal("0.05")) == Decimal(8400)

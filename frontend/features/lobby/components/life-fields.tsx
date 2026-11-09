@@ -147,7 +147,8 @@ export function LifeFields({ form, readOnly }: LifeFieldsProps) {
               <FieldContent>
                 <FieldTitle>Corrigir salário e despesa pelo IPCA</FieldTitle>
                 <FieldDescription>
-                  Uma vez por ano, como um reajuste. A meta sobe junto. Desligado, tudo fica nos reais de hoje.
+                  Uma vez por ano, como um reajuste: a despesa sobe pelo IPCA e o salário, pelo IPCA mais metade do
+                  crescimento do PIB. A meta sobe junto. Desligado, tudo fica nos reais de hoje.
                 </FieldDescription>
               </FieldContent>
               <Switch

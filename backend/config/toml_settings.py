@@ -29,8 +29,9 @@ class SimulationConfig(BaseModel):
     monthly_expense: float = 5000.0
     unexpected_per_year: int = 3
     withdrawal_rate: float = 0.04
-    # Juro do cheque especial sobre o caixa negativo, ao mês
-    overdraft_monthly_rate: float = 0.08
+    # Juro do cheque especial ao mês: a SELIC da partida, em taxa mensal, mais este spread.
+    # Na SELIC média de 2000 a 2026 (12,36% ao ano, 0,976% ao mês) o juro fecha em 8% ao mês.
+    overdraft_monthly_spread: float = 0.0702
 
 
 class HostConfig(BaseModel):

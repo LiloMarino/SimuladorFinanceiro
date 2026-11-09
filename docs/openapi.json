@@ -9231,7 +9231,7 @@
           "Simulation"
         ],
         "summary": "Histórico do viver de renda",
-        "description": "Imprevistos, demissões, entrada e saída do cheque especial e o juro de cada mês, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria e ordenável por `sort_by` e `sort_direction`. O padrão é data decrescente; a ordenação considera todo o histórico antes da paginação.",
+        "description": "Imprevistos, demissões, entrada e saída do cheque especial, o juro de cada mês e as mudanças de salário, despesa e juro com a origem na economia da partida, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria e ordenável por `sort_by` e `sort_direction`. O padrão é data decrescente; a ordenação considera todo o histórico antes da paginação.",
         "operationId": "get_life_history_api_simulation_life_history_get",
         "security": [
           {
@@ -21402,7 +21402,8 @@
         "enum": [
           "UNEXPECTED",
           "LAYOFF",
-          "OVERDRAFT"
+          "OVERDRAFT",
+          "BUDGET"
         ],
         "title": "LifeHistoryCategory",
         "description": "Os filtros do histórico do viver de renda."
@@ -21424,6 +21425,10 @@
           "overdraft": {
             "type": "integer",
             "title": "Overdraft"
+          },
+          "budget": {
+            "type": "integer",
+            "title": "Budget"
           }
         },
         "additionalProperties": false,
@@ -21432,7 +21437,8 @@
           "all",
           "unexpected",
           "layoff",
-          "overdraft"
+          "overdraft",
+          "budget"
         ],
         "title": "LifeHistoryCountsDTO"
       },
@@ -21443,7 +21449,11 @@
           "LAYOFF",
           "OVERDRAFT_STARTED",
           "OVERDRAFT_ENDED",
-          "OVERDRAFT_INTEREST"
+          "OVERDRAFT_INTEREST",
+          "SALARY_READJUSTED",
+          "EXPENSE_READJUSTED",
+          "SALARY_TAX_CHANGED",
+          "OVERDRAFT_RATE_CHANGED"
         ],
         "title": "LifeHistoryKind"
       },

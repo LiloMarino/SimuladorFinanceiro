@@ -243,20 +243,22 @@ Os tipos são:
 
 - **Conserto do carro:** 1× a despesa mensal.
 - **Despesa de saúde:** 2× a despesa mensal.
-- **Demissão:** o salário do mês seguinte não entra.
+- **Demissão:** o salário do mês seguinte não entra. A chance segue o desemprego da partida: com o desemprego no neutro (9%), é a de sempre; com 18%, é o dobro; com 4,5%, a metade. Ex.: com imprevistos normais e desemprego de 18%, a demissão chega o dobro de vezes que com 9%.
 
 Cada imprevisto aparece num aviso na tela.
 
-**Caixa negativo.** Se o caixa ficar no negativo, ele cai no **cheque especial**: juros de 8% ao mês, cobrados a cada pregão, até o caixa voltar ao positivo. Ex.: R$ 1.000 no vermelho custam cerca de R$ 80 por mês em juros. Para sair, venda ou resgate algo.
+**Caixa negativo.** Se o caixa ficar no negativo, ele cai no **cheque especial**: juros cobrados a cada pregão até o caixa voltar ao positivo. O juro mensal é a **SELIC** da partida (a taxa básica de juros) mais um adicional fixo de 7 pontos; na SELIC média da história, dá cerca de 8% ao mês. Ex.: com a SELIC em 1% ao mês, o cheque especial cobra uns 8% ao mês, e R$ 1.000 no vermelho custam cerca de R$ 80 em juros; com a SELIC em 2%, são uns 9%. Para sair, venda ou resgate algo.
 
-**Correção pelo IPCA (opcional).** O IPCA é o índice oficial de inflação: mede a alta média dos preços para o consumidor. Quando a correção está ligada, uma vez por ano, no aniversário da partida, salário e despesa sobem pela inflação dos 12 meses anteriores, como um reajuste, e a meta sobe junto. Ex.: inflação de 5% no ano faz o salário de R$ 8.000 virar R$ 8.400 e a despesa de R$ 5.000 virar R$ 5.250. Desligada, tudo fica nos reais do início.
+**Correção pelo IPCA (opcional).** O IPCA é o índice oficial de inflação: mede a alta média dos preços para o consumidor. Quando a correção está ligada, uma vez por ano, no aniversário da partida, salário e despesa sobem pela inflação dos 12 meses anteriores, como um reajuste, e a meta sobe junto. O salário ainda ganha metade do crescimento do **PIB** (a soma de tudo que o país produz) nos 12 meses, quando ele é positivo; na recessão, só a inflação. Ex.: inflação de 5% e PIB de 3% fazem o salário de R$ 8.000 virar R$ 8.520 (alta de 6,5%), e a despesa de R$ 5.000 virar R$ 5.250. Desligada, tudo fica nos reais do início.
+
+**Imposto de renda das pessoas.** Se o governo da partida muda a alíquota do IR das pessoas contra a referência de 15%, o salário que cai no caixa muda na mesma proporção. Ex.: alíquota de 20% (5 pontos acima) desconta 5% do salário, e R$ 8.000 viram R$ 7.600; alíquota de 10% soma 5%, e viram R$ 8.400.
 
 **Retorno.** Salário, despesa e imprevistos contam como dinheiro que você colocou ou tirou (o **capital aportado**), e não como ganho ou perda dos investimentos. Já os juros do cheque especial contam como perda.
 
 **A página [Meta](./meta.md)** mostra:
 
 - **Vida financeira:** salário, despesa e sobra do mês, e a **reserva de emergência**, que é quantos meses de despesa o seu caixa cobre. Ex.: despesa de R$ 5.000 e caixa de R$ 15.000 dão uma reserva de 3 meses. Zero é ruim, 3 é razoável e 6 ou mais é confortável.
-- **Histórico:** imprevistos, demissões, entrada e saída do cheque especial e os juros de cada mês, com a data na partida e o seu caixa depois de cada evento. Dá para filtrar por tipo.
+- **Histórico:** imprevistos, demissões (com o desemprego do dia), entrada e saída do cheque especial, os juros de cada mês e cada mudança de salário, despesa, imposto e juro do cheque especial com a origem na economia da partida, com a data na partida e o seu caixa depois de cada evento. Dá para filtrar por tipo.
 
 #### Política
 
