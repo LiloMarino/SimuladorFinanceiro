@@ -146,10 +146,10 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
       <Table className="table-fixed">
         <TableHeader>
           <TableRow className="*:align-top">
-            <SortableTableHead label="Série" {...sorting.header("series")} className="w-[18%]" />
-            <SortableTableHead label="Classe" {...sorting.header("assetClass")} className="w-24" />
-            <SortableTableHead label="Origem" {...sorting.header("origin")} className="w-44" />
-            <SortableTableHead label="Setor · segmento" {...sorting.header("sector")} className="w-[16%]" />
+            <SortableTableHead label="Série" {...sorting.header("series")} className="w-[14%]" />
+            <SortableTableHead label="Classe" {...sorting.header("assetClass")} className="w-28" />
+            <SortableTableHead label="Origem" {...sorting.header("origin")} className="w-28" />
+            <SortableTableHead label="Setor · segmento" {...sorting.header("sector")} className="w-[14%]" />
             <SortableTableHead label="Dados reais até" {...sorting.header("end")}>
               {/* Eixo comum da linha do tempo */}
               <div className="relative h-4">
@@ -165,8 +165,8 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                 <span className="absolute right-0">hoje</span>
               </div>
             </SortableTableHead>
-            <SortableTableHead label="Situação" {...sorting.header("status")} className="w-44" />
-            <TableHead className="w-40">
+            <SortableTableHead label="Situação" {...sorting.header("status")} className="w-40" />
+            <TableHead className="w-26">
               <span className="sr-only">Ações</span>
             </TableHead>
           </TableRow>
@@ -249,9 +249,13 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                             }
                           >
                             {ASSET_ORIGINS.map((origin) => (
-                              <ToggleGroupItem key={origin} value={origin} aria-label={ASSET_ORIGIN_LABELS[origin]}>
+                              <ToggleGroupItem
+                                key={origin}
+                                value={origin}
+                                aria-label={ASSET_ORIGIN_LABELS[origin]}
+                                title={ASSET_ORIGIN_LABELS[origin]}
+                              >
                                 <AssetOriginFlag origin={origin} size={14} />
-                                {item.origin === origin && ASSET_ORIGIN_LABELS[origin]}
                               </ToggleGroupItem>
                             ))}
                           </ToggleGroup>
@@ -312,23 +316,17 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
 
                       <TableCell>
                         <div className="flex items-center justify-end gap-1">
-                          {/* Só a linha desatualizada pede a ação por extenso */}
-                          {stale ? (
-                            <Button variant="outline" size="sm" disabled={busy} onClick={() => refreshOne.mutate(item)}>
-                              {updatingThis(item) ? <Spinner /> : <RefreshCw />}
-                              Atualizar
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              aria-label={`Atualizar ${item.key}`}
-                              disabled={busy}
-                              onClick={() => refreshOne.mutate(item)}
-                            >
-                              {updatingThis(item) ? <Spinner /> : <RefreshCw />}
-                            </Button>
-                          )}
+                          {/* Só a linha desatualizada destaca o botão de atualizar */}
+                          <Button
+                            variant={stale ? "outline" : "ghost"}
+                            size="icon-sm"
+                            aria-label={`Atualizar ${item.key}`}
+                            title={`Atualizar ${item.key}`}
+                            disabled={busy}
+                            onClick={() => refreshOne.mutate(item)}
+                          >
+                            {updatingThis(item) ? <Spinner /> : <RefreshCw />}
+                          </Button>
                           {item.kind === "STOCK" && <DeleteStockButton stock={item} disabled={busy} />}
                         </div>
                       </TableCell>
