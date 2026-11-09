@@ -103,10 +103,9 @@
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 | — | — | — | 🔍 |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 | — | — | — | 🔍 |
-| [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (32 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (33 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -142,6 +141,7 @@
 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 | — | — | — | ✅ |
 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | M26 · 4.1 | — | — | — | ✅ |
 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | M26 · 4.1 | — | — | — | ✅ |
+| [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
 
@@ -157,7 +157,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 12/15 concluídos
+> **Progresso:** 13/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -174,7 +174,7 @@
 | 11 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | — | ✅ Concluído |
 | 12 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | — | ✅ Concluído |
 | 13 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | — | ✅ Concluído |
-| 14 | [**F261**](#f261) | Feature | Profissão no viver de renda | [F257](#f257) | 🔍 Em avaliação |
+| 14 | [**F261**](#f261) | Feature | Profissão no viver de renda | — | ✅ Concluído |
 | 15 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | 🔍 Em avaliação |
 
 ### 4.2 — Expansão Gestoras (M18)
@@ -282,7 +282,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 · 7º | 0 | — | — | 🔍 |
-| [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 · 14º | 0 | — | — | 🔍 |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 · 15º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
@@ -443,7 +442,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F251** | Melhoria | Mapa da eleição ao longo do tempo | N34 | — | M26 · 4.1 | — | A rodada no canvas, em sessão própria, com o seletor de eleição e a linha do tempo das pesquisas juntos no Mapa. |
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Quanto do capital o governo mantém, quais ativos importados contam como estatal e como a estatal gera PIB e receita dentro da D20. |
 | **F258** | Melhoria | Orientação da bancada que se explica | N34 | — | M26 · 4.1 | — | Desenho: como mostrar o acordo de apoio, a federação e a janela curta |
-| **F261** | Feature | Profissão no viver de renda | N23, N34 | D19 | M26 · 4.1 | [F257](#f257) | A lista de profissões e os números de cada uma, se a meta passa a ser de cada jogador ou o placar compensa de outro jeito, e qual profissão os bots escolhem. |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -535,17 +533,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 <a id="f258"></a>
 **F258 — Orientação da bancada que se explica.** Origem: triagem do playtest de 08/11. O backend respeita a orientação do líder da bancada num governo do computador, mas a tela esconde três limites. (1) O acordo de apoio força Sim: o seletor só muda para Não depois de "Orientar Não e romper", e quem escolhe Não e fecha continua com Sim. (2) Com outro partido líder na federação, o controle aparece e o clique volta 403. (3) O controle some no último dia útil do mês, e em velocidade alta o mês passa antes de a medida ser orientada. A decidir no desenho: mostrar o Não como pendente com o aviso de rompimento em destaque, esconder ou explicar o controle quando a federação não é do jogador, e avisar ou pausar quando a medida entra na fila.
 
-<a id="f261"></a>
-**F261 — Profissão no viver de renda.** Serve N23 e N34; parte do viver de renda que sente a economia ([F257](#f257)). Hoje o salário e a despesa são os mesmos para todos os jogadores da partida (`SimulationSettingsDTO`, `backend/core/dto/simulation.py:108`; `_live` em `simulation.py:1340`). A ideia do playtest de 08/11: uma opção do modo, "salário igual para todos" (o de hoje) ou "cada um escolhe a profissão", como uma classe de RPG. Cada profissão pertence a um grupo do eleitorado (D19), então a medida que taxa os mais ricos, reforça o auxílio ou reajusta as aposentadorias chega direto na renda dos jogadores daquele grupo: o jogador que governa mexe na vida dos outros, e o servidor sente na pele o ajuste fiscal que o presidente aprova.
-
-**Equilíbrio sem limitar a renda.** A renda muda de verdade entre as profissões e oscila com a economia; nenhuma é a melhor em tudo. As alavancas candidatas:
-- **Com o que a renda oscila:** o CLT pela demissão que segue o desemprego; o servidor pelo reajuste do governo, que congela no ajuste fiscal, mas não é demitido; o aposentado pelo reajuste das aposentadorias, com renda menor e sem demissão; o empresário pelo PIB e pela bolsa, com renda alta nos anos bons e meses sem retirada, ou com aporte, na recessão; quem vive de auxílio pelo auxílio do governo, que é cortado quando a renda passa do limite.
-- **Padrão de vida:** a despesa acompanha a profissão, e a meta do modo (o patrimônio que paga a despesa do ano, `goal_on` em `backend/features/statistics/goal.py:13`) passa a ser a de cada jogador. O empresário ganha mais e precisa de mais para viver de renda. Hoje a meta é uma só por partida: mudar isso muda o contrato do `goal_on`.
-- **Alvo das medidas:** o IR das pessoas ([F253](#f253)) e as medidas por grupo pesam mais em quem ganha mais.
-- **Vantagens próprias:** a estabilidade do servidor, o FGTS e o seguro-desemprego do CLT na demissão, o crédito do empresário.
-
-**Falta:** a lista de profissões e os números de cada uma; se a meta passa a ser de cada jogador ou se o placar compensa a renda de outro jeito; qual profissão os bots escolhem; e como o imprevisto, que é um múltiplo da despesa mensal ([F69](#f69)), se comporta com a despesa de cada jogador: o dia do sorteio segue igual para todos, e o valor sai da despesa de cada um.
-
 ---
 
 ## 💤 Sem prioridade
@@ -575,6 +562,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F257** | Feature | Viver de renda que sente a economia | N23, N34 | D20 | M26 · 4.1 |
 | **F259** | Correção | Preço dos ativos cotados em dólar convertido para real | N11, N34 | — | M26 · 4.1 |
 | **F260** | Feature | Caixa em dólar com o juro americano | N41, N34 | — | M26 · 4.1 |
+| **F261** | Feature | Profissão no viver de renda | N23, N34 | D19 | M26 · 4.1 |
 
 <a id="f69"></a>
 **F69 — Imprevistos configuráveis e tipos novos.** Serve N23. O modo viver de renda (F53) já nasce com os tipos de imprevisto num registro, em que cada tipo é uma entrada com nome, múltiplo da despesa mensal, efeito (sai do caixa ou corta o salário do mês seguinte) e peso no sorteio; adicionar um tipo é acrescentar uma entrada, sem mexer no motor, no log nem nas telas. Esta feature expõe esse registro ao host: no lobby, o host edita o valor de cada tipo (por exemplo, o conserto passa de 1 para 2 despesas mensais), liga e desliga tipos e cria tipos próprios com nome, valor e efeito. O sorteio continua saindo da semente da partida, então todos os jogadores seguem recebendo os mesmos imprevistos nos mesmos dias, e a configuração vale para a partida salva.
@@ -701,6 +689,19 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 3. **Na tela:** dois cards lado a lado no topo da Renda fixa (CDB de liquidez diária e conta em dólar, com o "empata se o dólar subir"), prévia em dólares e IOF na boleta de investir, "sai da conta" e IR de 15% na de resgatar, saldo em dólar nos detalhes e na carteira, e a série do Fed com dica na Central de dados.
 
 **Fica de fora.** Empréstimo em dólar (o carry trade completo), título do Tesouro americano, apuração anual do IR sobre a variação cambial e alíquota de IR do câmbio definida pelo governo.
+
+<a id="f261"></a>
+**F261 — Profissão no viver de renda.** Serve N23 e N34; parte do viver de renda que sente a economia ([F257](#f257)). Hoje o salário e a despesa são os mesmos para todos os jogadores da partida (`SimulationSettingsDTO`, `backend/core/dto/simulation.py:108`; `_live` em `simulation.py:1340`). A ideia do playtest de 08/11: uma opção do modo, "salário igual para todos" (o de hoje) ou "cada um escolhe a profissão", como uma classe de RPG. Cada profissão pertence a um grupo do eleitorado (D19), então a medida que taxa os mais ricos, reforça o auxílio ou reajusta as aposentadorias chega direto na renda dos jogadores daquele grupo: o jogador que governa mexe na vida dos outros, e o servidor sente na pele o ajuste fiscal que o presidente aprova.
+
+**Equilíbrio sem limitar a renda.** A renda muda de verdade entre as profissões e oscila com a economia; nenhuma é a melhor em tudo. As alavancas candidatas:
+- **Com o que a renda oscila:** o CLT pela demissão que segue o desemprego; o servidor pelo reajuste do governo, que congela no ajuste fiscal, mas não é demitido; o aposentado pelo reajuste das aposentadorias, com renda menor e sem demissão; o empresário pelo PIB e pela bolsa, com renda alta nos anos bons e meses sem retirada, ou com aporte, na recessão; quem vive de auxílio pelo auxílio do governo, que é cortado quando a renda passa do limite.
+- **Padrão de vida:** a despesa acompanha a profissão, e a meta do modo (o patrimônio que paga a despesa do ano, `goal_on` em `backend/features/statistics/goal.py:13`) passa a ser a de cada jogador. O empresário ganha mais e precisa de mais para viver de renda. Hoje a meta é uma só por partida: mudar isso muda o contrato do `goal_on`.
+- **Alvo das medidas:** o IR das pessoas ([F253](#f253)) e as medidas por grupo pesam mais em quem ganha mais.
+- **Vantagens próprias:** a estabilidade do servidor, o FGTS e o seguro-desemprego do CLT na demissão, o crédito do empresário.
+
+**Falta:** a lista de profissões e os números de cada uma; se a meta passa a ser de cada jogador ou se o placar compensa a renda de outro jeito; qual profissão os bots escolhem; e como o imprevisto, que é um múltiplo da despesa mensal ([F69](#f69)), se comporta com a despesa de cada jogador: o dia do sorteio segue igual para todos, e o valor sai da despesa de cada um.
+
+**Feito.**
 
 ---
 
