@@ -100,12 +100,11 @@
 | [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | M28 · 4.6 | — | Alto | Bom | ⏳ |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
-| [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 | — | — | — | 🔍 |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (33 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (34 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -134,6 +133,7 @@
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M26 · 4.1 | — | — | — | ✅ |
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | M26 · 4.1 | — | — | — | ✅ |
 | [**F250**](#f250) | Correção | Correções da 4.1 | M26 · 4.1 | — | — | — | ✅ |
+| [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 | — | — | — | ✅ |
 | [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | M26 · 4.1 | — | — | — | ✅ |
 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | M26 · 4.1 | — | — | — | ✅ |
 | [**F254**](#f254) | Feature | Programas de governo com nome | M26 · 4.1 | — | — | — | ✅ |
@@ -157,7 +157,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 13/15 concluídos
+> **Progresso:** 14/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -167,7 +167,7 @@
 | 4 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | ✅ Concluído |
 | 5 | [**F254**](#f254) | Feature | Programas de governo com nome | — | ✅ Concluído |
 | 6 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | — | ✅ Concluído |
-| 7 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | — | 🔍 Em avaliação |
+| 7 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | — | ✅ Concluído |
 | 8 | [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | — | ✅ Concluído |
 | 9 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | — | ✅ Concluído |
 | 10 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | — | ✅ Concluído |
@@ -281,7 +281,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 · 7º | 0 | — | — | 🔍 |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 · 15º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
@@ -439,7 +438,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.4 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M24 · 4.3 | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Quais das três regras entram, se contam no placar e nas conquistas, se o laboratório mostra o coeficiente e o valor da credibilidade inicial desacreditada |
-| **F251** | Melhoria | Mapa da eleição ao longo do tempo | N34 | — | M26 · 4.1 | — | A rodada no canvas, em sessão própria, com o seletor de eleição e a linha do tempo das pesquisas juntos no Mapa. |
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Quanto do capital o governo mantém, quais ativos importados contam como estatal e como a estatal gera PIB e receita dentro da D20. |
 | **F258** | Melhoria | Orientação da bancada que se explica | N34 | — | M26 · 4.1 | — | Desenho: como mostrar o acordo de apoio, a federação e a janela curta |
 
@@ -512,13 +510,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 <a id="f227"></a>
 **F227 — Intensidade das ligações e laboratório da economia.** Serve N41 e N34; condicionado por D20 e D21. Três regras da partida, no lobby, para quem quer aprender vendo o mecanismo. **Intensidade:** Suave, Real e Exagerada multiplicam o desvio de todas as ligações por 0,5, 1 e 2. Como o multiplicador age sobre "partida menos história", sem governo a partida continua sendo a história; a Exagerada serve para ver o efeito com clareza num mandato curto. **Laboratório:** cada ligação (curva de Phillips, reação do Banco Central, risco fiscal, juro real na inflação, PIB na bolsa, ciclo fiscal) liga e desliga, para ver o que cada uma faz sozinha, e o painel da Economia mostra quais estão desligadas. **Credibilidade inicial:** a partida começa com o Banco Central acreditado (100, o padrão) ou desacreditado, como o Brasil de 2002 ou de 2015. Desacreditado, ele já paga prêmio de risco no primeiro dia e precisa manter o juro real acima do da história para recuperar a confiança. A regra vale porque a credibilidade é medida contra a história: um banco desacreditado que só copia a história recupera a confiança devagar. **Falta definir:** (1) quais das três regras entram; (2) se a partida Exagerada, de laboratório ou com banco desacreditado conta no placar e nas conquistas; (3) se o laboratório só liga e desliga ou também mostra o coeficiente, que a D21 deixa na docs; (4) o valor da credibilidade inicial desacreditada e se ela vem de um ano real escolhido no lobby.
 
-<a id="f251"></a>
-**F251 — Mapa da eleição ao longo do tempo.** Serve N34; retrabalho do mapa por região (F164). O Mapa mostra só o momento atual: a pesquisa mais recente e o resultado da última eleição (`backend/features/government/map_panel.py:164`). O playtest de 08/11 fez três reclamações. (1) **As eleições passadas não aparecem.** O histórico existe no painel da eleição (`panel.results`, usado em `round-result-dialog.tsx`), mas o mapa lê só o último resultado. (2) **O segundo turno, a fase mais disputada, não se acompanha.** A lente Variação compara só com a pesquisa anterior, e nada mostra como cada região andou desde o começo do turno. (3) **"Quem lidera" parece abrir só no fim da eleição.** Fora da campanha e do intervalo entre os turnos a lente fica apagada, com "abre em <data>" (`frontend/features/government/lib/map-lenses.ts:90`), porque o backend só devolve pesquisa nessas duas fases (`map_panel.py:111`).
-
-**Escopo decidido:** fora da campanha, "Quem lidera" mostra quem venceu cada lugar na última eleição. Entram os dois controles de tempo: um seletor de eleição (ano e turno), que leva as lentes da eleição para qualquer eleição da partida, e uma linha do tempo das pesquisas do turno em curso, que percorre as pesquisas com o mapa mudando junto. O backend passa a devolver o histórico de resultados e de pesquisas por lugar.
-
-**Falta:** a rodada no canvas, numa sessão própria, que desenha os dois controles juntos no Mapa, com os estados fora da campanha, no meio do 1º turno, no 2º turno e numa partida com várias eleições passadas.
-
 <a id="f255"></a>
 **F255 — Estatais.** Serve N34 e N41; condicionado por D20. A ideia do playtest de 08/11: o governo cria estatais para gerar receita e PIB. No Brasil, as estatais listadas (Petrobras, Banco do Brasil) pagam dividendos ao Tesouro, e os proventos já existem na partida desde a 4.0. Entram as três medidas, cada uma com o seu preço:
 
@@ -555,6 +546,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F226** | Feature | Mercado reage à surpresa: o Focus da partida | N34, N31, N41 | D20 | M26 · 4.1 |
 | **F232** | Correção | Crescimento que sente o rombo do governo | N34 | D20 | M26 · 4.1 |
 | **F250** | Correção | Correções da 4.1 | N15, N34 | — | M26 · 4.1 |
+| **F251** | Melhoria | Mapa da eleição ao longo do tempo | N34 | — | M26 · 4.1 |
 | **F252** | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | N15 | — | M26 · 4.1 |
 | **F253** | Melhoria | Impostos e cortes que fecham a conta do governo | N34, N41 | D20 | M26 · 4.1 |
 | **F254** | Feature | Programas de governo com nome | N34, N31 | D19 | M26 · 4.1 |
@@ -610,6 +602,13 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 4. **Sai o aviso "Novo: indicadores técnicos".** O aviso (`stock-chart/index.tsx:338`) aparece sempre que nenhum indicador está ligado e não tem botão de dispensar. Ele depende do estado, e não de um "já visto": volta toda vez que o jogador desliga o último indicador, e em toda conta nova. Os indicadores já não são novidade, então o aviso sai, e o botão de indicadores do gráfico continua.
 5. **Abertura da campanha na janela central do Jornal.** O resultado de turno e o "vão ao 2º turno" saem na janela central, porque o tipo resultado de eleição tem o nível janela fixo (`features/notifications/registry.py:108`). A manchete da abertura da campanha é do tipo calendário eleitoral, que sai como cartão por padrão (`registry.py:130`, `government/headlines.py:73`). Ela passa a sair na janela central, com o nível fixo como o do resultado de turno, e o diálogo de campanha aberta que pausa a partida continua. A janela do Jornal e o diálogo da pausa aparecem um depois do outro, sem se cobrir.
 6. **Triagem: orientar a bancada num governo do computador.** O backend respeita a orientação do líder da bancada num governo do computador (teste em `tests/test_congress.py`). O relato de que a orientação Sim por padrão não podia ser recusada tem três causas de desenho, sem bug de código: o acordo de apoio força Sim e o Não só pega depois de "Orientar Não e romper"; o controle aparece mesmo quando a federação tem outro partido como líder e o clique volta 403; e em velocidade alta o mês passa antes de a medida ser orientada, porque a janela vai até a véspera, o último dia útil do mês.
+
+<a id="f251"></a>
+**F251 — Mapa da eleição ao longo do tempo.** Serve N34; retrabalho do mapa por região (F164). O Mapa mostrava só o momento atual; agora uma linha do tempo percorre o ciclo inteiro de cada eleição da partida.
+
+**Entregue:** o seletor escolhe o ano e a régua cobre o ciclo (pesquisas mensais do 1º turno, apuração do 1º turno, pesquisas semanais do 2º turno e apuração do 2º). A lente "Quem lidera" junta a pesquisa e o resultado: ponto de pesquisa mostra quem lidera (listras no empate técnico), ponto de resultado mostra quem venceu. Aprovação, Rejeição e Onde vive cada grupo não têm data e escondem a linha do tempo inteira. A Variação compara com o ponto anterior. Marcos entre as pesquisas (promessa, ações de campanha e aliança) aparecem na régua, no máximo dois por intervalo e o resto em "+N". O card do lugar ganha o gráfico "<Lugar> ao longo da campanha", e clicar num ponto leva a régua até ele. As setas ← e → andam a régua, "Reproduzir" anda um ponto por segundo até o hoje e "Voltar ao hoje" sai do ponto passado. Com cinco eleições ou mais, os anos antigos vão para a grade "Anteriores". Se o histórico falha, só a régua mostra o erro, com "Tentar de novo"; o mapa segue no hoje.
+
+**Aceite:** a rota `/api/government/map/timeline` devolve anos, pontos e marcos; conferido no app de teste com duas eleições passadas, a 1920 e a 1366, e com a rota do histórico falhando.
 
 <a id="f252"></a>
 **F252 — Atalhos de valor no Tesouro e varredura de qualidade de vida.** Atalhos de 25%, 50% e Tudo na compra e na venda do Tesouro (a venda perdeu o seletor e ganhou o campo sempre visível). Varredura: Enter confirma, foco no primeiro campo e motivo do botão desabilitado (dica ao passar o mouse) nas telas de valor e de ação; atalhos de valor no pagamento antecipado do crédito.
