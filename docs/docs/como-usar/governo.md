@@ -227,6 +227,8 @@ A janela sempre alcança a **SELIC da história no dia**, por mais que ela tenha
 
 Ex.: SELIC de 10,75%: a próxima reunião decide entre 7,75% e 13,75%. Com a SELIC em 21% e a história em 25% no dia, a reunião pode levá-la até 25%. Uma decisão marcada fora dessa janela anda só até a borda.
 
+**O piso.** A SELIC não desce de **0%**. Com o IPCA de 12 meses negativo (a deflação, possível num [futuro gerado](futuro-gerado.md) com inflação baixa), o piso desce a **−0,5%**, o do Banco Central Europeu. Ex.: com a SELIC em 1% e o IPCA em −0,8%, a reunião pode levá-la a −0,5%; com o IPCA de volta a 0% ou mais, a reunião seguinte volta a ter piso 0%, e uma decisão marcada abaixo disso anda só até 0%. Com a SELIC negativa, a renda fixa pós-fixada perde valor dia a dia, sem IR sobre a perda, e o dinheiro parado no caixa, que rende 0%, passa a render mais que ela: é a lição real do piso perto de zero, em que os bancos centrais não descem muito porque as pessoas sacam o dinheiro.
+
 **O juro real.** O efeito da SELIC na inflação vem pelo juro real (SELIC menos IPCA de 12 meses), pela [ligação do juro real](#a-economia-interligada). Um juro real perto de **5%** é o **neutro**: nem esquenta nem esfria a economia. Ex.: SELIC de 10,75% com IPCA de 4,5% dão juro real de 6,25%, um pouco acima do neutro; cortar a SELIC para 8,75% com a história parada em 10,75% deixa o juro real em 4,25%, 2 pontos abaixo da história, e, mantido por um ano, soma uns 0,6 ponto ao IPCA no ano seguinte.
 
 **A credibilidade.** A credibilidade do Banco Central vai de 0 a 100 e começa em 100. Ela mede o quanto o mercado acredita que a inflação vai voltar para a meta, e a régua é a história: quem marca a SELIC que a história teve no dia mantém os 100.

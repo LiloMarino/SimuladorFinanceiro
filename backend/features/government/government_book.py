@@ -2807,6 +2807,10 @@ class GovernmentBook:
         """A SELIC da história no dia, que a janela da reunião sempre alcança."""
         return annual_index_rate(IndicatorSeries.SELIC, today, stored=True)
 
+    def selic_floor(self, today: date) -> Decimal:
+        """O piso da SELIC no dia: 0%, ou -0,5% com o IPCA de 12 meses negativo."""
+        return monetary.selic_floor(annual_index_rate(IndicatorSeries.IPCA, today))
+
     def set_selic(self, user: UserDTO, today: date, selic: Decimal | None) -> None:
         """
         O presidente marca a SELIC da próxima reunião, no passo de 0,25 e dentro da janela
@@ -2823,12 +2827,13 @@ class GovernmentBook:
             current = self.selic_now(today)
             cap = self.selic_cap()
             history = self.selic_history(today)
-            low, high = monetary.cap_window(current, cap, history)
+            floor = self.selic_floor(today)
+            low, high = monetary.cap_window(current, cap, history, floor)
             if not low <= selic <= high:
                 raise UnprocessableEntityError(
                     f"Nesta reunião a SELIC anda até {rules.number(cap * 100)} pontos "
                     f"a partir de {rules.percent(current)}, ou até a da história "
-                    f"({rules.percent(history)})."
+                    f"({rules.percent(history)}), e não desce de {rules.percent(floor)}."
                 )
         self._emit(
             GovernmentEventType.SELIC_SET,
@@ -2864,7 +2869,11 @@ class GovernmentBook:
             current
             if wanted == current
             else monetary.within_cap(
-                wanted, current, self.selic_cap(), self.selic_history(today)
+                wanted,
+                current,
+                self.selic_cap(),
+                self.selic_history(today),
+                self.selic_floor(today),
             )
         )
         ipca = annual_index_rate(IndicatorSeries.IPCA, today)

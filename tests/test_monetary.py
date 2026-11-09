@@ -6,7 +6,9 @@ from datetime import date
 from decimal import Decimal
 
 import pytest
+from pydantic import ValidationError
 
+from backend.core.dto.government import SelicRequest
 from backend.features.economy.monetary import (
     PRESIDENT_CAP,
     SelicBoard,
@@ -19,11 +21,13 @@ from backend.features.economy.monetary import (
     next_credibility,
     next_meeting,
     rate_inflation_points,
+    selic_floor,
     within_cap,
 )
 
 TARGET = Decimal("0.0375")
 TOLERANCE = Decimal("0.015")
+ZERO = Decimal(0)
 
 
 def test_eight_meetings_a_year_on_business_days() -> None:
@@ -43,19 +47,54 @@ def test_next_meeting_crosses_the_year() -> None:
     assert not is_meeting_day(date(2021, 2, 16))
 
 
+def test_the_floor_opens_below_zero_only_with_negative_ipca() -> None:
+    assert selic_floor(Decimal("-0.01")) == Decimal("-0.005")
+    assert selic_floor(Decimal("0")) == Decimal(0)
+    assert selic_floor(Decimal("0.04")) == Decimal(0)
+
+
+def test_the_window_goes_down_to_the_deflation_floor() -> None:
+    current = Decimal("0.015")
+    floor = selic_floor(Decimal("-0.01"))
+
+    assert cap_window(current, PRESIDENT_CAP, current, floor) == (
+        Decimal("-0.005"),
+        Decimal("0.045"),
+    )
+    assert within_cap(Decimal("-0.02"), current, PRESIDENT_CAP, current, floor) == (
+        Decimal("-0.005")
+    )
+    # Com o IPCA de volta acima de zero a janela para em 0%
+    assert cap_window(current, PRESIDENT_CAP, current, ZERO) == (
+        Decimal(0),
+        Decimal("0.045"),
+    )
+    assert within_cap(Decimal("-0.02"), current, PRESIDENT_CAP, current, ZERO) == (
+        Decimal(0)
+    )
+
+
+def test_selic_request_accepts_the_deflation_floor_and_refuses_below() -> None:
+    assert SelicRequest(selic=Decimal("-0.005")).selic == Decimal("-0.005")
+    with pytest.raises(ValidationError):
+        SelicRequest(selic=Decimal("-0.0075"))
+
+
 def test_the_president_window_is_three_points_each_way() -> None:
     current = Decimal("0.1")
     history = Decimal("0.1")
 
     assert Decimal("0.03") == PRESIDENT_CAP
-    assert cap_window(current, PRESIDENT_CAP, history) == (
+    assert cap_window(current, PRESIDENT_CAP, history, ZERO) == (
         Decimal("0.07"),
         Decimal("0.13"),
     )
-    assert within_cap(Decimal("0.2"), current, PRESIDENT_CAP, history) == Decimal(
+    assert within_cap(Decimal("0.2"), current, PRESIDENT_CAP, history, ZERO) == Decimal(
         "0.13"
     )
-    assert within_cap(Decimal("0"), current, PRESIDENT_CAP, history) == Decimal("0.07")
+    assert within_cap(Decimal("0"), current, PRESIDENT_CAP, history, ZERO) == Decimal(
+        "0.07"
+    )
 
 
 def test_the_window_always_reaches_the_history_of_the_day() -> None:
@@ -63,22 +102,31 @@ def test_the_window_always_reaches_the_history_of_the_day() -> None:
 
     # A história 4 pontos acima da atual: a janela sobe até ela
     up = Decimal("0.25")
-    assert cap_window(current, PRESIDENT_CAP, up) == (Decimal("0.18"), Decimal("0.25"))
-    assert within_cap(Decimal("0.25"), current, PRESIDENT_CAP, up) == Decimal("0.25")
-    assert within_cap(Decimal("0.40"), current, PRESIDENT_CAP, up) == Decimal("0.25")
-    # A história 4,5 pontos abaixo: a janela desce até ela
-    down = Decimal("0.165")
-    assert cap_window(current, PRESIDENT_CAP, down) == (
-        Decimal("0.165"),
-        Decimal("0.24"),
-    )
-    assert within_cap(Decimal("0.10"), current, PRESIDENT_CAP, down) == Decimal("0.165")
-    # A história fora da grade entra no passo mais próximo, e a janela não passa de zero
-    assert cap_window(current, PRESIDENT_CAP, Decimal("0.2512")) == (
+    assert cap_window(current, PRESIDENT_CAP, up, ZERO) == (
         Decimal("0.18"),
         Decimal("0.25"),
     )
-    assert cap_window(Decimal("0.01"), PRESIDENT_CAP, Decimal("0.0")) == (
+    assert within_cap(Decimal("0.25"), current, PRESIDENT_CAP, up, ZERO) == Decimal(
+        "0.25"
+    )
+    assert within_cap(Decimal("0.40"), current, PRESIDENT_CAP, up, ZERO) == Decimal(
+        "0.25"
+    )
+    # A história 4,5 pontos abaixo: a janela desce até ela
+    down = Decimal("0.165")
+    assert cap_window(current, PRESIDENT_CAP, down, ZERO) == (
+        Decimal("0.165"),
+        Decimal("0.24"),
+    )
+    assert within_cap(Decimal("0.10"), current, PRESIDENT_CAP, down, ZERO) == Decimal(
+        "0.165"
+    )
+    # A história fora da grade entra no passo mais próximo, e a janela não passa de zero
+    assert cap_window(current, PRESIDENT_CAP, Decimal("0.2512"), ZERO) == (
+        Decimal("0.18"),
+        Decimal("0.25"),
+    )
+    assert cap_window(Decimal("0.01"), PRESIDENT_CAP, Decimal("0.0"), ZERO) == (
         Decimal("0"),
         Decimal("0.04"),
     )
@@ -88,11 +136,11 @@ def test_wanted_rate_stays_within_the_cap_and_the_step() -> None:
     current = Decimal("0.1")
     cap = Decimal("0.0075")
 
-    assert within_cap(Decimal("0.2"), current, cap, current) == Decimal("0.1075")
-    assert within_cap(Decimal("0.05"), current, cap, current) == Decimal("0.0925")
-    assert within_cap(Decimal("0.1012"), current, cap, current) == Decimal("0.1")
+    assert within_cap(Decimal("0.2"), current, cap, current, ZERO) == Decimal("0.1075")
+    assert within_cap(Decimal("0.05"), current, cap, current, ZERO) == Decimal("0.0925")
+    assert within_cap(Decimal("0.1012"), current, cap, current, ZERO) == Decimal("0.1")
     assert within_cap(
-        Decimal("-0.01"), Decimal("0.0025"), cap, Decimal("0.0025")
+        Decimal("-0.01"), Decimal("0.0025"), cap, Decimal("0.0025"), ZERO
     ) == Decimal(0)
 
 
@@ -100,9 +148,14 @@ def test_the_window_starts_from_the_effective_rate_off_the_grid() -> None:
     # A efetiva de 23,65% com janela de 0,75 alcança de 23% a 24,25%, nunca 24,50%
     current = Decimal("0.2365")
     cap = Decimal("0.0075")
-    assert cap_window(current, cap, current) == (Decimal("0.23"), Decimal("0.2425"))
-    assert within_cap(Decimal("0.30"), current, cap, current) == Decimal("0.2425")
-    assert within_cap(Decimal("0.2365"), current, cap, current) == Decimal("0.2375")
+    assert cap_window(current, cap, current, ZERO) == (
+        Decimal("0.23"),
+        Decimal("0.2425"),
+    )
+    assert within_cap(Decimal("0.30"), current, cap, current, ZERO) == Decimal("0.2425")
+    assert within_cap(Decimal("0.2365"), current, cap, current, ZERO) == Decimal(
+        "0.2375"
+    )
 
 
 def test_lag_weights_peak_in_the_middle_quarters() -> None:

@@ -8096,6 +8096,8 @@ export interface components {
             history_selic: string;
             /** Step */
             step: string;
+            /** Floor */
+            floor: string;
             /** Plan */
             plan: string | null;
             /** Credibility */

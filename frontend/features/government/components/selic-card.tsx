@@ -127,7 +127,7 @@ function SelicPlanner({ monetary }: { monetary: GovernmentMonetary }) {
         max={range.max}
         step={range.step}
         marks={[
-          // Com a SELIC em zero, a ponta de baixo é a própria taxa de hoje
+          // Com a SELIC no piso, a ponta de baixo é a própria taxa de hoje
           ...(range.min < range.selic ? [{ value: range.min, label: displayPercent(range.min / 100) }] : []),
           { value: range.selic, label: "hoje" },
           { value: range.max, label: displayPercent(range.max / 100) },

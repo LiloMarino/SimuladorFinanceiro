@@ -238,6 +238,7 @@ def monetary_card(book: GovernmentBook, today: date) -> MonetaryDTO | None:
         cap=book.selic_cap(),
         history_selic=book.selic_history(today),
         step=monetary.SELIC_STEP,
+        floor=book.selic_floor(today),
         plan=book.state.selic_plan,
         credibility=credibility,
         credibility_premium=monetary.credibility_premium(credibility),

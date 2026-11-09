@@ -22899,6 +22899,10 @@
             "type": "string",
             "title": "Step"
           },
+          "floor": {
+            "type": "string",
+            "title": "Floor"
+          },
           "plan": {
             "anyOf": [
               {
@@ -22933,6 +22937,7 @@
           "cap",
           "history_selic",
           "step",
+          "floor",
           "plan",
           "credibility",
           "credibility_premium"
@@ -29477,7 +29482,7 @@
               {
                 "type": "number",
                 "maximum": 1.0,
-                "minimum": 0.0
+                "minimum": -0.005
               },
               {
                 "type": "string"

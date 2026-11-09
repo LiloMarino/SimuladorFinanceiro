@@ -14,6 +14,7 @@ const monetary: GovernmentMonetary = {
   cap: "0.03",
   history_selic: "0.1075",
   step: "0.0025",
+  floor: "0",
   plan: null,
   credibility: 100,
   credibility_premium: "0",
@@ -43,6 +44,12 @@ describe("selicWindow", () => {
 
   it("nunca passa de zero", () => {
     expect(selicWindow({ ...monetary, selic: "0.0050", history_selic: "0.0050" }).min).toBe(0);
+  });
+
+  it("desce a −0,5 com o piso aberto pela deflação", () => {
+    const deflation = { ...monetary, selic: "0.0100", history_selic: "0.0050", floor: "-0.005" };
+    expect(selicWindow(deflation).min).toBe(-0.5);
+    expect(selicWindow({ ...deflation, floor: "0" }).min).toBe(0);
   });
 
   it("alcança a SELIC da história acima da janela", () => {

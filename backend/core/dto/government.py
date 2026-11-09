@@ -1040,6 +1040,8 @@ class MonetaryDTO(BaseDTO):
     cap: Decimal
     history_selic: Decimal
     step: Decimal
+    # O menor valor da SELIC hoje: 0, ou -0,005 com o IPCA de 12 meses negativo
+    floor: Decimal
     # A SELIC que o presidente marcou para a próxima reunião
     plan: Decimal | None
     # De 0 a 100, e o prêmio de risco que a dívida paga a mais pelo que se perdeu
@@ -1101,8 +1103,12 @@ class PromisesPanelDTO(BaseDTO):
 
 
 class SelicRequest(BaseDTO):
-    # A SELIC anual da próxima reunião (0.1075); nula desmarca
-    selic: Annotated[Decimal, Field(ge=0, le=1, max_digits=6, decimal_places=4)] | None
+    # A SELIC anual da próxima reunião (0.1075); nula desmarca. O limite do DTO é o piso
+    # mais baixo possível (-0,5%); o piso do dia, 0% ou -0,5%, é regra do livro
+    selic: (
+        Annotated[Decimal, Field(ge=-0.005, le=1, max_digits=6, decimal_places=4)]
+        | None
+    )
 
 
 class ProposeMeasureRequest(BaseDTO):

@@ -251,6 +251,27 @@ def test_net_redemption_without_profit_charges_no_tax():
     assert (full.net, full.income_tax, full.iof) == (Decimal("950.00"), 0, 0)
 
 
+def test_cdi_below_zero_loses_value_and_the_redemption_charges_no_tax(
+    indicators: SetIndicator,
+):
+    """Com o CDI negativo (SELIC em -0,5%), o título perde valor dia a dia e não paga IR nem IOF."""
+    # -0,002% ao dia, uns -0,5% ao ano
+    indicators(
+        IndicatorSeries.CDI, daily_series(BUY_DATE, date(2020, 12, 31), "-0.002")
+    )
+    asset = _asset(RateIndexType.CDI, "1", maturity=date(2020, 12, 31))
+    position = FixedIncomePosition(asset, Decimal("10000"), BUY_DATE)
+
+    _tick_until(position, BUY_DATE, position.redemption_date)
+
+    assert Decimal("9900") < position.current_value < Decimal("10000")
+    full = redemption_breakdown(
+        position.current_value, Decimal("10000"), CDB, 360, None
+    )
+    assert (full.income_tax, full.iof, full.yield_amount) == (0, 0, 0)
+    assert full.net == position.current_value.quantize(Decimal("0.01"))
+
+
 def test_net_redemption_taxes_only_profit_and_rounds_half_even():
     """IR incide só sobre o lucro e o resgate arredonda ao centavo pelo método bancário."""
     # 1100 - 100 * 0,15 = 1085

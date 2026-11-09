@@ -22,6 +22,9 @@ MEETING_SPACING_DAYS = 45
 # SELIC da história no dia, por mais que ela tenha andado desde a reunião anterior
 SELIC_STEP = Decimal("0.0025")
 PRESIDENT_CAP = Decimal("0.03")
+# O piso da SELIC é 0%; com o IPCA de 12 meses negativo ele desce a -0,5%, o do Banco
+# Central Europeu, e com o IPCA de volta a zero ou mais a reunião seguinte volta a 0%
+DEFLATION_SELIC_FLOOR = Decimal("-0.005")
 
 # Cada ponto de juro real abaixo da história soma 0,3 ponto ao IPCA em 12 meses, um ano
 # depois (a ordem de grandeza do modelo Samba do Banco Central). O efeito de cada mês se
@@ -73,27 +76,32 @@ def to_step(selic: Decimal) -> Decimal:
     return (selic / SELIC_STEP).quantize(Decimal(1), ROUND_HALF_UP) * SELIC_STEP
 
 
+def selic_floor(ipca: Decimal) -> Decimal:
+    """O menor valor da SELIC na reunião: abaixo de zero só com o IPCA de 12 meses negativo."""
+    return DEFLATION_SELIC_FLOOR if ipca < 0 else Decimal(0)
+
+
 def cap_window(
-    current: Decimal, cap: Decimal, history: Decimal
+    current: Decimal, cap: Decimal, history: Decimal, floor: Decimal
 ) -> tuple[Decimal, Decimal]:
     """
     Os passos de 0,25 que a reunião alcança: a SELIC guardada é a efetiva (13,65% com a meta
     em 13,75%), fora da grade, e a janela fica nos passos dentro de `cap` dela, sem passar
-    de zero. A janela sempre inclui o passo mais próximo da SELIC da história no dia.
+    de `floor`. A janela sempre inclui o passo mais próximo da SELIC da história no dia.
     """
     low = ((current - cap) / SELIC_STEP).quantize(
         Decimal(1), ROUND_CEILING
     ) * SELIC_STEP
     high = ((current + cap) / SELIC_STEP).quantize(Decimal(1), ROUND_FLOOR) * SELIC_STEP
     history_step = to_step(history)
-    return max(Decimal(0), min(low, history_step)), max(high, history_step)
+    return max(floor, min(low, history_step)), max(high, history_step)
 
 
 def within_cap(
-    wanted: Decimal, current: Decimal, cap: Decimal, history: Decimal
+    wanted: Decimal, current: Decimal, cap: Decimal, history: Decimal, floor: Decimal
 ) -> Decimal:
     """A taxa pedida no passo de 0,25 mais próximo dentro da janela da reunião."""
-    low, high = cap_window(current, cap, history)
+    low, high = cap_window(current, cap, history, floor)
     return max(low, min(high, to_step(wanted)))
 
 

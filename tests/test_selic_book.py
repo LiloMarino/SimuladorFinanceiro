@@ -187,6 +187,51 @@ def test_the_window_is_three_points_for_any_ipca(
         selic_book.set_selic(ALICE, TERM_START, Decimal("0.0325"))
 
 
+def monthly_ipca(indicators: SetIndicator, value: str) -> None:
+    indicators(
+        IndicatorSeries.IPCA,
+        {date(2021, m, 1): Decimal(value) for m in range(1, 13)}
+        | {date(2022, m, 1): Decimal(value) for m in (1, 2)},
+    )
+
+
+def test_with_negative_ipca_the_president_takes_the_selic_to_minus_half_a_point(
+    selic_book: GovernmentBook, engine, indicators: SetIndicator
+):
+    monthly_ipca(indicators, "-0.5")
+    govern(selic_book, engine)
+    card = monetary_card(selic_book, MEETING)
+    assert card is not None
+    assert card.floor == Decimal("-0.005")
+
+    with pytest.raises(UnprocessableEntityError):
+        selic_book.set_selic(ALICE, TERM_START, Decimal("-0.0075"))
+    selic_book.set_selic(ALICE, TERM_START, Decimal("-0.005"))
+
+    selic_book.on_tick(USERS, MEETING, False)
+
+    assert decided(selic_book) == Decimal("-0.005")
+
+
+def test_with_ipca_back_above_zero_the_floor_returns_to_zero(
+    selic_book: GovernmentBook, engine, indicators: SetIndicator
+):
+    monthly_ipca(indicators, "0.3")
+    govern(selic_book, engine)
+    card = monetary_card(selic_book, MEETING)
+    assert card is not None
+    assert card.floor == 0
+
+    with pytest.raises(UnprocessableEntityError):
+        selic_book.set_selic(ALICE, TERM_START, Decimal("-0.0025"))
+
+    # Um plano marcado com o piso aberto é limitado pelo piso do dia da reunião
+    selic_book.state.selic_plan = Decimal("-0.005")
+    selic_book.on_tick(USERS, MEETING, False)
+
+    assert decided(selic_book) == 0
+
+
 def test_the_window_reaches_the_history_even_when_it_moved_more_than_three_points(
     selic_book: GovernmentBook, engine, indicators: SetIndicator
 ):

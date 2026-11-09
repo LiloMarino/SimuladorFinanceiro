@@ -277,9 +277,10 @@ export const COPOM_SELIC: MetricInfo = {
   description: "O juro básico do país, ao ano; muda só nas reuniões do Copom",
   definition:
     "A taxa que serve de base para todos os outros juros: o CDI, os títulos do Tesouro, o crédito e o juro da dívida do governo. Nesta partida quem decide é o presidente, nas 8 reuniões do Copom do ano; a taxa nova vale do dia seguinte à reunião.",
-  example: "Ex.: com a SELIC a 10,75% ao ano, R$ 100 parados nela viram R$ 110,75 em um ano.",
+  example:
+    "Ex.: com a SELIC a 10,75% ao ano, R$ 100 parados nela viram R$ 110,75 em um ano. Com ela em −0,5%, viram R$ 99,50: a renda fixa pós-fixada perde valor e o dinheiro no caixa, que rende 0%, passa a render mais.",
   reading:
-    "Subir a SELIC segura a inflação meses depois, mas encarece o crédito, derruba a bolsa e aumenta o juro da dívida. Baixar faz o contrário.",
+    "Subir a SELIC segura a inflação meses depois, mas encarece o crédito, derruba a bolsa e aumenta o juro da dívida. Baixar faz o contrário. O piso é 0%; só com o IPCA de 12 meses negativo (deflação) ele desce a −0,5%, o do Banco Central Europeu, e volta a 0% na reunião seguinte ao IPCA voltar a zero ou mais. Os bancos centrais não descem muito abaixo de zero porque as pessoas sacam o dinheiro.",
   format: (value) => displayPercent(value, 2),
 };
 
@@ -298,7 +299,7 @@ export const MEETING_CAP: MetricInfo = {
   label: "Teto da reunião",
   description: "O quanto a SELIC pode andar numa reunião, para cima ou para baixo",
   definition:
-    "Cada reunião anda em passos de 0,25 ponto, até 3 pontos, para cima ou para baixo, com qualquer IPCA (a maior alta do Copom desde 1999). A janela sempre alcança a SELIC da história no dia, por mais que ela tenha andado desde a reunião anterior.",
+    "Cada reunião anda em passos de 0,25 ponto, até 3 pontos, para cima ou para baixo, com qualquer IPCA (a maior alta do Copom desde 1999). A janela sempre alcança a SELIC da história no dia, por mais que ela tenha andado desde a reunião anterior, e não desce do piso: 0%, ou −0,5% com o IPCA de 12 meses negativo.",
   example:
     "Ex.: SELIC de 10,75% com teto de 3 pontos: a reunião pode levá-la de 7,75% a 13,75%. Com a SELIC em 21% e a história em 25% no dia, a janela vai até 25%.",
   reading: "O juro que foge muito da história tem custo: a credibilidade cai e o mercado cobra prêmio de risco.",
