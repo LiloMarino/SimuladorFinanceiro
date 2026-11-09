@@ -107,12 +107,11 @@
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 | — | — | — | 🔍 |
-| [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | M26 · 4.1 | — | Médio | Excelente | ⏳ |
 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | — | — | — | — | 🔍 |
 | [**F261**](#f261) | Feature | Profissão no viver de renda | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -142,6 +141,7 @@
 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | M26 · 4.1 | — | — | — | ✅ |
 | [**F254**](#f254) | Feature | Programas de governo com nome | M26 · 4.1 | — | — | — | ✅ |
 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | M26 · 4.1 | — | — | — | ✅ |
+| [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
 
@@ -157,7 +157,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 6/13 concluídos
+> **Progresso:** 7/13 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -171,7 +171,7 @@
 | 8 | [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | — | ⏳ Pendente |
 | 9 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | [F253](#f253) | ⏳ Pendente |
 | 10 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | — | ⏳ Pendente |
-| 11 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | — | ⏳ Pendente |
+| 11 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | — | ✅ Concluído |
 | 12 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | [F259](#f259) | ⏳ Pendente |
 | 13 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | 🔍 Em avaliação |
 
@@ -292,7 +292,7 @@
 | [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | M26 · 4.1 · 8º | 0 | Médio | Bom | ⏳ |
 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 · 9º | 1 | Médio | Bom | ⏳ |
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M26 · 4.1 · 10º | 0 | Alto | Bom | ⏳ |
-| [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | M26 · 4.1 · 11º | 2 | Médio | Excelente | ⏳ |
+| [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.1 · 12º | 1 | Alto | Bom | ⏳ |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 · 13º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
@@ -351,7 +351,6 @@
 | **F226** | Feature | Mercado reage à surpresa: o Focus da partida | N34, N31, N41 | D20 | M26 · 4.1 | — | Alto | Médio | Alto | Bom |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
 | **F257** | Feature | Viver de renda que sente a economia | N23, N34 | D20 | M26 · 4.1 | [F253](#f253) | Médio | Baixo | Alto | Bom |
-| **F259** | Correção | Preço dos ativos cotados em dólar convertido para real | N11, N34 | — | M26 · 4.1 | — | Médio | Médio | Alto | Excelente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -471,17 +470,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 O registro do orçamento mostra cada mudança no salário, na despesa e no juro com a origem ("reajuste pelo PIB de 3,1%", "demissão com desemprego de 14%"). A profissão do jogador, que liga o salário a um grupo do eleitorado, é um card próprio que parte deste.
 
 **Aceite:** com a mesma semente, uma partida sem governo e de desemprego alto sorteia mais demissões que uma de desemprego baixo, e o registro do orçamento mostra a origem de toda mudança de salário, despesa e juro.
-
-<a id="f259"></a>
-**F259 — Preço dos ativos cotados em dólar convertido para real.** Serve N11. O importador manda ao Yahoo Finance o ticker como está quando ele não é da B3 (`yfinance_symbol` em `backend/features/import_data/importer_service.py:44`), e o download (`from_yfinance`, linhas 55-85, e `from_yfinance_batch`) guarda o preço sem ler a moeda que o Yahoo devolve. A AAPL a US$ 200 entra como R$ 200, e o mesmo vale para a MSFT e para o BTC-USD; a tela formata tudo em real (`frontend/shared/lib/utils/format.ts:50`). Comprar uma ação americana sai cinco vezes mais barato do que na vida real, e a alta do dólar não mexe nela. Os BDRs (AAPL34) já vêm em reais e não mudam.
-
-**Plano.**
-1. A PTAX, a cotação oficial do dólar que o Banco Central publica todo dia (série 1 do SGS), entra como série nova, desde 1994, e aparece na Central de dados.
-2. O importador lê a moeda do ativo no Yahoo e guarda numa coluna nova do ativo (migração pelo `pnpm db:revision`). O preço em dólar se converte para real pela PTAX de cada dia na importação e na atualização, e o histórico antes da PTAX fica de fora. Ativo em outra moeda é recusado na importação com o motivo.
-3. Os ativos em dólar já importados ganham a moeda e o preço convertido pela atualização de ativos que já existe. As partidas salvas com esses ativos mudam de preço, então o commit leva `!`.
-4. A docs da importação passa a dizer que o preço de fora vem convertido pela PTAX do dia.
-
-**Aceite:** a AAPL e o BTC-USD importados mostram, num dia qualquer, o fechamento do Yahoo vezes a PTAX daquele dia, ao centavo; os ativos da B3 saem iguais aos de antes.
 
 ---
 
@@ -643,6 +631,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F253** | Melhoria | Impostos e cortes que fecham a conta do governo | N34, N41 | D20 | M26 · 4.1 |
 | **F254** | Feature | Programas de governo com nome | N34, N31 | D19 | M26 · 4.1 |
 | **F256** | Melhoria | SELIC abaixo de zero em futuro com deflação | N34 | D20 | M26 · 4.1 |
+| **F259** | Correção | Preço dos ativos cotados em dólar convertido para real | N11, N34 | — | M26 · 4.1 |
 
 <a id="f232"></a>
 **F232 — Crescimento que sente o rombo do governo.** Serve N34; condicionado por D20. Na calibragem de 10 anos, o presidente que dá reajuste real de 15% ao ano por 10 anos chega a um primário de −22,7% do PIB e mesmo assim cresce 8% ao ano, o teto do jogo (`MAX_GROWTH` em `backend/features/economy/growth.py`), em 78 de 120 meses, com o desemprego no piso de 4% em 81. O crescimento do jogo já é o real, descontada a inflação, então o número é implausível de fato. O impulso fiscal (`IMPULSE` em `backend/features/economy/links.py`) empurra o PIB a cada piora do primário, e nada do outro lado segura o crescimento. Pior: o presidente que gasta e segura a SELIC baixa gera inflação alta e juro real muito negativo, e o modelo lê o juro real negativo como estímulo, então a inflação alta empurra o PIB para cima.
@@ -711,6 +700,17 @@ Plano econômico com nome ("Plano Real") fica fora: não existe medida de plano 
 3. A renda fixa pós-fixada rende negativo e mostra isso como qualquer perda, e o IR sobre o rendimento negativo é zero; confere-se o cálculo do IR e do extrato com o rendimento abaixo de zero.
 
 **Aceite:** num futuro gerado com deflação, o presidente leva a SELIC a −0,5%, o Tesouro Selic perde valor dia a dia e o caixa não; com o IPCA de volta acima de zero, a reunião seguinte recusa valor abaixo de 0%.
+
+<a id="f259"></a>
+**F259 — Preço dos ativos cotados em dólar convertido para real.** Serve N11. O importador manda ao Yahoo Finance o ticker como está quando ele não é da B3 (`yfinance_symbol` em `backend/features/import_data/importer_service.py:44`), e o download (`from_yfinance`, linhas 55-85, e `from_yfinance_batch`) guarda o preço sem ler a moeda que o Yahoo devolve. A AAPL a US$ 200 entra como R$ 200, e o mesmo vale para a MSFT e para o BTC-USD; a tela formata tudo em real (`frontend/shared/lib/utils/format.ts:50`). Comprar uma ação americana sai cinco vezes mais barato do que na vida real, e a alta do dólar não mexe nela. Os BDRs (AAPL34) já vêm em reais e não mudam.
+
+**Plano.**
+1. A PTAX, a cotação oficial do dólar que o Banco Central publica todo dia (série 1 do SGS), entra como série nova, desde 1994, e aparece na Central de dados.
+2. O importador lê a moeda do ativo no Yahoo e guarda numa coluna nova do ativo (migração pelo `pnpm db:revision`). O preço em dólar se converte para real pela PTAX de cada dia na importação e na atualização, e o histórico antes da PTAX fica de fora. Ativo em outra moeda é recusado na importação com o motivo.
+3. Os ativos em dólar já importados ganham a moeda e o preço convertido pela atualização de ativos que já existe. As partidas salvas com esses ativos mudam de preço, então o commit leva `!`.
+4. A docs da importação passa a dizer que o preço de fora vem convertido pela PTAX do dia.
+
+**Aceite:** a AAPL e o BTC-USD importados mostram, num dia qualquer, o fechamento do Yahoo vezes a PTAX daquele dia, ao centavo; os ativos da B3 saem iguais aos de antes.
 
 ---
 
