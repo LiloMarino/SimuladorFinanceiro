@@ -104,7 +104,6 @@
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 | — | — | — | 🔍 |
-| [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | M26 · 4.1 | — | Alto | Bom | ⏳ |
 | [**F254**](#f254) | Feature | Programas de governo com nome | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | M26 · 4.1 | — | Baixo | Médio | ⏳ |
@@ -115,7 +114,7 @@
 | [**F261**](#f261) | Feature | Profissão no viver de renda | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -142,6 +141,7 @@
 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | M26 · 4.1 | — | — | — | ✅ |
 | [**F250**](#f250) | Correção | Correções da 4.1 | M26 · 4.1 | — | — | — | ✅ |
 | [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | M26 · 4.1 | — | — | — | ✅ |
+| [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
 
@@ -157,13 +157,13 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 3/13 concluídos
+> **Progresso:** 4/13 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F250**](#f250) | Correção | Correções da 4.1 | — | ✅ Concluído |
 | 2 | [**F252**](#f252) | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | — | ✅ Concluído |
-| 3 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | — | ⏳ Pendente |
+| 3 | [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | — | ✅ Concluído |
 | 4 | [**F232**](#f232) | Correção | Crescimento que sente o rombo do governo | — | ✅ Concluído |
 | 5 | [**F254**](#f254) | Feature | Programas de governo com nome | — | ⏳ Pendente |
 | 6 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | — | ⏳ Pendente |
@@ -288,11 +288,11 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F253**](#f253) | Melhoria | Impostos e cortes que fecham a conta do governo | M26 · 4.1 · 3º | 2 | Alto | Bom | ⏳ |
 | [**F254**](#f254) | Feature | Programas de governo com nome | M26 · 4.1 · 5º | 0 | Médio | Bom | ⏳ |
 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | M26 · 4.1 · 6º | 0 | Baixo | Médio | ⏳ |
 | [**F251**](#f251) | Melhoria | Mapa da eleição ao longo do tempo | M26 · 4.1 · 7º | 0 | — | — | 🔍 |
 | [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | M26 · 4.1 · 8º | 0 | Médio | Bom | ⏳ |
+| [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 · 9º | 1 | Médio | Bom | ⏳ |
 | [**F226**](#f226) | Feature | Mercado reage à surpresa: o Focus da partida | M26 · 4.1 · 10º | 0 | Alto | Bom | ⏳ |
 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | M26 · 4.1 · 11º | 2 | Médio | Excelente | ⏳ |
 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 · 13º | 0 | — | — | 🔍 |
@@ -352,7 +352,6 @@
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F226** | Feature | Mercado reage à surpresa: o Focus da partida | N34, N31, N41 | D20 | M26 · 4.1 | — | Alto | Médio | Alto | Bom |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
-| **F253** | Melhoria | Impostos e cortes que fecham a conta do governo | N34, N41 | D20 | M26 · 4.1 | — | Alto | Médio | Alto | Bom |
 | **F254** | Feature | Programas de governo com nome | N34, N31 | D19 | M26 · 4.1 | — | Médio | Baixo | Médio | Bom |
 | **F256** | Melhoria | SELIC abaixo de zero em futuro com deflação | N34 | D20 | M26 · 4.1 | — | Baixo | Baixo | Baixo | Médio |
 | **F257** | Feature | Viver de renda que sente a economia | N23, N34 | D20 | M26 · 4.1 | [F253](#f253) | Médio | Baixo | Alto | Bom |
@@ -463,27 +462,6 @@ A calibragem dos pesos usa o CLI da economia (`.claude/trabalho/economia/calibra
 **F249 — Núcleo do backend sem import de features.** `core/` importa de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
 
 Cada um desses módulos é movido para a feature que o consome ou passa a receber a dependência por injeção (o `core` define o protocolo, a feature implementa). Por fora nada muda; confere-se com `uv run pyright`, `uv run pytest -n 4` e um `grep "features" backend/core` vazio. Sem decisão de fazer agora.
-
-<a id="f253"></a>
-**F253 — Impostos e cortes que fecham a conta do governo.** Serve N34 e N41; condicionado por D20. No playtest de 08/11, taxar não pagou a dívida e não houve como cortar gasto, e o código confirma as duas coisas.
-
-**Receita hoje:** os impostos do jogo são só os do investimento (IR das vendas comuns, do day trade, da renda fixa e da LCI/LCA, e as regras por setor), modelados em % do PIB. Com a política padrão eles somam 0,69% do PIB (`backend/features/government/budget.py:213`); o resto da receita é um valor fixo que fecha o gasto-base de 19% do PIB (`spending.py:26`). Cada imposto rende `base × (alíquota ÷ referência)^(1 − elasticidade)`. A renda fixa a 50% (a referência é 17,5%) passa de 0,60% para cerca de 1,46% do PIB, e as vendas de ações a 100% (referência de 15%) passam de 0,06% para cerca de 0,19%. Na vida real, o IR sobre aplicações também é uma fatia pequena de uma carga de cerca de 32% do PIB: o grosso vem do imposto de renda de pessoas e empresas, dos impostos sobre consumo e da contribuição à previdência.
-
-**Gasto hoje:** só o auxílio e as obras descem, e só até zero. O gasto-base não se mexe, e o reajuste de servidores e de aposentadorias não aceita valor negativo (`spending.py:43`).
-
-**Plano.**
-1. **Quatro impostos novos abrem o valor fixo da receita**, cada um um `MeasureKind` novo com a alíquota de referência que reproduz a história e a mesma fórmula de rendimento dos de hoje. Com as alíquotas de referência, a soma deles é o valor fixo de hoje, então sem governo a conta não muda (D20). Cada um cobra um preço, como parcela do desvio:
-   - **Consumo (ICMS/IPI):** arrecada muito e com elasticidade baixa; sobe a inflação na hora e tira aprovação dos grupos de renda baixa (D19).
-   - **IR das empresas:** tira lucro e derruba a bolsa, no molde do risco fiscal no Ibovespa.
-   - **IR das pessoas:** pesa nos grupos de renda alta e desconta do salário no viver de renda (F257).
-   - **Contribuição sobre a folha:** arrecada bem e encarece contratar: sobe o desvio do desemprego.
-2. **O gasto-base se abre em folha, previdência e custeio**, nos pesos do orçamento real. O reajuste de servidores e de aposentadorias aceita valor real negativo, o reajuste abaixo da inflação do teto de gastos de 2016, e irrita servidores e aposentados. O corte de custeio é uma medida nova que freia o PIB, no molde das obras com o sinal trocado. A reforma da previdência fica fora.
-3. **A isenção move o setor:** enquanto a isenção por setor vale, as ações do setor ganham uma alta como camada sobre o preço histórico, como a redução do IPI dos carros em 2012.
-4. **Calibragem** pelo CLI (`.claude/trabalho/economia/calibrate10.py`), junto com a do crescimento que sente o rombo (F232), que mexe na mesma conta: a elasticidade e o efeito de cada imposto e corte na inflação, no PIB, no desemprego e na aprovação.
-
-A aba Contas mostra cada imposto e cada parte do gasto-base como card próprio, com a dica do que ele custa. A docs da economia ganha os impostos e os cortes novos.
-
-**Aceite:** sem governo, receita, gasto e primário saem iguais aos de antes da mudança em toda a calibragem; um presidente que usa as alavancas novas consegue mudar o primário em 3 pontos do PIB dentro de um mandato, e cada alavanca cobra o preço dela (inflação, bolsa, desemprego ou aprovação) no painel da Economia.
 
 <a id="f254"></a>
 **F254 — Programas de governo com nome.** Serve N34 e N31; condicionado por D19. Hoje o auxílio é uma medida de gasto sem nome (`WELFARE_SPENDING`, em passos de 0,5 ponto do PIB até 5%). A ideia do playtest de 08/11: o presidente cria o programa com nome ("Bolsa Família", "Auxílio Brasil"), e o nome aparece no Jornal ("Governo lança o Bolsa Família") e no card de gasto da aba Contas.
@@ -687,6 +665,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F232** | Correção | Crescimento que sente o rombo do governo | N34 | D20 | M26 · 4.1 |
 | **F250** | Correção | Correções da 4.1 | N15, N34 | — | M26 · 4.1 |
 | **F252** | Melhoria | Atalhos de valor no Tesouro e varredura de qualidade de vida | N15 | — | M26 · 4.1 |
+| **F253** | Melhoria | Impostos e cortes que fecham a conta do governo | N34, N41 | D20 | M26 · 4.1 |
 
 <a id="f232"></a>
 **F232 — Crescimento que sente o rombo do governo.** Serve N34; condicionado por D20. Na calibragem de 10 anos, o presidente que dá reajuste real de 15% ao ano por 10 anos chega a um primário de −22,7% do PIB e mesmo assim cresce 8% ao ano, o teto do jogo (`MAX_GROWTH` em `backend/features/economy/growth.py`), em 78 de 120 meses, com o desemprego no piso de 4% em 81. O crescimento do jogo já é o real, descontada a inflação, então o número é implausível de fato. O impulso fiscal (`IMPULSE` em `backend/features/economy/links.py`) empurra o PIB a cada piora do primário, e nada do outro lado segura o crescimento. Pior: o presidente que gasta e segura a SELIC baixa gera inflação alta e juro real muito negativo, e o modelo lê o juro real negativo como estímulo, então a inflação alta empurra o PIB para cima.
@@ -713,6 +692,27 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 <a id="f252"></a>
 **F252 — Atalhos de valor no Tesouro e varredura de qualidade de vida.** Atalhos de 25%, 50% e Tudo na compra e na venda do Tesouro (a venda perdeu o seletor e ganhou o campo sempre visível). Varredura: Enter confirma, foco no primeiro campo e motivo do botão desabilitado (dica ao passar o mouse) nas telas de valor e de ação; atalhos de valor no pagamento antecipado do crédito.
+
+<a id="f253"></a>
+**F253 — Impostos e cortes que fecham a conta do governo.** Serve N34 e N41; condicionado por D20. No playtest de 08/11, taxar não pagou a dívida e não houve como cortar gasto, e o código confirma as duas coisas.
+
+**Receita hoje:** os impostos do jogo são só os do investimento (IR das vendas comuns, do day trade, da renda fixa e da LCI/LCA, e as regras por setor), modelados em % do PIB. Com a política padrão eles somam 0,69% do PIB (`backend/features/government/budget.py:213`); o resto da receita é um valor fixo que fecha o gasto-base de 19% do PIB (`spending.py:26`). Cada imposto rende `base × (alíquota ÷ referência)^(1 − elasticidade)`. A renda fixa a 50% (a referência é 17,5%) passa de 0,60% para cerca de 1,46% do PIB, e as vendas de ações a 100% (referência de 15%) passam de 0,06% para cerca de 0,19%. Na vida real, o IR sobre aplicações também é uma fatia pequena de uma carga de cerca de 32% do PIB: o grosso vem do imposto de renda de pessoas e empresas, dos impostos sobre consumo e da contribuição à previdência.
+
+**Gasto hoje:** só o auxílio e as obras descem, e só até zero. O gasto-base não se mexe, e o reajuste de servidores e de aposentadorias não aceita valor negativo (`spending.py:43`).
+
+**Plano.**
+1. **Quatro impostos novos abrem o valor fixo da receita**, cada um um `MeasureKind` novo com a alíquota de referência que reproduz a história e a mesma fórmula de rendimento dos de hoje. Com as alíquotas de referência, a soma deles é o valor fixo de hoje, então sem governo a conta não muda (D20). Cada um cobra um preço, como parcela do desvio:
+   - **Consumo (ICMS/IPI):** arrecada muito e com elasticidade baixa; sobe a inflação na hora e tira aprovação dos grupos de renda baixa (D19).
+   - **IR das empresas:** tira lucro e derruba a bolsa, no molde do risco fiscal no Ibovespa.
+   - **IR das pessoas:** pesa nos grupos de renda alta e desconta do salário no viver de renda (F257).
+   - **Contribuição sobre a folha:** arrecada bem e encarece contratar: sobe o desvio do desemprego.
+2. **O gasto-base se abre em folha, previdência e custeio**, nos pesos do orçamento real. O reajuste de servidores e de aposentadorias aceita valor real negativo, o reajuste abaixo da inflação do teto de gastos de 2016, e irrita servidores e aposentados. O corte de custeio é uma medida nova que freia o PIB, no molde das obras com o sinal trocado. A reforma da previdência fica fora.
+3. **A isenção move o setor:** enquanto a isenção por setor vale, as ações do setor ganham uma alta como camada sobre o preço histórico, como a redução do IPI dos carros em 2012.
+4. **Calibragem** pelo CLI (`.claude/trabalho/economia/calibrate10.py`), junto com a do crescimento que sente o rombo (F232), que mexe na mesma conta: a elasticidade e o efeito de cada imposto e corte na inflação, no PIB, no desemprego e na aprovação.
+
+A aba Contas mostra cada imposto e cada parte do gasto-base como card próprio, com a dica do que ele custa. A docs da economia ganha os impostos e os cortes novos.
+
+**Aceite:** sem governo, receita, gasto e primário saem iguais aos de antes da mudança em toda a calibragem; um presidente que usa as alavancas novas consegue mudar o primário em 3 pontos do PIB dentro de um mandato, e cada alavanca cobra o preço dela (inflação, bolsa, desemprego ou aprovação) no painel da Economia.
 
 ---
 
