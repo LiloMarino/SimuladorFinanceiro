@@ -27,8 +27,8 @@ export function DebtCard({ panel, debt }: DebtCardProps) {
   return (
     <Card>
       <CardContent>
-        <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center">
-          <div className="grid gap-2">
+        <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
               <h2 className="text-[15px] font-semibold">{DEBT_GDP.label}</h2>
               <InfoHint label="Como ler a dívida">
@@ -39,14 +39,19 @@ export function DebtCard({ panel, debt }: DebtCardProps) {
                 </div>
               </InfoHint>
             </div>
-            <SeriesChart
-              rows={economyRows(panel)}
-              dataKey="debt"
-              label="Dívida ÷ PIB"
-              color="var(--chart-5)"
-              reference={{ value: 0.5, label: "50%: o prêmio começa" }}
-              height={200}
-            />
+            {/* O gráfico ocupa a altura que sobra do card */}
+            <div className="relative min-h-50 flex-1">
+              <div className="absolute inset-0">
+                <SeriesChart
+                  rows={economyRows(panel)}
+                  dataKey="debt"
+                  label="Dívida ÷ PIB"
+                  color="var(--chart-5)"
+                  reference={{ value: 0.5, label: "50%: o prêmio começa" }}
+                  height="100%"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-2.5">
@@ -80,7 +85,7 @@ export function DebtCard({ panel, debt }: DebtCardProps) {
               </div>
               {result !== null && (
                 <div className="flex items-center justify-between gap-4">
-                  <span>Resultado do mês</span>
+                  <span>Resultado do mês, com juros</span>
                   <span className={cn("font-mono font-semibold", result < 0 ? "text-destructive" : "text-success")}>
                     {displayMoneyLarge(result)}
                   </span>
@@ -113,7 +118,7 @@ function StabilizingPrimary({ debt }: StabilizingPrimaryProps) {
         <MetricHint metric={STABILIZING_PRIMARY} />
       </span>
       <div className="flex items-center justify-between gap-4">
-        <span>Resultado primário</span>
+        <span>Resultado primário, sem juros</span>
         <span className="font-mono font-semibold">{STABILIZING_PRIMARY.format(primary)}</span>
       </div>
       <div className="flex items-center justify-between gap-4">

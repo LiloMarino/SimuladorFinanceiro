@@ -1,8 +1,10 @@
+import { PartyMark } from "@/shared/components/party-mark";
 import { Badge } from "@/shared/components/ui/badge";
+import { useElection } from "@/shared/hooks/queries/useElection";
 import { useNotificationCatalog } from "@/shared/hooks/queries/useNotificationCatalog";
 import { cn } from "@/shared/lib/utils";
 import { displayShortDate } from "@/shared/lib/utils/display";
-import type { NewsType } from "@/types";
+import type { News, NewsType } from "@/types";
 import { SECTION_TONE, sectionLabel, sectionOf } from "../lib/catalog";
 
 type NewsKickerProps = {
@@ -22,6 +24,29 @@ export function NewsKicker({ type, suffix, className }: NewsKickerProps) {
     <span className={cn("text-xs font-bold tracking-widest uppercase", SECTION_TONE[section], className)}>
       {sectionLabel(catalog, section)}
       {suffix}
+    </span>
+  );
+}
+
+type NewsPartiesProps = {
+  abbrs: News["party_abbrs"];
+};
+
+/** Os partidos citados na manchete, cada sigla na cor do partido; sem partido citado, não busca nada. */
+export function NewsParties({ abbrs }: NewsPartiesProps) {
+  const { data: election } = useElection({ enabled: abbrs.length > 0 });
+  if (abbrs.length === 0) return null;
+
+  return (
+    <span className="flex items-center gap-1">
+      {abbrs.map((abbr) => (
+        <PartyMark
+          key={abbr}
+          abbr={abbr}
+          color={election?.parties.find((party) => party.abbr === abbr)?.color ?? null}
+          size="sm"
+        />
+      ))}
     </span>
   );
 }

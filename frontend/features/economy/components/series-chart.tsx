@@ -1,6 +1,6 @@
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { displayDate, displayPercent, displayShortMonthYear } from "@/shared/lib/utils/display";
-import type { EconomyRow } from "../lib/economy";
+import { monthTicks, type EconomyRow } from "../lib/economy";
 import { CHART_FONT_SIZE, CHART_TICK } from "@/shared/lib/chart-text";
 
 type SeriesKey = "growth" | "unemployment" | "debt" | "dollar";
@@ -13,7 +13,8 @@ type SeriesChartProps = {
   color: string;
   /** Linha de referência tracejada, como o limite em que a dívida passa a cobrar prêmio */
   reference?: { value: number; label: string };
-  height?: number;
+  /** Em pixels ou em % da altura do pai, que precisa ter altura definida */
+  height?: number | `${number}%`;
   /** Como o valor aparece no eixo e no tooltip; o padrão é percentual */
   format?: (value: number, digits: number) => string;
 };
@@ -63,6 +64,8 @@ export function SeriesChart({
     );
   }
 
+  const ticks = monthTicks(rows.map((row) => row.time));
+
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={rows} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
@@ -72,6 +75,7 @@ export function SeriesChart({
           type="number"
           scale="time"
           domain={["dataMin", "dataMax"]}
+          {...(ticks.length > 0 && { ticks })}
           tickFormatter={(time: number) => displayShortMonthYear(new Date(time))}
           tick={CHART_TICK}
           axisLine={false}

@@ -19195,6 +19195,9 @@
           "ipca_12m": {
             "$ref": "#/components/schemas/PreviewSeriesDTO"
           },
+          "fed_funds": {
+            "$ref": "#/components/schemas/PreviewSeriesDTO"
+          },
           "gdp_growth": {
             "$ref": "#/components/schemas/PreviewSeriesDTO"
           },
@@ -19248,6 +19251,7 @@
           "asset",
           "selic",
           "ipca_12m",
+          "fed_funds",
           "gdp_growth",
           "unemployment",
           "ibov_change",
@@ -19491,6 +19495,7 @@
         "type": "string",
         "enum": [
           "UPDATED",
+          "POLL_PUBLISHED",
           "CAMPAIGN_OPENED",
           "TICKETS_CLOSING",
           "ELECTION_EVE",
@@ -24251,6 +24256,13 @@
             "type": "array",
             "title": "Tickers"
           },
+          "party_abbrs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Party Abbrs"
+          },
           "change_pct": {
             "anyOf": [
               {
@@ -24272,6 +24284,7 @@
           "headline",
           "dek",
           "tickers",
+          "party_abbrs",
           "change_pct"
         ],
         "title": "NewsDTO",

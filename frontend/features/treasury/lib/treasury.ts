@@ -7,7 +7,12 @@ import {
   displayRateLabel,
   parseLocalDate,
 } from "@/shared/lib/utils/display";
-import type { RateIndex, TreasuryHistoryPoint } from "@/types";
+import type { RateIndex, TreasuryCatalog, TreasuryHistoryPoint } from "@/types";
+
+/** O catálogo vale até `next_review` (a taxa é revista na virada do mês) e até o vencimento de cada título; as datas ISO comparam como texto. */
+export function isCatalogStale(catalog: TreasuryCatalog, today: string): boolean {
+  return today >= catalog.next_review || catalog.titles.some((title) => title.maturity_date <= today);
+}
 
 /** A régua do termômetro vai de 0% a 150% de dívida ÷ PIB; passando disso o marcador fica na ponta. */
 export const GAUGE_MAX_DEBT = 1.5;

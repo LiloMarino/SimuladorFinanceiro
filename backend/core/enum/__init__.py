@@ -696,6 +696,8 @@ class GovernmentNoticeKind(Enum):
     """O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."""
 
     UPDATED = "UPDATED"
+    # Uma pesquisa nova entrou no histórico (mensal ou semanal do 2º turno); o mapa recarrega
+    POLL_PUBLISHED = "POLL_PUBLISHED"
     CAMPAIGN_OPENED = "CAMPAIGN_OPENED"
     TICKETS_CLOSING = "TICKETS_CLOSING"
     ELECTION_EVE = "ELECTION_EVE"

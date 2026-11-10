@@ -124,12 +124,14 @@ export function MapLensMenu({
                   return (
                     <ToggleGroupItem key={item.id} value={item.id} disabled={!availability.available}>
                       <span aria-hidden className="size-4 shrink-0 rounded-sm" style={{ background: swatch(item) }} />
-                      {labelOf(item)}
-                      {availability.available ? (
-                        item.key && <Kbd>{item.key}</Kbd>
-                      ) : (
-                        <span className="ml-auto text-xs">{availability.reason}</span>
-                      )}
+                      <span className="min-w-0 truncate">{labelOf(item)}</span>
+                      {/* Aviso e coluna fixa do atalho */}
+                      <span className="ml-auto flex shrink-0 items-center gap-2">
+                        {!availability.available && <span className="text-xs">{availability.reason}</span>}
+                        <span className="flex w-5 justify-end">
+                          {availability.available && item.key && <Kbd>{item.key}</Kbd>}
+                        </span>
+                      </span>
                     </ToggleGroupItem>
                   );
                 })}

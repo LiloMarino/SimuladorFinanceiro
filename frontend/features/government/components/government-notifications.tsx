@@ -74,6 +74,10 @@ export function GovernmentNotifications() {
           toast[notice.tone](notice.title, { description: notice.description });
         });
         break;
+      case "POLL_PUBLISHED":
+        // Cada pesquisa nova entra no mapa e na linha do tempo do ano
+        void queryClient.invalidateQueries({ queryKey: queryKeys.electionMap() });
+        break;
       case "ENDORSEMENT": {
         const notice = endorsementToast(event);
         toast[notice.tone](notice.title, { description: notice.description });

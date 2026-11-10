@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import type { News } from "@/types";
-import { NewsKicker, NewsMasthead } from "./news-parts";
+import { NewsKicker, NewsMasthead, NewsParties } from "./news-parts";
 
 type NewsCardProps = {
   news: News;
@@ -16,7 +16,10 @@ export function NewsCard({ news, others }: NewsCardProps) {
     <Card variant="paper" size="flush" role="status" className="w-[360px]">
       <NewsMasthead date={news.news_date} />
       <div className="grid gap-1 px-3.5 pt-2.5 pb-3">
-        <NewsKicker type={news.news_type} />
+        <div className="flex items-center gap-2">
+          <NewsKicker type={news.news_type} />
+          <NewsParties abbrs={news.party_abbrs} />
+        </div>
         <p className="line-clamp-2 font-serif lining-nums text-[17px] leading-snug font-semibold">{news.headline}</p>
         {news.dek && <p className="line-clamp-2 text-[13px] text-muted-foreground">{news.dek}</p>}
       </div>

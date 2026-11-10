@@ -4,9 +4,10 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import type { ElectionPanel } from "@/types";
 
 /** Datas, partidos, pesquisas, resultados e rankings da eleição da partida. */
-export function useElection() {
+export function useElection({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: queryKeys.election(),
     queryFn: ({ signal }) => apiFetch<ElectionPanel>("/api/government/election", { signal }),
+    enabled,
   });
 }

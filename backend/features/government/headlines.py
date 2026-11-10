@@ -62,6 +62,11 @@ def _with(group: VoterGroup) -> str:
     return f"com {name}" if group is VoterGroup.WELFARE else f"com os {name}"
 
 
+def _abbrs(*values: str | None) -> tuple[str, ...]:
+    """As siglas citadas na manchete, na ordem do texto; o que é nulo não entra."""
+    return tuple(value for value in values if value)
+
+
 def _join(items: list[str]) -> str:
     if len(items) <= 1:
         return "".join(items)
@@ -107,6 +112,7 @@ def tickets_closed(
         NewsType.ELECTION_CALENDAR,
         f"Chapas fechadas: {_join(names)}" if names else "Chapas fechadas",
         dek,
+        party_abbrs=tuple(abbr for abbr, _, _ in tickets),
     )
 
 
@@ -137,11 +143,13 @@ def round_won(
             f"Virada: {candidate} ({abbr}) vence o 2º turno, com {_share(share)} dos votos válidos",
             f"O {turned_from} tinha liderado o 1º turno e perdeu a eleição. "
             "A posse é em 1º de janeiro.",
+            party_abbrs=(abbr, turned_from),
         )
     return Headline(
         NewsType.ELECTION_RESULT,
         f"{candidate} ({abbr}) {verb} {where}, com {_share(share)} dos votos válidos",
         "A posse é em 1º de janeiro.",
+        party_abbrs=(abbr,),
     )
 
 
@@ -153,6 +161,7 @@ def runoff_called(finalists: list[tuple[str, Decimal]], runoff: date) -> Headlin
         f"{first} e {second} vão ao 2º turno",
         f"O {first} teve {_share(first_share)} dos válidos e o {second}, "
         f"{_share(second_share)}. A votação é em {_day_month(runoff)}.",
+        party_abbrs=(first, second),
     )
 
 
@@ -170,6 +179,7 @@ def impeachment_requested(
         NewsType.ELECTION_RESULT,
         title,
         f"A casa vota em {vote_day.day:02d}/{vote_day.month:02d}/{vote_day.year}.",
+        party_abbrs=_abbrs(requester, abbr),
     )
 
 
@@ -191,6 +201,7 @@ def impeachment_rejected(
         NewsType.ELECTION_RESULT,
         f"Casa rejeita o impeachment de {president}{party} por {no} a {yes}",
         f"A contagem de meses abaixo do piso recomeça do zero.{wear}",
+        party_abbrs=_abbrs(abbr, requester),
     )
 
 
@@ -209,17 +220,20 @@ def impeachment(
             NewsType.ELECTION_RESULT,
             f"Casa tira {president}{party} da Presidência por {yes} a {no}; {successor} assume",
             "A aprovação ficou abaixo do piso por meses seguidos.",
+            party_abbrs=_abbrs(abbr),
         )
     if heir:
         return Headline(
             NewsType.ELECTION_RESULT,
             f"Casa tira {president}{party} da Presidência por {yes} a {no}; {heir} assume o governo",
             f"Sem vice, governa até o fim do mandato o partido do computador com mais cadeiras ({heir}), propondo medidas pelos eleitores dele.",
+            party_abbrs=_abbrs(abbr, heir),
         )
     return Headline(
         NewsType.ELECTION_RESULT,
         f"Casa tira {president}{party} da Presidência por {yes} a {no}",
         "Sem vice, o governo passa ao computador até o fim do mandato.",
+        party_abbrs=_abbrs(abbr),
     )
 
 
@@ -232,6 +246,7 @@ def term_started(president: str, abbr: str | None, term_end: date | None) -> Hea
         NewsType.TERM_STARTED,
         f"{president} toma posse{until}",
         f"Presidente pelo {abbr}." if abbr else None,
+        party_abbrs=_abbrs(abbr),
     )
 
 
@@ -255,6 +270,7 @@ def house_seated(
         NewsType.TERM_STARTED,
         f"Novo Congresso toma posse: {abbr} é a maior bancada, com {held} das {seats} cadeiras",
         dek,
+        party_abbrs=_abbrs(abbr, government[0] if government else None),
     )
 
 
@@ -384,7 +400,11 @@ def measure_in_force(title: str, tickers: list[str]) -> Headline:
 
 
 def party_founded(founder: str, abbr: str, name: str) -> Headline:
-    return Headline(NewsType.PARTY_LIFE, f"{founder} funda o {abbr}, {name}")
+    return Headline(
+        NewsType.PARTY_LIFE,
+        f"{founder} funda o {abbr}, {name}",
+        party_abbrs=(abbr,),
+    )
 
 
 def donation(donor: str, abbr: str, amount: Decimal) -> Headline:
@@ -392,11 +412,14 @@ def donation(donor: str, abbr: str, amount: Decimal) -> Headline:
         NewsType.PARTY_LIFE,
         f"{donor} doa {format_money(amount)} ao {abbr}",
         "A doação vai para a campanha do 2º turno.",
+        party_abbrs=(abbr,),
     )
 
 
 def expelled(member: str, abbr: str) -> Headline:
-    return Headline(NewsType.PARTY_LIFE, f"{member} é expulso do {abbr}")
+    return Headline(
+        NewsType.PARTY_LIFE, f"{member} é expulso do {abbr}", party_abbrs=(abbr,)
+    )
 
 
 def federation_formed(first: str, second: str, candidate: str, ends: date) -> Headline:
@@ -415,6 +438,7 @@ def federation_left(leaver: str, other_abbr: str) -> Headline:
         f"{leaver} deixa a federação com o {other_abbr} antes do prazo",
         f"Com a saída, a federação se desfaz. {leaver} fica impedido de se federar "
         "na eleição seguinte e passa a disputar sozinho.",
+        party_abbrs=(other_abbr,),
     )
 
 
@@ -434,6 +458,7 @@ def deal_made(
         f"São {ally_seats} cadeiras: a base vai a {base_seats}, {position} de {majority}. "
         f"O acordo vale até {end.day:02d}/{end.month:02d}/{end.year}, com emendas "
         "pagas todo mês.",
+        party_abbrs=(ally_abbr,),
     )
 
 
@@ -472,6 +497,7 @@ def deal_broken(
         NewsType.PARTY_LIFE,
         title,
         f"São {ally_seats} cadeiras que mudam de lado. {position}{pain}",
+        party_abbrs=(ally_abbr,),
     )
 
 
@@ -490,6 +516,7 @@ def deal_left(
         f"Com a aprovação de {president} em baixa, a bancada não segue apoiando sem o "
         f"reajuste que cobrou. São {ally_seats} cadeiras: a base cai para {base_seats}, "
         f"{position} da maioria de {majority}.",
+        party_abbrs=(ally_abbr,),
     )
 
 
@@ -499,6 +526,7 @@ def deals_ended(abbrs: list[str], new_congress: bool) -> Headline:
         NewsType.PARTY_LIFE,
         f"Acabam os acordos de apoio com {_join(abbrs)}",
         f"Os acordos terminaram {cause}, e as emendas deixam de ser pagas.",
+        party_abbrs=tuple(abbrs),
     )
 
 
@@ -547,17 +575,20 @@ def campaign_action(
                 NewsType.CAMPAIGN,
                 f"Ataque do {abbr} ao {rival_abbr} sai pela culatra {_among(group)}",
                 BACKFIRE_DEKS[action_id % len(BACKFIRE_DEKS)],
+                party_abbrs=(abbr, rival_abbr),
             )
         if band is DiceBand.VIRAL:
             return Headline(
                 NewsType.CAMPAIGN,
                 f"Ataque do {abbr} ao {rival_abbr} viraliza {_among(group)}",
                 VIRAL_DEKS[action_id % len(VIRAL_DEKS)],
+                party_abbrs=(abbr, rival_abbr),
             )
         return Headline(
             NewsType.CAMPAIGN,
             f"{abbr} parte para o ataque contra o {rival_abbr} {_among(group)}",
             ATTACK_DEKS[action_id % len(ATTACK_DEKS)],
+            party_abbrs=(abbr, rival_abbr),
         )
     if band is DiceBand.VIRAL:
         text = (
@@ -566,7 +597,10 @@ def campaign_action(
             else f"{ACTION_NOUN[kind]} do {abbr} {_with(group)} viraliza"
         )
         return Headline(
-            NewsType.CAMPAIGN, text, VIRAL_DEKS[action_id % len(VIRAL_DEKS)]
+            NewsType.CAMPAIGN,
+            text,
+            VIRAL_DEKS[action_id % len(VIRAL_DEKS)],
+            party_abbrs=(abbr,),
         )
     if band is DiceBand.DISASTER:
         text = (
@@ -576,7 +610,10 @@ def campaign_action(
             f"{ACTION_NOUN[kind].lower()} {_with(group)}"
         )
         return Headline(
-            NewsType.CAMPAIGN, text, DISASTER_DEKS[action_id % len(DISASTER_DEKS)]
+            NewsType.CAMPAIGN,
+            text,
+            DISASTER_DEKS[action_id % len(DISASTER_DEKS)],
+            party_abbrs=(abbr,),
         )
     return None
 
@@ -592,22 +629,30 @@ def promises_set(
         )
         if count == 0:
             return Headline(
-                NewsType.CAMPAIGN, f"{abbr} retira as promessas de campanha", dek
+                NewsType.CAMPAIGN,
+                f"{abbr} retira as promessas de campanha",
+                dek,
+                party_abbrs=(abbr,),
             )
         text = (
             f"{abbr} volta atrás em uma promessa de campanha"
             if len(retreated) == 1
             else f"{abbr} volta atrás em {len(retreated)} promessas de campanha"
         )
-        return Headline(NewsType.CAMPAIGN, text, dek)
+        return Headline(NewsType.CAMPAIGN, text, dek, party_abbrs=(abbr,))
     if count == 0:
-        return Headline(NewsType.CAMPAIGN, f"{abbr} retira as promessas de campanha")
+        return Headline(
+            NewsType.CAMPAIGN,
+            f"{abbr} retira as promessas de campanha",
+            party_abbrs=(abbr,),
+        )
     noun = "promessa" if count == 1 else "promessas"
     verb = "revê" if had_promises else "anuncia"
     return Headline(
         NewsType.CAMPAIGN,
         f"{abbr} {verb} as promessas de campanha",
         f"São {count} {noun}, cobradas no fim do mandato se a chapa vencer.",
+        party_abbrs=(abbr,),
     )
 
 
@@ -616,12 +661,19 @@ def promises_settled(abbr: str, kept: int, total: int) -> Headline:
         NewsType.CAMPAIGN,
         f"Fim do mandato: o {abbr} cumpre {kept} de {total} promessas",
         "Promessa cumprida soma afinidade; descumprida soma rejeição.",
+        party_abbrs=(abbr,),
     )
 
 
 def endorsement(abbr: str, endorsed_abbr: str | None) -> Headline:
     if endorsed_abbr is None:
-        return Headline(NewsType.CAMPAIGN, f"{abbr} fica neutro no 2º turno")
+        return Headline(
+            NewsType.CAMPAIGN,
+            f"{abbr} fica neutro no 2º turno",
+            party_abbrs=(abbr,),
+        )
     return Headline(
-        NewsType.CAMPAIGN, f"{abbr} declara apoio ao {endorsed_abbr} no 2º turno"
+        NewsType.CAMPAIGN,
+        f"{abbr} declara apoio ao {endorsed_abbr} no 2º turno",
+        party_abbrs=(abbr, endorsed_abbr),
     )

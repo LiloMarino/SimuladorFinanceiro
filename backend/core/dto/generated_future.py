@@ -85,9 +85,10 @@ class FuturePreviewDTO(BaseDTO):
     indicators: int
     ibov: PreviewSeriesDTO
     asset: PreviewSeriesDTO | None
-    # SELIC em % ao ano e IPCA de 12 meses em %
+    # SELIC em % ao ano, IPCA de 12 meses em % e juro americano (Fed Funds) em % ao ano
     selic: PreviewSeriesDTO
     ipca_12m: PreviewSeriesDTO
+    fed_funds: PreviewSeriesDTO
     # PIB em 12 meses e desemprego em %: o real é o gravado; o gerado é o que a partida calcula
     gdp_growth: PreviewSeriesDTO
     unemployment: PreviewSeriesDTO

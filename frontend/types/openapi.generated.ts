@@ -6742,6 +6742,7 @@ export interface components {
             asset: components["schemas"]["PreviewSeriesDTO"] | null;
             selic: components["schemas"]["PreviewSeriesDTO"];
             ipca_12m: components["schemas"]["PreviewSeriesDTO"];
+            fed_funds: components["schemas"]["PreviewSeriesDTO"];
             gdp_growth: components["schemas"]["PreviewSeriesDTO"];
             unemployment: components["schemas"]["PreviewSeriesDTO"];
             ibov_change: components["schemas"]["LevelChangeDTO"];
@@ -6840,7 +6841,7 @@ export interface components {
          * @description O que o aviso em tempo real conta; o front escolhe o toast pelo tipo.
          * @enum {string}
          */
-        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED" | "ENDORSEMENT" | "HOUSE_ELECTED" | "IMPEACHMENT_REQUESTED" | "IMPEACHMENT_VOTED" | "DEAL_PROPOSED" | "DEAL_ANSWERED" | "DEAL_BROKEN" | "DEAL_ENDED" | "DEAL_LEFT" | "FEDERATION_PROPOSED" | "FEDERATION_ANSWERED" | "FEDERATION_LEFT";
+        GovernmentNoticeKind: "UPDATED" | "POLL_PUBLISHED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED" | "ENDORSEMENT" | "HOUSE_ELECTED" | "IMPEACHMENT_REQUESTED" | "IMPEACHMENT_VOTED" | "DEAL_PROPOSED" | "DEAL_ANSWERED" | "DEAL_BROKEN" | "DEAL_ENDED" | "DEAL_LEFT" | "FEDERATION_PROPOSED" | "FEDERATION_ANSWERED" | "FEDERATION_LEFT";
         /** GovernmentPanelDTO */
         GovernmentPanelDTO: {
             /**
@@ -8530,6 +8531,8 @@ export interface components {
             dek: string | null;
             /** Tickers */
             tickers: string[];
+            /** Party Abbrs */
+            party_abbrs: string[];
             /** Change Pct */
             change_pct: number | null;
         };

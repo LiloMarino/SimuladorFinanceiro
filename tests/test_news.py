@@ -63,6 +63,29 @@ def test_a_published_headline_stays_in_the_history_and_reaches_the_room(
     assert sent[1][1]["news_type"] == "MEASURE_VOTED"
 
 
+def test_a_headline_keeps_the_parties_it_cites(
+    simulation_id: int, monkeypatch: pytest.MonkeyPatch
+):
+    sent: list[tuple[str, dict[str, object]]] = []
+    monkeypatch.setattr(
+        news, "notify", lambda event, payload, **_: sent.append((event, payload))
+    )
+
+    news.publish(
+        simulation_id,
+        date(2020, 1, 2),
+        Headline(NewsType.CAMPAIGN, "AAA ataca o NOVO", party_abbrs=("AAA", "NOVO")),
+    )
+    news.publish(simulation_id, date(2020, 1, 2), Headline(NewsType.PARTY_LIFE, "X"))
+
+    history = repository.news.of_month(simulation_id, date(2020, 1, 15))
+    assert {n.headline: n.party_abbrs for n in history} == {
+        "AAA ataca o NOVO": ["AAA", "NOVO"],
+        "X": [],
+    }
+    assert sent[0][1]["party_abbrs"] == ["AAA", "NOVO"]
+
+
 def test_a_headline_keeps_the_change_of_the_day(simulation_id: int):
     news.publish(
         simulation_id,

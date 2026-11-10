@@ -309,6 +309,16 @@ def test_preview_rates_are_the_ones_the_game_reads(base: Engine):
     )
 
 
+def test_preview_brings_the_fed_funds_in_percent_a_year(base: Engine):
+    preview = macro_preview(base)
+
+    fed = preview.fed_funds
+    assert fed.key == "FED_FUNDS"
+    assert fed.real and fed.generated
+    assert fed.generated[0].date > fed.real[-1].date
+    assert all(0 <= point.value < 25 for point in fed.real + fed.generated)
+
+
 def test_a_higher_inflation_level_drops_gdp_in_the_transition_and_settles_close_after(
     base: Engine,
 ):

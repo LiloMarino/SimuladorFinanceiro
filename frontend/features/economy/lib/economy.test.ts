@@ -16,6 +16,7 @@ import {
   ipcaExample,
   lastCopomNote,
   lastMonthChange,
+  monthTicks,
   monthChangeNote,
   selicExample,
   stabilizingNote,
@@ -361,5 +362,27 @@ describe("dólar da partida", () => {
       links: null,
     };
     expect(economyRows(panel).map((row) => row.dollar)).toEqual([5, 5]);
+  });
+});
+
+describe("monthTicks", () => {
+  const day = (iso: string) => new Date(`${iso}T00:00:00`).getTime();
+
+  it("marca o início de cada mês do intervalo, sem repetir mês", () => {
+    const ticks = monthTicks([day("2021-12-15"), day("2022-03-10")]);
+    expect(ticks).toEqual([day("2022-01-01"), day("2022-02-01"), day("2022-03-01")]);
+  });
+
+  it("espaça as marcas quando o intervalo passa do máximo", () => {
+    // 24 inícios de mês em no máximo 6 marcas: de 4 em 4 meses
+    const ticks = monthTicks([day("2020-01-01"), day("2021-12-31")], 6);
+    expect(ticks).toHaveLength(6);
+    expect(ticks[0]).toBe(day("2020-01-01"));
+    expect(ticks[1]).toBe(day("2020-05-01"));
+  });
+
+  it("sem linhas ou sem virada de mês não há marca", () => {
+    expect(monthTicks([])).toEqual([]);
+    expect(monthTicks([day("2022-01-05"), day("2022-01-20")])).toEqual([]);
   });
 });

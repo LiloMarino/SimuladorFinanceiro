@@ -110,7 +110,7 @@ function DialogBody({ className, children, ...props }: React.ComponentProps<type
   );
 }
 
-/** `divided`: rodapé de ponta a ponta do diálogo, sobre fundo suave e com divisória em cima. */
+/** `divided`: rodapé de ponta a ponta do diálogo, sobre fundo suave e com divisória em cima. `divided-end` é o mesmo rodapé com os botões juntos à direita. */
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -119,14 +119,14 @@ function DialogFooter({
   ...props
 }: React.ComponentProps<"div"> & {
   showCloseButton?: boolean;
-  variant?: "default" | "divided";
+  variant?: "default" | "divided" | "divided-end";
 }) {
   return (
     <div
       data-slot="dialog-footer"
       data-variant={variant}
       className={cn(
-        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end data-[variant=divided]:-mx-6 data-[variant=divided]:-mb-6 data-[variant=divided]:rounded-b-xl data-[variant=divided]:border-t data-[variant=divided]:bg-subtle data-[variant=divided]:px-6 data-[variant=divided]:py-3.5 sm:data-[variant=divided]:items-center sm:data-[variant=divided]:justify-between",
+        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end data-[variant^=divided]:-mx-6 data-[variant^=divided]:-mb-6 data-[variant^=divided]:rounded-b-xl data-[variant^=divided]:border-t data-[variant^=divided]:bg-subtle data-[variant^=divided]:px-6 data-[variant^=divided]:py-3.5 sm:data-[variant^=divided]:items-center sm:data-[variant=divided]:justify-between",
         className,
       )}
       {...props}

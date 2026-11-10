@@ -117,6 +117,16 @@ export function FuturePreviewPanel({ query, tickers, ticker, onTickerChange }: F
             />
           </div>
           <div className="grid gap-1">
+            <span className="text-xs font-medium text-muted-foreground">Juro americano · Fed Funds, % ao ano</span>
+            <PreviewChart
+              series={preview.fed_funds}
+              height={120}
+              maxYearTicks={4}
+              formatValue={(v) => `${displayNumber(v, 0)}%`}
+              formatTooltip={(v) => `${displayNumber(v, 2)}% ao ano`}
+            />
+          </div>
+          <div className="grid gap-1">
             <span className="text-xs font-medium text-muted-foreground">Inflação · IPCA de 12 meses</span>
             <PreviewChart
               series={preview.ipca_12m}

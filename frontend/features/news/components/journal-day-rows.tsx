@@ -1,7 +1,7 @@
 import { displayWeekdayDate } from "@/shared/lib/utils/display";
 import type { News } from "@/types";
 import { groupByDay } from "../lib/filter";
-import { DayHeading, NewsKicker, TickerChip } from "./news-parts";
+import { DayHeading, NewsKicker, NewsParties, TickerChip } from "./news-parts";
 
 type JournalDayRowsProps = {
   items: News[];
@@ -23,6 +23,7 @@ export function JournalDayRows({ items, held }: JournalDayRowsProps) {
               <NewsKicker type={item.news_type} />
               <h4 className="font-serif lining-nums text-base leading-5.5 font-semibold">{item.headline}</h4>
               <span className="flex gap-1.5">
+                <NewsParties abbrs={item.party_abbrs} />
                 {item.tickers.map((ticker) => (
                   <TickerChip key={ticker} ticker={ticker} held={held.has(ticker)} />
                 ))}

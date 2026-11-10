@@ -57,6 +57,28 @@ export type EconomyRow = {
   copom: CopomChange | undefined;
 };
 
+/**
+ * Inícios de mês no intervalo das linhas (em ordem cronológica), no máximo `maxTicks`:
+ * um rótulo "mmm/aa" por marca, sem repetir mês.
+ */
+export function monthTicks(times: number[], maxTicks = 6): number[] {
+  const first = times[0];
+  const last = times.at(-1);
+  if (first === undefined || last === undefined) return [];
+
+  const start = new Date(first);
+  const starts: number[] = [];
+  for (
+    let month = new Date(start.getFullYear(), start.getMonth() + (start.getDate() === 1 ? 0 : 1), 1);
+    month.getTime() <= last;
+    month = new Date(month.getFullYear(), month.getMonth() + 1, 1)
+  ) {
+    starts.push(month.getTime());
+  }
+  const step = Math.max(1, Math.ceil(starts.length / maxTicks));
+  return starts.filter((_, index) => index % step === 0);
+}
+
 const nullable = (value: string | null) => (value === null ? null : Number(value));
 
 /** Os pontos do painel em linhas do gráfico, com a mudança do Copom do dia ligada à linha dele. */

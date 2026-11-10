@@ -20,6 +20,7 @@ class NewsRepository:
         headline: str,
         dek: str | None,
         tickers: list[str],
+        party_abbrs: list[str],
         change_pct: float | None = None,
     ) -> NewsDTO:
         row = session.scalars(
@@ -31,6 +32,7 @@ class NewsRepository:
                 headline=headline,
                 dek=dek,
                 tickers=tickers,
+                party_abbrs=party_abbrs,
                 change_pct=change_pct,
                 created_at=datetime.now(UTC),
             )

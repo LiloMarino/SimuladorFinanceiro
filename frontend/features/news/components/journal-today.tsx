@@ -1,6 +1,6 @@
 import { displayWeekdayDate } from "@/shared/lib/utils/display";
 import type { News } from "@/types";
-import { DayHeading, NewsKicker, TickerChip } from "./news-parts";
+import { DayHeading, NewsKicker, NewsParties, TickerChip } from "./news-parts";
 
 type JournalTodayProps = {
   /** O dia da partida */
@@ -21,6 +21,7 @@ export function JournalToday({ date, items, held }: JournalTodayProps) {
       <article className="grid gap-2.5 border-b border-paper-border pt-4.5 pb-5">
         <div className="flex items-center gap-2.5">
           <NewsKicker type={lead.news_type} />
+          <NewsParties abbrs={lead.party_abbrs} />
           {lead.tickers.map((ticker) => (
             <TickerChip key={ticker} ticker={ticker} held={held.has(ticker)} />
           ))}
@@ -40,6 +41,7 @@ export function JournalToday({ date, items, held }: JournalTodayProps) {
               <div className="flex min-h-5.5 items-center gap-2">
                 <NewsKicker type={item.news_type} />
                 <span className="ml-auto flex gap-1.5">
+                  <NewsParties abbrs={item.party_abbrs} />
                   {item.tickers.map((ticker) => (
                     <TickerChip key={ticker} ticker={ticker} held={held.has(ticker)} />
                   ))}

@@ -16,6 +16,8 @@ class Headline:
     tickers: tuple[str, ...] = ()
     # Variação do dia do ativo, em pontos percentuais com sinal
     change_pct: float | None = None
+    # As siglas dos partidos que a manchete cita, na ordem do texto, para o selo no jornal
+    party_abbrs: tuple[str, ...] = ()
 
 
 def publish(simulation_id: int, day: date, headline: Headline) -> None:
@@ -27,6 +29,7 @@ def publish(simulation_id: int, day: date, headline: Headline) -> None:
         headline.text,
         headline.dek,
         list(headline.tickers),
+        list(headline.party_abbrs),
         headline.change_pct,
     )
     notify("news_published", news.to_json())

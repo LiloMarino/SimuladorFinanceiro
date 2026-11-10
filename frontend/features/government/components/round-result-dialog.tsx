@@ -156,7 +156,7 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
               </div>
             </DialogBody>
 
-            <DialogFooter variant="divided" className="sm:justify-end">
+            <DialogFooter variant="divided-end">
               <Button
                 variant="ghost"
                 nativeButton={false}

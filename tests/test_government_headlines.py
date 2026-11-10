@@ -22,6 +22,36 @@ def test_the_closed_tickets_name_who_runs_without_a_vice():
     assert closed.dek == "O NOVO concorre sem vice. Faltam 63 dias para o 1º turno."
 
 
+def test_a_headline_carries_the_parties_it_cites_in_the_order_of_the_text():
+    runoff = headlines.runoff_called(
+        [("AAA", Decimal("0.41")), ("NOVO", Decimal("0.33"))], date(2021, 10, 31)
+    )
+    turned = headlines.round_won(2, "Bia", "FDS", Decimal("0.52"), "AAA")
+    attack = headlines.campaign_action(
+        1,
+        CampaignActionKind.ATTACK,
+        DiceBand.VIRAL,
+        "AAA",
+        VoterGroup.RETIREES,
+        "NOVO",
+    )
+    closed = headlines.tickets_closed(
+        [("AAA", "Alice", "Bob"), ("NOVO", "Dr. Paulo", None)], 63
+    )
+    requested = headlines.impeachment_requested("Bia", "FDS", date(2021, 5, 3), "AAA")
+    floor = headlines.impeachment_requested("Bia", "FDS", date(2021, 5, 3))
+
+    assert runoff.party_abbrs == ("AAA", "NOVO")
+    assert turned.party_abbrs == ("FDS", "AAA")
+    assert attack is not None and attack.party_abbrs == ("AAA", "NOVO")
+    assert closed.party_abbrs == ("AAA", "NOVO")
+    assert requested.party_abbrs == ("AAA", "FDS")
+    assert floor.party_abbrs == ("FDS",)
+    assert (
+        headlines.campaign_opened(date(2021, 10, 3), date(2021, 8, 1)).party_abbrs == ()
+    )
+
+
 def test_the_round_result_carries_the_share_of_the_valid_votes():
     won = headlines.round_won(1, "Alice", "AAA", Decimal("0.5234"))
     runoff = headlines.runoff_called(

@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { describe, expect, it } from "vitest";
-import type { TreasuryHistoryPoint } from "@/types";
+import type { TreasuryCatalog, TreasuryHistoryPoint } from "@/types";
 import {
   baseRateCaption,
   baseShare,
@@ -10,6 +10,7 @@ import {
   displayDay,
   displayMonthYear,
   historyRows,
+  isCatalogStale,
   percentOf,
   pointsOf,
   pointsUnit,
@@ -145,5 +146,28 @@ describe("rótulos do gráfico e do termômetro", () => {
 
   it("usa ponto no singular até um ponto inteiro e pontos acima", () => {
     expect([pointsUnit("0.0012"), pointsUnit("0.01"), pointsUnit("0.0234")]).toEqual(["ponto", "ponto", "pontos"]);
+  });
+});
+
+describe("isCatalogStale", () => {
+  const catalog = {
+    next_review: "2026-09-01",
+    titles: [{ maturity_date: "2026-09-15" }, { maturity_date: "2029-01-01" }],
+  } as TreasuryCatalog;
+
+  it("vale durante o mês da revisão", () => {
+    expect(isCatalogStale(catalog, "2026-08-31")).toBe(false);
+  });
+
+  it("vence quando o dia simulado alcança a revisão, mesmo que o dia 1º não seja dia útil", () => {
+    // 1º de setembro de 2026 cai numa terça; o dia 3 de um mês que abre no fim de semana também vence
+    expect(isCatalogStale(catalog, "2026-09-01")).toBe(true);
+    expect(isCatalogStale(catalog, "2026-09-03")).toBe(true);
+  });
+
+  it("vence quando um título do catálogo vence antes da revisão", () => {
+    const early = { ...catalog, next_review: "2026-10-01" };
+    expect(isCatalogStale(early, "2026-09-14")).toBe(false);
+    expect(isCatalogStale(early, "2026-09-15")).toBe(true);
   });
 });

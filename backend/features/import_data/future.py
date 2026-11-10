@@ -395,6 +395,11 @@ def preview(request: FuturePreviewRequest) -> FuturePreviewDTO:
         asset=asset,
         selic=_preview_series(IndicatorSeries.SELIC.value, selic_real, selic),
         ipca_12m=_preview_series(IndicatorSeries.IPCA.value, ipca_real, ipca),
+        fed_funds=_preview_series(
+            IndicatorSeries.FED_FUNDS.value,
+            real(IndicatorSeries.FED_FUNDS),
+            new(IndicatorSeries.FED_FUNDS),
+        ),
         gdp_growth=gdp_growth,
         unemployment=unemployment,
         ibov_change=LevelChangeDTO(

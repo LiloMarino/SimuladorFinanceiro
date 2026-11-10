@@ -21,7 +21,7 @@ import type { ElectionPanel } from "@/types";
 import { useDonate } from "../hooks/mutations/useDonate";
 import { useToday } from "../hooks/useToday";
 import { countdownLabel, monthlyYield } from "../lib/election";
-import { contributionText } from "@/shared/lib/contribution";
+import { addToContribution } from "@/shared/lib/contribution";
 import { runoffLeaderId } from "../lib/runoff";
 import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 import { DisabledHint } from "@/shared/components/disabled-hint";
@@ -138,8 +138,8 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
                       key={shortcut}
                       type="button"
                       size="xs"
-                      variant={amount === shortcut ? "info" : "outline"}
-                      onClick={() => setText(contributionText(String(shortcut)))}
+                      variant="outline"
+                      onClick={() => setText(addToContribution(text, shortcut))}
                     >
                       {displayMoneyCompact(shortcut)}
                     </Button>

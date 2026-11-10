@@ -14,5 +14,7 @@ class NewsDTO(BaseDTO):
     # A linha de apoio abaixo da manchete
     dek: str | None
     tickers: list[str]
+    # As siglas dos partidos citados na manchete, na ordem do texto; o front mostra o selo de cada um
+    party_abbrs: list[str]
     # Variação do dia do ativo, em pontos percentuais com sinal (-5,2 para "recua 5,2%"); vazia nas manchetes sem ativo
     change_pct: float | None = None

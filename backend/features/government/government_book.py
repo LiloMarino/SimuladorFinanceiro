@@ -3430,7 +3430,7 @@ class GovernmentBook:
             house=to_house,
             unpaid=unpaid,
         )
-        self._notice(GovernmentNoticeKind.UPDATED)
+        self._notice(GovernmentNoticeKind.POLL_PUBLISHED)
 
     def _computer_campaign(self, party: Party, budget: Decimal, today: date) -> Decimal:
         """
@@ -3714,11 +3714,16 @@ class GovernmentBook:
             for d in second_round.poll_days(required(self.state.race_started), eve)
             if d <= today
         )
+        polled = len(self.state.race_polls) < due
         while len(self.state.race_polls) < due:
             self._emit(GovernmentEventType.RUNOFF_POLL, today)
             changed = True
         if changed:
-            self._notice(GovernmentNoticeKind.UPDATED)
+            self._notice(
+                GovernmentNoticeKind.POLL_PUBLISHED
+                if polled
+                else GovernmentNoticeKind.UPDATED
+            )
 
     def _computer_runoff(self, party: Party, today: date) -> None:
         """O finalista do computador contribui com metade da verba mensal e faz um evento no grupo com mais indecisos."""

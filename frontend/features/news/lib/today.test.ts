@@ -9,6 +9,7 @@ const item = (id: number, partial: Partial<News>): News => ({
   headline: `Manchete ${id}`,
   dek: null,
   tickers: [],
+  party_abbrs: [],
   change_pct: null,
   ...partial,
 });

@@ -6,7 +6,7 @@ import { Card } from "@/shared/components/ui/card";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import type { News } from "@/types";
 import { WINDOW_MS } from "../lib/presenter";
-import { NewsKicker, NewsMasthead } from "./news-parts";
+import { NewsKicker, NewsMasthead, NewsParties } from "./news-parts";
 
 type NewsWindowProps = {
   news: News;
@@ -40,7 +40,10 @@ export function NewsWindow({ news, onClose }: NewsWindowProps) {
         </span>
       </NewsMasthead>
       <div className="grid gap-2 px-5.5 pt-4.5 pb-1.5">
-        <NewsKicker type={news.news_type} />
+        <div className="flex items-center gap-2">
+          <NewsKicker type={news.news_type} />
+          <NewsParties abbrs={news.party_abbrs} />
+        </div>
         <p className="font-serif lining-nums text-2xl leading-tight font-semibold">{news.headline}</p>
         {news.dek && <p className="text-sm text-muted-foreground">{news.dek}</p>}
       </div>
