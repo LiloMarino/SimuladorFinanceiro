@@ -138,7 +138,7 @@
 | [**F254**](#f254) | Feature | Programas de governo com nome | M26 · 4.1 | — | — | — | ✅ |
 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | M26 · 4.1 | — | — | — | ✅ |
 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 | — | — | — | ✅ |
-| [**F258**](#f258) | Melhoria | Serve N34. O líder orienta a bancada até o fim do dia da votação, e a casa apura à noite, com a orientação que ele deu até lá. O acordo de apoio mostra o Não pendente, com o aviso do rompimento e o botão de confirmar; fechar sem confirmar mantém o Sim e avisa. Na federação em que outro partido orienta, o controle aparece travado, dizendo quem orienta. | M26 · 4.1 | — | — | — | ✅ |
+| [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 | — | — | — | ✅ |
 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | M26 · 4.1 | — | — | — | ✅ |
 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | M26 · 4.1 | — | — | — | ✅ |
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | ✅ |
@@ -175,7 +175,7 @@
 | 12 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | — | ✅ Concluído |
 | 13 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | — | ✅ Concluído |
 | 14 | [**F261**](#f261) | Feature | Profissão no viver de renda | — | ✅ Concluído |
-| 15 | [**F258**](#f258) | Melhoria | Serve N34. O líder orienta a bancada até o fim do dia da votação, e a casa apura à noite, com a orientação que ele deu até lá. O acordo de apoio mostra o Não pendente, com o aviso do rompimento e o botão de confirmar; fechar sem confirmar mantém o Sim e avisa. Na federação em que outro partido orienta, o controle aparece travado, dizendo quem orienta. | — | ✅ Concluído |
+| 15 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | ✅ Concluído |
 
 ### 4.2 — Expansão Gestoras (M18)
 
@@ -547,7 +547,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F254** | Feature | Programas de governo com nome | N34, N31 | D19 | M26 · 4.1 |
 | **F256** | Melhoria | SELIC abaixo de zero em futuro com deflação | N34 | D20 | M26 · 4.1 |
 | **F257** | Feature | Viver de renda que sente a economia | N23, N34 | D20 | M26 · 4.1 |
-| **F258** | Melhoria | Serve N34. O líder orienta a bancada até o fim do dia da votação, e a casa apura à noite, com a orientação que ele deu até lá. O acordo de apoio mostra o Não pendente, com o aviso do rompimento e o botão de confirmar; fechar sem confirmar mantém o Sim e avisa. Na federação em que outro partido orienta, o controle aparece travado, dizendo quem orienta. | N34 | — | M26 · 4.1 |
+| **F258** | Melhoria | Orientação da bancada que se explica | N34 | — | M26 · 4.1 |
 | **F259** | Correção | Preço dos ativos cotados em dólar convertido para real | N11, N34 | — | M26 · 4.1 |
 | **F260** | Feature | Caixa em dólar com o juro americano | N41, N34 | — | M26 · 4.1 |
 | **F261** | Feature | Profissão no viver de renda | N23, N34 | D19 | M26 · 4.1 |
@@ -665,7 +665,7 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 **Aceite:** com a mesma semente, uma partida sem governo e de desemprego alto sorteia mais demissões que uma de desemprego baixo, e o registro do orçamento mostra a origem de toda mudança de salário, despesa e juro.
 
 <a id="f258"></a>
-**F258 — Orientação da bancada que se explica.** Origem: triagem do playtest de 08/11. O backend respeita a orientação do líder da bancada num governo do computador, mas a tela esconde três limites. (1) O acordo de apoio força Sim: o seletor só muda para Não depois de "Orientar Não e romper", e quem escolhe Não e fecha continua com Sim. (2) Com outro partido líder na federação, o controle aparece e o clique volta 403. (3) O controle some no último dia útil do mês, e em velocidade alta o mês passa antes de a medida ser orientada. A decidir no desenho: mostrar o Não como pendente com o aviso de rompimento em destaque, esconder ou explicar o controle quando a federação não é do jogador, e avisar ou pausar quando a medida entra na fila.
+**F258 — Orientação da bancada que se explica.** Serve N34. O líder orienta a bancada até o fim do dia da votação, e a casa apura à noite, com a orientação que ele deu até lá. O acordo de apoio mostra o Não pendente, com o aviso do rompimento e o botão de confirmar; fechar sem confirmar mantém o Sim e avisa. Na federação em que outro partido orienta, o controle aparece travado, dizendo quem orienta.
 
 <a id="f259"></a>
 **F259 — Preço dos ativos cotados em dólar convertido para real.** Serve N11. O importador manda ao Yahoo Finance o ticker como está quando ele não é da B3 (`yfinance_symbol` em `backend/features/import_data/importer_service.py:44`), e o download (`from_yfinance`, linhas 55-85, e `from_yfinance_batch`) guarda o preço sem ler a moeda que o Yahoo devolve. A AAPL a US$ 200 entra como R$ 200, e o mesmo vale para a MSFT e para o BTC-USD; a tela formata tudo em real (`frontend/shared/lib/utils/format.ts:50`). Comprar uma ação americana sai cinco vezes mais barato do que na vida real, e a alta do dólar não mexe nela. Os BDRs (AAPL34) já vêm em reais e não mudam.
