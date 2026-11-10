@@ -110,7 +110,6 @@
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 | — | — | — | 🔍 |
 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 | — | — | — | 🔍 |
-| [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | Alto | Médio | ⏳ |
 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 | — | Alto | Bom | ⏳ |
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 | — | Alto | Médio | ⏳ |
@@ -121,7 +120,7 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (40 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (41 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -162,6 +161,7 @@
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | ✅ |
 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | M26 · 4.1 | — | — | — | ✅ |
 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | M26 · 4.1 | — | — | — | ✅ |
+| [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | — | — | ✅ |
 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 | — | — | — | ✅ |
 | [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 | — | — | — | ✅ |
 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 | — | — | — | ✅ |
@@ -180,7 +180,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 20/37 concluídos
+> **Progresso:** 21/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -210,7 +210,7 @@
 | 24 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | — | 🔍 Em avaliação |
 | 25 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | — | ⏳ Pendente |
 | 26 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | — | 🔍 Em avaliação |
-| 27 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | — | ⏳ Pendente |
+| 27 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | — | ✅ Concluído |
 | 28 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | — | ✅ Concluído |
 | 29 | [**F275**](#f275) | Feature | Vitória política separada do capital | — | ✅ Concluído |
 | 30 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | — | ⏳ Pendente |
@@ -343,7 +343,6 @@
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 · 24º | 0 | — | — | 🔍 |
 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 · 25º | 0 | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 · 26º | 0 | — | — | 🔍 |
-| [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 · 27º | 0 | Alto | Médio | ⏳ |
 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 · 30º | 0 | Médio | Bom | ⏳ |
 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 · 31º | 0 | Alto | Bom | ⏳ |
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 · 32º | 0 | Alto | Médio | ⏳ |
@@ -408,7 +407,6 @@
 | **F263** | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | N3, N34 | D20 | M26 · 4.1 | — | Médio | Médio | Alto | Excelente |
 | **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | D10 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
 | **F271** | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | N20 | — | M26 · 4.1 | — | Médio | Baixo | Médio | Bom |
-| **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 | — | Alto | Médio | Médio | Médio |
 | **F276** | Correção | Governo ruim perde aprovação | N34, N41 | — | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
 | **F277** | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | N31 | — | M26 · 4.1 | — | Alto | Baixo | Alto | Bom |
 | **F278** | Feature | Imprevistos e eventos de vida mais variados | N23 | — | M26 · 4.1 | — | Alto | Médio | Médio | Médio |
@@ -542,25 +540,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 5. Conferir no navegador o mapa com um partido de cada cor nova (preenchimento, sigla e contorno do lugar selecionado) e o gráfico de intenção de voto com 8 partidos.
 
 **Aceite:** o teste da paleta passa com 16 cores de partido; fundar partido, lobby, diálogo de bot e editor do backtest usam o mesmo componente de seletor; a paleta dos jogadores continua com as 10 cores e as mesmas chaves `chart-1` a `chart-10`.
-
-<a id="f273"></a>
-**F273 — Convites que se escolhem e se acumulam.** Serve N34 e N23.
-
-**O que existe.** Nenhum seletor envia convite ao escolher, mas o convite de vice sai junto com outra ação: na partida, com o botão "Inscrever a chapa" (`frontend/features/government/components/ticket-dialog.tsx:159-169` → `POST /parties/ticket` → `set_ticket`, `backend/features/government/government_book.py:1545-1611`, que emite o convite quando o vice é novo); no lobby, com o salvar da fundação do partido (`frontend/features/lobby/components/preparation/party-found-tab.tsx:88`, `prepare.mutateAsync({ kind: "FOUND", candidate, vice })`). Por isso parece que escolher já convidou. Quem já foi convidado não pode receber outro convite: `vice_blocker` (`backend/features/government/election.py:72-85`) barra quem já é vice convidado de outra chapa, o lobby repete a regra em `_ensure_vice_free` (`backend/core/runtime/room_preparation.py:153-166`), e a federação aceita uma proposta aberta por partido contando os dois lados (`open_proposal_of`, `backend/features/government/state.py:638-646`). No acordo de base só o governo propõe (`propose_deal`, `government_book.py:1194-1218`), então ali não há o que acumular.
-
-**O que muda e por quê.** O jogador escolhe e depois clica em convidar; quem recebe pode juntar vários convites, comparar e aceitar um.
-
-1. Convite de vice com botão próprio. Ao lado do seletor de vice entra o botão "Convidar", com o estado do convite embaixo (aguardando resposta, aceito, recusado) e "Retirar convite". Inscrever a chapa e salvar a fundação deixam de enviar convite. No backend, o convite vira comando próprio: rotas de convidar e de retirar o vice, separadas de `POST /parties/ticket`, e no lobby dois tipos novos de preparação ao lado de `FOUND`. Quem convida continua com um convite aberto por vez (a chapa tem uma vaga de vice): `party.vice_id` e `party.vice_accepted` ficam como estão.
-2. Quem recebe acumula. `vice_blocker` e `_ensure_vice_free` passam a barrar só quem já aceitou ser vice de outra chapa ou já é candidato (e bots, como hoje); convite pendente de outro partido deixa de bloquear. Na federação, `open_proposal_of` se divide em "a proposta que o partido enviou" (uma por vez) e "as propostas que o partido recebeu" (várias); `federation_blocker` (`government_book.py:1679-1700`) deixa de barrar o destinatário que já tem proposta de terceiros.
-3. Exclusão só dentro do mesmo tipo. Aceitar um convite de vice recusa os outros convites de vice abertos para a mesma pessoa. Aceitar uma federação reavalia o `federation_blocker` de toda proposta aberta que envolve um dos dois partidos: as que deixaram de ser possíveis são recusadas, e a que o partido tinha enviado é retirada. Vice e federação não se cruzam, e o acordo de base não entra. Cada recusa automática grava o mesmo evento da recusa manual, com a marca de automática, e avisa quem enviou ("Fulano aceitou ser vice de outra chapa", "O PXX fechou federação com outro partido").
-4. Partido do computador responde cada proposta em separado, no pregão seguinte, na ordem em que chegaram (`_resolve_federations`, `government_book.py:1985-2003`); depois do primeiro aceite as outras caem pela regra 3.
-5. Pendências: uma linha por convite (`VICE_INVITE` em `government_book.py:348-361` e `FEDERATION_PROPOSAL` em :1371-1398), com a chave incluindo quem convidou, o nome de quem convidou no título e até quando vale. Abrir qualquer uma mostra todos os convites abertos do mesmo tipo lado a lado (`vice-invite-dialog.tsx` e o diálogo de resposta da federação), cada um com aceitar e recusar e o aviso "aceitar este recusa os outros".
-6. Lobby: `answer_vice` de `room_preparation.py:168-190` passa a receber de qual partido é o convite, `party-tab.tsx:86-112` lista um card por convite e `preparation-button.tsx:39` conta todos.
-7. Mudou rota e DTO: `pnpm openapi`. `docs/docs/como-usar/governo.md` e a página do lobby descrevem o botão Convidar e os convites acumulados.
-
-**Testes.** Em `tests/test_government_book.py` e nos testes do lobby: dois partidos convidam a mesma pessoa e os dois convites ficam pendentes; aceitar o de A limpa o de B e gera o aviso para B; inscrever a chapa sem clicar em Convidar não gera convite; duas propostas de federação para o mesmo partido ficam pendentes, aceitar uma recusa a outra e retira a que ele tinha enviado. No front, os testes de `features/pending/lib` com duas pendências do mesmo tipo.
-
-**Aceite:** os quatro casos acima passam nos testes, na partida e no lobby; no navegador, escolher o vice no seletor não muda nada no outro jogador até o clique em "Convidar", e um jogador com dois convites vê os dois lado a lado no mesmo diálogo.
 
 <a id="f276"></a>
 **F276 — Governo ruim perde aprovação.** Serve N34 e N41.
@@ -834,6 +813,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F261** | Feature | Profissão no viver de renda | N23, N34 | D19 | M26 · 4.1 |
 | **F262** | Feature | Pedido de impeachment aberto por jogador | N34 | — | M26 · 4.1 |
 | **F265** | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | N15, N34 | — | M26 · 4.1 |
+| **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 |
 | **F274** | Feature | Presidência e base do governo que valem a pena | N34 | — | M26 · 4.1 |
 | **F275** | Feature | Vitória política separada do capital | N34, N22 | — | M26 · 4.1 |
 | **F282** | Correção | Texto dos gráficos com no mínimo 12 px | N15 | — | M26 · 4.1 |
@@ -1002,6 +982,9 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 7. **Atalhos de valor que somam.** Na contribuição mensal (`contribution-field.tsx:9`) e na doação (`donate-dialog.tsx:36`), o atalho substitui o valor; na renda fixa (`investment-ticket.tsx:30-34`), ele soma. Os dois passam a somar, como na renda fixa.
 8. **Selo do partido no jornal.** A manchete cita a sigla só em texto ("UPR"); passa a mostrar o selo do partido, o mesmo das telas de governo.
 9. **Juro americano na prévia do futuro gerado.** O FED_FUNDS é gerado (`synthetic.py:854-870`), mas não está no `FuturePreviewDTO` (`dto/generated_future.py:78-95`), então não aparece na prévia do diálogo de geração.
+
+<a id="f273"></a>
+**F273 — Convites que se escolhem e se acumulam.** Serve N34 e N23. Convidar o vice virou ação própria: escolher no seletor não envia nada, o botão Convidar envia e Retirar convite desfaz, na partida e no lobby. Inscrever a chapa e salvar a fundação deixam de convidar. Quem recebe acumula convites de vice e propostas de federação; aceitar um recusa os incompatíveis do mesmo tipo (vice e federação não se cruzam) e avisa quem convidou. O proponente envia uma proposta de federação por vez. O convite recusado aparece na tela da chapa e no card público do partido.
 
 <a id="f274"></a>
 **F274 — Presidência e base do governo que valem a pena.** Serve N34. Revisa duas escolhas antigas do arquivo morto (F95, "o ganho de governar chega só pela própria carteira", e F154, "o aliado ganha só o apoio dos grupos dele"). O presidente recebe 3 vezes o salário da partida no lugar da renda da profissão, sem perda por imprevisto, e acumula legado: 5% de um salário por ponto de aprovação acima de 40 a cada mês fechado, pago no fim normal do mandato e perdido no impeachment (`presidency.py`, `GovernmentBook._pay_legacy`). A medida de obras aceita setor e segmento: as ações do alvo sobem 2,5 vezes a fatia do PIB, até 7,5%, em rampa de 6 meses, e apontar para um setor em que o presidente tem ações tira 6 pontos de aprovação vezes a fatia dele, gravada na medida (`sector_boost.py`, `approval.favoritism_factor`). Ao aceitar o acordo, o líder aliado escolhe o setor da emenda: alta de 30 vezes a fatia do PIB por ano, até 6%, que cai quando o acordo acaba ou é rompido; o partido do computador escolhe um setor fixo, mostrado na prévia. Isenção, obra e emendas somam até 20% por setor. A proposta, a negociação e o card da base mostram o apoio mensal do acordo em verba de campanha (R$ 4.096 por mês, `voters.campaign_amount`). As regras estão em `docs/docs/como-usar/governo.md`. Ficam para o playtest: partida com salário zero não paga a presidência, salário alto pode dominar, e o presidente pode empurrar o próprio setor pela emenda de um aliado sem pagar favorecimento. O ministério para o aliado virou card próprio (F284).
