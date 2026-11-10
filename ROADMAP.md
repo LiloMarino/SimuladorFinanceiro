@@ -120,11 +120,10 @@
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 | — | — | — | 🔍 |
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 | — | — | — | 🔍 |
 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 | — | Médio | Bom | ⏳ |
-| [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 | — | Baixo | Excelente | ⏳ |
 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (36 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (37 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -164,6 +163,7 @@
 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | M26 · 4.1 | — | — | — | ✅ |
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | ✅ |
 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | M26 · 4.1 | — | — | — | ✅ |
+| [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
 
@@ -179,7 +179,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 16/37 concluídos
+> **Progresso:** 17/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -218,7 +218,7 @@
 | 33 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | — | 🔍 Em avaliação |
 | 34 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | — | 🔍 Em avaliação |
 | 35 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | — | ⏳ Pendente |
-| 36 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | — | ⏳ Pendente |
+| 36 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | — | ✅ Concluído |
 | 37 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | — | 🔍 Em avaliação |
 
 ### 4.2 — Expansão Gestoras (M18)
@@ -344,7 +344,6 @@
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 · 33º | 0 | — | — | 🔍 |
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 · 34º | 0 | — | — | 🔍 |
 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 · 35º | 0 | Médio | Bom | ⏳ |
-| [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 · 36º | 0 | Baixo | Excelente | ⏳ |
 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 · 37º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
@@ -408,7 +407,6 @@
 | **F277** | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | N31 | — | M26 · 4.1 | — | Alto | Baixo | Alto | Bom |
 | **F278** | Feature | Imprevistos e eventos de vida mais variados | N23 | — | M26 · 4.1 | — | Alto | Médio | Médio | Médio |
 | **F281** | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | N34 | D20 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
-| **F282** | Correção | Texto dos gráficos com no mínimo 12 px | N15 | — | M26 · 4.1 | — | Baixo | Baixo | Médio | Excelente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -662,13 +660,6 @@ Com o cenário da Simulação #3 mantido desde a posse, o pedido de impeachment 
 
 **Aceite.** Repetindo o corte de 16% para 0 do imposto da #3, a SELIC não cai mais que o teto por reunião e não fica abaixo do IPCA projetado. Toda SELIC do autônomo e do futuro gerado é múltiplo de 0,25 e só muda em dia de reunião. O gráfico "Juros e inflação" de 14 anos tem no máximo 8 bolinhas por ano.
 
-<a id="f282"></a>
-**F282 — Texto dos gráficos com no mínimo 12 px.** Serve N15. O DESIGN.md põe o piso do texto em 12 px, mas os eixos, legendas e rótulos dos gráficos usam `fontSize` de 8 a 11. Ocorrências: `statistics-report/risk-tab.tsx` (7), `government/approval-chart.tsx` (5), `shared/components/player-line-chart/index.tsx`, `variable-income/technical-summary.tsx`, `lobby/candle-challenge/candle-chart.tsx`, `import-assets/preview-chart.tsx`, `government/map-place-trend.tsx`, `government/debt-card.tsx` e `economy/series-chart.tsx` (2 cada), `treasury/rate-chart-card.tsx`, `summaries/year-review.tsx`, `composition-tab.tsx`, `government/poll-chart.tsx`, `government/hemicycle.tsx` e `economy/economy-chart.tsx` (1 cada).
-
-**Plano.** O tamanho do texto de gráfico vira um token só, de 12 px, usado por todos os eixos e rótulos. Onde o rótulo não cabe com 12 px, o gráfico mostra menos marcas no eixo ou abrevia, em vez de encolher a fonte.
-
-**Aceite.** Nenhum `fontSize` abaixo de 12 em `frontend/features`; os gráficos citados conferidos no app sem rótulo sobreposto.
-
 ---
 
 ## 🔍 Em avaliação
@@ -853,6 +844,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F260** | Feature | Caixa em dólar com o juro americano | N41, N34 | — | M26 · 4.1 |
 | **F261** | Feature | Profissão no viver de renda | N23, N34 | D19 | M26 · 4.1 |
 | **F262** | Feature | Pedido de impeachment aberto por jogador | N34 | — | M26 · 4.1 |
+| **F282** | Correção | Texto dos gráficos com no mínimo 12 px | N15 | — | M26 · 4.1 |
 
 <a id="f69"></a>
 **F69 — Imprevistos configuráveis e tipos novos.** Serve N23. O modo viver de renda (F53) já nasce com os tipos de imprevisto num registro, em que cada tipo é uma entrada com nome, múltiplo da despesa mensal, efeito (sai do caixa ou corta o salário do mês seguinte) e peso no sorteio; adicionar um tipo é acrescentar uma entrada, sem mexer no motor, no log nem nas telas. Esta feature expõe esse registro ao host: no lobby, o host edita o valor de cada tipo (por exemplo, o conserto passa de 1 para 2 despesas mensais), liga e desliga tipos e cria tipos próprios com nome, valor e efeito. O sorteio continua saindo da semente da partida, então todos os jogadores seguem recebendo os mesmos imprevistos nos mesmos dias, e a configuração vale para a partida salva.
@@ -1005,6 +997,9 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 
 <a id="f262"></a>
 **F262 — Pedido de impeachment aberto por jogador.** Serve N34. O líder de um partido com pelo menos uma cadeira na casa, fora o do partido do presidente, abre o pedido enquanto a aprovação de um presidente jogador está abaixo do piso de 25% e fora da carência dos 12 primeiros meses. Há um pedido aberto por vez e cada partido pede uma vez por mandato. O pedido rejeitado soma 5 pontos de rejeição ao partido de quem pediu, nos grupos de eleitores que ainda aprovam o presidente. O pedido sai em manchete para a sala toda e em aviso ao presidente, com o partido que pediu; a tela do Congresso mostra o botão com o custo explicado antes de confirmar. A bancada na base orienta Não e protege o presidente, sem código novo. Os 5 pontos ficam para a calibragem pelo CLI.
+
+<a id="f282"></a>
+**F282 — Texto dos gráficos com no mínimo 12 px.** Serve N15. O texto de gráfico (eixos, legendas, rótulos e tooltips) usa um token só, de 12 px: `CHART_TICK` e `CHART_FONT_SIZE`, em `shared/lib/chart-text.ts`. O teste de tamanho mínimo passou a pegar também `fontSize` literal abaixo de 12, além das classes `text-[Npx]`.
 
 ---
 
