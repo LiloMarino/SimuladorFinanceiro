@@ -5,12 +5,12 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
 
-from backend.core.enum import PauseReason, PendingType, VoterValue
+from backend.core.enum import MeasureStatus, PauseReason, PendingType, VoterValue
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     ForbiddenError,
@@ -35,6 +35,7 @@ from tests.test_government_book import (
     found,
     govern,
     headlines,
+    hold_vote_day,
     market,
     notices,
     office,
@@ -105,7 +106,7 @@ def test_a_resumed_game_rebuilds_the_same_house_and_guidance(
 # Orientação do líder
 
 
-def test_only_the_leader_guides_the_bloc_until_the_eve_of_the_vote(
+def test_only_the_leader_guides_the_bloc_until_the_end_of_the_vote_day(
     book: GovernmentBook, engine, market
 ):
     govern(book, engine, vice=True)
@@ -114,8 +115,47 @@ def test_only_the_leader_guides_the_bloc_until_the_eve_of_the_vote(
     with pytest.raises(ForbiddenError):
         book.guide(BOB, QUEUED_DAY, 1, True)
     book.guide(ALICE, QUEUED_DAY, 1, True)
-    with pytest.raises(ConflictError, match="véspera"):
-        book.guide(ALICE, FIRST_VOTE, 1, True)
+    book.guide(ALICE, FIRST_VOTE, 1, False)
+    # Depois da apuração a medida já saiu da fila
+    hold_vote_day(book)
+    with pytest.raises(ConflictError, match="já foi votada"):
+        book.guide(ALICE, FIRST_VOTE + timedelta(days=1), 1, True)
+
+
+def test_the_guidance_given_on_the_vote_day_decides_the_evening_count(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine, vice=True)
+    propose(book)
+    key = alice_bloc(book).key
+
+    # De manhã o mês fecha e a medida segue na fila, com a orientação ainda aberta
+    book.on_tick(USERS, FIRST_VOTE, False)
+    measure = book.state.measures[1]
+    assert measure.status is MeasureStatus.QUEUED
+    book.guide(ALICE, FIRST_VOTE, 1, False)
+
+    book.on_tick(USERS, FIRST_VOTE + timedelta(days=1), False)
+
+    assert measure.status is not MeasureStatus.QUEUED
+    assert measure.decided == FIRST_VOTE
+    assert measure.tally is not None
+    assert measure.tally.blocs[key].orientation is False
+
+
+def test_the_panel_offers_the_guide_until_the_vote_day_ends(
+    book: GovernmentBook, engine, market, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setattr(governance, "_portfolio", lambda *_: None)
+    govern(book, engine, vice=True)
+    propose(book)
+    book.on_tick(USERS, FIRST_VOTE, False)
+
+    leader = build_governance(book, engine, USERS, ALICE, FIRST_VOTE)
+
+    vote = leader.queue[0].vote
+    assert vote is not None and vote.guide is not None
+    assert vote.guide.deadline == FIRST_VOTE
 
 
 def test_a_guided_bloc_follows_the_leader_and_an_unguided_one_follows_the_default(
@@ -220,7 +260,7 @@ def test_the_house_votes_the_queue_by_seats_and_a_majority_of_51_passes(
     propose(book)
     votes_say(monkeypatch, house.MAJORITY)
 
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
 
     measure = book.state.measures[1]
     assert measure.tally is not None
@@ -235,7 +275,7 @@ def test_fifty_votes_do_not_pass_the_measure(
     propose(book)
     votes_say(monkeypatch, house.MAJORITY - 1)
 
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
 
     assert book.state.measures[1].status.value == "REJECTED"
 
@@ -245,7 +285,7 @@ def test_a_real_vote_is_the_same_after_a_resume(
 ):
     govern(book, engine)
     propose(book)
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
 
     rebuilt = replay(stored)
 
@@ -375,7 +415,7 @@ def test_the_panel_shows_the_house_the_queue_vote_and_the_leaders_guide(
     member_vote = member.queue[0].vote
     assert member_vote is not None and member_vote.guide is None
 
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
     voted = build_governance(book, engine, USERS, ALICE, FIRST_VOTE)
     closed = voted.queue[0].vote if voted.queue else None
     assert closed is None or closed.yes is not None

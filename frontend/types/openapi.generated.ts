@@ -1934,7 +1934,7 @@ export interface paths {
         get?: never;
         /**
          * Orientar a bancada numa votação
-         * @description O líder do partido (o fundador; se ele sai, o filiado mais antigo) orienta a bancada com Sim ou Não numa medida da fila, ou no pedido de impeachment aberto quando `measure_id` vem nulo. Vale até a véspera da votação; sem orientação, a bancada segue a orientação padrão do partido. Com acordo de apoio em vigor, orientar Não numa medida rompe o acordo e exige `break_deal` verdadeiro. Recusa com 403 para quem não é líder e com 409 quando o partido não tem bancada, a votação já fechou ou falta a confirmação da quebra.
+         * @description O líder do partido (o fundador; se ele sai, o filiado mais antigo) orienta a bancada com Sim ou Não numa medida da fila, ou no pedido de impeachment aberto quando `measure_id` vem nulo. Vale até o fim do dia da votação; sem orientação, a bancada segue a orientação padrão do partido. Com acordo de apoio em vigor, orientar Não numa medida rompe o acordo e exige `break_deal` verdadeiro. Recusa com 403 para quem não é líder e com 409 quando o partido não tem bancada, a votação já fechou ou falta a confirmação da quebra.
          */
         put: operations["guide_bloc_api_government_congress_guidance_put"];
         post?: never;
@@ -7058,6 +7058,8 @@ export interface components {
              * Format: date
              */
             deadline: string;
+            /** Led By */
+            led_by: string | null;
             /** Default Orientation */
             default_orientation: boolean;
             pulled_value: components["schemas"]["VoterValue"] | null;

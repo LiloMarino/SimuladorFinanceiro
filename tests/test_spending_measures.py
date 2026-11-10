@@ -50,6 +50,7 @@ from tests.test_government_book import (
     found,
     govern,
     headlines,
+    hold_vote_day,
     market,
     notices,
     office,
@@ -77,7 +78,7 @@ def propose(book: GovernmentBook, kind: MeasureKind, value: str) -> None:
 def approve_first(book: GovernmentBook, monkeypatch) -> date:
     """Aprova a primeira medida da fila no voto de janeiro e devolve o dia em que ela vale."""
     congress_says(monkeypatch, True)
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
     effective = book.state.measures[1].effective
     assert effective is not None
     return effective
@@ -209,7 +210,7 @@ def test_a_rejected_spending_measure_changes_nothing(
     propose(book, AUX, "0.02")
     congress_says(monkeypatch, False)
 
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
 
     assert book.state.measures[1].status is MeasureStatus.REJECTED
     assert book.latest_value(AUX) == Decimal("0.015")
@@ -622,7 +623,7 @@ def test_a_rejected_spending_measure_is_barred_in_the_journal(
     headlines.clear()
 
     congress_says(monkeypatch, False)
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
 
     [barred] = [h for _, h in headlines if h.news_type is NewsType.MEASURE_VOTED]
     assert barred.text.startswith("Casa barra mais gasto com obras por ")

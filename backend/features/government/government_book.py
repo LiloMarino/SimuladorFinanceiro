@@ -547,15 +547,20 @@ class GovernmentBook:
         self, users: list[UserDTO], today: date, month_changed: bool
     ) -> PauseReason | None:
         """
-        Roda o calendário do dia: posse, contribuição do mês, fechamento do mês do governo
-        e apuração. Devolve o motivo da pausa quando o dia trouxe a abertura da campanha,
-        um resultado de turno ou um impeachment, que pausam a partida para todos.
+        Roda o calendário do dia: apuração do dia de votação anterior, posse, contribuição
+        do mês, fechamento do mês do governo e apuração. Devolve o motivo da pausa quando o
+        dia trouxe a abertura da campanha, um resultado de turno ou um impeachment, que
+        pausam a partida para todos.
         """
         people = {user.id: user for user in users}
         self._people = people
         # O apoio de campanha chega ao dia de hoje com a queda do tempo aplicada
         self.state.advance(today)
         previous, self._previous_day = self._previous_day, today
+        # A casa apura no fim do dia de votação: o primeiro tick depois dele conta os votos,
+        # datados nesse dia, com as orientações que o líder deu até a meia-noite.
+        if self._count_votes(previous or today - timedelta(days=1)):
+            return PauseReason.IMPEACHMENT
         self._settle_term_end(today)
         pending = self.state.pending_term
         if pending is not None and today >= pending.start:
@@ -576,8 +581,7 @@ class GovernmentBook:
             self._collect(people, today)
 
         self._hold_selic_meeting(today)
-        if self._close_month(today):
-            return PauseReason.IMPEACHMENT
+        self._close_month(today)
         self._propose_as_caretaker(today)
 
         if self.state.runoff is not None:
@@ -884,7 +888,7 @@ class GovernmentBook:
         breaks_deal: bool = False,
     ) -> None:
         """
-        O líder orienta a bancada numa votação aberta, até a véspera; sem `measure_id`, é o
+        O líder orienta a bancada numa votação aberta, até o fim do dia da votação; sem `measure_id`, é o
         pedido de impeachment. Orientar Não numa medida com o acordo em vigor rompe o
         acordo, e o líder confirma isso com `breaks_deal`.
         """
@@ -903,8 +907,10 @@ class GovernmentBook:
             if measure.status is not MeasureStatus.QUEUED:
                 raise ConflictError("A medida já foi votada ou retirada.")
             vote_day = congress.next_vote_date(today)
-        if today >= vote_day:
-            raise ConflictError("A casa vota hoje: a orientação fechou na véspera.")
+        if today > vote_day:
+            raise ConflictError(
+                "A casa já votou: a orientação fechou no dia da votação."
+            )
         deal = self.state.deal_of(bloc.key, today)
         if deal is not None and measure_id is not None and not yes:
             if not breaks_deal:
@@ -2905,13 +2911,11 @@ class GovernmentBook:
 
     # Fechamento do mês do governo: aprovação, voto do Congresso e impeachment
 
-    def _close_month(self, today: date) -> bool:
+    def _close_month(self, today: date) -> None:
         """
-        No último dia útil do mês cada grupo anda um terço do caminho até o alvo, a casa
-        vota o pedido de impeachment aberto e a fila de medidas e, depois de 6 fechamentos
-        seguidos abaixo do piso (a contar do 13º mês do mandato), o pedido de impeachment
-        abre para a casa votar no mês seguinte. Devolve se o presidente caiu, o que pausa
-        a partida.
+        No último dia útil do mês cada grupo anda um terço do caminho até o alvo e, depois
+        de 6 fechamentos seguidos abaixo do piso (a contar do 13º mês do mandato), o pedido
+        de impeachment abre para a casa votar no mês seguinte.
         """
         term = self.state.term
         month = today.replace(day=1)
@@ -2921,14 +2925,7 @@ class GovernmentBook:
             or not congress.is_vote_day(today)
             or self.state.last_measured == month
         ):
-            return False
-        request = self.state.request
-        if (
-            request is not None
-            and today >= request.vote_day
-            and self._vote_impeachment(today)
-        ):
-            return True
+            return
         before = required(self.approval(today))
         satisfaction = {
             g: approval_rules.next_satisfaction(before.satisfaction[g], t.target)
@@ -2967,8 +2964,29 @@ class GovernmentBook:
                 months_below_floor=streak,
                 approval=value,
             )
-        self._vote(today)
         self._notice_month_closed(before.value, satisfaction, value)
+
+    def _count_votes(self, vote_day: date) -> bool:
+        """
+        A casa vota o pedido de impeachment aberto e a fila de medidas no fim de `vote_day`,
+        o último dia útil do mês já medido pelo governo. Devolve se o presidente caiu, o
+        que pausa a partida.
+        """
+        if (
+            self.state.term is None
+            or not self.governs()
+            or not congress.is_vote_day(vote_day)
+            or self.state.last_measured != vote_day.replace(day=1)
+        ):
+            return False
+        request = self.state.request
+        if (
+            request is not None
+            and vote_day >= request.vote_day
+            and self._vote_impeachment(vote_day)
+        ):
+            return True
+        self._vote(vote_day)
         return False
 
     def _request_impeachment(self, today: date) -> None:

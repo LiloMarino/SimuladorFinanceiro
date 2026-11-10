@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Handshake } from "lucide-react";
+import { toast } from "sonner";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
@@ -26,9 +27,24 @@ type GuideTileProps = {
 export function GuideTile({ guide, measureId, current, subject }: GuideTileProps) {
   const orient = useGuideBloc();
   const [confirming, setConfirming] = useState(false);
+  const confirmingRef = useRef(false);
   const { data: base } = useBase({ enabled: guide.by_deal });
   const governmentGroups = base?.my_deal?.government_groups ?? [];
   const pulled = guide.pulled_value ? VALUE_INFO[guide.pulled_value].label : null;
+  const locked = guide.led_by !== null;
+
+  useEffect(() => {
+    confirmingRef.current = confirming;
+  }, [confirming]);
+
+  // Fechar a votação com o Não ainda sem confirmar descarta a escolha: a orientação segue Sim
+  useEffect(
+    () => () => {
+      if (confirmingRef.current)
+        toast.info(`Orientação não alterada: o ${guide.abbr} segue Sim, porque o rompimento não foi confirmado.`);
+    },
+    [guide.abbr],
+  );
 
   return (
     <div className="grid gap-3 rounded-lg border border-info/30 bg-info-soft/30 p-3.5">
@@ -36,14 +52,17 @@ export function GuideTile({ guide, measureId, current, subject }: GuideTileProps
         <div className="grid gap-0.5">
           <b className="text-sm">Você orienta o {guide.abbr}</b>
           <span className="text-xs text-muted-foreground">
-            {guide.seats} cadeiras · muda até {displayDayMonth(guide.deadline)}, véspera da votação
+            {guide.seats} cadeiras ·{" "}
+            {locked
+              ? `A orientação da federação é do ${guide.led_by}`
+              : `muda até o fim de ${displayDayMonth(guide.deadline)}, dia da votação`}
           </span>
         </div>
         <ToggleGroup
           variant="segmented"
           aria-label={`Orientação do ${guide.abbr}`}
-          value={[current ? "yes" : "no"]}
-          disabled={orient.isPending}
+          value={[confirming || !current ? "no" : "yes"]}
+          disabled={orient.isPending || locked}
           onValueChange={(values) => {
             const yes = values[0] === "yes";
             if (!values[0]) return;

@@ -1,7 +1,7 @@
 """O Congresso para o painel: a casa eleita, as bancadas, o placar de cada votação e o pedido de impeachment."""
 
 from collections.abc import Callable
-from datetime import date, timedelta
+from datetime import date
 from decimal import Decimal
 
 from backend.core.dto.government import (
@@ -169,12 +169,18 @@ def _open_vote(
             )
         )
     guide = None
-    if leading is not None and today < vote_day:
+    if leading is not None and today <= vote_day:
+        lead = book.orienting_party(leading, today)
         guide = GuideDTO(
             bloc_key=leading.key,
             abbr=leading.abbr,
             seats=leading.seats,
-            deadline=vote_day - timedelta(days=1),
+            deadline=vote_day,
+            led_by=(
+                book.state.parties[lead].abbr
+                if lead is not None and mine is not None and lead != mine.id
+                else None
+            ),
             default_orientation=standard(leading),
             pulled_value=pulled,
             scenarios=[

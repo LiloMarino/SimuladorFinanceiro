@@ -37,6 +37,7 @@ from tests.test_government_book import (
     engine,
     govern,
     headlines,
+    hold_vote_day,
     market,
     notices,
     office,
@@ -70,7 +71,7 @@ def pass_measure(
     book.propose(ALICE, day, kind, Decimal(value), None, None, name)
     congress_says(monkeypatch, True)
     voted = congress.next_vote_date(day)
-    book.on_tick(USERS, voted, False)
+    hold_vote_day(book, voted)
     effective = max(m.effective for m in book.state.measures.values() if m.effective)
     return effective
 
@@ -163,7 +164,7 @@ def test_a_rejected_name_never_becomes_the_program(
     book.propose(ALICE, TERM_START, AUX, Decimal("0.02"), None, None, FAMILY)
     congress_says(monkeypatch, False)
 
-    book.on_tick(USERS, congress.next_vote_date(TERM_START), False)
+    hold_vote_day(book, congress.next_vote_date(TERM_START))
 
     assert book.spending_timeline().latest_name(AUX) is None
 
@@ -370,7 +371,7 @@ def test_repropose_keeps_the_name(book: GovernmentBook, engine, market, monkeypa
     govern(book, engine)
     book.propose(ALICE, TERM_START, AUX, Decimal("0.02"), None, None, FAMILY)
     congress_says(monkeypatch, False)
-    book.on_tick(USERS, congress.next_vote_date(TERM_START), False)
+    hold_vote_day(book, congress.next_vote_date(TERM_START))
 
     book.repropose(ALICE, TERM_START + timedelta(days=40), 1)
 

@@ -607,8 +607,10 @@ class GuideDTO(BaseDTO):
     bloc_key: int
     abbr: str
     seats: int
-    # Até quando muda: a véspera da votação
+    # Até quando muda: o fim do dia da votação
     deadline: date
+    # Na federação, a sigla do partido que orienta a bancada quando não é o do líder: ele só vê
+    led_by: str | None
     # A orientação que vale sem ele, e o valor da medida que a decide
     default_orientation: bool
     pulled_value: VoterValue | None

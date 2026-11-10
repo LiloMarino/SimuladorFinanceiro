@@ -250,7 +250,7 @@ Credibilidade acima de 80 é boa; abaixo de 50, a dívida e a inflação já sen
 
 ### O Congresso
 
-O Congresso vota as medidas da fila no **último dia útil de cada mês**. A **chance** de a medida passar é igual à aprovação do governo naquele dia: com 60% de aprovação, cada medida tem 60% de chance (é um sorteio, então 60% não garante nada). Se for aprovada, a medida vale **90 dias depois** da votação; se for rejeitada, nada muda e o presidente pode propor de novo. Todos os jogadores recebem aviso da votação e de quando a medida passa a valer.
+O Congresso vota as medidas da fila no **último dia útil de cada mês**, e a casa apura no fim desse dia: o líder de um partido com bancada orienta o voto dela até lá. A **chance** de a medida passar é igual à aprovação do governo naquele dia: com 60% de aprovação, cada medida tem 60% de chance (é um sorteio, então 60% não garante nada). Se for aprovada, a medida vale **90 dias depois** da votação; se for rejeitada, nada muda e o presidente pode propor de novo. Todos os jogadores recebem aviso da votação e de quando a medida passa a valer.
 
 ### A aprovação
 

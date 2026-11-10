@@ -876,12 +876,20 @@ def bleak(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
 
+def hold_vote_day(
+    book: GovernmentBook, day: date = FIRST_VOTE, month_changed: bool = False
+) -> PauseReason | None:
+    """O dia de votação e o dia seguinte, em que a casa apura; devolve o motivo da pausa, se houve."""
+    paused = book.on_tick(USERS, day, month_changed)
+    return book.on_tick(USERS, day + timedelta(days=1), False) or paused
+
+
 def close_months(book: GovernmentBook, count: int, first: date = FIRST_VOTE):
     """Fecha `count` meses do governo a partir do mês de `first`; devolve o motivo da última pausa."""
     paused = None
     year, month = first.year, first.month
     for _ in range(count):
-        paused = book.on_tick(USERS, congress.last_business_day(year, month), False)
+        paused = hold_vote_day(book, congress.last_business_day(year, month))
         year, month = (year + 1, 1) if month == 12 else (year, month + 1)
     return paused
 
@@ -986,7 +994,7 @@ def test_approved_measure_binds_only_ninety_days_after_the_vote(
     propose(book)
     congress_says(monkeypatch, True)
 
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
 
     measure = book.state.measures[1]
     assert measure.status is MeasureStatus.APPROVED
@@ -1009,7 +1017,7 @@ def test_congress_votes_only_on_the_last_business_day_of_the_month(
     book.on_tick(USERS, date(2022, 1, 28), False)
     assert book.state.measures[1].status is MeasureStatus.QUEUED
 
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
     assert book.state.measures[1].status is MeasureStatus.APPROVED
 
 
@@ -1019,7 +1027,7 @@ def test_rejected_measure_comes_back_to_the_queue(
     govern(book, engine)
     propose(book)
     congress_says(monkeypatch, False)
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
     assert book.state.measures[1].status is MeasureStatus.REJECTED
 
     book.repropose(ALICE, date(2022, 2, 1), 1)
@@ -1037,7 +1045,7 @@ def test_withdrawn_measure_is_not_voted(
     congress_says(monkeypatch, True)
 
     book.withdraw(ALICE, TERM_START, 1)
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
 
     assert book.state.measures[1].status is MeasureStatus.WITHDRAWN
     with pytest.raises(ConflictError):
@@ -1050,7 +1058,7 @@ def test_approval_is_measured_every_month_and_kept_for_the_chart(
     govern(book, engine)
     start = dict(book.state.satisfaction)
 
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
 
     [point] = book.state.approvals
     assert point.day == FIRST_VOTE
@@ -1061,7 +1069,7 @@ def test_approval_is_measured_every_month_and_kept_for_the_chart(
         assert value == expected
     assert book.state.low_streak == 0
     # Fechado o mês, a mesma data não mede de novo
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
     assert len(book.state.approvals) == 1
 
 
@@ -1309,7 +1317,7 @@ def test_replay_rebuilds_measures_approval_and_policy(
     govern(book, engine, vice=True)
     propose(book)
     congress_says(monkeypatch, True)
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
 
     resumed = GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
 
@@ -1326,7 +1334,7 @@ def test_measure_in_force_is_announced_on_its_day(
     govern(book, engine)
     propose(book)
     congress_says(monkeypatch, True)
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
 
     book.on_tick(USERS, date(2022, 4, 29), False)
     kinds = [n["kind"] for n in notices]
@@ -1382,7 +1390,7 @@ def test_approved_measure_moves_the_profile_of_the_governing_party(
     propose(book)
     congress_says(monkeypatch, True)
 
-    book.on_tick(USERS, FIRST_VOTE, False)
+    hold_vote_day(book)
 
     # Subir o IR do ganho comum de 15% para 20% recua o mercado e avança a justiça social
     party = party_of(book, ALICE)
