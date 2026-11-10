@@ -1,11 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import type { Preparations, ViceAnswerRequest } from "@/types";
+import type { Preparations, PreparationViceAnswer } from "@/types";
 
-/** O convidado aceita ou recusa a vaga de vice que outro jogador preparou. */
+/** O convidado aceita ou recusa a vaga de vice de uma das chapas que o convidaram (`owner`). */
 export function useAnswerPreparationVice() {
   return useMutation({
-    mutationFn: (body: ViceAnswerRequest) =>
+    mutationFn: (body: PreparationViceAnswer) =>
       apiFetch<Preparations>("/api/simulation/players/me/preparation/vice", { method: "PUT", body }),
   });
 }

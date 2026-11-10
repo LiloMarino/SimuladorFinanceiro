@@ -55,6 +55,19 @@ describe("bornSince", () => {
   });
 });
 
+describe("convites acumulados", () => {
+  it("duas pendências do mesmo tipo, de chapas diferentes, têm chaves distintas e levam ao mesmo diálogo", () => {
+    const items = [
+      pending({ key: "VICE_INVITE:1", type: "VICE_INVITE" }),
+      pending({ key: "VICE_INVITE:2", type: "VICE_INVITE" }),
+    ];
+
+    expect(new Set(items.map((item) => item.key)).size).toBe(2);
+    expect(items.map((item) => pendingTarget(item).state)).toEqual([{ dialog: "vice" }, { dialog: "vice" }]);
+    expect(bornSince(new Set(["VICE_INVITE:1"]), items).map((item) => item.key)).toEqual(["VICE_INVITE:2"]);
+  });
+});
+
 describe("menuDotSeverity", () => {
   const items = [
     pending({ key: "a", type: "VICE_INVITE", severity: "WARNING" }),

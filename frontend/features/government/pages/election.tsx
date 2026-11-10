@@ -130,6 +130,8 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
   const { data: players } = useRoomPlayers();
   const [dialog, setDialog] = useState<Dialog | null>(initialDialog);
   const [joinPartyId, setJoinPartyId] = useState<number | undefined>();
+  // A proposta de federação aberta no diálogo de resposta; sem escolha, vale a primeira recebida
+  const [answeringProposalId, setAnsweringProposalId] = useState<number | null>(null);
   const [expelling, setExpelling] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>(initialTab);
   const withdraw = useWithdrawFederation();
@@ -149,8 +151,11 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
     setDialog("join");
   };
 
-  // A chapa que convidou quem vê para vice, do partido dele ou de outro
-  const invitingParty = panel.parties.find((candidate) => candidate.id === panel.my_vice?.party_id);
+  // As chapas que convidaram quem vê para vice, do partido dele ou de outro
+  const invitingParties = panel.my_vices
+    .filter((vice) => vice.phase === "PENDING")
+    .map((vice) => panel.parties.find((candidate) => candidate.id === vice.party_id))
+    .filter((candidate): candidate is ElectionParty => candidate !== undefined);
 
   // Vaga de vice aberta: a chapa tem candidato e ainda não tem vice nem convite pendente
   const viceOpen =
@@ -158,10 +163,11 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
 
   // A federação do partido de quem vê e as propostas abertas dele
   const federation = party ? federationOf(panel.federations, party.id) : undefined;
-  const receivedProposal = panel.received_proposal;
+  const receivedProposals = panel.received_proposals;
+  const answeringProposal =
+    receivedProposals.find((proposal) => proposal.id === answeringProposalId) ?? receivedProposals[0];
   const sentProposal = panel.sent_proposal;
   const sentTo = panel.parties.find((candidate) => candidate.id === sentProposal?.to_party_id);
-  const receivedFrom = panel.parties.find((candidate) => candidate.id === receivedProposal?.from_party_id);
 
   // A disputa do 2º turno, quando há
   const runoffRace = panel.runoff_race;
@@ -195,15 +201,18 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
     <div className="grid gap-5">
       <ElectionHeader panel={panel} onJoin={() => openJoin()} onFound={() => setDialog("found")} />
 
-      {panel.my_vice?.phase === "PENDING" && invitingParty && (
+      {invitingParties.length > 0 && (
         <Alert variant="info">
           <MailQuestion />
           <AlertTitle>
-            {invitingParty.founder ?? invitingParty.name} convidou você para vice no {invitingParty.abbr}
+            {invitingParties.length === 1 && invitingParties[0]
+              ? `${invitingParties[0].founder ?? invitingParties[0].name} convidou você para vice no ${invitingParties[0].abbr}`
+              : `${invitingParties.length} chapas convidaram você para vice: ${invitingParties.map((candidate) => candidate.abbr).join(", ")}`}
           </AlertTitle>
           <AlertDescription>
             Aceite ou recuse até {displayDayMonth(panel.dates.ticket_deadline)}; sem resposta, a chapa concorre sem
             vice.
+            {invitingParties.length > 1 && " Aceitar um convite recusa os outros."}
           </AlertDescription>
           <AlertAction>
             <Button size="sm" onClick={() => setDialog("vice")}>
@@ -213,23 +222,32 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
         </Alert>
       )}
 
-      {party && receivedProposal && receivedFrom && (
-        <Alert variant="info">
-          <Handshake />
-          <AlertTitle>
-            O {receivedFrom.abbr} propõe federação ao {party.abbr}
-          </AlertTitle>
-          <AlertDescription>
-            Responda até {displayDayMonth(receivedProposal.expires_on)}; sem resposta, a proposta expira. Também está em
-            Pendências.
-          </AlertDescription>
-          <AlertAction>
-            <Button size="sm" onClick={() => setDialog("federation-answer")}>
-              Responder
-            </Button>
-          </AlertAction>
-        </Alert>
-      )}
+      {party &&
+        receivedProposals.map((proposal) => (
+          <Alert key={proposal.id} variant="info">
+            <Handshake />
+            <AlertTitle>
+              O {panel.parties.find((candidate) => candidate.id === proposal.from_party_id)?.abbr} propõe federação ao{" "}
+              {party.abbr}
+            </AlertTitle>
+            <AlertDescription>
+              Responda até {displayDayMonth(proposal.expires_on)}; sem resposta, a proposta expira. Também está em
+              Pendências.
+              {receivedProposals.length > 1 && " Aceitar uma recusa as outras e retira a que você enviou."}
+            </AlertDescription>
+            <AlertAction>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setAnsweringProposalId(proposal.id);
+                  setDialog("federation-answer");
+                }}
+              >
+                Responder
+              </Button>
+            </AlertAction>
+          </Alert>
+        ))}
 
       {party && sentProposal && sentTo && (
         <Alert variant="info">
@@ -253,12 +271,12 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
           <UserPlus />
           <AlertTitle>A chapa do {party.abbr} está sem vice</AlertTitle>
           <AlertDescription>
-            Indique um jogador da sala até {displayDayMonth(panel.dates.ticket_deadline)}; ele precisa aceitar o
+            Convide um jogador da sala até {displayDayMonth(panel.dates.ticket_deadline)}; ele precisa aceitar o
             convite.
           </AlertDescription>
           <AlertAction>
             <Button size="sm" variant="outline" onClick={() => setDialog("ticket")}>
-              Indicar vice
+              Convidar vice
             </Button>
           </AlertAction>
         </Alert>
@@ -433,7 +451,7 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
             onOpenChange={close}
             party={party}
             isFounder={mine.is_founder}
-            isVice={panel.my_vice?.party_id === party.id && panel.my_vice.phase === "ACCEPTED"}
+            isVice={panel.my_vices.some((vice) => vice.party_id === party.id && vice.phase === "ACCEPTED")}
           />
           <FederationProposeDialog
             open={dialog === "federation-propose"}
@@ -441,13 +459,13 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
             panel={panel}
             party={party}
           />
-          {receivedProposal && (
+          {answeringProposal && (
             <FederationAnswerDialog
               open={dialog === "federation-answer"}
               onOpenChange={close}
               panel={panel}
               party={party}
-              proposal={receivedProposal}
+              proposal={answeringProposal}
             />
           )}
           {federation && (

@@ -83,76 +83,112 @@ export function PartyTab(props: PartyTabProps) {
   const locked = preparations.locked_reason !== null;
   const lead = (
     <>
-      {/* Convite de vice */}
-      {mine.invite && !locked && (
-        <Alert variant="info">
+      {/* Convites de vice */}
+      {!locked && mine.invites.length > 1 && (
+        <Alert variant="warning">
           <Mail />
-          <AlertTitle>
-            {mine.invite.owner} te convidou para vice na chapa do {mine.invite.abbr}
-          </AlertTitle>
           <AlertDescription>
-            Com {mine.invite.candidate} de candidato. Aceitar não te filia ao {mine.invite.abbr}: o vice pode ser de
-            outro partido ou de nenhum.
+            Aceitar um convite de vice recusa os outros; as outras chapas são avisadas.
           </AlertDescription>
-          <AlertAction>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                disabled={answerVice.isPending}
-                onClick={() => answerVice.mutate({ accept: true }, { onError: (err) => setRefusal(err.message) })}
-              >
-                Aceitar
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={answerVice.isPending}
-                onClick={() => answerVice.mutate({ accept: false }, { onError: (err) => setRefusal(err.message) })}
-              >
-                Recusar
-              </Button>
-            </div>
-          </AlertAction>
         </Alert>
       )}
-      {/* Proposta de federação */}
-      {mine.federation_invite && !locked && (
-        <Alert variant="info">
+      {!locked &&
+        mine.invites.map((invite) => (
+          <Alert key={invite.owner} variant="info">
+            <Mail />
+            <AlertTitle>
+              {invite.owner} te convidou para vice na chapa do {invite.abbr}
+            </AlertTitle>
+            <AlertDescription>
+              Com {invite.candidate} de candidato. Aceitar não te filia ao {invite.abbr}: o vice pode ser de outro
+              partido ou de nenhum.
+            </AlertDescription>
+            <AlertAction>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={answerVice.isPending}
+                  onClick={() =>
+                    answerVice.mutate(
+                      { owner: invite.owner, accept: true },
+                      { onError: (err) => setRefusal(err.message) },
+                    )
+                  }
+                >
+                  Aceitar
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={answerVice.isPending}
+                  onClick={() =>
+                    answerVice.mutate(
+                      { owner: invite.owner, accept: false },
+                      { onError: (err) => setRefusal(err.message) },
+                    )
+                  }
+                >
+                  Recusar
+                </Button>
+              </div>
+            </AlertAction>
+          </Alert>
+        ))}
+      {/* Propostas de federação */}
+      {!locked && mine.federation_invites.length > 1 && (
+        <Alert variant="warning">
           <Handshake />
-          <AlertTitle>
-            {mine.federation_invite.owner} propõe federação do {mine.federation_invite.abbr} com o seu partido
-          </AlertTitle>
           <AlertDescription>
-            {mine.federation_invite.name}, com {mine.federation_invite.candidate} de candidato. Os dois partidos viram
-            uma lista só no Congresso e somam os votos na barreira.
+            Aceitar uma proposta de federação recusa as outras e retira a que você enviou.
           </AlertDescription>
-          <AlertAction>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                disabled={answerFederation.isPending}
-                onClick={() => answerFederation.mutate({ accept: true }, { onError: (err) => setRefusal(err.message) })}
-              >
-                Aceitar
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={answerFederation.isPending}
-                onClick={() =>
-                  answerFederation.mutate({ accept: false }, { onError: (err) => setRefusal(err.message) })
-                }
-              >
-                Recusar
-              </Button>
-            </div>
-          </AlertAction>
         </Alert>
       )}
+      {!locked &&
+        mine.federation_invites.map((invite) => (
+          <Alert key={invite.owner} variant="info">
+            <Handshake />
+            <AlertTitle>
+              {invite.owner} propõe federação do {invite.abbr} com o seu partido
+            </AlertTitle>
+            <AlertDescription>
+              {invite.name}, com {invite.candidate} de candidato. Os dois partidos viram uma lista só no Congresso e
+              somam os votos na barreira.
+            </AlertDescription>
+            <AlertAction>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={answerFederation.isPending}
+                  onClick={() =>
+                    answerFederation.mutate(
+                      { owner: invite.owner, accept: true },
+                      { onError: (err) => setRefusal(err.message) },
+                    )
+                  }
+                >
+                  Aceitar
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={answerFederation.isPending}
+                  onClick={() =>
+                    answerFederation.mutate(
+                      { owner: invite.owner, accept: false },
+                      { onError: (err) => setRefusal(err.message) },
+                    )
+                  }
+                >
+                  Recusar
+                </Button>
+              </div>
+            </AlertAction>
+          </Alert>
+        ))}
       {refusal && (
         <Alert variant="destructive">
           <CircleAlert />

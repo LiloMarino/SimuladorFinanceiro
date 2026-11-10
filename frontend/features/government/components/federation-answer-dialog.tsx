@@ -32,7 +32,8 @@ export function FederationAnswerDialog({ open, onOpenChange, panel, party, propo
   const candidateParty = panel.parties.find((candidate) => candidate.id === proposal.candidate_party_id);
   if (!sender) return null;
 
-  const respond = (accept: boolean) => answer.mutate({ accept }, { onSuccess: () => onOpenChange(false) });
+  const respond = (accept: boolean) =>
+    answer.mutate({ proposal_id: proposal.id, accept }, { onSuccess: () => onOpenChange(false) });
   const ownShare = Number(party.intention_points) / 100;
   const senderShare = Number(sender.intention_points) / 100;
   const until = displayShortDate(proposal.ends_on);
@@ -95,6 +96,15 @@ export function FederationAnswerDialog({ open, onOpenChange, panel, party, propo
                 sorteio.
               </Line>
             </div>
+
+            {panel.received_proposals.length > 1 && (
+              <Alert variant="warning">
+                <AlertDescription>
+                  Você tem {panel.received_proposals.length} propostas abertas. Aceitar esta recusa as outras e retira a
+                  que você enviou.
+                </AlertDescription>
+              </Alert>
+            )}
 
             {!panel.can_federate && (
               <Alert variant="info">

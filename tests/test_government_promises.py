@@ -358,8 +358,9 @@ def govern_promising(book: GovernmentBook, engine, *items: PromiseRequest, vice=
     found(book, ALICE, "AAA", RED, "10000")
     if vice:
         book.join_party(BOB, CAMPAIGN_OPEN, party_of(book, ALICE).id, Decimal(0))
-        book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", "Bob", USERS)
-        book.answer_vice(BOB, CAMPAIGN_OPEN, True)
+        book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", USERS)
+        book.invite_vice(ALICE, CAMPAIGN_OPEN, "Bob", USERS)
+        book.answer_vice(BOB, CAMPAIGN_OPEN, True, party_of(book, ALICE).id)
     announce(book, *items)
     run_campaign(book)
     book.on_tick(USERS, FIRST_ROUND, False)

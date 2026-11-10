@@ -18,10 +18,10 @@ import { PlayerOption } from "@/shared/components/player-option";
 import { DisabledHint } from "@/shared/components/disabled-hint";
 import { displayDayMonth, displayMoney } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty } from "@/types";
+import { useInviteVice } from "../hooks/mutations/useInviteVice";
 import { useSetTicket } from "../hooks/mutations/useSetTicket";
+import { useWithdrawVice } from "../hooks/mutations/useWithdrawVice";
 import { remainingCollections } from "../lib/election";
-
-const NO_VICE = "none";
 
 type TicketDialogProps = {
   open: boolean;
@@ -31,11 +31,13 @@ type TicketDialogProps = {
   cash: string | undefined;
 };
 
-/** Montar a chapa: candidato entre os filiados, vice entre os jogadores da sala, com a conta da campanha até o 1º turno. */
+/** Montar a chapa: candidato entre os filiados e, à parte, o convite ao vice entre os jogadores da sala, com a conta da campanha até o 1º turno. */
 export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketDialogProps) {
   const [candidate, setCandidate] = useState(party.candidate?.nickname ?? party.members[0]?.nickname ?? "");
-  const [vice, setVice] = useState(party.vice?.nickname ?? NO_VICE);
+  const [vice, setVice] = useState<string | null>(party.vice?.nickname ?? null);
   const setTicket = useSetTicket();
+  const inviteVice = useInviteVice();
+  const withdrawVice = useWithdrawVice();
 
   const candidateItems = Object.fromEntries(
     party.members.map((member) => [
@@ -45,16 +47,16 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
   );
   const blockedBy = Object.fromEntries(panel.vice_options.map((option) => [option.nickname, option.blocked]));
   const viceOptions = panel.vice_options.filter((option) => option.nickname !== candidate);
-  const viceItems = {
-    [NO_VICE]: "Sem vice",
-    ...Object.fromEntries(
-      viceOptions.map((option) => [
-        option.nickname,
-        <PlayerOption key={option.nickname} nickname={option.nickname} color={option.color} />,
-      ]),
-    ),
-  };
-  const effectiveVice = vice === candidate ? NO_VICE : vice;
+  const viceItems = Object.fromEntries(
+    viceOptions.map((option) => [
+      option.nickname,
+      <PlayerOption key={option.nickname} nickname={option.nickname} color={option.color} />,
+    ]),
+  );
+  const chosenVice = vice === candidate ? null : vice;
+  // O convite vigente da chapa, que o botão Convidar substitui
+  const invitedNickname = party.vice?.nickname ?? null;
+  const sameAsInvited = chosenVice !== null && chosenVice === invitedNickname && party.vice_phase !== "DECLINED";
 
   const collections = remainingCollections(panel.today, panel.dates.first_round);
   const myMonthly = Number(panel.my_party?.contribution ?? 0);
@@ -63,6 +65,8 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
 
   // O motivo do botão apagado: o que falta para inscrever a chapa
   const blockedReason = !candidate && !setTicket.isPending ? "Escolha um candidato." : null;
+  const inviteReason =
+    chosenVice === null ? "Escolha o vice." : sameAsInvited ? "Esse jogador já foi convidado." : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -70,7 +74,8 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
         <DialogHeader variant="divided">
           <DialogTitle>Montar a chapa do {party.abbr}</DialogTitle>
           <DialogDescription>
-            Só quem fundou monta a chapa. Inscrições até {displayDayMonth(panel.dates.ticket_deadline)}.
+            Só quem fundou monta a chapa. Inscrever a chapa não convida o vice. Inscrições até{" "}
+            {displayDayMonth(panel.dates.ticket_deadline)}.
           </DialogDescription>
         </DialogHeader>
 
@@ -98,27 +103,47 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
 
             <Field>
               <FieldLabel>Vice</FieldLabel>
-              <Select value={effectiveVice} items={viceItems} onValueChange={(value) => value && setVice(value)}>
-                <SelectTrigger className="w-full" aria-label="Vice">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NO_VICE}>Sem vice</SelectItem>
-                  {viceOptions.map((option) => (
-                    <SelectItem key={option.nickname} value={option.nickname} disabled={!!option.blocked}>
-                      <PlayerOption nickname={option.nickname} color={option.color} />
-                      <span className="text-xs text-muted-foreground">
-                        {option.blocked ?? (option.party_abbr ? `do ${option.party_abbr}` : "sem partido")}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select value={chosenVice} items={viceItems} onValueChange={(value) => value && setVice(value)}>
+                  <SelectTrigger className="w-full" aria-label="Vice">
+                    <SelectValue placeholder="Escolha o vice" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {viceOptions.map((option) => (
+                      <SelectItem key={option.nickname} value={option.nickname} disabled={!!option.blocked}>
+                        <PlayerOption nickname={option.nickname} color={option.color} />
+                        <span className="text-xs text-muted-foreground">
+                          {option.blocked ?? (option.party_abbr ? `do ${option.party_abbr}` : "sem partido")}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <DisabledHint reason={inviteReason}>
+                  <Button
+                    variant="outline"
+                    disabled={chosenVice === null || sameAsInvited || inviteVice.isPending}
+                    onClick={() => chosenVice && inviteVice.mutate({ vice: chosenVice })}
+                  >
+                    Convidar
+                  </Button>
+                </DisabledHint>
+              </div>
               <FieldDescription>
-                {effectiveVice === NO_VICE
-                  ? "Sem vice, a chapa concorre só com o candidato."
-                  : `${effectiveVice} recebe o convite na tela dele e aceita ou recusa. Até lá, a chapa concorre sem vice. O vice segue no partido dele.`}
+                {viceStatus(party)} O convidado aceita ou recusa na tela dele e segue no partido dele. Um novo convite
+                ocupa o lugar do anterior.
               </FieldDescription>
+              {invitedNickname !== null && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="justify-self-start"
+                  disabled={withdrawVice.isPending}
+                  onClick={() => withdrawVice.mutate()}
+                >
+                  Retirar convite
+                </Button>
+              )}
             </Field>
 
             <div className="rounded-lg border px-3 py-1">
@@ -158,12 +183,7 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
           <DisabledHint reason={blockedReason}>
             <Button
               disabled={!candidate || setTicket.isPending}
-              onClick={() =>
-                setTicket.mutate(
-                  { candidate, vice: effectiveVice === NO_VICE ? null : effectiveVice },
-                  { onSuccess: () => onOpenChange(false) },
-                )
-              }
+              onClick={() => setTicket.mutate({ candidate }, { onSuccess: () => onOpenChange(false) })}
             >
               Inscrever a chapa
             </Button>
@@ -172,4 +192,13 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
       </DialogContent>
     </Dialog>
   );
+}
+
+/** A linha de estado do convite de vice da chapa. */
+function viceStatus(party: ElectionParty) {
+  const nickname = party.vice?.nickname;
+  if (!nickname || party.vice_phase === "NONE") return "Sem vice, a chapa concorre só com o candidato.";
+  if (party.vice_phase === "ACCEPTED") return `${nickname} aceitou ser vice.`;
+  if (party.vice_phase === "DECLINED") return `${nickname} recusou o convite.`;
+  return `Aguardando a resposta de ${nickname}; até lá a chapa concorre sem vice.`;
 }

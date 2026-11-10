@@ -34,12 +34,15 @@ class PreparationRequest(BaseDTO):
     kind: PreparationKind
     # Quem fundou o partido em que entra; só para JOIN
     founder: str | None = None
-    # Quem encabeça a chapa (o próprio fundador ou um filiado) e o vice convidado; só para FOUND
+    # Quem encabeça a chapa (o próprio fundador ou um filiado); só para FOUND
     candidate: str | None = None
+    # O jogador convidado para vice; só para INVITE_VICE
     vice: str | None = None
 
 
-class ViceAnswerRequest(BaseDTO):
+class PreparationViceAnswerRequest(BaseDTO):
+    # O fundador que convidou
+    owner: str
     accept: bool
 
 
@@ -53,6 +56,8 @@ class FederationOfferRequest(BaseDTO):
 
 
 class FederationAnswerRequest(BaseDTO):
+    # O fundador que propôs
+    owner: str
     accept: bool
 
 
@@ -124,13 +129,15 @@ class FederationInviteDTO(BaseDTO):
 class MyPreparationDTO(BaseDTO):
     """O que da preparação só o próprio jogador vê."""
 
-    # O convite de vice que o jogador recebeu e ainda não respondeu
-    invite: ViceInviteDTO | None = None
+    # Os convites de vice que o jogador recebeu e ainda não respondeu, um por chapa
+    invites: list[ViceInviteDTO]
     # Quem o jogador convidou para vice e ainda não respondeu
     invited: str | None = None
+    # Quem recusou o convite do jogador, ou aceitou o de outra chapa
+    vice_declined: str | None = None
     # A sigla do partido em que o jogador entrou e que saiu da preparação; some na próxima escolha
     left_party: str | None = None
-    # A proposta de federação que o jogador recebeu e ainda não respondeu
-    federation_invite: FederationInviteDTO | None = None
+    # As propostas de federação que o jogador recebeu e ainda não respondeu
+    federation_invites: list[FederationInviteDTO]
     # O fundador a quem o jogador propôs federação e ainda não respondeu
     federation_invited: str | None = None

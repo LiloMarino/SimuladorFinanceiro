@@ -31,12 +31,12 @@ def is_eligible(state: GovernmentState, user_id: int) -> bool:
 
 
 def vice_of_other(state: GovernmentState, party: Party, user_id: int) -> Party | None:
-    """A outra chapa de jogadores em que `user_id` é vice (convidado ou já aceito)."""
+    """A outra chapa de jogadores em que `user_id` já aceitou ser vice; convite sem resposta não conta."""
     return next(
         (
             p
             for p in state.player_parties()
-            if p.id != party.id and p.vice_id == user_id
+            if p.id != party.id and p.vice_id == user_id and p.vice_accepted
         ),
         None,
     )
@@ -72,13 +72,13 @@ def effective_ticket(
 def vice_blocker(state: GovernmentState, party: Party, user_id: int) -> str | None:
     """
     Por que `user_id` não pode ser vice da chapa de `party`; nulo quando pode. O vice é
-    qualquer jogador da sala, de outro partido ou sem partido, desde que não seja vice
-    nem candidato de outra chapa.
+    qualquer jogador da sala, de outro partido ou sem partido, desde que não tenha aceitado
+    ser vice de outra chapa nem seja candidato de outra; convites de outras chapas
+    ainda sem resposta não bloqueiam.
     """
     other = vice_of_other(state, party, user_id)
     if other is not None:
-        status = "já é vice" if other.vice_accepted else "já foi convidado para vice"
-        return f"{status} do {other.abbr}"
+        return f"já é vice do {other.abbr}"
     for rival in state.player_parties():
         if rival.id != party.id and effective_ticket(state, rival)[0] == user_id:
             return f"candidato pelo {rival.abbr}"

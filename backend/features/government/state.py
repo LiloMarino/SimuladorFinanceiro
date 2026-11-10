@@ -87,6 +87,8 @@ class Party:
     candidate_id: int | None = None
     vice_id: int | None = None
     vice_accepted: bool = False
+    # Quem recusou o convite desta chapa; some ao convidar de novo ou ao retirar
+    vice_declined_id: int | None = None
     # O perfil de hoje, de 0 a 100 em cada valor, e o que o moveu
     radar: dict[VoterValue, Decimal] = field(default_factory=dict)
     moves: list[ProfileMove] = field(default_factory=list)
@@ -652,16 +654,26 @@ class GovernmentState:
     def congress_federations(self, day: date) -> list[Federation]:
         return [f for f in self.federations.values() if f.in_congress(day)]
 
-    def open_proposal_of(self, party_id: int, day: date) -> FederationProposal | None:
-        """A proposta aberta em que o partido é uma das partes: só uma por vez."""
+    def sent_proposal_of(self, party_id: int, day: date) -> FederationProposal | None:
+        """A proposta aberta que o partido enviou: só uma por vez."""
         return next(
             (
                 p
                 for p in self.proposals.values()
-                if p.is_open(day) and p.involves(party_id)
+                if p.is_open(day) and p.from_party_id == party_id
             ),
             None,
         )
+
+    def received_proposals_of(
+        self, party_id: int, day: date
+    ) -> list[FederationProposal]:
+        """As propostas abertas que esperam a resposta do partido, na ordem em que chegaram."""
+        return [
+            p
+            for p in self.proposals.values()
+            if p.is_open(day) and p.to_party_id == party_id
+        ]
 
     def elected_house(self) -> ElectedHouse | None:
         """A última casa eleita, tenha ou não tomado posse."""
@@ -794,11 +806,22 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             party.candidate_id = _int(p, "candidate_id")
             party.vice_id = _opt_int(p, "vice_id")
             party.vice_accepted = bool(p.get("vice_accepted", False))
+        case Event.VICE_INVITED:
+            party = state.parties[_int(p, "party_id")]
+            party.vice_id = _int(p, "vice_id")
+            party.vice_accepted = False
+            party.vice_declined_id = None
+        case Event.VICE_WITHDRAWN:
+            party = state.parties[_int(p, "party_id")]
+            party.vice_id = None
+            party.vice_accepted = False
+            party.vice_declined_id = None
         case Event.VICE_ANSWERED:
             party = state.parties[_int(p, "party_id")]
             if p["accepted"]:
                 party.vice_accepted = True
             else:
+                party.vice_declined_id = party.vice_id
                 party.vice_id = None
                 party.vice_accepted = False
         case Event.CAMPAIGN_SPENT:

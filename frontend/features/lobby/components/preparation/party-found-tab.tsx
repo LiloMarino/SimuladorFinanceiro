@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Clock, TriangleAlert } from "lucide-react";
+import { Clock, TriangleAlert, UserCheck, UserX } from "lucide-react";
 import { ContributionField } from "@/shared/components/contribution-field";
 import { FlagCards } from "@/shared/components/flag-cards";
 import { PartyIdentityFields } from "@/shared/components/party-identity-fields";
@@ -11,6 +11,7 @@ import { PlayerOption } from "@/shared/components/player-option";
 import { ValueChip } from "@/shared/components/value-chip";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { contributionAmount, contributionText } from "@/shared/lib/contribution";
@@ -27,8 +28,6 @@ import { PartyFederationSection } from "./party-federation-section";
 import { PreparationFooter } from "./preparation-footer";
 import { PreparationSection } from "./preparation-section";
 import type { PartyModeProps } from "./party-tab";
-
-const NO_VICE = "none";
 
 /** Fundar o meu partido: identidade e bandeiras à esquerda; chapa, contribuição e com quem divide eleitor à direita. */
 export function PartyFoundTab({
@@ -60,12 +59,13 @@ export function PartyFoundTab({
   const color = useWatch({ control: form.control, name: "color" });
   const founding = me?.kind === "FOUND" ? me : undefined;
   const [candidate, setCandidate] = useState(founding?.candidate ?? nickname);
-  const [vice, setVice] = useState(founding?.vice ?? mine.invited ?? NO_VICE);
+  const [vice, setVice] = useState<string | null>(founding?.vice ?? mine.invited ?? mine.vice_declined);
   const [amount, setAmount] = useState(contributionText(contribution));
   const [error, setError] = useState<string | null>(null);
   const saveParty = useSaveMyParty();
   const saveContribution = useSavePartyContribution();
   const prepare = useSetPreparation();
+  const inviteVice = useSetPreparation();
   const saving = saveParty.isPending || saveContribution.isPending || prepare.isPending;
 
   const members = preparations.players
@@ -76,8 +76,14 @@ export function PartyFoundTab({
     color: humans.find((player) => player.nickname === name)?.color,
   }));
   const viceOptions = humans.filter((player) => player.nickname !== candidate);
-  // O vice sai da chapa quando vira o candidato
-  const viceValue = vice === candidate ? NO_VICE : vice;
+  // O vice escolhido some do seletor quando vira o candidato
+  const viceValue = vice === candidate ? null : vice;
+  // O convite vigente: aceito ou aguardando; o recusado pode ser refeito
+  const currentVice = founding?.vice_accepted ? founding.vice : mine.invited;
+  const sendInvite = (body: { kind: "INVITE_VICE"; vice: string } | { kind: "WITHDRAW_VICE" }) => {
+    setError(null);
+    inviteVice.mutate(body, { onError: (err) => setError(err.message) });
+  };
 
   // Grava a identidade e a contribuição no perfil e só depois a escolha da sala, que parte do perfil
   const submit = form.handleSubmit(async (party) => {
@@ -85,7 +91,7 @@ export function PartyFoundTab({
     try {
       await saveParty.mutateAsync(party);
       await saveContribution.mutateAsync(contributionAmount(amount));
-      await prepare.mutateAsync({ kind: "FOUND", candidate, vice: viceValue === NO_VICE ? null : viceValue });
+      await prepare.mutateAsync({ kind: "FOUND", candidate });
     } catch (err) {
       setError((err as Error).message);
     }
@@ -178,22 +184,18 @@ export function PartyFoundTab({
                   <FieldLabel>Vice</FieldLabel>
                   <Select
                     value={viceValue}
-                    items={{
-                      [NO_VICE]: "Sem vice",
-                      ...Object.fromEntries(
-                        viceOptions.map((player) => [
-                          player.nickname,
-                          <PlayerOption key={player.nickname} nickname={player.nickname} color={player.color} />,
-                        ]),
-                      ),
-                    }}
+                    items={Object.fromEntries(
+                      viceOptions.map((player) => [
+                        player.nickname,
+                        <PlayerOption key={player.nickname} nickname={player.nickname} color={player.color} />,
+                      ]),
+                    )}
                     onValueChange={(value) => value && setVice(value)}
                   >
                     <SelectTrigger className="w-full" aria-label="Vice">
-                      <SelectValue />
+                      <SelectValue placeholder="Escolha o vice" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={NO_VICE}>Sem vice</SelectItem>
                       {viceOptions.map((player) => (
                         <SelectItem key={player.nickname} value={player.nickname}>
                           <PlayerOption nickname={player.nickname} color={player.color} />
@@ -203,11 +205,49 @@ export function PartyFoundTab({
                   </Select>
                 </Field>
               </div>
-              {mine.invited && mine.invited === viceValue && (
-                <Badge variant="warning" className="justify-self-start">
-                  <Clock /> Convite enviado · {mine.invited} ainda não respondeu
-                </Badge>
-              )}
+              {/* Convite do vice */}
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={!founding || viceValue === null || viceValue === currentVice || inviteVice.isPending}
+                  onClick={() => viceValue && sendInvite({ kind: "INVITE_VICE", vice: viceValue })}
+                >
+                  Convidar
+                </Button>
+                {founding?.vice_accepted && founding.vice && (
+                  <Badge variant="success">
+                    <UserCheck /> {founding.vice} aceitou ser vice
+                  </Badge>
+                )}
+                {mine.invited && (
+                  <Badge variant="warning">
+                    <Clock /> Convite enviado · {mine.invited} ainda não respondeu
+                  </Badge>
+                )}
+                {mine.vice_declined && (
+                  <Badge variant="secondary">
+                    <UserX /> {mine.vice_declined} recusou o convite
+                  </Badge>
+                )}
+                {(currentVice || mine.vice_declined) && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={inviteVice.isPending}
+                    onClick={() => sendInvite({ kind: "WITHDRAW_VICE" })}
+                  >
+                    Retirar convite
+                  </Button>
+                )}
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {founding
+                  ? "Salvar a chapa não convida o vice: use Convidar. Um novo convite ocupa o lugar do anterior."
+                  : "Salve o partido para poder convidar o vice."}
+              </span>
             </PreparationSection>
 
             <PreparationSection title="Contribuição mensal" hint="vale fundando ou entrando">

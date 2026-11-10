@@ -82,14 +82,14 @@ export function PartyFederationSection({ preparations, mine, me, humans }: Party
             Retirar a proposta
           </Button>
         </div>
-      ) : mine.federation_invite ? (
-        // Proposta recebida
-        <span className="text-xs text-muted-foreground">
-          {mine.federation_invite.owner} propôs federação ao seu partido. Aceite ou recuse no topo desta aba.
-        </span>
       ) : partner ? (
         // Nova proposta
         <div className="grid gap-3">
+          {mine.federation_invites.length > 0 && (
+            <span className="text-xs text-muted-foreground">
+              Você tem {mine.federation_invites.length} proposta(s) recebida(s): aceite ou recuse no topo desta aba.
+            </span>
+          )}
           <span className="text-xs text-muted-foreground">
             Dois partidos viram uma lista só no Congresso e somam os votos na barreira. A chapa leva o candidato e as
             promessas do partido dele.

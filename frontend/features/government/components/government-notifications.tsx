@@ -56,6 +56,26 @@ export function GovernmentNotifications() {
           );
         }
         break;
+      case "VICE_TAKEN":
+        if (event.target === me) {
+          toast.warning(`${event.actor} aceitou ser vice de outra chapa`, {
+            description: `O convite do ${abbr} foi recusado automaticamente. Dá para convidar outro jogador.`,
+          });
+        }
+        break;
+      case "VICE_WITHDRAWN":
+        if (event.target === me) {
+          toast.info(`${event.actor} retirou o convite de vice do ${abbr}`);
+        }
+        break;
+      case "FEDERATION_TAKEN":
+        if (event.target === me) {
+          toast.warning(`O ${abbr} fechou federação com outro partido`, {
+            description: `A proposta entre o ${abbr} e o ${event.partner_abbr ?? "seu partido"} caiu.`,
+            action: { label: "Ver", onClick: openElection },
+          });
+        }
+        break;
       case "EXPELLED":
         if (event.target === me) {
           toast.error(`Você foi expulso do ${abbr}`, {

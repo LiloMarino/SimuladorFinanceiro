@@ -111,14 +111,15 @@ def test_the_vice_invite_is_a_pending_until_the_answer(book: GovernmentBook):
     found(book, ALICE, "AAA", RED)
     book.join_party(BOB, CAMPAIGN_OPEN, party_of(book, ALICE).id, Decimal(0))
     book.on_tick(USERS, CAMPAIGN_OPEN, False)
-    book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", "Bob", USERS)
+    book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", USERS)
+    book.invite_vice(ALICE, CAMPAIGN_OPEN, "Bob", USERS)
 
     [pending] = book.pending(BOB, CAMPAIGN_OPEN)
     assert pending.type is PendingType.VICE_INVITE
-    assert pending.detail == "Alice quer você na chapa do AAA"
+    assert pending.detail == "Alice quer você na chapa do AAA · responda até 30/09"
     assert book.pending(ALICE, CAMPAIGN_OPEN) == []
 
-    book.answer_vice(BOB, CAMPAIGN_OPEN, True)
+    book.answer_vice(BOB, CAMPAIGN_OPEN, True, party_of(book, ALICE).id)
     assert book.pending(BOB, CAMPAIGN_OPEN) == []
 
 
@@ -144,7 +145,9 @@ def test_a_federation_proposal_is_a_pending_for_the_guest_founder_until_it_ends(
     # A proposta vence em 7 dias e a pendência some com ela
     assert book.pending(BOB, CAMPAIGN_OPEN + timedelta(days=8)) == []
 
-    book.answer_federation(BOB, CAMPAIGN_OPEN + timedelta(days=1), False)
+    book.answer_federation(
+        BOB, CAMPAIGN_OPEN + timedelta(days=1), False, max(book.state.proposals)
+    )
     assert book.pending(BOB, CAMPAIGN_OPEN + timedelta(days=1)) == []
 
 
@@ -153,7 +156,8 @@ def test_a_player_in_another_party_still_gets_the_vice_invite(book: GovernmentBo
     found(book, CARLA, "CCC", "#2563eb")
     book.join_party(BOB, CAMPAIGN_OPEN, party_of(book, CARLA).id, Decimal(0))
     book.on_tick(USERS, CAMPAIGN_OPEN, False)
-    book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", "Bob", USERS)
+    book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", USERS)
+    book.invite_vice(ALICE, CAMPAIGN_OPEN, "Bob", USERS)
 
     assert types(book.pending(BOB, CAMPAIGN_OPEN)) == [PendingType.VICE_INVITE]
 

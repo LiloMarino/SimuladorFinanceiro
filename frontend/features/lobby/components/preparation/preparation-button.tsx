@@ -15,14 +15,14 @@ type PreparationButtonProps = {
   selectedSimulationId: SimulationSettings["selected_simulation_id"];
 };
 
-/** "Minha preparação" no cabeçalho do lobby: diz o partido preparado e conta o convite de vice sem resposta. */
+/** "Minha preparação" no cabeçalho do lobby: diz o partido preparado e conta os convites de vice sem resposta. */
 export function PreparationButton({ rules, selectedSimulationId }: PreparationButtonProps) {
   const [open, setOpen] = useState(false);
   const { data: preparations } = usePreparations();
   const { data: mine } = useMyPreparation();
   const { user } = useAuth();
   const party = preparations && user ? partyOf(preparations, user.nickname) : null;
-  const invited = mine?.invite && !preparations?.locked_reason;
+  const invites = preparations?.locked_reason ? 0 : (mine?.invites.length ?? 0);
 
   return (
     <>
@@ -35,9 +35,9 @@ export function PreparationButton({ rules, selectedSimulationId }: PreparationBu
             <PartyMark abbr={party.party.abbr} color={party.party.color} size="sm" />
           </span>
         )}
-        {invited && (
-          <Badge variant="count" size="count" aria-label="1 convite de vice esperando resposta">
-            1
+        {invites > 0 && (
+          <Badge variant="count" size="count" aria-label={`${invites} convite(s) de vice esperando resposta`}>
+            {invites}
           </Badge>
         )}
       </Button>

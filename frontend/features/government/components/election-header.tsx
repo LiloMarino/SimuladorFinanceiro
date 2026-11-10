@@ -78,9 +78,9 @@ function runoffMatchup(panel: ElectionPanel) {
   );
 }
 
-/** O vice responde pela chapa que o indicou, mesmo de outro partido ou sem partido. */
+/** O vice responde pela chapa que o aceitou; sem aceite, o selo mostra o primeiro convite aguardando. */
 function viceBadge(panel: ElectionPanel) {
-  const vice = panel.my_vice;
+  const vice = panel.my_vices.find((v) => v.phase === "ACCEPTED") ?? panel.my_vices[0];
   const party = vice && panel.parties.find((p) => p.id === vice.party_id);
   if (!vice || !party) return null;
   return { role: vice.phase === "ACCEPTED" ? "Você é vice no" : "Convite de vice do", party };

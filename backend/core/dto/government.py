@@ -358,7 +358,7 @@ class MyPartyDTO(BaseDTO):
 
 
 class MyViceDTO(BaseDTO):
-    """A chapa em que quem vê foi indicado vice, de qualquer partido."""
+    """Uma chapa, de qualquer partido, em que quem vê foi indicado vice."""
 
     party_id: int
     phase: VicePhase
@@ -477,8 +477,8 @@ class ElectionPanelDTO(BaseDTO):
     finalists: list[int]
     donations: list[DonationDTO]
     my_party: MyPartyDTO | None
-    # O convite de vice de quem vê, em qualquer partido
-    my_vice: MyViceDTO | None
+    # Os convites de vice de quem vê, um por chapa e em qualquer partido
+    my_vices: list[MyViceDTO]
     # Só para quem funda: os jogadores da sala e quem pode ser convidado
     vice_options: list[ViceOptionDTO]
     can_found_or_join: bool
@@ -498,7 +498,7 @@ class ElectionPanelDTO(BaseDTO):
     # As federações de pé (em vigor ou agendadas) e as propostas do partido de quem vê
     federations: list[FederationDTO]
     sent_proposal: FederationProposalDTO | None
-    received_proposal: FederationProposalDTO | None
+    received_proposals: list[FederationProposalDTO]
     # Só para quem funda: com quem o partido pode se federar
     federation_options: list[FederationOptionDTO]
     can_federate: bool
@@ -1297,10 +1297,15 @@ class ExpelRequest(BaseDTO):
 
 class TicketRequest(BaseDTO):
     candidate: str
-    vice: str | None = None
+
+
+class ViceInviteRequest(BaseDTO):
+    vice: str
 
 
 class ViceAnswerRequest(BaseDTO):
+    # A chapa de quem convidou
+    party_id: int
     accept: bool
 
 
@@ -1314,6 +1319,7 @@ class ProposeFederationRequest(BaseDTO):
 
 
 class AnswerFederationRequest(BaseDTO):
+    proposal_id: int
     accept: bool
 
 

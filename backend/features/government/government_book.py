@@ -333,8 +333,7 @@ class GovernmentBook:
             items.append(risk)
         if proposal := self._deal_proposal(user):
             items.append(proposal)
-        if offer := self._federation_proposal(user, today):
-            items.append(offer)
+        items.extend(self._federation_proposals(user, today))
         items.extend(self._deal_demands(user, today))
         items.extend(self._unguided_votes(user, today))
         if unpaid := self._unpaid_contribution(user, today):
@@ -343,20 +342,19 @@ class GovernmentBook:
             items.append(meeting)
         if not self._ticket_open(today):
             return items
-        party = next(
-            (
-                p
-                for p in self.state.player_parties()
-                if p.vice_id == user.id and not p.vice_accepted
-            ),
-            None,
-        )
-        if party is not None:
+        # Um convite por chapa; a chave leva o partido de quem convidou
+        deadline = self.cycle().ticket_deadline
+        for party in self.state.player_parties():
+            if party.vice_id != user.id or party.vice_accepted:
+                continue
             founder = self._people.get(party.founder_id) if party.founder_id else None
+            inviter = founder.nickname if founder else party.name
             items.append(
                 registry.pending(
                     PendingType.VICE_INVITE,
-                    f"{founder.nickname if founder else party.name} quer você na chapa do {party.abbr}",
+                    f"{inviter} quer você na chapa do {party.abbr} · responda até {deadline:%d/%m}",
+                    ref=str(party.id),
+                    title=f"Convite para vice de {inviter}",
                 )
             )
         if self.state.party_of(user.id) is None and not user.is_bot:
@@ -368,21 +366,25 @@ class GovernmentBook:
             )
         return items
 
-    def _federation_proposal(self, user: UserDTO, today: date) -> PendingDTO | None:
-        """A proposta de federação que espera a resposta do fundador do partido convidado."""
+    def _federation_proposals(self, user: UserDTO, today: date) -> list[PendingDTO]:
+        """As propostas de federação que esperam a resposta do fundador do partido convidado, uma pendência por proposta."""
         party = self.state.party_of(user.id)
         if party is None or party.founder_id != user.id:
-            return None
-        proposal = self.received_federation(party, today)
-        if proposal is None:
-            return None
-        sender = self._party(proposal.from_party_id)
-        proposer = self._founder_of(sender)
-        return registry.pending(
-            PendingType.FEDERATION_PROPOSAL,
-            f"{proposer.nickname if proposer else sender.name} propõe federar o "
-            f"{sender.abbr} com o {party.abbr} · responda até {proposal.expires_on:%d/%m}",
-        )
+            return []
+        items = []
+        for proposal in self.received_federations(party, today):
+            sender = self._party(proposal.from_party_id)
+            proposer = self._founder_of(sender)
+            items.append(
+                registry.pending(
+                    PendingType.FEDERATION_PROPOSAL,
+                    f"{proposer.nickname if proposer else sender.name} propõe federar o "
+                    f"{sender.abbr} com o {party.abbr} · responda até {proposal.expires_on:%d/%m}",
+                    ref=str(proposal.id),
+                    title=f"Proposta de federação do {sender.abbr}",
+                )
+            )
+        return items
 
     def _unpaid_contribution(self, user: UserDTO, today: date) -> PendingDTO | None:
         """A contribuição que a última cobrança da campanha não conseguiu tirar do caixa."""
@@ -752,12 +754,19 @@ class GovernmentBook:
                 list(self._people.values()),
             )
         )
-        self._attempt(lambda: self.answer_federation(partner, today, True))
+        proposer_party = self.state.party_of(proposer.id)
+        sent = (
+            self.state.sent_proposal_of(proposer_party.id, today)
+            if proposer_party is not None
+            else None
+        )
+        if sent is not None:
+            self._attempt(lambda: self.answer_federation(partner, today, True, sent.id))
 
     def _apply_prepared_tickets(self, today: date) -> None:
         """
-        Na abertura da campanha, cada fundador inscreve a chapa que preparou no lobby, e o vice
-        que já aceitou na sala fica aceito. Depois disso a preparação se encerra.
+        Na abertura da campanha, cada fundador inscreve a chapa que preparou no lobby e envia
+        o convite ao vice; o vice que já aceitou na sala fica aceito. Depois disso a preparação se encerra.
         """
         if not self.state.preparations:
             return
@@ -770,16 +779,24 @@ class GovernmentBook:
             if candidate is None:
                 continue
             self._attempt(
-                lambda founder=founder, candidate=candidate, vice=vice: self.set_ticket(
-                    founder,
-                    today,
-                    candidate.nickname,
-                    vice.nickname if vice else None,
-                    users,
+                lambda founder=founder, candidate=candidate: self.set_ticket(
+                    founder, today, candidate.nickname, users
                 )
             )
-            if vice is not None and item.vice_accepted:
-                self._attempt(lambda vice=vice: self.answer_vice(vice, today, True))
+            if vice is None:
+                continue
+            self._attempt(
+                lambda founder=founder, vice=vice: self.invite_vice(
+                    founder, today, vice.nickname, users
+                )
+            )
+            party = self.state.party_of(founder.id)
+            if item.vice_accepted and party is not None:
+                self._attempt(
+                    lambda vice=vice, party=party: self.answer_vice(
+                        vice, today, True, party.id
+                    )
+                )
         self._emit(GovernmentEventType.PARTIES_PREPARED, today, players=[])
 
     # Ações dos jogadores
@@ -1597,14 +1614,10 @@ class GovernmentBook:
         )
         self._on_news(today, headlines.expelled(target.nickname, party.abbr))
 
-    def set_ticket(
-        self,
-        founder: UserDTO,
-        today: date,
-        candidate: str,
-        vice: str | None,
-        users: list[UserDTO],
-    ) -> None:
+    def _ticket_party(
+        self, founder: UserDTO, today: date
+    ) -> tuple[Party, federations.Federation | None, ElectionCycle]:
+        """A chapa que a fundadora monta: só na janela de inscrição e, na federação, só a do líder."""
         self._ensure_membership_open()
         party = self._founded_party(founder)
         federation = self.state.federation_of(party.id, self.state.cycle)
@@ -1620,6 +1633,17 @@ class GovernmentBook:
             )
         if today > cycle.ticket_deadline:
             raise ConflictError("A inscrição de chapas já fechou.")
+        return party, federation, cycle
+
+    def set_ticket(
+        self,
+        founder: UserDTO,
+        today: date,
+        candidate: str,
+        users: list[UserDTO],
+    ) -> None:
+        """Inscreve o candidato; o vice já convidado segue como está, e convidar é outro comando."""
+        party, federation, cycle = self._ticket_party(founder, today)
         members = {u.nickname: u for u in users if u.id in party.members}
         candidate_user = members.get(candidate)
         if candidate_user is None:
@@ -1638,28 +1662,66 @@ class GovernmentBook:
         rival = election.vice_of_other(self.state, party, candidate_user.id)
         if rival is not None:
             raise ConflictError(f"{candidate} é vice do {rival.abbr} e não concorre.")
-        vice_user = (
-            self._pick_vice(party, vice, candidate_user, users) if vice else None
-        )
-        # Quem já aceitou o convite segue aceito se a vaga continua dele
-        keeps_vice = (
-            vice_user is not None
-            and party.vice_accepted
-            and party.vice_id == vice_user.id
-        )
+        if party.vice_id == candidate_user.id:
+            raise ConflictError(
+                "Candidato e vice precisam ser pessoas diferentes: retire o convite do vice."
+            )
         self._emit(
             GovernmentEventType.TICKET_SET,
             today,
             party_id=party.id,
             candidate_id=candidate_user.id,
-            vice_id=vice_user.id if vice_user else None,
-            vice_accepted=keeps_vice,
+            vice_id=party.vice_id,
+            vice_accepted=party.vice_accepted,
         )
-        if vice_user is not None and not keeps_vice:
+        self._notice(GovernmentNoticeKind.UPDATED, founder, party_abbr=party.abbr)
+
+    def invite_vice(
+        self, founder: UserDTO, today: date, vice: str, users: list[UserDTO]
+    ) -> None:
+        """Convida o jogador para vice da chapa; a chapa tem uma vaga, então o convite novo ocupa o lugar do anterior."""
+        party, _, _ = self._ticket_party(founder, today)
+        candidate_id = election.effective_ticket(self.state, party)[0]
+        person = self._pick_vice(party, vice, candidate_id, users)
+        if party.vice_id == person.id:
+            raise ConflictError(
+                f"{vice} já é o vice da chapa."
+                if party.vice_accepted
+                else f"{vice} já foi convidado e ainda não respondeu."
+            )
+        previous = self._people.get(party.vice_id) if party.vice_id else None
+        self._emit(
+            GovernmentEventType.VICE_INVITED,
+            today,
+            party_id=party.id,
+            vice_id=person.id,
+        )
+        if previous is not None:
             self._notice(
-                GovernmentNoticeKind.VICE_INVITED,
+                GovernmentNoticeKind.VICE_WITHDRAWN,
                 founder,
-                target=vice_user,
+                target=previous,
+                party_abbr=party.abbr,
+            )
+        self._notice(
+            GovernmentNoticeKind.VICE_INVITED,
+            founder,
+            target=person,
+            party_abbr=party.abbr,
+        )
+
+    def withdraw_vice(self, founder: UserDTO, today: date) -> None:
+        """Retira o convite aguardando, o vice já aceito ou a marca de convite recusado."""
+        party, _, _ = self._ticket_party(founder, today)
+        if party.vice_id is None and party.vice_declined_id is None:
+            raise ConflictError("A chapa não tem convite de vice para retirar.")
+        previous = self._people.get(party.vice_id) if party.vice_id else None
+        self._emit(GovernmentEventType.VICE_WITHDRAWN, today, party_id=party.id)
+        if previous is not None:
+            self._notice(
+                GovernmentNoticeKind.VICE_WITHDRAWN,
+                founder,
+                target=previous,
                 party_abbr=party.abbr,
             )
         else:
@@ -1680,7 +1742,7 @@ class GovernmentBook:
         self,
         party: Party,
         nickname: str,
-        candidate: UserDTO,
+        candidate_id: int | None,
         users: list[UserDTO],
     ) -> UserDTO:
         """O vice é qualquer jogador da sala que a regra da chapa deixa convidar."""
@@ -1689,7 +1751,7 @@ class GovernmentBook:
             raise NotFoundError("Esse jogador não está na sala.")
         if person.is_bot:
             raise ForbiddenError("Bot não é vice.")
-        if person.id == candidate.id:
+        if person.id == candidate_id:
             raise ConflictError("Candidato e vice precisam ser pessoas diferentes.")
         blocker = election.vice_blocker(self.state, party, person.id)
         if blocker is not None:
@@ -1697,28 +1759,44 @@ class GovernmentBook:
         self._ensure_affiliated_in_time(person, self.cycle())
         return person
 
-    def answer_vice(self, user: UserDTO, today: date, accept: bool) -> None:
-        party = next(
-            (
-                p
-                for p in self.state.player_parties()
-                if p.vice_id == user.id and not p.vice_accepted
-            ),
-            None,
-        )
-        if party is None:
-            raise NotFoundError("Você não tem convite de vice para responder.")
+    def answer_vice(
+        self, user: UserDTO, today: date, accept: bool, party_id: int
+    ) -> None:
+        """Responde ao convite de uma chapa; aceitar um recusa os outros convites abertos do mesmo jogador."""
+        party = self.state.parties.get(party_id)
+        if party is None or party.vice_id != user.id or party.vice_accepted:
+            raise NotFoundError("Você não tem esse convite de vice para responder.")
+        if accept and (blocker := election.vice_blocker(self.state, party, user.id)):
+            raise ConflictError(f"Você não pode ser vice do {party.abbr}: {blocker}.")
         self._emit(
             GovernmentEventType.VICE_ANSWERED, today, party_id=party.id, accepted=accept
         )
-        founder = self._people.get(party.founder_id) if party.founder_id else None
         self._notice(
             GovernmentNoticeKind.VICE_ANSWERED,
             user,
-            target=founder,
+            target=self._founder_of(party),
             party_abbr=party.abbr,
             accepted=accept,
         )
+        if not accept:
+            return
+        # Os outros convites abertos caem com o mesmo evento da recusa, marcado como automático
+        for other in self.state.player_parties():
+            if other.id == party.id or other.vice_id != user.id or other.vice_accepted:
+                continue
+            self._emit(
+                GovernmentEventType.VICE_ANSWERED,
+                today,
+                party_id=other.id,
+                accepted=False,
+                auto=True,
+            )
+            self._notice(
+                GovernmentNoticeKind.VICE_TAKEN,
+                user,
+                target=self._founder_of(other),
+                party_abbr=other.abbr,
+            )
 
     # Federações partidárias
 
@@ -1750,23 +1828,22 @@ class GovernmentBook:
         for side in (party, partner):
             if ban := self.federation_ban(side, cycle):
                 return ban
-            if not answering and self.state.open_proposal_of(side.id, today):
-                return f"O {side.abbr} já tem uma proposta de federação aberta."
+        # Cada partido envia uma proposta por vez e pode receber várias
+        if not answering and self.state.sent_proposal_of(party.id, today):
+            return f"O {party.abbr} já tem uma proposta de federação enviada."
         return None
 
     def sent_federation(
         self, party: Party, today: date
     ) -> federations.FederationProposal | None:
         """A proposta aberta que o partido enviou."""
-        proposal = self.state.open_proposal_of(party.id, today)
-        return proposal if proposal and proposal.from_party_id == party.id else None
+        return self.state.sent_proposal_of(party.id, today)
 
-    def received_federation(
+    def received_federations(
         self, party: Party, today: date
-    ) -> federations.FederationProposal | None:
-        """A proposta aberta que espera a resposta do partido."""
-        proposal = self.state.open_proposal_of(party.id, today)
-        return proposal if proposal and proposal.to_party_id == party.id else None
+    ) -> list[federations.FederationProposal]:
+        """As propostas abertas que esperam a resposta do partido, na ordem em que chegaram."""
+        return self.state.received_proposals_of(party.id, today)
 
     def federation_in_effect(
         self, party_id: int, today: date
@@ -1869,14 +1946,21 @@ class GovernmentBook:
         )
         self._notice(GovernmentNoticeKind.UPDATED, founder, party_abbr=party.abbr)
 
-    def answer_federation(self, user: UserDTO, today: date, accept: bool) -> None:
-        """O fundador do partido convidado aceita ou recusa; recusar não custa nada."""
+    def answer_federation(
+        self, user: UserDTO, today: date, accept: bool, proposal_id: int
+    ) -> None:
+        """O fundador do partido convidado aceita ou recusa uma das propostas recebidas; recusar não custa nada."""
         self._ensure_person(user)
         self._ensure_membership_open()
         party = self._founded_party(user)
-        proposal = self.received_federation(party, today)
+        proposal = next(
+            (p for p in self.received_federations(party, today) if p.id == proposal_id),
+            None,
+        )
         if proposal is None:
-            raise NotFoundError("Você não tem proposta de federação para responder.")
+            raise NotFoundError(
+                "Você não tem essa proposta de federação para responder."
+            )
         if accept:
             self._ensure_federation_valid(proposal, today)
         self._answer_federation(proposal, today, accept, user)
@@ -1909,6 +1993,19 @@ class GovernmentBook:
         in_force, ends = self._federation_dates(
             proposal.cycle, (proposal.from_party_id, proposal.to_party_id), today
         )
+        # As outras propostas abertas dos dois para a mesma eleição caem com a federação
+        fallen = [
+            other
+            for other in self.state.proposals.values()
+            if accept
+            and other.id != proposal.id
+            and other.is_open(today)
+            and other.cycle == proposal.cycle
+            and (
+                other.involves(proposal.from_party_id)
+                or other.involves(proposal.to_party_id)
+            )
+        ]
         self._emit(
             GovernmentEventType.FEDERATION_ANSWERED,
             today,
@@ -1940,6 +2037,48 @@ class GovernmentBook:
                     self.candidate_name(leader, proposal.candidate_id),
                     ends,
                 ),
+            )
+            self._drop_fallen_proposals(fallen, (sender, receiver), today)
+
+    def _drop_fallen_proposals(
+        self,
+        fallen: list[federations.FederationProposal],
+        formed: tuple[Party, Party],
+        today: date,
+    ) -> None:
+        """A proposta recebida por um dos dois é recusada e a enviada por um deles é retirada, ambas como automáticas, avisando o outro lado."""
+        in_formed = {p.id for p in formed}
+        for proposal in fallen:
+            sender = self._party(proposal.from_party_id)
+            receiver = self._party(proposal.to_party_id)
+            if proposal.from_party_id in in_formed:
+                self._emit(
+                    GovernmentEventType.FEDERATION_WITHDRAWN,
+                    today,
+                    proposal_id=proposal.id,
+                    auto=True,
+                )
+                outsider, closed = receiver, sender
+            else:
+                self._emit(
+                    GovernmentEventType.FEDERATION_ANSWERED,
+                    today,
+                    proposal_id=proposal.id,
+                    accepted=False,
+                    federation_id=None,
+                    in_force_from=today.isoformat(),
+                    ends_on=today.isoformat(),
+                    auto=True,
+                )
+                outsider, closed = sender, receiver
+            if outsider.id in in_formed:
+                continue
+            self._notice(
+                GovernmentNoticeKind.FEDERATION_TAKEN,
+                target=self._founder_of(outsider),
+                party_abbr=closed.abbr,
+                partner_abbr=outsider.abbr,
+                federation_name=proposal.name,
             )
 
     def _federation_dates(
@@ -2103,7 +2242,8 @@ class GovernmentBook:
         for party in sorted(self.state.computer_parties(), key=lambda p: p.id):
             if (
                 self.state.federation_of(party.id, self.state.cycle)
-                or self.state.open_proposal_of(party.id, today)
+                or self.state.sent_proposal_of(party.id, today)
+                or self.state.received_proposals_of(party.id, today)
                 or shares.get(self.house_key(party), Decimal(0)) >= house.BARRIER
             ):
                 continue

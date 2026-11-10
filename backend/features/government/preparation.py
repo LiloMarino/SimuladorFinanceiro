@@ -34,6 +34,8 @@ class Prepared:
     candidate_id: int | None = None
     vice_id: int | None = None
     vice_accepted: bool = False
+    # O jogador que recusou o convite, ou que aceitou outra chapa; fica até convidar de novo ou retirar
+    vice_declined_id: int | None = None
     # A contribuição mensal salva no perfil, com que o jogador nasce no partido
     contribution: Decimal = Decimal(0)
     # A federação que o fundador propôs a outro fundador: o parceiro, o nome e o candidato (de qualquer um dos dois partidos); vale quando o parceiro aceita
@@ -57,6 +59,7 @@ class Prepared:
             "candidate_id": self.candidate_id,
             "vice_id": self.vice_id,
             "vice_accepted": self.vice_accepted,
+            "vice_declined_id": self.vice_declined_id,
             "contribution": str(self.contribution),
             "federation_partner_id": self.federation_partner_id,
             "federation_name": self.federation_name,
@@ -81,6 +84,7 @@ class Prepared:
             candidate_id=_opt(data, "candidate_id"),
             vice_id=_opt(data, "vice_id"),
             vice_accepted=bool(data.get("vice_accepted", False)),
+            vice_declined_id=_opt(data, "vice_declined_id"),
             contribution=Decimal(str(data.get("contribution", "0"))),
             federation_partner_id=_opt(data, "federation_partner_id"),
             federation_name=None

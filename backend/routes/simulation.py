@@ -23,7 +23,7 @@ from backend.core.dto.preparation import (
     MyPreparationDTO,
     PreparationRequest,
     PreparationsDTO,
-    ViceAnswerRequest,
+    PreparationViceAnswerRequest,
 )
 from backend.core.dto.preset import AppliedPresetDTO, PresetAppliedEventDTO
 from backend.core.dto.simulation import (
@@ -595,7 +595,7 @@ def get_my_preparation(client_id: ClientID):
     "/players/me/preparation",
     response_model=PreparationsDTO,
     summary="Preparar a campanha do jogador",
-    description="Escolhe o que o jogador faz no começo da partida: fundar o Meu partido (com a chapa e o vice), entrar no partido que outro jogador preparou ou nada. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.",
+    description="Escolhe o que o jogador faz no começo da partida: fundar o Meu partido (com a chapa), convidar ou retirar o vice da chapa que fundou, entrar no partido que outro jogador preparou ou nada. Salvar a fundação não convida ninguém. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.",
 )
 def set_player_preparation(payload: PreparationRequest, client_id: ClientID):
     """
@@ -614,10 +614,15 @@ def set_player_preparation(payload: PreparationRequest, client_id: ClientID):
         candidate=payload.candidate,
         vice=payload.vice,
     )
-    # Entrar no partido de outro volta, na próxima sala, como sem partido
+    # Entrar no partido de outro volta, na próxima sala, como sem partido; convidar ou retirar o vice mexe na chapa de quem já funda
     remembered = (
         PreparationKind.FOUND
-        if payload.kind is PreparationKind.FOUND
+        if payload.kind
+        in (
+            PreparationKind.FOUND,
+            PreparationKind.INVITE_VICE,
+            PreparationKind.WITHDRAW_VICE,
+        )
         else PreparationKind.NONE
     )
     repository.settings.set_preparation_choice(user.id, remembered)
@@ -628,16 +633,16 @@ def set_player_preparation(payload: PreparationRequest, client_id: ClientID):
     "/players/me/preparation/vice",
     response_model=PreparationsDTO,
     summary="Responder ao convite de vice",
-    description="O jogador convidado para vice na chapa que outro preparou aceita ou recusa. Recusa com 404 se não há convite.",
+    description="O jogador convidado para vice na chapa de um fundador (`owner`) aceita ou recusa. Aceitar recusa os outros convites abertos dele. Recusa com 404 se não há esse convite.",
 )
-def answer_preparation_vice(payload: ViceAnswerRequest, client_id: ClientID):
+def answer_preparation_vice(payload: PreparationViceAnswerRequest, client_id: ClientID):
     """
     Aceita ou recusa o convite de vice do lobby.
     """
     user = UserManager.get_user(client_id)
     if user is None:
         raise NotFoundError("Usuário não encontrado.")
-    RoomPreparation.answer_vice(user, payload.accept)
+    RoomPreparation.answer_vice(user, _room_humans(), payload.owner, payload.accept)
     return _notify_preparations()
 
 
@@ -645,7 +650,7 @@ def answer_preparation_vice(payload: ViceAnswerRequest, client_id: ClientID):
     "/players/me/preparation/federation",
     response_model=PreparationsDTO,
     summary="Propor federação no lobby",
-    description="O fundador propõe federação ao fundador de outro partido preparado, nomeando a federação e o candidato da chapa. Sem `partner`, retira a proposta ou desfaz a federação combinada. Recusa com 409 se um dos dois já tem proposta ou federação combinada.",
+    description="O fundador propõe federação ao fundador de outro partido preparado, nomeando a federação e o candidato da chapa. Sem `partner`, retira a proposta ou desfaz a federação combinada. Cada fundador envia uma proposta por vez e pode receber várias. Recusa com 409 se o proponente já tem proposta enviada ou um dos dois já tem federação combinada.",
 )
 def propose_preparation_federation(
     payload: FederationOfferRequest, client_id: ClientID
@@ -666,7 +671,7 @@ def propose_preparation_federation(
     "/players/me/preparation/federation/answer",
     response_model=PreparationsDTO,
     summary="Responder à proposta de federação do lobby",
-    description="O fundador convidado aceita ou recusa a federação que outro propôs. Recusa com 404 se não há proposta.",
+    description="O fundador convidado aceita ou recusa a federação que um fundador (`owner`) propôs. Aceitar derruba as outras propostas que envolvem um dos dois. Recusa com 404 se não há essa proposta.",
 )
 def answer_preparation_federation(
     payload: FederationAnswerRequest, client_id: ClientID
@@ -677,7 +682,9 @@ def answer_preparation_federation(
     user = UserManager.get_user(client_id)
     if user is None:
         raise NotFoundError("Usuário não encontrado.")
-    RoomPreparation.answer_federation(user, payload.accept)
+    RoomPreparation.answer_federation(
+        user, _room_humans(), payload.owner, payload.accept
+    )
     return _notify_preparations()
 
 

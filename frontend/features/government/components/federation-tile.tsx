@@ -37,7 +37,7 @@ export function FederationTile({ row, current, margin }: FederationTileProps) {
             <span className="flex flex-wrap items-center gap-1.5 text-[13px] text-muted-foreground">
               {leader.candidate && <PersonMark person={leader.candidate} />}
               Candidato: ({leader.abbr}) {federation.candidate}
-              {leader.vice && <span>· vice: {leader.vice.name}</span>}
+              {leader.vice && leader.vice_phase !== "DECLINED" && <span>· vice: {leader.vice.name}</span>}
             </span>
             <span>
               <Badge variant="federation">Federação até {displayShortDate(federation.ends_on)}</Badge>

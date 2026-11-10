@@ -40,6 +40,7 @@ from backend.core.dto.government import (
     SelicRequest,
     TicketRequest,
     ViceAnswerRequest,
+    ViceInviteRequest,
 )
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
 from backend.features.government.budget_panel import build_initial_account
@@ -282,22 +283,44 @@ def expel_member(
     "/parties/ticket",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Montar a chapa",
-    description="Só a fundadora escolhe o candidato entre os filiados e o vice entre os jogadores da sala (de outro partido ou sem partido), até o fim da inscrição (último dia do mês anterior ao 1º turno). Não vale quem já é vice ou candidato de outra chapa. O vice recebe o convite e aceita ou recusa; sem resposta, a chapa concorre sem vice.",
+    description="Só a fundadora inscreve o candidato, entre os filiados, até o fim da inscrição (último dia do mês anterior ao 1º turno). Não vale quem já é vice de outra chapa nem quem é igual ao vice convidado. Inscrever não convida ninguém: o convite do vice é outro comando.",
 )
 def set_ticket(simulation: ActiveSimulation, user: CurrentUser, payload: TicketRequest):
-    simulation.set_ticket(user, payload.candidate, payload.vice)
+    simulation.set_ticket(user, payload.candidate)
+
+
+@government_router.post(
+    "/parties/vice",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Convidar o vice",
+    description="Só a fundadora convida um jogador da sala (de outro partido ou sem partido) para vice, na mesma janela da chapa. O mesmo jogador pode receber convites de várias chapas e aceita uma só. A chapa tem uma vaga: o convite novo ocupa o lugar do anterior, que é avisado. Não vale quem já aceitou ser vice de outra chapa nem quem é candidato de outra.",
+)
+def invite_vice(
+    simulation: ActiveSimulation, user: CurrentUser, payload: ViceInviteRequest
+):
+    simulation.invite_vice(user, payload.vice)
+
+
+@government_router.delete(
+    "/parties/vice",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Retirar o convite de vice",
+    description="Retira o convite aguardando, o vice já aceito ou a marca de convite recusado; o vice é avisado. Recusa com 409 sem convite.",
+)
+def withdraw_vice(simulation: ActiveSimulation, user: CurrentUser):
+    simulation.withdraw_vice(user)
 
 
 @government_router.post(
     "/vice/answer",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Responder ao convite de vice",
-    description="Aceita ou recusa a vaga de vice. Recusar não muda o partido de quem responde: a vaga volta para a fundadora indicar outro jogador.",
+    description="Aceita ou recusa o convite de uma chapa (`party_id`). Aceitar recusa os outros convites abertos de quem responde, e as outras chapas são avisadas. Recusar não muda o partido de quem responde: a vaga volta para a fundadora indicar outro jogador.",
 )
 def answer_vice(
     simulation: ActiveSimulation, user: CurrentUser, payload: ViceAnswerRequest
 ):
-    simulation.answer_vice(user, payload.accept)
+    simulation.answer_vice(user, payload.party_id, payload.accept)
 
 
 @government_router.post(
@@ -320,7 +343,7 @@ def preview_federation(
     "/federations",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Propor uma federação",
-    description="O fundador propõe a outro partido que os dois concorram numa lista e numa chapa só: o candidato é de um dos dois, e o partido dele lidera. A federação vale na eleição em curso (ou na seguinte, se um dos dois já tem federação) e até a posse depois da eleição seguinte. A proposta vence em 7 dias, ou antes se o outro partido se federar; o partido do computador responde no pregão seguinte. Recusa com 409 quando um dos dois já tem proposta aberta, já está federado nas duas eleições, saiu de uma federação ou entre os turnos.",
+    description="O fundador propõe a outro partido que os dois concorram numa lista e numa chapa só: o candidato é de um dos dois, e o partido dele lidera. A federação vale na eleição em curso (ou na seguinte, se um dos dois já tem federação) e até a posse depois da eleição seguinte. A proposta vence em 7 dias, ou antes se o outro partido se federar; o partido do computador responde no pregão seguinte. Recusa com 409 quando o proponente já tem proposta enviada aberta, um dos dois já está federado nas duas eleições, saiu de uma federação ou entre os turnos.",
 )
 def propose_federation(
     simulation: ActiveSimulation,
@@ -350,14 +373,14 @@ def withdraw_federation(simulation: ActiveSimulation, user: CurrentUser):
     "/federations/answer",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Responder a proposta de federação",
-    description="O fundador do partido convidado aceita ou recusa; recusar não custa nada. Aceitar forma a federação na hora e o jornal noticia. Recusa com 404 sem proposta e com 409 quando ela deixou de valer.",
+    description="O fundador do partido convidado aceita ou recusa uma das propostas recebidas (`proposal_id`); recusar não custa nada. Aceitar forma a federação na hora, o jornal noticia, e as outras propostas abertas dos dois partidos caem com aviso. Recusa com 404 sem essa proposta e com 409 quando ela deixou de valer.",
 )
 def answer_federation(
     simulation: ActiveSimulation,
     user: CurrentUser,
     payload: AnswerFederationRequest,
 ):
-    simulation.answer_federation(user, payload.accept)
+    simulation.answer_federation(user, payload.proposal_id, payload.accept)
 
 
 @government_router.delete(

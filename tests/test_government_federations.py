@@ -120,6 +120,11 @@ def pair(book: GovernmentBook):
     return party_of(book, ALICE), party_of(book, BOB)
 
 
+def last_id(book: GovernmentBook) -> int:
+    """A proposta mais recente da partida."""
+    return max(book.state.proposals)
+
+
 def propose(book: GovernmentBook, alice, bob, day=TODAY, candidate_party=None):
     book.propose_federation(
         ALICE,
@@ -139,9 +144,9 @@ def test_an_accepted_proposal_forms_the_federation_for_the_current_election(
     propose(book, alice, bob)
 
     assert book.sent_federation(alice, TODAY) is not None
-    assert book.received_federation(bob, TODAY) is not None
+    assert len(book.received_federations(bob, TODAY)) == 1
 
-    book.answer_federation(BOB, LATER, True)
+    book.answer_federation(BOB, LATER, True, last_id(book))
 
     federation = book.state.federation_of(alice.id, book.state.cycle)
     assert federation is not None
@@ -202,13 +207,42 @@ def test_proposal_rules(book: GovernmentBook):
         book.propose_federation(ALICE, TODAY, bob.id, "  ", alice.id, "Alice", USERS)
 
     propose(book, alice, bob)
-    # Uma proposta aberta por vez, para quem envia e para quem recebe
+    # Quem envia tem uma proposta aberta por vez; quem recebe pode ter várias
     with pytest.raises(ConflictError, match="proposta"):
         book.propose_federation(
             ALICE, TODAY, carla.id, "Outra", alice.id, "Alice", USERS
         )
-    with pytest.raises(ConflictError, match="proposta"):
-        book.propose_federation(CARLA, TODAY, bob.id, "Outra", carla.id, "Carla", USERS)
+    book.propose_federation(CARLA, TODAY, bob.id, "Outra", carla.id, "Carla", USERS)
+    assert len(book.received_federations(bob, TODAY)) == 2
+
+
+def test_accepting_one_proposal_declines_the_other_and_withdraws_the_one_sent(
+    book: GovernmentBook, notices
+):
+    found(book, ALICE, "AAA", RED)
+    found(book, BOB, "BBB", BLUE)
+    found(book, CARLA, "CCC", GREEN)
+    alice, bob, carla = (party_of(book, u) for u in (ALICE, BOB, CARLA))
+    book.on_tick(USERS, TODAY, False)
+    propose(book, alice, bob)
+    first = last_id(book)
+    book.propose_federation(CARLA, TODAY, bob.id, "Outra", carla.id, "Carla", USERS)
+    second = last_id(book)
+    # Bob também envia uma proposta, que cai quando ele aceitar outra
+    book.propose_federation(BOB, TODAY, alice.id, "Dele", bob.id, "Bob", USERS)
+    sent = last_id(book)
+
+    book.answer_federation(BOB, LATER, True, first)
+
+    proposals = book.state.proposals
+    assert proposals[first].status is FederationProposalStatus.ACCEPTED
+    assert proposals[second].status is FederationProposalStatus.DECLINED
+    assert proposals[sent].status is FederationProposalStatus.WITHDRAWN
+    assert book.received_federations(bob, LATER) == []
+    taken = [
+        n for n in notices if n["kind"] == GovernmentNoticeKind.FEDERATION_TAKEN.value
+    ]
+    assert [n["target"] for n in taken] == ["Carla"]
 
 
 def test_only_the_founder_proposes_and_answers(book: GovernmentBook):
@@ -222,7 +256,7 @@ def test_only_the_founder_proposes_and_answers(book: GovernmentBook):
 
     propose(book, alice, bob)
     with pytest.raises(NotFoundError, match="proposta"):
-        book.answer_federation(ALICE, LATER, True)
+        book.answer_federation(ALICE, LATER, True, last_id(book))
 
 
 def test_a_proposal_expires_after_seven_days(book: GovernmentBook):
@@ -230,7 +264,7 @@ def test_a_proposal_expires_after_seven_days(book: GovernmentBook):
     propose(book, alice, bob)
 
     with pytest.raises(NotFoundError, match="proposta"):
-        book.answer_federation(BOB, TODAY + timedelta(days=8), True)
+        book.answer_federation(BOB, TODAY + timedelta(days=8), True, last_id(book))
     assert book.state.federation_of(alice.id, book.state.cycle) is None
 
 
@@ -238,7 +272,7 @@ def test_declining_costs_nothing_and_frees_both_to_propose_again(book: Governmen
     alice, bob = pair(book)
     propose(book, alice, bob)
 
-    book.answer_federation(BOB, LATER, False)
+    book.answer_federation(BOB, LATER, False, last_id(book))
 
     assert book.state.federation_of(alice.id, book.state.cycle) is None
     proposal = next(iter(book.state.proposals.values()))
@@ -263,11 +297,11 @@ def test_a_second_federation_is_scheduled_for_the_next_election(book: Government
     found(book, CARLA, "CCC", GREEN)
     alice, bob, carla = (party_of(book, u) for u in (ALICE, BOB, CARLA))
     propose(book, alice, bob)
-    book.answer_federation(BOB, LATER, True)
+    book.answer_federation(BOB, LATER, True, last_id(book))
 
     # Alice já tem federação nesta eleição: a nova vale para a seguinte
     book.propose_federation(ALICE, LATER, carla.id, "Depois", alice.id, "Alice", USERS)
-    book.answer_federation(CARLA, LATER + timedelta(days=1), True)
+    book.answer_federation(CARLA, LATER + timedelta(days=1), True, last_id(book))
 
     now, next_one = (
         book.state.federation_of(alice.id, c)
@@ -292,7 +326,7 @@ def test_leaving_undoes_it_for_both_and_bans_the_one_who_left(book: GovernmentBo
     found(book, CARLA, "CCC", GREEN)
     alice, bob, carla = (party_of(book, u) for u in (ALICE, BOB, CARLA))
     propose(book, alice, bob)
-    book.answer_federation(BOB, LATER, True)
+    book.answer_federation(BOB, LATER, True, last_id(book))
     federation = book.state.federation_of(alice.id, book.state.cycle)
     assert federation is not None
 
@@ -317,9 +351,9 @@ def test_leaving_also_voids_the_scheduled_federation_and_open_proposals(
     found(book, CARLA, "CCC", GREEN)
     alice, bob, carla = (party_of(book, u) for u in (ALICE, BOB, CARLA))
     propose(book, alice, bob)
-    book.answer_federation(BOB, LATER, True)
+    book.answer_federation(BOB, LATER, True, last_id(book))
     book.propose_federation(ALICE, LATER, carla.id, "Depois", alice.id, "Alice", USERS)
-    book.answer_federation(CARLA, LATER + timedelta(days=1), True)
+    book.answer_federation(CARLA, LATER + timedelta(days=1), True, last_id(book))
 
     book.leave_federation(BOB, LATER + timedelta(days=2))
 
@@ -337,7 +371,7 @@ def test_leaving_without_a_federation_is_refused(book: GovernmentBook):
 def test_the_federation_dissolves_when_a_party_dissolves(book: GovernmentBook):
     alice, bob = pair(book)
     propose(book, alice, bob)
-    book.answer_federation(BOB, LATER, True)
+    book.answer_federation(BOB, LATER, True, last_id(book))
 
     book.leave_party(BOB, LATER)
 
@@ -352,7 +386,7 @@ def test_resumed_game_has_the_same_federations_and_ban(
 ):
     alice, bob = pair(book)
     propose(book, alice, bob)
-    book.answer_federation(BOB, LATER, True)
+    book.answer_federation(BOB, LATER, True, last_id(book))
     book.leave_federation(BOB, LATER)
 
     resumed = GovernmentBook(
@@ -432,9 +466,9 @@ def test_computer_below_the_barrier_proposes_at_the_month_close(
         assert federations.compatible(sender.flags, receiver.flags)
         # A chapa é do parceiro que o computador procurou
         assert proposal.candidate_party_id == receiver.id
-    # Uma proposta aberta por partido
-    parties = [p.from_party_id for p in proposals] + [p.to_party_id for p in proposals]
-    assert len(parties) == len(set(parties))
+    # Cada partido do computador envia uma proposta por vez
+    senders = [p.from_party_id for p in proposals]
+    assert len(senders) == len(set(senders))
 
 
 def test_computer_above_the_barrier_does_not_propose(
@@ -457,11 +491,11 @@ def test_panel_carries_the_proposal_end_and_the_orienting_party(book: Government
     networths = {u.id: Decimal(0) for u in USERS}
 
     sent = build_panel(book, settings(), USERS, ALICE, TODAY, networths).sent_proposal
-    received = build_panel(
+    [received] = build_panel(
         book, settings(), USERS, BOB, TODAY, networths
-    ).received_proposal
+    ).received_proposals
 
-    assert sent is not None and received is not None
+    assert sent is not None
     assert sent.id == received.id
     assert sent.ends_on == book.cycle(book.state.cycle + 1).inauguration - timedelta(
         days=1
@@ -474,7 +508,7 @@ def test_only_the_leader_party_edits_the_ticket_of_the_federation(
 ):
     alice, bob = pair(book)
     propose(book, alice, bob)
-    book.answer_federation(BOB, LATER, True)
+    book.answer_federation(BOB, LATER, True, last_id(book))
     networths = {u.id: Decimal(0) for u in USERS}
 
     leader = build_panel(book, settings(), USERS, ALICE, CAMPAIGN_OPEN, networths)

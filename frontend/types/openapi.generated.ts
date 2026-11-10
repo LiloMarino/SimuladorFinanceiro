@@ -2174,11 +2174,35 @@ export interface paths {
         get?: never;
         /**
          * Montar a chapa
-         * @description Só a fundadora escolhe o candidato entre os filiados e o vice entre os jogadores da sala (de outro partido ou sem partido), até o fim da inscrição (último dia do mês anterior ao 1º turno). Não vale quem já é vice ou candidato de outra chapa. O vice recebe o convite e aceita ou recusa; sem resposta, a chapa concorre sem vice.
+         * @description Só a fundadora inscreve o candidato, entre os filiados, até o fim da inscrição (último dia do mês anterior ao 1º turno). Não vale quem já é vice de outra chapa nem quem é igual ao vice convidado. Inscrever não convida ninguém: o convite do vice é outro comando.
          */
         put: operations["set_ticket_api_government_parties_ticket_put"];
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/parties/vice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Convidar o vice
+         * @description Só a fundadora convida um jogador da sala (de outro partido ou sem partido) para vice, na mesma janela da chapa. O mesmo jogador pode receber convites de várias chapas e aceita uma só. A chapa tem uma vaga: o convite novo ocupa o lugar do anterior, que é avisado. Não vale quem já aceitou ser vice de outra chapa nem quem é candidato de outra.
+         */
+        post: operations["invite_vice_api_government_parties_vice_post"];
+        /**
+         * Retirar o convite de vice
+         * @description Retira o convite aguardando, o vice já aceito ou a marca de convite recusado; o vice é avisado. Recusa com 409 sem convite.
+         */
+        delete: operations["withdraw_vice_api_government_parties_vice_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2195,7 +2219,7 @@ export interface paths {
         put?: never;
         /**
          * Responder ao convite de vice
-         * @description Aceita ou recusa a vaga de vice. Recusar não muda o partido de quem responde: a vaga volta para a fundadora indicar outro jogador.
+         * @description Aceita ou recusa o convite de uma chapa (`party_id`). Aceitar recusa os outros convites abertos de quem responde, e as outras chapas são avisadas. Recusar não muda o partido de quem responde: a vaga volta para a fundadora indicar outro jogador.
          */
         post: operations["answer_vice_api_government_vice_answer_post"];
         delete?: never;
@@ -2235,7 +2259,7 @@ export interface paths {
         put?: never;
         /**
          * Propor uma federação
-         * @description O fundador propõe a outro partido que os dois concorram numa lista e numa chapa só: o candidato é de um dos dois, e o partido dele lidera. A federação vale na eleição em curso (ou na seguinte, se um dos dois já tem federação) e até a posse depois da eleição seguinte. A proposta vence em 7 dias, ou antes se o outro partido se federar; o partido do computador responde no pregão seguinte. Recusa com 409 quando um dos dois já tem proposta aberta, já está federado nas duas eleições, saiu de uma federação ou entre os turnos.
+         * @description O fundador propõe a outro partido que os dois concorram numa lista e numa chapa só: o candidato é de um dos dois, e o partido dele lidera. A federação vale na eleição em curso (ou na seguinte, se um dos dois já tem federação) e até a posse depois da eleição seguinte. A proposta vence em 7 dias, ou antes se o outro partido se federar; o partido do computador responde no pregão seguinte. Recusa com 409 quando o proponente já tem proposta enviada aberta, um dos dois já está federado nas duas eleições, saiu de uma federação ou entre os turnos.
          */
         post: operations["propose_federation_api_government_federations_post"];
         /**
@@ -2278,7 +2302,7 @@ export interface paths {
         get?: never;
         /**
          * Responder a proposta de federação
-         * @description O fundador do partido convidado aceita ou recusa; recusar não custa nada. Aceitar forma a federação na hora e o jornal noticia. Recusa com 404 sem proposta e com 409 quando ela deixou de valer.
+         * @description O fundador do partido convidado aceita ou recusa uma das propostas recebidas (`proposal_id`); recusar não custa nada. Aceitar forma a federação na hora, o jornal noticia, e as outras propostas abertas dos dois partidos caem com aviso. Recusa com 404 sem essa proposta e com 409 quando ela deixou de valer.
          */
         put: operations["answer_federation_api_government_federations_answer_put"];
         post?: never;
@@ -3082,7 +3106,7 @@ export interface paths {
         get: operations["get_my_preparation_api_simulation_players_me_preparation_get"];
         /**
          * Preparar a campanha do jogador
-         * @description Escolhe o que o jogador faz no começo da partida: fundar o Meu partido (com a chapa e o vice), entrar no partido que outro jogador preparou ou nada. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.
+         * @description Escolhe o que o jogador faz no começo da partida: fundar o Meu partido (com a chapa), convidar ou retirar o vice da chapa que fundou, entrar no partido que outro jogador preparou ou nada. Salvar a fundação não convida ninguém. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.
          */
         put: operations["set_player_preparation_api_simulation_players_me_preparation_put"];
         post?: never;
@@ -3102,7 +3126,7 @@ export interface paths {
         get?: never;
         /**
          * Responder ao convite de vice
-         * @description O jogador convidado para vice na chapa que outro preparou aceita ou recusa. Recusa com 404 se não há convite.
+         * @description O jogador convidado para vice na chapa de um fundador (`owner`) aceita ou recusa. Aceitar recusa os outros convites abertos dele. Recusa com 404 se não há esse convite.
          */
         put: operations["answer_preparation_vice_api_simulation_players_me_preparation_vice_put"];
         post?: never;
@@ -3122,7 +3146,7 @@ export interface paths {
         get?: never;
         /**
          * Propor federação no lobby
-         * @description O fundador propõe federação ao fundador de outro partido preparado, nomeando a federação e o candidato da chapa. Sem `partner`, retira a proposta ou desfaz a federação combinada. Recusa com 409 se um dos dois já tem proposta ou federação combinada.
+         * @description O fundador propõe federação ao fundador de outro partido preparado, nomeando a federação e o candidato da chapa. Sem `partner`, retira a proposta ou desfaz a federação combinada. Cada fundador envia uma proposta por vez e pode receber várias. Recusa com 409 se o proponente já tem proposta enviada ou um dos dois já tem federação combinada.
          */
         put: operations["propose_preparation_federation_api_simulation_players_me_preparation_federation_put"];
         post?: never;
@@ -3142,7 +3166,7 @@ export interface paths {
         get?: never;
         /**
          * Responder à proposta de federação do lobby
-         * @description O fundador convidado aceita ou recusa a federação que outro propôs. Recusa com 404 se não há proposta.
+         * @description O fundador convidado aceita ou recusa a federação que um fundador (`owner`) propôs. Aceitar derruba as outras propostas que envolvem um dos dois. Recusa com 404 se não há essa proposta.
          */
         put: operations["answer_preparation_federation_api_simulation_players_me_preparation_federation_answer_put"];
         post?: never;
@@ -4045,6 +4069,8 @@ export interface components {
         };
         /** AnswerFederationRequest */
         AnswerFederationRequest: {
+            /** Proposal Id */
+            proposal_id: number;
             /** Accept */
             accept: boolean;
         };
@@ -6210,7 +6236,8 @@ export interface components {
             /** Donations */
             donations: components["schemas"]["DonationDTO"][];
             my_party: components["schemas"]["MyPartyDTO"] | null;
-            my_vice: components["schemas"]["MyViceDTO"] | null;
+            /** My Vices */
+            my_vices: components["schemas"]["MyViceDTO"][];
             /** Vice Options */
             vice_options: components["schemas"]["ViceOptionDTO"][];
             /** Can Found Or Join */
@@ -6235,7 +6262,8 @@ export interface components {
             /** Federations */
             federations: components["schemas"]["FederationDTO"][];
             sent_proposal: components["schemas"]["FederationProposalDTO"] | null;
-            received_proposal: components["schemas"]["FederationProposalDTO"] | null;
+            /** Received Proposals */
+            received_proposals: components["schemas"]["FederationProposalDTO"][];
             /** Federation Options */
             federation_options: components["schemas"]["FederationOptionDTO"][];
             /** Can Federate */
@@ -6300,6 +6328,8 @@ export interface components {
         };
         /** FederationAnswerRequest */
         FederationAnswerRequest: {
+            /** Owner */
+            owner: string;
             /** Accept */
             accept: boolean;
         };
@@ -6863,7 +6893,7 @@ export interface components {
          * @description O que o aviso em tempo real conta; o front escolhe o toast pelo tipo.
          * @enum {string}
          */
-        GovernmentNoticeKind: "UPDATED" | "POLL_PUBLISHED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED" | "ENDORSEMENT" | "HOUSE_ELECTED" | "IMPEACHMENT_REQUESTED" | "IMPEACHMENT_VOTED" | "DEAL_PROPOSED" | "DEAL_ANSWERED" | "DEAL_BROKEN" | "DEAL_ENDED" | "DEAL_LEFT" | "FEDERATION_PROPOSED" | "FEDERATION_ANSWERED" | "FEDERATION_LEFT";
+        GovernmentNoticeKind: "UPDATED" | "POLL_PUBLISHED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "VICE_TAKEN" | "VICE_WITHDRAWN" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED" | "ENDORSEMENT" | "HOUSE_ELECTED" | "IMPEACHMENT_REQUESTED" | "IMPEACHMENT_VOTED" | "DEAL_PROPOSED" | "DEAL_ANSWERED" | "DEAL_BROKEN" | "DEAL_ENDED" | "DEAL_LEFT" | "FEDERATION_PROPOSED" | "FEDERATION_ANSWERED" | "FEDERATION_LEFT" | "FEDERATION_TAKEN";
         /** GovernmentPanelDTO */
         GovernmentPanelDTO: {
             /**
@@ -8513,12 +8543,16 @@ export interface components {
          * @description O que da preparação só o próprio jogador vê.
          */
         MyPreparationDTO: {
-            invite: components["schemas"]["ViceInviteDTO"] | null;
+            /** Invites */
+            invites: components["schemas"]["ViceInviteDTO"][];
             /** Invited */
             invited: string | null;
+            /** Vice Declined */
+            vice_declined: string | null;
             /** Left Party */
             left_party: string | null;
-            federation_invite: components["schemas"]["FederationInviteDTO"] | null;
+            /** Federation Invites */
+            federation_invites: components["schemas"]["FederationInviteDTO"][];
             /** Federation Invited */
             federation_invited: string | null;
         };
@@ -8534,7 +8568,7 @@ export interface components {
         };
         /**
          * MyViceDTO
-         * @description A chapa em que quem vê foi indicado vice, de qualquer partido.
+         * @description Uma chapa, de qualquer partido, em que quem vê foi indicado vice.
          */
         MyViceDTO: {
             /** Party Id */
@@ -9660,7 +9694,7 @@ export interface components {
          * @description O que o jogador prepara no lobby para a campanha: fundar um partido, entrar no de outro ou nada.
          * @enum {string}
          */
-        PreparationKind: "FOUND" | "JOIN" | "NONE";
+        PreparationKind: "FOUND" | "JOIN" | "NONE" | "INVITE_VICE" | "WITHDRAW_VICE";
         /** PreparationRequest */
         PreparationRequest: {
             kind: components["schemas"]["PreparationKind"];
@@ -9670,6 +9704,13 @@ export interface components {
             candidate?: string | null;
             /** Vice */
             vice?: string | null;
+        };
+        /** PreparationViceAnswerRequest */
+        PreparationViceAnswerRequest: {
+            /** Owner */
+            owner: string;
+            /** Accept */
+            accept: boolean;
         };
         /**
          * PreparationsDTO
@@ -12052,8 +12093,6 @@ export interface components {
         TicketRequest: {
             /** Candidate */
             candidate: string;
-            /** Vice */
-            vice?: string | null;
         };
         /**
          * TimelinePointKind
@@ -12599,6 +12638,8 @@ export interface components {
         };
         /** ViceAnswerRequest */
         ViceAnswerRequest: {
+            /** Party Id */
+            party_id: number;
             /** Accept */
             accept: boolean;
         };
@@ -12613,6 +12654,11 @@ export interface components {
             abbr: string;
             /** Candidate */
             candidate: string;
+        };
+        /** ViceInviteRequest */
+        ViceInviteRequest: {
+            /** Vice */
+            vice: string;
         };
         /**
          * ViceOptionDTO
@@ -12632,7 +12678,7 @@ export interface components {
          * VicePhase
          * @enum {string}
          */
-        VicePhase: "NONE" | "PENDING" | "ACCEPTED";
+        VicePhase: "NONE" | "PENDING" | "ACCEPTED" | "DECLINED";
         /**
          * VictoryCriterion
          * @enum {string}
@@ -17377,6 +17423,82 @@ export interface operations {
             };
         };
     };
+    invite_vice_api_government_parties_vice_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ViceInviteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    withdraw_vice_api_government_parties_vice_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     answer_vice_api_government_vice_answer_post: {
         parameters: {
             query?: never;
@@ -19393,7 +19515,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ViceAnswerRequest"];
+                "application/json": components["schemas"]["PreparationViceAnswerRequest"];
             };
         };
         responses: {

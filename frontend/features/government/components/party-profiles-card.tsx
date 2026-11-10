@@ -246,7 +246,9 @@ function Stat({ label, children }: { label: ReactNode; children: ReactNode }) {
 
 function ticketLine(party: ElectionParty, ticketOpen: boolean) {
   if (party.vice) {
-    return party.vice_phase === "PENDING" ? `vice: ${party.vice.name}, aguardando` : `vice: ${party.vice.name}`;
+    if (party.vice_phase === "PENDING") return `vice: ${party.vice.name}, aguardando`;
+    if (party.vice_phase === "DECLINED") return `vice: ${party.vice.name} recusou`;
+    return `vice: ${party.vice.name}`;
   }
   // Com a inscrição aberta a chapa ainda pode ganhar vice; fechada, concorre sem
   return ticketOpen && !party.is_computer ? "vice: vaga aberta" : "sem vice";

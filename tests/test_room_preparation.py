@@ -65,6 +65,10 @@ def choose(
     )
 
 
+def invite(user: UserDTO, vice: str) -> None:
+    choose(user, PreparationKind.INVITE_VICE, vice=vice)
+
+
 def test_player_founds_and_another_joins():
     choose(ANA, PreparationKind.FOUND, identity=party())
     choose(BIA, PreparationKind.JOIN, founder="Ana")
@@ -94,7 +98,8 @@ def test_ticket_candidate_is_the_founder_or_a_member():
     )
 
     choose(BIA, PreparationKind.JOIN, founder="Ana")
-    choose(ANA, PreparationKind.FOUND, identity=party(), candidate="Bia", vice="Caio")
+    choose(ANA, PreparationKind.FOUND, identity=party(), candidate="Bia")
+    invite(ANA, "Caio")
 
     ana = next(
         p for p in RoomPreparation.snapshot(HUMANS).players if p.nickname == "Ana"
@@ -103,62 +108,108 @@ def test_ticket_candidate_is_the_founder_or_a_member():
     assert RoomPreparation.mine(ANA, HUMANS).invited == "Caio"
 
 
+def test_saving_the_party_does_not_invite_the_vice():
+    choose(ANA, PreparationKind.FOUND, identity=party())
+
+    assert RoomPreparation.snapshot(HUMANS).pending_invites == 0
+    assert RoomPreparation.mine(ANA, HUMANS).invited is None
+
+
+def test_saving_the_party_keeps_the_vice_already_invited():
+    choose(ANA, PreparationKind.FOUND, identity=party())
+    invite(ANA, "Caio")
+
+    choose(ANA, PreparationKind.FOUND, identity=party("ALF", "#16a34a"))
+
+    assert RoomPreparation.mine(ANA, HUMANS).invited == "Caio"
+
+
 def test_the_pending_invite_is_seen_only_by_the_two_players():
-    choose(ANA, PreparationKind.FOUND, identity=party(), vice="Caio")
+    choose(ANA, PreparationKind.FOUND, identity=party())
+    invite(ANA, "Caio")
 
     snapshot = RoomPreparation.snapshot(HUMANS)
     assert (snapshot.players[0].vice, snapshot.pending_invites) == (None, 1)
-    invite = RoomPreparation.mine(CAIO, HUMANS).invite
-    assert invite is not None
-    assert (invite.owner, invite.abbr, invite.candidate) == ("Ana", "ALF", "Ana")
-    assert RoomPreparation.mine(BIA, HUMANS).invite is None
+    [received] = RoomPreparation.mine(CAIO, HUMANS).invites
+    assert (received.owner, received.abbr, received.candidate) == ("Ana", "ALF", "Ana")
+    assert RoomPreparation.mine(BIA, HUMANS).invites == []
 
-    RoomPreparation.answer_vice(CAIO, True)
+    RoomPreparation.answer_vice(CAIO, HUMANS, "Ana", True)
     snapshot = RoomPreparation.snapshot(HUMANS)
     assert (snapshot.players[0].vice, snapshot.pending_invites) == ("Caio", 0)
     assert RoomPreparation.mine(ANA, HUMANS).invited is None
 
 
 def test_invited_vice_accepts_and_refuses():
-    choose(ANA, PreparationKind.FOUND, identity=party(), vice="Bia")
+    choose(ANA, PreparationKind.FOUND, identity=party())
+    invite(ANA, "Bia")
 
-    RoomPreparation.answer_vice(BIA, True)
+    RoomPreparation.answer_vice(BIA, HUMANS, "Ana", True)
     assert RoomPreparation.snapshot(HUMANS).players[0].vice_accepted is True
 
-    choose(ANA, PreparationKind.FOUND, identity=party(), vice="Caio")
-    RoomPreparation.answer_vice(CAIO, False)
+    invite(ANA, "Caio")
+    RoomPreparation.answer_vice(CAIO, HUMANS, "Ana", False)
     ana = RoomPreparation.snapshot(HUMANS).players[0]
     assert (ana.vice, ana.vice_accepted) == (None, False)
-    refusal(lambda: RoomPreparation.answer_vice(CAIO, True), status=404)
+    assert RoomPreparation.mine(ANA, HUMANS).vice_declined == "Caio"
+    refusal(lambda: RoomPreparation.answer_vice(CAIO, HUMANS, "Ana", True), status=404)
 
 
-def test_changing_the_vice_resets_the_acceptance():
-    choose(ANA, PreparationKind.FOUND, identity=party(), vice="Bia")
-    RoomPreparation.answer_vice(BIA, True)
+def test_inviting_another_vice_resets_the_acceptance_and_withdrawing_clears_it():
+    choose(ANA, PreparationKind.FOUND, identity=party())
+    invite(ANA, "Bia")
+    RoomPreparation.answer_vice(BIA, HUMANS, "Ana", True)
 
-    choose(ANA, PreparationKind.FOUND, identity=party(), vice="Bia")
-    assert RoomPreparation.snapshot(HUMANS).players[0].vice_accepted is True
-
-    choose(ANA, PreparationKind.FOUND, identity=party(), vice="Caio")
+    invite(ANA, "Caio")
     assert RoomPreparation.snapshot(HUMANS).players[0].vice_accepted is False
+    assert RoomPreparation.mine(ANA, HUMANS).invited == "Caio"
+
+    choose(ANA, PreparationKind.WITHDRAW_VICE)
+    assert RoomPreparation.mine(ANA, HUMANS).invited is None
+    assert RoomPreparation.mine(CAIO, HUMANS).invites == []
+    refusal(lambda: choose(ANA, PreparationKind.WITHDRAW_VICE))
 
 
-def test_vice_of_another_ticket_is_refused():
-    choose(ANA, PreparationKind.FOUND, identity=party(), vice="Caio")
+def test_the_invite_needs_a_founded_party():
+    refusal(lambda: invite(ANA, "Caio"))
 
-    message = refusal(
-        lambda: choose(
-            BIA,
-            PreparationKind.FOUND,
-            identity=party("BET", "#2563eb", "Beta"),
-            vice="Caio",
-        )
-    )
+
+def test_two_founders_invite_the_same_player_and_accepting_one_clears_the_other():
+    choose(ANA, PreparationKind.FOUND, identity=party())
+    choose(BIA, PreparationKind.FOUND, identity=party("BET", "#2563eb", "Beta"))
+    invite(ANA, "Caio")
+    invite(BIA, "Caio")
+
+    owners = {i.owner for i in RoomPreparation.mine(CAIO, HUMANS).invites}
+    assert owners == {"Ana", "Bia"}
+    assert RoomPreparation.snapshot(HUMANS).pending_invites == 2
+
+    RoomPreparation.answer_vice(CAIO, HUMANS, "Ana", True)
+
+    assert RoomPreparation.mine(CAIO, HUMANS).invites == []
+    players = {p.nickname: p for p in RoomPreparation.snapshot(HUMANS).players}
+    assert players["Ana"].vice == "Caio"
+    assert players["Bia"].vice is None
+    assert RoomPreparation.mine(BIA, HUMANS).vice_declined == "Caio"
+    # Quem já aceitou uma chapa não recebe convite de outra
+    refusal(lambda: invite(BIA, "Caio"))
+
+
+def test_a_vice_already_accepted_elsewhere_is_refused_but_a_pending_one_is_not():
+    choose(ANA, PreparationKind.FOUND, identity=party())
+    choose(BIA, PreparationKind.FOUND, identity=party("BET", "#2563eb", "Beta"))
+    invite(ANA, "Caio")
+
+    invite(BIA, "Caio")
+    RoomPreparation.answer_vice(CAIO, HUMANS, "Ana", True)
+
+    message = refusal(lambda: invite(BIA, "Caio"))
     assert "Caio" in message
 
 
 def test_leaving_the_room_drops_memberships_and_invites():
-    choose(ANA, PreparationKind.FOUND, identity=party(), vice="Caio")
+    choose(ANA, PreparationKind.FOUND, identity=party())
+    invite(ANA, "Caio")
     choose(BIA, PreparationKind.JOIN, founder="Ana")
 
     RoomPreparation.drop(CAIO.id)
@@ -206,7 +257,8 @@ def test_computer_parties_carry_their_flags():
 
 
 def test_absent_player_is_left_out_of_the_match():
-    choose(ANA, PreparationKind.FOUND, identity=party(), vice="Caio")
+    choose(ANA, PreparationKind.FOUND, identity=party())
+    invite(ANA, "Caio")
 
     prepared = RoomPreparation.prepared([ANA, BIA])
 
@@ -273,12 +325,11 @@ def test_a_proposal_waits_for_the_answer_and_becomes_a_federation_when_accepted(
     RoomPreparation.propose_federation(ANA, HUMANS, "Bia", "Frente", "Bia")
 
     assert RoomPreparation.mine(ANA, HUMANS).federation_invited == "Bia"
-    invite = RoomPreparation.mine(BIA, HUMANS).federation_invite
-    assert invite is not None
-    assert (invite.name, invite.candidate) == ("Frente", "Bia")
+    [offer] = RoomPreparation.mine(BIA, HUMANS).federation_invites
+    assert (offer.name, offer.candidate) == ("Frente", "Bia")
     assert combined(ANA) is None
 
-    RoomPreparation.answer_federation(BIA, True)
+    RoomPreparation.answer_federation(BIA, HUMANS, "Ana", True)
 
     for user, partner in ((ANA, "Bia"), (BIA, "Ana")):
         federation = combined(user)
@@ -291,11 +342,42 @@ def test_a_proposal_waits_for_the_answer_and_becomes_a_federation_when_accepted(
     assert RoomPreparation.mine(ANA, HUMANS).federation_invited is None
 
 
+def test_a_founder_receives_several_proposals_but_sends_one_at_a_time():
+    two_founders()
+    choose(CAIO, PreparationKind.FOUND, identity=party("GAM", "#16a34a", "Gama"))
+    RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
+
+    RoomPreparation.propose_federation(CAIO, HUMANS, "Bia", None, None)
+    assert {o.owner for o in RoomPreparation.mine(BIA, HUMANS).federation_invites} == {
+        "Ana",
+        "Caio",
+    }
+    refusal(lambda: RoomPreparation.propose_federation(ANA, HUMANS, "Caio", None, None))
+
+
+def test_accepting_one_proposal_drops_the_other_and_the_one_the_acceptor_sent():
+    two_founders()
+    choose(CAIO, PreparationKind.FOUND, identity=party("GAM", "#16a34a", "Gama"))
+    RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
+    RoomPreparation.propose_federation(CAIO, HUMANS, "Bia", None, None)
+    RoomPreparation.propose_federation(BIA, HUMANS, "Caio", None, None)
+
+    RoomPreparation.answer_federation(BIA, HUMANS, "Ana", True)
+
+    assert combined(ANA) is not None and combined(BIA) is not None
+    assert RoomPreparation.mine(BIA, HUMANS).federation_invites == []
+    assert RoomPreparation.mine(CAIO, HUMANS).federation_invites == []
+    assert RoomPreparation.mine(BIA, HUMANS).federation_invited is None
+    assert combined(CAIO) is None
+    # A federação combinada só se desfaz pelos dois fundadores
+    refusal(lambda: RoomPreparation.propose_federation(CAIO, HUMANS, "Bia", None, None))
+
+
 def test_the_federation_name_defaults_to_the_abbreviations():
     two_founders()
 
     RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
-    RoomPreparation.answer_federation(BIA, True)
+    RoomPreparation.answer_federation(BIA, HUMANS, "Ana", True)
 
     federation = combined(ANA)
     assert federation is not None
@@ -306,17 +388,17 @@ def test_declining_clears_the_proposal():
     two_founders()
     RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
 
-    RoomPreparation.answer_federation(BIA, False)
+    RoomPreparation.answer_federation(BIA, HUMANS, "Ana", False)
 
     assert RoomPreparation.mine(ANA, HUMANS).federation_invited is None
-    assert RoomPreparation.mine(BIA, HUMANS).federation_invite is None
+    assert RoomPreparation.mine(BIA, HUMANS).federation_invites == []
     assert combined(ANA) is None
 
 
 def test_either_founder_undoes_the_combined_federation():
     two_founders()
     RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
-    RoomPreparation.answer_federation(BIA, True)
+    RoomPreparation.answer_federation(BIA, HUMANS, "Ana", True)
 
     RoomPreparation.propose_federation(BIA, HUMANS, None, None, None)
 
@@ -330,7 +412,7 @@ def test_the_proposer_withdraws_the_open_proposal():
 
     RoomPreparation.propose_federation(ANA, HUMANS, None, None, None)
 
-    assert RoomPreparation.mine(BIA, HUMANS).federation_invite is None
+    assert RoomPreparation.mine(BIA, HUMANS).federation_invites == []
 
 
 def test_only_a_founder_proposes_and_only_to_another_founder():
@@ -349,19 +431,6 @@ def test_only_a_founder_proposes_and_only_to_another_founder():
     )
 
 
-def test_one_proposal_at_a_time_per_party():
-    two_founders()
-    choose(CAIO, PreparationKind.FOUND, identity=party("GAM", "#16a34a", "Gama"))
-    RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
-
-    assert "já tem uma proposta" in refusal(
-        lambda: RoomPreparation.propose_federation(CAIO, HUMANS, "Bia", None, None)
-    )
-    assert "já tem uma proposta" in refusal(
-        lambda: RoomPreparation.propose_federation(ANA, HUMANS, "Caio", None, None)
-    )
-
-
 def test_the_candidate_belongs_to_one_of_the_two_parties():
     two_founders()
     choose(CAIO, PreparationKind.JOIN, founder="Bia")
@@ -377,14 +446,14 @@ def test_answering_without_a_proposal_is_refused():
     two_founders()
 
     assert "para responder" in refusal(
-        lambda: RoomPreparation.answer_federation(BIA, True), 404
+        lambda: RoomPreparation.answer_federation(BIA, HUMANS, "Ana", True), 404
     )
 
 
 def test_the_federation_falls_when_the_partner_stops_founding():
     two_founders()
     RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
-    RoomPreparation.answer_federation(BIA, True)
+    RoomPreparation.answer_federation(BIA, HUMANS, "Ana", True)
 
     choose(BIA, PreparationKind.JOIN, founder="Ana")
 
@@ -395,7 +464,7 @@ def test_the_federation_falls_when_the_partner_stops_founding():
 def test_the_federation_falls_when_the_partner_leaves_the_room():
     two_founders()
     RoomPreparation.propose_federation(ANA, HUMANS, "Bia", None, None)
-    RoomPreparation.answer_federation(BIA, True)
+    RoomPreparation.answer_federation(BIA, HUMANS, "Ana", True)
 
     assert combined(ANA) is not None
     present = [ANA, CAIO]

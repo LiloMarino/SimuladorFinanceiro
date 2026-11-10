@@ -64,7 +64,7 @@ class RoomPreparation:
         candidate: str | None,
         vice: str | None,
     ) -> None:
-        """Troca a preparação de `me`; as ligações que ficam sem sentido caem sozinhas."""
+        """Troca a preparação de `me`; as ligações que ficam sem sentido caem sozinhas. O vice só muda em INVITE_VICE e WITHDRAW_VICE."""
         reason = cls.locked_reason()
         if reason is not None:
             raise ConflictError(reason)
@@ -82,12 +82,14 @@ class RoomPreparation:
                 if leader.id == me.id:
                     raise ConflictError("Você não entra no próprio partido: funde-o.")
                 cls._entries[me.id] = Prepared(me.id, join_id=leader.id)
+            elif kind is PreparationKind.INVITE_VICE:
+                cls._invite_vice(me, by_name, vice)
+            elif kind is PreparationKind.WITHDRAW_VICE:
+                cls._withdraw_vice(me)
             else:
                 if identity is None:
                     raise ConflictError("Salve o Meu partido antes de fundá-lo.")
-                cls._entries[me.id] = cls._ticket(
-                    me, identity, by_name, candidate, vice
-                )
+                cls._entries[me.id] = cls._ticket(me, identity, by_name, candidate)
             cls._prune({u.id for u in humans}, abbrs)
 
     @classmethod
@@ -101,7 +103,7 @@ class RoomPreparation:
         with cls._lock:
             if me.id in cls._entries or me.id in cls._left:
                 return False
-            cls._entries[me.id] = cls._ticket(me, identity, by_name, None, None)
+            cls._entries[me.id] = cls._ticket(me, identity, by_name, None)
         return True
 
     @classmethod
@@ -111,8 +113,8 @@ class RoomPreparation:
         identity: PartyIdentityDTO,
         by_name: dict[str, UserDTO],
         candidate: str | None,
-        vice: str | None,
     ) -> Prepared:
+        """Salva a fundação e a chapa; o vice já convidado segue como está."""
         previous = cls._entries.get(me.id)
         candidate_user = by_name.get(candidate) if candidate else me
         if candidate_user is None:
@@ -122,25 +124,19 @@ class RoomPreparation:
             raise UnprocessableEntityError(
                 "O candidato é o fundador ou alguém que entrou no partido."
             )
-        vice_user = by_name.get(vice) if vice else None
-        if vice and vice_user is None:
-            raise NotFoundError("O vice não está na sala.")
-        if vice_user is not None:
-            cls._ensure_vice_free(me, vice_user, candidate_user)
-        keeps = (
-            vice_user is not None
-            and previous is not None
-            and previous.vice_id == vice_user.id
-            and previous.vice_accepted
-        )
+        if previous is not None and previous.vice_id == candidate_user.id:
+            raise ConflictError(
+                "Candidato e vice precisam ser pessoas diferentes: retire o convite do vice."
+            )
         return Prepared(
             me.id,
             found=PartyIdentity(
                 identity.name, identity.abbr, identity.color, tuple(identity.flags)
             ),
             candidate_id=candidate_user.id,
-            vice_id=vice_user.id if vice_user else None,
-            vice_accepted=keeps,
+            vice_id=previous.vice_id if previous else None,
+            vice_accepted=previous.vice_accepted if previous else False,
+            vice_declined_id=previous.vice_declined_id if previous else None,
             federation_partner_id=previous.federation_partner_id if previous else None,
             federation_name=previous.federation_name if previous else None,
             federation_candidate_id=previous.federation_candidate_id
@@ -150,43 +146,88 @@ class RoomPreparation:
         )
 
     @classmethod
-    def _ensure_vice_free(cls, me: UserDTO, vice: UserDTO, candidate: UserDTO) -> None:
-        """O vice é outra pessoa que não é vice nem candidata de outra chapa."""
-        if vice.id == candidate.id:
+    def _invite_vice(
+        cls, me: UserDTO, by_name: dict[str, UserDTO], vice: str | None
+    ) -> None:
+        """Convida o jogador para vice; a chapa tem uma vaga, então o convite novo ocupa o lugar do anterior."""
+        entry = cls._entries.get(me.id)
+        if entry is None or entry.found is None:
+            raise ConflictError("Só quem funda um partido convida o vice.")
+        vice_user = by_name.get(vice or "")
+        if vice_user is None:
+            raise NotFoundError("O vice não está na sala.")
+        candidate_id = entry.candidate_id or me.id
+        cls._ensure_vice_free(me, vice_user, candidate_id)
+        if entry.vice_id == vice_user.id:
+            raise ConflictError(
+                f"{vice_user.nickname} já é o vice da chapa."
+                if entry.vice_accepted
+                else f"{vice_user.nickname} já foi convidado e ainda não respondeu."
+            )
+        cls._entries[me.id] = replace(
+            entry,
+            vice_id=vice_user.id,
+            vice_accepted=False,
+            vice_declined_id=None,
+        )
+
+    @classmethod
+    def _withdraw_vice(cls, me: UserDTO) -> None:
+        """Retira o convite aguardando, o vice aceito ou a marca de convite recusado."""
+        entry = cls._entries.get(me.id)
+        if entry is None or entry.found is None:
+            raise ConflictError("Só quem funda um partido convida o vice.")
+        if entry.vice_id is None and entry.vice_declined_id is None:
+            raise ConflictError("A chapa não tem convite de vice para retirar.")
+        cls._entries[me.id] = replace(
+            entry, vice_id=None, vice_accepted=False, vice_declined_id=None
+        )
+
+    @classmethod
+    def _ensure_vice_free(cls, me: UserDTO, vice: UserDTO, candidate_id: int) -> None:
+        """O vice é outra pessoa que não aceitou ser vice de outra chapa nem é candidata de outra; convite pendente de outra chapa não bloqueia."""
+        if vice.id == candidate_id:
             raise ConflictError("Candidato e vice precisam ser pessoas diferentes.")
         for owner_id, entry in cls._entries.items():
             if owner_id == me.id or entry.found is None:
                 continue
-            if entry.vice_id == vice.id:
-                raise ConflictError(
-                    f"{vice.nickname} já foi convidado por outra chapa."
-                )
+            if entry.vice_id == vice.id and entry.vice_accepted:
+                raise ConflictError(f"{vice.nickname} já é vice de outra chapa.")
             if (entry.candidate_id or owner_id) == vice.id:
                 raise ConflictError(f"{vice.nickname} é candidato de outra chapa.")
 
     @classmethod
-    def answer_vice(cls, me: UserDTO, accept: bool) -> None:
-        """O convidado aceita ou recusa a vaga de vice que um jogador preparou."""
+    def answer_vice(
+        cls, me: UserDTO, humans: list[UserDTO], owner: str, accept: bool
+    ) -> None:
+        """O convidado aceita ou recusa o convite de uma chapa; aceitar um recusa os outros convites abertos dele."""
         reason = cls.locked_reason()
         if reason is not None:
             raise ConflictError(reason)
+        owner_user = next((u for u in humans if u.nickname == owner), None)
         with cls._lock:
-            owner_id = next(
-                (
-                    uid
-                    for uid, e in cls._entries.items()
-                    if e.vice_id == me.id and not e.vice_accepted
-                ),
-                None,
-            )
-            if owner_id is None:
-                raise NotFoundError("Você não tem convite de vice para responder.")
-            entry = cls._entries[owner_id]
-            cls._entries[owner_id] = (
-                replace(entry, vice_accepted=True)
-                if accept
-                else replace(entry, vice_id=None, vice_accepted=False)
-            )
+            entry = cls._entries.get(owner_user.id) if owner_user else None
+            if (
+                owner_user is None
+                or entry is None
+                or entry.vice_id != me.id
+                or entry.vice_accepted
+            ):
+                raise NotFoundError("Você não tem esse convite de vice para responder.")
+            if not accept:
+                cls._entries[owner_user.id] = replace(
+                    entry, vice_id=None, vice_accepted=False, vice_declined_id=me.id
+                )
+                return
+            cls._ensure_vice_free(owner_user, me, entry.candidate_id or owner_user.id)
+            for uid, other in list(cls._entries.items()):
+                if uid == owner_user.id or other.vice_id != me.id:
+                    continue
+                if not other.vice_accepted:
+                    cls._entries[uid] = replace(
+                        other, vice_id=None, vice_accepted=False, vice_declined_id=me.id
+                    )
+            cls._entries[owner_user.id] = replace(entry, vice_accepted=True)
 
     @classmethod
     def propose_federation(
@@ -215,10 +256,13 @@ class RoomPreparation:
                 raise NotFoundError("Esse jogador não preparou um partido.")
             if other_user.id == me.id:
                 raise ConflictError("Você não se federa com o próprio partido.")
-            if cls._busy(me.id) or cls._busy(other_user.id):
+            # Cada fundador envia uma proposta por vez e pode receber várias
+            if entry.federation_partner_id is not None or cls._federated(me.id):
                 raise ConflictError(
-                    "Um dos dois partidos já tem uma proposta ou uma federação combinada."
+                    "Seu partido já tem uma proposta enviada ou uma federação combinada."
                 )
+            if cls._federated(other_user.id):
+                raise ConflictError("O outro partido já tem uma federação combinada.")
             candidate_user = by_name.get(candidate) if candidate else me
             if candidate_user is None or not (
                 cls._in_party(candidate_user.id, me.id)
@@ -239,55 +283,68 @@ class RoomPreparation:
             )
 
     @classmethod
-    def answer_federation(cls, me: UserDTO, accept: bool) -> None:
-        """O fundador convidado aceita ou recusa a federação que outro propôs."""
+    def answer_federation(
+        cls, me: UserDTO, humans: list[UserDTO], owner: str, accept: bool
+    ) -> None:
+        """O fundador convidado aceita ou recusa uma das propostas recebidas; aceitar derruba as outras que envolvem um dos dois."""
         reason = cls.locked_reason()
         if reason is not None:
             raise ConflictError(reason)
+        owner_user = next((u for u in humans if u.nickname == owner), None)
         with cls._lock:
-            owner_id = next(
-                (
-                    uid
-                    for uid, e in cls._entries.items()
-                    if e.federation_partner_id == me.id and not e.federation_accepted
-                ),
-                None,
-            )
-            if owner_id is None:
+            entry = cls._entries.get(owner_user.id) if owner_user else None
+            if (
+                owner_user is None
+                or entry is None
+                or entry.federation_partner_id != me.id
+                or entry.federation_accepted
+            ):
                 raise NotFoundError(
-                    "Você não tem proposta de federação para responder."
+                    "Você não tem essa proposta de federação para responder."
                 )
-            if accept:
-                cls._entries[owner_id] = replace(
-                    cls._entries[owner_id], federation_accepted=True
-                )
-            else:
-                cls._clear_federation(owner_id)
+            if not accept:
+                cls._reset_federation(owner_user.id)
+                return
+            cls._entries[owner_user.id] = replace(entry, federation_accepted=True)
+            # As propostas abertas dos dois fundadores, enviadas ou recebidas, caem com a federação
+            formed = {me.id, owner_user.id}
+            for uid, other in list(cls._entries.items()):
+                if (
+                    uid != owner_user.id
+                    and other.federation_partner_id is not None
+                    and not other.federation_accepted
+                    and (uid in formed or other.federation_partner_id in formed)
+                ):
+                    cls._reset_federation(uid)
 
     @classmethod
-    def _busy(cls, user_id: int) -> bool:
-        """O fundador está numa proposta de federação, enviada ou recebida, ou numa já combinada."""
+    def _federated(cls, user_id: int) -> bool:
+        """O fundador está numa federação já combinada, como proponente ou como parceiro."""
         return any(
-            e.federation_partner_id is not None
-            and user_id in (e.user_id, e.federation_partner_id)
+            e.federation_accepted and user_id in (e.user_id, e.federation_partner_id)
             for e in cls._entries.values()
         )
 
     @classmethod
+    def _reset_federation(cls, user_id: int) -> None:
+        """Zera a proposta (ou a federação combinada) que o fundador enviou."""
+        entry = cls._entries.get(user_id)
+        if entry is not None:
+            cls._entries[user_id] = replace(
+                entry,
+                federation_partner_id=None,
+                federation_name=None,
+                federation_candidate_id=None,
+                federation_accepted=False,
+            )
+
+    @classmethod
     def _clear_federation(cls, user_id: int) -> None:
-        """Desfaz a proposta ou a federação de que o fundador faz parte, como proponente ou como parceiro."""
+        """Desfaz a proposta que o fundador enviou e a federação combinada em que ele é o parceiro."""
+        cls._reset_federation(user_id)
         for uid, entry in list(cls._entries.items()):
-            if entry.federation_partner_id is not None and user_id in (
-                uid,
-                entry.federation_partner_id,
-            ):
-                cls._entries[uid] = replace(
-                    entry,
-                    federation_partner_id=None,
-                    federation_name=None,
-                    federation_candidate_id=None,
-                    federation_accepted=False,
-                )
+            if entry.federation_accepted and entry.federation_partner_id == user_id:
+                cls._reset_federation(uid)
 
     @classmethod
     def _in_party(cls, user_id: int, founder_id: int) -> bool:
@@ -305,9 +362,12 @@ class RoomPreparation:
             cls._entries.pop(user_id, None)
             cls._left.pop(user_id, None)
             for uid, entry in list(cls._entries.items()):
-                if entry.vice_id == user_id:
+                if user_id in (entry.vice_id, entry.vice_declined_id):
                     cls._entries[uid] = replace(
-                        entry, vice_id=None, vice_accepted=False
+                        entry,
+                        vice_id=None if entry.vice_id == user_id else entry.vice_id,
+                        vice_accepted=entry.vice_accepted and entry.vice_id != user_id,
+                        vice_declined_id=None,
                     )
             cls._prune(None, abbrs)
 
@@ -354,12 +414,22 @@ class RoomPreparation:
             member = cls._entries.get(candidate)
             if member is None or member.join_id != entry.user_id:
                 candidate = None
-        vice, accepted = entry.vice_id, entry.vice_accepted
+        vice, accepted, declined = (
+            entry.vice_id,
+            entry.vice_accepted,
+            entry.vice_declined_id,
+        )
         gone = present is not None and vice is not None and vice not in present
         if vice is not None and (gone or vice == (candidate or entry.user_id)):
             vice, accepted = None, False
+        if present is not None and declined is not None and declined not in present:
+            declined = None
         fixed = replace(
-            entry, candidate_id=candidate, vice_id=vice, vice_accepted=accepted
+            entry,
+            candidate_id=candidate,
+            vice_id=vice,
+            vice_accepted=accepted,
+            vice_declined_id=declined,
         )
         return cls._fixed_federation(fixed, present)
 
@@ -452,51 +522,50 @@ class RoomPreparation:
 
     @classmethod
     def mine(cls, me: UserDTO, humans: list[UserDTO]) -> MyPreparationDTO:
-        """Os convites de vice sem resposta de `me`, o recebido e o enviado, e o partido que saiu."""
+        """Os convites de vice e as propostas de federação sem resposta de `me`, os que ele enviou e o partido que saiu."""
         present = {u.id: u for u in humans}
         with cls._lock:
             own = cls._entries.get(me.id)
-            owner = next(
-                (
-                    e
-                    for uid, e in cls._entries.items()
-                    if uid in present and e.vice_id == me.id and not e.vice_accepted
-                ),
-                None,
-            )
+            owners = [
+                e
+                for uid, e in cls._entries.items()
+                if uid in present
+                and e.found is not None
+                and e.vice_id == me.id
+                and not e.vice_accepted
+            ]
             left = cls._left.get(me.id)
-            offer = next(
-                (
-                    e
-                    for uid, e in cls._entries.items()
-                    if uid in present
-                    and e.federation_partner_id == me.id
-                    and not e.federation_accepted
-                ),
-                None,
-            )
+            offers = [
+                e
+                for uid, e in cls._entries.items()
+                if uid in present
+                and e.found is not None
+                and e.federation_partner_id == me.id
+                and not e.federation_accepted
+            ]
 
-        invite = None
-        if owner is not None and owner.found is not None:
-            candidate = present.get(owner.candidate_id or owner.user_id)
-            invite = ViceInviteDTO(
-                owner=present[owner.user_id].nickname,
-                abbr=owner.found.abbr,
-                candidate=candidate.nickname if candidate else "",
+        invites = [
+            ViceInviteDTO(
+                owner=present[e.user_id].nickname,
+                abbr=e.found.abbr,  # type: ignore[union-attr]
+                candidate=name_of(present, e.candidate_id or e.user_id) or "",
             )
+            for e in owners
+        ]
         invited = None
         if own is not None and own.vice_id is not None and not own.vice_accepted:
-            vice = present.get(own.vice_id)
-            invited = vice.nickname if vice else None
-        federation_invite = None
-        if offer is not None and offer.found is not None:
-            nominee = present.get(offer.federation_candidate_id or offer.user_id)
-            federation_invite = FederationInviteDTO(
-                owner=present[offer.user_id].nickname,
-                abbr=offer.found.abbr,
-                name=offer.federation_name or "",
-                candidate=nominee.nickname if nominee else "",
+            invited = name_of(present, own.vice_id)
+        vice_declined = name_of(present, own.vice_declined_id) if own else None
+        federation_invites = [
+            FederationInviteDTO(
+                owner=present[e.user_id].nickname,
+                abbr=e.found.abbr,  # type: ignore[union-attr]
+                name=e.federation_name or "",
+                candidate=name_of(present, e.federation_candidate_id or e.user_id)
+                or "",
             )
+            for e in offers
+        ]
         federation_invited = None
         if (
             own is not None
@@ -506,10 +575,11 @@ class RoomPreparation:
             partner = present.get(own.federation_partner_id)
             federation_invited = partner.nickname if partner else None
         return MyPreparationDTO(
-            invite=invite,
+            invites=invites,
             invited=invited,
+            vice_declined=vice_declined,
             left_party=left,
-            federation_invite=federation_invite,
+            federation_invites=federation_invites,
             federation_invited=federation_invited,
         )
 
@@ -532,6 +602,11 @@ class RoomPreparation:
         present = {u.id for u in humans}
         with cls._lock:
             return [e for uid, e in cls._entries.items() if uid in present]
+
+
+def name_of(present: dict[int, UserDTO], user_id: int | None) -> str | None:
+    """O apelido de quem está na sala; nulo para quem saiu ou não foi escolhido."""
+    return present[user_id].nickname if user_id in present else None
 
 
 def _conflicts(entries: list[Prepared], present: dict[int, UserDTO]) -> list[str]:

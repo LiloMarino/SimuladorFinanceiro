@@ -351,13 +351,13 @@ Com uma partida salva selecionada, o seletor fica desabilitado (as regras dela n
 
 Com a expansão [Governo & Política](./governo.md) ligada numa partida nova, cada jogador vê o card **Minha preparação**. Ele diz o que você faz no começo da partida, sem precisar estar com o relógio andando:
 
-* **Fundar o meu partido** usa o **Meu partido**, que fica salvo no seu perfil: nome, sigla, cor e as 3 bandeiras. Você salva ao preparar e reaproveita em toda partida nova. Aqui também se escolhem o **candidato** (você ou alguém que entrou no seu partido) e o **vice**
+* **Fundar o meu partido** usa o **Meu partido**, que fica salvo no seu perfil: nome, sigla, cor e as 3 bandeiras. Você salva ao preparar e reaproveita em toda partida nova. Aqui também se escolhem o **candidato** (você ou alguém que entrou no seu partido) e o **vice**; salvar grava a chapa, e o convite do vice sai pelo botão **Convidar** (com o estado aguardando, aceito ou recusado e **Retirar convite**)
 * **Entrar no partido de outro** lista os partidos que outros jogadores já prepararam; você se filia a ele no 1º dia da partida
 * **Nada por enquanto** deixa tudo como hoje: você decide dentro da partida
 
-Quem foi convidado para vice vê **"X te convidou para vice"** com **Aceitar** e **Recusar**. O vice vale só para aquela partida e não fica no perfil.
+Quem foi convidado para vice vê **"X te convidou para vice"** com **Aceitar** e **Recusar**, um aviso para cada convite: dá para receber de várias chapas, e aceitar um recusa os outros. O vice vale só para aquela partida e não fica no perfil.
 
-O fundador também pode propor uma [federação](./governo.md#federações) a outro fundador da sala, escolhendo o partido, o candidato da chapa e o nome. O outro fundador vê **"X propõe federação"** com **Aceitar** e **Recusar**, e os dois podem desfazer antes da partida começar. A federação combinada vale no 1º dia da partida.
+O fundador também pode propor uma [federação](./governo.md#federações) a outro fundador da sala, escolhendo o partido, o candidato da chapa e o nome. O outro fundador vê **"X propõe federação"** com **Aceitar** e **Recusar**: cada fundador envia uma proposta por vez, mas pode receber várias, e aceitar uma recusa as outras. Os dois podem desfazer antes da partida começar. A federação combinada vale no 1º dia da partida.
 
 Os partidos e as filiações valem no 1º dia da partida, com contribuição zero (dá para ajustar depois, como sempre); a chapa e o vice entram quando a campanha abre. Quem não estiver na sala quando a partida começar não tem a preparação aplicada, e bots não têm preparação.
 

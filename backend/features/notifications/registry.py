@@ -313,14 +313,15 @@ def pending(
     detail: str,
     ref: str = "",
     loan_id: UUID | None = None,
+    title: str | None = None,
 ) -> PendingDTO:
-    """A pendência do tipo com título e gravidade do registro; `ref` distingue duas do mesmo tipo."""
+    """A pendência do tipo com título e gravidade do registro (o título pode nomear quem a originou); `ref` distingue duas do mesmo tipo."""
     spec = PENDING_BY_TYPE[pending_type]
     return PendingDTO(
         key=f"{pending_type.value}:{ref}" if ref else pending_type.value,
         type=pending_type,
         severity=spec.severity,
-        title=spec.label,
+        title=title or spec.label,
         detail=detail,
         resolves=spec.resolves,
         loan_id=loan_id,

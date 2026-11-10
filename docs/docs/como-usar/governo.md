@@ -49,7 +49,9 @@ Quem joga sozinho fundou um partido de um filiado: vale igual.
 
 ### A chapa
 
-A chapa é o **candidato** e o **vice**. Por padrão o candidato é o fundador e a chapa vai sem vice. O fundador pode escolher outro filiado como candidato e **convidar um vice** até o fim da inscrição de chapas. O vice pode ser qualquer jogador da sala, de outro partido ou sem partido, como numa coligação; ele continua filiado ao próprio partido. Não vale convidar quem já é vice ou candidato de outra chapa. O vice só conta depois de **aceitar** o convite, que aparece na tela dele; sem resposta, a chapa concorre sem vice.
+A chapa é o **candidato** e o **vice**. Por padrão o candidato é o fundador e a chapa vai sem vice. O fundador pode escolher outro filiado como candidato e **convidar um vice** até o fim da inscrição de chapas. Escolher o vice no seletor não convida ninguém: o convite sai pelo botão **Convidar**, e **Inscrever a chapa** só grava o candidato. A chapa mostra o estado do convite (aguardando, aceito ou recusado) e o fundador pode **retirar o convite**; convidar outra pessoa ocupa o lugar do convite anterior. O vice pode ser qualquer jogador da sala, de outro partido ou sem partido, como numa coligação; ele continua filiado ao próprio partido. Não vale convidar quem já aceitou ser vice ou é candidato de outra chapa. O vice só conta depois de **aceitar** o convite, que aparece na tela dele; sem resposta, a chapa concorre sem vice.
+
+**Convites acumulados.** Um jogador pode receber convites de vice de várias chapas ao mesmo tempo e compará-los lado a lado. Aceitar um **recusa os outros** na hora, e os fundadores das outras chapas recebem o aviso.
 
 ### A promessa na régua
 
@@ -69,7 +71,7 @@ A promessa decide para onde vão os votos de quem sai no 2º turno (veja abaixo)
 
 Dois partidos podem se unir numa **federação**: uma chapa só na eleição e uma lista só no Congresso. Serve para quem, sozinho, ficaria abaixo da **barreira** (a fatia mínima de votos que um partido precisa para ter cadeira). Ex.: dois partidos com 3% e 4% passam juntos de uma barreira de 5%; sozinhos, nenhum dos dois elege deputado.
 
-**Propor e responder.** O fundador propõe a qualquer momento, inclusive no lobby, escolhendo o partido (de jogadores ou do computador), o **candidato da chapa** e o nome. A proposta vence em 7 dias, ou antes se o outro partido se federar com outro. Quem responde é o fundador do partido convidado, e os filiados veem o aviso. Não se propõe entre o 1º e o 2º turno. Cada partido tem no máximo uma federação por eleição e uma proposta aberta por vez.
+**Propor e responder.** O fundador propõe a qualquer momento, inclusive no lobby, escolhendo o partido (de jogadores ou do computador), o **candidato da chapa** e o nome. A proposta vence em 7 dias, ou antes se o outro partido se federar com outro. Quem responde é o fundador do partido convidado, e os filiados veem o aviso. Não se propõe entre o 1º e o 2º turno. Cada partido tem no máximo uma federação por eleição e **envia uma proposta por vez**, mas pode **receber várias** e escolher uma. Aceitar uma recusa as outras propostas recebidas e retira a que o partido tinha enviado; os fundadores afetados recebem o aviso.
 
 **Quanto dura.** A federação nasce para uma eleição e vale no Congresso do dia em que se forma até a posse depois da eleição seguinte. Para a eleição depois dessa, os dois renovam ou cada um se federa com outro; a federação combinada de antemão concorre na eleição dela e entra no Congresso na posse. **Sair antes do prazo** desfaz a federação na hora para os dois, e quem saiu fica impedido de se federar na eleição seguinte.
 

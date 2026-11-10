@@ -705,18 +705,32 @@ class Simulation:
         )
 
     @synchronized
-    def set_ticket(self, founder: UserDTO, candidate: str, vice: str | None) -> None:
+    def set_ticket(self, founder: UserDTO, candidate: str) -> None:
         self._ensure_government().set_ticket(
             founder,
             self._current_date,
             candidate,
+            repository.simulation_player.participants(self.settings.id),
+        )
+
+    @synchronized
+    def invite_vice(self, founder: UserDTO, vice: str) -> None:
+        self._ensure_government().invite_vice(
+            founder,
+            self._current_date,
             vice,
             repository.simulation_player.participants(self.settings.id),
         )
 
     @synchronized
-    def answer_vice(self, user: UserDTO, accept: bool) -> None:
-        self._ensure_government().answer_vice(user, self._current_date, accept)
+    def withdraw_vice(self, founder: UserDTO) -> None:
+        self._ensure_government().withdraw_vice(founder, self._current_date)
+
+    @synchronized
+    def answer_vice(self, user: UserDTO, party_id: int, accept: bool) -> None:
+        self._ensure_government().answer_vice(
+            user, self._current_date, accept, party_id
+        )
 
     @synchronized
     def preview_federation(
@@ -754,8 +768,10 @@ class Simulation:
         self._ensure_government().withdraw_federation(founder, self._current_date)
 
     @synchronized
-    def answer_federation(self, user: UserDTO, accept: bool) -> None:
-        self._ensure_government().answer_federation(user, self._current_date, accept)
+    def answer_federation(self, user: UserDTO, proposal_id: int, accept: bool) -> None:
+        self._ensure_government().answer_federation(
+            user, self._current_date, accept, proposal_id
+        )
 
     @synchronized
     def leave_federation(self, founder: UserDTO) -> None:

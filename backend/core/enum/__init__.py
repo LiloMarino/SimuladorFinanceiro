@@ -378,6 +378,9 @@ class PreparationKind(Enum):
     FOUND = "FOUND"
     JOIN = "JOIN"
     NONE = "NONE"
+    # Convidar o vice escolhido e retirar o convite ou o vice já aceito
+    INVITE_VICE = "INVITE_VICE"
+    WITHDRAW_VICE = "WITHDRAW_VICE"
 
 
 class TeamNaming(Enum):
@@ -607,6 +610,8 @@ class GovernmentEventType(Enum):
     MEMBER_EXPELLED = "MEMBER_EXPELLED"
     CONTRIBUTION_SET = "CONTRIBUTION_SET"
     TICKET_SET = "TICKET_SET"
+    VICE_INVITED = "VICE_INVITED"
+    VICE_WITHDRAWN = "VICE_WITHDRAWN"
     VICE_ANSWERED = "VICE_ANSWERED"
     CAMPAIGN_SPENT = "CAMPAIGN_SPENT"
     DONATION_MADE = "DONATION_MADE"
@@ -683,6 +688,8 @@ class VicePhase(Enum):
     # Convidado, ainda sem resposta
     PENDING = "PENDING"
     ACCEPTED = "ACCEPTED"
+    # Recusou o convite desta chapa
+    DECLINED = "DECLINED"
 
 
 class PauseReason(Enum):
@@ -708,6 +715,9 @@ class GovernmentNoticeKind(Enum):
     EXPELLED = "EXPELLED"
     VICE_INVITED = "VICE_INVITED"
     VICE_ANSWERED = "VICE_ANSWERED"
+    # O vice convidado aceitou outra chapa, ou o fundador retirou o convite
+    VICE_TAKEN = "VICE_TAKEN"
+    VICE_WITHDRAWN = "VICE_WITHDRAWN"
     DONATION = "DONATION"
     ELECTION_RESULT = "ELECTION_RESULT"
     TERM_STARTED = "TERM_STARTED"
@@ -734,6 +744,8 @@ class GovernmentNoticeKind(Enum):
     FEDERATION_PROPOSED = "FEDERATION_PROPOSED"
     FEDERATION_ANSWERED = "FEDERATION_ANSWERED"
     FEDERATION_LEFT = "FEDERATION_LEFT"
+    # A proposta caiu porque um dos partidos fechou federação com outro
+    FEDERATION_TAKEN = "FEDERATION_TAKEN"
 
 
 class CampaignActionKind(Enum):

@@ -138,7 +138,7 @@ def build_panel(
             if mine is not None
             else None
         ),
-        my_vice=_my_vice(state, viewer.id),
+        my_vices=_my_vices(state, viewer.id),
         vice_options=_vice_options(state, mine, users) if is_founder else [],
         can_found_or_join=(
             phase is not ElectionPhase.BETWEEN_ROUNDS
@@ -173,11 +173,10 @@ def build_panel(
             if (sent := _sent(book, mine, today))
             else None
         ),
-        received_proposal=(
+        received_proposals=[
             proposal_dto(book, received, today)
-            if (received := _received(book, mine, today))
-            else None
-        ),
+            for received in _received(book, mine, today)
+        ],
         federation_options=(
             federation_options(book, mine, today)
             if mine is not None and is_founder
@@ -198,8 +197,8 @@ def _sent(
 
 def _received(
     book: GovernmentBook, mine: Party | None, today: date
-) -> federations.FederationProposal | None:
-    return book.received_federation(mine, today) if mine is not None else None
+) -> list[federations.FederationProposal]:
+    return book.received_federations(mine, today) if mine is not None else []
 
 
 def _scores(scores: dict[VoterValue, Decimal]) -> list[ValueScoreDTO]:
@@ -308,11 +307,13 @@ def _follows_leader(state: GovernmentState, party: Party | None) -> bool:
     return federation is not None and federation.candidate_party_id != party.id
 
 
-def _my_vice(state: GovernmentState, user_id: int) -> MyViceDTO | None:
-    party = next((p for p in state.player_parties() if p.vice_id == user_id), None)
-    if party is None:
-        return None
-    return MyViceDTO(party_id=party.id, phase=_vice_phase(party, user_id))
+def _my_vices(state: GovernmentState, user_id: int) -> list[MyViceDTO]:
+    """Os convites de vice de quem vê, um por chapa: vários aguardam resposta, no máximo um está aceito."""
+    return [
+        MyViceDTO(party_id=party.id, phase=_vice_phase(party, user_id))
+        for party in state.player_parties()
+        if party.vice_id == user_id
+    ]
 
 
 def _vice_options(
@@ -368,8 +369,12 @@ def _party(
 ) -> PartyDTO:
     candidate_id, vice_id = election.effective_ticket(state, party)
     vice_phase = VicePhase.NONE
+    shown_vice = party.vice_id
     if party.vice_id is not None and not party.is_computer:
         vice_phase = VicePhase.ACCEPTED if party.vice_accepted else VicePhase.PENDING
+    elif party.vice_declined_id is not None and not party.is_computer:
+        vice_phase = VicePhase.DECLINED
+        shown_vice = party.vice_declined_id
     return PartyDTO(
         id=party.id,
         name=party.name,
@@ -412,7 +417,7 @@ def _party(
         ),
         candidate=_candidate(people, candidate_id, party.candidate_name),
         # O convidado aparece na chapa mesmo antes de aceitar
-        vice=_person(people, party.vice_id if party.vice_id is not None else vice_id),
+        vice=_person(people, shown_vice if shown_vice is not None else vice_id),
         vice_phase=vice_phase,
         ticket_chosen=party.candidate_id is not None,
         promises=[promise_dto(p) for p in party.promises],
