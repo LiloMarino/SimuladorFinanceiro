@@ -32,7 +32,7 @@
 | **N12** | — | Continuar jogando depois do último dia com dado real | — | — | — | — | — |
 | **N13** | — | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | [F266](#f266) | — | — | — |
 | **N14** | — | Atualizar para uma versão nova sem perder as partidas salvas | — | [F56](#f56) | — | — | — |
-| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211), [F250](#f250), [F252](#f252), [F265](#f265), [F266](#f266), [F267](#f267), [F268](#f268), [F269](#f269), [F270](#f270), [F272](#f272) | — | — | — |
+| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211), [F250](#f250), [F252](#f252), [F265](#f265), [F266](#f266), [F267](#f267), [F268](#f268), [F269](#f269), [F270](#f270), [F272](#f272), [F282](#f282), [F283](#f283) | — | — | — |
 | **N16** | — | Ver a carteira e o mercado por setor e segmento | — | — | — | — | — |
 | **N17** | — | Enxergar a estrutura do banco e esboçar mudanças nela | — | — | — | — | — |
 | **N18** | — | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — | — | — | — |
@@ -51,7 +51,7 @@
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93), [F226](#f226), [F254](#f254), [F277](#f277) | — | — | — |
 | **N32** | — | Saber como foi o mês sem montar a conta | — | — | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F250](#f250), [F251](#f251), [F253](#f253), [F254](#f254), [F255](#f255), [F256](#f256), [F257](#f257), [F258](#f258), [F259](#f259), [F260](#f260), [F261](#f261), [F262](#f262), [F263](#f263), [F265](#f265), [F268](#f268), [F269](#f269), [F273](#f273), [F274](#f274), [F275](#f275), [F276](#f276), [F280](#f280) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F250](#f250), [F251](#f251), [F253](#f253), [F254](#f254), [F255](#f255), [F256](#f256), [F257](#f257), [F258](#f258), [F259](#f259), [F260](#f260), [F261](#f261), [F262](#f262), [F263](#f263), [F265](#f265), [F268](#f268), [F269](#f269), [F273](#f273), [F274](#f274), [F275](#f275), [F276](#f276), [F280](#f280), [F281](#f281) | — | — | — |
 | **N35** | — | Tirar da lista as partidas que não interessam mais | — | — | — | — | — |
 | **N36** | — | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — | — |
 | **N37** | — | Comprar bitcoin do jeito que dá na vida real, em frações | — | — | — | — | — |
@@ -119,6 +119,9 @@
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 | — | — | — | 🔍 |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 | — | — | — | 🔍 |
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 | — | — | — | 🔍 |
+| [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 | — | Médio | Bom | ⏳ |
+| [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 | — | Baixo | Excelente | ⏳ |
+| [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 | — | — | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (36 itens — clique pra expandir)</strong></summary>
@@ -143,7 +146,7 @@
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176), [F254](#f254), [F261](#f261) | — | — | ✅ |
-| **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F253](#f253), [F255](#f255), [F256](#f256), [F257](#f257), [F263](#f263) | — | — | ✅ |
+| **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F253](#f253), [F255](#f255), [F256](#f256), [F257](#f257), [F263](#f263), [F281](#f281) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F69**](#f69) | Feature | Imprevistos configuráveis e tipos novos | M26 · 4.1 | — | — | — | ✅ |
 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | M26 · 4.1 | — | — | — | ✅ |
@@ -176,7 +179,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 16/34 concluídos
+> **Progresso:** 16/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -214,6 +217,9 @@
 | 32 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | — | 🔍 Em avaliação |
 | 33 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | — | 🔍 Em avaliação |
 | 34 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | — | 🔍 Em avaliação |
+| 35 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | — | ⏳ Pendente |
+| 36 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | — | ⏳ Pendente |
+| 37 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | — | 🔍 Em avaliação |
 
 ### 4.2 — Expansão Gestoras (M18)
 
@@ -337,6 +343,9 @@
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 · 32º | 0 | — | — | 🔍 |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 · 33º | 0 | — | — | 🔍 |
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 · 34º | 0 | — | — | 🔍 |
+| [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 · 35º | 0 | Médio | Bom | ⏳ |
+| [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 · 36º | 0 | Baixo | Excelente | ⏳ |
+| [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 · 37º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
@@ -392,6 +401,8 @@
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
 | **F263** | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | N3, N34 | D20 | M26 · 4.1 | — | Médio | Médio | Alto | Excelente |
 | **F265** | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | N15, N34 | — | M26 · 4.1 | — | Médio | Baixo | Alto | Excelente |
+| **F281** | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | N34 | D20 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
+| **F282** | Correção | Texto dos gráficos com no mínimo 12 px | N15 | — | M26 · 4.1 | — | Baixo | Baixo | Médio | Excelente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -493,6 +504,23 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 8. **Selo do partido no jornal.** A manchete cita a sigla só em texto ("UPR"); passa a mostrar o selo do partido, o mesmo das telas de governo.
 9. **Juro americano na prévia do futuro gerado.** O FED_FUNDS é gerado (`synthetic.py:854-870`), mas não está no `FuturePreviewDTO` (`dto/generated_future.py:78-95`), então não aparece na prévia do diálogo de geração.
 
+<a id="f281"></a>
+**F281 — Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto.** Serve N34; condicionado por D20. A SELIC do Banco Central autônomo é a série guardada mais `central_bank_reaction(inflation_points)`, 1,5 × os pontos de inflação, recalculada todo dia (`backend/features/economy/layer.py:235-246`). O degrau de 0,25 (`SELIC_STEP`) e as 8 reuniões por ano (`meeting_days`) de `monetary.py` só valem para a SELIC que o presidente decide. Na Simulação #3, o imposto sobre consumo caiu de 16% para 0 em 21/05/2027; o choque de preço entrou inteiro na reação, e a SELIC foi de 15,98% em 31/08/2027 para 4,12% no dia seguinte, abaixo da inflação, e voltou a 16,09% em 01/09/2028, quando o choque saiu da janela de 12 meses. O IPCA, que espalha o efeito por 12 meses, só subiu depois (4,31% em mai/28, 8,45% em dez/28, 9,68% em fev/29). No gráfico "Juros e inflação", a SELIC muda em centésimos quase todo dia, e o marcador do Copom (`panel.py:45`, `MIN_COPOM_STEP` de 0,1 p.p.) vira uma fileira de bolinhas que cobre a linha.
+
+**Plano.**
+1. **Decisão em reunião.** O Banco Central autônomo decide só nos `meeting_days`, arredonda a decisão com o `to_step` de 0,25 e mantém a taxa até a reunião seguinte. O movimento por reunião tem teto, como o Copom real (passos de até 1 p.p.).
+2. **Olhar através do imposto.** O efeito direto do imposto sobre consumo sai dos pontos que a reação lê; ela responde à inflação que fica (gasto, dólar, expectativa), não ao degrau de preço de uma vez.
+3. **Futuro gerado e gráfico no mesmo ritmo.** As camadas de regime e de surto do `synthetic.py` sobem a SELIC em reunião, em degraus de 0,25, em vez da rampa diária. O marcador do Copom aparece só nos dias de reunião com mudança.
+
+**Aceite.** Repetindo o corte de 16% para 0 do imposto da #3, a SELIC não cai mais que o teto por reunião e não fica abaixo do IPCA projetado. Toda SELIC do autônomo e do futuro gerado é múltiplo de 0,25 e só muda em dia de reunião. O gráfico "Juros e inflação" de 14 anos tem no máximo 8 bolinhas por ano.
+
+<a id="f282"></a>
+**F282 — Texto dos gráficos com no mínimo 12 px.** Serve N15. O DESIGN.md põe o piso do texto em 12 px, mas os eixos, legendas e rótulos dos gráficos usam `fontSize` de 8 a 11. Ocorrências: `statistics-report/risk-tab.tsx` (7), `government/approval-chart.tsx` (5), `shared/components/player-line-chart/index.tsx`, `variable-income/technical-summary.tsx`, `lobby/candle-challenge/candle-chart.tsx`, `import-assets/preview-chart.tsx`, `government/map-place-trend.tsx`, `government/debt-card.tsx` e `economy/series-chart.tsx` (2 cada), `treasury/rate-chart-card.tsx`, `summaries/year-review.tsx`, `composition-tab.tsx`, `government/poll-chart.tsx`, `government/hemicycle.tsx` e `economy/economy-chart.tsx` (1 cada).
+
+**Plano.** O tamanho do texto de gráfico vira um token só, de 12 px, usado por todos os eixos e rótulos. Onde o rótulo não cabe com 12 px, o gráfico mostra menos marcas no eixo ou abrevia, em vez de encolher a fonte.
+
+**Aceite.** Nenhum `fontSize` abaixo de 12 em `frontend/features`; os gráficos citados conferidos no app sem rótulo sobreposto.
+
 ---
 
 ## 🔍 Em avaliação
@@ -535,6 +563,7 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F278** | Feature | Imprevistos e eventos de vida mais variados | N23 | — | M26 · 4.1 | — | Os tipos novos, os imprevistos por profissão, os eventos positivos e a troca da criação de tipos pela frequência no lobby. |
 | **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M26 · 4.1 | — | Medir as estratégias atuais em partidas com governo, dólar e crédito; escolher as estratégias novas. |
 | **F280** | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | N34, N8 | — | M26 · 4.1 | — | Quantos partidos do computador concorrem com N jogadores; quanto pesam as ações de campanha contra o dinheiro; de onde sai o dinheiro de campanha. |
+| **F283** | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | N15 | — | M26 · 4.1 | — | Em quais campos a porcentagem ajuda (contribuição em % do salário, doação em % do caixa, venda em % da posição) e se o Shift fica como atalho do controle visível. |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -629,7 +658,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 **F268 — Tela do Mapa repensada.** Serve N34 e N15. Em "Estados, do maior para o menor", o "Ver mais" abre um card pequeno numa coluna estreita à direita, com rolagem horizontal, e deixa a página vazia à esquerda. Os rótulos das lentes ocupam espaços desiguais.
 
 <a id="f269"></a>
-**F269 — Governo e Eleição com as ações do jogador num lugar só.** Serve N34 e N15. Quem é presidente ou está em campanha não acha onde agir: criar medida, prometer na campanha, orientar a bancada. As ações se espalham entre as telas Governo e Eleição e entre as abas de cada uma. O card começa por uma análise de UX das duas páginas inteiras.
+**F269 — Governo e Eleição com as ações do jogador num lugar só.** Serve N34 e N15. Quem é presidente ou está em campanha não acha onde agir: criar medida, prometer na campanha, orientar a bancada. As ações se espalham entre as telas Governo e Eleição e entre as abas de cada uma. O card começa por uma análise de UX das duas páginas inteiras. Entra na análise o valor do PIB do país, que hoje só aparece no card Dívida ÷ PIB, como "PIB em 12 meses", e a jogadora não achou.
 
 <a id="f270"></a>
 **F270 — Cards permanentes da Renda fixa integrados à tela.** Serve N15. Os cards fixos "CDB Nubank Liquidez Diária", em verde, e "Conta em dólar", em azul, destoam da tela: as cores, o layout e a posição não seguem o resto da Renda fixa.
@@ -663,6 +692,9 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 <a id="f280"></a>
 **F280 — Corrida eleitoral com bots sempre presentes e campanha que pesa.** Serve N34 e N8. A eleição tem três partidos (`PARTIES_PER_ELECTION=3` em `election.py:21`). O computador ocupa só as vagas que sobram dos jogadores (`_ensure_computers` em `government_book.py:3921-3945`), então, com dois partidos de jogador, só um do computador concorre. As ações de campanha mexem pouco no voto, e o que decide é o dinheiro de campanha, que sai do bolso do próprio jogador.
+
+<a id="f283"></a>
+**F283 — Campos de valor com o mesmo controle de R$ e de porcentagem.** Serve N15. Os campos de dinheiro do jogo têm atalhos diferentes para a mesma coisa: a contribuição mensal e a doação têm valores fixos (5 mil, 10 mil), a renda fixa soma a cada clique, e o Tesouro tem 25%, 50% e Tudo. A jogadora sugeriu, no molde dos jogos da Paradox, segurar Shift para alternar entre valor fixo e porcentagem. Atalho escondido não se descobre; a proposta é um controle visível "R$ | %" ao lado dos atalhos, que troca os botões entre valores fixos e porcentagens do saldo ou da posição, com o Shift como atalho do mesmo controle. A soma dos atalhos fixos já é do card de acabamentos da 4.1.
 
 ---
 
