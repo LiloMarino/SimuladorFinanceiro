@@ -103,7 +103,6 @@
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | M26 · 4.1 | — | Médio | Excelente | ⏳ |
 | [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | M26 · 4.1 | — | Médio | Bom | ⏳ |
-| [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | M26 · 4.1 | — | Médio | Excelente | ⏳ |
 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | M26 · 4.1 | — | — | — | 🔍 |
 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | M26 · 4.1 | — | — | — | 🔍 |
 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | M26 · 4.1 | — | — | — | 🔍 |
@@ -123,7 +122,7 @@
 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (37 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (38 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -163,6 +162,7 @@
 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | M26 · 4.1 | — | — | — | ✅ |
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | ✅ |
 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | M26 · 4.1 | — | — | — | ✅ |
+| [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | M26 · 4.1 | — | — | — | ✅ |
 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
@@ -179,7 +179,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 17/37 concluídos
+> **Progresso:** 18/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -201,7 +201,7 @@
 | 16 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | — | ✅ Concluído |
 | 17 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | — | ⏳ Pendente |
 | 18 | [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | — | ⏳ Pendente |
-| 19 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | — | ⏳ Pendente |
+| 19 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | — | ✅ Concluído |
 | 20 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | — | 🔍 Em avaliação |
 | 21 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | — | 🔍 Em avaliação |
 | 22 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | — | 🔍 Em avaliação |
@@ -327,7 +327,6 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | M26 · 4.1 · 17º | 0 | Médio | Excelente | ⏳ |
 | [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | M26 · 4.1 · 18º | 0 | Médio | Bom | ⏳ |
-| [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | M26 · 4.1 · 19º | 0 | Médio | Excelente | ⏳ |
 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | M26 · 4.1 · 20º | 0 | — | — | 🔍 |
 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | M26 · 4.1 · 21º | 0 | — | — | 🔍 |
 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | M26 · 4.1 · 22º | 0 | — | — | 🔍 |
@@ -400,7 +399,6 @@
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
 | **F263** | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | N3, N34 | D20 | M26 · 4.1 | — | Médio | Médio | Alto | Excelente |
 | **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | D10 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
-| **F265** | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | N15, N34 | — | M26 · 4.1 | — | Médio | Baixo | Alto | Excelente |
 | **F271** | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | N20 | — | M26 · 4.1 | — | Médio | Baixo | Médio | Bom |
 | **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 | — | Alto | Médio | Médio | Médio |
 | **F276** | Correção | Governo ruim perde aprovação | N34, N41 | — | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
@@ -517,19 +515,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 **Efeito nas partidas salvas.** A nota é recalculada dos snapshots a cada leitura, então toda partida muda um pouco. Estimativa: de 2 a 7 pontos a menos no eixo de eficiência, mais para quem oscila mais (com volatilidade de 20% ao ano o Sharpe cai cerca de 0,1). A conquista dos 250 pontos (`achievements/catalog.py:282-288`) usa a nota nova.
 
 **Aceite:** no histórico do "como reproduzir", Sharpe e Sortino saem negativos, o eixo de eficiência dá 0 ponto e a volatilidade dá 0 ponto (antes, 9 milhões de pontos na nota). Num histórico de dois dias com −50% e +100%, a média dos retornos usada no Sharpe é 0. Um histórico comum, com volatilidade de até 30% ao ano, muda menos de 10 pontos na nota total.
-
-<a id="f265"></a>
-**F265 — Acabamentos do mapa, do Tesouro e dos cards da economia.** Serve N15 e N34. Lote de consertos pequenos que saíram da partida de 10/11.
-
-1. **Mapa que acompanha a eleição.** `useElectionMap.ts` e `useElectionTimeline.ts` não ouvem o socket nem recarregam: só invalidam no resultado da eleição (`government-notifications.tsx:66-69`). Com isso, a pesquisa nova não aparece até a apuração. Passam a invalidar a cada pesquisa publicada. As pesquisas semanais do 2º turno já estão na linha do tempo (`map_timeline.py:163-172`), e a nota de que elas não apareciam entre os turnos provavelmente tem a mesma causa: conferir no app depois do conserto.
-2. **Tesouro sem título vencido.** O catálogo só renova no dia 1 do mês (`useTreasuryCatalog.ts:11-14`). O título vencido continua na lista e devolve 409 ao investir (`fixed_broker.py:159-161`). O catálogo passa a ser invalidado no vencimento.
-3. **Card do dólar sem vão.** O `dollar-card.tsx` abre um vão na grade da Economia.
-4. **Card Dívida ÷ PIB.** O gráfico não ocupa a altura do card e sobra um vão acima dele. O eixo x repete rótulos ("dez/21 dez/21", "fev/22 fev/22"). "Resultado primário 0,0%" aparece ao lado de "Resultado do mês −R$ 61,6 bi": conferir se o 0,0% é arredondamento ou leitura errada.
-5. **Diálogo do resultado da eleição.** Os três botões de `round-result-dialog.tsx:159-172` (Ver no mapa, Fechar e o principal) ficam desalinhados, e o conteúdo fica mais curto.
-6. **Lentes do mapa alinhadas.** Os rótulos "precisa de 2 pesquisas" e "sem dados por lugar" na mesma linha desalinham os atalhos numerados. O espaçamento fica igual em todas as lentes.
-7. **Atalhos de valor que somam.** Na contribuição mensal (`contribution-field.tsx:9`) e na doação (`donate-dialog.tsx:36`), o atalho substitui o valor; na renda fixa (`investment-ticket.tsx:30-34`), ele soma. Os dois passam a somar, como na renda fixa.
-8. **Selo do partido no jornal.** A manchete cita a sigla só em texto ("UPR"); passa a mostrar o selo do partido, o mesmo das telas de governo.
-9. **Juro americano na prévia do futuro gerado.** O FED_FUNDS é gerado (`synthetic.py:854-870`), mas não está no `FuturePreviewDTO` (`dto/generated_future.py:78-95`), então não aparece na prévia do diálogo de geração.
 
 <a id="f271"></a>
 **F271 — Paleta de 16 cores para os partidos e um seletor de cor único.** Serve N20.
@@ -844,6 +829,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F260** | Feature | Caixa em dólar com o juro americano | N41, N34 | — | M26 · 4.1 |
 | **F261** | Feature | Profissão no viver de renda | N23, N34 | D19 | M26 · 4.1 |
 | **F262** | Feature | Pedido de impeachment aberto por jogador | N34 | — | M26 · 4.1 |
+| **F265** | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | N15, N34 | — | M26 · 4.1 |
 | **F282** | Correção | Texto dos gráficos com no mínimo 12 px | N15 | — | M26 · 4.1 |
 
 <a id="f69"></a>
@@ -997,6 +983,19 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 
 <a id="f262"></a>
 **F262 — Pedido de impeachment aberto por jogador.** Serve N34. O líder de um partido com pelo menos uma cadeira na casa, fora o do partido do presidente, abre o pedido enquanto a aprovação de um presidente jogador está abaixo do piso de 25% e fora da carência dos 12 primeiros meses. Há um pedido aberto por vez e cada partido pede uma vez por mandato. O pedido rejeitado soma 5 pontos de rejeição ao partido de quem pediu, nos grupos de eleitores que ainda aprovam o presidente. O pedido sai em manchete para a sala toda e em aviso ao presidente, com o partido que pediu; a tela do Congresso mostra o botão com o custo explicado antes de confirmar. A bancada na base orienta Não e protege o presidente, sem código novo. Os 5 pontos ficam para a calibragem pelo CLI.
+
+<a id="f265"></a>
+**F265 — Acabamentos do mapa, do Tesouro e dos cards da economia.** Serve N15 e N34. Lote de consertos pequenos que saíram da partida de 10/11.
+
+1. **Mapa que acompanha a eleição.** `useElectionMap.ts` e `useElectionTimeline.ts` não ouvem o socket nem recarregam: só invalidam no resultado da eleição (`government-notifications.tsx:66-69`). Com isso, a pesquisa nova não aparece até a apuração. Passam a invalidar a cada pesquisa publicada. As pesquisas semanais do 2º turno já estão na linha do tempo (`map_timeline.py:163-172`), e a nota de que elas não apareciam entre os turnos provavelmente tem a mesma causa: conferir no app depois do conserto.
+2. **Tesouro sem título vencido.** O catálogo só renova no dia 1 do mês (`useTreasuryCatalog.ts:11-14`). O título vencido continua na lista e devolve 409 ao investir (`fixed_broker.py:159-161`). O catálogo passa a ser invalidado no vencimento.
+3. **Card do dólar sem vão.** O `dollar-card.tsx` abre um vão na grade da Economia.
+4. **Card Dívida ÷ PIB.** O gráfico não ocupa a altura do card e sobra um vão acima dele. O eixo x repete rótulos ("dez/21 dez/21", "fev/22 fev/22"). "Resultado primário 0,0%" aparece ao lado de "Resultado do mês −R$ 61,6 bi": conferir se o 0,0% é arredondamento ou leitura errada.
+5. **Diálogo do resultado da eleição.** Os três botões de `round-result-dialog.tsx:159-172` (Ver no mapa, Fechar e o principal) ficam desalinhados, e o conteúdo fica mais curto.
+6. **Lentes do mapa alinhadas.** Os rótulos "precisa de 2 pesquisas" e "sem dados por lugar" na mesma linha desalinham os atalhos numerados. O espaçamento fica igual em todas as lentes.
+7. **Atalhos de valor que somam.** Na contribuição mensal (`contribution-field.tsx:9`) e na doação (`donate-dialog.tsx:36`), o atalho substitui o valor; na renda fixa (`investment-ticket.tsx:30-34`), ele soma. Os dois passam a somar, como na renda fixa.
+8. **Selo do partido no jornal.** A manchete cita a sigla só em texto ("UPR"); passa a mostrar o selo do partido, o mesmo das telas de governo.
+9. **Juro americano na prévia do futuro gerado.** O FED_FUNDS é gerado (`synthetic.py:854-870`), mas não está no `FuturePreviewDTO` (`dto/generated_future.py:78-95`), então não aparece na prévia do diálogo de geração.
 
 <a id="f282"></a>
 **F282 — Texto dos gráficos com no mínimo 12 px.** Serve N15. O texto de gráfico (eixos, legendas, rótulos e tooltips) usa um token só, de 12 px: `CHART_TICK` e `CHART_FONT_SIZE`, em `shared/lib/chart-text.ts`. O teste de tamanho mínimo passou a pegar também `fontSize` literal abaixo de 12, além das classes `text-[Npx]`.
