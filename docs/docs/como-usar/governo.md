@@ -49,7 +49,7 @@ Quem joga sozinho fundou um partido de um filiado: vale igual.
 
 ### A chapa
 
-A chapa é o **candidato** e o **vice**. Por padrão o candidato é o fundador e a chapa vai sem vice. O fundador pode escolher outro filiado como candidato e **convidar um vice** até o fim da inscrição de chapas. O vice pode ser qualquer jogador da sala, de outro partido ou sem partido, como numa coligação; ele continua filiado ao próprio partido e soma para ele no ranking. Não vale convidar quem já é vice ou candidato de outra chapa. O vice só conta depois de **aceitar** o convite, que aparece na tela dele; sem resposta, a chapa concorre sem vice.
+A chapa é o **candidato** e o **vice**. Por padrão o candidato é o fundador e a chapa vai sem vice. O fundador pode escolher outro filiado como candidato e **convidar um vice** até o fim da inscrição de chapas. O vice pode ser qualquer jogador da sala, de outro partido ou sem partido, como numa coligação; ele continua filiado ao próprio partido. Não vale convidar quem já é vice ou candidato de outra chapa. O vice só conta depois de **aceitar** o convite, que aparece na tela dele; sem resposta, a chapa concorre sem vice.
 
 ### A promessa na régua
 
@@ -152,11 +152,26 @@ O computador completa a disputa com **partidos próprios** (UPR, MNV e ACI) até
 
 ## Ranking
 
-A página da eleição traz o **patrimônio de cada jogador** e o de cada **partido** (a soma dos filiados). Quem não é de partido fica fora do ranking de partidos.
+A página da eleição traz o **patrimônio de cada jogador** e o **capital político** de cada partido, em pontos, com as parcelas (cadeiras, presidência, promessas e, quando houve, impeachment) logo abaixo do total. Quem não é de partido fica fora do ranking de partidos, e o patrimônio dos filiados não entra na conta do partido.
 
 ## Vitória política
 
-No tipo de partida **Política**, a partida acaba na data final e vence o **partido com a maior soma de patrimônio dos filiados**, e não o critério de vitória escolhido para as demais. Por isso o seletor do critério some quando a Política está marcada, e o modo de jogo fica **individual** (cada jogador compete por seu partido, e não em equipes). O ranking individual continua na tela de resultado, só para informação.
+No tipo de partida **Política**, a partida acaba na data final e vence o **partido com mais capital político**, e não o critério de vitória escolhido para as demais. Por isso o seletor do critério some quando a Política está marcada, e o modo de jogo fica **individual** (cada jogador compete por seu partido, e não em equipes). O ranking individual continua na tela de resultado, só para informação.
+
+### O capital político
+
+O capital político são **pontos que o partido acumula a cada mês fechado** (o último dia útil do mês). Só partidos de jogadores pontuam; o partido do computador não entra no ranking.
+
+| Origem | Pontos | Exemplo |
+| --- | --- | --- |
+| Cadeiras | 1 por cadeira na casa em exercício (a casa tem 101) | 28 cadeiras = 28 pontos no mês |
+| Presidência | A aprovação do governo no fechamento do mês (0 a 100), para o partido do presidente | Aprovação 62 = 62 pontos no mês |
+| Promessas | No balanço do fim do mandato, 100 pontos por promessa cumprida por inteiro, proporcional ao que foi cumprido | 2 inteiras e 1 pela metade = 250 pontos |
+| Impeachment | O partido perde metade do que a presidência rendeu naquele mandato | A presidência rendeu 620: perde 310 |
+
+Ex.: um partido com 28 cadeiras governa 12 meses com aprovação média de 60. Nas cadeiras soma 28 × 12 = 336 e na presidência 60 × 12 = 720. Se no balanço cumpriu 2 promessas inteiras e 1 pela metade, ganha mais 250, e fecha o mandato com 336 + 720 + 250 = 1.306 pontos. Com impeachment, perderia 360 (metade de 720) e ficaria com 946.
+
+Os pontos só crescem com o tempo, a não ser pelo impeachment: um mês de governo ruim rende pouco, mas não tira o que já foi somado. Medida aprovada não pontua por si; ela pesa na aprovação, e é a aprovação que vira pontos. Se dois partidos empatam em pontos, vence o que tem **mais cadeiras na casa atual**. Os filiados do partido vencedor vencem juntos, e o patrimônio deles não entra no placar do partido.
 
 A Política só aparece quando a expansão **Governo & Política** está ligada. Desligar a expansão devolve o tipo para Clássica.
 

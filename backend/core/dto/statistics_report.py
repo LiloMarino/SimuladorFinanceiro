@@ -9,6 +9,7 @@ from typing import Literal
 
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
+from backend.core.dto.political_capital import PoliticalCapitalDTO
 from backend.core.dto.sector import SectorAllocationDTO
 from backend.core.enum import (
     CreditGrade,
@@ -140,7 +141,7 @@ class TeamRankingDTO(BaseDTO):
 
 
 class PartyRankingDTO(BaseDTO):
-    """Partido da expansão Governo & Política: o patrimônio dele é a soma do dos filiados."""
+    """Partido de jogador da expansão Governo & Política, ordenado pelo capital político."""
 
     party_id: int
     abbr: str
@@ -149,9 +150,9 @@ class PartyRankingDTO(BaseDTO):
     color: str
     position: int
     members: list[str]
-    total_networth: Decimal
-    # Quanto falta para o primeiro (0 para o líder)
-    leader_gap: Decimal
+    capital: PoliticalCapitalDTO
+    # Quantos pontos faltam para o primeiro (0 para o líder)
+    leader_gap: int
 
 
 class OverviewReportDTO(TeamReportDTO):
@@ -165,8 +166,8 @@ class OverviewReportDTO(TeamReportDTO):
     criterion: VictoryCriterion
     # Fora da Clássica, `criterion_value` é a fração da meta (patrimônio ÷ meta)
     game_type: GameType
-    # Ranking de partidos da expansão Governo & Política; vazio sem ela. Decide a partida
-    # na vitória política e, nas outras, é só informação
+    # Ranking de capital político dos partidos da expansão Governo & Política; vazio sem
+    # ela. Decide a partida na vitória política e, nas outras, é só informação
     parties: list[PartyRankingDTO]
     # A meta das partidas no último dia quando todas têm a mesma; None entre metas diferentes
     goal_net_worth: Decimal | None

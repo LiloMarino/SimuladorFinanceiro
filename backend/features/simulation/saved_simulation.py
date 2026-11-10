@@ -70,7 +70,7 @@ def compute_result(simulation_id: int) -> SimulationResultDTO:
 
 
 def _political_result(overview: OverviewReportDTO) -> SimulationResultDTO:
-    """Vence o partido com a maior soma de patrimônio; quem está fora de partido fica sem colocação."""
+    """Vence o partido com mais capital político; quem está fora de partido fica sem colocação."""
     parties = overview.parties
     return SimulationResultDTO(
         leader_reached_goal=False,

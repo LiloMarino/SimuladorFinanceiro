@@ -207,7 +207,7 @@ class GameType(Enum):
     CLASSIC = "CLASSIC"
     GOAL_RACE = "GOAL_RACE"
     FINANCIAL_INDEPENDENCE = "FINANCIAL_INDEPENDENCE"
-    # Da expansão Governo & Política: vence o partido com a maior soma de patrimônio dos filiados
+    # Da expansão Governo & Política: vence o partido com mais capital político
     POLITICAL = "POLITICAL"
 
     @property

@@ -19,6 +19,9 @@ describe("critério do ranking", () => {
     expect(criterionLabel({ game_type: "GOAL_RACE", criterion: "SCORE", goal_net_worth: "1500000" })).toBe(
       "Primeiro a chegar à meta (R$ 1,5 mi)",
     );
+    expect(criterionLabel({ game_type: "POLITICAL", criterion: "SCORE", goal_net_worth: null })).toBe(
+      "Capital político",
+    );
     expect(criterionLabel({ game_type: "FINANCIAL_INDEPENDENCE", criterion: "SCORE", goal_net_worth: null })).toBe(
       "Primeiro a chegar à independência financeira",
     );

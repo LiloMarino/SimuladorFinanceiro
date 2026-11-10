@@ -408,12 +408,24 @@ class ApprovalPoint:
 
 
 @dataclass(frozen=True)
+class GovernedMonth:
+    """Um fechamento de mês de um governo de partido de jogador, com a aprovação medida."""
+
+    day: date
+    party_id: int
+    term_start: date
+    approval: int
+
+
+@dataclass(frozen=True)
 class Impeachment:
     day: date
     president_id: int | None
     party_id: int | None
     # O vice que assumiu; nulo quando o computador ficou no lugar
     successor_id: int | None
+    # O início do mandato derrubado
+    term_start: date
 
 
 @dataclass(frozen=True)
@@ -494,6 +506,8 @@ class GovernmentState:
     demand_armed: bool = True
     last_measured: date | None = None
     impeachments: list[Impeachment] = field(default_factory=list)
+    # Os fechamentos de mês dos governos de partidos de jogador, de todos os mandatos
+    governed_months: list[GovernedMonth] = field(default_factory=list)
     # As casas eleitas, em ordem; antes da 1ª eleição vale a casa inicial do computador
     houses: list[ElectedHouse] = field(default_factory=list)
     # A orientação de cada bancada em cada votação aberta: "measure:7" ou "impeachment"
@@ -889,6 +903,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             state.last_measured = date.fromisoformat(_str(p, "month"))
             _remember_month(state, satisfaction, day)
             _apply_demands(state, day, bool(p.get("demand")), _int(p, "value"))
+            _record_governed_month(state, day, _int(p, "value"))
         case Event.IMPEACHED:
             _apply_impeachment(state, event)
         case Event.HOUSE_ELECTED:
@@ -1067,6 +1082,14 @@ def _reset_government(state: GovernmentState, day: date) -> None:
     _cut_deals(state, day)
 
 
+def _record_governed_month(state: GovernmentState, day: date, approval: int) -> None:
+    """O fechamento do mês de um governo de partido de jogador entra no histórico do capital político."""
+    term = state.term
+    party = state.parties.get(term.party_id) if term and term.party_id else None
+    if term is not None and party is not None and not party.is_computer:
+        state.governed_months.append(GovernedMonth(day, party.id, term.start, approval))
+
+
 def _apply_impeachment(state: GovernmentState, event: GovernmentEventDTO) -> None:
     term = required(state.term)
     successor = _opt_int(event.payload, "successor_id")
@@ -1076,6 +1099,7 @@ def _apply_impeachment(state: GovernmentState, event: GovernmentEventDTO) -> Non
             president_id=term.president_id,
             party_id=term.party_id,
             successor_id=successor,
+            term_start=term.start,
         )
     )
     # Sem vice, governa o partido do computador com mais cadeiras; nulo, o governo neutro

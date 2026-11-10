@@ -106,7 +106,6 @@ export function JoinPartyDialog({
 
                 <div className="rounded-lg border px-3 py-1">
                   <KeyValueRow label="Quem escolhe a chapa" value={`${party.founder}, quem fundou`} />
-                  <KeyValueRow label="Ranking de partidos" value={`seu patrimônio soma no ${party.abbr}`} />
                 </div>
               </>
             )}

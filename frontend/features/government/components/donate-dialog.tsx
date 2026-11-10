@@ -169,12 +169,6 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
                   <dt className="text-muted-foreground">Seu patrimônio no ranking</dt>
                   <dd className="text-right font-mono font-semibold">−{displayMoney(amount)}</dd>
                 </div>
-                {mine && (
-                  <div className="flex justify-between gap-3 py-1.5">
-                    <dt className="text-muted-foreground">{mine.abbr} no ranking de partidos</dt>
-                    <dd className="text-right font-mono font-semibold">−{displayMoney(amount)}</dd>
-                  </div>
-                )}
               </dl>
             )}
 

@@ -7,7 +7,7 @@ type GameTypeInfo = { label: string; description: string; icon: LucideIcon };
 /** O tipo que a expansão Governo & Política acrescenta; a tela o mostra à parte dos tipos base. */
 export const POLITICAL_GAME_TYPE: GameTypeInfo = {
   label: "Política",
-  description: "Vence o partido com a maior soma de patrimônio dos filiados.",
+  description: "Vence o partido com mais capital político: pontos de cadeiras, presidência e promessas cumpridas.",
   icon: Crown,
 };
 

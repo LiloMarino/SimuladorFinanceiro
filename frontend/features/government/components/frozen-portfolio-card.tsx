@@ -102,8 +102,8 @@ export function FrozenPortfolioCard({ panel }: FrozenPortfolioCardProps) {
 
           <p className="rounded-lg bg-subtle px-2.5 py-2 text-xs leading-normal text-muted-foreground">
             {panel.is_president
-              ? "Você vence pelo patrimônio, como todos, e não compra nem vende enquanto governa, porque sabe da medida antes da sala."
-              : `${portfolio.nickname} vence pelo patrimônio, como todos, mas não compra nem vende enquanto governa, porque sabe da medida antes da sala.`}
+              ? "Você segue na disputa da partida, como todos, e não compra nem vende enquanto governa, porque sabe da medida antes da sala."
+              : `${portfolio.nickname} segue na disputa da partida, como todos, mas não compra nem vende enquanto governa, porque sabe da medida antes da sala.`}
           </p>
         </div>
       </CardContent>

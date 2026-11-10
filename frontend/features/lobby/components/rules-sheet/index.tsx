@@ -228,8 +228,9 @@ export function RulesSheet({
                 <POLITICAL_GAME_TYPE.icon />
                 <AlertTitle>Quem vence já está definido</AlertTitle>
                 <AlertDescription>
-                  O partido com a maior soma de patrimônio dos filiados. A partida joga até a data final, e todos os
-                  filiados do partido vencedor vencem juntos.
+                  O partido com mais capital político: 1 ponto por cadeira a cada mês fechado, a aprovação do governo
+                  para o partido do presidente e 100 pontos por promessa cumprida. A partida joga até a data final, e
+                  todos os filiados do partido vencedor vencem juntos.
                 </AlertDescription>
               </Alert>
             )}

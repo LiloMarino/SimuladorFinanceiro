@@ -12,6 +12,7 @@ import {
 } from "@/shared/lib/utils/display";
 import { displayAnnualMultiple, displayRatePercent, unexpectedLabel } from "@/shared/lib/financial-independence";
 import { displayGoalPercent } from "@/shared/lib/goal";
+import { displayPoints, POLITICAL_CAPITAL } from "@/shared/lib/political-capital";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type { OverviewReport, Player, SimulationListItem } from "@/types";
 import {
@@ -20,10 +21,12 @@ import {
   displayCriterionValue,
   rankingMeasure,
 } from "../../lib/criterion";
+import { PartyPodium } from "./party-podium";
 import { Podium } from "./podium";
 import { TeamPodium } from "./team-podium";
 
 type TeamRanking = OverviewReport["teams"][number];
+type PartyRanking = OverviewReport["parties"][number];
 
 /** A meta foi atingida quando a fração da meta do líder chega a 1. */
 const reachedGoal = (fraction: string | null) => fraction !== null && Number(fraction) >= 1;
@@ -193,6 +196,70 @@ function TeamSummary({
   );
 }
 
+/** A frase do partido vencedor; sem partido de jogador, ninguém venceu. */
+function partyHeadline(first: PartyRanking | undefined, second: PartyRanking | undefined) {
+  if (!first) return "Ninguém venceu a partida política";
+  if (second && second.leader_gap === 0) return `${first.name} venceu no desempate`;
+  return `${first.name} venceu com ${displayPoints(first.capital.total)}`;
+}
+
+/** O que a frase do topo diz da Política: o critério, o seu partido e a colocação dele. */
+function PartySummary({
+  report,
+  currentPlayerName,
+}: {
+  report: OverviewReport;
+  currentPlayerName?: string | undefined;
+}) {
+  const [first, second] = report.parties;
+  if (!first) {
+    return <>Nenhum partido de jogador disputou a partida, então não há vencedor por Capital político.</>;
+  }
+
+  const you = report.players.find((p) => p.player_nickname === currentPlayerName);
+  const mine = report.parties.find(
+    (party) => currentPlayerName !== undefined && party.members.includes(currentPlayerName),
+  );
+
+  return (
+    <>
+      Vitória por <b className="text-white">{POLITICAL_CAPITAL.label}</b>: {POLITICAL_CAPITAL.description.toLowerCase()}
+      . Os filiados do partido vencedor vencem juntos.
+      {mine &&
+        (mine.position === 1 ? (
+          <>
+            {" "}
+            Seu partido venceu
+            {second &&
+              (second.leader_gap === 0 ? (
+                <>, no desempate pelas cadeiras</>
+              ) : (
+                <>
+                  , <b className="font-mono text-white">{displayPoints(second.leader_gap)}</b> à frente do {second.abbr}
+                </>
+              ))}
+            .
+          </>
+        ) : (
+          <>
+            {" "}
+            Seu partido, <b className="text-white">{mine.abbr}</b>, ficou em{" "}
+            <b className="text-white">{mine.position}º</b>
+            {mine.leader_gap === 0 ? (
+              <>, empatado em pontos e atrás no desempate pelas cadeiras</>
+            ) : (
+              <>
+                , a <b className="font-mono text-white">{displayPoints(mine.leader_gap)}</b> do {first.abbr}
+              </>
+            )}
+            .
+          </>
+        ))}
+      {!mine && you && <> Você jogou sem partido, então não pontuou.</>}
+    </>
+  );
+}
+
 /** Pluraliza "N anos", "N meses" ou "N dias" para a antecedência do fim da partida. */
 function displayLeadTime(days: number) {
   if (days >= 365) {
@@ -318,6 +385,7 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
   const winner = report.players[0];
   if (!winner) return null;
 
+  const political = report.game_type === "POLITICAL";
   const firstTeam = report.teams[0];
   const inTeams = firstTeam !== undefined;
   const you = report.players.find((p) => p.player_nickname === currentPlayerName);
@@ -337,14 +405,18 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
         </span>
         <h1 className="flex items-center gap-3 text-[34px] leading-tight font-bold text-white">
           {reached && <Flag className="size-7 shrink-0 text-trophy" />}
-          {firstTeam
-            ? teamHeadline(report, firstTeam, report.teams[1])
-            : solo
-              ? soloHeadline(report, winner)
-              : headline(report, winner)}
+          {political
+            ? partyHeadline(report.parties[0], report.parties[1])
+            : firstTeam
+              ? teamHeadline(report, firstTeam, report.teams[1])
+              : solo
+                ? soloHeadline(report, winner)
+                : headline(report, winner)}
         </h1>
         <p className="text-[15px]">
-          {measure === "GOAL" ? (
+          {political ? (
+            <PartySummary report={report} currentPlayerName={currentPlayerName} />
+          ) : measure === "GOAL" ? (
             <GoalSummary
               report={report}
               simulation={simulation}
@@ -366,7 +438,8 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
               Vitória por <b className="text-white">{criterion?.label}</b>: {criterion?.description}
             </>
           )}
-          {!inTeams &&
+          {!political &&
+            !inTeams &&
             !solo &&
             measure !== "GOAL" &&
             you &&
@@ -415,7 +488,14 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
           </Button>
         </div>
       </div>
-      {inTeams ? <TeamPodium report={report} /> : <Podium report={report} currentPlayerName={currentPlayerName} />}
+      {/* Pódio */}
+      {political ? (
+        <PartyPodium report={report} />
+      ) : inTeams ? (
+        <TeamPodium report={report} />
+      ) : (
+        <Podium report={report} currentPlayerName={currentPlayerName} />
+      )}
     </section>
   );
 }

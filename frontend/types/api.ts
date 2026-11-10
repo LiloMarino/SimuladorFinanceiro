@@ -209,6 +209,7 @@ export type IncomeLoss = components["schemas"]["IncomeLoss"];
 export type ElectionPanel = components["schemas"]["ElectionPanelDTO"];
 export type ElectionPhase = components["schemas"]["ElectionPhase"];
 export type ElectionParty = ElectionPanel["parties"][number];
+export type PoliticalCapital = components["schemas"]["PoliticalCapitalDTO"];
 export type ElectionRound = components["schemas"]["RoundResultDTO"];
 export type PartyCandidate = components["schemas"]["PartyCandidateDTO"];
 export type FoundPartyRequest = components["schemas"]["FoundPartyRequest"];

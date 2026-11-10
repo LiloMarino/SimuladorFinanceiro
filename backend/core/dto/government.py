@@ -9,6 +9,7 @@ from pydantic import Field, StringConstraints
 
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.budget import BudgetEffectDTO, QueueBudgetDTO
+from backend.core.dto.political_capital import PoliticalCapitalDTO
 from backend.core.dto.promises import (
     PromiseDTO,
     PromiseOptionDTO,
@@ -315,14 +316,14 @@ class PlayerStandingDTO(BaseDTO):
 
 
 class PartyStandingDTO(BaseDTO):
-    """O patrimônio do partido é a soma do patrimônio dos filiados."""
+    """O partido de jogador com o capital político que ele acumulou na partida."""
 
     party_id: int
     abbr: str
     name: str
     color: str | None
     members: list[str]
-    total_networth: Decimal
+    capital: PoliticalCapitalDTO
 
 
 class ElectionDatesDTO(BaseDTO):

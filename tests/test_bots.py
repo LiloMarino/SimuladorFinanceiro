@@ -15,7 +15,7 @@ from backend import config
 from backend.core import repository
 from backend.core.dependencies import get_client_id
 from backend.core.dto.user import UserDTO
-from backend.core.enum import PlayerGrouping, StrategyLogKind
+from backend.core.enum import GameType, PlayerGrouping, StrategyLogKind
 from backend.core.exceptions.http_exceptions import ForbiddenError
 from backend.core.player_colors import PLAYER_COLORS
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
@@ -315,7 +315,9 @@ def _overview(first_is_bot: bool, in_teams: bool = False):
         SimpleNamespace(player_nickname="Ana" if first_is_bot else "Robô", team=2),
     ]
     teams = [SimpleNamespace(team=1)] if in_teams else []
-    return SimpleNamespace(players=players, teams=teams)
+    return SimpleNamespace(
+        players=players, teams=teams, parties=[], game_type=GameType.CLASSIC
+    )
 
 
 def test_a_bot_in_first_place_gives_the_victory_to_nobody(monkeypatch):
@@ -350,10 +352,50 @@ def test_in_teams_the_people_of_the_winning_team_win_with_the_bot(monkeypatch):
             SimpleNamespace(player_nickname="Ana", team=1),
         ],
         teams=[SimpleNamespace(team=1)],
+        parties=[],
+        game_type=GameType.CLASSIC,
     )
     monkeypatch.setattr(evaluator, "build_overview_report", lambda _ids: both)
 
     assert evaluator.match_result(1, [ana, robot], False).winners == {1}
+
+
+def _political_overview(parties: list[SimpleNamespace]):
+    return SimpleNamespace(
+        players=[SimpleNamespace(player_nickname="Ana", team=1)],
+        teams=[],
+        parties=parties,
+        game_type=GameType.POLITICAL,
+    )
+
+
+def test_in_the_political_victory_the_people_of_the_first_party_win_and_the_bot_does_not(
+    monkeypatch,
+):
+    ana = UserDTO(id=1, client_id=uuid.uuid4(), nickname="Ana")
+    beto = UserDTO(id=2, client_id=uuid.uuid4(), nickname="Beto")
+    robot = UserDTO(id=3, client_id=uuid.uuid4(), nickname="Robô", is_bot=True)
+    cris = UserDTO(id=4, client_id=uuid.uuid4(), nickname="Cris")
+    overview = _political_overview(
+        [
+            SimpleNamespace(members=["Ana", "Robô"]),
+            SimpleNamespace(members=["Beto", "Cris"]),
+        ]
+    )
+    monkeypatch.setattr(evaluator, "build_overview_report", lambda _ids: overview)
+
+    result = evaluator.match_result(1, [ana, beto, robot, cris], False)
+
+    assert result.winners == {1}
+    assert result.players_count == 4
+
+
+def test_in_the_political_victory_without_parties_nobody_wins(monkeypatch):
+    ana = UserDTO(id=1, client_id=uuid.uuid4(), nickname="Ana")
+    overview = _political_overview([])
+    monkeypatch.setattr(evaluator, "build_overview_report", lambda _ids: overview)
+
+    assert evaluator.match_result(1, [ana], False).winners == frozenset()
 
 
 def test_the_bot_log_opens_only_when_the_match_ends(room):

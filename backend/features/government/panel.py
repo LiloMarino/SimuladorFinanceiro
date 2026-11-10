@@ -33,6 +33,7 @@ from backend.core.runtime.user_manager import UserManager
 from backend.features.government import election, federations, voters
 from backend.features.government import measures as rules
 from backend.features.government.calendar import ElectionCycle
+from backend.features.government.capital import party_capital
 from backend.features.government.federation_panel import (
     options as federation_options,
 )
@@ -164,7 +165,7 @@ def build_panel(
         pending_term=build_term(state.pending_term, state, people),
         decides_match=settings.game_type is GameType.POLITICAL,
         player_standings=_players(state, users, networths),
-        party_standings=_parties(state, people, networths),
+        party_standings=_parties(state, people),
         computer_budget_factor=settings.computer_difficulty.budget_factor,
         federations=standing_federations(book, today),
         sent_proposal=(
@@ -501,22 +502,17 @@ def _players(
 
 
 def _parties(
-    state: GovernmentState, people: dict[int, UserDTO], networths: dict[int, Decimal]
+    state: GovernmentState, people: dict[int, UserDTO]
 ) -> list[PartyStandingDTO]:
-    """O patrimônio do partido é a soma do dos filiados; o do computador fica fora."""
-    standings = [
+    """Os partidos de jogador do maior capital político para o menor; o do computador fica fora."""
+    return [
         PartyStandingDTO(
             party_id=p.id,
             abbr=p.abbr,
             name=p.name,
             color=p.color,
             members=[_nickname(people, u) for u in p.members],
-            total_networth=party_networth(p, networths),
+            capital=capital,
         )
-        for p in state.player_parties()
+        for p, capital in party_capital(state)
     ]
-    return sorted(standings, key=lambda s: s.total_networth, reverse=True)
-
-
-def party_networth(party: Party, networths: dict[int, Decimal]) -> Decimal:
-    return sum((networths.get(u, Decimal(0)) for u in party.members), Decimal(0))

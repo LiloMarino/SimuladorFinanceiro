@@ -8956,7 +8956,7 @@ export interface components {
         };
         /**
          * PartyRankingDTO
-         * @description Partido da expansão Governo & Política: o patrimônio dele é a soma do dos filiados.
+         * @description Partido de jogador da expansão Governo & Política, ordenado pelo capital político.
          */
         PartyRankingDTO: {
             /** Party Id */
@@ -8971,14 +8971,13 @@ export interface components {
             position: number;
             /** Members */
             members: string[];
-            /** Total Networth */
-            total_networth: string;
+            capital: components["schemas"]["PoliticalCapitalDTO"];
             /** Leader Gap */
-            leader_gap: string;
+            leader_gap: number;
         };
         /**
          * PartyStandingDTO
-         * @description O patrimônio do partido é a soma do patrimônio dos filiados.
+         * @description O partido de jogador com o capital político que ele acumulou na partida.
          */
         PartyStandingDTO: {
             /** Party Id */
@@ -8991,8 +8990,7 @@ export interface components {
             color: string | null;
             /** Members */
             members: string[];
-            /** Total Networth */
-            total_networth: string;
+            capital: components["schemas"]["PoliticalCapitalDTO"];
         };
         /**
          * PastVoteDTO
@@ -9405,6 +9403,22 @@ export interface components {
         PlayerTeamRequest: {
             /** Team */
             team: number;
+        };
+        /**
+         * PoliticalCapitalDTO
+         * @description Pontos acumulados por mês de poder; o partido com mais pontos vence a partida política.
+         */
+        PoliticalCapitalDTO: {
+            /** Total */
+            total: number;
+            /** Seats */
+            seats: number;
+            /** Presidency */
+            presidency: number;
+            /** Promises */
+            promises: number;
+            /** Impeachment */
+            impeachment: number;
         };
         /**
          * PollDTO

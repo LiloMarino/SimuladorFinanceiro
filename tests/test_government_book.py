@@ -53,6 +53,7 @@ from backend.features.government import (
 )
 from backend.features.government.calendar import election_cycle
 from backend.features.government.campaign_panel import build_campaign, build_history
+from backend.features.government.capital import party_capital
 from backend.features.government.governance import build_governance
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.map_panel import build_map
@@ -848,21 +849,26 @@ def test_panel_follows_the_phase_of_the_race(book: GovernmentBook):
     assert panel(BOB, TERM_START).term is not None
 
 
-def test_party_ranking_adds_up_the_networth_of_the_members(book: GovernmentBook):
-    found(book, ALICE, "AAA", RED)
-    party_id = party_of(book, ALICE).id
-    book.join_party(BOB, CAMPAIGN_OPEN, party_id, Decimal(0))
+def test_party_standings_rank_player_parties_by_political_capital_and_not_by_networth(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+    book.join_party(BOB, TERM_START, party_of(book, ALICE).id, Decimal(0))
+    close_months(book, 2)
     networths = {
         ALICE.id: Decimal(3000),
         BOB.id: Decimal(2000),
         CARLA.id: Decimal(9000),
     }
+    day = date(2022, 3, 1)
 
-    panel = build_panel(book, settings(), USERS, ALICE, CAMPAIGN_OPEN, networths)
+    panel = build_panel(book, settings(), USERS, ALICE, day, networths)
 
-    assert [(s.abbr, s.total_networth) for s in panel.party_standings] == [
-        ("AAA", Decimal(5000))
-    ]
+    [standing] = panel.party_standings
+    capital = party_capital(book.state)[0][1]
+    assert (standing.abbr, standing.members) == ("AAA", ["Alice", "Bob"])
+    assert standing.capital == capital
+    assert capital.total > 0
     assert panel.player_standings[0].nickname == "Carla"
     assert panel.player_standings[0].party_id is None
 

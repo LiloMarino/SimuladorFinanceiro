@@ -60,7 +60,7 @@ function typeRows(rules: SimulationFormValues): SummaryRow[] {
   }
 
   if (rules.gameType === "POLITICAL") {
-    return [{ label: "Vitória por", value: <Badge variant="info">Partido com mais patrimônio</Badge> }];
+    return [{ label: "Vitória por", value: <Badge variant="info">Partido com mais capital político</Badge> }];
   }
 
   // A meta com o múltiplo do saldo inicial quando ele é redondo: "R$ 1.000.000,00 · 10× o saldo"

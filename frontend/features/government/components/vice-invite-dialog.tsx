@@ -35,12 +35,7 @@ export function ViceInviteDialog({ open, onOpenChange, panel }: ViceInviteDialog
   const pollPublished = panel.parties.some((candidateParty) => Number(candidateParty.intention_points) > 0);
 
   const homeParty = panel.parties.find((candidateParty) => candidateParty.id === panel.my_party?.party_id);
-  const staysIn =
-    homeParty && homeParty.id !== party.id
-      ? `Você continua no ${homeParty.abbr} e soma para ele no ranking.`
-      : homeParty
-        ? `Você continua no ${homeParty.abbr}.`
-        : "Você continua sem partido.";
+  const staysIn = homeParty ? `Você continua no ${homeParty.abbr}.` : "Você continua sem partido.";
 
   const lines = [
     { icon: Users, text: `Se o ${party.abbr} vencer, ${candidate} é o eleito e você é o vice.` },

@@ -96,15 +96,6 @@ export const VOTE_YIELD: MetricInfo = {
   format: (value) => Number(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 }),
 };
 
-export const PARTY_NETWORTH: MetricInfo = {
-  label: "Patrimônio do partido",
-  description: "A soma do patrimônio dos filiados",
-  definition: "O patrimônio de cada filiado somado. O partido do computador não entra no ranking.",
-  example: "Ex.: Lilo com R$ 412.300 e Rafa com R$ 298.400 → partido com R$ 710.700.",
-  reading: "Maior é melhor. Na vitória política, o partido com a maior soma vence a partida.",
-  format: (value) => displayMoneyWhole(value),
-};
-
 const points = (value: string | number) => Number(value).toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 
 export const AFFINITY: MetricInfo = {

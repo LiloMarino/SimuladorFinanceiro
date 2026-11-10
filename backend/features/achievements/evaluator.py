@@ -11,6 +11,7 @@ from backend.core.dto.achievements import (
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.dto.user import UserDTO
+from backend.core.enum import GameType
 from backend.core.runtime.event_manager import EventManager
 from backend.features.achievements.catalog import CATALOG, Achievement
 from backend.features.achievements.metrics import (
@@ -144,11 +145,14 @@ def match_result(
     simulation_id: int, participants: list[UserDTO], ended_by_goal: bool
 ) -> MatchResult:
     """
-    Quem venceu a partida, pelo mesmo ranking do fechamento; em equipes, a equipe toda.
+    Quem venceu a partida, pelo mesmo ranking do fechamento; em equipes, a equipe toda, e na
+    vitória política os filiados do partido com mais capital político.
     Bot disputa, mas não vence: com um bot em 1º ninguém leva a vitória.
     """
     overview = build_overview_report([simulation_id])
-    if overview.teams:
+    if overview.game_type is GameType.POLITICAL:
+        names = set(overview.parties[0].members) if overview.parties else set()
+    elif overview.teams:
         winning_team = overview.teams[0].team
         names = {p.player_nickname for p in overview.players if p.team == winning_team}
     else:

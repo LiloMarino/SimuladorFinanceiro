@@ -1,4 +1,5 @@
 import { displayGoalPercent } from "@/shared/lib/goal";
+import { POLITICAL_CAPITAL } from "@/shared/lib/political-capital";
 import { displayMoney, displayMoneyCompact, displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type { OverviewReport, VictoryCriterion } from "@/types";
@@ -18,8 +19,16 @@ export function rankingMeasure(report: Pick<OverviewReport, "game_type" | "crite
 /** O nome do que decide a partida: o critério, ou "Primeiro a chegar à meta (R$ 1,5 mi)". */
 export function criterionLabel(report: Pick<OverviewReport, "game_type" | "criterion" | "goal_net_worth">) {
   if (report.game_type === "CLASSIC") return VICTORY_CRITERIA[report.criterion].label;
+  if (report.game_type === "POLITICAL") return POLITICAL_CAPITAL.label;
   const target = report.game_type === "FINANCIAL_INDEPENDENCE" ? "independência financeira" : "meta";
   return `Primeiro a chegar à ${target}${report.goal_net_worth ? ` (${displayMoneyCompact(report.goal_net_worth)})` : ""}`;
+}
+
+/** Como o ranking de jogadores se apresenta: pelo critério da partida, ou em patrimônio e informativo na Política. */
+export function playerRankingDescription(report: Pick<OverviewReport, "game_type" | "criterion" | "goal_net_worth">) {
+  return report.game_type === "POLITICAL"
+    ? `Classificação por patrimônio, só para informação: a partida é decidida pelo ${POLITICAL_CAPITAL.label.toLowerCase()} dos partidos`
+    : `Classificação pelo critério da partida: ${criterionLabel(report)}`;
 }
 
 /**

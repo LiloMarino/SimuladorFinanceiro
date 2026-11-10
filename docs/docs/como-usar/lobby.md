@@ -287,7 +287,7 @@ A lista vale para a partida salva e entra no preset, no grupo de regras de vida.
 
 #### Política
 
-Tipo da expansão [Governo & Política](./governo.md), disponível só com ela ligada na aba **Expansões**. Os jogadores se organizam em partidos e disputam eleições; vence o partido com a maior soma de patrimônio dos filiados, então o critério de vitória não se aplica e o modo de jogo fica individual.
+Tipo da expansão [Governo & Política](./governo.md), disponível só com ela ligada na aba **Expansões**. Os jogadores se organizam em partidos e disputam eleições; vence o partido com mais [capital político](./governo.md#o-capital-político) (pontos de cadeiras, presidência e promessas cumpridas), então o critério de vitória não se aplica e o modo de jogo fica individual.
 
 ---
 

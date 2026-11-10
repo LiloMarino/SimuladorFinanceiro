@@ -16,6 +16,7 @@ import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import {
   criterionLabel,
+  playerRankingDescription,
   displayCriterionContribution,
   displayCriterionGap,
   displayCriterionValue,
@@ -71,7 +72,7 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
               currentPlayerName={currentPlayerName}
               simulationIds={simulationIds}
               title="Ranking por jogador"
-              description={`Classificação pelo critério da partida: ${criterionLabel(data)}`}
+              description={playerRankingDescription(data)}
               action={viewToggle}
               onOpenBotLog={setBotLog}
             />
@@ -237,7 +238,16 @@ function Headline({
             </span>
             <div className="grid gap-1">
               <span className="text-xs text-muted-foreground">
-                Sua colocação · vitória por <b className="text-foreground">{criterionLabel(report)}</b>
+                {report.game_type === "POLITICAL" ? (
+                  <>
+                    Sua colocação em patrimônio · a partida é decidida pelo{" "}
+                    <b className="text-foreground">{criterionLabel(report)}</b> dos partidos
+                  </>
+                ) : (
+                  <>
+                    Sua colocação · vitória por <b className="text-foreground">{criterionLabel(report)}</b>
+                  </>
+                )}
               </span>
               {you && measure === "GOAL" && (
                 <span className="flex items-center gap-1.5 text-lg font-semibold">
@@ -373,7 +383,7 @@ function Ranking({
     description ??
     (simulationIds.length > 1
       ? "A Nota compara partidas de períodos diferentes de forma justa; o retorno depende de quanto o mercado andou em cada período. Sem nota (menos de 63 pregões) fica no fim."
-      : `Classificação pelo critério da partida: ${criterionLabel(report)}`);
+      : playerRankingDescription(report));
   const goalRace = measure === "GOAL";
   const topScore = Math.max(...report.players.map((p) => Number(p.score?.total ?? 0)), 1);
   const comparing = simulationIds.length > 1;

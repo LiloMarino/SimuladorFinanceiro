@@ -80,20 +80,18 @@ def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
         team_naming=team_naming,
         delinquent=frozenset(key for key, s in standings.items() if s.delinquent),
         unexpected=_unexpected_counts(simulation_ids),
-        parties=_party_ranking(simulation_ids, players),
+        parties=_party_ranking(simulation_ids),
     )
 
 
-def _party_ranking(
-    simulation_ids: list[int], players: list[PlayerHistoryDTO]
-) -> list[PartyRankingDTO]:
+def _party_ranking(simulation_ids: list[int]) -> list[PartyRankingDTO]:
     """Os partidos de uma partida com a expansão Governo & Política; vazio nos demais casos."""
     if len(simulation_ids) != 1:
         return []
     summary = repository.simulation.get_simulation(simulation_ids[0])
     if summary is None or not summary.government_enabled:
         return []
-    return party_ranking(summary.id, players)
+    return party_ranking(summary.id)
 
 
 def _unexpected_counts(simulation_ids: list[int]) -> dict[tuple[int, str], int]:
