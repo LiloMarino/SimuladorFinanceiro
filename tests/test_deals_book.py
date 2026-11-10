@@ -933,6 +933,8 @@ def test_the_panel_and_the_preview_show_the_sector_the_computer_will_pick(
     assert preview.sector_boost == sector_boost.as_fraction(
         sector_boost.amendment_peak(preview.ratio)
     )
+    # 1 ponto de apoio por mês custaria 64 ao quadrado, R$ 4.096, de verba de campanha
+    assert preview.campaign_equivalent == pending.campaign_equivalent == 4096
 
 
 def test_the_amendments_of_the_same_sector_add_up(book: GovernmentBook, engine, market):

@@ -15,10 +15,13 @@ from backend.core.enum import DealStatus
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.utils import required
 from backend.features.government import deals as deal_rules
-from backend.features.government import house, sector_boost
+from backend.features.government import house, sector_boost, voters
 from backend.features.government.deals import Deal
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.state import Party
+
+# A verba de campanha por mês que renderia o apoio que um mês de acordo soma no grupo mais forte do aliado
+CAMPAIGN_EQUIVALENT = voters.campaign_amount(deal_rules.MONTHLY_SUPPORT)
 
 
 def build_base(
@@ -106,6 +109,7 @@ def build_preview(
         monthly=book.monthly(ratio, today),
         sector=book.computer_sector(bloc.abbr) if likely is not None else None,
         sector_boost=sector_boost.as_fraction(sector_boost.amendment_peak(ratio)),
+        campaign_equivalent=CAMPAIGN_EQUIVALENT,
         start=today,
         end=required(book.term_end()),
         base_before=base,
@@ -183,6 +187,7 @@ def _deal(
         ),
         segment=deal.segment,
         sector_boost=sector_boost.as_fraction(sector_boost.amendment_peak(deal.ratio)),
+        campaign_equivalent=CAMPAIGN_EQUIVALENT,
         answer_by=deal.answer_by,
         start=deal.start,
         end=deal.end,

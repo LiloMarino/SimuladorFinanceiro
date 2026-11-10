@@ -1,11 +1,16 @@
 import type { BaseBloc, BaseDeal, CongressBase, VoterGroup } from "@/types";
-import { displayDayMonth, displayMoneyLarge } from "@/shared/lib/utils/display";
+import { displayDayMonth, displayMoneyLarge, displayMoneyWhole } from "@/shared/lib/utils/display";
 import { pad, type HemicycleSeat } from "./house";
 import { GROUP_INFO } from "./voters";
 import { partyColor } from "@/shared/lib/party-colors";
 
 /** Reais por mês na escala do orçamento: "R$ 2,54 bi". */
 export const monthlyLabel = (amount: string | number) => displayMoneyLarge(amount);
+
+/** O apoio do acordo medido em verba de campanha: "o mesmo que R$ 4.096 por mês de verba de campanha". */
+export function campaignEquivalentSentence(amount: string | number): string {
+  return `o mesmo que ${displayMoneyWhole(amount)} por mês de verba de campanha`;
+}
 
 /** A emenda em % do PIB por ano: "0,11%". */
 export function yearShare(ratio: string | number): string {

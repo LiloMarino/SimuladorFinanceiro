@@ -24,8 +24,9 @@ import {
   outsideLabel,
   pendingLabel,
   yearShare,
+  campaignEquivalentSentence,
 } from "../lib/base";
-import { AMENDMENTS, BASE_DEFECTION, BASE_SEATS } from "../lib/government-metrics";
+import { AMENDMENTS, BASE_DEFECTION, BASE_SEATS, CAMPAIGN_EQUIVALENT } from "../lib/government-metrics";
 import { amendmentNote } from "../lib/sector-address";
 import { BreakDealDialog } from "./break-deal-dialog";
 import { Hemicycle } from "./hemicycle";
@@ -120,7 +121,9 @@ function BaseContent({ base }: { base: CongressBase }) {
               </AlertTitle>
               <AlertDescription>
                 Você recebe {monthlyLabel(base.my_deal.monthly)} por mês de emenda e orienta Sim nas medidas do governo.
-                {base.my_deal.sector && ` A emenda vai para ${amendmentNote(base.my_deal)}.`}
+                {base.my_deal.sector && ` A emenda vai para ${amendmentNote(base.my_deal)}.`} O apoio do acordo é{" "}
+                {campaignEquivalentSentence(base.my_deal.campaign_equivalent)}.
+                <MetricHint metric={CAMPAIGN_EQUIVALENT} />
               </AlertDescription>
               <AlertAction>
                 <Button size="sm" variant="outline" onClick={() => setBreaking({ deal: base.my_deal!, side: "ally" })}>

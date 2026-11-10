@@ -30,8 +30,16 @@ import { displayDayMonth, displayPercent } from "@/shared/lib/utils/display";
 import type { CongressBase, DealPreview } from "@/types";
 import { useProposeDeal } from "../hooks/mutations/useProposeDeal";
 import { useDealPreview } from "../hooks/queries/useDealPreview";
-import { baseOutlook, baseSeats, blocStatus, groupsLabel, monthlyLabel, yearShare } from "../lib/base";
-import { AMENDMENTS, SECTOR_BOOST } from "../lib/government-metrics";
+import {
+  baseOutlook,
+  baseSeats,
+  blocStatus,
+  campaignEquivalentSentence,
+  groupsLabel,
+  monthlyLabel,
+  yearShare,
+} from "../lib/base";
+import { AMENDMENTS, CAMPAIGN_EQUIVALENT, SECTOR_BOOST } from "../lib/government-metrics";
 import { boostLabel, computerAmendmentSentence } from "../lib/sector-address";
 import { Hemicycle } from "./hemicycle";
 import { PartyMark } from "@/shared/components/party-mark";
@@ -240,8 +248,12 @@ function ProposalDetail({ preview, base }: { preview: DealPreview; base: Congres
           </span>
         </Line>
         <Line icon={TrendingUp}>
-          {groupsLabel(preview.ally_groups)} sobem o apoio ao {preview.abbr}, cerca de +1 ponto por mês. Romper ou parar
-          de pagar: esses grupos somam rejeição ao {governing}.
+          <span className="inline-flex flex-wrap items-center gap-1">
+            {groupsLabel(preview.ally_groups)} sobem o apoio ao {preview.abbr}, cerca de +1 ponto por mês,{" "}
+            {campaignEquivalentSentence(preview.campaign_equivalent)}. Romper ou parar de pagar: esses grupos somam
+            rejeição ao {governing}.
+            <MetricHint metric={CAMPAIGN_EQUIVALENT} />
+          </span>
         </Line>
       </ul>
     </>

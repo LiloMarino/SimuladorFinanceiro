@@ -4,6 +4,7 @@ import {
   baseOutlook,
   baseSeats,
   blocStatus,
+  campaignEquivalentSentence,
   daysLeftLabel,
   groupsLabel,
   majorityMargin,
@@ -33,6 +34,12 @@ const bloc = (overrides: Partial<BaseBloc>): BaseBloc => ({
   retry_from: null,
   declined_on: null,
   ...overrides,
+});
+
+describe("campaignEquivalentSentence", () => {
+  it("diz o apoio do acordo em verba de campanha por mês", () => {
+    expect(campaignEquivalentSentence("4096")).toBe("o mesmo que R$ 4.096 por mês de verba de campanha");
+  });
 });
 
 describe("majorityMargin", () => {

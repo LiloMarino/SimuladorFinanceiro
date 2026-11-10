@@ -1,7 +1,7 @@
 import type { MetricInfo } from "@/shared/lib/metric-info";
 import { signedIpca } from "@/shared/lib/effects";
 import { displayPoints } from "@/shared/lib/budget-metrics";
-import { displayPercent } from "@/shared/lib/utils/display";
+import { displayMoneyWhole, displayPercent } from "@/shared/lib/utils/display";
 import type { GeneralKind } from "./government";
 import { salariesLabel } from "./presidency";
 
@@ -351,6 +351,18 @@ export const LEGACY: MetricInfo = {
   reading:
     "Aprovação 60 soma 1 salário por mês, 80 soma 2 e 40 ou menos soma 0. Em 48 meses com aprovação 60, o legado chega a 48 salários. Sustentar a aprovação até o fim do mandato é o que paga.",
   format: (value) => salariesLabel(value),
+};
+
+export const CAMPAIGN_EQUIVALENT: MetricInfo = {
+  label: "Verba equivalente",
+  description: "Quanto o apoio que o acordo dá custaria em verba de campanha",
+  definition:
+    "O acordo soma cerca de 1 ponto de apoio por mês ao partido aliado no grupo de eleitores em que ele é mais forte (1 ponto é 1 eleitor a cada 100 do grupo). Na campanha, os pontos de um mês são a raiz quadrada da verba dividida por 64. Fazendo a conta de volta, 1 ponto custa (1 × 64)² de verba.",
+  example:
+    "Ex.: (1 × 64)² = R$ 4.096 por mês. Em 12 meses de acordo são 12 pontos, que na campanha custariam 12 × R$ 4.096 = R$ 49.152.",
+  reading:
+    "É apoio que o partido ganha sem tirar do caixa dos filiados. Quanto mais meses o acordo durar, mais verba de campanha ele poupa. Nenhum dinheiro entra no caixa: o valor só mede o tamanho do ganho.",
+  format: (value) => displayMoneyWhole(value),
 };
 
 export const SECTOR_BOOST: MetricInfo = {

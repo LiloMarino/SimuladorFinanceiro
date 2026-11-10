@@ -371,6 +371,11 @@ def campaign_points(amount: Decimal) -> Decimal:
     return amount.sqrt() / SQRT_DIVISOR if amount > 0 else ZERO
 
 
+def campaign_amount(points: Decimal) -> Decimal:
+    """A verba de um mês que rende `points` de apoio: o caminho de volta de `campaign_points`."""
+    return (points * SQRT_DIVISOR) ** 2 if points > 0 else ZERO
+
+
 def standing(
     group: VoterGroup,
     radar: Mapping[VoterValue, Decimal],

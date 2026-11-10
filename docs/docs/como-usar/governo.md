@@ -264,6 +264,7 @@ A aprovação é quantos eleitores, em cada 100, aprovam o governo. Ela começa 
 | Imposto novo | Tira de 1 a 5 pontos ao passar a valer, e o efeito some em 6 meses |
 | Juro real | Por grupo: tira de 1,5 a 2 pontos por ponto de juro real fora da faixa de 2% a 7% (veja [A SELIC no Copom](#a-selic-no-copom)) |
 | Promessa | Tira 3 pontos por faixa de distância entre a promessa do partido e a marca do governo na régua |
+| Favorecimento | Tira até 6 pontos enquanto a obra em vigor aponta para um setor em que o presidente tem ações (veja [O que o presidente ganha](#o-que-o-presidente-ganha)) |
 
 A **marca do governo** é a média das faixas das medidas aprovadas. Ex.: um partido que prometeu a faixa 2 (isenção para um setor) e aprovou só aumento geral de imposto (faixa 5) está 3 faixas à direita da promessa e perde 9 pontos. A aprovação é calculada só quando um jogador governa.
 
@@ -280,6 +281,50 @@ Com o pedido aprovado, o presidente sofre o impeachment. Quem assume é o **vice
 ### A carteira do presidente
 
 Enquanto governa, o presidente **não compra nem vende**: a carteira fica congelada até o fim do mandato, e a boleta mostra o aviso. A carteira é **pública**: todos os jogadores veem os ativos que o presidente tem e a fatia de cada um, para que ninguém governe em causa própria sem a sala saber. A prévia de uma medida setorial também mostra quanto cada jogador tem naquele setor.
+
+### O que o presidente ganha
+
+Governar paga de três jeitos, e os três aparecem na aba **Mandato** e na prévia das medidas.
+
+**Salário.** No lugar da renda da profissão, o presidente recebe **3 vezes o salário da partida** por mês, e essa renda não cai por imprevisto. Ex.: numa partida com salário de R$ 8.000, o presidente recebe R$ 24.000 por mês. O dinheiro entra no caixa e fica lá, porque a carteira está congelada.
+
+**Legado.** Cada mês fechado do governo soma ao legado **5% de um salário por ponto de aprovação acima de 40**:
+
+| Aprovação do mês | Legado somado no mês | Com salário de R$ 8.000 |
+| --- | --- | --- |
+| 40 ou menos | 0 | R$ 0 |
+| 60 | (60 − 40) × 5% = 1 salário | R$ 8.000 |
+| 80 | (80 − 40) × 5% = 2 salários | R$ 16.000 |
+
+O legado é pago inteiro, pelo salário da partida do dia, quando o mandato **termina normalmente**, inclusive o primeiro mandato de quem se reelege. Ex.: 48 meses com aprovação 60 rendem 48 salários, R$ 384.000 com salário de R$ 8.000. O **impeachment perde o legado inteiro**, e por isso a base que protege o presidente vale dinheiro.
+
+**Obra com endereço.** A medida de **obras públicas** aceita um setor (e um segmento) como endereço. As ações do alvo sobem enquanto a obra direcionada vale:
+
+- A alta cheia é **2,5 vezes** o tamanho das obras em % do PIB, até **+7,5%**. Ex.: obras de 0,7% do PIB dão +1,75%; de 1,2%, +3%; de 3% ou mais, +7,5%.
+- A alta sobe em linha reta por **6 meses** a partir do dia em que a obra passa a valer. Ex.: uma alta de +3% está em +1,5% no 3º mês e em +3% do 6º em diante.
+- Se uma obra nova apontar para outro setor (ou para nenhum), o setor antigo perde a alta no mesmo dia.
+
+A alta vale para todo mundo que tem ações do setor, e a sala vê o endereço na manchete da proposta.
+
+**Favorecimento.** Apontar a obra para um setor em que o próprio presidente tem ações custa aprovação: **6 pontos vezes a fatia da carteira do presidente no setor**, em todos os grupos de eleitores, enquanto a obra valer. A fatia é medida no dia da proposta, sobre a carteira inteira (ações e caixa). Ex.: com 40% da carteira em Energia, uma obra em Energia tira 6 × 0,4 = **2,4 pontos** de aprovação; com 100%, tira 6. A prévia da medida mostra a alta e o custo antes de propor, e a manchete diz a fatia do presidente no setor.
+
+### Base do governo e emendas
+
+O presidente monta a **base** propondo um **acordo** a um partido com bancada: o governo paga uma **emenda** todo mês e, em troca, o líder do partido orienta **Sim** em tudo o que o governo propuser (até um terço da bancada ainda pode desobedecer) e **Não** num pedido de impeachment. A emenda custa **0,005% do PIB por ano por cadeira** (a UPR, o centrão, cobra uma vez e meia) e entra no gasto do governo. O partido de jogador tem **15 dias** para responder; o partido do computador aceita quando tem ao menos 2 das 3 bandeiras em comum com o governo. O acordo vale até o fim do mandato.
+
+O partido que entra na base ganha duas coisas:
+
+**Apoio, medido em verba de campanha.** O acordo soma cerca de **1 ponto de apoio por mês** ao aliado no grupo de eleitores em que ele é mais forte, e menos nos outros, na proporção da força dele em cada um. Pela conta de [Como a verba vira votos](#como-a-verba-vira-votos), 1 ponto num mês custaria (1 × 64)² = **R$ 4.096 de verba de campanha**. Ex.: 12 meses de acordo dão 12 pontos, que na campanha custariam 12 × R$ 4.096 = R$ 49.152. Nenhum dinheiro entra no caixa do partido: a tela mostra o valor para dar o tamanho do ganho.
+
+**Emenda com endereço.** Ao aceitar, o líder aliado escolhe um setor (e um segmento) para a emenda, e as ações dele sobem enquanto o acordo vale:
+
+- A alta cheia é **30 vezes** o tamanho da emenda em % do PIB por ano, até **+6%**. Ex.: uma bancada de 20 cadeiras custa 20 × 0,005% = 0,1% do PIB por ano e dá +3%; de 40 cadeiras ou mais, +6%.
+- A alta sobe em linha reta por **6 meses** desde o começo do acordo e **cai de uma vez** quando o acordo acaba ou é rompido. A renovação mantém a alta já alcançada.
+- O partido do computador escolhe sempre o mesmo setor, e a prévia do acordo mostra qual antes de o presidente propor.
+
+Romper custa caro para quem rompe: se o aliado sai ou orienta Não, os grupos do governo somam **8 pontos de rejeição** ao aliado; se o governo para de pagar, os grupos do aliado somam rejeição ao partido do presidente.
+
+**Teto por setor.** A isenção de imposto do setor (+10%), a obra e as emendas se somam, mas a alta total de um setor nunca passa de **+20%**. Ex.: isenção (+10%), obra (+7,5%) e emenda (+6%) no mesmo setor dariam +23,5% e ficam em +20%.
 
 ---
 

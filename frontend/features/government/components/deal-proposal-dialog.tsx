@@ -16,8 +16,8 @@ import { useGovernment } from "@/shared/hooks/queries/useGovernment";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import { useAnswerDeal } from "../hooks/mutations/useAnswerDeal";
 import { useBase } from "../hooks/queries/useBase";
-import { baseOutlook, groupsLabel, monthlyLabel, yearShare } from "../lib/base";
-import { SECTOR_BOOST } from "../lib/government-metrics";
+import { baseOutlook, campaignEquivalentSentence, groupsLabel, monthlyLabel, yearShare } from "../lib/base";
+import { CAMPAIGN_EQUIVALENT, SECTOR_BOOST } from "../lib/government-metrics";
 import { addressOf, amendmentSentence, NO_SECTOR, WHOLE_SECTOR } from "../lib/sector-address";
 import { SectorSegmentSelect } from "./sector-segment-select";
 
@@ -103,8 +103,12 @@ export function DealProposalDialog({ open, onOpenChange }: DealProposalDialogPro
                 pode desobedecer, como em qualquer votação.
               </Line>
               <Line icon={TrendingUp}>
-                A emenda chega às suas bases: {groupsLabel(proposal.ally_groups).toLowerCase()} sobem o apoio ao{" "}
-                {proposal.abbr}, cerca de +1 por mês.
+                <span className="inline-flex flex-wrap items-center gap-1">
+                  A emenda chega às suas bases: {groupsLabel(proposal.ally_groups).toLowerCase()} sobem o apoio ao{" "}
+                  {proposal.abbr}, cerca de +1 ponto por mês, {campaignEquivalentSentence(proposal.campaign_equivalent)}
+                  .
+                  <MetricHint metric={CAMPAIGN_EQUIVALENT} />
+                </span>
               </Line>
               {sector !== NO_SECTOR && (
                 <Line icon={Landmark}>

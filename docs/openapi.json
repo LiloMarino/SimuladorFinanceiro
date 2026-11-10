@@ -16425,6 +16425,10 @@
             "type": "string",
             "title": "Sector Boost"
           },
+          "campaign_equivalent": {
+            "type": "string",
+            "title": "Campaign Equivalent"
+          },
           "answer_by": {
             "anyOf": [
               {
@@ -16552,6 +16556,7 @@
           "sector",
           "segment",
           "sector_boost",
+          "campaign_equivalent",
           "answer_by",
           "start",
           "end",
@@ -16638,6 +16643,10 @@
           "sector_boost": {
             "type": "string",
             "title": "Sector Boost"
+          },
+          "campaign_equivalent": {
+            "type": "string",
+            "title": "Campaign Equivalent"
           },
           "start": {
             "type": "string",
@@ -16747,6 +16756,7 @@
           "monthly",
           "sector",
           "sector_boost",
+          "campaign_equivalent",
           "start",
           "end",
           "base_before",

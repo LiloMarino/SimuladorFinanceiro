@@ -80,6 +80,14 @@ def test_campaign_support_grows_with_the_square_root_of_the_spending():
     assert voters.campaign_points(Decimal(0)) == 0
 
 
+def test_the_campaign_amount_is_the_way_back_from_the_points():
+    assert voters.campaign_amount(Decimal(1)) == Decimal(4096)
+    assert voters.campaign_points(voters.campaign_amount(Decimal("2.5"))) == Decimal(
+        "2.5"
+    )
+    assert voters.campaign_amount(Decimal(0)) == 0
+
+
 def test_support_is_affinity_plus_campaign_and_the_balance_subtracts_rejection():
     radar = voters.initial_radar(MARKET_PARTY)
 

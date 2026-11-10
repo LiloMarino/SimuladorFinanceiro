@@ -699,6 +699,8 @@ class DealDTO(BaseDTO):
     segment: str | None
     # A alta cheia que a emenda dá às ações do setor endereçado, em fração (0.03 = 3%); com ou sem setor escolhido, é a que o preço dá
     sector_boost: Decimal
+    # Quanto o apoio mensal do acordo custaria em verba de campanha, em reais por mês
+    campaign_equivalent: Decimal
     # Proposta: o prazo da resposta do partido de jogador
     answer_by: date | None
     # Em vigor: o último dia do acordo e quantos dias faltam
@@ -811,6 +813,8 @@ class DealPreviewDTO(BaseDTO):
     # que o preço dá às ações do setor endereçado, em fração
     sector: str | None
     sector_boost: Decimal
+    # Quanto o apoio mensal do acordo custaria em verba de campanha, em reais por mês
+    campaign_equivalent: Decimal
     start: date
     end: date
     base_before: int

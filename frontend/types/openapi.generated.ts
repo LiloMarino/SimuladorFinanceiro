@@ -5776,6 +5776,8 @@ export interface components {
             segment: string | null;
             /** Sector Boost */
             sector_boost: string;
+            /** Campaign Equivalent */
+            campaign_equivalent: string;
             /** Answer By */
             answer_by: string | null;
             /** Start */
@@ -5830,6 +5832,8 @@ export interface components {
             sector: string | null;
             /** Sector Boost */
             sector_boost: string;
+            /** Campaign Equivalent */
+            campaign_equivalent: string;
             /**
              * Start
              * Format: date
