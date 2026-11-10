@@ -34,29 +34,54 @@ export function DollarAccountCard({ offer, held, showHelp }: DollarAccountCardPr
   return (
     <Card variant="info" className="h-full">
       <CardContent className="h-full">
-        <div className="grid h-full content-between gap-4">
-          <div className="grid gap-1">
-            <span className="flex flex-wrap items-center gap-2">
-              <DailyLiquidityBadge>Sempre disponível</DailyLiquidityBadge>
-              <FlagUs size={20} />
-              <b className="text-[15px] font-semibold">Conta em dólar</b>
-              {held && (
-                <Badge variant="info" size="sm">
-                  na carteira
-                </Badge>
-              )}
-            </span>
-            <span className="text-[13px] text-muted-foreground">
-              Seu dinheiro vira dólar e rende o juro americano, todo dia útil. Volta ao caixa em qualquer pregão, pelo
-              dólar do dia.
-            </span>
+        <div className="flex h-full flex-col justify-between gap-4">
+          {/* Cabeçalho */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="grid gap-1">
+              <span className="flex flex-wrap items-center gap-2">
+                <DailyLiquidityBadge>Sempre disponível</DailyLiquidityBadge>
+                <FlagUs size={20} />
+                <b className="text-[15px] font-semibold">Conta em dólar</b>
+                {held && (
+                  <Badge variant="info" size="sm">
+                    na carteira
+                  </Badge>
+                )}
+              </span>
+              <span className="text-[13px] text-muted-foreground">
+                Rende o juro americano todo dia útil e volta ao caixa em qualquer pregão, pelo dólar do dia.
+              </span>
+            </div>
+            <div className="flex shrink-0 items-center gap-3">
+              <a
+                href={DOLLAR_ACCOUNT_DOCS_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary-hover"
+              >
+                Saiba mais
+                <ExternalLink className="size-3" />
+              </a>
+              <Button
+                variant="outline"
+                size="sm"
+                nativeButton={false}
+                render={<Link to={`/fixed-income/${offer.asset_uuid}`} />}
+              >
+                Investir
+              </Button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-5 gap-y-3">
+          {/* Métricas */}
+          <div className="flex flex-wrap gap-x-6 gap-y-3">
             <Metric
               metric={FED_RATE}
-              value={displayRateLabel(offer.rate_index, offer.interest_rate)}
-              description={indicators ? `Fed a ${displayPercent(indicators.fed)} a.a., em dólar` : FED_RATE.description}
+              value={
+                indicators
+                  ? `${displayPercent(indicators.fed)} a.a.`
+                  : displayRateLabel(offer.rate_index, offer.interest_rate)
+              }
             />
             <Metric metric={DOLLAR_TODAY} value={offer.fx_rate ? `US$ 1 = ${displayMoney(offer.fx_rate)}` : "—"} />
             {showHelp && indicators && (
@@ -65,27 +90,7 @@ export function DollarAccountCard({ offer, held, showHelp }: DollarAccountCardPr
                 value={displayPercent(breakEvenDollarRise(indicators.cdi, indicators.fed), 1)}
               />
             )}
-            <Metric metric={DOLLAR_ACCOUNT_TAX} value={<Badge variant="secondary">15% do ganho</Badge>} />
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              nativeButton={false}
-              render={<Link to={`/fixed-income/${offer.asset_uuid}`} />}
-            >
-              Investir
-            </Button>
-            <a
-              href={DOLLAR_ACCOUNT_DOCS_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary-hover"
-            >
-              Saiba mais
-              <ExternalLink className="size-3" />
-            </a>
+            <Metric metric={DOLLAR_ACCOUNT_TAX} value="15% do ganho" />
           </div>
         </div>
       </CardContent>
@@ -93,15 +98,14 @@ export function DollarAccountCard({ offer, held, showHelp }: DollarAccountCardPr
   );
 }
 
-function Metric({ metric, value, description }: { metric: MetricInfo; value: ReactNode; description?: string }) {
+function Metric({ metric, value }: { metric: MetricInfo; value: ReactNode }) {
   return (
-    <div className="grid content-start gap-0.5">
+    <div className="grid gap-0.5">
       <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
         {metric.label}
         <MetricHint metric={metric} />
       </span>
-      <b className="font-mono font-semibold">{value}</b>
-      {description && <span className="text-xs text-muted-foreground">{description}</span>}
+      <b className="font-mono font-semibold whitespace-nowrap">{value}</b>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronRight, Landmark } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/shared/components/ui/card";
@@ -288,13 +288,13 @@ export default function FixedIncomePage() {
       <Link to="/treasury" className="block">
         <Alert variant="info">
           <Landmark />
-          <AlertTitle>
-            Os títulos do governo agora ficam no Tesouro
-            <ChevronRight className="size-3.5" />
-          </AlertTitle>
+          <AlertTitle>Os títulos do governo agora ficam no Tesouro</AlertTitle>
           <AlertDescription>
             Selic, Prefixado e IPCA+, sempre à venda, com o prêmio de risco do país e a venda antes do vencimento.
           </AlertDescription>
+          <AlertAction>
+            <ChevronRight className="size-4" />
+          </AlertAction>
         </Alert>
       </Link>
 
