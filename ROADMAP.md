@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-10):** Definido o pedido de impeachment aberto por jogador e colocado na 4.1.
+> **Última mudança (2026-11-10):** Definidos os planos da nota de desempenho, das cores de partido, dos convites, da aprovação do governo, do jornal e dos imprevistos, que saem da avaliação para pendente.
 
 ## Glossário
 
@@ -102,21 +102,21 @@
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | M26 · 4.1 | — | Médio | Excelente | ⏳ |
-| [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | M26 · 4.1 | — | — | — | 🔍 |
+| [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | M26 · 4.1 | — | Médio | Excelente | ⏳ |
 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | M26 · 4.1 | — | — | — | 🔍 |
 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | M26 · 4.1 | — | — | — | 🔍 |
 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | M26 · 4.1 | — | — | — | 🔍 |
 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | M26 · 4.1 | — | — | — | 🔍 |
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 | — | — | — | 🔍 |
-| [**F271**](#f271) | Melhoria | Mais cores para jogadores e partidos, com um seletor que comporta | M26 · 4.1 | — | — | — | 🔍 |
+| [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 | — | — | — | 🔍 |
-| [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | — | — | 🔍 |
+| [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | Alto | Médio | ⏳ |
 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 | — | — | — | 🔍 |
 | [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 | — | — | — | 🔍 |
-| [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 | — | — | — | 🔍 |
-| [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 | — | — | — | 🔍 |
-| [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 | — | — | — | 🔍 |
+| [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 | — | Médio | Bom | ⏳ |
+| [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 | — | Alto | Bom | ⏳ |
+| [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 | — | Alto | Médio | ⏳ |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 | — | — | — | 🔍 |
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 | — | — | — | 🔍 |
 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 | — | Médio | Bom | ⏳ |
@@ -136,7 +136,7 @@
 | **D7** | — | O simulador lê as séries sem saber a origem | — | — | — | — | ✅ |
 | **D8** | — | Bot, modo automático e backtest são o mesmo mecanismo | — | [F110](#f110), [F111](#f111), [F202](#f202) | — | — | ✅ |
 | **D9** | — | De onde nasce uma mudança de schema | — | [F101](#f101) | — | — | ✅ |
-| **D10** | — | Como a nota geral é calculada | — | — | — | — | ✅ |
+| **D10** | — | Como a nota geral é calculada | — | [F264](#f264) | — | — | ✅ |
 | **D11** | — | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | — | — | — | ✅ |
 | **D12** | — | Como numerar as versões | — | — | — | — | ✅ |
 | **D13** | — | Um canal de tempo real só: Socket.IO, com fallback de polling | — | — | — | — | ✅ |
@@ -200,21 +200,21 @@
 | 15 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | ✅ Concluído |
 | 16 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | — | ✅ Concluído |
 | 17 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | — | ⏳ Pendente |
-| 18 | [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | — | 🔍 Em avaliação |
+| 18 | [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | — | ⏳ Pendente |
 | 19 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | — | ⏳ Pendente |
 | 20 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | — | 🔍 Em avaliação |
 | 21 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | — | 🔍 Em avaliação |
 | 22 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | — | 🔍 Em avaliação |
 | 23 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | — | 🔍 Em avaliação |
 | 24 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | — | 🔍 Em avaliação |
-| 25 | [**F271**](#f271) | Melhoria | Mais cores para jogadores e partidos, com um seletor que comporta | — | 🔍 Em avaliação |
+| 25 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | — | ⏳ Pendente |
 | 26 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | — | 🔍 Em avaliação |
-| 27 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | — | 🔍 Em avaliação |
+| 27 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | — | ⏳ Pendente |
 | 28 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | — | 🔍 Em avaliação |
 | 29 | [**F275**](#f275) | Feature | Vitória política separada do capital | — | 🔍 Em avaliação |
-| 30 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | — | 🔍 Em avaliação |
-| 31 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | — | 🔍 Em avaliação |
-| 32 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | — | 🔍 Em avaliação |
+| 30 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | — | ⏳ Pendente |
+| 31 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | — | ⏳ Pendente |
+| 32 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | — | ⏳ Pendente |
 | 33 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | — | 🔍 Em avaliação |
 | 34 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | — | 🔍 Em avaliação |
 | 35 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | — | ⏳ Pendente |
@@ -326,21 +326,21 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | M26 · 4.1 · 17º | 0 | Médio | Excelente | ⏳ |
-| [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | M26 · 4.1 · 18º | 0 | — | — | 🔍 |
+| [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | M26 · 4.1 · 18º | 0 | Médio | Bom | ⏳ |
 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | M26 · 4.1 · 19º | 0 | Médio | Excelente | ⏳ |
 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | M26 · 4.1 · 20º | 0 | — | — | 🔍 |
 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | M26 · 4.1 · 21º | 0 | — | — | 🔍 |
 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | M26 · 4.1 · 22º | 0 | — | — | 🔍 |
 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | M26 · 4.1 · 23º | 0 | — | — | 🔍 |
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 · 24º | 0 | — | — | 🔍 |
-| [**F271**](#f271) | Melhoria | Mais cores para jogadores e partidos, com um seletor que comporta | M26 · 4.1 · 25º | 0 | — | — | 🔍 |
+| [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 · 25º | 0 | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 · 26º | 0 | — | — | 🔍 |
-| [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 · 27º | 0 | — | — | 🔍 |
+| [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 · 27º | 0 | Alto | Médio | ⏳ |
 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 · 28º | 0 | — | — | 🔍 |
 | [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 · 29º | 0 | — | — | 🔍 |
-| [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 · 30º | 0 | — | — | 🔍 |
-| [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 · 31º | 0 | — | — | 🔍 |
-| [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 · 32º | 0 | — | — | 🔍 |
+| [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 · 30º | 0 | Médio | Bom | ⏳ |
+| [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 · 31º | 0 | Alto | Bom | ⏳ |
+| [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 · 32º | 0 | Alto | Médio | ⏳ |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 · 33º | 0 | — | — | 🔍 |
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 · 34º | 0 | — | — | 🔍 |
 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 · 35º | 0 | Médio | Bom | ⏳ |
@@ -400,7 +400,13 @@
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
 | **F263** | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | N3, N34 | D20 | M26 · 4.1 | — | Médio | Médio | Alto | Excelente |
+| **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | D10 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
 | **F265** | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | N15, N34 | — | M26 · 4.1 | — | Médio | Baixo | Alto | Excelente |
+| **F271** | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | N20 | — | M26 · 4.1 | — | Médio | Baixo | Médio | Bom |
+| **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 | — | Alto | Médio | Médio | Médio |
+| **F276** | Correção | Governo ruim perde aprovação | N34, N41 | — | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
+| **F277** | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | N31 | — | M26 · 4.1 | — | Alto | Baixo | Alto | Bom |
+| **F278** | Feature | Imprevistos e eventos de vida mais variados | N23 | — | M26 · 4.1 | — | Alto | Médio | Médio | Médio |
 | **F281** | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | N34 | D20 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
 | **F282** | Correção | Texto dos gráficos com no mínimo 12 px | N15 | — | M26 · 4.1 | — | Baixo | Baixo | Médio | Excelente |
 
@@ -491,6 +497,29 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 
 **Aceite.** Teste com o fator da bolsa a 1/400: o provento sai a 1/400 do histórico. A calibragem de 10 anos com o pior governo não leva a bolsa abaixo do piso. Nenhum preço de ação sai R$ 0,00.
 
+<a id="f264"></a>
+**F264 — Nota de desempenho que não explode com patrimônio quase zero.** Serve N9 e N3; condicionado por D10.
+
+**Sintoma.** Na Simulação #3 o bot Vovô Investidor venceu por nota com 9.067.544 pontos tendo perdido 42%; os outros ficaram entre 117 e 367. O patrimônio dele foi de R$ 30 mil a R$ 0,01 num pregão (ação arredondada a R$ 0,00) e voltou a R$ 7,5 mil dias depois.
+
+**Como reproduzir.** Um histórico de pelo menos 63 pregões que rende perto do CDI, com um pregão em que o patrimônio vai de 30.000 a 0,01 e outro em que volta a 7.500, sem aporte entre eles. `player_score` devolve milhões de pontos no eixo de eficiência.
+
+**Causa.** O retorno do dia é o ganho dividido pelo patrimônio da véspera (`_ScoreWalk.add`, `backend/features/statistics/score.py:122-141`). Sobre uma véspera de R$ 0,01, o dia da volta vale dezenas de milhões de por cento. A média de retornos simples não é simétrica: cair 50% e subir 100% deixa o patrimônio igual, mas a média dos dois dias dá +25% por dia. Esse único dia puxa a média do excesso sobre o CDI para cima, o desvio só das quedas quase não se mexe, e o Sortino (retorno acima do CDI dividido pela oscilação para baixo) sai em centenas de milhares; como a reta de pontos não tem teto (`Band.points`, `score.py:40-42`), viram milhões de pontos. O mesmo cálculo existe uma segunda vez em `backend/features/statistics/risk.py` (`annual_volatility` :92, `rolling_volatility` :99, `sharpe_ratio` :160, `sortino_ratio` :172), que alimenta a aba de risco, o ranking e o critério de vitória por Sharpe (`ranking.py:318-319`), e sofre do mesmo dia.
+
+**O que muda.** As métricas que são média ou desvio de retornos diários passam a usar o retorno em escala logarítmica, `ln(1 + retorno)`. Nessa escala cair 50% vale −0,693 e subir 100% vale +0,693: os dois se anulam, e a ida a R$ 0,01 e a volta entram como dois dias enormes de sinais opostos, que contam como oscilação e não como ganho. A nota continua sem teto de pontos (a D10 fica como está): uma carteira só de renda fixa acima do CDI continua podendo tirar nota muito alta em eficiência, por decisão.
+
+1. Em `risk.py`, uma função `log_return(daily)` devolve `ln(max(1 + daily, LOG_FLOOR))`, com `LOG_FLOOR = Decimal("0.0001")`: a perda total do dia entra como −99,99%, porque o logaritmo de zero não existe. O CDI do dia ganha a versão logarítmica guardada junto da tabela que `cdi_return` já mantém.
+2. Passam para a escala logarítmica: `annual_volatility`, `rolling_volatility`, `sharpe_ratio` e `sortino_ratio` em `risk.py`, e as somas `_sum`, `_squares`, `_excess` e `_downside` de `_ScoreWalk`. O excesso do dia é `log_return(daily) - ln(1 + cdi)`.
+3. Ficam como estão, compostos pelo retorno simples: a cota, a queda máxima, o tempo abaixo do pico, os retornos mensais, o retorno anual e os retornos sobre o CDI e o Ibovespa. `daily_returns` continua devolvendo o retorno simples; a conversão acontece dentro das quatro funções.
+4. O caminho incremental (`_ScoreWalk`) e o direto (`player_score` sobre `risk.py`) continuam dando a mesma nota: os testes que comparam os dois ficam.
+5. `tests/test_statistics_score.py` e `tests/test_statistics_risk.py` ganham o caso do patrimônio quase zero e o caso simétrico (−50% e +100%), e os valores esperados dos casos atuais são recalculados.
+6. `docs/docs/como-usar/estatisticas.md` (trechos de volatilidade, Sharpe e Sortino) e as descrições das métricas em `frontend/features/statistics/lib/metrics.ts` passam a dizer que a oscilação é medida numa escala em que queda e alta do mesmo tamanho se anulam, com o exemplo dos 50% e 100%.
+7. `Decimal.ln()` roda duas vezes por snapshot. Medir o tempo do histórico da nota numa partida de 10 anos antes e depois; se passar de 10% a mais, calcular com `math.log1p` sobre `float` e converter para `Decimal`.
+
+**Efeito nas partidas salvas.** A nota é recalculada dos snapshots a cada leitura, então toda partida muda um pouco. Estimativa: de 2 a 7 pontos a menos no eixo de eficiência, mais para quem oscila mais (com volatilidade de 20% ao ano o Sharpe cai cerca de 0,1). A conquista dos 250 pontos (`achievements/catalog.py:282-288`) usa a nota nova.
+
+**Aceite:** no histórico do "como reproduzir", Sharpe e Sortino saem negativos, o eixo de eficiência dá 0 ponto e a volatilidade dá 0 ponto (antes, 9 milhões de pontos na nota). Num histórico de dois dias com −50% e +100%, a média dos retornos usada no Sharpe é 0. Um histórico comum, com volatilidade de até 30% ao ano, muda menos de 10 pontos na nota total.
+
 <a id="f265"></a>
 **F265 — Acabamentos do mapa, do Tesouro e dos cards da economia.** Serve N15 e N34. Lote de consertos pequenos que saíram da partida de 10/11.
 
@@ -503,6 +532,125 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 7. **Atalhos de valor que somam.** Na contribuição mensal (`contribution-field.tsx:9`) e na doação (`donate-dialog.tsx:36`), o atalho substitui o valor; na renda fixa (`investment-ticket.tsx:30-34`), ele soma. Os dois passam a somar, como na renda fixa.
 8. **Selo do partido no jornal.** A manchete cita a sigla só em texto ("UPR"); passa a mostrar o selo do partido, o mesmo das telas de governo.
 9. **Juro americano na prévia do futuro gerado.** O FED_FUNDS é gerado (`synthetic.py:854-870`), mas não está no `FuturePreviewDTO` (`dto/generated_future.py:78-95`), então não aparece na prévia do diálogo de geração.
+
+<a id="f271"></a>
+**F271 — Paleta de 16 cores para os partidos e um seletor de cor único.** Serve N20.
+
+**O que existe.** Jogadores e partidos dividem as mesmas 10 cores: `PLAYER_COLORS` em `frontend/shared/lib/player-colors.ts:9-23` (Azul, Verde-água, Lima, Roxo, Salmão, Framboesa, Lavanda, Floresta, Ameixa e Marrom), e `PARTY_COLORS` em `frontend/shared/lib/party-colors.ts:6` é a mesma lista em hex, mais as três dos partidos do computador (UPR cinza, ACI azul-petróleo, MNV oliva) e o cinza do partido sem cor. Não há vermelho puro nem amarelo: um PT não fica vermelho e um MISSÃO não fica amarelo. O backend já aceita qualquer hex como cor de partido (`PARTY_COLOR_PATTERN`, `backend/core/dto/government.py:42`) e só exige que seja única entre os partidos (`government_book.py:783-784`); quem limita às 10 é a tela. Existem três seletores de cor: a grade com nome do lobby (`shared/components/player-color-grid.tsx`), as bolinhas do bot (`shared/components/bot-color-swatches.tsx`, usado no diálogo de bot e no editor de participante do backtest) e as bolinhas da fundação de partido (`shared/components/party-identity-fields.tsx`).
+
+**O que muda e por quê.**
+
+1. Só os partidos ganham a paleta maior. Os jogadores ficam com as 10 cores atuais, uma por vaga da sala: nos gráficos de carteira o vermelho já significa perda e o âmbar já significa alerta. Nada muda no backend.
+2. `PARTY_COLORS` passa a ser uma lista própria de 16 cores com nome: as 10 atuais mais Vermelho, Laranja, Âmbar, Rosa, Azul-céu e Verde. O alvo é uma paleta no nível das 16 tintas do Minecraft, sem as que o sistema reserva. Preto, branco e cinzas ficam fora: o destaque do lugar selecionado no mapa é um contorno na cor do texto (`brazil-map.tsx:160`), as dicas e os selos usam fundo preto, e o cinza é do UPR e do partido sem cor. O amarelo entra como âmbar escuro, porque amarelo vivo some no fundo claro (contraste perto de 1,4 para 1).
+3. O tom exato de cada cor nova sai de um teste, `frontend/shared/lib/party-colors.test.ts`, que passa a valer para a paleta inteira:
+   - contraste de pelo menos 3 para 1 contra o fundo de cada tema do app (a razão de contraste vai de 1, cores iguais, a 21, preto no branco; 3 é o mínimo para um elemento gráfico ser visto);
+   - o texto que vai sobre a cor (sigla do partido no mapa e nos selos) com pelo menos 4,5 para 1, o mínimo para texto;
+   - distância ΔE de pelo menos 12 entre cada cor nova e todas as outras, incluídas UPR, ACI, MNV e o cinza sem cor. ΔE (CIEDE2000) mede o quanto duas cores parecem diferentes ao olho: abaixo de 2 quase ninguém nota, perto de 10 dá para distinguir lado a lado, acima de 20 são claramente outras cores.
+   Pontos de partida para o ajuste: Vermelho `#D92D20`, Laranja `#E8590C`, Âmbar `#B45309`, Rosa `#E0489B`, Azul-céu `#1E88E5`, Verde `#1FA34A`. O cálculo de contraste e de ΔE fica numa função pura em `frontend/shared/lib`, sem dependência nova. Se uma cor não passar em nenhum tom, ela sai e o commit diz qual; se couberem mais cores passando no teste (turquesa, vinho), entram até 18.
+4. Um componente único de amostras em `frontend/shared/components/` substitui os três seletores: grade de 8 por linha para os partidos (duas linhas com 16) e de 5 por linha para os jogadores, nome da cor na dica e em texto abaixo da grade para a selecionada, cor já usada esmaecida com a sigla de quem usa, `radiogroup` com teclado. Usam o componente: `features/lobby/components/lobby-color-picker.tsx`, `features/lobby/components/bot-dialog.tsx`, `features/backtest/components/participant-editor.tsx` e `party-identity-fields.tsx`. `player-color-grid.tsx` e `bot-color-swatches.tsx` saem.
+5. Conferir no navegador o mapa com um partido de cada cor nova (preenchimento, sigla e contorno do lugar selecionado) e o gráfico de intenção de voto com 8 partidos.
+
+**Aceite:** o teste da paleta passa com 16 cores de partido; fundar partido, lobby, diálogo de bot e editor do backtest usam o mesmo componente de seletor; a paleta dos jogadores continua com as 10 cores e as mesmas chaves `chart-1` a `chart-10`.
+
+<a id="f273"></a>
+**F273 — Convites que se escolhem e se acumulam.** Serve N34 e N23.
+
+**O que existe.** Nenhum seletor envia convite ao escolher, mas o convite de vice sai junto com outra ação: na partida, com o botão "Inscrever a chapa" (`frontend/features/government/components/ticket-dialog.tsx:159-169` → `POST /parties/ticket` → `set_ticket`, `backend/features/government/government_book.py:1545-1611`, que emite o convite quando o vice é novo); no lobby, com o salvar da fundação do partido (`frontend/features/lobby/components/preparation/party-found-tab.tsx:88`, `prepare.mutateAsync({ kind: "FOUND", candidate, vice })`). Por isso parece que escolher já convidou. Quem já foi convidado não pode receber outro convite: `vice_blocker` (`backend/features/government/election.py:72-85`) barra quem já é vice convidado de outra chapa, o lobby repete a regra em `_ensure_vice_free` (`backend/core/runtime/room_preparation.py:153-166`), e a federação aceita uma proposta aberta por partido contando os dois lados (`open_proposal_of`, `backend/features/government/state.py:638-646`). No acordo de base só o governo propõe (`propose_deal`, `government_book.py:1194-1218`), então ali não há o que acumular.
+
+**O que muda e por quê.** O jogador escolhe e depois clica em convidar; quem recebe pode juntar vários convites, comparar e aceitar um.
+
+1. Convite de vice com botão próprio. Ao lado do seletor de vice entra o botão "Convidar", com o estado do convite embaixo (aguardando resposta, aceito, recusado) e "Retirar convite". Inscrever a chapa e salvar a fundação deixam de enviar convite. No backend, o convite vira comando próprio: rotas de convidar e de retirar o vice, separadas de `POST /parties/ticket`, e no lobby dois tipos novos de preparação ao lado de `FOUND`. Quem convida continua com um convite aberto por vez (a chapa tem uma vaga de vice): `party.vice_id` e `party.vice_accepted` ficam como estão.
+2. Quem recebe acumula. `vice_blocker` e `_ensure_vice_free` passam a barrar só quem já aceitou ser vice de outra chapa ou já é candidato (e bots, como hoje); convite pendente de outro partido deixa de bloquear. Na federação, `open_proposal_of` se divide em "a proposta que o partido enviou" (uma por vez) e "as propostas que o partido recebeu" (várias); `federation_blocker` (`government_book.py:1679-1700`) deixa de barrar o destinatário que já tem proposta de terceiros.
+3. Exclusão só dentro do mesmo tipo. Aceitar um convite de vice recusa os outros convites de vice abertos para a mesma pessoa. Aceitar uma federação reavalia o `federation_blocker` de toda proposta aberta que envolve um dos dois partidos: as que deixaram de ser possíveis são recusadas, e a que o partido tinha enviado é retirada. Vice e federação não se cruzam, e o acordo de base não entra. Cada recusa automática grava o mesmo evento da recusa manual, com a marca de automática, e avisa quem enviou ("Fulano aceitou ser vice de outra chapa", "O PXX fechou federação com outro partido").
+4. Partido do computador responde cada proposta em separado, no pregão seguinte, na ordem em que chegaram (`_resolve_federations`, `government_book.py:1985-2003`); depois do primeiro aceite as outras caem pela regra 3.
+5. Pendências: uma linha por convite (`VICE_INVITE` em `government_book.py:348-361` e `FEDERATION_PROPOSAL` em :1371-1398), com a chave incluindo quem convidou, o nome de quem convidou no título e até quando vale. Abrir qualquer uma mostra todos os convites abertos do mesmo tipo lado a lado (`vice-invite-dialog.tsx` e o diálogo de resposta da federação), cada um com aceitar e recusar e o aviso "aceitar este recusa os outros".
+6. Lobby: `answer_vice` de `room_preparation.py:168-190` passa a receber de qual partido é o convite, `party-tab.tsx:86-112` lista um card por convite e `preparation-button.tsx:39` conta todos.
+7. Mudou rota e DTO: `pnpm openapi`. `docs/docs/como-usar/governo.md` e a página do lobby descrevem o botão Convidar e os convites acumulados.
+
+**Testes.** Em `tests/test_government_book.py` e nos testes do lobby: dois partidos convidam a mesma pessoa e os dois convites ficam pendentes; aceitar o de A limpa o de B e gera o aviso para B; inscrever a chapa sem clicar em Convidar não gera convite; duas propostas de federação para o mesmo partido ficam pendentes, aceitar uma recusa a outra e retira a que ele tinha enviado. No front, os testes de `features/pending/lib` com duas pendências do mesmo tipo.
+
+**Aceite:** os quatro casos acima passam nos testes, na partida e no lobby; no navegador, escolher o vice no seletor não muda nada no outro jogador até o clique em "Convidar", e um jogador com dois convites vê os dois lado a lado no mesmo diálogo.
+
+<a id="f276"></a>
+**F276 — Governo ruim perde aprovação.** Serve N34 e N41.
+
+**Sintoma.** Na Simulação #3, com SELIC de 30 a 33% (2030–2031), IPCA de 1 a 1,9% ao mês (2028–2032) e a bolsa em −99,8%, o governo de um jogador (posse em janeiro de 2031) passou 2032 inteiro com aprovação entre 26 e 30 e só caiu no 35º dos 48 meses do mandato.
+
+**O que os eventos da partida mostram.** O contador de meses abaixo do piso funcionou. Em 2031 valeu a carência de 12 meses. Em 2032 a aprovação nunca fechou abaixo de 25, então o contador ficou em 0. De maio a outubro de 2033 fechou em 24, 23, 22, 21, 20 e 19: o contador chegou a 6, o pedido de impeachment abriu e foi aprovado por 79 a 22 em 30/11/2033. A aprovação de 21 com contador em 0, de janeiro de 2034, é do governo interino do computador, para quem o piso não conta por desenho (`_close_month`, `backend/features/government/government_book.py:2970-2976`). A satisfação dos investidores em 0,0006 é só o caminho de um terço por mês até um alvo 0.
+
+**Causa.** A aprovação satura. Cada fator do alvo tem um limite de punição em `backend/features/government/approval.py`: a inflação para de pesar 5 pontos percentuais além da meta mais 1,5 (`INFLATION_CAP`; com meta de 3%, inflação de 25% ao ano pune igual a 9,5%), a bolsa para em 3 passos de 10% (`STOCKS_CAP`; −99,8% pune igual a −25%) e o juro real para 6 pontos fora da faixa de 2% a 7% (`REAL_RATE_CAP`). Com tudo no limite, o alvo geral sem medidas fica em 17,6, contra um piso de 25. Uma crise comum dá 24,6 e a catástrofe total dá cerca de 20: sete pontos separam as duas, e uma medida popular soma 6 por unidade de reação.
+
+**Como reproduzir.** `group_target` para os seis grupos com meta 3%, IPCA 22%, SELIC 31%, bolsa −99,8% em 12 meses, desemprego 13% e prêmio de risco de 6 pontos, sem medidas: `overall` dos alvos dá 20,6.
+
+**O que muda.**
+
+1. Punição que segue crescendo. No lado ruim de inflação, juro real e bolsa, o que passa do limite atual continua tirando pontos com metade do peso (constante nova, `EXCESS_WEIGHT = Decimal("0.5")`). A distância usada na conta deixa de ser `min(distância, limite)` e passa a ser `limite + (distância − limite) × 0,5` quando a distância passa do limite. Vale para: inflação acima da meta mais 1,5 (`inflation_factor`), juro real abaixo de 2% e acima de 7% (`real_rate_factor`) e bolsa em queda (`stocks_factor`). O lado bom continua com o teto de hoje (inflação abaixo da meta, bolsa em alta), e desemprego e prêmio de risco ficam como estão. `group_target` continua limitando o alvo de cada grupo a 0–100. Piso (25), carência (12) e meses seguidos (6) não mudam.
+2. Dentro dos limites atuais nada muda: governo medíocre e governo bom recebem exatamente os mesmos pontos de antes.
+3. Governo do computador continua imune ao piso, e a tela passa a dizer isso. O DTO da aprovação (`GovernmentApproval`, em `backend/core/dto/government.py`) ganha um campo booleano que diz se o piso vale para o governo em curso (falso quando `term.president_id` é nulo). Em `frontend/features/government/components/impeachment-floor.tsx` o contador ("N de 6") dá lugar a "não conta", com o texto "Governo do computador: o piso de impeachment não conta e ele fica até o fim do mandato"; `impeachment-alert.tsx` segue sem aparecer nesse caso. Rodar `pnpm openapi`.
+4. `docs/docs/como-usar/governo.md` (trecho do piso e dos fatores) explica a regra da metade do peso com um exemplo (inflação de 12% com meta de 3%: 5 pontos percentuais cheios mais 2,5 pela metade) e o caso do governo do computador.
+
+**Testes.** Em `tests/test_government_rules.py`, a tabela de cenários do aceite e um teste de que cada fator, no valor exato do limite e antes dele, devolve os mesmos pontos de hoje. Em `tests/test_government_book.py`, um governo de jogador sob o cenário de catástrofe abre o pedido de impeachment no 18º fechamento do mandato (12 de carência mais 6), e o governo do computador no mesmo cenário mantém o contador em 0. Em `frontend/features/government/lib`, o rótulo do piso para o governo do computador.
+
+**Aceite:** alvo geral sem medidas, com meta de inflação de 3% (IPCA, SELIC, bolsa em 12 meses, desemprego, prêmio de risco):
+
+- neutro (4,5%, 9%, +5%, 9%, 0): 50,0, igual a hoje;
+- medíocre (8%, 13%, −10%, 10%, 1 ponto): 34,6, igual a hoje;
+- tudo no limite (9,5%, 22,5%, −25%, 13%, 6 pontos): 17,6, igual a hoje;
+- crise (12%, 18%, −30%, 12%, 3 pontos): 20,0 (hoje 24,6);
+- crise forte (15%, 22%, −45%, 13%, 4 pontos): 13,1 (hoje 23,4);
+- Simulação #3 em 2031–2032 (22%, 31%, −99,8%, 13%, 6 pontos): abaixo de 5 (hoje 20,6).
+
+Com o cenário da Simulação #3 mantido desde a posse, o pedido de impeachment de um governo de jogador abre no 18º mês do mandato (na partida, abriu no 34º).
+
+<a id="f277"></a>
+**F277 — Jornal com eventos raros em destaque e manchetes variadas.** Serve N31.
+
+**O que existe.** Na Simulação #3 o jornal teve 6.815 notícias em 14 anos, e duas regras fizeram 88,6% delas: movimento forte de ativo (3.053, cerca de 18 por mês) e máxima de 52 semanas (2.983, cerca de 18 por mês); "GOLD11 renova a máxima de 52 semanas" saiu 195 vezes. As duas moram em `backend/features/newsroom/companies.py`: movimento forte é toda variação acima de 5% no dia (`MOVE_THRESHOLD`), até 3 por pregão, sem intervalo por ativo; a máxima é todo fechamento acima do maior dos últimos 252, até 3 por pregão, então um ativo em tendência de alta vira notícia quase todo dia. No meio disso se perdem os eventos raros: campanha teve 43 notícias (15 ações que viralizaram), vida de partido 11, e programa lançado, rebatizado ou extinto 3. As manchetes do governo (`backend/features/government/headlines.py`, 30 construtores) têm texto fixo; só a redação das empresas sorteia variações com `pick()` (`backend/features/newsroom/text.py:156-161`), semeado por partida, dia e ativo.
+
+**O que muda e por quê.**
+
+1. Três tipos de notícia novos, que abrem a janela central por padrão (nível `WINDOW` sem `fixed`: a manchete grande por 8 segundos, sem pausar a sala), cada um rebaixável nas preferências como os outros:
+   - ação de campanha crítica: tudo o que `campaign_action` (`headlines.py:535-581`) publica, que já é só o dado crítico (viraliza ou dá errado) e o ataque;
+   - programa com nome: o lançamento, o rebatismo e a extinção de `program_event` (`headlines.py:353-361`), que hoje saem como medida votada;
+   - ruptura de partido: `expelled`, `federation_formed`, `federation_left`, `deal_broken` e `deal_left`.
+   Promessas e apoio no 2º turno continuam no tipo de campanha; fundação, doação e acordo fechado continuam em vida de partido. Os tipos entram em `NewsType` (`backend/core/enum/__init__.py:1073-1092`), no registro (`backend/features/notifications/registry.py`, na posição de importância deles, com rótulo e descrição; a descrição do tipo de campanha perde o que saiu) e no catálogo do front (`frontend/features/news/lib/catalog.ts`). `news.news_type` é texto, então não há migration; as notícias já gravadas ficam com o tipo antigo. Rodar `pnpm openapi`.
+2. Movimento forte relativo ao próprio ativo. Vira notícia a variação do dia que é pelo menos K vezes a oscilação normal daquele ativo, e não mais um percentual fixo. Oscilação normal é a média do tamanho da variação diária (em módulo) dos últimos 126 pregões; com menos de 63 pregões de histórico vale o limite fixo de 5% de hoje. Exemplo: uma ação que costuma mexer 2% por dia só é notícia a partir de 6%; um fundo imobiliário que costuma mexer 0,8% é notícia com 3%. K começa em 3 e há um piso absoluto de 3%, para que um ativo quase parado não vire manchete com 1%. A ordem dentro do pregão passa a ser por quantas vezes a oscilação normal, e ficam os 3 por pregão. O texto da manchete não muda. K é calibrado numa partida de 10 anos até a meta do aceite.
+3. Máxima de 52 semanas só no rompimento: vira notícia quando o fechamento supera uma máxima que já tinha pelo menos 63 pregões (3 meses) de idade. A renovação diária de quem está em tendência de alta deixa de sair, e o mesmo ativo aparece no máximo 4 vezes por ano.
+4. Três redações para cada manchete do governo. Cada um dos 30 construtores de `headlines.py` passa a ter 3 variações de título (e de linha fina, onde há), escolhidas por `pick()` com a semente da partida, a data e o identificador do fato (medida, partido ou ação), para a sala inteira ver o mesmo texto e a repetição da leitura dar o mesmo resultado. Os construtores passam a receber essa semente de quem os chama em `government_book.py`. As linhas finas de campanha hoje escolhidas por `action_id % len` passam para o mesmo `pick()`. São cerca de 90 títulos, escritos no tom do jornal e com os mesmos dados da manchete atual.
+5. `tests/test_newsroom.py` cobre o limite relativo (os dois exemplos acima, o piso de 3% e o histórico curto) e o rompimento da máxima; `tests/test_government_headlines.py` passa a conferir, por construtor, 3 textos distintos entre sementes e o mesmo texto para a mesma semente; os testes do front cobrem os tipos novos no catálogo e na fila da janela (`frontend/features/news/lib`).
+6. `docs/docs/como-usar` (página do jornal) descreve os tipos novos e a regra do movimento forte.
+
+**Como medir.** Uma partida de 10 anos rodada pela linha de comando no banco de teste, contando as notícias por tipo e por manchete na tabela `news`, antes e depois.
+
+**Aceite:** na partida de 10 anos, movimento forte fica entre 5 e 8 notícias por mês em média (hoje cerca de 18) e máxima de 52 semanas em até 4 por mês (hoje cerca de 18); os dois tipos somados ficam abaixo de 60% do total (hoje 88,6% de 6.815); nenhum ativo tem mais de 4 manchetes de máxima no mesmo ano; cada construtor de manchete do governo tem 3 redações.
+
+<a id="f278"></a>
+**F278 — Imprevistos e eventos de vida mais variados.** Serve N23.
+
+**O que o jogador passa a poder fazer.** Viver imprevistos que não são sempre os mesmos três nem sempre ruins: cerca de 20 tipos, um em cada quatro deles bom (dinheiro que entra), com o texto da profissão de cada um e dois eventos próprios da profissão. O anfitrião regula a frequência por família de evento no lobby, em vez de criar tipos.
+
+**O que existe.** Três tipos de fábrica em `DEFAULT_LIFE_EVENTS` (`backend/core/dto/life.py:35-60`): conserto do carro (1 despesa mensal, peso 3), despesa de saúde (2 despesas, peso 2) e demissão (pula o próximo salário, peso 1). Dois efeitos (`LifeEventEffect`: `CASH_OUT` e `SKIP_NEXT_SALARY`). O sorteio é diário, semeado pela semente da partida e pelo dia, e o evento é o mesmo para a sala inteira (`backend/features/simulation/life_events.py:35-61`); a aplicação fica em `simulation.py:1408-1478`. A demissão já tem versão por profissão (demissão, perda do bico, imóvel vago, pelo `income_loss` de `backend/core/professions.py:108-142`) e pula quem não tem. O lobby deixa criar tipos (`frontend/features/lobby/components/life-events-editor.tsx`), que só repetem os dois efeitos; a frequência é uma só para tudo (`unexpected_per_year`: Nenhum 0, Raros 1, Normais 3, Frequentes 6) e o peso de cada tipo não aparece na tela. `validate_life_events` limita a 12 tipos.
+
+**Mecanismo.**
+
+1. Efeito novo `CASH_IN`: credita no caixa o múltiplo da despesa mensal do jogador. O multiplicador de saúde do aposentado continua valendo só para despesa de saúde.
+2. Três famílias (enum novo): despesas, renda e emprego, e eventos bons. Cada tipo do catálogo tem família, peso e múltiplo. Catálogo de fábrica, com o múltiplo da despesa mensal entre parênteses (textos e múltiplos podem ser ajustados na implementação, mantendo a contagem e a regra do item 3):
+   - despesas: conserto do carro (1), despesa de saúde (2), conserto da casa (1,5), eletrodoméstico queimado (0,75), celular quebrado (0,5), multa de trânsito (0,25), veterinário (0,5), dentista de urgência (0,75), golpe no cartão (1), viagem de emergência (1), rateio extra do condomínio (0,5), ajuda a um parente (1);
+   - renda e emprego: demissão (pula o salário) e revés da profissão (1);
+   - eventos bons: restituição do imposto de renda (1), bônus do trabalho (1), prêmio de sorteio (0,5), herança pequena (3), venda de um bem usado (0,75), presente de família (0,5) e boa fase da profissão (1).
+3. Um em quatro é bom: com as três famílias em Normal, os pesos dos eventos bons somam 25% do peso total, e o valor esperado dos bons fica abaixo do dos ruins, para o imprevisto continuar sendo, na média, um custo que pede reserva de emergência.
+4. Profissão em dois níveis, os dois com o mesmo efeito e o mesmo tamanho para todos, para nenhuma profissão sair favorecida:
+   - texto por profissão nos eventos genéricos em que faz sentido (o bônus vira PLR para o CLT, gratificação para o servidor, cliente que pagou adiantado para o empresário, 13º adiantado para o aposentado, bico extra para quem recebe auxílio, reajuste do aluguel para quem vive de aluguel);
+   - "revés da profissão" e "boa fase da profissão" são dois tipos do catálogo que cada jogador vive na versão da própria profissão (empresário: máquina quebrada e contrato grande; quem vive de aluguel: reforma entre inquilinos e multa de rescisão recebida; e um par para cada uma das outras quatro profissões). É o mesmo padrão que a demissão já usa, e o sorteio continua único para a sala.
+   Os textos por profissão moram junto do catálogo, que sai do arquivo de DTO para um módulo próprio em `backend/core/`.
+5. Frequência por família no lobby. A frequência geral (`unexpected_per_year`) continua e diz quantos imprevistos por ano saem com tudo em Normal. Cada família ganha Desligado, Raro, Normal ou Frequente, que multiplica a chance dos tipos dela por 0, 0,5, 1 ou 2; dentro da família, cada tipo tem liga e desliga. Deixar despesas em Frequente não tira chance dos eventos bons. A chance por pregão de um tipo é `(por ano ÷ 252) × (peso do tipo ÷ peso total do catálogo ligado em Normal) × multiplicador da família`, e a correção da demissão pelo desemprego continua. As configurações da sala ganham o nível de cada família, com Normal de padrão.
+6. Sai a criação de tipos: `life-events-editor.tsx` perde "Adicionar tipo", o nome editável, o campo de valor e o seletor de efeito, e passa a mostrar as três famílias com o controle de frequência e os tipos de cada uma com o interruptor; `lib/simulation-form.ts` perde `newLifeEvent()`. O DTO do tipo continua aceitando os tipos criados em salas e partidas já salvas (família deduzida do efeito), e `validate_life_events` sobe o limite para caber o catálogo. Partida em andamento segue com os tipos com que foi criada.
+7. Exibição: o aviso em tempo real (`frontend/shared/notifications/life-notifications.tsx:30-55`) usa aviso de sucesso e valor com sinal de mais para os bons, e o histórico (`backend/features/simulation/life_history.py`, `frontend/features/goal/components/life-history.tsx`) mostra o sinal certo. O nome mostrado é o da profissão do jogador. O contador de imprevistos conta só os que tiram dinheiro ou salário.
+8. Mudou DTO: `pnpm openapi`; se as configurações da sala não forem JSON livre, `pnpm db:revision`. `docs/docs/como-usar/lobby.md` (trecho dos imprevistos) descreve as famílias e o catálogo.
+
+**Testes.** `tests/test_life_events.py`: `CASH_IN` credita o valor certo; em 10.000 sorteios semeados com tudo em Normal, os eventos bons ficam entre 22% e 28%; família em Desligado nunca sai e em Frequente sai o dobro; os dois tipos de profissão aplicam o mesmo valor a todos, com o texto de cada profissão. `tests/test_life_history.py` e `test_unexpected_count.py` para o sinal e o contador; `simulation-form.test.ts` e `life-history.test.ts` no front.
+
+**Aceite:** o catálogo de fábrica tem pelo menos 20 tipos; com tudo em Normal, de 22% a 28% dos sorteios são eventos bons (10.000 sorteios); numa sala com as seis profissões, o mesmo sorteio aplica o mesmo valor a todos; o lobby não cria mais tipos e uma sala salva com tipo criado continua abrindo e jogando.
 
 <a id="f281"></a>
 **F281 — Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto.** Serve N34; condicionado por D20. A SELIC do Banco Central autônomo é a série guardada mais `central_bank_reaction(inflation_points)`, 1,5 × os pontos de inflação, recalculada todo dia (`backend/features/economy/layer.py:235-246`). O degrau de 0,25 (`SELIC_STEP`) e as 8 reuniões por ano (`meeting_days`) de `monetary.py` só valem para a SELIC que o presidente decide. Na Simulação #3, o imposto sobre consumo caiu de 16% para 0 em 21/05/2027; o choque de preço entrou inteiro na reação, e a SELIC foi de 15,98% em 31/08/2027 para 4,12% no dia seguinte, abaixo da inflação, e voltou a 16,09% em 01/09/2028, quando o choque saiu da janela de 12 meses. O IPCA, que espalha o efeito por 12 meses, só subiu depois (4,31% em mai/28, 8,45% em dez/28, 9,68% em fev/29). No gráfico "Juros e inflação", a SELIC muda em centésimos quase todo dia, e o marcador do Copom (`panel.py:45`, `MIN_COPOM_STEP` de 0,1 p.p.) vira uma fileira de bolinhas que cobre a linha.
@@ -547,20 +695,14 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M24 · 4.3 | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Quais das três regras entram, se contam no placar e nas conquistas, se o laboratório mostra o coeficiente e o valor da credibilidade inicial desacreditada |
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Quanto do capital o governo mantém, quais ativos importados contam como estatal e como a estatal gera PIB e receita dentro da D20. |
-| **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | — | M26 · 4.1 | — | Teto de pontos por métrica (hoje a reta não tem teto) e/ou tirar do retorno diário os dias com patrimônio abaixo de uma fração do aportado; a forma de cada um e se o teto muda a comparação entre partidas. |
 | **F266** | Melhoria | Central de dados redesenhada | N13, N15 | — | M26 · 4.1 | — | Desenho no canvas: layout da tabela de séries, o que sai das colunas vazias e como o grupo do Focus explica que é importado e não ganha futuro gerado. |
 | **F267** | Melhoria | Lobby com topo enxuto e profissão na preparação | N15, N39 | — | M26 · 4.1 | — | Desenho no canvas: o topo do lobby, o card do jogador sem o seletor de profissão e a aba de profissão no Minha preparação. |
 | **F268** | Melhoria | Tela do Mapa repensada | N34, N15 | — | M26 · 4.1 | — | Desenho no canvas: onde mora a lista de lugares, como o Ver mais expande sem rolagem horizontal e a coluna das lentes. |
 | **F269** | Melhoria | Governo e Eleição com as ações do jogador num lugar só | N34, N15 | — | M26 · 4.1 | — | Análise de UX das duas páginas e das abas; depois o desenho no canvas de onde fica cada ação do presidente e do candidato. |
 | **F270** | Melhoria | Cards permanentes da Renda fixa integrados à tela | N15 | — | M26 · 4.1 | — | Desenho no canvas: cor, layout e posição dos dois cards fixos. |
-| **F271** | Melhoria | Mais cores para jogadores e partidos, com um seletor que comporta | N20 | — | M26 · 4.1 | — | Quais cores entram (vermelho, âmbar e outras), se a ampliação vale também para jogadores e o desenho do seletor de cor com a paleta maior. |
 | **F272** | Melhoria | Seletores e combobox novos | N15 | — | M26 · 4.1 | — | Trocar por outro componente do shadcn ou redesenhar o atual; o desenho no canvas com os três usos mais apertados. |
-| **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 | — | Regra de exclusão mútua entre vice, federação e base; a lista de convites nas pendências; o que acontece com os convites abertos quando um é aceito. |
 | **F274** | Feature | Presidência e base do governo que valem a pena | N34 | — | M26 · 4.1 | — | O que o presidente ganha em troca da carteira congelada e o que o partido da base e os filiados recebem pelo apoio. |
 | **F275** | Feature | Vitória política separada do capital | N34, N22 | — | M26 · 4.1 | — | O que mede o capital político (mandatos, cadeiras, medidas aprovadas, aprovação) e como a vitória política convive com as outras nas regras. |
-| **F276** | Correção | Governo ruim perde aprovação | N34, N41 | — | M26 · 4.1 | — | Por que o low_streak ficou em 0 com a aprovação em 21; quanto inflação, juro e bolsa devem pesar na aprovação, calibrado na calibragem de 10 anos. |
-| **F277** | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | N31 | — | M26 · 4.1 | — | Quais eventos sobem para a janela central; quanto cortar de movimento forte e de máxima de 52 semanas; quantas variações cada manchete do governo ganha. |
-| **F278** | Feature | Imprevistos e eventos de vida mais variados | N23 | — | M26 · 4.1 | — | Os tipos novos, os imprevistos por profissão, os eventos positivos e a troca da criação de tipos pela frequência no lobby. |
 | **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M26 · 4.1 | — | Medir as estratégias atuais em partidas com governo, dólar e crédito; escolher as estratégias novas. |
 | **F280** | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | N34, N8 | — | M26 · 4.1 | — | Quantos partidos do computador concorrem com N jogadores; quanto pesam as ações de campanha contra o dinheiro; de onde sai o dinheiro de campanha. |
 | **F283** | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | N15 | — | M26 · 4.1 | — | Em quais campos a porcentagem ajuda (contribuição em % do salário, doação em % do caixa, venda em % da posição) e se o Shift fica como atalho do controle visível. |
@@ -645,9 +787,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 **Falta:** quanto do capital o governo mantém na fundação e na privatização (o controle com metade mais uma ação, como na Petrobras e no Banco do Brasil, ou a venda inteira); quais ativos importados contam como estatal; e como a estatal gera PIB e receita dentro da D20, como mais uma parcela do desvio. O tamanho dos efeitos sai da calibragem pelo CLI, com Aceite.
 
-<a id="f264"></a>
-**F264 — Nota de desempenho que não explode com patrimônio quase zero.** Serve N9 e N3. Na Simulação #3, o Vovô Investidor venceu pela nota com 9.067.544 pontos e prejuízo de 42%; os outros fizeram de 117 a 367. O patrimônio dele foi de R$ 30 mil a R$ 0,01 num pregão, porque a ação arredondou para R$ 0,00, e voltou a R$ 7,5 mil dias depois. O retorno do dia é calculado sobre o patrimônio da véspera (`_ScoreWalk.add` em `backend/features/statistics/score.py:127`), e sobre R$ 0,01 vira dezenas de milhões por cento. O Sortino chegou a 725 mil e deu 18 milhões de pontos, porque a reta da métrica não tem teto (`Band.points`, :40-42). Um Sortino de 2 já é ótimo.
-
 <a id="f266"></a>
 **F266 — Central de dados redesenhada.** Serve N13 e N15. A tabela de séries ficou apertada: nomes cortados ("FOCUS_S…", "GDP_GRO…") e três colunas que só mostram "—". As séries do Focus são importadas e não ganham futuro gerado, por desenho (F226), mas a legenda genérica "repete o último valor" (`how-to-read.tsx:29`) não diz isso.
 
@@ -663,29 +802,14 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 <a id="f270"></a>
 **F270 — Cards permanentes da Renda fixa integrados à tela.** Serve N15. Os cards fixos "CDB Nubank Liquidez Diária", em verde, e "Conta em dólar", em azul, destoam da tela: as cores, o layout e a posição não seguem o resto da Renda fixa.
 
-<a id="f271"></a>
-**F271 — Mais cores para jogadores e partidos, com um seletor que comporta.** Serve N20. A paleta da F212 tem 10 cores de jogador (`player-colors.ts:12-21`) e as cores dos partidos (`party-colors.ts:5`, mais UPR, ACI e MNV do computador), mas falta vermelho e âmbar puros. Exemplos de uso: o vermelho do PT e o amarelo de um MISSÃO. Toda cor nova passa pelo contraste com o fundo, então o branco fica de fora.
-
 <a id="f272"></a>
 **F272 — Seletores e combobox novos.** Serve N15. O `select.tsx` (base-ui) fica apertado e feio no filtro de setor (`variable-income.tsx:158-180`), no imposto da medida (`new-measure-dialog.tsx:209`) e na escolha do vice (`ticket-dialog.tsx:101-104`), e o combobox tem o mesmo problema.
-
-<a id="f273"></a>
-**F273 — Convites que se escolhem e se acumulam.** Serve N34 e N23. Escolher no seletor de vice ou de partido parece já enviar o convite; o jogador quer escolher e depois clicar em convidar. Além disso, quem já recebeu um convite não pode receber outro: o `vice_blocker` (`election.py:72-85`) bloqueia o vice convidado por outra chapa, a federação aceita uma proposta aberta por partido (`state.py:638-646`) e o acordo de base tem o `deal_blocker` (`government_book.py:1144-1168`). A proposta é o jogador receber vários convites, listados nas pendências, e aceitar um recusar os que forem incompatíveis com ele.
 
 <a id="f274"></a>
 **F274 — Presidência e base do governo que valem a pena.** Serve N34. Ser presidente congela a carteira: `ensure_can_trade` (`government_book.py:295-305`) recusa compra e venda, e na posse as ordens são canceladas e o automático desliga (`simulation.py:837-841`). Nada disso volta como vantagem no placar. Entrar na base também não paga: o acordo dá ao governo as cadeiras (`base_seats`, `government_book.py:1100-1108`), a emenda vira gasto público e inflação (`deals.py:24-29`), e o partido que aceita e os filiados não recebem nada.
 
 <a id="f275"></a>
 **F275 — Vitória política separada do capital.** Serve N34 e N22. O ranking dos partidos (`party_ranking` em `standings.py:13-40`) soma o patrimônio dos filiados, e a vitória política (`ranking.py:279-282`) lê esse ranking. Isso parece vitória por equipes e mistura o capital político com o financeiro. A proposta é um tipo de vitória exclusivo, escolhido nas regras, no molde da vitória da Expansão Gestoras.
-
-<a id="f276"></a>
-**F276 — Governo ruim perde aprovação.** Serve N34 e N41. Na Simulação #3, o governo levou a SELIC a 30–33% (2030–2031), o IPCA a 1–1,9% ao mês (≈13–25% ao ano, de 2028 a 2032) e a bolsa a −99,8%. A aprovação ficou em 28 em 2032 e 2033 e em 21 em 2034, e em 2035 voltou a 52. A satisfação dos investidores chegou a 0,0006, mas o `low_streak` ficou em 0 o tempo todo.
-
-<a id="f277"></a>
-**F277 — Jornal com eventos raros em destaque e manchetes variadas.** Serve N31. Na Simulação #3, o jornal publicou 6.809 notícias em 14 anos (~2,35 por dia). Movimento forte e máxima de 52 semanas somam 88,6% delas, e "GOLD11 renova a máxima de 52 semanas" saiu 195 vezes. O evento crítico de partido, o auxílio novo com nome e o ataque crítico se perdem nesse volume. As manchetes do governo têm texto fixo (uma f-string por função em `government/headlines.py`); só o noticiário sorteia variações (`pick()` em `text.py:51-56`).
-
-<a id="f278"></a>
-**F278 — Imprevistos e eventos de vida mais variados.** Serve N23. O registro de imprevistos da F69 tem poucos tipos padrão, todos negativos e iguais para qualquer profissão. A customização de tipos próprios repete os efeitos que já existem; o host quer controlar a frequência.
 
 <a id="f279"></a>
 **F279 — Estratégias automáticas novas e revisão das atuais.** Serve N4 e N8. As estratégias automáticas e os bots foram desenhados antes do governo, do dólar, do crédito e das expansões. Precisa conferir se continuam competitivas e se faltam estratégias que usem o que entrou. O rebalanceamento por meta com várias classes já é a F197, na Mesa do trader.

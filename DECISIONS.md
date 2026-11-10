@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança (2026-11-07):** Adicionadas a N41 (aprender a economia real jogando) e a D21 (o jogo ensina a jogar, a docs explica o modelo).
+> **Última mudança (2026-11-10):** Revista a D10: a nota segue sem teto de pontos, e volatilidade, Sharpe e Sortino passam à escala logarítmica.
 
 ---
 
@@ -225,6 +225,8 @@ Na partida com governo, juro, inflação, desemprego, bolsa e dívida reagem pel
 **Decisão:** a nota é a soma de quatro eixos de peso igual — Retorno, Risco, Consistência e Eficiência —, cada um a média dos pontos das suas métricas. Cada métrica vira pontos por uma reta com dois níveis fixos (o que vale 0 e o que vale 100), com chão 0 e sem teto. As métricas: retorno anual acima do CDI e do Ibovespa; queda máxima, volatilidade, maior tempo abaixo do pico e pior mês; meses acima do CDI e meses no positivo; Sharpe e Sortino. A nota só existe a partir de 63 pregões.
 **Por quê:** a avaliação olha cada dimensão por vários ângulos (o risco não é só a queda máxima), e o eixo, e não a métrica, é a unidade de peso: com quatro métricas de risco e duas de retorno, o risco não vale o dobro. As faixas são absolutas, iguais em toda partida, para que a nota compare partidas diferentes e funcione jogando sozinho, o que uma nota relativa à sala não permite. Sem teto, como placar de jogo, mas decomponível eixo a eixo e métrica a métrica, para mostrar o que puxou a nota. Abaixo de ~3 meses, anualizar engana (10 dias com +2% viram ~64% ao ano).
 **Consequências:** risco e consistência têm máximo natural perto de 100 e retorno e eficiência não, então retorno muito alto compensa risco; uma carteira parada em caixa fica com ~100, quase tudo do eixo Risco. Mudar uma faixa muda a nota de todas as partidas salvas, porque a nota é recalculada dos snapshots a cada leitura.
+
+**Atualização (2026-11-10):** um bot tirou 9 milhões de pontos com o patrimônio indo a R$ 0,01 e voltando. O teto de pontos por métrica foi considerado e recusado: a nota segue sem teto. O conserto fica na medida (F264): volatilidade, Sharpe e Sortino passam a sair do retorno diário em escala logarítmica, em que uma queda e uma alta do mesmo tamanho se anulam. Uma carteira só de renda fixa acima do CDI continua podendo tirar nota muito alta em eficiência.
 
 ### D11 — Sobre qual base o shadcn monta os componentes: Radix ou Base UI
 **Status:** 🔍 Em aberto
