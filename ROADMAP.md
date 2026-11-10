@@ -101,10 +101,9 @@
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
-| [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (34 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (35 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -139,6 +138,7 @@
 | [**F254**](#f254) | Feature | Programas de governo com nome | M26 · 4.1 | — | — | — | ✅ |
 | [**F256**](#f256) | Melhoria | SELIC abaixo de zero em futuro com deflação | M26 · 4.1 | — | — | — | ✅ |
 | [**F257**](#f257) | Feature | Viver de renda que sente a economia | M26 · 4.1 | — | — | — | ✅ |
+| [**F258**](#f258) | Melhoria | Serve N34. O líder orienta a bancada até o fim do dia da votação, e a casa apura à noite, com a orientação que ele deu até lá. O acordo de apoio mostra o Não pendente, com o aviso do rompimento e o botão de confirmar; fechar sem confirmar mantém o Sim e avisa. Na federação em que outro partido orienta, o controle aparece travado, dizendo quem orienta. | M26 · 4.1 | — | — | — | ✅ |
 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | M26 · 4.1 | — | — | — | ✅ |
 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | M26 · 4.1 | — | — | — | ✅ |
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | ✅ |
@@ -157,7 +157,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 14/15 concluídos
+> **Progresso:** 15/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -175,7 +175,7 @@
 | 12 | [**F194**](#f194) | Feature | Dólar e ativos internacionais | — | ✅ Concluído |
 | 13 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | — | ✅ Concluído |
 | 14 | [**F261**](#f261) | Feature | Profissão no viver de renda | — | ✅ Concluído |
-| 15 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | 🔍 Em avaliação |
+| 15 | [**F258**](#f258) | Melhoria | Serve N34. O líder orienta a bancada até o fim do dia da votação, e a casa apura à noite, com a orientação que ele deu até lá. O acordo de apoio mostra o Não pendente, com o aviso do rompimento e o botão de confirmar; fechar sem confirmar mantém o Sim e avisa. Na federação em que outro partido orienta, o controle aparece travado, dizendo quem orienta. | — | ✅ Concluído |
 
 ### 4.2 — Expansão Gestoras (M18)
 
@@ -281,7 +281,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | M26 · 4.1 · 15º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
@@ -439,7 +438,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M24 · 4.3 | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Quais das três regras entram, se contam no placar e nas conquistas, se o laboratório mostra o coeficiente e o valor da credibilidade inicial desacreditada |
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Quanto do capital o governo mantém, quais ativos importados contam como estatal e como a estatal gera PIB e receita dentro da D20. |
-| **F258** | Melhoria | Orientação da bancada que se explica | N34 | — | M26 · 4.1 | — | Desenho: como mostrar o acordo de apoio, a federação e a janela curta |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -521,9 +519,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 **Falta:** quanto do capital o governo mantém na fundação e na privatização (o controle com metade mais uma ação, como na Petrobras e no Banco do Brasil, ou a venda inteira); quais ativos importados contam como estatal; e como a estatal gera PIB e receita dentro da D20, como mais uma parcela do desvio. O tamanho dos efeitos sai da calibragem pelo CLI, com Aceite.
 
-<a id="f258"></a>
-**F258 — Orientação da bancada que se explica.** Origem: triagem do playtest de 08/11. O backend respeita a orientação do líder da bancada num governo do computador, mas a tela esconde três limites. (1) O acordo de apoio força Sim: o seletor só muda para Não depois de "Orientar Não e romper", e quem escolhe Não e fecha continua com Sim. (2) Com outro partido líder na federação, o controle aparece e o clique volta 403. (3) O controle some no último dia útil do mês, e em velocidade alta o mês passa antes de a medida ser orientada. A decidir no desenho: mostrar o Não como pendente com o aviso de rompimento em destaque, esconder ou explicar o controle quando a federação não é do jogador, e avisar ou pausar quando a medida entra na fila.
-
 ---
 
 ## 💤 Sem prioridade
@@ -552,6 +547,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F254** | Feature | Programas de governo com nome | N34, N31 | D19 | M26 · 4.1 |
 | **F256** | Melhoria | SELIC abaixo de zero em futuro com deflação | N34 | D20 | M26 · 4.1 |
 | **F257** | Feature | Viver de renda que sente a economia | N23, N34 | D20 | M26 · 4.1 |
+| **F258** | Melhoria | Serve N34. O líder orienta a bancada até o fim do dia da votação, e a casa apura à noite, com a orientação que ele deu até lá. O acordo de apoio mostra o Não pendente, com o aviso do rompimento e o botão de confirmar; fechar sem confirmar mantém o Sim e avisa. Na federação em que outro partido orienta, o controle aparece travado, dizendo quem orienta. | N34 | — | M26 · 4.1 |
 | **F259** | Correção | Preço dos ativos cotados em dólar convertido para real | N11, N34 | — | M26 · 4.1 |
 | **F260** | Feature | Caixa em dólar com o juro americano | N41, N34 | — | M26 · 4.1 |
 | **F261** | Feature | Profissão no viver de renda | N23, N34 | D19 | M26 · 4.1 |
@@ -667,6 +663,9 @@ Plano econômico com nome ("Plano Real") fica fora: não existe medida de plano 
 O registro do orçamento mostra cada mudança no salário, na despesa e no juro com a origem ("reajuste pelo PIB de 3,1%", "demissão com desemprego de 14%"). A profissão do jogador, que liga o salário a um grupo do eleitorado, é um card próprio que parte deste.
 
 **Aceite:** com a mesma semente, uma partida sem governo e de desemprego alto sorteia mais demissões que uma de desemprego baixo, e o registro do orçamento mostra a origem de toda mudança de salário, despesa e juro.
+
+<a id="f258"></a>
+**F258 — Orientação da bancada que se explica.** Origem: triagem do playtest de 08/11. O backend respeita a orientação do líder da bancada num governo do computador, mas a tela esconde três limites. (1) O acordo de apoio força Sim: o seletor só muda para Não depois de "Orientar Não e romper", e quem escolhe Não e fecha continua com Sim. (2) Com outro partido líder na federação, o controle aparece e o clique volta 403. (3) O controle some no último dia útil do mês, e em velocidade alta o mês passa antes de a medida ser orientada. A decidir no desenho: mostrar o Não como pendente com o aviso de rompimento em destaque, esconder ou explicar o controle quando a federação não é do jogador, e avisar ou pausar quando a medida entra na fila.
 
 <a id="f259"></a>
 **F259 — Preço dos ativos cotados em dólar convertido para real.** Serve N11. O importador manda ao Yahoo Finance o ticker como está quando ele não é da B3 (`yfinance_symbol` em `backend/features/import_data/importer_service.py:44`), e o download (`from_yfinance`, linhas 55-85, e `from_yfinance_batch`) guarda o preço sem ler a moeda que o Yahoo devolve. A AAPL a US$ 200 entra como R$ 200, e o mesmo vale para a MSFT e para o BTC-USD; a tela formata tudo em real (`frontend/shared/lib/utils/format.ts:50`). Comprar uma ação americana sai cinco vezes mais barato do que na vida real, e a alta do dólar não mexe nela. Os BDRs (AAPL34) já vêm em reais e não mudam.
