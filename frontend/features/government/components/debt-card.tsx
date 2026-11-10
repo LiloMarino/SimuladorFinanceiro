@@ -5,8 +5,8 @@ import { DEBT_GDP } from "@/shared/lib/budget-metrics";
 import { displayDate, displayPercent, displayShortMonthYear } from "@/shared/lib/utils/display";
 import type { Budget } from "@/types";
 import { debtSeries, type DebtRow } from "../lib/budget";
+import { CHART_FONT_SIZE, CHART_TICK } from "@/shared/lib/chart-text";
 
-const TICK = { fontSize: 10.5, fill: "var(--faint-foreground)" };
 const DEBT_COLOR = "var(--chart-5)";
 
 type DebtCardProps = { budget: Budget };
@@ -41,13 +41,13 @@ function DebtChart({ budget }: { budget: Budget }) {
           scale="time"
           domain={["dataMin", "dataMax"]}
           tickFormatter={(time: number) => displayShortMonthYear(new Date(time))}
-          tick={TICK}
+          tick={CHART_TICK}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
           tickFormatter={(value: number) => displayPercent(value, 0)}
-          tick={TICK}
+          tick={CHART_TICK}
           axisLine={false}
           tickLine={false}
           width={40}
@@ -57,7 +57,12 @@ function DebtChart({ budget }: { budget: Budget }) {
           y={Number(budget.premium_floor)}
           stroke="var(--muted-foreground)"
           strokeDasharray="5 4"
-          label={{ value: "50%", position: "insideBottomRight", fontSize: 10.5, fill: "var(--muted-foreground)" }}
+          label={{
+            value: "50%",
+            position: "insideBottomRight",
+            fontSize: CHART_FONT_SIZE,
+            fill: "var(--muted-foreground)",
+          }}
         />
         <Line dataKey="history" stroke={DEBT_COLOR} strokeWidth={2} dot={false} isAnimationActive={false} />
         <Line

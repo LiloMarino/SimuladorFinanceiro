@@ -6,6 +6,7 @@ import { LineChartLegend } from "./chart-legend";
 import { LineChartTooltip } from "./chart-tooltip";
 import { buildChartData, monthStartTicks, type ChartAxis, type LineChartRow } from "./utils";
 import type { LineSeries } from "./series";
+import { CHART_TICK } from "@/shared/lib/chart-text";
 
 export type { LineSeries } from "./series";
 
@@ -91,7 +92,7 @@ export function PlayerLineChart({
               }
               {...(dateTicks ? { ticks: dateTicks } : {})}
               minTickGap={56}
-              tick={{ fontSize: 11, fill: "var(--faint-foreground)" }}
+              tick={CHART_TICK}
               axisLine={false}
               tickLine={false}
               height={X_AXIS_HEIGHT}
@@ -102,7 +103,7 @@ export function PlayerLineChart({
               domain={[floor, ceiling]}
               tickFormatter={axisFormat}
               width={72}
-              tick={{ fontSize: 11, fill: "var(--faint-foreground)" }}
+              tick={CHART_TICK}
               axisLine={false}
               tickLine={false}
             />

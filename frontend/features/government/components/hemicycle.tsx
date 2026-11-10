@@ -1,5 +1,6 @@
 import { cn } from "@/shared/lib/utils";
 import type { HemicycleSeat } from "../lib/house";
+import { CHART_FONT_SIZE } from "@/shared/lib/chart-text";
 
 type HemicycleProps = {
   seats: HemicycleSeat[];
@@ -84,7 +85,7 @@ export function Hemicycle({ seats, marks = [], width = 420, label, onSelect }: H
         return (
           <g key={mark.label} className={cn("text-muted-foreground")}>
             <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} stroke="currentColor" strokeDasharray="3 3" />
-            <text x={to.x} y={to.y - 4} textAnchor="middle" fontSize={10} fill="currentColor">
+            <text x={to.x} y={to.y - 4} textAnchor="middle" fontSize={CHART_FONT_SIZE} fill="currentColor">
               {mark.label}
             </text>
           </g>

@@ -22,6 +22,7 @@ import { EFFECTIVE_SECTORS, SECTOR_PROFIT } from "../../lib/metrics";
 import { playerKey, playerLabel } from "../../lib/player-label";
 import { groupByTeam } from "../../lib/teams";
 import { PlayerCell, TabStatus, type ReportProps } from "./shared";
+import { CHART_FONT_SIZE } from "@/shared/lib/chart-text";
 
 type TeamComposition = CompositionReport["teams"][number];
 type Unit = "PCT" | "MONEY";
@@ -215,7 +216,7 @@ function SmallMultiple({
                 <XAxis dataKey="date" hide />
                 <YAxis hide />
                 <Tooltip
-                  contentStyle={{ borderRadius: 10, borderColor: "var(--border)", fontSize: 11 }}
+                  contentStyle={{ borderRadius: 10, borderColor: "var(--border)", fontSize: CHART_FONT_SIZE }}
                   labelFormatter={(d) => (typeof d === "string" ? displayMonthSlashYear(d) : d)}
                   formatter={(v, name) => [displayMoney(Number(v)), SERIES.find((s) => s.key === name)?.label ?? name]}
                 />

@@ -10,6 +10,7 @@ import {
   SHOWN_CANDLES,
   type ChartBox,
 } from "../lib/chart-geometry";
+import { CHART_FONT_SIZE } from "@/shared/lib/chart-text";
 
 /** Cada vela que entra na revelação demora isto depois da anterior. */
 const ENTRY_STEP_MS = 400;
@@ -59,7 +60,7 @@ export function CandleChart({ bars, after, patternCode, box, className }: Candle
             y={scale.y(tick)}
             textAnchor="end"
             dominantBaseline="middle"
-            fontSize={11}
+            fontSize={CHART_FONT_SIZE}
             fill="currentColor"
             className="font-mono"
           >
@@ -84,7 +85,7 @@ export function CandleChart({ bars, after, patternCode, box, className }: Candle
           x={slotsLeft + slotsWidth / 2}
           y={chartPadding.top + 16}
           textAnchor="middle"
-          fontSize={12}
+          fontSize={CHART_FONT_SIZE}
           fill="currentColor"
           className="text-muted-foreground"
         >
@@ -111,7 +112,7 @@ export function CandleChart({ bars, after, patternCode, box, className }: Candle
           x={(scale.x(SHOWN_CANDLES - pattern.candles.length) + scale.x(SHOWN_CANDLES - 1)) / 2}
           y={box.height - 6}
           textAnchor="middle"
-          fontSize={11}
+          fontSize={CHART_FONT_SIZE}
           fontWeight={600}
           fill="currentColor"
           className="text-info"

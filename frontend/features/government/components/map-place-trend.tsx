@@ -3,10 +3,11 @@ import { InfoHint } from "@/shared/components/info-hint";
 import { partyColor } from "@/shared/lib/party-colors";
 import type { ElectionTimeline, MapPlace, TimelinePoint } from "@/types";
 import { placeTrend, runoffStart, trendParties, trendSummary, trendTick, type TrendRow } from "../lib/map-trend";
+import { CHART_FONT_SIZE, CHART_TICK } from "@/shared/lib/chart-text";
 
 const CHART_WIDTH = 300;
 const CHART_HEIGHT = 150;
-const TICK = { fontSize: 10, fill: "var(--faint-foreground)", fontFamily: "var(--font-mono)" };
+const TICK = { ...CHART_TICK, fontFamily: "var(--font-mono)" };
 const UNDECIDED_COLOR = "var(--warning)";
 /** O eixo Y sobe de 20 em 20 até cobrir o maior valor. */
 const Y_STEP = 20;
@@ -153,7 +154,7 @@ export function MapPlaceTrend({ timeline, place, selected, focusParty, onSelect 
               label={{
                 value: `${Math.round(finalValue)}%`,
                 position: "right",
-                fontSize: 10,
+                fontSize: CHART_FONT_SIZE,
                 fontWeight: 700,
                 fill: party ? partyColor(party) : "var(--foreground)",
               }}

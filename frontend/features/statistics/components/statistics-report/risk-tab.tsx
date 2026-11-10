@@ -32,6 +32,7 @@ import {
 import { DebtTable } from "./debt-table";
 import { PlayerLineChart, type LineSeries } from "@/shared/components/player-line-chart";
 import { ChartCard, MetricsTable, TabStatus, type ReportProps } from "./shared";
+import { CHART_FONT_SIZE, CHART_TICK } from "@/shared/lib/chart-text";
 
 type TeamRisk = RiskReport["teams"][number];
 type View = "DRAWDOWN" | "VOLATILITY";
@@ -285,13 +286,13 @@ function RiskReturn({
                     dataKey="x"
                     domain={[0, maxX]}
                     tickFormatter={(v: number) => displayPercent(v, 0)}
-                    tick={{ fontSize: 11, fill: "var(--faint-foreground)" }}
+                    tick={CHART_TICK}
                     name="Volatilidade anual"
                     label={{
                       value: "Volatilidade anual (risco) →",
                       position: "insideBottom",
                       offset: -8,
-                      fontSize: 11,
+                      fontSize: CHART_FONT_SIZE,
                     }}
                   />
                   <YAxis
@@ -299,7 +300,7 @@ function RiskReturn({
                     dataKey="y"
                     domain={[minY, maxY]}
                     tickFormatter={(v: number) => displayPercent(v, 0)}
-                    tick={{ fontSize: 11, fill: "var(--faint-foreground)" }}
+                    tick={CHART_TICK}
                     width={64}
                     name="Retorno anual"
                     label={{
@@ -307,14 +308,14 @@ function RiskReturn({
                       angle: -90,
                       position: "insideLeft",
                       offset: 8,
-                      fontSize: 11,
+                      fontSize: CHART_FONT_SIZE,
                       fill: "var(--muted-foreground)",
                       style: { textAnchor: "middle" },
                     }}
                   />
                   <Tooltip
                     cursor={{ strokeDasharray: "3 3" }}
-                    contentStyle={{ borderRadius: 10, borderColor: "var(--border)", fontSize: 12 }}
+                    contentStyle={{ borderRadius: 10, borderColor: "var(--border)", fontSize: CHART_FONT_SIZE }}
                     formatter={(v, name) => [displayPercent(Number(v)), name]}
                   />
                   {measured
@@ -366,7 +367,7 @@ function RiskReturn({
                             x={toLeft ? cx - 12 : cx + 12}
                             y={Number(y) + Number(height) / 2 + 4}
                             textAnchor={toLeft ? "end" : "start"}
-                            fontSize={11}
+                            fontSize={CHART_FONT_SIZE}
                             fontWeight={point?.you ? 700 : 500}
                             fill={point ? colorOf(point.colorKey) : "var(--foreground)"}
                           >
@@ -400,7 +401,7 @@ function RiskReturn({
                       <LabelList
                         dataKey="label"
                         position="top"
-                        fontSize={11}
+                        fontSize={CHART_FONT_SIZE}
                         fontWeight={700}
                         fill="var(--foreground)"
                       />
@@ -412,7 +413,12 @@ function RiskReturn({
                       fill="var(--faint-foreground)"
                       shape="diamond"
                     >
-                      <LabelList dataKey="label" position="right" fontSize={11} fill="var(--muted-foreground)" />
+                      <LabelList
+                        dataKey="label"
+                        position="right"
+                        fontSize={CHART_FONT_SIZE}
+                        fill="var(--muted-foreground)"
+                      />
                     </Scatter>
                   )}
                 </ScatterChart>

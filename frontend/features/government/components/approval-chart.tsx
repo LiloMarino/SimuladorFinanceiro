@@ -22,8 +22,7 @@ import {
   verdictCountsSentence,
 } from "../lib/approval";
 import type { Selection } from "../lib/approval";
-
-const TICK = { fontSize: 10.5, fill: "var(--faint-foreground)" };
+import { CHART_FONT_SIZE, CHART_TICK } from "@/shared/lib/chart-text";
 
 type Row = {
   time: number;
@@ -80,7 +79,7 @@ export function ApprovalChart({ approval, selection = ALL_GROUPS, height = 180, 
           domain={["dataMin", "dataMax"]}
           hide={compact}
           tickFormatter={(time: number) => displayShortMonthYear(new Date(time))}
-          tick={TICK}
+          tick={CHART_TICK}
           axisLine={false}
           tickLine={false}
         />
@@ -88,7 +87,7 @@ export function ApprovalChart({ approval, selection = ALL_GROUPS, height = 180, 
           domain={[0, 100]}
           ticks={[0, 25, 50, 75, 100]}
           hide={compact}
-          tick={TICK}
+          tick={CHART_TICK}
           axisLine={false}
           tickLine={false}
           width={32}
@@ -102,7 +101,7 @@ export function ApprovalChart({ approval, selection = ALL_GROUPS, height = 180, 
             label={{
               value: "carência: sem impeachment",
               position: "insideBottomLeft",
-              fontSize: 10,
+              fontSize: CHART_FONT_SIZE,
               fill: "var(--faint-foreground)",
             }}
           />
@@ -115,7 +114,7 @@ export function ApprovalChart({ approval, selection = ALL_GROUPS, height = 180, 
             label: {
               value: `piso ${approval.floor}%`,
               position: "insideTopLeft",
-              fontSize: 10,
+              fontSize: CHART_FONT_SIZE,
               fill: "var(--destructive)",
             },
           })}
@@ -177,7 +176,7 @@ export function ApprovalChart({ approval, selection = ALL_GROUPS, height = 180, 
             label={{
               value: `rumo ao alvo ${series.target}%`,
               position: "top",
-              fontSize: 10.5,
+              fontSize: CHART_FONT_SIZE,
               fill: "var(--muted-foreground)",
             }}
           />
@@ -190,7 +189,12 @@ export function ApprovalChart({ approval, selection = ALL_GROUPS, height = 180, 
             fill="var(--card)"
             stroke="var(--primary)"
             strokeWidth={2}
-            label={{ value: `posse: ${first.value}%`, position: "top", fontSize: 10.5, fill: "var(--foreground)" }}
+            label={{
+              value: `posse: ${first.value}%`,
+              position: "top",
+              fontSize: CHART_FONT_SIZE,
+              fill: "var(--foreground)",
+            }}
           />
         )}
       </LineChart>

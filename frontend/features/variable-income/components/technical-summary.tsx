@@ -19,6 +19,7 @@ import {
   readingWithArticle,
   summaryUnlock,
 } from "../lib/indicators";
+import { CHART_FONT_SIZE } from "@/shared/lib/chart-text";
 
 type Verdict = NonNullable<Summary["verdict"]>;
 
@@ -241,10 +242,10 @@ function Gauge({ score }: { score: number }) {
         strokeLinecap="round"
       />
       <circle cx={cx} cy={cy} r={5} fill="var(--foreground)" />
-      <text x={20} y={108} fontSize={10} textAnchor="middle" fill="var(--muted-foreground)">
+      <text x={20} y={108} fontSize={CHART_FONT_SIZE} textAnchor="middle" fill="var(--muted-foreground)">
         Venda
       </text>
-      <text x={180} y={108} fontSize={10} textAnchor="middle" fill="var(--muted-foreground)">
+      <text x={180} y={108} fontSize={CHART_FONT_SIZE} textAnchor="middle" fill="var(--muted-foreground)">
         Compra
       </text>
     </svg>

@@ -16,8 +16,8 @@ import {
   pointsOf,
   type HistoryRow,
 } from "../lib/treasury";
+import { CHART_TICK } from "@/shared/lib/chart-text";
 
-const TICK = { fontSize: 10.5, fill: "var(--faint-foreground)" };
 const AXIS_WIDTH = 48;
 const MARGIN = { top: 8, right: 8, left: 0, bottom: 0 };
 
@@ -114,7 +114,7 @@ function RatesChart({ rows, withGovernment }: { rows: HistoryRow[]; withGovernme
           scale="time"
           domain={["dataMin", "dataMax"]}
           tickFormatter={timeLabel}
-          tick={TICK}
+          tick={CHART_TICK}
           axisLine={false}
           tickLine={false}
           hide={withGovernment}
@@ -122,7 +122,7 @@ function RatesChart({ rows, withGovernment }: { rows: HistoryRow[]; withGovernme
         <YAxis
           domain={["auto", "auto"]}
           tickFormatter={(value: number) => displayPercent(value, 1)}
-          tick={TICK}
+          tick={CHART_TICK}
           axisLine={false}
           tickLine={false}
           width={AXIS_WIDTH}
@@ -186,7 +186,7 @@ function DebtChart({ rows }: { rows: HistoryRow[] }) {
             scale="time"
             domain={["dataMin", "dataMax"]}
             tickFormatter={timeLabel}
-            tick={TICK}
+            tick={CHART_TICK}
             axisLine={false}
             tickLine={false}
           />
@@ -194,7 +194,7 @@ function DebtChart({ rows }: { rows: HistoryRow[] }) {
             domain={[0, top]}
             ticks={[0, 0.5, 1]}
             tickFormatter={(value: number) => `${Math.round(value * 100)}%`}
-            tick={TICK}
+            tick={CHART_TICK}
             axisLine={false}
             tickLine={false}
             width={AXIS_WIDTH}

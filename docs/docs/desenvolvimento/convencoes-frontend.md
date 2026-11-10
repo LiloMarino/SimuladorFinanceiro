@@ -131,8 +131,10 @@ por digitação, ou quando quem valida é o servidor:
   viram uma, o texto quebra em duas linhas (`wrap` em `TableHead` e `TableCell`). A rolagem
   lateral fica para tabela larga por natureza, como a matriz de correlação.
 - Nenhum texto abaixo de 12 px: use `text-xs` ou maior. O teste
-  `shared/lib/min-text-size.test.ts` falha se uma classe `text-[Npx]` com N menor que 12
-  entrar no código.
+  `shared/lib/min-text-size.test.ts` falha se uma classe `text-[Npx]` ou um `fontSize`
+  literal com N menor que 12 entrar no código. O texto de gráfico (eixos, rótulos, tooltip)
+  usa `CHART_TICK` e `CHART_FONT_SIZE` de `shared/lib/chart-text.ts`; onde 12 px não cabe, o
+  gráfico mostra menos marcas ou abrevia o rótulo.
 - Texto pequeno usa `text-muted-foreground` ou `text-faint-foreground`, ambos com contraste
   mínimo de 4,5:1 sobre os fundos do app.
 

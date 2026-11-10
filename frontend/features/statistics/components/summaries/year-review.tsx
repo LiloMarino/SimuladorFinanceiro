@@ -9,8 +9,7 @@ import {
 import type { YearReview } from "@/types";
 import { YEAR_RETURN } from "../../lib/summary-metrics";
 import { NetworthChange, ReturnComparison } from "./return-comparison";
-
-const TICK = { fontSize: 10.5, fill: "var(--faint-foreground)" };
+import { CHART_TICK } from "@/shared/lib/chart-text";
 
 type YearReviewViewProps = { review: YearReview };
 
@@ -36,7 +35,7 @@ export function YearReviewView({ review }: YearReviewViewProps) {
               <XAxis
                 dataKey="month"
                 tickFormatter={displayMonthShort}
-                tick={TICK}
+                tick={CHART_TICK}
                 axisLine={false}
                 tickLine={false}
                 interval={0}

@@ -1,8 +1,7 @@
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { displayDate, displayPercent, displayShortMonthYear } from "@/shared/lib/utils/display";
 import type { EconomyRow } from "../lib/economy";
-
-const TICK = { fontSize: 10.5, fill: "var(--faint-foreground)" };
+import { CHART_FONT_SIZE, CHART_TICK } from "@/shared/lib/chart-text";
 
 type SeriesKey = "growth" | "unemployment" | "debt" | "dollar";
 
@@ -74,14 +73,14 @@ export function SeriesChart({
           scale="time"
           domain={["dataMin", "dataMax"]}
           tickFormatter={(time: number) => displayShortMonthYear(new Date(time))}
-          tick={TICK}
+          tick={CHART_TICK}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
           domain={dataKey === "dollar" ? ["auto", "auto"] : [(min: number) => Math.min(0, min), "auto"]}
           tickFormatter={(value: number) => format(value, dataKey === "dollar" ? 2 : 0)}
-          tick={TICK}
+          tick={CHART_TICK}
           axisLine={false}
           tickLine={false}
           width={dataKey === "dollar" ? 56 : 40}
@@ -98,7 +97,7 @@ export function SeriesChart({
             label={{
               value: reference.label,
               position: "insideTopRight",
-              fontSize: 10.5,
+              fontSize: CHART_FONT_SIZE,
               fill: "var(--muted-foreground)",
             }}
           />

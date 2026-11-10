@@ -3,8 +3,8 @@ import { displayDate, displayShortMonthYear, parseLocalDate } from "@/shared/lib
 import type { ElectionPanel } from "@/types";
 import { marginRange } from "../lib/voters";
 import { partyColor } from "@/shared/lib/party-colors";
+import { CHART_TICK } from "@/shared/lib/chart-text";
 
-const TICK = { fontSize: 10.5, fill: "var(--faint-foreground)" };
 const UNDECIDED_KEY = "undecided";
 const UNDECIDED_COLOR = "var(--faint-foreground)";
 
@@ -49,7 +49,7 @@ export function PollChart({ panel, height = 220 }: PollChartProps) {
           scale="time"
           domain={["dataMin", "dataMax"]}
           tickFormatter={(time: number) => displayShortMonthYear(new Date(time))}
-          tick={TICK}
+          tick={CHART_TICK}
           axisLine={false}
           tickLine={false}
         />
@@ -57,7 +57,7 @@ export function PollChart({ panel, height = 220 }: PollChartProps) {
           domain={[0, 100]}
           ticks={[0, 25, 50, 75, 100]}
           tickFormatter={(value: number) => `${value}`}
-          tick={TICK}
+          tick={CHART_TICK}
           axisLine={false}
           tickLine={false}
           width={32}

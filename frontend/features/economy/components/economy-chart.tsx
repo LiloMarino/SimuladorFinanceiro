@@ -18,8 +18,8 @@ import { signedIpca } from "@/shared/lib/effects";
 import type { EconomyPanel } from "@/types";
 import { copomLabel, economyRows, effectShares, type EconomyRange, type EconomyRow } from "../lib/economy";
 import { IPCA, REAL_RATE, SELIC } from "../lib/economy-metrics";
+import { CHART_TICK } from "@/shared/lib/chart-text";
 
-const TICK = { fontSize: 10.5, fill: "var(--faint-foreground)" };
 const SELIC_COLOR = "var(--chart-1)";
 const IPCA_COLOR = "var(--chart-2)";
 const TARGET_COLOR = "var(--muted-foreground)";
@@ -181,14 +181,14 @@ export function EconomyChart({ panel }: EconomyChartProps) {
                   scale="time"
                   domain={["dataMin", "dataMax"]}
                   tickFormatter={(time: number) => displayShortMonthYear(new Date(time))}
-                  tick={TICK}
+                  tick={CHART_TICK}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
                   domain={[(min: number) => Math.min(0, min), "auto"]}
                   tickFormatter={(value: number) => displayPercent(value, 0)}
-                  tick={TICK}
+                  tick={CHART_TICK}
                   axisLine={false}
                   tickLine={false}
                   width={40}

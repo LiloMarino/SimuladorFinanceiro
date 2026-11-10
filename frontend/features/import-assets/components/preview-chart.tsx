@@ -12,6 +12,7 @@ import {
 import { displayDate } from "@/shared/lib/utils/display";
 import type { FuturePreview } from "@/types";
 import { previewChartData, yearTicks, type PreviewRow } from "../lib/preview-chart";
+import { CHART_FONT_SIZE, CHART_TICK } from "@/shared/lib/chart-text";
 
 type PreviewChartProps = {
   series: FuturePreview["ibov"];
@@ -23,8 +24,6 @@ type PreviewChartProps = {
   /** Quantas marcas de ano cabem no eixo X */
   maxYearTicks: number;
 };
-
-const TICK = { fontSize: 10.5, fill: "var(--faint-foreground)" };
 
 /** Real e gerado na mesma curva: o real em azul, o gerado em âmbar sobre a faixa que marca o futuro. */
 export function PreviewChart({ series, height, formatValue, formatTooltip, maxYearTicks }: PreviewChartProps) {
@@ -42,7 +41,7 @@ export function PreviewChart({ series, height, formatValue, formatTooltip, maxYe
           domain={[firstTime, lastTime]}
           ticks={yearTicks(firstTime, lastTime, maxYearTicks)}
           tickFormatter={(t: number) => String(new Date(t).getFullYear())}
-          tick={TICK}
+          tick={CHART_TICK}
           axisLine={false}
           tickLine={false}
         />
@@ -50,7 +49,7 @@ export function PreviewChart({ series, height, formatValue, formatTooltip, maxYe
           domain={["auto", "auto"]}
           tickCount={5}
           tickFormatter={formatValue}
-          tick={TICK}
+          tick={CHART_TICK}
           axisLine={false}
           tickLine={false}
           width={48}
@@ -62,7 +61,7 @@ export function PreviewChart({ series, height, formatValue, formatTooltip, maxYe
               x={lastRealTime}
               stroke="var(--faint-foreground)"
               strokeDasharray="3 3"
-              label={{ value: "hoje", position: "top", fontSize: 10, fill: "var(--faint-foreground)" }}
+              label={{ value: "hoje", position: "top", fontSize: CHART_FONT_SIZE, fill: "var(--faint-foreground)" }}
             />
           </>
         )}
