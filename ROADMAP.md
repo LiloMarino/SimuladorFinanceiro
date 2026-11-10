@@ -111,7 +111,6 @@
 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 | — | — | — | 🔍 |
 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | Alto | Médio | ⏳ |
-| [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 | — | — | — | 🔍 |
 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 | — | Alto | Bom | ⏳ |
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 | — | Alto | Médio | ⏳ |
@@ -122,7 +121,7 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (39 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (40 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -164,6 +163,7 @@
 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | M26 · 4.1 | — | — | — | ✅ |
 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | M26 · 4.1 | — | — | — | ✅ |
 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 | — | — | — | ✅ |
+| [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 | — | — | — | ✅ |
 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
@@ -180,7 +180,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 19/37 concluídos
+> **Progresso:** 20/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -212,7 +212,7 @@
 | 26 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | — | 🔍 Em avaliação |
 | 27 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | — | ⏳ Pendente |
 | 28 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | — | ✅ Concluído |
-| 29 | [**F275**](#f275) | Feature | Vitória política separada do capital | — | 🔍 Em avaliação |
+| 29 | [**F275**](#f275) | Feature | Vitória política separada do capital | — | ✅ Concluído |
 | 30 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | — | ⏳ Pendente |
 | 31 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | — | ⏳ Pendente |
 | 32 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | — | ⏳ Pendente |
@@ -344,7 +344,6 @@
 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 · 25º | 0 | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 · 26º | 0 | — | — | 🔍 |
 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 · 27º | 0 | Alto | Médio | ⏳ |
-| [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 · 29º | 0 | — | — | 🔍 |
 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 · 30º | 0 | Médio | Bom | ⏳ |
 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 · 31º | 0 | Alto | Bom | ⏳ |
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 · 32º | 0 | Alto | Médio | ⏳ |
@@ -686,7 +685,6 @@ Com o cenário da Simulação #3 mantido desde a posse, o pedido de impeachment 
 | **F269** | Melhoria | Governo e Eleição com as ações do jogador num lugar só | N34, N15 | — | M26 · 4.1 | — | Análise de UX das duas páginas e das abas; depois o desenho no canvas de onde fica cada ação do presidente e do candidato. |
 | **F270** | Melhoria | Cards permanentes da Renda fixa integrados à tela | N15 | — | M26 · 4.1 | — | Desenho no canvas: cor, layout e posição dos dois cards fixos. |
 | **F272** | Melhoria | Seletores e combobox novos | N15 | — | M26 · 4.1 | — | Trocar por outro componente do shadcn ou redesenhar o atual; o desenho no canvas com os três usos mais apertados. |
-| **F275** | Feature | Vitória política separada do capital | N34, N22 | — | M26 · 4.1 | — | O que mede o capital político (mandatos, cadeiras, medidas aprovadas, aprovação) e como a vitória política convive com as outras nas regras. |
 | **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M26 · 4.1 | — | Medir as estratégias atuais em partidas com governo, dólar e crédito; escolher as estratégias novas. |
 | **F280** | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | N34, N8 | — | M26 · 4.1 | — | Quantos partidos do computador concorrem com N jogadores; quanto pesam as ações de campanha contra o dinheiro; de onde sai o dinheiro de campanha. |
 | **F283** | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | N15 | — | M26 · 4.1 | — | Em quais campos a porcentagem ajuda (contribuição em % do salário, doação em % do caixa, venda em % da posição) e se o Shift fica como atalho do controle visível. |
@@ -790,9 +788,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 <a id="f272"></a>
 **F272 — Seletores e combobox novos.** Serve N15. O `select.tsx` (base-ui) fica apertado e feio no filtro de setor (`variable-income.tsx:158-180`), no imposto da medida (`new-measure-dialog.tsx:209`) e na escolha do vice (`ticket-dialog.tsx:101-104`), e o combobox tem o mesmo problema.
 
-<a id="f275"></a>
-**F275 — Vitória política separada do capital.** Serve N34 e N22. O ranking dos partidos (`party_ranking` em `standings.py:13-40`) soma o patrimônio dos filiados, e a vitória política (`ranking.py:279-282`) lê esse ranking. Isso parece vitória por equipes e mistura o capital político com o financeiro. A proposta é um tipo de vitória exclusivo, escolhido nas regras, no molde da vitória da Expansão Gestoras.
-
 <a id="f279"></a>
 **F279 — Estratégias automáticas novas e revisão das atuais.** Serve N4 e N8. As estratégias automáticas e os bots foram desenhados antes do governo, do dólar, do crédito e das expansões. Precisa conferir se continuam competitivas e se faltam estratégias que usem o que entrou. O rebalanceamento por meta com várias classes já é a F197, na Mesa do trader.
 
@@ -840,6 +835,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F262** | Feature | Pedido de impeachment aberto por jogador | N34 | — | M26 · 4.1 |
 | **F265** | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | N15, N34 | — | M26 · 4.1 |
 | **F274** | Feature | Presidência e base do governo que valem a pena | N34 | — | M26 · 4.1 |
+| **F275** | Feature | Vitória política separada do capital | N34, N22 | — | M26 · 4.1 |
 | **F282** | Correção | Texto dos gráficos com no mínimo 12 px | N15 | — | M26 · 4.1 |
 
 <a id="f69"></a>
@@ -1009,6 +1005,9 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 
 <a id="f274"></a>
 **F274 — Presidência e base do governo que valem a pena.** Serve N34. Revisa duas escolhas antigas do arquivo morto (F95, "o ganho de governar chega só pela própria carteira", e F154, "o aliado ganha só o apoio dos grupos dele"). O presidente recebe 3 vezes o salário da partida no lugar da renda da profissão, sem perda por imprevisto, e acumula legado: 5% de um salário por ponto de aprovação acima de 40 a cada mês fechado, pago no fim normal do mandato e perdido no impeachment (`presidency.py`, `GovernmentBook._pay_legacy`). A medida de obras aceita setor e segmento: as ações do alvo sobem 2,5 vezes a fatia do PIB, até 7,5%, em rampa de 6 meses, e apontar para um setor em que o presidente tem ações tira 6 pontos de aprovação vezes a fatia dele, gravada na medida (`sector_boost.py`, `approval.favoritism_factor`). Ao aceitar o acordo, o líder aliado escolhe o setor da emenda: alta de 30 vezes a fatia do PIB por ano, até 6%, que cai quando o acordo acaba ou é rompido; o partido do computador escolhe um setor fixo, mostrado na prévia. Isenção, obra e emendas somam até 20% por setor. A proposta, a negociação e o card da base mostram o apoio mensal do acordo em verba de campanha (R$ 4.096 por mês, `voters.campaign_amount`). As regras estão em `docs/docs/como-usar/governo.md`. Ficam para o playtest: partida com salário zero não paga a presidência, salário alto pode dominar, e o presidente pode empurrar o próprio setor pela emenda de um aliado sem pagar favorecimento. O ministério para o aliado virou card próprio (F284).
+
+<a id="f275"></a>
+**F275 — Vitória política separada do capital.** Serve N34 e N22. A vitória política deixa de somar o patrimônio dos filiados: vence o partido com mais **capital político**, pontos acumulados a cada mês fechado (`backend/features/government/capital.py`, `party_capital`). Só partidos de jogador pontuam: 1 ponto por cadeira na casa em exercício; a aprovação do fechamento (0 a 100) para o partido do presidente (`governed_months` no `GovernmentState`, gravado no `APPROVAL_MEASURED`); `100 × fração cumprida` por promessa no balanço do mandato; e o impeachment tira metade do que a presidência rendeu naquele mandato. Desempate por cadeiras na casa atual. Decisões: medida aprovada não pontua por si (pesa pela aprovação); vence o partido e os filiados dividem a colocação; continua o tipo "Política", sem tipo novo nas regras (a vitória da Expansão Gestoras citada como molde ainda não existe); o ranking de partidos é por capital político em toda partida com a expansão, e a soma de patrimônio saiu de tela, diálogos e textos. O ranking individual segue em patrimônio, informativo. `PoliticalCapitalDTO` (total e as quatro parcelas) substitui `total_networth` no painel e no relatório; a página Eleição mostra total e parcelas, e a tela de resultado ganhou o pódio de partidos. Sem evento novo: partida salva recalcula pelo replay, e uma migration de dados zera o resultado guardado das partidas políticas. Limite conhecido, fora deste card: com o patrimônio fora do placar, gastar tudo em campanha deixa de ter custo na vitória política.
 
 <a id="f282"></a>
 **F282 — Texto dos gráficos com no mínimo 12 px.** Serve N15. O texto de gráfico (eixos, legendas, rótulos e tooltips) usa um token só, de 12 px: `CHART_TICK` e `CHART_FONT_SIZE`, em `shared/lib/chart-text.ts`. O teste de tamanho mínimo passou a pegar também `fontSize` literal abaixo de 12, além das classes `text-[Npx]`.
