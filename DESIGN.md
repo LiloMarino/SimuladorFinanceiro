@@ -30,6 +30,7 @@ ligada, parcela chegando) vive no item dela no menu lateral e nos toasts.
 ## Identidade visual
 
 - Tokens de cor, fonte e raio: `frontend/index.css`.
+- Texto tem no mínimo 12 px (`text-xs`), no app e nos boards do canvas.
 - Componentes: `frontend/shared/components/ui/`. Quando falta uma forma, ela nasce como
   variante do componente.
 - No canvas de design, o `<helmet>` dos boards traz as mesmas cores e classes; board novo
