@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-10):** Definidos os planos da nota de desempenho, das cores de partido, dos convites, da aprovação do governo, do jornal e dos imprevistos, que saem da avaliação para pendente.
+> **Última mudança (2026-11-10):** Definido o plano da presidência e da base que valem a pena (F274) e registrado o ministério para o partido da base em avaliação.
 
 ## Glossário
 
@@ -51,7 +51,7 @@
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93), [F226](#f226), [F254](#f254), [F277](#f277) | — | — | — |
 | **N32** | — | Saber como foi o mês sem montar a conta | — | — | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F250](#f250), [F251](#f251), [F253](#f253), [F254](#f254), [F255](#f255), [F256](#f256), [F257](#f257), [F258](#f258), [F259](#f259), [F260](#f260), [F261](#f261), [F262](#f262), [F263](#f263), [F265](#f265), [F268](#f268), [F269](#f269), [F273](#f273), [F274](#f274), [F275](#f275), [F276](#f276), [F280](#f280), [F281](#f281) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F250](#f250), [F251](#f251), [F253](#f253), [F254](#f254), [F255](#f255), [F256](#f256), [F257](#f257), [F258](#f258), [F259](#f259), [F260](#f260), [F261](#f261), [F262](#f262), [F263](#f263), [F265](#f265), [F268](#f268), [F269](#f269), [F273](#f273), [F274](#f274), [F275](#f275), [F276](#f276), [F280](#f280), [F281](#f281), [F284](#f284) | — | — | — |
 | **N35** | — | Tirar da lista as partidas que não interessam mais | — | — | — | — | — |
 | **N36** | — | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — | — |
 | **N37** | — | Comprar bitcoin do jeito que dá na vida real, em frações | — | — | — | — | — |
@@ -111,7 +111,7 @@
 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 | — | — | — | 🔍 |
 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | Alto | Médio | ⏳ |
-| [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 | — | — | — | 🔍 |
+| [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 | — | Alto | Bom | ⏳ |
 | [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 | — | — | — | 🔍 |
 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 | — | Alto | Bom | ⏳ |
@@ -120,6 +120,7 @@
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 | — | — | — | 🔍 |
 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 | — | — | — | 🔍 |
+| [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | — | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (38 itens — clique pra expandir)</strong></summary>
@@ -210,7 +211,7 @@
 | 25 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | — | ⏳ Pendente |
 | 26 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | — | 🔍 Em avaliação |
 | 27 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | — | ⏳ Pendente |
-| 28 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | — | 🔍 Em avaliação |
+| 28 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | — | ⏳ Pendente |
 | 29 | [**F275**](#f275) | Feature | Vitória política separada do capital | — | 🔍 Em avaliação |
 | 30 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | — | ⏳ Pendente |
 | 31 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | — | ⏳ Pendente |
@@ -317,6 +318,14 @@
 | 11 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | [F44](#f44) | ⏳ Pendente |
 | 12 | [**F141**](#f141) | Docs | README com as features de hoje | [F139](#f139) | ⏳ Pendente |
 
+### Sem versão
+
+> Os itens ⏳ e 🔍 que ainda não entraram em nenhuma versão, do que mais destrava trabalho para o que menos ("Destrava" é quantos itens em aberto esperam por aquele). É daqui que sai a próxima versão; os 💤 ficam só no kanban.
+
+| ID | Tipo | Resumo | Serve | Depende de | Destrava | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| [**F284**](#f284) | Feature | Ministério para o partido da base | N34 | — | 0 | 🔍 Em avaliação |
+
 ---
 
 ## 🚦 Livre pra pegar
@@ -335,7 +344,7 @@
 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 · 25º | 0 | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 · 26º | 0 | — | — | 🔍 |
 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 · 27º | 0 | Alto | Médio | ⏳ |
-| [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 · 28º | 0 | — | — | 🔍 |
+| [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 · 28º | 0 | Alto | Bom | ⏳ |
 | [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 · 29º | 0 | — | — | 🔍 |
 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 · 30º | 0 | Médio | Bom | ⏳ |
 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 · 31º | 0 | Alto | Bom | ⏳ |
@@ -369,6 +378,7 @@
 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 · 6º | 0 | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 · 7º | 0 | — | — | 🔍 |
 | [**F37**](#f37) | Feature | Tema escuro | M28 · 4.6 · 10º | 0 | Médio | Médio | ⏳ |
+| [**F284**](#f284) | Feature | Ministério para o partido da base | — | 0 | — | — | 🔍 |
 
 ---
 
@@ -401,6 +411,7 @@
 | **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | D10 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
 | **F271** | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | N20 | — | M26 · 4.1 | — | Médio | Baixo | Médio | Bom |
 | **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 | — | Alto | Médio | Médio | Médio |
+| **F274** | Feature | Presidência e base do governo que valem a pena | N34 | — | M26 · 4.1 | — | Alto | Médio | Alto | Bom |
 | **F276** | Correção | Governo ruim perde aprovação | N34, N41 | — | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
 | **F277** | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | N31 | — | M26 · 4.1 | — | Alto | Baixo | Alto | Bom |
 | **F278** | Feature | Imprevistos e eventos de vida mais variados | N23 | — | M26 · 4.1 | — | Alto | Médio | Médio | Médio |
@@ -554,6 +565,17 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 
 **Aceite:** os quatro casos acima passam nos testes, na partida e no lobby; no navegador, escolher o vice no seletor não muda nada no outro jogador até o clique em "Convidar", e um jogador com dois convites vê os dois lado a lado no mesmo diálogo.
 
+<a id="f274"></a>
+**F274 — Presidência e base do governo que valem a pena.** Serve N34. Ser presidente congela a carteira: `ensure_can_trade` (`government_book.py:295-305`) recusa compra e venda, e na posse as ordens são canceladas e o automático desliga (`simulation.py:837-841`). Nada disso volta como vantagem no placar. Entrar na base também não paga: o acordo dá ao governo as cadeiras (`base_seats`, `government_book.py:1100-1108`), a emenda vira gasto público e inflação, e o partido que aceita e os filiados não recebem nada. O plano revisa duas escolhas antigas do arquivo morto (F95, "o ganho de governar chega só pela própria carteira", e F154, "o aliado ganha só o apoio dos grupos dele").
+
+**Presidente.** (1) Salário: no lugar da renda da profissão, recebe 3× o salário da partida (`presidency.py`, pago no laço de salário de `simulation.py::_live`), sem perda de renda por imprevisto. Partida com salário zero não paga nada. (2) Legado: cada mês fechado soma 5% de um salário por ponto de aprovação acima de 40 (aprovação 60 rende 1 salário por mês; 80 rende 2; 40 ou menos, zero), calculado sobre `state.approvals` e pago inteiro em `_start_term`, antes da posse seguinte; impeachment perde tudo. (3) Obra com endereço: a medida de obras aceita setor e segmento opcionais; as ações do setor sobem em rampa de 6 meses enquanto a obra direcionada vale, com alta = obras em % do PIB × 2,5 e teto de 7,5%. (4) Favorecimento: direcionar para um setor em que o presidente tem ações tira 6 pontos × a fatia da carteira dele no setor do alvo de aprovação de todos os grupos (40% da carteira tira 2,4 pontos); a fatia é medida na proposta, gravada na medida e sai na manchete.
+
+**Base.** (1) Emenda com endereço: ao aceitar o acordo, o líder aliado escolhe o setor da emenda; alta = emenda em % do PIB por ano × 30, teto de 6%, em rampa de 6 meses, e cai de uma vez quando o acordo acaba ou é rompido. Partido do computador escolhe um setor fixo e previsível, mostrado na prévia do acordo. (2) Verba de campanha: sem dinheiro novo; a proposta e o card da base mostram quanto o apoio mensal do acordo vale em verba (1 ponto por mês = R$ 4.096 por mês, o inverso de `campaign_points`). O fundo de campanha de verdade fica com F280.
+
+**Mecanismo.** `use_sector_exemption` (`economy/layer.py`) vira um empurrão de setor genérico que soma isenção, obra e emendas, limitado a 20% por setor. O favorecimento é um fator novo em `approval.group_target`. Todo dado novo entra no payload dos eventos do governo. Os números do modelo ficam em `docs/docs/como-usar/governo.md`.
+
+**Riscos de balanceamento, para o playtest.** Com salário alto perto das carteiras a presidência pode dominar; o presidente pode empurrar o próprio setor pela emenda de um aliado sem pagar favorecimento. O ministério para o aliado ficou em card próprio.
+
 <a id="f276"></a>
 **F276 — Governo ruim perde aprovação.** Serve N34 e N41.
 
@@ -677,11 +699,11 @@ Com o cenário da Simulação #3 mantido desde a posse, o pedido de impeachment 
 | **F269** | Melhoria | Governo e Eleição com as ações do jogador num lugar só | N34, N15 | — | M26 · 4.1 | — | Análise de UX das duas páginas e das abas; depois o desenho no canvas de onde fica cada ação do presidente e do candidato. |
 | **F270** | Melhoria | Cards permanentes da Renda fixa integrados à tela | N15 | — | M26 · 4.1 | — | Desenho no canvas: cor, layout e posição dos dois cards fixos. |
 | **F272** | Melhoria | Seletores e combobox novos | N15 | — | M26 · 4.1 | — | Trocar por outro componente do shadcn ou redesenhar o atual; o desenho no canvas com os três usos mais apertados. |
-| **F274** | Feature | Presidência e base do governo que valem a pena | N34 | — | M26 · 4.1 | — | O que o presidente ganha em troca da carteira congelada e o que o partido da base e os filiados recebem pelo apoio. |
 | **F275** | Feature | Vitória política separada do capital | N34, N22 | — | M26 · 4.1 | — | O que mede o capital político (mandatos, cadeiras, medidas aprovadas, aprovação) e como a vitória política convive com as outras nas regras. |
 | **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M26 · 4.1 | — | Medir as estratégias atuais em partidas com governo, dólar e crédito; escolher as estratégias novas. |
 | **F280** | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | N34, N8 | — | M26 · 4.1 | — | Quantos partidos do computador concorrem com N jogadores; quanto pesam as ações de campanha contra o dinheiro; de onde sai o dinheiro de campanha. |
 | **F283** | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | N15 | — | M26 · 4.1 | — | Em quais campos a porcentagem ajuda (contribuição em % do salário, doação em % do caixa, venda em % da posição) e se o Shift fica como atalho do controle visível. |
+| **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Que poder o ministro tem, sobre qual gasto ou medida, o que o presidente perde ao ceder e o que impede o ministro de virar um segundo presidente. |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -781,9 +803,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 <a id="f272"></a>
 **F272 — Seletores e combobox novos.** Serve N15. O `select.tsx` (base-ui) fica apertado e feio no filtro de setor (`variable-income.tsx:158-180`), no imposto da medida (`new-measure-dialog.tsx:209`) e na escolha do vice (`ticket-dialog.tsx:101-104`), e o combobox tem o mesmo problema.
 
-<a id="f274"></a>
-**F274 — Presidência e base do governo que valem a pena.** Serve N34. Ser presidente congela a carteira: `ensure_can_trade` (`government_book.py:295-305`) recusa compra e venda, e na posse as ordens são canceladas e o automático desliga (`simulation.py:837-841`). Nada disso volta como vantagem no placar. Entrar na base também não paga: o acordo dá ao governo as cadeiras (`base_seats`, `government_book.py:1100-1108`), a emenda vira gasto público e inflação (`deals.py:24-29`), e o partido que aceita e os filiados não recebem nada.
-
 <a id="f275"></a>
 **F275 — Vitória política separada do capital.** Serve N34 e N22. O ranking dos partidos (`party_ranking` em `standings.py:13-40`) soma o patrimônio dos filiados, e a vitória política (`ranking.py:279-282`) lê esse ranking. Isso parece vitória por equipes e mistura o capital político com o financeiro. A proposta é um tipo de vitória exclusivo, escolhido nas regras, no molde da vitória da Expansão Gestoras.
 
@@ -795,6 +814,9 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 <a id="f283"></a>
 **F283 — Campos de valor com o mesmo controle de R$ e de porcentagem.** Serve N15. Os campos de dinheiro do jogo têm atalhos diferentes para a mesma coisa: a contribuição mensal e a doação têm valores fixos (5 mil, 10 mil), a renda fixa soma a cada clique, e o Tesouro tem 25%, 50% e Tudo. A jogadora sugeriu, no molde dos jogos da Paradox, segurar Shift para alternar entre valor fixo e porcentagem. Atalho escondido não se descobre; a proposta é um controle visível "R$ | %" ao lado dos atalhos, que troca os botões entre valores fixos e porcentagens do saldo ou da posição, com o Shift como atalho do mesmo controle. A soma dos atalhos fixos já é do card de acabamentos da 4.1.
+
+<a id="f284"></a>
+**F284 — Ministério para o partido da base.** Serve N34. Hoje o partido que entra na base entrega as cadeiras e recebe a emenda; quem governa é só o presidente. A ideia é o acordo poder dar ao aliado um ministério: uma fatia do governo que o líder aliado comanda, para que estar na base seja também governar. Saiu do desenho da presidência e da base que valem a pena (F274) por ser grande o bastante para pedir desenho próprio.
 
 ---
 
