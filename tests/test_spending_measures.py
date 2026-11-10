@@ -11,8 +11,11 @@ from decimal import Decimal
 import pytest
 
 from backend.core import repository
+from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.promises import PromiseRequest
+from backend.core.dto.sector import SectorAllocationDTO, SegmentAllocationDTO
 from backend.core.enum import (
+    ApprovalFactorKind,
     EffectPhase,
     MeasureKind,
     MeasureStatus,
@@ -21,8 +24,10 @@ from backend.core.enum import (
 )
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
+    NotFoundError,
     UnprocessableEntityError,
 )
+from backend.features.economy.layer import months_to_days
 from backend.features.government import (
     approval as approval_rules,
 )
@@ -30,17 +35,21 @@ from backend.features.government import (
     budget_panel,
     governance,
     promises,
+    sector_boost,
     spending,
     spending_effects,
     voters,
 )
+from backend.features.government import measures as rules
 from backend.features.government.governance import build_governance
 from backend.features.government.government_book import GovernmentBook
+from backend.features.government.state import Measure, replay
 from tests.fakes import no_pay
 from tests.test_government_book import (
     ALICE,
     CAMPAIGN_OPEN,
     FIRST_VOTE,
+    GOOD_MARKET,
     RED,
     SEED,
     TERM_START,
@@ -63,6 +72,7 @@ AUX = MeasureKind.WELFARE_SPENDING
 SERVANTS = MeasureKind.SERVANT_RAISE
 RETIREES = MeasureKind.RETIREE_RAISE
 WORKS = MeasureKind.PUBLIC_WORKS
+FAVORITISM = ApprovalFactorKind.FAVORITISM
 OPERATING = MeasureKind.OPERATING_COST
 
 
@@ -636,3 +646,242 @@ def test_a_rejected_spending_measure_is_barred_in_the_journal(
     [barred] = [h for _, h in headlines if h.news_type is NewsType.MEASURE_VOTED]
     assert barred.text.startswith("Casa barra mais gasto com obras por ")
     assert barred.dek is not None and barred.dek.endswith("Nada muda.")
+
+
+# Obra com endereço
+
+
+def holds_energy(monkeypatch: pytest.MonkeyPatch, engine, value: str = "300") -> None:
+    """O presidente tem `value` em ações de Energia (Geração), com mil no total da carteira."""
+    portfolio = PortfolioDTO.model_construct(
+        cash=Decimal(600),
+        variable_income_value=Decimal(400),
+        fixed_income_value=Decimal(0),
+        sectors=[
+            SectorAllocationDTO(
+                sector="Energia",
+                value=Decimal(value),
+                fraction=Decimal(1),
+                segments=[
+                    SegmentAllocationDTO(
+                        segment="Geração", value=Decimal(value), fraction=Decimal(1)
+                    )
+                ],
+            )
+        ],
+    )
+    monkeypatch.setattr(engine, "get_portfolio", lambda _client_id: portfolio)
+
+
+def propose_works(
+    book: GovernmentBook,
+    value: str = "0.012",
+    sector: str | None = "Energia",
+    segment: str | None = "Geração",
+) -> None:
+    book.propose(ALICE, TERM_START, WORKS, Decimal(value), sector, segment)
+
+
+def test_works_can_point_at_a_sector_and_the_title_names_it(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    holds_energy(monkeypatch, engine)
+
+    propose_works(book, sector="Energia", segment=None)
+
+    [queued] = book.state.measures.values()
+    assert (queued.sector, queued.segment) == ("Energia", None)
+    assert rules.title(queued) == "Obras em Energia: 1,2% do PIB"
+
+
+def test_works_in_a_sector_that_does_not_exist_are_refused(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    holds_energy(monkeypatch, engine)
+
+    with pytest.raises(NotFoundError):
+        propose_works(book, sector="Pesca", segment=None)
+    with pytest.raises(NotFoundError):
+        propose_works(book, sector="Energia", segment="Varejo")
+    assert book.state.measures == {}
+
+
+def test_only_works_have_an_address_among_the_spending_measures(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+
+    with pytest.raises(UnprocessableEntityError):
+        book.propose(ALICE, TERM_START, AUX, Decimal("0.02"), "Energia", None)
+
+
+def test_the_works_record_the_share_the_president_holds_in_the_sector(
+    book: GovernmentBook, engine, market, monkeypatch, stored
+):
+    govern(book, engine)
+    holds_energy(monkeypatch, engine)
+
+    propose_works(book)
+
+    [queued] = book.state.measures.values()
+    assert queued.stake == Decimal("0.3000")
+    # O replay lê a fatia do evento, sem consultar a carteira de novo
+    monkeypatch.setattr(engine, "get_portfolio", lambda _client_id: 1 / 0)
+    [rebuilt] = replay(stored).measures.values()
+    assert rebuilt.stake == Decimal("0.3000")
+
+
+def test_works_without_an_address_have_no_stake(book: GovernmentBook, engine, market):
+    govern(book, engine)
+
+    propose_works(book, sector=None, segment=None)
+
+    [queued] = book.state.measures.values()
+    assert queued.stake is None
+
+
+def test_a_president_without_holdings_in_the_sector_has_a_zero_stake(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    holds_energy(monkeypatch, engine, value="0")
+
+    propose_works(book)
+
+    [queued] = book.state.measures.values()
+    assert queued.stake == 0
+
+
+def test_the_same_works_value_can_be_pointed_at_a_sector_but_not_repeated(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    holds_energy(monkeypatch, engine)
+    default = str(spending.DEFAULTS[WORKS])
+
+    with pytest.raises(ConflictError):
+        propose_works(book, default, None, None)
+    propose_works(book, default)
+
+    assert len(book.state.measures) == 1
+
+
+def test_the_preview_of_directed_works_shows_the_boost_and_the_favoritism(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    holds_energy(monkeypatch, engine)
+
+    directed = book.preview(ALICE, TERM_START, WORKS, Decimal("0.012"), "Energia", None)
+    plain = book.preview(ALICE, TERM_START, WORKS, Decimal("0.012"), None, None)
+
+    assert directed.sector_boost == Decimal("0.03")
+    assert directed.favoritism == Decimal("1.8")
+    assert directed.assets == 2
+    assert (plain.sector_boost, plain.favoritism, plain.assets) == (None, None, None)
+
+
+def test_the_headline_of_directed_works_tells_the_stake_of_the_president(
+    book: GovernmentBook, engine, market, monkeypatch, headlines
+):
+    govern(book, engine)
+    holds_energy(monkeypatch, engine)
+    headlines.clear()
+
+    propose_works(book, sector="Energia", segment=None)
+
+    [proposed] = [h for _, h in headlines if h.news_type is NewsType.MEASURE_PROPOSED]
+    assert proposed.dek is not None
+    assert "O presidente tem 30% da carteira no setor." in proposed.dek
+
+
+def test_approved_directed_works_lift_the_sector_stocks_from_the_day_they_bind(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    holds_energy(monkeypatch, engine)
+    propose_works(book)
+    effective = approve_first(book, monkeypatch)
+    full = effective + timedelta(days=months_to_days(sector_boost.RAMP_MONTHS))
+
+    assert book.sector_boost_on("Energia", "Geração", effective) == 0
+    assert book.sector_boost_on("Energia", "Geração", full) == pytest.approx(0.03)
+    assert book.sector_boost_on("Energia", "Transmissão", full) == 0
+    assert book.sector_boost_on("Bancos", "Bancos", full) == 0
+
+
+def test_the_favoritism_enters_every_group_target_while_the_directed_works_are_in_force(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    holds_energy(monkeypatch, engine)
+    propose_works(book)
+    effective = approve_first(book, monkeypatch)
+    approved = list(book.state.measures.values())
+    day_before = effective - timedelta(days=1)
+
+    for group in VoterGroup:
+        early = approval_rules.group_target(group, GOOD_MARKET, approved, day_before)
+        current = approval_rules.group_target(group, GOOD_MARKET, approved, effective)
+        assert FAVORITISM not in [f.kind for f in early.factors]
+        [factor] = [f for f in current.factors if f.kind is FAVORITISM]
+        assert factor.points == Decimal("-1.8")
+        assert factor.measure_id == approved[0].id
+
+
+def works_measure(
+    id: int, effective: date, sector: str | None, stake: str | None, value: str
+) -> Measure:
+    return Measure(
+        id=id,
+        kind=WORKS,
+        value=Decimal(value),
+        before=Decimal("0.007"),
+        sector=sector,
+        segment=None,
+        proposer_id=1,
+        term_start=TERM_START,
+        proposed=effective - timedelta(days=90),
+        status=MeasureStatus.APPROVED,
+        effective=effective,
+        stake=None if stake is None else Decimal(stake),
+    )
+
+
+def test_a_later_works_measure_without_address_or_stake_ends_the_favoritism():
+    first = works_measure(1, date(2022, 5, 1), "Energia", "0.5", "0.012")
+    second = works_measure(2, date(2022, 9, 1), None, None, "0.012")
+    zeroed = works_measure(3, date(2022, 9, 1), "Bancos", "0", "0.012")
+    day = date(2022, 10, 1)
+
+    assert approval_rules.favoritism_factor([first], day) is not None
+    assert approval_rules.favoritism_factor([first, second], day) is None
+    assert approval_rules.favoritism_factor([first, zeroed], day) is None
+
+
+def test_a_change_of_target_ends_the_old_boost_without_a_ramp_down():
+    first = works_measure(1, date(2022, 5, 1), "Energia", "0.5", "0.012")
+    same_target = works_measure(2, date(2022, 8, 1), "Energia", "0.5", "0.012")
+    other = works_measure(3, date(2022, 11, 1), "Bancos", "0.1", "0.012")
+    timeline = spending.SpendingTimeline([first, same_target, other])
+    switch = date(2022, 11, 1)
+
+    # Um valor novo no mesmo endereço continua a rampa que já corria
+    assert timeline.works_since("Energia", "Geração", date(2022, 9, 1)) == (
+        date(2022, 5, 1),
+        Decimal("0.012"),
+    )
+    # No dia em que o alvo muda, o setor antigo perde a alta toda de uma vez
+    assert timeline.works_since("Energia", "Geração", switch) is None
+    assert timeline.works_since("Bancos", "Bancos", switch) == (
+        switch,
+        Decimal("0.012"),
+    )
+    assert (
+        sector_boost.works_boost(
+            timeline.works_since("Bancos", "Bancos", switch), switch
+        )
+        == 0
+    )

@@ -20,8 +20,16 @@ ALICE = UserDTO(id=1, client_id=client("alice"), nickname="Alice")
 
 
 class _Simulation:
+    def __init__(self) -> None:
+        self.answers: list[tuple[bool, str | None, str | None]] = []
+
     def join_party(self, *_args: object) -> None:
         pass
+
+    def answer_deal(
+        self, _user: UserDTO, accept: bool, sector: str | None, segment: str | None
+    ) -> None:
+        self.answers.append((accept, sector, segment))
 
     def set_contribution(self, *_args: object) -> None:
         pass
@@ -43,10 +51,15 @@ def profile(monkeypatch: pytest.MonkeyPatch) -> _Profile:
 
 
 @pytest.fixture
-def http(profile: _Profile) -> Iterator[TestClient]:
+def simulation() -> _Simulation:
+    return _Simulation()
+
+
+@pytest.fixture
+def http(profile: _Profile, simulation: _Simulation) -> Iterator[TestClient]:
     app = FastAPI()
     app.include_router(government_router)
-    app.dependency_overrides[get_active_simulation] = _Simulation
+    app.dependency_overrides[get_active_simulation] = lambda: simulation
     app.dependency_overrides[get_current_user] = lambda: ALICE
     yield TestClient(app)
 
@@ -65,3 +78,23 @@ def test_changing_the_contribution_saves_it_in_the_profile(
     http.put("/api/government/membership/contribution", json={"contribution": "800"})
 
     assert profile.saved == {ALICE.id: Decimal(800)}
+
+
+def test_accepting_a_deal_forwards_the_address_of_the_amendment(
+    http: TestClient, simulation: _Simulation
+):
+    response = http.put(
+        "/api/government/deals/answer",
+        json={"accept": True, "sector": "Energia", "segment": "Geração"},
+    )
+
+    assert response.status_code == 204
+    assert simulation.answers == [(True, "Energia", "Geração")]
+
+
+def test_answering_a_deal_without_an_address_sends_none(
+    http: TestClient, simulation: _Simulation
+):
+    http.put("/api/government/deals/answer", json={"accept": False})
+
+    assert simulation.answers == [(False, None, None)]

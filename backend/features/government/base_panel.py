@@ -15,7 +15,7 @@ from backend.core.enum import DealStatus
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.utils import required
 from backend.features.government import deals as deal_rules
-from backend.features.government import house
+from backend.features.government import house, sector_boost
 from backend.features.government.deals import Deal
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.state import Party
@@ -104,6 +104,8 @@ def build_preview(
         centrao=bloc.abbr == deal_rules.CENTRAO,
         ratio=ratio,
         monthly=book.monthly(ratio, today),
+        sector=book.computer_sector(bloc.abbr) if likely is not None else None,
+        sector_boost=sector_boost.as_fraction(sector_boost.amendment_peak(ratio)),
         start=today,
         end=required(book.term_end()),
         base_before=base,
@@ -172,6 +174,15 @@ def _deal(
         centrao=deal.abbr == deal_rules.CENTRAO,
         ratio=deal.ratio,
         monthly=book.monthly(deal.ratio, today),
+        sector=(
+            book.computer_sector(deal.abbr)
+            if deal.sector is None
+            and deal.is_computer
+            and deal.status is DealStatus.PENDING
+            else deal.sector
+        ),
+        segment=deal.segment,
+        sector_boost=sector_boost.as_fraction(sector_boost.amendment_peak(deal.ratio)),
         answer_by=deal.answer_by,
         start=deal.start,
         end=deal.end,
@@ -220,6 +231,8 @@ def _bloc(
         pending=state.pending_deal_of(bloc.key) is not None,
         ratio=ratio,
         monthly=book.monthly(ratio, today),
+        sector=book.computer_sector(bloc.abbr) if bloc.is_computer else None,
+        sector_boost=sector_boost.as_fraction(sector_boost.amendment_peak(ratio)),
         blocker=blocker[0] if blocker else None,
         retry_from=blocker[1] if blocker else None,
         declined_on=state.last_refusal(bloc.key),

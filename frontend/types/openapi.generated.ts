@@ -2034,7 +2034,7 @@ export interface paths {
         get?: never;
         /**
          * Responder a proposta de acordo
-         * @description O líder do partido aceita ou recusa a proposta que espera resposta; o acordo vale a partir de hoje. Recusar não custa nada. Recusa com 404 sem proposta e com 409 depois do prazo.
+         * @description O líder do partido aceita ou recusa a proposta que espera resposta; o acordo vale a partir de hoje. Ao aceitar, pode endereçar a emenda a um setor (e segmento), cujas ações sobem enquanto o acordo valer. Recusar não custa nada e não leva endereço (422). Recusa com 404 sem proposta ou setor desconhecido e com 409 depois do prazo.
          */
         put: operations["answer_deal_api_government_deals_answer_put"];
         post?: never;
@@ -4038,6 +4038,10 @@ export interface components {
         AnswerDealRequest: {
             /** Accept */
             accept: boolean;
+            /** Sector */
+            sector?: string | null;
+            /** Segment */
+            segment?: string | null;
         };
         /** AnswerFederationRequest */
         AnswerFederationRequest: {
@@ -4118,7 +4122,7 @@ export interface components {
          * @description O que empurra o alvo de satisfação de um grupo; BASE é o ponto neutro.
          * @enum {string}
          */
-        ApprovalFactorKind: "BASE" | "INFLATION" | "REAL_RATE" | "STOCKS" | "UNEMPLOYMENT" | "RISK_PREMIUM" | "MEASURE";
+        ApprovalFactorKind: "BASE" | "INFLATION" | "REAL_RATE" | "STOCKS" | "UNEMPLOYMENT" | "RISK_PREMIUM" | "MEASURE" | "FAVORITISM";
         /** ApprovalPointDTO */
         ApprovalPointDTO: {
             /**
@@ -4531,6 +4535,10 @@ export interface components {
             ratio: string;
             /** Monthly */
             monthly: string;
+            /** Sector */
+            sector: string | null;
+            /** Sector Boost */
+            sector_boost: string;
             /** Blocker */
             blocker: string | null;
             /** Retry From */
@@ -5762,6 +5770,12 @@ export interface components {
             ratio: string;
             /** Monthly */
             monthly: string;
+            /** Sector */
+            sector: string | null;
+            /** Segment */
+            segment: string | null;
+            /** Sector Boost */
+            sector_boost: string;
             /** Answer By */
             answer_by: string | null;
             /** Start */
@@ -5812,6 +5826,10 @@ export interface components {
             ratio: string;
             /** Monthly */
             monthly: string;
+            /** Sector */
+            sector: string | null;
+            /** Sector Boost */
+            sector_boost: string;
             /**
              * Start
              * Format: date
@@ -8262,6 +8280,8 @@ export interface components {
             sector: string | null;
             /** Segment */
             segment: string | null;
+            /** Stake */
+            stake: string | null;
             /** Value */
             value: string | null;
             /** Proposer */
@@ -8320,6 +8340,10 @@ export interface components {
             effective: string;
             /** Assets */
             assets: number | null;
+            /** Sector Boost */
+            sector_boost: string | null;
+            /** Favoritism */
+            favoritism: string | null;
             budget: components["schemas"]["BudgetEffectDTO"];
             inflation: components["schemas"]["InflationEffectDTO"] | null;
             /** Reactions */

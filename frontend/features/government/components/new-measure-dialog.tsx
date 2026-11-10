@@ -16,7 +16,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { normalizeNumberString } from "@/shared/lib/utils";
-import { displayDayMonth, displayList } from "@/shared/lib/utils/display";
+import { displayDayMonth } from "@/shared/lib/utils/display";
 import { formatMoney } from "@/shared/lib/utils/format";
 import type { GovernmentPanel, MeasureKind, ProposeMeasureRequest } from "@/types";
 import { useProposeMeasure } from "../hooks/mutations/useProposeMeasure";
@@ -24,6 +24,8 @@ import { useMeasurePreview } from "../hooks/queries/useMeasurePreview";
 import { MeasureBudgetEffect } from "./measure-budget-effect";
 import { MeasureInflationEffect } from "./measure-inflation-effect";
 import { MeasureReactions } from "./measure-reactions";
+import { MeasureSectorEffect } from "./measure-sector-effect";
+import { SectorSegmentSelect } from "./sector-segment-select";
 import { SpendingForm } from "./spending-form";
 import { VALUE_INFO } from "@/shared/lib/party-flags";
 import { signedPoints as signedProfilePoints } from "../lib/voters";
@@ -38,14 +40,13 @@ import {
   signedPoints,
 } from "../lib/government";
 import { isNameable, isSpending, SPENDING_KINDS, type SpendingKind } from "@/shared/lib/spending-kinds";
+import { addressOf, NO_SECTOR, WHOLE_SECTOR } from "../lib/sector-address";
 import { checkValue, isRenaming, outsideSentence } from "../lib/spending";
 import { DisabledHint } from "@/shared/components/disabled-hint";
 
 type Mode = "general" | "sector" | "spending";
 type ExemptionRule = "keep" | "end" | "change";
 type SectorChange = "tax" | "exempt";
-
-const WHOLE_SECTOR = "all";
 
 /** Escolhe a opção de um grupo de uma só opção: soltar a marcada não muda nada. */
 const pick =
@@ -104,13 +105,13 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
   const [valueText, setValueText] = useState("");
   const [sector, setSector] = useState(panel.sectors[0]?.name ?? "");
   const [segment, setSegment] = useState(WHOLE_SECTOR);
+  const [worksSector, setWorksSector] = useState(NO_SECTOR);
+  const [worksSegment, setWorksSegment] = useState(WHOLE_SECTOR);
   const [change, setChange] = useState<SectorChange>("tax");
   const [pointsText, setPointsText] = useState("");
 
   const generalRows = panel.taxes.filter((tax): tax is typeof tax & { kind: GeneralKind } => isGeneral(tax.kind));
   const row = generalRows.find((candidate) => candidate.kind === kind);
-  const option = panel.sectors.find((candidate) => candidate.name === sector);
-  const segmentOption = option?.segments.find((candidate) => candidate.name === segment);
 
   const spendingRow = panel.spending.rows.find((candidate) => candidate.kind === spendingKind);
   const spendingRenaming = !!spendingRow && isNameable(spendingKind) && isRenaming(spendingRow, spendingName);
@@ -128,6 +129,8 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
     spendingKind,
     spendingFraction: spendingCheck?.status === "ok" ? spendingCheck.fraction : null,
     spendingName: isNameable(spendingKind) ? spendingName.trim() : "",
+    worksSector,
+    worksSegment,
   });
   const preview = useMeasurePreview(request);
   // A prévia anterior fica à vista enquanto a nova carrega, mas some quando o pedido deixa de estar completo
@@ -199,6 +202,13 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
               onValueTextChange={setSpendingText}
               nameText={spendingName}
               onNameTextChange={setSpendingName}
+              sectors={panel.sectors}
+              worksSector={worksSector}
+              worksSegment={worksSegment}
+              onWorksAddressChange={(nextSector, nextSegment) => {
+                setWorksSector(nextSector);
+                setWorksSegment(nextSegment);
+              }}
             />
           )}
 
@@ -286,65 +296,15 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
 
           {mode === "sector" && (
             <>
-              <Field>
-                <FieldLabel>Setor</FieldLabel>
-                <Select
-                  value={sector}
-                  items={Object.fromEntries(panel.sectors.map((candidate) => [candidate.name, candidate.name]))}
-                  onValueChange={(value) => {
-                    if (!value) return;
-                    setSector(value);
-                    setSegment(WHOLE_SECTOR);
-                  }}
-                >
-                  <SelectTrigger size="lg" className="w-full" aria-label="Setor">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {panel.sectors.map((candidate) => (
-                      <SelectItem key={candidate.name} value={candidate.name}>
-                        {candidate.name} · {candidate.assets} ativos
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {option && (
-                  <FieldDescription>
-                    {displayList(option.tickers)}. Também dá para escolher só um segmento do setor.
-                  </FieldDescription>
-                )}
-              </Field>
-
-              {option && option.segments.length > 1 && (
-                <Field>
-                  <FieldLabel>Segmento</FieldLabel>
-                  <Select
-                    value={segment}
-                    items={{
-                      [WHOLE_SECTOR]: "O setor inteiro",
-                      ...Object.fromEntries(option.segments.map((candidate) => [candidate.name, candidate.name])),
-                    }}
-                    onValueChange={(value) => value && setSegment(value)}
-                  >
-                    <SelectTrigger size="lg" className="w-full" aria-label="Segmento">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={WHOLE_SECTOR}>O setor inteiro · {option.assets} ativos</SelectItem>
-                      {option.segments.map((candidate) => (
-                        <SelectItem key={candidate.name} value={candidate.name}>
-                          {candidate.name} · {candidate.assets} ativos
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {segmentOption && (
-                    <FieldDescription>
-                      Só os {segmentOption.assets} ativos desse segmento entram na medida.
-                    </FieldDescription>
-                  )}
-                </Field>
-              )}
+              <SectorSegmentSelect
+                sectors={panel.sectors}
+                sector={sector}
+                segment={segment}
+                onChange={(nextSector, nextSegment) => {
+                  setSector(nextSector);
+                  setSegment(nextSegment);
+                }}
+              />
 
               <div className="grid grid-cols-2 gap-3">
                 <Field>
@@ -414,6 +374,11 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
               {mode === "spending" && (
                 <>
                   {data.inflation && <MeasureInflationEffect effect={data.inflation} />}
+                  <MeasureSectorEffect
+                    address={addressOf(worksSector, worksSegment)}
+                    boost={data.sector_boost}
+                    favoritism={data.favoritism}
+                  />
                   <MeasureReactions
                     kind={spendingKind}
                     reactions={data.reactions}
@@ -494,6 +459,9 @@ type Draft = {
   spendingFraction: string | null;
   /** O nome do programa, aparado; vazio quando a medida não tem nome */
   spendingName: string;
+  /** O endereço da obra: o setor e o segmento escolhidos, ou NO_SECTOR e WHOLE_SECTOR quando não aponta */
+  worksSector: string;
+  worksSegment: string;
 };
 
 /** A aba que abre: a da medida que "Mudar" trouxe, ou a dos impostos gerais. */
@@ -507,16 +475,17 @@ function initialMode(initialKind: MeasureKind | undefined): Mode {
 function buildRequest(draft: Draft): ProposeMeasureRequest | null {
   if (draft.mode === "spending") {
     if (!draft.spendingFraction) return null;
+    const address = draft.spendingKind === "PUBLIC_WORKS" ? addressOf(draft.worksSector, draft.worksSegment) : {};
     return draft.spendingName
-      ? { kind: draft.spendingKind, value: draft.spendingFraction, name: draft.spendingName }
-      : { kind: draft.spendingKind, value: draft.spendingFraction };
+      ? { kind: draft.spendingKind, value: draft.spendingFraction, name: draft.spendingName, ...address }
+      : { kind: draft.spendingKind, value: draft.spendingFraction, ...address };
   }
   if (draft.mode === "sector") {
     if (!draft.sector) return null;
-    const segment = draft.segment === WHOLE_SECTOR ? null : draft.segment;
-    if (draft.change === "exempt") return { kind: "SECTOR_EXEMPT", sector: draft.sector, segment };
+    const { sector, segment } = addressOf(draft.sector, draft.segment);
+    if (draft.change === "exempt") return { kind: "SECTOR_EXEMPT", sector, segment };
     const points = rateToFraction(draft.pointsText);
-    return points ? { kind: "SECTOR_TAX", value: points, sector: draft.sector, segment } : null;
+    return points ? { kind: "SECTOR_TAX", value: points, sector, segment } : null;
   }
   if (draft.kind === "STOCK_EXEMPTION") {
     if (draft.rule === "end") return { kind: draft.kind, value: "0" };

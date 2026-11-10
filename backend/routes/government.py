@@ -201,12 +201,12 @@ def propose_deal(
     "/deals/answer",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Responder a proposta de acordo",
-    description="O líder do partido aceita ou recusa a proposta que espera resposta; o acordo vale a partir de hoje. Recusar não custa nada. Recusa com 404 sem proposta e com 409 depois do prazo.",
+    description="O líder do partido aceita ou recusa a proposta que espera resposta; o acordo vale a partir de hoje. Ao aceitar, pode endereçar a emenda a um setor (e segmento), cujas ações sobem enquanto o acordo valer. Recusar não custa nada e não leva endereço (422). Recusa com 404 sem proposta ou setor desconhecido e com 409 depois do prazo.",
 )
 def answer_deal(
     simulation: ActiveSimulation, user: CurrentUser, payload: AnswerDealRequest
 ):
-    simulation.answer_deal(user, payload.accept)
+    simulation.answer_deal(user, payload.accept, payload.sector, payload.segment)
 
 
 @government_router.put(

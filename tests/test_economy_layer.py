@@ -17,6 +17,7 @@ from backend.features.economy import layer
 from backend.features.economy.layer import EconomyLayer
 from backend.features.economy.links import NO_LINK, LinkMonth
 from backend.features.economy.monetary import SelicBoard, SelicDecision, to_step
+from backend.features.government import sector_boost
 from backend.features.government import spending_effects as fx
 from backend.features.government.state import Measure
 from tests.fakes import daily_series, monthly_series
@@ -127,31 +128,37 @@ def test_a_stock_follows_the_market_level_raised_to_its_beta(economy, monkeypatc
 # A isenção do IR de um setor
 
 
-def exempt_layer(since: date | None) -> EconomyLayer:
+def boosted_layer(boost) -> EconomyLayer:
     nothing = EconomyLayer(1, START, fx.SpendingEconomy())
     nothing._classification = {
         "ENER3": StockSegmentDTO(sector="Energia", segment="Transmissão"),
         "BANK3": StockSegmentDTO(sector="Bancos", segment="Bancos"),
     }
-    nothing.use_sector_exemption(
-        lambda sector, segment, day: since if sector == "Energia" else None
-    )
+    nothing.use_sector_boost(boost)
     return nothing
+
+
+def exempt_layer(since: date | None) -> EconomyLayer:
+    return boosted_layer(
+        lambda sector, segment, day: (
+            sector_boost.exemption_boost(since, day) if sector == "Energia" else 0.0
+        )
+    )
 
 
 def test_an_exempt_sector_stock_rises_in_a_straight_line_to_the_ceiling():
     since = date(2021, 1, 1)
     economy = exempt_layer(since)
-    months = layer.SECTOR_EXEMPT_RAMP_MONTHS
+    months = sector_boost.RAMP_MONTHS
 
     assert economy.stock_factor("ENER3", since) == pytest.approx(1.0)
     half = since + timedelta(days=layer.months_to_days(months / 2))
     assert economy.stock_factor("ENER3", half) == pytest.approx(
-        1 + layer.SECTOR_EXEMPT_BOOST / 2, abs=0.001
+        1 + sector_boost.SECTOR_EXEMPT_BOOST / 2, abs=0.001
     )
     later = since + timedelta(days=layer.months_to_days(months * 3))
     assert economy.stock_factor("ENER3", later) == pytest.approx(
-        1 + layer.SECTOR_EXEMPT_BOOST
+        1 + sector_boost.SECTOR_EXEMPT_BOOST
     )
 
 
@@ -167,6 +174,47 @@ def test_without_an_exemption_the_stock_factor_is_the_market_alone():
     economy = exempt_layer(None)
 
     assert economy.stock_factor("ENER3", date(2022, 1, 1)) == 1.0
+
+
+def stacked_layer(since: date, works: float, amendments: float) -> EconomyLayer:
+    return boosted_layer(
+        lambda sector, segment, day: (
+            sector_boost.combined(
+                sector_boost.exemption_boost(since, day), works, amendments
+            )
+            if sector == "Energia"
+            else 0.0
+        )
+    )
+
+
+def test_the_exemption_alone_gives_the_same_factor_through_the_combined_boost():
+    since = date(2021, 1, 1)
+    day = since + timedelta(days=layer.months_to_days(3))
+
+    assert stacked_layer(since, 0.0, 0.0).stock_factor("ENER3", day) == pytest.approx(
+        exempt_layer(since).stock_factor("ENER3", day)
+    )
+
+
+def test_the_exemption_works_and_amendments_add_up():
+    since = date(2021, 1, 1)
+    later = since + timedelta(days=layer.months_to_days(12))
+
+    economy = stacked_layer(since, 0.0175, 0.03)
+
+    assert economy.stock_factor("ENER3", later) == pytest.approx(1.1475)
+
+
+def test_the_sum_of_the_boosts_stops_at_the_ceiling():
+    since = date(2021, 1, 1)
+    later = since + timedelta(days=layer.months_to_days(12))
+
+    economy = stacked_layer(since, 0.075, 0.06)
+
+    assert economy.stock_factor("ENER3", later) == pytest.approx(
+        1 + sector_boost.SECTOR_BOOST_CAP
+    )
 
 
 # O beta de cada ativo

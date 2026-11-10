@@ -126,9 +126,14 @@ class SpendingTimeline:
         self._days: dict[MeasureKind, list[date]] = {k: [] for k in KINDS}
         self._values: dict[MeasureKind, list[Decimal]] = {k: [] for k in KINDS}
         self._names: dict[MeasureKind, list[str | None]] = {k: [] for k in KINDS}
+        # O setor e o segmento a que cada medida aponta (só as obras têm endereço)
+        self._targets: dict[MeasureKind, list[tuple[str | None, str | None]]] = {
+            k: [] for k in KINDS
+        }
         for measure in approved:
             names = self._names[measure.kind]
             names.append(program_after(names[-1] if names else None, measure))
+            self._targets[measure.kind].append((measure.sector, measure.segment))
             self._days[measure.kind].append(required(measure.effective))
             self._values[measure.kind].append(required(measure.value))
 
@@ -159,6 +164,29 @@ class SpendingTimeline:
         """O nome do programa depois de todas as medidas aprovadas valerem."""
         names = self._names[kind]
         return names[-1] if names else None
+
+    def latest_target(self, kind: MeasureKind) -> tuple[str | None, str | None]:
+        """O setor e o segmento da última medida aprovada; sem endereço, (nulo, nulo)."""
+        targets = self._targets[kind]
+        return targets[-1] if targets else (None, None)
+
+    def works_since(
+        self, sector: str, segment: str, day: date
+    ) -> tuple[date, Decimal] | None:
+        """
+        Desde quando as obras em vigor em `day` apontam, sem interrupção, para o setor e o
+        segmento, e o valor delas no dia; nulo quando a obra que vale aponta para outro
+        lugar ou não tem endereço. A obra só com setor vale para todos os segmentos dele.
+        """
+        kind = MeasureKind.PUBLIC_WORKS
+        days, targets = self._days[kind], self._targets[kind]
+        since = None
+        for index in range(bisect_right(days, day) - 1, -1, -1):
+            target_sector, target_segment = targets[index]
+            if target_sector != sector or target_segment not in (None, segment):
+                break
+            since = days[index]
+        return None if since is None else (since, self.value_on(kind, day))
 
     def multiplier(self, kind: MeasureKind, day: date) -> Decimal:
         """

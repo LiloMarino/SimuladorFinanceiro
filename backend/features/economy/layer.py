@@ -40,11 +40,6 @@ STOCKS_WINDOW_MONTHS = 3
 # A bolsa sobe 2,5% por ponto de PIB acima da história
 STOCKS_PER_GDP = 2.5
 
-# A isenção do IR de um setor levanta o preço das ações dele em 10%, subindo em linha reta
-# nos 6 primeiros meses da isenção
-SECTOR_EXEMPT_BOOST = 0.10
-SECTOR_EXEMPT_RAMP_MONTHS = 6.0
-
 # Janela do histórico, antes do início da partida, que mede o beta de cada ativo contra o Ibovespa
 BETA_WINDOW_DAYS = 730
 MIN_BETA_DAYS = 60
@@ -132,8 +127,8 @@ class Links(Protocol):
     def links_on(self, day: date) -> LinkMonth: ...
 
 
-# O dia em que a isenção do setor (e segmento) passou a valer, ou nulo sem isenção no dia
-ExemptSince = Callable[[str, str, date], date | None]
+# A alta total do preço das ações do (setor, segmento) no dia, em fração, já com a rampa e o teto
+SectorBoost = Callable[[str, str, date], float]
 
 
 class NoLinks:
@@ -171,11 +166,11 @@ class EconomyLayer:
         self._betas: dict[str, float] | None = None
         self._classification: dict[str, StockSegmentDTO] | None = None
         self._origins: dict[str, AssetOrigin] | None = None
-        self._exempt_since: ExemptSince | None = None
+        self._sector_boost: SectorBoost | None = None
 
-    def use_sector_exemption(self, exempt_since: ExemptSince) -> None:
-        """As ações de um setor isento pelo governo ganham o preço da isenção."""
-        self._exempt_since = exempt_since
+    def use_sector_boost(self, boost: SectorBoost) -> None:
+        """As ações de um setor que o governo favorece (isenção, obra ou emenda) ganham a alta de `boost`."""
+        self._sector_boost = boost
 
     def refresh(self) -> None:
         """As medidas de gasto mudaram: as séries lidas de novo refazem todos os dias."""
@@ -359,7 +354,7 @@ class EconomyLayer:
         return math.exp(sum(self.dollar_exponents(day)))
 
     def stock_factor(self, ticker: str, day: date) -> float:
-        # O ativo internacional anda só com o dólar: o nível da bolsa daqui e a isenção
+        # O ativo internacional anda só com o dólar: o nível da bolsa daqui e a alta
         # setorial não chegam a ele
         if self._is_foreign(ticker):
             return self.dollar_factor(day)
@@ -376,20 +371,16 @@ class EconomyLayer:
         return self._origins.get(ticker) is AssetOrigin.FOREIGN
 
     def _sector_factor(self, ticker: str, day: date) -> float:
-        """O preço a mais da isenção do setor: sobe em linha reta até o teto e fica; sem isenção no dia vale 1."""
-        # Sem governo não há isenção: o preço não consulta a classificação
-        if self._exempt_since is None:
+        """O preço a mais do setor favorecido pelo governo; sem alta no dia vale 1."""
+        # Sem governo não há alta: o preço não consulta a classificação
+        if self._sector_boost is None:
             return 1.0
         if self._classification is None:
             self._classification = repository.stock.get_classification()
         located = self._classification.get(ticker)
         if located is None:
             return 1.0
-        since = self._exempt_since(located.sector, located.segment, day)
-        if since is None:
-            return 1.0
-        months = (day - since).days / float(DAYS_PER_MONTH)
-        return 1.0 + SECTOR_EXEMPT_BOOST * min(1.0, months / SECTOR_EXEMPT_RAMP_MONTHS)
+        return 1.0 + self._sector_boost(located.sector, located.segment, day)
 
     def _beta(self, ticker: str) -> float:
         if self._betas is None:

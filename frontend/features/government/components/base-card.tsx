@@ -26,6 +26,7 @@ import {
   yearShare,
 } from "../lib/base";
 import { AMENDMENTS, BASE_DEFECTION, BASE_SEATS } from "../lib/government-metrics";
+import { amendmentNote } from "../lib/sector-address";
 import { BreakDealDialog } from "./break-deal-dialog";
 import { Hemicycle } from "./hemicycle";
 import { NegotiateDialog } from "./negotiate-dialog";
@@ -119,6 +120,7 @@ function BaseContent({ base }: { base: CongressBase }) {
               </AlertTitle>
               <AlertDescription>
                 Você recebe {monthlyLabel(base.my_deal.monthly)} por mês de emenda e orienta Sim nas medidas do governo.
+                {base.my_deal.sector && ` A emenda vai para ${amendmentNote(base.my_deal)}.`}
               </AlertDescription>
               <AlertAction>
                 <Button size="sm" variant="outline" onClick={() => setBreaking({ deal: base.my_deal!, side: "ally" })}>
@@ -302,7 +304,9 @@ function BaseContent({ base }: { base: CongressBase }) {
                       <TableCell numeric>
                         <b>{deal.seats}</b>
                       </TableCell>
-                      <TableCell numeric>{monthlyLabel(deal.monthly)}</TableCell>
+                      <TableCell numeric>
+                        <AmendmentCell deal={deal} />
+                      </TableCell>
                       <TableCell>
                         <span className="grid text-[13px]">
                           {deal.end ? `até ${displayDayMonth(deal.end)}` : "—"}
@@ -344,7 +348,9 @@ function BaseContent({ base }: { base: CongressBase }) {
                       <TableCell numeric>
                         <b>{deal.seats}</b>
                       </TableCell>
-                      <TableCell numeric>{monthlyLabel(deal.monthly)}</TableCell>
+                      <TableCell numeric>
+                        <AmendmentCell deal={deal} />
+                      </TableCell>
                       <TableCell colSpan={2}>
                         <span className="text-[13px] text-muted-foreground">{pendingLabel(deal)}</span>
                       </TableCell>
@@ -407,6 +413,17 @@ function BaseContent({ base }: { base: CongressBase }) {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+/** O valor mensal da emenda e, embaixo, o setor para onde ela vai com a alta que dá às ações. */
+function AmendmentCell({ deal }: { deal: BaseDeal }) {
+  const note = amendmentNote(deal);
+  return (
+    <span className="grid justify-items-end">
+      {monthlyLabel(deal.monthly)}
+      {note && <span className="text-xs font-normal text-muted-foreground">{note}</span>}
+    </span>
   );
 }
 

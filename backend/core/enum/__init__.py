@@ -918,6 +918,8 @@ class ApprovalFactorKind(Enum):
     UNEMPLOYMENT = "UNEMPLOYMENT"
     RISK_PREMIUM = "RISK_PREMIUM"
     MEASURE = "MEASURE"
+    # A obra direcionada a um setor em que o presidente tem ações
+    FAVORITISM = "FAVORITISM"
 
 
 class PromiseState(Enum):

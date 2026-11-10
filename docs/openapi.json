@@ -5824,7 +5824,7 @@
           "Government"
         ],
         "summary": "Responder a proposta de acordo",
-        "description": "O líder do partido aceita ou recusa a proposta que espera resposta; o acordo vale a partir de hoje. Recusar não custa nada. Recusa com 404 sem proposta e com 409 depois do prazo.",
+        "description": "O líder do partido aceita ou recusa a proposta que espera resposta; o acordo vale a partir de hoje. Ao aceitar, pode endereçar a emenda a um setor (e segmento), cujas ações sobem enquanto o acordo valer. Recusar não custa nada e não leva endereço (422). Recusa com 404 sem proposta ou setor desconhecido e com 409 depois do prazo.",
         "operationId": "answer_deal_api_government_deals_answer_put",
         "requestBody": {
           "content": {
@@ -11395,6 +11395,28 @@
           "accept": {
             "type": "boolean",
             "title": "Accept"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "segment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment"
           }
         },
         "additionalProperties": false,
@@ -11621,7 +11643,8 @@
           "STOCKS",
           "UNEMPLOYMENT",
           "RISK_PREMIUM",
-          "MEASURE"
+          "MEASURE",
+          "FAVORITISM"
         ],
         "title": "ApprovalFactorKind",
         "description": "O que empurra o alvo de satisfação de um grupo; BASE é o ponto neutro."
@@ -12711,6 +12734,21 @@
             "type": "string",
             "title": "Monthly"
           },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "sector_boost": {
+            "type": "string",
+            "title": "Sector Boost"
+          },
           "blocker": {
             "anyOf": [
               {
@@ -12764,6 +12802,8 @@
           "pending",
           "ratio",
           "monthly",
+          "sector",
+          "sector_boost",
           "blocker",
           "retry_from",
           "declined_on"
@@ -16359,6 +16399,32 @@
             "type": "string",
             "title": "Monthly"
           },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "segment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment"
+          },
+          "sector_boost": {
+            "type": "string",
+            "title": "Sector Boost"
+          },
           "answer_by": {
             "anyOf": [
               {
@@ -16483,6 +16549,9 @@
           "centrao",
           "ratio",
           "monthly",
+          "sector",
+          "segment",
+          "sector_boost",
           "answer_by",
           "start",
           "end",
@@ -16554,6 +16623,21 @@
           "monthly": {
             "type": "string",
             "title": "Monthly"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "sector_boost": {
+            "type": "string",
+            "title": "Sector Boost"
           },
           "start": {
             "type": "string",
@@ -16661,6 +16745,8 @@
           "centrao",
           "ratio",
           "monthly",
+          "sector",
+          "sector_boost",
           "start",
           "end",
           "base_before",
@@ -23483,6 +23569,17 @@
             ],
             "title": "Segment"
           },
+          "stake": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stake"
+          },
           "value": {
             "anyOf": [
               {
@@ -23595,6 +23692,7 @@
           "title",
           "sector",
           "segment",
+          "stake",
           "value",
           "proposer",
           "proposed",
@@ -23674,6 +23772,28 @@
             ],
             "title": "Assets"
           },
+          "sector_boost": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector Boost"
+          },
+          "favoritism": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Favoritism"
+          },
           "budget": {
             "$ref": "#/components/schemas/BudgetEffectDTO"
           },
@@ -23704,6 +23824,8 @@
           "vote_date",
           "effective",
           "assets",
+          "sector_boost",
+          "favoritism",
           "budget",
           "inflation",
           "reactions"

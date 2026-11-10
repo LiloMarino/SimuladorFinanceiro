@@ -13,6 +13,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from backend.core.enum import (
     ApprovalFactorKind,
     IndicatorSeries,
+    MeasureKind,
     MeasureStatus,
     VoterGroup,
 )
@@ -24,7 +25,7 @@ from backend.core.indicators import (
 from backend.core.periods import DAYS_PER_MONTH
 from backend.core.utils import required
 from backend.features.government import measures as rules
-from backend.features.government import voters
+from backend.features.government import sector_boost, voters
 from backend.features.government.state import Measure, Term
 
 G = VoterGroup
@@ -325,6 +326,32 @@ def measure_factors(
     return factors
 
 
+def favoritism_factor(measures: Iterable[Measure], today: date) -> Factor | None:
+    """
+    O favorecimento pesa igual em todos os grupos enquanto a obra que vale, a última a
+    entrar em vigor, tem endereço e o presidente tem ações no setor dela.
+    """
+    working = [
+        m
+        for m in measures
+        if m.kind is MeasureKind.PUBLIC_WORKS
+        and m.effective is not None
+        and m.effective <= today
+    ]
+    if not working:
+        return None
+    current = max(working, key=lambda m: (required(m.effective), m.id))
+    if not current.value or not current.stake:
+        return None
+    return Factor(
+        ApprovalFactorKind.FAVORITISM,
+        -sector_boost.favoritism_points(current.stake),
+        f"Favorecimento: obra em {rules.target_name(current)} e o presidente tem "
+        f"{rules.percent(current.stake)} da carteira no setor",
+        current.id,
+    )
+
+
 def group_target(
     group: VoterGroup, market: Market, measures: Iterable[Measure], today: date
 ) -> GroupTarget:
@@ -341,6 +368,7 @@ def group_target(
         unemployment_factor(group, market),
         premium_factor(group, market),
         *measure_factors(group, measures, today),
+        favoritism_factor(measures, today),
     ]
     present = [f for f in factors if f is not None]
     total = sum((f.points for f in present), ZERO)

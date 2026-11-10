@@ -23,10 +23,12 @@ from backend.core.exceptions.http_exceptions import (
     ConflictError,
     ForbiddenError,
     NotFoundError,
+    UnprocessableEntityError,
 )
 from backend.core.utils import required
+from backend.features.economy.layer import months_to_days
 from backend.features.government import approval as approval_rules
-from backend.features.government import base_panel, deals, house
+from backend.features.government import base_panel, deals, house, sector_boost
 from backend.features.government import state as government_state
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.state import replay
@@ -825,3 +827,205 @@ def test_a_declined_deal_is_not_news(book: GovernmentBook, engine, market, headl
     book.on_tick(USERS, NEXT_DAY, False)
 
     assert not [h for _, h in headlines if "entra na base" in h.text]
+
+
+# Emenda com endereço
+
+FULL_RAMP = timedelta(days=months_to_days(sector_boost.RAMP_MONTHS))
+
+
+def boost_of(book: GovernmentBook, day: date) -> float:
+    return book.sector_boost_on("Energia", "Geração", day)
+
+
+def test_the_player_leader_addresses_the_amendment_when_accepting(
+    book: GovernmentBook, engine, market
+):
+    bloc = player_ally(book, engine)
+    if bloc is None or bloc.seats == 0:
+        pytest.skip("o partido de teste não elegeu cadeiras")
+    book.propose_deal(ALICE, TERM_START, bloc.key)
+
+    book.answer_deal(BOB, TERM_START, True, "Energia", "Geração")
+
+    deal = deal_with(book, bloc.key)
+    assert (deal.sector, deal.segment) == ("Energia", "Geração")
+    assert boost_of(book, TERM_START) == 0
+    assert boost_of(book, TERM_START + FULL_RAMP) == pytest.approx(
+        sector_boost.amendment_peak(deal.ratio)
+    )
+    assert book.sector_boost_on("Bancos", "Bancos", TERM_START + FULL_RAMP) == 0
+
+
+def test_accepting_without_an_address_leaves_the_amendment_with_no_sector(
+    book: GovernmentBook, engine, market
+):
+    bloc = player_ally(book, engine)
+    if bloc is None or bloc.seats == 0:
+        pytest.skip("o partido de teste não elegeu cadeiras")
+    book.propose_deal(ALICE, TERM_START, bloc.key)
+
+    book.answer_deal(BOB, TERM_START, True)
+
+    deal = deal_with(book, bloc.key)
+    assert (deal.sector, deal.segment) == (None, None)
+    assert boost_of(book, TERM_START + FULL_RAMP) == 0
+
+
+def test_a_refusal_with_an_address_is_unprocessable_and_the_proposal_stays_open(
+    book: GovernmentBook, engine, market
+):
+    bloc = player_ally(book, engine)
+    if bloc is None or bloc.seats == 0:
+        pytest.skip("o partido de teste não elegeu cadeiras")
+    book.propose_deal(ALICE, TERM_START, bloc.key)
+
+    with pytest.raises(UnprocessableEntityError):
+        book.answer_deal(BOB, TERM_START, False, "Energia", None)
+
+    assert deal_with(book, bloc.key).status is DealStatus.PENDING
+
+
+def test_an_address_that_does_not_exist_is_refused_and_the_proposal_stays_open(
+    book: GovernmentBook, engine, market
+):
+    bloc = player_ally(book, engine)
+    if bloc is None or bloc.seats == 0:
+        pytest.skip("o partido de teste não elegeu cadeiras")
+    book.propose_deal(ALICE, TERM_START, bloc.key)
+
+    with pytest.raises(NotFoundError):
+        book.answer_deal(BOB, TERM_START, True, "Pesca", None)
+    with pytest.raises(NotFoundError):
+        book.answer_deal(BOB, TERM_START, True, "Energia", "Varejo")
+
+    assert deal_with(book, bloc.key).status is DealStatus.PENDING
+
+
+def test_the_computer_party_picks_the_sector_from_its_acronym(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+
+    # M + N + V somam 241; entre Bancos e Energia, 241 % 2 = 1 é Energia
+    deal = ally_deal(book)
+
+    assert (deal.sector, deal.segment) == ("Energia", None)
+    assert deal.sector == book.computer_sector("MNV")
+    assert boost_of(book, NEXT_DAY + FULL_RAMP) == pytest.approx(
+        sector_boost.amendment_peak(deal.ratio)
+    )
+
+
+def test_the_panel_and_the_preview_show_the_sector_the_computer_will_pick(
+    book: GovernmentBook, engine, market, projection
+):
+    govern(book, engine)
+
+    preview = base_panel.build_preview(book, USERS, TERM_START, MNV)
+    book.propose_deal(ALICE, TERM_START, MNV)
+    panel = base_panel.build_base(book, USERS, ALICE, TERM_START)
+    [pending] = panel.deals
+    bloc = next(b for b in panel.blocs if b.key == MNV)
+
+    assert preview.sector == pending.sector == bloc.sector == "Energia"
+    assert preview.sector_boost == pending.sector_boost == bloc.sector_boost
+    assert preview.sector_boost == sector_boost.as_fraction(
+        sector_boost.amendment_peak(preview.ratio)
+    )
+
+
+def test_the_amendments_of_the_same_sector_add_up(book: GovernmentBook, engine, market):
+    govern(book, engine)
+    book.propose_deal(ALICE, TERM_START, MNV)
+    book.propose_deal(ALICE, TERM_START, UPR)
+    book.on_tick(USERS, NEXT_DAY, False)
+
+    first, second = deal_with(book, MNV), deal_with(book, UPR)
+
+    assert (first.sector, second.sector) == ("Energia", "Energia")
+    assert boost_of(book, NEXT_DAY + FULL_RAMP) == pytest.approx(
+        sector_boost.combined(
+            0.0,
+            0.0,
+            sector_boost.amendment_peak(first.ratio)
+            + sector_boost.amendment_peak(second.ratio),
+        )
+    )
+
+
+def test_breaking_the_deal_ends_the_boost_and_keeps_the_history(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+    deal = ally_deal(book)
+    breaking = NEXT_DAY + timedelta(days=100)
+    before = boost_of(book, breaking)
+    assert before > 0
+
+    book.break_deal(ALICE, breaking, deal.id)
+
+    assert boost_of(book, breaking) == pytest.approx(before)
+    assert boost_of(book, breaking + timedelta(days=1)) == 0
+    assert boost_of(book, breaking + FULL_RAMP) == 0
+
+
+def test_a_deal_that_ends_with_the_term_ends_the_boost(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+    deal = ally_deal(book)
+    end = required(deal.end)
+
+    assert boost_of(book, end) > 0
+    assert boost_of(book, end + timedelta(days=1)) == 0
+
+
+def test_the_renegotiated_deal_keeps_the_sector_and_follows_the_new_price(
+    book: GovernmentBook, engine, market, bleak
+):
+    old = weak_deal(book, engine)
+    chosen = old.sector
+    assert chosen == "Energia"
+    started = old.ramp_start
+
+    book.answer_demand(ALICE, AFTER_DEMAND, old.id, True)
+
+    renewed = latest_deal(book, MNV)
+    assert (renewed.sector, renewed.segment) == (chosen, None)
+    # A rampa segue de onde estava, e a alta cheia passa a ser a do preço novo
+    assert renewed.ramp_start == started
+    full = AFTER_DEMAND + FULL_RAMP
+    assert boost_of(book, full) == pytest.approx(
+        sector_boost.amendment_peak(renewed.ratio)
+    )
+    assert renewed.ratio == deals.demanded(old.ratio)
+
+
+def test_a_resumed_game_keeps_the_sector_of_the_amendment(
+    book: GovernmentBook, engine, market, stored
+):
+    govern(book, engine)
+    deal = ally_deal(book)
+
+    rebuilt = replay(stored)
+
+    again = latest_deal_of(rebuilt, MNV)
+    assert (again.sector, again.segment, again.ramp_start) == (
+        deal.sector,
+        deal.segment,
+        deal.ramp_start,
+    )
+
+
+def test_the_deal_headline_cites_the_sector_of_the_amendment(
+    book: GovernmentBook, engine, market, headlines
+):
+    govern(book, engine)
+    headlines.clear()
+
+    ally_deal(book)
+
+    [made] = [h for _, h in headlines if h.text.startswith("MNV entra na base")]
+    assert made.dek is not None
+    assert "A emenda vai para Energia." in made.dek

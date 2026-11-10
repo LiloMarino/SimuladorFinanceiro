@@ -352,3 +352,27 @@ export const LEGACY: MetricInfo = {
     "Aprovação 60 soma 1 salário por mês, 80 soma 2 e 40 ou menos soma 0. Em 48 meses com aprovação 60, o legado chega a 48 salários. Sustentar a aprovação até o fim do mandato é o que paga.",
   format: (value) => salariesLabel(value),
 };
+
+export const SECTOR_BOOST: MetricInfo = {
+  label: "Alta do setor",
+  description: "Quanto as ações do setor sobem por causa da obra ou da emenda",
+  definition:
+    "É um empurrão no preço das ações do setor ou do segmento apontado. Sobe em linha reta por 6 meses, a partir do dia em que a obra passa a valer (ou o acordo começa), e fica lá enquanto durar. Na obra, vale 2,5 vezes a fatia do PIB gasta, até +7,5%. Na emenda, vale 30 vezes a fatia do PIB que o acordo paga por ano, até +6%. Junto com a isenção do setor, a alta total nunca passa de +20%.",
+  example:
+    "Ex.: uma obra de 1,2% do PIB em Energia dá 1,2% × 2,5 = +3%. Depois de 3 meses a alta é de +1,5%; no 6º mês, +3%. Se a obra mudar de setor, o setor antigo perde a alta no mesmo dia.",
+  reading:
+    "Quanto maior, mais o setor valoriza para quem tem ações dele. Quem aponta a obra para um setor em que investe ganha na bolsa, mas paga em aprovação (ver Favorecimento).",
+  format: (value) => `${value}`,
+};
+
+export const FAVORITISM: MetricInfo = {
+  label: "Favorecimento",
+  description: "Aprovação que o presidente perde por apontar a obra para um setor em que investe",
+  definition:
+    "Mede a fatia da carteira do presidente que está no setor da obra. Cada grupo de eleitores perde 6 pontos de alvo de aprovação para cada 100% da carteira nesse setor, enquanto a obra valer.",
+  example:
+    "Ex.: com 30% da carteira em Energia, a obra em Energia custa 6 × 0,30 = 1,8 ponto de alvo de aprovação em todos os grupos. Com 5% da carteira, custa 0,3 ponto.",
+  reading:
+    "Perto de zero, o presidente quase não tem interesse no setor e o custo é pequeno. Acima de 3 pontos, a obra pesa na aprovação, e o ganho na bolsa precisa compensar.",
+  format: (value) => `${value}`,
+};

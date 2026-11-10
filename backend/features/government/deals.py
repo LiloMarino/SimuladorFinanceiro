@@ -64,6 +64,12 @@ class Deal:
     # A cobrança aberta: o preço novo e o último dia para o governo responder
     demand_ratio: Decimal | None = None
     demand_by: date | None = None
+    # O endereço da emenda: o setor (e o segmento) cujas ações sobem enquanto o acordo vale
+    sector: str | None = None
+    segment: str | None = None
+    # O dia de onde a alta do setor sobe em rampa; a renovação no mesmo endereço continua
+    # a rampa do acordo que ela substitui
+    ramp_start: date | None = None
 
     def covers(self, day: date) -> bool:
         """O acordo vigorou no dia, mesmo se acabou depois."""

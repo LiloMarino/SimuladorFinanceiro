@@ -27,6 +27,8 @@ const bloc = (overrides: Partial<BaseBloc>): BaseBloc => ({
   pending: false,
   ratio: "0.0002",
   monthly: "1000000",
+  sector: null,
+  sector_boost: "0",
   blocker: null,
   retry_from: null,
   declined_on: null,

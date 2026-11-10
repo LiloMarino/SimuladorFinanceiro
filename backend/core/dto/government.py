@@ -693,6 +693,12 @@ class DealDTO(BaseDTO):
     # A emenda em fração do PIB por ano e em reais por mês
     ratio: Decimal
     monthly: Decimal
+    # O endereço da emenda: o setor (e o segmento) cujas ações sobem enquanto o acordo vale;
+    # na proposta ao partido do computador, o setor que ele escolheu
+    sector: str | None
+    segment: str | None
+    # A alta cheia que a emenda dá às ações do setor endereçado, em fração (0.03 = 3%); com ou sem setor escolhido, é a que o preço dá
+    sector_boost: Decimal
     # Proposta: o prazo da resposta do partido de jogador
     answer_by: date | None
     # Em vigor: o último dia do acordo e quantos dias faltam
@@ -735,6 +741,10 @@ class BaseBlocDTO(BaseDTO):
     # A emenda em fração do PIB por ano e em reais por mês, pelo preço de hoje
     ratio: Decimal
     monthly: Decimal
+    # O setor para onde o partido do computador leva a emenda (nulo no partido de jogador, que
+    # escolhe ao aceitar) e a alta cheia que o preço de hoje dá às ações dele, em fração
+    sector: str | None
+    sector_boost: Decimal
     # Por que não dá para propor agora e, quando é espera, o dia em que abre
     blocker: str | None
     retry_from: date | None
@@ -797,6 +807,10 @@ class DealPreviewDTO(BaseDTO):
     centrao: bool
     ratio: Decimal
     monthly: Decimal
+    # O setor que o partido do computador escolheu (nulo no partido de jogador) e a alta cheia
+    # que o preço dá às ações do setor endereçado, em fração
+    sector: str | None
+    sector_boost: Decimal
     start: date
     end: date
     base_before: int
@@ -822,6 +836,8 @@ class MeasureDTO(BaseDTO):
     title: str
     sector: str | None
     segment: str | None
+    # Obra com endereço: a fatia da carteira do presidente no setor (0 a 1) quando ele propôs
+    stake: Decimal | None
     value: Decimal | None
     proposer: str
     proposed: date
@@ -1206,6 +1222,10 @@ class MeasurePreviewDTO(BaseDTO):
     vote_date: date
     effective: date
     assets: int | None
+    # Obra com endereço: a alta cheia das ações do setor, em fração (0.0175 = 1,75%), e os
+    # pontos de aprovação que o favorecimento tira de todos os grupos; nulos sem endereço
+    sector_boost: Decimal | None
+    favoritism: Decimal | None
     # O que a medida faz com a conta do governo, estimado
     budget: BudgetEffectDTO
     # A inflação, a SELIC e a bolsa esperadas; só nas medidas de gasto
@@ -1256,6 +1276,9 @@ class ProposeDealRequest(BaseDTO):
 
 class AnswerDealRequest(BaseDTO):
     accept: bool
+    # O endereço da emenda, só ao aceitar: o setor (e o segmento) cujas ações sobem
+    sector: str | None = None
+    segment: str | None = None
 
 
 class GuidanceRuleRequest(BaseDTO):

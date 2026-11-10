@@ -9,7 +9,7 @@ import { Input } from "@/shared/components/ui/input";
 import { PROGRAM_NAME_MAX_LENGTH } from "@/shared/lib/name-limit";
 import { cn } from "@/shared/lib/utils";
 import { displayDayMonth } from "@/shared/lib/utils/display";
-import type { SpendingRow } from "@/types";
+import type { GovernmentPanel, SpendingRow } from "@/types";
 import { isNameable, SPENDING_KINDS, SPENDING_LABEL, type SpendingKind } from "@/shared/lib/spending-kinds";
 import {
   checkValue,
@@ -25,6 +25,7 @@ import {
   valueWindow,
   windowSentence,
 } from "../lib/spending";
+import { SectorSegmentSelect } from "./sector-segment-select";
 
 const SLIDER_STEP = { raise: 0.5, share: 0.05 };
 
@@ -36,6 +37,11 @@ type SpendingFormProps = {
   onValueTextChange: (text: string) => void;
   nameText: string;
   onNameTextChange: (text: string) => void;
+  sectors: GovernmentPanel["sectors"];
+  /** O setor da obra e o segmento; NO_SECTOR quando a obra não aponta para setor nenhum */
+  worksSector: string;
+  worksSegment: string;
+  onWorksAddressChange: (sector: string, segment: string) => void;
 };
 
 /** A escolha da medida de gasto e do valor novo: o campo, os atalhos de passo e a régua da janela que a medida alcança. */
@@ -47,6 +53,10 @@ export function SpendingForm({
   onValueTextChange,
   nameText,
   onNameTextChange,
+  sectors,
+  worksSector,
+  worksSegment,
+  onWorksAddressChange,
 }: SpendingFormProps) {
   const row = rows.find((candidate) => candidate.kind === kind);
   const raise = kind === "SERVANT_RAISE" || kind === "RETIREE_RAISE";
@@ -84,6 +94,18 @@ export function SpendingForm({
 
       {row && !row.pending && isNameable(kind) && (
         <ProgramNameField kind={kind} row={row} nameText={nameText} onNameTextChange={onNameTextChange} />
+      )}
+
+      {row && !row.pending && kind === "PUBLIC_WORKS" && (
+        <SectorSegmentSelect
+          sectors={sectors}
+          sector={worksSector}
+          segment={worksSegment}
+          onChange={onWorksAddressChange}
+          label="Setor da obra"
+          noneLabel="Sem endereço"
+          segmentScope="recebem a obra"
+        />
       )}
 
       {row?.pending && (

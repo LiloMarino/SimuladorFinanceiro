@@ -1,5 +1,15 @@
 import { useState } from "react";
-import { Bot, CalendarRange, CircleCheck, Handshake, TrendingUp, TriangleAlert, Users, Wallet } from "lucide-react";
+import {
+  Bot,
+  CalendarRange,
+  CircleCheck,
+  Handshake,
+  Landmark,
+  TrendingUp,
+  TriangleAlert,
+  Users,
+  Wallet,
+} from "lucide-react";
 import { CardState } from "@/shared/components/card-state";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
@@ -21,7 +31,8 @@ import type { CongressBase, DealPreview } from "@/types";
 import { useProposeDeal } from "../hooks/mutations/useProposeDeal";
 import { useDealPreview } from "../hooks/queries/useDealPreview";
 import { baseOutlook, baseSeats, blocStatus, groupsLabel, monthlyLabel, yearShare } from "../lib/base";
-import { AMENDMENTS } from "../lib/government-metrics";
+import { AMENDMENTS, SECTOR_BOOST } from "../lib/government-metrics";
+import { boostLabel, computerAmendmentSentence } from "../lib/sector-address";
 import { Hemicycle } from "./hemicycle";
 import { PartyMark } from "@/shared/components/party-mark";
 import { partyColor } from "@/shared/lib/party-colors";
@@ -219,6 +230,14 @@ function ProposalDetail({ preview, base }: { preview: DealPreview; base: Congres
           Base de <b className="font-mono">{preview.base_before}</b> para{" "}
           <b className="font-mono">{preview.base_after}</b> cadeiras:{" "}
           {baseOutlook(preview.base_after, base.majority, base.impeachment_votes)}.
+        </Line>
+        <Line icon={Landmark}>
+          <span className="inline-flex flex-wrap items-center gap-1">
+            {preview.sector
+              ? `${preview.abbr} ${computerAmendmentSentence(preview.sector, preview.sector_boost)}, em 6 meses.`
+              : `Ao aceitar, o líder pode apontar a emenda para um setor: as ações dele sobem até ${boostLabel(preview.sector_boost)}.`}
+            <MetricHint metric={SECTOR_BOOST} />
+          </span>
         </Line>
         <Line icon={TrendingUp}>
           {groupsLabel(preview.ally_groups)} sobem o apoio ao {preview.abbr}, cerca de +1 ponto por mês. Romper ou parar

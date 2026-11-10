@@ -320,6 +320,7 @@ def _measure(
         title=rules.title(measure),
         sector=measure.sector,
         segment=measure.segment,
+        stake=measure.stake,
         value=measure.value,
         proposer=proposer or "?",
         proposed=measure.proposed,

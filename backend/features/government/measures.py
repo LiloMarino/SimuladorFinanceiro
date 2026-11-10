@@ -190,18 +190,19 @@ def title(measure: Measure) -> str:
         case MeasureKind.RETIREE_RAISE:
             return f"Aposentadorias: reajuste de {percent(value)} acima da inflação"
         case MeasureKind.PUBLIC_WORKS:
-            return _program_title(measure, "Obras")
+            return _program_title(measure, "Obras", target_name(measure))
         case MeasureKind.OPERATING_COST:
             return f"Custeio: {percent(value)} do PIB"
 
 
-def _program_title(measure: Measure, label: str) -> str:
-    """Auxílio e obras: o nome do programa abre o título; a verba zerada extingue o programa."""
+def _program_title(measure: Measure, label: str, place: str = "") -> str:
+    """Auxílio e obras: o nome do programa abre o título, seguido do setor quando a obra tem endereço; a verba zerada extingue o programa."""
+    where = f" em {place}" if place else ""
     if measure.name is None:
-        return f"{label}: {percent(measure.value)} do PIB"
+        return f"{label}{where}: {percent(measure.value)} do PIB"
     if not measure.value:
         return f"Extinção do {measure.name}"
-    return f"{measure.name}: {percent(measure.value)} do PIB"
+    return f"{measure.name}{where}: {percent(measure.value)} do PIB"
 
 
 def promise_title(promise: Promise) -> str:

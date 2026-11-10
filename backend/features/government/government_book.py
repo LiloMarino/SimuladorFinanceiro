@@ -71,6 +71,7 @@ from backend.features.government import (
     presidency,
     promises,
     second_round,
+    sector_boost,
     spending,
     spending_effects,
     spending_panel,
@@ -184,11 +185,7 @@ class GovernmentBook:
             self.state.selic_board,
         )
         self._economy.update(self.state.measures.values())
-        self._linked.layer.use_sector_exemption(
-            lambda sector, segment, day: self._timeline.exempt_since(
-                sector, segment, day
-            )
-        )
+        self._linked.layer.use_sector_boost(self.sector_boost_on)
         self._macro = self._linked.macro
         self._budget = self._linked.budget
         # O engine lê os impostos, o prêmio de risco, o prêmio a mais do crédito e o desvio do dólar de cada dia
@@ -522,9 +519,35 @@ class GovernmentBook:
         )
         return registry.pending(PendingType.IMPEACHMENT_RISK, detail)
 
+    def sector_boost_on(self, sector: str, segment: str, day: date) -> float:
+        """
+        A alta do preço das ações do (setor, segmento) em `day`: isenção, obra e emendas
+        com endereço somadas, com o teto do conjunto. As emendas contam enquanto o acordo
+        cobria o dia, então o histórico dos preços não muda quando o acordo acaba.
+        """
+        return sector_boost.combined(
+            sector_boost.exemption_boost(
+                self._timeline.exempt_since(sector, segment, day), day
+            ),
+            sector_boost.works_boost(
+                self._spending.works_since(sector, segment, day), day
+            ),
+            sector_boost.amendment_boost(
+                list(self.state.deals.values()), sector, segment, day
+            ),
+        )
+
+    def sector_names(self) -> list[str]:
+        """Os setores da bolsa em ordem alfabética, os endereços possíveis de obra e de emenda."""
+        return sorted({c.sector for c in self._engine.classification.values()})
+
+    def computer_sector(self, abbr: str) -> str | None:
+        """O setor para onde o partido do computador leva a emenda."""
+        return sector_boost.computer_sector(abbr, self.sector_names())
+
     def tickers(self, measure: Measure) -> list[str]:
-        """Os ativos que a medida de setor atinge."""
-        if not measure.kind.is_sector:
+        """Os ativos que a medida com endereço (de setor ou obra) atinge."""
+        if measure.sector is None:
             return []
         return sorted(
             ticker
@@ -1247,17 +1270,34 @@ class GovernmentBook:
         self._emit(GovernmentEventType.DEAL_WITHDRAWN, today, deal_id=deal.id)
         self._notice(GovernmentNoticeKind.UPDATED, user, party_abbr=deal.abbr)
 
-    def answer_deal(self, user: UserDTO, today: date, accept: bool) -> None:
-        """O líder do partido aceita ou recusa a proposta; recusar não custa nada."""
+    def answer_deal(
+        self,
+        user: UserDTO,
+        today: date,
+        accept: bool,
+        sector: str | None = None,
+        segment: str | None = None,
+    ) -> None:
+        """O líder do partido aceita (podendo endereçar a emenda a um setor) ou recusa a proposta; recusar não custa nada."""
         deal = self.incoming_deal(user)
         if deal is None:
             raise NotFoundError("Você não tem proposta de acordo para responder.")
         if deal.answer_by is not None and today > deal.answer_by:
             raise ConflictError("O prazo para responder já passou.")
-        self._answer(deal, today, accept, user)
+        if sector is not None or segment is not None:
+            if not accept:
+                raise UnprocessableEntityError("A recusa não leva endereço de emenda.")
+            self._ensure_located(sector, segment)
+        self._answer(deal, today, accept, user, sector, segment)
 
     def _answer(
-        self, deal: deals.Deal, today: date, accept: bool, user: UserDTO | None
+        self,
+        deal: deals.Deal,
+        today: date,
+        accept: bool,
+        user: UserDTO | None,
+        sector: str | None = None,
+        segment: str | None = None,
     ) -> None:
         end = required(self.term_end())
         before = self.base_seats(today)
@@ -1268,6 +1308,8 @@ class GovernmentBook:
             accepted=accept,
             by=user.id if user else None,
             end=end.isoformat() if accept else None,
+            sector=sector,
+            segment=segment,
         )
         self._notice(
             GovernmentNoticeKind.DEAL_ANSWERED,
@@ -1329,6 +1371,8 @@ class GovernmentBook:
             accepted=True,
             by=None,
             end=required(deal.end).isoformat(),
+            sector=deal.sector,
+            segment=deal.segment,
         )
         self._notice(GovernmentNoticeKind.UPDATED, user, party_abbr=deal.abbr)
 
@@ -1379,6 +1423,7 @@ class GovernmentBook:
                 self.base_seats(today),
                 house.MAJORITY,
                 end,
+                deal.sector,
             ),
         )
 
@@ -1478,7 +1523,13 @@ class GovernmentBook:
             if deal.proposed >= today:
                 continue
             accepts, _ = self.deal_odds(deal.abbr, deal.party_id)
-            self._answer(deal, today, bool(accepts), None)
+            self._answer(
+                deal,
+                today,
+                bool(accepts),
+                None,
+                self.computer_sector(deal.abbr) if accepts else None,
+            )
 
     def _announce_deals_ended(self, previous: date | None, today: date) -> None:
         """Conta à sala os acordos que acabaram sem quebra: pelo prazo ou na posse do novo Congresso."""
@@ -2619,6 +2670,7 @@ class GovernmentBook:
             before=None if draft.before is None else str(draft.before),
             sector=draft.sector,
             segment=draft.segment,
+            stake=None if draft.stake is None else str(draft.stake),
             proposer_id=user.id,
             name=draft.name,
             renamed_from=draft.renamed_from,
@@ -2629,7 +2681,8 @@ class GovernmentBook:
             measure_title=rules.title(draft),
         )
         self._on_news(
-            today, headlines.measure_proposed(user.nickname, rules.title(draft))
+            today,
+            headlines.measure_proposed(user.nickname, rules.title(draft), draft.stake),
         )
 
     def repropose(self, user: UserDTO, today: date, measure_id: int) -> None:
@@ -2671,6 +2724,9 @@ class GovernmentBook:
         draft = self._draft(user, today, kind, value, sector, segment, name)
         vote = congress.next_vote_date(today)
         tickers = self.tickers(draft)
+        located_works = (
+            draft.kind is MeasureKind.PUBLIC_WORKS and draft.sector is not None
+        )
         moves = voters.radar_moves(draft.kind, draft.value, draft.before)
         return MeasurePreviewDTO(
             title=rules.title(draft),
@@ -2680,7 +2736,17 @@ class GovernmentBook:
             impact=approval_rules.measure_impact(draft),
             vote_date=vote,
             effective=vote + timedelta(days=VIGENCE_DAYS),
-            assets=len(tickers) if draft.kind.is_sector else None,
+            assets=len(tickers) if draft.sector is not None else None,
+            sector_boost=(
+                sector_boost.as_fraction(sector_boost.works_peak(required(draft.value)))
+                if located_works
+                else None
+            ),
+            favoritism=(
+                sector_boost.favoritism_points(draft.stake or Decimal(0))
+                if located_works
+                else None
+            ),
             budget=budget_panel.measure_budget(
                 self._budget,
                 self._timeline.latest,
@@ -2710,6 +2776,7 @@ class GovernmentBook:
         """Valida o pedido e monta a medida como entraria na fila."""
         term = required(self.state.term)
         before: Decimal | None = None
+        stake: Decimal | None = None
         name = name or None
         if name is not None and kind not in spending.NAMEABLE:
             raise UnprocessableEntityError("Só o auxílio e as obras têm nome.")
@@ -2724,7 +2791,9 @@ class GovernmentBook:
                     "Os pontos somados ao IR do setor vão de 0,1 a 20."
                 )
         else:
-            if sector is not None or segment is not None:
+            if kind is not MeasureKind.PUBLIC_WORKS and (
+                sector is not None or segment is not None
+            ):
                 raise UnprocessableEntityError("Essa medida não é de um setor.")
             limit = promises.limit_of(kind)
             if (
@@ -2737,8 +2806,19 @@ class GovernmentBook:
             # Verba zero extingue o programa em vigor, e a medida guarda o nome dele
             if not value:
                 name = program
-            # Mesmo valor com outro nome é um rebatismo
-            if value == before and name in (None, program):
+            # A verba extinta não tem endereço
+            if kind is MeasureKind.PUBLIC_WORKS:
+                if not value:
+                    sector = segment = None
+                elif sector is not None or segment is not None:
+                    self._ensure_located(sector, segment)
+                    stake = self._stake(user, required(sector), segment)
+            # Mesmo valor com outro nome ou outro endereço é uma mudança
+            readdressed = kind is MeasureKind.PUBLIC_WORKS and (
+                sector,
+                segment,
+            ) != self._spending.latest_target(kind)
+            if value == before and name in (None, program) and not readdressed:
                 raise ConflictError(
                     "Esse já é o valor em vigor: a medida não muda nada."
                 )
@@ -2758,6 +2838,7 @@ class GovernmentBook:
             before=before,
             sector=sector,
             segment=segment,
+            stake=stake,
             proposer_id=user.id,
             term_start=term.start,
             proposed=today,
@@ -2766,6 +2847,12 @@ class GovernmentBook:
                 program if name is not None and program not in (None, name) else None
             ),
         )
+
+    def _stake(self, user: UserDTO, sector: str, segment: str | None) -> Decimal:
+        """A fatia da carteira do presidente no setor (ou segmento), de 0 a 1, no dia da proposta; a medida guarda esse valor."""
+        portfolio = self._engine.get_portfolio(user.client_id)
+        share = sector_boost.portfolio_share(portfolio, sector, segment)
+        return share.quantize(Decimal("0.0001"))
 
     def _ensure_located(self, sector: str | None, segment: str | None) -> None:
         located = self._engine.classification.values()

@@ -14,7 +14,7 @@ from backend.core.enum import (
     VoterGroup,
 )
 from backend.core.utils import format_money
-from backend.features.government.measures import MONTHS, number
+from backend.features.government.measures import MONTHS, number, percent
 from backend.features.newsroom.text import number as precise_number
 from backend.features.notifications.news import Headline
 
@@ -286,12 +286,14 @@ def house_seated(
     )
 
 
-def measure_proposed(president: str, title: str) -> Headline:
-    return Headline(
-        NewsType.MEASURE_PROPOSED,
-        f"{president} propõe: {title}",
-        "A medida vai à fila do Congresso.",
-    )
+def measure_proposed(
+    president: str, title: str, stake: Decimal | None = None
+) -> Headline:
+    """A proposta vai à fila; a obra com endereço num setor em que o presidente tem ações conta a fatia dele na carteira."""
+    dek = "A medida vai à fila do Congresso."
+    if stake:
+        dek += f" O presidente tem {percent(stake)} da carteira no setor."
+    return Headline(NewsType.MEASURE_PROPOSED, f"{president} propõe: {title}", dek)
 
 
 def measure_withdrawn(president: str, title: str) -> Headline:
@@ -461,15 +463,17 @@ def deal_made(
     base_seats: int,
     majority: int,
     end: date,
+    sector: str | None = None,
 ) -> Headline:
-    """O acordo de apoio fechado: o aliado entra na base e a manchete diz em que pé a base fica."""
+    """O acordo de apoio fechado: o aliado entra na base e a manchete diz em que pé a base fica e, se a emenda tem endereço, para que setor ela vai."""
     position = "na maioria" if base_seats >= majority else "abaixo da maioria"
+    where = f" A emenda vai para {sector}." if sector else ""
     return Headline(
         NewsType.PARTY_LIFE,
         f"{ally_abbr} entra na base do governo de {president}",
         f"São {ally_seats} cadeiras: a base vai a {base_seats}, {position} de {majority}. "
         f"O acordo vale até {end.day:02d}/{end.month:02d}/{end.year}, com emendas "
-        "pagas todo mês.",
+        f"pagas todo mês.{where}",
         party_abbrs=(ally_abbr,),
     )
 

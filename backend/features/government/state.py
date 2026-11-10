@@ -394,6 +394,9 @@ class Measure:
     name: str | None = None
     # O nome do programa que a medida troca por `name`; nulo fora de um rebatismo
     renamed_from: str | None = None
+    # Obra com endereço: a fatia da carteira do presidente no setor (ou segmento) no dia da
+    # proposta, de 0 a 1; nula na obra sem endereço e nas outras medidas
+    stake: Decimal | None = None
 
 
 @dataclass(frozen=True)
@@ -862,6 +865,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 party_id=required(state.term).party_id,
                 name=_opt_str(p, "name"),
                 renamed_from=_opt_str(p, "renamed_from"),
+                stake=_opt_money(p, "stake"),
             )
             state.next_measure_id = max(state.next_measure_id, measure_id + 1)
         case Event.MEASURE_WITHDRAWN:
@@ -1149,8 +1153,17 @@ def _apply_deal_answered(state: GovernmentState, event: GovernmentEventDTO) -> N
     if not p["accepted"]:
         deal.status = DealStatus.DECLINED
         return
+    deal.sector = _opt_str(p, "sector")
+    deal.segment = _opt_str(p, "segment")
+    deal.ramp_start = day
     for old in state.deals.values():
         if old.bloc_key == deal.bloc_key and old.status is DealStatus.ACTIVE:
+            if (
+                old.ramp_start is not None
+                and old.covers(day - timedelta(days=1))
+                and (old.sector, old.segment) == (deal.sector, deal.segment)
+            ):
+                deal.ramp_start = old.ramp_start
             old.status = DealStatus.CUT
             old.end = day - timedelta(days=1)
     deal.status = DealStatus.ACTIVE

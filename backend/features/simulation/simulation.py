@@ -664,8 +664,16 @@ class Simulation:
         self._ensure_government().withdraw_deal(user, self._current_date, deal_id)
 
     @synchronized
-    def answer_deal(self, user: UserDTO, accept: bool) -> None:
-        self._ensure_government().answer_deal(user, self._current_date, accept)
+    def answer_deal(
+        self,
+        user: UserDTO,
+        accept: bool,
+        sector: str | None = None,
+        segment: str | None = None,
+    ) -> None:
+        self._ensure_government().answer_deal(
+            user, self._current_date, accept, sector, segment
+        )
 
     @synchronized
     def answer_demand(self, user: UserDTO, deal_id: int, accept: bool) -> None:

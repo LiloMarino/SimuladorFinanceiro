@@ -1,5 +1,7 @@
-import { CircleCheck, ShieldAlert, TrendingUp, Undo2 } from "lucide-react";
+import { useState } from "react";
+import { CircleCheck, Landmark, ShieldAlert, TrendingUp, Undo2 } from "lucide-react";
 import { Kpi } from "@/shared/components/kpi";
+import { MetricHint } from "@/shared/components/metric-hint";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -10,10 +12,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
+import { useGovernment } from "@/shared/hooks/queries/useGovernment";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import { useAnswerDeal } from "../hooks/mutations/useAnswerDeal";
 import { useBase } from "../hooks/queries/useBase";
 import { baseOutlook, groupsLabel, monthlyLabel, yearShare } from "../lib/base";
+import { SECTOR_BOOST } from "../lib/government-metrics";
+import { addressOf, amendmentSentence, NO_SECTOR, WHOLE_SECTOR } from "../lib/sector-address";
+import { SectorSegmentSelect } from "./sector-segment-select";
 
 type DealProposalDialogProps = {
   open: boolean;
@@ -23,11 +29,18 @@ type DealProposalDialogProps = {
 /** A proposta do governo ao partido de quem vê: o que ele recebe, o que perde e o prazo para responder. */
 export function DealProposalDialog({ open, onOpenChange }: DealProposalDialogProps) {
   const { data: base } = useBase({ enabled: open });
+  const { data: panel } = useGovernment({ enabled: open });
   const answer = useAnswerDeal();
+  const [sector, setSector] = useState(NO_SECTOR);
+  const [segment, setSegment] = useState(WHOLE_SECTOR);
   const proposal = base?.my_proposal;
   if (!base || !proposal || proposal.answer_by === null) return null;
 
-  const respond = (accept: boolean) => answer.mutate({ accept }, { onSuccess: () => onOpenChange(false) });
+  // Só aceitar leva o endereço da emenda; a recusa vai sem setor
+  const respond = (accept: boolean) =>
+    answer.mutate(accept ? { accept, ...addressOf(sector, segment) } : { accept }, {
+      onSuccess: () => onOpenChange(false),
+    });
   const until = displayDayMonth(proposal.answer_by);
   const governing = base.governing_abbr ?? "governo";
 
@@ -70,6 +83,20 @@ export function DealProposalDialog({ open, onOpenChange }: DealProposalDialogPro
               />
             </div>
 
+            {/* Endereço da emenda */}
+            <SectorSegmentSelect
+              sectors={panel?.sectors ?? []}
+              sector={sector}
+              segment={segment}
+              onChange={(nextSector, nextSegment) => {
+                setSector(nextSector);
+                setSegment(nextSegment);
+              }}
+              label="Setor da emenda"
+              noneLabel="Sem endereço"
+              segmentScope="recebem a emenda"
+            />
+
             <ul className="grid rounded-lg border px-3 py-1 text-[13px]">
               <Line icon={CircleCheck}>
                 Você, como líder, orienta <b>Sim</b> em tudo o que o governo propuser. Até um terço da bancada ainda
@@ -79,6 +106,14 @@ export function DealProposalDialog({ open, onOpenChange }: DealProposalDialogPro
                 A emenda chega às suas bases: {groupsLabel(proposal.ally_groups).toLowerCase()} sobem o apoio ao{" "}
                 {proposal.abbr}, cerca de +1 por mês.
               </Line>
+              {sector !== NO_SECTOR && (
+                <Line icon={Landmark}>
+                  <span className="inline-flex flex-wrap items-center gap-1">
+                    Com o endereço, {amendmentSentence(proposal.sector_boost)}.
+                    <MetricHint metric={SECTOR_BOOST} />
+                  </span>
+                </Line>
+              )}
               <Line icon={ShieldAlert}>
                 Orientar Não ou sair antes do prazo rompe o acordo:{" "}
                 {groupsLabel(proposal.government_groups).toLowerCase()} somam +8 de rejeição ao {proposal.abbr}. Se o{" "}
