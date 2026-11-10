@@ -58,23 +58,14 @@ export function DollarAccountCard({ offer, held, showHelp }: DollarAccountCardPr
               value={displayRateLabel(offer.rate_index, offer.interest_rate)}
               description={indicators ? `Fed a ${displayPercent(indicators.fed)} a.a., em dólar` : FED_RATE.description}
             />
-            <Metric
-              metric={DOLLAR_TODAY}
-              value={offer.fx_rate ? `US$ 1 = ${displayMoney(offer.fx_rate)}` : "—"}
-              description={DOLLAR_TODAY.description}
-            />
+            <Metric metric={DOLLAR_TODAY} value={offer.fx_rate ? `US$ 1 = ${displayMoney(offer.fx_rate)}` : "—"} />
             {showHelp && indicators && (
               <Metric
                 metric={BREAK_EVEN}
                 value={displayPercent(breakEvenDollarRise(indicators.cdi, indicators.fed), 1)}
-                description={BREAK_EVEN.description}
               />
             )}
-            <Metric
-              metric={DOLLAR_ACCOUNT_TAX}
-              value={<Badge variant="secondary">15% do ganho</Badge>}
-              description={DOLLAR_ACCOUNT_TAX.description}
-            />
+            <Metric metric={DOLLAR_ACCOUNT_TAX} value={<Badge variant="secondary">15% do ganho</Badge>} />
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -102,15 +93,15 @@ export function DollarAccountCard({ offer, held, showHelp }: DollarAccountCardPr
   );
 }
 
-function Metric({ metric, value, description }: { metric: MetricInfo; value: ReactNode; description: string }) {
+function Metric({ metric, value, description }: { metric: MetricInfo; value: ReactNode; description?: string }) {
   return (
-    <div className="grid gap-0.5">
+    <div className="grid content-start gap-0.5">
       <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
         {metric.label}
         <MetricHint metric={metric} />
       </span>
       <b className="font-mono font-semibold">{value}</b>
-      <span className="text-xs text-muted-foreground">{description}</span>
+      {description && <span className="text-xs text-muted-foreground">{description}</span>}
     </div>
   );
 }
