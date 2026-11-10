@@ -1944,6 +1944,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/government/congress/impeachment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pedir o impeachment do presidente
+         * @description O líder do partido (o fundador; se ele sai, o filiado mais antigo) abre o pedido de impeachment; a casa vota no dia de votação do mês seguinte. Só abre contra o governo de um presidente jogador, com a aprovação abaixo do piso e depois da carência, para um partido com bancada que não seja o do presidente, e cada partido pede uma vez por mandato. Se a casa rejeitar, o partido que pediu ganha rejeição nos grupos que ainda aprovam o presidente. Recusa com 403 para quem não é líder e com 409 quando alguma dessas condições falha.
+         */
+        post: operations["request_impeachment_api_government_congress_impeachment_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/government/base": {
         parameters: {
             query?: never;
@@ -5334,6 +5354,10 @@ export interface components {
             history: components["schemas"]["PastVoteDTO"][];
             /** Low Streak */
             low_streak: number;
+            /** Can Request Impeachment */
+            can_request_impeachment: boolean;
+            /** Impeachment Block */
+            impeachment_block: string | null;
         };
         /** ContractLoanRequestDTO */
         ContractLoanRequestDTO: {
@@ -6927,6 +6951,8 @@ export interface components {
             federation_name: string | null;
             /** Partner Abbr */
             partner_abbr: string | null;
+            /** Requested By */
+            requested_by: string | null;
         };
         /**
          * GroupApprovalDTO
@@ -7157,6 +7183,8 @@ export interface components {
             vote_day: string;
             /** President */
             president: string | null;
+            /** Party */
+            party: string | null;
             vote: components["schemas"]["VoteDTO"];
         };
         /** ImportResultDTO */
@@ -16787,6 +16815,42 @@ export interface operations {
                 "application/json": components["schemas"]["GuidanceRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    request_impeachment_api_government_congress_impeachment_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             204: {

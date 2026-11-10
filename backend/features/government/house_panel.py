@@ -43,6 +43,11 @@ def build_congress(
     in_office = state.house_on(today)
     waiting = elected if elected is not None and elected.takes_office > today else None
     stats = _stats(book)
+    block = (
+        book.impeachment_block(mine, today)
+        if mine is not None and mine.founder_id == viewer.id
+        else None
+    )
     return CongressDTO(
         house=_house(
             book, in_office, elected_in_office(book, today), leader_bloc, stats, today
@@ -55,6 +60,10 @@ def build_congress(
         impeachment_request=_request(book, viewer, today, people),
         history=_history(book, today),
         low_streak=state.low_streak,
+        can_request_impeachment=(
+            mine is not None and mine.founder_id == viewer.id and block is None
+        ),
+        impeachment_block=block,
     )
 
 
@@ -303,12 +312,14 @@ def _request(
     if request is None:
         return None
     president = book.president()
+    requester = book.state.parties.get(request.party_id) if request.party_id else None
     orientations, guided, wanted = book.impeachment_orientations(today)
     reactions = house.impeachment_reactions(book.state.satisfaction)
     return ImpeachmentRequestDTO(
         opened=request.opened,
         vote_day=request.vote_day,
         president=president.nickname if president else None,
+        party=requester.abbr if requester else None,
         vote=_open_vote(
             book,
             viewer,

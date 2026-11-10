@@ -155,6 +155,16 @@ def guide_bloc(
     simulation.guide_bloc(user, payload.measure_id, payload.yes, payload.break_deal)
 
 
+@government_router.post(
+    "/congress/impeachment",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Pedir o impeachment do presidente",
+    description="O líder do partido (o fundador; se ele sai, o filiado mais antigo) abre o pedido de impeachment; a casa vota no dia de votação do mês seguinte. Só abre contra o governo de um presidente jogador, com a aprovação abaixo do piso e depois da carência, para um partido com bancada que não seja o do presidente, e cada partido pede uma vez por mandato. Se a casa rejeitar, o partido que pediu ganha rejeição nos grupos que ainda aprovam o presidente. Recusa com 403 para quem não é líder e com 409 quando alguma dessas condições falha.",
+)
+def request_impeachment(simulation: ActiveSimulation, user: CurrentUser):
+    simulation.request_impeachment(user)
+
+
 @government_router.get(
     "/base",
     response_model=CongressBaseDTO,

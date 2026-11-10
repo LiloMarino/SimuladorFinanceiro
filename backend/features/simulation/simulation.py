@@ -632,6 +632,10 @@ class Simulation:
         )
 
     @synchronized
+    def request_impeachment(self, user: UserDTO) -> None:
+        self._ensure_government().request_impeachment(user, self._current_date)
+
+    @synchronized
     def get_base(self, user: UserDTO) -> CongressBaseDTO:
         return build_base(
             self._ensure_government(),

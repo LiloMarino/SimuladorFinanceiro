@@ -79,6 +79,7 @@ const notice = (partial: Partial<GovernmentNotice>): GovernmentNotice => ({
   seats_before: null,
   seats_after: null,
   broken_by_ally: null,
+  requested_by: null,
   ...partial,
 });
 

@@ -43,7 +43,7 @@ export function impeachmentToast(event: GovernmentNotice, needed: number): Measu
   if (event.kind === "IMPEACHMENT_REQUESTED") {
     return {
       tone: "warning",
-      title: "Pedido de impeachment aberto",
+      title: event.requested_by ? `O ${event.requested_by} pediu o impeachment` : "Pedido de impeachment aberto",
       description: event.effective
         ? `A casa vota em ${displayDayMonth(event.effective)}.`
         : "A casa vota no mês que vem.",
@@ -53,6 +53,8 @@ export function impeachmentToast(event: GovernmentNotice, needed: number): Measu
   return {
     tone: "info",
     title: `Pedido rejeitado: ${yes} votos Sim, faltaram ${Math.max(needed - yes, 0)}`,
-    description: "O presidente fica e a contagem de meses abaixo do piso recomeça do zero.",
+    description: event.requested_by
+      ? `O presidente fica e o ${event.requested_by} perde apoio entre os eleitores que ainda aprovam o governo.`
+      : "O presidente fica e a contagem de meses abaixo do piso recomeça do zero.",
   };
 }

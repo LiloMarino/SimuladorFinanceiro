@@ -23,8 +23,10 @@ export function ImpeachmentRequestCard({ request }: ImpeachmentRequestCardProps)
         <AlertDescription>
           <span className="grid gap-2">
             <span>
-              O governo fechou meses seguidos abaixo do piso de aprovação. Para tirar {president}, {vote.needed} das 101
-              cadeiras precisam votar Sim. {outlookLabel(vote)}.
+              {request.party
+                ? `O ${request.party} pediu o impeachment com o governo abaixo do piso de aprovação.`
+                : "O governo fechou meses seguidos abaixo do piso de aprovação."}{" "}
+              Para tirar {president}, {vote.needed} das 101 cadeiras precisam votar Sim. {outlookLabel(vote)}.
             </span>
             <Button size="xs" variant="outline" className="justify-self-start" onClick={() => setOpen(true)}>
               Ver a votação

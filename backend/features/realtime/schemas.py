@@ -313,6 +313,8 @@ class GovernmentUpdateEventDTO(BaseDTO):
     # Nas federações: o nome dela e a sigla do outro partido (party_abbr é quem agiu)
     federation_name: str | None = None
     partner_abbr: str | None = None
+    # Nos pedidos de impeachment: a sigla do partido que pediu; nula quando o piso abriu o pedido
+    requested_by: str | None = None
 
 
 class StrategyUpdateEventDTO(BaseDTO):

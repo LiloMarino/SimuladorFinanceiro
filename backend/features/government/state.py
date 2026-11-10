@@ -429,6 +429,8 @@ class ImpeachmentRequest:
 
     opened: date
     vote_day: date
+    # O partido do jogador que abriu o pedido; nulo quando o fechamento do mês abriu sozinho
+    party_id: int | None = None
 
 
 @dataclass(frozen=True)
@@ -494,6 +496,8 @@ class GovernmentState:
     # A orientação de cada bancada em cada votação aberta: "measure:7" ou "impeachment"
     orientations: dict[str, dict[int, bool]] = field(default_factory=dict)
     request: ImpeachmentRequest | None = None
+    # Os partidos que já abriram um pedido neste mandato: cada um abre um só
+    requesters: set[int] = field(default_factory=set)
     impeachment_votes: list[ImpeachmentVote] = field(default_factory=list)
     # Os acordos de apoio por emenda, da proposta ao fim
     deals: dict[int, Deal] = field(default_factory=dict)
@@ -894,9 +898,12 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 VoterValue(_str(p, "value"))
             ] = bool(p["yes"])
         case Event.IMPEACHMENT_REQUESTED:
+            requester = _opt_int(p, "party_id")
             state.request = ImpeachmentRequest(
-                day, date.fromisoformat(_str(p, "vote_day"))
+                day, date.fromisoformat(_str(p, "vote_day")), requester
             )
+            if requester is not None:
+                state.requesters.add(requester)
         case Event.IMPEACHMENT_VOTED:
             _apply_impeachment_vote(state, event)
         case Event.DEAL_PROPOSED:
@@ -1051,6 +1058,7 @@ def _reset_government(state: GovernmentState, day: date) -> None:
     state.demand_armed = True
     state.selic_plan = None
     state.request = None
+    state.requesters = set()
     state.orientations.pop("impeachment", None)
     _cut_deals(state, day)
 
@@ -1639,6 +1647,22 @@ def _apply_impeachment_vote(state: GovernmentState, event: GovernmentEventDTO) -
     # Sem os votos para derrubar, a contagem de meses abaixo do piso recomeça do zero
     if not approved:
         state.low_streak = 0
+        _wear_requester(state, request)
+
+
+def _wear_requester(state: GovernmentState, request: ImpeachmentRequest | None) -> None:
+    """O pedido de jogador que a casa rejeita soma rejeição ao partido que pediu, nos grupos que ainda aprovam o presidente."""
+    requester = (
+        state.parties.get(request.party_id) if request and request.party_id else None
+    )
+    if requester is None:
+        return
+    reactions = house.impeachment_reactions(state.satisfaction)
+    for group, reaction in reactions.items():
+        if reaction < 0:
+            requester.rejection[group] = voters.add_rejection(
+                requester.rejection[group], voters.REJECTED_REQUEST_REJECTION
+            )
 
 
 def _move_bloc_profiles(state: GovernmentState, measure: Measure, day: date) -> None:

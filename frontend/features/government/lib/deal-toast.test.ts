@@ -33,6 +33,7 @@ const NOTICE: GovernmentNotice = {
   seats_before: 46,
   seats_after: 74,
   broken_by_ally: null,
+  requested_by: null,
 };
 
 describe("dealAnsweredToast", () => {

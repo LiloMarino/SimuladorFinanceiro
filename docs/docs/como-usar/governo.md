@@ -269,7 +269,13 @@ A **marca do governo** é a média das faixas das medidas aprovadas. Ex.: um par
 
 ### Impeachment
 
-Se a aprovação fechar **3 meses seguidos abaixo de 25%**, o presidente sofre impeachment. A partir do primeiro mês abaixo do piso o presidente recebe um aviso. Quem assume é o **vice**, se ainda estiver na partida, e governa até o fim do mandato; sem vice, assume o partido do computador com mais cadeiras na casa, que governa até o fim do mandato propondo medidas pelos grupos de eleitores dele. A carteira de quem saiu volta a operar.
+O impeachment começa com um **pedido**, que a casa vota no próximo dia de votação: **68 das 101 cadeiras** precisam votar Sim. O pedido abre sozinho quando a aprovação fecha **6 meses seguidos abaixo de 25%** (a partir do primeiro mês abaixo do piso o presidente recebe um aviso), e a contagem só vale depois dos 12 primeiros meses de mandato.
+
+O pedido também pode ser aberto antes, pelo **líder de um partido com pelo menos uma cadeira na casa**, que não seja o do presidente. Isso só vale enquanto a aprovação do presidente está abaixo de 25%, com um pedido aberto por vez e um pedido por partido em cada mandato. O pedido sai em manchete para a sala toda e em aviso ao presidente, com o partido que pediu. Os partidos da base do governo orientam a bancada a votar Não, e é isso que protege o presidente.
+
+O pedido tem custo: se a casa **rejeitar**, o partido de quem pediu ganha **5 pontos de rejeição** (a escala vai de 0 a 100 e tira apoio do partido) entre os grupos de eleitores que ainda aprovam o presidente. A tela do Congresso explica isso antes de confirmar.
+
+Com o pedido aprovado, o presidente sofre o impeachment. Quem assume é o **vice**, se ainda estiver na partida, e governa até o fim do mandato; sem vice, assume o partido do computador com mais cadeiras na casa, que governa até o fim do mandato propondo medidas pelos grupos de eleitores dele. A carteira de quem saiu volta a operar.
 
 ### A carteira do presidente
 

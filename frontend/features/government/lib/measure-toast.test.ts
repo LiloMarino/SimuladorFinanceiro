@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { GovernmentNotice } from "@/types";
-import { monthClosedToast } from "./measure-toast";
+import { impeachmentToast, monthClosedToast } from "./measure-toast";
 
 const EMPTY_NOTICE: GovernmentNotice = {
   kind: "UPDATED",
@@ -33,6 +33,7 @@ const EMPTY_NOTICE: GovernmentNotice = {
   seats_before: null,
   seats_after: null,
   broken_by_ally: null,
+  requested_by: null,
 };
 
 const notice = (partial: Partial<GovernmentNotice>): GovernmentNotice => ({
@@ -56,6 +57,29 @@ describe("monthClosedToast", () => {
     expect(toast.title).toBe("Mês fechado");
     expect(toast.description).toBe(
       "Aprovação 54% (▼ 3). Carteira e auxílio aprovaram: o apoio do PRL subiu neles. Aposentados reprovaram: a rejeição do PRL subiu.",
+    );
+  });
+});
+
+describe("impeachmentToast", () => {
+  it("nomeia o partido que abriu o pedido", () => {
+    const toast = impeachmentToast(
+      notice({ kind: "IMPEACHMENT_REQUESTED", requested_by: "PRL", effective: "2023-01-31" }),
+      68,
+    );
+    expect(toast.title).toBe("O PRL pediu o impeachment");
+  });
+
+  it("no pedido automático do fechamento não há partido a nomear", () => {
+    const toast = impeachmentToast(notice({ kind: "IMPEACHMENT_REQUESTED", effective: "2023-01-31" }), 68);
+    expect(toast.title).toBe("Pedido de impeachment aberto");
+  });
+
+  it("no pedido rejeitado, conta que o partido de quem pediu perde apoio", () => {
+    const toast = impeachmentToast(notice({ kind: "IMPEACHMENT_VOTED", requested_by: "PRL", yes: 60 }), 68);
+    expect(toast.title).toBe("Pedido rejeitado: 60 votos Sim, faltaram 8");
+    expect(toast.description).toBe(
+      "O presidente fica e o PRL perde apoio entre os eleitores que ainda aprovam o governo.",
     );
   });
 });

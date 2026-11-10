@@ -641,6 +641,8 @@ class ImpeachmentRequestDTO(BaseDTO):
     opened: date
     vote_day: date
     president: str | None
+    # A sigla do partido que pediu; nula quando o piso de aprovação abriu o pedido
+    party: str | None
     vote: VoteDTO
 
 
@@ -664,6 +666,10 @@ class CongressDTO(BaseDTO):
     history: list[PastVoteDTO]
     # Meses seguidos abaixo do piso e quantos faltam para abrir o pedido
     low_streak: int
+    # Quem vê é o líder de um partido que pode pedir o impeachment hoje; se é líder e não
+    # pode, `impeachment_block` diz por quê
+    can_request_impeachment: bool
+    impeachment_block: str | None
 
 
 # Base no Congresso

@@ -5623,6 +5623,46 @@
         ]
       }
     },
+    "/api/government/congress/impeachment": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Pedir o impeachment do presidente",
+        "description": "O líder do partido (o fundador; se ele sai, o filiado mais antigo) abre o pedido de impeachment; a casa vota no dia de votação do mês seguinte. Só abre contra o governo de um presidente jogador, com a aprovação abaixo do piso e depois da carência, para um partido com bancada que não seja o do presidente, e cada partido pede uma vez por mandato. Se a casa rejeitar, o partido que pediu ganha rejeição nos grupos que ainda aprovam o presidente. Recusa com 403 para quem não é líder e com 409 quando alguma dessas condições falha.",
+        "operationId": "request_impeachment_api_government_congress_impeachment_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/government/base": {
       "get": {
         "tags": [
@@ -15199,6 +15239,21 @@
           "low_streak": {
             "type": "integer",
             "title": "Low Streak"
+          },
+          "can_request_impeachment": {
+            "type": "boolean",
+            "title": "Can Request Impeachment"
+          },
+          "impeachment_block": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impeachment Block"
           }
         },
         "additionalProperties": false,
@@ -15208,7 +15263,9 @@
           "elected",
           "impeachment_request",
           "history",
-          "low_streak"
+          "low_streak",
+          "can_request_impeachment",
+          "impeachment_block"
         ],
         "title": "CongressDTO"
       },
@@ -19974,6 +20031,17 @@
               }
             ],
             "title": "Partner Abbr"
+          },
+          "requested_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested By"
           }
         },
         "additionalProperties": false,
@@ -20008,7 +20076,8 @@
           "seats_after",
           "broken_by_ally",
           "federation_name",
-          "partner_abbr"
+          "partner_abbr",
+          "requested_by"
         ],
         "title": "GovernmentUpdateEventDTO",
         "description": "A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve."
@@ -20687,6 +20756,17 @@
             ],
             "title": "President"
           },
+          "party": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party"
+          },
           "vote": {
             "$ref": "#/components/schemas/VoteDTO"
           }
@@ -20697,6 +20777,7 @@
           "opened",
           "vote_day",
           "president",
+          "party",
           "vote"
         ],
         "title": "ImpeachmentRequestDTO"

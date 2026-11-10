@@ -156,6 +156,9 @@ SUPPORT_MONTHLY_KEEP = Decimal("0.5") ** (Decimal(1) / 3)
 # Extinguir um programa com nome soma 5 pontos de rejeição ao partido do governo em cada
 # grupo que o programa atendia; o que cai com a verba sem zerá-la não soma nada
 PROGRAM_END_REJECTION = Decimal(5)
+# O pedido de impeachment de jogador que a casa rejeita soma 5 pontos de rejeição ao partido
+# que pediu, em cada grupo que ainda aprova o presidente
+REJECTED_REQUEST_REJECTION = Decimal(5)
 
 # O que cada tipo de medida avança ou recua nos valores, por passo de referência; o
 # passo no sentido contrário (subir o que a tabela corta) tem o efeito inverso

@@ -156,23 +156,41 @@ def runoff_called(finalists: list[tuple[str, Decimal]], runoff: date) -> Headlin
     )
 
 
-def impeachment_requested(president: str, abbr: str | None, vote_day: date) -> Headline:
+def impeachment_requested(
+    president: str, abbr: str | None, vote_day: date, requester: str | None = None
+) -> Headline:
+    """`requester` é a sigla do partido que pediu; nula quando o piso de aprovação abriu o pedido."""
     party = f" ({abbr})" if abbr else ""
+    title = (
+        f"O {requester} pede o impeachment de {president}{party}"
+        if requester
+        else f"Abre o pedido de impeachment de {president}{party}"
+    )
     return Headline(
         NewsType.ELECTION_RESULT,
-        f"Abre o pedido de impeachment de {president}{party}",
+        title,
         f"A casa vota em {vote_day.day:02d}/{vote_day.month:02d}/{vote_day.year}.",
     )
 
 
 def impeachment_rejected(
-    president: str, abbr: str | None, yes: int, no: int
+    president: str,
+    abbr: str | None,
+    yes: int,
+    no: int,
+    requester: str | None = None,
 ) -> Headline:
+    """`requester` é a sigla do partido que pediu e agora paga o desgaste."""
     party = f" ({abbr})" if abbr else ""
+    wear = (
+        f" O {requester} perde apoio entre os eleitores que ainda aprovam o presidente."
+        if requester
+        else ""
+    )
     return Headline(
         NewsType.ELECTION_RESULT,
         f"Casa rejeita o impeachment de {president}{party} por {no} a {yes}",
-        "A contagem de meses abaixo do piso recomeça do zero.",
+        f"A contagem de meses abaixo do piso recomeça do zero.{wear}",
     )
 
 

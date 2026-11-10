@@ -928,6 +928,41 @@ class GovernmentBook:
         )
         self._notice(GovernmentNoticeKind.UPDATED, user, party_abbr=party.abbr)
 
+    def request_impeachment(self, user: UserDTO, today: date) -> None:
+        """O líder de um partido com bancada abre o pedido de impeachment; a casa vota no dia de votação do mês seguinte."""
+        party = self._my_party(user)
+        if party.founder_id != user.id:
+            raise ForbiddenError("Só o líder do partido pede o impeachment.")
+        reason = self.impeachment_block(party, today)
+        if reason is not None:
+            raise ConflictError(reason)
+        self._request_impeachment(today, party)
+
+    def impeachment_block(self, party: Party, today: date) -> str | None:
+        """Por que o partido não pode pedir o impeachment hoje; nulo quando pode."""
+        term = self.state.term
+        if term is None or term.president_id is None:
+            return "Só o governo de um presidente jogador sofre pedido de impeachment."
+        # A aprovação de hoje fecha os meses vencidos, que podem abrir o pedido do piso
+        current = required(self.approval(today))
+        if self.state.request is not None:
+            return "Já há um pedido de impeachment aberto."
+        if term.party_id == party.id:
+            return "O partido do presidente não pede o impeachment do próprio governo."
+        if party.id in self.state.requesters:
+            return f"O {party.abbr} já pediu o impeachment neste mandato."
+        if approval_rules.in_grace(term, today.replace(day=1)):
+            return f"O piso de aprovação só vale a partir do {approval_rules.GRACE_MONTHS + 1}º mês de mandato."
+        if current.value >= approval_rules.FLOOR:
+            return (
+                f"A aprovação está em {current.value}%: o pedido só abre "
+                f"abaixo de {approval_rules.FLOOR}%."
+            )
+        bloc = self.state.house_on(today).of_party(party.id)
+        if bloc is None or bloc.seats == 0:
+            return "O partido não tem bancada na casa."
+        return None
+
     def set_guidance_rule(
         self, user: UserDTO, today: date, value: VoterValue, yes: bool
     ) -> None:
@@ -2989,13 +3024,17 @@ class GovernmentBook:
         self._vote(vote_day)
         return False
 
-    def _request_impeachment(self, today: date) -> None:
-        """O 6º fechamento seguido abaixo do piso abre o pedido; a casa vota no dia de votação do mês seguinte."""
+    def _request_impeachment(self, today: date, requester: Party | None = None) -> None:
+        """
+        O pedido abre no 6º fechamento seguido abaixo do piso (sem `requester`) ou pelo
+        líder de um partido; a casa vota no dia de votação do mês seguinte.
+        """
         vote_day = congress.next_vote_date(today + timedelta(days=1))
         self._emit(
             GovernmentEventType.IMPEACHMENT_REQUESTED,
             today,
             vote_day=vote_day.isoformat(),
+            party_id=requester.id if requester else None,
         )
         term = required(self.state.term)
         president = self.president()
@@ -3003,6 +3042,7 @@ class GovernmentBook:
             GovernmentNoticeKind.IMPEACHMENT_REQUESTED,
             president,
             party_abbr=self._party_abbr(term.party_id),
+            requested_by=requester.abbr if requester else None,
             effective=vote_day,
         )
         if president is not None:
@@ -3012,6 +3052,7 @@ class GovernmentBook:
                     president.nickname,
                     self._party_abbr(term.party_id),
                     vote_day,
+                    requester.abbr if requester else None,
                 ),
             )
 
@@ -3037,6 +3078,7 @@ class GovernmentBook:
         )
         term = required(self.state.term)
         president = self.president()
+        requested_by = self._party_abbr(request.party_id)
         self._notice(
             GovernmentNoticeKind.IMPEACHMENT_VOTED,
             president,
@@ -3045,6 +3087,7 @@ class GovernmentBook:
             yes=tally.yes,
             no=tally.no,
             defected=tally.defected,
+            requested_by=requested_by,
         )
         if approved:
             self._impeach(today, tally)
@@ -3056,6 +3099,7 @@ class GovernmentBook:
                     self._party_abbr(term.party_id),
                     tally.yes,
                     tally.no,
+                    requested_by,
                 ),
             )
         return approved
@@ -3986,6 +4030,7 @@ class GovernmentBook:
         broken_by_ally: bool | None = None,
         federation_name: str | None = None,
         partner_abbr: str | None = None,
+        requested_by: str | None = None,
     ) -> None:
         notify(
             "government_update",
@@ -4020,6 +4065,7 @@ class GovernmentBook:
                 broken_by_ally=broken_by_ally,
                 federation_name=federation_name,
                 partner_abbr=partner_abbr,
+                requested_by=requested_by,
             ).to_json(),
         )
 

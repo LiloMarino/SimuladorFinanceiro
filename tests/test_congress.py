@@ -10,7 +10,13 @@ from decimal import Decimal
 
 import pytest
 
-from backend.core.enum import MeasureStatus, PauseReason, PendingType, VoterValue
+from backend.core.enum import (
+    MeasureStatus,
+    PauseReason,
+    PendingType,
+    VoterGroup,
+    VoterValue,
+)
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     ForbiddenError,
@@ -22,10 +28,15 @@ from backend.features.government.government_book import GovernmentBook
 from backend.features.government.state import replay
 from tests.test_government_book import (
     ALICE,
+    BLUE,
     BOB,
     CAMPAIGN_OPEN,
+    CARLA,
+    FIRST_ROUND,
     FIRST_VOTE,
     RED,
+    RUNOFF,
+    SECTORS,
     TERM_START,
     USERS,
     bleak,
@@ -41,6 +52,7 @@ from tests.test_government_book import (
     office,
     party_of,
     propose,
+    run_campaign,
     settings,
     stored,
 )
@@ -420,3 +432,146 @@ def test_the_panel_shows_the_house_the_queue_vote_and_the_leaders_guide(
     closed = voted.queue[0].vote if voted.queue else None
     assert closed is None or closed.yes is not None
     assert voted.congress.history[0].yes + voted.congress.history[0].no == house.SEATS
+
+
+# Impeachment aberto por jogador
+
+# O 13º mês do mandato: a carência dos 12 primeiros já acabou
+AFTER_GRACE = date(2023, 1, 15)
+SECOND_VOTE = date(2023, 1, 31)
+
+
+def govern_against_bob(book: GovernmentBook, engine) -> None:
+    """Alice governa e Bob lidera o BBB, que senta na casa."""
+    engine.classification = SECTORS
+    found(book, ALICE, "AAA", RED)
+    found(book, BOB, "BBB", BLUE)
+    run_campaign(book)
+    book.on_tick(USERS, FIRST_ROUND, False)
+    book.on_tick(USERS, RUNOFF, False)
+    book.on_tick(USERS, TERM_START, False)
+    assert book.state.term is not None and book.state.term.president_id == ALICE.id
+    bob_bloc = book.state.house_on(TERM_START).of_party(party_of(book, BOB).id)
+    assert bob_bloc is not None and bob_bloc.seats > 0
+
+
+def test_a_leader_with_seats_opens_the_request_while_the_approval_is_below_the_floor(
+    book: GovernmentBook, engine, market, bleak, notices, headlines
+):
+    govern_against_bob(book, engine)
+    close_months(book, 12)
+    bbb = party_of(book, BOB)
+
+    assert book.impeachment_block(bbb, AFTER_GRACE) is None
+    book.request_impeachment(BOB, AFTER_GRACE)
+
+    request = book.state.request
+    assert request is not None
+    assert (request.party_id, request.vote_day) == (bbb.id, SECOND_VOTE)
+    assert book.state.requesters == {bbb.id}
+    asked = [n for n in notices if n["kind"] == "IMPEACHMENT_REQUESTED"]
+    assert asked[-1]["requested_by"] == "BBB"
+    assert "BBB" in headlines[-1][1].text
+
+
+def test_the_request_is_refused_outside_the_rules(
+    book: GovernmentBook, engine, market, bleak
+):
+    govern_against_bob(book, engine)
+    bbb = party_of(book, BOB)
+    book.join_party(CARLA, CAMPAIGN_OPEN, bbb.id, Decimal(0))
+
+    # O governo ainda está na carência
+    with pytest.raises(ConflictError, match="piso de aprovação só vale"):
+        book.request_impeachment(BOB, date(2022, 6, 15))
+
+    close_months(book, 12)
+    with pytest.raises(ForbiddenError, match="líder"):
+        book.request_impeachment(CARLA, AFTER_GRACE)
+    with pytest.raises(ConflictError, match="próprio governo"):
+        book.request_impeachment(ALICE, AFTER_GRACE)
+
+    book.request_impeachment(BOB, AFTER_GRACE)
+    with pytest.raises(ConflictError, match="Já há um pedido"):
+        book.request_impeachment(BOB, AFTER_GRACE)
+
+
+def test_the_request_is_refused_while_the_approval_is_above_the_floor(
+    book: GovernmentBook, engine, market
+):
+    govern_against_bob(book, engine)
+    close_months(book, 12)
+
+    with pytest.raises(ConflictError, match="só abre abaixo de"):
+        book.request_impeachment(BOB, AFTER_GRACE)
+
+
+def test_a_rejected_request_wears_the_requester_where_voters_still_approve_and_blocks_a_second(
+    book: GovernmentBook, engine, market, bleak, monkeypatch
+):
+    govern_against_bob(book, engine)
+    votes_say(monkeypatch, house.IMPEACHMENT_VOTES - 1)
+    close_months(book, 12)
+    bbb = party_of(book, BOB)
+    book.request_impeachment(BOB, AFTER_GRACE)
+    before = dict(bbb.rejection)
+
+    # Na véspera da apuração dois grupos ainda aprovam o presidente; os outros estão abaixo do piso
+    book.on_tick(USERS, SECOND_VOTE, False)
+    pleased = {VoterGroup.INVESTORS, VoterGroup.WELFARE}
+    for group in VoterGroup:
+        book.state.satisfaction[group] = Decimal(60 if group in pleased else 10)
+    book.on_tick(USERS, SECOND_VOTE + timedelta(days=1), False)
+
+    assert book.state.impeachment_votes[-1].approved is False
+    for group in VoterGroup:
+        delta = bbb.rejection[group] - before[group]
+        assert delta == (5 if group in pleased else 0)
+    # O partido já usou o pedido do mandato
+    assert book.state.requesters == {bbb.id}
+    with pytest.raises(ConflictError, match="já pediu"):
+        book.request_impeachment(BOB, date(2023, 2, 15))
+
+
+def test_an_approved_request_removes_the_president_without_wearing_the_requester(
+    book: GovernmentBook, engine, market, bleak, monkeypatch
+):
+    govern_against_bob(book, engine)
+    votes_say(monkeypatch, house.IMPEACHMENT_VOTES)
+    close_months(book, 12)
+    bbb = party_of(book, BOB)
+    book.request_impeachment(BOB, AFTER_GRACE)
+    before = dict(bbb.rejection)
+
+    assert hold_vote_day(book, SECOND_VOTE) == PauseReason.IMPEACHMENT
+
+    assert book.state.impeachments
+    assert bbb.rejection == before
+    # O governo novo começa com os pedidos livres
+    assert book.state.requesters == set()
+
+
+def test_the_floor_request_opens_without_a_requester(
+    book: GovernmentBook, engine, market, bleak
+):
+    govern(book, engine)
+
+    close_months(book, 18)
+
+    request = book.state.request
+    assert request is not None and request.party_id is None
+    assert book.state.requesters == set()
+
+
+def test_a_resumed_game_rebuilds_the_requesters_and_the_wear(
+    book: GovernmentBook, engine, market, bleak, stored, monkeypatch
+):
+    govern_against_bob(book, engine)
+    votes_say(monkeypatch, house.IMPEACHMENT_VOTES - 1)
+    close_months(book, 12)
+    book.request_impeachment(BOB, AFTER_GRACE)
+
+    rebuilt = replay(stored)
+
+    assert rebuilt.request == book.state.request
+    assert rebuilt.requesters == book.state.requesters
