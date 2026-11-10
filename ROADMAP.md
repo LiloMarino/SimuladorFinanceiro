@@ -51,7 +51,7 @@
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93), [F226](#f226), [F254](#f254) | — | — | — |
 | **N32** | — | Saber como foi o mês sem montar a conta | — | — | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F250](#f250), [F251](#f251), [F253](#f253), [F254](#f254), [F255](#f255), [F256](#f256), [F257](#f257), [F258](#f258), [F259](#f259), [F260](#f260), [F261](#f261) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F250](#f250), [F251](#f251), [F253](#f253), [F254](#f254), [F255](#f255), [F256](#f256), [F257](#f257), [F258](#f258), [F259](#f259), [F260](#f260), [F261](#f261), [F262](#f262) | — | — | — |
 | **N35** | — | Tirar da lista as partidas que não interessam mais | — | — | — | — | — |
 | **N36** | — | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — | — | — | — |
 | **N37** | — | Comprar bitcoin do jeito que dá na vida real, em frações | — | — | — | — | — |
@@ -101,6 +101,7 @@
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
+| [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | — | — | — | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (35 itens — clique pra expandir)</strong></summary>
@@ -273,6 +274,14 @@
 | 11 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | [F44](#f44) | ⏳ Pendente |
 | 12 | [**F141**](#f141) | Docs | README com as features de hoje | [F139](#f139) | ⏳ Pendente |
 
+### Sem versão
+
+> Os itens ⏳ e 🔍 que ainda não entraram em nenhuma versão, do que mais destrava trabalho para o que menos ("Destrava" é quantos itens em aberto esperam por aquele). É daqui que sai a próxima versão; os 💤 ficam só no kanban.
+
+| ID | Tipo | Resumo | Serve | Depende de | Destrava | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | N34 | — | 0 | 🔍 Em avaliação |
+
 ---
 
 ## 🚦 Livre pra pegar
@@ -306,6 +315,7 @@
 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 · 6º | 0 | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 · 7º | 0 | — | — | 🔍 |
 | [**F37**](#f37) | Feature | Tema escuro | M28 · 4.6 · 10º | 0 | Médio | Médio | ⏳ |
+| [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | — | 0 | — | — | 🔍 |
 
 ---
 
@@ -438,6 +448,7 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M24 · 4.3 | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Quais das três regras entram, se contam no placar e nas conquistas, se o laboratório mostra o coeficiente e o valor da credibilidade inicial desacreditada |
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Quanto do capital o governo mantém, quais ativos importados contam como estatal e como a estatal gera PIB e receita dentro da D20. |
+| **F262** | Feature | Pedido de impeachment aberto por jogador | N34 | — | — | — | Quem pode pedir (qualquer líder com bancada ou só a oposição), se o pedido exige aprovação baixa e qual o custo de um pedido rejeitado |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -518,6 +529,9 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 **Por que depois das Gestoras:** a estatal é um ativo que os jogadores negociam, e fundar e privatizar reaproveitam o que a expansão Gestoras (F44) constrói: um ativo que nasce no meio da partida, com o preço feito por um formador de mercado sintético em volta do valor justo, e a oferta pública, que é a privatização. Os dividendos ao Tesouro seguem o molde dos rendimentos da gestora (F105). Segurar preço age também nas estatais que já estão entre os ativos importados, como camada sobre o preço histórico, no molde do dólar sobre os ativos de fora (F194).
 
 **Falta:** quanto do capital o governo mantém na fundação e na privatização (o controle com metade mais uma ação, como na Petrobras e no Banco do Brasil, ou a venda inteira); quais ativos importados contam como estatal; e como a estatal gera PIB e receita dentro da D20, como mais uma parcela do desvio. O tamanho dos efeitos sai da calibragem pelo CLI, com Aceite.
+
+<a id="f262"></a>
+**F262 — Pedido de impeachment aberto por jogador.** Serve N34. Origem: conversa de 09/11 depois da orientação da bancada. Hoje o pedido só abre sozinho, no 6º fechamento seguido abaixo do piso de aprovação (`_request_impeachment`, chamado só pelo fechamento do mês), e os jogadores participam apenas orientando a bancada na votação. A ideia: o líder de um partido com bancada na casa pode abrir o pedido, e a oposição deixa de só esperar o governo cair sozinho. Freios propostos: só abre com a aprovação abaixo de um limite (o piso ou perto dele); um pedido por mandato por partido, ou intervalo mínimo depois de um rejeitado; o pedido rejeitado desgasta quem pediu, com os eleitores do presidente reagindo contra o partido. O acordo de apoio ganha peso, porque a bancada na base orienta Não e protege o presidente. Pedido aberto por jogador sai em manchete para a sala toda e em aviso ao presidente. **A decidir:** quem pode pedir (qualquer líder com bancada ou só a oposição, com um mínimo de cadeiras), se o pedido exige aprovação baixa e o custo do pedido rejeitado.
 
 ---
 
