@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-08):** Definidos os cards da 4.1, com as estatais na 4.2 e as cadeiras por região fora de versão; os itens sem prioridade dentro de versões viraram pendentes.
+> **Última mudança (2026-11-10):** Definido o pedido de impeachment aberto por jogador e colocado na 4.1.
 
 ## Glossário
 
@@ -101,7 +101,7 @@
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
-| [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | — | — | — | — | 🔍 |
+| [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | M26 · 4.1 | — | Médio | Bom | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (35 itens — clique pra expandir)</strong></summary>
@@ -158,7 +158,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 15/15 concluídos
+> **Progresso:** 15/16 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -177,6 +177,7 @@
 | 13 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | — | ✅ Concluído |
 | 14 | [**F261**](#f261) | Feature | Profissão no viver de renda | — | ✅ Concluído |
 | 15 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | ✅ Concluído |
+| 16 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | — | ⏳ Pendente |
 
 ### 4.2 — Expansão Gestoras (M18)
 
@@ -274,14 +275,6 @@
 | 11 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | [F44](#f44) | ⏳ Pendente |
 | 12 | [**F141**](#f141) | Docs | README com as features de hoje | [F139](#f139) | ⏳ Pendente |
 
-### Sem versão
-
-> Os itens ⏳ e 🔍 que ainda não entraram em nenhuma versão, do que mais destrava trabalho para o que menos ("Destrava" é quantos itens em aberto esperam por aquele). É daqui que sai a próxima versão; os 💤 ficam só no kanban.
-
-| ID | Tipo | Resumo | Serve | Depende de | Destrava | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | N34 | — | 0 | 🔍 Em avaliação |
-
 ---
 
 ## 🚦 Livre pra pegar
@@ -290,6 +283,7 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | M26 · 4.1 · 16º | 0 | Médio | Bom | ⏳ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
@@ -315,7 +309,6 @@
 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 · 6º | 0 | — | — | 🔍 |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 · 7º | 0 | — | — | 🔍 |
 | [**F37**](#f37) | Feature | Tema escuro | M28 · 4.6 · 10º | 0 | Médio | Médio | ⏳ |
-| [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | — | 0 | — | — | 🔍 |
 
 ---
 
@@ -344,6 +337,7 @@
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
+| **F262** | Feature | Pedido de impeachment aberto por jogador | N34 | — | M26 · 4.1 | — | Médio | Baixo | Médio | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -422,6 +416,9 @@
 
 Cada um desses módulos é movido para a feature que o consome ou passa a receber a dependência por injeção (o `core` define o protocolo, a feature implementa). Por fora nada muda; confere-se com `uv run pyright`, `uv run pytest -n 4` e um `grep "features" backend/core` vazio. Sem decisão de fazer agora.
 
+<a id="f262"></a>
+**F262 — Pedido de impeachment aberto por jogador.** Serve N34. Hoje o pedido só abre sozinho, no 6º fechamento seguido abaixo do piso de aprovação, e os jogadores participam apenas orientando a bancada na votação. O líder de um partido com pelo menos uma cadeira na casa, fora o do partido do presidente, pode abrir o pedido enquanto a aprovação do governo de um presidente jogador está abaixo do piso e fora da carência dos 12 primeiros meses. Cada partido pede uma vez por mandato, e só há um pedido aberto por vez. O pedido rejeitado soma 5 pontos de rejeição ao partido de quem pediu, nos grupos de eleitores que ainda aprovam o presidente; o número sai da calibragem pelo CLI. O pedido aberto por jogador sai em manchete para a sala toda e em aviso ao presidente, com o partido que pediu, e a tela do Congresso mostra o botão com o custo explicado antes de confirmar. O acordo de apoio ganha peso sem código novo: a bancada na base orienta Não e protege o presidente.
+
 ---
 
 ## 🔍 Em avaliação
@@ -448,7 +445,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M24 · 4.3 | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Quais das três regras entram, se contam no placar e nas conquistas, se o laboratório mostra o coeficiente e o valor da credibilidade inicial desacreditada |
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Quanto do capital o governo mantém, quais ativos importados contam como estatal e como a estatal gera PIB e receita dentro da D20. |
-| **F262** | Feature | Pedido de impeachment aberto por jogador | N34 | — | — | — | Quem pode pedir (qualquer líder com bancada ou só a oposição), se o pedido exige aprovação baixa e qual o custo de um pedido rejeitado |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -529,9 +525,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 **Por que depois das Gestoras:** a estatal é um ativo que os jogadores negociam, e fundar e privatizar reaproveitam o que a expansão Gestoras (F44) constrói: um ativo que nasce no meio da partida, com o preço feito por um formador de mercado sintético em volta do valor justo, e a oferta pública, que é a privatização. Os dividendos ao Tesouro seguem o molde dos rendimentos da gestora (F105). Segurar preço age também nas estatais que já estão entre os ativos importados, como camada sobre o preço histórico, no molde do dólar sobre os ativos de fora (F194).
 
 **Falta:** quanto do capital o governo mantém na fundação e na privatização (o controle com metade mais uma ação, como na Petrobras e no Banco do Brasil, ou a venda inteira); quais ativos importados contam como estatal; e como a estatal gera PIB e receita dentro da D20, como mais uma parcela do desvio. O tamanho dos efeitos sai da calibragem pelo CLI, com Aceite.
-
-<a id="f262"></a>
-**F262 — Pedido de impeachment aberto por jogador.** Serve N34. Origem: conversa de 09/11 depois da orientação da bancada. Hoje o pedido só abre sozinho, no 6º fechamento seguido abaixo do piso de aprovação (`_request_impeachment`, chamado só pelo fechamento do mês), e os jogadores participam apenas orientando a bancada na votação. A ideia: o líder de um partido com bancada na casa pode abrir o pedido, e a oposição deixa de só esperar o governo cair sozinho. Freios propostos: só abre com a aprovação abaixo de um limite (o piso ou perto dele); um pedido por mandato por partido, ou intervalo mínimo depois de um rejeitado; o pedido rejeitado desgasta quem pediu, com os eleitores do presidente reagindo contra o partido. O acordo de apoio ganha peso, porque a bancada na base orienta Não e protege o presidente. Pedido aberto por jogador sai em manchete para a sala toda e em aviso ao presidente. **A decidir:** quem pode pedir (qualquer líder com bancada ou só a oposição, com um mínimo de cadeiras), se o pedido exige aprovação baixa e o custo do pedido rejeitado.
 
 ---
 
