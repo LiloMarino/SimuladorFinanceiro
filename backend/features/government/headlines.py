@@ -250,6 +250,18 @@ def term_started(president: str, abbr: str | None, term_end: date | None) -> Hea
     )
 
 
+def legacy_paid(
+    president: str, abbr: str | None, amount: Decimal, average_approval: int
+) -> Headline:
+    """O presidente deixa o cargo ao fim do mandato e recebe o legado que a aprovação rendeu."""
+    return Headline(
+        NewsType.TERM_STARTED,
+        f"{president} deixa o governo com legado de {format_money(amount)}",
+        f"Aprovação média de {average_approval}% durante o mandato.",
+        party_abbrs=_abbrs(abbr),
+    )
+
+
 def house_seated(
     leader: tuple[str, int],
     seats: int,

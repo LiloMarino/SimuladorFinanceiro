@@ -15,6 +15,11 @@ from backend.features.variable_income.entities.position import Position
 USER_ID = 1
 
 
+def no_pay(*_) -> Decimal:
+    """A conversão de salários em reais de uma partida sem salário: nada vale reais."""
+    return Decimal(0)
+
+
 def daily_series(start: date, end: date, value: str) -> dict[date, Decimal]:
     """Série diária constante (CDI/SELIC): um valor por dia útil de `start` a `end`."""
     day = start if is_business_day(start) else next_business_day(start)

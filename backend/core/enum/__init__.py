@@ -75,6 +75,7 @@ class CashflowEventType(Enum):
     CAMPAIGN_CONTRIBUTION = "CAMPAIGN_CONTRIBUTION"
     CAMPAIGN_DONATION = "CAMPAIGN_DONATION"
     CAMPAIGN_ACTION = "CAMPAIGN_ACTION"
+    PRESIDENT_LEGACY = "PRESIDENT_LEGACY"
 
     @property
     def sign(self) -> int:
@@ -102,14 +103,16 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.CAMPAIGN_CONTRIBUTION: -1,
     CashflowEventType.CAMPAIGN_DONATION: -1,
     CashflowEventType.CAMPAIGN_ACTION: -1,
+    CashflowEventType.PRESIDENT_LEGACY: 1,
 }
 
-# Aporte, salário, despesa e imprevisto são o dinheiro da vida do jogador; o juro
-# do cheque especial é perda dele, como o IR
+# Aporte, salário, legado do presidente, despesa e imprevisto são o dinheiro da vida
+# do jogador; o juro do cheque especial é perda dele, como o IR
 CONTRIBUTION_TYPES = frozenset(
     {
         CashflowEventType.CONTRIBUTION,
         CashflowEventType.SALARY,
+        CashflowEventType.PRESIDENT_LEGACY,
         CashflowEventType.EXPENSE,
         CashflowEventType.UNEXPECTED_EXPENSE,
     }

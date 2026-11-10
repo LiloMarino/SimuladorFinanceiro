@@ -351,7 +351,14 @@ def test_a_resumed_game_rebuilds_the_programs_and_old_events_have_none(
         ALICE, effective + timedelta(days=30), AUX, Decimal("0.02"), None, None, BRAZIL
     )
 
-    resumed = GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
+    resumed = GovernmentBook(
+        settings(),
+        engine,
+        lambda *_: None,
+        lambda *_: Decimal(0),
+        lambda *_: None,
+        SEED,
+    )
 
     assert resumed.spending_timeline().latest_name(AUX) == FAMILY
     assert resumed.state.measures[1].name == FAMILY
@@ -362,7 +369,14 @@ def test_a_resumed_game_rebuilds_the_programs_and_old_events_have_none(
     proposed = next(e for e in stored if e.payload.get("measure_id") == 1)
     proposed.payload.pop("name", None)
     proposed.payload.pop("renamed_from", None)
-    legacy = GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
+    legacy = GovernmentBook(
+        settings(),
+        engine,
+        lambda *_: None,
+        lambda *_: Decimal(0),
+        lambda *_: None,
+        SEED,
+    )
     assert legacy.state.measures[1].name is None
     assert legacy.spending_timeline().latest_name(AUX) is None
 

@@ -68,6 +68,7 @@ from backend.features.government import (
     federations,
     headlines,
     house,
+    presidency,
     promises,
     second_round,
     spending,
@@ -138,12 +139,15 @@ class GovernmentBook:
         settings: SimulationDTO,
         engine: SimulationEngine,
         on_office: Callable[[UserDTO, date], None],
+        on_legacy: Callable[[UserDTO, Decimal], Decimal],
         on_news: Callable[[date, Headline], None],
         random_seed: int,
         macro: MacroCourse | None = None,
     ):
         """
         `on_office` roda na posse de cada presidente jogador: a carteira dele congela.
+        `on_legacy` roda quando o mandato do jogador acaba na posse do sucessor: recebe o
+        legado em salários, o credita ao ex-presidente e devolve o valor pago em reais.
         `on_news` publica no jornal da partida a manchete de cada fato político.
         `macro` é o crescimento e o desemprego do país, que o orçamento e a aprovação leem.
         A economia interligada fecha os meses: quem lê o país ou o orçamento num dia passa
@@ -152,6 +156,7 @@ class GovernmentBook:
         self._settings = settings
         self._engine = engine
         self._on_office = on_office
+        self._on_legacy = on_legacy
         self._on_news = on_news
         self._seed = random_seed
         self._first_election = required(settings.first_election)
@@ -3847,6 +3852,9 @@ class GovernmentBook:
 
     def _start_term(self, today: date, people: dict[int, UserDTO]) -> None:
         pending = required(self.state.pending_term)
+        # O legado é pago com a aprovação e o presidente do mandato que acaba: a posse
+        # seguinte zera as duas
+        self._pay_legacy(today)
         self._emit(
             GovernmentEventType.TERM_STARTED,
             today,
@@ -3876,6 +3884,27 @@ class GovernmentBook:
                 ),
             )
         self._announce_house_seated(today, party)
+
+    def _pay_legacy(self, today: date) -> None:
+        """O mandato que acaba em fim normal paga ao presidente o legado dos meses fechados; o impeachment não paga."""
+        out = self.president()
+        approvals = self.state.approvals
+        salaries = presidency.legacy_salaries(approvals)
+        if out is None or salaries <= 0:
+            return
+        amount = self._on_legacy(out, salaries)
+        if amount <= 0:
+            return
+        term = required(self.state.term)
+        self._on_news(
+            today,
+            headlines.legacy_paid(
+                out.nickname,
+                self._party_abbr(term.party_id),
+                amount,
+                presidency.average_approval(approvals),
+            ),
+        )
 
     def _announce_house_seated(self, today: date, government: Party | None) -> None:
         """O Congresso eleito toma posse com o governo: a manchete diz quem tem a maior bancada e quanto o governo tem."""

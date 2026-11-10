@@ -15,6 +15,7 @@ import { ImpeachmentAlert } from "../components/impeachment-alert";
 import { CongressTab } from "../components/congress-tab";
 import { BeforeFirstTerm } from "../components/government-states";
 import { NewMeasureDialog } from "../components/new-measure-dialog";
+import { PresidencyPayCard } from "../components/presidency-pay-card";
 import { TermPromisesCard } from "../components/term-promises-card";
 import { unguidedCount } from "../lib/house";
 
@@ -86,11 +87,12 @@ function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
           </TabsTrigger>
         </TabsList>
 
-        {/* Aprovação, promessas da chapa e carteira do presidente */}
+        {/* Aprovação, promessas da chapa, pagamento do cargo e carteira do presidente */}
         <TabsContent value="mandate">
           <div className="grid gap-5 pt-3">
             <ApprovalCard panel={panel} />
             {panel.promises && <TermPromisesCard promises={panel.promises} termEnd={panel.term_end} />}
+            {panel.presidency && <PresidencyPayCard presidency={panel.presidency} />}
             <FrozenPortfolioCard panel={panel} />
           </div>
         </TabsContent>

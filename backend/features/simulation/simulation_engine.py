@@ -303,6 +303,10 @@ class SimulationEngine:
     def pay_salary(self, client_id: UUID, amount: Decimal) -> None:
         self._move_cash(client_id, amount, CashflowEventType.SALARY)
 
+    def pay_legacy(self, client_id: UUID, amount: Decimal) -> None:
+        """Credita o legado do presidente que deixou o cargo ao fim do mandato."""
+        self._move_cash(client_id, amount, CashflowEventType.PRESIDENT_LEGACY)
+
     def pay_expense(self, client_id: UUID, amount: Decimal) -> None:
         """Debita a despesa do mês, vendendo renda fixa antes se o caixa não cobre; o que faltar cai no cheque especial."""
         self.cover_before_debit(client_id, amount, CashflowEventType.EXPENSE)

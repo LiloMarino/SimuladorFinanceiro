@@ -159,6 +159,7 @@ from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
 from backend.features.fixed_income.liquidity import total_redeemable
+from backend.features.government import presidency
 from backend.features.government.base_panel import build_base
 from backend.features.government.base_panel import (
     build_preview as build_deal_preview,
@@ -340,6 +341,7 @@ class Simulation:
                 settings,
                 self._engine,
                 self._take_office,
+                self._pay_legacy,
                 lambda day, headline: news.publish(settings.id, day, headline),
                 random_seed,
                 self._macro,
@@ -771,6 +773,7 @@ class Simulation:
             repository.simulation_player.participants(self.settings.id),
             user,
             self._current_date,
+            self._presidential_pay,
         )
 
     @synchronized
@@ -844,6 +847,28 @@ class Simulation:
             day,
             reason="Você assumiu a presidência: a carteira fica congelada",
         )
+
+    def _presidential_pay(self, user: UserDTO, multiple: Decimal, day: date) -> Decimal:
+        """O que `multiple` salários do host valem em reais líquidos para `user` no dia; sem o viver de renda não há salário."""
+        if self._life is None:
+            return Decimal(0)
+        budget = self._life.for_profession(self._profession_of(user.id))
+        return budget.as_president(multiple).net_salary_on(day)
+
+    def _pay_legacy(self, president: UserDTO, salaries: Decimal) -> Decimal:
+        """Credita ao ex-presidente o legado do mandato e devolve o valor pago em reais."""
+        amount = self._presidential_pay(president, salaries, self._current_date)
+        if amount > 0:
+            self._engine.pay_legacy(president.client_id, amount)
+        return amount
+
+    def _life_budget(self, life: LifeBudget, user_id: int) -> LifeBudget:
+        """O orçamento do jogador no dia: o da profissão dele ou, no cargo de presidente, o do salário da presidência."""
+        budget = life.for_profession(self._profession_of(user_id))
+        president = self._government.president() if self._government else None
+        if president is not None and president.id == user_id:
+            return budget.as_president(presidency.SALARY_MULTIPLE)
+        return budget
 
     def _ensure_government(self) -> GovernmentBook:
         if self._government is None:
@@ -1406,10 +1431,7 @@ class Simulation:
         """
         day = self._current_date
         per_year = self.settings.unexpected_per_year
-        budgets = {
-            user.client_id: life.for_profession(self._profession_of(user.id))
-            for user in users
-        }
+        budgets = {user.client_id: self._life_budget(life, user.id) for user in users}
         if month_changed:
             skipped = salary_skipped(
                 self._random_seed,
@@ -1530,9 +1552,7 @@ class Simulation:
         day = self._current_date
         seed, per_year = self._random_seed, self.settings.unexpected_per_year
         start = self.settings.start_date
-        budget = self._life.for_profession(
-            self._profession_of(UserManager.get_user_id(client_id))
-        )
+        budget = self._life_budget(self._life, UserManager.get_user_id(client_id))
         loss = budget.income_loss()
         expense = budget.expense_on(day)
         cash = self.get_cash(client_id)

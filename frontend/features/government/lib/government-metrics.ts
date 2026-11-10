@@ -3,6 +3,7 @@ import { signedIpca } from "@/shared/lib/effects";
 import { displayPoints } from "@/shared/lib/budget-metrics";
 import { displayPercent } from "@/shared/lib/utils/display";
 import type { GeneralKind } from "./government";
+import { salariesLabel } from "./presidency";
 
 export const APPROVAL: MetricInfo = {
   label: "Aprovação",
@@ -328,4 +329,26 @@ export const CREDIBILITY: MetricInfo = {
   reading:
     "100 é a confiança toda, e copiar a SELIC da história a mantém. Abaixo de 80 já custa prêmio e inflação; recuperar é lento, 3 pontos por reunião.",
   format: (value) => `${Math.round(Number(value))} de 100`,
+};
+
+export const PRESIDENT_SALARY: MetricInfo = {
+  label: "Salário",
+  description: "O que o cargo paga por mês, no lugar da renda da sua profissão",
+  definition:
+    "Enquanto governa, o presidente recebe 3 vezes o salário da partida por mês, no lugar da renda da profissão. O sorteio de salário não pago não vale no cargo, e as despesas continuam as mesmas. O pagamento acaba quando o sucessor toma posse.",
+  example: "Ex.: com salário de R$ 8.000 na partida, o cargo paga 3 × R$ 8.000 = R$ 24.000 por mês.",
+  reading:
+    "Quanto maior o salário da partida, maior o ganho do cargo. Com salário zero na partida, o cargo também paga zero.",
+  format: (value) => `${value}`,
+};
+
+export const LEGACY: MetricInfo = {
+  label: "Legado acumulado",
+  description: "O que o governo já rendeu para você levar ao deixar o cargo",
+  definition:
+    "Cada mês fechado do governo soma 0,05 salário por ponto de aprovação acima de 40. O total é pago em dinheiro, pelo salário da partida do dia, quando o mandato termina normalmente, inclusive o primeiro mandato de quem se reelege. O impeachment perde tudo.",
+  example: "Ex.: com salário de R$ 8.000 e aprovação 60, o mês soma (60 − 40) × 5% = 1 salário, R$ 8.000.",
+  reading:
+    "Aprovação 60 soma 1 salário por mês, 80 soma 2 e 40 ou menos soma 0. Em 48 meses com aprovação 60, o legado chega a 48 salários. Sustentar a aprovação até o fim do mandato é o que paga.",
+  format: (value) => salariesLabel(value),
 };

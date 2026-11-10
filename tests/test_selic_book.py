@@ -56,6 +56,7 @@ def selic_book(
         rules,
         engine,
         lambda user, _day: office.append(user.id),
+        lambda *_: Decimal(0),
         lambda day, headline: headlines.append((day, headline)),
         SEED,
     )

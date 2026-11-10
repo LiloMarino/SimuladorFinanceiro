@@ -36,6 +36,7 @@ from backend.features.government import (
 )
 from backend.features.government.governance import build_governance
 from backend.features.government.government_book import GovernmentBook
+from tests.fakes import no_pay
 from tests.test_government_book import (
     ALICE,
     CAMPAIGN_OPEN,
@@ -261,7 +262,14 @@ def test_a_resumed_game_rebuilds_the_same_effects_from_the_events(
     effective = approve_first(book, monkeypatch)
     later = effective + timedelta(days=400)
 
-    resumed = GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
+    resumed = GovernmentBook(
+        settings(),
+        engine,
+        lambda *_: None,
+        lambda *_: Decimal(0),
+        lambda *_: None,
+        SEED,
+    )
 
     assert resumed.economy().effects == book.economy().effects
     assert len(resumed.economy().effects) == 2
@@ -475,7 +483,7 @@ def test_the_tax_card_keeps_only_taxes_and_the_spending_card_has_the_four_measur
     govern(book, engine)
     propose(book, AUX, "0.02")
 
-    panel = build_governance(book, engine, USERS, ALICE, TERM_START)
+    panel = build_governance(book, engine, USERS, ALICE, TERM_START, no_pay)
 
     assert not any(row.kind.is_spending for row in panel.taxes)
     assert [row.kind for row in panel.spending.rows] == list(spending.KINDS)
@@ -495,7 +503,7 @@ def test_each_tax_row_carries_the_default_value_and_the_revenue(
 ):
     govern(book, engine)
 
-    panel = build_governance(book, engine, USERS, ALICE, TERM_START)
+    panel = build_governance(book, engine, USERS, ALICE, TERM_START, no_pay)
 
     rows = {row.kind: row for row in panel.taxes}
     # Sem medida aprovada, o que vale hoje é o padrão e nada difere dele
@@ -517,7 +525,7 @@ def test_the_queue_shows_the_inflation_and_the_result_of_each_measure(
     propose(book, AUX, "0.02")
     propose(book, WORKS, "0.002")
 
-    panel = build_governance(book, engine, USERS, ALICE, TERM_START)
+    panel = build_governance(book, engine, USERS, ALICE, TERM_START, no_pay)
 
     by_kind = {m.kind: m for m in panel.queue}
     assert by_kind[AUX].inflation_effect == Decimal("0.25")
@@ -535,7 +543,7 @@ def test_the_card_shows_the_effect_of_an_approved_measure_after_it_binds(
     effective = approve_first(book, monkeypatch)
     day = effective + timedelta(days=100)
 
-    panel = build_governance(book, engine, USERS, ALICE, day)
+    panel = build_governance(book, engine, USERS, ALICE, day, no_pay)
 
     aid = next(row for row in panel.spending.rows if row.kind is AUX)
     assert aid.value == Decimal("0.02")

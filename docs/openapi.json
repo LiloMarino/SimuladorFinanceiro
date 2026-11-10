@@ -19634,6 +19634,16 @@
               }
             ]
           },
+          "presidency": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PresidencyDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "sectors": {
             "items": {
               "$ref": "#/components/schemas/SectorOptionDTO"
@@ -19695,6 +19705,7 @@
           "queue_budget",
           "next_vote",
           "portfolio",
+          "presidency",
           "sectors",
           "last_impeachment",
           "vigence_days",
@@ -27862,6 +27873,51 @@
         ],
         "title": "PresetRuleGroup",
         "description": "As regras de um preset agrupadas como o painel as mostra."
+      },
+      "PresidencyDTO": {
+        "properties": {
+          "monthly_salary": {
+            "type": "string",
+            "title": "Monthly Salary"
+          },
+          "salary_multiple": {
+            "type": "string",
+            "title": "Salary Multiple"
+          },
+          "legacy_salaries": {
+            "type": "string",
+            "title": "Legacy Salaries"
+          },
+          "legacy_amount": {
+            "type": "string",
+            "title": "Legacy Amount"
+          },
+          "legacy_floor": {
+            "type": "integer",
+            "title": "Legacy Floor"
+          },
+          "legacy_per_point": {
+            "type": "string",
+            "title": "Legacy Per Point"
+          },
+          "last_month_salaries": {
+            "type": "string",
+            "title": "Last Month Salaries"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "monthly_salary",
+          "salary_multiple",
+          "legacy_salaries",
+          "legacy_amount",
+          "legacy_floor",
+          "legacy_per_point",
+          "last_month_salaries"
+        ],
+        "title": "PresidencyDTO",
+        "description": "O que o cargo paga ao presidente: o salário mensal e o legado que a aprovação acumula no mandato."
       },
       "PreviewFederationRequest": {
         "properties": {

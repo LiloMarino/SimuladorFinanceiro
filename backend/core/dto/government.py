@@ -1008,6 +1008,22 @@ class FrozenPortfolioDTO(BaseDTO):
     interests: list[InterestDTO]
 
 
+class PresidencyDTO(BaseDTO):
+    """O que o cargo paga ao presidente: o salário mensal e o legado que a aprovação acumula no mandato."""
+
+    # O salário líquido de hoje, em reais: o múltiplo do salário da partida
+    monthly_salary: Decimal
+    salary_multiple: Decimal
+    # O legado do mandato em salários e em reais pelo salário de hoje
+    legacy_salaries: Decimal
+    legacy_amount: Decimal
+    # Aprovação a partir da qual o mês soma ao legado, e os salários por ponto acima dela
+    legacy_floor: int
+    legacy_per_point: Decimal
+    # O que o último fechamento somou, em salários; 0 antes do primeiro
+    last_month_salaries: Decimal
+
+
 class SegmentOptionDTO(BaseDTO):
     name: str
     assets: int
@@ -1085,6 +1101,8 @@ class GovernmentPanelDTO(BaseDTO):
     queue_budget: QueueBudgetDTO
     next_vote: date
     portfolio: FrozenPortfolioDTO | None
+    # Nulo sem presidente jogador
+    presidency: PresidencyDTO | None
     sectors: list[SectorOptionDTO]
     last_impeachment: ImpeachmentDTO | None
     # Quantos dias a medida aprovada espera para valer

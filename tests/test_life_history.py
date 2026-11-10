@@ -282,6 +282,7 @@ def _living(
     seed: int,
     engine: _RecordingEngine,
     unemployment: Decimal = NEUTRAL_UNEMPLOYMENT,
+    president: UserDTO | None = None,
 ):
     settings = simulation_settings().model_copy(
         update={"game_type": GameType.FINANCIAL_INDEPENDENCE, "unexpected_per_year": 6}
@@ -296,10 +297,12 @@ def _living(
         ),
         get_cash=lambda _client: engine.cash,
         _professions={},
+        _government=SimpleNamespace(president=lambda: president),
     )
     living = cast(Simulation, fake)
     fake._layoff_factor = partial(Simulation._layoff_factor, living)
     fake._profession_of = partial(Simulation._profession_of, living)
+    fake._life_budget = partial(Simulation._life_budget, living)
     fake._notify_life_event = partial(Simulation._notify_life_event, living)
     return living, LifeBudget.of(settings)
 
@@ -328,6 +331,28 @@ def test_first_trading_day_pays_salary_then_expense_and_draws_the_event(
     expected = [] if skipped else [("salary", Decimal(8000))]
     expected += [("expense", Decimal(5000)), (drawn.key, drawn.expense_multiple * 5000)]
     assert engine.calls == expected
+
+
+def test_the_president_earns_three_salaries_and_the_draw_does_not_skip_the_pay(
+    captured_events: list,
+):
+    day = date(2020, 3, 2)
+    seed = next(
+        s
+        for s in range(500)
+        if salary_skipped(
+            s, day, 6, simulation_settings().start_date, DEFAULT_LIFE_EVENTS
+        )
+    )
+    ana = UserDTO(id=1, client_id=client("Ana"), nickname="Ana")
+    engine = _RecordingEngine()
+    fake, life = _living(day, seed, engine, president=ana)
+
+    Simulation._live(fake, life, [ana], True)
+
+    # O salário da partida é 8.000: o cargo paga o triplo, mesmo no mês em que o sorteio pularia o salário
+    assert engine.calls[0] == ("salary", Decimal(24000))
+    assert ("expense", Decimal(5000)) in engine.calls
 
 
 def test_negative_cash_pays_interest_and_positive_cash_does_not(

@@ -253,6 +253,7 @@ export type MeasureStatus = components["schemas"]["MeasureStatus"];
 export type ProposeMeasureRequest = components["schemas"]["ProposeMeasureRequest"];
 export type MeasurePreview = components["schemas"]["MeasurePreviewDTO"];
 export type GovernmentApproval = NonNullable<GovernmentPanel["approval"]>;
+export type Presidency = NonNullable<GovernmentPanel["presidency"]>;
 export type CongressBase = components["schemas"]["CongressBaseDTO"];
 export type Federation = components["schemas"]["FederationDTO"];
 export type FederationProposal = components["schemas"]["FederationProposalDTO"];

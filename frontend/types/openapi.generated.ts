@@ -6882,6 +6882,7 @@ export interface components {
              */
             next_vote: string;
             portfolio: components["schemas"]["FrozenPortfolioDTO"] | null;
+            presidency: components["schemas"]["PresidencyDTO"] | null;
             /** Sectors */
             sectors: components["schemas"]["SectorOptionDTO"][];
             last_impeachment: components["schemas"]["ImpeachmentDTO"] | null;
@@ -9728,6 +9729,26 @@ export interface components {
          * @enum {string}
          */
         PresetRuleGroup: "PERIOD" | "STARTING_CASH" | "MONTHLY_CONTRIBUTION" | "GROUPING" | "GAME_TYPE" | "VICTORY" | "GOAL" | "LIFE" | "ASSISTANCES" | "PRICE_IMPACT" | "EXPANSIONS";
+        /**
+         * PresidencyDTO
+         * @description O que o cargo paga ao presidente: o salário mensal e o legado que a aprovação acumula no mandato.
+         */
+        PresidencyDTO: {
+            /** Monthly Salary */
+            monthly_salary: string;
+            /** Salary Multiple */
+            salary_multiple: string;
+            /** Legacy Salaries */
+            legacy_salaries: string;
+            /** Legacy Amount */
+            legacy_amount: string;
+            /** Legacy Floor */
+            legacy_floor: number;
+            /** Legacy Per Point */
+            legacy_per_point: string;
+            /** Last Month Salaries */
+            last_month_salaries: string;
+        };
         /** PreviewFederationRequest */
         PreviewFederationRequest: {
             /** Partner Id */

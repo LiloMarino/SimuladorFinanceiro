@@ -18,6 +18,7 @@ from backend.core.dto.government import (
     InterestDTO,
     MeasureDTO,
     MonetaryDTO,
+    PresidencyDTO,
     SectorMeasureDTO,
     SectorOptionDTO,
     SegmentOptionDTO,
@@ -48,6 +49,7 @@ from backend.features.government import (
     budget_panel,
     congress,
     house_panel,
+    presidency,
     promises,
     spending_panel,
     voters,
@@ -60,6 +62,7 @@ from backend.features.government.promise_panel import build_term_promises
 from backend.features.government.state import (
     NEUTRAL_SATISFACTION,
     VIGENCE_DAYS,
+    ApprovalPoint,
     Measure,
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
@@ -110,7 +113,9 @@ def build_governance(
     users: list[UserDTO],
     viewer: UserDTO,
     today: date,
+    pay_of: Callable[[UserDTO, Decimal, date], Decimal],
 ) -> GovernmentPanelDTO:
+    """`pay_of` converte salários do host em reais líquidos de um jogador no dia."""
     state = book.state
     people = {user.id: user for user in users}
     term = state.term
@@ -199,6 +204,11 @@ def build_governance(
         portfolio=(
             _portfolio(engine, president, end, pending, today)
             if president is not None and end is not None
+            else None
+        ),
+        presidency=(
+            _presidency(book.state.approvals, president, today, pay_of)
+            if president is not None
             else None
         ),
         sectors=sector_options(engine),
@@ -447,6 +457,26 @@ def _closing(book: GovernmentBook, viewer: UserDTO) -> ClosingDTO | None:
         approved=groups(GroupVerdict.APPROVES),
         reproved=groups(GroupVerdict.REPROVES),
         neutral=groups(GroupVerdict.NEUTRAL),
+    )
+
+
+def _presidency(
+    approvals: list[ApprovalPoint],
+    president: UserDTO,
+    today: date,
+    pay_of: Callable[[UserDTO, Decimal, date], Decimal],
+) -> PresidencyDTO:
+    salaries = presidency.legacy_salaries(approvals)
+    return PresidencyDTO(
+        monthly_salary=pay_of(president, presidency.SALARY_MULTIPLE, today),
+        salary_multiple=presidency.SALARY_MULTIPLE,
+        legacy_salaries=salaries,
+        legacy_amount=pay_of(president, salaries, today),
+        legacy_floor=presidency.LEGACY_FLOOR,
+        legacy_per_point=presidency.LEGACY_PER_POINT,
+        last_month_salaries=(
+            presidency.month_salaries(approvals[-1]) if approvals else Decimal(0)
+        ),
     )
 
 

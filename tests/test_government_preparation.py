@@ -39,7 +39,14 @@ FIRST_DAY = date(2020, 1, 1)
 def prepare(engine, *players: Prepared) -> GovernmentBook:
     """Grava a preparação como o loader faz e reabre o livro, que a lê do replay."""
     preparation.record(1, date(2020, 1, 1), list(players))
-    return GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
+    return GovernmentBook(
+        settings(),
+        engine,
+        lambda *_: None,
+        lambda *_: Decimal(0),
+        lambda *_: None,
+        SEED,
+    )
 
 
 def start_match(book: GovernmentBook) -> None:
@@ -148,7 +155,14 @@ def test_parties_on_the_first_day_ticket_at_the_campaign_across_a_resume(
     assert party.members == {ALICE.id: 0, BOB.id: 0}
     assert party.joined == {ALICE.id: FIRST_DAY, BOB.id: FIRST_DAY}
     assert party.candidate_id is None
-    resumed = GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
+    resumed = GovernmentBook(
+        settings(),
+        engine,
+        lambda *_: None,
+        lambda *_: Decimal(0),
+        lambda *_: None,
+        SEED,
+    )
     assert len(resumed.state.preparations) == 2
 
     resumed.on_tick(USERS, date(2020, 10, 6), False)

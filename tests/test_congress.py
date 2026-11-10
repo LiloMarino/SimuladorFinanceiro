@@ -26,6 +26,7 @@ from backend.features.government import governance, house
 from backend.features.government.governance import build_governance
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.state import replay
+from tests.fakes import no_pay
 from tests.test_government_book import (
     ALICE,
     BLUE,
@@ -163,7 +164,7 @@ def test_the_panel_offers_the_guide_until_the_vote_day_ends(
     propose(book)
     book.on_tick(USERS, FIRST_VOTE, False)
 
-    leader = build_governance(book, engine, USERS, ALICE, FIRST_VOTE)
+    leader = build_governance(book, engine, USERS, ALICE, FIRST_VOTE, no_pay)
 
     vote = leader.queue[0].vote
     assert vote is not None and vote.guide is not None
@@ -414,8 +415,8 @@ def test_the_panel_shows_the_house_the_queue_vote_and_the_leaders_guide(
     govern(book, engine, vice=True)
     propose(book)
 
-    leader = build_governance(book, engine, USERS, ALICE, QUEUED_DAY)
-    member = build_governance(book, engine, USERS, BOB, QUEUED_DAY)
+    leader = build_governance(book, engine, USERS, ALICE, QUEUED_DAY, no_pay)
+    member = build_governance(book, engine, USERS, BOB, QUEUED_DAY, no_pay)
 
     assert sum(b.seats for b in leader.congress.house.blocs) == house.SEATS
     vote = leader.queue[0].vote
@@ -428,7 +429,7 @@ def test_the_panel_shows_the_house_the_queue_vote_and_the_leaders_guide(
     assert member_vote is not None and member_vote.guide is None
 
     hold_vote_day(book)
-    voted = build_governance(book, engine, USERS, ALICE, FIRST_VOTE)
+    voted = build_governance(book, engine, USERS, ALICE, FIRST_VOTE, no_pay)
     closed = voted.queue[0].vote if voted.queue else None
     assert closed is None or closed.yes is not None
     assert voted.congress.history[0].yes + voted.congress.history[0].no == house.SEATS

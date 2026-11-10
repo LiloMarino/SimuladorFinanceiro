@@ -355,7 +355,14 @@ def test_resumed_game_has_the_same_federations_and_ban(
     book.answer_federation(BOB, LATER, True)
     book.leave_federation(BOB, LATER)
 
-    resumed = GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
+    resumed = GovernmentBook(
+        settings(),
+        engine,
+        lambda *_: None,
+        lambda *_: Decimal(0),
+        lambda *_: None,
+        SEED,
+    )
 
     assert resumed.state.federations == book.state.federations
     assert resumed.state.proposals == book.state.proposals

@@ -119,6 +119,26 @@ def test_the_layoff_draw_takes_only_the_income_the_profession_is_exposed_to(
     assert life.net_salary_on(START, income_lost=True) == Decimal(expected)
 
 
+@pytest.mark.parametrize("profession", list(Profession))
+def test_the_presidency_pays_three_salaries_whatever_the_profession(
+    profession: Profession,
+):
+    life = budget(profession).as_president(Decimal(3))
+
+    assert life.net_salary_on(START) == 3 * SALARY
+    # O cargo não tem demissão, vaga nem perda de bico
+    assert life.net_salary_on(START, income_lost=True) == 3 * SALARY
+    assert life.income_loss() is None
+
+
+def test_the_presidency_pays_nothing_when_the_match_salary_is_zero():
+    life = replace(budget(Profession.CLT), monthly_salary=Decimal(0)).as_president(
+        Decimal(3)
+    )
+
+    assert life.net_salary_on(START) == 0
+
+
 def test_each_profession_loses_income_in_its_own_way():
     assert {p: PROFESSIONS[p].loss for p in Profession} == {
         Profession.CLT: IncomeLoss.LAYOFF,

@@ -38,7 +38,7 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
-from backend.core.utils import required
+from backend.core.utils import format_money, required
 from backend.features.government import approval as approval_rules
 from backend.features.government import (
     budget_panel,
@@ -47,6 +47,7 @@ from backend.features.government import (
     congress,
     election,
     house,
+    presidency,
     promises,
     voters,
 )
@@ -57,11 +58,11 @@ from backend.features.government.government_book import GovernmentBook
 from backend.features.government.map_panel import build_map
 from backend.features.government.map_timeline import build_timeline
 from backend.features.government.panel import build_panel
-from backend.features.government.state import Party, replay
+from backend.features.government.state import Party, Term, replay
 from backend.features.notifications.news import Headline
 from backend.features.tax_policy import LossPool
 from tests.conftest import SetIndicator
-from tests.fakes import FakeSimulationEngine, client, simulation_settings
+from tests.fakes import FakeSimulationEngine, client, no_pay, simulation_settings
 
 ALICE = UserDTO(id=1, client_id=client("alice"), nickname="Alice")
 BOB = UserDTO(id=2, client_id=client("bob"), nickname="Bob")
@@ -152,6 +153,7 @@ def book(engine, stored, notices, captured_events, office, headlines) -> Governm
         settings(),
         engine,
         lambda user, _day: office.append(user.id),
+        lambda *_: Decimal(0),
         lambda day, headline: headlines.append((day, headline)),
         SEED,
     )
@@ -264,7 +266,12 @@ def test_match_born_after_the_deadline_lets_first_day_members_run(
     rules = settings().model_dump()
     rules.update(start_date=date(2021, 6, 1), end_date=date(2026, 12, 31))
     late_book = GovernmentBook(
-        SimulationDTO(**rules), engine, lambda *_: None, lambda *_: None, SEED
+        SimulationDTO(**rules),
+        engine,
+        lambda *_: None,
+        lambda *_: Decimal(0),
+        lambda *_: None,
+        SEED,
     )
     first_day = date(2021, 6, 1)
     late_book.found_party(
@@ -405,7 +412,12 @@ def test_campaign_opening_on_a_weekend_is_announced_on_the_next_tick(
     # 1º turno numa segunda: a campanha abre num domingo
     rules.update(first_election=date(2021, 10, 4))
     weekend = GovernmentBook(
-        SimulationDTO(**rules), engine, lambda *_: None, lambda *_: None, SEED
+        SimulationDTO(**rules),
+        engine,
+        lambda *_: None,
+        lambda *_: Decimal(0),
+        lambda *_: None,
+        SEED,
     )
 
     weekend.on_tick(USERS, date(2020, 10, 1), False)
@@ -423,7 +435,12 @@ def test_campaign_that_opens_with_the_game_is_announced_on_the_first_day(
     rules = settings().model_dump()
     rules.update(first_election=date(2020, 6, 1))
     early = GovernmentBook(
-        SimulationDTO(**rules), engine, lambda *_: None, lambda *_: None, SEED
+        SimulationDTO(**rules),
+        engine,
+        lambda *_: None,
+        lambda *_: Decimal(0),
+        lambda *_: None,
+        SEED,
     )
 
     assert early.on_tick(USERS, date(2020, 1, 1), False) == PauseReason.CAMPAIGN_OPENED
@@ -436,7 +453,12 @@ def test_resumed_game_does_not_repeat_the_campaign_opening(
     rules = settings().model_dump()
     rules.update(first_election=date(2020, 6, 1))
     resumed = GovernmentBook(
-        SimulationDTO(**rules), engine, lambda *_: None, lambda *_: None, SEED
+        SimulationDTO(**rules),
+        engine,
+        lambda *_: None,
+        lambda *_: Decimal(0),
+        lambda *_: None,
+        SEED,
     )
 
     assert resumed.on_tick(USERS, date(2020, 2, 3), False) is None
@@ -782,7 +804,14 @@ def test_resumed_book_starts_from_the_stored_events(
     found(book, ALICE, "AAA", RED, "10000")
     book.on_tick(USERS, date(2020, 11, 3), True)
 
-    resumed = GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
+    resumed = GovernmentBook(
+        settings(),
+        engine,
+        lambda *_: None,
+        lambda *_: Decimal(0),
+        lambda *_: None,
+        SEED,
+    )
 
     assert party_of(resumed, ALICE).campaign == party_of(book, ALICE).campaign
     assert resumed.state.last_collection == date(2020, 11, 1)
@@ -1234,7 +1263,7 @@ def test_computer_government_proposes_by_its_voters_and_the_house_votes(
     orientations, _, _ = book.measure_orientations(first, date(2023, 8, 1))
     assert orientations[bloc.key] is True
     # A sala vê a medida na fila em nome do candidato do computador, e a aprovação corre
-    panel = build_governance(book, engine, USERS, ALICE, date(2023, 8, 1))
+    panel = build_governance(book, engine, USERS, ALICE, date(2023, 8, 1), no_pay)
     assert [m.proposer for m in panel.queue] == [party.candidate_name]
     assert panel.approval is not None
     assert not panel.is_president
@@ -1319,7 +1348,14 @@ def test_replay_rebuilds_measures_approval_and_policy(
     congress_says(monkeypatch, True)
     hold_vote_day(book)
 
-    resumed = GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
+    resumed = GovernmentBook(
+        settings(),
+        engine,
+        lambda *_: None,
+        lambda *_: Decimal(0),
+        lambda *_: None,
+        SEED,
+    )
 
     assert resumed.state.measures == book.state.measures
     assert resumed.state.approvals == book.state.approvals
@@ -1367,7 +1403,14 @@ def test_founder_of_a_party_without_flags_chooses_them_once(
     found(book, ALICE, "AAA", RED)
     founded = next(e for e in stored if e.payload.get("abbr") == "AAA")
     founded.payload.pop("flags")
-    resumed = GovernmentBook(settings(), engine, lambda *_: None, lambda *_: None, SEED)
+    resumed = GovernmentBook(
+        settings(),
+        engine,
+        lambda *_: None,
+        lambda *_: Decimal(0),
+        lambda *_: None,
+        SEED,
+    )
     party = party_of(resumed, ALICE)
     assert party.flags is None
     assert set(party.radar.values()) == {voters.RADAR_NEUTRAL}
@@ -2060,3 +2103,105 @@ def test_the_runoff_headline_calls_a_turnaround_when_the_first_round_leader_lose
     assert book._turned_from(2, finalists, leader) is None
     assert book._turned_from(2, finalists, other) == book.state.parties[leader].abbr
     assert book._turned_from(1, finalists, other) is None
+
+
+@pytest.fixture
+def legacy(book: GovernmentBook, office: list[int]) -> list[tuple[str, int, Decimal]]:
+    """O que o livro entrega à partida ao pagar o legado, na ordem com a posse; cada salário vale R$ 1.000."""
+    calls: list[tuple[str, int, Decimal]] = []
+
+    def pay(user: UserDTO, salaries: Decimal) -> Decimal:
+        calls.append(("legacy", user.id, salaries))
+        return salaries * 1000
+
+    book._on_legacy = pay
+    book._on_office = lambda user, _day: calls.append(("office", user.id, Decimal(0)))
+    return calls
+
+
+def turn_over(book: GovernmentBook, *, president_id: int, consecutive: int) -> None:
+    """Chega a posse seguinte: o mandato que acaba em 31 de dezembro dá lugar ao eleito."""
+    book.state.pending_term = Term(
+        party_id=required(book.state.term).party_id,
+        president_id=president_id,
+        vice_id=None,
+        start=date(2026, 1, 1),
+        consecutive=consecutive,
+    )
+    book._start_term(date(2026, 1, 5), {user.id: user for user in USERS})
+
+
+def test_the_legacy_reaches_the_match_when_the_term_ends(
+    book: GovernmentBook, engine, market, legacy, headlines
+):
+    govern(book, engine)
+    legacy.clear()
+    close_months(book, 3)
+    earned = presidency.legacy_salaries(book.state.approvals)
+    assert len(book.state.approvals) == 3
+    assert earned > 0
+
+    turn_over(book, president_id=BOB.id, consecutive=1)
+
+    # O legado vai antes da posse do sucessor, pela aprovação do mandato que acabou
+    assert legacy == [("legacy", ALICE.id, earned), ("office", BOB.id, Decimal(0))]
+    [paid] = [t for t in texts(headlines, NewsType.TERM_STARTED) if "legado" in t]
+    assert paid == (
+        f"Alice deixa o governo com legado de {format_money(earned * 1000)}"
+    )
+    assert book.state.approvals == []
+
+
+def test_the_reelected_president_receives_the_first_term_legacy_at_the_turnover(
+    book: GovernmentBook, engine, market, legacy
+):
+    govern(book, engine)
+    legacy.clear()
+    close_months(book, 3)
+    earned = presidency.legacy_salaries(book.state.approvals)
+
+    turn_over(book, president_id=ALICE.id, consecutive=2)
+
+    assert legacy == [("legacy", ALICE.id, earned), ("office", ALICE.id, Decimal(0))]
+    assert required(book.state.term).consecutive == 2
+
+
+def test_a_term_without_closed_months_pays_no_legacy(
+    book: GovernmentBook, engine, market, legacy
+):
+    govern(book, engine)
+    legacy.clear()
+
+    turn_over(book, president_id=BOB.id, consecutive=1)
+
+    assert legacy == [("office", BOB.id, Decimal(0))]
+
+
+def test_a_government_the_groups_reprove_leaves_no_legacy(
+    book: GovernmentBook, engine, market, bleak, legacy, monkeypatch
+):
+    govern(book, engine, vice=True)
+    legacy.clear()
+    congress_says(monkeypatch, True)
+    close_months(book, 2)
+    assert presidency.legacy_salaries(book.state.approvals) == 0
+
+    turn_over(book, president_id=BOB.id, consecutive=1)
+
+    assert [call[0] for call in legacy] == ["office"]
+
+
+def test_impeachment_pays_no_legacy(
+    book: GovernmentBook, engine, market, bleak, legacy, monkeypatch
+):
+    govern(book, engine, vice=True)
+    legacy.clear()
+    propose(book)
+    congress_says(monkeypatch, True)
+
+    assert close_months(book, 12) is None
+    assert close_months(book, 7, date(2023, 1, 31)) == PauseReason.IMPEACHMENT
+
+    # Os pontos acumulados somem com o cargo e só a posse do sucessor chega ao jogo
+    assert [call[0] for call in legacy] == ["office"]
+    assert book.state.approvals == []
