@@ -101,10 +101,9 @@
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
-| [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | M26 · 4.1 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (35 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (36 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -143,6 +142,7 @@
 | [**F259**](#f259) | Correção | Preço dos ativos cotados em dólar convertido para real | M26 · 4.1 | — | — | — | ✅ |
 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | M26 · 4.1 | — | — | — | ✅ |
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | ✅ |
+| [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
 
@@ -158,7 +158,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 15/16 concluídos
+> **Progresso:** 16/16 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -177,7 +177,7 @@
 | 13 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | — | ✅ Concluído |
 | 14 | [**F261**](#f261) | Feature | Profissão no viver de renda | — | ✅ Concluído |
 | 15 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | ✅ Concluído |
-| 16 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | — | ⏳ Pendente |
+| 16 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | — | ✅ Concluído |
 
 ### 4.2 — Expansão Gestoras (M18)
 
@@ -283,7 +283,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | M26 · 4.1 · 16º | 0 | Médio | Bom | ⏳ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
@@ -337,7 +336,6 @@
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
-| **F262** | Feature | Pedido de impeachment aberto por jogador | N34 | — | M26 · 4.1 | — | Médio | Baixo | Médio | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -415,9 +413,6 @@
 **F249 — Núcleo do backend sem import de features.** `core/` importa de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
 
 Cada um desses módulos é movido para a feature que o consome ou passa a receber a dependência por injeção (o `core` define o protocolo, a feature implementa). Por fora nada muda; confere-se com `uv run pyright`, `uv run pytest -n 4` e um `grep "features" backend/core` vazio. Sem decisão de fazer agora.
-
-<a id="f262"></a>
-**F262 — Pedido de impeachment aberto por jogador.** Serve N34. Hoje o pedido só abre sozinho, no 6º fechamento seguido abaixo do piso de aprovação, e os jogadores participam apenas orientando a bancada na votação. O líder de um partido com pelo menos uma cadeira na casa, fora o do partido do presidente, pode abrir o pedido enquanto a aprovação do governo de um presidente jogador está abaixo do piso e fora da carência dos 12 primeiros meses. Cada partido pede uma vez por mandato, e só há um pedido aberto por vez. O pedido rejeitado soma 5 pontos de rejeição ao partido de quem pediu, nos grupos de eleitores que ainda aprovam o presidente; o número sai da calibragem pelo CLI. O pedido aberto por jogador sai em manchete para a sala toda e em aviso ao presidente, com o partido que pediu, e a tela do Congresso mostra o botão com o custo explicado antes de confirmar. O acordo de apoio ganha peso sem código novo: a bancada na base orienta Não e protege o presidente.
 
 ---
 
@@ -558,6 +553,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F259** | Correção | Preço dos ativos cotados em dólar convertido para real | N11, N34 | — | M26 · 4.1 |
 | **F260** | Feature | Caixa em dólar com o juro americano | N41, N34 | — | M26 · 4.1 |
 | **F261** | Feature | Profissão no viver de renda | N23, N34 | D19 | M26 · 4.1 |
+| **F262** | Feature | Pedido de impeachment aberto por jogador | N34 | — | M26 · 4.1 |
 
 <a id="f69"></a>
 **F69 — Imprevistos configuráveis e tipos novos.** Serve N23. O modo viver de renda (F53) já nasce com os tipos de imprevisto num registro, em que cada tipo é uma entrada com nome, múltiplo da despesa mensal, efeito (sai do caixa ou corta o salário do mês seguinte) e peso no sorteio; adicionar um tipo é acrescentar uma entrada, sem mexer no motor, no log nem nas telas. Esta feature expõe esse registro ao host: no lobby, o host edita o valor de cada tipo (por exemplo, o conserto passa de 1 para 2 despesas mensais), liga e desliga tipos e cria tipos próprios com nome, valor e efeito. O sorteio continua saindo da semente da partida, então todos os jogadores seguem recebendo os mesmos imprevistos nos mesmos dias, e a configuração vale para a partida salva.
@@ -707,6 +703,9 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 **Falta:** a lista de profissões e os números de cada uma; se a meta passa a ser de cada jogador ou se o placar compensa a renda de outro jeito; qual profissão os bots escolhem; e como o imprevisto, que é um múltiplo da despesa mensal ([F69](#f69)), se comporta com a despesa de cada jogador: o dia do sorteio segue igual para todos, e o valor sai da despesa de cada um.
 
 **Feito.**
+
+<a id="f262"></a>
+**F262 — Pedido de impeachment aberto por jogador.** Serve N34. O líder de um partido com pelo menos uma cadeira na casa, fora o do partido do presidente, abre o pedido enquanto a aprovação de um presidente jogador está abaixo do piso de 25% e fora da carência dos 12 primeiros meses. Há um pedido aberto por vez e cada partido pede uma vez por mandato. O pedido rejeitado soma 5 pontos de rejeição ao partido de quem pediu, nos grupos de eleitores que ainda aprovam o presidente. O pedido sai em manchete para a sala toda e em aviso ao presidente, com o partido que pediu; a tela do Congresso mostra o botão com o custo explicado antes de confirmar. A bancada na base orienta Não e protege o presidente, sem código novo. Os 5 pontos ficam para a calibragem pelo CLI.
 
 ---
 
