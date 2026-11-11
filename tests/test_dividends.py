@@ -5,6 +5,8 @@ from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 
+import pytest
+
 from backend.core.dto.corporate_event import CorporateEventDTO
 from backend.core.dto.dividends import DividendPaymentDTO
 from backend.core.dto.events.equity import EquityEventDTO
@@ -14,6 +16,7 @@ from backend.features.variable_income.dividends import (
     build_portfolio_dividends,
     dividend_yield,
     monthly_buckets,
+    scale_dividends,
     trailing_per_share,
     yearly_buckets,
     yield_on_cost,
@@ -67,6 +70,41 @@ def _equity(
         event_type=event_type,
         quantity=Decimal(quantity),
         price=Decimal(price),
+    )
+
+
+def test_the_dividend_follows_the_stock_factor_of_the_ex_date():
+    """Com a bolsa a 1/400 da história, o provento sai a 1/400 do valor guardado."""
+    events = [_dividend(date(2021, 3, 10), 2.0), _dividend(date(2021, 4, 10), 4.0)]
+    factors = {date(2021, 3, 10): 1 / 400, date(2021, 4, 10): 0.5}
+
+    scaled = scale_dividends(events, {STOCK: "ABCD"}, lambda _, day: factors[day])
+
+    assert [e.value for e in scaled] == [pytest.approx(0.005), 2.0]
+    # Os originais seguem como foram guardados
+    assert [e.value for e in events] == [2.0, 4.0]
+
+
+def test_the_split_ratio_is_not_scaled():
+    events = [_split(date(2021, 3, 10), 2.0)]
+
+    scaled = scale_dividends(events, {STOCK: "ABCD"}, lambda _ticker, _day: 0.01)
+
+    assert scaled == events
+
+
+def test_the_yield_of_a_scaled_dividend_stays_at_the_historical_one():
+    """Preço e provento na mesma escala: o rendimento não muda com o fator da bolsa."""
+    factor = 1 / 400
+    events = scale_dividends(
+        [_dividend(date(2021, 3, 10), 0.44)], {STOCK: "ABCD"}, lambda _t, _d: factor
+    )
+
+    per_share = trailing_per_share(events, TODAY)[STOCK]
+    price = Decimal("4.40") * Decimal(str(factor))
+
+    assert dividend_yield(per_share, price, AssetClass.STOCK) == pytest.approx(
+        Decimal("0.10")
     )
 
 

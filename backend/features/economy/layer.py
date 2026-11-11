@@ -41,6 +41,10 @@ STOCKS_PER_SELIC = 0.029
 STOCKS_WINDOW_MONTHS = 3
 # A bolsa sobe 2,5% por ponto de PIB acima da história
 STOCKS_PER_GDP = 2.5
+# O nível da bolsa contra a série guardada segue a exponencial das forças até cair a 30% da
+# história; dali para baixo a queda se comprime e o nível nunca cruza 5%
+STOCKS_FLOOR_ONSET = 0.30
+STOCKS_FLOOR = 0.05
 
 # Janela do histórico, antes do início da partida, que mede o beta de cada ativo contra o Ibovespa
 BETA_WINDOW_DAYS = 730
@@ -73,6 +77,19 @@ def quarter_mean(points: Callable[[date], float], day: date) -> float:
 def annual_to_daily(annual: float) -> float:
     """Taxa diária em % de uma taxa anual em fração composta por 252 dias úteis."""
     return ((1 + annual) ** (1 / BUSINESS_DAYS_PER_YEAR) - 1) * 100
+
+
+def soften_floor(exponent: float) -> float:
+    """
+    O expoente do nível da bolsa com o piso: igual a `exponent` até o limiar e, abaixo
+    dele, uma curva que parte do limiar com a mesma inclinação (sem quina) e se achata
+    rumo ao piso sem nunca alcançá-lo.
+    """
+    onset = math.log(STOCKS_FLOOR_ONSET)
+    if exponent >= onset:
+        return exponent
+    floor = math.log(STOCKS_FLOOR)
+    return floor + (onset - floor) * math.exp((exponent - onset) / (onset - floor))
 
 
 @dataclass(frozen=True)
@@ -299,7 +316,7 @@ class EconomyLayer:
         if self.first_day() is None:
             return 1.0
         if day not in self._levels:
-            self._levels[day] = math.exp(self.stocks_parts(day).total)
+            self._levels[day] = math.exp(soften_floor(self.stocks_parts(day).total))
         return self._levels[day]
 
     def stocks_parts(self, day: date) -> StocksParts:

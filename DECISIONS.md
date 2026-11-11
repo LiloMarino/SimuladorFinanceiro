@@ -367,7 +367,7 @@ Os indicadores saem do caminho: a SELIC soma as variações dos trechos ao últi
 - Sem nenhuma ação do governo o desvio é zero e a partida é exatamente a história: o jogador que não governa vê o Brasil real, e a régua do placar não muda.
 - O efeito do governo fica mensurável e explicável: cada número da tela de Economia se abre em "na história" mais o que cada medida e cada ligação somaram.
 - O mês de defasagem corta o laço "o fechamento lê a série ajustada, e a série ajustada depende do fechamento", e o resultado não depende de quem leu primeiro.
-**Consequências:** custa calcular o orçamento e a macroeconomia duas vezes por mês. Toda ligação nova (o dólar, o juro real decidido pelo governo) entra no mesmo molde, como mais uma parcela do desvio. A espiral da dívida não tem teto: o prêmio cresce sem limite e só um superávit primário a segura.
+**Consequências:** custa calcular o orçamento e a macroeconomia duas vezes por mês. Toda ligação nova (o dólar, o juro real decidido pelo governo) entra no mesmo molde, como mais uma parcela do desvio. A espiral da dívida não tem teto: o prêmio cresce sem limite e só um superávit primário a segura. O que a espiral derruba é a bolsa, e a bolsa tem piso: o nível dela contra a história segue a exponencial das forças até 30% e, abaixo disso, a queda se comprime rumo a 5%, que nunca é cruzado (a calibragem de 10 anos com o governo que gasta sem parar termina em 5,1%). O provento acompanha o preço: cada dividendo e JCP vale o histórico vezes o fator da bolsa do dia da data ex, o mesmo que escala o preço, e o rendimento fica na escala do preço.
 
 ### D21 — O jogo ensina a jogar, a docs explica o modelo
 **Status:** ✅ Decidida

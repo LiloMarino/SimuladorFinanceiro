@@ -48,6 +48,7 @@ from backend.features.variable_income.corporate_actions import PlayerCorporateAc
 from backend.features.variable_income.dividends import (
     TRAILING_MONTHS,
     dividend_yield,
+    scale_dividends,
     trailing_per_share,
     trailing_window_start,
     yield_on_cost,
@@ -663,6 +664,18 @@ class SimulationEngine:
             dividends_received=received.total if received else Decimal(0),
         )
 
+    def corporate_events(
+        self, events: list[CorporateEventDTO]
+    ) -> list[CorporateEventDTO]:
+        """Os eventos com o provento na escala do preço da partida: o pagamento, o rendimento e o histórico leem o mesmo valor."""
+        return scale_dividends(
+            events,
+            {stock.id: ticker for ticker, stock in self.stocks.items()},
+            lambda ticker, day: repository.economic.stock_factor(
+                self.simulation_id, ticker, day
+            ),
+        )
+
     def dividends_per_share(self, today: date) -> dict[int, Decimal]:
         """
         O provento por ação dos últimos 12 meses de cada ativo, lido uma vez por
@@ -671,8 +684,10 @@ class SimulationEngine:
         cached = self._per_share_cache
         if cached is not None and cached[0] == today:
             return cached[1]
-        events = repository.corporate_event.get_between(
-            subtract_months(today, TRAILING_MONTHS), today, self.simulation_id
+        events = self.corporate_events(
+            repository.corporate_event.get_between(
+                subtract_months(today, TRAILING_MONTHS), today, self.simulation_id
+            )
         )
         per_share = trailing_per_share(events, today)
         self._per_share_cache = (today, per_share)

@@ -199,6 +199,7 @@ Nas ações, FIIs e ETFs com histórico importado pelo Yahoo Finance, a partida 
 
 O **dividendo** é a parte do lucro que a empresa reparte entre os acionistas. Na data ex, o caixa de cada jogador recebe **dividendo por ação × quantidade que ele tinha na abertura do dia**, truncado ao centavo. Ex.: um dividendo de R$ 0,45 e 150 ações dão R$ 67,50. Quem não tem a ação não recebe nada.
 
+- O dividendo acompanha o preço da partida: o valor guardado de cada provento é multiplicado pelo mesmo fator da bolsa que escala o preço da ação naquele dia. Com a bolsa a metade da história, a ação vale metade e o provento também, e o DY continua o mesmo. Ex.: um dividendo de R$ 0,44 numa ação que o governo levou de R$ 4,40 a R$ 2,20 paga R$ 0,22.
 - O preço da ação cai, na data ex, mais ou menos o valor pago. É por isso que receber dividendo não é ganho de graça: o patrimônio sobe no caixa e desce na ação.
 - O dividendo aparece no extrato do caixa com o nome do ativo.
 - **Todo provento é isento de IR no simulador.** O JCP (juros sobre capital próprio) é tratado como dividendo: na vida real ele paga 15% de IR retido na fonte, e o simulador não cobra isso. É uma simplificação.

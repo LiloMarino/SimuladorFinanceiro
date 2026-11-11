@@ -1197,8 +1197,10 @@ class Simulation:
             # Desdobramentos e dividendos entram na abertura, antes de o book executar
             # qualquer ordem do dia: a posição e as ordens já valem na unidade nova
             corporate_actions = self._engine.apply_corporate_events(
-                repository.corporate_event.get_between(
-                    previous_date, self._current_date, self.settings.id
+                self._engine.corporate_events(
+                    repository.corporate_event.get_between(
+                        previous_date, self._current_date, self.settings.id
+                    )
                 ),
                 stocks,
                 [user.client_id for user in users],
@@ -1783,8 +1785,10 @@ class Simulation:
         return build_asset_events(
             ticker=ticker,
             asset_class=stock.asset_class,
-            events=repository.corporate_event.get_for_stock(
-                stock.id, self._current_date, self.settings.id
+            events=self._engine.corporate_events(
+                repository.corporate_event.get_for_stock(
+                    stock.id, self._current_date, self.settings.id
+                )
             ),
             equity_events=[
                 e

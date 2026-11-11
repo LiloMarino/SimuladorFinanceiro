@@ -4,7 +4,7 @@ divisão dos proventos recebidos por mês, por ano e por pagador.
 """
 
 from collections import defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from datetime import date
 from decimal import Decimal
 
@@ -24,6 +24,28 @@ from backend.core.enum import AssetClass, CorporateEventKind, EquityEventType
 from backend.core.utils import ratio, subtract_months
 
 TRAILING_MONTHS = 12
+
+
+def scale_dividends(
+    events: Iterable[CorporateEventDTO],
+    tickers: dict[int, str],
+    factor: Callable[[str, date], float],
+) -> list[CorporateEventDTO]:
+    """
+    Os eventos com o provento na escala do preço da partida: cada dividendo e JCP vale o
+    histórico vezes o fator da bolsa do dia da data ex, o mesmo que escala o preço do ativo.
+    O desdobramento é uma razão e passa como veio.
+    """
+    return [
+        event.model_copy(
+            update={
+                "value": event.value * factor(tickers[event.stock_id], event.ex_date)
+            }
+        )
+        if event.kind is CorporateEventKind.DIVIDEND and event.stock_id in tickers
+        else event
+        for event in events
+    ]
 
 
 def trailing_per_share(

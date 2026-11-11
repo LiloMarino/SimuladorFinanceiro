@@ -114,6 +114,46 @@ def test_without_measures_the_series_come_back_untouched():
     assert nothing.stock_factor("AAA", date(2021, 8, 2)) == 1.0
 
 
+def test_the_floor_leaves_the_exponent_alone_above_the_onset():
+    for exponent in (0.4, 0.0, math.log(layer.STOCKS_FLOOR_ONSET)):
+        assert layer.soften_floor(exponent) == pytest.approx(exponent)
+
+
+def test_the_floor_compresses_the_fall_below_the_onset_and_never_crosses_it():
+    onset = math.log(layer.STOCKS_FLOOR_ONSET)
+    floor = math.log(layer.STOCKS_FLOOR)
+
+    softened = [layer.soften_floor(onset - step) for step in (0.01, 0.5, 2, 10, 50)]
+
+    # Cai sempre, mas menos que o expoente, e fica acima do piso
+    assert softened == sorted(softened, reverse=True)
+    assert all(floor < value < onset for value in softened)
+    assert softened[0] == pytest.approx(onset - 0.01, abs=1e-3)
+    assert math.exp(softened[-1]) == pytest.approx(layer.STOCKS_FLOOR, rel=1e-6)
+
+
+def test_the_level_of_the_stocks_stops_at_the_floor_whatever_the_government_does(
+    economy, monkeypatch
+):
+    day = date(2021, 8, 2)
+    monkeypatch.setattr(
+        economy,
+        "stocks_parts",
+        lambda _day: layer.StocksParts(
+            spending=-40.0, phillips=0.0, fiscal_risk=-40.0, gdp=0.0
+        ),
+    )
+
+    assert economy.level(day) >= layer.STOCKS_FLOOR
+    # O nível mais fundo do ativo de beta 3 é o do piso elevado a 3
+    monkeypatch.setattr(economy, "_betas", {"HIGH": 3.0})
+    assert economy.stock_factor("HIGH", day) >= layer.STOCKS_FLOOR**3
+    adjusted = economy.adjust(IndicatorSeries.IBOV, history_of(IndicatorSeries.IBOV))
+    assert adjusted.values[day] >= Decimal(100000 * layer.STOCKS_FLOOR) - Decimal(
+        "0.01"
+    )
+
+
 def test_a_stock_follows_the_market_level_raised_to_its_beta(economy, monkeypatch):
     day = date(2021, 8, 2)
     monkeypatch.setattr(economy, "_betas", {"HIGH": 2.0, "LOW": 0.5})

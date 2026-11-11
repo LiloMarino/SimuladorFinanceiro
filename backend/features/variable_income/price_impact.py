@@ -16,6 +16,8 @@ AVERAGE_VOLUME_WINDOW = 20
 
 # O preço nunca chega a zero, por maior que seja a venda acumulada
 MIN_FACTOR = 0.01
+# O menor preço que a ação escalada mostra: um centavo
+MIN_PRICE = 0.01
 
 CandleRow = TypeVar("CandleRow", bound=CandleDTO)
 PriceRow = TypeVar("PriceRow", bound=CandleDTO | StockPriceHistoryDTO)
@@ -191,15 +193,21 @@ class PriceImpact:
 
 
 def _scale(row: PriceRow, factor: float) -> PriceRow:
-    """Multiplica OHLC pelo fator, no centavo; volume é o histórico."""
+    """Multiplica OHLC pelo fator, no centavo e com piso de um centavo; volume é o histórico."""
     if factor == 1.0:
         return row
 
     update: dict[str, float] = {
-        field: round(getattr(row, field) * factor, 2)
+        field: _scaled_price(getattr(row, field), factor)
         for field in ("open", "high", "low", "close")
     }
     if isinstance(row, CandleDTO):
         # change_pct é uma razão entre preços do mesmo dia: o fator se cancela
         update["change"] = round(update["close"] - update["open"], 2)
     return row.model_copy(update=update)
+
+
+def _scaled_price(price: float, factor: float) -> float:
+    """O preço escalado no centavo; um preço positivo não arredonda a zero."""
+    scaled = round(price * factor, 2)
+    return max(scaled, MIN_PRICE) if price > 0 else scaled

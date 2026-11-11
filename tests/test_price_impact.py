@@ -366,3 +366,29 @@ def test_preview_curve_follows_the_impact_and_decay_of_a_ten_percent_buy():
     ]
     assert curve[0] == first_day
     assert curve[-1] == 0
+
+
+def test_a_stock_scaled_to_a_fraction_of_a_cent_keeps_the_minimum_price(market_effect):
+    """Com a bolsa a 1/400, o preço de R$ 0,50 não arredonda a R$ 0,00."""
+    market_effect(1 / 400)
+    price_impact = _impact(enabled=False)
+    price_impact.refresh(TUESDAY)
+    cheap = _candle().model_copy(
+        update={"open": 0.5, "high": 0.6, "low": 0.4, "close": 0.5, "change": 0.0}
+    )
+
+    candle = price_impact.apply(cheap)
+
+    assert (candle.open, candle.high, candle.low, candle.close) == (0.01,) * 4
+    assert candle.change == 0.0
+
+
+def test_the_history_never_shows_a_zero_price(market_effect):
+    market_effect(1 / 400)
+    row = StockPriceHistoryDTO(
+        price_date=TUESDAY, open=0.5, high=0.6, low=0.4, close=0.5, volume=500
+    )
+
+    scaled = _impact(enabled=False).apply_history("ABCD", [row])[0]
+
+    assert (scaled.open, scaled.high, scaled.low, scaled.close) == (0.01,) * 4
