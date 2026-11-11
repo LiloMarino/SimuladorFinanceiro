@@ -148,6 +148,9 @@ No playtest, a tela de estatísticas demorou a abrir numa partida longa e o x100
 **N41. Aprender como a economia real funciona, jogando**
 Na partida com governo, juro, inflação, desemprego, bolsa e dívida reagem pelos mecanismos que os economistas usam: a curva de Phillips, a regra de Taylor, o juro real neutro, a espiral da dívida. Quem joga quer sair da partida sabendo o nome de cada mecanismo e por que a economia reagiu daquele jeito, aprendendo brincando, sem abrir um livro de economia.
 
+**N42. Chegar a um estado da partida sem jogar até ele**
+Para conferir uma tela, desenhar o antes de um redesenho ou testar uma regra, é preciso um jogador com dinheiro, um cargo, uma data ou um imprevisto específico. Hoje isso só se alcança jogando até lá ou mexendo no banco à mão.
+
 ---
 
 ## Decisões
