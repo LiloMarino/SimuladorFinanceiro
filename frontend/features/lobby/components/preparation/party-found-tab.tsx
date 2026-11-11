@@ -45,11 +45,19 @@ export function PartyFoundTab({
   onClose,
 }: PartyModeProps) {
   const rivals = rivalsOf(preparations, nickname);
-  const takenColors = rivals.flatMap((rival) => (rival.color ? [rival.color] : []));
+  const taken = rivals.flatMap((rival) => (rival.color ? [{ color: rival.color, abbr: rival.abbr }] : []));
   // O partido em branco nasce uma vez: a cor marcada fica a mesma quando um rival troca a dele
   const [blank] = useState<PartyIdentity>(() => {
     const ownColor = humans.find((player) => player.nickname === nickname)?.color;
-    return { name: "", abbr: "", color: defaultPartyColor(ownColor, takenColors), flags: [] };
+    return {
+      name: "",
+      abbr: "",
+      color: defaultPartyColor(
+        ownColor,
+        taken.map((party) => party.color),
+      ),
+      flags: [],
+    };
   });
   const form = useForm<PartyIdentity>({
     resolver: zodResolver(partyIdentitySchema),
@@ -108,7 +116,7 @@ export function PartyFoundTab({
           {/* Identidade e bandeiras */}
           <div className="grid min-w-0 gap-4.5">
             <PreparationSection title="Identidade" hint="salva no perfil">
-              <PartyIdentityFields control={form.control} takenColors={takenColors} idPrefix="prep-party" />
+              <PartyIdentityFields control={form.control} taken={taken} idPrefix="prep-party" />
             </PreparationSection>
             <Controller
               control={form.control}

@@ -1,5 +1,7 @@
-const WHITE = "var(--primary-foreground)";
-const INK = "var(--foreground)";
+import { playerInitials } from "./player-initials";
+
+export const WHITE = "var(--primary-foreground)";
+export const INK = "var(--foreground)";
 
 /**
  * Paleta dos jogadores: `key` é o que o servidor guarda e devolve. `background` é o
@@ -18,6 +20,19 @@ export const PLAYER_COLORS = [
   { key: "chart-9", name: "Ameixa", background: "var(--player-9)", hex: "#682455", foreground: WHITE },
   { key: "chart-10", name: "Marrom", background: "var(--player-10)", hex: "#722604", foreground: WHITE },
 ] as const;
+
+/** A paleta no formato do seletor de cor: o valor escolhido é a `key` que o servidor guarda. */
+export const PLAYER_SWATCHES = PLAYER_COLORS.map((color) => ({
+  value: color.key,
+  name: color.name,
+  background: color.background,
+  foreground: color.foreground,
+}));
+
+/** Quem já tem cada cor, no formato do seletor: a cor, a sigla do dono e o nome dele. */
+export function playerOwners(players: { nickname: string; color: string }[]) {
+  return players.map((p) => ({ color: p.color, label: playerInitials(p.nickname), owner: p.nickname }));
+}
 
 /** O tamanho da paleta é o teto de jogadores da sala. */
 export const MAX_PLAYERS = PLAYER_COLORS.length;

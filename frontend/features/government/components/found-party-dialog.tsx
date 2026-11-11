@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { PartyIdentityFields } from "@/shared/components/party-identity-fields";
+import { PartyIdentityFields, type PartyTakenColor } from "@/shared/components/party-identity-fields";
 import { partyIdentitySchema } from "@/shared/lib/party-identity";
 import { displayMoney } from "@/shared/lib/utils/display";
 import { useFoundParty } from "../hooks/mutations/useFoundParty";
@@ -30,8 +30,8 @@ type FoundPartyDialogProps = {
   panel: ElectionPanel;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Cores que outros partidos já usam */
-  takenColors: string[];
+  /** Cores que outros partidos já usam, com a sigla de cada um */
+  taken: PartyTakenColor[];
   /** Chave da cor de quem funda, que o partido traz marcada se estiver livre */
   founderColor: string | undefined;
   /** Caixa do jogador, em reais, para avisar quando a contribuição passa dele */
@@ -39,21 +39,22 @@ type FoundPartyDialogProps = {
 };
 
 /** Fundar um partido: nome, sigla, cor, as 3 bandeiras e a contribuição de quem funda. */
-export function FoundPartyDialog({
-  panel,
-  open,
-  onOpenChange,
-  takenColors,
-  founderColor,
-  cash,
-}: FoundPartyDialogProps) {
+export function FoundPartyDialog({ panel, open, onOpenChange, taken, founderColor, cash }: FoundPartyDialogProps) {
   const found = useFoundParty();
   const [contribution, setContribution] = useState("");
   const [share, setShare] = useState(0);
 
   const form = useForm<PartyIdentity>({
     resolver: zodResolver(partyIdentitySchema),
-    defaultValues: { name: "", abbr: "", color: defaultPartyColor(founderColor, takenColors), flags: [] },
+    defaultValues: {
+      name: "",
+      abbr: "",
+      color: defaultPartyColor(
+        founderColor,
+        taken.map((party) => party.color),
+      ),
+      flags: [],
+    },
   });
 
   const color = useWatch({ control: form.control, name: "color" });
@@ -88,7 +89,7 @@ export function FoundPartyDialog({
 
         <DialogBody>
           <form id="found-party-form" onSubmit={(event) => void submit(event)} className="grid gap-3.5">
-            <PartyIdentityFields control={form.control} takenColors={takenColors} idPrefix="party" />
+            <PartyIdentityFields control={form.control} taken={taken} idPrefix="party" />
 
             <Controller
               control={form.control}

@@ -1,25 +1,44 @@
-import { PLAYER_COLORS } from "./player-colors";
+import { INK, PLAYER_COLORS, WHITE } from "./player-colors";
 
-const WHITE = "var(--primary-foreground)";
+/**
+ * As 16 cores que a fundadora escolhe para o partido, no formato do seletor de cor: o valor
+ * escolhido é o hex, que o servidor guarda. As 10 primeiras são as dos jogadores; as 6 últimas
+ * (vermelho, laranja, âmbar, rosa, azul-céu e verde) são só de partido. Preto, branco e cinzas
+ * ficam de fora: o sistema os reserva (destaque do mapa, selos, UPR e partido sem cor).
+ */
+export const PARTY_PALETTE = [
+  ...PLAYER_COLORS.map((color) => ({
+    value: color.hex,
+    name: color.name,
+    background: color.hex,
+    foreground: color.foreground,
+  })),
+  { value: "#D92D20", name: "Vermelho", background: "#D92D20", foreground: WHITE },
+  { value: "#E8590C", name: "Laranja", background: "#E8590C", foreground: INK },
+  { value: "#A85F00", name: "Âmbar", background: "#A85F00", foreground: WHITE },
+  { value: "#E0489B", name: "Rosa", background: "#E0489B", foreground: INK },
+  { value: "#1E88E5", name: "Azul-céu", background: "#1E88E5", foreground: INK },
+  { value: "#1A9A44", name: "Verde", background: "#1A9A44", foreground: INK },
+];
 
-/** As cores que a fundadora escolhe para o partido: as mesmas dos jogadores. */
-export const PARTY_COLORS = PLAYER_COLORS.map((color) => color.hex);
-
-/** Os partidos do computador não escolhem cor: cada um tem a sua, fixa e fora da paleta dos jogadores. */
-const COMPUTER_COLORS: Record<string, string> = {
+/** Os partidos do computador não escolhem cor: cada um tem a sua, fixa e fora da paleta de escolha. */
+export const COMPUTER_COLORS: Record<string, string> = {
   UPR: "#6B6B6B",
   ACI: "#0F7C9C",
   MNV: "#7E6B17",
 };
 
+/** O cinza do partido sem cor. */
+export const NO_COLOR = "#7D879B";
+
 /** A cor do partido em toda tela: a escolhida pela fundadora ou, no partido do computador, a da paleta fixa. */
 export function partyColor(party: { abbr: string; color: string | null }): string {
-  return party.color ?? COMPUTER_COLORS[party.abbr] ?? "#7D879B";
+  return party.color ?? COMPUTER_COLORS[party.abbr] ?? NO_COLOR;
 }
 
-/** O texto da sigla sobre a cor do partido: o mesmo da cor de jogador de igual hex; fora da paleta, branco. */
+/** O texto da sigla sobre a cor do partido: o da cor da paleta de igual hex; fora da paleta, branco. */
 export function partyForeground(color: string): string {
-  return PLAYER_COLORS.find((c) => c.hex === color.toUpperCase())?.foreground ?? WHITE;
+  return PARTY_PALETTE.find((c) => c.value === color.toUpperCase())?.foreground ?? WHITE;
 }
 
 /** A cor que o partido novo traz marcada: a do jogador que funda, se nenhum partido a usa; senão a 1ª livre. */
@@ -27,5 +46,5 @@ export function defaultPartyColor(founderColor: string | undefined, takenColors:
   const taken = new Set(takenColors.map((color) => color.toUpperCase()));
   const own = PLAYER_COLORS.find((c) => c.key === founderColor)?.hex;
   if (own && !taken.has(own)) return own;
-  return PARTY_COLORS.find((color) => !taken.has(color)) ?? PLAYER_COLORS[0].hex;
+  return PARTY_PALETTE.find((c) => !taken.has(c.value))?.value ?? PLAYER_COLORS[0].hex;
 }

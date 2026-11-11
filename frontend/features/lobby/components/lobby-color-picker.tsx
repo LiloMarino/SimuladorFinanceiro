@@ -10,8 +10,8 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/shared/components/ui/popover";
-import { PlayerColorGrid } from "@/shared/components/player-color-grid";
-import { playerColorName, playerColorStyle } from "@/shared/lib/player-colors";
+import { ColorSwatchPicker } from "@/shared/components/color-swatch-picker";
+import { PLAYER_SWATCHES, playerColorName, playerColorStyle, playerOwners } from "@/shared/lib/player-colors";
 import type { RoomPlayer } from "@/types";
 import { useChooseColor } from "../hooks/mutations/useChooseColor";
 
@@ -64,11 +64,14 @@ export function LobbyColorPicker({ nickname, players, savedPlayers, simulationNa
           </PopoverDescription>
         </PopoverHeader>
 
-        <PlayerColorGrid
-          owners={[...players, ...savedPlayers]}
-          selected={mine}
+        <ColorSwatchPicker
+          colors={PLAYER_SWATCHES}
+          taken={playerOwners([...players, ...savedPlayers])}
+          value={mine}
+          onChange={chooseColor}
+          columns={5}
+          label="Sua cor na partida"
           disabled={locked || isPending}
-          onSelect={chooseColor}
         />
 
         {refusal && (

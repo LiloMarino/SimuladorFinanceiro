@@ -1,7 +1,7 @@
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
 import { Copy, Trash2 } from "lucide-react";
-import { BotColorSwatches } from "@/shared/components/bot-color-swatches";
 import { BotNameField } from "@/shared/components/bot-name-field";
+import { ColorSwatchPicker } from "@/shared/components/color-swatch-picker";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { StrategyParamsForm } from "@/shared/components/strategy-params-form";
 import { Button } from "@/shared/components/ui/button";
@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { drawBotName, isDrawnName } from "@/shared/lib/bot-names";
+import { PLAYER_SWATCHES, playerOwners } from "@/shared/lib/player-colors";
 import { GROUP_SECTION } from "@/shared/lib/strategy-groups";
 import { defaultValues, draftErrors, toDraft, type ParamDraft } from "@/shared/lib/strategy-params";
 import { moneyToBody } from "@/shared/lib/utils/money-field";
@@ -142,12 +143,15 @@ export function ParticipantEditor({
       {/* Cor */}
       <Field>
         <FieldLabel>Cor</FieldLabel>
-        <BotColorSwatches
-          owners={others}
-          selected={participant.color}
-          onSelect={(next) => form.setValue(`${path}.color`, next, { shouldValidate: true })}
+        <ColorSwatchPicker
+          colors={PLAYER_SWATCHES}
+          taken={playerOwners(others)}
+          value={participant.color}
+          onChange={(next) => form.setValue(`${path}.color`, next, { shouldValidate: true })}
+          columns={5}
+          label="Cor da estratégia"
         />
-        <FieldDescription>As riscadas já são de outra estratégia.</FieldDescription>
+        <FieldDescription>As esmaecidas já são de outra estratégia.</FieldDescription>
       </Field>
 
       {/* Parâmetros */}

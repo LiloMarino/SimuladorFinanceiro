@@ -141,7 +141,9 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
   const mine = panel.my_party;
   const party = mine ? panel.parties.find((candidate) => candidate.id === mine.party_id) : undefined;
   const playerParties = panel.parties.filter((candidate) => !candidate.is_computer);
-  const takenColors = panel.parties.map((candidate) => candidate.color).filter((color): color is string => !!color);
+  const takenParties = panel.parties.flatMap((candidate) =>
+    candidate.color ? [{ color: candidate.color, abbr: candidate.abbr }] : [],
+  );
   const campaignOpen = panel.phase !== "BEFORE_CAMPAIGN";
   const hasTerm = panel.term !== null || panel.pending_term !== null;
 
@@ -419,7 +421,7 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
         open={dialog === "found"}
         onOpenChange={close}
         panel={panel}
-        takenColors={takenColors}
+        taken={takenParties}
         founderColor={players?.find((player) => player.nickname === nickname)?.color}
         cash={cash}
       />

@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { DoorOpen, TriangleAlert } from "lucide-react";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { GroupingBadge } from "@/shared/components/grouping-badge";
-import { PlayerColorGrid } from "@/shared/components/player-color-grid";
+import { ColorSwatchPicker } from "@/shared/components/color-swatch-picker";
 import { ProfessionBadge } from "@/shared/components/profession-badge";
 import { ProfessionGrid } from "@/shared/components/profession-grid";
 import { TeamBadge } from "@/shared/components/team-badge";
@@ -19,7 +19,7 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useSimulation } from "@/shared/hooks/useSimulation";
-import { PLAYER_COLORS, playerColorName } from "@/shared/lib/player-colors";
+import { PLAYER_COLORS, PLAYER_SWATCHES, playerOwners } from "@/shared/lib/player-colors";
 import { loadColorPreference } from "@/shared/lib/player-color-preference";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { formatMoney } from "@/shared/lib/utils/format";
@@ -141,17 +141,18 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
 
             {/* Escolha da cor */}
             <div className="grid gap-2">
-              <span className="text-xs font-semibold text-muted-foreground">
-                Sua cor{selected ? `: ${playerColorName(selected)}` : ""}
-              </span>
-              <PlayerColorGrid
-                owners={players}
-                selected={selected}
-                disabled={isPending}
-                onSelect={(color) => {
+              <span className="text-xs font-semibold text-muted-foreground">Sua cor</span>
+              <ColorSwatchPicker
+                colors={PLAYER_SWATCHES}
+                taken={playerOwners(players)}
+                value={selected}
+                onChange={(color) => {
                   reset();
                   setChoice(color);
                 }}
+                columns={5}
+                label="Sua cor"
+                disabled={isPending}
               />
             </div>
 

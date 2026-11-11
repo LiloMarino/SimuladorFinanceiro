@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import { Controller, useForm, useWatch, type UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BotColorSwatches } from "@/shared/components/bot-color-swatches";
 import { BotNameField } from "@/shared/components/bot-name-field";
+import { ColorSwatchPicker } from "@/shared/components/color-swatch-picker";
 import { ErrorState } from "@/shared/components/error-state";
 import { InfoHint } from "@/shared/components/info-hint";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
@@ -20,6 +20,7 @@ import { useBotTickers } from "@/shared/hooks/queries/useBotTickers";
 import type { BotFormValues, TakenSlot } from "@/shared/lib/bot-form";
 import { drawBotName, isDrawnName, nameTaken } from "@/shared/lib/bot-names";
 import { NAME_MAX_LENGTH, NAME_TOO_LONG } from "@/shared/lib/name-limit";
+import { PLAYER_SWATCHES, playerOwners } from "@/shared/lib/player-colors";
 import { GROUP_SECTION } from "@/shared/lib/strategy-groups";
 import { defaultValues, draftErrors, fromDraft, toDraft, type ParamValues } from "@/shared/lib/strategy-params";
 import { cn } from "@/shared/lib/utils";
@@ -291,8 +292,15 @@ function BotForm({
             {/* Cor */}
             <Field>
               <FieldLabel>Cor</FieldLabel>
-              <BotColorSwatches owners={others} selected={color} onSelect={(next) => form.setValue("color", next)} />
-              <FieldDescription>Já vem a próxima livre. As riscadas estão em uso.</FieldDescription>
+              <ColorSwatchPicker
+                colors={PLAYER_SWATCHES}
+                taken={playerOwners(others)}
+                value={color}
+                onChange={(next) => form.setValue("color", next)}
+                columns={5}
+                label="Cor do bot"
+              />
+              <FieldDescription>Já vem a próxima livre. As esmaecidas estão em uso.</FieldDescription>
             </Field>
 
             {extraFields?.(form, others)}
