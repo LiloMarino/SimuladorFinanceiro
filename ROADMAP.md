@@ -101,7 +101,6 @@
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
-| [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | M26 · 4.1 | — | Médio | Excelente | ⏳ |
 | [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | M26 · 4.1 | — | — | — | 🔍 |
 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | M26 · 4.1 | — | — | — | 🔍 |
@@ -118,7 +117,7 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (43 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (44 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -158,6 +157,7 @@
 | [**F260**](#f260) | Feature | Caixa em dólar com o juro americano | M26 · 4.1 | — | — | — | ✅ |
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | ✅ |
 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | M26 · 4.1 | — | — | — | ✅ |
+| [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | M26 · 4.1 | — | — | — | ✅ |
 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | M26 · 4.1 | — | — | — | ✅ |
 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | — | — | ✅ |
 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 | — | — | — | ✅ |
@@ -180,7 +180,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 23/37 concluídos
+> **Progresso:** 24/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -200,7 +200,7 @@
 | 14 | [**F261**](#f261) | Feature | Profissão no viver de renda | — | ✅ Concluído |
 | 15 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | ✅ Concluído |
 | 16 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | — | ✅ Concluído |
-| 17 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | — | ⏳ Pendente |
+| 17 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | — | ✅ Concluído |
 | 18 | [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | — | ⏳ Pendente |
 | 19 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | — | ✅ Concluído |
 | 20 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | — | 🔍 Em avaliação |
@@ -334,7 +334,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | M26 · 4.1 · 17º | 0 | Médio | Excelente | ⏳ |
 | [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | M26 · 4.1 · 18º | 0 | Médio | Bom | ⏳ |
 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | M26 · 4.1 · 20º | 0 | — | — | 🔍 |
 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | M26 · 4.1 · 21º | 0 | — | — | 🔍 |
@@ -402,7 +401,6 @@
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
-| **F263** | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | N3, N34 | D20 | M26 · 4.1 | — | Médio | Médio | Alto | Excelente |
 | **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | D10 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
 | **F271** | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | N20 | — | M26 · 4.1 | — | Médio | Baixo | Médio | Bom |
 | **F277** | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | N31 | — | M26 · 4.1 | — | Alto | Baixo | Alto | Bom |
@@ -484,16 +482,6 @@
 **F249 — Núcleo do backend sem import de features.** `core/` importa de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
 
 Cada um desses módulos é movido para a feature que o consome ou passa a receber a dependência por injeção (o `core` define o protocolo, a feature implementa). Por fora nada muda; confere-se com `uv run pyright`, `uv run pytest -n 4` e um `grep "features" backend/core` vazio. Sem decisão de fazer agora.
-
-<a id="f263"></a>
-**F263 — Bolsa com piso e dividendo que acompanha o preço da partida.** Serve N3 e N34; condicionado por D20. Na Simulação #3, o nível da bolsa da partida (`level` em `backend/features/economy/layer.py:270`, a exponencial da soma das forças, sem limite para baixo) levou as ações a 1/400 da série guardada: a PETR4 foi de ~R$ 4,40 a R$ 0,01 no fim de 2031 e ficou assim até o fim. O provento continuou igual ao histórico por ação (`broker.py:142` paga `event.value` sem o fator da partida), e o rendimento passou de ~9% para milhares de por cento ao ano. Uma jogadora aplicou R$ 50 mi em PETR4 entre 2033 e 2035 e recebeu R$ 3,69 bi em dividendos. O arredondamento ao centavo (`_scale` em `variable_income/price_impact.py`) piora o quadro: a ação alterna entre R$ 0,00 e R$ 0,01, e a carteira de um bot foi de R$ 30 mil a R$ 0,01 num pregão e voltou a R$ 7,5 mil.
-
-**Plano.**
-1. **Provento na escala da partida.** O dividendo e o JCP por ação são multiplicados pelo `stock_factor` do dia do pagamento, o mesmo do preço. O histórico de proventos e o rendimento (`dividends.py`, `trailing_per_share`) leem o valor já escalado.
-2. **Piso com amortecimento no nível da bolsa.** Abaixo de um limiar, a queda do nível se comprime em vez de seguir a exponencial. O limiar e o piso são calibrados na calibragem de 10 anos, com o pior governo que ela simula.
-3. **Preço que não arredonda a zero.** O OHLC escalado tem piso de R$ 0,01.
-
-**Aceite.** Teste com o fator da bolsa a 1/400: o provento sai a 1/400 do histórico. A calibragem de 10 anos com o pior governo não leva a bolsa abaixo do piso. Nenhum preço de ação sai R$ 0,00.
 
 <a id="f264"></a>
 **F264 — Nota de desempenho que não explode com patrimônio quase zero.** Serve N9 e N3; condicionado por D10.
@@ -767,6 +755,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F260** | Feature | Caixa em dólar com o juro americano | N41, N34 | — | M26 · 4.1 |
 | **F261** | Feature | Profissão no viver de renda | N23, N34 | D19 | M26 · 4.1 |
 | **F262** | Feature | Pedido de impeachment aberto por jogador | N34 | — | M26 · 4.1 |
+| **F263** | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | N3, N34 | D20 | M26 · 4.1 |
 | **F265** | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | N15, N34 | — | M26 · 4.1 |
 | **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 |
 | **F274** | Feature | Presidência e base do governo que valem a pena | N34 | — | M26 · 4.1 |
@@ -926,6 +915,16 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 
 <a id="f262"></a>
 **F262 — Pedido de impeachment aberto por jogador.** Serve N34. O líder de um partido com pelo menos uma cadeira na casa, fora o do partido do presidente, abre o pedido enquanto a aprovação de um presidente jogador está abaixo do piso de 25% e fora da carência dos 12 primeiros meses. Há um pedido aberto por vez e cada partido pede uma vez por mandato. O pedido rejeitado soma 5 pontos de rejeição ao partido de quem pediu, nos grupos de eleitores que ainda aprovam o presidente. O pedido sai em manchete para a sala toda e em aviso ao presidente, com o partido que pediu; a tela do Congresso mostra o botão com o custo explicado antes de confirmar. A bancada na base orienta Não e protege o presidente, sem código novo. Os 5 pontos ficam para a calibragem pelo CLI.
+
+<a id="f263"></a>
+**F263 — Bolsa com piso e dividendo que acompanha o preço da partida.** Serve N3 e N34; condicionado por D20. Na Simulação #3, o nível da bolsa da partida (`level` em `backend/features/economy/layer.py:270`, a exponencial da soma das forças, sem limite para baixo) levou as ações a 1/400 da série guardada: a PETR4 foi de ~R$ 4,40 a R$ 0,01 no fim de 2031 e ficou assim até o fim. O provento continuou igual ao histórico por ação (`broker.py:142` paga `event.value` sem o fator da partida), e o rendimento passou de ~9% para milhares de por cento ao ano. Uma jogadora aplicou R$ 50 mi em PETR4 entre 2033 e 2035 e recebeu R$ 3,69 bi em dividendos. O arredondamento ao centavo (`_scale` em `variable_income/price_impact.py`) piora o quadro: a ação alterna entre R$ 0,00 e R$ 0,01, e a carteira de um bot foi de R$ 30 mil a R$ 0,01 num pregão e voltou a R$ 7,5 mil.
+
+**Plano.**
+1. **Provento na escala da partida.** O dividendo e o JCP por ação são multiplicados pelo `stock_factor` do dia do pagamento, o mesmo do preço. O histórico de proventos e o rendimento (`dividends.py`, `trailing_per_share`) leem o valor já escalado.
+2. **Piso com amortecimento no nível da bolsa.** Abaixo de um limiar, a queda do nível se comprime em vez de seguir a exponencial. O limiar e o piso são calibrados na calibragem de 10 anos, com o pior governo que ela simula.
+3. **Preço que não arredonda a zero.** O OHLC escalado tem piso de R$ 0,01.
+
+**Aceite.** Teste com o fator da bolsa a 1/400: o provento sai a 1/400 do histórico. A calibragem de 10 anos com o pior governo não leva a bolsa abaixo do piso. Nenhum preço de ação sai R$ 0,00.
 
 <a id="f265"></a>
 **F265 — Acabamentos do mapa, do Tesouro e dos cards da economia.** Serve N15 e N34. Lote de consertos pequenos que saíram da partida de 10/11.
