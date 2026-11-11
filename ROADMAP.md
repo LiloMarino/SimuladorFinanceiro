@@ -107,7 +107,6 @@
 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | M26 · 4.1 | — | — | — | 🔍 |
 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | M26 · 4.1 | — | — | — | 🔍 |
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 | — | — | — | 🔍 |
-| [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 | — | — | — | 🔍 |
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 | — | Alto | Médio | ⏳ |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 | — | — | — | 🔍 |
@@ -116,7 +115,7 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (45 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (46 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -158,6 +157,7 @@
 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | M26 · 4.1 | — | — | — | ✅ |
 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | M26 · 4.1 | — | — | — | ✅ |
 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | M26 · 4.1 | — | — | — | ✅ |
+| [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 | — | — | — | ✅ |
 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | — | — | ✅ |
 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 | — | — | — | ✅ |
 | [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 | — | — | — | ✅ |
@@ -180,7 +180,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 25/37 concluídos
+> **Progresso:** 26/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -208,7 +208,7 @@
 | 22 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | — | 🔍 Em avaliação |
 | 23 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | — | 🔍 Em avaliação |
 | 24 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | — | 🔍 Em avaliação |
-| 25 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | — | ⏳ Pendente |
+| 25 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | — | ✅ Concluído |
 | 26 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | — | 🔍 Em avaliação |
 | 27 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | — | ✅ Concluído |
 | 28 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | — | ✅ Concluído |
@@ -340,7 +340,6 @@
 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | M26 · 4.1 · 22º | 0 | — | — | 🔍 |
 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | M26 · 4.1 · 23º | 0 | — | — | 🔍 |
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 · 24º | 0 | — | — | 🔍 |
-| [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 · 25º | 0 | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 · 26º | 0 | — | — | 🔍 |
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 · 32º | 0 | Alto | Médio | ⏳ |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 · 33º | 0 | — | — | 🔍 |
@@ -401,7 +400,6 @@
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
 | **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | D10 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
-| **F271** | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | N20 | — | M26 · 4.1 | — | Médio | Baixo | Médio | Bom |
 | **F278** | Feature | Imprevistos e eventos de vida mais variados | N23 | — | M26 · 4.1 | — | Alto | Médio | Médio | Médio |
 
 <a id="f6"></a>
@@ -503,25 +501,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 **Efeito nas partidas salvas.** A nota é recalculada dos snapshots a cada leitura, então toda partida muda um pouco. Estimativa: de 2 a 7 pontos a menos no eixo de eficiência, mais para quem oscila mais (com volatilidade de 20% ao ano o Sharpe cai cerca de 0,1). A conquista dos 250 pontos (`achievements/catalog.py:282-288`) usa a nota nova.
 
 **Aceite:** no histórico do "como reproduzir", Sharpe e Sortino saem negativos, o eixo de eficiência dá 0 ponto e a volatilidade dá 0 ponto (antes, 9 milhões de pontos na nota). Num histórico de dois dias com −50% e +100%, a média dos retornos usada no Sharpe é 0. Um histórico comum, com volatilidade de até 30% ao ano, muda menos de 10 pontos na nota total.
-
-<a id="f271"></a>
-**F271 — Paleta de 16 cores para os partidos e um seletor de cor único.** Serve N20.
-
-**O que existe.** Jogadores e partidos dividem as mesmas 10 cores: `PLAYER_COLORS` em `frontend/shared/lib/player-colors.ts:9-23` (Azul, Verde-água, Lima, Roxo, Salmão, Framboesa, Lavanda, Floresta, Ameixa e Marrom), e `PARTY_COLORS` em `frontend/shared/lib/party-colors.ts:6` é a mesma lista em hex, mais as três dos partidos do computador (UPR cinza, ACI azul-petróleo, MNV oliva) e o cinza do partido sem cor. Não há vermelho puro nem amarelo: um PT não fica vermelho e um MISSÃO não fica amarelo. O backend já aceita qualquer hex como cor de partido (`PARTY_COLOR_PATTERN`, `backend/core/dto/government.py:42`) e só exige que seja única entre os partidos (`government_book.py:783-784`); quem limita às 10 é a tela. Existem três seletores de cor: a grade com nome do lobby (`shared/components/player-color-grid.tsx`), as bolinhas do bot (`shared/components/bot-color-swatches.tsx`, usado no diálogo de bot e no editor de participante do backtest) e as bolinhas da fundação de partido (`shared/components/party-identity-fields.tsx`).
-
-**O que muda e por quê.**
-
-1. Só os partidos ganham a paleta maior. Os jogadores ficam com as 10 cores atuais, uma por vaga da sala: nos gráficos de carteira o vermelho já significa perda e o âmbar já significa alerta. Nada muda no backend.
-2. `PARTY_COLORS` passa a ser uma lista própria de 16 cores com nome: as 10 atuais mais Vermelho, Laranja, Âmbar, Rosa, Azul-céu e Verde. O alvo é uma paleta no nível das 16 tintas do Minecraft, sem as que o sistema reserva. Preto, branco e cinzas ficam fora: o destaque do lugar selecionado no mapa é um contorno na cor do texto (`brazil-map.tsx:160`), as dicas e os selos usam fundo preto, e o cinza é do UPR e do partido sem cor. O amarelo entra como âmbar escuro, porque amarelo vivo some no fundo claro (contraste perto de 1,4 para 1).
-3. O tom exato de cada cor nova sai de um teste, `frontend/shared/lib/party-colors.test.ts`, que passa a valer para a paleta inteira:
-   - contraste de pelo menos 3 para 1 contra o fundo de cada tema do app (a razão de contraste vai de 1, cores iguais, a 21, preto no branco; 3 é o mínimo para um elemento gráfico ser visto);
-   - o texto que vai sobre a cor (sigla do partido no mapa e nos selos) com pelo menos 4,5 para 1, o mínimo para texto;
-   - distância ΔE de pelo menos 12 entre cada cor nova e todas as outras, incluídas UPR, ACI, MNV e o cinza sem cor. ΔE (CIEDE2000) mede o quanto duas cores parecem diferentes ao olho: abaixo de 2 quase ninguém nota, perto de 10 dá para distinguir lado a lado, acima de 20 são claramente outras cores.
-   Pontos de partida para o ajuste: Vermelho `#D92D20`, Laranja `#E8590C`, Âmbar `#B45309`, Rosa `#E0489B`, Azul-céu `#1E88E5`, Verde `#1FA34A`. O cálculo de contraste e de ΔE fica numa função pura em `frontend/shared/lib`, sem dependência nova. Se uma cor não passar em nenhum tom, ela sai e o commit diz qual; se couberem mais cores passando no teste (turquesa, vinho), entram até 18.
-4. Um componente único de amostras em `frontend/shared/components/` substitui os três seletores: grade de 8 por linha para os partidos (duas linhas com 16) e de 5 por linha para os jogadores, nome da cor na dica e em texto abaixo da grade para a selecionada, cor já usada esmaecida com a sigla de quem usa, `radiogroup` com teclado. Usam o componente: `features/lobby/components/lobby-color-picker.tsx`, `features/lobby/components/bot-dialog.tsx`, `features/backtest/components/participant-editor.tsx` e `party-identity-fields.tsx`. `player-color-grid.tsx` e `bot-color-swatches.tsx` saem.
-5. Conferir no navegador o mapa com um partido de cada cor nova (preenchimento, sigla e contorno do lugar selecionado) e o gráfico de intenção de voto com 8 partidos.
-
-**Aceite:** o teste da paleta passa com 16 cores de partido; fundar partido, lobby, diálogo de bot e editor do backtest usam o mesmo componente de seletor; a paleta dos jogadores continua com as 10 cores e as mesmas chaves `chart-1` a `chart-10`.
 
 <a id="f278"></a>
 **F278 — Imprevistos e eventos de vida mais variados.** Serve N23.
@@ -733,6 +712,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F262** | Feature | Pedido de impeachment aberto por jogador | N34 | — | M26 · 4.1 |
 | **F263** | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | N3, N34 | D20 | M26 · 4.1 |
 | **F265** | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | N15, N34 | — | M26 · 4.1 |
+| **F271** | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | N20 | — | M26 · 4.1 |
 | **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 |
 | **F274** | Feature | Presidência e base do governo que valem a pena | N34 | — | M26 · 4.1 |
 | **F275** | Feature | Vitória política separada do capital | N34, N22 | — | M26 · 4.1 |
@@ -915,6 +895,17 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 7. **Atalhos de valor que somam.** Na contribuição mensal (`contribution-field.tsx:9`) e na doação (`donate-dialog.tsx:36`), o atalho substitui o valor; na renda fixa (`investment-ticket.tsx:30-34`), ele soma. Os dois passam a somar, como na renda fixa.
 8. **Selo do partido no jornal.** A manchete cita a sigla só em texto ("UPR"); passa a mostrar o selo do partido, o mesmo das telas de governo.
 9. **Juro americano na prévia do futuro gerado.** O FED_FUNDS é gerado (`synthetic.py:854-870`), mas não está no `FuturePreviewDTO` (`dto/generated_future.py:78-95`), então não aparece na prévia do diálogo de geração.
+
+<a id="f271"></a>
+**F271 — Paleta de 16 cores para os partidos e um seletor de cor único.** Serve N20.
+
+**O que foi feito.** Os partidos têm 16 cores com nome em `PARTY_PALETTE` (`frontend/shared/lib/party-colors.ts`): as 10 dos jogadores mais Vermelho `#D92D20`, Laranja `#E8590C`, Âmbar `#A85F00`, Rosa `#E0489B`, Azul-céu `#1E88E5` e Verde `#1A9A44`. Os jogadores seguem com as 10 cores e as chaves `chart-1` a `chart-10`; nada mudou no backend. Turquesa e vinho não entraram: 16 cabem em duas linhas de 8.
+
+- O teste da paleta (`party-colors.test.ts`) exige contraste de 3 para 1 contra o fundo do app nas 6 cores novas (Lima, Salmão e Lavanda, que já existiam, ficam perto de 2,9 e não mudam), texto da sigla com 4,5 para 1 nas 16 e distância ΔE (CIEDE2000) de pelo menos 12 entre as 16, incluídas UPR, ACI, MNV e o cinza sem cor. O cálculo fica em `frontend/shared/lib/color-math.ts`, sem dependência nova.
+- `ColorSwatchPicker` (`frontend/shared/components/color-swatch-picker.tsx`) substitui os três seletores antigos: `radiogroup` com setas, Home e End, nome da cor embaixo, cor em uso esmaecida com a sigla de quem usa, 8 colunas para partidos e 5 para jogadores. Usam o componente o lobby, a entrada na partida, o diálogo de bot, o editor do backtest e a fundação de partido (preparação e partida).
+- Conferido no navegador: seletor nas duas telas de fundação, diálogo de bot, popover do lobby com teclado, siglas nas cores novas na Eleição, mapa por estado com contorno do lugar selecionado e gráfico de intenção de voto com 7 partidos.
+
+**Aceite:** o teste da paleta passa com 16 cores de partido; fundar partido, lobby, diálogo de bot e editor do backtest usam o mesmo componente de seletor; a paleta dos jogadores continua com as 10 cores e as mesmas chaves `chart-1` a `chart-10`.
 
 <a id="f273"></a>
 **F273 — Convites que se escolhem e se acumulam.** Serve N34 e N23. Convidar o vice virou ação própria: escolher no seletor não envia nada, o botão Convidar envia e Retirar convite desfaz, na partida e no lobby. Inscrever a chapa e salvar a fundação deixam de convidar. Quem recebe acumula convites de vice e propostas de federação; aceitar um recusa os incompatíveis do mesmo tipo (vice e federação não se cruzam) e avisa quem convidou. O proponente envia uma proposta de federação por vez. O convite recusado aparece na tela da chapa e no card público do partido.
