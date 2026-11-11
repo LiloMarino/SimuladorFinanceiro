@@ -37,7 +37,7 @@
 | **N17** | — | Enxergar a estrutura do banco e esboçar mudanças nela | — | — | — | — | — |
 | **N18** | — | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — | — | — | — |
 | **N19** | — | Analisar um ativo com as ferramentas de um trader | — | [F34](#f34), [F131](#f131), [F193](#f193) | — | — | — |
-| **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | [F271](#f271) | — | — | — |
+| **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | [F271](#f271), [F285](#f285) | — | — | — |
 | **N21** | — | Jogar "na unha", sem a interface apontar a melhor escolha | — | — | — | — | — |
 | **N22** | — | Ter objetivos para buscar além de vencer a partida | — | [F90](#f90), [F123](#f123), [F159](#f159), [F275](#f275) | — | — | — |
 | **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F44](#f44), [F55](#f55), [F69](#f69), [F101](#f101), [F102](#f102), [F103](#f103), [F104](#f104), [F105](#f105), [F257](#f257), [F261](#f261), [F273](#f273), [F278](#f278) | — | — | — |
@@ -113,6 +113,7 @@
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 | — | — | — | 🔍 |
 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 | — | — | — | 🔍 |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | — | — | 🔍 |
+| [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (46 itens — clique pra expandir)</strong></summary>
@@ -157,7 +158,7 @@
 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | M26 · 4.1 | — | — | — | ✅ |
 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | M26 · 4.1 | — | — | — | ✅ |
 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | M26 · 4.1 | — | — | — | ✅ |
-| [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 | — | — | — | ✅ |
+| [**F271**](#f271) | Melhoria | Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único | M26 · 4.1 | — | — | — | ✅ |
 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | — | — | ✅ |
 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 | — | — | — | ✅ |
 | [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 | — | — | — | ✅ |
@@ -208,7 +209,7 @@
 | 22 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | — | 🔍 Em avaliação |
 | 23 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | — | 🔍 Em avaliação |
 | 24 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | — | 🔍 Em avaliação |
-| 25 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | — | ✅ Concluído |
+| 25 | [**F271**](#f271) | Melhoria | Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único | — | ✅ Concluído |
 | 26 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | — | 🔍 Em avaliação |
 | 27 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | — | ✅ Concluído |
 | 28 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | — | ✅ Concluído |
@@ -325,6 +326,7 @@
 | ID | Tipo | Resumo | Serve | Depende de | Destrava | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | N34 | — | 0 | 🔍 Em avaliação |
+| [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | [F271](#f271) | 0 | 🔍 Em avaliação |
 
 ---
 
@@ -371,6 +373,7 @@
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 · 7º | 0 | — | — | 🔍 |
 | [**F37**](#f37) | Feature | Tema escuro | M28 · 4.6 · 10º | 0 | Médio | Médio | ⏳ |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | 0 | — | — | 🔍 |
+| [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | 0 | — | — | 🔍 |
 
 ---
 
@@ -566,6 +569,7 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F280** | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | N34, N8 | — | M26 · 4.1 | — | Quantos partidos do computador concorrem com N jogadores; quanto pesam as ações de campanha contra o dinheiro; de onde sai o dinheiro de campanha. |
 | **F283** | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | N15 | — | M26 · 4.1 | — | Em quais campos a porcentagem ajuda (contribuição em % do salário, doação em % do caixa, venda em % da posição) e se o Shift fica como atalho do controle visível. |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Que poder o ministro tem, sobre qual gasto ou medida, o que o presidente perde ao ceder e o que impede o ministro de virar um segundo presidente. |
+| **F285** | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | — | — | [F271](#f271) | Escolher o mecanismo (filtrar o seletor, recolorir na tela de quem liga ou reforçar além da cor) e medir o tamanho do conjunto distinguível sob as três simulações |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -677,6 +681,21 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 <a id="f284"></a>
 **F284 — Ministério para o partido da base.** Serve N34. Hoje o partido que entra na base entrega as cadeiras e recebe a emenda; quem governa é só o presidente. A ideia é o acordo poder dar ao aliado um ministério: uma fatia do governo que o líder aliado comanda, para que estar na base seja também governar. Saiu do desenho da presidência e da base que valem a pena (F274) por ser grande o bastante para pedir desenho próprio.
 
+<a id="f285"></a>
+**F285 — Modo daltonismo: limitar as cores às que um daltônico distingue.** Serve N20.
+
+**O que o jogador passa a poder fazer.** Ligar uma opção "modo daltonismo", como os jogos têm, e ver jogadores e partidos só em cores que ele distingue. Com o modo desligado, as cores seguem escolhidas só pelo contraste e pela distância ΔE normal, sem a restrição de daltonismo.
+
+**O que existe.** As 12 cores dos jogadores e as 20 dos partidos foram escolhidas para visão normal: contraste de 3 para 1 contra o fundo e ΔE (CIEDE2000, o quanto duas cores parecem diferentes; perto de 10 dá para distinguir lado a lado) de pelo menos 12. Simulando daltonismo (modelo de Machado, 2009: protanopia é a falta dos cones do vermelho, deuteranopia a dos cones do verde e tritanopia a dos cones do azul), vários pares colapsam. Na paleta de 16 cores medida, 19 pares ficam abaixo de ΔE 12 na protanopia, 25 na deuteranopia e 20 na tritanopia. Os piores: Âmbar e MNV (0,8 na protanopia), Vermelho e Âmbar (2,8 na deuteranopia) e Verde-água e o cinza do partido sem cor (2,4 na deuteranopia). Mesma ordem de grandeza da paleta das tintas do Minecraft, que a avaliação comparou.
+
+**Falta decidir o mecanismo.**
+
+1. Filtrar o seletor: com o modo ligado, o seletor oferece só um subconjunto de cores distinguíveis nas três simulações. É o mais simples, mas só vale para a cor que a pessoa escolhe; as cores que os outros escolheram ficam como estão e duas delas ainda podem se confundir.
+2. Recolorir na tela de quem liga: o navegador troca a cor mostrada de cada jogador e de cada partido por uma de um conjunto distinguível, sem mexer no que o servidor guarda (a cor é só de exibição). Cobre as cores dos outros. O preço: a tela de quem liga o modo não bate com a dos demais.
+3. Reforço além da cor: sigla, listra ou forma junto da cor, no mapa e nos gráficos. Vale para qualquer tipo de daltonismo, mas cada gráfico precisa de desenho próprio.
+
+Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no servidor, e deixar o 3 para onde só a cor carrega a informação (o mapa). O tamanho do conjunto distinguível sai de medir o ΔE sob as três simulações.
+
 ---
 
 ## 💤 Sem prioridade
@@ -712,7 +731,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F262** | Feature | Pedido de impeachment aberto por jogador | N34 | — | M26 · 4.1 |
 | **F263** | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | N3, N34 | D20 | M26 · 4.1 |
 | **F265** | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | N15, N34 | — | M26 · 4.1 |
-| **F271** | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | N20 | — | M26 · 4.1 |
+| **F271** | Melhoria | Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único | N20 | — | M26 · 4.1 |
 | **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 |
 | **F274** | Feature | Presidência e base do governo que valem a pena | N34 | — | M26 · 4.1 |
 | **F275** | Feature | Vitória política separada do capital | N34, N22 | — | M26 · 4.1 |
@@ -897,15 +916,25 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 9. **Juro americano na prévia do futuro gerado.** O FED_FUNDS é gerado (`synthetic.py:854-870`), mas não está no `FuturePreviewDTO` (`dto/generated_future.py:78-95`), então não aparece na prévia do diálogo de geração.
 
 <a id="f271"></a>
-**F271 — Paleta de 16 cores para os partidos e um seletor de cor único.** Serve N20.
+**F271 — Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único.** Serve N20.
 
-**O que foi feito.** Os partidos têm 16 cores com nome em `PARTY_PALETTE` (`frontend/shared/lib/party-colors.ts`): as 10 dos jogadores mais Vermelho `#D92D20`, Laranja `#E8590C`, Âmbar `#A85F00`, Rosa `#E0489B`, Azul-céu `#1E88E5` e Verde `#1A9A44`. Os jogadores seguem com as 10 cores e as chaves `chart-1` a `chart-10`; nada mudou no backend. Turquesa e vinho não entraram: 16 cabem em duas linhas de 8.
+**O que foi feito.** Os partidos têm 20 cores com nome em `PARTY_PALETTE` (`frontend/shared/lib/party-colors.ts`): as 12 dos jogadores, na mesma ordem, mais 8 só de partido: Vermelho `#D92D20`, Laranja `#E8590C`, Âmbar `#A85F00`, Verde `#1A9A44`, Vinho `#800020`, Magenta `#B5179E`, Dourado `#B1800E` e Musgo `#517722`. Os jogadores passaram de 10 para 12 cores (`chart-1` a `chart-12`; Rosa e Azul-céu são as novas) e a sala, de 10 para 12 vagas. O teto de bots, o do backtest e a documentação acompanham `PLAYER_COLORS`/`MAX_PLAYERS`; as equipes mantêm o teto próprio de 10. Vermelho e Âmbar ficam só de partido: nos gráficos de carteira o vermelho significa perda e o âmbar, alerta. A paleta de partido tem sempre mais cores que a sala tem vagas, então toda fundadora acha uma cor livre (o teste confere).
 
-- O teste da paleta (`party-colors.test.ts`) exige contraste de 3 para 1 contra o fundo do app nas 6 cores novas (Lima, Salmão e Lavanda, que já existiam, ficam perto de 2,9 e não mudam), texto da sigla com 4,5 para 1 nas 16 e distância ΔE (CIEDE2000) de pelo menos 12 entre as 16, incluídas UPR, ACI, MNV e o cinza sem cor. O cálculo fica em `frontend/shared/lib/color-math.ts`, sem dependência nova.
-- `ColorSwatchPicker` (`frontend/shared/components/color-swatch-picker.tsx`) substitui os três seletores antigos: `radiogroup` com setas, Home e End, nome da cor embaixo, cor em uso esmaecida com a sigla de quem usa, 8 colunas para partidos e 5 para jogadores. Usam o componente o lobby, a entrada na partida, o diálogo de bot, o editor do backtest e a fundação de partido (preparação e partida).
-- Conferido no navegador: seletor nas duas telas de fundação, diálogo de bot, popover do lobby com teclado, siglas nas cores novas na Eleição, mapa por estado com contorno do lugar selecionado e gráfico de intenção de voto com 7 partidos.
+**Avaliação com as tintas do Minecraft.** O alvo do card era uma paleta no nível das 16 tintas do Minecraft. Medidas lado a lado (sem branco, cinzas e preto, que o sistema reserva):
 
-**Aceite:** o teste da paleta passa com 16 cores de partido; fundar partido, lobby, diálogo de bot e editor do backtest usam o mesmo componente de seletor; a paleta dos jogadores continua com as 10 cores e as mesmas chaves `chart-1` a `chart-10`.
+- Contraste contra o fundo do app (de 1, cores iguais, a 21, preto no branco; 3 é o mínimo para um elemento gráfico ser visto): 6 das 12 tintas coloridas ficam abaixo de 3 (Amarelo 1,2; Lima 1,8; Rosa 2,0; Azul-claro 2,1; Laranja 2,3; Ciano 2,9). Nas nossas, só 3 ficavam abaixo, por pouco (Lima, Salmão e Lavanda, entre 2,88 e 2,97), e foram escurecidas de forma imperceptível (ΔE de cada uma contra a original abaixo de 2) até passar de 3.
+- Distinção entre cores, pelo ΔE (CIEDE2000: mede o quanto duas cores parecem diferentes; abaixo de 2 quase ninguém nota, perto de 10 dá para distinguir lado a lado, acima de 20 são claramente outras cores): o par mais próximo do Minecraft é Azul~Roxo (14,5) e o da nossa paleta de 16 era Laranja~Vermelho (13,0). Empatam.
+- O Minecraft é uma paleta feita para tingir blocos, não para marcar partido sobre fundo claro. O que ele tem de bom é a gama (as famílias de cor cobrem o círculo todo) e o reconhecimento; a nossa pega a mesma gama, com a luminosidade corrigida para o fundo.
+- Daltonismo (simulação de Machado, 2009, com ΔE sobre as cores simuladas): as duas têm pares críticos. No Minecraft, Azul~Roxo (2,4 na protanopia) e Verde~MNV (1,2 na deuteranopia); na nossa, Âmbar~MNV (0,8 na protanopia), Vermelho~Âmbar (2,8) e Verde-água~sem cor (2,4 na deuteranopia). A escolha das cores foi só pelo contraste e pelo ΔE normal; o modo daltonismo é um card à parte.
+
+**Por que 20.** Com a paleta de 16, cabiam mais 22 cores com ΔE de pelo menos 12 e contraste de pelo menos 3, mas quase todas quase pretas ou neon. Entraram as 4 que ficam vivas e fáceis de nomear: Vinho (ΔE 14,2 para a Marrom), Magenta (14,5 para a Rosa), Dourado (13,3 para o Âmbar) e Musgo (14,5 para o Verde). Turquesa não entrou: contra a Verde-água fica a ΔE 5 a 7, e o tom que se separa dela cai abaixo de 3 de contraste. O Dourado é, na prática, o amarelo mais claro que passa de 3 para 1; o amarelo vivo dá 1,25 e some no fundo claro.
+
+- O teste da paleta (`party-colors.test.ts`) exige as 20 cores com hex único, contraste de 3 para 1 contra cada fundo do app, texto da sigla com 4,5 para 1 (o mínimo para texto) e ΔE de pelo menos 12 entre as 20, incluídas UPR, ACI, MNV e o cinza sem cor, além de a paleta ter mais cores que a sala tem vagas. O cálculo fica em `frontend/shared/lib/color-math.ts`, sem dependência nova.
+- `ColorSwatchPicker` (`frontend/shared/components/color-swatch-picker.tsx`) substitui os três seletores antigos: `radiogroup` com setas, Home e End, nome da cor embaixo, cor em uso esmaecida com a sigla de quem usa, 10 colunas para partidos (2 linhas) e 6 para jogadores (2 linhas). Usam o componente o lobby, a entrada na partida, o diálogo de bot, o editor do backtest e a fundação de partido (preparação e partida).
+- Bot não funda nem entra em partido: a cor dele é só a de jogador, escolhida no diálogo de bot entre as livres. As cores dos partidos do computador (UPR, ACI, MNV) ficam fixas e fora da paleta de escolha.
+- Conferido no navegador: seletor de 20 cores na fundação de partido, 12 cores no lobby e no diálogo de bot (com a cor do host esmaecida e a sigla dele) e sala com 12 vagas. A Eleição, o mapa por estado com contorno do lugar selecionado e o gráfico de intenção de voto foram conferidos com a paleta de 16 cores da primeira versão; as 4 cores acrescentadas depois (Vinho, Magenta, Dourado e Musgo) passaram nos testes de contraste e ΔE, mas ainda não foram vistas no mapa.
+
+**Aceite:** o teste da paleta passa com 20 cores de partido; fundar partido, lobby, diálogo de bot e editor do backtest usam o mesmo componente de seletor; a paleta dos jogadores tem 12 cores, `chart-1` a `chart-12`, e a sala tem 12 vagas.
 
 <a id="f273"></a>
 **F273 — Convites que se escolhem e se acumulam.** Serve N34 e N23. Convidar o vice virou ação própria: escolher no seletor não envia nada, o botão Convidar envia e Retirar convite desfaz, na partida e no lobby. Inscrever a chapa e salvar a fundação deixam de convidar. Quem recebe acumula convites de vice e propostas de federação; aceitar um recusa os incompatíveis do mesmo tipo (vice e federação não se cruzam) e avisa quem convidou. O proponente envia uma proposta de federação por vez. O convite recusado aparece na tela da chapa e no card público do partido.
