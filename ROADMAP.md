@@ -109,7 +109,6 @@
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 | — | — | — | 🔍 |
 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 | — | — | — | 🔍 |
-| [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 | — | Alto | Bom | ⏳ |
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 | — | Alto | Médio | ⏳ |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 | — | — | — | 🔍 |
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 | — | — | — | 🔍 |
@@ -117,7 +116,7 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (44 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (45 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -163,6 +162,7 @@
 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 | — | — | — | ✅ |
 | [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 | — | — | — | ✅ |
 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 | — | — | — | ✅ |
+| [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 | — | — | — | ✅ |
 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 | — | — | — | ✅ |
 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 | — | — | — | ✅ |
 
@@ -180,7 +180,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 24/37 concluídos
+> **Progresso:** 25/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -214,7 +214,7 @@
 | 28 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | — | ✅ Concluído |
 | 29 | [**F275**](#f275) | Feature | Vitória política separada do capital | — | ✅ Concluído |
 | 30 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | — | ✅ Concluído |
-| 31 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | — | ⏳ Pendente |
+| 31 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | — | ✅ Concluído |
 | 32 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | — | ⏳ Pendente |
 | 33 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | — | 🔍 Em avaliação |
 | 34 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | — | 🔍 Em avaliação |
@@ -342,7 +342,6 @@
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 · 24º | 0 | — | — | 🔍 |
 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 · 25º | 0 | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 · 26º | 0 | — | — | 🔍 |
-| [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 · 31º | 0 | Alto | Bom | ⏳ |
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 · 32º | 0 | Alto | Médio | ⏳ |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 · 33º | 0 | — | — | 🔍 |
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 · 34º | 0 | — | — | 🔍 |
@@ -403,7 +402,6 @@
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
 | **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | D10 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
 | **F271** | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | N20 | — | M26 · 4.1 | — | Médio | Baixo | Médio | Bom |
-| **F277** | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | N31 | — | M26 · 4.1 | — | Alto | Baixo | Alto | Bom |
 | **F278** | Feature | Imprevistos e eventos de vida mais variados | N23 | — | M26 · 4.1 | — | Alto | Médio | Médio | Médio |
 
 <a id="f6"></a>
@@ -524,28 +522,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 5. Conferir no navegador o mapa com um partido de cada cor nova (preenchimento, sigla e contorno do lugar selecionado) e o gráfico de intenção de voto com 8 partidos.
 
 **Aceite:** o teste da paleta passa com 16 cores de partido; fundar partido, lobby, diálogo de bot e editor do backtest usam o mesmo componente de seletor; a paleta dos jogadores continua com as 10 cores e as mesmas chaves `chart-1` a `chart-10`.
-
-<a id="f277"></a>
-**F277 — Jornal com eventos raros em destaque e manchetes variadas.** Serve N31.
-
-**O que existe.** Na Simulação #3 o jornal teve 6.815 notícias em 14 anos, e duas regras fizeram 88,6% delas: movimento forte de ativo (3.053, cerca de 18 por mês) e máxima de 52 semanas (2.983, cerca de 18 por mês); "GOLD11 renova a máxima de 52 semanas" saiu 195 vezes. As duas moram em `backend/features/newsroom/companies.py`: movimento forte é toda variação acima de 5% no dia (`MOVE_THRESHOLD`), até 3 por pregão, sem intervalo por ativo; a máxima é todo fechamento acima do maior dos últimos 252, até 3 por pregão, então um ativo em tendência de alta vira notícia quase todo dia. No meio disso se perdem os eventos raros: campanha teve 43 notícias (15 ações que viralizaram), vida de partido 11, e programa lançado, rebatizado ou extinto 3. As manchetes do governo (`backend/features/government/headlines.py`, 30 construtores) têm texto fixo; só a redação das empresas sorteia variações com `pick()` (`backend/features/newsroom/text.py:156-161`), semeado por partida, dia e ativo.
-
-**O que muda e por quê.**
-
-1. Três tipos de notícia novos, que abrem a janela central por padrão (nível `WINDOW` sem `fixed`: a manchete grande por 8 segundos, sem pausar a sala), cada um rebaixável nas preferências como os outros:
-   - ação de campanha crítica: tudo o que `campaign_action` (`headlines.py:535-581`) publica, que já é só o dado crítico (viraliza ou dá errado) e o ataque;
-   - programa com nome: o lançamento, o rebatismo e a extinção de `program_event` (`headlines.py:353-361`), que hoje saem como medida votada;
-   - ruptura de partido: `expelled`, `federation_formed`, `federation_left`, `deal_broken` e `deal_left`.
-   Promessas e apoio no 2º turno continuam no tipo de campanha; fundação, doação e acordo fechado continuam em vida de partido. Os tipos entram em `NewsType` (`backend/core/enum/__init__.py:1073-1092`), no registro (`backend/features/notifications/registry.py`, na posição de importância deles, com rótulo e descrição; a descrição do tipo de campanha perde o que saiu) e no catálogo do front (`frontend/features/news/lib/catalog.ts`). `news.news_type` é texto, então não há migration; as notícias já gravadas ficam com o tipo antigo. Rodar `pnpm openapi`.
-2. Movimento forte relativo ao próprio ativo. Vira notícia a variação do dia que é pelo menos K vezes a oscilação normal daquele ativo, e não mais um percentual fixo. Oscilação normal é a média do tamanho da variação diária (em módulo) dos últimos 126 pregões; com menos de 63 pregões de histórico vale o limite fixo de 5% de hoje. Exemplo: uma ação que costuma mexer 2% por dia só é notícia a partir de 6%; um fundo imobiliário que costuma mexer 0,8% é notícia com 3%. K começa em 3 e há um piso absoluto de 3%, para que um ativo quase parado não vire manchete com 1%. A ordem dentro do pregão passa a ser por quantas vezes a oscilação normal, e ficam os 3 por pregão. O texto da manchete não muda. K é calibrado numa partida de 10 anos até a meta do aceite.
-3. Máxima de 52 semanas só no rompimento: vira notícia quando o fechamento supera uma máxima que já tinha pelo menos 63 pregões (3 meses) de idade. A renovação diária de quem está em tendência de alta deixa de sair, e o mesmo ativo aparece no máximo 4 vezes por ano.
-4. Três redações para cada manchete do governo. Cada um dos 30 construtores de `headlines.py` passa a ter 3 variações de título (e de linha fina, onde há), escolhidas por `pick()` com a semente da partida, a data e o identificador do fato (medida, partido ou ação), para a sala inteira ver o mesmo texto e a repetição da leitura dar o mesmo resultado. Os construtores passam a receber essa semente de quem os chama em `government_book.py`. As linhas finas de campanha hoje escolhidas por `action_id % len` passam para o mesmo `pick()`. São cerca de 90 títulos, escritos no tom do jornal e com os mesmos dados da manchete atual.
-5. `tests/test_newsroom.py` cobre o limite relativo (os dois exemplos acima, o piso de 3% e o histórico curto) e o rompimento da máxima; `tests/test_government_headlines.py` passa a conferir, por construtor, 3 textos distintos entre sementes e o mesmo texto para a mesma semente; os testes do front cobrem os tipos novos no catálogo e na fila da janela (`frontend/features/news/lib`).
-6. `docs/docs/como-usar` (página do jornal) descreve os tipos novos e a regra do movimento forte.
-
-**Como medir.** Uma partida de 10 anos rodada pela linha de comando no banco de teste, contando as notícias por tipo e por manchete na tabela `news`, antes e depois.
-
-**Aceite:** na partida de 10 anos, movimento forte fica entre 5 e 8 notícias por mês em média (hoje cerca de 18) e máxima de 52 semanas em até 4 por mês (hoje cerca de 18); os dois tipos somados ficam abaixo de 60% do total (hoje 88,6% de 6.815); nenhum ativo tem mais de 4 manchetes de máxima no mesmo ano; cada construtor de manchete do governo tem 3 redações.
 
 <a id="f278"></a>
 **F278 — Imprevistos e eventos de vida mais variados.** Serve N23.
@@ -761,6 +737,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F274** | Feature | Presidência e base do governo que valem a pena | N34 | — | M26 · 4.1 |
 | **F275** | Feature | Vitória política separada do capital | N34, N22 | — | M26 · 4.1 |
 | **F276** | Correção | Governo ruim perde aprovação | N34, N41 | — | M26 · 4.1 |
+| **F277** | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | N31 | — | M26 · 4.1 |
 | **F281** | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | N34 | D20 | M26 · 4.1 |
 | **F282** | Correção | Texto dos gráficos com no mínimo 12 px | N15 | — | M26 · 4.1 |
 
@@ -978,6 +955,28 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 - Simulação #3 em 2031–2032 (22%, 31%, −99,8%, 13%, 6 pontos): abaixo de 5 (hoje 20,6).
 
 Com o cenário da Simulação #3 mantido desde a posse, o pedido de impeachment de um governo de jogador abre no 18º mês do mandato (na partida, abriu no 34º).
+
+<a id="f277"></a>
+**F277 — Jornal com eventos raros em destaque e manchetes variadas.** Serve N31.
+
+**O que existe.** Na Simulação #3 o jornal teve 6.815 notícias em 14 anos, e duas regras fizeram 88,6% delas: movimento forte de ativo (3.053, cerca de 18 por mês) e máxima de 52 semanas (2.983, cerca de 18 por mês); "GOLD11 renova a máxima de 52 semanas" saiu 195 vezes. As duas moram em `backend/features/newsroom/companies.py`: movimento forte é toda variação acima de 5% no dia (`MOVE_THRESHOLD`), até 3 por pregão, sem intervalo por ativo; a máxima é todo fechamento acima do maior dos últimos 252, até 3 por pregão, então um ativo em tendência de alta vira notícia quase todo dia. No meio disso se perdem os eventos raros: campanha teve 43 notícias (15 ações que viralizaram), vida de partido 11, e programa lançado, rebatizado ou extinto 3. As manchetes do governo (`backend/features/government/headlines.py`, 30 construtores) têm texto fixo; só a redação das empresas sorteia variações com `pick()` (`backend/features/newsroom/text.py:156-161`), semeado por partida, dia e ativo.
+
+**O que muda e por quê.**
+
+1. Três tipos de notícia novos, que abrem a janela central por padrão (nível `WINDOW` sem `fixed`: a manchete grande por 8 segundos, sem pausar a sala), cada um rebaixável nas preferências como os outros:
+   - ação de campanha crítica: tudo o que `campaign_action` (`headlines.py:535-581`) publica, que já é só o dado crítico (viraliza ou dá errado) e o ataque;
+   - programa com nome: o lançamento, o rebatismo e a extinção de `program_event` (`headlines.py:353-361`), que hoje saem como medida votada;
+   - ruptura de partido: `expelled`, `federation_formed`, `federation_left`, `deal_broken` e `deal_left`.
+   Promessas e apoio no 2º turno continuam no tipo de campanha; fundação, doação e acordo fechado continuam em vida de partido. Os tipos entram em `NewsType` (`backend/core/enum/__init__.py:1073-1092`), no registro (`backend/features/notifications/registry.py`, na posição de importância deles, com rótulo e descrição; a descrição do tipo de campanha perde o que saiu) e no catálogo do front (`frontend/features/news/lib/catalog.ts`). `news.news_type` é texto, então não há migration; as notícias já gravadas ficam com o tipo antigo. Rodar `pnpm openapi`.
+2. Movimento forte relativo ao próprio ativo. Vira notícia a variação do dia que é pelo menos K vezes a oscilação normal daquele ativo, e não mais um percentual fixo. Oscilação normal é a média do tamanho da variação diária (em módulo) dos últimos 126 pregões; com menos de 63 pregões de histórico vale o limite fixo de 5% de hoje. Exemplo: uma ação que costuma mexer 2% por dia só é notícia a partir de 6%; um fundo imobiliário que costuma mexer 0,8% é notícia com 3%. K começa em 3 e há um piso absoluto de 3%, para que um ativo quase parado não vire manchete com 1%. A ordem dentro do pregão passa a ser por quantas vezes a oscilação normal, e ficam os 3 por pregão. O texto da manchete não muda. K é calibrado numa partida de 10 anos até a meta do aceite.
+3. Máxima de 52 semanas só no rompimento: vira notícia quando o fechamento supera uma máxima que já tinha pelo menos 63 pregões (3 meses) de idade. A renovação diária de quem está em tendência de alta deixa de sair, e o mesmo ativo aparece no máximo 4 vezes por ano.
+4. Três redações para cada manchete do governo. Cada um dos 30 construtores de `headlines.py` passa a ter 3 variações de título (e de linha fina, onde há), escolhidas por `pick()` com a semente da partida, a data e o identificador do fato (medida, partido ou ação), para a sala inteira ver o mesmo texto e a repetição da leitura dar o mesmo resultado. Os construtores passam a receber essa semente de quem os chama em `government_book.py`. As linhas finas de campanha hoje escolhidas por `action_id % len` passam para o mesmo `pick()`. São cerca de 90 títulos, escritos no tom do jornal e com os mesmos dados da manchete atual.
+5. `tests/test_newsroom.py` cobre o limite relativo (os dois exemplos acima, o piso de 3% e o histórico curto) e o rompimento da máxima; `tests/test_government_headlines.py` passa a conferir, por construtor, 3 textos distintos entre sementes e o mesmo texto para a mesma semente; os testes do front cobrem os tipos novos no catálogo e na fila da janela (`frontend/features/news/lib`).
+6. `docs/docs/como-usar` (página do jornal) descreve os tipos novos e a regra do movimento forte.
+
+**Como medir.** Uma partida de 10 anos rodada pela linha de comando no banco de teste, contando as notícias por tipo e por manchete na tabela `news`, antes e depois.
+
+**Aceite:** na partida de 10 anos, movimento forte fica entre 5 e 8 notícias por mês em média (hoje cerca de 18) e máxima de 52 semanas em até 4 por mês (hoje cerca de 18); os dois tipos somados ficam abaixo de 60% do total (hoje 88,6% de 6.815); nenhum ativo tem mais de 4 manchetes de máxima no mesmo ano; cada construtor de manchete do governo tem 3 redações.
 
 <a id="f281"></a>
 **F281 — Banco Central autônomo que decide em reunião, olhando através do imposto.** O Banco Central autônomo decide só nos dias de reunião do Copom (`meeting_days`, hoje em `backend/core/copom.py`, com `SELIC_STEP` e `to_step`): em cada uma leva a regra do dia ao passo de 0,25 ponto, a até 1 ponto da decisão anterior (`autonomous_decision` e `AUTONOMOUS_CAP` em `monetary.py`), e mantém os pontos até a reunião seguinte. A SELIC da partida é a história do dia mais esses pontos segurados (`EconomyLayer.autonomous_points`, `layer.py`); sem efeito do governo nada muda, e entre `first_day` e a primeira reunião o desvio vale 0. A regra olha através do imposto: `reading_points` tira de `inflation_points` o degrau de preço do imposto sobre consumo (`consumption_points`), então um corte do imposto não derruba a SELIC; a regra também alimenta o presidente computador e o esperado do mercado, e a linha do imposto sobre consumo no painel da economia deixa de mostrar efeito na SELIC e na bolsa. No futuro gerado (`synthetic.py`, `_decided_in_meetings`), a SELIC inteira (trecho sorteado mais regime e surto) só muda no pregão seguinte a uma reunião, em múltiplos de 0,25, e o CDI anda colado; o gráfico "Juros e inflação" fica com no máximo 8 marcadores do Copom por ano no futuro. Limite conhecido: no trecho histórico da partida o marcador soma as mudanças reais da história e as reuniões do autônomo, e a SELIC absoluta segue a da história (o múltiplo de 0,25 vale para o desvio do autônomo).
