@@ -11643,6 +11643,10 @@
             "type": "integer",
             "title": "Floor"
           },
+          "floor_applies": {
+            "type": "boolean",
+            "title": "Floor Applies"
+          },
           "low_streak": {
             "type": "integer",
             "title": "Low Streak"
@@ -11684,6 +11688,7 @@
           "reproves_below",
           "approves_above",
           "floor",
+          "floor_applies",
           "low_streak",
           "impeachment_months",
           "grace_until",

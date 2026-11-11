@@ -120,6 +120,15 @@ export function closingsLeft(approval: Pick<GovernmentApproval, "low_streak" | "
   return Math.max(0, approval.impeachment_months - approval.low_streak);
 }
 
+/** O contador do piso: "não conta" no governo do computador, "carência" no 1º ano e "N de 6" nos demais. */
+export function floorCounterLabel(
+  approval: Pick<GovernmentApproval, "floor_applies" | "in_grace" | "low_streak" | "impeachment_months">,
+) {
+  if (!approval.floor_applies) return "não conta";
+  if (approval.in_grace) return "carência";
+  return `${approval.low_streak} de ${approval.impeachment_months}`;
+}
+
 /** "set, out e nov": os meses dos próximos fechamentos que faltam. */
 export function remainingMonths(approval: Pick<GovernmentApproval, "closes_on" | "low_streak" | "impeachment_months">) {
   return displayList(upcomingClosings(approval, closingsLeft(approval)).map(displayMonthShort));

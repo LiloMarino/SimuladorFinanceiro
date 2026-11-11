@@ -275,19 +275,21 @@ A aprovação é quantos eleitores, em cada 100, aprovam o governo. Ela começa 
 
 | Fator | Efeito |
 | --- | --- |
-| Inflação em 12 meses | +4 pontos se estiver dentro da meta do ano; cada ponto percentual acima da meta tira 3 |
-| Bolsa em 12 meses | +1 ponto a cada 5% de alta e −1 a cada 5% de queda, até 6 pontos para cada lado |
+| Inflação em 12 meses | +4 pontos se estiver dentro da meta do ano; cada ponto percentual acima da meta tira 3; passando de 5 pontos acima da meta mais 1,5, cada ponto a mais continua tirando, com metade do peso |
+| Bolsa em 12 meses | +1 ponto a cada 5% de alta e −1 a cada 5% de queda, até 6 pontos de alta; a queda passa de 25% e continua tirando pontos, com metade do peso |
 | Corte de imposto | Soma de 1 a 3 pontos enquanto o governo dura |
 | Imposto novo | Tira de 1 a 5 pontos ao passar a valer, e o efeito some em 6 meses |
-| Juro real | Por grupo: tira de 1,5 a 2 pontos por ponto de juro real fora da faixa de 2% a 7% (veja [A SELIC no Copom](#a-selic-no-copom)) |
+| Juro real | Por grupo: tira de 1,5 a 2 pontos por ponto de juro real fora da faixa de 2% a 7%, e passando de 6 pontos fora dela cada ponto a mais continua tirando, com metade do peso (veja [A SELIC no Copom](#a-selic-no-copom)) |
 | Promessa | Tira 3 pontos por faixa de distância entre a promessa do partido e a marca do governo na régua |
 | Favorecimento | Tira até 6 pontos enquanto a obra em vigor aponta para um setor em que o presidente tem ações (veja [O que o presidente ganha](#o-que-o-presidente-ganha)) |
 
 A **marca do governo** é a média das faixas das medidas aprovadas. Ex.: um partido que prometeu a faixa 2 (isenção para um setor) e aprovou só aumento geral de imposto (faixa 5) está 3 faixas à direita da promessa e perde 9 pontos. A aprovação é calculada só quando um jogador governa.
 
+**O que passa do limite continua pesando.** Inflação alta, juro real fora da faixa e bolsa em queda têm um limite de punição; do limite em diante, cada ponto a mais tira pontos com **metade do peso**, para a catástrofe pesar mais que uma crise comum. Ex.: com a meta em 3%, a inflação de 12% em 12 meses está 7,5 pontos percentuais acima do neutro (meta mais 1,5): os 5 primeiros pesam inteiros e os 2,5 que passam do limite pesam pela metade, como 1,25. A bolsa a −45% em 12 meses está 5 passos de 10% abaixo do neutro (+5%): os 3 primeiros pesam inteiros e os 2 que passam do limite pesam pela metade, como 1, somando 4 passos. O lado bom (inflação baixa, bolsa em alta) segue com teto.
+
 ### Impeachment
 
-O impeachment começa com um **pedido**, que a casa vota no próximo dia de votação: **68 das 101 cadeiras** precisam votar Sim. O pedido abre sozinho quando a aprovação fecha **6 meses seguidos abaixo de 25%** (a partir do primeiro mês abaixo do piso o presidente recebe um aviso), e a contagem só vale depois dos 12 primeiros meses de mandato.
+O impeachment começa com um **pedido**, que a casa vota no próximo dia de votação: **68 das 101 cadeiras** precisam votar Sim. O pedido abre sozinho quando a aprovação fecha **6 meses seguidos abaixo de 25%** (a partir do primeiro mês abaixo do piso o presidente recebe um aviso), e a contagem só vale depois dos 12 primeiros meses de mandato. O governo do computador, que assume com o impeachment sem vice ou quando o computador vence a eleição, fica até o fim do mandato: para ele o piso **não conta**, e a tela mostra "não conta" no lugar do contador.
 
 O pedido também pode ser aberto antes, pelo **líder de um partido com pelo menos uma cadeira na casa**, que não seja o do presidente. Isso só vale enquanto a aprovação do presidente está abaixo de 25%, com um pedido aberto por vez e um pedido por partido em cada mandato. O pedido sai em manchete para a sala toda e em aviso ao presidente, com o partido que pediu. Os partidos da base do governo orientam a bancada a votar Não, e é isso que protege o presidente.
 

@@ -2,8 +2,8 @@ import { Lock, X } from "lucide-react";
 import { InfoHint } from "@/shared/components/info-hint";
 import { cn } from "@/shared/lib/utils";
 import type { GovernmentPanel } from "@/types";
-import { remainingMonths, streakMonths } from "../lib/approval";
-import { isComputerGovernment, monthYear, successionLabel } from "../lib/government";
+import { floorCounterLabel, remainingMonths, streakMonths } from "../lib/approval";
+import { monthYear, successionLabel } from "../lib/government";
 
 type StreakPipsProps = {
   approval: NonNullable<GovernmentPanel["approval"]>;
@@ -41,6 +41,9 @@ export function StreakPips({ approval, className }: StreakPipsProps) {
 function floorSentence(panel: GovernmentPanel, approval: NonNullable<GovernmentPanel["approval"]>) {
   const { floor, impeachment_months: total, grace_until: graceUntil } = approval;
   const posse = approval.history.length <= 1;
+  if (!approval.floor_applies) {
+    return "Governo do computador: o piso de impeachment não conta e ele fica até o fim do mandato.";
+  }
   if (approval.in_grace) {
     return posse
       ? `${total} meses seguidos abaixo de ${floor}% derrubam o governo. Carência até ${monthYear(graceUntil)}.`
@@ -59,8 +62,7 @@ type ImpeachmentFloorProps = { panel: GovernmentPanel };
 /** O piso do impeachment no card de aprovação: público, com a contagem para todos os jogadores. */
 export function ImpeachmentFloor({ panel }: ImpeachmentFloorProps) {
   const approval = panel.approval;
-  // O partido do computador governa até o fim do mandato, sem piso
-  if (!approval || isComputerGovernment(panel.term)) return null;
+  if (!approval) return null;
 
   return (
     <div className="flex items-center justify-between gap-3 border-t pt-3">
@@ -76,10 +78,8 @@ export function ImpeachmentFloor({ panel }: ImpeachmentFloorProps) {
         <span className="text-xs leading-normal text-muted-foreground">{floorSentence(panel, approval)}</span>
       </div>
       <div className="grid justify-items-end gap-1">
-        <StreakPips approval={approval} />
-        <span className="font-mono text-xs text-muted-foreground">
-          {approval.in_grace ? "carência" : `${approval.low_streak} de ${approval.impeachment_months}`}
-        </span>
+        {approval.floor_applies && <StreakPips approval={approval} />}
+        <span className="font-mono text-xs text-muted-foreground">{floorCounterLabel(approval)}</span>
       </div>
     </div>
   );

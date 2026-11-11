@@ -277,18 +277,115 @@ def test_a_good_and_a_bad_result_move_the_target_by_the_same_amount():
     assert (good.points, bad.points) == (6, -6)
 
 
-def test_each_result_is_capped_in_both_directions():
+def test_the_good_side_of_each_result_is_capped():
     retirees = VoterGroup.RETIREES
     investors = VoterGroup.INVESTORS
 
-    assert approval_rules.inflation_factor(retirees, market("0.30")).points == -20
     assert approval_rules.inflation_factor(retirees, market("0.00")).points == 20
-    assert approval_rules.real_rate_factor(retirees, market(selic="-0.30")).points == -9
     rise = approval_rules.stocks_factor(investors, market(stocks="0.90"))
-    fall = approval_rules.stocks_factor(investors, market(stocks="-0.80"))
     assert rise is not None and rise.points == 24
-    assert fall is not None and fall.points == -24
     assert approval_rules.stocks_factor(investors, market(stocks=None)) is None
+
+
+def test_the_bad_side_keeps_costing_points_past_the_limit_with_half_the_weight():
+    retirees = VoterGroup.RETIREES
+    investors = VoterGroup.INVESTORS
+
+    # Inflação de 30% com meta de 4%: 24,5 pontos percentuais abaixo do neutro, 5 cheios
+    # mais 19,5 pela metade, vezes o peso 4
+    assert approval_rules.inflation_factor(retirees, market("0.30")).points == -59
+    # Juro real de -34%: 36 pontos fora da faixa, 6 cheios mais 30 pela metade, vezes 1,5
+    assert approval_rules.real_rate_factor(
+        retirees, market(selic="-0.30")
+    ).points == Decimal("-31.5")
+    # Juro real de 26% (SELIC de 30%): 19 acima da faixa, 6 cheios mais 13 pela metade
+    assert (
+        approval_rules.real_rate_factor(
+            VoterGroup.ENTREPRENEURS, market(selic="0.30")
+        ).points
+        == -25
+    )
+    # Bolsa em -80%: 8,5 passos, 3 cheios mais 5,5 pela metade, vezes 8
+    fall = approval_rules.stocks_factor(investors, market(stocks="-0.80"))
+    assert fall is not None and fall.points == -46
+
+
+def test_each_result_costs_what_it_always_did_up_to_its_limit():
+    retirees = VoterGroup.RETIREES
+    investors = VoterGroup.INVESTORS
+    entrepreneurs = VoterGroup.ENTREPRENEURS
+
+    def stocks(value: str) -> Decimal:
+        factor = approval_rules.stocks_factor(investors, market(stocks=value))
+        assert factor is not None
+        return factor.points
+
+    # Inflação de 10% (4,5 abaixo do neutro) e de 10,5% (5, o limite)
+    assert approval_rules.inflation_factor(retirees, market("0.10")).points == -18
+    assert approval_rules.inflation_factor(retirees, market("0.105")).points == -20
+    # Juro real de -2% (4 abaixo da faixa) e de -4% (6, o limite)
+    assert approval_rules.real_rate_factor(
+        retirees, market(selic="0.02")
+    ).points == Decimal("-6")
+    assert approval_rules.real_rate_factor(
+        retirees, market(selic="0")
+    ).points == Decimal("-9")
+    # Juro real de 11% (4 acima da faixa) e de 13% (6, o limite)
+    assert (
+        approval_rules.real_rate_factor(entrepreneurs, market(selic="0.15")).points
+        == -8
+    )
+    assert (
+        approval_rules.real_rate_factor(entrepreneurs, market(selic="0.17")).points
+        == -12
+    )
+    # Bolsa em -15% (2 passos) e em -25% (3, o limite)
+    assert stocks("-0.15") == -16
+    assert stocks("-0.25") == -24
+
+
+# Meta de 3%: inflação em 12 meses, SELIC, bolsa em 12 meses, desemprego e prêmio de risco
+SCENARIOS = [
+    ("neutral", ("0.045", "0.09", "0.05", "0.09", "0"), Decimal("50.0")),
+    ("mediocre", ("0.08", "0.13", "-0.10", "0.10", "0.01"), Decimal("34.6")),
+    (
+        "everything_at_the_limit",
+        ("0.095", "0.225", "-0.25", "0.13", "0.06"),
+        Decimal("17.6"),
+    ),
+    ("crisis", ("0.12", "0.18", "-0.30", "0.12", "0.03"), Decimal("20.0")),
+    ("strong_crisis", ("0.15", "0.22", "-0.45", "0.13", "0.04"), Decimal("13.1")),
+]
+
+
+def overall_without_measures(scenario: tuple[str, str, str, str, str]) -> Decimal:
+    inflation, selic, stocks, unemployment, premium = scenario
+    m = market(
+        inflation,
+        stocks,
+        target="0.03",
+        selic=selic,
+        unemployment=unemployment,
+        premium=premium,
+    )
+    targets = {
+        group: approval_rules.group_target(group, m, [], DAY).target
+        for group in VoterGroup
+    }
+    return approval_rules.overall(targets)
+
+
+@pytest.mark.parametrize(("name", "scenario", "expected"), SCENARIOS)
+def test_the_overall_target_without_measures_in_each_scenario(
+    name: str, scenario: tuple[str, str, str, str, str], expected: Decimal
+):
+    assert round(overall_without_measures(scenario), 1) == expected
+
+
+def test_the_total_catastrophe_of_the_third_simulation_falls_below_five():
+    catastrophe = ("0.22", "0.31", "-0.998", "0.13", "0.06")
+
+    assert overall_without_measures(catastrophe) < 5
 
 
 def test_unemployment_above_the_neutral_weighs_most_on_formal_workers_and_welfare():

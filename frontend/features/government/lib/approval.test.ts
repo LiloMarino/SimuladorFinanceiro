@@ -4,6 +4,7 @@ import {
   closingSentence,
   closingsLeft,
   deltaLabel,
+  floorCounterLabel,
   groupsSentence,
   monthsSpan,
   projection,
@@ -92,6 +93,23 @@ describe("contagem do impeachment", () => {
   it("diz quantos fechamentos faltam e em quais meses", () => {
     expect(closingsLeft(approval({}))).toBe(3);
     expect(remainingMonths(approval({}))).toBe("set, out e nov");
+  });
+});
+
+describe("floorCounterLabel", () => {
+  const counter = { floor_applies: true, in_grace: false, low_streak: 3, impeachment_months: 6 };
+
+  it("mostra N de 6 quando o piso conta", () => {
+    expect(floorCounterLabel(counter)).toBe("3 de 6");
+  });
+
+  it("mostra carência no primeiro ano", () => {
+    expect(floorCounterLabel({ ...counter, in_grace: true })).toBe("carência");
+  });
+
+  it("mostra não conta no governo do computador, mesmo na carência", () => {
+    expect(floorCounterLabel({ ...counter, floor_applies: false, low_streak: 0 })).toBe("não conta");
+    expect(floorCounterLabel({ ...counter, floor_applies: false, in_grace: true })).toBe("não conta");
   });
 });
 

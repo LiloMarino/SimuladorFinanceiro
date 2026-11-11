@@ -48,7 +48,11 @@ RISK_MARGIN = 10
 # O ponto em que as Pendências mostram o risco e a base cobra mais caro (governo fraco)
 RISK_LIMIT = FLOOR + RISK_MARGIN
 
-# Inflação: pontos por ponto percentual abaixo da meta somada a 1,5, até 5 para cada lado
+# No lado ruim de inflação, juro real e bolsa o limite de cada fator não é um teto: o que
+# passa dele continua tirando pontos, com metade do peso. O lado bom segue com teto
+EXCESS_WEIGHT = Decimal("0.5")
+
+# Inflação: pontos por ponto percentual abaixo da meta somada a 1,5, com limite de 5 para cada lado
 INFLATION_TOLERANCE = Decimal("1.5")
 INFLATION_CAP = Decimal(5)
 INFLATION_WEIGHT: dict[VoterGroup, Decimal] = {
@@ -61,7 +65,7 @@ INFLATION_WEIGHT: dict[VoterGroup, Decimal] = {
 }
 # Juro real (SELIC menos IPCA em 12 meses): entre 2% e 7% ninguém reclama. Abaixo de 2%,
 # quem vive de renda fixa perde pontos por ponto percentual; acima de 7%, quem toma
-# crédito. Até 6 pontos percentuais fora da faixa
+# crédito. O limite é de 6 pontos percentuais fora da faixa
 REAL_RATE_LOW = Decimal(2)
 REAL_RATE_HIGH = Decimal(7)
 REAL_RATE_CAP = Decimal(6)
@@ -73,7 +77,7 @@ REAL_RATE_HIGH_WEIGHT: dict[VoterGroup, Decimal] = {
     G.ENTREPRENEURS: Decimal(2),
     G.FORMAL_WORKERS: Decimal("1.5"),
 }
-# Ibovespa: pontos a cada 10% de alta em 12 meses acima de 5%, até 3 passos para cada lado
+# Ibovespa: pontos a cada 10% de alta em 12 meses acima de 5%, com limite de 3 passos para cada lado
 STOCKS_NEUTRAL = Decimal("0.05")
 STOCKS_STEP = Decimal("0.10")
 STOCKS_CAP = Decimal(3)
@@ -211,10 +215,16 @@ def _pp(value: Decimal) -> Decimal:
     return value * HUNDRED
 
 
+def _excess(distance: Decimal, limit: Decimal) -> Decimal:
+    """A distância no lado ruim: cheia até o limite e, do limite em diante, com metade do peso."""
+    if distance <= limit:
+        return distance
+    return limit + (distance - limit) * EXCESS_WEIGHT
+
+
 def inflation_factor(group: VoterGroup, market: Market) -> Factor:
-    gap = _clip(
-        _pp(market.target) + INFLATION_TOLERANCE - _pp(market.inflation), INFLATION_CAP
-    )
+    gap = _pp(market.target) + INFLATION_TOLERANCE - _pp(market.inflation)
+    gap = min(gap, INFLATION_CAP) if gap >= 0 else -_excess(-gap, INFLATION_CAP)
     shown = rules.percent(market.inflation)
     target = rules.percent(market.target)
     where = "abaixo" if market.inflation < market.target else "acima"
@@ -230,11 +240,11 @@ def real_rate_factor(group: VoterGroup, market: Market) -> Factor:
     band = f"{rules.number(REAL_RATE_LOW)}% a {rules.number(REAL_RATE_HIGH)}%"
     shown = rules.percent(market.selic - market.inflation)
     if real < REAL_RATE_LOW:
-        gap = min(REAL_RATE_LOW - real, REAL_RATE_CAP)
+        gap = _excess(REAL_RATE_LOW - real, REAL_RATE_CAP)
         points = -REAL_RATE_LOW_WEIGHT.get(group, ZERO) * gap
         where = "abaixo da"
     elif real > REAL_RATE_HIGH:
-        gap = min(real - REAL_RATE_HIGH, REAL_RATE_CAP)
+        gap = _excess(real - REAL_RATE_HIGH, REAL_RATE_CAP)
         points = -REAL_RATE_HIGH_WEIGHT.get(group, ZERO) * gap
         where = "acima da"
     else:
@@ -250,7 +260,8 @@ def real_rate_factor(group: VoterGroup, market: Market) -> Factor:
 def stocks_factor(group: VoterGroup, market: Market) -> Factor | None:
     if market.stocks is None:
         return None
-    steps = _clip((market.stocks - STOCKS_NEUTRAL) / STOCKS_STEP, STOCKS_CAP)
+    steps = (market.stocks - STOCKS_NEUTRAL) / STOCKS_STEP
+    steps = min(steps, STOCKS_CAP) if steps >= 0 else -_excess(-steps, STOCKS_CAP)
     movement = "subiu" if market.stocks >= 0 else "caiu"
     return Factor(
         ApprovalFactorKind.STOCKS,

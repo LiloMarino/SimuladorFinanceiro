@@ -934,6 +934,8 @@ class ApprovalDTO(BaseDTO):
     reproves_below: int
     approves_above: int
     floor: int
+    # O piso vale para o governo em curso: o do computador fica até o fim do mandato sem ele
+    floor_applies: bool
     # Fechamentos seguidos abaixo do piso e quantos levam ao impeachment
     low_streak: int
     impeachment_months: int

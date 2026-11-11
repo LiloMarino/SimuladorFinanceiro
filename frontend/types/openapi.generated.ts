@@ -4120,6 +4120,8 @@ export interface components {
             approves_above: number;
             /** Floor */
             floor: number;
+            /** Floor Applies */
+            floor_applies: boolean;
             /** Low Streak */
             low_streak: number;
             /** Impeachment Months */

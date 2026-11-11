@@ -1252,6 +1252,58 @@ def test_six_closings_below_the_floor_after_the_grace_remove_the_president(
     assert book.state.impeachments[0].successor_id == BOB.id
 
 
+# A catástrofe da economia: inflação, juro e desemprego nas alturas e a bolsa no chão
+CATASTROPHE = approval_rules.Market(
+    inflation=Decimal("0.22"),
+    selic=Decimal("0.31"),
+    stocks=Decimal("-0.998"),
+    target=Decimal("0.03"),
+    unemployment=Decimal("0.13"),
+    premium=Decimal("0.06"),
+)
+
+
+def test_a_player_government_in_the_catastrophe_opens_the_request_at_the_eighteenth_closing(
+    book: GovernmentBook, engine, market
+):
+    market(CATASTROPHE)
+    govern(book, engine)
+
+    # 12 meses de carência e 6 abaixo do piso: o pedido abre no 18º fechamento
+    assert close_months(book, 17) is None
+    assert book.state.low_streak == 5
+    assert book.state.request is None
+    assert close_months(book, 1, date(2023, 6, 30)) is None
+    assert book.state.low_streak == 6
+    assert book.state.request is not None
+
+
+def test_a_computer_government_in_the_catastrophe_never_counts_the_floor(
+    book: GovernmentBook, engine, market
+):
+    market(CATASTROPHE)
+    govern(book, engine)
+    heir = required(
+        caretaker.successor(
+            book.state.house_on(TERM_START),
+            {p.id for p in book.state.computer_parties()},
+        )
+    )
+    book._emit(
+        GovernmentEventType.TERM_STARTED,
+        TERM_START,
+        party_id=heir.party_id,
+        president_id=None,
+        vice_id=None,
+        consecutive=1,
+    )
+
+    assert close_months(book, 24) is None
+    assert required(book.approval(date(2023, 12, 31))).value < approval_rules.FLOOR
+    assert book.state.low_streak == 0
+    assert book.state.request is None
+
+
 def test_impeachment_hands_the_office_to_a_vice_from_another_party(
     book: GovernmentBook, engine, market, bleak, office, monkeypatch
 ):

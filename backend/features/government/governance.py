@@ -395,6 +395,7 @@ def _approval(
         reproves_below=int(voters.REPROVES_BELOW),
         approves_above=int(voters.APPROVES_ABOVE),
         floor=approval_rules.FLOOR,
+        floor_applies=term.president_id is not None,
         low_streak=book.state.low_streak,
         impeachment_months=approval_rules.IMPEACHMENT_MONTHS,
         grace_until=approval_rules.grace_end(term),
