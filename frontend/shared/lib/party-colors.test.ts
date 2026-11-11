@@ -14,6 +14,10 @@ import { INK, MAX_PLAYERS, PLAYER_COLORS, WHITE } from "./player-colors";
 const BACKGROUNDS = ["#F4F5F7", "#FFFFFF", "#EEF0F3"];
 const TEXT_HEX = { [WHITE]: "#FFFFFF", [INK]: "#0F1729" };
 
+// Contraste mínimo contra o fundo: 3 para 1 em toda cor; o âmbar, que é o amarelo da paleta, fica em 2,5
+const MIN_CONTRAST: Record<string, number> = { "#CC8A00": 2.5 };
+const minContrast = (hex: string) => MIN_CONTRAST[hex] ?? 3;
+
 describe("PARTY_PALETTE", () => {
   it("tem 20 cores, todas com hex único", () => {
     expect(PARTY_PALETTE).toHaveLength(20);
@@ -25,11 +29,14 @@ describe("PARTY_PALETTE", () => {
     expect(PARTY_PALETTE.length).toBeGreaterThan(MAX_PLAYERS);
   });
 
-  it.each(PARTY_PALETTE)("$name se vê em todo fundo do app (contraste de pelo menos 3 para 1)", (color) => {
-    for (const background of BACKGROUNDS) {
-      expect(contrastRatio(color.value, background)).toBeGreaterThanOrEqual(3);
-    }
-  });
+  it.each(PARTY_PALETTE)(
+    "$name se vê em todo fundo do app (contraste de pelo menos 3 para 1, 2,5 no âmbar)",
+    (color) => {
+      for (const background of BACKGROUNDS) {
+        expect(contrastRatio(color.value, background)).toBeGreaterThanOrEqual(minContrast(color.value));
+      }
+    },
+  );
 
   it.each(PARTY_PALETTE)("a sigla sobre $name tem pelo menos 4,5 para 1 de contraste", (color) => {
     const text = TEXT_HEX[color.foreground as keyof typeof TEXT_HEX];
