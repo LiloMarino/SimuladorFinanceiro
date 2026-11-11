@@ -318,6 +318,10 @@ class SimulationEngine:
         self.cover_before_debit(client_id, amount, CashflowEventType.UNEXPECTED_EXPENSE)
         self._move_cash(client_id, -amount, CashflowEventType.UNEXPECTED_EXPENSE, key)
 
+    def receive_unexpected(self, client_id: UUID, amount: Decimal, key: str) -> None:
+        """Credita no caixa um imprevisto bom (restituição, herança, bônus...)."""
+        self._move_cash(client_id, amount, CashflowEventType.UNEXPECTED_INCOME, key)
+
     def charge_overdraft_interest(self, client_id: UUID, amount: Decimal) -> None:
         self._move_cash(client_id, -amount, CashflowEventType.OVERDRAFT_INTEREST)
 

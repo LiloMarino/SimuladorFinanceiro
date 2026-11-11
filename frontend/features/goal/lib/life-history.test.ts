@@ -20,6 +20,13 @@ describe("texto do histórico da vida real", () => {
     expect(lifeRowText(row({ label: null }))).toBe("Imprevisto");
   });
 
+  it("o imprevisto bom usa o nome do evento, ou o genérico", () => {
+    expect(lifeRowText(row({ kind: "UNEXPECTED_INCOME", label: "Restituição do imposto de renda" }))).toBe(
+      "Restituição do imposto de renda",
+    );
+    expect(lifeRowText(row({ kind: "UNEXPECTED_INCOME", label: null }))).toBe("Imprevisto");
+  });
+
   it("a perda de renda tira o mês seguinte", () => {
     expect(lifeRowText(row({ category: "LAYOFF", kind: "LAYOFF" }))).toBe("Renda de novembro não entrou");
     expect(lifeRowText(row({ category: "LAYOFF", kind: "LAYOFF", event_date: "2024-12-20" }))).toBe(

@@ -48,6 +48,14 @@ export function LifeNotifications() {
         });
         return;
       }
+      // O imprevisto bom põe dinheiro no caixa de todos
+      if (event.effect === "CASH_IN") {
+        toast.success(`Imprevisto bom: ${event.label.toLowerCase()}`, {
+          description: `${displaySignedMoney(Number(event.amount))} no caixa · todos receberam o mesmo`,
+          action: showHistory(event.event_date),
+        });
+        return;
+      }
       toast.warning(`Imprevisto: ${event.label.toLowerCase()}`, {
         description: `${displaySignedMoney(-Number(event.amount))} do caixa · todos receberam o mesmo`,
         action: showHistory(event.event_date),

@@ -27,9 +27,11 @@ from backend.core.enum import (
     LifeHistoryCategory,
     LifeHistoryKind,
     LifeHistorySort,
+    Profession,
 )
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
+from backend.core.life_events import life_event_label
 from backend.core.professions import RealRaise, TaxBase, entrepreneur_gdp_factor
 from backend.core.utils import format_money
 
@@ -173,6 +175,7 @@ def build_history(
     changes: Sequence[BudgetChange] = (),
     unemployment_on: Callable[[date], Decimal] | None = None,
     loss: IncomeLoss | None = IncomeLoss.LAYOFF,
+    profession: Profession | None = None,
 ) -> list[LifeHistoryRowDTO]:
     """
     As linhas do mais antigo ao mais novo, a partir de todos os eventos de caixa do
@@ -181,7 +184,8 @@ def build_history(
     a chave de um tipo que saiu da lista aparece como está. O juro é
     cobrado por pregão e vira uma linha por mês, datada do último pregão cobrado
     nele. Com `unemployment_on`, a demissão cita o desemprego do dia; `loss` diz o
-    que o sorteio da demissão é para a profissão do jogador.
+    que o sorteio da demissão é para a profissão do jogador; com `profession`, o
+    imprevisto leva o nome que ela lê.
     """
     kinds = {kind.key: kind for kind in life_events}
     rows: list[LifeHistoryRowDTO] = []
@@ -225,9 +229,14 @@ def build_history(
             )
             continue
 
-        if event.event_type is CashflowEventType.UNEXPECTED_EXPENSE:
+        if event.event_type in (
+            CashflowEventType.UNEXPECTED_EXPENSE,
+            CashflowEventType.UNEXPECTED_INCOME,
+        ):
             flush_interest()
-            rows.append(_unexpected_row(event, kinds, cash, unemployment_on, loss))
+            rows.append(
+                _unexpected_row(event, kinds, cash, unemployment_on, loss, profession)
+            )
 
         if before >= 0 > cash:
             flush_interest()
@@ -269,6 +278,7 @@ def history_page(
     chosen = [r for r in reversed(rows) if category is None or r.category is category]
     kinds = {
         LifeHistoryKind.UNEXPECTED_EXPENSE: "Imprevisto",
+        LifeHistoryKind.UNEXPECTED_INCOME: "Imprevisto",
         LifeHistoryKind.LAYOFF: "Demissão",
         LifeHistoryKind.OVERDRAFT_STARTED: "Cheque especial",
         LifeHistoryKind.OVERDRAFT_ENDED: "Cheque especial",
@@ -331,7 +341,7 @@ def _description_key(row: LifeHistoryRowDTO) -> str:
         "dezembro",
     )
     match row.kind:
-        case LifeHistoryKind.UNEXPECTED_EXPENSE:
+        case LifeHistoryKind.UNEXPECTED_EXPENSE | LifeHistoryKind.UNEXPECTED_INCOME:
             return (row.label or "Imprevisto").casefold()
         case LifeHistoryKind.LAYOFF:
             text = f"salário de {months[row.event_date.month % 12]} não entrou"
@@ -357,6 +367,7 @@ def _unexpected_row(
     cash: Decimal,
     unemployment_on: Callable[[date], Decimal] | None,
     loss: IncomeLoss | None,
+    profession: Profession | None,
 ) -> LifeHistoryRowDTO:
     kind = kinds.get(event.life_event_key or "")
     if kind is not None and kind.effect is LifeEventEffect.SKIP_NEXT_SALARY:
@@ -373,13 +384,18 @@ def _unexpected_row(
         return _row(
             event, LifeHistoryCategory.LAYOFF, LifeHistoryKind.LAYOFF, cash, label
         )
+    income = event.event_type is CashflowEventType.UNEXPECTED_INCOME
     return _row(
         event,
         LifeHistoryCategory.UNEXPECTED,
-        LifeHistoryKind.UNEXPECTED_EXPENSE,
+        LifeHistoryKind.UNEXPECTED_INCOME
+        if income
+        else LifeHistoryKind.UNEXPECTED_EXPENSE,
         cash,
-        kind.label if kind else event.life_event_key,
-        amount=-event.amount,
+        life_event_label(kind.key, kind.label, profession)
+        if kind
+        else event.life_event_key,
+        amount=event.amount if income else -event.amount,
     )
 
 

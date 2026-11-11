@@ -3,6 +3,7 @@ import {
   ArrowDownLeft,
   ArrowUp,
   Briefcase,
+  Gift,
   HeartPulse,
   Landmark,
   Percent,
@@ -17,13 +18,14 @@ import type { LifeHistoryKind, LifeHistoryRow } from "@/types";
 
 type KindInfo = {
   tag: string;
-  badge: "warning" | "secondary" | "destructive" | "info";
+  badge: "warning" | "secondary" | "destructive" | "info" | "success";
   icon: LucideIcon;
 };
 
 /** Como cada tipo de linha do histórico se mostra: a etiqueta da coluna "Tipo" e o ícone. */
 export const LIFE_HISTORY_KINDS: Record<LifeHistoryKind, KindInfo> = {
   UNEXPECTED_EXPENSE: { tag: "Imprevisto", badge: "warning", icon: Zap },
+  UNEXPECTED_INCOME: { tag: "Imprevisto", badge: "success", icon: Gift },
   LAYOFF: { tag: "Demissão", badge: "destructive", icon: Briefcase },
   OVERDRAFT_STARTED: {
     tag: "Cheque especial",
@@ -60,7 +62,8 @@ export function lifeRowIcon(row: LifeHistoryRow) {
 export function lifeRowText(row: LifeHistoryRow) {
   switch (row.kind) {
     case "UNEXPECTED_EXPENSE":
-      return row.label ?? LIFE_HISTORY_KINDS.UNEXPECTED_EXPENSE.tag;
+    case "UNEXPECTED_INCOME":
+      return row.label ?? LIFE_HISTORY_KINDS[row.kind].tag;
     case "LAYOFF":
       return `Renda de ${displayMonthName(row.event_date, 1)} não entrou${row.label ? ` · ${row.label}` : ""}`;
     case "OVERDRAFT_STARTED":

@@ -20,6 +20,7 @@ RULE_GROUP_FIELDS: dict[PresetRuleGroup, tuple[str, ...]] = {
         "monthly_expense",
         "unexpected_per_year",
         "life_events",
+        "life_frequencies",
         "withdrawal_rate",
         "inflation_adjusted",
         "salary_mode",

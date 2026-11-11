@@ -1,22 +1,32 @@
 from datetime import date
 from decimal import Decimal
-from typing import Annotated
+from typing import Annotated, Any
 
-from pydantic import AfterValidator, Field
+from pydantic import AfterValidator, Field, model_validator
 
 from backend.core.dto.base import BaseDTO
 from backend.core.enum import (
     IncomeLoss,
     LifeEventEffect,
+    LifeEventFamily,
+    LifeFrequency,
     LifeHistoryCategory,
     LifeHistoryKind,
     Profession,
 )
+from backend.core.life_events import LIFE_EVENT_CATALOG
 from backend.core.professions import TaxBase
 
 LIFE_EVENT_LABEL_MAX_LENGTH = 40
 LIFE_EVENT_MAX_EXPENSE_MULTIPLE = 24
-LIFE_EVENTS_MAX_COUNT = 12
+LIFE_EVENTS_MAX_COUNT = 40
+
+# A família de uma lista guardada antes de existirem famílias vem do efeito do tipo
+_FAMILY_OF_EFFECT = {
+    LifeEventEffect.CASH_OUT.value: LifeEventFamily.EXPENSES,
+    LifeEventEffect.SKIP_NEXT_SALARY.value: LifeEventFamily.INCOME,
+    LifeEventEffect.CASH_IN.value: LifeEventFamily.GOOD,
+}
 
 
 class LifeEventTypeDTO(BaseDTO):
@@ -25,45 +35,62 @@ class LifeEventTypeDTO(BaseDTO):
     key: str = Field(min_length=1, max_length=40)
     label: str = Field(min_length=1, max_length=LIFE_EVENT_LABEL_MAX_LENGTH)
     effect: LifeEventEffect
+    family: LifeEventFamily
     # Chance relativa entre os tipos quando sai um imprevisto
     weight: int = Field(ge=1)
-    # Quantas despesas mensais saem do caixa; a demissão não usa
+    # Quantas despesas mensais saem (ou entram) do caixa; a demissão não usa
     expense_multiple: Decimal = Field(ge=0, le=LIFE_EVENT_MAX_EXPENSE_MULTIPLE)
     enabled: bool
 
+    @model_validator(mode="before")
+    @classmethod
+    def fill_family(cls, data: Any) -> Any:
+        if isinstance(data, dict) and "family" not in data:
+            effect = data.get("effect")
+            effect = effect.value if isinstance(effect, LifeEventEffect) else effect
+            if effect in _FAMILY_OF_EFFECT:
+                return {**data, "family": _FAMILY_OF_EFFECT[effect]}
+        return data
 
-DEFAULT_LIFE_EVENTS: tuple[LifeEventTypeDTO, ...] = (
+
+class LifeFrequenciesDTO(BaseDTO):
+    """O quanto cada família de imprevistos sai; a geral (`unexpected_per_year`) vale com as três em Normal."""
+
+    expenses: LifeFrequency = LifeFrequency.NORMAL
+    income: LifeFrequency = LifeFrequency.NORMAL
+    good: LifeFrequency = LifeFrequency.NORMAL
+
+    def of(self, family: LifeEventFamily) -> LifeFrequency:
+        match family:
+            case LifeEventFamily.EXPENSES:
+                return self.expenses
+            case LifeEventFamily.INCOME:
+                return self.income
+            case LifeEventFamily.GOOD:
+                return self.good
+
+
+DEFAULT_LIFE_EVENTS: tuple[LifeEventTypeDTO, ...] = tuple(
     LifeEventTypeDTO(
-        key="REPAIR",
-        label="Conserto do carro",
-        effect=LifeEventEffect.CASH_OUT,
-        weight=3,
-        expense_multiple=Decimal(1),
+        key=spec.key,
+        label=spec.label,
+        effect=spec.effect,
+        family=spec.family,
+        weight=spec.weight,
+        expense_multiple=spec.expense_multiple,
         enabled=True,
-    ),
-    LifeEventTypeDTO(
-        key="HEALTH",
-        label="Despesa de saúde",
-        effect=LifeEventEffect.CASH_OUT,
-        weight=2,
-        expense_multiple=Decimal(2),
-        enabled=True,
-    ),
-    LifeEventTypeDTO(
-        key="LAYOFF",
-        label="Demissão",
-        effect=LifeEventEffect.SKIP_NEXT_SALARY,
-        weight=1,
-        expense_multiple=Decimal(0),
-        enabled=True,
-    ),
+    )
+    for spec in LIFE_EVENT_CATALOG
 )
+
+# Os tipos que toda lista guarda: salas salvas antes do catálogo ampliado só têm estes
+REQUIRED_LIFE_EVENT_KEYS = ("REPAIR", "HEALTH", "LAYOFF")
 
 
 def validate_life_events(
     events: list[LifeEventTypeDTO],
 ) -> list[LifeEventTypeDTO]:
-    """Os tipos de fábrica ficam sempre na lista (só se desligam) e as chaves não se repetem."""
+    """Os tipos de fábrica obrigatórios ficam sempre na lista (só se desligam) e as chaves não se repetem."""
     keys = [event.key for event in events]
     if len(set(keys)) != len(keys):
         raise ValueError("Cada tipo de imprevisto precisa de uma chave única.")
@@ -72,6 +99,8 @@ def validate_life_events(
             f"No máximo {LIFE_EVENTS_MAX_COUNT} tipos de imprevisto por partida."
         )
     for default in DEFAULT_LIFE_EVENTS:
+        if default.key not in REQUIRED_LIFE_EVENT_KEYS:
+            continue
         found = next((e for e in events if e.key == default.key), None)
         if found is None:
             raise ValueError(f"O tipo «{default.label}» não pode ser removido.")
@@ -94,7 +123,7 @@ class LifeEventDTO(BaseDTO):
     key: str
     label: str
     effect: LifeEventEffect
-    # Quanto saiu do caixa de cada jogador; zero na demissão, que tira o salário do mês seguinte
+    # Quanto saiu (ou entrou, no efeito CASH_IN) do caixa de cada jogador; zero na demissão, que tira o salário do mês seguinte
     amount: Decimal
     event_date: date
     # O que a demissão sorteada é para quem recebe o aviso (demissão, queda do bico ou vacância)

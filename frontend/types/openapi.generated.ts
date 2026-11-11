@@ -5558,6 +5558,7 @@ export interface components {
             unexpected_per_year: number;
             /** Life Events */
             life_events?: components["schemas"]["LifeEventTypeDTO-Input"][];
+            life_frequencies?: components["schemas"]["LifeFrequenciesDTO-Input"];
             /**
              * Withdrawal Rate
              * @default 0.04
@@ -7770,7 +7771,13 @@ export interface components {
          * LifeEventEffect
          * @enum {string}
          */
-        LifeEventEffect: "CASH_OUT" | "SKIP_NEXT_SALARY";
+        LifeEventEffect: "CASH_OUT" | "SKIP_NEXT_SALARY" | "CASH_IN";
+        /**
+         * LifeEventFamily
+         * @description O grupo do imprevisto, cuja frequência o anfitrião regula no lobby.
+         * @enum {string}
+         */
+        LifeEventFamily: "EXPENSES" | "INCOME" | "GOOD";
         /**
          * LifeEventTypeDTO
          * @description Um tipo de imprevisto das regras da partida: o motor, o histórico e a tela leem a mesma lista.
@@ -7781,6 +7788,7 @@ export interface components {
             /** Label */
             label: string;
             effect: components["schemas"]["LifeEventEffect"];
+            family: components["schemas"]["LifeEventFamily"];
             /** Weight */
             weight: number;
             /** Expense Multiple */
@@ -7798,6 +7806,7 @@ export interface components {
             /** Label */
             label: string;
             effect: components["schemas"]["LifeEventEffect"];
+            family: components["schemas"]["LifeEventFamily"];
             /** Weight */
             weight: number;
             /** Expense Multiple */
@@ -7805,6 +7814,36 @@ export interface components {
             /** Enabled */
             enabled: boolean;
         };
+        /**
+         * LifeFrequenciesDTO
+         * @description O quanto cada família de imprevistos sai; a geral (`unexpected_per_year`) vale com as três em Normal.
+         */
+        "LifeFrequenciesDTO-Input": {
+            /** @default NORMAL */
+            expenses: components["schemas"]["LifeFrequency"];
+            /** @default NORMAL */
+            income: components["schemas"]["LifeFrequency"];
+            /** @default NORMAL */
+            good: components["schemas"]["LifeFrequency"];
+        };
+        /**
+         * LifeFrequenciesDTO
+         * @description O quanto cada família de imprevistos sai; a geral (`unexpected_per_year`) vale com as três em Normal.
+         */
+        "LifeFrequenciesDTO-Output": {
+            /** @default NORMAL */
+            expenses: components["schemas"]["LifeFrequency"];
+            /** @default NORMAL */
+            income: components["schemas"]["LifeFrequency"];
+            /** @default NORMAL */
+            good: components["schemas"]["LifeFrequency"];
+        };
+        /**
+         * LifeFrequency
+         * @description O quanto uma família de imprevistos sai: multiplica a chance dos tipos dela.
+         * @enum {string}
+         */
+        LifeFrequency: "OFF" | "RARE" | "NORMAL" | "FREQUENT";
         /**
          * LifeHistoryCategory
          * @description Os filtros do histórico do viver de renda.
@@ -7828,7 +7867,7 @@ export interface components {
          * LifeHistoryKind
          * @enum {string}
          */
-        LifeHistoryKind: "UNEXPECTED_EXPENSE" | "LAYOFF" | "OVERDRAFT_STARTED" | "OVERDRAFT_ENDED" | "OVERDRAFT_INTEREST" | "SALARY_READJUSTED" | "EXPENSE_READJUSTED" | "SALARY_TAX_CHANGED" | "OVERDRAFT_RATE_CHANGED";
+        LifeHistoryKind: "UNEXPECTED_EXPENSE" | "UNEXPECTED_INCOME" | "LAYOFF" | "OVERDRAFT_STARTED" | "OVERDRAFT_ENDED" | "OVERDRAFT_INTEREST" | "SALARY_READJUSTED" | "EXPENSE_READJUSTED" | "SALARY_TAX_CHANGED" | "OVERDRAFT_RATE_CHANGED";
         /** LifeHistoryPageDTO */
         LifeHistoryPageDTO: {
             /** Items */
@@ -10576,6 +10615,7 @@ export interface components {
             unexpected_per_year: number;
             /** Life Events */
             life_events: components["schemas"]["LifeEventTypeDTO-Output"][];
+            life_frequencies: components["schemas"]["LifeFrequenciesDTO-Output"];
             /** Withdrawal Rate */
             withdrawal_rate: string;
             /** Inflation Adjusted */
@@ -11017,6 +11057,7 @@ export interface components {
             unexpected_per_year: number;
             /** Life Events */
             life_events: components["schemas"]["LifeEventTypeDTO-Output"][];
+            life_frequencies: components["schemas"]["LifeFrequenciesDTO-Output"];
             /** Withdrawal Rate */
             withdrawal_rate: string;
             /** Inflation Adjusted */
@@ -11131,6 +11172,7 @@ export interface components {
             unexpected_per_year: number;
             /** Life Events */
             life_events?: components["schemas"]["LifeEventTypeDTO-Input"][];
+            life_frequencies?: components["schemas"]["LifeFrequenciesDTO-Input"];
             /**
              * Withdrawal Rate
              * @default 0.04
@@ -11222,6 +11264,7 @@ export interface components {
             unexpected_per_year: number;
             /** Life Events */
             life_events: components["schemas"]["LifeEventTypeDTO-Output"][];
+            life_frequencies: components["schemas"]["LifeFrequenciesDTO-Output"];
             /** Withdrawal Rate */
             withdrawal_rate: string;
             /** Inflation Adjusted */
@@ -12522,6 +12565,7 @@ export interface components {
             unexpected_per_year: number;
             /** Life Events */
             life_events?: components["schemas"]["LifeEventTypeDTO-Input"][];
+            life_frequencies?: components["schemas"]["LifeFrequenciesDTO-Input"];
             /**
              * Withdrawal Rate
              * @default 0.04

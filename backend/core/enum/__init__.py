@@ -69,6 +69,7 @@ class CashflowEventType(Enum):
     SALARY = "SALARY"
     EXPENSE = "EXPENSE"
     UNEXPECTED_EXPENSE = "UNEXPECTED_EXPENSE"
+    UNEXPECTED_INCOME = "UNEXPECTED_INCOME"
     OVERDRAFT_INTEREST = "OVERDRAFT_INTEREST"
     LOAN_PROCEEDS = "LOAN_PROCEEDS"
     LOAN_PAYMENT = "LOAN_PAYMENT"
@@ -97,6 +98,7 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.SALARY: 1,
     CashflowEventType.EXPENSE: -1,
     CashflowEventType.UNEXPECTED_EXPENSE: -1,
+    CashflowEventType.UNEXPECTED_INCOME: 1,
     CashflowEventType.OVERDRAFT_INTEREST: -1,
     CashflowEventType.LOAN_PROCEEDS: 1,
     CashflowEventType.LOAN_PAYMENT: -1,
@@ -106,8 +108,8 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.PRESIDENT_LEGACY: 1,
 }
 
-# Aporte, salário, legado do presidente, despesa e imprevisto são o dinheiro da vida
-# do jogador; o juro do cheque especial é perda dele, como o IR
+# Aporte, salário, legado do presidente, despesa e imprevisto (ruim ou bom) são o
+# dinheiro da vida do jogador; o juro do cheque especial é perda dele, como o IR
 CONTRIBUTION_TYPES = frozenset(
     {
         CashflowEventType.CONTRIBUTION,
@@ -115,6 +117,7 @@ CONTRIBUTION_TYPES = frozenset(
         CashflowEventType.PRESIDENT_LEGACY,
         CashflowEventType.EXPENSE,
         CashflowEventType.UNEXPECTED_EXPENSE,
+        CashflowEventType.UNEXPECTED_INCOME,
     }
 )
 
@@ -299,6 +302,37 @@ class LifeEventEffect(Enum):
     CASH_OUT = "CASH_OUT"
     # O salário do mês seguinte não entra
     SKIP_NEXT_SALARY = "SKIP_NEXT_SALARY"
+    # Entra no caixa o múltiplo da despesa mensal do dia
+    CASH_IN = "CASH_IN"
+
+
+class LifeEventFamily(Enum):
+    """O grupo do imprevisto, cuja frequência o anfitrião regula no lobby."""
+
+    EXPENSES = "EXPENSES"
+    INCOME = "INCOME"
+    GOOD = "GOOD"
+
+
+class LifeFrequency(Enum):
+    """O quanto uma família de imprevistos sai: multiplica a chance dos tipos dela."""
+
+    OFF = "OFF"
+    RARE = "RARE"
+    NORMAL = "NORMAL"
+    FREQUENT = "FREQUENT"
+
+    @property
+    def multiplier(self) -> float:
+        return _LIFE_FREQUENCY_MULTIPLIERS[self]
+
+
+_LIFE_FREQUENCY_MULTIPLIERS = {
+    LifeFrequency.OFF: 0.0,
+    LifeFrequency.RARE: 0.5,
+    LifeFrequency.NORMAL: 1.0,
+    LifeFrequency.FREQUENT: 2.0,
+}
 
 
 class SalaryMode(Enum):
@@ -354,6 +388,7 @@ class LifeHistoryCategory(Enum):
 
 class LifeHistoryKind(Enum):
     UNEXPECTED_EXPENSE = "UNEXPECTED_EXPENSE"
+    UNEXPECTED_INCOME = "UNEXPECTED_INCOME"
     LAYOFF = "LAYOFF"
     OVERDRAFT_STARTED = "OVERDRAFT_STARTED"
     OVERDRAFT_ENDED = "OVERDRAFT_ENDED"

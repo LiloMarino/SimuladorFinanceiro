@@ -23,12 +23,15 @@ from backend.core.enum import (
     GameType,
     IndicatorSeries,
     LifeEventEffect,
+    LifeEventFamily,
     LifeHistoryCategory,
     LifeHistoryKind,
     LifeHistorySort,
+    Profession,
 )
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
+from backend.core.life_events import BOOM_KEY, life_event_label
 from backend.core.periods import MONTHS_PER_YEAR
 from backend.core.professions import no_levers
 from backend.core.rates import period_rate
@@ -83,6 +86,9 @@ def test_every_cashflow_type_has_a_sign():
     """Um tipo novo sem sinal valeria zero no saldo, sem erro: o mapa cobre todos."""
     assert set(CASH_SIGN) == set(CashflowEventType)
     assert T.OVERDRAFT_INTEREST not in CONTRIBUTION_TYPES
+    # O imprevisto bom é dinheiro que entra da vida do jogador: conta como aporte
+    assert CASH_SIGN[T.UNEXPECTED_INCOME] == 1
+    assert T.UNEXPECTED_INCOME in CONTRIBUTION_TYPES
 
 
 def test_history_rows_follow_the_rebuilt_cash():
@@ -272,6 +278,9 @@ class _RecordingEngine:
 
     def charge_unexpected(self, _client, amount: Decimal, key: str) -> None:
         self.calls.append((key, amount))
+
+    def receive_unexpected(self, _client, amount: Decimal, key: str) -> None:
+        self.calls.append((f"in:{key}", amount))
 
     def charge_overdraft_interest(self, _client, amount: Decimal) -> None:
         self.calls.append(("interest", amount))
@@ -504,6 +513,7 @@ def test_history_reads_label_and_effect_from_the_match_types():
         key="FINE",
         label="Multa",
         effect=LifeEventEffect.CASH_OUT,
+        family=LifeEventFamily.EXPENSES,
         weight=1,
         expense_multiple=Decimal("0.5"),
         enabled=True,
@@ -520,3 +530,52 @@ def test_history_reads_label_and_effect_from_the_match_types():
     assert custom.kind is LifeHistoryKind.UNEXPECTED_EXPENSE
     # A chave de um tipo que saiu da lista aparece como está
     assert removed.label == "GONE"
+
+
+def test_a_good_event_credits_the_cash_with_the_amount_of_its_multiple(
+    captured_events: list,
+):
+    day = date(2020, 3, 2)
+    seed = next(
+        s
+        for s in range(2000)
+        if (drawn := unexpected_on(s, day, 6, DEFAULT_LIFE_EVENTS))
+        and drawn.effect is LifeEventEffect.CASH_IN
+    )
+    drawn = unexpected_on(seed, day, 6, DEFAULT_LIFE_EVENTS)
+    assert drawn is not None
+    engine = _RecordingEngine()
+    fake, life = _living(day, seed, engine)
+
+    Simulation._live(
+        fake, life, [UserDTO(id=1, client_id=client("Ana"), nickname="Ana")], True
+    )
+
+    assert (f"in:{drawn.key}", drawn.expense_multiple * 5000) in engine.calls
+    assert not any(name == drawn.key for name, _ in engine.calls)
+
+
+def test_each_profession_reads_its_own_text_of_the_same_good_event():
+    labels = {
+        profession: life_event_label(BOOM_KEY, "Boa fase da profissão", profession)
+        for profession in Profession
+    }
+
+    assert len(set(labels.values())) == len(Profession)
+    assert life_event_label(BOOM_KEY, "Boa fase da profissão", None) == (
+        "Boa fase da profissão"
+    )
+
+
+def test_a_good_event_is_a_positive_row_with_the_text_of_the_profession():
+    good = event(date(2012, 6, 8), T.UNEXPECTED_INCOME, "8000", BOOM_KEY)
+
+    rows = build_history(
+        [good], DEFAULT_LIFE_EVENTS, profession=Profession.ENTREPRENEUR
+    )
+
+    assert [r.kind for r in rows] == [LifeHistoryKind.UNEXPECTED_INCOME]
+    assert rows[0].category is LifeHistoryCategory.UNEXPECTED
+    assert rows[0].amount == Decimal(8000)
+    assert rows[0].label == "Contrato grande"
+    assert rows[0].cash_after == Decimal(8000)

@@ -98,6 +98,7 @@ from backend.core.enum import (
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
+from backend.core.life_events import life_event_label
 from backend.core.metrics import (
     ENGINE_ACHIEVEMENTS,
     ENGINE_BACKTEST_DAY,
@@ -1466,6 +1467,7 @@ class Simulation:
                 self.settings.start_date,
                 self.settings.life_events,
                 layoff_factor_on=self._layoff_factor,
+                frequencies=self.settings.life_frequencies,
             )
             for user in users:
                 budget = budgets[user.client_id]
@@ -1481,10 +1483,12 @@ class Simulation:
             per_year,
             self.settings.life_events,
             layoff_factor=self._layoff_factor(day),
+            frequencies=self.settings.life_frequencies,
         )
         if event is None:
             return
         is_layoff = event.effect is LifeEventEffect.SKIP_NEXT_SALARY
+        is_income = event.effect is LifeEventEffect.CASH_IN
         for user in users:
             budget = budgets[user.client_id]
             # A profissão que não sente a demissão sorteada não a registra
@@ -1492,7 +1496,10 @@ class Simulation:
                 continue
             health = budget.rule.health_multiple if event.key == HEALTH_EVENT_KEY else 1
             amount = event.expense_multiple * budget.expense_on(day) * health
-            self._engine.charge_unexpected(user.client_id, amount, event.key)
+            if is_income:
+                self._engine.receive_unexpected(user.client_id, amount, event.key)
+            else:
+                self._engine.charge_unexpected(user.client_id, amount, event.key)
             if self.settings.uses_professions and not user.is_bot:
                 self._notify_life_event(event, amount, budget, user)
         if not self.settings.uses_professions:
@@ -1507,12 +1514,13 @@ class Simulation:
         budget: LifeBudget,
         user: UserDTO | None = None,
     ):
-        """O aviso do imprevisto: um só para a sala com salário igual, e o de cada jogador com profissões, com o valor e o efeito da dele."""
+        """O aviso do imprevisto: um só para a sala com salário igual, e o de cada jogador com profissões, com o nome, o valor e o efeito da dele."""
+        profession = budget.profession if user is not None else None
         notify(
             "life_event",
             LifeEventDTO(
                 key=event.key,
-                label=event.label,
+                label=life_event_label(event.key, event.label, profession),
                 effect=event.effect,
                 amount=amount,
                 event_date=self._current_date,
@@ -1601,6 +1609,7 @@ class Simulation:
                 start,
                 self.settings.life_events,
                 layoff_factor_on=self._layoff_factor,
+                frequencies=self.settings.life_frequencies,
             )
             if loss is not None
             else None,
@@ -1612,6 +1621,7 @@ class Simulation:
                 self.settings.life_events,
                 until=day,
                 layoff_factor_on=self._layoff_factor,
+                frequencies=self.settings.life_frequencies,
             )
             if loss is not None
             else None,
@@ -1669,6 +1679,7 @@ class Simulation:
             changes,
             lambda day: self._macro.latest(day).unemployment,
             budget.income_loss(),
+            budget.profession if self.settings.uses_professions else None,
         )
 
     @synchronized

@@ -15871,6 +15871,9 @@
             "type": "array",
             "title": "Life Events"
           },
+          "life_frequencies": {
+            "$ref": "#/components/schemas/LifeFrequenciesDTO-Input"
+          },
           "withdrawal_rate": {
             "anyOf": [
               {
@@ -22053,9 +22056,20 @@
         "type": "string",
         "enum": [
           "CASH_OUT",
-          "SKIP_NEXT_SALARY"
+          "SKIP_NEXT_SALARY",
+          "CASH_IN"
         ],
         "title": "LifeEventEffect"
+      },
+      "LifeEventFamily": {
+        "type": "string",
+        "enum": [
+          "EXPENSES",
+          "INCOME",
+          "GOOD"
+        ],
+        "title": "LifeEventFamily",
+        "description": "O grupo do imprevisto, cuja frequência o anfitrião regula no lobby."
       },
       "LifeEventTypeDTO-Input": {
         "properties": {
@@ -22073,6 +22087,9 @@
           },
           "effect": {
             "$ref": "#/components/schemas/LifeEventEffect"
+          },
+          "family": {
+            "$ref": "#/components/schemas/LifeEventFamily"
           },
           "weight": {
             "type": "integer",
@@ -22103,6 +22120,7 @@
           "key",
           "label",
           "effect",
+          "family",
           "weight",
           "expense_multiple",
           "enabled"
@@ -22127,6 +22145,9 @@
           "effect": {
             "$ref": "#/components/schemas/LifeEventEffect"
           },
+          "family": {
+            "$ref": "#/components/schemas/LifeEventFamily"
+          },
           "weight": {
             "type": "integer",
             "minimum": 1.0,
@@ -22147,12 +22168,69 @@
           "key",
           "label",
           "effect",
+          "family",
           "weight",
           "expense_multiple",
           "enabled"
         ],
         "title": "LifeEventTypeDTO",
         "description": "Um tipo de imprevisto das regras da partida: o motor, o histórico e a tela leem a mesma lista."
+      },
+      "LifeFrequenciesDTO-Input": {
+        "properties": {
+          "expenses": {
+            "$ref": "#/components/schemas/LifeFrequency",
+            "default": "NORMAL"
+          },
+          "income": {
+            "$ref": "#/components/schemas/LifeFrequency",
+            "default": "NORMAL"
+          },
+          "good": {
+            "$ref": "#/components/schemas/LifeFrequency",
+            "default": "NORMAL"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "LifeFrequenciesDTO",
+        "description": "O quanto cada família de imprevistos sai; a geral (`unexpected_per_year`) vale com as três em Normal."
+      },
+      "LifeFrequenciesDTO-Output": {
+        "properties": {
+          "expenses": {
+            "$ref": "#/components/schemas/LifeFrequency",
+            "default": "NORMAL"
+          },
+          "income": {
+            "$ref": "#/components/schemas/LifeFrequency",
+            "default": "NORMAL"
+          },
+          "good": {
+            "$ref": "#/components/schemas/LifeFrequency",
+            "default": "NORMAL"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expenses",
+          "income",
+          "good"
+        ],
+        "title": "LifeFrequenciesDTO",
+        "description": "O quanto cada família de imprevistos sai; a geral (`unexpected_per_year`) vale com as três em Normal."
+      },
+      "LifeFrequency": {
+        "type": "string",
+        "enum": [
+          "OFF",
+          "RARE",
+          "NORMAL",
+          "FREQUENT"
+        ],
+        "title": "LifeFrequency",
+        "description": "O quanto uma família de imprevistos sai: multiplica a chance dos tipos dela."
       },
       "LifeHistoryCategory": {
         "type": "string",
@@ -22203,6 +22281,7 @@
         "type": "string",
         "enum": [
           "UNEXPECTED_EXPENSE",
+          "UNEXPECTED_INCOME",
           "LAYOFF",
           "OVERDRAFT_STARTED",
           "OVERDRAFT_ENDED",
@@ -30326,6 +30405,9 @@
             "type": "array",
             "title": "Life Events"
           },
+          "life_frequencies": {
+            "$ref": "#/components/schemas/LifeFrequenciesDTO-Output"
+          },
           "withdrawal_rate": {
             "type": "string",
             "title": "Withdrawal Rate"
@@ -30491,6 +30573,7 @@
           "monthly_expense",
           "unexpected_per_year",
           "life_events",
+          "life_frequencies",
           "withdrawal_rate",
           "inflation_adjusted",
           "salary_mode",
@@ -31491,6 +31574,9 @@
             "type": "array",
             "title": "Life Events"
           },
+          "life_frequencies": {
+            "$ref": "#/components/schemas/LifeFrequenciesDTO-Output"
+          },
           "withdrawal_rate": {
             "type": "string",
             "title": "Withdrawal Rate"
@@ -31583,6 +31669,7 @@
           "monthly_expense",
           "unexpected_per_year",
           "life_events",
+          "life_frequencies",
           "withdrawal_rate",
           "inflation_adjusted",
           "salary_mode",
@@ -31756,6 +31843,9 @@
             },
             "type": "array",
             "title": "Life Events"
+          },
+          "life_frequencies": {
+            "$ref": "#/components/schemas/LifeFrequenciesDTO-Input"
           },
           "withdrawal_rate": {
             "anyOf": [
@@ -31940,6 +32030,9 @@
             "type": "array",
             "title": "Life Events"
           },
+          "life_frequencies": {
+            "$ref": "#/components/schemas/LifeFrequenciesDTO-Output"
+          },
           "withdrawal_rate": {
             "type": "string",
             "title": "Withdrawal Rate"
@@ -32028,6 +32121,7 @@
           "monthly_expense",
           "unexpected_per_year",
           "life_events",
+          "life_frequencies",
           "withdrawal_rate",
           "inflation_adjusted",
           "salary_mode",
@@ -35912,6 +36006,9 @@
             },
             "type": "array",
             "title": "Life Events"
+          },
+          "life_frequencies": {
+            "$ref": "#/components/schemas/LifeFrequenciesDTO-Input"
           },
           "withdrawal_rate": {
             "anyOf": [

@@ -156,7 +156,17 @@ export function LifeHistory({ life }: LifeHistoryProps) {
                     ) : amount === null ? (
                       <span className="text-muted-foreground">—</span>
                     ) : (
-                      <span className={amount < 0 ? "text-destructive" : undefined}>{displaySignedMoney(amount)}</span>
+                      <span
+                        className={
+                          amount < 0
+                            ? "text-destructive"
+                            : row.kind === "UNEXPECTED_INCOME"
+                              ? "text-success"
+                              : undefined
+                        }
+                      >
+                        {displaySignedMoney(amount)}
+                      </span>
                     )}
                   </TableCell>
                   <TableCell numeric>

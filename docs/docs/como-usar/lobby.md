@@ -255,22 +255,22 @@ Ex.: salário do host de R$ 8.000 e Servidor: a renda é R$ 7.200 por mês. O so
 | Normais (padrão) | 3 |
 | Frequentes | 6 |
 
-Os tipos são:
+O catálogo tem 21 tipos, em três famílias:
 
-- **Conserto do carro:** 1× a despesa mensal.
-- **Despesa de saúde:** 2× a despesa mensal.
-- **Demissão:** o salário do mês seguinte não entra. A chance segue o desemprego da partida: com o desemprego no neutro (9%), é a de sempre; com 18%, é o dobro; com 4,5%, a metade. Ex.: com imprevistos normais e desemprego de 18%, a demissão chega o dobro de vezes que com 9%.
+- **Despesas (12 tipos):** conserto do carro, despesa de saúde, conserto da casa, eletrodoméstico queimado, celular quebrado, multa de trânsito, veterinário, dentista de urgência, golpe no cartão, viagem de emergência, rateio extra do condomínio e ajuda a um parente. Tiram do caixa de 0,25× a 2× a despesa mensal. Ex.: com despesa de R$ 5.000, a multa tira R$ 1.250 e a saúde, R$ 10.000.
+- **Renda e emprego (2 tipos):** a **demissão**, em que o salário do mês seguinte não entra, e o **revés da profissão**, que tira 1× a despesa mensal com o nome da sua profissão (máquina quebrada para o Empreendedor, reforma entre inquilinos para o Locador, curso pago do bolso para o CLT). A chance da demissão segue o desemprego da partida: com o desemprego no neutro (9%), é a de sempre; com 18%, é o dobro; com 4,5%, a metade. Ex.: com imprevistos normais e desemprego de 18%, a demissão chega o dobro de vezes que com 9%.
+- **Eventos bons (7 tipos):** restituição do imposto de renda, bônus do trabalho, prêmio de sorteio, herança pequena, venda de um bem usado, presente de família e a **boa fase da profissão**. Põem dinheiro no caixa de cada jogador, de 0,5× a 3× a despesa mensal. O bônus e a boa fase têm o texto da profissão (PLR para o CLT, gratificação para o Servidor, cliente que pagou adiantado para o Empreendedor, 13º adiantado para o Aposentado, bico extra para o Auxílio, reajuste do aluguel para o Locador). Com tudo em Normal, 1 em cada 4 imprevistos é bom.
 
-Cada imprevisto aparece num aviso na tela.
+O sorteio é um só para a partida: o mesmo dia traz o mesmo tipo para todos, e cada jogador lê o texto da própria profissão. Cada imprevisto aparece num aviso na tela, e o bom aparece em verde.
 
-**Tipos de imprevisto.** O host edita a lista de tipos no lobby:
+**Tipos de imprevisto.** O host regula os imprevistos no lobby, por família:
 
+- A **frequência da família** é Desligado, Raro, Normal ou Frequente. Raro sorteia metade das vezes do Normal e Frequente, o dobro. Ex.: com os eventos bons em Frequente, eles caem o dobro de vezes, e as despesas seguem como estavam.
 - O valor de cada tipo é em despesas mensais, de 0 a 24. Ex.: com despesa de R$ 5.000 e conserto em 2, cada conserto tira R$ 10.000 do caixa de cada jogador.
 - Cada tipo liga e desliga. Tipo desligado não é sorteado, e a frequência por ano continua a mesma: os imprevistos que sobram ficam mais frequentes.
-- Os três de fábrica (conserto, saúde e demissão) não se removem, só se desligam; o efeito deles não muda.
-- Dá para criar até 12 tipos no total, cada um com nome, valor e efeito: tirar do caixa ou cortar o salário do mês seguinte. A chance de um tipo próprio é a da demissão; as de fábrica seguem 3 para o conserto, 2 para a saúde e 1 para a demissão.
+- O lobby não cria tipos novos. Uma partida salva com tipo próprio continua abrindo e jogando, e esse tipo aparece na família do efeito dele.
 
-A lista vale para a partida salva e entra no preset, no grupo de regras de vida.
+A lista e as frequências valem para a partida salva e entram no preset, no grupo de regras de vida.
 
 **Caixa negativo.** Se o caixa ficar no negativo, ele cai no **cheque especial**: juros cobrados a cada pregão até o caixa voltar ao positivo. O juro mensal é a **SELIC** da partida (a taxa básica de juros) mais um adicional fixo de 7 pontos; na SELIC média da história, dá cerca de 8% ao mês. Ex.: com a SELIC em 1% ao mês, o cheque especial cobra uns 8% ao mês, e R$ 1.000 no vermelho custam cerca de R$ 80 em juros; com a SELIC em 2%, são uns 9%. Para sair, venda ou resgate algo.
 

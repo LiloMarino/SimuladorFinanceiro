@@ -172,6 +172,9 @@ export type CreateSimulationRequest = components["schemas"]["CreateSimulationReq
 export type SimulationSettingsData = components["schemas"]["SimulationSettingsDTO"];
 // O efeito de um tipo de imprevisto no caixa
 export type LifeEventEffect = SimulationSettingsData["life_events"][number]["effect"];
+// A família de um tipo de imprevisto (despesas, renda e emprego, eventos bons) e o nível de frequência dela
+export type LifeEventFamily = SimulationSettingsData["life_events"][number]["family"];
+export type LifeFrequency = SimulationSettingsData["life_frequencies"]["expenses"];
 export type SetSpeedResponse = components["schemas"]["SetSpeedResponse"];
 export type UpdateSettingsRequest = components["schemas"]["UpdateSettingsRequest"];
 export type SimulationSettings = components["schemas"]["SimulationSettingsResponse"];

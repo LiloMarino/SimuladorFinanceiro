@@ -5,7 +5,11 @@ from pydantic import Field, model_validator
 
 from backend.core.dto.backtest import BacktestProgressDTO
 from backend.core.dto.base import BaseDTO
-from backend.core.dto.life import LifeEventTypes, default_life_events
+from backend.core.dto.life import (
+    LifeEventTypes,
+    LifeFrequenciesDTO,
+    default_life_events,
+)
 from backend.core.enum import (
     ComputerDifficulty,
     GameType,
@@ -112,8 +116,10 @@ class SimulationSettingsDTO(BaseDTO):
     monthly_salary: Decimal = Field(ge=0)
     monthly_expense: Decimal = Field(ge=0)
     unexpected_per_year: int = Field(ge=0, le=52)
-    # Os tipos de imprevisto: valor, liga/desliga e os criados pelo host
+    # Os tipos de imprevisto: valor e liga/desliga de cada um
     life_events: LifeEventTypes = Field(default_factory=default_life_events)
+    # O quanto cada família de imprevistos sai; ausente, tudo em Normal
+    life_frequencies: LifeFrequenciesDTO = Field(default_factory=LifeFrequenciesDTO)
     withdrawal_rate: Decimal = Field(ge=Decimal("0.01"), le=Decimal("0.10"))
     inflation_adjusted: bool
     # Viver de renda: o mesmo salário para todos ou uma profissão para cada jogador

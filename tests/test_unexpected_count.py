@@ -32,7 +32,7 @@ def cashflow(
     )
 
 
-def test_counts_each_players_unexpected_expenses_and_skips_the_layoff(
+def test_counts_each_players_unexpected_expenses_and_skips_the_layoff_and_good_events(
     database: object, monkeypatch: pytest.MonkeyPatch
 ):
     ana = repository.user.create_user(client("Ana"), "Ana")
@@ -48,6 +48,13 @@ def test_counts_each_players_unexpected_expenses_and_skips_the_layoff(
             cashflow(ana.id, simulation_id, unexpected, "5000", "REPAIR"),
             cashflow(ana.id, simulation_id, unexpected, "0", "LAYOFF"),
             cashflow(ana.id, simulation_id, CashflowEventType.SALARY, "8000"),
+            cashflow(
+                ana.id,
+                simulation_id,
+                CashflowEventType.UNEXPECTED_INCOME,
+                "8000",
+                "TAX_REFUND",
+            ),
             cashflow(bia.id, simulation_id, unexpected, "5000", "REPAIR"),
         ]
     )

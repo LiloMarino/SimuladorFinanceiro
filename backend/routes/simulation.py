@@ -13,6 +13,7 @@ from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.goal import GoalProgressDTO
 from backend.core.dto.life import (
     LifeEventTypes,
+    LifeFrequenciesDTO,
     LifeHistoryPageDTO,
     LifeStatusDTO,
     default_life_events,
@@ -96,6 +97,7 @@ class SimulationRulesRequest(BaseModel):
     monthly_expense: Decimal = Field(ge=0, default=Decimal(0))
     unexpected_per_year: int = Field(ge=0, le=52, default=0)
     life_events: LifeEventTypes = Field(default_factory=default_life_events)
+    life_frequencies: LifeFrequenciesDTO = Field(default_factory=LifeFrequenciesDTO)
     withdrawal_rate: Decimal = Field(
         ge=Decimal("0.01"), le=Decimal("0.10"), default=Decimal("0.04")
     )

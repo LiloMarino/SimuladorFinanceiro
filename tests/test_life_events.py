@@ -10,10 +10,17 @@ from pydantic import ValidationError
 from backend.core.dto.life import (
     DEFAULT_LIFE_EVENTS,
     LifeEventTypeDTO,
+    LifeFrequenciesDTO,
     validate_life_events,
 )
-from backend.core.enum import IndicatorSeries, LifeEventEffect
+from backend.core.enum import (
+    IndicatorSeries,
+    LifeEventEffect,
+    LifeEventFamily,
+    LifeFrequency,
+)
 from backend.core.life_budget import LifeBudget
+from backend.core.life_events import LIFE_EVENT_CATALOG
 from backend.core.professions import no_levers
 from backend.core.utils import next_business_day
 from backend.features.simulation.life_events import (
@@ -37,6 +44,12 @@ def trading_days(start: date, count: int) -> list[date]:
 
 
 YEARS = trading_days(START, 252 * 20)
+
+
+# Os três tipos que toda sala guarda, os únicos das salas salvas antes do catálogo ampliado
+CLASSIC = tuple(
+    e for e in DEFAULT_LIFE_EVENTS if e.key in ("REPAIR", "HEALTH", "LAYOFF")
+)
 
 
 def draws(seed: int, per_year: int, events=DEFAULT_LIFE_EVENTS) -> list:
@@ -84,6 +97,7 @@ FINE = LifeEventTypeDTO(
     key="FINE",
     label="Multa",
     effect=LifeEventEffect.CASH_OUT,
+    family=LifeEventFamily.EXPENSES,
     weight=1,
     expense_multiple=Decimal("0.5"),
     enabled=True,
@@ -98,9 +112,7 @@ def test_a_new_event_type_is_drawn_without_touching_the_engine():
 
 
 def test_a_disabled_type_is_never_drawn():
-    types = [
-        e.model_copy(update={"enabled": e.key != "HEALTH"}) for e in DEFAULT_LIFE_EVENTS
-    ]
+    types = [e.model_copy(update={"enabled": e.key != "HEALTH"}) for e in CLASSIC]
 
     drawn = {e.key for e in draws(42, 12, types) if e is not None}
 
@@ -108,9 +120,7 @@ def test_a_disabled_type_is_never_drawn():
 
 
 def test_a_custom_type_joins_the_draw_next_to_the_defaults():
-    drawn = {
-        e.key for e in draws(42, 12, (*DEFAULT_LIFE_EVENTS, FINE)) if e is not None
-    }
+    drawn = {e.key for e in draws(42, 12, (*CLASSIC, FINE)) if e is not None}
 
     assert drawn == {"REPAIR", "HEALTH", "LAYOFF", "FINE"}
 
@@ -285,16 +295,14 @@ def test_the_factory_types_may_be_edited_and_custom_ones_added():
     "types",
     [
         [*DEFAULT_LIFE_EVENTS, DEFAULT_LIFE_EVENTS[0]],
-        list(DEFAULT_LIFE_EVENTS[1:]),
+        [e for e in DEFAULT_LIFE_EVENTS if e.key != "REPAIR"],
         [
-            *DEFAULT_LIFE_EVENTS[:2],
-            DEFAULT_LIFE_EVENTS[2].model_copy(
-                update={"effect": LifeEventEffect.CASH_OUT}
-            ),
+            *CLASSIC[:2],
+            CLASSIC[2].model_copy(update={"effect": LifeEventEffect.CASH_OUT}),
         ],
         [
             *DEFAULT_LIFE_EVENTS,
-            *(FINE.model_copy(update={"key": f"X{n}"}) for n in range(10)),
+            *(FINE.model_copy(update={"key": f"X{n}"}) for n in range(40)),
         ],
     ],
     ids=["duplicate key", "factory type removed", "factory effect changed", "too many"],
@@ -316,3 +324,79 @@ def test_invalid_type_lists_are_rejected(types: list[LifeEventTypeDTO]):
 def test_a_type_needs_a_label_a_sane_value_and_a_positive_weight(changes: dict):
     with pytest.raises(ValidationError):
         LifeEventTypeDTO.model_validate({**FINE.model_dump(), **changes})
+
+
+SEEDS = range(10)
+
+
+def draws_with(frequencies: LifeFrequenciesDTO) -> list:
+    """Os sorteios de 20 anos em 10 salas (10 sementes), com a frequência pedida."""
+    return [
+        unexpected_on(seed, day, 60, DEFAULT_LIFE_EVENTS, frequencies=frequencies)
+        for seed in SEEDS
+        for day in YEARS
+    ]
+
+
+def family_counts(frequencies: LifeFrequenciesDTO) -> dict[LifeEventFamily, int]:
+    counts = dict.fromkeys(LifeEventFamily, 0)
+    for event in draws_with(frequencies):
+        if event is not None:
+            counts[event.family] += 1
+    return counts
+
+
+def test_the_catalog_has_at_least_twenty_types_and_one_in_four_is_good():
+    good = sum(
+        spec.weight
+        for spec in LIFE_EVENT_CATALOG
+        if spec.family is LifeEventFamily.GOOD
+    )
+    total = sum(spec.weight for spec in LIFE_EVENT_CATALOG)
+
+    assert len(LIFE_EVENT_CATALOG) >= 20
+    assert good * 4 == total
+
+
+def test_with_everything_normal_between_22_and_28_percent_of_the_draws_are_good():
+    sorted_events = [e for e in draws_with(LifeFrequenciesDTO()) if e is not None]
+    good = sum(e.effect is LifeEventEffect.CASH_IN for e in sorted_events)
+
+    assert len(sorted_events) >= 10000
+    assert 0.22 <= good / len(sorted_events) <= 0.28
+
+
+def test_a_family_set_to_off_is_never_drawn_and_the_others_keep_their_draws():
+    normal = family_counts(LifeFrequenciesDTO())
+    off = family_counts(LifeFrequenciesDTO(good=LifeFrequency.OFF))
+
+    assert off[LifeEventFamily.GOOD] == 0
+    assert off[LifeEventFamily.EXPENSES] == normal[LifeEventFamily.EXPENSES]
+    income = LifeEventFamily.INCOME
+    assert off[income] == pytest.approx(normal[income], rel=0.15)
+
+
+def test_frequent_doubles_a_family_and_rare_halves_it_without_moving_the_others():
+    normal = family_counts(LifeFrequenciesDTO())
+    frequent = family_counts(LifeFrequenciesDTO(good=LifeFrequency.FREQUENT))
+    rare = family_counts(LifeFrequenciesDTO(good=LifeFrequency.RARE))
+
+    good = LifeEventFamily.GOOD
+    assert frequent[good] == pytest.approx(2 * normal[good], rel=0.08)
+    assert rare[good] == pytest.approx(normal[good] / 2, rel=0.08)
+    expenses = LifeEventFamily.EXPENSES
+    assert frequent[expenses] == pytest.approx(normal[expenses], rel=0.05)
+
+
+def test_a_saved_room_with_the_three_original_types_still_validates():
+    legacy = [
+        {k: v for k, v in e.model_dump().items() if k != "family"} for e in CLASSIC
+    ]
+
+    types = validate_life_events([LifeEventTypeDTO.model_validate(e) for e in legacy])
+
+    assert [e.family for e in types] == [
+        LifeEventFamily.EXPENSES,
+        LifeEventFamily.EXPENSES,
+        LifeEventFamily.INCOME,
+    ]

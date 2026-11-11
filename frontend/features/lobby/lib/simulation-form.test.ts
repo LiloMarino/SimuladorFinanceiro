@@ -20,11 +20,44 @@ const settings: SimulationSettingsData = {
   monthly_expense: "5000.00",
   unexpected_per_year: 3,
   life_events: [
-    { key: "REPAIR", label: "Conserto do carro", effect: "CASH_OUT", weight: 3, expense_multiple: "2", enabled: true },
-    { key: "HEALTH", label: "Despesa de saúde", effect: "CASH_OUT", weight: 2, expense_multiple: "2", enabled: false },
-    { key: "LAYOFF", label: "Demissão", effect: "SKIP_NEXT_SALARY", weight: 1, expense_multiple: "0", enabled: true },
-    { key: "custom-1a2b3c4d", label: "Multa", effect: "CASH_OUT", weight: 1, expense_multiple: "0.5", enabled: true },
+    {
+      key: "REPAIR",
+      label: "Conserto do carro",
+      effect: "CASH_OUT",
+      family: "EXPENSES",
+      weight: 3,
+      expense_multiple: "2",
+      enabled: true,
+    },
+    {
+      key: "HEALTH",
+      label: "Despesa de saúde",
+      effect: "CASH_OUT",
+      family: "EXPENSES",
+      weight: 2,
+      expense_multiple: "2",
+      enabled: false,
+    },
+    {
+      key: "LAYOFF",
+      label: "Demissão",
+      effect: "SKIP_NEXT_SALARY",
+      family: "INCOME",
+      weight: 1,
+      expense_multiple: "0",
+      enabled: true,
+    },
+    {
+      key: "TAX_REFUND",
+      label: "Restituição do imposto de renda",
+      effect: "CASH_IN",
+      family: "GOOD",
+      weight: 2,
+      expense_multiple: "0.5",
+      enabled: true,
+    },
   ],
+  life_frequencies: { expenses: "NORMAL", income: "RARE", good: "FREQUENT" },
   withdrawal_rate: "0.0400",
   inflation_adjusted: true,
   salary_mode: "PROFESSIONS",
@@ -51,6 +84,22 @@ describe("regras da partida ↔ formulário do lobby", () => {
   it("o valor do imprevisto aparece em despesas mensais com vírgula", () => {
     const values = toFormValues(settings);
     expect(values.lifeEvents.map((event) => event.expenseMultiple)).toEqual(["2", "2", "0", "0,5"]);
+  });
+
+  it("a frequência de cada família faz a ida e volta", () => {
+    const values = toFormValues(settings);
+    expect(values.lifeFrequencies).toEqual({ expenses: "NORMAL", income: "RARE", good: "FREQUENT" });
+    const body = toSettingsBody({ ...values, lifeFrequencies: { ...values.lifeFrequencies, good: "OFF" } });
+    expect(body.life_frequencies?.good).toBe("OFF");
+  });
+
+  it("o evento bom leva valor e família no corpo", () => {
+    const body = toSettingsBody(toFormValues(settings));
+    expect(body.life_events?.find((event) => event.key === "TAX_REFUND")).toMatchObject({
+      family: "GOOD",
+      effect: "CASH_IN",
+      expense_multiple: "0.5",
+    });
   });
 
   it("o corte de salário vai sem valor no corpo", () => {
