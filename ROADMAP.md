@@ -115,12 +115,11 @@
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 | — | Alto | Médio | ⏳ |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 | — | — | — | 🔍 |
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 | — | — | — | 🔍 |
-| [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 | — | — | — | 🔍 |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (41 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (42 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -164,6 +163,7 @@
 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | — | — | ✅ |
 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 | — | — | — | ✅ |
 | [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 | — | — | — | ✅ |
+| [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 | — | — | — | ✅ |
 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
@@ -180,7 +180,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 21/37 concluídos
+> **Progresso:** 22/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -218,7 +218,7 @@
 | 32 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | — | ⏳ Pendente |
 | 33 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | — | 🔍 Em avaliação |
 | 34 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | — | 🔍 Em avaliação |
-| 35 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | — | ⏳ Pendente |
+| 35 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | — | ✅ Concluído |
 | 36 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | — | ✅ Concluído |
 | 37 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | — | 🔍 Em avaliação |
 
@@ -348,7 +348,6 @@
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 · 32º | 0 | Alto | Médio | ⏳ |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 · 33º | 0 | — | — | 🔍 |
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 · 34º | 0 | — | — | 🔍 |
-| [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 · 35º | 0 | Médio | Bom | ⏳ |
 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 · 37º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
@@ -410,7 +409,6 @@
 | **F276** | Correção | Governo ruim perde aprovação | N34, N41 | — | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
 | **F277** | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | N31 | — | M26 · 4.1 | — | Alto | Baixo | Alto | Bom |
 | **F278** | Feature | Imprevistos e eventos de vida mais variados | N23 | — | M26 · 4.1 | — | Alto | Médio | Médio | Médio |
-| **F281** | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | N34 | D20 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -622,16 +620,6 @@ Com o cenário da Simulação #3 mantido desde a posse, o pedido de impeachment 
 
 **Aceite:** o catálogo de fábrica tem pelo menos 20 tipos; com tudo em Normal, de 22% a 28% dos sorteios são eventos bons (10.000 sorteios); numa sala com as seis profissões, o mesmo sorteio aplica o mesmo valor a todos; o lobby não cria mais tipos e uma sala salva com tipo criado continua abrindo e jogando.
 
-<a id="f281"></a>
-**F281 — Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto.** Serve N34; condicionado por D20. A SELIC do Banco Central autônomo é a série guardada mais `central_bank_reaction(inflation_points)`, 1,5 × os pontos de inflação, recalculada todo dia (`backend/features/economy/layer.py:235-246`). O degrau de 0,25 (`SELIC_STEP`) e as 8 reuniões por ano (`meeting_days`) de `monetary.py` só valem para a SELIC que o presidente decide. Na Simulação #3, o imposto sobre consumo caiu de 16% para 0 em 21/05/2027; o choque de preço entrou inteiro na reação, e a SELIC foi de 15,98% em 31/08/2027 para 4,12% no dia seguinte, abaixo da inflação, e voltou a 16,09% em 01/09/2028, quando o choque saiu da janela de 12 meses. O IPCA, que espalha o efeito por 12 meses, só subiu depois (4,31% em mai/28, 8,45% em dez/28, 9,68% em fev/29). No gráfico "Juros e inflação", a SELIC muda em centésimos quase todo dia, e o marcador do Copom (`panel.py:45`, `MIN_COPOM_STEP` de 0,1 p.p.) vira uma fileira de bolinhas que cobre a linha.
-
-**Plano.**
-1. **Decisão em reunião.** O Banco Central autônomo decide só nos `meeting_days`, arredonda a decisão com o `to_step` de 0,25 e mantém a taxa até a reunião seguinte. O movimento por reunião tem teto, como o Copom real (passos de até 1 p.p.).
-2. **Olhar através do imposto.** O efeito direto do imposto sobre consumo sai dos pontos que a reação lê; ela responde à inflação que fica (gasto, dólar, expectativa), não ao degrau de preço de uma vez.
-3. **Futuro gerado e gráfico no mesmo ritmo.** As camadas de regime e de surto do `synthetic.py` sobem a SELIC em reunião, em degraus de 0,25, em vez da rampa diária. O marcador do Copom aparece só nos dias de reunião com mudança.
-
-**Aceite.** Repetindo o corte de 16% para 0 do imposto da #3, a SELIC não cai mais que o teto por reunião e não fica abaixo do IPCA projetado. Toda SELIC do autônomo e do futuro gerado é múltiplo de 0,25 e só muda em dia de reunião. O gráfico "Juros e inflação" de 14 anos tem no máximo 8 bolinhas por ano.
-
 ---
 
 ## 🔍 Em avaliação
@@ -816,6 +804,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 |
 | **F274** | Feature | Presidência e base do governo que valem a pena | N34 | — | M26 · 4.1 |
 | **F275** | Feature | Vitória política separada do capital | N34, N22 | — | M26 · 4.1 |
+| **F281** | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | N34 | D20 | M26 · 4.1 |
 | **F282** | Correção | Texto dos gráficos com no mínimo 12 px | N15 | — | M26 · 4.1 |
 
 <a id="f69"></a>
@@ -991,6 +980,9 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 
 <a id="f275"></a>
 **F275 — Vitória política separada do capital.** Serve N34 e N22. A vitória política deixa de somar o patrimônio dos filiados: vence o partido com mais **capital político**, pontos acumulados a cada mês fechado (`backend/features/government/capital.py`, `party_capital`). Só partidos de jogador pontuam: 1 ponto por cadeira na casa em exercício; a aprovação do fechamento (0 a 100) para o partido do presidente (`governed_months` no `GovernmentState`, gravado no `APPROVAL_MEASURED`); `100 × fração cumprida` por promessa no balanço do mandato; e o impeachment tira metade do que a presidência rendeu naquele mandato. Desempate por cadeiras na casa atual. Decisões: medida aprovada não pontua por si (pesa pela aprovação); vence o partido e os filiados dividem a colocação; continua o tipo "Política", sem tipo novo nas regras (a vitória da Expansão Gestoras citada como molde ainda não existe); o ranking de partidos é por capital político em toda partida com a expansão, e a soma de patrimônio saiu de tela, diálogos e textos. O ranking individual segue em patrimônio, informativo. `PoliticalCapitalDTO` (total e as quatro parcelas) substitui `total_networth` no painel e no relatório; a página Eleição mostra total e parcelas, e a tela de resultado ganhou o pódio de partidos. Sem evento novo: partida salva recalcula pelo replay, e uma migration de dados zera o resultado guardado das partidas políticas. Limite conhecido, fora deste card: com o patrimônio fora do placar, gastar tudo em campanha deixa de ter custo na vitória política.
+
+<a id="f281"></a>
+**F281 — Banco Central autônomo que decide em reunião, olhando através do imposto.** O Banco Central autônomo decide só nos dias de reunião do Copom (`meeting_days`, hoje em `backend/core/copom.py`, com `SELIC_STEP` e `to_step`): em cada uma leva a regra do dia ao passo de 0,25 ponto, a até 1 ponto da decisão anterior (`autonomous_decision` e `AUTONOMOUS_CAP` em `monetary.py`), e mantém os pontos até a reunião seguinte. A SELIC da partida é a história do dia mais esses pontos segurados (`EconomyLayer.autonomous_points`, `layer.py`); sem efeito do governo nada muda, e entre `first_day` e a primeira reunião o desvio vale 0. A regra olha através do imposto: `reading_points` tira de `inflation_points` o degrau de preço do imposto sobre consumo (`consumption_points`), então um corte do imposto não derruba a SELIC; a regra também alimenta o presidente computador e o esperado do mercado, e a linha do imposto sobre consumo no painel da economia deixa de mostrar efeito na SELIC e na bolsa. No futuro gerado (`synthetic.py`, `_decided_in_meetings`), a SELIC inteira (trecho sorteado mais regime e surto) só muda no pregão seguinte a uma reunião, em múltiplos de 0,25, e o CDI anda colado; o gráfico "Juros e inflação" fica com no máximo 8 marcadores do Copom por ano no futuro. Limite conhecido: no trecho histórico da partida o marcador soma as mudanças reais da história e as reuniões do autônomo, e a SELIC absoluta segue a da história (o múltiplo de 0,25 vale para o desvio do autônomo).
 
 <a id="f282"></a>
 **F282 — Texto dos gráficos com no mínimo 12 px.** Serve N15. O texto de gráfico (eixos, legendas, rótulos e tooltips) usa um token só, de 12 px: `CHART_TICK` e `CHART_FONT_SIZE`, em `shared/lib/chart-text.ts`. O teste de tamanho mínimo passou a pegar também `fontSize` literal abaixo de 12, além das classes `text-[Npx]`.
