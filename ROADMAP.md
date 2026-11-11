@@ -108,7 +108,6 @@
 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | M26 · 4.1 | — | — | — | 🔍 |
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 | — | — | — | 🔍 |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 | — | — | — | 🔍 |
-| [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 | — | Alto | Médio | ⏳ |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 | — | — | — | 🔍 |
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 | — | — | — | 🔍 |
 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 | — | — | — | 🔍 |
@@ -116,7 +115,7 @@
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (46 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (47 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -164,6 +163,7 @@
 | [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 | — | — | — | ✅ |
 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 | — | — | — | ✅ |
 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 | — | — | — | ✅ |
+| [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 | — | — | — | ✅ |
 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 | — | — | — | ✅ |
 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 | — | — | — | ✅ |
 
@@ -181,7 +181,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 26/37 concluídos
+> **Progresso:** 27/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -216,7 +216,7 @@
 | 29 | [**F275**](#f275) | Feature | Vitória política separada do capital | — | ✅ Concluído |
 | 30 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | — | ✅ Concluído |
 | 31 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | — | ✅ Concluído |
-| 32 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | — | ⏳ Pendente |
+| 32 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | — | ✅ Concluído |
 | 33 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | — | 🔍 Em avaliação |
 | 34 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | — | 🔍 Em avaliação |
 | 35 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | — | ✅ Concluído |
@@ -343,7 +343,6 @@
 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | M26 · 4.1 · 23º | 0 | — | — | 🔍 |
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 · 24º | 0 | — | — | 🔍 |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 · 26º | 0 | — | — | 🔍 |
-| [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 · 32º | 0 | Alto | Médio | ⏳ |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 · 33º | 0 | — | — | 🔍 |
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 · 34º | 0 | — | — | 🔍 |
 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 · 37º | 0 | — | — | 🔍 |
@@ -403,7 +402,6 @@
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
 | **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | D10 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
-| **F278** | Feature | Imprevistos e eventos de vida mais variados | N23 | — | M26 · 4.1 | — | Alto | Médio | Médio | Médio |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -504,34 +502,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 **Efeito nas partidas salvas.** A nota é recalculada dos snapshots a cada leitura, então toda partida muda um pouco. Estimativa: de 2 a 7 pontos a menos no eixo de eficiência, mais para quem oscila mais (com volatilidade de 20% ao ano o Sharpe cai cerca de 0,1). A conquista dos 250 pontos (`achievements/catalog.py:282-288`) usa a nota nova.
 
 **Aceite:** no histórico do "como reproduzir", Sharpe e Sortino saem negativos, o eixo de eficiência dá 0 ponto e a volatilidade dá 0 ponto (antes, 9 milhões de pontos na nota). Num histórico de dois dias com −50% e +100%, a média dos retornos usada no Sharpe é 0. Um histórico comum, com volatilidade de até 30% ao ano, muda menos de 10 pontos na nota total.
-
-<a id="f278"></a>
-**F278 — Imprevistos e eventos de vida mais variados.** Serve N23.
-
-**O que o jogador passa a poder fazer.** Viver imprevistos que não são sempre os mesmos três nem sempre ruins: cerca de 20 tipos, um em cada quatro deles bom (dinheiro que entra), com o texto da profissão de cada um e dois eventos próprios da profissão. O anfitrião regula a frequência por família de evento no lobby, em vez de criar tipos.
-
-**O que existe.** Três tipos de fábrica em `DEFAULT_LIFE_EVENTS` (`backend/core/dto/life.py:35-60`): conserto do carro (1 despesa mensal, peso 3), despesa de saúde (2 despesas, peso 2) e demissão (pula o próximo salário, peso 1). Dois efeitos (`LifeEventEffect`: `CASH_OUT` e `SKIP_NEXT_SALARY`). O sorteio é diário, semeado pela semente da partida e pelo dia, e o evento é o mesmo para a sala inteira (`backend/features/simulation/life_events.py:35-61`); a aplicação fica em `simulation.py:1408-1478`. A demissão já tem versão por profissão (demissão, perda do bico, imóvel vago, pelo `income_loss` de `backend/core/professions.py:108-142`) e pula quem não tem. O lobby deixa criar tipos (`frontend/features/lobby/components/life-events-editor.tsx`), que só repetem os dois efeitos; a frequência é uma só para tudo (`unexpected_per_year`: Nenhum 0, Raros 1, Normais 3, Frequentes 6) e o peso de cada tipo não aparece na tela. `validate_life_events` limita a 12 tipos.
-
-**Mecanismo.**
-
-1. Efeito novo `CASH_IN`: credita no caixa o múltiplo da despesa mensal do jogador. O multiplicador de saúde do aposentado continua valendo só para despesa de saúde.
-2. Três famílias (enum novo): despesas, renda e emprego, e eventos bons. Cada tipo do catálogo tem família, peso e múltiplo. Catálogo de fábrica, com o múltiplo da despesa mensal entre parênteses (textos e múltiplos podem ser ajustados na implementação, mantendo a contagem e a regra do item 3):
-   - despesas: conserto do carro (1), despesa de saúde (2), conserto da casa (1,5), eletrodoméstico queimado (0,75), celular quebrado (0,5), multa de trânsito (0,25), veterinário (0,5), dentista de urgência (0,75), golpe no cartão (1), viagem de emergência (1), rateio extra do condomínio (0,5), ajuda a um parente (1);
-   - renda e emprego: demissão (pula o salário) e revés da profissão (1);
-   - eventos bons: restituição do imposto de renda (1), bônus do trabalho (1), prêmio de sorteio (0,5), herança pequena (3), venda de um bem usado (0,75), presente de família (0,5) e boa fase da profissão (1).
-3. Um em quatro é bom: com as três famílias em Normal, os pesos dos eventos bons somam 25% do peso total, e o valor esperado dos bons fica abaixo do dos ruins, para o imprevisto continuar sendo, na média, um custo que pede reserva de emergência.
-4. Profissão em dois níveis, os dois com o mesmo efeito e o mesmo tamanho para todos, para nenhuma profissão sair favorecida:
-   - texto por profissão nos eventos genéricos em que faz sentido (o bônus vira PLR para o CLT, gratificação para o servidor, cliente que pagou adiantado para o empresário, 13º adiantado para o aposentado, bico extra para quem recebe auxílio, reajuste do aluguel para quem vive de aluguel);
-   - "revés da profissão" e "boa fase da profissão" são dois tipos do catálogo que cada jogador vive na versão da própria profissão (empresário: máquina quebrada e contrato grande; quem vive de aluguel: reforma entre inquilinos e multa de rescisão recebida; e um par para cada uma das outras quatro profissões). É o mesmo padrão que a demissão já usa, e o sorteio continua único para a sala.
-   Os textos por profissão moram junto do catálogo, que sai do arquivo de DTO para um módulo próprio em `backend/core/`.
-5. Frequência por família no lobby. A frequência geral (`unexpected_per_year`) continua e diz quantos imprevistos por ano saem com tudo em Normal. Cada família ganha Desligado, Raro, Normal ou Frequente, que multiplica a chance dos tipos dela por 0, 0,5, 1 ou 2; dentro da família, cada tipo tem liga e desliga. Deixar despesas em Frequente não tira chance dos eventos bons. A chance por pregão de um tipo é `(por ano ÷ 252) × (peso do tipo ÷ peso total do catálogo ligado em Normal) × multiplicador da família`, e a correção da demissão pelo desemprego continua. As configurações da sala ganham o nível de cada família, com Normal de padrão.
-6. Sai a criação de tipos: `life-events-editor.tsx` perde "Adicionar tipo", o nome editável, o campo de valor e o seletor de efeito, e passa a mostrar as três famílias com o controle de frequência e os tipos de cada uma com o interruptor; `lib/simulation-form.ts` perde `newLifeEvent()`. O DTO do tipo continua aceitando os tipos criados em salas e partidas já salvas (família deduzida do efeito), e `validate_life_events` sobe o limite para caber o catálogo. Partida em andamento segue com os tipos com que foi criada.
-7. Exibição: o aviso em tempo real (`frontend/shared/notifications/life-notifications.tsx:30-55`) usa aviso de sucesso e valor com sinal de mais para os bons, e o histórico (`backend/features/simulation/life_history.py`, `frontend/features/goal/components/life-history.tsx`) mostra o sinal certo. O nome mostrado é o da profissão do jogador. O contador de imprevistos conta só os que tiram dinheiro ou salário.
-8. Mudou DTO: `pnpm openapi`; se as configurações da sala não forem JSON livre, `pnpm db:revision`. `docs/docs/como-usar/lobby.md` (trecho dos imprevistos) descreve as famílias e o catálogo.
-
-**Testes.** `tests/test_life_events.py`: `CASH_IN` credita o valor certo; em 10.000 sorteios semeados com tudo em Normal, os eventos bons ficam entre 22% e 28%; família em Desligado nunca sai e em Frequente sai o dobro; os dois tipos de profissão aplicam o mesmo valor a todos, com o texto de cada profissão. `tests/test_life_history.py` e `test_unexpected_count.py` para o sinal e o contador; `simulation-form.test.ts` e `life-history.test.ts` no front.
-
-**Aceite:** o catálogo de fábrica tem pelo menos 20 tipos; com tudo em Normal, de 22% a 28% dos sorteios são eventos bons (10.000 sorteios); numa sala com as seis profissões, o mesmo sorteio aplica o mesmo valor a todos; o lobby não cria mais tipos e uma sala salva com tipo criado continua abrindo e jogando.
 
 ---
 
@@ -737,6 +707,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F275** | Feature | Vitória política separada do capital | N34, N22 | — | M26 · 4.1 |
 | **F276** | Correção | Governo ruim perde aprovação | N34, N41 | — | M26 · 4.1 |
 | **F277** | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | N31 | — | M26 · 4.1 |
+| **F278** | Feature | Imprevistos e eventos de vida mais variados | N23 | — | M26 · 4.1 |
 | **F281** | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | N34 | D20 | M26 · 4.1 |
 | **F282** | Correção | Texto dos gráficos com no mínimo 12 px | N15 | — | M26 · 4.1 |
 
@@ -997,6 +968,34 @@ Com o cenário da Simulação #3 mantido desde a posse, o pedido de impeachment 
 **Como medir.** Uma partida de 10 anos rodada pela linha de comando no banco de teste, contando as notícias por tipo e por manchete na tabela `news`, antes e depois.
 
 **Aceite:** na partida de 10 anos, movimento forte fica entre 5 e 8 notícias por mês em média (hoje cerca de 18) e máxima de 52 semanas em até 4 por mês (hoje cerca de 18); os dois tipos somados ficam abaixo de 60% do total (hoje 88,6% de 6.815); nenhum ativo tem mais de 4 manchetes de máxima no mesmo ano; cada construtor de manchete do governo tem 3 redações.
+
+<a id="f278"></a>
+**F278 — Imprevistos e eventos de vida mais variados.** Serve N23.
+
+**O que o jogador passa a poder fazer.** Viver imprevistos que não são sempre os mesmos três nem sempre ruins: cerca de 20 tipos, um em cada quatro deles bom (dinheiro que entra), com o texto da profissão de cada um e dois eventos próprios da profissão. O anfitrião regula a frequência por família de evento no lobby, em vez de criar tipos.
+
+**O que existe.** Três tipos de fábrica em `DEFAULT_LIFE_EVENTS` (`backend/core/dto/life.py:35-60`): conserto do carro (1 despesa mensal, peso 3), despesa de saúde (2 despesas, peso 2) e demissão (pula o próximo salário, peso 1). Dois efeitos (`LifeEventEffect`: `CASH_OUT` e `SKIP_NEXT_SALARY`). O sorteio é diário, semeado pela semente da partida e pelo dia, e o evento é o mesmo para a sala inteira (`backend/features/simulation/life_events.py:35-61`); a aplicação fica em `simulation.py:1408-1478`. A demissão já tem versão por profissão (demissão, perda do bico, imóvel vago, pelo `income_loss` de `backend/core/professions.py:108-142`) e pula quem não tem. O lobby deixa criar tipos (`frontend/features/lobby/components/life-events-editor.tsx`), que só repetem os dois efeitos; a frequência é uma só para tudo (`unexpected_per_year`: Nenhum 0, Raros 1, Normais 3, Frequentes 6) e o peso de cada tipo não aparece na tela. `validate_life_events` limita a 12 tipos.
+
+**Mecanismo.**
+
+1. Efeito novo `CASH_IN`: credita no caixa o múltiplo da despesa mensal do jogador. O multiplicador de saúde do aposentado continua valendo só para despesa de saúde.
+2. Três famílias (enum novo): despesas, renda e emprego, e eventos bons. Cada tipo do catálogo tem família, peso e múltiplo. Catálogo de fábrica, com o múltiplo da despesa mensal entre parênteses (textos e múltiplos podem ser ajustados na implementação, mantendo a contagem e a regra do item 3):
+   - despesas: conserto do carro (1), despesa de saúde (2), conserto da casa (1,5), eletrodoméstico queimado (0,75), celular quebrado (0,5), multa de trânsito (0,25), veterinário (0,5), dentista de urgência (0,75), golpe no cartão (1), viagem de emergência (1), rateio extra do condomínio (0,5), ajuda a um parente (1);
+   - renda e emprego: demissão (pula o salário) e revés da profissão (1);
+   - eventos bons: restituição do imposto de renda (1), bônus do trabalho (1), prêmio de sorteio (0,5), herança pequena (3), venda de um bem usado (0,75), presente de família (0,5) e boa fase da profissão (1).
+3. Um em quatro é bom: com as três famílias em Normal, os pesos dos eventos bons somam 25% do peso total, e o valor esperado dos bons fica abaixo do dos ruins, para o imprevisto continuar sendo, na média, um custo que pede reserva de emergência.
+4. Profissão em dois níveis, os dois com o mesmo efeito e o mesmo tamanho para todos, para nenhuma profissão sair favorecida:
+   - texto por profissão nos eventos genéricos em que faz sentido (o bônus vira PLR para o CLT, gratificação para o servidor, cliente que pagou adiantado para o empresário, 13º adiantado para o aposentado, bico extra para quem recebe auxílio, reajuste do aluguel para quem vive de aluguel);
+   - "revés da profissão" e "boa fase da profissão" são dois tipos do catálogo que cada jogador vive na versão da própria profissão (empresário: máquina quebrada e contrato grande; quem vive de aluguel: reforma entre inquilinos e multa de rescisão recebida; e um par para cada uma das outras quatro profissões). É o mesmo padrão que a demissão já usa, e o sorteio continua único para a sala.
+   Os textos por profissão moram junto do catálogo, que sai do arquivo de DTO para um módulo próprio em `backend/core/`.
+5. Frequência por família no lobby. A frequência geral (`unexpected_per_year`) continua e diz quantos imprevistos por ano saem com tudo em Normal. Cada família ganha Desligado, Raro, Normal ou Frequente, que multiplica a chance dos tipos dela por 0, 0,5, 1 ou 2; dentro da família, cada tipo tem liga e desliga. Deixar despesas em Frequente não tira chance dos eventos bons. A chance por pregão de um tipo é `(por ano ÷ 252) × (peso do tipo ÷ peso total do catálogo ligado em Normal) × multiplicador da família`, e a correção da demissão pelo desemprego continua. As configurações da sala ganham o nível de cada família, com Normal de padrão.
+6. Sai a criação de tipos: `life-events-editor.tsx` perde "Adicionar tipo", o nome editável, o campo de valor e o seletor de efeito, e passa a mostrar as três famílias com o controle de frequência e os tipos de cada uma com o interruptor; `lib/simulation-form.ts` perde `newLifeEvent()`. O DTO do tipo continua aceitando os tipos criados em salas e partidas já salvas (família deduzida do efeito), e `validate_life_events` sobe o limite para caber o catálogo. Partida em andamento segue com os tipos com que foi criada.
+7. Exibição: o aviso em tempo real (`frontend/shared/notifications/life-notifications.tsx:30-55`) usa aviso de sucesso e valor com sinal de mais para os bons, e o histórico (`backend/features/simulation/life_history.py`, `frontend/features/goal/components/life-history.tsx`) mostra o sinal certo. O nome mostrado é o da profissão do jogador. O contador de imprevistos conta só os que tiram dinheiro ou salário.
+8. Mudou DTO: `pnpm openapi`; se as configurações da sala não forem JSON livre, `pnpm db:revision`. `docs/docs/como-usar/lobby.md` (trecho dos imprevistos) descreve as famílias e o catálogo.
+
+**Testes.** `tests/test_life_events.py`: `CASH_IN` credita o valor certo; em 10.000 sorteios semeados com tudo em Normal, os eventos bons ficam entre 22% e 28%; família em Desligado nunca sai e em Frequente sai o dobro; os dois tipos de profissão aplicam o mesmo valor a todos, com o texto de cada profissão. `tests/test_life_history.py` e `test_unexpected_count.py` para o sinal e o contador; `simulation-form.test.ts` e `life-history.test.ts` no front.
+
+**Aceite:** o catálogo de fábrica tem pelo menos 20 tipos; com tudo em Normal, de 22% a 28% dos sorteios são eventos bons (10.000 sorteios); numa sala com as seis profissões, o mesmo sorteio aplica o mesmo valor a todos; o lobby não cria mais tipos e uma sala salva com tipo criado continua abrindo e jogando.
 
 <a id="f281"></a>
 **F281 — Banco Central autônomo que decide em reunião, olhando através do imposto.** O Banco Central autônomo decide só nos dias de reunião do Copom (`meeting_days`, hoje em `backend/core/copom.py`, com `SELIC_STEP` e `to_step`): em cada uma leva a regra do dia ao passo de 0,25 ponto, a até 1 ponto da decisão anterior (`autonomous_decision` e `AUTONOMOUS_CAP` em `monetary.py`), e mantém os pontos até a reunião seguinte. A SELIC da partida é a história do dia mais esses pontos segurados (`EconomyLayer.autonomous_points`, `layer.py`); sem efeito do governo nada muda, e entre `first_day` e a primeira reunião o desvio vale 0. A regra olha através do imposto: `reading_points` tira de `inflation_points` o degrau de preço do imposto sobre consumo (`consumption_points`), então um corte do imposto não derruba a SELIC; a regra também alimenta o presidente computador e o esperado do mercado, e a linha do imposto sobre consumo no painel da economia deixa de mostrar efeito na SELIC e na bolsa. No futuro gerado (`synthetic.py`, `_decided_in_meetings`), a SELIC inteira (trecho sorteado mais regime e surto) só muda no pregão seguinte a uma reunião, em múltiplos de 0,25, e o CDI anda colado; o gráfico "Juros e inflação" fica com no máximo 8 marcadores do Copom por ano no futuro. Limite conhecido: no trecho histórico da partida o marcador soma as mudanças reais da história e as reuniões do autônomo, e a SELIC absoluta segue a da história (o múltiplo de 0,25 vale para o desvio do autônomo).
