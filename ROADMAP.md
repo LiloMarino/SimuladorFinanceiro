@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-10):** Definido o plano da presidência e da base que valem a pena (F274) e registrado o ministério para o partido da base em avaliação.
+> **Última mudança (2026-11-11):** Definidos o plano e o aceite de sete cards que saíram da avaliação: corrida eleitoral com bots (F280), ministério para o partido da base (F284), laboratório da economia (F227), estatais (F255), muitos futuros (F28), cenários (F90) e rumores antecipados (F93).
 
 ## Glossário
 
@@ -62,7 +62,7 @@
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.5 | — | — | — | 🔍 |
 | [**F6**](#f6) | Feature | Link de convite pela internet no lobby | M27 · 4.5 | — | Médio | Bom | ⏳ |
 | [**F14**](#f14) | Feature | Janela desktop nativa | M27 · 4.5 | — | Baixo | Bom | ⏳ |
-| [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | M25 · 4.4 | — | — | — | 🔍 |
+| [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | M25 · 4.4 | — | Alto | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 | — | — | — | 🔍 |
 | [**F37**](#f37) | Feature | Tema escuro | M28 · 4.6 | — | Médio | Médio | ⏳ |
 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.2 | — | — | — | 🔍 |
@@ -71,8 +71,8 @@
 | [**F60**](#f60) | Feature | Modo servidor dedicado (--headless) | M27 · 4.5 | — | Baixo | Bom | ⏳ |
 | [**F72**](#f72) | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | M24 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F81**](#f81) | Manutenção | CORS restrito à mesma origem | M27 · 4.5 | — | Baixo | Médio | ⏳ |
-| [**F90**](#f90) | Feature | Cenários | M25 · 4.4 | — | — | — | 🔍 |
-| [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.4 | — | — | — | 🔍 |
+| [**F90**](#f90) | Feature | Cenários | M25 · 4.4 | — | Alto | Bom | ⏳ |
+| [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.4 | — | Médio | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | M18 · 4.2 | — | — | — | 🔍 |
 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | M18 · 4.2 | — | — | — | 🔍 |
@@ -98,9 +98,9 @@
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.3 | — | — | — | 🔍 |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | M28 · 4.6 | — | Alto | Bom | ⏳ |
-| [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | — | — | 🔍 |
+| [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | Alto | Médio | ⏳ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
-| [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | 🔍 |
+| [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | M26 · 4.1 | — | — | — | 🔍 |
 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | M26 · 4.1 | — | — | — | 🔍 |
@@ -109,9 +109,9 @@
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 | — | — | — | 🔍 |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 | — | — | — | 🔍 |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 | — | — | — | 🔍 |
-| [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 | — | — | — | 🔍 |
+| [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 | — | Alto | Bom | ⏳ |
 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 | — | — | — | 🔍 |
-| [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | — | — | 🔍 |
+| [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 
 <details>
@@ -124,7 +124,7 @@
 | **D3** | — | Dinheiro e quantidade trafegam como Decimal serializado em string | — | — | — | — | ✅ |
 | **D4** | — | Banco de dados embarcado no executável | — | — | — | — | ✅ |
 | **D6** | — | A retomada continua no dia seguinte ao último evento | — | — | — | — | ✅ |
-| **D7** | — | O simulador lê as séries sem saber a origem | — | — | — | — | ✅ |
+| **D7** | — | O simulador lê as séries sem saber a origem | — | [F28](#f28) | — | — | ✅ |
 | **D8** | — | Bot, modo automático e backtest são o mesmo mecanismo | — | [F110](#f110), [F111](#f111), [F202](#f202) | — | — | ✅ |
 | **D9** | — | De onde nasce uma mudança de schema | — | [F101](#f101) | — | — | ✅ |
 | **D10** | — | Como a nota geral é calculada | — | [F264](#f264) | — | — | ✅ |
@@ -135,7 +135,7 @@
 | **D15** | — | Lint com oxlint, formatação com oxfmt e o TypeScript 7 com a API do 6 ao lado | — | — | — | — | ✅ |
 | **D16** | — | Estratégias do app no host, personalização pela API | — | — | — | — | ✅ |
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
-| **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | — | — | — | ✅ |
+| **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | [F90](#f90), [F93](#f93) | — | — | ✅ |
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176), [F254](#f254), [F261](#f261) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F194](#f194), [F226](#f226), [F227](#f227), [F232](#f232), [F253](#f253), [F255](#f255), [F256](#f256), [F257](#f257), [F263](#f263), [F281](#f281) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
@@ -218,7 +218,7 @@
 | 31 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | — | ✅ Concluído |
 | 32 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | — | ✅ Concluído |
 | 33 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | — | 🔍 Em avaliação |
-| 34 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | — | 🔍 Em avaliação |
+| 34 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | — | ⏳ Pendente |
 | 35 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | — | ✅ Concluído |
 | 36 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | — | ✅ Concluído |
 | 37 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | — | 🔍 Em avaliação |
@@ -241,7 +241,7 @@
 | 6 | [**F55**](#f55) | Feature | Modo aquisição hostil | [F103](#f103) | 🔍 Em avaliação |
 | 7 | [**F104**](#f104) | Feature | Gestoras: co-gestores | [F44](#f44) | 🔍 Em avaliação |
 | 8 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | [F44](#f44) | 🔍 Em avaliação |
-| 9 | [**F255**](#f255) | Feature | Estatais | [F44](#f44) | 🔍 Em avaliação |
+| 9 | [**F255**](#f255) | Feature | Estatais | [F44](#f44) | ⏳ Pendente |
 | 10 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | [F44](#f44) | 🔍 Em avaliação |
 | 11 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | [F44](#f44) | ⏳ Pendente |
 
@@ -273,9 +273,9 @@
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | — | 🔍 Em avaliação |
-| 2 | [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | — | 🔍 Em avaliação |
-| 3 | [**F90**](#f90) | Feature | Cenários | — | 🔍 Em avaliação |
-| 4 | [**F93**](#f93) | Feature | Rumores antecipados | — | 🔍 Em avaliação |
+| 2 | [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | — | ⏳ Pendente |
+| 3 | [**F90**](#f90) | Feature | Cenários | — | ⏳ Pendente |
+| 4 | [**F93**](#f93) | Feature | Rumores antecipados | — | ⏳ Pendente |
 | 5 | [**F110**](#f110) | Feature | Combinar estratégias | — | ⏳ Pendente |
 | 6 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ⏳ Pendente |
 
@@ -312,7 +312,7 @@
 | 4 | [**F131**](#f131) | Feature | Catálogo de padrões de vela | — | 🔍 Em avaliação |
 | 5 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | [F158](#f158) | 🔍 Em avaliação |
 | 6 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | — | 🔍 Em avaliação |
-| 7 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | — | 🔍 Em avaliação |
+| 7 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | — | ⏳ Pendente |
 | 8 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | [F44](#f44) | ⏳ Pendente |
 | 9 | [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | [F140](#f140) | ⏳ Pendente |
 | 10 | [**F37**](#f37) | Feature | Tema escuro | — | ⏳ Pendente |
@@ -325,7 +325,7 @@
 
 | ID | Tipo | Resumo | Serve | Depende de | Destrava | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| [**F284**](#f284) | Feature | Ministério para o partido da base | N34 | — | 0 | 🔍 Em avaliação |
+| [**F284**](#f284) | Feature | Ministério para o partido da base | N34 | — | 0 | ⏳ Pendente |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | [F271](#f271) | 0 | 🔍 Em avaliação |
 
 ---
@@ -344,7 +344,7 @@
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 · 24º | 0 | — | — | 🔍 |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 · 26º | 0 | — | — | 🔍 |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 · 33º | 0 | — | — | 🔍 |
-| [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 · 34º | 0 | — | — | 🔍 |
+| [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 · 34º | 0 | Alto | Bom | ⏳ |
 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 · 37º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
@@ -355,9 +355,9 @@
 | [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | M24 · 4.3 · 5º | 0 | Baixo | Bom | ⏳ |
 | [**F72**](#f72) | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | M24 · 4.3 · 6º | 0 | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.4 · 1º | 0 | — | — | 🔍 |
-| [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | M25 · 4.4 · 2º | 0 | — | — | 🔍 |
-| [**F90**](#f90) | Feature | Cenários | M25 · 4.4 · 3º | 0 | — | — | 🔍 |
-| [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.4 · 4º | 0 | — | — | 🔍 |
+| [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | M25 · 4.4 · 2º | 0 | Alto | Bom | ⏳ |
+| [**F90**](#f90) | Feature | Cenários | M25 · 4.4 · 3º | 0 | Alto | Bom | ⏳ |
+| [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.4 · 4º | 0 | Médio | Médio | ⏳ |
 | [**F110**](#f110) | Feature | Combinar estratégias | M25 · 4.4 · 5º | 0 | Médio | Bom | ⏳ |
 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | M25 · 4.4 · 6º | 0 | Baixo | Bom | ⏳ |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.5 · 1º | 2 | — | — | 🔍 |
@@ -369,9 +369,9 @@
 | [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | M28 · 4.6 · 3º | 0 | Baixo | Bom | ⏳ |
 | [**F131**](#f131) | Feature | Catálogo de padrões de vela | M28 · 4.6 · 4º | 0 | — | — | 🔍 |
 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 · 6º | 0 | — | — | 🔍 |
-| [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 · 7º | 0 | — | — | 🔍 |
+| [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 · 7º | 0 | Alto | Médio | ⏳ |
 | [**F37**](#f37) | Feature | Tema escuro | M28 · 4.6 · 10º | 0 | Médio | Médio | ⏳ |
-| [**F284**](#f284) | Feature | Ministério para o partido da base | — | 0 | — | — | 🔍 |
+| [**F284**](#f284) | Feature | Ministério para o partido da base | — | 0 | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | 0 | — | — | 🔍 |
 
 ---
@@ -382,11 +382,14 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F6** | Feature | Link de convite pela internet no lobby | N2 | — | M27 · 4.5 | [F5](#f5) | Médio | Médio | Alto | Bom |
 | **F14** | Feature | Janela desktop nativa | — | — | M27 · 4.5 | — | Baixo | Baixo | Baixo | Bom |
+| **F28** | Feature | Muitos futuros (Monte Carlo) | N10 | D7 | M25 · 4.4 | — | Alto | Alto | Alto | Bom |
 | **F37** | Feature | Tema escuro | N15 | — | M28 · 4.6 | — | Médio | Baixo | Médio | Médio |
 | **F56** | Feature | Novidades no app | N14 | — | M27 · 4.5 | — | Baixo | Baixo | Médio | Bom |
 | **F60** | Feature | Modo servidor dedicado (--headless) | — | — | M27 · 4.5 | — | Baixo | Baixo | Baixo | Bom |
 | **F72** | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | M24 · 4.3 | — | Médio | Baixo | Médio | Bom |
 | **F81** | Manutenção | CORS restrito à mesma origem | — | — | M27 · 4.5 | [F6](#f6) | Baixo | Médio | Baixo | Médio |
+| **F90** | Feature | Cenários | N22 | D18 | M25 · 4.4 | — | Alto | Médio | Alto | Bom |
+| **F93** | Feature | Rumores antecipados | N31 | D18 | M25 · 4.4 | — | Médio | Médio | Médio | Médio |
 | **F101** | Feature | Carteira separada do jogador | N23 | D9 | M18 · 4.2 | — | Alto | Alto | Médio | Médio |
 | **F110** | Feature | Combinar estratégias | N4 | D8 | M25 · 4.4 | — | Médio | Médio | Médio | Bom |
 | **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | M25 · 4.4 | — | Baixo | Baixo | Médio | Bom |
@@ -400,8 +403,12 @@
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
+| **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Alto | Médio | Médio | Médio |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
+| **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Alto | Alto | Alto | Médio |
 | **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | D10 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
+| **F280** | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | N34, N8 | — | M26 · 4.1 | — | Alto | Alto | Alto | Bom |
+| **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -409,6 +416,29 @@
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
+
+<a id="f28"></a>
+**F28 — Muitos futuros (Monte Carlo).** Serve N10; condicionado por D7. Pede um plano de implementação em Opus antes do Sonnet: a orquestração de 100 partidas, a partida ativa única e a limpeza.
+
+**O que o jogador passa a poder fazer.** Em vez de testar a estratégia num futuro gerado só, testá-la em muitos (ex.: 100, cada um com uma semente) e ver o resultado como distribuição: "perdeu para o CDI em 23 de 100 futuros; no pior, −35%; no do meio, +40% em 5 anos". Monte Carlo é a técnica de repetir a simulação com sorteios diferentes para ver a faixa de resultados possíveis, e não um só; a semente é o número que fixa o sorteio, então a mesma semente gera o mesmo futuro. Lê-se pela fração de futuros ruins e pelo pior caso: poucos futuros perdendo para o CDI é bom; uma estratégia que só ganha no histórico real e perde na maioria dos futuros plausíveis teve sorte, não mérito. É o backtest da F19 repetido sobre gerações do gerador da D14.
+
+**Decisão.** Cada futuro é uma versão descartável na dimensão de versão da D7, um futuro por vez. Para cada semente: gerar o futuro, gravar as séries na versão da partida de backtest daquele futuro, rodar o backtest, guardar só o resultado e a semente e apagar as linhas. O pico fica em cerca de 50 mil linhas (37 ativos × 5 anos) em vez dos 5 milhões de 100 futuros gravados juntos. O motor não muda, e a D7 fica confirmada, sem virar "mesma interface".
+
+**Por quê.** A dimensão de versão já existe: a versão 0 é a série comum e a versão N é a da partida de id N (`backend/core/repository/series_version.py`, com `reading_version` e `seen_by`). O backtest já cria uma partida gravada com id (`start`, com `is_backtest=True`, em `backend/features/backtest/service.py`). O motor chama o repositório direto, em cerca de 12 funções SQL de `backend/core/repository/stock.py`, `economic.py` e `corporate_event.py`, então um provedor em memória criaria uma segunda leitura da mesma série. E o gerador é determinístico pela semente (`SeriesGenerator.generate(seed)`, em `backend/features/import_data/synthetic.py`, devolve um `GeneratedSeries` em memória): o futuro se recria igual e não precisa ficar guardado.
+
+**Plano.**
+
+1. **Geração.** Em `synthetic.py` e `future.py`, onde `_rows` converte a série gerada em linhas para gravar.
+2. **Gravação por versão.** Hoje a gravação só escreve na versão 0, por `replace()` em `backend/core/repository/generated_future.py`, e a tabela `GeneratedFuture` tem uma linha só (id = 1). Os futuros de Monte Carlo precisam de um caminho de gravação por versão que não passe por essa linha.
+3. **Orquestração.** A rodada mora ao lado do backtest, em `backend/features/backtest/`, com as rotas em `backend/routes/backtest.py`: para cada semente, em fila, gerar, gravar na versão da partida de backtest, rodar o backtest, guardar o resultado e a semente e apagar as linhas e a partida de rascunho.
+4. **Limpeza.** O cache de `EconomicRepository` é por (série, versão) e é limpo ao apagar cada versão.
+5. **Resultado.** O que a tela mostra: a fração de futuros que perdem para o CDI, o pior caso e o do meio (a mediana: metade dos futuros fica abaixo, metade acima), com a nota de que 100 futuros têm margem de erro de cerca de 8 pontos para cada lado ("23 de 100" significa algo entre 15% e 31%). Mudou DTO e rota: `pnpm openapi`.
+
+**Tempo da rodada.** Com o motor de hoje, 100 futuros de 5 anos em fila passam de 3 horas, o que é tempo demais para quem só quer testar uma estratégia. A feature inclui deixar a partida de backtest mais rápida, nesta ordem: (1) medir para onde vai o tempo de uma partida (`pnpm profile:match`), separando o que é banco do que é cálculo em Python; (2) cortar o que o backtest de Monte Carlo não precisa, como gravar no banco a cada dia o que só o resultado final usa; (3) avaliar reescrever em Cython os laços de cálculo que sobrarem no topo da medição. O Cython compila um trecho de Python para C: num laço de contas, o ganho costuma ser de 10 a 100 vezes; em tempo gasto no banco, o ganho é nenhum, e por isso a medição vem antes. O custo do Cython é o executável passar a depender de um compilador de C na hora de ser montado. O plano fixa a meta de tempo da rodada e, se ela não for alcançada, escolhe entre menos futuros, período menor ou rodar em segundo plano com barra de progresso.
+
+**Pendências para o plano.** (a) Medir quanto dura um backtest de 5 anos (`pnpm profile:match`), porque o gargalo provável é a partida repetida 100 vezes e não as séries: pela F202, 10 anos com 7 bots levam perto de 4 minutos, então 5 anos levam perto de 2 e 100 futuros em fila passam de 3 horas. (b) A leitura cai na "partida ativa" quando não recebe id, o que supõe uma partida por vez, então a rodada é sequencial. (c) Gravar e apagar 5 milhões de linhas ao longo da rodada deixa espaço morto no Postgres (o espaço que o banco só devolve numa limpeza), e a limpeza precisa ser prevista. (d) O desenho do que a tela mostra, como descrito no passo 5.
+
+**Aceite:** a mesma semente reproduz o mesmo resultado; ao fim da rodada não sobra linha das versões descartáveis nem partida de rascunho; a série comum (versão 0) e as partidas salvas ficam intactas; o resultado sai como distribuição, com o tamanho da amostra; a rodada de 100 futuros de 5 anos termina dentro da meta de tempo fixada no plano, com a medição de antes e de depois registrada.
 
 <a id="f37"></a>
 **F37 — Tema escuro.** Serve N15. Hoje só existe o tema claro (F26): o `:root` de `frontend/index.css` é a única fonte dos tokens, e o `@custom-variant dark` ficou inerte.
@@ -433,6 +463,53 @@
 
 <a id="f81"></a>
 **F81 — CORS restrito à mesma origem.** O backend libera CORS para qualquer origem com credenciais (`allow_origins=["*"]` e `allow_credentials=True` no FastAPI, `cors_allowed_origins="*"` no Socket.IO). Não é necessário: o front é servido pelo próprio backend e, no `pnpm dev`, chega pelo proxy do Vite. Hoje o que protege o jogador de um site malicioso aberto durante a partida é o cookie `client_id` com `SameSite=Lax`, que o navegador não manda em requisição de outro site; o CORS liberado só deixa outro site ler as rotas que não pedem identidade. (1) Sai o `CORSMiddleware` de `main.py`. (2) O Socket.IO fica com `cors_allowed_origins` na mesma origem, mais `http://localhost:5173` quando o modo debug estiver ligado: o proxy do Vite troca o `Host` (`changeOrigin: true`) mas mantém o `Origin` do Vite, e o Socket.IO recusaria a conexão em dev sem essa exceção. (3) Teste manual antes de fechar: jogo pelo `localhost`, por outro computador da LAN pelo IP e pelo `pnpm dev`. Gatilho: junto com o link de convite pela internet, quando o servidor passa a ficar exposto fora da LAN.
+
+<a id="f90"></a>
+**F90 — Cenários.** Serve N22; condicionado por D18.
+
+**O que o jogador passa a poder fazer.** Escolher, na criação da sala, um cenário histórico: uma partida montada com intenção, com texto de abertura, regras fixas e medalhas de bronze, prata e ouro. A partida continua vencida pelo modo de jogo e pelo ranking; as medalhas são um desafio por cima, que cada jogador cumpre ou não, individualmente. Todos os cenários ficam liberados, listados em ordem sugerida de dificuldade, cada um mostrando a melhor medalha que o jogador já conquistou. Não há campanha.
+
+**O que existe.** O preset guarda só regras (`RULE_GROUP_FIELDS` em `backend/core/dto/preset.py`), sem texto de abertura, objetivo nem medalha, e os prontos nascem na migration inicial (`BUILT_IN_PRESETS`). A meta da corrida é avaliada em `backend/features/statistics/goal.py` e o ranking em `ranking.py` (`build_overview`); a queda máxima, a cota e o CDI do dia já saem de `risk.py`. As conquistas são gravadas por jogador na tabela `achievements`.
+
+**Plano.**
+
+1. **Medalhas.** Cada cenário tem três degraus, e cada degrau é uma lista de condições que o jogador precisa cumprir todas. O catálogo é pequeno e combinável: patrimônio final acima de um valor, retorno da cota acima do CDI acumulado no período e perda máxima (a maior queda do patrimônio desde o pico, `max_drawdown`). A perda máxima nunca vem sozinha, porque ficar parado no caixa a cumpriria: o degrau que a usa exige também uma condição de ganho, e a validação do cenário recusa o degrau que não a tem. Exemplo, Crise de 2008 com R$ 100 mil: bronze, terminar acima de R$ 100 mil; prata, terminar acima do CDI; ouro, terminar acima do CDI sem nunca cair mais de 20%. A avaliação é uma função pura, num módulo novo de `backend/features/statistics/`, que recebe o histórico do jogador e as medalhas do cenário e devolve o maior degrau cumprido. Os bots entram no ranking como sempre e não gravam medalha.
+2. **Dado do cenário.** Tabela `scenario` por migration (D18), no molde do `preset`: nome, ordem de dificuldade, regras no mesmo formato do `config` do preset, texto de abertura e medalhas em JSON. As três linhas da primeira entrega entram na própria migration, como `BUILT_IN_PRESETS`, e por isso existem em instalação nova. Só há cenários que vêm com o app, sem editor.
+3. **Trava.** O cenário escolhido grava `scenario_id` na partida (campo novo de `SimulationSettingsDTO`, nulo por padrão, no JSON de regras e sem migration, por D18). Ao criar a sala, o servidor confere que as regras enviadas são as do cenário: período, caixa inicial, aporte, modo de jogo, vida e imprevistos, impacto de preço, expansões e rumores (F93, sempre desligados) vêm fixos. Ficam livres o nome da sala e as ajudas de tela (modo Especialista); o número de jogadores e de bots não é travado. O lobby mostra os campos fixos desabilitados, com o seletor de cenário junto dos presets.
+4. **Abertura.** A partida abre com o texto de abertura e as medalhas à vista.
+5. **Fim da partida.** O relatório do ranking (`build_overview`) ganha, por jogador, a medalha obtida, mostrada ao lado da posição. A melhor medalha de cada jogador em cada cenário fica gravada na tabela nova `scenario_medal` (jogador, cenário, degrau, partida e data; chave jogador mais cenário), no molde de `achievements`; a gravação só troca o degrau por um maior.
+6. **Lista de cenários.** Uma rota nova devolve os cenários na ordem de dificuldade com a melhor medalha do jogador, e o seletor do lobby a mostra.
+7. **Primeira entrega.** Três cenários históricos, só com dados reais: Crise de 2008 (set/2008 a dez/2010, R$ 100 mil), Pandemia (jan/2020 a dez/2021) e Juros nas alturas (2015 a 2016, SELIC a 14,25% ao ano). Os valores das medalhas são calibrados na implementação, simulando em cada período três carteiras simples (100% CDI, 100% Ibovespa e meio a meio): o bronze é alcançável por quem não errou feio, e o ouro pede decisão boa. O caixa inicial, o aporte e o modo de jogo da Pandemia e dos Juros nas alturas saem junto da calibragem.
+8. Mudou DTO e rota: `pnpm openapi`; tabelas novas: `pnpm db:revision`. `docs/docs/como-usar/lobby.md` descreve os cenários e as medalhas.
+
+**Testes.** `tests/test_presets.py` ou um `tests/test_scenarios.py` novo: cada condição do catálogo; degrau com perda máxima sem condição de ganho recusado; histórico parado no caixa sem ouro nos três cenários; criação de sala recusada quando uma regra fixa difere do cenário e aceita com outro nome e outras ajudas; medalha gravada que só sobe de degrau; os três cenários presentes em banco novo.
+
+**Fora deste card, como ideias futuras:** cenários criados pelo usuário; "Década perdida", que depende de o preset carregar um futuro gerado com choque (hoje não existe); e "Plano Real", que depende de haver dados de 1994.
+
+**Aceite:** escolher um cenário trava as regras e mostra a abertura e as medalhas; ao fim da partida cada jogador vê a medalha obtida ao lado do ranking; a medalha fica gravada e aparece na lista de cenários; os três cenários existem em instalação nova; ficar 100% no caixa não dá ouro em nenhum deles.
+
+<a id="f93"></a>
+**F93 — Rumores antecipados.** Serve N31; condicionado por D18.
+
+**O que o jogador passa a poder fazer.** Ligar, na criação da partida, uma opção de mercado desligada por padrão: o jornal da sala passa a publicar rumores, marcados como Rumor, de 3 a 10 pregões antes de um fato. O simulador já sabe o futuro, porque as séries até a data final estão no banco antes de a partida começar, reais ou geradas, e o rumor usa isso. Ao contrário do noticiário (F92), que conta o que já aconteceu, o rumor pede interpretação: pode se confirmar, ser alarme falso ou ser seguido de um movimento forte no sentido contrário. Rumor de queda seria quase de graça de obedecer (vender, ficar no CDI, recomprar); o alarme falso, o movimento contrário e a antecedência variável dão custo a obedecer sempre.
+
+**O que existe.** As manchetes são da sala (`backend/features/notifications/news.py`, tabela `News`). As regras do jornal moram em `backend/features/newsroom/newsroom.py`: `strong_moves` e `copom_decision`, com os limiares em `companies.py` (variação mínima de 5%, 4 vezes a oscilação normal do ativo) e `macro.py`. As opções da partida estão em `SimulationSettingsDTO` (`backend/core/dto/simulation.py`).
+
+**Plano.**
+
+1. **Opção.** Campo `rumors_enabled: bool = False` em `SimulationSettingsDTO`, guardado no JSON de regras da partida, sem migration (D18), e listado em `RULE_GROUP_FIELDS` para o preset guardá-lo. No lobby é opção do mercado, fora do grupo das ajudas de tela: independe do modo Especialista (`expert_mode` só olha as ajudas) e liga-se com ou sem elas. Nos cenários (F90) a opção fica desligada e travada.
+2. **Gerador.** Módulo novo `backend/features/newsroom/rumors.py`, chamado pelo `Newsroom` a cada pregão D com a opção ligada. Ele olha os 3 a 10 pregões seguintes nas séries guardadas e acha os fatos que os critérios de `strong_moves` e de `copom_decision` reconheceriam, olhando para a frente em vez de para trás. Para cada fato, a semente da partida (a mesma `random_seed` dos imprevistos, que o `Newsroom` passa a receber) e a chave do fato sorteiam se há rumor, a antecedência e o desfecho; o rumor sai no pregão D igual ao do fato menos a antecedência. O sorteio é determinístico: a mesma semente e o mesmo fato dão o mesmo rumor.
+3. **Dado que falta.** A criação da partida não confere que as séries cobrem até a data final. Sem dado à frente, o fato não existe e não sai rumor; o alarme falso só sai quando a janela inteira de 10 pregões tem dado. O rumor lê a série guardada: com a expansão Governo & Política ligada, o preço da partida se afasta dela pelas ações dos jogadores, e o rumor acerta menos que os 60%. Isso é aceito como ruído a mais, e `docs/docs/como-usar/jornal.md` avisa.
+4. **Desfecho.** De cada 100 rumores, 60 se confirmam, 25 são alarme falso e 15 são seguidos de movimento forte no sentido contrário. Os confirmados e os contrários nascem de fatos reais (75 de 100, na razão de 4 para 1), e só cerca de metade dos movimentos grandes ganha rumor, para que a ausência de rumor não garanta calmaria. O alarme falso é sorteado num alvo e numa data em que nenhum critério de movimento forte dispara nos 10 pregões seguintes, à razão de um para cada três rumores de fato real. Os falsos dependem da semente, então partidas do mesmo período com sementes diferentes têm alarmes falsos diferentes.
+5. **Formatos.** Três, sorteados, pela regra "ou diz onde, ou diz para onde": setor com direção ("analistas veem risco no varejo", confirmado por movimento forte de um ativo do setor naquela direção), ativo sem direção ("mudanças na diretoria da X", confirmado por movimento forte do ativo) e macro sem direção (reunião do Copom fora do esperado, confirmada por mudança da SELIC). Nunca ativo e direção juntos. O desfecho contrário só cabe no formato com direção, porque só dá para contrariar uma direção dita: sorteia-se o desfecho e depois o formato entre os que cabem nele. As frases têm variações escolhidas por `pick`, de `newsroom/text.py`.
+6. **Alcance.** A sala toda recebe o mesmo rumor, no jornal que já existe, sem caixa de entrada privada e sem pagamento. A manchete sai por `publish` com o tipo novo `NewsType.RUMOR` (enum e registro de tipos de manchete, com seção e nível padrão), e o jornal e o cartão de notícia (`frontend/features/news`) mostram a marca Rumor para distinguir do fato.
+7. Mudou DTO: `pnpm openapi`. `docs/docs/como-usar/lobby.md` descreve a opção e `docs/docs/como-usar/jornal.md`, o rumor e as três saídas possíveis.
+
+**Testes.** `tests/test_newsroom.py` ou um `tests/test_rumors.py` novo: opção desligada sem rumor; antecedência sempre entre 3 e 10 pregões; em muitas partidas sorteadas, as proporções ficam perto de 60/25/15; nenhum rumor com ativo e direção juntos; série sem dado à frente sem rumor e sem erro; duas sementes sobre o mesmo período dão alarmes falsos diferentes.
+
+**Fora deste card, como ideia futura:** rumor privado sorteado para um ou dois jogadores, que depende de uma caixa de entrada por jogador.
+
+**Aceite:** com a opção desligada nenhum rumor aparece; ligada, os rumores aparecem no jornal marcados como Rumor, de 3 a 10 pregões antes do fato; num teste com muitas partidas sorteadas as proporções ficam perto de 60/25/15; nenhum rumor traz ativo e direção juntos; duas partidas do mesmo período com sementes diferentes têm rumores falsos diferentes.
 
 <a id="f101"></a>
 **F101 — Carteira separada do jogador.** Serve N23; segue a D9. A base da expansão Gestoras (F44): hoje eventos e snapshots pertencem ao jogador (`user_id`), e a gestora precisa de carteira própria. Entra uma tabela `portfolios`, e eventos e snapshots passam a apontar para a carteira; a carteira pessoal de cada jogador é migrada uma a uma, inclusive nas partidas salvas. Nada muda na tela: cada jogador segue com uma carteira só até a F44 existir. Gatilho: a F44 sair da avaliação.
@@ -475,10 +552,60 @@
 <a id="f225"></a>
 **F225 — Conceitos de economia real na docs e nomeados na tela.** Serve N41 e N25; condicionado por D21. **Para quem:** quem joga e quer entender por que a economia da partida reagiu como reagiu, e quem lê a docs sem jogar. **O que cobre:** uma página por conceito na categoria de explicação que a reorganização da docs cria: juro real e juro real neutro, curva IS, lei de Okun, curva de Phillips, princípio de Taylor e a reação do Banco Central, defasagem da política monetária, meta de inflação e tolerância, credibilidade e expectativas, prêmio de risco, dinâmica da dívida (r − g) e espiral da dívida, primário que estabiliza a dívida e dominância fiscal. Cada página diz o que o conceito mede, um exemplo numérico, o que é valor bom e ruim, a fonte (relatório do Banco Central, artigo ou livro-texto) e como o jogo o implementa, com a fórmula e os coeficientes: é o lugar único dos números do modelo (D21), e a seção de economia interligada de `docs/docs/como-usar/governo.md` passa a apontar para as páginas. Cada página fecha com o que o jogo simplifica em relação à economia real, e uma página própria reúne as simplificações do modelo inteiro: as defasagens comprimidas, os coeficientes fixos em todas as épocas, o Banco Central que reage só à inflação (e não ao hiato do PIB) e o câmbio representado pelo prêmio de risco enquanto o dólar não entra na partida. O conteúdo parte dos conceitos e das explicações do [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) (`frontend/shared/concepts/concepts.tsx` e `frontend/features/explainers/`), adaptado ao que o jogo faz, e as fórmulas entram com KaTeX no Docusaurus (`remark-math` e `rehype-katex`). **Na tela:** onde um texto do jogo cita um conceito ("segue o princípio de Taylor"), o nome dele vem com o sublinhado pontilhado do app e o cursor de interrogação, o mesmo `HoverCardTrigger term` de `frontend/shared/components/ui/hover-card.tsx` que o nome do padrão de candle usa no desafio. Passar o mouse ou focar abre um cartão no molde de `pattern-hint.tsx`, com três blocos. Primeiro, o nome e uma frase do que o conceito é, sem fórmula. Depois, "Na partida agora": o conceito aplicado ao estado da partida, como "IPCA 6,2% contra meta de 3,0%: o Copom tende a subir a SELIC na próxima reunião". Por fim, o "Saiba mais" para a página da docs. Os dois primeiros funcionam sem rede, e só o link depende dela. **Mecanismo:** um componente `ConceptTerm` em `frontend/shared/components/` e um catálogo dos conceitos em `frontend/shared/lib/` (chave, nome, frase e caminho da página da docs). Cada tela que cita o conceito passa o trecho da partida que o cartão lê, já resolvido pela tela, e o "Na partida agora" é montado a partir desse trecho. No mesmo bloco de texto, só a primeira menção ao conceito leva o sublinhado. Um teste confere que o caminho de cada conceito do catálogo existe em `docs/docs/`. Os pontos de partida são o painel da Economia (cada parcela leva o nome do conceito), a decisão do Copom, o prêmio de risco do Tesouro e o card da dívida. **Onde mora:** `docs/docs/`, na categoria de explicação. **Gatilho:** depois da reorganização da docs.
 
+<a id="f227"></a>
+**F227 — Intensidade das ligações e laboratório da economia.** Serve N41 e N34; condicionado por D20 e D21. Pede um plano de implementação em Opus antes do Sonnet, porque toca o núcleo da economia, as conquistas e o lobby.
+
+**O que o jogador passa a poder fazer.** Ajustar no lobby três regras da partida, para quem quer aprender vendo o mecanismo. Quem não mexe em nada joga a partida padrão, que não muda: sem governo ela segue sendo a história.
+
+**As três regras (as três entram).**
+
+- **Intensidade.** Suave, Real e Exagerada multiplicam o desvio de todas as ligações por 0,5, 1 e 2. O desvio é a diferença entre a economia da partida e a da história (D20). Exemplo: se as medidas do governo deixam a inflação 1 ponto acima da história, a Suave a leva a 0,5 ponto acima, a Real mantém 1 e a Exagerada a leva a 2. Como o multiplicador age sobre "partida menos história", sem governo o desvio é zero e a partida continua sendo a história. A Exagerada serve para ver o efeito com clareza num mandato curto.
+- **Laboratório.** Cada ligação liga e desliga, para ver o que cada uma faz sozinha. São seis: curva de Phillips (desemprego abaixo do normal empurra a inflação), reação do Banco Central (o juro sobe quando a inflação sobe), risco fiscal (dívida crescendo encarece o crédito), juro real na inflação (juro bem acima da inflação freia os preços), PIB na bolsa (economia mais fraca derruba as ações) e ciclo fiscal (a arrecadação acompanha o PIB). Com as estatais (F255), que saem antes, entra a sétima, o PIB da estatal, e ela ganha a chave aqui. O laboratório só liga e desliga: cada chave traz uma frase do mecanismo e um "Saiba mais" para a docs, sem coeficiente na tela (D21 deixa os números na docs). O número que o jogador vê é a parcela de cada ligação no painel da Economia, que também mostra quais ligações estão desligadas.
+- **Credibilidade inicial.** Credibilidade, de 0 a 100, é a confiança do mercado de que o Banco Central segura a inflação. A partida começa com o Banco Central acreditado (100, o padrão) ou desacreditado. Desacreditado, começa em 40, valor fixo e ajustável na calibragem, e já paga prêmio de risco no primeiro dia (o prêmio é o juro extra que a dívida do governo paga por desconfiança: vale 2 pontos com credibilidade zero e cai na proporção, então 40 de 100 paga 60% de 2 pontos, ou 1,2 ponto). Para recuperar a confiança ele precisa manter o juro real na história ou subir a SELIC: cada reunião do Copom (a reunião em que o Banco Central decide a SELIC) que cumpre isso devolve 3 pontos, e com 8 reuniões por ano são 24 pontos por ano, o que dá no mínimo 2 anos e meio para voltar a 100. A regra vale porque a credibilidade é medida contra a história: um banco desacreditado que só copia a história recupera a confiança devagar. O 40 não vem de um ano real escolhido: 2002 e 2015 aparecem só como exemplo no texto da opção. A opção só aparece em partida com a expansão de governo, porque com Banco Central autônomo a credibilidade é sempre cheia (`AutonomousCentralBank`, em `backend/features/economy/monetary.py`).
+
+**Placar e conquistas.** O placar da partida vale sempre. As conquistas só destravam com intensidade Real e todas as ligações ligadas. O Banco Central desacreditado conta normalmente para as conquistas, porque só dificulta. O motivo: ligação desligada e intensidade Suave facilitam, e a Exagerada dobra também o ganho (bolsa 10% acima da história vira cerca de 21%), o que permitiria farmar conquistas de retorno (repetir a partida fácil até acumular). A partida fora do padrão mostra o aviso "partida de laboratório: não destrava conquistas" no lobby e no painel da Economia. Ideia registrada, sem card: uma conquista própria para quem recuperar a credibilidade de 40 até 100.
+
+**Plano.**
+
+1. **Configuração.** As três regras são configuração da partida, escolhida no lobby; o padrão é Real, todas as ligações ligadas e Banco Central acreditado.
+2. **Intensidade e laboratório.** As ligações e o desvio moram em `backend/features/government/linked_economy.py`, com as fórmulas em `backend/features/economy/links.py`. O desvio de cada ligação passa a sair multiplicado pelo fator de intensidade e zerado quando a ligação está desligada. O painel da Economia mostra a parcela de cada ligação e quais estão desligadas.
+3. **Credibilidade.** As constantes e funções moram em `backend/features/economy/monetary.py` (`FULL_CREDIBILITY`, `CREDIBILITY_PREMIUM`, `next_credibility`). O ponto de partida da credibilidade, hoje sempre cheio, passa a ser o valor da regra; o prêmio e a recuperação seguem as funções que já existem.
+4. **Conquistas.** Em `backend/features/achievements/` (`evaluator.py`, `catalog.py`, `service.py`) hoje nenhuma partida é excluída, então nasce aqui a marca de partida fora do padrão: intensidade diferente de Real ou alguma ligação desligada. Com a marca, nenhuma conquista da partida destrava; o Banco Central desacreditado não entra na marca.
+5. **Telas e docs.** Aviso no lobby e no painel da Economia; cada chave do laboratório com a frase do mecanismo e o "Saiba mais" (D21), e a página da docs com os coeficientes. Mudou DTO e rota: `pnpm openapi`.
+
+**Pendências para o plano.** (a) Confirmar se as seis ligações já são parcelas separadas do desvio, o que torna o liga e desliga barato. (b) Calibrar a Exagerada: a calibragem de 10 anos foi só em ×1, a bolsa segue a exponencial das forças (dobrar o desvio mais que dobra o efeito) e a espiral da dívida não tem teto (D20).
+
+**Aceite:** a partida padrão sem governo continua idêntica à história; cada ligação desligada zera só a própria parcela no painel; a intensidade ×0,5 e ×2 multiplicam o desvio e ×1 não muda nada; a partida fora do padrão não destrava conquista e a com Banco Central desacreditado destrava; o desacreditado começa em 40 com prêmio de 1,2 ponto; a rodada de calibragem da Exagerada fica registrada.
+
 <a id="f249"></a>
 **F249 — Núcleo do backend sem import de features.** `core/` importa de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
 
 Cada um desses módulos é movido para a feature que o consome ou passa a receber a dependência por injeção (o `core` define o protocolo, a feature implementa). Por fora nada muda; confere-se com `uv run pyright`, `uv run pytest -n 4` e um `grep "features" backend/core` vazio. Sem decisão de fazer agora.
+
+<a id="f255"></a>
+**F255 — Estatais.** Serve N34 e N41; condicionado por D20. Só se implementa depois da expansão Gestoras (F44). A ideia do playtest de 08/11: o governo cria estatais (empresas controladas pelo governo, com ações na bolsa) para gerar receita e PIB. No Brasil, as estatais listadas (Petrobras, Banco do Brasil) pagam dividendos ao Tesouro (dividendo é a parte do lucro que a empresa paga aos acionistas), e os proventos já existem na partida desde a 4.0. Entram quatro medidas, cada uma com o seu preço: fundar, usar o controle, privatizar e a política de dividendos.
+
+**Por que depois das Gestoras.** A estatal é um ativo que os jogadores negociam, e fundar e privatizar reaproveitam o que a expansão Gestoras (F44) constrói: um ativo que nasce no meio da partida, com o preço feito por um formador de mercado sintético (um participante automático que sempre põe ordens de compra e venda em volta do valor justo), e a oferta pública, que é a privatização. Os dividendos ao Tesouro seguem o molde dos rendimentos da gestora (F105). O uso do controle age também nas estatais que já estão entre os ativos importados, como camada sobre o preço histórico, no molde do dólar sobre os ativos de fora (F194).
+
+**Plano.**
+
+1. **Capital.** A estatal fundada nasce listada, com 51% do governo (o controle, como na Petrobras e no Banco do Brasil) e 49% na bolsa. São dois estados: estatal ou privada. Privatizar vende os 51% de uma vez. Os 49% são absorvidos pelo formador de mercado sintético das Gestoras, e o governo arrecada pelo valor justo (o valor que a empresa tem pelo que rende) independentemente de haver gente comprando na sala. Exemplo: uma estatal de R$ 100 bi custa R$ 51 bi de dívida, a fatia que o governo mantém.
+2. **Estatais importadas.** Quem monta a base marca, na importação, quais códigos são estatais; não há lista fixa no código. A tela de importação sugere a marca para os códigos conhecidos da União (PETR3, PETR4, BBAS3). A marcação traz a fatia do governo e o número de ações, necessários para transformar o dividendo por ação em reais. Nas importadas valem o uso do controle e a política de dividendos; fundar e privatizar são só das estatais criadas na partida.
+3. **Usar o controle** (o antigo "segurar preço"). O governo manda a estatal vender abaixo do preço que o mercado pagaria. O efeito na economia depende do setor do ativo, que define a alavanca (o que o governo consegue mexer na economia pela estatal): combustíveis e energia elétrica baixam o IPCA (a gasolina pesa uns 5% do índice, então 10% de desconto nela tira cerca de 0,5 ponto da inflação; a conta de luz pesa uns 4%); banco baixa o juro do crédito e sobe o PIB, e a inflação sobe um pouco; os outros setores não têm alavanca, só o dividendo. O custo é sempre o mesmo: lucro menor, dividendo menor ao Tesouro e ação em queda. Casos reais: Petrobras de 2011 a 2014, Eletrobras em 2012, BB e Caixa em 2012. Fundar pede escolher o setor (combustíveis, energia ou banco), que define a alavanca.
+4. **Inflação represada.** Ao soltar o preço, o que foi segurado volta ao IPCA nos meses seguintes, como em 2015 (a inflação represada é a que foi adiada, não a que sumiu). Sem essa volta, segurar preço evitaria para sempre a perda de credibilidade do Banco Central. Há um teto para a soma das alavancas de IPCA, que sai da calibragem. A alavanca do banco é pequena, para não virar um segundo botão de juro além da SELIC.
+5. **Política de dividendos** (medida nova, em fundadas e importadas). O governo manda a estatal distribuir mais agora, o que rende receita extra, ao custo de ela investir menos, o que dá menos PIB e uma ação mais fraca depois. Exemplo: mandar distribuir 80% do lucro em vez de 50% enche o caixa do Tesouro este ano e deixa a estatal com menos para investir. É o jeito de a importada arrecadar mais, porque pela D20 o dividendo normal dela já está na história e não é desvio.
+6. **Receita.** Os dividendos vão ao Tesouro na proporção da fatia do governo, sobre o lucro da estatal: com fatia de 51%, uma estatal que distribui R$ 10 bi manda R$ 5,1 bi ao Tesouro. A fundada tem valor justo com retorno sorteado por ano em volta de uma média, e pode valer menos que o investido.
+7. **PIB.** Na fundação vem um impulso, pela ligação de ciclo fiscal que já existe; depois vem uma parcela permanente, proporcional ao tamanho (valor) da estatal enquanto ela opera: cresce se ela reinveste e encolhe se o governo a espreme. Cada estatal nova no mesmo setor soma menos. É a sétima ligação da economia e ganha chave no laboratório (F227).
+
+O tamanho dos efeitos sai da calibragem pelo CLI.
+
+**Riscos.**
+
+- **Máquina de dinheiro.** Se o retorno médio da estatal fundada fica acima do juro da história, fundar vira dinheiro de graça (a dívida custa o juro e a estatal rende mais que ele). A média do retorno fica perto ou abaixo do juro real da história (o juro descontada a inflação).
+- **Ciclo fundar e privatizar.** Fundar e vender em sequência não pode render de graça; a calibragem confere isso.
+- **Informação privilegiada.** Colegas de partido sabem antes que uma medida vem e podem comprar ou vender a ação. É aceito porque a medida passa pela fila do Congresso, à vista de todos.
+
+**Aceite:** sem medida de estatal a partida segue a história; a calibragem compara "fundar 10 estatais em 10 anos" com "não fundar nenhuma" e fundar não domina; segurar o preço e soltar devolve a inflação represada; banco estatal não baixa o IPCA; a soma das alavancas respeita o teto; dividendo extra hoje reduz PIB e valor depois.
 
 <a id="f264"></a>
 **F264 — Nota de desempenho que não explode com patrimônio quase zero.** Serve N9 e N3; condicionado por D10.
@@ -503,6 +630,71 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 
 **Aceite:** no histórico do "como reproduzir", Sharpe e Sortino saem negativos, o eixo de eficiência dá 0 ponto e a volatilidade dá 0 ponto (antes, 9 milhões de pontos na nota). Num histórico de dois dias com −50% e +100%, a média dos retornos usada no Sharpe é 0. Um histórico comum, com volatilidade de até 30% ao ano, muda menos de 10 pontos na nota total.
 
+<a id="f280"></a>
+**F280 — Corrida eleitoral com bots sempre presentes e campanha que pesa.** Serve N34 e N8.
+
+**Como é hoje.** A eleição tem três vagas (`PARTIES_PER_ELECTION=3` em `election.py:21`) e o computador só ocupa as que sobram dos jogadores (`_ensure_computers` em `government_book.py:4286-4310`). Com dois partidos de jogador concorre um do computador; com três, nenhum, e somem o centrão (UPR), o sucessor do impeachment sem vice e o parceiro de federação. A verba do mês vira apoio nos 6 grupos de eleitores pela raiz quadrada: `√verba ÷ 64` (`voters.py:369-376`, `SQRT_DIVISOR=64`), e o apoio cai pela metade a cada 91 dias (`campaign.py:23`). A raiz quadrada faz o dobro de dinheiro render bem menos que o dobro de apoio: R$ 4.000 dão 0,99 ponto e R$ 16.000, quatro vezes mais, dão 1,98. As ações (`campaign.py:27-50`) custam TV R$ 6.000 (0,75 ponto em todos os grupos), evento R$ 2.500 (1,5 ponto em um grupo), comício R$ 800 (0,5 em um grupo) e ataque R$ 2.500 (tira 1,5 de um rival em um grupo); o resultado depende de um dado de 20 faces, e repetir a mesma ação rende 100%, 50% e 25%. Elas são pagas à parte e rendem menos que o mesmo dinheiro parado: R$ 2.500 parados dão 0,78 ponto no país, e o melhor evento (trabalhadores formais, 35% dos eleitores) dá 0,52. A contribuição do filiado não tem teto (`government_book.py:923-946`), não há fundo público e o computador gasta a média dos partidos de jogador vezes a dificuldade (`election.py:164-170`).
+
+**O que o jogador passa a ver.** Toda eleição tem os três partidos do computador (UPR, MNV e ACI) mais os de jogador, então a disputa é de N+3. Dois jogadores iguais passam de 33% dos votos válidos e cerca de 34 cadeiras cada para 20% e cerca de 20, e a maioria de 51 cadeiras pede 3 partidos. O dinheiro de campanha deixa de sair só do bolso: o governo paga um fundo público por mês, a contribuição do filiado ganha teto, e as ações saem do caixa do partido, onde o dinheiro parado rende metade do que uma ação bem usada rende. A campanha passa a ser decidida pelo que o partido faz com o caixa, não só por quanto cada filiado paga.
+
+**Plano.**
+
+1. **Disputa de N+3.** `PARTIES_PER_ELECTION` sai de `election.py`. `_ensure_computers` passa a completar sempre os três partidos de `COMPUTER_PARTIES`, em qualquer número de partidos de jogador, e deixa de emitir `COMPUTER_PARTY_REMOVED` (o evento segue lido no replay das partidas salvas). A reserva de cadeiras dos três na casa já existe em `house.py`. Com isso o centrão, o sucessor do impeachment sem vice e o parceiro de federação passam a existir em toda partida política.
+2. **Fundo público mensal.** Em `campaign.py`, ao lado de `price`, entram `FUND_PER_PARTY = Decimal(8000)` e funções que o devolvem corrigido pelo IPCA na mesma referência do preço das ações (`inflation_factor`, só quando a partida corrige os valores). O fundo do mês é R$ 8.000 vezes o número de partidos que concorrem (`election.runs`; uma federação conta como um concorrente). Metade é dividida por igual entre eles e metade na proporção das cadeiras de cada um na casa em exercício; na primeira eleição, sem casa eleita, o fundo todo é dividido por igual. Exemplo com 5 partidos (fundo de R$ 40.000):
+   - sem cadeira: R$ 4.000, que dão 0,99 ponto na conta cheia (`√ ÷ 64`);
+   - 20 cadeiras: R$ 7.960 (4.000 por igual e 3.960 pelas cadeiras), 1,39 ponto;
+   - 40 cadeiras: R$ 11.920, 1,71 ponto;
+   - 20 cadeiras e um filiado no teto: R$ 15.960, 1,97 ponto.
+   Esses pontos são os da conta cheia; com o caixa único (item 4), o que ficar parado rende a metade (0,49, 0,70, 0,85 e 0,99).
+3. **Teto de contribuição.** `CONTRIBUTION_CAP = Decimal(8000)` por filiado por mês, corrigido pelo IPCA como o fundo. `set_contribution` recusa a contribuição acima do teto (422, com o valor do teto na mensagem). `_collect` cobra no máximo o teto do dia, o que corta uma contribuição gravada antes da regra. `contribute_runoff` e `donate` recusam valor acima do teto, que vale por pessoa e por pagamento.
+4. **Caixa único do partido.** O estado do partido ganha o caixa (`Party.cash`). O fundo e as contribuições do mês entram nele no 1º dia útil (`_collect`); a parte da contribuição que o filiado manda ao Congresso segue direto para a campanha da casa, como hoje. As ações (`campaign_action`) deixam de debitar o caixa pessoal de quem aperta (`pay_campaign`) e saem do caixa do partido, com o mesmo preço e o mesmo dado; sem caixa suficiente a ação é recusada antes de cobrar, como hoje. Quem pode disparar ação continua sendo quem já pode. O que sobra vira propaganda automática nos 6 grupos com metade da força, `√sobra ÷ 128` (constante nova `LEFTOVER_DIVISOR` em `voters.py`), no fechamento do mês e na véspera de cada turno, quando as ações fecham, e o caixa zera. Os ganhos das ações não mudam e se calibram no playtest. Exemplo com R$ 16.000 no mês: parado, rende cerca de 0,99 ponto; 1 TV, 2 eventos nos trabalhadores formais, 1 evento nos aposentados e 3 comícios (R$ 15.900) rendem cerca de 2,2.
+5. **Computador.** `computer_spend` deixa de copiar a média dos partidos de jogador: cada partido do computador recebe o fundo dele (a mesma conta do item 2, com as cadeiras dele) vezes a dificuldade (0,5 fácil, 1 normal, 1,5 difícil, o `budget_factor` que já existe) e gasta como hoje (`_computer_campaign`: ações e verba de base).
+6. **Eventos e replay.** `CAMPAIGN_SPENT` ganha o mapa `fund` (valor do fundo por partido), e um evento novo de sobra grava o que o caixa converteu; o replay recalcula os pontos a partir do dinheiro do evento, como hoje. O evento novo e o campo `fund` marcam a regra nova: o replay de um evento sem eles segue a regra de antes, então a partida salva não muda o que já aconteceu. Os partidos do computador que faltam numa partida salva entram na próxima chamada de `_ensure_computers`.
+7. **Telas.** O diálogo de contribuição (`contribution-dialog`, `contribution-split`) mostra o teto e recusa acima dele; o `my-party-card` mostra o caixa do partido e o fundo do mês; o `campaign-actions-card` paga do caixa do partido e mostra o saldo; os diálogos do 2º turno (`runoff-contribution-dialog`, `donate-dialog`) mostram o teto. O texto da dificuldade do computador deixa de falar em "média dos partidos de jogadores". Mudou DTO: `pnpm openapi`.
+8. `docs/docs/como-usar/governo.md` descreve a disputa de N+3, o fundo, o teto, o caixa e a sobra, com o exemplo dos 5 partidos.
+
+**Testes.** `tests/test_government_election.py` (trechos das linhas 150-160) e `tests/test_government_book.py` (a partir da linha 2063): com 1, 2 e 3 partidos de jogador a disputa tem 4, 5 e 6 partidos e os três do computador sempre presentes; a conta do fundo nos quatro casos do exemplo e na primeira eleição sem casa; contribuição acima do teto recusada e, gravada antes, cortada na cobrança; doação e contribuição do 2º turno acima do teto recusadas; ação debita o caixa do partido e não o do filiado; ação sem caixa recusada sem cobrar; sobra rende `√sobra ÷ 128`; o computador recebe o fundo vezes a dificuldade; replay de eventos antigos (sem `fund`) igual ao de antes. `tests/test_government_campaign.py` e `tests/test_government_voters.py`: a divisão por 128 e a correção pelo IPCA do fundo e do teto.
+
+**Para observar no playtest (limite conhecido, valores iniciais calibráveis).** O fundo de R$ 8.000 por partido e o teto de R$ 8.000 por filiado são valores de partida. O fundo por cadeira pode virar bola de neve (quem ganha cadeira ganha fundo, que ganha voto, que ganha cadeira). O dado pesa mais quando a ação é a parte maior da campanha, e estreitar as faixas do dado é o ajuste. Vários partidos podem atacar o líder da pesquisa. Com 6 partidos ou mais, o partido pequeno pode ficar abaixo da barreira de 5%, e a federação é a saída. O jogador solo passa a enfrentar 3 partidos em vez de 2. O finalista pode chegar ao 2º turno com o caixa vazio, porque a contribuição do 2º turno não entra no caixa.
+
+**Aceite:** uma eleição com 3 partidos de jogador tem 6 partidos na disputa, e com 2 jogadores iguais cada um cai de 33% para cerca de 20% dos válidos; contribuição acima do teto é recusada ao definir e cortada na cobrança; a ação de campanha debita o caixa do partido, não o do filiado; a sobra do mês rende `√sobra ÷ 128`, e R$ 16.000 parados rendem cerca de 0,99 ponto contra cerca de 2,2 de uma sequência de ações de R$ 15.900; o fundo de 5 partidos dá R$ 4.000 ao partido sem cadeira e R$ 7.960 ao de 20 cadeiras; o computador usa o fundo dele vezes a dificuldade e não mais a média dos jogadores; `docs/docs/como-usar/governo.md` atualizada.
+
+<a id="f284"></a>
+**F284 — Ministério para o partido da base.** Serve N34.
+
+**Como é hoje.** Só o presidente propõe medidas (`_ensure_president` em `government_book.py`). O partido que entra na base entrega as cadeiras e recebe a emenda, com o setor que escolheu e cerca de 1 ponto de apoio por mês nos grupos dele (`deals.py`, `MONTHLY_SUPPORT`), e não ganha capital político por estar na base (`capital.py`): quem governa é só o presidente. Saiu do desenho da presidência e da base que valem a pena (F274) por ser grande o bastante para pedir desenho próprio.
+
+**O que o jogador passa a poder fazer.** O acordo de base pode incluir um ministério, de uma lista fixa de 4 pastas. O líder do partido aliado vira o ministro e propõe as medidas da pasta, com os mesmos passos e limites de hoje, passando pelo Congresso. Em troca, o presidente perde a caneta daquela pasta e uma parte dos pontos de presidência do mês passa do partido dele para o do ministro. Estar na base deixa de ser só receber emenda e passa a ser também governar, com risco: o presidente demite quando quiser, e o ministro que favorece o próprio setor derruba a aprovação do governo.
+
+As pastas e o que cada uma propõe:
+
+- Infraestrutura: obras (`PUBLIC_WORKS`), com o valor e o endereço de setor ou segmento;
+- Desenvolvimento Social: auxílio (`WELFARE_SPENDING`) e o nome do programa;
+- Gestão: custeio (`OPERATING_COST`) e reajuste dos servidores (`SERVANT_RAISE`);
+- Previdência: reajuste das aposentadorias (`RETIREE_RAISE`).
+
+Impostos, medidas por setor e SELIC seguem só com o presidente.
+
+**Plano.**
+
+1. **Pasta no acordo.** Enum novo `Ministry` em `backend/core/enum/__init__.py`, com as 4 pastas e, em cada uma, os `MeasureKind` acima. `Deal` (`deals.py`) ganha `ministry: Ministry | None`; `propose_deal` recebe a pasta opcional e a grava em `DEAL_PROPOSED`. O aliado aceita ou recusa o acordo inteiro, com a pasta. Só partido de jogador recebe ministério: `propose_deal` recusa pasta para a bancada do computador (422), que segue aceitando o acordo pelas bandeiras, sem pasta. O ministério acaba junto com o acordo (rompimento, corte ou fim do mandato).
+2. **Quem propõe.** `_ensure_president` vira uma checagem por tipo de medida (`_ensure_proposer`): numa pasta cedida só o ministro propõe, e o presidente leva 403 enquanto ela estiver cedida; nas demais medidas segue só o presidente. O ministro é o líder do partido aliado (`ally_leader`). `propose`, `repropose`, `withdraw` e `preview` valem para ele nas medidas da pasta, com `_draft`, os limites, a fila e a votação do Congresso iguais aos de hoje; o autor fica gravado em `proposer_id`.
+3. **Capital político.** O `APPROVAL_MEASURED` passa a gravar os partidos que tinham ministério no mês, e `GovernedMonth` (`state.py`) guarda essa lista. Em `capital.py` (`party_capital`), cada ministério leva 15% dos pontos de presidência do mês (`MINISTRY_SHARE = Decimal("0.15")`, calibrável), tirados do partido do presidente e somados ao do ministro. Exemplo, com aprovação 60 e dois ministérios: o presidente soma 42 por mês (60 menos 18), ou 2.016 em 48 meses contra 2.880 sem ministério, e cada partido ministro soma 9 por mês, ou 432 em 48 meses, além das cadeiras. O total dos pontos do mês é o mesmo com e sem ministério (42 + 9 + 9 = 60). No impeachment o aliado perde metade do que o ministério rendeu a ele naquele mandato, na mesma regra que hoje tira metade da presidência.
+4. **Freios.**
+   - Uma pasta por partido e no máximo duas cedidas no governo: `propose_deal` (ou `deal_blocker`) recusa a terceira e a segunda pasta do mesmo partido.
+   - O presidente demite o ministro a qualquer momento (`dismiss_minister`): a pasta volta a ele, o acordo de base continua, e o partido do presidente soma 4 pontos de rejeição nos grupos do aliado (`DISMISSAL_REJECTION = BREAK_REJECTION / 2`, metade dos 8 de romper o acordo, nos mesmos grupos que a quebra atinge). O ministro também pode entregar o cargo sem sair da base (`resign_ministry`), sem essa rejeição. Eventos novos `MINISTER_DISMISSED` e `MINISTER_RESIGNED`.
+   - O favorecimento conta o ministro. A obra com endereço cobra aprovação pela maior fatia entre a carteira do presidente e a do ministro que a propôs: 6 pontos de aprovação vezes a fatia (`FAVORITISM_POINTS` em `sector_boost.py`). A carteira do presidente é congelada e a fatia dele fica gravada na medida (`stake`); a do ministro não é, então a fatia dele é lida de novo da carteira a cada fechamento de mês (`_close_month`), e `favoritism_factor` (`approval.py`) passa a receber essas fatias. Exemplo: ministro com 50% em Energia aponta obra para Energia, e o governo perde 3 pontos de aprovação por mês enquanto a fatia continuar. A carteira do ministro é pública enquanto ele estiver no cargo, no painel do governo, como a do presidente (`governance.py`, `_portfolio`).
+   - Não há veto do presidente sobre a medida do ministro: o freio é orientar a bancada contra (`guide`) e demitir.
+5. **Telas.** O `deal-proposal-dialog` ganha a escolha da pasta (ou nenhuma); o `base-card` mostra o ministro de cada pasta, com demitir para o presidente e entregar o cargo para o ministro; o `new-measure-dialog` e o painel de medidas mostram ao ministro as medidas da pasta e tiram do presidente as da pasta cedida; o `negotiate-dialog` e o `break-deal-dialog` avisam da pasta. Mudou DTO e rota: `pnpm openapi`.
+6. **Partidas salvas.** `ministry` e a lista de partidos com ministério são campos novos nos eventos: o evento antigo, sem eles, é lido como acordo sem pasta, e a partida salva não muda.
+7. `docs/docs/como-usar/governo.md` descreve as 4 pastas, a divisão dos pontos com o exemplo de aprovação 60, os freios e o favorecimento do ministro.
+
+**Testes.** `tests/test_deals_book.py` e `tests/test_deals.py`: acordo com pasta aceito e gravado; pasta recusada para o computador; segunda pasta do mesmo partido e terceira pasta do governo recusadas; demissão devolve a pasta, mantém o acordo e soma 4 pontos de rejeição; entrega do cargo sem rejeição. `tests/test_government_book.py`: o ministro propõe na pasta e o presidente leva 403 nela; o ministro leva 403 em imposto, medida por setor e SELIC; a medida do ministro passa pelo Congresso. `tests/test_political_capital.py`: aprovação 60 com dois ministérios soma 42 ao presidente e 9 a cada ministro, e o total é o do mês sem ministério; impeachment tira metade do que o ministério rendeu ao aliado. Aprovação: o favorecimento do ministro com 50% no setor da obra cobra 3 pontos e acompanha a fatia a cada fechamento.
+
+**Para observar no playtest (limite conhecido).** O favorecimento custa pouco ao ministro: dos 3 pontos, só 0,45 de capital cai nele (15%) e 2,55 caem no presidente. A demissão logo depois de o ministro aprovar o que o presidente queria. A Previdência tem um botão só e pode ser fundida com Desenvolvimento Social. A fatia de 15% é um valor de partida: abaixo de 10% o ministério não compensa o aliado, e acima de 25% a presidência deixa de valer a pena com dois aliados.
+
+**Aceite:** o acordo de base com ministério grava a pasta; o ministro propõe as medidas da pasta e o presidente não, enquanto ela estiver cedida; a terceira pasta cedida e a segunda do mesmo partido são recusadas; o computador aceita o acordo sem pasta; com aprovação 60 e dois ministérios, o presidente soma 42 por mês e cada ministro 9, e o total dos pontos do mês é o mesmo com e sem ministério; a demissão devolve a pasta ao presidente, mantém o acordo e soma 4 pontos de rejeição nos grupos do aliado; a obra do ministro com 50% no setor tira 3 pontos de aprovação por mês enquanto a fatia continuar; `docs/docs/como-usar/governo.md` atualizada.
+
 ---
 
 ## 🔍 Em avaliação
@@ -510,12 +702,9 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | ID | Tipo | Resumo | Serve | D# | Marco | Depende de | Falta |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F5** | Spike | Spike: provider de túnel pela internet | N2 | — | M27 · 4.5 | — | Escolhe o provider da F6 |
-| **F28** | Feature | Muitos futuros (Monte Carlo) | N10 | — | M25 · 4.4 | — | Revisa ou confirma a D7 |
 | **F34** | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | N19 | — | M24 · 4.3 | — | Escolhe a biblioteca de gráfico |
 | **F44** | Feature | Expansão Gestoras: fundar a gestora e abrir capital | N23 | — | M18 · 4.2 | [F101](#f101) | O protótipo do preço da cota com o formador sintético |
 | **F55** | Feature | Modo aquisição hostil | N23 | — | M18 · 4.2 | [F103](#f103) | Parte mínima no mercado e o destino do incorporado |
-| **F90** | Feature | Cenários | N22 | — | M25 · 4.4 | — | Um preset com objetivo |
-| **F93** | Feature | Rumores antecipados | N31 | — | M25 · 4.4 | — | Opção da partida |
 | **F102** | Feature | Gestoras: emissão de novas cotas e recompra | N23 | — | M18 · 4.2 | [F44](#f44) | O prazo da preferência e o preço da emissão |
 | **F103** | Feature | Gestoras: troca de gestor pela assembleia | N23 | — | M18 · 4.2 | [F44](#f44) | Como a assembleia escolhe o novo gestor |
 | **F104** | Feature | Gestoras: co-gestores | N23 | — | M18 · 4.2 | [F44](#f44) | A divisão das taxas |
@@ -527,8 +716,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | D21 | M28 · 4.6 | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.4 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M24 · 4.3 | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
-| **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Quais das três regras entram, se contam no placar e nas conquistas, se o laboratório mostra o coeficiente e o valor da credibilidade inicial desacreditada |
-| **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Quanto do capital o governo mantém, quais ativos importados contam como estatal e como a estatal gera PIB e receita dentro da D20. |
 | **F266** | Melhoria | Central de dados redesenhada | N13, N15 | — | M26 · 4.1 | — | Desenho no canvas: layout da tabela de séries, o que sai das colunas vazias e como o grupo do Focus explica que é importado e não ganha futuro gerado. |
 | **F267** | Melhoria | Lobby com topo enxuto e profissão na preparação | N15, N39 | — | M26 · 4.1 | — | Desenho no canvas: o topo do lobby, o card do jogador sem o seletor de profissão e a aba de profissão no Minha preparação. |
 | **F268** | Melhoria | Tela do Mapa repensada | N34, N15 | — | M26 · 4.1 | — | Desenho no canvas: onde mora a lista de lugares, como o Ver mais expande sem rolagem horizontal e a coluna das lentes. |
@@ -536,16 +723,11 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 | **F270** | Melhoria | Cards permanentes da Renda fixa integrados à tela | N15 | — | M26 · 4.1 | — | Desenho no canvas: cor, layout e posição dos dois cards fixos. |
 | **F272** | Melhoria | Seletores e combobox novos | N15 | — | M26 · 4.1 | — | Trocar por outro componente do shadcn ou redesenhar o atual; o desenho no canvas com os três usos mais apertados. |
 | **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M26 · 4.1 | — | Medir as estratégias atuais em partidas com governo, dólar e crédito; escolher as estratégias novas. |
-| **F280** | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | N34, N8 | — | M26 · 4.1 | — | Quantos partidos do computador concorrem com N jogadores; quanto pesam as ações de campanha contra o dinheiro; de onde sai o dinheiro de campanha. |
 | **F283** | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | N15 | — | M26 · 4.1 | — | Em quais campos a porcentagem ajuda (contribuição em % do salário, doação em % do caixa, venda em % da posição) e se o Shift fica como atalho do controle visível. |
-| **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Que poder o ministro tem, sobre qual gasto ou medida, o que o presidente perde ao ceder e o que impede o ministro de virar um segundo presidente. |
 | **F285** | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | — | — | [F271](#f271) | Escolher o mecanismo (filtrar o seletor, recolorir na tela de quem liga ou reforçar além da cor) e medir o tamanho do conjunto distinguível sob as três simulações |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
-
-<a id="f28"></a>
-**F28 — Muitos futuros (Monte Carlo).** Serve N10. Em vez de testar a estratégia num futuro gerado só, testá-la em muitos (ex.: 100, cada um com uma semente) e mostrar o resultado como distribuição: "perdeu para o CDI em 23 de 100 futuros; no pior, −35%; no do meio, +40% em 5 anos". Lê-se pela fração de futuros ruins e pelo pior caso: poucos futuros perdendo para o CDI é bom; uma estratégia que só ganha no histórico real e perde na maioria dos futuros plausíveis teve sorte, não mérito. É o backtest da F19 repetido sobre gerações do gerador da D14. Falta definir: **onde vivem os 100 futuros.** A D7 dá às tabelas de série uma dimensão de versão, que a F24 implementa para congelar partidas salvas. Opções: (1) cada futuro de Monte Carlo é uma versão descartável nessa dimensão, gravando 100 vezes as linhas geradas (cerca de 5 milhões para 37 ativos × 5 anos); (2) o motor lê as séries por um provedor que pode ser o banco ou uma geração em memória (o `SeriesGenerator` gera 37 ativos × 5 anos em cerca de 1 s), o que estende a D7 de "mesmas tabelas" para "mesma interface". Sai daqui com essa escolha, que revisa ou confirma a D7.
 
 <a id="f34"></a>
 **F34 — Gráfico de ações em tela cheia, com ferramentas de trader.** Serve N19; segue a D2. Um botão no card "Histórico de Preços" abre o gráfico em tela cheia, com os indicadores da F33 e o que uma plataforma de trader oferece: barra de ferramentas de desenho (linha de tendência, linha horizontal de suporte e resistência, canal, retângulo, retração de Fibonacci, texto), régua que mede variação % e pregões entre dois pontos, escala logarítmica, legenda com abertura, máxima, mínima, fechamento e volume do candle sob o cursor, comparação com outro ticker ou com o Ibovespa em %, e uma boleta compacta para comprar e vender sem sair da tela. Os desenhos ficam salvos por jogador e ticker numa tabela nova (`chart_drawings`, com os pontos em JSON), entrando por migration (D9). Falta escolher a biblioteca: (1) continuar no `lightweight-charts` e escrever as ferramentas de desenho como plugins (a API de primitives da versão 5; os exemplos oficiais trazem linha de tendência e retângulo); (2) trocar pelo KLineChart (Apache 2.0), que já vem com cerca de 15 ferramentas de desenho, mas calcula indicadores no navegador, e pela D2 eles viriam do backend como indicador customizado; (3) o Advanced Charts da TradingView tem tudo pronto, mas a licença pede cadastro e não permite publicar a biblioteca em repositório público, o que o deixa fora deste projeto. Sai daqui com um protótipo de linha de tendência e Fibonacci nas opções 1 e 2, e a escolha.
@@ -556,12 +738,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 
 <a id="f55"></a>
 **F55 — Modo aquisição hostil.** Serve N23. Um modo de jogo da expansão "Gestoras" (F44) em que perder o controle tira o jogador da partida. Todo o patrimônio de cada jogador está na própria gestora, e quem juntar mais da metade das cotas de outra a incorpora: o dono anterior sai da partida e a gestora dele passa a ser controlada pelo comprador. Vence quem sobrar, ou quem tiver o maior patrimônio na data final. **Carência:** nos primeiros meses (padrão 12) ninguém pode passar de metade de outra gestora, para que abrir capital cedo não seja suicídio. **Ninguém fica invulnerável:** sem oferta pública, a gestora seria impossível de comprar, então no fim da carência todas precisam ter uma parte mínima das cotas no mercado (padrão 50%); quem não abriu capital entra numa oferta automática pelo patrimônio por cota. **Defesa:** recompra de cotas com o caixa da gestora e compra com as taxas recebidas, como uma empresa que recompra ações para não ser comprada. Falta decidir: a parte mínima no mercado; se o incorporado sai da partida ou vira co-gestor do comprador (como numa fusão); e se há um preço mínimo por cota durante a tentativa de aquisição, como nas ofertas públicas de aquisição reais.
-
-<a id="f90"></a>
-**F90 — Cenários.** Serve N22. Como nos jogos de estratégia: uma partida montada com intenção, um preset (F89) com objetivo e texto de abertura. Exemplos: "Crise de 2008" (começa em setembro de 2008 com R$ 100 mil, meta de não perder mais de 20%), "Década perdida" (futuro gerado com choque de inflação de +15 pontos) e "Plano Real". O objetivo usa os modos de jogo que já existem (corrida à meta, viver de renda) e o ranking. Falta definir: quais cenários entram primeiro e o objetivo de cada um; se o objetivo pode ser algo que os modos não cobrem (perda máxima, bater o CDI); se há campanha, com um cenário liberando o seguinte; e se o usuário cria os próprios cenários ou só joga os que vêm com o app.
-
-<a id="f93"></a>
-**F93 — Rumores antecipados.** Ligado à N31; uma opção da partida, desligada por padrão. O simulador já sabe o futuro: as séries até a data final estão no banco antes de a partida começar, sejam reais ou geradas. O rumor usa isso e chega antes do fato, ao contrário do noticiário (F92): dias antes de um movimento grande (queda forte de um setor, mudança da SELIC), aparece na caixa de entrada algo como "analistas veem risco no varejo". O valor do rumor é obrigar o jogador a pensar: pode acontecer ou não, e a frase pede interpretação. Por isso só uma parte dos rumores se confirma, outra parte é alarme falso sorteado onde nada vai acontecer, e alguns não dizem a direção ("mudanças na diretoria da X"). Falta definir: a taxa de acerto e a antecedência; quão vago o rumor é (setor ou ativo, com ou sem direção); se é da sala inteira ou informação de um jogador só (comprada, como um informante); e se vale no modo Especialista.
 
 <a id="f102"></a>
 **F102 — Gestoras: emissão de novas cotas e recompra.** Serve N23; amplia a expansão Gestoras (F44). (1) **Emissão:** depois da oferta pública, o gestor emite cotas novas com preferência para quem já é cotista, na proporção das cotas de cada um, para ninguém ser diluído sem escolher; o dinheiro entra na gestora. (2) **Recompra:** a gestora compra as próprias cotas no livro com o caixa dela; vale quando a cota está com deságio (pagar R$ 80 por R$ 100 de patrimônio valoriza a cota de quem fica) e é a defesa contra a troca de gestor (F103). Falta decidir: quanto tempo dura a preferência, e se o preço da emissão é o patrimônio por cota ou o preço de mercado (com ágio, emitir a mercado traz mais dinheiro por cota).
@@ -607,20 +783,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 **Falta** desenhar, numa rodada no canvas em Opus com variantes e estados (como numa feature nova), a tela do livro. O desenho de 03/11 parte de: a ordem aberta do jogador numa faixa no topo com Cancelar à mão; o livro em duas colunas, Compra (maior preço no topo) e Venda (menor preço no topo), com a melhor compra e a melhor venda em destaque, ligadas à boleta; uma barra de quantidade; a coluna Situação sai (repetia "Aberta"); o balão "Tópico" some. O usuário gostou do rumo e pediu o refinamento pelo método completo. A rodada decide também o que o livro diz sobre si mesmo (que é a pressão ao redor do preço do candle de hoje) e se a ordenação por preço passa a vir do backend. Fica fora de versão.
 
-<a id="f227"></a>
-**F227 — Intensidade das ligações e laboratório da economia.** Serve N41 e N34; condicionado por D20 e D21. Três regras da partida, no lobby, para quem quer aprender vendo o mecanismo. **Intensidade:** Suave, Real e Exagerada multiplicam o desvio de todas as ligações por 0,5, 1 e 2. Como o multiplicador age sobre "partida menos história", sem governo a partida continua sendo a história; a Exagerada serve para ver o efeito com clareza num mandato curto. **Laboratório:** cada ligação (curva de Phillips, reação do Banco Central, risco fiscal, juro real na inflação, PIB na bolsa, ciclo fiscal) liga e desliga, para ver o que cada uma faz sozinha, e o painel da Economia mostra quais estão desligadas. **Credibilidade inicial:** a partida começa com o Banco Central acreditado (100, o padrão) ou desacreditado, como o Brasil de 2002 ou de 2015. Desacreditado, ele já paga prêmio de risco no primeiro dia e precisa manter o juro real acima do da história para recuperar a confiança. A regra vale porque a credibilidade é medida contra a história: um banco desacreditado que só copia a história recupera a confiança devagar. **Falta definir:** (1) quais das três regras entram; (2) se a partida Exagerada, de laboratório ou com banco desacreditado conta no placar e nas conquistas; (3) se o laboratório só liga e desliga ou também mostra o coeficiente, que a D21 deixa na docs; (4) o valor da credibilidade inicial desacreditada e se ela vem de um ano real escolhido no lobby.
-
-<a id="f255"></a>
-**F255 — Estatais.** Serve N34 e N41; condicionado por D20. A ideia do playtest de 08/11: o governo cria estatais para gerar receita e PIB. No Brasil, as estatais listadas (Petrobras, Banco do Brasil) pagam dividendos ao Tesouro, e os proventos já existem na partida desde a 4.0. Entram as três medidas, cada uma com o seu preço:
-
-1. **Fundar** uma estatal custa dívida agora e devolve PIB e dividendos depois, com o risco de render menos que o previsto.
-2. **Segurar preço**, como a Petrobras segurou o combustível de 2011 a 2014: a inflação cai na hora, mas a ação da estatal despenca e o caixa dela sangra. É a medida do governo que mexe direto numa ação.
-3. **Privatizar** vende a estatal, abate a dívida uma vez e acaba com os dividendos.
-
-**Por que depois das Gestoras:** a estatal é um ativo que os jogadores negociam, e fundar e privatizar reaproveitam o que a expansão Gestoras (F44) constrói: um ativo que nasce no meio da partida, com o preço feito por um formador de mercado sintético em volta do valor justo, e a oferta pública, que é a privatização. Os dividendos ao Tesouro seguem o molde dos rendimentos da gestora (F105). Segurar preço age também nas estatais que já estão entre os ativos importados, como camada sobre o preço histórico, no molde do dólar sobre os ativos de fora (F194).
-
-**Falta:** quanto do capital o governo mantém na fundação e na privatização (o controle com metade mais uma ação, como na Petrobras e no Banco do Brasil, ou a venda inteira); quais ativos importados contam como estatal; e como a estatal gera PIB e receita dentro da D20, como mais uma parcela do desvio. O tamanho dos efeitos sai da calibragem pelo CLI, com Aceite.
-
 <a id="f266"></a>
 **F266 — Central de dados redesenhada.** Serve N13 e N15. A tabela de séries ficou apertada: nomes cortados ("FOCUS_S…", "GDP_GRO…") e três colunas que só mostram "—". As séries do Focus são importadas e não ganham futuro gerado, por desenho (F226), mas a legenda genérica "repete o último valor" (`how-to-read.tsx:29`) não diz isso.
 
@@ -642,14 +804,8 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 <a id="f279"></a>
 **F279 — Estratégias automáticas novas e revisão das atuais.** Serve N4 e N8. As estratégias automáticas e os bots foram desenhados antes do governo, do dólar, do crédito e das expansões. Precisa conferir se continuam competitivas e se faltam estratégias que usem o que entrou. O rebalanceamento por meta com várias classes já é a F197, na Mesa do trader.
 
-<a id="f280"></a>
-**F280 — Corrida eleitoral com bots sempre presentes e campanha que pesa.** Serve N34 e N8. A eleição tem três partidos (`PARTIES_PER_ELECTION=3` em `election.py:21`). O computador ocupa só as vagas que sobram dos jogadores (`_ensure_computers` em `government_book.py:3921-3945`), então, com dois partidos de jogador, só um do computador concorre. As ações de campanha mexem pouco no voto, e o que decide é o dinheiro de campanha, que sai do bolso do próprio jogador.
-
 <a id="f283"></a>
 **F283 — Campos de valor com o mesmo controle de R$ e de porcentagem.** Serve N15. Os campos de dinheiro do jogo têm atalhos diferentes para a mesma coisa: a contribuição mensal e a doação têm valores fixos (5 mil, 10 mil), a renda fixa soma a cada clique, e o Tesouro tem 25%, 50% e Tudo. A jogadora sugeriu, no molde dos jogos da Paradox, segurar Shift para alternar entre valor fixo e porcentagem. Atalho escondido não se descobre; a proposta é um controle visível "R$ | %" ao lado dos atalhos, que troca os botões entre valores fixos e porcentagens do saldo ou da posição, com o Shift como atalho do mesmo controle. A soma dos atalhos fixos já é do card de acabamentos da 4.1.
-
-<a id="f284"></a>
-**F284 — Ministério para o partido da base.** Serve N34. Hoje o partido que entra na base entrega as cadeiras e recebe a emenda; quem governa é só o presidente. A ideia é o acordo poder dar ao aliado um ministério: uma fatia do governo que o líder aliado comanda, para que estar na base seja também governar. Saiu do desenho da presidência e da base que valem a pena (F274) por ser grande o bastante para pedir desenho próprio.
 
 <a id="f285"></a>
 **F285 — Modo daltonismo: limitar as cores às que um daltônico distingue.** Serve N20.

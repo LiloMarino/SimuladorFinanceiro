@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança (2026-11-10):** Revista a D10: a nota segue sem teto de pontos, e volatilidade, Sharpe e Sortino passam à escala logarítmica.
+> **Última mudança (2026-11-11):** Registrado na D7 que os futuros de Monte Carlo moram na dimensão de versão e, na D20, que as estatais entram no molde da economia.
 
 ---
 
@@ -199,7 +199,7 @@ Na partida com governo, juro, inflação, desemprego, bolsa e dívida reagem pel
 
 **Decisão:** Dado real e dado gerado moram nas mesmas tabelas, no mesmo formato. A origem (canônica ou gerada) é um metadado da linha que só a gestão de dados lê; o motor da simulação lê as séries da partida e não distingue uma origem da outra. Partida salva que jogou sobre dado gerado congela esse trecho por **cópia na troca**: antes de o gerado ser trocado (pelo real que chegou ou por uma nova geração), as linhas geradas que cada partida salva cobre, de `start_date` até o último dia simulado, são copiadas para uma versão das séries daquela partida. A partida lê a própria versão onde ela existe e a comum no resto.
 **Por quê:** é o contrato comum entre quem produz série e quem a consome — a "interface" entre o gerador e o simulador. Cada gerador novo (outro método, outro indicador) entra sem tocar no motor, e a simulação continua sendo uma só. O congelamento segue a N13: os dados de uma partida não mudam por baixo dela. A cópia na troca não custa nada a quem joga só sobre dado real nem sobre um gerado que nunca é trocado; copiar ao criar a partida pagaria umas 50 mil linhas por partida (37 ativos × 5 anos) mesmo quando o real nunca chega.
-**Consequências:** a origem existe em toda tabela de série (preços e indicadores), e as tabelas de série ganham uma dimensão de versão: a comum e a de cada partida que congelou um trecho. A leitura do motor passa a ser "a versão da partida, senão a comum", implementada pela F24. A F28 encontra essa dimensão pronta e decide se os futuros de Monte Carlo moram nela ou em memória.
+**Consequências:** a origem existe em toda tabela de série (preços e indicadores), e as tabelas de série ganham uma dimensão de versão: a comum e a de cada partida que congelou um trecho. A leitura do motor passa a ser "a versão da partida, senão a comum", implementada pela F24. Os futuros de Monte Carlo (F28) moram nessa dimensão: cada um é uma versão descartável, gravada, lida e apagada um por vez, e a semente do gerador o recria igual quando for preciso.
 
 ### D8 — Bot, modo automático e backtest são o mesmo mecanismo
 **Status:** ✅ Decidida
@@ -367,7 +367,7 @@ Os indicadores saem do caminho: a SELIC soma as variações dos trechos ao últi
 - Sem nenhuma ação do governo o desvio é zero e a partida é exatamente a história: o jogador que não governa vê o Brasil real, e a régua do placar não muda.
 - O efeito do governo fica mensurável e explicável: cada número da tela de Economia se abre em "na história" mais o que cada medida e cada ligação somaram.
 - O mês de defasagem corta o laço "o fechamento lê a série ajustada, e a série ajustada depende do fechamento", e o resultado não depende de quem leu primeiro.
-**Consequências:** custa calcular o orçamento e a macroeconomia duas vezes por mês. Toda ligação nova (o dólar, o juro real decidido pelo governo) entra no mesmo molde, como mais uma parcela do desvio. A espiral da dívida não tem teto: o prêmio cresce sem limite e só um superávit primário a segura. O que a espiral derruba é a bolsa, e a bolsa tem piso: o nível dela contra a história segue a exponencial das forças até 30% e, abaixo disso, a queda se comprime rumo a 5%, que nunca é cruzado (a calibragem de 10 anos com o governo que gasta sem parar termina em 5,1%). O provento acompanha o preço: cada dividendo e JCP vale o histórico vezes o fator da bolsa do dia da data ex, o mesmo que escala o preço, e o rendimento fica na escala do preço.
+**Consequências:** custa calcular o orçamento e a macroeconomia duas vezes por mês. Toda ligação nova (o dólar, o juro real decidido pelo governo) entra no mesmo molde, como mais uma parcela do desvio. A espiral da dívida não tem teto: o prêmio cresce sem limite e só um superávit primário a segura. O que a espiral derruba é a bolsa, e a bolsa tem piso: o nível dela contra a história segue a exponencial das forças até 30% e, abaixo disso, a queda se comprime rumo a 5%, que nunca é cruzado (a calibragem de 10 anos com o governo que gasta sem parar termina em 5,1%). O provento acompanha o preço: cada dividendo e JCP vale o histórico vezes o fator da bolsa do dia da data ex, o mesmo que escala o preço, e o rendimento fica na escala do preço. As estatais (F255) entram no mesmo molde: o PIB da estatal é mais uma ligação, e os dividendos e a alavanca de preço são parcelas do desvio; o dividendo normal de uma estatal importada é história, e só o que o governo muda nele é desvio.
 
 ### D21 — O jogo ensina a jogar, a docs explica o modelo
 **Status:** ✅ Decidida
