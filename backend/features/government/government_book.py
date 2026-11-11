@@ -650,7 +650,11 @@ class GovernmentBook:
             )
             self._on_news(
                 today,
-                headlines.campaign_opened(cycle.first_round, cycle.ticket_deadline),
+                headlines.campaign_opened(
+                    cycle.first_round,
+                    cycle.ticket_deadline,
+                    seed=self._headline_seed(today, cycle.first_round),
+                ),
             )
             self._apply_prepared_tickets(today)
             return True
@@ -659,18 +663,32 @@ class GovernmentBook:
             self._on_news(
                 today,
                 headlines.tickets_closed(
-                    self._tickets(), (cycle.first_round - today).days
+                    self._tickets(),
+                    (cycle.first_round - today).days,
+                    seed=self._headline_seed(today, cycle.first_round),
                 ),
             )
         if previous < cycle.ticket_reminder <= today:
-            self._on_news(today, headlines.tickets_closing(cycle.ticket_deadline))
+            self._on_news(
+                today,
+                headlines.tickets_closing(
+                    cycle.ticket_deadline,
+                    seed=self._headline_seed(today, cycle.first_round),
+                ),
+            )
             self._notice(
                 GovernmentNoticeKind.TICKETS_CLOSING,
                 ticket_deadline=cycle.ticket_deadline,
                 first_round=cycle.first_round,
             )
         if previous < cycle.eve <= today:
-            self._on_news(today, headlines.election_eve(cycle.first_round))
+            self._on_news(
+                today,
+                headlines.election_eve(
+                    cycle.first_round,
+                    seed=self._headline_seed(today, cycle.first_round),
+                ),
+            )
             self._notice(
                 GovernmentNoticeKind.ELECTION_EVE,
                 ticket_deadline=cycle.ticket_deadline,
@@ -841,7 +859,12 @@ class GovernmentBook:
         )
         self._ensure_computers(today)
         self._notice(GovernmentNoticeKind.PARTY_FOUNDED, user, party_abbr=abbr)
-        self._on_news(today, headlines.party_founded(user.nickname, abbr, name))
+        self._on_news(
+            today,
+            headlines.party_founded(
+                user.nickname, abbr, name, seed=self._headline_seed(today, abbr)
+            ),
+        )
 
     def set_flags(self, user: UserDTO, today: date, flags: list[VoterValue]) -> None:
         """O fundador do partido sem bandeiras escolhe as 3; depois elas não mudam mais."""
@@ -1424,6 +1447,7 @@ class GovernmentBook:
                 ally.seats if ally else deal.seats,
                 after,
                 house.MAJORITY,
+                seed=self._headline_seed(today, deal.id),
             ),
         )
 
@@ -1441,6 +1465,7 @@ class GovernmentBook:
                 house.MAJORITY,
                 end,
                 deal.sector,
+                seed=self._headline_seed(today, deal.id),
             ),
         )
 
@@ -1522,6 +1547,7 @@ class GovernmentBook:
                     after,
                     house.MAJORITY,
                     affected,
+                    seed=self._headline_seed(today, deal.id),
                 ),
             )
 
@@ -1572,7 +1598,12 @@ class GovernmentBook:
             party_abbr=", ".join(abbrs),
             accepted=new_congress,
         )
-        self._on_news(today, headlines.deals_ended(abbrs, new_congress))
+        self._on_news(
+            today,
+            headlines.deals_ended(
+                abbrs, new_congress, seed=self._headline_seed(today, *abbrs)
+            ),
+        )
 
     def deal_debt(
         self, ratio: Decimal, today: date, replaces: deals.Deal | None = None
@@ -1612,7 +1643,12 @@ class GovernmentBook:
         self._notice(
             GovernmentNoticeKind.EXPELLED, founder, target=target, party_abbr=party.abbr
         )
-        self._on_news(today, headlines.expelled(target.nickname, party.abbr))
+        self._on_news(
+            today,
+            headlines.expelled(
+                target.nickname, party.abbr, seed=self._headline_seed(today, target.id)
+            ),
+        )
 
     def _ticket_party(
         self, founder: UserDTO, today: date
@@ -2036,6 +2072,7 @@ class GovernmentBook:
                     receiver.name,
                     self.candidate_name(leader, proposal.candidate_id),
                     ends,
+                    seed=self._headline_seed(today, sender.id, receiver.id),
                 ),
             )
             self._drop_fallen_proposals(fallen, (sender, receiver), today)
@@ -2172,7 +2209,12 @@ class GovernmentBook:
             partner_abbr=other.abbr,
             federation_name=federation.name,
         )
-        self._on_news(today, headlines.federation_left(party.name, other.abbr))
+        self._on_news(
+            today,
+            headlines.federation_left(
+                party.name, other.abbr, seed=self._headline_seed(today, federation.id)
+            ),
+        )
 
     def _founder_of(self, party: Party) -> UserDTO | None:
         return self._people.get(party.founder_id) if party.founder_id else None
@@ -2318,7 +2360,15 @@ class GovernmentBook:
             party_abbr=party.abbr,
             amount=amount,
         )
-        self._on_news(today, headlines.donation(user.nickname, party.abbr, amount))
+        self._on_news(
+            today,
+            headlines.donation(
+                user.nickname,
+                party.abbr,
+                amount,
+                seed=self._headline_seed(today, user.id, party_id),
+            ),
+        )
 
     # 2º turno: declaração de apoio e contribuição única
 
@@ -2352,7 +2402,12 @@ class GovernmentBook:
             rival_abbr=self._party_abbr(endorsed_id),
         )
         self._on_news(
-            today, headlines.endorsement(party.abbr, self._party_abbr(endorsed_id))
+            today,
+            headlines.endorsement(
+                party.abbr,
+                self._party_abbr(endorsed_id),
+                seed=self._headline_seed(today, party.id),
+            ),
         )
 
     def contribute_runoff(self, user: UserDTO, today: date, amount: Decimal) -> None:
@@ -2537,12 +2592,12 @@ class GovernmentBook:
         )
         record = self.state.actions[-1]
         headline = headlines.campaign_action(
-            record.id,
             kind,
             record.band,
             party.abbr,
             group,
             rival.abbr if rival else None,
+            seed=self._headline_seed(today, record.id),
         )
         if headline is not None:
             self._on_news(today, headline)
@@ -2659,7 +2714,13 @@ class GovernmentBook:
         self._notice(GovernmentNoticeKind.PROMISES_SET, user, party_abbr=party.abbr)
         self._on_news(
             today,
-            headlines.promises_set(party.abbr, len(final), had_promises, retreated),
+            headlines.promises_set(
+                party.abbr,
+                len(final),
+                had_promises,
+                retreated,
+                seed=self._headline_seed(today, party.id),
+            ),
         )
 
     def _build_promise(
@@ -2783,7 +2844,13 @@ class GovernmentBook:
         )
         self._notice(GovernmentNoticeKind.PROMISES_SETTLED, party_abbr=party.abbr)
         self._on_news(
-            today, headlines.promises_settled(party.abbr, kept, len(term.promises))
+            today,
+            headlines.promises_settled(
+                party.abbr,
+                kept,
+                len(term.promises),
+                seed=self._headline_seed(today, party.id),
+            ),
         )
 
     # Medidas do presidente
@@ -2822,7 +2889,12 @@ class GovernmentBook:
         )
         self._on_news(
             today,
-            headlines.measure_proposed(user.nickname, rules.title(draft), draft.stake),
+            headlines.measure_proposed(
+                user.nickname,
+                rules.title(draft),
+                draft.stake,
+                seed=self._headline_seed(today, rules.title(draft)),
+            ),
         )
 
     def repropose(self, user: UserDTO, today: date, measure_id: int) -> None:
@@ -2846,7 +2918,12 @@ class GovernmentBook:
             measure_title=rules.title(measure),
         )
         self._on_news(
-            today, headlines.measure_withdrawn(user.nickname, rules.title(measure))
+            today,
+            headlines.measure_withdrawn(
+                user.nickname,
+                rules.title(measure),
+                seed=self._headline_seed(today, measure.id),
+            ),
         )
 
     def preview(
@@ -3285,6 +3362,7 @@ class GovernmentBook:
                     self._party_abbr(term.party_id),
                     vote_day,
                     requester.abbr if requester else None,
+                    seed=self._headline_seed(today, vote_day),
                 ),
             )
 
@@ -3332,6 +3410,7 @@ class GovernmentBook:
                     tally.yes,
                     tally.no,
                     requested_by,
+                    seed=self._headline_seed(today, "rejected"),
                 ),
             )
         return approved
@@ -3427,12 +3506,13 @@ class GovernmentBook:
                 effective=measure.effective,
                 tickers=self.tickers(measure),
             )
-            self._on_news(today, self._voted_headline(measure, approved, tally))
+            self._on_news(today, self._voted_headline(today, measure, approved, tally))
 
     def _voted_headline(
-        self, measure: Measure, approved: bool, tally: house.Tally
+        self, today: date, measure: Measure, approved: bool, tally: house.Tally
     ) -> Headline:
         """A medida de gasto tem manchete própria, com o que ela faz à inflação; as de imposto citam os ativos."""
+        seed = self._headline_seed(today, measure.id)
         if measure.kind.is_spending:
             return headlines.spending_voted(
                 measure.kind,
@@ -3444,6 +3524,7 @@ class GovernmentBook:
                 tally.yes,
                 tally.no,
                 tally.defected,
+                seed=seed,
             )
         return headlines.measure_voted(
             rules.title(measure),
@@ -3453,6 +3534,7 @@ class GovernmentBook:
             tally.yes,
             tally.no,
             tally.defected,
+            seed=seed,
         )
 
     def _impeach(self, today: date, tally: house.Tally) -> None:
@@ -3498,6 +3580,7 @@ class GovernmentBook:
                     tally.yes,
                     tally.no,
                     heir.abbr if heir else None,
+                    seed=self._headline_seed(today, out.id),
                 ),
             )
 
@@ -3553,7 +3636,9 @@ class GovernmentBook:
         self._on_news(
             today,
             headlines.measure_proposed(
-                party.candidate_name or party.abbr, rules.title(draft)
+                party.candidate_name or party.abbr,
+                rules.title(draft),
+                seed=self._headline_seed(today, rules.title(draft)),
             ),
         )
 
@@ -3583,6 +3668,7 @@ class GovernmentBook:
                     effective=measure.effective,
                     tickers=self.tickers(measure),
                 )
+                seed = self._headline_seed(today, measure.id)
                 if measure.kind.is_spending:
                     news = headlines.spending_in_force(
                         rules.title(measure),
@@ -3593,15 +3679,21 @@ class GovernmentBook:
                                 measure.kind, measure.effective - timedelta(days=1)
                             ),
                             self._spending.name_on(measure.kind, measure.effective),
+                            seed=seed,
                         ),
+                        seed=seed,
                     )
                 else:
                     news = headlines.measure_in_force(
-                        rules.title(measure), self.tickers(measure)
+                        rules.title(measure), self.tickers(measure), seed=seed
                     )
                 self._on_news(today, news)
 
     # Calendário: contribuição, apuração e posse
+
+    def _headline_seed(self, today: date, *fact: object) -> headlines.Seed:
+        """A semente do texto da manchete: a partida, o dia e o fato que ela conta."""
+        return (self._settings.id, today, *fact)
 
     def _collect(self, people: dict[int, UserDTO], today: date) -> None:
         """
@@ -3932,7 +4024,12 @@ class GovernmentBook:
                 endorsed_id=endorsed,
             )
             self._on_news(
-                today, headlines.endorsement(party.abbr, self._party_abbr(endorsed))
+                today,
+                headlines.endorsement(
+                    party.abbr,
+                    self._party_abbr(endorsed),
+                    seed=self._headline_seed(today, party.id),
+                ),
             )
             changed = True
         for finalist in race.finalists:
@@ -4055,6 +4152,7 @@ class GovernmentBook:
                     winner_party.abbr,
                     shares[winner_party.id],
                     self._turned_from(round_number, finalists, winner_party.id),
+                    seed=self._headline_seed(today, round_number, winner_party.id),
                 ),
             )
         elif len(finalists) == 2:
@@ -4063,6 +4161,7 @@ class GovernmentBook:
                 headlines.runoff_called(
                     [(self.state.parties[f].abbr, shares[f]) for f in finalists],
                     cycle.runoff,
+                    seed=self._headline_seed(today, cycle.runoff),
                 ),
             )
 
@@ -4107,7 +4206,10 @@ class GovernmentBook:
             self._on_news(
                 today,
                 headlines.term_started(
-                    name, party.abbr if party else None, self.term_end()
+                    name,
+                    party.abbr if party else None,
+                    self.term_end(),
+                    seed=self._headline_seed(today, name),
                 ),
             )
         self._announce_house_seated(today, party)
@@ -4130,6 +4232,7 @@ class GovernmentBook:
                 self._party_abbr(term.party_id),
                 amount,
                 presidency.average_approval(approvals),
+                seed=self._headline_seed(today, out.id),
             ),
         )
 
@@ -4151,6 +4254,7 @@ class GovernmentBook:
                 if government is not None and own is not None
                 else None,
                 house.MAJORITY,
+                seed=self._headline_seed(today, biggest.key),
             ),
         )
 

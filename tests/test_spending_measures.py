@@ -627,10 +627,10 @@ def test_the_spending_vote_and_the_start_reach_the_journal_with_their_own_text(
     book.on_tick(USERS, effective + timedelta(days=1), False)
 
     voted, in_force = [h for _, h in headlines if h.news_type is NewsType.MEASURE_VOTED]
-    assert voted.text.startswith("Casa aprova mais gasto com auxílio por ")
-    assert voted.dek is not None and "O IPCA deve subir até" in voted.dek
-    assert in_force.text.startswith("Passa a valer: Auxílio")
-    assert in_force.dek is not None and "cheio em 6 meses" in in_force.dek
+    assert "mais gasto com auxílio" in voted.text
+    assert voted.dek is not None and "IPCA" in voted.dek and "subir até" in voted.dek
+    assert "Auxílio" in in_force.text
+    assert in_force.dek is not None and "6 meses" in in_force.dek
 
 
 def test_a_rejected_spending_measure_is_barred_in_the_journal(
@@ -644,8 +644,8 @@ def test_a_rejected_spending_measure_is_barred_in_the_journal(
     hold_vote_day(book)
 
     [barred] = [h for _, h in headlines if h.news_type is NewsType.MEASURE_VOTED]
-    assert barred.text.startswith("Casa barra mais gasto com obras por ")
-    assert barred.dek is not None and barred.dek.endswith("Nada muda.")
+    assert "mais gasto com obras" in barred.text
+    assert barred.dek is not None and barred.dek.startswith("Placar 0 a 101.")
 
 
 # Obra com endereço

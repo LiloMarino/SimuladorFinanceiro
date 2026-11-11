@@ -252,23 +252,128 @@ def test_the_same_fact_gets_the_same_phrase_on_every_reading():
     assert companies.strong_moves(day) == companies.strong_moves(day)
 
 
-def test_a_52_week_high_needs_a_close_above_the_whole_year():
-    year = [30.0 + i * 0.05 for i in range(200)]
+def swinging(step: float, sessions: int = 126, base: float = 40.0) -> list[float]:
+    """Série que oscila `step` (fração) por pregão, para a oscilação normal ser conhecida."""
+    return [base * (1 + step * (-1) ** i) for i in range(sessions)]
+
+
+def test_a_move_is_measured_against_what_the_asset_usually_moves():
+    # Ação calma (oscila ~2% por pregão): 4x dá ~8%; a alta de 5% é só ruído.
+    calm = swinging(0.01)
+    last = calm[-1]
+
+    assert (
+        companies.strong_moves(
+            market(quotes=[quote(close=last * 1.05)], closes={"WEGE3": calm})
+        )
+        == []
+    )
+    [headline] = companies.strong_moves(
+        market(quotes=[quote(close=last * 1.10)], closes={"WEGE3": calm})
+    )
+    assert headline.tickers == ("WEGE3",)
+
+
+def test_a_restless_asset_needs_a_bigger_move_to_make_the_news():
+    # Ativo que oscila ~4% por dia: 4x dá ~16%, então 10% não entra.
+    restless = swinging(0.02)
+    last = restless[-1]
+
+    assert (
+        companies.strong_moves(
+            market(quotes=[quote(close=last * 1.10)], closes={"WEGE3": restless})
+        )
+        == []
+    )
+    assert companies.strong_moves(
+        market(quotes=[quote(close=last * 1.25)], closes={"WEGE3": restless})
+    )
+
+
+def test_a_very_quiet_asset_still_needs_the_absolute_floor():
+    quiet = swinging(0.0005)
+    last = quiet[-1]
+
+    assert (
+        companies.strong_moves(
+            market(quotes=[quote(close=last * 1.02)], closes={"WEGE3": quiet})
+        )
+        == []
+    )
+    assert companies.strong_moves(
+        market(quotes=[quote(close=last * 1.035)], closes={"WEGE3": quiet})
+    )
+
+
+def test_a_short_history_falls_back_to_the_fixed_limit():
+    short = swinging(0.0005, sessions=40)
+    last = short[-1]
+
+    assert (
+        companies.strong_moves(
+            market(quotes=[quote(close=last * 1.04)], closes={"WEGE3": short})
+        )
+        == []
+    )
+    assert companies.strong_moves(
+        market(quotes=[quote(close=last * 1.06)], closes={"WEGE3": short})
+    )
+
+
+def test_moves_are_ranked_by_how_many_times_the_usual_swing_they_are():
+    # O ativo calmo sobe 6% (15 vezes o normal); o agitado sobe 25% (cerca de 6 vezes).
+    calm, restless = swinging(0.002), swinging(0.02)
+    quotes = [
+        quote("WILD3", restless[-1] * 1.25),
+        quote("CALM3", calm[-1] * 1.06),
+    ]
+
+    headlines = companies.strong_moves(
+        market(quotes=quotes, closes={"CALM3": calm, "WILD3": restless})
+    )
+
+    assert [h.tickers for h in headlines] == [("CALM3",), ("WILD3",)]
+
+
+def test_a_52_week_high_comes_out_only_on_the_breakout_of_an_old_peak():
+    # Topo em 40 há ~100 pregões e preço de volta em 35: fechar em 41 é rompimento.
+    year = [30.0 + i * 0.1 for i in range(100)] + [35.0] * 100
 
     [headline] = companies.week_highs(
         market(quotes=[quote(close=41.0)], closes={"WEGE3": year})
     )
 
     assert headline.news_type is NewsType.WEEK_HIGH
-    # 41,00 contra o último fechamento do ano, 39,95
-    assert headline.change_pct == 2.63
+    # 41,00 contra o último fechamento do ano, 35,00
+    assert headline.change_pct == 17.14
     assert headline.text in (
         "WEG atinge o maior preço em um ano",
         "WEG renova a máxima de 52 semanas",
     )
-    assert headline.dek == "WEGE3 fecha a R$ 41,00, 2,6% acima da máxima anterior."
+    assert headline.dek == "WEGE3 fecha a R$ 41,00, 2,8% acima da máxima anterior."
     assert (
         companies.week_highs(market(quotes=[quote(close=39.0)], closes={"WEGE3": year}))
+        == []
+    )
+
+
+def test_a_peak_renewed_every_day_is_not_news_every_day():
+    # Série que sobe todo dia: a máxima anterior tem idade 0, então o rompimento é ruído.
+    climbing = [30.0 + i * 0.05 for i in range(200)]
+
+    assert (
+        companies.week_highs(
+            market(quotes=[quote(close=41.0)], closes={"WEGE3": climbing})
+        )
+        == []
+    )
+
+
+def test_a_peak_younger_than_three_months_does_not_count():
+    year = [30.0] * 130 + [40.0] + [35.0] * 40
+
+    assert (
+        companies.week_highs(market(quotes=[quote(close=41.0)], closes={"WEGE3": year}))
         == []
     )
 

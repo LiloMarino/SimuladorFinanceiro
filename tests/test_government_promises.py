@@ -14,6 +14,7 @@ from backend.core.dto.promises import PromiseRequest
 from backend.core.enum import (
     GovernmentNoticeKind,
     MeasureKind,
+    NewsType,
     PauseReason,
     PromiseState,
     VoterGroup,
@@ -617,9 +618,11 @@ def test_going_back_on_a_promise_reaches_the_journal_naming_what_was_given_up(
     announce(book, request("0.12"))
 
     dropped, lowered = [h for _, h in headlines]
-    assert dropped.text == "AAA volta atrás em uma promessa de campanha"
+    assert dropped.news_type is NewsType.CAMPAIGN
+    assert "AAA" in dropped.text and "uma promessa" in dropped.text
     assert dropped.dek is not None and "IR do day trade" in dropped.dek
-    assert lowered.text == "AAA volta atrás em uma promessa de campanha"
+    assert lowered.news_type is NewsType.CAMPAIGN
+    assert "AAA" in lowered.text and "uma promessa" in lowered.text
     assert lowered.dek is not None and "IR das vendas com lucro em 10%" in lowered.dek
 
 
@@ -633,4 +636,4 @@ def test_raising_the_target_is_a_revision_and_not_a_step_back(
     announce(book, request("0.05"))
 
     [revised] = [h for _, h in headlines]
-    assert revised.text == "AAA revê as promessas de campanha"
+    assert "AAA" in revised.text and "promessas de campanha" in revised.text

@@ -84,12 +84,18 @@ def launch_family(book: GovernmentBook, monkeypatch) -> date:
 
 
 def in_force(headlines) -> list[str]:
-    """As manchetes de medida que passa a valer, sem as da votação da casa."""
+    """As manchetes de medida que passa a valer sem mudar o nome do programa."""
     return [
         h.text
         for _, h in headlines
-        if h.news_type is NewsType.MEASURE_VOTED and not h.text.startswith("Casa ")
+        if h.news_type is NewsType.MEASURE_VOTED
+        and h.text.startswith(("Passa a valer", "Já vale", "Entra em vigor"))
     ]
+
+
+def programs(headlines) -> list[str]:
+    """As manchetes do programa que nasce, é rebatizado ou acaba."""
+    return [h.text for _, h in headlines if h.news_type is NewsType.NAMED_PROGRAM]
 
 
 # Proposta
@@ -176,7 +182,8 @@ def test_the_launch_reaches_the_journal_when_the_program_binds(
 
     launch_family(book, monkeypatch)
 
-    assert in_force(headlines) == [f"Governo lança o {FAMILY}"]
+    [launched] = programs(headlines)
+    assert FAMILY in launched
 
 
 def test_a_measure_without_name_keeps_the_program(
@@ -192,8 +199,9 @@ def test_a_measure_without_name_keeps_the_program(
     book.on_tick(USERS, effective + timedelta(days=1), False)
 
     assert book.spending_timeline().latest_name(AUX) == FAMILY
+    assert programs(headlines) == []
     [text] = in_force(headlines)
-    assert text.startswith("Passa a valer: Auxílio")
+    assert "Auxílio" in text
 
 
 # Rebatismo
@@ -236,7 +244,8 @@ def test_the_rename_reaches_the_journal_and_keeps_the_value(
     timeline = book.spending_timeline()
     assert timeline.name_on(AUX, effective) == BRAZIL
     assert timeline.value_on(AUX, effective) == Decimal("0.02")
-    assert in_force(headlines) == [f"Governo rebatiza o {FAMILY} como {BRAZIL}"]
+    [renamed] = programs(headlines)
+    assert FAMILY in renamed and BRAZIL in renamed
 
 
 def test_a_rename_costs_every_group_the_same_points_once():
@@ -283,7 +292,7 @@ def test_taking_the_budget_to_zero_ends_the_program_and_records_its_name(
     assert (ended.name, ended.value) == (FAMILY, Decimal(0))
     assert rules.title(ended) == f"Extinção do {FAMILY}"
     assert book.spending_timeline().name_on(AUX, effective) is None
-    assert in_force(headlines)[-1] == f"Governo extingue o {FAMILY}"
+    assert FAMILY in programs(headlines)[-1]
 
 
 def test_ending_a_named_program_adds_rejection_to_the_groups_it_served(

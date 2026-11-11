@@ -1097,6 +1097,10 @@ class NewsType(Enum):
     CAMPAIGN_OPENED = "CAMPAIGN_OPENED"
     # Resultado de turno e impeachment: a sala pausa e a janela abre para todos
     ELECTION_RESULT = "ELECTION_RESULT"
+    # Eventos raros: abrem a janela central por padrão, sem pausar a sala
+    CAMPAIGN_ACTION = "CAMPAIGN_ACTION"
+    NAMED_PROGRAM = "NAMED_PROGRAM"
+    PARTY_RUPTURE = "PARTY_RUPTURE"
     TERM_STARTED = "TERM_STARTED"
     MEASURE_PROPOSED = "MEASURE_PROPOSED"
     MEASURE_VOTED = "MEASURE_VOTED"

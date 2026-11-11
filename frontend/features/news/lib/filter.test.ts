@@ -15,7 +15,7 @@ const item = (id: number, partial: Partial<News>): News => ({
 });
 
 const NONE: JournalFilter = { query: "", section: null, onlyMine: false };
-const levels: Partial<Record<NewsType, NewsLevel>> = { PARTY_LIFE: "OFF" };
+const levels: Partial<Record<NewsType, NewsLevel>> = { PARTY_LIFE: "OFF", PARTY_RUPTURE: "OFF" };
 const context = {
   sectionOf: () => "POLITICS" as const,
   levelOf: (found: News) => levels[found.news_type] ?? "JOURNAL",
@@ -32,6 +32,11 @@ describe("filterNews", () => {
 
   it("esconde o tipo desligado", () => {
     expect(ids(filterNews(items, NONE, context))).toEqual([1, 3]);
+  });
+
+  it("esconde também o tipo raro rebaixado para desligado", () => {
+    const withRupture = [...items, item(4, { headline: "UPR deixa a base", news_type: "PARTY_RUPTURE" })];
+    expect(ids(filterNews(withRupture, NONE, context))).toEqual([1, 3]);
   });
 
   it("busca na manchete, na linha de apoio e nos tickers, sem distinguir maiúsculas", () => {

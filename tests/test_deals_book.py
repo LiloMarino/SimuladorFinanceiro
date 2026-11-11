@@ -16,6 +16,7 @@ from backend.core.enum import (
     DealStatus,
     GovernmentEventType,
     GovernmentNoticeKind,
+    NewsType,
     PendingType,
     VoterGroup,
 )
@@ -500,7 +501,9 @@ def test_refusing_removes_the_bloc_without_the_break_rejection(
     assert book.state.deal_of(MNV, AFTER_DEMAND + timedelta(days=1)) is None
     assert party.rejection == before
     assert [n for n in notices if n.get("kind") == GovernmentNoticeKind.DEAL_LEFT.value]
-    assert [h.text for _, h in headlines] == ["O MNV deixa a base do governo"]
+    [left] = [h for _, h in headlines]
+    assert left.news_type is NewsType.PARTY_RUPTURE
+    assert "MNV" in left.text and "base do governo" in left.text.lower()
     assert demands_of(book, ALICE, AFTER_DEMAND) == []
 
 
@@ -812,8 +815,8 @@ def test_the_accepted_deal_reaches_the_journal_with_the_size_of_the_base(
 
     ally_deal(book, UPR)
 
-    [made] = [h for _, h in headlines if h.text.startswith("UPR entra na base")]
-    assert made.text == "UPR entra na base do governo de Alice"
+    [made] = [h for _, h in headlines if h.news_type is NewsType.PARTY_LIFE]
+    assert "UPR" in made.text and "Alice" in made.text
     assert made.dek is not None
     assert f"São {seats_of(book, UPR)} cadeiras" in made.dek
     assert f"a base vai a {book.base_seats(NEXT_DAY)}" in made.dek
@@ -826,7 +829,7 @@ def test_a_declined_deal_is_not_news(book: GovernmentBook, engine, market, headl
     book.propose_deal(ALICE, TERM_START, ACI)
     book.on_tick(USERS, NEXT_DAY, False)
 
-    assert not [h for _, h in headlines if "entra na base" in h.text]
+    assert not [h for _, h in headlines if h.news_type is NewsType.PARTY_LIFE]
 
 
 # Emenda com endereço
@@ -1028,6 +1031,6 @@ def test_the_deal_headline_cites_the_sector_of_the_amendment(
 
     ally_deal(book)
 
-    [made] = [h for _, h in headlines if h.text.startswith("MNV entra na base")]
+    [made] = [h for _, h in headlines if h.news_type is NewsType.PARTY_LIFE]
     assert made.dek is not None
-    assert "A emenda vai para Energia." in made.dek
+    assert "Energia" in made.dek

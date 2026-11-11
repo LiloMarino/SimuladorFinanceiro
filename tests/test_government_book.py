@@ -2138,18 +2138,17 @@ def test_the_election_reaches_the_journal_from_the_campaign_to_the_inauguration(
 ):
     govern(book, engine)
 
-    assert texts(headlines, NewsType.PARTY_LIFE)[0] == (
-        "Alice funda o AAA, Partido AAA"
-    )
+    founded = texts(headlines, NewsType.PARTY_LIFE)[0]
+    assert "Alice" in founded and "AAA" in founded
     [closed] = [
         t for t in texts(headlines, NewsType.ELECTION_CALENDAR) if "fechadas" in t
     ]
     assert "Alice pelo AAA" in closed
     results = texts(headlines, NewsType.ELECTION_RESULT)
-    assert results[-1].startswith("Virada: Alice (AAA) vence o 2º turno, com ")
+    assert "Alice" in results[-1] and "2º turno" in results[-1]
     posse, house_seated = texts(headlines, NewsType.TERM_STARTED)
-    assert posse == "Alice toma posse; o mandato vai até 2025"
-    assert house_seated.startswith("Novo Congresso toma posse: ")
+    assert "Alice" in posse and "2025" in posse
+    assert "Congresso" in house_seated
     assert headlines[-1][0] == TERM_START
 
 
@@ -2163,10 +2162,11 @@ def test_the_proposal_and_the_withdrawal_reach_the_journal(
     [measure_id] = book.state.measures
     book.withdraw(ALICE, TERM_START, measure_id)
 
-    assert texts(headlines, NewsType.MEASURE_PROPOSED) == [
-        "Alice propõe: Ações: IR das vendas com lucro em 20%",
-        "Alice retira a proposta: Ações: IR das vendas com lucro em 20%",
-    ]
+    proposed, withdrawn = texts(headlines, NewsType.MEASURE_PROPOSED)
+    for text in (proposed, withdrawn):
+        assert "Alice" in text
+        assert "Ações: IR das vendas com lucro em 20%" in text
+    assert proposed != withdrawn
 
 
 def test_the_impeachment_names_the_president_who_falls(
@@ -2177,7 +2177,7 @@ def test_the_impeachment_names_the_president_who_falls(
     assert close_months(book, 19) == PauseReason.IMPEACHMENT
 
     last = texts(headlines, NewsType.ELECTION_RESULT)[-1]
-    assert last.startswith("Casa tira Alice (AAA) da Presidência por ")
+    assert "Alice" in last and "AAA" in last
 
 
 def test_the_engine_reads_the_risk_premium_from_the_budget(
@@ -2283,9 +2283,7 @@ def test_the_legacy_reaches_the_match_when_the_term_ends(
     # O legado vai antes da posse do sucessor, pela aprovação do mandato que acabou
     assert legacy == [("legacy", ALICE.id, earned), ("office", BOB.id, Decimal(0))]
     [paid] = [t for t in texts(headlines, NewsType.TERM_STARTED) if "legado" in t]
-    assert paid == (
-        f"Alice deixa o governo com legado de {format_money(earned * 1000)}"
-    )
+    assert "Alice" in paid and format_money(earned * 1000) in paid
     assert book.state.approvals == []
 
 

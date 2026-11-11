@@ -63,6 +63,20 @@ describe("presenterReducer", () => {
     expect(state.waiting).toBeNull();
   });
 
+  it("os eventos raros abrem janela como qualquer outro tipo", () => {
+    const rare = (id: number, type: News["news_type"]): News => ({ ...news(id), news_type: type });
+    let state = arrive(INITIAL_PRESENTER, rare(1, "CAMPAIGN_ACTION"), "WINDOW");
+    expect(state.window?.id).toBe(1);
+
+    state = arrive(state, rare(2, "PARTY_RUPTURE"), "WINDOW");
+    expect(state.window?.id).toBe(1);
+    expect(state.lead?.news.id).toBe(2);
+
+    state = presenterReducer(state, { type: "window_closed" });
+    state = arrive(state, { ...rare(3, "NAMED_PROGRAM"), news_date: "2016-03-15" }, "WINDOW");
+    expect(state.window?.id).toBe(3);
+  });
+
   it("no máximo uma janela por pregão: as outras do mesmo dia vão para o cartão", () => {
     let state = arrive(INITIAL_PRESENTER, news(1), "WINDOW");
     state = arrive(state, news(2), "WINDOW");
