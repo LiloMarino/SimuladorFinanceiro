@@ -110,7 +110,6 @@
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 | — | — | — | 🔍 |
 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 | — | — | — | 🔍 |
-| [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 | — | Alto | Bom | ⏳ |
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 | — | Alto | Médio | ⏳ |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 | — | — | — | 🔍 |
@@ -119,7 +118,7 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (42 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (43 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -163,6 +162,7 @@
 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | — | — | ✅ |
 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 | — | — | — | ✅ |
 | [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 | — | — | — | ✅ |
+| [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 | — | — | — | ✅ |
 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 | — | — | — | ✅ |
 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 | — | — | — | ✅ |
 
@@ -180,7 +180,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 22/37 concluídos
+> **Progresso:** 23/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -213,7 +213,7 @@
 | 27 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | — | ✅ Concluído |
 | 28 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | — | ✅ Concluído |
 | 29 | [**F275**](#f275) | Feature | Vitória política separada do capital | — | ✅ Concluído |
-| 30 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | — | ⏳ Pendente |
+| 30 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | — | ✅ Concluído |
 | 31 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | — | ⏳ Pendente |
 | 32 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | — | ⏳ Pendente |
 | 33 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | — | 🔍 Em avaliação |
@@ -343,7 +343,6 @@
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 · 24º | 0 | — | — | 🔍 |
 | [**F271**](#f271) | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | M26 · 4.1 · 25º | 0 | Médio | Bom | ⏳ |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 · 26º | 0 | — | — | 🔍 |
-| [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 · 30º | 0 | Médio | Bom | ⏳ |
 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 · 31º | 0 | Alto | Bom | ⏳ |
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 · 32º | 0 | Alto | Médio | ⏳ |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 · 33º | 0 | — | — | 🔍 |
@@ -406,7 +405,6 @@
 | **F263** | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | N3, N34 | D20 | M26 · 4.1 | — | Médio | Médio | Alto | Excelente |
 | **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | D10 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
 | **F271** | Melhoria | Paleta de 16 cores para os partidos e um seletor de cor único | N20 | — | M26 · 4.1 | — | Médio | Baixo | Médio | Bom |
-| **F276** | Correção | Governo ruim perde aprovação | N34, N41 | — | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
 | **F277** | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | N31 | — | M26 · 4.1 | — | Alto | Baixo | Alto | Bom |
 | **F278** | Feature | Imprevistos e eventos de vida mais variados | N23 | — | M26 · 4.1 | — | Alto | Médio | Médio | Médio |
 
@@ -538,37 +536,6 @@ Cada um desses módulos é movido para a feature que o consome ou passa a recebe
 5. Conferir no navegador o mapa com um partido de cada cor nova (preenchimento, sigla e contorno do lugar selecionado) e o gráfico de intenção de voto com 8 partidos.
 
 **Aceite:** o teste da paleta passa com 16 cores de partido; fundar partido, lobby, diálogo de bot e editor do backtest usam o mesmo componente de seletor; a paleta dos jogadores continua com as 10 cores e as mesmas chaves `chart-1` a `chart-10`.
-
-<a id="f276"></a>
-**F276 — Governo ruim perde aprovação.** Serve N34 e N41.
-
-**Sintoma.** Na Simulação #3, com SELIC de 30 a 33% (2030–2031), IPCA de 1 a 1,9% ao mês (2028–2032) e a bolsa em −99,8%, o governo de um jogador (posse em janeiro de 2031) passou 2032 inteiro com aprovação entre 26 e 30 e só caiu no 35º dos 48 meses do mandato.
-
-**O que os eventos da partida mostram.** O contador de meses abaixo do piso funcionou. Em 2031 valeu a carência de 12 meses. Em 2032 a aprovação nunca fechou abaixo de 25, então o contador ficou em 0. De maio a outubro de 2033 fechou em 24, 23, 22, 21, 20 e 19: o contador chegou a 6, o pedido de impeachment abriu e foi aprovado por 79 a 22 em 30/11/2033. A aprovação de 21 com contador em 0, de janeiro de 2034, é do governo interino do computador, para quem o piso não conta por desenho (`_close_month`, `backend/features/government/government_book.py:2970-2976`). A satisfação dos investidores em 0,0006 é só o caminho de um terço por mês até um alvo 0.
-
-**Causa.** A aprovação satura. Cada fator do alvo tem um limite de punição em `backend/features/government/approval.py`: a inflação para de pesar 5 pontos percentuais além da meta mais 1,5 (`INFLATION_CAP`; com meta de 3%, inflação de 25% ao ano pune igual a 9,5%), a bolsa para em 3 passos de 10% (`STOCKS_CAP`; −99,8% pune igual a −25%) e o juro real para 6 pontos fora da faixa de 2% a 7% (`REAL_RATE_CAP`). Com tudo no limite, o alvo geral sem medidas fica em 17,6, contra um piso de 25. Uma crise comum dá 24,6 e a catástrofe total dá cerca de 20: sete pontos separam as duas, e uma medida popular soma 6 por unidade de reação.
-
-**Como reproduzir.** `group_target` para os seis grupos com meta 3%, IPCA 22%, SELIC 31%, bolsa −99,8% em 12 meses, desemprego 13% e prêmio de risco de 6 pontos, sem medidas: `overall` dos alvos dá 20,6.
-
-**O que muda.**
-
-1. Punição que segue crescendo. No lado ruim de inflação, juro real e bolsa, o que passa do limite atual continua tirando pontos com metade do peso (constante nova, `EXCESS_WEIGHT = Decimal("0.5")`). A distância usada na conta deixa de ser `min(distância, limite)` e passa a ser `limite + (distância − limite) × 0,5` quando a distância passa do limite. Vale para: inflação acima da meta mais 1,5 (`inflation_factor`), juro real abaixo de 2% e acima de 7% (`real_rate_factor`) e bolsa em queda (`stocks_factor`). O lado bom continua com o teto de hoje (inflação abaixo da meta, bolsa em alta), e desemprego e prêmio de risco ficam como estão. `group_target` continua limitando o alvo de cada grupo a 0–100. Piso (25), carência (12) e meses seguidos (6) não mudam.
-2. Dentro dos limites atuais nada muda: governo medíocre e governo bom recebem exatamente os mesmos pontos de antes.
-3. Governo do computador continua imune ao piso, e a tela passa a dizer isso. O DTO da aprovação (`GovernmentApproval`, em `backend/core/dto/government.py`) ganha um campo booleano que diz se o piso vale para o governo em curso (falso quando `term.president_id` é nulo). Em `frontend/features/government/components/impeachment-floor.tsx` o contador ("N de 6") dá lugar a "não conta", com o texto "Governo do computador: o piso de impeachment não conta e ele fica até o fim do mandato"; `impeachment-alert.tsx` segue sem aparecer nesse caso. Rodar `pnpm openapi`.
-4. `docs/docs/como-usar/governo.md` (trecho do piso e dos fatores) explica a regra da metade do peso com um exemplo (inflação de 12% com meta de 3%: 5 pontos percentuais cheios mais 2,5 pela metade) e o caso do governo do computador.
-
-**Testes.** Em `tests/test_government_rules.py`, a tabela de cenários do aceite e um teste de que cada fator, no valor exato do limite e antes dele, devolve os mesmos pontos de hoje. Em `tests/test_government_book.py`, um governo de jogador sob o cenário de catástrofe abre o pedido de impeachment no 18º fechamento do mandato (12 de carência mais 6), e o governo do computador no mesmo cenário mantém o contador em 0. Em `frontend/features/government/lib`, o rótulo do piso para o governo do computador.
-
-**Aceite:** alvo geral sem medidas, com meta de inflação de 3% (IPCA, SELIC, bolsa em 12 meses, desemprego, prêmio de risco):
-
-- neutro (4,5%, 9%, +5%, 9%, 0): 50,0, igual a hoje;
-- medíocre (8%, 13%, −10%, 10%, 1 ponto): 34,6, igual a hoje;
-- tudo no limite (9,5%, 22,5%, −25%, 13%, 6 pontos): 17,6, igual a hoje;
-- crise (12%, 18%, −30%, 12%, 3 pontos): 20,0 (hoje 24,6);
-- crise forte (15%, 22%, −45%, 13%, 4 pontos): 13,1 (hoje 23,4);
-- Simulação #3 em 2031–2032 (22%, 31%, −99,8%, 13%, 6 pontos): abaixo de 5 (hoje 20,6).
-
-Com o cenário da Simulação #3 mantido desde a posse, o pedido de impeachment de um governo de jogador abre no 18º mês do mandato (na partida, abriu no 34º).
 
 <a id="f277"></a>
 **F277 — Jornal com eventos raros em destaque e manchetes variadas.** Serve N31.
@@ -804,6 +771,7 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 | **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 |
 | **F274** | Feature | Presidência e base do governo que valem a pena | N34 | — | M26 · 4.1 |
 | **F275** | Feature | Vitória política separada do capital | N34, N22 | — | M26 · 4.1 |
+| **F276** | Correção | Governo ruim perde aprovação | N34, N41 | — | M26 · 4.1 |
 | **F281** | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | N34 | D20 | M26 · 4.1 |
 | **F282** | Correção | Texto dos gráficos com no mínimo 12 px | N15 | — | M26 · 4.1 |
 
@@ -980,6 +948,37 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 
 <a id="f275"></a>
 **F275 — Vitória política separada do capital.** Serve N34 e N22. A vitória política deixa de somar o patrimônio dos filiados: vence o partido com mais **capital político**, pontos acumulados a cada mês fechado (`backend/features/government/capital.py`, `party_capital`). Só partidos de jogador pontuam: 1 ponto por cadeira na casa em exercício; a aprovação do fechamento (0 a 100) para o partido do presidente (`governed_months` no `GovernmentState`, gravado no `APPROVAL_MEASURED`); `100 × fração cumprida` por promessa no balanço do mandato; e o impeachment tira metade do que a presidência rendeu naquele mandato. Desempate por cadeiras na casa atual. Decisões: medida aprovada não pontua por si (pesa pela aprovação); vence o partido e os filiados dividem a colocação; continua o tipo "Política", sem tipo novo nas regras (a vitória da Expansão Gestoras citada como molde ainda não existe); o ranking de partidos é por capital político em toda partida com a expansão, e a soma de patrimônio saiu de tela, diálogos e textos. O ranking individual segue em patrimônio, informativo. `PoliticalCapitalDTO` (total e as quatro parcelas) substitui `total_networth` no painel e no relatório; a página Eleição mostra total e parcelas, e a tela de resultado ganhou o pódio de partidos. Sem evento novo: partida salva recalcula pelo replay, e uma migration de dados zera o resultado guardado das partidas políticas. Limite conhecido, fora deste card: com o patrimônio fora do placar, gastar tudo em campanha deixa de ter custo na vitória política.
+
+<a id="f276"></a>
+**F276 — Governo ruim perde aprovação.** Serve N34 e N41.
+
+**Sintoma.** Na Simulação #3, com SELIC de 30 a 33% (2030–2031), IPCA de 1 a 1,9% ao mês (2028–2032) e a bolsa em −99,8%, o governo de um jogador (posse em janeiro de 2031) passou 2032 inteiro com aprovação entre 26 e 30 e só caiu no 35º dos 48 meses do mandato.
+
+**O que os eventos da partida mostram.** O contador de meses abaixo do piso funcionou. Em 2031 valeu a carência de 12 meses. Em 2032 a aprovação nunca fechou abaixo de 25, então o contador ficou em 0. De maio a outubro de 2033 fechou em 24, 23, 22, 21, 20 e 19: o contador chegou a 6, o pedido de impeachment abriu e foi aprovado por 79 a 22 em 30/11/2033. A aprovação de 21 com contador em 0, de janeiro de 2034, é do governo interino do computador, para quem o piso não conta por desenho (`_close_month`, `backend/features/government/government_book.py:2970-2976`). A satisfação dos investidores em 0,0006 é só o caminho de um terço por mês até um alvo 0.
+
+**Causa.** A aprovação satura. Cada fator do alvo tem um limite de punição em `backend/features/government/approval.py`: a inflação para de pesar 5 pontos percentuais além da meta mais 1,5 (`INFLATION_CAP`; com meta de 3%, inflação de 25% ao ano pune igual a 9,5%), a bolsa para em 3 passos de 10% (`STOCKS_CAP`; −99,8% pune igual a −25%) e o juro real para 6 pontos fora da faixa de 2% a 7% (`REAL_RATE_CAP`). Com tudo no limite, o alvo geral sem medidas fica em 17,6, contra um piso de 25. Uma crise comum dá 24,6 e a catástrofe total dá cerca de 20: sete pontos separam as duas, e uma medida popular soma 6 por unidade de reação.
+
+**Como reproduzir.** `group_target` para os seis grupos com meta 3%, IPCA 22%, SELIC 31%, bolsa −99,8% em 12 meses, desemprego 13% e prêmio de risco de 6 pontos, sem medidas: `overall` dos alvos dá 20,6.
+
+**O que muda.**
+
+1. Punição que segue crescendo. No lado ruim de inflação, juro real e bolsa, o que passa do limite atual continua tirando pontos com metade do peso (constante nova, `EXCESS_WEIGHT = Decimal("0.5")`). A distância usada na conta deixa de ser `min(distância, limite)` e passa a ser `limite + (distância − limite) × 0,5` quando a distância passa do limite. Vale para: inflação acima da meta mais 1,5 (`inflation_factor`), juro real abaixo de 2% e acima de 7% (`real_rate_factor`) e bolsa em queda (`stocks_factor`). O lado bom continua com o teto de hoje (inflação abaixo da meta, bolsa em alta), e desemprego e prêmio de risco ficam como estão. `group_target` continua limitando o alvo de cada grupo a 0–100. Piso (25), carência (12) e meses seguidos (6) não mudam.
+2. Dentro dos limites atuais nada muda: governo medíocre e governo bom recebem exatamente os mesmos pontos de antes.
+3. Governo do computador continua imune ao piso, e a tela passa a dizer isso. O DTO da aprovação (`GovernmentApproval`, em `backend/core/dto/government.py`) ganha um campo booleano que diz se o piso vale para o governo em curso (falso quando `term.president_id` é nulo). Em `frontend/features/government/components/impeachment-floor.tsx` o contador ("N de 6") dá lugar a "não conta", com o texto "Governo do computador: o piso de impeachment não conta e ele fica até o fim do mandato"; `impeachment-alert.tsx` segue sem aparecer nesse caso. Rodar `pnpm openapi`.
+4. `docs/docs/como-usar/governo.md` (trecho do piso e dos fatores) explica a regra da metade do peso com um exemplo (inflação de 12% com meta de 3%: 5 pontos percentuais cheios mais 2,5 pela metade) e o caso do governo do computador.
+
+**Testes.** Em `tests/test_government_rules.py`, a tabela de cenários do aceite e um teste de que cada fator, no valor exato do limite e antes dele, devolve os mesmos pontos de hoje. Em `tests/test_government_book.py`, um governo de jogador sob o cenário de catástrofe abre o pedido de impeachment no 18º fechamento do mandato (12 de carência mais 6), e o governo do computador no mesmo cenário mantém o contador em 0. Em `frontend/features/government/lib`, o rótulo do piso para o governo do computador.
+
+**Aceite:** alvo geral sem medidas, com meta de inflação de 3% (IPCA, SELIC, bolsa em 12 meses, desemprego, prêmio de risco):
+
+- neutro (4,5%, 9%, +5%, 9%, 0): 50,0, igual a hoje;
+- medíocre (8%, 13%, −10%, 10%, 1 ponto): 34,6, igual a hoje;
+- tudo no limite (9,5%, 22,5%, −25%, 13%, 6 pontos): 17,6, igual a hoje;
+- crise (12%, 18%, −30%, 12%, 3 pontos): 20,0 (hoje 24,6);
+- crise forte (15%, 22%, −45%, 13%, 4 pontos): 13,1 (hoje 23,4);
+- Simulação #3 em 2031–2032 (22%, 31%, −99,8%, 13%, 6 pontos): abaixo de 5 (hoje 20,6).
+
+Com o cenário da Simulação #3 mantido desde a posse, o pedido de impeachment de um governo de jogador abre no 18º mês do mandato (na partida, abriu no 34º).
 
 <a id="f281"></a>
 **F281 — Banco Central autônomo que decide em reunião, olhando através do imposto.** O Banco Central autônomo decide só nos dias de reunião do Copom (`meeting_days`, hoje em `backend/core/copom.py`, com `SELIC_STEP` e `to_step`): em cada uma leva a regra do dia ao passo de 0,25 ponto, a até 1 ponto da decisão anterior (`autonomous_decision` e `AUTONOMOUS_CAP` em `monetary.py`), e mantém os pontos até a reunião seguinte. A SELIC da partida é a história do dia mais esses pontos segurados (`EconomyLayer.autonomous_points`, `layer.py`); sem efeito do governo nada muda, e entre `first_day` e a primeira reunião o desvio vale 0. A regra olha através do imposto: `reading_points` tira de `inflation_points` o degrau de preço do imposto sobre consumo (`consumption_points`), então um corte do imposto não derruba a SELIC; a regra também alimenta o presidente computador e o esperado do mercado, e a linha do imposto sobre consumo no painel da economia deixa de mostrar efeito na SELIC e na bolsa. No futuro gerado (`synthetic.py`, `_decided_in_meetings`), a SELIC inteira (trecho sorteado mais regime e surto) só muda no pregão seguinte a uma reunião, em múltiplos de 0,25, e o CDI anda colado; o gráfico "Juros e inflação" fica com no máximo 8 marcadores do Copom por ano no futuro. Limite conhecido: no trecho histórico da partida o marcador soma as mudanças reais da história e as reuniões do autônomo, e a SELIC absoluta segue a da história (o múltiplo de 0,25 vale para o desvio do autônomo).
