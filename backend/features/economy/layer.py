@@ -18,6 +18,7 @@ from itertools import pairwise
 from typing import Protocol
 
 from backend.core import repository
+from backend.core.copom import next_meeting
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.enum import AssetOrigin, IndicatorSeries
 from backend.core.indicators import annual_index_rate, annualize_daily
@@ -29,6 +30,7 @@ from backend.features.economy.monetary import (
     AutonomousBank,
     Monetary,
     SelicDecision,
+    autonomous_decision,
 )
 
 # A SELIC reage com 1,5 ponto por ponto de inflação a mais (Banco Central autônomo)
@@ -90,9 +92,7 @@ class StocksParts:
     gdp: float
     real_rate: float = 0.0
     selic: float = 0.0
-    # A SELIC que a inflação do imposto sobre o consumo põe e o lucro menor das empresas
-    # pelo IR delas
-    consumption: float = 0.0
+    # O lucro menor das empresas pelo IR delas
     corporate: float = 0.0
     dollar: float = 0.0
 
@@ -105,7 +105,6 @@ class StocksParts:
             + self.gdp
             + self.real_rate
             + self.selic
-            + self.consumption
             + self.corporate
             + self.dollar
         )
@@ -161,6 +160,8 @@ class EconomyLayer:
         self._selic_points: dict[date, float] = {}
         # O afastamento de cada reunião, pelo dia dela
         self._gaps: dict[date, float] = {}
+        # Os pontos que o Banco Central autônomo fixou em cada reunião, pelo dia dela
+        self._autonomous: dict[date, float] = {}
         self._levels: dict[date, float] = {}
         self._values: dict[IndicatorSeries, dict[date, Decimal]] = {}
         self._betas: dict[str, float] | None = None
@@ -177,6 +178,7 @@ class EconomyLayer:
         self._spending_points = {}
         self._selic_points = {}
         self._gaps = {}
+        self._autonomous = {}
         self._levels = {}
         self._values = {}
         repository.economic.refresh_adjusted(self._simulation_id)
@@ -192,6 +194,7 @@ class EconomyLayer:
         # O afastamento de uma reunião é medido no dia dela: o refresh que a reunião dispara,
         # a partir do dia seguinte, o preserva
         self._gaps = {d: v for d, v in self._gaps.copy().items() if d < day}
+        self._autonomous = {d: v for d, v in self._autonomous.copy().items() if d < day}
         self._levels = {d: v for d, v in self._levels.copy().items() if d < day}
         self._values = {
             series: {d: v for d, v in values.copy().items() if d < day}
@@ -223,6 +226,14 @@ class EconomyLayer:
         """Pontos de IPCA em 12 meses que o governo soma no dia: as medidas e as ligações."""
         return self.spending_points(day) + self._links.links_on(day).inflation_points
 
+    def reading_points(self, day: date) -> float:
+        """
+        Pontos de IPCA em 12 meses que o Banco Central lê no dia: gasto, dólar, juros e
+        desemprego. O degrau de preço do imposto sobre consumo fica de fora, e a reação
+        responde à inflação que permanece.
+        """
+        return self.inflation_points(day) - self._links.links_on(day).consumption_points
+
     def reacts(self, day: date) -> bool:
         """A SELIC do dia é a do Banco Central autônomo: nenhuma reunião do governo vale ainda."""
         return self._monetary.selic_on(day) is None
@@ -233,7 +244,7 @@ class EconomyLayer:
         if selic is None:
             decided = self._monetary.selic_on(day)
             if decided is None:
-                selic = central_bank_reaction(self.inflation_points(day))
+                selic = self.autonomous_points(day)
             else:
                 stored = annual_index_rate(IndicatorSeries.SELIC, day, stored=True)
                 selic = float(decided - stored) * 100
@@ -241,8 +252,29 @@ class EconomyLayer:
         return selic
 
     def rule_points(self, day: date) -> float:
-        """Pontos de SELIC acima da história que a regra do Banco Central soma no dia: o que o presidente bot decide."""
-        return central_bank_reaction(self.inflation_points(day))
+        """Pontos de SELIC acima da história que a regra do Banco Central pede no dia: o que o presidente bot decide."""
+        return central_bank_reaction(self.reading_points(day))
+
+    def autonomous_points(self, day: date) -> float:
+        """
+        Pontos de SELIC acima da história que o Banco Central autônomo mantém no dia: a
+        decisão da última reunião antes dele, que vale do dia seguinte. Cada reunião, a
+        partir da primeira depois de o efeito do governo começar, leva a regra do dia dela
+        ao passo de 0,25, a até 1 ponto da decisão anterior; antes dela vale 0.
+        """
+        first = self.first_day()
+        if first is None:
+            return 0.0
+        held = 0.0
+        meeting = next_meeting(first)
+        while meeting < day:
+            decided = self._autonomous.get(meeting)
+            if decided is None:
+                decided = autonomous_decision(self.rule_points(meeting), held)
+                self._autonomous[meeting] = decided
+            held = decided
+            meeting = next_meeting(meeting + timedelta(days=1))
+        return held
 
     def _gap(self, decision: SelicDecision) -> float:
         """Os pontos que a decisão da reunião ficou acima da regra do dia dela."""
@@ -295,7 +327,6 @@ class EconomyLayer:
             gdp=STOCKS_PER_GDP * float(links(day).gdp_gap),
             real_rate=mean(reaction(lambda d: links(d).rate_points)),
             selic=mean(expected) - STOCKS_PER_SELIC * self.surprise_points(day),
-            consumption=mean(reaction(lambda d: links(d).consumption_points)),
             corporate=links(day).corporate_points,
             dollar=mean(reaction(lambda d: links(d).dollar_inflation_points)),
         )

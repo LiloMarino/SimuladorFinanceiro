@@ -1,6 +1,5 @@
 """
-A política monetária da partida: o calendário das reuniões do Copom, a janela de
-cada decisão, o efeito defasado do juro real na inflação e a credibilidade do Banco Central.
+A política monetária da partida: a janela de cada decisão do Copom, o efeito defasado do juro real na inflação e a credibilidade do Banco Central.
 As decisões tomadas ficam no quadro da SELIC; sem nenhuma, a SELIC é a do Banco Central
 autônomo e a credibilidade fica cheia. Os números calibram no playtest.
 """
@@ -9,19 +8,19 @@ from bisect import bisect_left
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
-from decimal import ROUND_CEILING, ROUND_FLOOR, ROUND_HALF_UP, Decimal
+from decimal import ROUND_CEILING, ROUND_FLOOR, Decimal
 from typing import Protocol
 
-from backend.core.utils import is_business_day, next_business_day
+from backend.core.copom import SELIC_STEP, to_step
 
-# O Copom se reúne 8 vezes por ano, a cada 45 dias; a reunião cai no dia útil seguinte
-MEETINGS_PER_YEAR = 8
-MEETING_SPACING_DAYS = 45
-# A SELIC anda em passos de 0,25 ponto. A janela da reunião vai 3 pontos para cima e para
-# baixo, qualquer que seja o IPCA (a maior alta do Copom desde 1999), e sempre alcança a
-# SELIC da história no dia, por mais que ela tenha andado desde a reunião anterior
-SELIC_STEP = Decimal("0.0025")
+# A janela da reunião vai 3 pontos para cima e para baixo, qualquer que seja o IPCA (a
+# maior alta do Copom desde 1999), e sempre alcança a SELIC da história no dia, por mais
+# que ela tenha andado desde a reunião anterior
 PRESIDENT_CAP = Decimal("0.03")
+# O Banco Central autônomo decide em pontos acima da história, no passo de 0,25, e anda até
+# 1 ponto por reunião
+AUTONOMOUS_STEP = float(SELIC_STEP) * 100
+AUTONOMOUS_CAP = 1.0
 # O piso da SELIC é 0%; com o IPCA de 12 meses negativo ele desce a -0,5%, o do Banco
 # Central Europeu, e com o IPCA de volta a zero ou mais a reunião seguinte volta a 0%
 DEFLATION_SELIC_FLOOR = Decimal("-0.005")
@@ -46,34 +45,6 @@ CREDIBILITY_GAIN = 3.0
 HISTORY_MARGIN = SELIC_STEP / 2
 # Sem credibilidade nenhuma, a dívida paga 2 pontos de prêmio a mais
 CREDIBILITY_PREMIUM = Decimal("0.02")
-
-
-def meeting_days(year: int) -> list[date]:
-    """As reuniões do ano: os dias 45, 90, …, 360, no dia útil seguinte quando caem no fim de semana."""
-    first = date(year, 1, 1)
-    days = (
-        first + timedelta(days=MEETING_SPACING_DAYS * k - 1)
-        for k in range(1, MEETINGS_PER_YEAR + 1)
-    )
-    return [d if is_business_day(d) else next_business_day(d) for d in days]
-
-
-def next_meeting(day: date) -> date:
-    """A primeira reunião em `day` ou depois."""
-    for year in (day.year, day.year + 1):
-        for meeting in meeting_days(year):
-            if meeting >= day:
-                return meeting
-    raise AssertionError("o ano seguinte sempre tem reunião")
-
-
-def is_meeting_day(day: date) -> bool:
-    return day in meeting_days(day.year)
-
-
-def to_step(selic: Decimal) -> Decimal:
-    """A taxa no passo de 0,25 ponto mais próximo."""
-    return (selic / SELIC_STEP).quantize(Decimal(1), ROUND_HALF_UP) * SELIC_STEP
 
 
 def selic_floor(ipca: Decimal) -> Decimal:
@@ -103,6 +74,15 @@ def within_cap(
     """A taxa pedida no passo de 0,25 mais próximo dentro da janela da reunião."""
     low, high = cap_window(current, cap, history, floor)
     return max(low, min(high, to_step(wanted)))
+
+
+def autonomous_decision(wanted: float, held: float) -> float:
+    """
+    Os pontos de SELIC acima da história que o Banco Central autônomo fixa na reunião: o
+    pedido no passo de 0,25 mais próximo, a até `AUTONOMOUS_CAP` dos pontos que já vigoravam.
+    """
+    stepped = round(wanted / AUTONOMOUS_STEP) * AUTONOMOUS_STEP
+    return max(held - AUTONOMOUS_CAP, min(held + AUTONOMOUS_CAP, stepped))
 
 
 def lag_weights(credibility: float) -> tuple[float, ...]:

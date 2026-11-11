@@ -54,7 +54,7 @@ export const EFFECT_IPCA = {
 
 export const EFFECT_SELIC = {
   definition:
-    "O quanto a SELIC da partida se afasta da história por causa da medida ou da ligação. Com o Banco Central autônomo, ele sobe (ou corta) a SELIC 1,5 vez a inflação que cada uma soma; com a SELIC nas mãos do governo, só a linha da SELIC do governo mexe nela.",
+    "O quanto a SELIC da partida se afasta da história por causa da medida ou da ligação. Com o Banco Central autônomo, ele sobe (ou corta) a SELIC 1,5 vez a inflação que cada uma soma, nas reuniões do Copom e em passos de 0,25 (o imposto sobre o consumo não entra nessa conta); com a SELIC nas mãos do governo, só a linha da SELIC do governo mexe nela.",
   example: "Ex.: com o Banco Central autônomo, +0,55 ponto de inflação leva a +0,83 ponto de SELIC (0,55 × 1,5).",
   reading: "SELIC mais alta encarece o crédito e faz a renda fixa render mais; menos crescimento no curto prazo.",
 };

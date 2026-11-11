@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from backend.core.copom import meeting_days, next_meeting
 from backend.core.enum import IndicatorSeries
 from backend.core.utils import is_business_day, next_business_day
 from backend.features.import_data import synthetic
@@ -246,14 +247,18 @@ def test_inflation_level_raises_rates_and_hits_the_market(generator):
     selic_push = synthetic.to_annual(
         raised.indicators[IndicatorSeries.SELIC].to_numpy()
     ) - synthetic.to_annual(calm.indicators[IndicatorSeries.SELIC].to_numpy())
-    assert (selic_push[5:] > 0).all()
+    # A SELIC só muda em reunião: o empurrão vale do dia seguinte à primeira
+    first_meeting = next_meeting(selic_days[0])
+    start = next(i for i, d in enumerate(selic_days) if d > first_meeting)
+    assert (selic_push[start:] > 0).all()
 
-    # No pico, seis meses depois, a SELIC subiu 1,5x o que subiu a inflação anual
+    # No pico, seis meses depois, a SELIC subiu 1,5x o que subiu a inflação anual, no
+    # degrau da última reunião
     peak = date(2005, 7, 1)
-    assert selic_push[selic_days.index(peak)] == pytest.approx(0.15, abs=0.005)
+    assert selic_push[selic_days.index(peak)] == pytest.approx(0.15, abs=0.01)
     # Cinco anos depois ela assentou perto de 1x: o juro real volta ao de antes
     assert selic_push[selic_days.index(date(2010, 1, 4))] == pytest.approx(
-        0.10, abs=0.005
+        0.10, abs=0.01
     )
 
     # A inflação fica mais alta de forma permanente: +10% ao ano são ~0,8% ao mês
@@ -272,6 +277,35 @@ def test_inflation_level_raises_rates_and_hits_the_market(generator):
 
     # Depois a bolsa sobe com a inflação somada no nominal
     assert ibov_ratio.iloc[-1] > ibov_ratio.loc[peak]
+
+
+def test_the_generated_selic_changes_only_at_meetings_in_quarter_points(generator):
+    generated = generator.generate(
+        UNTIL, seed=7, inflation_level=8, surge_frequency=3, surge_intensity=8
+    )
+    series = generated.indicators[IndicatorSeries.SELIC]
+    days = list(series.index)
+    annual = synthetic.to_annual(series.to_numpy())
+    meetings = [
+        m for year in range(days[0].year, days[-1].year + 1) for m in meeting_days(year)
+    ]
+
+    # Depois da primeira reunião toda SELIC é múltipla de 0,25
+    start = next(i for i, d in enumerate(days) if d > next_meeting(days[0]))
+    steps = annual[start:] / 0.0025
+    assert steps == pytest.approx(np.round(steps), abs=1e-3)
+
+    # Cada mudança cai no pregão seguinte a uma reunião: no máximo 8 por ano
+    changes = [
+        days[i] for i in range(1, len(days)) if abs(annual[i] - annual[i - 1]) > 1e-5
+    ]
+    assert changes
+    for day in changes:
+        i = days.index(day)
+        assert any(days[i - 1] <= m < day for m in meetings)
+    assert (
+        max(sum(d.year == y for d in changes) for y in {d.year for d in changes}) <= 8
+    )
 
 
 def test_inflation_level_keeps_the_subset_invariant(generator):

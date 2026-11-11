@@ -25,8 +25,9 @@ export const SELIC_CONTROLS: Record<SelicControl, { label: string; description: 
   AUTONOMOUS: {
     label: "Banco Central autônomo",
     description:
-      "Como no Brasil desde 2021: o Banco Central sobe a SELIC 1,5 vez a inflação que o governo soma, sozinho. O presidente mexe nos impostos e no gasto, não nos juros.",
-    example: "Uma medida que soma 1 ponto à inflação leva a SELIC 1,5 ponto acima da história.",
+      "Como no Brasil desde 2021: o Banco Central decide sozinho nas reuniões do Copom, em passos de 0,25 e até 1 ponto por reunião, e leva a SELIC 1,5 vez a inflação que o governo soma. O degrau de preço do imposto sobre o consumo ele não segue. O presidente mexe nos impostos e no gasto, não nos juros.",
+    example:
+      "Uma medida que soma 1 ponto à inflação leva a SELIC 1,5 ponto acima da história, a partir da reunião seguinte.",
   },
   GOVERNMENT: {
     label: "Nas mãos do governo",

@@ -396,7 +396,8 @@ def test_a_higher_consumption_tax_improves_the_primary_and_raises_prices(
     assert last.consumption_points > 0
     effect = effects_of_links(linked, end)[EconomyLink.CONSUMPTION_TAX]
     assert effect.inflation > 0
-    assert effect.selic > 0
+    # O Banco Central lê a inflação que sobra: o degrau de preço do imposto não move a SELIC
+    assert effect.selic == 0
 
 
 def test_a_higher_corporate_tax_costs_the_stocks_and_a_cut_lifts_them(

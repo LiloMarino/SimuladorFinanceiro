@@ -10,6 +10,7 @@ from decimal import Decimal
 
 import pytest
 
+from backend.core.copom import meeting_days
 from backend.core.enum import IndicatorSeries, PendingType, SelicControl
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -19,7 +20,6 @@ from backend.core.exceptions.http_exceptions import (
 from backend.features.economy.monetary import (
     PRESIDENT_CAP,
     SelicDecision,
-    meeting_days,
 )
 from backend.features.government.governance import monetary_card
 from backend.features.government.government_book import GovernmentBook

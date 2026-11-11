@@ -31,6 +31,9 @@ ativo que pagava continua pagando: o rendimento anual e os meses de pagamento v�
 dos últimos anos reais, e cada data ex gerada tira do preço o valor pago, como no
 mercado. O gerador não sorteia desdobramento.
 
+A SELIC gerada segue o Copom: muda só nos dias de reunião (8 por ano) e em degraus de
+0,25 ponto; o CDI anda colado nela.
+
 É uma conta pura sobre o histórico recebido: nada aqui lê ou grava no banco.
 """
 
@@ -45,6 +48,7 @@ from enum import IntEnum
 import numpy as np
 import pandas as pd
 
+from backend.core.copom import SELIC_STEP, meeting_days
 from backend.core.enum import CorporateEventKind, IndicatorSeries
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR, MONTHS_PER_YEAR
 from backend.core.utils import (
@@ -869,6 +873,28 @@ class SeriesGenerator:
         )
         out[IndicatorSeries.FED_FUNDS] = pd.Series(np.round(values, 4), index=days)
 
+    def _decided_in_meetings(self, days: list[date], annual: np.ndarray) -> np.ndarray:
+        """
+        A SELIC que vigora em cada dia: muda só quando uma reunião do Copom cai entre o
+        pregão anterior e o do dia, e passa a ser a taxa desse pregão anterior no passo
+        de 0,25. Até a primeira reunião vale a última SELIC real.
+        """
+        step = float(SELIC_STEP)
+        meetings = sorted(
+            m
+            for year in range(days[0].year, days[-1].year + 1)
+            for m in meeting_days(year)
+        )
+        held = self.last_selic
+        decided = np.empty(len(annual))
+        for i, day in enumerate(days):
+            if i:
+                crossed = bisect_left(meetings, days[i - 1])
+                if crossed < len(meetings) and meetings[crossed] < day:
+                    held = round(float(annual[i - 1]) / step) * step
+            decided[i] = held
+        return decided
+
     def _generate_rates(
         self,
         draw: "_Draw",
@@ -889,8 +915,9 @@ class SeriesGenerator:
         spread = self.last_selic - float(to_annual(np.array([cdi.iloc[-1]]))[0])
         selic_days = [day for day in days if day in path]
         _, push = self._effects(draw, np.array([_day_number(d) for d in selic_days]))
-        annual = np.maximum(
-            np.array([path[day] for day in selic_days]) + push, SELIC_FLOOR
+        annual = self._decided_in_meetings(
+            selic_days,
+            np.maximum(np.array([path[day] for day in selic_days]) + push, SELIC_FLOOR),
         )
         out[IndicatorSeries.SELIC] = pd.Series(
             np.round(to_daily(annual), 6), index=selic_days

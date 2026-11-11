@@ -8,18 +8,18 @@ from decimal import Decimal
 import pytest
 from pydantic import ValidationError
 
+from backend.core.copom import is_meeting_day, meeting_days, next_meeting
 from backend.core.dto.government import SelicRequest
 from backend.features.economy.monetary import (
+    AUTONOMOUS_CAP,
     PRESIDENT_CAP,
     SelicBoard,
     SelicDecision,
+    autonomous_decision,
     cap_window,
     credibility_premium,
-    is_meeting_day,
     lag_weights,
-    meeting_days,
     next_credibility,
-    next_meeting,
     rate_inflation_points,
     selic_floor,
     within_cap,
@@ -347,3 +347,15 @@ def test_low_credibility_raises_inflation_more_and_sooner() -> None:
 
     assert max(doubted) > max(calm)
     assert doubted.index(max(doubted)) < calm.index(max(calm))
+
+
+def test_the_autonomous_bank_rounds_to_a_quarter_point() -> None:
+    assert autonomous_decision(0.4, 0.0) == pytest.approx(0.5)
+    assert autonomous_decision(0.1, 0.0) == 0
+    assert autonomous_decision(-0.6, 0.0) == pytest.approx(-0.5)
+
+
+def test_the_autonomous_bank_moves_at_most_the_cap_per_meeting() -> None:
+    assert autonomous_decision(6.0, 0.5) == pytest.approx(0.5 + AUTONOMOUS_CAP)
+    assert autonomous_decision(-6.0, 0.5) == pytest.approx(0.5 - AUTONOMOUS_CAP)
+    assert autonomous_decision(1.25, 1.0) == pytest.approx(1.25)

@@ -12,6 +12,7 @@ from decimal import Decimal
 from uuid import UUID
 
 from backend.core import repository
+from backend.core.copom import next_meeting, to_step
 from backend.core.dto.events.government import GovernmentEventDTO
 from backend.core.dto.government import (
     PARTY_ABBR_PATTERN,
@@ -55,7 +56,6 @@ from backend.core.indicators import (
 from backend.core.utils import format_money, next_business_day, required
 from backend.features.economy import monetary
 from backend.features.economy.growth import MacroCourse
-from backend.features.economy.layer import central_bank_reaction
 from backend.features.government import approval as approval_rules
 from backend.features.government import budget as budget_rules
 from backend.features.government import (
@@ -3062,9 +3062,9 @@ class GovernmentBook:
         """
         last = self.state.last_meeting
         if last is not None:
-            return monetary.next_meeting(last + timedelta(days=1))
+            return next_meeting(last + timedelta(days=1))
         term = self.state.term
-        return monetary.next_meeting(term.start if term is not None else today)
+        return next_meeting(term.start if term is not None else today)
 
     def selic_now(self, today: date) -> Decimal:
         """A SELIC anual em vigor: a da última reunião do governo, ou a do Banco Central autônomo."""
@@ -3096,7 +3096,7 @@ class GovernmentBook:
         if president is None or president.id != user.id:
             raise ForbiddenError("Só o presidente marca a SELIC.")
         if selic is not None:
-            if selic != monetary.to_step(selic):
+            if selic != to_step(selic):
                 raise UnprocessableEntityError("A SELIC anda em passos de 0,25 ponto.")
             current = self.selic_now(today)
             cap = self.selic_cap()
@@ -3135,7 +3135,7 @@ class GovernmentBook:
             wanted = plan
         elif president is None or president.is_bot:
             stored = self.selic_history(today)
-            reaction = central_bank_reaction(self._linked.layer.inflation_points(today))
+            reaction = self._linked.layer.rule_points(today)
             wanted = stored + Decimal(str(round(reaction / 100, 6)))
         else:
             wanted = current

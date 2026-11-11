@@ -8,6 +8,7 @@ from decimal import Decimal
 
 import pytest
 
+from backend.core.copom import meeting_days, to_step
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.enum import AssetOrigin, IndicatorSeries, MeasureKind, MeasureStatus
 from backend.core.indicators import annual_index_rate, annualize_daily
@@ -16,7 +17,7 @@ from backend.core.repository.economic import IndicatorHistory
 from backend.features.economy import layer
 from backend.features.economy.layer import EconomyLayer
 from backend.features.economy.links import NO_LINK, LinkMonth
-from backend.features.economy.monetary import SelicBoard, SelicDecision, to_step
+from backend.features.economy.monetary import SelicBoard, SelicDecision
 from backend.features.government import sector_boost
 from backend.features.government import spending_effects as fx
 from backend.features.government.state import Measure
@@ -287,13 +288,52 @@ def test_the_links_add_their_ipca_points_from_the_day_they_hold(indicators):
     )
 
 
+def test_the_autonomous_bank_decides_at_the_meetings_in_steps_of_a_quarter_point(
+    indicators,
+):
+    layer = linked(unemployment="-0.02", premium="0.02")
+    first, second = meeting_days(2021)[:2]
+    wanted = layer.rule_points(first)
+
+    # Antes da primeira reunião a SELIC segue a história; a decisão vale do dia seguinte
+    assert layer.selic_points(first) == 0
+    decided = layer.selic_points(first + timedelta(days=1))
+    assert wanted > 1
+    assert decided == pytest.approx(1.0)
+    # Entre as reuniões a taxa fica; na seguinte anda mais até 1 ponto, no passo de 0,25
+    assert layer.selic_points(second) == decided
+    after = layer.selic_points(second + timedelta(days=1))
+    assert after == pytest.approx(min(decided + 1.0, round(wanted * 4) / 4))
+    assert after / 0.25 == pytest.approx(round(after / 0.25))
+
+
+def test_the_autonomous_bank_looks_through_the_consumption_tax_cut(indicators):
+    link = LinkMonth(
+        date(2021, 1, 31),
+        Decimal(0),
+        Decimal(0),
+        Decimal(0),
+        Decimal(0),
+        Decimal(0),
+        consumption_change=Decimal("-0.16"),
+    )
+    layer = EconomyLayer(1, START, fx.SpendingEconomy(), FixedLinks(link))
+    day = date(2021, 9, 1)
+
+    # O imposto derruba o IPCA em 12 meses, e a SELIC não reage ao degrau de preço
+    assert layer.inflation_points(day) == pytest.approx(-8.0)
+    assert layer.reading_points(day) == 0
+    assert layer.selic_points(day) == 0
+    assert layer.stocks_parts(day).total == pytest.approx(0.0)
+
+
 def test_the_premium_pulls_the_stocks_like_the_selic_over_the_quarter(indicators):
     layer = linked(premium="0.01")
     day = date(2021, 6, 1)
 
     # 1 ponto de prêmio pesa como 1 ponto de SELIC, e a inflação a mais que ele
-    # causa leva a SELIC a reagir também
-    selic = layer.selic_points(day)
+    # causa leva a regra do Banco Central a reagir também
+    selic = layer.rule_points(day)
     assert layer.level(day) == pytest.approx(math.exp(-0.029 * (selic + 1.0)))
     assert layer.level(day) < 1
 

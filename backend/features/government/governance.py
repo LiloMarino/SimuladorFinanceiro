@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 from backend.core import repository
+from backend.core.copom import SELIC_STEP
 from backend.core.dto.government import (
     ApprovalDTO,
     ApprovalFactorDTO,
@@ -270,7 +271,7 @@ def monetary_card(book: GovernmentBook, today: date) -> MonetaryDTO | None:
         next_meeting=book.next_selic_meeting(today),
         cap=book.selic_cap(),
         history_selic=book.selic_history(today),
-        step=monetary.SELIC_STEP,
+        step=SELIC_STEP,
         floor=book.selic_floor(today),
         plan=book.state.selic_plan,
         credibility=credibility,
