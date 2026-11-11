@@ -27,6 +27,7 @@ from backend.core.enum import (
     SimulationStatus,
 )
 from backend.core.models.models import Snapshots
+from backend.core.player_colors import MAX_PLAYERS
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -355,8 +356,8 @@ def test_strategy_params_are_validated_by_the_strategy(events):
     assert error.value.status_code == 422
 
 
-def test_eleven_participants_do_not_fit(events):
-    many = [participant(f"Bot {n}", "chart-1") for n in range(11)]
+def test_participants_beyond_the_room_limit_do_not_fit(events):
+    many = [participant(f"Bot {n}", "chart-1") for n in range(MAX_PLAYERS + 1)]
 
     with pytest.raises(ValidationError):
         config(participants=many)

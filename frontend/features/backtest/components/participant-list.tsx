@@ -98,7 +98,7 @@ export function ParticipantList({
         </button>
         <p className="mt-1 text-xs text-muted-foreground">
           {full
-            ? "Cheio: remova uma para pôr outra. O limite é o das 10 vagas da sala."
+            ? `Cheio: remova uma para pôr outra. O limite é o das ${MAX_PARTICIPANTS} vagas da sala.`
             : "Para comparar parâmetros, Duplicar e mude um número: “O Grafista” (50/200) contra “Grafista Ligeiro”."}
         </p>
       </div>

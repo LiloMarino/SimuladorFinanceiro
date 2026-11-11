@@ -228,14 +228,16 @@
   /* Cores dos jogadores e dos partidos: separadas das séries de gráfico, cada uma muda sem mexer na outra */
   --player-1: #2350d8;
   --player-2: #209993;
-  --player-3: #809614;
+  --player-3: #7e9314;
   --player-4: #4f1599;
-  --player-5: #cc726b;
+  --player-5: #cb7069;
   --player-6: #c81c60;
-  --player-7: #9e75fa;
+  --player-7: #9a6ffa;
   --player-8: #0b5e35;
   --player-9: #682455;
   --player-10: #722604;
+  --player-11: #e0489b;
+  --player-12: #1e88e5;
   /* Equipes: tons escuros, sempre em escudo, faixa ou linha grossa; a bolinha é do jogador */
   --team-1: #4338ca;
   --team-2: #be123c;

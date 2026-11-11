@@ -5,7 +5,7 @@ from backend.core.dto.base import BaseDTO
 
 class GoalRunnerDTO(BaseDTO):
     nickname: str
-    # Chave da paleta (chart-1 a chart-10)
+    # Chave da paleta de jogadores (chart-N)
     color: str
     # Índice da equipe (1 a 10); nulo fora do modo em equipes
     team: int | None

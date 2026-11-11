@@ -8,21 +8,24 @@ import {
   partyColor,
   partyForeground,
 } from "./party-colors";
-import { INK, WHITE } from "./player-colors";
+import { INK, MAX_PLAYERS, PLAYER_COLORS, WHITE } from "./player-colors";
 
 // Fundos do tema claro (index.css) e as duas cores de texto, em hex
 const BACKGROUNDS = ["#F4F5F7", "#FFFFFF", "#EEF0F3"];
 const TEXT_HEX = { [WHITE]: "#FFFFFF", [INK]: "#0F1729" };
-const PLAYER_COLOR_COUNT = 10;
-const NEW_COLORS = PARTY_PALETTE.slice(PLAYER_COLOR_COUNT);
 
 describe("PARTY_PALETTE", () => {
-  it("tem 16 cores, todas com hex único", () => {
-    expect(PARTY_PALETTE).toHaveLength(16);
-    expect(new Set(PARTY_PALETTE.map((c) => c.value)).size).toBe(16);
+  it("tem 20 cores, todas com hex único", () => {
+    expect(PARTY_PALETTE).toHaveLength(20);
+    expect(new Set(PARTY_PALETTE.map((c) => c.value)).size).toBe(20);
   });
 
-  it.each(NEW_COLORS)("$name se vê em todo fundo do app (contraste de pelo menos 3 para 1)", (color) => {
+  it("começa pelas cores dos jogadores e tem mais cores que a sala tem vagas", () => {
+    expect(PARTY_PALETTE.slice(0, MAX_PLAYERS).map((c) => c.value)).toEqual(PLAYER_COLORS.map((c) => c.hex));
+    expect(PARTY_PALETTE.length).toBeGreaterThan(MAX_PLAYERS);
+  });
+
+  it.each(PARTY_PALETTE)("$name se vê em todo fundo do app (contraste de pelo menos 3 para 1)", (color) => {
     for (const background of BACKGROUNDS) {
       expect(contrastRatio(color.value, background)).toBeGreaterThanOrEqual(3);
     }
@@ -65,7 +68,7 @@ describe("partyForeground", () => {
 
 describe("defaultPartyColor", () => {
   it("marca a cor de quem funda quando está livre", () => {
-    expect(defaultPartyColor("chart-3", [])).toBe("#809614");
+    expect(defaultPartyColor("chart-3", [])).toBe("#7E9314");
   });
 
   it("cai na 1ª cor livre quando outro partido já usa a de quem funda", () => {
@@ -73,8 +76,8 @@ describe("defaultPartyColor", () => {
     expect(defaultPartyColor(undefined, [])).toBe("#2350D8");
   });
 
-  it("alcança as cores novas quando as 10 dos jogadores estão tomadas", () => {
-    const taken = PARTY_PALETTE.slice(0, PLAYER_COLOR_COUNT).map((c) => c.value);
+  it("alcança as cores só de partido quando as dos jogadores estão tomadas", () => {
+    const taken = PARTY_PALETTE.slice(0, MAX_PLAYERS).map((c) => c.value);
     expect(defaultPartyColor("chart-1", taken)).toBe("#D92D20");
   });
 });

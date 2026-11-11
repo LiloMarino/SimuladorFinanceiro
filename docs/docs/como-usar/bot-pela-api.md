@@ -24,7 +24,7 @@ Todas as rotas começam em `/api` e estão descritas na [referência da API](/ap
 
 `GET /api/session/me` traz `pending_join: true` quando há uma partida em andamento e o bot ainda não joga nela. Sem partida em andamento, as rotas de jogo (carteira, mercado, ordens) respondem 403 com "Não existe uma simulação ativa"; o bot espera e pergunta de novo. Com `pending_join`:
 
-`POST /api/simulation/join` com `{"color": "chart-1"}`. A cor vai de `chart-1` a `chart-10`; se já tem dono, a resposta é 409 e o bot tenta a próxima. Em partida em equipes, mande também `"team"`. A partida comporta até 10 jogadores; lotada, a resposta é 423. Ao entrar, o bot recebe o saldo inicial no dia corrente, como qualquer jogador que chega depois do início (veja [Multiplayer](./multiplayer.md#entrar-com-a-partida-em-andamento)).
+`POST /api/simulation/join` com `{"color": "chart-1"}`. A cor vai de `chart-1` a `chart-12`; se já tem dono, a resposta é 409 e o bot tenta a próxima. Em partida em equipes, mande também `"team"`. A partida comporta até 12 jogadores; lotada, a resposta é 423. Ao entrar, o bot recebe o saldo inicial no dia corrente, como qualquer jogador que chega depois do início (veja [Multiplayer](./multiplayer.md#entrar-com-a-partida-em-andamento)).
 
 ### 4. O tick
 
@@ -94,7 +94,7 @@ import requests
 import socketio
 
 # Cores da paleta de jogadores, na ordem em que o bot tenta ocupá-las
-PALETTE = [f"chart-{n}" for n in range(1, 11)]
+PALETTE = [f"chart-{n}" for n in range(1, 13)]
 
 
 def average(values: list[float], window: int, end: int) -> float:

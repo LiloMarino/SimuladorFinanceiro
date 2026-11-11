@@ -12049,7 +12049,7 @@
               "$ref": "#/components/schemas/BacktestParticipantDTO-Input"
             },
             "type": "array",
-            "maxItems": 10,
+            "maxItems": 12,
             "minItems": 1,
             "title": "Participants"
           }
@@ -12102,7 +12102,7 @@
               "$ref": "#/components/schemas/BacktestParticipantDTO-Output"
             },
             "type": "array",
-            "maxItems": 10,
+            "maxItems": 12,
             "minItems": 1,
             "title": "Participants"
           }

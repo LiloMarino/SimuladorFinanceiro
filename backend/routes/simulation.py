@@ -201,7 +201,7 @@ class PlayerNickname(BaseModel):
     model_config = ConfigDict(json_schema_serialization_defaults_required=True)
 
     nickname: str
-    # Chave da paleta (chart-1 a chart-10)
+    # Chave da paleta de jogadores (chart-N)
     color: str
     # Índice da equipe (1 a 10); nulo fora do modo em equipes ou enquanto não escolheu
     team: int | None = None

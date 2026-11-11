@@ -20,7 +20,7 @@ import requests
 import socketio
 
 # Cores da paleta de jogadores, na ordem em que o bot tenta ocupá-las
-PALETTE = [f"chart-{n}" for n in range(1, 11)]
+PALETTE = [f"chart-{n}" for n in range(1, 13)]
 
 
 def average(values: list[float], window: int, end: int) -> float:

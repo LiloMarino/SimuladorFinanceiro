@@ -118,7 +118,7 @@ def test_removing_a_bot_frees_the_color_and_deletes_the_user(room):
     assert UserManager.room_colors()[again.id] == "chart-3"
 
 
-def test_the_eleventh_player_is_refused(room):
+def test_a_player_beyond_the_room_limit_is_refused(room):
     person("Ana")
     for i in range(len(PLAYER_COLORS) - 1):
         UserManager.add_bot(f"Bot {i}", "buy_and_hold", {})

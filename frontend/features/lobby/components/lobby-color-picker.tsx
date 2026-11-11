@@ -25,7 +25,7 @@ type LobbyColorPickerProps = {
   simulationName?: string | undefined;
 };
 
-/** "Sua cor na partida": 10 cores, as que já têm dono ficam apagadas com a sigla de quem as tem. */
+/** "Sua cor na partida": as cores da paleta, as que já têm dono ficam apagadas com a sigla de quem as tem. */
 export function LobbyColorPicker({ nickname, players, savedPlayers, simulationName }: LobbyColorPickerProps) {
   const [refusal, setRefusal] = useState<string | null>(null);
 
@@ -69,7 +69,7 @@ export function LobbyColorPicker({ nickname, players, savedPlayers, simulationNa
           taken={playerOwners([...players, ...savedPlayers])}
           value={mine}
           onChange={chooseColor}
-          columns={5}
+          columns={6}
           label="Sua cor na partida"
           disabled={locked || isPending}
         />

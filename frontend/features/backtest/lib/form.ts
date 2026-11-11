@@ -2,6 +2,7 @@ import { z } from "zod";
 import { editValues, type BotFormValues } from "@/shared/lib/bot-form";
 import { nameTaken } from "@/shared/lib/bot-names";
 import { NAME_MAX_LENGTH, NAME_TOO_LONG } from "@/shared/lib/name-limit";
+import { MAX_PLAYERS } from "@/shared/lib/player-colors";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { dateFieldError, isIsoDate, toIso } from "@/shared/lib/utils/date-field";
 import { displayIsoDate, parseLocalDate } from "@/shared/lib/utils/display";
@@ -17,7 +18,7 @@ import type {
 import { MIN_TRADING_DAYS, weekdaysBetween } from "./period";
 
 /** O teto é o das vagas da sala. */
-export const MAX_PARTICIPANTS = 10;
+export const MAX_PARTICIPANTS = MAX_PLAYERS;
 
 export type BacktestFormValues = {
   name: string;

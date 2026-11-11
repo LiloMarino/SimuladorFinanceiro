@@ -297,7 +297,7 @@ function BotForm({
                 taken={playerOwners(others)}
                 value={color}
                 onChange={(next) => form.setValue("color", next)}
-                columns={5}
+                columns={6}
                 label="Cor do bot"
               />
               <FieldDescription>Já vem a próxima livre. As esmaecidas estão em uso.</FieldDescription>

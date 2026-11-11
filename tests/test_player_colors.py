@@ -103,12 +103,12 @@ def test_color_outside_the_palette_is_rejected(join: Join):
     ana = join("Ana")
 
     with pytest.raises(HTTPException) as error:
-        UserManager.set_color(ana.client_id, "chart-11")
+        UserManager.set_color(ana.client_id, "chart-13")
 
     assert error.value.status_code == 422
 
 
-def test_eleventh_player_is_refused(join: Join):
+def test_player_beyond_the_limit_is_refused(join: Join):
     players = [join(f"P{n}") for n in range(MAX_PLAYERS)]
     assert len({color_of(p) for p in players}) == MAX_PLAYERS
 
@@ -254,7 +254,7 @@ def room_with_newcomers(join: Join, newcomers: int) -> list[UserDTO]:
 
 @pytest.mark.parametrize(
     ("saved", "newcomers"),
-    [(4, 3), (8, 2), (10, 0)],
+    [(4, 3), (MAX_PLAYERS - 2, 2), (MAX_PLAYERS, 0)],
 )
 def test_saved_match_that_fits_the_room_is_selectable(
     join: Join, saved: int, newcomers: int
@@ -271,7 +271,9 @@ def test_saved_match_that_fits_the_room_is_selectable(
     assert not set(new_colors) & set(colors.values())
 
 
-@pytest.mark.parametrize(("saved", "newcomers"), [(8, 3), (10, 1)])
+@pytest.mark.parametrize(
+    ("saved", "newcomers"), [(MAX_PLAYERS - 2, 3), (MAX_PLAYERS, 1)]
+)
 def test_saved_match_that_does_not_fit_is_refused_with_the_names(
     join: Join, saved: int, newcomers: int
 ):
@@ -289,8 +291,8 @@ def test_saved_match_that_does_not_fit_is_refused_with_the_names(
 
 
 def test_offline_players_of_the_saved_match_still_hold_their_slot(join: Join):
-    # 10 jogaram, 6 estão offline: só 4 deles na sala, mais 1 que nunca jogou
-    colors = saved_match(10)
+    # Todas as vagas da partida foram jogadas, mas só 4 deles estão na sala, mais 1 que nunca jogou
+    colors = saved_match(MAX_PLAYERS)
     for user_id in list(colors)[:4]:
         user = UserDTO(
             id=user_id, client_id=client(f"P{user_id}"), nickname=f"P{user_id}"
@@ -303,7 +305,7 @@ def test_offline_players_of_the_saved_match_still_hold_their_slot(join: Join):
 
 
 def test_room_filled_by_reserved_colors_explains_the_reservation(join: Join):
-    UserManager.apply_saved_colors(saved_match(9))
+    UserManager.apply_saved_colors(saved_match(MAX_PLAYERS - 1))
     join("Novo")  # pega a única cor que sobra
 
     late = UserDTO(id=99, client_id=client("Late"), nickname="Late")
@@ -409,12 +411,12 @@ def test_late_player_authenticates_pending_without_a_slot_in_the_room(
 def test_full_match_refuses_the_late_player(
     start_match: StartMatch,
 ):
-    start_match({n: (f"P{n}", PLAYER_COLORS[n - 1]) for n in range(1, 11)})
+    start_match({n: (f"P{n}", PLAYER_COLORS[n - 1]) for n in range(1, MAX_PLAYERS + 1)})
     late = register("Duda", 99)
 
     message = refusal(lambda: UserManager.player_auth(late.client_id), status=423)
 
-    assert "10 jogadores" in message
+    assert f"{MAX_PLAYERS} jogadores" in message
     assert "está lotada" in message
 
 
@@ -444,8 +446,8 @@ def test_join_match_with_a_taken_color_is_refused_and_nothing_is_saved(
     assert late.id not in repository.simulation_player.colors(1)
 
 
-def test_eleventh_player_cannot_join_the_match(start_match: StartMatch):
-    start_match({n: (f"P{n}", PLAYER_COLORS[n - 1]) for n in range(1, 11)})
+def test_player_beyond_the_limit_cannot_join_the_match(start_match: StartMatch):
+    start_match({n: (f"P{n}", PLAYER_COLORS[n - 1]) for n in range(1, MAX_PLAYERS + 1)})
     late = register("Duda", 99)
 
     refusal(

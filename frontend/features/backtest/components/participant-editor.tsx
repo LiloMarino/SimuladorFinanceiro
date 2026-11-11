@@ -148,7 +148,7 @@ export function ParticipantEditor({
           taken={playerOwners(others)}
           value={participant.color}
           onChange={(next) => form.setValue(`${path}.color`, next, { shouldValidate: true })}
-          columns={5}
+          columns={6}
           label="Cor da estratégia"
         />
         <FieldDescription>As esmaecidas já são de outra estratégia.</FieldDescription>

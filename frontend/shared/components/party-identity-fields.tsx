@@ -68,7 +68,7 @@ export function PartyIdentityFields({ control, taken, idPrefix }: PartyIdentityF
               taken={taken.map((party) => ({ color: party.color, label: party.abbr, owner: party.abbr }))}
               value={field.value}
               onChange={field.onChange}
-              columns={8}
+              columns={10}
               label="Cor do partido"
             />
             <FieldDescription>Cada partido tem uma cor própria.</FieldDescription>

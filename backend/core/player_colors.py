@@ -1,11 +1,11 @@
 """
 Paleta de cores dos jogadores.
 
-As chaves são os tokens `--chart-N` do front: o servidor decide quem tem qual cor
-e o front só traduz a chave para a cor. O tamanho da paleta é o teto de jogadores.
+As chaves são `chart-N`: o servidor decide quem tem qual cor e o front traduz a chave
+para a cor (`--player-N`). O tamanho da paleta é o teto de jogadores.
 """
 
-PLAYER_COLORS: tuple[str, ...] = tuple(f"chart-{n}" for n in range(1, 11))
+PLAYER_COLORS: tuple[str, ...] = tuple(f"chart-{n}" for n in range(1, 13))
 
 MAX_PLAYERS = len(PLAYER_COLORS)
 

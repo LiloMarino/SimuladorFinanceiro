@@ -1,10 +1,13 @@
 import { INK, PLAYER_COLORS, WHITE } from "./player-colors";
 
 /**
- * As 16 cores que a fundadora escolhe para o partido, no formato do seletor de cor: o valor
- * escolhido é o hex, que o servidor guarda. As 10 primeiras são as dos jogadores; as 6 últimas
- * (vermelho, laranja, âmbar, rosa, azul-céu e verde) são só de partido. Preto, branco e cinzas
- * ficam de fora: o sistema os reserva (destaque do mapa, selos, UPR e partido sem cor).
+ * As 20 cores que a fundadora escolhe para o partido, no formato do seletor de cor: o valor
+ * escolhido é o hex, que o servidor guarda. As primeiras são as dos jogadores, na mesma ordem;
+ * as 8 últimas (vermelho, laranja, âmbar, verde, vinho, magenta, dourado e musgo) são só de
+ * partido: vermelho e âmbar ficam fora da paleta dos jogadores porque, nos gráficos de carteira,
+ * significam perda e alerta. A paleta tem sempre mais cores que a sala tem vagas, então toda
+ * fundadora acha uma cor livre. Preto, branco e cinzas ficam de fora: o sistema os reserva
+ * (destaque do mapa, selos, UPR e partido sem cor).
  */
 export const PARTY_PALETTE = [
   ...PLAYER_COLORS.map((color) => ({
@@ -16,9 +19,11 @@ export const PARTY_PALETTE = [
   { value: "#D92D20", name: "Vermelho", background: "#D92D20", foreground: WHITE },
   { value: "#E8590C", name: "Laranja", background: "#E8590C", foreground: INK },
   { value: "#A85F00", name: "Âmbar", background: "#A85F00", foreground: WHITE },
-  { value: "#E0489B", name: "Rosa", background: "#E0489B", foreground: INK },
-  { value: "#1E88E5", name: "Azul-céu", background: "#1E88E5", foreground: INK },
   { value: "#1A9A44", name: "Verde", background: "#1A9A44", foreground: INK },
+  { value: "#800020", name: "Vinho", background: "#800020", foreground: WHITE },
+  { value: "#B5179E", name: "Magenta", background: "#B5179E", foreground: WHITE },
+  { value: "#B1800E", name: "Dourado", background: "#B1800E", foreground: INK },
+  { value: "#517722", name: "Musgo", background: "#517722", foreground: WHITE },
 ];
 
 /** Os partidos do computador não escolhem cor: cada um tem a sua, fixa e fora da paleta de escolha. */

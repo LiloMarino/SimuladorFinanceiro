@@ -150,7 +150,7 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
                   reset();
                   setChoice(color);
                 }}
-                columns={5}
+                columns={6}
                 label="Sua cor"
                 disabled={isPending}
               />

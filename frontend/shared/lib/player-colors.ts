@@ -11,14 +11,16 @@ export const INK = "var(--foreground)";
 export const PLAYER_COLORS = [
   { key: "chart-1", name: "Azul", background: "var(--player-1)", hex: "#2350D8", foreground: WHITE },
   { key: "chart-2", name: "Verde-água", background: "var(--player-2)", hex: "#209993", foreground: INK },
-  { key: "chart-3", name: "Lima", background: "var(--player-3)", hex: "#809614", foreground: INK },
+  { key: "chart-3", name: "Lima", background: "var(--player-3)", hex: "#7E9314", foreground: INK },
   { key: "chart-4", name: "Roxo", background: "var(--player-4)", hex: "#4F1599", foreground: WHITE },
-  { key: "chart-5", name: "Salmão", background: "var(--player-5)", hex: "#CC726B", foreground: INK },
+  { key: "chart-5", name: "Salmão", background: "var(--player-5)", hex: "#CB7069", foreground: INK },
   { key: "chart-6", name: "Framboesa", background: "var(--player-6)", hex: "#C81C60", foreground: WHITE },
-  { key: "chart-7", name: "Lavanda", background: "var(--player-7)", hex: "#9E75FA", foreground: INK },
+  { key: "chart-7", name: "Lavanda", background: "var(--player-7)", hex: "#9A6FFA", foreground: INK },
   { key: "chart-8", name: "Floresta", background: "var(--player-8)", hex: "#0B5E35", foreground: WHITE },
   { key: "chart-9", name: "Ameixa", background: "var(--player-9)", hex: "#682455", foreground: WHITE },
   { key: "chart-10", name: "Marrom", background: "var(--player-10)", hex: "#722604", foreground: WHITE },
+  { key: "chart-11", name: "Rosa", background: "var(--player-11)", hex: "#E0489B", foreground: INK },
+  { key: "chart-12", name: "Azul-céu", background: "var(--player-12)", hex: "#1E88E5", foreground: INK },
 ] as const;
 
 /** A paleta no formato do seletor de cor: o valor escolhido é a `key` que o servidor guarda. */
