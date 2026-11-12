@@ -12,6 +12,7 @@ import {
   seatShare,
   shareOfVotes,
   unguidedCount,
+  unguidedDeadline,
   voteSeats,
   type Bloc,
   type Vote,
@@ -177,6 +178,24 @@ describe("unguidedCount", () => {
 
   it("não conta a que ele já orientou", () => {
     expect(unguidedCount({ impeachment_request: null } as Parameters<typeof unguidedCount>[0], queue(true))).toBe(0);
+  });
+});
+
+describe("unguidedDeadline", () => {
+  const guide = { bloc_key: 1 } as NonNullable<Vote["guide"]>;
+  const measure = (guided: boolean, voteDate: string) => ({
+    vote: vote([blocVote({ key: 1, guided })], { guide }),
+    vote_date: voteDate,
+  });
+
+  it("devolve o dia da votação sem orientação que vem primeiro", () => {
+    const queue = [measure(false, "2016-10-30"), measure(false, "2016-09-30"), measure(true, "2016-08-30")];
+
+    expect(unguidedDeadline(queue as Parameters<typeof unguidedDeadline>[0])).toBe("2016-09-30");
+  });
+
+  it("sem votação sem orientação, não há dia", () => {
+    expect(unguidedDeadline([measure(true, "2016-09-30")] as Parameters<typeof unguidedDeadline>[0])).toBeNull();
   });
 });
 

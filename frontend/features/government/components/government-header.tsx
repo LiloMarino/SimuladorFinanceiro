@@ -6,6 +6,7 @@ import type { GovernmentPanel } from "@/types";
 import { useToday } from "../hooks/useToday";
 import { countdownLabel } from "../lib/election";
 import { isComputerGovernment, monthYear } from "../lib/government";
+import { CountryStrip } from "./country-strip";
 import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 import { ValueChips } from "@/shared/components/value-chip";
 
@@ -60,6 +61,7 @@ export function GovernmentHeader({ panel }: GovernmentHeaderProps) {
             </div>
           )}
         </div>
+        <CountryStrip />
       </CardContent>
     </Card>
   );

@@ -9,7 +9,7 @@ import { EffectsCard } from "../components/effects-card";
 import { EconomyKpis } from "../components/economy-kpis";
 import { GrowthCard } from "../components/growth-card";
 import { UnemploymentCard } from "../components/unemployment-card";
-import { useEconomyPanel } from "../hooks/queries/useEconomyPanel";
+import { useEconomyPanel } from "@/shared/hooks/queries/useEconomyPanel";
 
 export default function EconomyPage() {
   usePageLabel("Economia");

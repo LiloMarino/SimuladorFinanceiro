@@ -10,6 +10,7 @@ import { useToday } from "../hooks/useToday";
 import { federationOf } from "../lib/federation";
 import { affiliationNote, countdownLabel, monthYear, phaseLabel } from "../lib/election";
 import { PartyMark } from "@/shared/components/party-mark";
+import { CountryStrip } from "./country-strip";
 
 type StepState = "done" | "current" | "pending";
 
@@ -225,6 +226,7 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
             })}
           </ol>
         </div>
+        <CountryStrip />
       </CardContent>
     </Card>
   );

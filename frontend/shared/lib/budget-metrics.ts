@@ -1,5 +1,5 @@
 import type { MetricInfo } from "@/shared/lib/metric-info";
-import { displayPercent } from "@/shared/lib/utils/display";
+import { displayMoneyLarge, displayPercent } from "@/shared/lib/utils/display";
 
 const percent = (value: string | number) => displayPercent(value, 1);
 
@@ -24,6 +24,18 @@ export const GROWTH: MetricInfo = {
   reading:
     "Perto de 2% é o ritmo normal; acima de 3% a economia está aquecida e o governo ganha aprovação; abaixo de 0% é recessão e o desemprego sobe. Juro real alto e bolsa em queda esfriam o crescimento.",
   format: percent,
+};
+
+export const GDP: MetricInfo = {
+  label: "PIB",
+  description: "Tudo o que o país produz em um ano",
+  definition:
+    "O Produto Interno Bruto é o valor de tudo o que o país produz num ano, em reais. É o tamanho da economia.",
+  example:
+    "Ex.: um PIB de R$ 6,17 tri quer dizer que, somando tudo o que as pessoas e as empresas produziram em 12 meses, o país gerou R$ 6,17 tri.",
+  reading:
+    "O que importa é o ritmo de crescimento: acima de 2% em 12 meses a economia vai bem; de 0% a 2% está fraca; abaixo de 0% é recessão. A dívida e os impostos se medem em relação ao PIB.",
+  format: displayMoneyLarge,
 };
 
 export const UNEMPLOYMENT: MetricInfo = {

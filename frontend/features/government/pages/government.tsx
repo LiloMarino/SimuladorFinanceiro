@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui
 import { useGovernment } from "@/shared/hooks/queries/useGovernment";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import type { GovernmentPanel, MeasureKind } from "@/types";
+import { ActionsTab } from "../components/actions-tab";
 import { AccountsTab } from "../components/accounts-tab";
 import { ApprovalCard } from "../components/approval-card";
 import { FrozenPortfolioCard } from "../components/frozen-portfolio-card";
@@ -17,7 +18,7 @@ import { BeforeFirstTerm } from "../components/government-states";
 import { NewMeasureDialog } from "../components/new-measure-dialog";
 import { PresidencyPayCard } from "../components/presidency-pay-card";
 import { TermPromisesCard } from "../components/term-promises-card";
-import { unguidedCount } from "../lib/house";
+import { governmentPending, governmentPendingCount } from "../lib/actions";
 
 export default function GovernmentPage() {
   usePageLabel("Governo");
@@ -50,19 +51,21 @@ export default function GovernmentPage() {
 
 type Proposal = { kind?: MeasureKind | undefined };
 
-const TABS = ["mandate", "accounts", "congress"] as const;
+const TABS = ["actions", "mandate", "accounts", "congress"] as const;
 type Tab = (typeof TABS)[number];
 
-/** A aba vem do endereço (?tab=); sem ela ou com valor desconhecido, abre o Mandato. */
+/** A aba vem do endereço (?tab=); sem ela ou com valor desconhecido, abre Suas ações. */
 function tabFrom(value: string | null): Tab {
-  return TABS.find((tab) => tab === value) ?? "mandate";
+  return TABS.find((tab) => tab === value) ?? "actions";
 }
 
 function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [params, setParams] = useSearchParams();
   const tab = tabFrom(params.get("tab"));
-  const unguided = unguidedCount(panel.congress, panel.queue);
+  const pending = governmentPending(panel);
+  const pendingCount = governmentPendingCount(pending);
+  const unguided = pending.unguided?.count ?? 0;
 
   if (panel.computer_until_inauguration) return <BeforeFirstTerm inauguration={panel.next_inauguration} />;
 
@@ -75,6 +78,14 @@ function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
 
       <Tabs value={tab} onValueChange={(value: string) => setParams({ tab: tabFrom(value) }, { replace: true })}>
         <TabsList variant="line">
+          <TabsTrigger value="actions">
+            Suas ações
+            {pendingCount > 0 && (
+              <Badge variant="warning" size="sm" aria-label={`${pendingCount} decisões com prazo`}>
+                {pendingCount}
+              </Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="mandate">Mandato</TabsTrigger>
           <TabsTrigger value="accounts">Contas</TabsTrigger>
           <TabsTrigger value="congress">
@@ -86,6 +97,15 @@ function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
             )}
           </TabsTrigger>
         </TabsList>
+
+        {/* O que o jogador faz no Governo e na bancada */}
+        <TabsContent value="actions">
+          <ActionsTab
+            panel={panel}
+            onPropose={(kind) => setProposal({ kind })}
+            onGo={(next) => setParams({ tab: next }, { replace: true })}
+          />
+        </TabsContent>
 
         {/* Aprovação, promessas da chapa, pagamento do cargo e carteira do presidente */}
         <TabsContent value="mandate">

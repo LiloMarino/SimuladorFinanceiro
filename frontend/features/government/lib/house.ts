@@ -132,13 +132,22 @@ export function pad(seats: HemicycleSeat[]): HemicycleSeat[] {
   return [...seats, ...Array.from({ length: missing }, (): HemicycleSeat => ({ color: null, tone: "empty" }))];
 }
 
+/** A votação em que o líder de quem vê ainda não orientou a bancada. */
+function isUnguided(vote: Vote | null | undefined): boolean {
+  const mine = vote?.guide ? vote.blocs.find((bloc) => bloc.key === vote.guide?.bloc_key) : undefined;
+  return mine !== undefined && !mine.guided;
+}
+
 /** Votações em que o líder de quem vê ainda não orientou: o selo da aba Congresso. */
 export function unguidedCount(congress: GovernmentPanel["congress"], queue: GovernmentPanel["queue"]): number {
   const votes = [...queue.map((measure) => measure.vote), congress.impeachment_request?.vote ?? null];
-  return votes.filter((vote) => {
-    const mine = vote?.guide ? vote.blocs.find((bloc) => bloc.key === vote.guide?.bloc_key) : undefined;
-    return mine !== undefined && !mine.guided;
-  }).length;
+  return votes.filter(isUnguided).length;
+}
+
+/** O dia da próxima votação sem orientação na fila de medidas; sem nenhuma, nulo. */
+export function unguidedDeadline(queue: GovernmentPanel["queue"]): string | null {
+  const dates = queue.flatMap((measure) => (isUnguided(measure.vote) && measure.vote_date ? [measure.vote_date] : []));
+  return dates.sort()[0] ?? null;
 }
 
 /** "75% de 8 votações"; sem votação ainda, "—". */

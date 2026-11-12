@@ -14,6 +14,7 @@ import {
 import { CardState } from "@/shared/components/card-state";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { cn } from "@/shared/lib/utils";
+import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -32,6 +33,7 @@ import { ContributionDialog } from "../components/contribution-dialog";
 import { DonateDialog } from "../components/donate-dialog";
 import { FirstRoundCard } from "../components/first-round-card";
 import { EndorseDialog } from "../components/endorse-dialog";
+import { ElectionActionsTab } from "../components/election-actions-tab";
 import { ElectionHeader } from "../components/election-header";
 import { BeforeCampaignEmpty } from "../components/election-states";
 import { ExpelDialog } from "../components/expel-dialog";
@@ -54,6 +56,7 @@ import { TermCard } from "../components/term-card";
 import { TicketDialog } from "../components/ticket-dialog";
 import { ViceInviteDialog } from "../components/vice-invite-dialog";
 import { useWithdrawFederation } from "../hooks/mutations/useWithdrawFederation";
+import { electionPending, electionPendingCount } from "../lib/actions";
 import { federationOf } from "../lib/federation";
 import { affiliationNote, campaignEnded, collectionNote, type ElectionShortcut } from "../lib/election";
 import { useElection } from "@/shared/hooks/queries/useElection";
@@ -99,7 +102,7 @@ export default function ElectionPage() {
       key={location.key}
       panel={panel}
       initialDialog={state?.dialog ?? null}
-      initialTab={state?.tab ?? "race"}
+      initialTab={state?.tab ?? "actions"}
     />
   );
 }
@@ -120,7 +123,7 @@ type Dialog =
   | "federation-propose"
   | "federation-answer"
   | "federation-leave";
-type Tab = "race" | "campaign";
+type Tab = "actions" | "race" | "campaign";
 
 type ElectionContentProps = { panel: ElectionPanel; initialDialog: Dialog | null; initialTab: Tab };
 
@@ -170,6 +173,9 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
     receivedProposals.find((proposal) => proposal.id === answeringProposalId) ?? receivedProposals[0];
   const sentProposal = panel.sent_proposal;
   const sentTo = panel.parties.find((candidate) => candidate.id === sentProposal?.to_party_id);
+
+  // O selo da aba Suas ações conta as decisões da chapa que têm prazo
+  const pendingCount = electionPendingCount(electionPending(panel));
 
   // A disputa do 2º turno, quando há
   const runoffRace = panel.runoff_race;
@@ -382,9 +388,26 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
         (party && mine ? (
           <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
             <TabsList variant="line">
+              <TabsTrigger value="actions">
+                Suas ações
+                {pendingCount > 0 && (
+                  <Badge variant="warning" size="sm" aria-label={`${pendingCount} decisões com prazo`}>
+                    {pendingCount}
+                  </Badge>
+                )}
+              </TabsTrigger>
               <TabsTrigger value="race">Corrida</TabsTrigger>
               <TabsTrigger value="campaign">Campanha do {party.abbr}</TabsTrigger>
             </TabsList>
+            <TabsContent value="actions">
+              <ElectionActionsTab
+                panel={panel}
+                party={party}
+                mine={mine}
+                onDialog={setDialog}
+                onCampaign={() => setTab("campaign")}
+              />
+            </TabsContent>
             <TabsContent value="race">{race}</TabsContent>
             <TabsContent value="campaign">
               <CampaignSection
