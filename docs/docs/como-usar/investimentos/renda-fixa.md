@@ -225,7 +225,7 @@ Um CDB de 100% do CDI comprado em 02/01/2020 e resgatado em 31/12/2020 rende **2
 
 ### Investir em Renda Fixa
 
-1. Acesse **Renda fixa** para ver a lista de títulos disponíveis.
+1. Acesse **Renda fixa** para ver a lista de títulos disponíveis. As duas primeiras linhas, no grupo **Sempre disponíveis**, são o CDB de 100% do CDI e a Conta em dólar, abertas a partida inteira e fixas no topo em qualquer ordenação; as outras, em **Ofertas do mês**, mudam com o catálogo de cada mês. Os filtros valem para todas: **Só isentos**, por exemplo, esconde as duas linhas fixas, que pagam IR. Os títulos do governo (Selic, Prefixado e IPCA+) ficam no link **Tesouro** acima da tabela.
 2. Na linha do título, clique em **Investir** para abrir os detalhes.
 3. Em **Quanto investir**, informe o valor. O controle **R$ | %** escolhe os atalhos: em **R$**, **+R$ 1 mil**, **+R$ 5 mil** e **+R$ 10 mil** somam ao campo e **Limpar** o zera; em **%**, **25%**, **50%**, **75%** e **Máx** (ou **Tudo**, quando a oferta não tem teto) preenchem uma fração do que você pode aplicar. Um atalho em R$ que passaria do máximo para no máximo e avisa abaixo do campo.
 4. Confira o **Resgate líquido** na data de vencimento e clique em **Investir R$ valor**.
@@ -250,7 +250,7 @@ Os títulos com a etiqueta **liquidez diária** podem ser resgatados em qualquer
 - **IOF:** imposto que cobra de quem resgata antes de 30 dias. Incide sobre o rendimento e começa em 96% no 1º dia, caindo até 3% no 29º; a partir do 30º dia é zero. Ex.: um título que rendeu R$ 10 e é resgatado no 1º dia perde R$ 9,60 de IOF.
 - **IR:** a mesma tabela regressiva, contada desde a primeira aplicação, sobre o rendimento que sobrou depois do IOF.
 - **Oferta rara:** de vez em quando o catálogo do mês traz um título de liquidez diária acima de 100% do CDI, com **teto por jogador** (o quanto cada um pode aplicar ao todo). Quando o mês vira ela sai do catálogo: não dá mais para aplicar, mas quem já tem segue resgatando.
-- **CDB sempre disponível:** um CDB de 100% do CDI com liquidez diária fica aberto a partida inteira, como a reserva que rende.
+- **CDB sempre disponível:** um CDB de 100% do CDI com liquidez diária fica aberto a partida inteira, como a reserva que rende. Ele é a primeira linha de **Sempre disponíveis**, na tabela da **Renda fixa**.
 
 A **reserva de emergência** da Meta soma o caixa e a liquidez diária: os dois saem no mesmo dia. Quando o caixa não cobre uma despesa, o simulador resgata sozinho a liquidez diária e o Tesouro Selic antes de recorrer ao cheque especial.
 
@@ -268,7 +268,7 @@ O simulador calcula automaticamente e desconta o Imposto de Renda sobre o resgat
 
 ## Conta em dólar
 
-A **Conta em dólar** fica ao lado do CDB sempre disponível, no topo da **Renda fixa**. O seu dinheiro vira dólar ao câmbio do dia, rende o **juro americano** (Fed Funds, a taxa básica dos Estados Unidos) todo dia útil e volta ao caixa em qualquer pregão. É a forma de ter dólar na carteira e de se proteger de uma crise, em que o dólar costuma subir.
+A **Conta em dólar** é a segunda linha de **Sempre disponíveis**, logo abaixo do CDB sempre disponível, no topo da tabela da **Renda fixa**. A linha mostra o juro do Fed, o dólar do dia (`US$ 1 = R$ 5,46`, por exemplo) e quanto o dólar precisa subir em um ano para a conta empatar com o CDI. O seu dinheiro vira dólar ao câmbio do dia, rende o **juro americano** (Fed Funds, a taxa básica dos Estados Unidos) todo dia útil e volta ao caixa em qualquer pregão. É a forma de ter dólar na carteira e de se proteger de uma crise, em que o dólar costuma subir.
 
 - **Saldo e valor em reais:** o saldo é em US$ e só cresce com o juro. O valor em reais é o saldo vezes o dólar de hoje: `valor em reais = saldo em US$ × dólar do dia`. Com US$ 2.000 e o dólar a R$ 5,00, a conta vale R$ 10.000; com o dólar a R$ 5,50, vale R$ 11.000, sem o saldo mudar.
 - **IOF de câmbio na entrada:** 1,1% do valor aplicado, descontado antes de comprar os dólares. Ex.: R$ 10.000 a R$ 5,00 pagam R$ 110 de IOF e compram US$ 1.978,00. No resgate não há IOF.

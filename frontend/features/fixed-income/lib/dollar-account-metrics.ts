@@ -1,8 +1,5 @@
 import type { MetricInfo } from "@/shared/lib/metric-info";
-import { displayDollars, displayMoney, displayPercent } from "@/shared/lib/utils/display";
-
-export const DOLLAR_ACCOUNT_DOCS_URL =
-  "https://lilomarino.github.io/SimuladorFinanceiro/como-usar/investimentos/renda-fixa#conta-em-dólar";
+import { displayDollars, displayPercent } from "@/shared/lib/utils/display";
 
 export const FED_RATE: MetricInfo = {
   label: "Juro do Fed",
@@ -13,17 +10,6 @@ export const FED_RATE: MetricInfo = {
   reading:
     "Mais alto é melhor para a conta. Mas o que importa para você é o resultado em reais, e ele também depende do dólar: o juro americano costuma ser bem menor que o CDI.",
   format: (value) => `${displayPercent(value)} a.a.`,
-};
-
-export const DOLLAR_TODAY: MetricInfo = {
-  label: "Dólar hoje",
-  description: "Quantos reais vale US$ 1 no dia simulado",
-  definition:
-    "A cotação do dólar na partida. É ela que converte o seu saldo em dólar para reais: o saldo em US$ não muda quando o dólar mexe, mas o valor em reais muda.",
-  example: "Ex.: com US$ 2.000 na conta, o dólar a R$ 5,00 vale R$ 10.000; a R$ 5,50 vale R$ 11.000.",
-  reading:
-    "Dólar subindo valoriza a conta em reais; caindo, desvaloriza. O dólar sobe em crise e cai com o país em alta, então a conta funciona como um seguro contra a crise.",
-  format: (value) => displayMoney(value),
 };
 
 export const BREAK_EVEN: MetricInfo = {
