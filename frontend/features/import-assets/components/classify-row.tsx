@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Info, RefreshCw, Sparkles } from "lucide-react";
+import { OptionSelect } from "@/shared/components/option-select";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
@@ -10,7 +11,6 @@ import { useRemoveStockSegment } from "../hooks/mutations/useRemoveStockSegment"
 import { useSaveStockSegment } from "../hooks/mutations/useSaveStockSegment";
 import { useSectors } from "../hooks/queries/useSectors";
 import { useSegmentSuggestion } from "../hooks/queries/useSegmentSuggestion";
-import { SectorCombobox } from "./sector-combobox";
 
 type ClassifyRowProps = {
   series: SeriesCoverage;
@@ -27,6 +27,11 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
   const current = series.segment;
   const [sector, setSector] = useState(current?.sector ?? "");
   const [segment, setSegment] = useState(current?.segment ?? "");
+  // O setor recém-criado ainda não está na base: entra na lista para o botão mostrá-lo
+  const sectorOptions = (sector && !known.includes(sector) ? [...known, sector] : known).map((name) => ({
+    value: name,
+    label: name,
+  }));
 
   const segmentOptions = sectors?.find((s) => s.name === sector)?.segments ?? [];
   const sectorId = `classify-sector-${series.key}`;
@@ -85,7 +90,17 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
           <div className="grid grid-cols-2 gap-4">
             <Field>
               <FieldLabel htmlFor={sectorId}>Setor</FieldLabel>
-              <SectorCombobox id={sectorId} sectors={known} value={sector} onChange={setSector} />
+              <OptionSelect
+                id={sectorId}
+                options={sectorOptions}
+                value={sector || null}
+                onChange={setSector}
+                placeholder="Escolha ou crie um setor"
+                searchPlaceholder="Buscar setor"
+                emptyText="Nenhum setor com esse nome."
+                onCreate={setSector}
+                createLabel={(text) => `Criar o setor “${text}”`}
+              />
             </Field>
             <Field>
               <FieldLabel htmlFor={segmentId}>

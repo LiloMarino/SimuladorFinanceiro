@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebounce } from "use-debounce";
 import { toast } from "sonner";
 import { CalendarDays, CircleX, Dices, ExternalLink, Sparkles, TriangleAlert } from "lucide-react";
+import { OptionSelect } from "@/shared/components/option-select";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -21,7 +22,6 @@ import {
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Progress } from "@/shared/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { cn } from "@/shared/lib/utils";
@@ -314,28 +314,16 @@ export function FutureForm({ future, coverage, redrawSeed, onClose, onRecordingC
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="future-until">Até quando</FieldLabel>
-                    <Select
+                    <OptionSelect
+                      id="future-until"
                       value={field.value}
-                      items={Object.fromEntries(untilOptions.map((iso) => [iso, displayIsoDate(iso)]))}
-                      onValueChange={(value) => value && field.onChange(value)}
+                      options={untilOptions.map((iso) => ({ value: iso, label: displayIsoDate(iso) }))}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      invalid={fieldState.invalid}
                       disabled={recording}
-                    >
-                      <SelectTrigger
-                        id="future-until"
-                        className="w-full"
-                        aria-invalid={fieldState.invalid}
-                        onBlur={field.onBlur}
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {untilOptions.map((iso) => (
-                          <SelectItem key={iso} value={iso}>
-                            {displayIsoDate(iso)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      className="w-full"
+                    />
                     <div className="flex flex-wrap gap-1.5">
                       {SHORTCUT_YEARS.map((years) => (
                         <Button

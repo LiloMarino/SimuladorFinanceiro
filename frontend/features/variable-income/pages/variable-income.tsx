@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@/shared/components/ui/empty";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
 import { Label } from "@/shared/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { OptionSelect, type SelectOption } from "@/shared/components/option-select";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Switch } from "@/shared/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
@@ -37,13 +37,17 @@ export default function VariableIncomePage() {
   const sectors = [...new Set(all.map((q) => q.sector).filter((s): s is string => !!s))].sort();
   const withoutSector = all.filter((q) => !q.sector).length;
   const heldCount = all.filter((q) => holdings.has(q.ticker)).length;
-  // O menu mostra a contagem de cada setor; "Sem setor" fecha a lista
-  const sectorItems = [
-    { value: ALL_SECTORS, label: `Todos · ${all.length}` },
-    ...sectors.map((s) => ({ value: s, label: `${s} · ${all.filter((q) => q.sector === s).length}` })),
-    ...(withoutSector > 0 ? [{ value: NO_SECTOR, label: `Sem setor · ${withoutSector}` }] : []),
+  // A lista mostra a contagem de cada setor; "Sem setor" fecha a lista
+  const sectorItems: SelectOption[] = [
+    { value: ALL_SECTORS, label: "Todos os setores", triggerLabel: "Todos", count: all.length },
+    ...sectors.map((s, index) => ({
+      value: s,
+      label: s,
+      count: all.filter((q) => q.sector === s).length,
+      dividerBefore: index === 0,
+    })),
+    ...(withoutSector > 0 ? [{ value: NO_SECTOR, label: "Sem setor", count: withoutSector, dividerBefore: true }] : []),
   ];
-  const sectorName = (value: string) => (value === ALL_SECTORS ? "todos" : value === NO_SECTOR ? "sem setor" : value);
 
   const term = search.trim().toLowerCase();
   const visible = all.filter(
@@ -155,29 +159,16 @@ export default function VariableIncomePage() {
               <Label htmlFor="only-held">Na carteira · {heldCount}</Label>
             </div>
             {/* Sempre visível: sem setores na base, fica desabilitado */}
-            <Select
-              items={sectorItems}
+            <OptionSelect
+              options={sectorItems}
               value={sector}
+              onChange={setSector}
+              prefix="Setor"
               disabled={sectors.length === 0}
-              onValueChange={(value) => setSector(value ?? ALL_SECTORS)}
-            >
-              <SelectTrigger size="lg" aria-label="Filtrar por setor">
-                <SelectValue>
-                  {(value: string) => (
-                    <>
-                      <span className="text-muted-foreground">Setor:</span> {sectorName(value)}
-                    </>
-                  )}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {sectorItems.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              searchPlaceholder="Buscar setor"
+              aria-label="Filtrar por setor"
+              className="min-w-[200px]"
+            />
           </div>
         </div>
       </CardHeader>

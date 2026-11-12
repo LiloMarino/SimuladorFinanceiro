@@ -204,7 +204,9 @@ def test_the_bot_routes_add_configure_and_remove(room):
 
     tickers = http.get("/api/simulation/bots/tickers")
     assert tickers.status_code == 200
-    assert tickers.json() == sorted(tickers.json())
+    codes = [row["ticker"] for row in tickers.json()]
+    assert codes == sorted(codes)
+    assert all(row["name"] for row in tickers.json())
 
     added = http.post(
         "/api/simulation/bots",

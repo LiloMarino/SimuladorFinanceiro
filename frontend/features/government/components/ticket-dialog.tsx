@@ -12,9 +12,9 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { OptionSelect } from "@/shared/components/option-select";
 import { KeyValueRow } from "@/shared/components/key-value-row";
-import { PlayerOption } from "@/shared/components/player-option";
+import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { DisabledHint } from "@/shared/components/disabled-hint";
 import { displayDayMonth, displayMoney } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty } from "@/types";
@@ -39,20 +39,24 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
   const inviteVice = useInviteVice();
   const withdrawVice = useWithdrawVice();
 
-  const candidateItems = Object.fromEntries(
-    party.members.map((member) => [
-      member.nickname,
-      <PlayerOption key={member.nickname} nickname={member.nickname} color={member.color} />,
-    ]),
-  );
   const blockedBy = Object.fromEntries(panel.vice_options.map((option) => [option.nickname, option.blocked]));
+  const candidateOptions = party.members.map((member) => ({
+    value: member.nickname,
+    label: member.nickname,
+    leading: <PlayerAvatar nickname={member.nickname} color={member.color} size="sm" />,
+    disabled: !!blockedBy[member.nickname],
+    reason: blockedBy[member.nickname] ?? undefined,
+  }));
   const viceOptions = panel.vice_options.filter((option) => option.nickname !== candidate);
-  const viceItems = Object.fromEntries(
-    viceOptions.map((option) => [
-      option.nickname,
-      <PlayerOption key={option.nickname} nickname={option.nickname} color={option.color} />,
-    ]),
-  );
+  const viceChoices = viceOptions.map((option) => ({
+    value: option.nickname,
+    label: option.nickname,
+    leading: <PlayerAvatar nickname={option.nickname} color={option.color} size="sm" />,
+    // Opção bloqueada mostra só o motivo; o partido aparece nas demais
+    description: option.blocked ? undefined : option.party_abbr ? `do ${option.party_abbr}` : "sem partido",
+    disabled: !!option.blocked,
+    reason: option.blocked ?? undefined,
+  }));
   const chosenVice = vice === candidate ? null : vice;
   // O convite vigente da chapa, que o botão Convidar substitui
   const invitedNickname = party.vice?.nickname ?? null;
@@ -83,42 +87,27 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
           <div className="grid gap-3.5">
             <Field>
               <FieldLabel>Candidato</FieldLabel>
-              <Select value={candidate} items={candidateItems} onValueChange={(value) => value && setCandidate(value)}>
-                <SelectTrigger className="w-full" aria-label="Candidato">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {party.members.map((member) => (
-                    <SelectItem key={member.nickname} value={member.nickname} disabled={!!blockedBy[member.nickname]}>
-                      <PlayerOption nickname={member.nickname} color={member.color} />
-                      {blockedBy[member.nickname] && (
-                        <span className="text-xs text-muted-foreground">{blockedBy[member.nickname]}</span>
-                      )}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <OptionSelect
+                value={candidate || null}
+                options={candidateOptions}
+                onChange={setCandidate}
+                aria-label="Candidato"
+                className="w-full"
+              />
               <FieldDescription>Entre os filiados.</FieldDescription>
             </Field>
 
             <Field>
               <FieldLabel>Vice</FieldLabel>
               <div className="flex gap-2">
-                <Select value={chosenVice} items={viceItems} onValueChange={(value) => value && setVice(value)}>
-                  <SelectTrigger className="w-full" aria-label="Vice">
-                    <SelectValue placeholder="Escolha o vice" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {viceOptions.map((option) => (
-                      <SelectItem key={option.nickname} value={option.nickname} disabled={!!option.blocked}>
-                        <PlayerOption nickname={option.nickname} color={option.color} />
-                        <span className="text-xs text-muted-foreground">
-                          {option.blocked ?? (option.party_abbr ? `do ${option.party_abbr}` : "sem partido")}
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <OptionSelect
+                  value={chosenVice}
+                  options={viceChoices}
+                  onChange={setVice}
+                  placeholder="Escolha o vice"
+                  aria-label="Vice"
+                  className="w-full"
+                />
                 <DisabledHint reason={inviteReason}>
                   <Button
                     variant="outline"

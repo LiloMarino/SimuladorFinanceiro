@@ -2,25 +2,17 @@ import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
 import { Copy, Trash2 } from "lucide-react";
 import { BotNameField } from "@/shared/components/bot-name-field";
 import { ColorSwatchPicker } from "@/shared/components/color-swatch-picker";
+import { OptionSelect } from "@/shared/components/option-select";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { StrategyParamsForm } from "@/shared/components/strategy-params-form";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
 import { drawBotName, isDrawnName } from "@/shared/lib/bot-names";
 import { PLAYER_SWATCHES, playerOwners } from "@/shared/lib/player-colors";
 import { GROUP_SECTION } from "@/shared/lib/strategy-groups";
 import { defaultValues, draftErrors, toDraft, type ParamDraft } from "@/shared/lib/strategy-params";
 import { moneyToBody } from "@/shared/lib/utils/money-field";
-import type { StrategyGroup, StrategyInfo } from "@/types";
+import type { BotTicker, StrategyGroup, StrategyInfo } from "@/types";
 import type { BacktestFormValues } from "../lib/form";
 
 const GROUPS: StrategyGroup[] = ["reference", "tactic"];
@@ -29,7 +21,7 @@ type ParticipantEditorProps = {
   form: UseFormReturn<BacktestFormValues>;
   index: number;
   strategies: StrategyInfo[];
-  tickerOptions: string[];
+  tickerOptions: BotTicker[];
   canDuplicate: boolean;
   onDuplicate: () => void;
   onRemove: () => void;
@@ -91,31 +83,17 @@ export function ParticipantEditor({
       {/* Estratégia */}
       <Field>
         <FieldLabel>Estratégia</FieldLabel>
-        <Select
+        <OptionSelect
           value={strategy.key}
-          items={Object.fromEntries(strategies.map((s) => [s.key, s.name]))}
-          onValueChange={(value) => value && pickStrategy(value)}
-        >
-          <SelectTrigger size="lg" className="w-full" aria-label="Estratégia">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {GROUPS.map((group) => {
-              const items = strategies.filter((s) => s.group === group);
-              if (items.length === 0) return null;
-              return (
-                <SelectGroup key={group}>
-                  <SelectLabel>{GROUP_SECTION[group].title}</SelectLabel>
-                  {items.map((item) => (
-                    <SelectItem key={item.key} value={item.key}>
-                      {item.name}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              );
-            })}
-          </SelectContent>
-        </Select>
+          options={GROUPS.flatMap((group) =>
+            strategies
+              .filter((s) => s.group === group)
+              .map((s) => ({ value: s.key, label: s.name, group: GROUP_SECTION[group].title })),
+          )}
+          onChange={pickStrategy}
+          aria-label="Estratégia"
+          className="w-full"
+        />
         <FieldDescription>{strategy.summary}</FieldDescription>
       </Field>
 

@@ -4,14 +4,14 @@ import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 import { paramPills, fromDraft } from "@/shared/lib/strategy-params";
-import type { StrategyInfo } from "@/types";
+import type { BotTicker, StrategyInfo } from "@/types";
 import { MAX_PARTICIPANTS, type BacktestFormValues } from "../lib/form";
 import { ParticipantEditor } from "./participant-editor";
 
 type ParticipantListProps = {
   form: UseFormReturn<BacktestFormValues>;
   strategies: StrategyInfo[];
-  tickerOptions: string[];
+  tickerOptions: BotTicker[];
   selected: number;
   onSelect: (index: number) => void;
   onAdd: () => void;

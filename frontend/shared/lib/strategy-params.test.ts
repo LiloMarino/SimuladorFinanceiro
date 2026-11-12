@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { StrategyInfo } from "@/types";
-import { paramPills, profileValues } from "./strategy-params";
+import { inOptionOrder, paramPills, profileValues, sameTickerSet } from "./strategy-params";
+
+const options = (...tickers: string[]) => tickers.map((ticker) => ({ ticker, name: `Empresa ${ticker}` }));
 
 const strategy = {
   key: "moving_average",
@@ -37,8 +39,22 @@ describe("paramPills", () => {
   });
 });
 
+describe("inOptionOrder", () => {
+  it("devolve as ações do conjunto na ordem das opções e ignora as que não existem", () => {
+    expect(inOptionOrder(options("ITUB4", "PETR4", "VALE3"), ["VALE3", "XPTO3", "ITUB4"])).toEqual(["ITUB4", "VALE3"]);
+  });
+});
+
+describe("sameTickerSet", () => {
+  it("compara pelo conteúdo, sem ligar para a ordem", () => {
+    expect(sameTickerSet(["PETR4", "VALE3"], ["VALE3", "PETR4"])).toBe(true);
+    expect(sameTickerSet(["PETR4"], ["PETR4", "VALE3"])).toBe(false);
+    expect(sameTickerSet([], [])).toBe(true);
+  });
+});
+
 describe("profileValues", () => {
-  const tickers = ["PETR4", "VALE3", "ITUB4"];
+  const tickers = options("PETR4", "VALE3", "ITUB4");
 
   it("abre no padrão quando o perfil não tem nada salvo", () => {
     expect(profileValues(strategy, undefined, tickers)).toEqual({

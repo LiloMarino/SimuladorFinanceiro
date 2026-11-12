@@ -14,7 +14,7 @@ import {
 } from "@/shared/components/ui/dialog";
 import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { OptionSelect } from "@/shared/components/option-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { defaultFederationName } from "@/shared/lib/federation-name";
 import { cn } from "@/shared/lib/utils";
@@ -125,23 +125,17 @@ export function FederationProposeDialog({ open, onOpenChange, panel, party }: Fe
                   {/* Candidato da chapa */}
                   <Field>
                     <FieldLabel>Candidato da chapa</FieldLabel>
-                    <Select
+                    <OptionSelect
                       value={candidate.key}
-                      items={Object.fromEntries(candidates.map((entry) => [entry.key, entry.label]))}
-                      onValueChange={(value) => value && setCandidateChoice(value)}
-                    >
-                      <SelectTrigger className="w-full" aria-label="Candidato da chapa">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {candidates.map((entry) => (
-                          <SelectItem key={entry.key} value={entry.key}>
-                            <span>{entry.label}</span>
-                            <span className="text-xs text-muted-foreground">{entry.abbr}</span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={candidates.map((entry) => ({
+                        value: entry.key,
+                        label: entry.label,
+                        description: entry.abbr,
+                      }))}
+                      onChange={setCandidateChoice}
+                      aria-label="Candidato da chapa"
+                      className="w-full"
+                    />
                     <FieldDescription>O vice sai de qualquer partido da federação, depois.</FieldDescription>
                   </Field>
 

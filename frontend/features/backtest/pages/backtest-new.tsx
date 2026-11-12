@@ -4,6 +4,7 @@ import { ErrorState } from "@/shared/components/error-state";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useBotStrategies } from "@/shared/hooks/queries/useBotStrategies";
+import { useBotTickers } from "@/shared/hooks/queries/useBotTickers";
 import type { BacktestSetup } from "@/types";
 import { BacktestForm } from "../components/backtest-form";
 import { useBacktestSetup } from "../hooks/queries/useBacktestSetup";
@@ -48,27 +49,34 @@ export default function BacktestNewPage() {
   );
 }
 
-/** Resolve as estratégias na data de início da configuração: o formulário só monta com elas prontas. */
+/** Resolve as estratégias na data de início da configuração e as ações que elas podem operar: o formulário só monta com elas prontas. */
 function WithStrategies({ setup }: { setup: BacktestSetup }) {
   const startDate = setupStartDate(setup);
-  const { data: strategies, error, refetch } = useBotStrategies(startDate);
+  const { data: strategies, error: strategiesError, refetch: refetchStrategies } = useBotStrategies(startDate);
+  const { data: tickers, error: tickersError, refetch: refetchTickers } = useBotTickers();
   const values = useMemo(() => (strategies ? formValues(setup, strategies) : null), [setup, strategies]);
+  const error = strategiesError ?? tickersError;
 
-  if (error && !strategies) {
+  if (error && !(strategies && tickers)) {
     return (
       <ErrorState
         title="Não deu para carregar as estratégias"
         description="Sem a lista, não dá para escolher o que o backtest roda."
         error={error}
-        onRetry={() => void refetch()}
+        onRetry={() => {
+          void refetchStrategies();
+          void refetchTickers();
+        }}
       >
         {backToLobby}
       </ErrorState>
     );
   }
-  if (!strategies || !values) return <FormSkeleton />;
+  if (!strategies || !tickers || !values) return <FormSkeleton />;
 
-  return <BacktestForm setup={setup} strategies={strategies} values={values} startDate={startDate} />;
+  return (
+    <BacktestForm setup={setup} strategies={strategies} tickerOptions={tickers} values={values} startDate={startDate} />
+  );
 }
 
 function FormSkeleton() {

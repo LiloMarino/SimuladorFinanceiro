@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Clock, Handshake } from "lucide-react";
+import { OptionSelect, type SelectOption } from "@/shared/components/option-select";
 import { PartyMark } from "@/shared/components/party-mark";
-import { PlayerOption } from "@/shared/components/player-option";
+import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { defaultFederationName } from "@/shared/lib/federation-name";
 import type { MyPreparation, Preparations, RoomPlayer } from "@/types";
 import { useProposePreparationFederation } from "../../hooks/mutations/useProposePreparationFederation";
@@ -96,63 +96,36 @@ export function PartyFederationSection({ preparations, mine, me, humans }: Party
           </span>
           <Field>
             <FieldLabel>Com qual partido</FieldLabel>
-            <Select
+            <OptionSelect
               value={partner.nickname}
-              items={Object.fromEntries(
-                partners.map((player) => [
-                  player.nickname,
-                  <span key={player.nickname} className="flex items-center gap-2">
-                    {player.party && <PartyMark abbr={player.party.abbr} color={player.party.color} size="sm" />}
-                    {player.party?.name} · {player.nickname}
-                  </span>,
-                ]),
-              )}
-              onValueChange={(value) => {
-                if (!value) return;
-                setPartnerChoice(value);
+              options={partners.map((player): SelectOption => ({
+                value: player.nickname,
+                label: `${player.party?.name ?? ""} · ${player.nickname}`,
+                leading: player.party && <PartyMark abbr={player.party.abbr} color={player.party.color} size="sm" />,
+              }))}
+              onChange={(next) => {
+                setPartnerChoice(next);
                 setCandidateChoice(null);
                 setNameChoice(null);
               }}
-            >
-              <SelectTrigger className="w-full" aria-label="Partido parceiro">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {partners.map((player) => (
-                  <SelectItem key={player.nickname} value={player.nickname}>
-                    <span className="flex items-center gap-2">
-                      {player.party && <PartyMark abbr={player.party.abbr} color={player.party.color} size="sm" />}
-                      {player.party?.name} · {player.nickname}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              className="w-full"
+              aria-label="Partido parceiro"
+            />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field>
               <FieldLabel>Candidato da chapa</FieldLabel>
-              <Select
+              <OptionSelect
                 value={candidate}
-                items={Object.fromEntries(
-                  candidates.map((entry) => [
-                    entry.nickname,
-                    <PlayerOption key={entry.nickname} nickname={entry.nickname} color={colorOf(entry.nickname)} />,
-                  ]),
-                )}
-                onValueChange={(value) => value && setCandidateChoice(value)}
-              >
-                <SelectTrigger className="w-full" aria-label="Candidato da chapa">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {candidates.map((entry) => (
-                    <SelectItem key={entry.nickname} value={entry.nickname}>
-                      <PlayerOption nickname={entry.nickname} color={colorOf(entry.nickname)} />
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                options={candidates.map((entry): SelectOption => ({
+                  value: entry.nickname,
+                  label: entry.nickname,
+                  leading: <PlayerAvatar nickname={entry.nickname} color={colorOf(entry.nickname)} size="sm" />,
+                }))}
+                onChange={setCandidateChoice}
+                className="w-full"
+                aria-label="Candidato da chapa"
+              />
             </Field>
             <Field>
               <FieldLabel>Nome</FieldLabel>

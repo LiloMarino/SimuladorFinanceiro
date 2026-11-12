@@ -33,6 +33,12 @@ class StrategyParamDTO(BaseDTO):
     hint: str
 
 
+class BotTickerDTO(BaseDTO):
+    ticker: str
+    # Nome da empresa, que a busca das ações da estratégia também olha
+    name: str
+
+
 class StrategyInfoDTO(BaseDTO):
     key: str
     name: str

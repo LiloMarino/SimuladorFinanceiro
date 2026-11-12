@@ -1,6 +1,27 @@
-import type { StrategyInfo, StrategyParam, StrategyParamValue } from "@/types";
+import type { SelectOption } from "@/shared/components/option-select";
+import type { BotTicker, StrategyInfo, StrategyParam, StrategyParamValue } from "@/types";
 
 export type ParamValues = Record<string, StrategyParamValue>;
+
+/** A ação como opção de seletor: a busca olha o código e o nome da empresa. */
+export const tickerOption = (option: BotTicker): SelectOption => ({
+  value: option.ticker,
+  label: option.ticker,
+  description: option.name,
+  searchText: `${option.ticker} ${option.name}`,
+});
+
+/** As ações do conjunto na ordem das opções, que é a ordem em que a escolha é guardada. */
+export function inOptionOrder(options: readonly BotTicker[], tickers: readonly string[]) {
+  const wanted = new Set(tickers);
+  return options.map((option) => option.ticker).filter((ticker) => wanted.has(ticker));
+}
+
+/** Duas escolhas de ações são a mesma quando têm as mesmas ações, em qualquer ordem. */
+export function sameTickerSet(a: readonly string[], b: readonly string[]) {
+  const right = new Set(b);
+  return a.length === right.size && a.every((ticker) => right.has(ticker));
+}
 /** O que o jogador digitou: texto nos campos numéricos e no ativo, lista nas ações. */
 export type ParamDraft = Record<string, string | string[]>;
 
@@ -12,8 +33,8 @@ export function defaultValues(strategy: StrategyInfo): ParamValues {
  * Os valores com que o formulário nasce: os salvos no perfil, e o padrão onde não há nada salvo.
  * As ações salvas que a partida não tem saem da lista e voltam em `missing`, para o aviso.
  */
-export function profileValues(strategy: StrategyInfo, saved: ParamValues | undefined, tickers: string[]) {
-  const known = new Set(tickers);
+export function profileValues(strategy: StrategyInfo, saved: ParamValues | undefined, options: readonly BotTicker[]) {
+  const known = new Set(options.map((option) => option.ticker));
   const values = defaultValues(strategy);
   const missing: string[] = [];
   for (const param of strategy.params) {

@@ -1,16 +1,13 @@
 import type { ReactNode } from "react";
 import { InfoHint } from "@/shared/components/info-hint";
-import { Badge } from "@/shared/components/ui/badge";
+import { OptionSelect } from "@/shared/components/option-select";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
 import { cashShare } from "@/shared/lib/strategy-orders";
 import { displayMoney } from "@/shared/lib/utils/display";
-import type { StrategyInfo, StrategyParam } from "@/types";
-import { rangeHint, type ParamDraft, type ParamValues } from "@/shared/lib/strategy-params";
+import type { BotTicker, StrategyInfo, StrategyParam } from "@/types";
+import { rangeHint, tickerOption, type ParamDraft, type ParamValues } from "@/shared/lib/strategy-params";
 import { TickerPicker } from "@/shared/components/ticker-picker";
-
-/** Quantas ações aparecem como chip antes do "+N". */
-const VISIBLE_TICKERS = 5;
 
 type StrategyParamsFormProps = {
   strategy: StrategyInfo;
@@ -19,7 +16,9 @@ type StrategyParamsFormProps = {
   saved: ParamValues;
   /** Erro por campo: o que o servidor devolveu e o que a digitação ainda não permite */
   errors: Record<string, string>;
-  tickerOptions: string[];
+  tickerOptions: BotTicker[];
+  /** Ações da carteira; fora da partida não há carteira e o atalho "Só as da carteira" fica desligado */
+  heldTickers?: string[] | undefined;
   /** Caixa de hoje, em reais */
   cash: string;
   /** De onde vem o caixa do exemplo: "o caixa de hoje" ou "o saldo inicial" */
@@ -38,6 +37,7 @@ export function StrategyParamsForm({
   saved,
   errors,
   tickerOptions,
+  heldTickers,
   cash,
   cashLabel = "o caixa de hoje",
   headerAction,
@@ -64,6 +64,7 @@ export function StrategyParamsForm({
                 tickers={Array.isArray(draft[param.key]) ? (draft[param.key] as string[]) : []}
                 error={errors[param.key]}
                 options={tickerOptions}
+                held={heldTickers}
                 onChange={(tickers) => onChange({ ...draft, [param.key]: tickers })}
               />
             );
@@ -157,32 +158,30 @@ type AssetFieldProps = {
   param: StrategyParam;
   ticker: string;
   error: string | undefined;
-  options: string[];
+  options: BotTicker[];
   onChange: (ticker: string) => void;
 };
 
 function AssetField({ param, ticker, error, options, onChange }: AssetFieldProps) {
+  const id = `strategy-param-${param.key}`;
+
   return (
     <Field data-invalid={!!error}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <FieldLabel>{param.label}</FieldLabel>
-          <InfoHint label={`Como ${param.label} muda a estratégia`}>{param.hint}</InfoHint>
-        </div>
-        <TickerPicker
-          single
-          options={options}
-          selected={[ticker]}
-          onChange={([next]) => {
-            if (next !== undefined) onChange(next);
-          }}
-        />
+      <div className="flex items-center gap-1.5">
+        <FieldLabel htmlFor={id}>{param.label}</FieldLabel>
+        <InfoHint label={`Como ${param.label} muda a estratégia`}>{param.hint}</InfoHint>
       </div>
-      <div className="flex flex-wrap gap-1.5">
-        <Badge variant="secondary" size="tag" numeric>
-          {ticker}
-        </Badge>
-      </div>
+      <OptionSelect
+        id={id}
+        options={options.map(tickerOption)}
+        value={ticker === "" ? null : ticker}
+        onChange={onChange}
+        placeholder="Escolha uma ação"
+        searchPlaceholder="Buscar ação por código ou nome"
+        emptyText="Nenhuma ação encontrada."
+        invalid={!!error}
+        className="w-full"
+      />
       {error && <FieldError>{error}</FieldError>}
       <FieldDescription>{rangeHint(param)}</FieldDescription>
     </Field>
@@ -193,36 +192,37 @@ type TickersFieldProps = {
   param: StrategyParam;
   tickers: string[];
   error: string | undefined;
-  options: string[];
+  options: BotTicker[];
+  held: string[] | undefined;
   onChange: (tickers: string[]) => void;
 };
 
-function TickersField({ param, tickers, error, options, onChange }: TickersFieldProps) {
-  const rest = tickers.length - VISIBLE_TICKERS;
+function TickersField({ param, tickers, error, options, held, onChange }: TickersFieldProps) {
+  const id = `strategy-param-${param.key}`;
+  const standard = Array.isArray(param.default) ? param.default : [];
 
   return (
     <Field data-invalid={!!error}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <FieldLabel>{param.label}</FieldLabel>
-          <InfoHint label={`Como ${param.label} muda a estratégia`}>{param.hint}</InfoHint>
-        </div>
-        <TickerPicker options={options} selected={tickers} onChange={onChange} />
+      <div className="flex items-center gap-1.5">
+        <FieldLabel htmlFor={id}>{param.label}</FieldLabel>
+        <InfoHint label={`Como ${param.label} muda a estratégia`}>{param.hint}</InfoHint>
       </div>
-      <div className="flex flex-wrap gap-1.5">
-        {tickers.slice(0, VISIBLE_TICKERS).map((ticker) => (
-          <Badge key={ticker} variant="secondary" size="tag" numeric>
-            {ticker}
-          </Badge>
-        ))}
-        {rest > 0 && (
-          <Badge variant="outline" size="tag" numeric>
-            +{rest}
-          </Badge>
-        )}
-      </div>
+      <TickerPicker
+        id={id}
+        options={options}
+        selected={tickers}
+        standard={standard}
+        max={param.max ?? null}
+        held={held}
+        invalid={!!error}
+        onChange={onChange}
+      />
       {error && <FieldError>{error}</FieldError>}
-      <FieldDescription>Padrão: as 10 ações mais negociadas</FieldDescription>
+      <FieldDescription>
+        {options.length === 0
+          ? "O host importa ações na Central de dados."
+          : `Padrão: as ${standard.length} ações mais negociadas.`}
+      </FieldDescription>
     </Field>
   );
 }

@@ -16,7 +16,11 @@ from backend.core.dto.strategy import (
     StrategyParamValue,
 )
 from backend.core.enum import StrategyParamKind
-from backend.features.strategy.base_strategy import BaseStrategy, ParamSpec
+from backend.features.strategy.base_strategy import (
+    MAX_TICKERS,
+    BaseStrategy,
+    ParamSpec,
+)
 from backend.features.strategy.registry import STRATEGIES
 
 # Ações padrão: as de maior volume financeiro médio nos últimos pregões, ao ligar
@@ -98,9 +102,12 @@ def param_dto(
     known: Collection[str],
 ) -> StrategyParamDTO:
     hint = spec.hint
+    max_value = spec.max
     default: StrategyParamValue
     if spec.kind is StrategyParamKind.TICKERS:
         default = tickers
+        # O teto de ações vem do mesmo limite que a validação aplica
+        max_value = MAX_TICKERS
     elif spec.kind is StrategyParamKind.TICKER:
         default = default_asset(spec, today, simulation_id, known)
         if default != spec.default:
@@ -113,7 +120,7 @@ def param_dto(
         kind=spec.kind,
         default=default,
         min=spec.min,
-        max=spec.max,
+        max=max_value,
         unit=spec.unit,
         hint=hint,
     )

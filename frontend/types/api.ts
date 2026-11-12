@@ -348,6 +348,7 @@ export type BacktestStopped = components["schemas"]["BacktestStoppedDTO"];
 export type StrategyInfo = components["schemas"]["StrategyInfoDTO"];
 export type StrategyParam = StrategyInfo["params"][number];
 export type StrategyParamValue = components["schemas"]["StrategyParamValue"];
+export type BotTicker = components["schemas"]["BotTickerDTO"];
 export type StrategyGroup = components["schemas"]["StrategyGroup"];
 export type StrategyAction = components["schemas"]["StrategyAction"];
 export type StrategyOrderStatus = components["schemas"]["StrategyOrderStatus"];

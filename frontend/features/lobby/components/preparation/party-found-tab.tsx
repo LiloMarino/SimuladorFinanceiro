@@ -4,16 +4,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Clock, TriangleAlert, UserCheck, UserX } from "lucide-react";
 import { ContributionField } from "@/shared/components/contribution-field";
 import { FlagCards } from "@/shared/components/flag-cards";
+import { OptionSelect, type SelectOption } from "@/shared/components/option-select";
 import { PartyIdentityFields } from "@/shared/components/party-identity-fields";
 import { PartyMark } from "@/shared/components/party-mark";
+import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { ProfileRadar } from "@/shared/components/profile-radar";
-import { PlayerOption } from "@/shared/components/player-option";
 import { ValueChip } from "@/shared/components/value-chip";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldLabel } from "@/shared/components/ui/field";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { contributionAmount, contributionText, STARTING_CONTRIBUTION_CAP } from "@/shared/lib/contribution";
 import { defaultPartyColor } from "@/shared/lib/party-colors";
 import { flagRadarScores } from "@/shared/lib/party-flags";
@@ -157,60 +157,32 @@ export function PartyFoundTab({
               <div className="grid grid-cols-2 gap-3">
                 <Field>
                   <FieldLabel>Candidato</FieldLabel>
-                  <Select
+                  <OptionSelect
                     value={candidate}
-                    items={Object.fromEntries(
-                      candidates.map((item) => [
-                        item.nickname,
-                        <PlayerOption
-                          key={item.nickname}
-                          nickname={item.nickname}
-                          color={item.color}
-                          suffix={item.nickname === nickname ? "(você)" : undefined}
-                        />,
-                      ]),
-                    )}
-                    onValueChange={(value) => value && setCandidate(value)}
-                  >
-                    <SelectTrigger className="w-full" aria-label="Candidato">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {candidates.map((item) => (
-                        <SelectItem key={item.nickname} value={item.nickname}>
-                          <PlayerOption
-                            nickname={item.nickname}
-                            color={item.color}
-                            suffix={item.nickname === nickname ? "(você)" : undefined}
-                          />
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={candidates.map((item): SelectOption => ({
+                      value: item.nickname,
+                      label: item.nickname === nickname ? `${item.nickname} (você)` : item.nickname,
+                      leading: <PlayerAvatar nickname={item.nickname} color={item.color} size="sm" />,
+                    }))}
+                    onChange={setCandidate}
+                    className="w-full"
+                    aria-label="Candidato"
+                  />
                 </Field>
                 <Field>
                   <FieldLabel>Vice</FieldLabel>
-                  <Select
+                  <OptionSelect
                     value={viceValue}
-                    items={Object.fromEntries(
-                      viceOptions.map((player) => [
-                        player.nickname,
-                        <PlayerOption key={player.nickname} nickname={player.nickname} color={player.color} />,
-                      ]),
-                    )}
-                    onValueChange={(value) => value && setVice(value)}
-                  >
-                    <SelectTrigger className="w-full" aria-label="Vice">
-                      <SelectValue placeholder="Escolha o vice" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {viceOptions.map((player) => (
-                        <SelectItem key={player.nickname} value={player.nickname}>
-                          <PlayerOption nickname={player.nickname} color={player.color} />
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={viceOptions.map((player): SelectOption => ({
+                      value: player.nickname,
+                      label: player.nickname,
+                      leading: <PlayerAvatar nickname={player.nickname} color={player.color} size="sm" />,
+                    }))}
+                    onChange={setVice}
+                    placeholder="Escolha o vice"
+                    className="w-full"
+                    aria-label="Vice"
+                  />
                 </Field>
               </div>
               {/* Convite do vice */}

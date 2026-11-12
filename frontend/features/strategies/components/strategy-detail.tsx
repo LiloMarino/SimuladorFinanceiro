@@ -5,10 +5,10 @@ import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { OptionSelect, type SelectOption } from "@/shared/components/option-select";
 import { Separator } from "@/shared/components/ui/separator";
 import { displayDayMonth, displayList } from "@/shared/lib/utils/display";
-import type { MyStrategy, StrategyInfo } from "@/types";
+import type { BotTicker, MyStrategy, StrategyInfo } from "@/types";
 import { useStrategySignal } from "../hooks/queries/useStrategySignal";
 import { useStrategyView } from "../hooks/queries/useStrategyView";
 import { LEGEND_SWATCH } from "../lib/signal-style";
@@ -39,7 +39,8 @@ type StrategyDetailProps = {
   cash: string;
   /** Dia da partida; o gráfico acompanha */
   currentDate: string | undefined;
-  tickerOptions: string[];
+  tickerOptions: BotTicker[];
+  heldTickers: string[];
   saving: boolean;
   onDraftChange: (draft: ParamDraft) => void;
   onSave: (values: ParamValues) => void;
@@ -55,6 +56,7 @@ export function StrategyDetail({
   cash,
   currentDate,
   tickerOptions,
+  heldTickers,
   saving,
   onDraftChange,
   onSave,
@@ -163,18 +165,14 @@ export function StrategyDetail({
                 )}
               </span>
               {hasChart && tickersParam && (
-                <Select value={watched} onValueChange={setPickedTicker} disabled={tickers.length === 0}>
-                  <SelectTrigger size="sm" aria-label="Ação do gráfico">
-                    <SelectValue placeholder="Sem ações" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {tickers.map((ticker) => (
-                      <SelectItem key={ticker} value={ticker}>
-                        <span className="font-mono font-semibold">{ticker}</span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <OptionSelect
+                  value={watched}
+                  onChange={setPickedTicker}
+                  options={tickers.map((ticker): SelectOption => ({ value: ticker, label: ticker }))}
+                  placeholder="Sem ações"
+                  disabled={tickers.length === 0}
+                  aria-label="Ação do gráfico"
+                />
               )}
               {hasChart && assetParam && watched && (
                 <Badge variant="secondary" size="tag" numeric>
@@ -248,6 +246,7 @@ export function StrategyDetail({
               saved={saved}
               errors={errors}
               tickerOptions={tickerOptions}
+              heldTickers={heldTickers}
               cash={cash}
               onChange={onDraftChange}
             />

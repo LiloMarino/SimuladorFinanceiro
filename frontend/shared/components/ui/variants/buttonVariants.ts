@@ -45,6 +45,8 @@ export const buttonVariants = cva(
         xs: "h-6 gap-1 rounded-md px-2 text-xs [&_svg:not([class*='size-'])]:size-3",
         sm: "h-8 gap-1.5 px-3 text-[13px] [&_svg:not([class*='size-'])]:size-3.5",
         lg: "h-11 gap-2 px-5",
+        // Gatilho de seletor: 40 px, mais folga à esquerda que à direita, onde fica a seta
+        field: "h-10 gap-2 pr-2.5 pl-3",
         // Altura do conteúdo: botão que carrega mais de uma linha (bloco da corrida na topbar)
         auto: "h-auto gap-3 py-1.5 pr-3 pl-2.5 text-left",
         xl: "h-12 gap-2 px-6 text-base [&_svg:not([class*='size-'])]:size-[18px]",

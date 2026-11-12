@@ -1,5 +1,5 @@
 import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { OptionSelect } from "@/shared/components/option-select";
 import { displayList } from "@/shared/lib/utils/display";
 import type { GovernmentPanel } from "@/types";
 import { NO_SECTOR, WHOLE_SECTOR } from "../lib/sector-address";
@@ -33,26 +33,20 @@ export function SectorSegmentSelect({
     <>
       <Field>
         <FieldLabel>{label}</FieldLabel>
-        <Select
-          value={sector}
-          items={{
-            ...(noneLabel ? { [NO_SECTOR]: noneLabel } : {}),
-            ...Object.fromEntries(sectors.map((candidate) => [candidate.name, candidate.name])),
-          }}
-          onValueChange={(value) => value && onChange(value, WHOLE_SECTOR)}
-        >
-          <SelectTrigger size="lg" className="w-full" aria-label={label}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {noneLabel && <SelectItem value={NO_SECTOR}>{noneLabel}</SelectItem>}
-            {sectors.map((candidate) => (
-              <SelectItem key={candidate.name} value={candidate.name}>
-                {candidate.name} · {candidate.assets} ativos
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <OptionSelect
+          value={sector || null}
+          options={[
+            ...(noneLabel ? [{ value: NO_SECTOR, label: noneLabel }] : []),
+            ...sectors.map((candidate) => ({
+              value: candidate.name,
+              label: `${candidate.name} · ${candidate.assets} ativos`,
+              triggerLabel: candidate.name,
+            })),
+          ]}
+          onChange={(value) => onChange(value, WHOLE_SECTOR)}
+          aria-label={label}
+          className="w-full"
+        />
         {option && (
           <FieldDescription>
             {displayList(option.tickers)}. Também dá para escolher só um segmento do setor.
@@ -63,26 +57,24 @@ export function SectorSegmentSelect({
       {option && option.segments.length > 1 && (
         <Field>
           <FieldLabel>Segmento</FieldLabel>
-          <Select
+          <OptionSelect
             value={segment}
-            items={{
-              [WHOLE_SECTOR]: "O setor inteiro",
-              ...Object.fromEntries(option.segments.map((candidate) => [candidate.name, candidate.name])),
-            }}
-            onValueChange={(value) => value && onChange(sector, value)}
-          >
-            <SelectTrigger size="lg" className="w-full" aria-label="Segmento">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={WHOLE_SECTOR}>O setor inteiro · {option.assets} ativos</SelectItem>
-              {option.segments.map((candidate) => (
-                <SelectItem key={candidate.name} value={candidate.name}>
-                  {candidate.name} · {candidate.assets} ativos
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            options={[
+              {
+                value: WHOLE_SECTOR,
+                label: `O setor inteiro · ${option.assets} ativos`,
+                triggerLabel: "O setor inteiro",
+              },
+              ...option.segments.map((candidate) => ({
+                value: candidate.name,
+                label: `${candidate.name} · ${candidate.assets} ativos`,
+                triggerLabel: candidate.name,
+              })),
+            ]}
+            onChange={(value) => onChange(sector, value)}
+            aria-label="Segmento"
+            className="w-full"
+          />
           {segmentOption && (
             <FieldDescription>
               Só os {segmentOption.assets} ativos desse segmento {segmentScope}.

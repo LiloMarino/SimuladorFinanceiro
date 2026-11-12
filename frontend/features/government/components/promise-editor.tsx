@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { OptionSelect } from "@/shared/components/option-select";
 import { Slider } from "@/shared/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { normalizeNumberString } from "@/shared/lib/utils";
@@ -105,33 +105,25 @@ function GeneralFields({ spending, draft, option, panel, taken, disabled, onChan
     <div className="grid gap-3.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
       <Field>
         <FieldLabel>Medida</FieldLabel>
-        <Select
+        <OptionSelect
           value={draft.kind}
           disabled={disabled}
-          items={Object.fromEntries(kinds.map((candidate) => [candidate.kind, optionLabel(candidate)]))}
-          onValueChange={(value) => {
+          options={kinds.map((candidate) => {
+            const promised = taken.has(candidate.kind) && candidate.kind !== draft.kind;
+            return {
+              value: candidate.kind,
+              label: optionLabel(candidate),
+              disabled: promised,
+              reason: promised ? "já prometida" : undefined,
+            };
+          })}
+          onChange={(value) => {
             const next = kinds.find((candidate) => candidate.kind === value);
             if (next) onChange({ kind: next.kind, target: next.baseline, sector: null, segment: null });
           }}
-        >
-          <SelectTrigger size="lg" className="w-full" aria-label="Medida">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {kinds.map((candidate) => (
-              <SelectItem
-                key={candidate.kind}
-                value={candidate.kind}
-                disabled={taken.has(candidate.kind) && candidate.kind !== draft.kind}
-              >
-                {optionLabel(candidate)}
-                {taken.has(candidate.kind) && candidate.kind !== draft.kind && (
-                  <span className="text-xs text-muted-foreground">já prometida</span>
-                )}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          aria-label="Medida"
+          className="w-full"
+        />
         <FieldDescription>Uma medida que o governo pode propor, com o alvo que a chapa promete.</FieldDescription>
       </Field>
 
@@ -238,50 +230,43 @@ function SectorFields({ draft, panel, disabled, onChange }: SectorFieldsProps) {
     <div className="grid gap-3.5">
       <Field>
         <FieldLabel>Setor</FieldLabel>
-        <Select
-          value={draft.sector ?? ""}
+        <OptionSelect
+          value={draft.sector ?? null}
           disabled={disabled}
-          items={Object.fromEntries(panel.sectors.map((candidate) => [candidate.name, candidate.name]))}
-          onValueChange={(value) => value && onChange({ ...draft, sector: value, segment: null })}
-        >
-          <SelectTrigger size="lg" className="w-full" aria-label="Setor">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {panel.sectors.map((candidate) => (
-              <SelectItem key={candidate.name} value={candidate.name}>
-                {candidate.name} · {candidate.assets} ativos
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          options={panel.sectors.map((candidate) => ({
+            value: candidate.name,
+            label: `${candidate.name} · ${candidate.assets} ativos`,
+            triggerLabel: candidate.name,
+          }))}
+          onChange={(value) => onChange({ ...draft, sector: value, segment: null })}
+          aria-label="Setor"
+          className="w-full"
+        />
         {sector && <FieldDescription>{displayList(sector.tickers)}.</FieldDescription>}
       </Field>
 
       {sector && sector.segments.length > 1 && (
         <Field>
           <FieldLabel>Segmento</FieldLabel>
-          <Select
+          <OptionSelect
             value={draft.segment ?? WHOLE_SECTOR}
             disabled={disabled}
-            items={{
-              [WHOLE_SECTOR]: "O setor inteiro",
-              ...Object.fromEntries(sector.segments.map((candidate) => [candidate.name, candidate.name])),
-            }}
-            onValueChange={(value) => value && onChange({ ...draft, segment: value === WHOLE_SECTOR ? null : value })}
-          >
-            <SelectTrigger size="lg" className="w-full" aria-label="Segmento">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={WHOLE_SECTOR}>O setor inteiro · {sector.assets} ativos</SelectItem>
-              {sector.segments.map((candidate) => (
-                <SelectItem key={candidate.name} value={candidate.name}>
-                  {candidate.name} · {candidate.assets} ativos
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            options={[
+              {
+                value: WHOLE_SECTOR,
+                label: `O setor inteiro · ${sector.assets} ativos`,
+                triggerLabel: "O setor inteiro",
+              },
+              ...sector.segments.map((candidate) => ({
+                value: candidate.name,
+                label: `${candidate.name} · ${candidate.assets} ativos`,
+                triggerLabel: candidate.name,
+              })),
+            ]}
+            onChange={(value) => onChange({ ...draft, segment: value === WHOLE_SECTOR ? null : value })}
+            aria-label="Segmento"
+            className="w-full"
+          />
           {segment && (
             <FieldDescription>Só os {segment.assets} ativos desse segmento entram na promessa.</FieldDescription>
           )}

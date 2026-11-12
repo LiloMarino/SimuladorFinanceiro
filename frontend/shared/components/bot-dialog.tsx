@@ -24,7 +24,7 @@ import { PLAYER_SWATCHES, playerOwners } from "@/shared/lib/player-colors";
 import { GROUP_SECTION } from "@/shared/lib/strategy-groups";
 import { defaultValues, draftErrors, fromDraft, toDraft, type ParamValues } from "@/shared/lib/strategy-params";
 import { cn } from "@/shared/lib/utils";
-import type { StrategyGroup, StrategyInfo } from "@/types";
+import type { BotTicker, StrategyGroup, StrategyInfo } from "@/types";
 
 const GROUPS: StrategyGroup[] = ["reference", "tactic"];
 
@@ -88,7 +88,8 @@ function BotDialogContent({ title, description, startDate, loading = false, onCl
   const strategies = useBotStrategies(startDate);
   const tickers = useBotTickers();
 
-  const ready = strategies.data && strategies.data.length > 0 && !loading;
+  const ready = strategies.data && strategies.data.length > 0 && tickers.data && !loading;
+  const failed = strategies.error ?? tickers.error;
 
   return (
     <>
@@ -98,17 +99,20 @@ function BotDialogContent({ title, description, startDate, loading = false, onCl
         <DialogDescription>{description}</DialogDescription>
       </div>
 
-      {strategies.error ? (
+      {failed ? (
         <div className="p-6">
           <ErrorState
             title="Não deu para carregar as estratégias"
             description="Sem a lista, não dá para escolher o tipo do bot."
-            error={strategies.error}
-            onRetry={() => void strategies.refetch()}
+            error={failed}
+            onRetry={() => {
+              void strategies.refetch();
+              void tickers.refetch();
+            }}
           />
         </div>
       ) : ready ? (
-        <BotForm strategies={strategies.data} tickerOptions={tickers.data ?? []} onClose={onClose} {...form} />
+        <BotForm strategies={strategies.data} tickerOptions={tickers.data} onClose={onClose} {...form} />
       ) : (
         <BotDialogSkeleton />
       )}
@@ -134,7 +138,7 @@ function BotDialogSkeleton() {
 
 type BotFormProps = Omit<BotDialogContentProps, "title" | "description" | "startDate" | "loading"> & {
   strategies: StrategyInfo[];
-  tickerOptions: string[];
+  tickerOptions: BotTicker[];
 };
 
 function BotForm({

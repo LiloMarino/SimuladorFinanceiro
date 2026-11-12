@@ -3245,7 +3245,7 @@ export interface paths {
         };
         /**
          * Listar as ações que um bot pode operar
-         * @description Os tickers cadastrados, em ordem alfabética, para escolher as ações de uma estratégia antes de a partida começar.
+         * @description Os tickers cadastrados com o nome da empresa, em ordem alfabética de ticker, para escolher as ações de uma estratégia antes de a partida começar.
          */
         get: operations["list_bot_tickers_api_simulation_bots_tickers_get"];
         put?: never;
@@ -4719,6 +4719,13 @@ export interface components {
             added_by: string;
             /** Log Open */
             log_open: boolean;
+        };
+        /** BotTickerDTO */
+        BotTickerDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
         };
         /**
          * BudgetAmountsDTO
@@ -19817,7 +19824,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string[];
+                    "application/json": components["schemas"]["BotTickerDTO"][];
                 };
             };
             /** @description Unprocessable Content */

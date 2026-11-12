@@ -9228,7 +9228,7 @@
           "Simulation"
         ],
         "summary": "Listar as ações que um bot pode operar",
-        "description": "Os tickers cadastrados, em ordem alfabética, para escolher as ações de uma estratégia antes de a partida começar.",
+        "description": "Os tickers cadastrados com o nome da empresa, em ordem alfabética de ticker, para escolher as ações de uma estratégia antes de a partida começar.",
         "operationId": "list_bot_tickers_api_simulation_bots_tickers_get",
         "responses": {
           "200": {
@@ -9237,7 +9237,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "type": "string"
+                    "$ref": "#/components/schemas/BotTickerDTO"
                   },
                   "type": "array",
                   "title": "Response List Bot Tickers Api Simulation Bots Tickers Get"
@@ -13356,6 +13356,25 @@
         ],
         "title": "BotReportDTO",
         "description": "O bot de uma partida como o ranking o mostra: o que ele joga e quem o pôs na sala."
+      },
+      "BotTickerDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "name"
+        ],
+        "title": "BotTickerDTO"
       },
       "BudgetAmountsDTO": {
         "properties": {

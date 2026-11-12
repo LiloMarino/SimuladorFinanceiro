@@ -16,7 +16,7 @@ import {
   type ParamDraft,
 } from "@/shared/lib/strategy-params";
 import { cn } from "@/shared/lib/utils";
-import type { SavedStrategyParams, StrategyGroup, StrategyInfo } from "@/types";
+import type { BotTicker, SavedStrategyParams, StrategyGroup, StrategyInfo } from "@/types";
 import { useSaveStrategyParams } from "../../hooks/mutations/useSaveStrategyParams";
 import { adjustedStrategies } from "../../lib/preparation";
 import { PreparationFooter } from "./preparation-footer";
@@ -26,7 +26,7 @@ const GROUPS: StrategyGroup[] = ["reference", "tactic"];
 type StrategiesTabProps = {
   strategies: StrategyInfo[];
   saved: SavedStrategyParams;
-  tickers: string[];
+  tickers: BotTicker[];
   /** O saldo inicial da sala, para o exemplo em reais dos parâmetros */
   startingCash: string;
   onClose: () => void;

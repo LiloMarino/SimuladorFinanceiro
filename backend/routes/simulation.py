@@ -37,7 +37,11 @@ from backend.core.dto.simulation import (
     validate_government,
     validate_independence,
 )
-from backend.core.dto.strategy import StrategyInfoDTO, StrategyParamValue
+from backend.core.dto.strategy import (
+    BotTickerDTO,
+    StrategyInfoDTO,
+    StrategyParamValue,
+)
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     ComputerDifficulty,
@@ -754,15 +758,18 @@ def list_bot_strategies(start_date: date | None = None):
 
 @simulation_router.get(
     "/bots/tickers",
-    response_model=list[str],
+    response_model=list[BotTickerDTO],
     summary="Listar as ações que um bot pode operar",
-    description="Os tickers cadastrados, em ordem alfabética, para escolher as ações de uma estratégia antes de a partida começar.",
+    description="Os tickers cadastrados com o nome da empresa, em ordem alfabética de ticker, para escolher as ações de uma estratégia antes de a partida começar.",
 )
 def list_bot_tickers():
     """
     Lista as ações que um bot da sala pode operar.
     """
-    return sorted(catalog.known_tickers())
+    return [
+        BotTickerDTO(ticker=stock.ticker, name=stock.name)
+        for stock in repository.stock.get_stocks()
+    ]
 
 
 @simulation_router.post(

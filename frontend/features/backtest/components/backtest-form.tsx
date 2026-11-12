@@ -16,13 +16,12 @@ import {
 } from "@/shared/components/ui/empty";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { useBotTickers } from "@/shared/hooks/queries/useBotTickers";
 import { addValues, nextFreeColor, type BotFormValues } from "@/shared/lib/bot-form";
 import { drawBotName } from "@/shared/lib/bot-names";
 import { isIsoDate } from "@/shared/lib/utils/date-field";
 import { displayMonthSlashYear } from "@/shared/lib/utils/display";
 import type ApiError from "@/shared/lib/models/ApiError";
-import type { BacktestSetup, StrategyInfo } from "@/types";
+import type { BacktestSetup, BotTicker, StrategyInfo } from "@/types";
 import { useStartBacktest } from "../hooks/mutations/useStartBacktest";
 import { backtestSchema, MAX_PARTICIPANTS, toRequest, type BacktestFormValues } from "../lib/form";
 import { displayEstimate, displaySpan, weekdaysBetween } from "../lib/period";
@@ -39,6 +38,7 @@ const REFERENCE_STRATEGY = "buy_and_hold";
 type BacktestFormProps = {
   setup: BacktestSetup;
   strategies: StrategyInfo[];
+  tickerOptions: BotTicker[];
   /** O formulário já resolvido com a configuração de partida */
   values: BacktestFormValues;
   /** Data de início que fixa a faixa dos parâmetros das estratégias */
@@ -46,10 +46,9 @@ type BacktestFormProps = {
 };
 
 /** A tela de novo backtest: período e dinheiro, as estratégias participantes e o botão que roda. */
-export function BacktestForm({ setup, strategies, values, startDate }: BacktestFormProps) {
+export function BacktestForm({ setup, strategies, tickerOptions, values, startDate }: BacktestFormProps) {
   const navigate = useNavigate();
   const startBacktest = useStartBacktest();
-  const { data: tickerOptions } = useBotTickers();
   const [view, setView] = useState<ParticipantsView>(loadViewPreference);
   const [selected, setSelected] = useState(0);
   const [dialog, setDialog] = useState<{ open: boolean; index: number | null }>({ open: false, index: null });
@@ -207,7 +206,7 @@ export function BacktestForm({ setup, strategies, values, startDate }: BacktestF
                 <ParticipantList
                   form={form}
                   strategies={strategies}
-                  tickerOptions={tickerOptions ?? []}
+                  tickerOptions={tickerOptions}
                   selected={Math.min(selected, list.length - 1)}
                   onSelect={setSelected}
                   onAdd={() => addParticipant()}

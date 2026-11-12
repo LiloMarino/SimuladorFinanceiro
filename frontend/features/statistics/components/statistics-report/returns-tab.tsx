@@ -12,7 +12,7 @@ import {
   displaySignedPercent,
 } from "@/shared/lib/utils/display";
 import { TeamBadge } from "@/shared/components/team-badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { OptionSelect, type SelectOption } from "@/shared/components/option-select";
 import { goalAt } from "@/shared/lib/goal";
 import { teamColor, teamName } from "@/shared/lib/teams";
 import type { ReturnsPlayer, ReturnsReport } from "@/types";
@@ -307,22 +307,16 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
                   <ToggleGroupItem value="TEAM">Dentro da equipe</ToggleGroupItem>
                 </ToggleGroup>
                 {scope === "TEAM" && focus !== null && (
-                  <Select
+                  <OptionSelect
                     value={String(focus)}
-                    onValueChange={(value) => setFocus(Number(value))}
-                    items={Object.fromEntries(data.teams.map((t) => [String(t.team), teamName(t.team, naming)]))}
-                  >
-                    <SelectTrigger aria-label="Equipe">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {data.teams.map((t) => (
-                        <SelectItem key={t.team} value={String(t.team)}>
-                          <TeamBadge team={t.team} naming={naming} form="full" size="sm" />
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onChange={(value) => setFocus(Number(value))}
+                    options={data.teams.map((t): SelectOption => ({
+                      value: String(t.team),
+                      label: teamName(t.team, naming),
+                      leading: <TeamBadge team={t.team} naming={naming} form="icon" size="sm" />,
+                    }))}
+                    aria-label="Equipe"
+                  />
                 )}
               </>
             )}

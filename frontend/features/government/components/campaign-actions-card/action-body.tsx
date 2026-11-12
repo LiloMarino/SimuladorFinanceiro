@@ -1,6 +1,6 @@
 import { Dices } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { OptionSelect } from "@/shared/components/option-select";
 import { displayDayMonth, displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import type {
   CampaignAction,
@@ -122,41 +122,33 @@ export function ActionBody({
           <div className="grid gap-2">
             <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">3 · Rival</span>
             {!isAttack ? (
-              <Select disabled value={null} items={{}}>
-                <SelectTrigger className="w-70" aria-label="Rival">
-                  <SelectValue placeholder="Só no ataque ao rival" />
-                </SelectTrigger>
-              </Select>
+              // Sem opções e desabilitado: o onChange nunca dispara
+              <OptionSelect
+                disabled
+                value={null}
+                options={[]}
+                onChange={() => {}}
+                placeholder="Só no ataque ao rival"
+                aria-label="Rival"
+                className="w-70"
+              />
             ) : campaign.rivals.length === 0 ? (
               <span className="text-[13px] text-muted-foreground">
                 Sem rival: o {campaign.party_abbr} é o único partido na eleição.
               </span>
             ) : (
-              <Select
+              <OptionSelect
                 value={rivalId === null ? null : String(rivalId)}
-                items={Object.fromEntries(
-                  campaign.rivals.map((item) => [
-                    String(item.party_id),
-                    <span key={item.party_id} className="flex items-center gap-2">
-                      <PartyMark abbr={item.abbr} color={item.color} size="sm" />
-                      {item.name}
-                    </span>,
-                  ]),
-                )}
-                onValueChange={(value) => value && onRival(Number(value))}
-              >
-                <SelectTrigger className="w-70" aria-label="Rival">
-                  <SelectValue placeholder="Escolha o rival" />
-                </SelectTrigger>
-                <SelectContent>
-                  {campaign.rivals.map((item) => (
-                    <SelectItem key={item.party_id} value={String(item.party_id)}>
-                      <PartyMark abbr={item.abbr} color={item.color} size="sm" />
-                      {item.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                options={campaign.rivals.map((item) => ({
+                  value: String(item.party_id),
+                  label: item.name,
+                  leading: <PartyMark abbr={item.abbr} color={item.color} size="sm" />,
+                }))}
+                onChange={(value) => onRival(Number(value))}
+                placeholder="Escolha o rival"
+                aria-label="Rival"
+                className="w-70"
+              />
             )}
           </div>
         )}

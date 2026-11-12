@@ -7,9 +7,10 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
 import { useSavedStrategyParams } from "@/shared/hooks/queries/useSavedStrategyParams";
+import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { useVariableIncomeStocks } from "@/shared/hooks/queries/useVariableIncomeStocks";
-import type { MyStrategy, SavedStrategyParams, StrategyInfo } from "@/types";
+import type { BotTicker, MyStrategy, SavedStrategyParams, StrategyInfo } from "@/types";
 import { ConfirmDialog, type ModeChange } from "../components/confirm-dialog";
 import { ErrorBanner } from "../components/error-banner";
 import { ModeCard, type Mode } from "../components/mode-card";
@@ -28,9 +29,10 @@ export default function StrategiesPage() {
   const mine = useMyStrategy();
   const saved = useSavedStrategyParams();
   const quotes = useVariableIncomeStocks();
+  const portfolio = usePortfolio();
 
-  if (!strategies.data || !mine.data || !saved.data || !quotes.data) {
-    const error = strategies.error ?? mine.error ?? saved.error ?? quotes.error;
+  if (!strategies.data || !mine.data || !saved.data || !quotes.data || !portfolio.data) {
+    const error = strategies.error ?? mine.error ?? saved.error ?? quotes.error ?? portfolio.error;
     return error ? (
       <Card>
         <CardContent>
@@ -43,6 +45,7 @@ export default function StrategiesPage() {
               void mine.refetch();
               void saved.refetch();
               void quotes.refetch();
+              void portfolio.refetch();
             }}
           />
         </CardContent>
@@ -57,7 +60,8 @@ export default function StrategiesPage() {
       strategies={strategies.data}
       mine={mine.data}
       saved={saved.data}
-      tickerOptions={quotes.data.map((quote) => quote.ticker)}
+      tickerOptions={quotes.data.map(({ ticker, name }) => ({ ticker, name }))}
+      heldTickers={portfolio.data.variable_income.map((position) => position.ticker)}
     />
   );
 }
@@ -67,10 +71,12 @@ type WorkspaceProps = {
   mine: MyStrategy;
   saved: SavedStrategyParams;
   /** As ações da partida: as opções do "Escolher" e o filtro das ações salvas no perfil */
-  tickerOptions: string[];
+  tickerOptions: BotTicker[];
+  /** As ações da carteira, para o atalho "Só as da carteira" */
+  heldTickers: string[];
 };
 
-function StrategiesWorkspace({ strategies, mine, saved, tickerOptions }: WorkspaceProps) {
+function StrategiesWorkspace({ strategies, mine, saved, tickerOptions, heldTickers }: WorkspaceProps) {
   const { data: state } = useSimulationState();
   const setStrategy = useSetMyStrategy();
   const { mutate: markErrorSeen } = useMarkStrategyErrorSeen();
@@ -196,6 +202,7 @@ function StrategiesWorkspace({ strategies, mine, saved, tickerOptions }: Workspa
             cash={state?.cash ?? "0"}
             currentDate={state?.current_date}
             tickerOptions={tickerOptions}
+            heldTickers={heldTickers}
             saving={setStrategy.isPending}
             onDraftChange={(next) => setDrafts((current) => ({ ...current, [selected.key]: next }))}
             onSave={(values) =>

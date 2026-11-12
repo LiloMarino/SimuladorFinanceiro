@@ -13,7 +13,7 @@ import {
 } from "@/shared/components/ui/dialog";
 import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { OptionSelect } from "@/shared/components/option-select";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { displayDayMonth } from "@/shared/lib/utils/display";
@@ -216,28 +216,22 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
             <>
               <Field>
                 <FieldLabel>Imposto</FieldLabel>
-                <Select
+                <OptionSelect
                   value={kind}
-                  items={Object.fromEntries(generalRows.map((tax) => [tax.kind, generalLabel(tax.kind, tax.value)]))}
-                  onValueChange={(value) => {
-                    if (!value) return;
-                    setKind(value);
+                  options={generalRows.map((tax) => ({
+                    value: tax.kind,
+                    label: generalLabel(tax.kind, tax.value),
+                    disabled: pendingKinds.has(tax.kind),
+                    reason: pendingKinds.has(tax.kind) ? "Já tem uma medida a caminho no Congresso" : undefined,
+                  }))}
+                  onChange={(next) => {
+                    setKind(next);
                     setRule("keep");
                     setValueText("");
                   }}
-                >
-                  <SelectTrigger size="lg" className="w-full" aria-label="Imposto">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {generalRows.map((tax) => (
-                      <SelectItem key={tax.kind} value={tax.kind} disabled={pendingKinds.has(tax.kind)}>
-                        {generalLabel(tax.kind, tax.value)}
-                        {pendingKinds.has(tax.kind) && " · já tem medida a caminho"}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  aria-label="Imposto"
+                  className="w-full"
+                />
               </Field>
 
               {kind === "STOCK_EXEMPTION" ? (

@@ -1,6 +1,6 @@
 import { defaultValues, profileValues, sameValues } from "@/shared/lib/strategy-params";
 import { displayPercent } from "@/shared/lib/utils/display";
-import type { Preparations, SavedStrategyParams, StrategyInfo, VoterValue } from "@/types";
+import type { BotTicker, Preparations, SavedStrategyParams, StrategyInfo, VoterValue } from "@/types";
 
 /** Um partido que disputa eleitor com o do jogador: os do computador e os dos outros fundadores da sala. */
 export type Rival = {
@@ -54,7 +54,7 @@ export function cashShare(amount: string, startingCash: string) {
 }
 
 /** As estratégias cujos parâmetros salvos no perfil diferem do padrão. */
-export function adjustedStrategies(strategies: StrategyInfo[], saved: SavedStrategyParams, tickers: string[]) {
+export function adjustedStrategies(strategies: StrategyInfo[], saved: SavedStrategyParams, tickers: BotTicker[]) {
   return new Set(
     strategies
       .filter((strategy) => {

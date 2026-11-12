@@ -1,19 +1,10 @@
-import { useId, useState, type CSSProperties } from "react";
-import { ChevronDown, Shield } from "lucide-react";
+import { useState, type CSSProperties } from "react";
+import { Shield } from "lucide-react";
+import { OptionSelect, type SelectOption } from "@/shared/components/option-select";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/shared/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { teamColor, teamName, teamShortName } from "@/shared/lib/teams";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
@@ -81,84 +72,38 @@ function SubjectPicker({
   subject: Subject;
   onSelect: (subject: Subject) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const listId = useId();
   const naming = report.team_naming;
-  const choose = (next: Subject) => {
-    onSelect(next);
-    setOpen(false);
-  };
-
-  const label = subject.startsWith("p:") ? subject.slice(2) : teamName(Number(subject.slice(2)), naming);
+  const options: SelectOption<Subject>[] = [
+    ...report.teams.map((team) => ({
+      value: `t:${team.team}` as const,
+      label: teamName(team.team, naming),
+      description: team.score ? `${displayNumber(team.score.total, 0)} pts` : "sem nota",
+      leading: <TeamBadge team={team.team} naming={naming} form="icon" size="sm" />,
+      group: "Equipes",
+    })),
+    ...report.teams.flatMap((team) =>
+      membersOf(report, team.team).map((player) => ({
+        value: `p:${player.player_nickname}` as const,
+        label: player.player_nickname,
+        searchText: teamName(team.team, naming),
+        leading: <PlayerAvatar nickname={player.player_nickname} color={player.color} bot={player.is_bot} size="sm" />,
+        group: `Jogadores · ${teamName(team.team, naming)}`,
+      })),
+    ),
+  ];
 
   return (
     <span className="flex items-center gap-2.5">
       <span className="text-xs font-medium text-muted-foreground">Ver nota de</span>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger
-          render={
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              aria-controls={listId}
-              className="min-w-56 justify-between"
-            />
-          }
-        >
-          <span className="flex items-center gap-2 truncate">
-            {subject.startsWith("t:") && (
-              <TeamBadge team={Number(subject.slice(2))} naming={naming} form="icon" size="sm" />
-            )}
-            {label}
-          </span>
-          <ChevronDown className="text-faint-foreground" />
-        </PopoverTrigger>
-        <PopoverContent id={listId} align="end" className="w-80">
-          <Command>
-            <CommandInput placeholder="Buscar equipe ou jogador…" />
-            <CommandList>
-              <CommandEmpty>Nenhuma equipe ou jogador com esse nome.</CommandEmpty>
-              <CommandGroup heading="Equipes">
-                {report.teams.map((team) => (
-                  <CommandItem
-                    key={team.team}
-                    value={teamName(team.team, naming)}
-                    selected={subject === `t:${team.team}`}
-                    onSelect={() => choose(`t:${team.team}`)}
-                  >
-                    <TeamBadge team={team.team} naming={naming} form="icon" size="sm" />
-                    {teamName(team.team, naming)}
-                    <span className="font-mono text-xs text-muted-foreground">
-                      {team.score ? `${displayNumber(team.score.total, 0)} pts` : "sem nota"}
-                    </span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-              {report.teams.map((team) => (
-                <CommandGroup key={team.team} heading={`Jogadores · ${teamName(team.team, naming)}`}>
-                  {membersOf(report, team.team).map((player) => (
-                    <CommandItem
-                      key={player.player_nickname}
-                      value={`${player.player_nickname} ${teamName(team.team, naming)}`}
-                      selected={subject === `p:${player.player_nickname}`}
-                      onSelect={() => choose(`p:${player.player_nickname}`)}
-                    >
-                      <PlayerAvatar
-                        nickname={player.player_nickname}
-                        color={player.color}
-                        bot={player.is_bot}
-                        size="sm"
-                      />
-                      {player.player_nickname}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              ))}
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+      <OptionSelect
+        value={subject}
+        options={options}
+        onChange={onSelect}
+        searchPlaceholder="Buscar equipe ou jogador…"
+        emptyText="Nenhuma equipe ou jogador com esse nome."
+        aria-label="Ver nota de"
+        className="min-w-56"
+      />
     </span>
   );
 }
