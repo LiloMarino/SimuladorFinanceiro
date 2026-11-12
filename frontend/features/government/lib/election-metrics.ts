@@ -69,19 +69,42 @@ export const BUDGET: MetricInfo = {
   label: "Verba por mês",
   description: "A soma das contribuições dos filiados",
   definition:
-    "O que o partido gasta em campanha por mês. Cada filiado escolhe quanto contribui, e a parte dele sai do caixa dele no dia 1º.",
+    "O que os filiados põem no caixa do partido por mês. Cada um escolhe quanto contribui, até o teto, e a parte dele sai da carteira dele no dia 1º.",
   example: "Ex.: Lilo contribui R$ 6.000 e Rafa R$ 2.000 → verba de R$ 8.000 por mês.",
   reading:
     "Verba maior rende mais apoio, mas cada real a mais rende menos que o anterior: o apoio cresce com a raiz quadrada do gasto.",
   format: (value) => displayMoneyWhole(value),
 };
 
+export const CASH: MetricInfo = {
+  label: "Caixa do partido",
+  description: "O dinheiro de onde saem as ações de campanha",
+  definition:
+    "O fundo público e as contribuições do mês entram no caixa do partido. As ações de campanha são pagas dele, e não da carteira de quem clica. O que sobra no fim do mês vira propaganda nos seis grupos, com metade da força do mesmo valor gasto em ações.",
+  example:
+    "Ex.: R$ 16.000 parados rendem 0,99 ponto de apoio em cada grupo; os mesmos R$ 16.000 gastos em ações rendem cerca de 2,2.",
+  reading: "Caixa parado rende pouco: gastar em ações durante o mês rende mais do que deixar sobrar.",
+  format: (value) => displayMoneyWhole(value),
+};
+
+export const FUND: MetricInfo = {
+  label: "Fundo público do mês",
+  description: "O que o partido recebe por concorrer",
+  definition:
+    "Cada partido que concorre rende R$ 8.000 ao fundo do mês. Metade se divide por igual entre os concorrentes e metade, pelas cadeiras de cada um na Câmara em exercício. Sem Câmara eleita, todos recebem o mesmo. Corrigido pelo IPCA.",
+  example:
+    "Ex.: com 5 concorrentes o fundo é R$ 40.000: sem cadeiras o partido recebe R$ 4.000; com 20 das 101 cadeiras, R$ 7.960.",
+  reading: "Quem tem mais cadeiras recebe mais fundo, e isso se acumula de uma eleição para a outra.",
+  format: (value) => displayMoneyWhole(value),
+};
+
 export const SPENT: MetricInfo = {
   label: "Gasto até agora",
   description: "O que o partido já gastou na campanha",
-  definition: "A soma das verbas mensais já cobradas dos filiados desde que a campanha abriu.",
+  definition:
+    "A soma do que já virou apoio do partido desde que a campanha abriu: ações, sobras do caixa e a parte do Congresso.",
   example: "Ex.: 6 meses de R$ 8.000 → R$ 48.000 gastos.",
-  reading: "É público e não volta: o que saiu do caixa de um filiado virou apoio do partido.",
+  reading: "É público e não volta: o que saiu do caixa do partido virou apoio.",
   format: (value) => displayMoneyWhole(value),
 };
 

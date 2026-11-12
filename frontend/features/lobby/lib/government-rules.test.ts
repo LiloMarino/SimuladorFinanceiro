@@ -78,10 +78,10 @@ describe("governmentRuleError", () => {
 });
 
 describe("difficultyExample", () => {
-  it("mostra a verba do computador sobre uma média de R$ 10.000", () => {
-    expect(difficultyExample("EASY")).toContain("R$ 5.000");
-    expect(difficultyExample("NORMAL")).toContain("R$ 10.000 por mês");
-    expect(difficultyExample("HARD")).toContain("R$ 15.000");
+  it("mostra a verba do computador sobre um fundo de R$ 8.000", () => {
+    expect(difficultyExample("EASY")).toContain("R$ 4.000");
+    expect(difficultyExample("NORMAL")).toContain("R$ 8.000 por mês");
+    expect(difficultyExample("HARD")).toContain("R$ 12.000");
   });
 });
 

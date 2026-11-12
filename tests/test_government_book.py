@@ -165,7 +165,7 @@ def found(
     user: UserDTO,
     abbr: str,
     color: str,
-    amount="10000",
+    amount="8000",
     flags: list[VoterValue] = FLAGS,
 ):
     book.found_party(
@@ -186,18 +186,17 @@ def party_of(book: GovernmentBook, user: UserDTO) -> Party:
     return party
 
 
-def test_computer_fills_the_race_up_to_three_parties(book: GovernmentBook):
+def test_the_three_computer_parties_are_always_in_the_race(book: GovernmentBook):
     found(book, ALICE, "AAA", RED)
-    assert len(book.state.computer_parties()) == 2
+    assert len(book.state.computer_parties()) == 3
 
     found(book, BOB, "BBB", BLUE)
-    assert len(book.state.computer_parties()) == 1
-
     found(book, CARLA, "CCC", GREEN)
-    assert book.state.computer_parties() == []
+    assert len(book.state.computer_parties()) == 3
+    assert len(book.state.player_parties()) == 3
 
 
-def test_computer_parties_come_back_when_a_player_party_dissolves(book: GovernmentBook):
+def test_computer_parties_stay_when_a_player_party_dissolves(book: GovernmentBook):
     found(book, ALICE, "AAA", RED)
     found(book, BOB, "BBB", BLUE)
     found(book, CARLA, "CCC", GREEN)
@@ -205,7 +204,7 @@ def test_computer_parties_come_back_when_a_player_party_dissolves(book: Governme
     book.leave_party(CARLA, CAMPAIGN_OPEN)
 
     assert len(book.state.player_parties()) == 2
-    assert len(book.state.computer_parties()) == 1
+    assert len(book.state.computer_parties()) == 3
 
 
 def test_party_opens_from_the_first_day_of_the_match(
@@ -219,7 +218,7 @@ def test_party_opens_from_the_first_day_of_the_match(
         abbr="CED",
         color=RED,
         flags=FLAGS,
-        contribution=Decimal(10000),
+        contribution=Decimal(8000),
     )
     book.join_party(BOB, early, party_of(book, ALICE).id, Decimal(0))
     book.leave_party(BOB, date(2020, 3, 2))
@@ -346,29 +345,28 @@ def test_only_the_founder_expels(book: GovernmentBook):
     assert book.state.party_of(BOB.id) is None
 
 
-def test_monthly_contribution_buys_votes_and_is_charged_once_a_month(
+def test_monthly_contribution_and_fund_go_to_the_party_cash_once_a_month(
     book: GovernmentBook, engine: PoliticalEngine
 ):
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
     party = party_of(book, ALICE)
 
     book.on_tick(USERS, date(2020, 11, 3), True)
     book.on_tick(USERS, date(2020, 11, 4), True)
 
-    assert engine.get_cash(ALICE.client_id) == Decimal(90000)
-    # A verba de 3 nov já perdeu 1 dia da queda pela metade a cada 3 meses
-    assert party.campaign[WORKERS] == voters.campaign_points(
-        Decimal(10000)
-    ) * campaign.decay_factor(1)
+    assert engine.get_cash(ALICE.client_id) == Decimal(92000)
+    # Contribuição de 8.000 mais o fundo de 8.000 (4 concorrentes, sem casa eleita)
+    assert party.cash == Decimal(16000)
+    assert party.campaign[WORKERS] == 0
     computers = book.state.computer_parties()
-    # Dificuldade Fácil: o computador gasta metade da verba do partido de jogadores
-    assert all(c.spent == Decimal(5000) for c in computers)
+    # Dificuldade Fácil: o computador gasta metade do fundo dele
+    assert all(c.spent == Decimal(4000) for c in computers)
 
 
 def test_member_without_cash_skips_the_month(
     book: GovernmentBook, engine: PoliticalEngine
 ):
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
     engine.cash[ALICE.client_id] = Decimal(500)
 
     book.on_tick(USERS, date(2020, 11, 3), True)
@@ -583,7 +581,7 @@ def test_two_rounds_end_with_the_term_starting_in_january(
 
 
 def test_winning_party_keeps_members_but_restarts_the_support(book: GovernmentBook):
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
     run_campaign(book)
     book.on_tick(USERS, FIRST_ROUND, False)
     book.on_tick(USERS, RUNOFF, False)
@@ -624,6 +622,78 @@ def test_donation_goes_only_to_a_finalist_and_only_from_an_eliminated_party(
     assert race.groups[WORKERS].votes[finalist] == pytest.approx(
         before + voters.campaign_points(Decimal(1000)) * unit
     )
+
+
+def test_the_contribution_cap_is_refused_on_found_set_donation_and_runoff(
+    book: GovernmentBook,
+):
+    with pytest.raises(UnprocessableEntityError, match="teto da contribuição"):
+        found(book, ALICE, "AAA", RED, "8000.01")
+
+    found(book, ALICE, "AAA", RED, "8000")
+    found(book, BOB, "BBB", BLUE, "2000", NICHE)
+    with pytest.raises(UnprocessableEntityError, match="teto da contribuição"):
+        book.set_contribution(ALICE, CAMPAIGN_OPEN, Decimal(9000))
+    with pytest.raises(UnprocessableEntityError, match="teto da contribuição"):
+        book.join_party(CARLA, CAMPAIGN_OPEN, party_of(book, ALICE).id, Decimal(9000))
+
+    run_campaign(book)
+    book.on_tick(USERS, FIRST_ROUND, False)
+    gap = date(2021, 10, 10)
+    with pytest.raises(UnprocessableEntityError, match="teto da contribuição"):
+        book.donate(BOB, gap, party_of(book, ALICE).id, Decimal(9000))
+    with pytest.raises(UnprocessableEntityError, match="teto da contribuição"):
+        book.contribute_runoff(ALICE, gap, Decimal(9000))
+
+
+def test_unspent_party_cash_becomes_ads_at_the_next_month_close(
+    book: GovernmentBook, engine: PoliticalEngine
+):
+    found(book, ALICE, "AAA", RED, "8000")
+    party = party_of(book, ALICE)
+
+    book.on_tick(USERS, date(2020, 11, 3), True)
+    assert party.cash == Decimal(16000)
+    book.on_tick(USERS, date(2020, 12, 1), True)
+
+    # O caixa parado do mês vira propaganda em todos os grupos com √sobra ÷ 128
+    expected = voters.leftover_points(Decimal(16000))
+    assert expected.quantize(Decimal("0.01")) == Decimal("0.99")
+    for group in VoterGroup:
+        assert party.campaign[group] == pytest.approx(
+            expected * campaign.decay_factor(0), rel=Decimal("0.01")
+        )
+    # O mês novo traz a contribuição e o fundo de novo
+    assert party.cash == Decimal(16000)
+    assert engine.get_cash(ALICE.client_id) == Decimal(84000)
+
+
+def test_replay_rebuilds_the_party_cash(book: GovernmentBook, stored):
+    found(book, ALICE, "AAA", RED, "8000")
+    mine = party_of(book, ALICE)
+    book.on_tick(USERS, date(2020, 11, 3), True)
+    book.campaign_action(ALICE, ACTION_DAY, CampaignActionKind.TV, None, None)
+    book.on_tick(USERS, date(2020, 12, 1), True)
+
+    again = replay(stored)
+
+    assert again.parties[mine.id].cash == mine.cash
+    assert again.parties[mine.id].spent == mine.spent
+
+
+def test_events_without_fund_replay_as_the_verba_that_becomes_support_at_once(
+    book: GovernmentBook, stored
+):
+    found(book, ALICE, "AAA", RED, "8000")
+    party = party_of(book, ALICE)
+    book.on_tick(USERS, date(2020, 11, 3), True)
+    for event in stored:
+        event.payload.pop("fund", None)
+
+    again = replay(stored).parties[party.id]
+
+    assert again.cash == 0
+    assert again.campaign[WORKERS] > 0
 
 
 def test_between_rounds_only_donations_are_open(book: GovernmentBook):
@@ -879,7 +949,7 @@ def test_replay_rebuilds_the_same_state(book: GovernmentBook, stored):
 def test_resumed_book_starts_from_the_stored_events(
     book: GovernmentBook, engine, stored, notices
 ):
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
     book.on_tick(USERS, date(2020, 11, 3), True)
 
     resumed = GovernmentBook(
@@ -1029,7 +1099,7 @@ def congress_says(monkeypatch: pytest.MonkeyPatch, approved: bool) -> None:
 def govern(book: GovernmentBook, engine, *, vice: bool = False) -> None:
     """Alice vence a eleição e toma posse; com `vice`, Bob é o vice dela."""
     engine.classification = SECTORS
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
     if vice:
         book.join_party(BOB, CAMPAIGN_OPEN, party_of(book, ALICE).id, Decimal(0))
         book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", USERS)
@@ -1308,7 +1378,7 @@ def test_impeachment_hands_the_office_to_a_vice_from_another_party(
     book: GovernmentBook, engine, market, bleak, office, monkeypatch
 ):
     engine.classification = SECTORS
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
     book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", USERS)
     book.invite_vice(ALICE, CAMPAIGN_OPEN, "Carla", USERS)
     book.answer_vice(CARLA, CAMPAIGN_OPEN, True, party_of(book, ALICE).id)
@@ -1830,14 +1900,18 @@ def dice(monkeypatch: pytest.MonkeyPatch):
 def two_parties(book: GovernmentBook) -> tuple[Party, Party]:
     found(book, ALICE, "AAA", RED)
     found(book, BOB, "BBB", BLUE)
-    return party_of(book, ALICE), party_of(book, BOB)
+    mine, rival = party_of(book, ALICE), party_of(book, BOB)
+    # As ações saem do caixa do partido
+    mine.cash = rival.cash = Decimal(100000)
+    return mine, rival
 
 
 def test_event_is_paid_on_click_and_lifts_the_group(
     book: GovernmentBook, engine: PoliticalEngine, notices
 ):
     mine, _ = two_parties(book)
-    cash = engine.get_cash(ALICE.client_id)
+    wallet = engine.get_cash(ALICE.client_id)
+    cash = mine.cash
     spent = mine.spent
     support = mine.standing(RETIREES).support
 
@@ -1847,7 +1921,9 @@ def test_event_is_paid_on_click_and_lifts_the_group(
 
     record = result.record
     price = campaign.PRICES[CampaignActionKind.EVENT]
-    assert engine.get_cash(ALICE.client_id) == cash - price
+    # A ação sai do caixa do partido e a carteira do filiado não muda
+    assert mine.cash == cash - price
+    assert engine.get_cash(ALICE.client_id) == wallet
     assert record.rolls == campaign.roll_dice(SEED, record.id, CampaignActionKind.EVENT)
     assert result.support_before == support
     assert mine.spent == spent + price
@@ -1964,7 +2040,7 @@ def test_event_repairs_rejection_up_to_the_campaign_limit(book: GovernmentBook, 
 
 def test_failed_action_charges_nothing(book: GovernmentBook, engine: PoliticalEngine):
     mine, rival = two_parties(book)
-    cash = engine.get_cash(ALICE.client_id)
+    cash = mine.cash
 
     with pytest.raises(UnprocessableEntityError, match="grupo"):
         book.campaign_action(ALICE, ACTION_DAY, CampaignActionKind.EVENT, None, None)
@@ -1982,12 +2058,12 @@ def test_failed_action_charges_nothing(book: GovernmentBook, engine: PoliticalEn
         book.campaign_action(
             ALICE, ACTION_DAY, CampaignActionKind.EVENT, RETIREES, rival.id
         )
-    assert engine.get_cash(ALICE.client_id) == cash
+    assert mine.cash == cash
 
-    engine.add_cash(ALICE.client_id, -(cash - 100))
-    with pytest.raises(ConflictError, match="Caixa insuficiente"):
+    mine.cash = Decimal(100)
+    with pytest.raises(ConflictError, match="Caixa do partido insuficiente"):
         book.campaign_action(ALICE, ACTION_DAY, CampaignActionKind.TV, None, None)
-    assert engine.get_cash(ALICE.client_id) == 100
+    assert mine.cash == 100
     assert book.state.actions == []
 
 
@@ -2014,6 +2090,7 @@ def test_between_the_rounds_only_the_finalists_act_until_the_eve(book: Governmen
     run_campaign(book)
     book.on_tick(USERS, FIRST_ROUND, False)
     gap = date(2021, 10, 10)
+    party_of(book, ALICE).cash = Decimal(100000)
 
     with pytest.raises(ConflictError, match="só os finalistas"):
         book.campaign_action(BOB, gap, CampaignActionKind.TV, None, None)
@@ -2063,7 +2140,9 @@ def test_replay_restores_actions_decay_and_repairs(book: GovernmentBook, stored)
 def test_computer_spends_part_of_its_monthly_budget_on_actions(
     book: GovernmentBook,
 ):
-    found(book, ALICE, "AAA", RED, "10000")
+    # Dificuldade Normal: a fatia de ações da verba (60% de 8.000) cobre a TV
+    book._factor = Decimal(1)
+    found(book, ALICE, "AAA", RED, "8000")
 
     book.on_tick(USERS, date(2020, 11, 3), True)
 

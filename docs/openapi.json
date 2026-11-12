@@ -13991,6 +13991,10 @@
             ],
             "title": "Closed Reason"
           },
+          "cash": {
+            "type": "string",
+            "title": "Cash"
+          },
           "campaign_start": {
             "type": "string",
             "format": "date",
@@ -14092,6 +14096,7 @@
           "today",
           "open",
           "closed_reason",
+          "cash",
           "campaign_start",
           "first_round",
           "share_at_vote",
@@ -15211,7 +15216,7 @@
           "HARD"
         ],
         "title": "ComputerDifficulty",
-        "description": "A verba de cada partido do computador, em múltiplo da média dos partidos de jogadores."
+        "description": "A verba de cada partido do computador, em múltiplo do fundo público que ele recebe."
       },
       "CongressBaseDTO": {
         "properties": {
@@ -17704,6 +17709,10 @@
             "type": "boolean",
             "title": "Poll Margin"
           },
+          "contribution_cap": {
+            "type": "string",
+            "title": "Contribution Cap"
+          },
           "parties": {
             "items": {
               "$ref": "#/components/schemas/PartyDTO"
@@ -17907,6 +17916,7 @@
           "radar_neutral",
           "radar_flag",
           "poll_margin",
+          "contribution_cap",
           "parties",
           "undecided",
           "polls",
@@ -24378,6 +24388,14 @@
             "type": "string",
             "title": "Congress"
           },
+          "cash": {
+            "type": "string",
+            "title": "Cash"
+          },
+          "fund": {
+            "type": "string",
+            "title": "Fund"
+          },
           "guidance": {
             "items": {
               "$ref": "#/components/schemas/GuidanceRuleDTO"
@@ -24398,6 +24416,8 @@
           "is_candidate",
           "contribution",
           "congress",
+          "cash",
+          "fund",
           "guidance",
           "seats"
         ],

@@ -28,6 +28,8 @@ type ContributionDialogProps = {
   /** A parte de `current` que vai ao Congresso, em reais */
   currentCongress: string;
   cash: string | undefined;
+  /** O teto da contribuição por pessoa ao mês */
+  cap: string;
   /** Quando a cobrança começa, se ainda não começou */
   collectionNote: string;
 };
@@ -40,6 +42,7 @@ export function ContributionDialog({
   current,
   currentCongress,
   cash,
+  cap,
   collectionNote,
 }: ContributionDialogProps) {
   const [text, setText] = useState(() => contributionText(current));
@@ -75,6 +78,7 @@ export function ContributionDialog({
             <ContributionField
               id="change-contribution"
               autoFocus
+              cap={cap}
               value={text}
               onChange={setText}
               error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}

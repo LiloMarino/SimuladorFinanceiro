@@ -356,7 +356,7 @@ def test_preview_lists_each_promise_and_the_cost_of_withdrawing(book: Government
 def govern_promising(book: GovernmentBook, engine, *items: PromiseRequest, vice=False):
     """Alice anuncia as promessas, vence a eleição e toma posse; com `vice`, Bob é o vice."""
     engine.classification = SECTORS
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
     if vice:
         book.join_party(BOB, CAMPAIGN_OPEN, party_of(book, ALICE).id, Decimal(0))
         book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", USERS)
@@ -393,7 +393,7 @@ def test_the_losing_party_keeps_its_promises_in_the_history_without_effect(
     book: GovernmentBook, engine
 ):
     engine.classification = SECTORS
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
     # Sem verba e sem votos: o computador ganha
     found(book, BOB, "BBB", "#2563eb", "0")
     book.set_promises(BOB, CAMPAIGN_OPEN, [request("0.12")])
@@ -590,7 +590,7 @@ def test_the_vice_inherits_the_promises_after_an_impeachment(
 def test_computer_parties_promise_by_rule_and_are_not_charged(
     book: GovernmentBook, engine
 ):
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
 
     run_campaign(book)
 

@@ -4952,6 +4952,8 @@ export interface components {
             open: boolean;
             /** Closed Reason */
             closed_reason: string | null;
+            /** Cash */
+            cash: string;
             /**
              * Campaign Start
              * Format: date
@@ -5345,7 +5347,7 @@ export interface components {
         };
         /**
          * ComputerDifficulty
-         * @description A verba de cada partido do computador, em múltiplo da média dos partidos de jogadores.
+         * @description A verba de cada partido do computador, em múltiplo do fundo público que ele recebe.
          * @enum {string}
          */
         ComputerDifficulty: "EASY" | "NORMAL" | "HARD";
@@ -6225,6 +6227,8 @@ export interface components {
             radar_flag: string;
             /** Poll Margin */
             poll_margin: boolean;
+            /** Contribution Cap */
+            contribution_cap: string;
             /** Parties */
             parties: components["schemas"]["PartyDTO"][];
             /** Undecided */
@@ -8574,6 +8578,10 @@ export interface components {
             contribution: string;
             /** Congress */
             congress: string;
+            /** Cash */
+            cash: string;
+            /** Fund */
+            fund: string;
             /** Guidance */
             guidance: components["schemas"]["GuidanceRuleDTO"][];
             /** Seats */

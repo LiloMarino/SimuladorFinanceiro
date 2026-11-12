@@ -372,22 +372,23 @@ def test_the_contribution_splits_between_the_presidency_and_the_congress(
         abbr="AAA",
         color=RED,
         flags=[VoterValue.STABILITY, VoterValue.DEVELOPMENT, VoterValue.FREE_MARKET],
-        contribution=Decimal(10000),
+        contribution=Decimal(8000),
         congress=Decimal(4000),
     )
     party = party_of(book, ALICE)
 
     book.on_tick(USERS, date(2020, 11, 3), True)
 
-    assert party.spent == Decimal(10000)
+    # A parte do Congresso vai direto para a casa; o resto e o fundo ficam no caixa do partido
+    assert party.spent == Decimal(4000)
+    assert party.cash == Decimal(12000)
     assert sum(party.house_campaign.values()) > 0
-    assert sum(party.campaign.values()) > 0
 
 
 def test_a_party_without_congress_money_has_no_house_campaign(
     book: GovernmentBook, engine
 ):
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
     party = party_of(book, ALICE)
 
     book.on_tick(USERS, date(2020, 11, 3), True)
@@ -396,7 +397,7 @@ def test_a_party_without_congress_money_has_no_house_campaign(
 
 
 def test_the_congress_share_cannot_exceed_the_contribution(book: GovernmentBook):
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
 
     with pytest.raises(UnprocessableEntityError, match="Congresso"):
         book.set_contribution(ALICE, CAMPAIGN_OPEN, Decimal(1000), Decimal(2000))

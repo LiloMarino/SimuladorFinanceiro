@@ -14,7 +14,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { contributionAmount, contributionText } from "@/shared/lib/contribution";
+import { contributionAmount, contributionText, STARTING_CONTRIBUTION_CAP } from "@/shared/lib/contribution";
 import { defaultPartyColor } from "@/shared/lib/party-colors";
 import { flagRadarScores } from "@/shared/lib/party-flags";
 import { partyIdentitySchema } from "@/shared/lib/party-identity";
@@ -263,6 +263,7 @@ export function PartyFoundTab({
                 id="prep-found-contribution"
                 value={amount}
                 onChange={setAmount}
+                cap={STARTING_CONTRIBUTION_CAP}
                 note={`${cashShare(contributionAmount(amount), rules.starting_cash)} do saldo inicial desta sala (${displayMoneyWhole(rules.starting_cash)}). Cobrada no 1º dia útil de cada mês da campanha. Mês sem caixa vira pendência.`}
               />
             </PreparationSection>

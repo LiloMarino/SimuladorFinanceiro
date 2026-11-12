@@ -142,3 +142,20 @@ def test_prices_stay_fixed_without_inflation_adjustment():
     price = campaign.price(K.TV, date(2020, 1, 1), date(2024, 5, 1), False)
 
     assert price == campaign.PRICES[K.TV]
+
+
+def test_fund_is_split_in_half_equally_and_in_half_by_seats():
+    # Sem casa eleita todos recebem o mesmo
+    assert campaign.fund(5, None) == campaign.FUND_PER_PARTY
+    # Com 5 concorrentes o fundo total é 40.000: 4.000 por igual mais a fatia das cadeiras
+    assert campaign.fund(5, Decimal(0)) == 4000
+    assert campaign.fund(5, Decimal(1)) == 24000
+    assert round(campaign.fund(5, Decimal(20) / 101), 2) == Decimal("7960.40")
+    assert round(campaign.fund(5, Decimal(40) / 101), 2) == Decimal("11920.79")
+
+
+def test_fund_and_cap_stay_fixed_without_inflation_adjustment():
+    start, day = date(2020, 1, 1), date(2024, 5, 1)
+
+    assert campaign.adjusted(campaign.FUND_PER_PARTY, start, day, False) == 8000
+    assert campaign.adjusted(campaign.CONTRIBUTION_CAP, start, day, False) == 8000

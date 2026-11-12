@@ -12,7 +12,7 @@ import {
   displayShortDate,
 } from "@/shared/lib/utils/display";
 import type { CampaignPanel, ElectionPanel, ElectionParty } from "@/types";
-import { BUDGET, SPENT, VOTE_YIELD } from "../lib/election-metrics";
+import { BUDGET, CASH, FUND, SPENT, VOTE_YIELD } from "../lib/election-metrics";
 import { signed } from "../lib/campaign";
 import { monthYear } from "../lib/election";
 import { federationOf, partnerOf } from "../lib/federation";
@@ -111,6 +111,28 @@ export function MyPartyCard({
                   }
                   value={displayMoneyWhole(party.spent)}
                 />
+                {mine && (
+                  <>
+                    <Kpi
+                      label={
+                        <>
+                          {CASH.label}
+                          <MetricHint metric={CASH} />
+                        </>
+                      }
+                      value={displayMoneyWhole(mine.cash)}
+                    />
+                    <Kpi
+                      label={
+                        <>
+                          {FUND.label}
+                          <MetricHint metric={FUND} />
+                        </>
+                      }
+                      value={displayMoneyWhole(mine.fund)}
+                    />
+                  </>
+                )}
               </div>
 
               {/* Verba de base */}
@@ -118,7 +140,7 @@ export function MyPartyCard({
                 <div className="flex items-baseline justify-between gap-3 pb-1.5">
                   <span className="text-sm font-medium">Verba de base</span>
                   <span className="text-xs text-muted-foreground">
-                    A contribuição dos filiados, cobrada todo dia 1º
+                    A contribuição dos filiados, cobrada todo dia 1º e somada ao caixa do partido
                   </span>
                 </div>
                 {party.members.map((member) => {

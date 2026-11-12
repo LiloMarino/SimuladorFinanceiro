@@ -23,8 +23,6 @@ type CampaignActionsCardProps = {
   campaign: CampaignPanel;
   /** Os grupos de eleitores, para o peso de cada um */
   groups: VoterGroupInfo[];
-  /** O caixa de quem vê, de onde a ação é paga na hora */
-  cash: string | undefined;
   /** O partido de quem vê e os da corrida: a pesquisa no grupo compara o primeiro com o líder */
   party: ElectionParty;
   parties: ElectionParty[];
@@ -34,15 +32,7 @@ type CampaignActionsCardProps = {
 };
 
 /** As quatro ações avulsas de campanha em passos (ação, grupo, rival), com o resumo do dado sempre à vista. */
-export function CampaignActionsCard({
-  campaign,
-  groups,
-  cash,
-  party,
-  parties,
-  poll,
-  onHistory,
-}: CampaignActionsCardProps) {
+export function CampaignActionsCard({ campaign, groups, party, parties, poll, onHistory }: CampaignActionsCardProps) {
   const [kind, setKind] = useState<CampaignActionKind>("EVENT");
   const [group, setGroup] = useState<VoterGroup>("RETIREES");
   const [chosenRival, setChosenRival] = useState<number | null>(null);
@@ -57,11 +47,10 @@ export function CampaignActionsCard({
   const action = campaign.actions.find((candidate) => candidate.action === kind);
   const rivalId = chosenRival ?? (campaign.rivals.length === 1 ? (campaign.rivals[0]?.party_id ?? null) : null);
   const rival = campaign.rivals.find((candidate) => candidate.party_id === rivalId);
-  const cashNumber = cash === undefined ? null : Number(cash);
+  const cash = Number(campaign.cash);
 
-  /** O que falta no caixa para pagar a ação; o servidor calculou ao montar o cartão, e o caixa vivo corrige */
-  const missing = (candidate: CampaignAction) =>
-    cashNumber === null ? Number(candidate.missing) : Math.max(0, Number(candidate.price) - cashNumber);
+  /** O que falta no caixa do partido para pagar a ação */
+  const missing = (candidate: CampaignAction) => Math.max(0, Number(candidate.price) - cash);
 
   return (
     <Card>
@@ -72,7 +61,7 @@ export function CampaignActionsCard({
             <div className="grid gap-1">
               <h2 className="text-[15px] font-semibold">Ações de campanha</h2>
               <span className="text-[13px] text-muted-foreground">
-                Qualquer filiado faz e paga na hora, da própria carteira. O resultado sai de um dado e só o{" "}
+                Qualquer filiado faz e a ação sai do caixa do partido. O resultado sai de um dado e só o{" "}
                 {campaign.party_abbr} vê.
               </span>
             </div>
@@ -106,7 +95,7 @@ export function CampaignActionsCard({
               onRival={setChosenRival}
               weights={weights}
               undecided={undecided}
-              cash={cashNumber}
+              cash={cash}
               party={party}
               parties={parties}
               poll={poll}

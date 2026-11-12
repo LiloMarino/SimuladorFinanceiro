@@ -12,7 +12,6 @@ import { MyPartyCard } from "./my-party-card";
 type CampaignSectionProps = {
   panel: ElectionPanel;
   party: ElectionParty;
-  cash: string | undefined;
   nickname: string;
   onEditTicket: () => void;
   onEditPromises: () => void;
@@ -27,7 +26,6 @@ type CampaignSectionProps = {
 export function CampaignSection({
   panel,
   party,
-  cash,
   nickname,
   onEditTicket,
   onEditPromises,
@@ -73,7 +71,6 @@ export function CampaignSection({
       <CampaignActionsCard
         campaign={campaign}
         groups={panel.groups}
-        cash={cash}
         party={party}
         parties={partyOrder(panel.parties)}
         poll={panel.polls.at(-1)}

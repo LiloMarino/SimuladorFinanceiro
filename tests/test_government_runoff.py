@@ -214,11 +214,11 @@ def test_each_member_of_a_finalist_contributes_once(book: GovernmentBook, engine
     cash = engine.get_cash(ALICE.client_id)
     before = race.groups[WORKERS].votes[mine.id]
 
-    book.contribute_runoff(ALICE, GAP, Decimal(9000))
+    book.contribute_runoff(ALICE, GAP, Decimal(8000))
 
-    assert engine.get_cash(ALICE.client_id) == cash - 9000
+    assert engine.get_cash(ALICE.client_id) == cash - 8000
     assert race.groups[WORKERS].votes[mine.id] > before
-    assert book.state.runoff_total(mine.id) == 9000
+    assert book.state.runoff_total(mine.id) == 8000
     with pytest.raises(ConflictError, match="uma só"):
         book.contribute_runoff(ALICE, GAP, Decimal(1))
     with pytest.raises(ConflictError, match="finalista"):
@@ -265,6 +265,7 @@ def test_the_finalist_adds_promises_up_to_four_and_never_takes_them_back(
 def test_the_attack_in_the_runoff_goes_to_the_other_finalist(book: GovernmentBook):
     to_the_gap(book)
     other = next(f for f in book.state.runoff or [] if f != party_of(book, ALICE).id)
+    party_of(book, ALICE).cash = Decimal(100000)
 
     book.campaign_action(ALICE, GAP, CampaignActionKind.ATTACK, WORKERS, other)
     with pytest.raises(ConflictError, match="outro finalista"):
@@ -278,6 +279,7 @@ def test_repeating_an_action_counts_again_from_the_day_after_the_first_round(
 ):
     found(book, ALICE, "AAA", RED, "8000")
     found(book, BOB, "BBB", BLUE, "2000", NICHE)
+    party_of(book, ALICE).cash = Decimal(100000)
     book.campaign_action(
         ALICE, FIRST_ROUND - timedelta(days=2), CampaignActionKind.EVENT, WORKERS, None
     )
@@ -348,6 +350,7 @@ def test_replay_rebuilds_the_race_with_declarations_and_contributions(
     to_the_gap(book)
     book.endorse(BOB, GAP, party_of(book, ALICE).id)
     book.contribute_runoff(ALICE, GAP, Decimal(5000))
+    party_of(book, ALICE).cash = Decimal(100000)
     book.campaign_action(ALICE, GAP, CampaignActionKind.EVENT, WORKERS, None)
     book.on_tick(USERS, AFTER_FIRST_ROUND, False)
 

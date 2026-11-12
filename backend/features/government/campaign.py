@@ -31,6 +31,11 @@ PRICES: dict[CampaignActionKind, Decimal] = {
     K.ATTACK: Decimal(2500),
 }
 
+# Fundo público do mês por partido que concorre e teto da contribuição mensal de cada
+# filiado, em valores de referência: sobem pelo IPCA como os preços
+FUND_PER_PARTY = Decimal(8000)
+CONTRIBUTION_CAP = Decimal(8000)
+
 # Pontos de apoio que a ação rende na faixa normal, em cada grupo que ela atinge
 NORMAL_GAIN: dict[CampaignActionKind, Decimal] = {
     K.TV: Decimal("0.75"),
@@ -91,12 +96,31 @@ class Outcome:
     rejection: Decimal
 
 
+def adjusted(
+    amount: Decimal, start: date, day: date, inflation_adjusted: bool
+) -> Decimal:
+    """O valor em reais no dia, corrigido pelo IPCA quando a partida corrige os valores."""
+    factor = inflation_factor(start, day) if inflation_adjusted else Decimal(1)
+    return (amount * factor).quantize(CENT, rounding=ROUND_HALF_EVEN)
+
+
 def price(
     kind: CampaignActionKind, start: date, day: date, inflation_adjusted: bool
 ) -> Decimal:
     """O preço da ação no dia, em reais e centavos."""
-    factor = inflation_factor(start, day) if inflation_adjusted else Decimal(1)
-    return (PRICES[kind] * factor).quantize(CENT, rounding=ROUND_HALF_EVEN)
+    return adjusted(PRICES[kind], start, day, inflation_adjusted)
+
+
+def fund(competitors: int, seat_share: Decimal | None) -> Decimal:
+    """
+    O fundo público do mês de um concorrente, em valores de referência: o fundo total
+    é `FUND_PER_PARTY` vezes os concorrentes. `seat_share` é a fatia dele nas cadeiras da
+    casa em exercício: metade do fundo é dividida por igual e metade pelas cadeiras. Sem
+    casa eleita (nulo) o fundo todo é dividido por igual.
+    """
+    if seat_share is None:
+        return FUND_PER_PARTY
+    return FUND_PER_PARTY / 2 + FUND_PER_PARTY * competitors / 2 * seat_share
 
 
 @cache

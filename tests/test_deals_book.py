@@ -685,7 +685,7 @@ def test_a_resumed_game_rebuilds_the_deals_and_the_spending(
 
 def player_ally(book: GovernmentBook, engine):
     """Bob lidera um segundo partido de jogador com bancada na casa."""
-    found(book, BOB, "BBB", BLUE, "10000", NICHE)
+    found(book, BOB, "BBB", BLUE, "8000", NICHE)
     govern(book, engine)
     bloc = book.state.house_on(TERM_START).of_party(party_of(book, BOB).id)
     return bloc

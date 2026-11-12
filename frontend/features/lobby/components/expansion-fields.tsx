@@ -158,8 +158,8 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
                     <InfoHint label="Como funciona a dificuldade">
                       <div className="space-y-1 text-left">
                         <p>
-                          O computador completa a disputa com partidos próprios sempre que há menos de 3 partidos de
-                          jogadores. Cada um gasta uma verba por mês, medida sobre a média dos partidos de jogadores.
+                          Os 3 partidos do computador (UPR, MNV e ACI) sempre estão na disputa, ao lado dos de
+                          jogadores. Cada um recebe o fundo público do mês e gasta uma verba medida sobre ele.
                         </p>
                         <p>{difficultyExample(field.value)}</p>
                         <p>

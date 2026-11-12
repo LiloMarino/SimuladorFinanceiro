@@ -33,7 +33,7 @@ type DonateDialogProps = {
   cash: string | undefined;
 };
 
-const SHORTCUTS = [5000, 10000, 20000];
+const SHORTCUTS = [1000, 2000, 5000];
 
 /** Doar a um finalista entre os turnos: a favor de quem lidera ou contra. */
 export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogProps) {
@@ -49,7 +49,8 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
   const target = finalists.find((party) => party.id === partyId);
   const overCash = cash !== undefined && amount > Number(cash);
 
-  const canSubmit = !!target && amount > 0 && !overCash && !donate.isPending;
+  const overCap = amount > Number(panel.contribution_cap);
+  const canSubmit = !!target && amount > 0 && !overCash && !overCap && !donate.isPending;
   // O motivo do botão apagado: o que falta para doar
   const blockedReason = !target
     ? "Escolha um finalista."
@@ -57,7 +58,9 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
       ? "Digite quanto quer doar."
       : overCash
         ? `Seu caixa hoje é ${displayMoney(cash)}.`
-        : null;
+        : overCap
+          ? `O teto é ${displayMoney(panel.contribution_cap)} por doação.`
+          : null;
 
   const submit = () =>
     target &&
@@ -119,7 +122,7 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
                 if (canSubmit) submit();
               }}
             >
-              <Field data-invalid={overCash}>
+              <Field data-invalid={overCash || overCap}>
                 <FieldLabel htmlFor="donation-amount">Quanto</FieldLabel>
                 <Input
                   id="donation-amount"
@@ -129,7 +132,7 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
                   inputMode="decimal"
                   placeholder="R$ 0,00"
                   value={text}
-                  aria-invalid={overCash}
+                  aria-invalid={overCash || overCap}
                   onChange={(event) => setText(formatMoney(event.target.value))}
                 />
                 <div className="flex flex-wrap gap-1.5">
@@ -147,6 +150,8 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
                 </div>
                 {overCash ? (
                   <FieldError>Seu caixa hoje é {displayMoney(cash)}.</FieldError>
+                ) : overCap ? (
+                  <FieldError>O teto é {displayMoney(panel.contribution_cap)} por doação.</FieldError>
                 ) : (
                   <FieldDescription>
                     Sai do seu caixa de uma vez e vira verba do {target?.abbr ?? "finalista"} nos{" "}

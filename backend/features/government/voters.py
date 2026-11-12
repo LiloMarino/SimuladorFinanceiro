@@ -137,6 +137,10 @@ AFFINITY_PER_POSITION = Decimal(12)
 # √8000 ÷ 64 = 1,4 ponto. Rende pela raiz, então dobrar a verba não dobra o apoio
 SQRT_DIVISOR = Decimal(64)
 
+# A sobra do caixa do partido vira propaganda com metade da força da verba:
+# R$ 16 mil parados rendem √16000 ÷ 128 = 0,99 ponto
+LEFTOVER_DIVISOR = Decimal(128)
+
 # Os indecisos entram na divisão de cada grupo como um partido de saldo fixo: com dois
 # partidos de saldo 30 e 25, 15 ÷ 70 = 21% do grupo fica indeciso
 UNDECIDED_BALANCE = Decimal(15)
@@ -369,6 +373,11 @@ def affinity(group: VoterGroup, radar: Mapping[VoterValue, Decimal]) -> Decimal:
 def campaign_points(amount: Decimal) -> Decimal:
     """Pontos de apoio que um gasto de `amount` rende em cada grupo."""
     return amount.sqrt() / SQRT_DIVISOR if amount > 0 else ZERO
+
+
+def leftover_points(amount: Decimal) -> Decimal:
+    """Pontos de apoio que a sobra do caixa do partido rende em cada grupo."""
+    return amount.sqrt() / LEFTOVER_DIVISOR if amount > 0 else ZERO
 
 
 def campaign_amount(points: Decimal) -> Decimal:

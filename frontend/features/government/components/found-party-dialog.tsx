@@ -107,10 +107,11 @@ export function FoundPartyDialog({ panel, open, onOpenChange, taken, founderColo
 
             <ContributionField
               id="found-contribution"
+              cap={panel.contribution_cap}
               value={contribution}
               onChange={setContribution}
               error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}
-              note={`Pode ser zero. Sai do seu caixa todo dia 1º e não volta; a verba do partido é a soma das contribuições.${collectionNote(panel)}`}
+              note={`Pode ser zero. Sai do seu caixa todo dia 1º e não volta; entra no caixa do partido, junto do fundo público do mês.${collectionNote(panel)}`}
             />
             <ContributionSplit share={share} onShare={setShare} monthly={monthly} runs />
 

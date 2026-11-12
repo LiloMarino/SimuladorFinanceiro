@@ -38,7 +38,7 @@ def build_campaign(
     party = _my_party(book, viewer)
     cycle = book.cycle()
     reason = book.campaign_closed_reason(today, party)
-    cash = book.cash_of(viewer)
+    cash = party.cash
     entries = _entries(book, users, party, today)
     mine = [a for a in state.actions if a.party_id == party.id]
     charges = [c for c in state.charges if c.party_id == party.id and c.amount > 0]
@@ -49,6 +49,7 @@ def build_campaign(
         today=today,
         open=reason is None,
         closed_reason=reason,
+        cash=cash,
         campaign_start=cycle.campaign_start,
         first_round=cycle.first_round,
         share_at_vote=(

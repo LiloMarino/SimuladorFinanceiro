@@ -4,10 +4,11 @@ partidos do computador. Tudo aqui é função pura sobre
 `GovernmentState`.
 """
 
+from datetime import date
 from decimal import Decimal
 
 from backend.core.enum import VoterGroup
-from backend.features.government import voters
+from backend.features.government import campaign, house, voters
 from backend.features.government.computer_parties import (
     COMPUTER_PARTIES,
     ComputerParty,
@@ -18,7 +19,6 @@ from backend.features.government.state import (
     Party,
 )
 
-PARTIES_PER_ELECTION = 3
 MAJORITY = Decimal("0.5")
 
 
@@ -161,13 +161,36 @@ def next_computer_party(state: GovernmentState) -> ComputerParty | None:
     return next((c for c in COMPUTER_PARTIES if c.abbr not in used), None)
 
 
-def computer_spend(state: GovernmentState, factor: Decimal) -> Decimal:
-    """A verba mensal de cada partido do computador: `factor` vezes a média dos de jogadores."""
-    players = state.player_parties()
-    if not players:
+def _seats(state: GovernmentState, party: Party, day: date) -> int:
+    """As cadeiras do partido, e as dos parceiros da federação, na casa em exercício."""
+    in_office = state.house_on(day)
+    total = 0
+    for member in (party, *party.partners):
+        key = house.COMPUTER_KEYS[member.abbr] if member.is_computer else member.id
+        bloc = in_office.bloc(key)
+        total += bloc.seats if bloc is not None else 0
+    return total
+
+
+def fund_of(state: GovernmentState, party: Party, day: date) -> Decimal:
+    """
+    O fundo público do mês do partido, em valores de referência: o concorrente recebe o
+    dele (a federação é um concorrente só, com as cadeiras dos dois partidos); o parceiro
+    de uma federação não recebe nada. Sem casa eleita o fundo é dividido por igual.
+    """
+    if not runs(state, party):
         return Decimal(0)
-    average = sum((p.budget for p in players), Decimal(0)) / len(players)
-    return average * factor
+    competitors = sum(1 for p in state.parties.values() if runs(state, p))
+    seated = any(e.takes_office <= day for e in state.houses)
+    share = Decimal(_seats(state, party, day)) / house.SEATS if seated else None
+    return campaign.fund(competitors, share)
+
+
+def computer_budget(
+    state: GovernmentState, party: Party, day: date, factor: Decimal
+) -> Decimal:
+    """A verba mensal do partido do computador: o fundo dele vezes `factor`, da dificuldade."""
+    return fund_of(state, party, day) * factor
 
 
 def _founder_first(party: Party) -> list[int]:

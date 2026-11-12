@@ -165,7 +165,7 @@ def test_a_player_in_another_party_still_gets_the_vice_invite(book: GovernmentBo
 def test_a_month_without_cash_for_the_contribution_is_a_pending(
     book: GovernmentBook, engine
 ):
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
     engine.cash[ALICE.client_id] = Decimal(500)
 
     book.on_tick(USERS, date(2020, 11, 3), True)
@@ -175,14 +175,14 @@ def test_a_month_without_cash_for_the_contribution_is_a_pending(
     assert pending.severity is PendingSeverity.WARNING
     assert (
         pending.detail
-        == "Sua contribuição de R$ 10.000,00 não foi paga em novembro, por falta de caixa"
+        == "Sua contribuição de R$ 8.000,00 não foi paga em novembro, por falta de caixa"
     )
 
 
 def test_the_next_paid_month_closes_the_unpaid_contribution(
     book: GovernmentBook, engine
 ):
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
     engine.cash[ALICE.client_id] = Decimal(500)
     book.on_tick(USERS, date(2020, 11, 3), True)
 
@@ -193,7 +193,7 @@ def test_the_next_paid_month_closes_the_unpaid_contribution(
 
 
 def test_changing_the_contribution_closes_the_unpaid_one(book: GovernmentBook, engine):
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
     engine.cash[ALICE.client_id] = Decimal(500)
     book.on_tick(USERS, date(2020, 11, 3), True)
 
@@ -203,7 +203,7 @@ def test_changing_the_contribution_closes_the_unpaid_one(book: GovernmentBook, e
 
 
 def test_the_unpaid_contribution_ends_with_the_campaign(book: GovernmentBook, engine):
-    found(book, ALICE, "AAA", RED, "10000")
+    found(book, ALICE, "AAA", RED, "8000")
     engine.cash[ALICE.client_id] = Decimal(500)
     book.on_tick(USERS, date(2020, 11, 3), True)
 

@@ -80,6 +80,17 @@ def test_campaign_support_grows_with_the_square_root_of_the_spending():
     assert voters.campaign_points(Decimal(0)) == 0
 
 
+def test_leftover_cash_weighs_half_of_the_same_spending_on_ads():
+    assert voters.leftover_points(Decimal(16000)).quantize(Decimal("0.01")) == Decimal(
+        "0.99"
+    )
+    assert (
+        voters.leftover_points(Decimal(8000))
+        == voters.campaign_points(Decimal(8000)) / 2
+    )
+    assert voters.leftover_points(Decimal(0)) == 0
+
+
 def test_the_campaign_amount_is_the_way_back_from_the_points():
     assert voters.campaign_amount(Decimal(1)) == Decimal(4096)
     assert voters.campaign_points(voters.campaign_amount(Decimal("2.5"))) == Decimal(

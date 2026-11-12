@@ -8,7 +8,7 @@ type ActionChoiceProps = {
   action: CampaignAction;
   selected: boolean;
   short: number;
-  cash: number | null;
+  cash: number;
   noRival: boolean;
   partyAbbr: string;
   onSelect: () => void;
@@ -58,7 +58,7 @@ export function ActionChoice({ action, selected, short, cash, noRival, partyAbbr
       </div>
       {short > 0 && (
         <span className="text-xs text-destructive">
-          Faltam {displayMoney(short)} no seu caixa{cash !== null && ` (${displayMoney(cash)})`}
+          Faltam {displayMoney(short)} no caixa do partido ({displayMoney(cash)})
         </span>
       )}
       {noRival && (

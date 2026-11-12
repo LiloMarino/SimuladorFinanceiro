@@ -10,10 +10,16 @@ from pydantic import ValidationError
 
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.enum import GameType, PlayerGrouping, VoterGroup, VoterValue
-from backend.features.government import election, voters
+from backend.features.government import election, house, voters
 from backend.features.government.calendar import election_cycle
 from backend.features.government.computer_parties import COMPUTER_PARTIES
-from backend.features.government.state import GovernmentState, Party, Term
+from backend.features.government.federations import Federation
+from backend.features.government.state import (
+    ElectedHouse,
+    GovernmentState,
+    Party,
+    Term,
+)
 from tests.fakes import simulation_settings
 
 V = VoterValue
@@ -151,13 +157,97 @@ def test_computer_parties_bring_valid_flags_and_fill_the_missing_slots():
     assert first is not None and first.abbr == COMPUTER_PARTIES[0].abbr
 
 
-def test_computer_budget_is_a_multiple_of_the_average_player_party():
-    state = state_of(
-        party(1, members={10: "6000", 11: "2000"}), party(2, members={20: "8000"})
+def race_of_five() -> GovernmentState:
+    """Dois partidos de jogador e os três do computador: cinco concorrentes."""
+    computers = [
+        Party(
+            id=index + 3,
+            name=c.name,
+            abbr=c.abbr,
+            color=None,
+            flags=c.flags,
+            founder_id=None,
+            is_computer=True,
+            founded=date(2020, 10, 7),
+            candidate_name=c.candidate,
+        )
+        for index, c in enumerate(COMPUTER_PARTIES)
+    ]
+    return state_of(party(1), party(2), *computers)
+
+
+def seat_in_house(state: GovernmentState, party_id: int, seats: int) -> None:
+    """A casa em exercício dá `seats` cadeiras ao partido."""
+    bloc = house.Bloc(
+        key=party_id,
+        party_id=party_id,
+        abbr="P",
+        name="Partido",
+        color=None,
+        is_computer=False,
+        votes=Decimal(0),
+        seats=seats,
+        mix={},
+    )
+    state.houses.append(
+        ElectedHouse(date(2020, 10, 7), date(2021, 1, 1), 0, house.House(blocs=(bloc,)))
     )
 
-    assert election.computer_spend(state, Decimal("1.5")) == Decimal(12000)
-    assert election.computer_spend(state_of(), Decimal(1)) == Decimal(0)
+
+def test_fund_is_split_equally_while_there_is_no_elected_house():
+    state = race_of_five()
+
+    assert election.fund_of(state, state.parties[1], date(2020, 11, 2)) == 8000
+    assert election.fund_of(state, state.parties[3], date(2020, 11, 2)) == 8000
+
+
+def test_fund_is_half_equal_and_half_by_seats_of_the_house_in_office():
+    state = race_of_five()
+    seat_in_house(state, 1, 20)
+    day = date(2021, 2, 1)
+
+    # Fundo total de 40.000: metade por igual (4.000) e metade pelas cadeiras (20 de 101)
+    assert round(election.fund_of(state, state.parties[1], day), 2) == Decimal(
+        "7960.40"
+    )
+    assert election.fund_of(state, state.parties[2], day) == 4000
+    # A casa só vale depois da posse
+    assert election.fund_of(state, state.parties[1], date(2020, 12, 1)) == 8000
+
+    state.houses.clear()
+    seat_in_house(state, 1, 40)
+    assert round(election.fund_of(state, state.parties[1], day), 2) == Decimal(
+        "11920.79"
+    )
+
+
+def test_computer_budget_is_its_fund_times_the_difficulty():
+    state = race_of_five()
+    day = date(2020, 11, 2)
+    computer = state.parties[3]
+
+    assert election.computer_budget(state, computer, day, Decimal("0.5")) == 4000
+    assert election.computer_budget(state, computer, day, Decimal("1.5")) == 12000
+
+
+def test_federation_counts_as_one_competitor_and_the_partner_gets_no_fund():
+    state = race_of_five()
+    state.federations[1] = Federation(
+        id=1,
+        parties=(1, 2),
+        candidate_party_id=1,
+        candidate_id=10,
+        name="Federação",
+        cycle=state.cycle,
+        formed_on=date(2020, 10, 1),
+        in_force_from=date(2020, 10, 1),
+        ends_on=date(2024, 12, 31),
+    )
+    day = date(2020, 11, 2)
+
+    # Quatro concorrentes: fundo total de 32.000, dividido por igual
+    assert election.fund_of(state, state.parties[1], day) == 8000
+    assert election.fund_of(state, state.parties[2], day) == 0
 
 
 def test_second_term_president_cannot_run_again():

@@ -351,6 +351,9 @@ class MyPartyDTO(BaseDTO):
     contribution: Decimal
     # A parte da contribuição que vai para a campanha do Congresso
     congress: Decimal
+    # O caixa do partido, de onde saem as ações, e o fundo público que ele recebe no mês
+    cash: Decimal
+    fund: Decimal
     # A orientação padrão da bancada, um valor por vez; só o líder muda
     guidance: list[GuidanceRuleDTO]
     # As cadeiras do partido na casa de hoje; o partido fundado no mandato espera a eleição
@@ -465,6 +468,8 @@ class ElectionPanelDTO(BaseDTO):
     radar_flag: Decimal
     # A pesquisa mostra a margem de erro; desligada, mostra o número exato
     poll_margin: bool
+    # O teto da contribuição mensal de cada filiado (e de cada doação), de hoje
+    contribution_cap: Decimal
     parties: list[PartyDTO]
     # Indecisos na última pesquisa publicada
     undecided: Decimal
@@ -493,7 +498,7 @@ class ElectionPanelDTO(BaseDTO):
     decides_match: bool
     player_standings: list[PlayerStandingDTO]
     party_standings: list[PartyStandingDTO]
-    # Quantas vezes a verba média dos partidos de jogadores cada partido do computador gasta
+    # Quantas vezes o fundo público dele cada partido do computador gasta
     computer_budget_factor: Decimal
     # As federações de pé (em vigor ou agendadas) e as propostas do partido de quem vê
     federations: list[FederationDTO]

@@ -159,7 +159,10 @@ def test_an_accepted_proposal_forms_the_federation_for_the_current_election(
         book.state.cycle + 1
     ).inauguration - timedelta(days=1)
     assert book.sent_federation(alice, LATER) is None
-    assert "formam federação" in headlines[-1][1].text
+    # A manchete tem duas redações, sorteadas pela semente
+    assert any(
+        w in headlines[-1][1].text for w in ("formam federação", "Federação nova")
+    )
 
 
 def test_the_proposal_notice_goes_to_the_founder_of_the_guest(

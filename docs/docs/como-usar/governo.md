@@ -32,14 +32,14 @@ Só se concorre por partido, e o partido existe desde o 1º dia da partida:
 
 - **Fundar:** nome, sigla de 2 a 8 letras, cor, **promessa** na régua (veja abaixo) e a contribuição mensal. Nome, sigla e cor não podem repetir os de outro partido. Quem funda é o **fundador**.
 - **Filiar-se:** escolhe um partido de jogadores e quanto contribui por mês. Cada jogador está em um partido só; para trocar, é preciso sair antes.
-- **Contribuir:** cada filiado define a própria contribuição mensal, que pode ser **zero**. A **verba** do partido é a soma das contribuições. O valor fica salvo no perfil: ao fundar ou entrar num partido, inclusive pela preparação do lobby, o jogador começa com a última contribuição que escolheu.
+- **Contribuir:** cada filiado define a própria contribuição mensal, que pode ser **zero**. A contribuição tem **teto de R$ 8.000 por mês** para cada filiado, corrigido pelo IPCA. O dinheiro entra no **caixa do partido**, junto com o fundo público (veja "A verba do partido"). O valor fica salvo no perfil: ao fundar ou entrar num partido, inclusive pela preparação do lobby, o jogador começa com a última contribuição que escolheu.
 - **Sair** e **expulsar:** quem sai para de contribuir na hora, e o que já saiu do caixa não volta. Só o fundador expulsa, e a expulsão é pública. Bots não entram em partido.
 
 Fundar, filiar-se e sair valem desde o 1º dia da partida; entre os turnos só se doa. Três coisas esperam a campanha abrir:
 
 - **A chapa** se inscreve só com a campanha aberta, até o fim da inscrição de chapas.
 - **A contribuição** começa a ser cobrada no 1º dia do mês seguinte à abertura; antes disso, o valor fica marcado e nada sai do caixa.
-- **As ações de campanha** (comício, evento, propaganda na TV) também.
+- **As ações de campanha** (comício, evento, propaganda na TV) também, e saem do caixa do partido.
 
 Para concorrer, como candidato ou vice, é preciso estar filiado **6 meses antes do 1º turno**, como manda a lei eleitoral. Quem se filia depois do prazo é filiado normal, contribui e vota com o partido, mas só entra numa chapa na eleição seguinte. Numa partida que já começa depois do prazo, vale quem se filiou no 1º dia.
 
@@ -98,7 +98,19 @@ e o resultado é quantos eleitores, em cada 100, passam a votar no partido. Exem
 
 Os pontos de cada mês de campanha se somam. Por isso muitos contribuintes pequenos rendem mais votos por real do que um só doador grande.
 
-A contribuição de cada filiado é debitada do caixa no **1º dia útil de cada mês** de campanha. Se faltar caixa naquele mês, a contribuição é **pulada** (não vira dívida) e vira uma pendência, "Sua contribuição de R$ 2.000,00 não foi paga em março, por falta de caixa", que some quando a contribuição seguinte é paga ou quando você muda o valor.
+### A verba do partido
+
+Cada partido tem **um caixa só**. Nele entram o **fundo público** e as contribuições dos filiados; dele saem as ações de campanha. Quem decide o que fazer com o caixa é o partido, e não cada filiado.
+
+**Fundo público.** Todo mês de campanha, no 1º dia útil, o país reparte **R$ 8.000 × o número de concorrentes** (corrigidos pelo IPCA). Metade vai **igual** para cada concorrente e metade **proporcional às cadeiras** da casa em exercício; sem casa eleita ainda, tudo é igual. Uma federação conta como **um** concorrente: o líder recebe o fundo e o parceiro, nada. Ex.: com 5 partidos o fundo é R$ 40.000; sem casa, cada um recebe R$ 8.000. Com uma casa de 101 cadeiras em que o partido A tem 20, A recebe 4.000 + 20.000 × 20 ÷ 101 = **R$ 7.960** e quem não tem cadeira recebe R$ 4.000; com 40 cadeiras, A recebe **R$ 11.920**.
+
+**Contribuição.** A contribuição de cada filiado é debitada do caixa dele no **1º dia útil de cada mês** de campanha, no valor definido, limitado ao teto do mês, e entra no caixa do partido. Se faltar caixa naquele mês, a contribuição é **pulada** (não vira dívida) e vira uma pendência, "Sua contribuição de R$ 2.000,00 não foi paga em março, por falta de caixa", que some quando a contribuição seguinte é paga ou quando você muda o valor. As doações do 2º turno têm o mesmo teto por doação.
+
+**A sobra vira propaganda.** O que o partido **não gasta em ações** no mês vira propaganda nos 6 grupos de eleitores, **com metade da força** das ações:
+
+> pontos = √(sobra) ÷ 128
+
+e isso acontece no fechamento do mês e na véspera do 1º turno. Ex.: R$ 16.000 parados rendem √16.000 ÷ 128 ≈ **1,0 ponto**, enquanto R$ 15.900 gastos em ações rendem cerca de 2,2 pontos no total. Guardar o dinheiro rende pouco; gastá-lo cedo em ações rende mais.
 
 O que falta para 100 são os **indecisos**: eleitores que ainda não escolheram ninguém. A **pesquisa de intenção** mostra os pontos de cada partido e os indecisos de hoje.
 
@@ -150,7 +162,7 @@ O lugar fica **listrado** quando a diferença entre o 1º e o 2º é **menor ou 
 
 ## Partidos do computador
 
-O computador completa a disputa com **partidos próprios** (UPR, MNV e ACI) até haver três partidos na eleição. Cada um gasta, por mês, um múltiplo da **verba média dos partidos de jogadores**, definido pela **dificuldade do computador** nas regras: Fácil (0,5×), Normal (1×) ou Difícil (1,5×). Ex.: com os partidos de jogadores gastando em média R$ 10.000 por mês, cada partido do computador gasta R$ 5.000 no Fácil e R$ 15.000 no Difícil. Sem partidos de jogadores, o computador não gasta nada.
+Os três partidos do computador (UPR, MNV e ACI) **sempre estão na disputa**, ao lado dos de jogadores: com 2 jogadores a corrida tem 5 partidos, com 3 jogadores, 6. Cada um recebe o **fundo público** dele, pela mesma conta dos partidos de jogadores, e gasta esse fundo vezes a **dificuldade do computador** definida nas regras: Fácil (0,5×), Normal (1×) ou Difícil (1,5×). Ex.: com o fundo de R$ 8.000, cada partido do computador gasta R$ 4.000 por mês no Fácil, R$ 8.000 no Normal e R$ 12.000 no Difícil.
 
 ## Ranking
 

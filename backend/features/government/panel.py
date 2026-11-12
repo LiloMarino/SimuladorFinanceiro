@@ -100,6 +100,7 @@ def build_panel(
         radar_neutral=voters.RADAR_NEUTRAL,
         radar_flag=voters.RADAR_FLAG,
         poll_margin=settings.poll_margin,
+        contribution_cap=book.contribution_cap(today),
         parties=[
             _party(state, p, people, latest)
             for p in sorted(state.parties.values(), key=lambda p: p.id)
@@ -132,6 +133,8 @@ def build_panel(
                 is_candidate=election.effective_ticket(state, mine)[0] == viewer.id,
                 contribution=mine.members[viewer.id],
                 congress=mine.congress.get(viewer.id, Decimal(0)),
+                cash=mine.cash,
+                fund=book.fund_of(mine, today),
                 guidance=guidance_rules(mine),
                 seats=_seats(state, mine, today),
             )

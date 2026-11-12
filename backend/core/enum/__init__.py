@@ -617,7 +617,7 @@ class SelicControl(Enum):
 
 
 class ComputerDifficulty(Enum):
-    """A verba de cada partido do computador, em múltiplo da média dos partidos de jogadores."""
+    """A verba de cada partido do computador, em múltiplo do fundo público que ele recebe."""
 
     EASY = "EASY"
     NORMAL = "NORMAL"
@@ -649,6 +649,8 @@ class GovernmentEventType(Enum):
     VICE_WITHDRAWN = "VICE_WITHDRAWN"
     VICE_ANSWERED = "VICE_ANSWERED"
     CAMPAIGN_SPENT = "CAMPAIGN_SPENT"
+    # A sobra do caixa do partido vira propaganda nos 6 grupos
+    CAMPAIGN_LEFTOVER = "CAMPAIGN_LEFTOVER"
     DONATION_MADE = "DONATION_MADE"
     # Ação avulsa de campanha (TV, evento, comício ou ataque) com o dado já rolado
     CAMPAIGN_ACTION = "CAMPAIGN_ACTION"

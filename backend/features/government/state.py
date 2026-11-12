@@ -110,6 +110,9 @@ class Party:
     promises: list[Promise] = field(default_factory=list)
     past_promises: list["PromiseRecord"] = field(default_factory=list)
     spent: Decimal = Decimal(0)
+    # O caixa do partido: fundo público e contribuições do mês, de onde saem as ações; a
+    # sobra vira propaganda no fechamento do mês
+    cash: Decimal = Decimal(0)
     # Os valores em que o líder trocou a orientação padrão da bancada
     guidance: dict[VoterValue, bool] = field(default_factory=dict)
     # Os parceiros da federação que disputa a eleição em curso; o estado religa a cada evento
@@ -151,6 +154,14 @@ class Party:
         for group in VoterGroup:
             self.campaign[group] += points
 
+    def convert_leftover(self, amount: Decimal) -> None:
+        """A sobra do caixa vira apoio igual em todos os grupos."""
+        self.cash -= amount
+        points = voters.leftover_points(amount)
+        for group in VoterGroup:
+            self.campaign[group] += points
+        self.spent += amount
+
     def add_house_campaign(self, amount: Decimal) -> None:
         """A verba do Congresso vira apoio à bancada, igual em todos os grupos."""
         points = voters.campaign_points(amount)
@@ -180,6 +191,7 @@ class Party:
         self.campaign_day = None
         self.repaired = _zero_by_group()
         self.spent = Decimal(0)
+        self.cash = Decimal(0)
 
 
 @dataclass(frozen=True)
@@ -825,16 +837,21 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 party.vice_id = None
                 party.vice_accepted = False
         case Event.CAMPAIGN_SPENT:
+            # Com o mapa `fund` o partido de jogador recebe contribuições e fundo no caixa
+            # do partido; sem ele a verba vira apoio no ato
+            funds = _money_map(p, "fund") if "fund" in p else None
             for party_id, amount in _money_map(p, "spent").items():
                 party = state.parties.get(party_id)
-                if party is not None:
-                    party.spent += amount
-                    party.add_campaign(amount)
-                    state.charges.append(
-                        BaseCharge(
-                            day, party_id, amount, voters.campaign_points(amount)
-                        )
-                    )
+                if party is None:
+                    continue
+                if funds is not None and not party.is_computer:
+                    party.cash += amount + funds.get(party_id, Decimal(0))
+                    continue
+                party.spent += amount
+                party.add_campaign(amount)
+                state.charges.append(
+                    BaseCharge(day, party_id, amount, voters.campaign_points(amount))
+                )
             for party_id, amount in _money_map(p, "house").items():
                 party = state.parties.get(party_id)
                 if party is not None:
@@ -852,6 +869,16 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                     state.leaders_among(state.parties),
                 )
             )
+        case Event.CAMPAIGN_LEFTOVER:
+            for party_id, amount in _money_map(p, "converted").items():
+                party = state.parties.get(party_id)
+                if party is not None and amount > 0:
+                    party.convert_leftover(amount)
+                    state.charges.append(
+                        BaseCharge(
+                            day, party_id, amount, voters.leftover_points(amount)
+                        )
+                    )
         case Event.DONATION_MADE:
             party_id = _int(p, "party_id")
             amount = _money(p, "amount")
@@ -1421,6 +1448,9 @@ def _apply_action(state: GovernmentState, event: GovernmentEventDTO) -> None:
     state.next_action_id += 1
     state.actions.append(record)
     party.spent += record.price
+    # A ação do jogador sai do caixa do partido; o evento a marca com `from_cash`
+    if p.get("from_cash"):
+        party.cash -= record.price
     target = state.parties.get(record.target_id)
     affected_groups = [group] if group else list(VoterGroup)
     if state.race is not None:

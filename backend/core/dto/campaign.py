@@ -116,6 +116,8 @@ class CampaignPanelDTO(BaseDTO):
     # Se as ações estão abertas hoje; fechadas, `closed_reason` explica
     open: bool
     closed_reason: str | None
+    # O caixa do partido, de onde saem as ações
+    cash: Decimal
     campaign_start: date
     first_round: date
     # Quanto do apoio de hoje ainda vale no 1º turno, de 0 a 1

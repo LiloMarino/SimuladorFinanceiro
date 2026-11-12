@@ -328,8 +328,8 @@ def test_the_opposition_scores_only_with_its_seats(
     book: GovernmentBook, engine, market
 ):
     engine.classification = SECTORS
-    found(book, ALICE, "AAA", RED, "10000")
-    found(book, BOB, "BBB", BLUE, "10000", NICHE)
+    found(book, ALICE, "AAA", RED, "8000")
+    found(book, BOB, "BBB", BLUE, "8000", NICHE)
     run_campaign(book)
     book.on_tick(USERS, FIRST_ROUND, False)
     book.on_tick(USERS, RUNOFF, False)
@@ -351,8 +351,8 @@ def test_the_ranking_of_a_match_lists_the_gap_to_the_leader_in_points(
     book: GovernmentBook, engine, market, monkeypatch
 ):
     engine.classification = SECTORS
-    found(book, ALICE, "AAA", RED, "10000")
-    found(book, BOB, "BBB", BLUE, "10000", NICHE)
+    found(book, ALICE, "AAA", RED, "8000")
+    found(book, BOB, "BBB", BLUE, "8000", NICHE)
     run_campaign(book)
     book.on_tick(USERS, FIRST_ROUND, False)
     book.on_tick(USERS, RUNOFF, False)

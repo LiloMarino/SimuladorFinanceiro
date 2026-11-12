@@ -31,7 +31,7 @@ type ActionBodyProps = {
   onRival: (id: number) => void;
   weights: Map<VoterGroup, string>;
   undecided: Map<VoterGroup, string | null> | null;
-  cash: number | null;
+  cash: number;
   party: ElectionParty;
   parties: ElectionParty[];
   poll: ElectionPoll | undefined;
@@ -185,12 +185,10 @@ export function ActionBody({
           </Button>
           <span className="text-center text-xs text-faint-foreground">
             {short > 0
-              ? `Faltam ${displayMoney(short)} no seu caixa`
+              ? `Faltam ${displayMoney(short)} no caixa do partido`
               : isAttack && rivalId === null
                 ? "Escolha o rival para rolar"
-                : cash === null
-                  ? "Sai da sua carteira"
-                  : `Sai da sua carteira: ${displayMoney(cash)} → ${displayMoney(cash - price)}`}
+                : `Sai do caixa do partido: ${displayMoney(cash)} → ${displayMoney(cash - price)}`}
           </span>
         </div>
       </div>

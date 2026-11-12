@@ -7,7 +7,7 @@ import type { ComputerDifficulty, InitialAccount, InitialAccountPreview, SelicCo
 /** A campanha dura um ano e o mandato, quatro: menos que isso a partida não fecha um ciclo. */
 export const GOVERNMENT_MIN_YEARS = 5;
 
-/** Quanto o computador gasta por mês, em múltiplos da média dos partidos de jogadores. */
+/** Quanto o computador gasta por mês, em múltiplos do fundo público que cada partido dele recebe. */
 export const COMPUTER_DIFFICULTIES: { value: ComputerDifficulty; label: string; factor: number }[] = [
   { value: "EASY", label: "Fácil", factor: 0.5 },
   { value: "NORMAL", label: "Médio", factor: 1 },
@@ -38,18 +38,18 @@ export const SELIC_CONTROLS: Record<SelicControl, { label: string; description: 
   },
 };
 
-const MEAN_BUDGET_EXAMPLE = 10_000;
+const FUND_EXAMPLE = 8_000;
 
 /** "0,5 vez" / "1 vez" / "1,5 vez" */
 function factorLabel(factor: number) {
   return `${factor.toLocaleString("pt-BR")} vez`;
 }
 
-/** O exemplo da dificuldade: com média de R$ 10.000 por mês, quanto cada partido do computador gasta. */
+/** O exemplo da dificuldade: com fundo de R$ 8.000 por mês, quanto cada partido do computador gasta. */
 export function difficultyExample(difficulty: ComputerDifficulty) {
   const factor = COMPUTER_DIFFICULTIES.find((d) => d.value === difficulty)?.factor ?? 1;
-  const spend = (MEAN_BUDGET_EXAMPLE * factor).toLocaleString("pt-BR");
-  return `A verba mensal de cada partido do computador é ${factorLabel(factor)} a média dos partidos de jogadores: se a média for R$ 10.000, cada um deles gasta R$ ${spend} por mês.`;
+  const spend = (FUND_EXAMPLE * factor).toLocaleString("pt-BR");
+  return `A verba mensal de cada partido do computador é ${factorLabel(factor)} o fundo público que ele recebe: com um fundo de R$ 8.000, cada um deles gasta R$ ${spend} por mês.`;
 }
 
 /** Anos completos da partida, contados como o servidor: o fim alcança o início mais N anos. */
