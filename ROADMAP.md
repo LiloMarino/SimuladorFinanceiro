@@ -102,7 +102,6 @@
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | Alto | Médio | ⏳ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | Alto | Médio | ⏳ |
-| [**F266**](#f266) | Melhoria | Central de dados redesenhada | M26 · 4.1 | — | — | — | 🔍 |
 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | M26 · 4.1 | — | — | — | 🔍 |
 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | M26 · 4.1 | — | — | — | 🔍 |
 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | M26 · 4.1 | — | — | — | 🔍 |
@@ -114,7 +113,7 @@
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (50 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (51 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -157,6 +156,7 @@
 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | M26 · 4.1 | — | — | — | ✅ |
 | [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | M26 · 4.1 | — | — | — | ✅ |
 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | M26 · 4.1 | — | — | — | ✅ |
+| [**F266**](#f266) | Melhoria | Central de dados redesenhada | M26 · 4.1 | — | — | — | ✅ |
 | [**F271**](#f271) | Melhoria | Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único | M26 · 4.1 | — | — | — | ✅ |
 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | — | — | ✅ |
 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 | — | — | — | ✅ |
@@ -183,7 +183,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 30/37 concluídos
+> **Progresso:** 31/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -206,7 +206,7 @@
 | 17 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | — | ✅ Concluído |
 | 18 | [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | — | ✅ Concluído |
 | 19 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | — | ✅ Concluído |
-| 20 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | — | 🔍 Em avaliação |
+| 20 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | — | ✅ Concluído |
 | 21 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | — | 🔍 Em avaliação |
 | 22 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | — | 🔍 Em avaliação |
 | 23 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | — | 🔍 Em avaliação |
@@ -339,7 +339,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F266**](#f266) | Melhoria | Central de dados redesenhada | M26 · 4.1 · 20º | 0 | — | — | 🔍 |
 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | M26 · 4.1 · 21º | 0 | — | — | 🔍 |
 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | M26 · 4.1 · 22º | 0 | — | — | 🔍 |
 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | M26 · 4.1 · 23º | 0 | — | — | 🔍 |
@@ -667,7 +666,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 | **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | D21 | M28 · 4.6 | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.4 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M24 · 4.3 | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
-| **F266** | Melhoria | Central de dados redesenhada | N13, N15 | — | M26 · 4.1 | — | Desenho no canvas: layout da tabela de séries, o que sai das colunas vazias e como o grupo do Focus explica que é importado e não ganha futuro gerado. |
 | **F267** | Melhoria | Lobby com topo enxuto e profissão na preparação | N15, N39 | — | M26 · 4.1 | — | Desenho no canvas: o topo do lobby, o card do jogador sem o seletor de profissão e a aba de profissão no Minha preparação. |
 | **F268** | Melhoria | Tela do Mapa repensada | N34, N15 | — | M26 · 4.1 | — | Desenho no canvas: onde mora a lista de lugares, como o Ver mais expande sem rolagem horizontal e a coluna das lentes. |
 | **F269** | Melhoria | Governo e Eleição com as ações do jogador num lugar só | N34, N15 | — | M26 · 4.1 | — | Análise de UX das duas páginas e das abas; depois o desenho no canvas de onde fica cada ação do presidente e do candidato. |
@@ -732,9 +730,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 - **O livro não vem ordenado por preço**: `order_book.py:93-107` devolve o heap na ordem interna e a tela não define ordenação inicial (`order-book-card.tsx:69`), por isso a ordem do jogador aparece no meio.
 
 **Falta** desenhar, numa rodada no canvas em Opus com variantes e estados (como numa feature nova), a tela do livro. O desenho de 03/11 parte de: a ordem aberta do jogador numa faixa no topo com Cancelar à mão; o livro em duas colunas, Compra (maior preço no topo) e Venda (menor preço no topo), com a melhor compra e a melhor venda em destaque, ligadas à boleta; uma barra de quantidade; a coluna Situação sai (repetia "Aberta"); o balão "Tópico" some. O usuário gostou do rumo e pediu o refinamento pelo método completo. A rodada decide também o que o livro diz sobre si mesmo (que é a pressão ao redor do preço do candle de hoje) e se a ordenação por preço passa a vir do backend. Fica fora de versão.
-
-<a id="f266"></a>
-**F266 — Central de dados redesenhada.** Serve N13 e N15. A tabela de séries ficou apertada: nomes cortados ("FOCUS_S…", "GDP_GRO…") e três colunas que só mostram "—". As séries do Focus são importadas e não ganham futuro gerado, por desenho (F226), mas a legenda genérica "repete o último valor" (`how-to-read.tsx:29`) não diz isso.
 
 <a id="f267"></a>
 **F267 — Lobby com topo enxuto e profissão na preparação.** Serve N15 e N39. O topo do lobby quebra linha e fica desarmônico: Conquistas, Minha preparação e Como jogar dividem a linha com o título, o link de convite e o Desafio da vela. No card do bot, "Bot", "CLT" e "robô não prepara" se sobrepõem e "Comp…" corta (`lobby-player-list.tsx:173`, `:192-198`). A profissão sai do seletor do card e vira uma aba do diálogo Minha preparação (`preparation-dialog.tsx:73`, que hoje tem as abas partido e estratégias).
@@ -805,6 +800,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F263** | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | N3, N34 | D20 | M26 · 4.1 |
 | **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | D10 | M26 · 4.1 |
 | **F265** | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | N15, N34 | — | M26 · 4.1 |
+| **F266** | Melhoria | Central de dados redesenhada | N13, N15 | — | M26 · 4.1 |
 | **F271** | Melhoria | Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único | N20 | — | M26 · 4.1 |
 | **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 |
 | **F274** | Feature | Presidência e base do governo que valem a pena | N34 | — | M26 · 4.1 |
@@ -1014,6 +1010,9 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 7. **Atalhos de valor que somam.** Na contribuição mensal (`contribution-field.tsx:9`) e na doação (`donate-dialog.tsx:36`), o atalho substitui o valor; na renda fixa (`investment-ticket.tsx:30-34`), ele soma. Os dois passam a somar, como na renda fixa.
 8. **Selo do partido no jornal.** A manchete cita a sigla só em texto ("UPR"); passa a mostrar o selo do partido, o mesmo das telas de governo.
 9. **Juro americano na prévia do futuro gerado.** O FED_FUNDS é gerado (`synthetic.py:854-870`), mas não está no `FuturePreviewDTO` (`dto/generated_future.py:78-95`), então não aparece na prévia do diálogo de geração.
+
+<a id="f266"></a>
+**F266 — Central de dados redesenhada.** Serve N13 e N15. A tabela de séries ficou apertada: nomes cortados ("FOCUS_S…", "GDP_GRO…") e três colunas que só mostram "—". As séries do Focus são importadas e não ganham futuro gerado, por desenho (F226), mas a legenda genérica "repete o último valor" (`how-to-read.tsx:29`) não diz isso.
 
 <a id="f271"></a>
 **F271 — Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único.** Serve N20.
