@@ -106,14 +106,13 @@
 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | M26 · 4.1 | — | — | — | 🔍 |
 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | M26 · 4.1 | — | — | — | 🔍 |
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 | — | — | — | 🔍 |
-| [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 | — | — | — | 🔍 |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 | — | — | — | 🔍 |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (51 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (52 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -158,6 +157,7 @@
 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | M26 · 4.1 | — | — | — | ✅ |
 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | M26 · 4.1 | — | — | — | ✅ |
 | [**F271**](#f271) | Melhoria | Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único | M26 · 4.1 | — | — | — | ✅ |
+| [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 | — | — | — | ✅ |
 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | — | — | ✅ |
 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | M26 · 4.1 | — | — | — | ✅ |
 | [**F275**](#f275) | Feature | Vitória política separada do capital | M26 · 4.1 | — | — | — | ✅ |
@@ -183,7 +183,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 31/37 concluídos
+> **Progresso:** 32/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -212,7 +212,7 @@
 | 23 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | — | 🔍 Em avaliação |
 | 24 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | — | 🔍 Em avaliação |
 | 25 | [**F271**](#f271) | Melhoria | Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único | — | ✅ Concluído |
-| 26 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | — | 🔍 Em avaliação |
+| 26 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | — | ✅ Concluído |
 | 27 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | — | ✅ Concluído |
 | 28 | [**F274**](#f274) | Feature | Presidência e base do governo que valem a pena | — | ✅ Concluído |
 | 29 | [**F275**](#f275) | Feature | Vitória política separada do capital | — | ✅ Concluído |
@@ -343,7 +343,6 @@
 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | M26 · 4.1 · 22º | 0 | — | — | 🔍 |
 | [**F269**](#f269) | Melhoria | Governo e Eleição com as ações do jogador num lugar só | M26 · 4.1 · 23º | 0 | — | — | 🔍 |
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 · 24º | 0 | — | — | 🔍 |
-| [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 · 26º | 0 | — | — | 🔍 |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 · 33º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
@@ -670,7 +669,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 | **F268** | Melhoria | Tela do Mapa repensada | N34, N15 | — | M26 · 4.1 | — | Desenho no canvas: onde mora a lista de lugares, como o Ver mais expande sem rolagem horizontal e a coluna das lentes. |
 | **F269** | Melhoria | Governo e Eleição com as ações do jogador num lugar só | N34, N15 | — | M26 · 4.1 | — | Análise de UX das duas páginas e das abas; depois o desenho no canvas de onde fica cada ação do presidente e do candidato. |
 | **F270** | Melhoria | Cards permanentes da Renda fixa integrados à tela | N15 | — | M26 · 4.1 | — | Desenho no canvas: cor, layout e posição dos dois cards fixos. |
-| **F272** | Melhoria | Seletores e combobox novos | N15 | — | M26 · 4.1 | — | Trocar por outro componente do shadcn ou redesenhar o atual; o desenho no canvas com os três usos mais apertados. |
 | **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M26 · 4.1 | — | Medir as estratégias atuais em partidas com governo, dólar e crédito; escolher as estratégias novas. |
 | **F285** | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | — | — | [F271](#f271) | Escolher o mecanismo (filtrar o seletor, recolorir na tela de quem liga ou reforçar além da cor) e medir o tamanho do conjunto distinguível sob as três simulações |
 
@@ -743,9 +741,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 <a id="f270"></a>
 **F270 — Cards permanentes da Renda fixa integrados à tela.** Serve N15. Os cards fixos "CDB Nubank Liquidez Diária", em verde, e "Conta em dólar", em azul, destoam da tela: as cores, o layout e a posição não seguem o resto da Renda fixa.
 
-<a id="f272"></a>
-**F272 — Seletores e combobox novos.** Serve N15. O `select.tsx` (base-ui) fica apertado e feio no filtro de setor (`variable-income.tsx:158-180`), no imposto da medida (`new-measure-dialog.tsx:209`) e na escolha do vice (`ticket-dialog.tsx:101-104`), e o combobox tem o mesmo problema.
-
 <a id="f279"></a>
 **F279 — Estratégias automáticas novas e revisão das atuais.** Serve N4 e N8. As estratégias automáticas e os bots foram desenhados antes do governo, do dólar, do crédito e das expansões. Precisa conferir se continuam competitivas e se faltam estratégias que usem o que entrou. O rebalanceamento por meta com várias classes já é a F197, na Mesa do trader.
 
@@ -802,6 +797,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F265** | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | N15, N34 | — | M26 · 4.1 |
 | **F266** | Melhoria | Central de dados redesenhada | N13, N15 | — | M26 · 4.1 |
 | **F271** | Melhoria | Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único | N20 | — | M26 · 4.1 |
+| **F272** | Melhoria | Seletores e combobox novos | N15 | — | M26 · 4.1 |
 | **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 |
 | **F274** | Feature | Presidência e base do governo que valem a pena | N34 | — | M26 · 4.1 |
 | **F275** | Feature | Vitória política separada do capital | N34, N22 | — | M26 · 4.1 |
@@ -1034,6 +1030,9 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 - Conferido no navegador: seletor de 20 cores na fundação de partido, 12 cores no lobby e no diálogo de bot (com a cor do host esmaecida e a sigla dele) e sala com 12 vagas. A Eleição, o mapa por estado com contorno do lugar selecionado e o gráfico de intenção de voto foram conferidos com a paleta de 16 cores da primeira versão; as 4 cores acrescentadas depois (Vinho, Magenta, Âmbar e Musgo) passaram nos testes de contraste e ΔE, mas ainda não foram vistas no mapa.
 
 **Aceite:** o teste da paleta passa com 20 cores de partido; fundar partido, lobby, diálogo de bot e editor do backtest usam o mesmo componente de seletor; a paleta dos jogadores tem 12 cores, `chart-1` a `chart-12`, e a sala tem 12 vagas.
+
+<a id="f272"></a>
+**F272 — Seletores e combobox novos.** Serve N15. Um componente só (`OptionSelect`, em cima do Combobox do base-ui) no lugar do `select.tsx` e dos quatro combobox de Command: busca a partir de 8 opções, grupo "Indisponíveis" com o motivo escrito, lista que abre embaixo e opções de 48 px. O campo "Ações que ela opera" ganhou a variante com a contagem no botão e as ações marcadas em etiquetas (limite de 30 vindo do backend, "Só as da carteira", "Voltar ao padrão" e "Limpar"), e `/api/simulation/bots/tickers` passou a devolver código e nome da empresa.
 
 <a id="f273"></a>
 **F273 — Convites que se escolhem e se acumulam.** Serve N34 e N23. Convidar o vice virou ação própria: escolher no seletor não envia nada, o botão Convidar envia e Retirar convite desfaz, na partida e no lobby. Inscrever a chapa e salvar a fundação deixam de convidar. Quem recebe acumula convites de vice e propostas de federação; aceitar um recusa os incompatíveis do mesmo tipo (vice e federação não se cruzam) e avisa quem convidou. O proponente envia uma proposta de federação por vez. O convite recusado aparece na tela da chapa e no card público do partido.
