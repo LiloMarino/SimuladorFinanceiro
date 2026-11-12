@@ -109,14 +109,13 @@
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 | — | — | — | 🔍 |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 | — | — | — | 🔍 |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 | — | — | — | 🔍 |
-| [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 | — | Alto | Bom | ⏳ |
 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 | — | — | — | 🔍 |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (48 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (49 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -166,6 +165,7 @@
 | [**F276**](#f276) | Correção | Governo ruim perde aprovação | M26 · 4.1 | — | — | — | ✅ |
 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | M26 · 4.1 | — | — | — | ✅ |
 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | M26 · 4.1 | — | — | — | ✅ |
+| [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 | — | — | — | ✅ |
 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 | — | — | — | ✅ |
 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 | — | — | — | ✅ |
 
@@ -183,7 +183,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 28/37 concluídos
+> **Progresso:** 29/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -220,7 +220,7 @@
 | 31 | [**F277**](#f277) | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | — | ✅ Concluído |
 | 32 | [**F278**](#f278) | Feature | Imprevistos e eventos de vida mais variados | — | ✅ Concluído |
 | 33 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | — | 🔍 Em avaliação |
-| 34 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | — | ⏳ Pendente |
+| 34 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | — | ✅ Concluído |
 | 35 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | — | ✅ Concluído |
 | 36 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | — | ✅ Concluído |
 | 37 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | — | 🔍 Em avaliação |
@@ -346,7 +346,6 @@
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 · 24º | 0 | — | — | 🔍 |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 · 26º | 0 | — | — | 🔍 |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 · 33º | 0 | — | — | 🔍 |
-| [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 · 34º | 0 | Alto | Bom | ⏳ |
 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 · 37º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
@@ -409,7 +408,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Alto | Médio | Médio | Médio |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Alto | Alto | Alto | Médio |
-| **F280** | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | N34, N8 | — | M26 · 4.1 | — | Alto | Alto | Alto | Bom |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
 
@@ -609,35 +607,6 @@ O tamanho dos efeitos sai da calibragem pelo CLI.
 - **Informação privilegiada.** Colegas de partido sabem antes que uma medida vem e podem comprar ou vender a ação. É aceito porque a medida passa pela fila do Congresso, à vista de todos.
 
 **Aceite:** sem medida de estatal a partida segue a história; a calibragem compara "fundar 10 estatais em 10 anos" com "não fundar nenhuma" e fundar não domina; segurar o preço e soltar devolve a inflação represada; banco estatal não baixa o IPCA; a soma das alavancas respeita o teto; dividendo extra hoje reduz PIB e valor depois.
-
-<a id="f280"></a>
-**F280 — Corrida eleitoral com bots sempre presentes e campanha que pesa.** Serve N34 e N8.
-
-**Como é hoje.** A eleição tem três vagas (`PARTIES_PER_ELECTION=3` em `election.py:21`) e o computador só ocupa as que sobram dos jogadores (`_ensure_computers` em `government_book.py:4286-4310`). Com dois partidos de jogador concorre um do computador; com três, nenhum, e somem o centrão (UPR), o sucessor do impeachment sem vice e o parceiro de federação. A verba do mês vira apoio nos 6 grupos de eleitores pela raiz quadrada: `√verba ÷ 64` (`voters.py:369-376`, `SQRT_DIVISOR=64`), e o apoio cai pela metade a cada 91 dias (`campaign.py:23`). A raiz quadrada faz o dobro de dinheiro render bem menos que o dobro de apoio: R$ 4.000 dão 0,99 ponto e R$ 16.000, quatro vezes mais, dão 1,98. As ações (`campaign.py:27-50`) custam TV R$ 6.000 (0,75 ponto em todos os grupos), evento R$ 2.500 (1,5 ponto em um grupo), comício R$ 800 (0,5 em um grupo) e ataque R$ 2.500 (tira 1,5 de um rival em um grupo); o resultado depende de um dado de 20 faces, e repetir a mesma ação rende 100%, 50% e 25%. Elas são pagas à parte e rendem menos que o mesmo dinheiro parado: R$ 2.500 parados dão 0,78 ponto no país, e o melhor evento (trabalhadores formais, 35% dos eleitores) dá 0,52. A contribuição do filiado não tem teto (`government_book.py:923-946`), não há fundo público e o computador gasta a média dos partidos de jogador vezes a dificuldade (`election.py:164-170`).
-
-**O que o jogador passa a ver.** Toda eleição tem os três partidos do computador (UPR, MNV e ACI) mais os de jogador, então a disputa é de N+3. Dois jogadores iguais passam de 33% dos votos válidos e cerca de 34 cadeiras cada para 20% e cerca de 20, e a maioria de 51 cadeiras pede 3 partidos. O dinheiro de campanha deixa de sair só do bolso: o governo paga um fundo público por mês, a contribuição do filiado ganha teto, e as ações saem do caixa do partido, onde o dinheiro parado rende metade do que uma ação bem usada rende. A campanha passa a ser decidida pelo que o partido faz com o caixa, não só por quanto cada filiado paga.
-
-**Plano.**
-
-1. **Disputa de N+3.** `PARTIES_PER_ELECTION` sai de `election.py`. `_ensure_computers` passa a completar sempre os três partidos de `COMPUTER_PARTIES`, em qualquer número de partidos de jogador, e deixa de emitir `COMPUTER_PARTY_REMOVED` (o evento segue lido no replay das partidas salvas). A reserva de cadeiras dos três na casa já existe em `house.py`. Com isso o centrão, o sucessor do impeachment sem vice e o parceiro de federação passam a existir em toda partida política.
-2. **Fundo público mensal.** Em `campaign.py`, ao lado de `price`, entram `FUND_PER_PARTY = Decimal(8000)` e funções que o devolvem corrigido pelo IPCA na mesma referência do preço das ações (`inflation_factor`, só quando a partida corrige os valores). O fundo do mês é R$ 8.000 vezes o número de partidos que concorrem (`election.runs`; uma federação conta como um concorrente). Metade é dividida por igual entre eles e metade na proporção das cadeiras de cada um na casa em exercício; na primeira eleição, sem casa eleita, o fundo todo é dividido por igual. Exemplo com 5 partidos (fundo de R$ 40.000):
-   - sem cadeira: R$ 4.000, que dão 0,99 ponto na conta cheia (`√ ÷ 64`);
-   - 20 cadeiras: R$ 7.960 (4.000 por igual e 3.960 pelas cadeiras), 1,39 ponto;
-   - 40 cadeiras: R$ 11.920, 1,71 ponto;
-   - 20 cadeiras e um filiado no teto: R$ 15.960, 1,97 ponto.
-   Esses pontos são os da conta cheia; com o caixa único (item 4), o que ficar parado rende a metade (0,49, 0,70, 0,85 e 0,99).
-3. **Teto de contribuição.** `CONTRIBUTION_CAP = Decimal(8000)` por filiado por mês, corrigido pelo IPCA como o fundo. `set_contribution` recusa a contribuição acima do teto (422, com o valor do teto na mensagem). `_collect` cobra no máximo o teto do dia, o que corta uma contribuição gravada antes da regra. `contribute_runoff` e `donate` recusam valor acima do teto, que vale por pessoa e por pagamento.
-4. **Caixa único do partido.** O estado do partido ganha o caixa (`Party.cash`). O fundo e as contribuições do mês entram nele no 1º dia útil (`_collect`); a parte da contribuição que o filiado manda ao Congresso segue direto para a campanha da casa, como hoje. As ações (`campaign_action`) deixam de debitar o caixa pessoal de quem aperta (`pay_campaign`) e saem do caixa do partido, com o mesmo preço e o mesmo dado; sem caixa suficiente a ação é recusada antes de cobrar, como hoje. Quem pode disparar ação continua sendo quem já pode. O que sobra vira propaganda automática nos 6 grupos com metade da força, `√sobra ÷ 128` (constante nova `LEFTOVER_DIVISOR` em `voters.py`), no fechamento do mês e na véspera de cada turno, quando as ações fecham, e o caixa zera. Os ganhos das ações não mudam e se calibram no playtest. Exemplo com R$ 16.000 no mês: parado, rende cerca de 0,99 ponto; 1 TV, 2 eventos nos trabalhadores formais, 1 evento nos aposentados e 3 comícios (R$ 15.900) rendem cerca de 2,2.
-5. **Computador.** `computer_spend` deixa de copiar a média dos partidos de jogador: cada partido do computador recebe o fundo dele (a mesma conta do item 2, com as cadeiras dele) vezes a dificuldade (0,5 fácil, 1 normal, 1,5 difícil, o `budget_factor` que já existe) e gasta como hoje (`_computer_campaign`: ações e verba de base).
-6. **Eventos e replay.** `CAMPAIGN_SPENT` ganha o mapa `fund` (valor do fundo por partido), e um evento novo de sobra grava o que o caixa converteu; o replay recalcula os pontos a partir do dinheiro do evento, como hoje. O evento novo e o campo `fund` marcam a regra nova: o replay de um evento sem eles segue a regra de antes, então a partida salva não muda o que já aconteceu. Os partidos do computador que faltam numa partida salva entram na próxima chamada de `_ensure_computers`.
-7. **Telas.** O diálogo de contribuição (`contribution-dialog`, `contribution-split`) mostra o teto e recusa acima dele; o `my-party-card` mostra o caixa do partido e o fundo do mês; o `campaign-actions-card` paga do caixa do partido e mostra o saldo; os diálogos do 2º turno (`runoff-contribution-dialog`, `donate-dialog`) mostram o teto. O texto da dificuldade do computador deixa de falar em "média dos partidos de jogadores". Mudou DTO: `pnpm openapi`.
-8. `docs/docs/como-usar/governo.md` descreve a disputa de N+3, o fundo, o teto, o caixa e a sobra, com o exemplo dos 5 partidos.
-
-**Testes.** `tests/test_government_election.py` (trechos das linhas 150-160) e `tests/test_government_book.py` (a partir da linha 2063): com 1, 2 e 3 partidos de jogador a disputa tem 4, 5 e 6 partidos e os três do computador sempre presentes; a conta do fundo nos quatro casos do exemplo e na primeira eleição sem casa; contribuição acima do teto recusada e, gravada antes, cortada na cobrança; doação e contribuição do 2º turno acima do teto recusadas; ação debita o caixa do partido e não o do filiado; ação sem caixa recusada sem cobrar; sobra rende `√sobra ÷ 128`; o computador recebe o fundo vezes a dificuldade; replay de eventos antigos (sem `fund`) igual ao de antes. `tests/test_government_campaign.py` e `tests/test_government_voters.py`: a divisão por 128 e a correção pelo IPCA do fundo e do teto.
-
-**Para observar no playtest (limite conhecido, valores iniciais calibráveis).** O fundo de R$ 8.000 por partido e o teto de R$ 8.000 por filiado são valores de partida. O fundo por cadeira pode virar bola de neve (quem ganha cadeira ganha fundo, que ganha voto, que ganha cadeira). O dado pesa mais quando a ação é a parte maior da campanha, e estreitar as faixas do dado é o ajuste. Vários partidos podem atacar o líder da pesquisa. Com 6 partidos ou mais, o partido pequeno pode ficar abaixo da barreira de 5%, e a federação é a saída. O jogador solo passa a enfrentar 3 partidos em vez de 2. O finalista pode chegar ao 2º turno com o caixa vazio, porque a contribuição do 2º turno não entra no caixa.
-
-**Aceite:** uma eleição com 3 partidos de jogador tem 6 partidos na disputa, e com 2 jogadores iguais cada um cai de 33% para cerca de 20% dos válidos; contribuição acima do teto é recusada ao definir e cortada na cobrança; a ação de campanha debita o caixa do partido, não o do filiado; a sobra do mês rende `√sobra ÷ 128`, e R$ 16.000 parados rendem cerca de 0,99 ponto contra cerca de 2,2 de uma sequência de ações de R$ 15.900; o fundo de 5 partidos dá R$ 4.000 ao partido sem cadeira e R$ 7.960 ao de 20 cadeiras; o computador usa o fundo dele vezes a dificuldade e não mais a média dos jogadores; `docs/docs/como-usar/governo.md` atualizada.
 
 <a id="f284"></a>
 **F284 — Ministério para o partido da base.** Serve N34.
@@ -848,6 +817,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F276** | Correção | Governo ruim perde aprovação | N34, N41 | — | M26 · 4.1 |
 | **F277** | Melhoria | Jornal com eventos raros em destaque e manchetes variadas | N31 | — | M26 · 4.1 |
 | **F278** | Feature | Imprevistos e eventos de vida mais variados | N23 | — | M26 · 4.1 |
+| **F280** | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | N34, N8 | — | M26 · 4.1 |
 | **F281** | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | N34 | D20 | M26 · 4.1 |
 | **F282** | Correção | Texto dos gráficos com no mínimo 12 px | N15 | — | M26 · 4.1 |
 
@@ -1159,6 +1129,11 @@ Com o cenário da Simulação #3 mantido desde a posse, o pedido de impeachment 
 **Testes.** `tests/test_life_events.py`: `CASH_IN` credita o valor certo; em 10.000 sorteios semeados com tudo em Normal, os eventos bons ficam entre 22% e 28%; família em Desligado nunca sai e em Frequente sai o dobro; os dois tipos de profissão aplicam o mesmo valor a todos, com o texto de cada profissão. `tests/test_life_history.py` e `test_unexpected_count.py` para o sinal e o contador; `simulation-form.test.ts` e `life-history.test.ts` no front.
 
 **Aceite:** o catálogo de fábrica tem pelo menos 20 tipos; com tudo em Normal, de 22% a 28% dos sorteios são eventos bons (10.000 sorteios); numa sala com as seis profissões, o mesmo sorteio aplica o mesmo valor a todos; o lobby não cria mais tipos e uma sala salva com tipo criado continua abrindo e jogando.
+
+<a id="f280"></a>
+**F280 — Corrida eleitoral com bots sempre presentes e campanha que pesa.**
+
+Disputa sempre com os três partidos do computador, fundo público mensal de R$ 8.000 por concorrente (metade igual, metade por cadeiras), teto de contribuição de R$ 8.000 por filiado, caixa único do partido e sobra virando propaganda com √sobra ÷ 128. Limite conhecido: os finalistas chegam ao 2º turno com o caixa zerado até o playtest decidir.
 
 <a id="f281"></a>
 **F281 — Banco Central autônomo que decide em reunião, olhando através do imposto.** O Banco Central autônomo decide só nos dias de reunião do Copom (`meeting_days`, hoje em `backend/core/copom.py`, com `SELIC_STEP` e `to_step`): em cada uma leva a regra do dia ao passo de 0,25 ponto, a até 1 ponto da decisão anterior (`autonomous_decision` e `AUTONOMOUS_CAP` em `monetary.py`), e mantém os pontos até a reunião seguinte. A SELIC da partida é a história do dia mais esses pontos segurados (`EconomyLayer.autonomous_points`, `layer.py`); sem efeito do governo nada muda, e entre `first_day` e a primeira reunião o desvio vale 0. A regra olha através do imposto: `reading_points` tira de `inflation_points` o degrau de preço do imposto sobre consumo (`consumption_points`), então um corte do imposto não derruba a SELIC; a regra também alimenta o presidente computador e o esperado do mercado, e a linha do imposto sobre consumo no painel da economia deixa de mostrar efeito na SELIC e na bolsa. No futuro gerado (`synthetic.py`, `_decided_in_meetings`), a SELIC inteira (trecho sorteado mais regime e surto) só muda no pregão seguinte a uma reunião, em múltiplos de 0,25, e o CDI anda colado; o gráfico "Juros e inflação" fica com no máximo 8 marcadores do Copom por ano no futuro. Limite conhecido: no trecho histórico da partida o marcador soma as mudanças reais da história e as reuniões do autônomo, e a SELIC absoluta segue a da história (o múltiplo de 0,25 vale para o desvio do autônomo).
