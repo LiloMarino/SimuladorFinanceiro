@@ -109,13 +109,12 @@
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 | — | — | — | 🔍 |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 | — | — | — | 🔍 |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 | — | — | — | 🔍 |
-| [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 | — | — | — | 🔍 |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (49 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (50 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -168,6 +167,7 @@
 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | M26 · 4.1 | — | — | — | ✅ |
 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | M26 · 4.1 | — | — | — | ✅ |
 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | M26 · 4.1 | — | — | — | ✅ |
+| [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 | — | — | — | ✅ |
 
 </details>
 
@@ -183,7 +183,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 29/37 concluídos
+> **Progresso:** 30/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -223,7 +223,7 @@
 | 34 | [**F280**](#f280) | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | — | ✅ Concluído |
 | 35 | [**F281**](#f281) | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | — | ✅ Concluído |
 | 36 | [**F282**](#f282) | Correção | Texto dos gráficos com no mínimo 12 px | — | ✅ Concluído |
-| 37 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | — | 🔍 Em avaliação |
+| 37 | [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | — | ✅ Concluído |
 
 ### 4.2 — Expansão Gestoras (M18)
 
@@ -346,7 +346,6 @@
 | [**F270**](#f270) | Melhoria | Cards permanentes da Renda fixa integrados à tela | M26 · 4.1 · 24º | 0 | — | — | 🔍 |
 | [**F272**](#f272) | Melhoria | Seletores e combobox novos | M26 · 4.1 · 26º | 0 | — | — | 🔍 |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M26 · 4.1 · 33º | 0 | — | — | 🔍 |
-| [**F283**](#f283) | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | M26 · 4.1 · 37º | 0 | — | — | 🔍 |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
@@ -675,7 +674,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 | **F270** | Melhoria | Cards permanentes da Renda fixa integrados à tela | N15 | — | M26 · 4.1 | — | Desenho no canvas: cor, layout e posição dos dois cards fixos. |
 | **F272** | Melhoria | Seletores e combobox novos | N15 | — | M26 · 4.1 | — | Trocar por outro componente do shadcn ou redesenhar o atual; o desenho no canvas com os três usos mais apertados. |
 | **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M26 · 4.1 | — | Medir as estratégias atuais em partidas com governo, dólar e crédito; escolher as estratégias novas. |
-| **F283** | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | N15 | — | M26 · 4.1 | — | Em quais campos a porcentagem ajuda (contribuição em % do salário, doação em % do caixa, venda em % da posição) e se o Shift fica como atalho do controle visível. |
 | **F285** | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | — | — | [F271](#f271) | Escolher o mecanismo (filtrar o seletor, recolorir na tela de quem liga ou reforçar além da cor) e medir o tamanho do conjunto distinguível sob as três simulações |
 
 <a id="f5"></a>
@@ -756,9 +754,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 <a id="f279"></a>
 **F279 — Estratégias automáticas novas e revisão das atuais.** Serve N4 e N8. As estratégias automáticas e os bots foram desenhados antes do governo, do dólar, do crédito e das expansões. Precisa conferir se continuam competitivas e se faltam estratégias que usem o que entrou. O rebalanceamento por meta com várias classes já é a F197, na Mesa do trader.
 
-<a id="f283"></a>
-**F283 — Campos de valor com o mesmo controle de R$ e de porcentagem.** Serve N15. Os campos de dinheiro do jogo têm atalhos diferentes para a mesma coisa: a contribuição mensal e a doação têm valores fixos (5 mil, 10 mil), a renda fixa soma a cada clique, e o Tesouro tem 25%, 50% e Tudo. A jogadora sugeriu, no molde dos jogos da Paradox, segurar Shift para alternar entre valor fixo e porcentagem. Atalho escondido não se descobre; a proposta é um controle visível "R$ | %" ao lado dos atalhos, que troca os botões entre valores fixos e porcentagens do saldo ou da posição, com o Shift como atalho do mesmo controle. A soma dos atalhos fixos já é do card de acabamentos da 4.1.
-
 <a id="f285"></a>
 **F285 — Modo daltonismo: limitar as cores às que um daltônico distingue.** Serve N20.
 
@@ -820,6 +815,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F280** | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | N34, N8 | — | M26 · 4.1 |
 | **F281** | Correção | Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto | N34 | D20 | M26 · 4.1 |
 | **F282** | Correção | Texto dos gráficos com no mínimo 12 px | N15 | — | M26 · 4.1 |
+| **F283** | Melhoria | Campos de valor com o mesmo controle de R$ e de porcentagem | N15 | — | M26 · 4.1 |
 
 <a id="f69"></a>
 **F69 — Imprevistos configuráveis e tipos novos.** Serve N23. O modo viver de renda (F53) já nasce com os tipos de imprevisto num registro, em que cada tipo é uma entrada com nome, múltiplo da despesa mensal, efeito (sai do caixa ou corta o salário do mês seguinte) e peso no sorteio; adicionar um tipo é acrescentar uma entrada, sem mexer no motor, no log nem nas telas. Esta feature expõe esse registro ao host: no lobby, o host edita o valor de cada tipo (por exemplo, o conserto passa de 1 para 2 despesas mensais), liga e desliga tipos e cria tipos próprios com nome, valor e efeito. O sorteio continua saindo da semente da partida, então todos os jogadores seguem recebendo os mesmos imprevistos nos mesmos dias, e a configuração vale para a partida salva.
@@ -1140,6 +1136,10 @@ Disputa sempre com os três partidos do computador, fundo público mensal de R$ 
 
 <a id="f282"></a>
 **F282 — Texto dos gráficos com no mínimo 12 px.** Serve N15. O texto de gráfico (eixos, legendas, rótulos e tooltips) usa um token só, de 12 px: `CHART_TICK` e `CHART_FONT_SIZE`, em `shared/lib/chart-text.ts`. O teste de tamanho mínimo passou a pegar também `fontSize` literal abaixo de 12, além das classes `text-[Npx]`.
+
+<a id="f283"></a>
+**F283 — Campos de valor com o mesmo controle de R$ e de porcentagem.**
+Os campos de valor (comprar e vender Tesouro, amortizar, aplicar e resgatar renda fixa, doação) ganharam o mesmo controle R$ | % antes dos atalhos, com Shift para ver o outro modo, modo lembrado por tipo de campo e atalho em R$ que para no máximo. A contribuição mensal ficou só com a grade de quatro. Conferido no app em todos menos doação e contribuição mensal.
 
 ---
 
