@@ -19,7 +19,7 @@ O sistema de importação carrega **dados históricos OHLCV** (Open, High, Low, 
 
 Estes dados são usados para simular o movimento realista do mercado durante a simulação.
 
-![A Central de dados, com o painel de importação e a tabela das séries da base](/demo/screens/import-assets.png)
+![A Central de dados, com as abas de indicadores e de ativos](/demo/screens/import-assets.png)
 
 ---
 
@@ -29,23 +29,44 @@ A **Central de dados** é a tela onde você importa ações e acompanha quais s�
 
 Ela só pode ser aberta **fora de uma partida**: durante uma partida, o sistema leva você de volta para a tela principal.
 
-A tela tem duas partes: o painel **Adicionar ativo** (explicado em [Métodos de importação](#métodos-de-importação)) e a tabela **Séries da base**.
+A tela tem o resumo da base no topo e, abaixo dele, duas abas: **Indicadores**, com as séries do mercado e da economia, e **Ativos**, com as ações, FIIs, ETFs, BDRs e criptos importados. A aba **Ativos** traz ao lado o painel **Adicionar ativo** (explicado em [Métodos de importação](#métodos-de-importação)) e a legenda da barra. Cada aba mostra a quantidade de séries, e a aba **Ativos** avisa quantas pedem atenção.
 
-### Séries da base
+Nas duas abas a barra de cada série usa a mesma régua de tempo, de 1980 até 20 anos depois de hoje, então dá para comparar quais séries cobrem mais anos. O trecho com dado real aparece em uma cor; a linha vertical marca hoje; e o que vem depois do último dado real depende da série:
 
-A tabela lista todas as séries guardadas no banco: primeiro os indicadores econômicos (CDI, SELIC, IPCA e Ibovespa), depois a economia do país (crescimento do PIB, desemprego, a PTAX e o juro americano), as expectativas do mercado (as quatro séries do Focus) e por fim cada ativo importado. O filtro **Todas** / **Precisam de atenção** deixa só as séries que pedem uma olhada (sem dado real, desatualizadas ou sem classificação). Em cada linha:
+- **Futuro gerado**: o trecho montado pelo gerador, em outra cor.
+- **Listrado**: a série ainda não tem futuro gerado, e a partida repete o último valor dela (ver [Gerar dados futuros](#gerar-dados-futuros)).
+- **Calculado na partida**: o PIB, o desemprego e a PTAX não recebem futuro gravado; a partida os calcula mês a mês a partir da SELIC, da inflação e da bolsa.
+- **Sem nada depois**: as séries do Focus terminam na última pesquisa.
 
-- **Série**: nome do indicador ou do ticker.
-- **Origem**: **Nacional** (bandeira do Brasil) ou **Internacional** (bandeira dos Estados Unidos), nos ativos. Na partida com governo, o ativo internacional anda só com o dólar da partida, e o nacional com a bolsa daqui (veja [Origem do ativo](#origem-do-ativo)). Indicadores mostram "—".
-- **Setor · segmento**: a classificação da ação (ver abaixo). Indicadores mostram "—".
-- **Linha do tempo**: barra com o período coberto. O trecho com dado real aparece em uma cor e, depois dele, o trecho gerado em outra cor. Todas as barras usam a mesma régua de tempo, então dá para comparar visualmente quais séries cobrem mais anos. Passe o mouse sobre a barra para ver as datas: "Real: início → fim · gerado até …". Séries sem futuro gravado não têm trecho gerado, e depois do fim do dado gerado a partida repete o último valor da série (ver "Gerar dados futuros", abaixo). O PIB e o desemprego não recebem futuro gravado: depois do dado real, a barra deles ganha uma terceira cor, "calculado na partida", porque a partida calcula esses dois mês a mês a partir da SELIC, da inflação e da bolsa.
-- **Situação**: se a série está em dia ou parou de atualizar. Uma ação que parou mostra o selo **Parou em** com a data do último preço.
-- **Ações**: o botão **Atualizar** da linha e, nas ações, a **classe do ativo** (Ação, FII, ETF, BDR ou Cripto).
-- **Apagar** (lixeira, só nos ativos): remove o ativo da base com os preços, o perfil e a classificação, depois de uma confirmação. É a saída para um ativo importado com dado errado. Um ativo negociado em alguma partida salva não pode ser apagado: a Central avisa em quantas partidas ele aparece, e é preciso excluir essas partidas no lobby antes. Depois de apagar, o futuro gerado passa a pedir recálculo.
+Passe o mouse sobre a barra para ver as datas e o que a partida faz depois do último dado.
+
+### Aba Indicadores
+
+A aba tem três grupos, cada um com a regra do que a partida faz depois do último dado: os indicadores econômicos (CDI, SELIC, IPCA e Ibovespa), a economia do país (crescimento do PIB, desemprego, a PTAX e o juro americano) e as expectativas do mercado (as quatro séries do Focus). O botão **Atualizar todas** baixa tudo de uma vez. Em cada linha:
+
+- **Série**: o nome do indicador, com o código ao lado e uma frase curta dizendo o que ele é.
+- **Dados reais**: a data do primeiro e a do último dado real.
+- **Barra**: a linha do tempo descrita acima.
+- **Situação**: **Em dia**, **Sem dado** (nunca foi baixada) ou **Atualizando…** enquanto a série é buscada na fonte.
+- **Atualizar**: busca a série na fonte na hora.
+
+O Focus é importado do Banco Central e não ganha futuro gerado: a barra termina na última pesquisa. Se a última pesquisa tem até 30 dias, a partida a usa; se é mais antiga, a partida usa a SELIC da história como o que o mercado espera. A economia do país tem uma exceção: o juro americano (Fed Funds) ganha futuro gerado.
+
+### Aba Ativos
+
+O filtro **Todas** / **Precisam de atenção** deixa só os ativos que pedem uma olhada (sem dado real, desatualizados ou sem setor). Em cada linha:
+
+- **Ativo**: o código e o nome, com dois selos embaixo: a **classe** (Ação, FII, ETF, BDR ou Cripto) e a **origem** (**Nacional**, com a bandeira do Brasil, ou **Internacional**, com a dos Estados Unidos). Clicar num selo abre um menu, e a troca vale na hora. Na partida com governo, o ativo internacional anda só com o dólar da partida, e o nacional com a bolsa daqui (veja [Origem do ativo](#origem-do-ativo)).
+- **Setor · segmento**: a classificação da ação (ver abaixo). Um ativo sem setor mostra o botão **Classificar**.
+- **Dados reais**: as datas, a barra e, embaixo dela, o que acontece depois do último preço: **Depois: repete o último preço** ou **Futuro gerado até** a data.
+- **Situação**: **Em dia**, **Parou em** com a data do último preço, **Sem dado**, **Sem setor** ou **Atualizando…**.
+- **Atualizar** e **Apagar**, sempre à direita. O **Atualizar** ganha destaque quando o ativo parou. A lixeira remove o ativo da base com os preços, o perfil e a classificação, depois de uma confirmação, e é a saída para um ativo importado com dado errado. Um ativo negociado em alguma partida salva não pode ser apagado: a Central avisa em quantas partidas ele aparece, e é preciso excluir essas partidas no lobby antes. Depois de apagar, o futuro gerado passa a pedir recálculo.
+
+Acima da lista ficam os botões **Corrigir erros de dado** e **Atualizar desatualizadas**.
 
 ### Origem do ativo
 
-Todo ativo é **Nacional** ou **Internacional**. Na importação, o ativo cotado em dólar (`AAPL`, `BTC-USD`) ou da classe BDR nasce Internacional, e o resto nasce Nacional. O Yahoo Finance não separa um ETF de índice de fora (`IVVB11`, que replica o S&P 500) de um de índice daqui (`BOVA11`), então a Central deixa trocar: o seletor **Origem** da linha tem a bandeira de cada lado, e a escolha vale na hora. Uma origem escolhida à mão não é trocada nas próximas atualizações do ativo.
+Todo ativo é **Nacional** ou **Internacional**. Na importação, o ativo cotado em dólar (`AAPL`, `BTC-USD`) ou da classe BDR nasce Internacional, e o resto nasce Nacional. O Yahoo Finance não separa um ETF de índice de fora (`IVVB11`, que replica o S&P 500) de um de índice daqui (`BOVA11`), então a Central deixa trocar: o selo de origem da linha abre um menu com a bandeira de cada lado, e a escolha vale na hora. Uma origem escolhida à mão não é trocada nas próximas atualizações do ativo.
 
 Sem a expansão Governo, a origem não muda nada nos preços: eles são os da história. Com ela, o ativo internacional acompanha o dólar da partida (veja [A economia interligada](governo.md#a-economia-interligada)), e na listagem de **Renda variável** a bandeira aparece ao lado do código e um filtro separa os dois grupos.
 
@@ -114,9 +135,9 @@ Depois de gravar, a Central mostra o card "Futuro gerado", com a semente e os co
 
 ### Atualização
 
-- **Atualizar** (em um indicador) busca esse indicador na fonte na hora.
+- **Atualizar** (em uma série) busca essa série na fonte na hora; **Atualizar todas**, na aba Indicadores, busca todos os indicadores.
 - **Atualizar desatualizadas** atualiza as ações cujo último preço tem mais de 2 dias. O número entre parênteses diz quantas são.
-- Uma ação com dados desatualizados aparece com o nome em **vermelho** e o selo **Parou em**.
+- Uma ação com dados desatualizados aparece com o selo **Parou em** e o botão de atualizar em destaque.
 
 Quando o dado real chega (pelo "Atualizar" de uma série ou pela atualização automática dos indicadores ao abrir o app), ele ocupa o lugar do gerado nos dias que cobre, e um aviso diz quantos pregões entraram. O gerado que sobra continua do ponto antigo, então pode haver um salto no dia da emenda. O card "Futuro gerado" passa a avisar até onde o real chegou e sugere "Gerar de novo" com os mesmos controles, o que emenda todas as séries a partir do real novo.
 

@@ -31083,6 +31083,10 @@
             "type": "integer",
             "title": "Corrected Days"
           },
+          "has_generated_future": {
+            "type": "boolean",
+            "title": "Has Generated Future"
+          },
           "asset_class": {
             "anyOf": [
               {
@@ -31124,6 +31128,7 @@
           "real_end",
           "generated_end",
           "corrected_days",
+          "has_generated_future",
           "asset_class",
           "origin",
           "segment"

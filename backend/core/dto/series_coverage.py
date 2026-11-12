@@ -35,6 +35,8 @@ class SeriesCoverageDTO(BaseDTO):
     real_end: date | None
     generated_end: date | None
     corrected_days: int
+    # O gerador cria o futuro da série: o Focus, o PIB, o desemprego e a PTAX ficam de fora
+    has_generated_future: bool
     # Só as ações têm classe; ela decide a alíquota do IR na venda
     asset_class: AssetClass | None
     # Só as ações têm origem; ela decide se o preço anda com o dólar da partida

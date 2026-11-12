@@ -7,6 +7,10 @@ const publishedPercent = (value: string | number) =>
 const MEDIAN_DEFINITION =
   "O Focus é a pesquisa semanal em que o Banco Central pergunta a bancos e consultorias o que eles esperam da economia. A série guarda a mediana: o valor do meio, que metade das projeções passa e metade não alcança, e por isso um palpite fora da curva não a puxa.";
 
+/** Como a partida trata o Focus: a série é importada e não ganha futuro gerado. */
+export const FOCUS_IMPORT_NOTE =
+  "Importada do Banco Central: não ganha futuro gerado. Sem pesquisa dos últimos 30 dias, a partida usa a SELIC da história.";
+
 /** O que cada série do Focus mede, na dica ao lado do nome, pela chave da série. */
 export const FOCUS_HINTS: Record<string, MetricInfo> = {
   FOCUS_SELIC: {

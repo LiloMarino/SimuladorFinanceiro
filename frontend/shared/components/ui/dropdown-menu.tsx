@@ -2,13 +2,33 @@
 
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 import { cn } from "@/shared/lib/utils";
+import { badgeVariants } from "./variants/badgeVariants";
 
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
   return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
 }
 
-function DropdownMenuTrigger({ ...props }: MenuPrimitive.Trigger.Props) {
-  return <MenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...props} />;
+/** `badge`: o gatilho tem o corpo de um selo, para o selo que abre o menu de troca do valor. */
+function DropdownMenuTrigger({
+  variant = "default",
+  className,
+  ...props
+}: Omit<MenuPrimitive.Trigger.Props, "className"> & { variant?: "default" | "badge"; className?: string }) {
+  return (
+    <MenuPrimitive.Trigger
+      data-slot="dropdown-menu-trigger"
+      data-variant={variant}
+      className={cn(
+        variant === "badge" &&
+          cn(
+            badgeVariants({ variant: "secondary" }),
+            "cursor-pointer hover:bg-muted/70 disabled:cursor-default disabled:opacity-60",
+          ),
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 function DropdownMenuContent({

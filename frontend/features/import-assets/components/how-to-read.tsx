@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { FUTURE_DOCS_URL } from "../lib/future-readings";
+import { Swatch } from "./coverage-legend";
 
-/** Como ler a tabela: as barras, o Atualizar, a classe e o setor. */
+/** Como ler a tabela de ativos: as barras, a classe e o setor. */
 export function HowToRead() {
   return (
     <Card size="sm">
@@ -11,31 +11,25 @@ export function HowToRead() {
       <CardContent>
         <div className="grid gap-3 text-[13px] text-muted-foreground">
           <div className="grid gap-2">
-            <span className="flex items-center gap-2">
-              <span className="h-2.5 w-8 rounded-full bg-primary" />
+            <span className="flex items-start gap-2">
+              <span className="mt-1 inline-flex">
+                <Swatch kind="real" />
+              </span>
               Dado real, do histórico
             </span>
             <span className="flex items-start gap-2">
-              <span className="mt-1 h-2.5 w-8 shrink-0 rounded-full bg-chart-3" />
-              <span>
-                Dado gerado: futuro plausível montado com trechos reais.{" "}
-                <a href={FUTURE_DOCS_URL} target="_blank" rel="noreferrer" className="font-medium text-primary">
-                  Como o futuro é gerado
-                </a>
+              <span className="mt-1 inline-flex">
+                <Swatch kind="repeat" />
               </span>
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="h-2.5 w-8 rounded-full bg-[repeating-linear-gradient(135deg,var(--chart-3)_0_3px,transparent_3px_6px)] opacity-70" />
-              Depois do fim: repete o último valor
+              Ainda sem futuro gerado: a partida repete o último preço
             </span>
             <span className="flex items-start gap-2">
-              <span className="mt-1 h-2.5 w-8 shrink-0 rounded-full bg-chart-2" />
-              <span>Calculado na partida a partir da SELIC, do IPCA e da bolsa (PIB, desemprego e dólar)</span>
+              <span className="mt-1 inline-flex">
+                <Swatch kind="generated" />
+              </span>
+              Futuro gerado: plausível, montado com trechos reais
             </span>
           </div>
-          <p>
-            <b className="text-foreground">Atualizar</b> troca o gerado pelo real nos dias que o real já cobre.
-          </p>
           <p>
             <b className="text-foreground">Classe</b> decide o IR na venda. Vem do final do código (11 → FII, 34 → BDR),
             mas ETF e units também terminam em 11: confira.

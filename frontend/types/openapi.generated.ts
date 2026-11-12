@@ -10825,6 +10825,8 @@ export interface components {
             generated_end: string | null;
             /** Corrected Days */
             corrected_days: number;
+            /** Has Generated Future */
+            has_generated_future: boolean;
             asset_class: components["schemas"]["AssetClass"] | null;
             origin: components["schemas"]["AssetOrigin"] | null;
             segment: components["schemas"]["StockSegmentDTO"] | null;

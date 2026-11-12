@@ -9,6 +9,7 @@ from backend.core.enum import IndicatorSeries
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.indicators import ensure_indicator_coverage
 from backend.core.runtime.simulation_manager import SimulationManager
+from backend.features.import_data.coverage import get_series_coverage
 from tests.conftest import SetIndicator
 from tests.fakes import daily_series, monthly_series
 
@@ -57,3 +58,16 @@ def test_the_focus_does_not_limit_the_start_of_a_match(indicators):
     )
 
     ensure_indicator_coverage(START)
+
+
+def test_coverage_says_which_series_get_a_generated_future(indicators):
+    """O Focus, o PIB e a PTAX não ganham futuro; CDI e o Fed Funds (a exceção da economia) ganham."""
+    _cover_all(indicators, date(2019, 12, 2))
+
+    gets_future = {s.key: s.has_generated_future for s in get_series_coverage()}
+
+    assert gets_future["CDI"]
+    assert gets_future["FED_FUNDS"]
+    assert not gets_future["GDP_GROWTH"]
+    assert not gets_future["PTAX"]
+    assert not gets_future["FOCUS_SELIC"]

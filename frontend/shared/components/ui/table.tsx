@@ -34,7 +34,8 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
 /**
  * `group`: linha de título de um grupo de linhas; `warning`: linha que pede atenção;
  * `editing`: linha aberta para edição logo abaixo de outra; `current`: a linha de quem está vendo;
- * `subtle`: fundo leve para linhas que não são de jogador; `highlight`: linha para onde um aviso levou.
+ * `subtle`: fundo leve para linhas que não são de jogador; `highlight`: linha para onde um aviso levou;
+ * `info`: faixa de explicação no meio da tabela (acompanha `TableCell` `info`).
  * `onActivate`: a linha inteira é clicável e também abre com Enter pelo teclado.
  */
 function TableRow({
@@ -53,6 +54,7 @@ function TableRow({
     | "team"
     | "member"
     | "highlight"
+    | "info"
     | undefined;
   onActivate?: () => void;
 }) {
@@ -71,7 +73,7 @@ function TableRow({
           : undefined
       }
       className={cn(
-        "border-b border-muted transition-colors outline-none hover:bg-subtle has-aria-expanded:bg-muted/50 focus-visible:bg-subtle focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset data-activatable:cursor-pointer data-[state=selected]:bg-muted data-[variant=current]:bg-info-soft/40 data-[variant=current]:font-semibold data-[variant=editing]:bg-info-soft/50 data-[variant=group]:bg-subtle data-[variant=highlight]:bg-info-soft/40 data-[variant=highlight]:hover:bg-info-soft/60 data-[variant=subtle]:bg-subtle data-[variant=team]:bg-[color-mix(in_srgb,var(--team)_6%,transparent)] data-[variant=team]:shadow-[inset_3px_0_0_var(--team)] data-[variant=member]:shadow-[inset_3px_0_0_color-mix(in_srgb,var(--team)_35%,transparent)] data-[variant=warning]:bg-warning-soft/40 data-[variant=editing]:hover:bg-info-soft/50 data-[variant=warning]:hover:bg-warning-soft/60",
+        "border-b border-muted transition-colors outline-none hover:bg-subtle has-aria-expanded:bg-muted/50 focus-visible:bg-subtle focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset data-activatable:cursor-pointer data-[state=selected]:bg-muted data-[variant=current]:bg-info-soft/40 data-[variant=current]:font-semibold data-[variant=editing]:bg-info-soft/50 data-[variant=group]:bg-subtle data-[variant=highlight]:bg-info-soft/40 data-[variant=highlight]:hover:bg-info-soft/60 data-[variant=subtle]:bg-subtle data-[variant=info]:bg-info-soft data-[variant=info]:hover:bg-info-soft data-[variant=team]:bg-[color-mix(in_srgb,var(--team)_6%,transparent)] data-[variant=team]:shadow-[inset_3px_0_0_var(--team)] data-[variant=member]:shadow-[inset_3px_0_0_color-mix(in_srgb,var(--team)_35%,transparent)] data-[variant=warning]:bg-warning-soft/40 data-[variant=editing]:hover:bg-info-soft/50 data-[variant=warning]:hover:bg-warning-soft/60",
         className,
       )}
       {...props}
@@ -115,7 +117,8 @@ function TableHead({
 
 /**
  * `numeric`: valor alinhado à direita, em mono com algarismos alinhados.
- * `variant`: `group` é o título de um grupo de linhas; `note` é o texto de apoio, em tom discreto.
+ * `variant`: `group` é o título de um grupo de linhas; `note` é o texto de apoio, em tom discreto;
+ * `info` é o texto da faixa de explicação (linha `info`).
  * `tone`: cor do valor, para o que está esperando (`warning`) ou isento (`success`).
  * `tinted`: coluna com fundo em laranja suave, para destacar uma coluna inteira (acompanha `TableHead` `tinted`).
  * `wrap`: o texto quebra em duas linhas em vez de alargar a coluna.
@@ -131,7 +134,7 @@ function TableCell({
 }: React.ComponentProps<"td"> & {
   numeric?: boolean | undefined;
   wrap?: boolean | undefined;
-  variant?: "default" | "group" | "note" | undefined;
+  variant?: "default" | "group" | "note" | "info" | undefined;
   tone?: "warning" | "success" | undefined;
   tinted?: boolean | undefined;
 }) {
@@ -144,6 +147,7 @@ function TableCell({
         wrap ? "whitespace-normal" : "whitespace-nowrap",
         variant === "group" && "py-2 text-xs font-semibold",
         variant === "note" && "text-xs text-muted-foreground",
+        variant === "info" && "text-[13px] text-info",
         tone === "warning" && "text-warning",
         tone === "success" && "text-success",
         tinted && "bg-warning-soft/40",
