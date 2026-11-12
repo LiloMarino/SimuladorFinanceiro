@@ -233,7 +233,7 @@ Ela vem do estudo **Trinity**, feito com dados dos EUA. O estudo viu que retirar
 **Salário (opcional).** O **modo de salário** do host define quem ganha o quê:
 
 - **Todos iguais** (padrão): todos são CLT e ganham o salário do host.
-- **Profissões:** cada jogador escolhe uma profissão ao entrar (no lobby ou na tela de entrada) e a vê no cartão dos outros jogadores. Quem já jogou a partida salva volta com a sua; os bots sorteiam uma ao entrar. A meta e a despesa continuam as do host: a profissão muda só a renda e o risco.
+- **Profissões:** cada jogador escolhe a sua na tela de entrada ou na aba **Profissão** do botão [**Minha preparação**](#minha-preparação), e todos a veem no cartão dele na sala. A escolha fica no seu perfil e vale nas próximas salas. Quem já jogou a partida salva volta com a sua; os bots sorteiam uma ao entrar. A meta e a despesa continuam as do host: a profissão muda só a renda e o risco.
 
 | Profissão | Renda por mês | O que ela sente |
 | --- | --- | --- |
@@ -349,9 +349,13 @@ Com uma partida salva selecionada, o seletor fica desabilitado (as regras dela n
 
 ### Minha preparação
 
-Com a expansão [Governo & Política](./governo.md) ligada numa partida nova, cada jogador vê o card **Minha preparação**. Ele diz o que você faz no começo da partida, sem precisar estar com o relógio andando:
+O botão **Minha preparação**, no topo do lobby, abre o que você deixa pronto antes de a partida começar. Ele mostra a sua profissão e o seu partido e conta os convites de vice sem resposta. Tudo é salvo sozinho, um instante depois de você mexer: o rodapé diz **Salvando…** e depois **Salvo automaticamente**, e se algo falhar aparece **Tentar de novo**. Não há botão Salvar.
 
-* **Fundar o meu partido** usa o **Meu partido**, que fica salvo no seu perfil: nome, sigla, cor e as 3 bandeiras. Você salva ao preparar e reaproveita em toda partida nova. Aqui também se escolhem o **candidato** (você ou alguém que entrou no seu partido) e o **vice**; salvar grava a chapa, e o convite do vice sai pelo botão **Convidar** (com o estado aguardando, aceito ou recusado e **Retirar convite**)
+* **Profissão** (com as profissões ligadas nas regras): a grade mostra as seis profissões, com a renda de cada uma em múltiplos do salário (Ex.: com salário de R$ 8.000, **0,9× o salário** é R$ 7.200 por mês) e o que ela sente. Clicar escolhe e salva na hora. Com as profissões desligadas, a aba fica desabilitada com a etiqueta **desligada nas regras**; com uma partida salva selecionada, quem já jogou volta com a sua e a escolha fica travada
+
+Com a expansão [Governo & Política](./governo.md) ligada numa partida nova, a aba **Partido** diz o que você faz no começo da partida, sem precisar estar com o relógio andando:
+
+* **Fundar o meu partido** usa o **Meu partido**, que fica salvo no seu perfil: nome, sigla, cor e as 3 bandeiras. O partido é salvo sozinho e reaproveitado em toda partida nova. Aqui também se escolhem o **candidato** (você ou alguém que entrou no seu partido) e o **vice**; a chapa é gravada sozinha, e o convite do vice sai pelo botão **Convidar** (com o estado aguardando, aceito ou recusado e **Retirar convite**)
 * **Entrar no partido de outro** lista os partidos que outros jogadores já prepararam; você se filia a ele no 1º dia da partida
 * **Nada por enquanto** deixa tudo como hoje: você decide dentro da partida
 
@@ -361,7 +365,7 @@ O fundador também pode propor uma [federação](./governo.md#federações) a ou
 
 Os partidos e as filiações valem no 1º dia da partida, com contribuição zero (dá para ajustar depois, como sempre); a chapa e o vice entram quando a campanha abre. Quem não estiver na sala quando a partida começar não tem a preparação aplicada, e bots não têm preparação.
 
-Se dois partidos preparados repetem **sigla, nome ou cor**, ou usam a sigla ou o nome de um partido do computador, o card avisa na hora e o **Iniciar** do host fica bloqueado até alguém trocar. Com uma partida salva selecionada, ou com a expansão desligada, o card fica travado e mostra o motivo.
+Se dois partidos preparados repetem **sigla, nome ou cor**, ou usam a sigla ou o nome de um partido do computador, a preparação avisa na hora e o **Iniciar** do host fica bloqueado até alguém trocar. Com uma partida salva selecionada, ou com a expansão desligada, a aba **Partido** fica travada e mostra o motivo.
 
 ---
 

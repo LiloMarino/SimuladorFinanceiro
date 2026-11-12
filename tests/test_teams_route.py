@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from backend.core.dependencies import get_client_id, verify_host
+from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.enum import GameType, PlayerGrouping, Profession, SalaryMode
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.user_manager import UserManager
@@ -25,6 +26,16 @@ def api(team_room: Join) -> Iterator[tuple[TestClient, Join]]:
     app.dependency_overrides[get_client_id] = lambda: client("Ana")
     app.dependency_overrides[verify_host] = lambda: None
     yield TestClient(app), team_room
+
+
+def professions_settings() -> SimulationSettingsDTO:
+    """Regras do viver de renda com uma profissão para cada jogador."""
+    return simulation_settings().model_copy(
+        update={
+            "game_type": GameType.FINANCIAL_INDEPENDENCE,
+            "salary_mode": SalaryMode.PROFESSIONS,
+        }
+    )
 
 
 def test_player_picks_a_team_and_the_room_list_shows_it(
@@ -147,3 +158,58 @@ def test_player_picks_a_profession_in_the_professions_room(
     assert UserManager.get_profession(ana.id) == Profession.RETIREE
     listed = http.get("/api/simulation/players").json()
     assert listed[0]["profession"] == "RETIREE"
+
+
+def test_the_chosen_profession_is_saved_in_the_profile(
+    api: tuple[TestClient, Join],
+    monkeypatch: pytest.MonkeyPatch,
+    remembered_professions: dict[int, Profession],
+):
+    http, join = api
+    ana = join("Ana")
+    monkeypatch.setattr(SettingsManager, "_settings", professions_settings())
+
+    http.put("/api/simulation/players/me/profession", json={"profession": "WELFARE"})
+
+    assert remembered_professions == {ana.id: Profession.WELFARE}
+
+
+def test_the_room_starts_with_the_profession_of_the_profile(
+    api: tuple[TestClient, Join],
+    monkeypatch: pytest.MonkeyPatch,
+    remembered_professions: dict[int, Profession],
+):
+    _, join = api
+    monkeypatch.setattr(SettingsManager, "_settings", professions_settings())
+    remembered_professions[1] = Profession.LANDLORD
+
+    ana = join("Ana")
+
+    assert UserManager.get_profession(ana.id) == Profession.LANDLORD
+
+
+def test_the_profession_of_the_saved_match_wins_over_the_profile(
+    api: tuple[TestClient, Join],
+    monkeypatch: pytest.MonkeyPatch,
+    remembered_professions: dict[int, Profession],
+):
+    _, join = api
+    monkeypatch.setattr(SettingsManager, "_settings", professions_settings())
+    monkeypatch.setattr(UserManager, "_saved_professions", {1: Profession.RETIREE})
+    monkeypatch.setattr(UserManager, "_professions", {1: Profession.RETIREE})
+    remembered_professions[1] = Profession.LANDLORD
+
+    ana = join("Ana")
+
+    assert UserManager.get_profession(ana.id) == Profession.RETIREE
+
+
+def test_equal_salary_room_neither_saves_nor_seeds_a_profession(
+    api: tuple[TestClient, Join], remembered_professions: dict[int, Profession]
+):
+    http, join = api
+    join("Ana")
+
+    http.put("/api/simulation/players/me/profession", json={"profession": "WELFARE"})
+
+    assert remembered_professions == {}

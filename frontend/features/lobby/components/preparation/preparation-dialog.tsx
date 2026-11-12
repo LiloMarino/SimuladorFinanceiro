@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Briefcase, Flag, SlidersHorizontal } from "lucide-react";
+import { Briefcase, Flag, IdCard, SlidersHorizontal } from "lucide-react";
 import { ErrorState } from "@/shared/components/error-state";
 import { Badge } from "@/shared/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/shared/components/ui/dialog";
@@ -18,18 +18,23 @@ import { usePartyContribution } from "../../hooks/queries/usePartyContribution";
 import { usePreparations } from "../../hooks/queries/usePreparations";
 import { adjustedStrategies } from "../../lib/preparation";
 import { PartyTab } from "./party-tab";
+import { ProfessionTab } from "./profession-tab";
 import { StrategiesTab } from "./strategies-tab";
 
-type Tab = "party" | "strategies";
+type Tab = "profession" | "party" | "strategies";
 
 type PreparationDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   rules: SimulationSettings["simulation"];
   selectedSimulationId: SimulationSettings["selected_simulation_id"];
+  /** As regras da sala dão uma profissão a cada jogador */
+  professions: boolean;
+  /** Quem jogou a partida salva selecionada: a profissão deles fica guardada */
+  savedPlayers: SimulationSettings["selected_players"];
 };
 
-/** "Minha preparação": o partido e os parâmetros das estratégias que o jogador refaz igual em toda partida. */
+/** "Minha preparação": a profissão, o partido e os parâmetros das estratégias que o jogador refaz igual em toda partida. */
 export function PreparationDialog({ open, onOpenChange, ...content }: PreparationDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -46,8 +51,14 @@ export function PreparationDialog({ open, onOpenChange, ...content }: Preparatio
 type PreparationDialogContentProps = Omit<PreparationDialogProps, "open" | "onOpenChange"> & { onClose: () => void };
 
 /** Resolve o que as abas usam: cada aba monta com o dado pronto e o formulário nasce preenchido. */
-function PreparationDialogContent({ rules, selectedSimulationId, onClose }: PreparationDialogContentProps) {
-  const [tab, setTab] = useState<Tab>("party");
+function PreparationDialogContent({
+  rules,
+  selectedSimulationId,
+  professions,
+  savedPlayers,
+  onClose,
+}: PreparationDialogContentProps) {
+  const [tab, setTab] = useState<Tab>(professions ? "profession" : "party");
   const preparations = usePreparations();
   const mine = useMyPreparation();
   const party = useMyParty();
@@ -65,6 +76,10 @@ function PreparationDialogContent({ rules, selectedSimulationId, onClose }: Prep
     strategies.data && saved.data && tickers.data
       ? adjustedStrategies(strategies.data, saved.data, tickers.data)
       : new Set<string>();
+  const savedSimulationName = selectedSimulationId ? (savedSimulation?.name ?? "partida salva") : null;
+  // A profissão da partida salva fica com ela; quem entra como jogador novo escolhe antes de entrar
+  const hasSavedProfession = !!user && savedPlayers.some((player) => player.nickname === user.nickname);
+  const myProfession = room.data?.find((player) => player.nickname === user?.nickname)?.profession;
 
   return (
     <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)} className="contents">
@@ -73,6 +88,14 @@ function PreparationDialogContent({ rules, selectedSimulationId, onClose }: Prep
         <DialogTitle large>Minha preparação</DialogTitle>
         <DialogDescription>O que você refaz igual em toda partida. Vale no 1º dia da partida.</DialogDescription>
         <TabsList variant="line" className="mt-3.5 -mb-px">
+          <TabsTrigger value="profession" disabled={!professions} className="flex-none">
+            <IdCard /> Profissão
+            {!professions && (
+              <Badge variant="outline" size="sm">
+                desligada nas regras
+              </Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="party" className="flex-none">
             <Flag /> Partido
           </TabsTrigger>
@@ -104,6 +127,19 @@ function PreparationDialogContent({ rules, selectedSimulationId, onClose }: Prep
         </div>
       ) : (
         <>
+          <TabsContent value="profession" className="grid min-h-0">
+            {room.data && user ? (
+              <ProfessionTab
+                current={myProfession}
+                lockedBy={hasSavedProfession ? savedSimulationName : null}
+                joiningNew={savedPlayers.length > 0 && !hasSavedProfession ? savedSimulationName : null}
+                monthlySalary={rules.monthly_salary}
+                onClose={onClose}
+              />
+            ) : (
+              <PreparationSkeleton columns={3} />
+            )}
+          </TabsContent>
           <TabsContent value="party" className="grid min-h-0">
             {preparations.data && mine.data && party.isSuccess && contribution.data && room.data && user ? (
               <PartyTab
@@ -114,7 +150,7 @@ function PreparationDialogContent({ rules, selectedSimulationId, onClose }: Prep
                 humans={room.data.filter((player) => !player.bot)}
                 nickname={user.nickname}
                 rules={rules}
-                savedSimulation={selectedSimulationId ? (savedSimulation?.name ?? "partida salva") : null}
+                savedSimulation={savedSimulationName}
                 onStrategies={() => setTab("strategies")}
                 onClose={onClose}
               />
@@ -141,7 +177,19 @@ function PreparationDialogContent({ rules, selectedSimulationId, onClose }: Prep
   );
 }
 
-function PreparationSkeleton() {
+function PreparationSkeleton({ columns = 2 }: { columns?: 2 | 3 }) {
+  if (columns === 3) {
+    return (
+      <div className="grid content-start gap-4 p-6" aria-busy="true" aria-label="Carregando a sua preparação">
+        <Skeleton className="h-5 w-1/3" />
+        <div className="grid grid-cols-3 gap-3">
+          {Array.from({ length: 6 }, (_, index) => (
+            <Skeleton key={index} className="h-28 w-full" />
+          ))}
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="grid gap-4 p-6" aria-busy="true" aria-label="Carregando a sua preparação">
       <Skeleton className="h-9 w-full" />

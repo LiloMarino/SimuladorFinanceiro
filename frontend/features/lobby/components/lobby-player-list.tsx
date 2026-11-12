@@ -27,7 +27,6 @@ import { LobbyBotDialog } from "./lobby-bot-dialog";
 import { LobbyBotMenu } from "./lobby-bot-menu";
 import { LobbyColorPicker } from "./lobby-color-picker";
 import { LobbyPlayerMenu } from "./lobby-player-menu";
-import { LobbyProfessionPicker } from "./lobby-profession-picker";
 import { LobbyTeamPicker } from "./lobby-team-picker";
 
 type LobbyPlayersListProps = {
@@ -135,14 +134,17 @@ export function LobbyPlayersList({
                 )}
               >
                 <PlayerAvatar nickname={player.nickname} color={player.color} bot={!!bot} size="lg" />
-                <div className="grid min-w-0 flex-1 gap-0.5">
-                  <span className="flex min-w-0 items-center gap-1.5">
-                    <span className="min-w-0 truncate font-semibold" title={player.nickname}>
-                      {player.nickname}
-                      {isYou && <span className="font-normal text-secondary-foreground"> (você)</span>}
-                    </span>
+                <div className="grid min-w-0 flex-1 gap-1">
+                  {/* Nome */}
+                  <span className="min-w-0 truncate font-semibold" title={player.nickname}>
+                    {player.nickname}
+                    {isYou && <span className="font-normal text-secondary-foreground"> (você)</span>}
+                  </span>
+                  {/* Profissão e papel na sala */}
+                  <span className="flex min-w-0 flex-wrap items-center gap-1.5 empty:hidden">
+                    {professions && <ProfessionBadge profession={player.profession} />}
                     {bot && (
-                      <Badge variant="secondary" size="tag" className="shrink-0">
+                      <Badge variant="secondary" size="sm" className="shrink-0">
                         Bot
                       </Badge>
                     )}
@@ -156,31 +158,31 @@ export function LobbyPlayersList({
                         Novo
                       </Badge>
                     )}
-                    {professions && <ProfessionBadge profession={player.profession} />}
                   </span>
-                  {bot ? (
-                    <span className="truncate text-xs text-muted-foreground" title={bot.strategy_name}>
-                      {bot.strategy_name}
-                    </span>
-                  ) : (
-                    <PlayerActivityStatus activity={player.activity} />
-                  )}
-                </div>
-                {/* Partido preparado */}
-                {showParties && (
-                  <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                  {/* Presença e partido preparado */}
+                  <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
                     {bot ? (
-                      "robô não prepara"
-                    ) : party ? (
-                      <>
-                        <PartyMark abbr={party.party.abbr} color={party.party.color} size="sm" />
-                        {party.candidate && "candidato"}
-                      </>
+                      <span className="truncate" title={bot.strategy_name}>
+                        {bot.strategy_name}
+                      </span>
                     ) : (
-                      "sem partido"
+                      <PlayerActivityStatus activity={player.activity} />
+                    )}
+                    {showParties && !bot && (
+                      <>
+                        <span aria-hidden="true">·</span>
+                        {party ? (
+                          <span className="flex min-w-0 items-center gap-1">
+                            <PartyMark abbr={party.party.abbr} color={party.party.color} size="sm" />
+                            {party.candidate && <span className="truncate">candidato</span>}
+                          </span>
+                        ) : (
+                          <span className="truncate">sem partido</span>
+                        )}
+                      </>
                     )}
                   </span>
-                )}
+                </div>
                 {isYou ? (
                   <div className="flex items-center gap-1.5">
                     <LobbyColorPicker
@@ -189,14 +191,6 @@ export function LobbyPlayersList({
                       savedPlayers={savedPlayers}
                       simulationName={simulationName}
                     />
-                    {professions && (
-                      <LobbyProfessionPicker
-                        nickname={player.nickname}
-                        players={sorted}
-                        savedPlayers={savedPlayers}
-                        simulationName={simulationName}
-                      />
-                    )}
                     {inTeams && (
                       <LobbyTeamPicker
                         nickname={player.nickname}
@@ -243,25 +237,21 @@ export function LobbyPlayersList({
             </div>
           ))}
 
-          {Array.from({ length: freeSlots }, (_, i) =>
-            i === 0 && canAddBot ? (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setBotDialog({})}
-                className="flex h-16.5 cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-dashed border-info-border bg-info-soft/50 text-[13px] font-semibold text-primary outline-none hover:border-solid hover:border-primary hover:bg-info-soft focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                <Plus className="size-4" />
-                Adicionar bot
-              </button>
-            ) : (
-              <div
-                key={i}
-                className="flex h-16.5 items-center justify-center rounded-[10px] border border-dashed border-input text-[13px] text-faint-foreground"
-              >
-                Vaga livre
-              </div>
-            ),
+          {/* Vagas livres */}
+          {canAddBot && (
+            <button
+              type="button"
+              onClick={() => setBotDialog({})}
+              className="col-span-2 flex h-11 cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-dashed border-info-border bg-info-soft/50 text-[13px] font-semibold text-primary outline-none hover:border-solid hover:border-primary hover:bg-info-soft focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              <Plus className="size-4" />
+              Adicionar bot
+            </button>
+          )}
+          {freeSlots > 0 && (
+            <div className="col-span-2 flex h-11 items-center justify-center rounded-[10px] border border-dashed border-input text-[13px] text-faint-foreground">
+              {plural(freeSlots, "vaga livre", "vagas livres")} · a sala aceita até {MAX_PLAYERS}
+            </div>
           )}
         </div>
 

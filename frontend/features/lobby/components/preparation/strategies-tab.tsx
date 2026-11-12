@@ -18,6 +18,7 @@ import {
 import { cn } from "@/shared/lib/utils";
 import type { BotTicker, SavedStrategyParams, StrategyGroup, StrategyInfo } from "@/types";
 import { useSaveStrategyParams } from "../../hooks/mutations/useSaveStrategyParams";
+import { useAutosave } from "../../hooks/useAutosave";
 import { adjustedStrategies } from "../../lib/preparation";
 import { PreparationFooter } from "./preparation-footer";
 
@@ -39,12 +40,8 @@ export function StrategiesTab({ strategies, saved, tickers, startingCash, onClos
   const [drafts, setDrafts] = useState<Record<string, ParamDraft>>(() =>
     Object.fromEntries(strategies.map((strategy) => [strategy.key, toDraft(profile(strategy).values)])),
   );
-  const [error, setError] = useState<string | null>(null);
   const save = useSaveStrategyParams();
   const adjusted = adjustedStrategies(strategies, saved, tickers);
-
-  const strategy = strategies.find((s) => s.key === selected);
-  if (!strategy) return null;
 
   // O que o jogador mexeu e ainda não gravou: só essas vão para o perfil
   const edits = strategies.flatMap((item) => {
@@ -52,31 +49,26 @@ export function StrategiesTab({ strategies, saved, tickers, startingCash, onClos
     const valid = values !== null && Object.keys(draftErrors(item.params, drafts[item.key] ?? {})).length === 0;
     return valid && sameValues(values, profile(item).values) ? [] : [{ strategy: item, values: valid ? values : null }];
   });
-  const canSave = edits.length > 0 && edits.every((edit) => edit.values !== null);
+  const autosave = useAutosave({
+    dirty: edits.length > 0,
+    incomplete: edits.some((edit) => edit.values === null) ? "Corrija os campos destacados para salvar." : null,
+    signature: JSON.stringify(drafts),
+    save: async () => {
+      for (const edit of edits) {
+        if (edit.values) await save.mutateAsync({ key: edit.strategy.key, params: edit.values });
+      }
+    },
+  });
+
+  const strategy = strategies.find((s) => s.key === selected);
+  if (!strategy) return null;
 
   const draft = drafts[strategy.key] ?? toDraft(defaultValues(strategy));
   const setDraft = (next: ParamDraft) => setDrafts({ ...drafts, [strategy.key]: next });
   const { missing } = profile(strategy);
 
-  const submit = async () => {
-    setError(null);
-    try {
-      for (const edit of edits) {
-        if (edit.values) await save.mutateAsync({ key: edit.strategy.key, params: edit.values });
-      }
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  };
-
   return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault();
-        void submit();
-      }}
-      className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]"
-    >
+    <div className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]">
       <div className="grid min-h-0 grid-cols-[320px_minmax(0,1fr)]">
         {/* Estratégias por grupo */}
         <div className="min-h-0 overflow-y-auto border-r bg-subtle px-3 pt-3 pb-5">
@@ -184,11 +176,12 @@ export function StrategiesTab({ strategies, saved, tickers, startingCash, onClos
 
       <PreparationFooter
         note="Fica no seu perfil e vale para toda partida, com ou sem expansão."
-        error={error}
-        saving={save.isPending}
-        canSave={canSave}
+        saving={autosave.saving}
+        error={autosave.error}
+        incomplete={autosave.incomplete}
+        onRetry={autosave.retry}
         onClose={onClose}
       />
-    </form>
+    </div>
   );
 }

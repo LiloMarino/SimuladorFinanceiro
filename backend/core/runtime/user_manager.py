@@ -183,6 +183,12 @@ class UserManager:
             cls._active_players[client_id] = user
             cls._colors[user.id] = color
 
+            # Na sala sem partida selecionada a profissão é a do perfil; a partida salva traz a dela
+            if match_colors is None and user.id not in cls._saved_professions:
+                remembered = repository.settings.get_profession(user.id)
+                if remembered is not None:
+                    cls._professions.setdefault(user.id, remembered)
+
         cls._emit_player_join(user, color)
         return user
 
@@ -683,6 +689,7 @@ class UserManager:
             if player.id in cls._saved_professions:
                 raise ConflictError("Sua profissão é a da partida selecionada.")
 
+            repository.settings.set_profession(player.id, profession)
             if cls._professions.get(player.id, Profession.CLT) == profession:
                 return
 

@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { Flag } from "lucide-react";
 import { PartyMark } from "@/shared/components/party-mark";
 import { ValueChips } from "@/shared/components/value-chip";
 import { Button } from "@/shared/components/ui/button";
 import { displayMonthSlashYear } from "@/shared/lib/utils/display";
 import { useSetPreparation } from "../../hooks/mutations/useSetPreparation";
+import { useAutosave } from "../../hooks/useAutosave";
 import { affiliationDeadline } from "../../lib/government-rules";
 import { PreparationFooter } from "./preparation-footer";
 import { PreparationSection } from "./preparation-section";
@@ -13,6 +13,7 @@ import type { PartyModeProps } from "./party-tab";
 /** Sem partido: quando ainda dá para entrar num partido e concorrer, o partido salvo e os partidos da sala. */
 export function PartyNoneTab({
   preparations,
+  me,
   saved,
   nickname,
   rules,
@@ -22,8 +23,14 @@ export function PartyNoneTab({
   onMode,
   onClose,
 }: PartyModeProps) {
-  const [error, setError] = useState<string | null>(null);
   const prepare = useSetPreparation();
+  // Sem preparação gravada o servidor já trata o jogador como sem partido
+  const autosave = useAutosave({
+    dirty: !locked && me !== undefined && me.kind !== "NONE",
+    incomplete: null,
+    signature: "NONE",
+    save: () => prepare.mutateAsync({ kind: "NONE" }),
+  });
   const parties = preparations.players.filter((p) => p.kind === "FOUND" && p.party && p.nickname !== nickname);
   const firstElection = rules.first_election ?? "";
   const deadline = affiliationDeadline(rules.start_date, firstElection);
@@ -51,14 +58,7 @@ export function PartyNoneTab({
   ];
 
   return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault();
-        setError(null);
-        prepare.mutate({ kind: "NONE" }, { onError: (err) => setError(err.message) });
-      }}
-      className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]"
-    >
+    <div className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]">
       <div className="grid min-h-0 content-start gap-4.5 overflow-y-auto px-6 py-5">
         {lead}
         <fieldset
@@ -162,11 +162,12 @@ export function PartyNoneTab({
             ? "Travado com partida salva selecionada."
             : "Fica no seu perfil: a escolha de começar sem partido."
         }
-        error={error}
-        saving={prepare.isPending}
-        canSave={!locked}
+        saving={autosave.saving}
+        error={autosave.error}
+        incomplete={autosave.incomplete}
+        onRetry={autosave.retry}
         onClose={onClose}
       />
-    </form>
+    </div>
   );
 }

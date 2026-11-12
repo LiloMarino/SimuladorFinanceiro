@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Clock, TriangleAlert, UserCheck, UserX } from "lucide-react";
+import { CircleAlert, Clock, TriangleAlert, UserCheck, UserX } from "lucide-react";
 import { ContributionField } from "@/shared/components/contribution-field";
 import { FlagCards } from "@/shared/components/flag-cards";
 import { OptionSelect, type SelectOption } from "@/shared/components/option-select";
@@ -23,6 +23,7 @@ import type { PartyIdentity, VoterValue } from "@/types";
 import { useSaveMyParty } from "../../hooks/mutations/useSaveMyParty";
 import { useSavePartyContribution } from "../../hooks/mutations/useSavePartyContribution";
 import { useSetPreparation } from "../../hooks/mutations/useSetPreparation";
+import { useAutosave } from "../../hooks/useAutosave";
 import { cashShare, closeRivalTag, rivalsOf, sharedFlags, type Rival } from "../../lib/preparation";
 import { PartyFederationSection } from "./party-federation-section";
 import { PreparationFooter } from "./preparation-footer";
@@ -62,19 +63,47 @@ export function PartyFoundTab({
   const form = useForm<PartyIdentity>({
     resolver: zodResolver(partyIdentitySchema),
     values: saved ?? blank,
+    mode: "onChange",
+    resetOptions: { keepDirtyValues: true },
   });
+  const draft = useWatch({ control: form.control });
   const flags = useWatch({ control: form.control, name: "flags" });
   const color = useWatch({ control: form.control, name: "color" });
   const founding = me?.kind === "FOUND" ? me : undefined;
   const [candidate, setCandidate] = useState(founding?.candidate ?? nickname);
   const [vice, setVice] = useState<string | null>(founding?.vice ?? mine.invited ?? mine.vice_declined);
   const [amount, setAmount] = useState(contributionText(contribution));
-  const [error, setError] = useState<string | null>(null);
+  const [inviteError, setInviteError] = useState<string | null>(null);
   const saveParty = useSaveMyParty();
   const saveContribution = useSavePartyContribution();
   const prepare = useSetPreparation();
   const inviteVice = useSetPreparation();
-  const saving = saveParty.isPending || saveContribution.isPending || prepare.isPending;
+
+  // Grava a identidade e a contribuição no perfil e só depois a escolha da sala, que parte do perfil
+  const identity = partyIdentitySchema.safeParse(draft);
+  const savedIdentity = saved ?? blank;
+  const identityChanged =
+    !identity.success ||
+    identity.data.name !== savedIdentity.name ||
+    identity.data.abbr !== savedIdentity.abbr ||
+    identity.data.color !== savedIdentity.color ||
+    [...identity.data.flags].sort().join() !== [...savedIdentity.flags].sort().join();
+  const autosave = useAutosave({
+    dirty:
+      !locked &&
+      (me?.kind !== "FOUND" ||
+        identityChanged ||
+        Number(contributionAmount(amount)) !== Number(contribution) ||
+        candidate !== founding?.candidate),
+    incomplete: identity.success ? null : (identity.error.issues[0]?.message ?? "Falta completar o partido."),
+    signature: JSON.stringify({ draft, amount, candidate }),
+    save: async () => {
+      if (!identity.success) return;
+      await saveParty.mutateAsync(identity.data);
+      await saveContribution.mutateAsync(contributionAmount(amount));
+      await prepare.mutateAsync({ kind: "FOUND", candidate });
+    },
+  });
 
   const members = preparations.players
     .filter((p) => p.kind === "JOIN" && p.founder === nickname)
@@ -89,24 +118,12 @@ export function PartyFoundTab({
   // O convite vigente: aceito ou aguardando; o recusado pode ser refeito
   const currentVice = founding?.vice_accepted ? founding.vice : mine.invited;
   const sendInvite = (body: { kind: "INVITE_VICE"; vice: string } | { kind: "WITHDRAW_VICE" }) => {
-    setError(null);
-    inviteVice.mutate(body, { onError: (err) => setError(err.message) });
+    setInviteError(null);
+    inviteVice.mutate(body, { onError: (err) => setInviteError(err.message) });
   };
 
-  // Grava a identidade e a contribuição no perfil e só depois a escolha da sala, que parte do perfil
-  const submit = form.handleSubmit(async (party) => {
-    setError(null);
-    try {
-      await saveParty.mutateAsync(party);
-      await saveContribution.mutateAsync(contributionAmount(amount));
-      await prepare.mutateAsync({ kind: "FOUND", candidate });
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  });
-
   return (
-    <form onSubmit={(event) => void submit(event)} className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]">
+    <form onSubmit={(event) => event.preventDefault()} className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]">
       <div className="grid min-h-0 content-start gap-4.5 overflow-y-auto px-6 py-5">
         {lead}
         <fieldset
@@ -223,10 +240,16 @@ export function PartyFoundTab({
                   </Button>
                 )}
               </div>
+              {inviteError && (
+                <Alert variant="destructive">
+                  <CircleAlert />
+                  <AlertDescription>{inviteError}</AlertDescription>
+                </Alert>
+              )}
               <span className="text-xs text-muted-foreground">
                 {founding
-                  ? "Salvar a chapa não convida o vice: use Convidar. Um novo convite ocupa o lugar do anterior."
-                  : "Salve o partido para poder convidar o vice."}
+                  ? "Escolher o vice não o convida: use Convidar. Um novo convite ocupa o lugar do anterior."
+                  : "Com o partido salvo, você pode convidar o vice."}
               </span>
             </PreparationSection>
 
@@ -270,9 +293,10 @@ export function PartyFoundTab({
             ? "Travado com partida salva selecionada."
             : "Fica no seu perfil: identidade, bandeiras e contribuição. Só nesta sala: a chapa."
         }
-        error={error}
-        saving={saving}
-        canSave={!locked}
+        saving={autosave.saving}
+        error={autosave.error}
+        incomplete={autosave.incomplete}
+        onRetry={autosave.retry}
         onClose={onClose}
       />
     </form>

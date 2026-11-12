@@ -20,10 +20,19 @@ type LobbyHeaderProps = {
   hostNickname: string;
   rules: SimulationSettings["simulation"];
   selectedSimulationId: SimulationSettings["selected_simulation_id"];
+  professions: boolean;
+  savedPlayers: SimulationSettings["selected_players"];
 };
 
 /** Topo do lobby: de quem é a sala e o link para chamar os outros. */
-export function LobbyHeader({ isHost, hostNickname, rules, selectedSimulationId }: LobbyHeaderProps) {
+export function LobbyHeader({
+  isHost,
+  hostNickname,
+  rules,
+  selectedSimulationId,
+  professions,
+  savedPlayers,
+}: LobbyHeaderProps) {
   const { data: tunnelStatus } = useTunnelStatus();
   const { mutate: startTunnel, isPending: tunnelLoading } = useStartTunnel();
   const [copyFailed, setCopyFailed] = useState(false);
@@ -45,43 +54,63 @@ export function LobbyHeader({ isHost, hostNickname, rules, selectedSimulationId 
   };
 
   return (
-    <header className="flex flex-wrap items-end justify-between gap-4">
-      <div className="flex items-center gap-3">
-        <BrandMark variant="square" />
-        <div className="grid">
-          <h1 className="text-xl font-bold">Sala {hostNickname ? `de ${hostNickname}` : ""}</h1>
-          <span className="text-muted-foreground">
-            {isHost ? "Aguardando você iniciar · você é o host" : `Aguardando ${hostNickname} iniciar`}
-          </span>
-        </div>
-        {/* Conquistas */}
-        <Button variant="outline" nativeButton={false} render={<Link to="/achievements" />} className="ml-2">
-          <Medal />
-          Conquistas
-          {tally && (
-            <span className="text-muted-foreground tabular-nums">
-              {tally.unlocked}/{tally.total}
+    <header className="grid gap-3.5">
+      {/* Título e atalhos */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <BrandMark variant="square" />
+          <div className="grid min-w-0">
+            <h1 className="truncate text-xl font-bold">Sala {hostNickname ? `de ${hostNickname}` : ""}</h1>
+            <span className="truncate text-muted-foreground">
+              {isHost ? "Aguardando você iniciar · você é o host" : `Aguardando ${hostNickname} iniciar`}
             </span>
-          )}
-          {tally?.hasNew && <span aria-label="Conquista nova" className="size-1.5 rounded-full bg-toast-warning" />}
-        </Button>
-        <PreparationButton rules={rules} selectedSimulationId={selectedSimulationId} />
-        <LobbyTutorialButton />
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <PreparationButton
+            rules={rules}
+            selectedSimulationId={selectedSimulationId}
+            professions={professions}
+            savedPlayers={savedPlayers}
+          />
+          <Button variant="outline" nativeButton={false} render={<Link to="/achievements" />}>
+            <Medal />
+            Conquistas
+            {tally && (
+              <span className="text-muted-foreground tabular-nums">
+                {tally.unlocked}/{tally.total}
+              </span>
+            )}
+            {tally?.hasNew && <span aria-label="Conquista nova" className="size-1.5 rounded-full bg-toast-warning" />}
+          </Button>
+          <LobbyTutorialButton />
+        </div>
       </div>
 
       {/* Convite */}
-      <div className="flex min-w-[380px] flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted-foreground">
-          Convide pelo link · {publicLink ? "internet" : "rede local"}
-        </span>
-        <div className="flex gap-1.5">
-          <output className="flex h-10 flex-1 items-center rounded-lg border border-input bg-card px-3 font-mono text-[13px] select-all">
+      <div className="grid gap-2 rounded-xl border bg-card py-2.5 pr-3 pl-4">
+        <div className="flex items-center gap-4">
+          <span className="shrink-0 text-xs font-medium text-muted-foreground">
+            Convide pelo link · {publicLink ? "internet" : "rede local"}
+          </span>
+          <output className="flex h-10 min-w-0 flex-1 items-center truncate rounded-lg border border-input bg-subtle px-3 font-mono text-[13px] select-all">
             {shareableLink}
           </output>
           <Button variant="dark" onClick={() => void copyLink()}>
             <Copy />
             Copiar
           </Button>
+          {/* Ajuda para quem não consegue entrar */}
+          {isHost && (
+            <a
+              href={FIREWALL_DOCS_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0 text-[13px] text-muted-foreground hover:underline"
+            >
+              Amigos não conseguem entrar?
+            </a>
+          )}
         </div>
         {copyFailed && (
           <Alert variant="warning">
@@ -90,17 +119,6 @@ export function LobbyHeader({ isHost, hostNickname, rules, selectedSimulationId 
               O navegador só copia sozinho em https. Selecione o link e copie com Ctrl+C.
             </AlertDescription>
           </Alert>
-        )}
-        {/* Ajuda para quem não consegue entrar */}
-        {isHost && (
-          <a
-            href={FIREWALL_DOCS_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="self-start text-xs text-muted-foreground hover:underline"
-          >
-            Amigos não conseguem entrar?
-          </a>
         )}
         {isHost && tunnelStatus && !tunnelStatus.active && (
           <Button

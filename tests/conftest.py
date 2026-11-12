@@ -20,7 +20,13 @@ from backend.core.decorators import transactional_method
 from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import AssetClass, DataOrigin, IndicatorSeries, PlayerGrouping
+from backend.core.enum import (
+    AssetClass,
+    DataOrigin,
+    IndicatorSeries,
+    PlayerGrouping,
+    Profession,
+)
 from backend.core.migration import (
     copy_database,
     drop_databases,
@@ -362,6 +368,19 @@ def _days_of(data: pd.Series | pd.DataFrame) -> list[date]:
 
 
 type Join = Callable[[str], UserDTO]
+
+
+@pytest.fixture(autouse=True)
+def remembered_professions(monkeypatch: pytest.MonkeyPatch) -> dict[int, Profession]:
+    """O perfil em memória: entrar na sala lê a profissão dele e escolher uma a grava."""
+    stored: dict[int, Profession] = {}
+    monkeypatch.setattr(repository.settings, "get_profession", stored.get)
+    monkeypatch.setattr(
+        repository.settings,
+        "set_profession",
+        lambda user_id, p: stored.update({user_id: p}),
+    )
+    return stored
 
 
 @pytest.fixture

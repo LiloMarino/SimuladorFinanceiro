@@ -1,0 +1,91 @@
+import { Info, Lock, TriangleAlert } from "lucide-react";
+import { ProfessionCards } from "@/shared/components/profession-grid";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { PROFESSIONS } from "@/shared/lib/professions";
+import { displayDecimal, displayMoneyWhole } from "@/shared/lib/utils/display";
+import type { Profession } from "@/types";
+import { useChooseProfession } from "../../hooks/mutations/useChooseProfession";
+import { PreparationFooter } from "./preparation-footer";
+
+type ProfessionTabProps = {
+  /** A profissão do jogador na sala; nula enquanto ele não escolheu */
+  current: Profession | null | undefined;
+  /** O nome da partida salva que guarda a profissão do jogador; nulo fora dela */
+  lockedBy: string | null;
+  /** O nome da partida salva em que o jogador entra como novo; nulo fora desse caso */
+  joiningNew: string | null;
+  /** O salário que o host definiu, base do "× o salário" */
+  monthlySalary: string;
+  onClose: () => void;
+};
+
+/** Aba Profissão: cada clique grava na hora; o servidor recusa fora da hora e a escolha volta à anterior. */
+export function ProfessionTab({ current, lockedBy, joiningNew, monthlySalary, onClose }: ProfessionTabProps) {
+  const { mutate, isPending, variables, error } = useChooseProfession();
+  const locked = lockedBy !== null;
+  // Durante o salvamento o cartão clicado já aparece marcado; sem a resposta do servidor ele volta ao anterior
+  const shown = isPending ? variables : current;
+  const salary = Number(monthlySalary);
+  const example = (profession: Profession) => displayMoneyWhole(salary * PROFESSIONS[profession].incomeMultiple);
+
+  return (
+    <div className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]">
+      <div className="grid min-h-0 content-start gap-4.5 overflow-y-auto px-6 py-5">
+        <div className="grid gap-0.5">
+          <b className="text-base font-semibold">
+            {locked ? `Sua profissão em ${lockedBy}` : "Sua profissão nesta sala"}
+          </b>
+          <span className="text-[13px] text-muted-foreground">
+            Muda só o que entra por mês e o que o governo faz com a renda: a despesa e a meta são as mesmas para todos.
+          </span>
+        </div>
+
+        {/* Partida salva */}
+        {locked && (
+          <Alert variant="muted">
+            <Lock />
+            <AlertDescription>
+              A profissão fica com a partida salva, como a cor. A do seu perfil volta a valer na próxima sala.
+            </AlertDescription>
+          </Alert>
+        )}
+        {joiningNew && (
+          <Alert variant="info">
+            <Info />
+            <AlertDescription>
+              Você entra em {joiningNew} como jogador novo. Confira a profissão antes de entrar: a do seu perfil é a que
+              vale se você não trocar.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <ProfessionCards selected={shown} disabled={locked} onSelect={(profession) => mutate(profession)} />
+
+        {/* Recusa do servidor */}
+        {error && (
+          <Alert variant="warning">
+            <TriangleAlert />
+            <AlertTitle>Não deu para trocar a profissão</AlertTitle>
+            <AlertDescription>
+              {error.message}
+              {current ? ` Sua profissão segue ${PROFESSIONS[current].name}.` : ""}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <span className="text-xs text-muted-foreground">
+          “× o salário” é a renda do mês comparada ao salário que o host definiu. Com salário de{" "}
+          {displayMoneyWhole(salary)}, {displayDecimal(PROFESSIONS.ENTREPRENEUR.incomeMultiple)}× dá{" "}
+          {example("ENTREPRENEUR")} e {displayDecimal(PROFESSIONS.WELFARE.incomeMultiple)}× dá {example("WELFARE")} (no
+          Auxílio, {displayDecimal(PROFESSIONS.WELFARE.benefitMultiple ?? 0)}× disso vem do governo).
+        </span>
+      </div>
+
+      <PreparationFooter
+        note="A profissão fica no seu perfil e vale nas próximas salas. Numa partida salva, vale a profissão guardada nela."
+        saving={error ? undefined : isPending}
+        onClose={onClose}
+      />
+    </div>
+  );
+}

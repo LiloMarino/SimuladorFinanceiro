@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.preparation import PartyIdentityDTO
 from backend.core.dto.strategy import StrategyParamValue
-from backend.core.enum import PreparationKind
+from backend.core.enum import PreparationKind, Profession
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.models.models import Users
 
@@ -15,6 +15,7 @@ PARTY_CONTRIBUTION_KEY = "party_contribution"
 STRATEGY_PARAMS_KEY = "strategy_params"
 PREPARATION_CHOICE_KEY = "preparation_choice"
 COVER_WITH_TREASURY_KEY = "cover_with_treasury"
+PROFESSION_KEY = "profession"
 # As chaves que o jogador grava pelas rotas próprias do perfil, e que as preferências atravessam
 PROFILE_KEYS = frozenset(
     {
@@ -23,6 +24,7 @@ PROFILE_KEYS = frozenset(
         STRATEGY_PARAMS_KEY,
         PREPARATION_CHOICE_KEY,
         COVER_WITH_TREASURY_KEY,
+        PROFESSION_KEY,
     }
 )
 
@@ -71,6 +73,14 @@ class SettingsRepository:
 
     def set_cover_with_treasury(self, user_id: int, enabled: bool) -> None:
         self._set_key(user_id, COVER_WITH_TREASURY_KEY, enabled)
+
+    def get_profession(self, user_id: int) -> Profession | None:
+        """A profissão que o jogador levou da última sala; nula enquanto ele não escolheu uma."""
+        raw = self.get_by_user_id(user_id).get(PROFESSION_KEY)
+        return None if raw is None else Profession(raw)
+
+    def set_profession(self, user_id: int, profession: Profession) -> None:
+        self._set_key(user_id, PROFESSION_KEY, profession.value)
 
     def get_strategy_params(
         self, user_id: int

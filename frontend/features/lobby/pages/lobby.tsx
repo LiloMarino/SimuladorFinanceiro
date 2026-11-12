@@ -76,6 +76,8 @@ function LobbyContent({ settings }: { settings: SimulationSettings }) {
         hostNickname={settings.host_nickname}
         rules={settings.simulation}
         selectedSimulationId={settings.selected_simulation_id}
+        professions={professions}
+        savedPlayers={settings.selected_players}
       />
 
       <BacktestBanner />

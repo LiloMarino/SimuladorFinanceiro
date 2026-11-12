@@ -21,6 +21,7 @@ import { displayMoneyWhole } from "@/shared/lib/utils/display";
 import type { PlayerPreparation, RoomPlayer } from "@/types";
 import { useSavePartyContribution } from "../../hooks/mutations/useSavePartyContribution";
 import { useSetPreparation } from "../../hooks/mutations/useSetPreparation";
+import { useAutosave } from "../../hooks/useAutosave";
 import { cashShare } from "../../lib/preparation";
 import { PreparationFooter } from "./preparation-footer";
 import { PreparationSection } from "./preparation-section";
@@ -47,36 +48,31 @@ export function PartyJoinTab({
   const joined = me?.kind === "JOIN" ? me.founder : null;
   const [founder, setFounder] = useState(joined);
   const [amount, setAmount] = useState(contributionText(contribution));
-  const [error, setError] = useState<string | null>(null);
   const saveContribution = useSavePartyContribution();
   const prepare = useSetPreparation();
-  const saving = saveContribution.isPending || prepare.isPending;
+
+  // A contribuição vai para o perfil e só depois a escolha da sala, que parte do perfil
+  const autosave = useAutosave({
+    dirty:
+      !locked &&
+      founder !== null &&
+      (founder !== joined || Number(contributionAmount(amount)) !== Number(contribution)),
+    incomplete: null,
+    signature: JSON.stringify({ founder, amount }),
+    save: async () => {
+      if (!founder) return;
+      await saveContribution.mutateAsync(contributionAmount(amount));
+      await prepare.mutateAsync({ kind: "JOIN", founder });
+    },
+  });
 
   const parties = preparations.players.filter((p) => p.kind === "FOUND" && p.party && p.nickname !== nickname);
   const chosen = parties.find((p) => p.nickname === founder);
   const membersOf = (owner: string) =>
     preparations.players.filter((p) => p.kind === "JOIN" && p.founder === owner).map((p) => p.nickname);
 
-  // A contribuição vai para o perfil e só depois a escolha da sala, que parte do perfil
-  const submit = async () => {
-    if (!founder) return;
-    setError(null);
-    try {
-      await saveContribution.mutateAsync(contributionAmount(amount));
-      await prepare.mutateAsync({ kind: "JOIN", founder });
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  };
-
   return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault();
-        void submit();
-      }}
-      className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]"
-    >
+    <div className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]">
       <div className="grid min-h-0 content-start gap-4.5 overflow-y-auto px-6 py-5">
         {lead}
 
@@ -179,12 +175,13 @@ export function PartyJoinTab({
             ? "Travado com partida salva selecionada."
             : "Fica no seu perfil: a contribuição. Só nesta sala: o partido em que você entra."
         }
-        error={error}
-        saving={saving}
-        canSave={!locked && founder !== null}
+        saving={autosave.saving}
+        error={autosave.error}
+        incomplete={autosave.incomplete}
+        onRetry={autosave.retry}
         onClose={onClose}
       />
-    </form>
+    </div>
   );
 }
 
@@ -192,7 +189,7 @@ type PartyCardProps = {
   party: PlayerPreparation;
   members: string[];
   humans: RoomPlayer[];
-  /** "here": o jogador já está neste partido; "entering": escolhido, ainda não salvo */
+  /** "here": o jogador já está neste partido; "entering": escolhido, entrando */
   state: "here" | "entering" | null;
   onPick: () => void;
 };
