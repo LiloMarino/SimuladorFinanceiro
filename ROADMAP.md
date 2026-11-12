@@ -102,7 +102,6 @@
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | Alto | Médio | ⏳ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | Alto | Médio | ⏳ |
-| [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | M26 · 4.1 | — | Médio | Bom | ⏳ |
 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | M26 · 4.1 | — | — | — | 🔍 |
 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | M26 · 4.1 | — | — | — | 🔍 |
 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | M26 · 4.1 | — | — | — | 🔍 |
@@ -117,7 +116,7 @@
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (47 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (48 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -158,6 +157,7 @@
 | [**F261**](#f261) | Feature | Profissão no viver de renda | M26 · 4.1 | — | — | — | ✅ |
 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | M26 · 4.1 | — | — | — | ✅ |
 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | M26 · 4.1 | — | — | — | ✅ |
+| [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | M26 · 4.1 | — | — | — | ✅ |
 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | M26 · 4.1 | — | — | — | ✅ |
 | [**F271**](#f271) | Melhoria | Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único | M26 · 4.1 | — | — | — | ✅ |
 | [**F273**](#f273) | Melhoria | Convites que se escolhem e se acumulam | M26 · 4.1 | — | — | — | ✅ |
@@ -183,7 +183,7 @@
 >
 > **Serve:** N15, N34, N23, N11, N31, N41
 >
-> **Progresso:** 27/37 concluídos
+> **Progresso:** 28/37 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -204,7 +204,7 @@
 | 15 | [**F258**](#f258) | Melhoria | Orientação da bancada que se explica | — | ✅ Concluído |
 | 16 | [**F262**](#f262) | Feature | Pedido de impeachment aberto por jogador | — | ✅ Concluído |
 | 17 | [**F263**](#f263) | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | — | ✅ Concluído |
-| 18 | [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | — | ⏳ Pendente |
+| 18 | [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | — | ✅ Concluído |
 | 19 | [**F265**](#f265) | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | — | ✅ Concluído |
 | 20 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | — | 🔍 Em avaliação |
 | 21 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | — | 🔍 Em avaliação |
@@ -339,7 +339,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F264**](#f264) | Correção | Nota de desempenho que não explode com patrimônio quase zero | M26 · 4.1 · 18º | 0 | Médio | Bom | ⏳ |
 | [**F266**](#f266) | Melhoria | Central de dados redesenhada | M26 · 4.1 · 20º | 0 | — | — | 🔍 |
 | [**F267**](#f267) | Melhoria | Lobby com topo enxuto e profissão na preparação | M26 · 4.1 · 21º | 0 | — | — | 🔍 |
 | [**F268**](#f268) | Melhoria | Tela do Mapa repensada | M26 · 4.1 · 22º | 0 | — | — | 🔍 |
@@ -410,7 +409,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Alto | Médio | Médio | Médio |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 | — | Alto | Médio | Médio | Médio |
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Alto | Alto | Alto | Médio |
-| **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | D10 | M26 · 4.1 | — | Médio | Médio | Alto | Bom |
 | **F280** | Melhoria | Corrida eleitoral com bots sempre presentes e campanha que pesa | N34, N8 | — | M26 · 4.1 | — | Alto | Alto | Alto | Bom |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
@@ -611,29 +609,6 @@ O tamanho dos efeitos sai da calibragem pelo CLI.
 - **Informação privilegiada.** Colegas de partido sabem antes que uma medida vem e podem comprar ou vender a ação. É aceito porque a medida passa pela fila do Congresso, à vista de todos.
 
 **Aceite:** sem medida de estatal a partida segue a história; a calibragem compara "fundar 10 estatais em 10 anos" com "não fundar nenhuma" e fundar não domina; segurar o preço e soltar devolve a inflação represada; banco estatal não baixa o IPCA; a soma das alavancas respeita o teto; dividendo extra hoje reduz PIB e valor depois.
-
-<a id="f264"></a>
-**F264 — Nota de desempenho que não explode com patrimônio quase zero.** Serve N9 e N3; condicionado por D10.
-
-**Sintoma.** Na Simulação #3 o bot Vovô Investidor venceu por nota com 9.067.544 pontos tendo perdido 42%; os outros ficaram entre 117 e 367. O patrimônio dele foi de R$ 30 mil a R$ 0,01 num pregão (ação arredondada a R$ 0,00) e voltou a R$ 7,5 mil dias depois.
-
-**Como reproduzir.** Um histórico de pelo menos 63 pregões que rende perto do CDI, com um pregão em que o patrimônio vai de 30.000 a 0,01 e outro em que volta a 7.500, sem aporte entre eles. `player_score` devolve milhões de pontos no eixo de eficiência.
-
-**Causa.** O retorno do dia é o ganho dividido pelo patrimônio da véspera (`_ScoreWalk.add`, `backend/features/statistics/score.py:122-141`). Sobre uma véspera de R$ 0,01, o dia da volta vale dezenas de milhões de por cento. A média de retornos simples não é simétrica: cair 50% e subir 100% deixa o patrimônio igual, mas a média dos dois dias dá +25% por dia. Esse único dia puxa a média do excesso sobre o CDI para cima, o desvio só das quedas quase não se mexe, e o Sortino (retorno acima do CDI dividido pela oscilação para baixo) sai em centenas de milhares; como a reta de pontos não tem teto (`Band.points`, `score.py:40-42`), viram milhões de pontos. O mesmo cálculo existe uma segunda vez em `backend/features/statistics/risk.py` (`annual_volatility` :92, `rolling_volatility` :99, `sharpe_ratio` :160, `sortino_ratio` :172), que alimenta a aba de risco, o ranking e o critério de vitória por Sharpe (`ranking.py:318-319`), e sofre do mesmo dia.
-
-**O que muda.** As métricas que são média ou desvio de retornos diários passam a usar o retorno em escala logarítmica, `ln(1 + retorno)`. Nessa escala cair 50% vale −0,693 e subir 100% vale +0,693: os dois se anulam, e a ida a R$ 0,01 e a volta entram como dois dias enormes de sinais opostos, que contam como oscilação e não como ganho. A nota continua sem teto de pontos (a D10 fica como está): uma carteira só de renda fixa acima do CDI continua podendo tirar nota muito alta em eficiência, por decisão.
-
-1. Em `risk.py`, uma função `log_return(daily)` devolve `ln(max(1 + daily, LOG_FLOOR))`, com `LOG_FLOOR = Decimal("0.0001")`: a perda total do dia entra como −99,99%, porque o logaritmo de zero não existe. O CDI do dia ganha a versão logarítmica guardada junto da tabela que `cdi_return` já mantém.
-2. Passam para a escala logarítmica: `annual_volatility`, `rolling_volatility`, `sharpe_ratio` e `sortino_ratio` em `risk.py`, e as somas `_sum`, `_squares`, `_excess` e `_downside` de `_ScoreWalk`. O excesso do dia é `log_return(daily) - ln(1 + cdi)`.
-3. Ficam como estão, compostos pelo retorno simples: a cota, a queda máxima, o tempo abaixo do pico, os retornos mensais, o retorno anual e os retornos sobre o CDI e o Ibovespa. `daily_returns` continua devolvendo o retorno simples; a conversão acontece dentro das quatro funções.
-4. O caminho incremental (`_ScoreWalk`) e o direto (`player_score` sobre `risk.py`) continuam dando a mesma nota: os testes que comparam os dois ficam.
-5. `tests/test_statistics_score.py` e `tests/test_statistics_risk.py` ganham o caso do patrimônio quase zero e o caso simétrico (−50% e +100%), e os valores esperados dos casos atuais são recalculados.
-6. `docs/docs/como-usar/estatisticas.md` (trechos de volatilidade, Sharpe e Sortino) e as descrições das métricas em `frontend/features/statistics/lib/metrics.ts` passam a dizer que a oscilação é medida numa escala em que queda e alta do mesmo tamanho se anulam, com o exemplo dos 50% e 100%.
-7. `Decimal.ln()` roda duas vezes por snapshot. Medir o tempo do histórico da nota numa partida de 10 anos antes e depois; se passar de 10% a mais, calcular com `math.log1p` sobre `float` e converter para `Decimal`.
-
-**Efeito nas partidas salvas.** A nota é recalculada dos snapshots a cada leitura, então toda partida muda um pouco. Estimativa: de 2 a 7 pontos a menos no eixo de eficiência, mais para quem oscila mais (com volatilidade de 20% ao ano o Sharpe cai cerca de 0,1). A conquista dos 250 pontos (`achievements/catalog.py:282-288`) usa a nota nova.
-
-**Aceite:** no histórico do "como reproduzir", Sharpe e Sortino saem negativos, o eixo de eficiência dá 0 ponto e a volatilidade dá 0 ponto (antes, 9 milhões de pontos na nota). Num histórico de dois dias com −50% e +100%, a média dos retornos usada no Sharpe é 0. Um histórico comum, com volatilidade de até 30% ao ano, muda menos de 10 pontos na nota total.
 
 <a id="f280"></a>
 **F280 — Corrida eleitoral com bots sempre presentes e campanha que pesa.** Serve N34 e N8.
@@ -864,6 +839,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F261** | Feature | Profissão no viver de renda | N23, N34 | D19 | M26 · 4.1 |
 | **F262** | Feature | Pedido de impeachment aberto por jogador | N34 | — | M26 · 4.1 |
 | **F263** | Correção | Bolsa com piso e dividendo que acompanha o preço da partida | N3, N34 | D20 | M26 · 4.1 |
+| **F264** | Correção | Nota de desempenho que não explode com patrimônio quase zero | N9, N3 | D10 | M26 · 4.1 |
 | **F265** | Correção | Acabamentos do mapa, do Tesouro e dos cards da economia | N15, N34 | — | M26 · 4.1 |
 | **F271** | Melhoria | Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único | N20 | — | M26 · 4.1 |
 | **F273** | Melhoria | Convites que se escolhem e se acumulam | N34, N23 | — | M26 · 4.1 |
@@ -1036,6 +1012,29 @@ O registro do orçamento mostra cada mudança no salário, na despesa e no juro 
 3. **Preço que não arredonda a zero.** O OHLC escalado tem piso de R$ 0,01.
 
 **Aceite.** Teste com o fator da bolsa a 1/400: o provento sai a 1/400 do histórico. A calibragem de 10 anos com o pior governo não leva a bolsa abaixo do piso. Nenhum preço de ação sai R$ 0,00.
+
+<a id="f264"></a>
+**F264 — Nota de desempenho que não explode com patrimônio quase zero.** Serve N9 e N3; condicionado por D10.
+
+**Sintoma.** Na Simulação #3 o bot Vovô Investidor venceu por nota com 9.067.544 pontos tendo perdido 42%; os outros ficaram entre 117 e 367. O patrimônio dele foi de R$ 30 mil a R$ 0,01 num pregão (ação arredondada a R$ 0,00) e voltou a R$ 7,5 mil dias depois.
+
+**Como reproduzir.** Um histórico de pelo menos 63 pregões que rende perto do CDI, com um pregão em que o patrimônio vai de 30.000 a 0,01 e outro em que volta a 7.500, sem aporte entre eles. `player_score` devolve milhões de pontos no eixo de eficiência.
+
+**Causa.** O retorno do dia é o ganho dividido pelo patrimônio da véspera (`_ScoreWalk.add`, `backend/features/statistics/score.py:122-141`). Sobre uma véspera de R$ 0,01, o dia da volta vale dezenas de milhões de por cento. A média de retornos simples não é simétrica: cair 50% e subir 100% deixa o patrimônio igual, mas a média dos dois dias dá +25% por dia. Esse único dia puxa a média do excesso sobre o CDI para cima, o desvio só das quedas quase não se mexe, e o Sortino (retorno acima do CDI dividido pela oscilação para baixo) sai em centenas de milhares; como a reta de pontos não tem teto (`Band.points`, `score.py:40-42`), viram milhões de pontos. O mesmo cálculo existe uma segunda vez em `backend/features/statistics/risk.py` (`annual_volatility` :92, `rolling_volatility` :99, `sharpe_ratio` :160, `sortino_ratio` :172), que alimenta a aba de risco, o ranking e o critério de vitória por Sharpe (`ranking.py:318-319`), e sofre do mesmo dia.
+
+**O que muda.** As métricas que são média ou desvio de retornos diários passam a usar o retorno em escala logarítmica, `ln(1 + retorno)`. Nessa escala cair 50% vale −0,693 e subir 100% vale +0,693: os dois se anulam, e a ida a R$ 0,01 e a volta entram como dois dias enormes de sinais opostos, que contam como oscilação e não como ganho. A nota continua sem teto de pontos (a D10 fica como está): uma carteira só de renda fixa acima do CDI continua podendo tirar nota muito alta em eficiência, por decisão.
+
+1. Em `risk.py`, uma função `log_return(daily)` devolve `ln(max(1 + daily, LOG_FLOOR))`, com `LOG_FLOOR = Decimal("1e-9")`: a perda total do dia entra como −99,9999999%, porque o logaritmo de zero não existe. O piso fica abaixo de qualquer queda com patrimônio positivo (de R$ 30 mil a R$ 0,01 o fator é 3,3e-7); com piso de 0,0001 a ida a R$ 0,01 seria cortada e a volta não a anularia. O CDI do dia ganha a versão logarítmica guardada junto da tabela que `cdi_return` já mantém.
+2. Passam para a escala logarítmica: `annual_volatility`, `rolling_volatility`, `sharpe_ratio` e `sortino_ratio` em `risk.py`, e as somas `_sum`, `_squares`, `_excess` e `_downside` de `_ScoreWalk`. O excesso do dia é `log_return(daily) - ln(1 + cdi)`.
+3. Ficam como estão, compostos pelo retorno simples: a cota, a queda máxima, o tempo abaixo do pico, os retornos mensais, o retorno anual e os retornos sobre o CDI e o Ibovespa. `daily_returns` continua devolvendo o retorno simples; a conversão acontece dentro das quatro funções.
+4. O caminho incremental (`_ScoreWalk`) e o direto (`player_score` sobre `risk.py`) continuam dando a mesma nota: os testes que comparam os dois ficam.
+5. `tests/test_statistics_score.py` e `tests/test_statistics_risk.py` ganham o caso do patrimônio quase zero e o caso simétrico (−50% e +100%), e os valores esperados dos casos atuais são recalculados.
+6. `docs/docs/como-usar/estatisticas.md` (trechos de volatilidade, Sharpe e Sortino) e as descrições das métricas em `frontend/features/statistics/lib/metrics.ts` passam a dizer que a oscilação é medida numa escala em que queda e alta do mesmo tamanho se anulam, com o exemplo dos 50% e 100%.
+7. `Decimal.ln()` roda duas vezes por snapshot. Medir o tempo do histórico da nota numa partida de 10 anos antes e depois; se passar de 10% a mais, calcular com `math.log1p` sobre `float` e converter para `Decimal`.
+
+**Efeito nas partidas salvas.** A nota é recalculada dos snapshots a cada leitura, então toda partida muda um pouco. Estimativa: de 2 a 7 pontos a menos no eixo de eficiência, mais para quem oscila mais (com volatilidade de 20% ao ano o Sharpe cai cerca de 0,1). A conquista dos 250 pontos (`achievements/catalog.py:282-288`) usa a nota nova.
+
+**Aceite:** no histórico do "como reproduzir", Sharpe e Sortino saem negativos, a volatilidade dá 0 ponto e a nota total fica na casa das dezenas (antes, 9 milhões de pontos). Num histórico de dois dias com −50% e +100%, a média dos retornos usada no Sharpe é 0. Um histórico comum, com volatilidade de até 30% ao ano, muda menos de 10 pontos na nota total.
 
 <a id="f265"></a>
 **F265 — Acabamentos do mapa, do Tesouro e dos cards da economia.** Serve N15 e N34. Lote de consertos pequenos que saíram da partida de 10/11.
