@@ -11,16 +11,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { DisabledHint } from "@/shared/components/disabled-hint";
-import { ShareShortcuts } from "@/shared/components/share-shortcuts";
+import { AmountShortcuts } from "@/shared/components/amount-shortcuts";
 import { cn, normalizeNumberString } from "@/shared/lib/utils";
 import { displayMoney, displayPercent, toCentsString } from "@/shared/lib/utils/display";
 import { formatMoney } from "@/shared/lib/utils/format";
-import { shareToField } from "@/shared/lib/utils/money-field";
 import type { CreditLoan, PrepaymentMode } from "@/types";
 import { usePayoffLoan } from "../hooks/mutations/usePayoffLoan";
 import { usePrepayLoan } from "../hooks/mutations/usePrepayLoan";
@@ -71,7 +70,6 @@ export function PrepayDialog({ loan, open, onOpenChange, initialChoice, initialA
 
   // O teto dos atalhos: pagar o saldo inteiro é quitar, então a parte para um centavo antes
   const partCeiling = Math.max(Math.min(cash, balance - 0.01), 0);
-  const fillShare = (share: number) => setAmountText(shareToField(partCeiling, share));
 
   const submitPart = () => {
     if (canPrepay && !prepay.isPending) {
@@ -122,27 +120,36 @@ export function PrepayDialog({ loan, open, onOpenChange, initialChoice, initialA
                 >
                   <Field data-invalid={amount > 0 && partError !== null}>
                     <FieldLabel htmlFor="prepay-amount">Quanto pagar agora</FieldLabel>
-                    <div className="flex gap-1.5">
-                      <Input
-                        id="prepay-amount"
-                        autoFocus
-                        fieldSize="xl"
-                        numeric
-                        inputMode="decimal"
-                        value={amountText}
-                        aria-invalid={amount > 0 && partError !== null}
-                        onChange={(event) => setAmountText(formatMoney(event.target.value))}
-                      />
-                      <ShareShortcuts maxLabel="Máx" disabled={!preview} onPick={fillShare} />
-                    </div>
-                    {amount > 0 && partError ? (
-                      <FieldError>{partError}</FieldError>
-                    ) : (
-                      <FieldDescription>
-                        Saldo devedor <span className="font-mono">{displayMoney(balance)}</span> · caixa{" "}
-                        <span className="font-mono">{displayMoney(cash)}</span>
-                      </FieldDescription>
-                    )}
+                    <Input
+                      id="prepay-amount"
+                      autoFocus
+                      fieldSize="xl"
+                      numeric
+                      inputMode="decimal"
+                      value={amountText}
+                      aria-invalid={amount > 0 && partError !== null}
+                      onChange={(event) => setAmountText(formatMoney(event.target.value))}
+                    />
+                    {/* Atalhos: o teto é o menor entre o caixa e o saldo devedor (menos um centavo) */}
+                    <AmountShortcuts
+                      kind="credit-prepay"
+                      defaultMode="percent"
+                      value={amountText}
+                      onChange={(text) => setAmountText(text)}
+                      max={preview ? partCeiling : undefined}
+                      baseLabel="do menor entre o caixa e o saldo devedor"
+                      limitLabel="menor entre caixa e saldo devedor"
+                      fixed={[1000, 5000, 10000]}
+                      maxLabel="Máx"
+                      error={amount > 0 && partError}
+                      note={
+                        <>
+                          {" "}
+                          · saldo devedor <span className="font-mono">{displayMoney(balance)}</span> · caixa{" "}
+                          <span className="font-mono">{displayMoney(cash)}</span>
+                        </>
+                      }
+                    />
                   </Field>
                 </form>
 

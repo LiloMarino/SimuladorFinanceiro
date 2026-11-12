@@ -109,7 +109,7 @@ São títulos públicos emitidos pelo **Governo Federal** para financiar a dívi
 * Os títulos do governo têm tela própria, **Tesouro**, no menu Mercado: seis títulos sempre à venda (um Selic, dois Prefixados e três IPCA+), com a taxa revista a cada fechamento de mês
 * Com a expansão Governo & Política, a taxa de todos soma o **prêmio de risco** do país, que sobe quando a dívida do governo cresce; a tela mostra a taxa em duas partes (base + prêmio) e o termômetro do risco
 * Quem compra trava a taxa do dia. Dá para vender em qualquer dia, inteiro ou em parte, pelo preço de hoje (**marcação a mercado**): se a taxa subiu desde a compra, o Prefixado e o IPCA+ valem menos que a curva; se caiu, valem mais. O Tesouro Selic vale o que acumulou
-* Na compra e na venda, os botões **25%**, **50%** e **Tudo** preenchem o valor com essa fração do caixa (compra) ou da posição (venda)
+* Na compra e na venda, o controle **R$ | %** acima dos atalhos escolhe o que eles fazem. Em **%**, os botões **25%**, **50%**, **75%** e **Tudo** preenchem o valor com essa fração do caixa (compra) ou da posição (venda); em **R$**, **+R$ 1 mil**, **+R$ 5 mil** e **+R$ 10 mil** somam ao valor e **Limpar** zera o campo. Segurar **Shift** mostra o outro modo sem trocar o que você escolheu, e o navegador lembra o modo de cada tipo de campo
 * O IR é regressivo sobre o ganho; com perda, não há IR
 * Quando o caixa não cobre uma despesa, o imposto ou a parcela do empréstimo, o simulador vende sozinho a liquidez diária e o Tesouro Selic antes de usar o cheque especial. Uma chave na tela do Tesouro estende isso ao Prefixado e ao IPCA+, a preço de mercado, o que pode realizar perda
 
@@ -227,7 +227,7 @@ Um CDB de 100% do CDI comprado em 02/01/2020 e resgatado em 31/12/2020 rende **2
 
 1. Acesse **Renda fixa** para ver a lista de títulos disponíveis.
 2. Na linha do título, clique em **Investir** para abrir os detalhes.
-3. Em **Quanto investir**, informe o valor. Os atalhos **R$ 1 mil**, **R$ 5 mil** e **R$ 10 mil** preenchem o campo, e um botão de máximo usa todo o seu caixa.
+3. Em **Quanto investir**, informe o valor. O controle **R$ | %** escolhe os atalhos: em **R$**, **+R$ 1 mil**, **+R$ 5 mil** e **+R$ 10 mil** somam ao campo e **Limpar** o zera; em **%**, **25%**, **50%**, **75%** e **Máx** (ou **Tudo**, quando a oferta não tem teto) preenchem uma fração do que você pode aplicar. Um atalho em R$ que passaria do máximo para no máximo e avisa abaixo do campo.
 4. Confira o **Resgate líquido** na data de vencimento e clique em **Investir R$ valor**.
 
 ![Aplicando R$ 3.000 num título de renda fixa](/demo/screens/fixed-income-bond.png)
@@ -244,7 +244,7 @@ Na tela de detalhes do ativo, você acompanha:
 Os títulos com a etiqueta **liquidez diária** podem ser resgatados em qualquer pregão, pelo valor corrigido até o dia, sem esperar o vencimento. O dinheiro volta ao caixa no mesmo pregão.
 
 1. Abra o título e vá na aba **Resgatar** (ou clique em **Resgatar** na linha da Carteira).
-2. Informe quanto quer **receber no caixa**. Os atalhos **R$ 1 mil**, **R$ 5 mil**, **Metade** e **Tudo** preenchem o campo.
+2. Informe quanto quer **receber no caixa**. O controle **R$ | %** escolhe os atalhos, como na aplicação: em **R$**, os valores fixos somam ao campo; em **%**, **25%**, **50%**, **75%** e **Tudo** preenchem uma fração do que dá para receber hoje, já sem o IR.
 3. Confira a conta: quanto sai do título, o rendimento dessa parte, o IR e, nos primeiros 30 dias, o IOF. Depois clique em **Receber R$ valor no caixa**.
 
 - **IOF:** imposto que cobra de quem resgata antes de 30 dias. Incide sobre o rendimento e começa em 96% no 1º dia, caindo até 3% no 29º; a partir do 30º dia é zero. Ex.: um título que rendeu R$ 10 e é resgatado no 1º dia perde R$ 9,60 de IOF.

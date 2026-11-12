@@ -6,7 +6,7 @@ import { formatMoney } from "@/shared/lib/utils/format";
 import type { ReactNode } from "react";
 import { addToContribution, contributionAmount, contributionText } from "@/shared/lib/contribution";
 
-const SHORTCUTS = [1000, 2000, 5000];
+const SHORTCUTS = [2000, 5000, 10000];
 
 type ContributionFieldProps = {
   id: string;
@@ -40,20 +40,20 @@ export function ContributionField({ id, value, onChange, note, cap, error, autoF
         aria-invalid={!!shown}
         onChange={(event) => onChange(formatMoney(event.target.value))}
       />
-      <div className="flex flex-wrap gap-1.5">
-        {/* Zerar o campo e atalhos que somam ao valor */}
-        <Button type="button" size="xs" variant="outline" onClick={() => onChange(contributionText("0"))}>
+      {/* Zerar o campo e atalhos que somam ao valor */}
+      <div className="grid grid-cols-4 gap-1.5">
+        <Button type="button" size="sm" variant="outline" onClick={() => onChange(contributionText("0"))}>
           R$ 0
         </Button>
         {SHORTCUTS.map((amount) => (
           <Button
             key={amount}
             type="button"
-            size="xs"
+            size="sm"
             variant="outline"
             onClick={() => onChange(addToContribution(value, amount))}
           >
-            {displayMoneyCompact(amount)}
+            +{displayMoneyCompact(amount)}
           </Button>
         ))}
       </div>

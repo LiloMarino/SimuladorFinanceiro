@@ -7,11 +7,12 @@ import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { cn } from "@/shared/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Progress } from "@/shared/components/ui/progress";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { DisabledHint } from "@/shared/components/disabled-hint";
+import { AmountShortcuts } from "@/shared/components/amount-shortcuts";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import {
@@ -21,17 +22,10 @@ import {
   displayMoneyWhole,
   displayRateLabel,
   parseLocalDate,
-  toCentsString,
 } from "@/shared/lib/utils/display";
 import type { FixedIncomeOffer, FixedIncomeQuote } from "@/types";
 import { useBuyFixedIncome } from "@/shared/hooks/mutations/useBuyFixedIncome";
 import { dollarPurchase } from "../lib/carry";
-
-const SHORTCUTS = [
-  { label: "R$ 1 mil", value: "1000" },
-  { label: "R$ 5 mil", value: "5000" },
-  { label: "R$ 10 mil", value: "10000" },
-];
 
 type InvestmentTicketProps = {
   assetId: string;
@@ -60,17 +54,6 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
   // Com o automático ligado a boleta fica só para leitura
   const tradeLock = useTradeLock();
   const locked = tradeLock !== null;
-
-  const setAmount = (value: string) => {
-    setTouched(true);
-    onAmountChange(formatMoney(toCentsString(value)));
-  };
-
-  // O atalho soma ao valor digitado; a conta fecha em centavos inteiros.
-  const addToAmount = (value: string) => {
-    setTouched(true);
-    onAmountChange(formatMoney(String(Math.round(amount * 100) + Number(value) * 100)));
-  };
 
   if (invest.isSuccess) {
     return (
@@ -140,23 +123,25 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
                 onAmountChange(formatMoney(e.target.value));
               }}
             />
-            {invalid && <FieldError>{errorText}</FieldError>}
+            {/* Atalhos: o máximo é o que cabe no caixa e no teto da oferta */}
+            <AmountShortcuts
+              kind="fixed-income-invest"
+              defaultMode="money"
+              value={amountText}
+              onChange={(text) => {
+                setTouched(true);
+                onAmountChange(text);
+              }}
+              max={Number(quote.max_amount)}
+              baseLabel={cap === null ? "do caixa" : "do que cabe no teto"}
+              limitLabel={cap === null ? "caixa" : "teto"}
+              fixed={[1000, 5000, 10000]}
+              maxLabel={maxLabel}
+              disabled={locked}
+              error={invalid && errorText}
+            />
           </Field>
         </form>
-
-        <div className="grid grid-cols-3 gap-1.5">
-          {SHORTCUTS.map((s) => (
-            <Button key={s.label} variant="outline" size="sm" onClick={() => addToAmount(s.value)}>
-              {s.label}
-            </Button>
-          ))}
-          <Button variant="outline" size="sm" onClick={() => setAmount(quote.max_amount)}>
-            {maxLabel}
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setAmount("0")}>
-            Limpar
-          </Button>
-        </div>
 
         <dl className="grid gap-1.5 border-t border-muted pt-3 text-[13px]">
           <div className="flex justify-between">

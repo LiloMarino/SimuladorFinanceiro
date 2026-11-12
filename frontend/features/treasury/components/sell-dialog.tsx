@@ -10,11 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { DisabledHint } from "@/shared/components/disabled-hint";
-import { ShareShortcuts } from "@/shared/components/share-shortcuts";
+import { AmountShortcuts } from "@/shared/components/amount-shortcuts";
 import { KeyValueRow } from "@/shared/components/key-value-row";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
@@ -77,12 +77,6 @@ export function SellDialog({ position, currentDate, onClose }: SellDialogProps) 
 
   const net = quote?.net_amount;
 
-  // Tudo vende o título inteiro; as frações valem sobre o valor de mercado da posição
-  const fillShare = (share: number) => {
-    setAll(share === 1);
-    setPartText(shareToField(position.market_value, share));
-  };
-
   const submit = () =>
     sell.mutate(
       { gross: all ? null : partString },
@@ -123,29 +117,35 @@ export function SellDialog({ position, currentDate, onClose }: SellDialogProps) 
           >
             <Field data-invalid={overMax}>
               <FieldLabel htmlFor="treasury-sell-amount">Quanto vender</FieldLabel>
-              <div className="flex gap-1.5">
-                <Input
-                  id="treasury-sell-amount"
-                  fieldSize="xl"
-                  numeric
-                  inputMode="decimal"
-                  aria-invalid={overMax}
-                  value={amountText}
-                  onChange={(event) => {
-                    setAll(false);
-                    setPartText(formatMoney(event.target.value));
-                  }}
-                />
-                <ShareShortcuts disabled={tradeLock !== null} onPick={fillShare} />
-              </div>
-              {overMax ? (
-                <FieldError>Você tem {displayMoney(max)} nele.</FieldError>
-              ) : (
-                <FieldDescription>
-                  Você tem {displayMoney(max)} nele.
-                  {!all && quote?.remaining != null && ` Fica ${displayMoney(quote.remaining)}.`}
-                </FieldDescription>
-              )}
+              <Input
+                id="treasury-sell-amount"
+                fieldSize="xl"
+                numeric
+                inputMode="decimal"
+                aria-invalid={overMax}
+                value={amountText}
+                onChange={(event) => {
+                  setAll(false);
+                  setPartText(formatMoney(event.target.value));
+                }}
+              />
+              {/* Atalhos: as frações valem sobre o valor de mercado da posição; Tudo vende o título inteiro */}
+              <AmountShortcuts
+                kind="treasury-sell"
+                defaultMode="percent"
+                value={amountText}
+                onChange={(text, meta) => {
+                  setAll(meta.max);
+                  setPartText(text);
+                }}
+                max={max}
+                baseLabel="da posição"
+                limitLabel="posição"
+                fixed={[1000, 5000, 10000]}
+                disabled={tradeLock !== null}
+                error={overMax && `Você tem ${displayMoney(max)} nele.`}
+                note={!all && quote?.remaining != null && ` Fica ${displayMoney(quote.remaining)}.`}
+              />
             </Field>
           </form>
 

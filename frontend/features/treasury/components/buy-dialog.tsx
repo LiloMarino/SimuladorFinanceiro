@@ -12,11 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { DisabledHint } from "@/shared/components/disabled-hint";
-import { ShareShortcuts } from "@/shared/components/share-shortcuts";
+import { AmountShortcuts } from "@/shared/components/amount-shortcuts";
 import { KeyValueRow } from "@/shared/components/key-value-row";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { useBuyFixedIncome } from "@/shared/hooks/mutations/useBuyFixedIncome";
@@ -24,7 +24,6 @@ import { useFixedIncomeProjection } from "@/shared/hooks/queries/useFixedIncomeP
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
-import { shareToField } from "@/shared/lib/utils/money-field";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { TreasuryTitle } from "@/types";
 import { baseRateCaption, displayDay, displayMonthYear, percentOf, pointsOf, treasuryRateLabel } from "../lib/treasury";
@@ -58,12 +57,6 @@ export function BuyDialog({ title, currentDate, onClose }: BuyDialogProps) {
     : overCash
       ? `Você tem ${displayMoney(cash)} em caixa.`
       : null;
-
-  // As frações valem sobre o caixa; "Tudo" investe o caixa inteiro
-  const fillShare = (share: number) => {
-    setTouched(true);
-    setAmountText(shareToField(cash, share));
-  };
 
   const canSubmit = !locked && !invalid && !buy.isPending;
 
@@ -101,29 +94,37 @@ export function BuyDialog({ title, currentDate, onClose }: BuyDialogProps) {
           >
             <Field data-invalid={showError}>
               <FieldLabel htmlFor="treasury-buy-amount">Quanto investir</FieldLabel>
-              <div className="flex gap-1.5">
-                <Input
-                  id="treasury-buy-amount"
-                  fieldSize="xl"
-                  numeric
-                  inputMode="decimal"
-                  disabled={locked}
-                  value={amountText}
-                  aria-invalid={showError}
-                  onChange={(event) => {
-                    setTouched(true);
-                    setAmountText(formatMoney(event.target.value));
-                  }}
-                />
-                <ShareShortcuts disabled={locked || !quote} onPick={fillShare} />
-              </div>
-              {showError ? (
-                <FieldError>
-                  {zero ? "Digite quanto quer investir." : `Você tem ${displayMoney(cash)} em caixa.`}
-                </FieldError>
-              ) : (
-                quote && <FieldDescription>Caixa: {displayMoney(cash)}</FieldDescription>
-              )}
+              <Input
+                id="treasury-buy-amount"
+                fieldSize="xl"
+                numeric
+                inputMode="decimal"
+                disabled={locked}
+                value={amountText}
+                aria-invalid={showError}
+                onChange={(event) => {
+                  setTouched(true);
+                  setAmountText(formatMoney(event.target.value));
+                }}
+              />
+              {/* Atalhos: as frações valem sobre o caixa */}
+              <AmountShortcuts
+                kind="treasury-buy"
+                defaultMode="percent"
+                value={amountText}
+                onChange={(text) => {
+                  setTouched(true);
+                  setAmountText(text);
+                }}
+                max={quote ? cash : undefined}
+                baseLabel="do caixa"
+                limitLabel="caixa"
+                fixed={[1000, 5000, 10000]}
+                disabled={locked}
+                error={
+                  showError && (zero ? "Digite quanto quer investir." : `Você tem ${displayMoney(cash)} em caixa.`)
+                }
+              />
             </Field>
           </form>
 

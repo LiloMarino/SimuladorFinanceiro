@@ -6,11 +6,12 @@ import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { DailyLiquidityBadge } from "@/shared/components/daily-liquidity-badge";
 import { Button } from "@/shared/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { DisabledHint } from "@/shared/components/disabled-hint";
+import { AmountShortcuts } from "@/shared/components/amount-shortcuts";
 import { cn, normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import {
@@ -20,17 +21,11 @@ import {
   displayPercent,
   displayRateLabel,
   parseLocalDate,
-  toCentsString,
 } from "@/shared/lib/utils/display";
 import type { FixedIncomeOffer, FixedIncomePosition, FixedIncomeRedemptionQuote } from "@/types";
 import { useRedeemFixedIncome } from "@/shared/hooks/mutations/useRedeemFixedIncome";
 import { useFixedIncomeRedemption } from "../hooks/queries/useFixedIncomeRedemption";
 import { isDollarAccount } from "../lib/daily-liquidity";
-
-const SHORTCUTS = [
-  { label: "R$ 1 mil", value: "1000" },
-  { label: "R$ 5 mil", value: "5000" },
-];
 
 type RedemptionTicketProps = {
   assetId: string;
@@ -130,11 +125,6 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
   // Só vale a cotação do valor que está na tela; a anterior fica de pé até a nova chegar
   const current = quote && !zero && !over && Number(quote.amount) === amount ? quote : undefined;
 
-  const setAmount = (value: string) => {
-    setTouched(true);
-    setAmountText(formatMoney(toCentsString(value)));
-  };
-
   const submit = () => {
     if (!current) return;
     redeem.mutate({ amount: normalizeNumberString(amountText) }, { onSuccess: () => onDone(current) });
@@ -223,34 +213,29 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
                 setAmountText(formatMoney(e.target.value));
               }}
             />
-            {invalid && (
-              <FieldError>
-                {zero
+            {/* Atalhos: o máximo é o que dá para receber hoje, já descontado o IR */}
+            <AmountShortcuts
+              kind="fixed-income-redeem"
+              defaultMode="money"
+              value={amountText}
+              onChange={(text) => {
+                setTouched(true);
+                setAmountText(text);
+              }}
+              max={quote ? max : undefined}
+              baseLabel="do que dá para receber já sem IR"
+              limitLabel="que dá para receber sem IR"
+              fixed={[1000, 5000, 10000]}
+              disabled={locked}
+              error={
+                invalid &&
+                (zero
                   ? "Digite quanto quer receber."
-                  : `Dá pra receber até ${displayMoney(max)} hoje, já descontado o IR. Use “Tudo” pra resgatar tudo.`}
-              </FieldError>
-            )}
+                  : `Dá pra receber até ${displayMoney(max)} hoje, já descontado o IR. Use “Tudo” pra resgatar tudo.`)
+              }
+            />
           </Field>
         </form>
-
-        <div className="grid grid-cols-4 gap-1.5">
-          {SHORTCUTS.map((s) => (
-            <Button key={s.label} variant="outline" size="sm" onClick={() => setAmount(s.value)}>
-              {s.label}
-            </Button>
-          ))}
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!quote}
-            onClick={() => setAmount(String(Math.floor(max * 50) / 100))}
-          >
-            Metade
-          </Button>
-          <Button variant="outline" size="sm" disabled={!quote} onClick={() => setAmount(quote?.max_amount ?? "0")}>
-            Tudo
-          </Button>
-        </div>
 
         {error && !quote ? (
           <div className="grid gap-1.5 rounded-lg border border-border bg-subtle px-3 py-2.5 text-[13px]">

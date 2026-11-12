@@ -11,20 +11,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { cn } from "@/shared/lib/utils";
 import { normalizeNumberString } from "@/shared/lib/utils";
-import { displayDayMonth, displayMoney, displayMoneyCompact } from "@/shared/lib/utils/display";
+import { displayDayMonth, displayMoney } from "@/shared/lib/utils/display";
 import { formatMoney } from "@/shared/lib/utils/format";
 import type { ElectionPanel } from "@/types";
 import { useDonate } from "../hooks/mutations/useDonate";
 import { useToday } from "../hooks/useToday";
 import { countdownLabel, monthlyYield } from "../lib/election";
-import { addToContribution } from "@/shared/lib/contribution";
 import { runoffLeaderId } from "../lib/runoff";
 import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 import { DisabledHint } from "@/shared/components/disabled-hint";
+import { AmountShortcuts } from "@/shared/components/amount-shortcuts";
 
 type DonateDialogProps = {
   open: boolean;
@@ -32,8 +32,6 @@ type DonateDialogProps = {
   panel: ElectionPanel;
   cash: string | undefined;
 };
-
-const SHORTCUTS = [1000, 2000, 5000];
 
 /** Doar a um finalista entre os turnos: a favor de quem lidera ou contra. */
 export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogProps) {
@@ -135,29 +133,29 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
                   aria-invalid={overCash || overCap}
                   onChange={(event) => setText(formatMoney(event.target.value))}
                 />
-                <div className="flex flex-wrap gap-1.5">
-                  {SHORTCUTS.map((shortcut) => (
-                    <Button
-                      key={shortcut}
-                      type="button"
-                      size="xs"
-                      variant="outline"
-                      onClick={() => setText(addToContribution(text, shortcut))}
-                    >
-                      {displayMoneyCompact(shortcut)}
-                    </Button>
-                  ))}
-                </div>
-                {overCash ? (
-                  <FieldError>Seu caixa hoje é {displayMoney(cash)}.</FieldError>
-                ) : overCap ? (
-                  <FieldError>O teto é {displayMoney(panel.contribution_cap)} por doação.</FieldError>
-                ) : (
-                  <FieldDescription>
-                    Sai do seu caixa de uma vez e vira verba do {target?.abbr ?? "finalista"} nos{" "}
-                    {countdownLabel(today, panel.dates.runoff)} até o 2º turno.
-                  </FieldDescription>
-                )}
+                {/* Atalhos: as frações valem sobre o caixa */}
+                <AmountShortcuts
+                  kind="donation"
+                  defaultMode="money"
+                  value={text}
+                  onChange={(next) => setText(next)}
+                  max={cash === undefined ? undefined : Number(cash)}
+                  baseLabel="do caixa"
+                  limitLabel="caixa"
+                  fixed={[5000, 10000, 20000]}
+                  error={
+                    overCash
+                      ? `Seu caixa hoje é ${displayMoney(cash)}.`
+                      : overCap && `O teto é ${displayMoney(panel.contribution_cap)} por doação.`
+                  }
+                  note={
+                    <>
+                      {" "}
+                      Sai do seu caixa de uma vez e vira verba do {target?.abbr ?? "finalista"} nos{" "}
+                      {countdownLabel(today, panel.dates.runoff)} até o 2º turno.
+                    </>
+                  }
+                />
               </Field>
             </form>
 

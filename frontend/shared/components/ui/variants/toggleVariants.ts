@@ -7,8 +7,9 @@ export const toggleVariants = cva(
       variant: {
         default: "bg-transparent",
         outline: "border border-input bg-transparent hover:bg-muted",
+        // `data-peek` marca o item que o Shift seguro mostra no lugar do salvo: contornado, sem ficar pressionado
         segmented:
-          "rounded-md px-3 text-[13px] text-secondary-foreground hover:bg-transparent hover:text-foreground aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-xs",
+          "rounded-md px-3 text-[13px] text-secondary-foreground hover:bg-transparent hover:text-foreground aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-xs data-peek:bg-info-soft data-peek:text-info data-peek:inset-ring-1 data-peek:inset-ring-info",
         // Lista vertical de opções (as lentes do mapa): a ligada ganha fundo suave e uma barra à esquerda
         list: "relative rounded-lg text-[13px] text-faint-foreground before:absolute before:inset-y-2 before:left-0 before:w-[3px] before:rounded-full before:bg-info before:opacity-0 aria-pressed:bg-info-soft aria-pressed:text-info aria-pressed:before:opacity-100 aria-pressed:hover:bg-info-soft aria-pressed:hover:text-info",
         // Troca de modo da página (manual | automático): itens altos, em destaque
