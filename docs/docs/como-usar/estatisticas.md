@@ -155,9 +155,9 @@ Com pouco tempo de partida, anualizar engana: 10 dias com +2% viram ~64% ao ano.
 | Métrica | O que mede | Como ler |
 | --- | --- | --- |
 | **Queda máxima** (drawdown) | A maior queda a partir de um pico. Ex.: subiu a R$ 15.000 e caiu a R$ 12.000 → 20% | Quanto menor, melhor; acima de ~30% é uma queda que a maioria não aguenta sem vender |
-| **Volatilidade anual** | O tamanho típico da oscilação diária, em ritmo de um ano (desvio-padrão × √252) | ~1% é renda fixa; ~25% é uma carteira só de ações |
-| **Índice de Sharpe** | (retorno anual − CDI anual) ÷ volatilidade. Ex.: 18% de retorno, CDI de 10%, volatilidade de 16% → 0,50 | Abaixo de 0 perdeu para o CDI; perto de 1 é bom; acima de 2 é raro |
-| **Índice de Sortino** | Como o Sharpe, mas só a oscilação dos dias abaixo do CDI conta como risco | Mesma leitura do Sharpe; fica acima dele quando as oscilações são mais para cima |
+| **Volatilidade anual** | O tamanho típico da oscilação diária, em ritmo de um ano (desvio-padrão × √252). A oscilação é medida numa escala em que queda e alta do mesmo tamanho se anulam: cair 50% e subir 100% deixam o patrimônio igual, e a média dos dois dias é 0 | ~1% é renda fixa; ~25% é uma carteira só de ações |
+| **Índice de Sharpe** | (retorno anual − CDI anual) ÷ volatilidade. Ex.: 18% de retorno, CDI de 10%, volatilidade de 16% → 0,50. Os retornos diários entram na mesma escala da volatilidade, em que −50% e +100% se anulam | Abaixo de 0 perdeu para o CDI; perto de 1 é bom; acima de 2 é raro |
+| **Índice de Sortino** | Como o Sharpe (mesma escala dos retornos), mas só a oscilação dos dias abaixo do CDI conta como risco | Mesma leitura do Sharpe; fica acima dele quando as oscilações são mais para cima |
 | **Maior tempo abaixo do pico** | A maior sequência de pregões até voltar ao topo. Ex.: caiu em março e recuperou em setembro → ~126 pregões | Quanto menor, melhor; 252 pregões é um ano inteiro abaixo do topo |
 | **Pior mês** | O pior retorno mensal da cota. Ex.: −5% → cada R$ 1.000 virou R$ 950 | Quanto mais perto de zero, melhor |
 | **Amostra** | Quantos retornos diários entraram no cálculo | Abaixo de ~63 pregões, as métricas mudam muito de um dia para o outro |

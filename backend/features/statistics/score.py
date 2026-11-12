@@ -97,7 +97,7 @@ class _ScoreWalk:
         self._ibov_base = last_known_value(IndicatorSeries.IBOV, first.snapshot_date)
         self._ibov_level = self._ibov_base
         self._cdi_growth = Decimal(1)
-        # Os retornos do dia: quantos, a cota, o pico dela e as somas da volatilidade
+        # Os retornos do dia: quantos, a cota, o pico dela e as somas (logarítmicas) da volatilidade
         self._returns = 0
         self._quota = self._peak = Decimal(1)
         self._max_drawdown = Decimal(0)
@@ -133,10 +133,13 @@ class _ScoreWalk:
         self._max_drawdown = max(self._max_drawdown, drawdown)
         self._underwater = self._underwater + 1 if drawdown > 0 else 0
         self._longest_underwater = max(self._longest_underwater, self._underwater)
-        self._sum += daily
-        self._squares += daily * daily
 
-        excess = daily - cdi
+        # Volatilidade, Sharpe e Sortino somam o retorno em escala logarítmica
+        logged = risk.log_return(daily)
+        self._sum += logged
+        self._squares += logged * logged
+
+        excess = logged - risk.cdi_log_return(day)
         self._excess += excess
         self._downside += min(excess, Decimal(0)) ** 2
 

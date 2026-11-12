@@ -119,6 +119,25 @@ def oscillating(days: int) -> list[str]:
     return [str(10000 + (i % 7) * 37 + i * 3) for i in range(days)]
 
 
+def test_near_zero_networth_does_not_inflate_the_score(indicators: SetIndicator):
+    """
+    De 30.000 a 0,01 e de volta a 7.500 no meio de 63 pregões parados: a ida e a
+    volta contam como oscilação: Sharpe e Sortino saem negativos, a volatilidade dá
+    0 ponto e a nota fica na casa das dezenas, e não dos milhões.
+    """
+    networths = ["30000"] * 31 + ["0.01", "7500"] + ["7500"] * 31
+
+    score = player_score(history(networths))
+
+    assert score is not None
+    metrics = {m.metric: m for a in score.axes for m in a.metrics}
+    sharpe, sortino = metrics["sharpe_ratio"].value, metrics["sortino_ratio"].value
+    assert sharpe is not None and sharpe < 0
+    assert sortino is not None and sortino < 0
+    assert metrics["annual_volatility"].points == 0
+    assert score.total < 100
+
+
 def test_score_history_ends_at_todays_score(indicators: SetIndicator):
     """O último ponto é a nota sobre todos os snapshots, no último dia."""
     days = history(oscillating(150))

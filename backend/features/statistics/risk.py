@@ -24,6 +24,11 @@ VOLATILITY_ANNUALIZER = Decimal(BUSINESS_DAYS_PER_YEAR).sqrt()
 # Pregões da volatilidade em janela móvel: ~3 meses
 ROLLING_WINDOW = 63
 
+# Menor fator diário (1 + retorno) que o logaritmo aceita: a perda total do dia
+# entra como -99,9999999% porque ln(0) não existe. O piso fica abaixo de qualquer
+# queda com patrimônio positivo, então a ida a R$ 0,01 e a volta se anulam.
+LOG_FLOOR = Decimal("1e-9")
+
 type DailyReturns = list[tuple[date, Decimal]]
 
 
@@ -47,6 +52,14 @@ def daily_returns(history: list[PatrimonialHistoryDTO]) -> DailyReturns:
         gain = curr.total_networth - contribution - prev.total_networth
         days.append((curr.snapshot_date, gain / prev.total_networth))
     return days
+
+
+def log_return(daily: Decimal) -> Decimal:
+    """
+    O retorno do dia em escala logarítmica, ln(1 + retorno): queda e alta do mesmo
+    tamanho se anulam (-50% vale -0,693 e +100% vale +0,693).
+    """
+    return max(1 + daily, LOG_FLOOR).ln()
 
 
 def quota_series(returns: list[Decimal]) -> list[Decimal]:
@@ -90,17 +103,17 @@ def time_underwater(days: DailyReturns) -> int | None:
 
 
 def annual_volatility(returns: list[Decimal]) -> Decimal | None:
-    """Desvio-padrão amostral dos retornos diários x √252."""
+    """Desvio-padrão amostral dos retornos diários (em escala logarítmica) x √252."""
     if len(returns) < 2:
         return None
-    return statistics.stdev(returns) * VOLATILITY_ANNUALIZER
+    return statistics.stdev(log_return(r) for r in returns) * VOLATILITY_ANNUALIZER
 
 
 def rolling_volatility(
     days: DailyReturns, window: int = ROLLING_WINDOW
 ) -> DailyReturns:
     """Volatilidade anual dos últimos `window` pregões, a partir do pregão `window`."""
-    returns = [r for _, r in days]
+    returns = [log_return(r) for _, r in days]
     if len(returns) < window:
         return []
 
@@ -136,8 +149,13 @@ def annual_return(days: DailyReturns) -> Decimal | None:
 
 
 # As taxas já calculadas valem para a série em memória a que pertencem: quando o
-# repositório recarrega o CDI, a série é outra e a tabela recomeça vazia.
-_cdi_memo: tuple[IndicatorHistory | None, dict[date, Decimal]] = (None, {})
+# repositório recarrega o CDI, a série é outra e as tabelas recomeçam vazias. A
+# tabela logarítmica nasce junto da simples, e cada taxa entra nela na primeira leitura.
+_cdi_memo: tuple[IndicatorHistory | None, dict[date, Decimal], dict[date, Decimal]] = (
+    None,
+    {},
+    {},
+)
 
 
 def cdi_return(day: date) -> Decimal:
@@ -148,7 +166,7 @@ def cdi_return(day: date) -> Decimal:
     global _cdi_memo
     history = repository.economic.get_history(IndicatorSeries.CDI)
     if _cdi_memo[0] is not history:
-        _cdi_memo = (history, {})
+        _cdi_memo = (history, {}, {})
     rates = _cdi_memo[1]
     rate = rates.get(day)
     if rate is None:
@@ -157,15 +175,25 @@ def cdi_return(day: date) -> Decimal:
     return rate
 
 
+def cdi_log_return(day: date) -> Decimal:
+    """O `cdi_return` de `day` em escala logarítmica, para medir o excesso sobre o CDI."""
+    rate = cdi_return(day)
+    log_rates = _cdi_memo[2]
+    log_rate = log_rates.get(day)
+    if log_rate is None:
+        log_rate = log_rates[day] = log_return(rate)
+    return log_rate
+
+
 def sharpe_ratio(days: DailyReturns, volatility: Decimal | None) -> Decimal | None:
     """
     (retorno anual - CDI anual) ÷ volatilidade anual, com os anuais como a média
-    diária x 252.
+    diária x 252, ambos em escala logarítmica.
     """
     if not volatility:
         return None
 
-    excess = statistics.mean(r - cdi_return(day) for day, r in days)
+    excess = statistics.mean(log_return(r) - cdi_log_return(day) for day, r in days)
     return excess * BUSINESS_DAYS_PER_YEAR / volatility
 
 
@@ -177,7 +205,7 @@ def sortino_ratio(days: DailyReturns) -> Decimal | None:
     if len(days) < 2:
         return None
 
-    excess = [r - cdi_return(day) for day, r in days]
+    excess = [log_return(r) - cdi_log_return(day) for day, r in days]
     downside = (
         sum((min(e, Decimal(0)) ** 2 for e in excess), Decimal(0)) / len(excess)
     ).sqrt() * VOLATILITY_ANNUALIZER

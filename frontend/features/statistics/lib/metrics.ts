@@ -92,7 +92,7 @@ export const ANNUAL_VOLATILITY: MetricInfo = {
   label: "Volatilidade anual",
   description: "Quanto o patrimônio sobe e desce de um dia para o outro",
   definition:
-    "Desvio-padrão dos retornos diários × √252 dias úteis: o tamanho típico da oscilação, em ritmo de um ano.",
+    "Desvio-padrão dos retornos diários × √252 dias úteis: o tamanho típico da oscilação, em ritmo de um ano. A conta usa uma escala em que uma queda e uma alta do mesmo tamanho se anulam: cair 50% e subir 100% deixam o patrimônio igual.",
   example: "Ex.: ~1% ao ano é renda fixa; ~25% é uma carteira só de ações.",
   reading: "Quanto menor, mais tranquilo o caminho. Não diz se o resultado foi bom, só o quanto balançou.",
   format: percent,
@@ -109,7 +109,8 @@ export const ROLLING_VOLATILITY: MetricInfo = {
 export const SHARPE_RATIO: MetricInfo = {
   label: "Índice de Sharpe",
   description: "Retorno acima do CDI por unidade de oscilação",
-  definition: "(retorno anual − CDI anual) ÷ volatilidade anual. Mede se o risco corrido foi pago.",
+  definition:
+    "(retorno anual − CDI anual) ÷ volatilidade anual. Mede se o risco corrido foi pago. Os retornos diários entram numa escala em que queda e alta do mesmo tamanho se anulam (−50% e +100% dão média 0).",
   example: "Ex.: retorno de 18%, CDI de 10%, volatilidade de 16% → 0,50.",
   reading: "Abaixo de 0 perdeu para o CDI; perto de 1 é bom; acima de 2 é raro.",
   format: ratio,
@@ -119,7 +120,7 @@ export const SORTINO_RATIO: MetricInfo = {
   label: "Índice de Sortino",
   description: "Como o Sharpe, mas só a oscilação para baixo conta como risco",
   definition:
-    "(retorno anual − CDI anual) ÷ oscilação dos dias que renderam menos que o CDI. Subir muito de uma vez não é punido.",
+    "(retorno anual − CDI anual) ÷ oscilação dos dias que renderam menos que o CDI. Subir muito de uma vez não é punido. Os retornos diários entram numa escala em que queda e alta do mesmo tamanho se anulam (−50% e +100% dão média 0).",
   example: "Ex.: 8 p.p. acima do CDI com oscilação de queda de 10% ao ano → 0,80.",
   reading:
     "Abaixo de 0 perdeu para o CDI; perto de 1 é bom; acima de 2 é raro. Fica acima do Sharpe quando as oscilações são mais para cima.",

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import statistics
 from datetime import date, timedelta
 from decimal import Decimal
 
@@ -109,33 +110,71 @@ def test_flat_series_has_no_volatility_and_no_sharpe():
 
 
 def test_volatility_and_sharpe_of_a_known_series(cdi):
-    """Retornos de +2% e -1%: média 0,5%, desvio-padrão 0,015·√2, anualizados por 252."""
+    """Retornos de +2% e -1% em escala logarítmica, anualizados por 252."""
     cdi("0.04")
     days = returns_of("10000", "10200", "10098")
     volatility = risk.annual_volatility([r for _, r in days])
     sharpe = risk.sharpe_ratio(days, volatility)
 
-    expected_volatility = 0.015 * math.sqrt(2) * math.sqrt(252)
-    cdi_daily = 0.0004
+    logs = [math.log(1.02), math.log(0.99)]
+    expected_volatility = statistics.stdev(logs) * math.sqrt(252)
+    cdi_daily = math.log(1.0004)
     assert volatility is not None and sharpe is not None
     assert float(volatility) == pytest.approx(expected_volatility)
     assert float(sharpe) == pytest.approx(
-        (0.005 - cdi_daily) * 252 / expected_volatility
+        (statistics.mean(logs) - cdi_daily) * 252 / expected_volatility
     )
 
 
 def test_sortino_counts_only_days_below_cdi(cdi):
     """
-    Excessos sobre o CDI de +1,96% e -1,04%: o desvio para baixo é
-    √((0² + 0,0104²) ÷ 2) e só ele entra no denominador.
+    Só o dia de -1% rende menos que o CDI: o desvio para baixo é
+    √((0² + excesso²) ÷ 2) e só ele entra no denominador.
     """
     cdi("0.04")
     days = returns_of("10000", "10200", "10098")
     sortino = risk.sortino_ratio(days)
 
-    downside = math.sqrt(0.0104**2 / 2) * math.sqrt(252)
+    cdi_daily = math.log(1.0004)
+    excesses = [math.log(1.02) - cdi_daily, math.log(0.99) - cdi_daily]
+    downside = math.sqrt(excesses[1] ** 2 / 2) * math.sqrt(252)
     assert sortino is not None
-    assert float(sortino) == pytest.approx((0.005 - 0.0004) * 252 / downside)
+    assert float(sortino) == pytest.approx(statistics.mean(excesses) * 252 / downside)
+
+
+def test_a_drop_and_the_rise_that_undoes_it_cancel_in_the_average():
+    """-50% e +100% deixam o patrimônio igual: a média dos retornos logarítmicos é 0."""
+    days = returns_of("10000", "5000", "10000")
+
+    assert [round(float(risk.log_return(r)), 6) for _, r in days] == [
+        round(-math.log(2), 6),
+        round(math.log(2), 6),
+    ]
+    assert float(sum(risk.log_return(r) for _, r in days)) == pytest.approx(
+        0, abs=1e-20
+    )
+
+
+def test_near_zero_networth_counts_as_oscillation_and_not_as_gain(cdi):
+    """
+    O patrimônio vai de 30.000 a 0,01 e volta a 7.500 no meio de 63 pregões que
+    rendem o CDI: a ida e a volta contam como risco, então Sharpe e Sortino saem
+    negativos (com retorno simples, o dia da volta puxava os dois para milhares).
+    """
+    cdi("0.04")
+    rate = Decimal("1.0004")
+    before = [Decimal(30000) * rate**i for i in range(31)]
+    after = [Decimal(7500) * rate**i for i in range(1, 32)]
+    values = [*before, Decimal("0.01"), Decimal(7500), *after]
+    days = returns_of(*[str(v) for v in values])
+
+    volatility = risk.annual_volatility([r for _, r in days])
+    sharpe = risk.sharpe_ratio(days, volatility)
+    sortino = risk.sortino_ratio(days)
+
+    assert sharpe is not None and sortino is not None
+    assert sharpe < 0
+    assert sortino < 0
 
 
 def test_short_series_leaves_metrics_undefined():
