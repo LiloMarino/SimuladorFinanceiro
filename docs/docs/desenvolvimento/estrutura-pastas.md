@@ -52,9 +52,8 @@ SimuladorFinanceiro/
 ├── .vscode/                            # Configurações do Visual Studio Code para o projeto
 ├── backend/                            # Código-fonte do servidor Python (FastAPI)
 │   ├── config/                         # Configurações da aplicação (variáveis de ambiente, TOML)
-│   ├── core/                           # Infraestrutura central (database, logger, models, utils)
+│   ├── core/                           # Base do backend (database, logger, models, utils): depende só de si, de config e de types
 │   │   ├── decorators/                 # Decoradores reutilizáveis (transações)
-│   │   ├── dependencies/               # Dependências do FastAPI (injeção de dependência)
 │   │   ├── dto/                        # Data Transfer Objects para comunicação backend->frontend e tipagem forte
 │   │   │   └── events/                 # DTOs específicos para eventos da simulação
 │   │   ├── enum/                       # Enumerações globais (tipos, status, etc)
@@ -83,6 +82,7 @@ SimuladorFinanceiro/
 │   ├── migrations/                     # Migrations do Alembic (schema do banco)
 │   │   └── versions/                   # Uma revisão por mudança de schema
 │   ├── routes/                         # Endpoints REST da API (routers do FastAPI)
+│   │   └── dependencies/               # Dependências do FastAPI (injeção de dependência)
 │   └── types/                          # Definições de tipos Python compartilhados
 ├── docs/                               # Documentação do projeto (Docusaurus)
 ├── frontend/                           # Aplicação React + TypeScript (Vite)

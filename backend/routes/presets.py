@@ -4,7 +4,6 @@ from fastapi import APIRouter, status
 from pydantic import BaseModel, StringConstraints, ValidationError
 
 from backend.core import repository
-from backend.core.dependencies import HostVerified
 from backend.core.dto.preset import (
     PRESET_NAME_MAX_LENGTH,
     PresetDTO,
@@ -18,6 +17,7 @@ from backend.core.exceptions.http_exceptions import (
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import required
+from backend.routes.dependencies import HostVerified
 from backend.routes.simulation import (
     SimulationRulesRequest,
     notify_preset_changed,

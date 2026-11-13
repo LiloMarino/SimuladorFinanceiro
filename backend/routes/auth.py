@@ -4,12 +4,12 @@ from fastapi import APIRouter, Request, Response, status
 from pydantic import BaseModel, Field
 
 from backend.core import repository
-from backend.core.dependencies import ClientID
 from backend.core.dto.base import NAME_MAX_LENGTH
 from backend.core.dto.session import SessionDTO
 from backend.core.dto.user import UserDTO
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.user_manager import UserManager
+from backend.routes.dependencies import ClientID
 
 auth_router = APIRouter(prefix="/api", tags=["Authentication"])
 

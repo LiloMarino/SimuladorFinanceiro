@@ -10,10 +10,10 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from backend.core import repository
-from backend.core.dependencies.simulation import get_active_simulation
 from backend.core.enum import NewsType
 from backend.features.notifications import news
 from backend.features.notifications.news import Headline
+from backend.routes.dependencies.simulation import get_active_simulation
 from backend.routes.news import news_router
 from tests.fakes import simulation_settings
 

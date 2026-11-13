@@ -13,7 +13,6 @@ from fastapi.testclient import TestClient
 
 from backend import config
 from backend.core import metrics as metrics_module
-from backend.core.dependencies import get_current_user
 from backend.core.dto.user import UserDTO
 from backend.core.metrics import (
     SLOW_MS,
@@ -25,6 +24,7 @@ from backend.core.metrics import (
 )
 from backend.routes import debug as debug_routes
 from backend.routes.debug import debug_router
+from backend.routes.dependencies import get_current_user
 
 
 @pytest.fixture

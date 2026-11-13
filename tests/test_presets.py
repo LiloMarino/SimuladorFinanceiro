@@ -8,11 +8,11 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from backend.core import repository
-from backend.core.dependencies import get_client_id, verify_host
 from backend.core.enum import GameType, PlayerGrouping, PresetRuleGroup
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.user_manager import UserManager
 from backend.routes import simulation as simulation_routes
+from backend.routes.dependencies import get_client_id, verify_host
 from backend.routes.presets import presets_router
 from tests.fakes import client, simulation_settings
 

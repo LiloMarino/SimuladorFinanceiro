@@ -9,8 +9,8 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from backend.core.dependencies.simulation import get_active_simulation
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
+from backend.routes.dependencies.simulation import get_active_simulation
 from backend.routes.operation import operation_router
 
 START = date(2023, 1, 2)

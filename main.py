@@ -61,12 +61,12 @@ from backend.core.metrics import MetricsMiddleware, metrics
 from backend.core.migration import MigrationError, migrate
 from backend.core.profiling import profile_routes
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
-from backend.core.runtime.tunnel_manager import TunnelManager
 from backend.core.version import get_version
 from backend.features.import_data.indicators import refresh_indicators
 from backend.features.realtime.ws_broker import SocketBroker
 from backend.features.realtime.ws_handlers import register_ws_handlers
 from backend.features.simulation.simulation_loop import simulation_controller
+from backend.features.tunnel.tunnel_manager import TunnelManager
 from backend.routes import register_routes
 
 logger = logging.getLogger("backend.main")

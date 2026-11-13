@@ -10,9 +10,9 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from backend.core import repository
-from backend.core.dependencies import get_current_user
-from backend.core.dependencies.simulation import get_active_simulation
 from backend.core.dto.user import UserDTO
+from backend.routes.dependencies import get_current_user
+from backend.routes.dependencies.simulation import get_active_simulation
 from backend.routes.government import government_router
 from tests.fakes import client
 

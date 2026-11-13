@@ -6,11 +6,11 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from backend import config
-from backend.core.dependencies import HostVerified
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.metrics import metrics
 from backend.core.profiling import profiler
 from backend.core.runtime.user_manager import UserManager
+from backend.routes.dependencies import HostVerified
 
 
 def require_debug() -> None:

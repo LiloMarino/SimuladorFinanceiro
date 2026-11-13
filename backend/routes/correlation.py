@@ -3,7 +3,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query
 
-from backend.core.dependencies import ClientID
 from backend.core.dto.correlation import (
     CorrelationAssetsDTO,
     CorrelationMatrixDTO,
@@ -14,6 +13,7 @@ from backend.features.correlation.correlation import (
     build_correlation_assets,
     build_correlation_matrix,
 )
+from backend.routes.dependencies import ClientID
 
 correlation_router = APIRouter(prefix="/api/correlation", tags=["Correlation"])
 

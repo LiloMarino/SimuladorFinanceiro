@@ -2,7 +2,7 @@ from backend.core import repository
 from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.user import UserDTO
 from backend.core.runtime.user_manager import BotConfig
-from backend.features.strategy.registry import STRATEGIES
+from backend.features.strategy.registry import STRATEGIES, get_strategy
 from backend.features.strategy.state import derive_state
 
 
@@ -24,7 +24,9 @@ def saved_bots(simulation_id: int) -> list[tuple[UserDTO, BotConfig]]:
         key = state.key or (state.error.strategy_key if state.error else None)
         params = state.params or (state.error.params if state.error else None)
         if key in STRATEGIES:
-            result.append((bot, BotConfig(key, params or {}, locked=True)))
+            result.append(
+                (bot, BotConfig(key, get_strategy(key).name, params or {}, locked=True))
+            )
     return result
 
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from backend.core.dependencies import ActiveSimulation, CurrentUser
 from backend.core.dto.pending import PendingDTO
+from backend.routes.dependencies import ActiveSimulation, CurrentUser
 
 pending_router = APIRouter(prefix="/api/pending", tags=["Pending"])
 

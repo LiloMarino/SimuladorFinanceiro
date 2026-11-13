@@ -24,6 +24,7 @@ from backend.core.utils import next_business_day
 from backend.features.import_data.coverage import get_series_coverage
 from backend.features.simulation.saved_bots import saved_bots
 from backend.features.statistics.score import MIN_SCORE_DAYS
+from backend.features.strategy.bots import resolve_bot
 
 # Os mesmos níveis do impacto de preço da folha de regras: (k, dias de decaimento)
 PRICE_IMPACT_LEVELS: dict[BacktestPriceImpact, tuple[float, int]] = {
@@ -103,7 +104,7 @@ def resolve(
             raise UnprocessableEntityError("Dois participantes usam a mesma cor.")
         names.add(nickname.casefold())
         colors.add(participant.color)
-        bot = UserManager.bot_config(
+        bot = resolve_bot(
             participant.strategy_key, participant.params, config.start_date
         )
         resolved.append(

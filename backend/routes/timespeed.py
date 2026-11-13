@@ -4,11 +4,11 @@ from decimal import Decimal
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.enum import PauseReason
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import SpeedUpdateEventDTO
 from backend.features.simulation.simulation_loop import simulation_controller
+from backend.routes.dependencies import ActiveSimulation, ClientID
 
 timespeed_router = APIRouter(prefix="/api", tags=["Simulation Control"])
 

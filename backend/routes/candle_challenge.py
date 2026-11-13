@@ -1,6 +1,5 @@
 from fastapi import APIRouter, status
 
-from backend.core.dependencies import ClientID
 from backend.core.dto.candle_challenge import (
     AnswerChallengeRequest,
     CandleChallengeViewDTO,
@@ -10,6 +9,7 @@ from backend.core.exceptions.http_exceptions import ConflictError, ForbiddenErro
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.candle_challenge.game import candle_game
+from backend.routes.dependencies import ClientID
 
 candle_challenge_router = APIRouter(
     prefix="/api/candle-challenge", tags=["Candle challenge"]

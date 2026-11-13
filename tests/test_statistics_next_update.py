@@ -4,8 +4,8 @@ from datetime import date
 from types import SimpleNamespace
 from typing import cast
 
-from backend.core.dependencies import ActiveSimulation
 from backend.features.simulation.simulation import Simulation
+from backend.routes.dependencies import ActiveSimulation
 from backend.routes.statistics import get_next_update
 
 

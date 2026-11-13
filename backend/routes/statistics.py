@@ -4,7 +4,6 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
-from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.dto.bot import BotReportDTO
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.economy import EconomyPanelDTO
@@ -31,6 +30,7 @@ from backend.features.statistics.report import (
     build_risk_report,
     build_score_history_report,
 )
+from backend.routes.dependencies import ActiveSimulation, ClientID
 
 statistics_router = APIRouter(prefix="/api", tags=["Statistics"])
 

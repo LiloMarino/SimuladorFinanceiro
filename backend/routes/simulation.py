@@ -7,7 +7,6 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from backend import config
 from backend.core import repository
-from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.base import NAME_MAX_LENGTH
 from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.goal import GoalProgressDTO
@@ -60,11 +59,11 @@ from backend.core.enum import (
 )
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
-from backend.core.runtime.room_preparation import RoomPreparation
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.backtest import service as backtest_service
+from backend.features.government.room_preparation import RoomPreparation
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     SimulationDeletedEventDTO,
@@ -77,10 +76,12 @@ from backend.features.simulation.saved_simulation import describe
 from backend.features.simulation.simulation_loader import SimulationLoader
 from backend.features.simulation.simulation_loop import simulation_controller
 from backend.features.strategy import catalog
+from backend.features.strategy.bots import resolve_bot
 from backend.features.variable_income.price_impact import (
     PREVIEW_VOLUME_SHARE,
     preview_curve,
 )
+from backend.routes.dependencies import ClientID, HostVerified
 
 simulation_router = APIRouter(prefix="/api/simulation", tags=["Simulation"])
 
@@ -785,8 +786,7 @@ def add_bot(payload: RoomBotRequest, _: HostVerified):
     """
     bot = UserManager.add_bot(
         payload.nickname,
-        payload.strategy_key,
-        payload.params,
+        resolve_bot(payload.strategy_key, payload.params),
         payload.color,
         payload.team,
     )
@@ -806,8 +806,7 @@ def update_bot(nickname: str, payload: RoomBotRequest, _: HostVerified):
     UserManager.update_bot(
         nickname,
         payload.nickname,
-        payload.strategy_key,
-        payload.params,
+        resolve_bot(payload.strategy_key, payload.params),
         payload.color,
         payload.team,
     )

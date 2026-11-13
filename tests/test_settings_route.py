@@ -16,13 +16,13 @@ from fastapi.testclient import TestClient
 from backend import config
 from backend.config.paths import app_files_dir
 from backend.core import repository
-from backend.core.dependencies import get_client_id, get_current_user, verify_host
 from backend.core.dto.user import UserDTO
 from backend.core.repository.settings import SettingsRepository
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.strategy import catalog
 from backend.routes import settings as settings_route
+from backend.routes.dependencies import get_client_id, get_current_user, verify_host
 from backend.routes.settings import settings_router
 
 PREFERENCES = {

@@ -2,7 +2,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query, status
 
-from backend.core.dependencies import HostVerified
 from backend.core.dto.backtest import (
     BacktestConfigDTO,
     BacktestResultDTO,
@@ -12,6 +11,7 @@ from backend.core.dto.backtest import (
 )
 from backend.features.backtest import config as backtest_config
 from backend.features.backtest import service
+from backend.routes.dependencies import HostVerified
 
 backtest_router = APIRouter(prefix="/api/backtest", tags=["Backtest"])
 

@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 from pydantic import AfterValidator, BaseModel, Field
 
 from backend.core import repository
-from backend.core.dependencies.simulation import require_no_active_simulation
 from backend.core.dto.generated_future import (
     FutureParamsDTO,
     FuturePreviewDTO,
@@ -47,6 +46,7 @@ from backend.features.import_data.indicators import (
     refresh_indicators,
     refresh_series,
 )
+from backend.routes.dependencies.simulation import require_no_active_simulation
 
 import_router = APIRouter(
     prefix="/api/import-assets",

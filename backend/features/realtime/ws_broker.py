@@ -8,9 +8,8 @@ from threading import Lock
 from socketio import AsyncServer
 
 from backend.core.metrics import metrics
+from backend.core.runtime.realtime_broker import RealtimeBroker
 from backend.types import SID, ClientID, Event, JSONValue
-
-from .realtime_broker import RealtimeBroker
 
 
 class SocketBroker(RealtimeBroker):

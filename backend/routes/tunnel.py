@@ -1,8 +1,8 @@
 from fastapi import APIRouter, status
 
-from backend.core.dependencies import HostVerified
 from backend.core.dto.tunnel_status import TunnelStatusDTO
-from backend.core.runtime.tunnel_manager import TunnelManager
+from backend.features.tunnel.tunnel_manager import TunnelManager
+from backend.routes.dependencies import HostVerified
 
 tunnel_router = APIRouter(prefix="/api/tunnel", tags=["Tunnel"])
 

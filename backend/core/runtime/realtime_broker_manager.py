@@ -1,10 +1,6 @@
-from __future__ import annotations
-
 from threading import Lock
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from backend.features.realtime.realtime_broker import RealtimeBroker
+from backend.core.runtime.realtime_broker import RealtimeBroker
 
 
 class RealtimeBrokerManager:

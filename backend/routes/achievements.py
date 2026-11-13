@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-from backend.core.dependencies import CurrentUser
 from backend.core.dto.achievements import AchievementDTO
 from backend.features.achievements import service
+from backend.routes.dependencies import CurrentUser
 
 achievements_router = APIRouter(prefix="/api", tags=["Achievements"])
 

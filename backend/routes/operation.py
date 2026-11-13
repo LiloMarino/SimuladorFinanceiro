@@ -7,7 +7,6 @@ from fastapi import APIRouter, Query, status
 from pydantic import BaseModel, Field, model_validator
 
 from backend.core import repository
-from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.dto.candle import MarketQuoteDTO
 from backend.core.dto.candle_patterns import CandlePatternsDTO
 from backend.core.dto.dividends import AssetCorporateEventsDTO
@@ -42,6 +41,7 @@ from backend.features.technical_analysis.summary import (
 )
 from backend.features.variable_income.broker import to_money
 from backend.features.variable_income.entities.order import LimitOrder, MarketOrder
+from backend.routes.dependencies import ActiveSimulation, ClientID
 
 logger = logging.getLogger(__name__)
 

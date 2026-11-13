@@ -9,11 +9,11 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from backend.core import repository
-from backend.core.dependencies import get_current_user
-from backend.core.dependencies.simulation import get_active_simulation
 from backend.core.dto.strategy import StrategyParamValue
 from backend.core.dto.user import UserDTO
 from backend.core.exceptions.http_exceptions import UnprocessableEntityError
+from backend.routes.dependencies import get_current_user
+from backend.routes.dependencies.simulation import get_active_simulation
 from backend.routes.strategy import strategy_router
 from tests.fakes import client
 

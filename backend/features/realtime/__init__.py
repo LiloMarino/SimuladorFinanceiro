@@ -1,5 +1,5 @@
+from backend.core.runtime.realtime_broker import RealtimeBroker
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
-from backend.features.realtime.realtime_broker import RealtimeBroker
 from backend.features.realtime.ws_broker import SocketBroker
 from backend.types import ClientID, Event, JSONValue
 

@@ -3,7 +3,6 @@ from typing import Annotated
 from fastapi import APIRouter, Query, status
 
 from backend.core import repository
-from backend.core.dependencies import ActiveSimulation, CurrentUser
 from backend.core.dto.strategy import (
     MyStrategyDTO,
     SetStrategyRequestDTO,
@@ -15,6 +14,7 @@ from backend.core.dto.strategy import (
     StrategyViewRequestDTO,
 )
 from backend.core.repository.strategy import LogFilter
+from backend.routes.dependencies import ActiveSimulation, CurrentUser
 
 strategy_router = APIRouter(prefix="/api/strategies", tags=["Strategy"])
 

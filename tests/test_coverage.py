@@ -4,12 +4,12 @@ from datetime import date
 
 import pytest
 
-from backend.core.dependencies.simulation import require_no_active_simulation
 from backend.core.enum import IndicatorSeries
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.indicators import ensure_indicator_coverage
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.import_data.coverage import get_series_coverage
+from backend.routes.dependencies.simulation import require_no_active_simulation
 from tests.conftest import SetIndicator
 from tests.fakes import daily_series, monthly_series
 

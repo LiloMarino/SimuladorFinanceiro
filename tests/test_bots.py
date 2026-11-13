@@ -13,7 +13,6 @@ from fastapi.testclient import TestClient
 
 from backend import config
 from backend.core import repository
-from backend.core.dependencies import get_client_id
 from backend.core.dto.user import UserDTO
 from backend.core.enum import GameType, PlayerGrouping, StrategyLogKind
 from backend.core.exceptions.http_exceptions import ForbiddenError
@@ -27,6 +26,8 @@ from backend.features.simulation.saved_bots import saved_bots
 from backend.features.simulation.simulation_loader import SimulationLoader
 from backend.features.statistics.bots import bot_orders, build_bots_report
 from backend.features.strategy import catalog
+from backend.features.strategy.bots import resolve_bot
+from backend.routes.dependencies import get_client_id
 from backend.routes.simulation import simulation_router
 from tests.fakes import simulation_settings
 from tests.test_simulation_loader import new_user, saved_match, started  # noqa: F401
@@ -74,7 +75,7 @@ def test_the_catalog_suggests_names_for_every_strategy(room):
 def test_adding_a_bot_puts_a_new_bot_user_in_the_room(room):
     ana = person("Ana")
 
-    bot = UserManager.add_bot("Tio Patinhas", "buy_and_hold", {})
+    bot = UserManager.add_bot("Tio Patinhas", resolve_bot("buy_and_hold", {}))
 
     assert bot.is_bot
     stored = repository.user.get_by_client_id(bot.client_id)
@@ -90,10 +91,16 @@ def test_adding_a_bot_puts_a_new_bot_user_in_the_room(room):
 
 
 def test_configuring_a_bot_changes_name_strategy_and_color(room):
-    UserManager.add_bot("Tio Patinhas", "buy_and_hold", {}, color="chart-1")
+    UserManager.add_bot(
+        "Tio Patinhas", resolve_bot("buy_and_hold", {}), color="chart-1"
+    )
 
     UserManager.update_bot(
-        "Tio Patinhas", "Rentista", "cdi_100", {}, color="chart-5", team=None
+        "Tio Patinhas",
+        "Rentista",
+        resolve_bot("cdi_100", {}),
+        color="chart-5",
+        team=None,
     )
 
     bot = bot_named("Rentista")
@@ -107,24 +114,29 @@ def test_configuring_a_bot_changes_name_strategy_and_color(room):
 
 
 def test_removing_a_bot_frees_the_color_and_deletes_the_user(room):
-    bot = UserManager.add_bot("Tio Patinhas", "buy_and_hold", {}, color="chart-3")
+    bot = UserManager.add_bot(
+        "Tio Patinhas", resolve_bot("buy_and_hold", {}), color="chart-3"
+    )
 
     UserManager.remove_bot("Tio Patinhas")
 
     assert UserManager.room_bots() == []
     assert bot.id not in UserManager.room_colors()
     assert repository.user.get_by_client_id(bot.client_id) is None
-    again = UserManager.add_bot("Outro", "buy_and_hold", {}, color="chart-3")
+    again = UserManager.add_bot(
+        "Outro", resolve_bot("buy_and_hold", {}), color="chart-3"
+    )
     assert UserManager.room_colors()[again.id] == "chart-3"
 
 
 def test_a_player_beyond_the_room_limit_is_refused(room):
     person("Ana")
     for i in range(len(PLAYER_COLORS) - 1):
-        UserManager.add_bot(f"Bot {i}", "buy_and_hold", {})
+        UserManager.add_bot(f"Bot {i}", resolve_bot("buy_and_hold", {}))
 
     detail = refusal(
-        lambda: UserManager.add_bot("Bot extra", "buy_and_hold", {}), status=423
+        lambda: UserManager.add_bot("Bot extra", resolve_bot("buy_and_hold", {})),
+        status=423,
     )
 
     assert "A sala está cheia" in detail
@@ -132,40 +144,46 @@ def test_a_player_beyond_the_room_limit_is_refused(room):
 
 def test_a_repeated_name_is_refused_for_people_and_bots(room):
     person("Ana")
-    UserManager.add_bot("Rentista", "cdi_100", {})
+    UserManager.add_bot("Rentista", resolve_bot("cdi_100", {}))
 
     assert "Já tem um jogador com esse nome" in refusal(
-        lambda: UserManager.add_bot("rentista", "cdi_100", {})
+        lambda: UserManager.add_bot("rentista", resolve_bot("cdi_100", {}))
     )
     assert "Já tem um jogador com esse nome" in refusal(
-        lambda: UserManager.add_bot("Ana", "cdi_100", {})
+        lambda: UserManager.add_bot("Ana", resolve_bot("cdi_100", {}))
     )
 
 
 def test_a_taken_color_is_refused(room):
-    UserManager.add_bot("Um", "cdi_100", {}, color="chart-2")
+    UserManager.add_bot("Um", resolve_bot("cdi_100", {}), color="chart-2")
 
     assert "Um pegou essa cor antes" in refusal(
-        lambda: UserManager.add_bot("Dois", "cdi_100", {}, color="chart-2")
+        lambda: UserManager.add_bot("Dois", resolve_bot("cdi_100", {}), color="chart-2")
     )
 
 
 def test_invalid_parameters_are_refused_with_the_strategy_message(room):
-    refusal(lambda: UserManager.add_bot("Rompedor", "rsi", {"period": 1}), status=422)
+    refusal(
+        lambda: UserManager.add_bot("Rompedor", resolve_bot("rsi", {"period": 1})),
+        status=422,
+    )
 
 
 def test_bots_are_spread_over_teams_in_a_team_room(room, monkeypatch):
     monkeypatch.setattr(
         SettingsManager, "_settings", rules(player_grouping=PlayerGrouping.TEAMS)
     )
-    UserManager.add_bot("Um", "cdi_100", {}, team=3)
+    UserManager.add_bot("Um", resolve_bot("cdi_100", {}), team=3)
 
     assert UserManager.room_teams()[bot_named("Um").id] == 3
-    refusal(lambda: UserManager.add_bot("Dois", "cdi_100", {}, team=99), status=422)
+    refusal(
+        lambda: UserManager.add_bot("Dois", resolve_bot("cdi_100", {}), team=99),
+        status=422,
+    )
 
 
 def test_a_nickname_is_not_owned_by_a_bot(room):
-    UserManager.add_bot("Rentista", "cdi_100", {})
+    UserManager.add_bot("Rentista", resolve_bot("cdi_100", {}))
 
     # Bot repete nome de uma partida para outra; a pessoa com esse apelido é só a pessoa
     human = repository.user.create_user(uuid.uuid4(), "Rentista")
@@ -232,7 +250,7 @@ def test_the_bot_routes_add_configure_and_remove(room):
 
 def test_starting_the_match_moves_the_bots_out_of_the_room(room):
     ana = person("Ana")
-    bot = UserManager.add_bot("Tio Patinhas", "buy_and_hold", {})
+    bot = UserManager.add_bot("Tio Patinhas", resolve_bot("buy_and_hold", {}))
 
     SimulationLoader.create(rules(starting_cash=Decimal(10000)))
 
@@ -248,7 +266,7 @@ def test_starting_the_match_moves_the_bots_out_of_the_room(room):
 
 def test_starting_the_match_emits_no_exit_for_the_bots(room, monkeypatch):
     person("Ana")
-    UserManager.add_bot("Tio Patinhas", "buy_and_hold", {})
+    UserManager.add_bot("Tio Patinhas", resolve_bot("buy_and_hold", {}))
     sent: list[str] = []
     monkeypatch.setattr(
         RealtimeBrokerManager,
@@ -263,7 +281,7 @@ def test_starting_the_match_emits_no_exit_for_the_bots(room, monkeypatch):
 
 
 def test_removing_a_bot_emits_its_exit(room, monkeypatch):
-    UserManager.add_bot("Tio Patinhas", "buy_and_hold", {})
+    UserManager.add_bot("Tio Patinhas", resolve_bot("buy_and_hold", {}))
     sent: list[str] = []
     monkeypatch.setattr(
         RealtimeBrokerManager,
@@ -278,7 +296,7 @@ def test_removing_a_bot_emits_its_exit(room, monkeypatch):
 
 def test_the_bot_runs_its_strategy_and_receives_the_contribution(room):
     ana = person("Ana")
-    bot = UserManager.add_bot("Tio Patinhas", "buy_and_hold", {})
+    bot = UserManager.add_bot("Tio Patinhas", resolve_bot("buy_and_hold", {}))
     SimulationLoader.create(
         rules(starting_cash=Decimal(10000), monthly_contribution=Decimal(1000))
     )
@@ -299,7 +317,7 @@ def test_the_bot_runs_its_strategy_and_receives_the_contribution(room):
 
 def test_a_bot_never_unlocks_achievements(room):
     ana = person("Ana")
-    bot = UserManager.add_bot("Tio Patinhas", "buy_and_hold", {})
+    bot = UserManager.add_bot("Tio Patinhas", resolve_bot("buy_and_hold", {}))
     SimulationLoader.create(rules())
     sim = SimulationManager.get_active_simulation()
 
@@ -402,7 +420,7 @@ def test_in_the_political_victory_without_parties_nobody_wins(monkeypatch):
 
 def test_the_bot_log_opens_only_when_the_match_ends(room):
     person("Ana")
-    UserManager.add_bot("Tio Patinhas", "buy_and_hold", {})
+    UserManager.add_bot("Tio Patinhas", resolve_bot("buy_and_hold", {}))
     SimulationLoader.create(rules())
     sim = SimulationManager.get_active_simulation()
     simulation_id = SimulationManager.get_active_simulation_id()
@@ -427,7 +445,7 @@ def test_the_bot_log_opens_only_when_the_match_ends(room):
 
 def test_a_saved_match_brings_its_bots_locked_and_parks_the_new_ones(room):
     ana = person("Ana")
-    UserManager.add_bot("O Grafista", "moving_average_cross", {})
+    UserManager.add_bot("O Grafista", resolve_bot("moving_average_cross", {}))
     SimulationLoader.create(rules())
     simulation_id = SimulationManager.get_active_simulation_id()
     SimulationManager.clear_simulation()
@@ -437,7 +455,7 @@ def test_a_saved_match_brings_its_bots_locked_and_parks_the_new_ones(room):
     UserManager._colors.clear()
     UserManager._bots.clear()
     UserManager.player_auth(ana.client_id)
-    novo = UserManager.add_bot("Novato", "cdi_100", {}, color="chart-7")
+    novo = UserManager.add_bot("Novato", resolve_bot("cdi_100", {}), color="chart-7")
 
     UserManager.apply_saved_colors(
         repository.simulation_player.colors(simulation_id),
@@ -452,8 +470,10 @@ def test_a_saved_match_brings_its_bots_locked_and_parks_the_new_ones(room):
     assert info is not None
     assert info.locked
     refusal(lambda: UserManager.remove_bot("O Grafista"))
-    refusal(lambda: UserManager.update_bot("O Grafista", "X", "cdi_100", {}))
-    refusal(lambda: UserManager.add_bot("Outro", "cdi_100", {}))
+    refusal(
+        lambda: UserManager.update_bot("O Grafista", "X", resolve_bot("cdi_100", {}))
+    )
+    refusal(lambda: UserManager.add_bot("Outro", resolve_bot("cdi_100", {})))
 
     UserManager.release_saved_colors()
 
@@ -463,7 +483,9 @@ def test_a_saved_match_brings_its_bots_locked_and_parks_the_new_ones(room):
 
 def test_resuming_a_match_brings_the_bot_back_with_the_same_parameters(room):
     person("Ana")
-    UserManager.add_bot("O Grafista", "moving_average_cross", {"short_window": 20})
+    UserManager.add_bot(
+        "O Grafista", resolve_bot("moving_average_cross", {"short_window": 20})
+    )
     SimulationLoader.create(rules())
     simulation_id = SimulationManager.get_active_simulation_id()
     sim = SimulationManager.get_active_simulation()

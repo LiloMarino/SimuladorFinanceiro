@@ -1,7 +1,7 @@
 """
 O catálogo de imprevistos de fábrica do viver de renda: família, peso, efeito, valor em
 despesas mensais e o texto que cada profissão lê. O catálogo é dado puro: o sorteio
-mora em `features/simulation/life_events.py` e a lista da partida, em `dto/life.py`.
+mora no `life_events.py` da simulação e a lista da partida, em `dto/life.py`.
 
 Os pesos dos tipos bons somam 10 dos 40 do catálogo: com as três famílias em Normal,
 um imprevisto em cada quatro é bom. O valor esperado do bom fica abaixo do ruim, e o

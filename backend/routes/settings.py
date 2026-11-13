@@ -7,7 +7,6 @@ from pydantic import BaseModel, ConfigDict
 from backend import config
 from backend.config.paths import app_files_dir
 from backend.core import repository
-from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.preparation import PartyContributionDTO, PartyIdentityDTO
 from backend.core.dto.strategy import StrategyParamValue
 from backend.core.dto.technical_indicators import IndicatorSettingsDTO
@@ -32,6 +31,7 @@ from backend.features.government import voters
 from backend.features.notifications import registry
 from backend.features.strategy import catalog
 from backend.features.strategy.registry import get_strategy
+from backend.routes.dependencies import ClientID, HostVerified
 
 settings_router = APIRouter(prefix="/api/settings", tags=["Settings"])
 

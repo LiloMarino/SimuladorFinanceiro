@@ -3,7 +3,6 @@ from datetime import date
 from fastapi import APIRouter, status
 
 from backend.core import repository
-from backend.core.dependencies import ActiveSimulation, CurrentUser
 from backend.core.dto.budget import BudgetDTO, InitialAccountDTO
 from backend.core.dto.campaign import (
     CampaignActionRequest,
@@ -44,6 +43,7 @@ from backend.core.dto.government import (
 )
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
 from backend.features.government.budget_panel import build_initial_account
+from backend.routes.dependencies import ActiveSimulation, CurrentUser
 
 government_router = APIRouter(prefix="/api/government", tags=["Government"])
 

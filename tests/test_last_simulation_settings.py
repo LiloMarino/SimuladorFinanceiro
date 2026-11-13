@@ -9,11 +9,11 @@ from fastapi.testclient import TestClient
 
 from backend import config
 from backend.core import repository
-from backend.core.dependencies import get_client_id, verify_host
 from backend.core.enum import GameType
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.routes import simulation as simulation_routes
+from backend.routes.dependencies import get_client_id, verify_host
 from backend.routes.simulation import restore_simulation_settings, simulation_router
 from tests.fakes import client, simulation_settings
 

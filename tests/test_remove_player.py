@@ -9,11 +9,12 @@ from fastapi.testclient import TestClient
 
 from backend import config
 from backend.core import repository
-from backend.core.dependencies import get_client_id
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.simulation.simulation_loader import SimulationLoader
+from backend.features.strategy.bots import resolve_bot
+from backend.routes.dependencies import get_client_id
 from backend.routes.simulation import simulation_router
 from tests.test_bots import person, refusal, room, rules  # noqa: F401
 from tests.test_simulation_loader import started  # noqa: F401
@@ -52,7 +53,7 @@ def test_the_removed_player_is_told_directly(room, monkeypatch):  # noqa: F811
 
 def test_the_host_and_bots_and_strangers_cannot_be_removed(room):  # noqa: F811
     person(config.toml.host.nickname)
-    UserManager.add_bot("Tio Patinhas", "buy_and_hold", {})
+    UserManager.add_bot("Tio Patinhas", resolve_bot("buy_and_hold", {}))
 
     assert "host" in refusal(
         lambda: UserManager.remove_player(config.toml.host.nickname)

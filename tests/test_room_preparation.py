@@ -10,9 +10,9 @@ from fastapi import HTTPException
 from backend.core.dto.preparation import PartyIdentityDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import PreparationKind, VoterValue
-from backend.core.runtime.room_preparation import RoomPreparation
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
+from backend.features.government.room_preparation import RoomPreparation
 from tests.fakes import client, simulation_settings
 
 ANA = UserDTO(id=1, client_id=client("ana"), nickname="Ana")

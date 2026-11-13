@@ -3,11 +3,11 @@ from decimal import Decimal
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.dto.dividends import PortfolioDividendsDTO
 from backend.core.dto.patrimonial_history import PortfolioHistoryPointDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
+from backend.routes.dependencies import ActiveSimulation, ClientID
 
 portfolio_router = APIRouter(prefix="/api/portfolio", tags=["Portfolio"])
 

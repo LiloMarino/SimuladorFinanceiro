@@ -40,11 +40,11 @@ from backend.core.enum import BacktestPriceImpact
 from backend.core.metrics import ENGINE_DAY, metrics
 from backend.core.player_colors import PLAYER_COLORS
 from backend.core.profiling import mark_engine_thread, profiler
+from backend.core.runtime.realtime_broker import RealtimeBroker
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.backtest import config as backtest_config
-from backend.features.realtime.realtime_broker import RealtimeBroker
 from backend.features.simulation.simulation import Simulation
 from backend.features.strategy.registry import STRATEGIES
 from backend.features.strategy.state import derive_state

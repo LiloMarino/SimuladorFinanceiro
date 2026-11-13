@@ -15,10 +15,10 @@ from fastapi.testclient import TestClient
 
 from backend import config
 from backend.core import profiling
-from backend.core.dependencies import get_current_user
 from backend.core.dto.user import UserDTO
 from backend.core.profiling import mark_engine_thread, profile_routes
 from backend.routes.debug import debug_router
+from backend.routes.dependencies import get_current_user
 
 
 def heavy_report() -> int:

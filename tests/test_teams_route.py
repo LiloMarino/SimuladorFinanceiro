@@ -9,11 +9,11 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from backend.core.dependencies import get_client_id, verify_host
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.enum import GameType, PlayerGrouping, Profession, SalaryMode
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.user_manager import UserManager
+from backend.routes.dependencies import get_client_id, verify_host
 from backend.routes.simulation import simulation_router
 from tests.conftest import Join
 from tests.fakes import client, simulation_settings

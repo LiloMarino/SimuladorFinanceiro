@@ -43,6 +43,7 @@ from backend.features.backtest.reference import (
 from backend.features.simulation.saved_simulation import describe
 from backend.features.simulation.simulation_loader import SimulationLoader
 from backend.features.simulation.simulation_loop import simulation_controller
+from backend.features.strategy.bots import resolve_bot
 from backend.features.strategy.moving_average import MovingAverageCross
 from tests.fakes import simulation_settings
 from tests.test_simulation_loader import started  # noqa: F401
@@ -296,7 +297,7 @@ def test_a_running_backtest_refuses_another_and_is_not_a_match(events, monkeypat
 
 
 def test_the_room_bots_stay_as_they_are(events):
-    room_bot = UserManager.add_bot("Bot da sala", "buy_and_hold", {})
+    room_bot = UserManager.add_bot("Bot da sala", resolve_bot("buy_and_hold", {}))
     before = UserManager.room_bots()
 
     run_to_the_end(events)

@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
 from backend.core import repository
-from backend.core.dependencies import ActiveSimulation, CurrentUser
 from backend.core.dto.summaries import SummaryDTO
+from backend.routes.dependencies import ActiveSimulation, CurrentUser
 
 summaries_router = APIRouter(prefix="/api/summaries", tags=["Summaries"])
 

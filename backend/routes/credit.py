@@ -4,7 +4,6 @@ from uuid import UUID
 
 from fastapi import APIRouter, Query, status
 
-from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.dto.credit import (
     ContractLoanRequestDTO,
     CreditOverviewDTO,
@@ -12,6 +11,7 @@ from backend.core.dto.credit import (
     PrepayLoanRequestDTO,
     PrepaymentPreviewDTO,
 )
+from backend.routes.dependencies import ActiveSimulation, ClientID
 
 credit_router = APIRouter(prefix="/api/credit", tags=["Credit"])
 

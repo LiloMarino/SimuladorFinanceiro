@@ -4,8 +4,8 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 
 from backend.core import repository
-from backend.core.dependencies import ActiveSimulation
 from backend.core.dto.news import NewsDTO
+from backend.routes.dependencies import ActiveSimulation
 
 news_router = APIRouter(prefix="/api/news", tags=["News"])
 

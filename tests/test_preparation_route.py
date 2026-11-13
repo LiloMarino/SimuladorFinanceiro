@@ -9,15 +9,15 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from backend.core import repository
-from backend.core.dependencies.auth import get_client_id
 from backend.core.dto.preparation import PartyIdentityDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import PreparationKind, VoterValue
-from backend.core.runtime.room_preparation import RoomPreparation
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
+from backend.features.government.room_preparation import RoomPreparation
 from backend.routes import simulation as routes
+from backend.routes.dependencies.auth import get_client_id
 from tests.fakes import client, simulation_settings
 
 ANA = UserDTO(id=1, client_id=client("ana"), nickname="Ana")

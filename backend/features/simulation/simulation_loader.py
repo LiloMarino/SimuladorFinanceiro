@@ -13,12 +13,12 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.core.indicators import ensure_indicator_coverage
-from backend.core.runtime.room_preparation import RoomPreparation
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.candle_challenge.game import candle_game
 from backend.features.government import preparation
+from backend.features.government.room_preparation import RoomPreparation
 from backend.features.realtime import notify
 from backend.features.simulation.saved_simulation import (
     is_finished,
@@ -28,6 +28,7 @@ from backend.features.simulation.saved_simulation import (
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_loop import simulation_controller
 from backend.features.statistics.report import build_overview_report
+from backend.features.strategy.bots import validate_room_bots
 
 
 class SimulationLoader:
@@ -47,7 +48,7 @@ class SimulationLoader:
         humans = [p for p in UserManager.list_active_players() if not p.is_bot]
         RoomPreparation.ensure_ready(humans)
         # As regras de agora valem para cada bot antes de a partida ser gravada
-        UserManager.validate_bots(settings.start_date)
+        validate_room_bots(settings.start_date)
         bots = UserManager.room_bots()
         simulation_id = repository.simulation.create_simulation(settings)
 
