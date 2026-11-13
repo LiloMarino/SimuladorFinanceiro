@@ -16,7 +16,7 @@ from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from urllib.parse import urljoin, urlparse
 
-from playwright.sync_api import Page, Playwright, sync_playwright
+from playwright.sync_api import Page, Playwright, expect, sync_playwright
 
 from backend.core.utils import PROJECT_ROOT
 from scripts.demo.__main__ import import_stocks, missing_indicators
@@ -231,6 +231,85 @@ def map_error(page: Page) -> None:
     dismiss_topic(page)
 
 
+PROFESSION_NAMES = re.compile(
+    r"^(CLT|Servidor|Empreendedor|Aposentado|Auxílio|Locador)\b"
+)
+
+
+def lobby_with_professions(page: Page) -> None:
+    """
+    Lobby sem partida ativa, com as profissões ligadas: viver de renda, modo de profissões e
+    salário de 5000 do host. As regras vão pela API das settings, a mesma que o formulário chama.
+    """
+    page.goto("/login")
+    page.get_by_label("Seu nickname").fill(demo_settings()["host"]["nickname"])
+    page.get_by_role("button", name="Entrar").click()
+    # Conta do host já existente pede a confirmação; se há partida ativa, o login leva à Carteira
+    returning = page.get_by_role("button", name="Sou eu, entrar")
+    lobby = page.get_by_role(
+        "button",
+        name=re.compile(
+            r"^(Iniciar nova simulação|Continuar|Escolher partida salva|Trocar partida)"
+        ),
+    )
+    portfolio = page.get_by_role("heading", name="Carteira")
+    returning.or_(lobby).or_(portfolio).first.wait_for()
+    if returning.is_visible():
+        returning.click()
+    page.wait_for_url(re.compile(r"/(lobby)?$"))
+    # Partida ativa tiraria o lobby: ela é encerrada pela API, como em open_saved_match
+    status = page.request.get(urljoin(page.url, "/api/simulation/status")).json()
+    if status.get("simulation"):
+        stopped = page.request.post(urljoin(page.url, "/api/simulation/stop"))
+        if not stopped.ok:
+            raise RuntimeError(f"A partida ativa não parou: HTTP {stopped.status}")
+    settings = page.request.get(urljoin(page.url, "/api/simulation/settings")).json()
+    if settings["selected_simulation_id"] is not None:
+        raise RuntimeError(
+            "Há uma partida salva selecionada: as regras dela não mudam pela API."
+        )
+    body = settings["simulation"] | {
+        "game_type": "FINANCIAL_INDEPENDENCE",
+        "salary_mode": "PROFESSIONS",
+        "monthly_salary": "5000",
+    }
+    saved = page.request.put(urljoin(page.url, "/api/simulation/settings"), data=body)
+    if not saved.ok:
+        raise RuntimeError(
+            f"As regras não ligaram as profissões: HTTP {saved.status} {saved.text()[:300]}"
+        )
+    page.goto("/lobby")
+    page.get_by_role("button", name="Minha preparação").wait_for()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+
+
+def preparation_profession(page: Page) -> None:
+    """Lobby com as profissões ligadas e o diálogo "Minha preparação" na aba Profissão, com os 6 cartões."""
+    lobby_with_professions(page)
+    page.get_by_role("button", name="Minha preparação").click()
+    dialog = page.get_by_role("dialog")
+    expect(dialog.get_by_role("button", name=PROFESSION_NAMES)).to_have_count(6)
+    page.wait_for_load_state("networkidle")
+
+
+def preparation_profession_selected(page: Page) -> None:
+    """Como preparacao/profissao, com o cartão Empreendedor escolhido e gravado: marcado, e o rodapé diz "Salvo automaticamente"."""
+    preparation_profession(page)
+    dialog = page.get_by_role("dialog")
+    entrepreneur = dialog.get_by_role("button", name=re.compile(r"^Empreendedor"))
+    with page.expect_response(
+        lambda response: (
+            response.request.method == "PUT"
+            and "/players/me/profession" in response.url
+        )
+    ):
+        entrepreneur.click()
+    expect(entrepreneur).to_have_attribute("aria-pressed", "true")
+    dialog.get_by_text("Salvo automaticamente").wait_for()
+    page.wait_for_load_state("networkidle")
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "carteira/vazia": portfolio_empty,
     "renda-variavel/detalhe": stock_detail,
@@ -240,4 +319,6 @@ STATES: dict[str, Callable[[Page], None]] = {
     "mapa/primeira-pesquisa": map_first_poll,
     "mapa/regiao": map_by_region,
     "mapa/erro": map_error,
+    "preparacao/profissao": preparation_profession,
+    "preparacao/profissao-escolhida": preparation_profession_selected,
 }
