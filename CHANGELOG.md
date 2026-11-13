@@ -4,6 +4,68 @@ Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais anti
 O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
 deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
+## 4.1.0 Câmbio e Poder (13/11/2026)
+
+O dólar entra na partida: os ativos de fora passam a ser cotados em real e protegem a carteira quando o câmbio sobe, e o caixa em dólar rende o juro americano. A economia ganha o Focus, e a bolsa reage quando o Copom surpreende; o Banco Central autônomo decide em reunião, em passos de 0,25. O governo fecha a conta com impostos e cortes, lança programas com nome e perde aprovação quando governa mal, e a presidência e a base passam a valer a pena, com salário, legado, obras e emendas. A vitória política ganha medida própria, o capital político; qualquer jogador pode abrir um pedido de impeachment; a corrida eleitoral passa a ter três partidos do computador, e o mapa da eleição percorre o tempo. O viver de renda sente a economia e ganha a profissão de cada jogador e imprevistos mais variados. A Central de dados, o lobby, o Mapa, Governo e Eleição, a Renda fixa e os seletores foram redesenhados, e a paleta dos partidos chega a 20 cores, com salas de 12 jogadores.
+
+Suas partidas salvas e o `config.toml` continuam valendo.
+
+
+### Novidades
+
+- Adicionados atalhos de valor na compra e na venda do Tesouro
+- Adicionados Enter, foco e motivo do botão desabilitado nas telas de valor
+- Adicionada a abertura da campanha como notícia fixa em janela central
+- Adicionado freio da inflação e crédito encarecido ao crescimento do PIB
+- Adicionados impostos e cortes que fecham a conta do governo
+- Adicionado nome aos programas de governo
+- Permitido SELIC abaixo de zero em futuro com deflação
+- Adicionado viver de renda que sente a economia
+- Adicionado imprevistos configuráveis e tipos novos no viver de renda
+- Adicionado dólar da partida e ativos internacionais
+- Adicionado o Focus da partida e a reação da bolsa à surpresa do Copom
+- Adicionada a conta em dólar com o juro americano
+- Adicionada a profissão no viver de renda
+- Adicionado o mapa da eleição ao longo do tempo
+- Aberta a orientação da bancada até o fim do dia da votação, com a federação e o acordo explicados
+- Aberto o pedido de impeachment por jogador, com o custo explicado antes de confirmar
+- Acabados o mapa, o Tesouro, os cards da economia, o selo de partido no jornal e o Fed Funds na prévia
+- Adicionados o salário e o legado do presidente
+- Adicionadas a obra e a emenda com endereço
+- Adicionada a verba de campanha equivalente ao apoio do acordo e documentados os ganhos da presidência e da base
+- Adicionado o capital político como medida da vitória política
+- Adicionado o botão de convidar vice e convites acumulados
+- Adicionada a decisão em reunião ao Banco Central autônomo e ao futuro gerado
+- Adicionados tipos de notícia raros em destaque, movimento forte relativo ao ativo e manchetes variadas
+- Adicionada a paleta de 16 cores dos partidos e o seletor de cor único
+- Ampliada a paleta dos partidos para 20 cores e a sala para 12 jogadores
+- Trocado o dourado por um âmbar mais claro e renomeado o âmbar escuro para caramelo
+- Adicionados imprevistos variados e a frequência por família
+- Adicionados disputa com três partidos do computador, fundo público e caixa único do partido na campanha
+- Adicionado o controle R$ | % nos atalhos dos campos de valor
+- Redesenhada a Central de dados com abas de indicadores e de ativos
+- Redesenhados os seletores e combobox com busca, nome da empresa nas ações e grupo de indisponíveis
+- Redesenhado o topo do lobby e movida a profissão para a Minha preparação
+- Integrados à tabela da Renda fixa o CDB de liquidez diária e a conta em dólar
+- Reunidas as ações do jogador numa aba Suas ações em Governo e Eleição, com a faixa O país
+- Reorganizada a tela do Mapa com a lista de estados em faixa larga e as lentes alinhadas
+
+### Correções
+
+- Adicionado aviso de fechamento zerado no gerador do futuro
+- Removido o aviso de indicadores técnicos do gráfico de ação
+- Removidas as tabelas do Mapa e da Economia e o mini mapa do card da aprovação
+- Limitado a 20 caracteres o nome do jogador, do bot, da partida e do backtest
+- Convertido para real o preço dos ativos cotados em dólar
+- Corrigido o layout da tabela da Central de dados
+- Removidas as descrições em excesso do card da conta em dólar
+- Ajustado o card da conta em dólar, o aviso do Tesouro e o degradê do card info
+- Corrigido o texto dos gráficos para no mínimo 12 px
+- Adicionada a punição que segue crescendo no governo ruim e o piso que não conta para o governo do computador
+- Corrigido o piso da bolsa e o provento na escala do preço da partida
+- Corrigida a nota de desempenho com patrimônio quase zero
+- Corrigido o espaço faltante nas classes do Card
+
 ## 4.0.0 Dividendos (08/11/2026)
 
 As ações passam a andar com o preço de verdade: a partida usa o preço bruto do pregão, aplica os desdobramentos na quantidade e paga os dividendos no caixa na data ex, inclusive no futuro gerado. Os proventos aparecem na carteira, com o rendimento de cada posição, no detalhe do ativo e nas estatísticas da partida. O Jornal ganha o botão de voltar para hoje e destaca no arquivo o mês em leitura, e a Central de dados arruma a listagem das séries. A linha de migrations recomeça na 4.0: um banco da 3.x não atualiza, e as partidas salvas antes dela não abrem.
