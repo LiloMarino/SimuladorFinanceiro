@@ -92,12 +92,11 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
-| [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 | — | Baixo | Excelente | ⏳ |
 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 | — | — | — | 🔍 |
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -122,6 +121,7 @@
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F227](#f227), [F255](#f255) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 | — | — | — | ✅ |
+| [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
 
@@ -137,7 +137,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 1/15 concluídos
+> **Progresso:** 2/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -153,7 +153,7 @@
 | 10 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | [F44](#f44) | 🔍 Em avaliação |
 | 11 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | [F44](#f44) | ⏳ Pendente |
 | 12 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | — | ✅ Concluído |
-| 13 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | — | ⏳ Pendente |
+| 13 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | — | ✅ Concluído |
 | 14 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | — | 🔍 Em avaliação |
 | 15 | [**F290**](#f290) | Feature | Profissões novas | — | 🔍 Em avaliação |
 
@@ -252,7 +252,6 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
-| [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 · 13º | 0 | Baixo | Excelente | ⏳ |
 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 · 14º | 0 | — | — | 🔍 |
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 · 15º | 0 | — | — | 🔍 |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
@@ -317,7 +316,6 @@
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Alto | Alto | Alto | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F288** | Melhoria | Badge de profissão legível no lobby e na Minha preparação | N15, N20 | — | M18 · 4.2 | — | Baixo | Baixo | Médio | Excelente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -555,16 +553,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f288"></a>
-**F288 — Badge de profissão legível no lobby e na Minha preparação.** Serve N15 e N20. Dois problemas vistos no lobby:
-
-- **Contraste.** O `ProfessionBadge` (`frontend/shared/components/profession-badge.tsx`) usa a variante `secondary` do Badge (`bg-muted`, texto `secondary-foreground`, sem borda). Sobre o card do jogador (`bg-card`, e o do próprio jogador em `bg-info-soft`) o fundo do badge quase some e não se vê onde ele começa. Os badges "Bot" e "Novo" do mesmo card usam a mesma variante e sofrem igual.
-- **Botão Minha preparação.** O botão do topo (`preparation-button.tsx`) mostra a profissão como texto solto ("CLT" cinza, sem ícone), quando o desenho aprovado no canvas tinha o badge com ícone, e antes do redesenho a profissão aparecia como badge no card do jogador.
-
-**Plano:** a variante do badge de etiqueta ganha contraste no próprio design system (`badgeVariants.ts`): borda `border-input` e fundo que se destaca do card nos dois temas, seja ajustando a `secondary` (se todos os usos dela ganham com isso) ou criando uma variante nova de etiqueta usada pelo badge de profissão, pelo "Bot" e pelo "Novo". Sem `className` por cima da variante. O botão Minha preparação passa a renderizar o `ProfessionBadge` no lugar do texto.
-
-**Aceite:** a borda ou o fundo do badge tem contraste de pelo menos 3:1 contra o fundo do card, no tema claro e no escuro, no card comum e no card do próprio jogador.
-
 ---
 
 ## 🔍 Em avaliação
@@ -711,6 +699,7 @@ As etiquetas do "afetado por" saem das regras da profissão (`ProfessionRule`: i
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F287** | Melhoria | Slots dos jogadores do lobby no desenho anterior | N15, N20 | — | M18 · 4.2 |
+| **F288** | Melhoria | Badge de profissão legível no lobby e na Minha preparação | N15, N20 | — | M18 · 4.2 |
 
 <a id="f287"></a>
 **F287 — Slots dos jogadores do lobby no desenho anterior.** Serve N15 e N20. O redesenho do topo do lobby também refez o card de cada jogador (`lobby-player-list.tsx`): o nome ficou sozinho na primeira linha, a profissão e os papéis desceram para uma segunda linha, a presença e o partido preparado viraram uma terceira, e as vagas livres viraram uma faixa só ("N vagas livres · a sala aceita até 12"), com "Adicionar bot" numa faixa à parte. O usuário preferiu o desenho anterior e pediu a volta.
@@ -722,6 +711,16 @@ As etiquetas do "afetado por" saem das regras da profissão (`ProfessionRule`: i
 **Onde o desenho mudou em relação ao anterior:** com 2 colunas de 264 px, o badge de profissão e o "Bot" deixavam o nome do bot cortado (6 de 11 nomes, com a sala cheia). O badge "Bot" saiu, porque o avatar de robô e a estratégia já dizem que é bot, e os cards ficaram em uma coluna só, na largura do card do próprio jogador: nenhum nome corta a 1366 e a 1920. O custo é a altura: o card Jogadores tem cerca de 1013 px em qualquer sala (as 12 posições ficam à vista), contra cerca de 680 px em 2 colunas. O card do bot não mostra mais "robô não prepara" (bot nunca tem partido, o lado direito fica vazio) e a estratégia trunca com a dica do nome inteiro.
 
 **Conferência feita:** sala com 12 jogadores, bots com nomes e estratégias longas e o próprio jogador com partido de candidato, a 1366 e a 1920: nenhum texto sobreposto nem cortado, vaga e card de jogador com 66 px.
+
+<a id="f288"></a>
+**F288 — Badge de profissão legível no lobby e na Minha preparação.** Serve N15 e N20. Dois problemas vistos no lobby:
+
+- **Contraste.** O `ProfessionBadge` (`frontend/shared/components/profession-badge.tsx`) usa a variante `secondary` do Badge (`bg-muted`, texto `secondary-foreground`, sem borda). Sobre o card do jogador (`bg-card`, e o do próprio jogador em `bg-info-soft`) o fundo do badge quase some e não se vê onde ele começa. Os badges "Bot" e "Novo" do mesmo card usam a mesma variante e sofrem igual.
+- **Botão Minha preparação.** O botão do topo (`preparation-button.tsx`) mostra a profissão como texto solto ("CLT" cinza, sem ícone), quando o desenho aprovado no canvas tinha o badge com ícone, e antes do redesenho a profissão aparecia como badge no card do jogador.
+
+**Plano:** a variante do badge de etiqueta ganha contraste no próprio design system (`badgeVariants.ts`): borda `border-input` e fundo que se destaca do card nos dois temas, seja ajustando a `secondary` (se todos os usos dela ganham com isso) ou criando uma variante nova de etiqueta usada pelo badge de profissão, pelo "Bot" e pelo "Novo". Sem `className` por cima da variante. O botão Minha preparação passa a renderizar o `ProfessionBadge` no lugar do texto.
+
+**Aceite:** a borda ou o fundo do badge tem contraste de pelo menos 3:1 contra o fundo do card, no tema claro e no escuro, no card comum e no card do próprio jogador.
 
 ---
 
