@@ -92,13 +92,12 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
-| [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 | — | Baixo | Bom | ⏳ |
 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 | — | Baixo | Excelente | ⏳ |
 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 | — | — | — | 🔍 |
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -122,6 +121,7 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176), [F290](#f290) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F227](#f227), [F255](#f255) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
+| [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
 
@@ -137,7 +137,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 0/15 concluídos
+> **Progresso:** 1/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -152,7 +152,7 @@
 | 9 | [**F255**](#f255) | Feature | Estatais | [F44](#f44) | ⏳ Pendente |
 | 10 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | [F44](#f44) | 🔍 Em avaliação |
 | 11 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | [F44](#f44) | ⏳ Pendente |
-| 12 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | — | ⏳ Pendente |
+| 12 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | — | ✅ Concluído |
 | 13 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | — | ⏳ Pendente |
 | 14 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | — | 🔍 Em avaliação |
 | 15 | [**F290**](#f290) | Feature | Profissões novas | — | 🔍 Em avaliação |
@@ -252,7 +252,6 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
-| [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 · 12º | 0 | Baixo | Bom | ⏳ |
 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 · 13º | 0 | Baixo | Excelente | ⏳ |
 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 · 14º | 0 | — | — | 🔍 |
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 · 15º | 0 | — | — | 🔍 |
@@ -318,7 +317,6 @@
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Alto | Alto | Alto | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F287** | Melhoria | Slots dos jogadores do lobby no desenho anterior | N15, N20 | — | M18 · 4.2 | — | Baixo | Baixo | Médio | Bom |
 | **F288** | Melhoria | Badge de profissão legível no lobby e na Minha preparação | N15, N20 | — | M18 · 4.2 | — | Baixo | Baixo | Médio | Excelente |
 
 <a id="f6"></a>
@@ -557,17 +555,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f287"></a>
-**F287 — Slots dos jogadores do lobby no desenho anterior.** Serve N15 e N20. O redesenho do topo do lobby também refez o card de cada jogador (`lobby-player-list.tsx`): o nome ficou sozinho na primeira linha, a profissão e os papéis desceram para uma segunda linha, a presença e o partido preparado viraram uma terceira, e as vagas livres viraram uma faixa só ("N vagas livres · a sala aceita até 12"), com "Adicionar bot" numa faixa à parte. O usuário preferiu o desenho anterior e pediu a volta.
-
-**O que volta** (o estado do arquivo antes do commit "Redesenhado o topo do lobby e movida a profissão para a Minha preparação"): o nome com os badges ao lado na mesma linha (profissão, Bot, Novo); embaixo, a presença do jogador ou a estratégia do bot; o partido preparado à direita do card ("candidato" ou "sem partido"); cada vaga livre como um card próprio, na altura do card de jogador, e "Adicionar bot" ocupando a primeira vaga.
-
-**O que fica:** o topo do lobby redesenhado e a escolha da profissão dentro da Minha preparação. Na linha do nome volta só o badge de profissão (leitura), sem o seletor.
-
-**O problema que o redesenho resolvia:** no card do bot, "Bot", "CLT" e "robô não prepara" se sobrepunham e o nome da estratégia cortava sem dica. Na volta, o card do bot deixa de mostrar "robô não prepara" (bot nunca tem partido, o lado direito fica vazio) e a estratégia trunca com a dica do nome inteiro.
-
-**Conferência:** sala com 12 jogadores, bot com estratégia de nome longo e o próprio jogador com partido de candidato, a 1366 e a 1920; nenhum texto sobreposto nem cortado sem dica.
-
 <a id="f288"></a>
 **F288 — Badge de profissão legível no lobby e na Minha preparação.** Serve N15 e N20. Dois problemas vistos no lobby:
 
@@ -721,7 +708,20 @@ As etiquetas do "afetado por" saem das regras da profissão (`ProfessionRule`: i
 
 ## ✅ Concluído
 
-> Nenhum item neste status.
+| ID | Tipo | Resumo | Serve | D# | Marco |
+| --- | --- | --- | --- | --- | --- |
+| **F287** | Melhoria | Slots dos jogadores do lobby no desenho anterior | N15, N20 | — | M18 · 4.2 |
+
+<a id="f287"></a>
+**F287 — Slots dos jogadores do lobby no desenho anterior.** Serve N15 e N20. O redesenho do topo do lobby também refez o card de cada jogador (`lobby-player-list.tsx`): o nome ficou sozinho na primeira linha, a profissão e os papéis desceram para uma segunda linha, a presença e o partido preparado viraram uma terceira, e as vagas livres viraram uma faixa só ("N vagas livres · a sala aceita até 12"), com "Adicionar bot" numa faixa à parte. O usuário preferiu o desenho anterior e pediu a volta.
+
+**O que voltou** (o estado do arquivo antes do commit "Redesenhado o topo do lobby e movida a profissão para a Minha preparação"): o nome com os badges ao lado na mesma linha (Host, Novo e profissão); embaixo, a presença do jogador ou a estratégia do bot; o partido preparado à direita do card ("candidato" ou "sem partido"); cada vaga livre como um card próprio, na altura do card de jogador, e "Adicionar bot" ocupando a primeira vaga.
+
+**O que ficou:** o topo do lobby redesenhado e a escolha da profissão dentro da Minha preparação. Na linha do nome volta só o badge de profissão (leitura), sem o seletor.
+
+**Onde o desenho mudou em relação ao anterior:** com 2 colunas de 264 px, o badge de profissão e o "Bot" deixavam o nome do bot cortado (6 de 11 nomes, com a sala cheia). O badge "Bot" saiu, porque o avatar de robô e a estratégia já dizem que é bot, e os cards ficaram em uma coluna só, na largura do card do próprio jogador: nenhum nome corta a 1366 e a 1920. O custo é a altura: o card Jogadores tem cerca de 1013 px em qualquer sala (as 12 posições ficam à vista), contra cerca de 680 px em 2 colunas. O card do bot não mostra mais "robô não prepara" (bot nunca tem partido, o lado direito fica vazio) e a estratégia trunca com a dica do nome inteiro.
+
+**Conferência feita:** sala com 12 jogadores, bots com nomes e estratégias longas e o próprio jogador com partido de candidato, a 1366 e a 1920: nenhum texto sobreposto nem cortado, vaga e card de jogador com 66 px.
 
 ---
 
