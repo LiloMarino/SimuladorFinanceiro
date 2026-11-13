@@ -93,10 +93,9 @@
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 | — | — | — | 🔍 |
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 | — | — | — | 🔍 |
-| [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | M18 · 4.2 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -123,6 +122,7 @@
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | — | — | ✅ |
 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 | — | — | — | ✅ |
 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 | — | — | — | ✅ |
+| [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
 
@@ -138,7 +138,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 3/15 concluídos
+> **Progresso:** 4/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -156,7 +156,7 @@
 | 12 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | — | ✅ Concluído |
 | 13 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | — | 🔍 Em avaliação |
 | 14 | [**F290**](#f290) | Feature | Profissões novas | — | 🔍 Em avaliação |
-| 15 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | — | ⏳ Pendente |
+| 15 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | — | ✅ Concluído |
 
 ### 4.3 — Mesa do trader (M24)
 
@@ -255,7 +255,6 @@
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 · 13º | 0 | — | — | 🔍 |
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 · 14º | 0 | — | — | 🔍 |
-| [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | M18 · 4.2 · 15º | 0 | Baixo | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.3 · 3º | 0 | — | — | 🔍 |
@@ -316,7 +315,6 @@
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Alto | Alto | Alto | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F291** | Melhoria | Locador com aluguel de 1,1× o salário | N39 | — | M18 · 4.2 | — | Baixo | Baixo | Médio | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -546,11 +544,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f291"></a>
-**F291 — Locador com aluguel de 1,1× o salário.** Serve N39. Hoje o Locador (`backend/core/professions.py`) rende 1× o salário, paga o imposto de renda das pessoas e corre o sorteio de demissão como vacância, igual ao CLT, mas sem o aumento acima da inflação que o CLT ganha quando o PIB cresce. Ele sai igual ou pior que o CLT em tudo, e com as vantagens e desvantagens escritas no card da profissão isso fica à vista: ninguém escolhe o Locador.
-
-**Decidido em 13/11:** o aluguel passa a 1,1× o salário (R$ 5.500 com salário de R$ 5.000), 10% mais que o CLT, e segue só com a inflação. A escolha vira uma troca: mais renda agora contra o CLT, que cresce. Com PIB de 2% ao ano o CLT ganha 1% ao ano acima da inflação e alcança o Locador em uns 10 anos de partida. Muda o `income_multiple` do Locador no backend e no `frontend/shared/lib/professions.ts`, e os testes de profissão que fixam o 1×.
-
 ---
 
 ## 🔍 Em avaliação
@@ -702,6 +695,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 |
 | **F287** | Melhoria | Slots dos jogadores do lobby no desenho anterior | N15, N20 | — | M18 · 4.2 |
 | **F288** | Melhoria | Badge de profissão legível no lobby e na Minha preparação | N15, N20 | — | M18 · 4.2 |
+| **F291** | Melhoria | Locador com aluguel de 1,1× o salário | N39 | — | M18 · 4.2 |
 
 <a id="f249"></a>
 **F249 — Núcleo do backend sem import de features.** `core/` importava de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
@@ -730,6 +724,11 @@ O túnel foi para `features/tunnel/`, a preparação da sala para `features/gove
 **Plano:** a variante do badge de etiqueta ganha contraste no próprio design system (`badgeVariants.ts`): borda `border-input` e fundo que se destaca do card nos dois temas, seja ajustando a `secondary` (se todos os usos dela ganham com isso) ou criando uma variante nova de etiqueta usada pelo badge de profissão, pelo "Bot" e pelo "Novo". Sem `className` por cima da variante. O botão Minha preparação passa a renderizar o `ProfessionBadge` no lugar do texto.
 
 **Aceite:** a borda ou o fundo do badge tem contraste de pelo menos 3:1 contra o fundo do card, no tema claro e no escuro, no card comum e no card do próprio jogador.
+
+<a id="f291"></a>
+**F291 — Locador com aluguel de 1,1× o salário.** Serve N39. Hoje o Locador (`backend/core/professions.py`) rende 1× o salário, paga o imposto de renda das pessoas e corre o sorteio de demissão como vacância, igual ao CLT, mas sem o aumento acima da inflação que o CLT ganha quando o PIB cresce. Ele sai igual ou pior que o CLT em tudo, e com as vantagens e desvantagens escritas no card da profissão isso fica à vista: ninguém escolhe o Locador.
+
+**Decidido em 13/11:** o aluguel passa a 1,1× o salário (R$ 5.500 com salário de R$ 5.000), 10% mais que o CLT, e segue só com a inflação. A escolha vira uma troca: mais renda agora contra o CLT, que cresce. Com PIB de 2% ao ano o CLT ganha 1% ao ano acima da inflação e alcança o Locador em uns 10 anos de partida. Muda o `income_multiple` do Locador no backend e no `frontend/shared/lib/professions.ts`, e os testes de profissão que fixam o 1×.
 
 ---
 
