@@ -31,7 +31,7 @@ Só no viver de renda. O card **Vida financeira** resume o mês da partida: **Sa
 
 ## Histórico
 
-A lista do que aconteceu na sua vida financeira, com o filtro **Imprevistos**, **Demissões**, **Cheque especial** e **Orçamento**. O **Orçamento** lista cada reajuste de salário e despesa, mudança do imposto de renda das pessoas e do juro do cheque especial, com a origem (ex.: "IPCA de 4,5% e PIB de 3,1%" ou "SELIC de 10,5% ao ano"); a demissão mostra o desemprego do dia e a perda de renda diz "Renda de <mês> não entrou". As colunas são **Data na partida**, **Tipo**, **O que foi**, **Valor** e **Seu caixa depois**. Sem nada ainda, a lista diz "Nada aconteceu ainda".
+A lista do que aconteceu na sua vida financeira, com o filtro **Imprevistos**, **Demissões**, **Cheque especial** e **Orçamento**. O **Orçamento** lista cada reajuste de salário e despesa, mudança do imposto de renda das pessoas e do juro do cheque especial, com a origem (ex.: "IPCA de 4,5% e PIB de 3,1%" ou "SELIC de 10,5% ao ano"); a demissão mostra o desemprego do dia e a perda de renda diz o mês, como em "Renda de março não entrou". As colunas são **Data na partida**, **Tipo**, **O que foi**, **Valor** e **Seu caixa depois**. Sem nada ainda, a lista diz "Nada aconteceu ainda".
 
 ## Ver também
 
