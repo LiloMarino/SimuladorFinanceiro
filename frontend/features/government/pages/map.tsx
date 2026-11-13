@@ -78,11 +78,9 @@ function MapLoader() {
         <div className="grid items-start gap-5 xl:grid-cols-[256px_minmax(0,1fr)_340px]">
           <Skeleton className="h-96" />
           <Skeleton className="h-[34rem]" />
-          <div className="grid gap-5">
-            <Skeleton className="h-80" />
-            <Skeleton className="h-64" />
-          </div>
+          <Skeleton className="h-96" />
         </div>
+        <Skeleton className="h-[26rem]" />
       </CardState>
     );
   }
@@ -233,31 +231,30 @@ function MapContent({ map }: { map: ElectionMap }) {
           selected={place.code}
           onSelect={(code) => update({ lugar: code })}
         />
-        <div className="grid gap-5">
-          <MapPlaceCard
-            map={shown}
-            place={place}
-            trend={
-              rulerVisible && timeline && selected ? (
-                <MapPlaceTrend
-                  timeline={timeline}
-                  place={place}
-                  selected={selected}
-                  focusParty={party?.id ?? null}
-                  onSelect={selectPoint}
-                />
-              ) : null
-            }
-          />
-          <MapPlacesTable
-            map={shown}
-            division={division}
-            party={party}
-            selected={place.code}
-            onSelect={(code) => update({ lugar: code })}
-          />
-        </div>
+        <MapPlaceCard
+          map={shown}
+          place={place}
+          trend={
+            rulerVisible && timeline && selected ? (
+              <MapPlaceTrend
+                timeline={timeline}
+                place={place}
+                selected={selected}
+                focusParty={party?.id ?? null}
+                onSelect={selectPoint}
+              />
+            ) : null
+          }
+        />
       </div>
+
+      {/* Lista de lugares em faixa larga */}
+      <MapPlacesTable
+        map={shown}
+        division={division}
+        selected={place.code}
+        onSelect={(code) => update({ lugar: code })}
+      />
     </div>
   );
 }

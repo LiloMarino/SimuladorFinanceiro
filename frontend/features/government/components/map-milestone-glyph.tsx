@@ -40,7 +40,7 @@ export function MapMilestoneGlyph({ kind, color, count = null, children }: MapMi
     >
       <Icon className="size-3.5" aria-hidden />
       {count !== null && (
-        <span className="absolute -top-1.5 -right-1.75 flex h-3.75 min-w-3.75 items-center justify-center rounded-full bg-foreground px-0.75 font-mono text-xs leading-none font-bold text-background">
+        <span className="absolute -top-1.5 -right-0.5 flex h-3.75 min-w-3.75 items-center justify-center rounded-full bg-foreground px-0.75 font-mono text-xs leading-none font-bold text-background">
           {count}
         </span>
       )}

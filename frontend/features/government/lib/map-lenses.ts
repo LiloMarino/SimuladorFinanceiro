@@ -105,7 +105,7 @@ function nationalLeader(map: ElectionMap) {
 
 export type LensAvailability = { available: true } | { available: false; reason: string };
 
-/** Quando a lente liga: sem os dados dela, o motivo vai escrito no botão apagado. */
+/** Quando a lente liga: sem os dados dela, o motivo é uma frase que completa o nome da lente ("Variação precisa de 2 pesquisas"). */
 export function lensAvailability(map: ElectionMap, lens: MapLensId): LensAvailability {
   switch (lens) {
     case "leads":
@@ -117,9 +117,9 @@ export function lensAvailability(map: ElectionMap, lens: MapLensId): LensAvailab
       if (!momentSource(map)) return { available: false, reason: `abre em ${dayMonth(map.opens_on)}` };
       return previousDate(map) ? { available: true } : { available: false, reason: "precisa de 2 pesquisas" };
     case "rejection":
-      return map.rejection.length > 0 ? { available: true } : { available: false, reason: "sem partidos" };
+      return map.rejection.length > 0 ? { available: true } : { available: false, reason: "ainda não tem partidos" };
     case "approval":
-      return map.approval ? { available: true } : { available: false, reason: "sem dados por lugar" };
+      return map.approval ? { available: true } : { available: false, reason: "ainda não tem dados por lugar" };
     case "group":
       return { available: true };
   }
@@ -168,6 +168,31 @@ export function classifyPlace(ranked: Standing[], margin: number): PlaceClass | 
 /** O número de pontos do partido no lugar (pesquisa ou resultado). */
 export function pointsOf(ranked: Standing[], partyId: number) {
   return ranked.find((row) => row.partyId === partyId)?.points ?? 0;
+}
+
+export type PlaceDuel = {
+  /** O 1º e o 2º do lugar, com o percentual de cada um (escala 0–100). */
+  first: { partyId: number; value: number };
+  second: { partyId: number; value: number } | undefined;
+  /** A distância em pontos percentuais entre o 1º e o 2º. */
+  gap: number;
+  /** A diferença cabe na margem do lugar. */
+  tie: boolean;
+};
+
+/**
+ * O duelo do 1º contra o 2º no lugar. A pesquisa já vem em pontos percentuais; a apuração soma os votos
+ * do lugar e divide, então o percentual e a distância saem sempre na mesma escala.
+ */
+export function duelOf(ranked: Standing[], source: MomentSource, margin: number): PlaceDuel | null {
+  const verdict = classifyPlace(ranked, margin);
+  const [top, runnerUp] = ranked;
+  if (!verdict || !top) return null;
+  const total = ranked.reduce((sum, row) => sum + row.points, 0);
+  const percent = (points: number) => (source === "poll" ? points : total > 0 ? (points / total) * 100 : 0);
+  const first = { partyId: top.partyId, value: percent(top.points) };
+  const second = runnerUp ? { partyId: runnerUp.partyId, value: percent(runnerUp.points) } : undefined;
+  return { first, second, gap: second ? first.value - second.value : first.value, tie: verdict.kind === "tie" };
 }
 
 /** Variação do partido desde a pesquisa anterior, em pontos; sem pesquisa anterior, null. */

@@ -93,7 +93,7 @@ export function MapPlaceTrend({ timeline, place, selected, focusParty, onSelect 
         width={CHART_WIDTH}
         height={CHART_HEIGHT}
         data={data}
-        margin={{ top: 10, right: 26, left: 0, bottom: 0 }}
+        margin={{ top: 10, right: 34, left: 0, bottom: 0 }}
         onClick={pick}
         style={{ cursor: "pointer" }}
       >

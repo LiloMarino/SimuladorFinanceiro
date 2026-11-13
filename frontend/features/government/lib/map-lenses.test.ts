@@ -4,6 +4,7 @@ import {
   changeOf,
   classifyPlace,
   defaultPlace,
+  duelOf,
   extremes,
   fallbackLens,
   lensAvailability,
@@ -195,6 +196,41 @@ describe("classifyPlace", () => {
   });
 });
 
+describe("duelOf", () => {
+  it("a pesquisa já vem em pontos: o 1º, o 2º e a distância entre eles", () => {
+    // BA: 45 contra 30, margem 5
+    const duel = duelOf(standings(map, "BA", "poll"), "poll", 5);
+    expect(duel).toEqual({
+      first: { partyId: 1, value: 45 },
+      second: { partyId: 2, value: 30 },
+      gap: 15,
+      tie: false,
+    });
+  });
+
+  it("empate técnico quando a distância cabe na margem", () => {
+    // SC: 24 contra 22, margem 7
+    expect(duelOf(standings(map, "SC", "poll"), "poll", 7)).toMatchObject({ gap: 2, tie: true });
+  });
+
+  it("a apuração vira percentual dos votos do lugar", () => {
+    const ranked = [
+      { partyId: 1, points: 600 },
+      { partyId: 2, points: 400 },
+    ];
+    expect(duelOf(ranked, "result", 0)).toEqual({
+      first: { partyId: 1, value: 60 },
+      second: { partyId: 2, value: 40 },
+      gap: 20,
+      tie: false,
+    });
+  });
+
+  it("sem partido nenhum não há duelo", () => {
+    expect(duelOf([], "poll", 5)).toBeNull();
+  });
+});
+
 describe("lensAvailability", () => {
   it("as lentes da eleição ficam apagadas sem pesquisa, com a data em que abrem", () => {
     expect(lensAvailability(withoutPoll, "leads")).toEqual({ available: false, reason: "abre em 1 mar" });
@@ -221,7 +257,10 @@ describe("lensAvailability", () => {
 
   it("rejeição, aprovação e eleitorado ligam quando têm dado", () => {
     expect(lensAvailability(withoutPoll, "rejection")).toEqual({ available: true });
-    expect(lensAvailability(withoutPoll, "approval")).toEqual({ available: false, reason: "sem dados por lugar" });
+    expect(lensAvailability(withoutPoll, "approval")).toEqual({
+      available: false,
+      reason: "ainda não tem dados por lugar",
+    });
     expect(lensAvailability(withoutPoll, "group")).toEqual({ available: true });
   });
 

@@ -1,4 +1,4 @@
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Lock } from "lucide-react";
 import { PartyMark } from "@/shared/components/party-mark";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -53,6 +53,20 @@ function stripes(parties: MapParty[]) {
   return `linear-gradient(90deg, ${stops.join(", ")})`;
 }
 
+type Unavailable = { label: string; reason: string };
+
+// "Quem lidera, Desempenho e Rejeição abrem em 05 out. Variação precisa de 2 pesquisas."
+function unavailableNotice(items: Unavailable[]) {
+  const byReason = new Map<string, string[]>();
+  for (const { label, reason } of items) byReason.set(reason, [...(byReason.get(reason) ?? []), label]);
+  return [...byReason.entries()]
+    .map(([reason, labels]) => {
+      const names = labels.length > 1 ? `${labels.slice(0, -1).join(", ")} e ${labels.at(-1)}` : labels.join("");
+      return `${names} ${labels.length > 1 ? reason.replace(/^abre /, "abrem ") : reason}.`;
+    })
+    .join(" ");
+}
+
 /** As lentes do mapa agrupadas por assunto, com a divisão (região ou estado) e as escolhas de cada lente. */
 export function MapLensMenu({
   map,
@@ -75,6 +89,14 @@ export function MapLensMenu({
     if (item.id === "change" && previous) return `Variação desde ${dayMonth(previous)}`;
     return item.label;
   };
+
+  // O motivo de cada lente apagada vai num aviso só: lentes com o mesmo motivo dividem a frase
+  const notice = unavailableNotice(
+    MAP_LENSES.flatMap((item) => {
+      const availability = lensAvailability(map, item.id);
+      return availability.available ? [] : [{ label: labelOf(item), reason: availability.reason }];
+    }),
+  );
 
   return (
     <Card>
@@ -113,7 +135,7 @@ export function MapLensMenu({
           >
             {MAP_SECTIONS.map((section) => (
               <div key={section} className="grid gap-0.5 pt-1.5 first:pt-0">
-                <div className="flex items-center justify-between px-1 pb-0.5">
+                <div className="flex h-6 items-center justify-between px-1">
                   <span className={CAPTION}>{section}</span>
                   {section === "Partido em foco" && party && map.parties.length > 1 && (
                     <PartyChoice parties={map.parties} party={party} onChange={onPartyChange} />
@@ -125,12 +147,13 @@ export function MapLensMenu({
                     <ToggleGroupItem key={item.id} value={item.id} disabled={!availability.available}>
                       <span aria-hidden className="size-4 shrink-0 rounded-sm" style={{ background: swatch(item) }} />
                       <span className="min-w-0 truncate">{labelOf(item)}</span>
-                      {/* Aviso e coluna fixa do atalho */}
-                      <span className="ml-auto flex shrink-0 items-center gap-2">
-                        {!availability.available && <span className="text-xs">{availability.reason}</span>}
-                        <span className="flex w-5 justify-end">
-                          {availability.available && item.key && <Kbd>{item.key}</Kbd>}
-                        </span>
+                      {/* Coluna fixa do atalho; sem dados, o cadeado */}
+                      <span className="ml-auto flex w-5 shrink-0 justify-end">
+                        {availability.available ? (
+                          item.key && <Kbd>{item.key}</Kbd>
+                        ) : (
+                          <Lock className="size-3.5" aria-label="Indisponível agora" />
+                        )}
                       </span>
                     </ToggleGroupItem>
                   );
@@ -152,6 +175,14 @@ export function MapLensMenu({
           )}
 
           <Separator />
+
+          {/* Aviso das lentes indisponíveis */}
+          {notice && (
+            <div className="grid gap-1 rounded-[10px] bg-subtle px-3 py-2.5">
+              <span className="text-xs font-semibold">Indisponíveis agora</span>
+              <span className="text-xs text-muted-foreground">{notice}</span>
+            </div>
+          )}
 
           <p className="text-xs text-muted-foreground">
             As teclas 1 a 6 trocam a lente
