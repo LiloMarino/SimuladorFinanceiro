@@ -78,7 +78,6 @@ def stored_series(monkeypatch: pytest.MonkeyPatch) -> None:
             cache[series] = adjustment.adjust(series, history)
         return cache[series]
 
-    monkeypatch.setattr(repository.economic, "_adjustments", {})
     monkeypatch.setattr(repository.economic, "get_history", get_history)
     monkeypatch.setattr(
         repository.economic, "refresh_adjusted", lambda _simulation_id: cache.clear()

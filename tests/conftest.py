@@ -383,6 +383,12 @@ def remembered_professions(monkeypatch: pytest.MonkeyPatch) -> dict[int, Profess
     return stored
 
 
+@pytest.fixture(autouse=True)
+def isolated_economy_adjustments(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Cada teste começa sem camada de economia registrada: o preço e os indicadores são os da base."""
+    monkeypatch.setattr(repository.economic, "_adjustments", {})
+
+
 @pytest.fixture
 def team_room(monkeypatch: pytest.MonkeyPatch) -> Join:
     """Sala vazia, em equipes e sem partida; `join("Ana")` conecta um jogador."""

@@ -60,7 +60,7 @@ def test_the_focus_does_not_limit_the_start_of_a_match(indicators):
     ensure_indicator_coverage(START)
 
 
-def test_coverage_says_which_series_get_a_generated_future(indicators):
+def test_coverage_says_which_series_get_a_generated_future(indicators, database):
     """O Focus, o PIB e a PTAX não ganham futuro; CDI e o Fed Funds (a exceção da economia) ganham."""
     _cover_all(indicators, date(2019, 12, 2))
 

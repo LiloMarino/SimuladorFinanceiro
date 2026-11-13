@@ -35,8 +35,6 @@ def _price(stock_id: int, day: int, opening: float, close: float) -> StockPriceH
 
 @pytest.fixture
 def quotes(database: Engine, monkeypatch: pytest.MonkeyPatch) -> Engine:
-    # Sem camada de economia registrada por outro teste: o preço é o da base
-    monkeypatch.setattr(repository.economic, "_adjustments", {})
     with Session(database) as session:
         stocks = [
             Stock(ticker=ticker, name=ticker, asset_class=asset_class)
