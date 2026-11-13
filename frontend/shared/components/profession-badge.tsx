@@ -7,7 +7,7 @@ export function ProfessionBadge({ profession }: { profession: Profession | null 
   if (!profession) return null;
   const { name, icon: Icon } = PROFESSIONS[profession];
   return (
-    <Badge variant="secondary" size="sm" className="shrink-0">
+    <Badge variant="label" size="sm" className="shrink-0">
       <Icon />
       {name}
     </Badge>

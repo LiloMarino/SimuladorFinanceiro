@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Flag } from "lucide-react";
 import { PartyMark } from "@/shared/components/party-mark";
+import { ProfessionBadge } from "@/shared/components/profession-badge";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
-import { PROFESSIONS } from "@/shared/lib/professions";
 import type { SimulationSettings } from "@/types";
 import { useMyPreparation } from "../../hooks/queries/useMyPreparation";
 import { usePreparations } from "../../hooks/queries/usePreparations";
@@ -35,7 +35,7 @@ export function PreparationButton({ rules, selectedSimulationId, professions, sa
       <Button variant="outline" onClick={() => setOpen(true)}>
         <Flag />
         Minha preparação
-        {profession && <span className="text-xs text-muted-foreground">{PROFESSIONS[profession].name}</span>}
+        <ProfessionBadge profession={profession} />
         {party && (
           <span className="inline-flex items-center gap-1">
             {party.founder !== user?.nickname && <span className="text-xs text-muted-foreground">no</span>}

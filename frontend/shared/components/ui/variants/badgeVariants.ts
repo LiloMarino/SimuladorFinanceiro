@@ -16,6 +16,8 @@ export const badgeVariants = cva(
         split: "bg-split-soft text-split",
         federation: "bg-federation-soft text-federation",
         outline: "border-input bg-card text-foreground",
+        // Etiqueta neutra de um card (profissão, "Bot"): a borda separa o selo do fundo do card
+        label: "border-label-border bg-muted text-secondary-foreground",
         // Selo de destaque sobre fundo claro: o contraste máximo do tema
         inverse: "bg-foreground text-background",
         // Selo sobre fundo azul (aba do Como jogar): branco com texto azul
