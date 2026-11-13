@@ -91,11 +91,10 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
-| [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 | — | — | — | 🔍 |
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -122,6 +121,7 @@
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | — | — | ✅ |
 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 | — | — | — | ✅ |
 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 | — | — | — | ✅ |
+| [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 | — | — | — | ✅ |
 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
@@ -138,7 +138,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 4/15 concluídos
+> **Progresso:** 5/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -154,7 +154,7 @@
 | 10 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | [F44](#f44) | 🔍 Em avaliação |
 | 11 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | — | ✅ Concluído |
 | 12 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | — | ✅ Concluído |
-| 13 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | — | 🔍 Em avaliação |
+| 13 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | — | ✅ Concluído |
 | 14 | [**F290**](#f290) | Feature | Profissões novas | — | 🔍 Em avaliação |
 | 15 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | — | ✅ Concluído |
 
@@ -253,7 +253,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
-| [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 · 13º | 0 | — | — | 🔍 |
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 · 14º | 0 | — | — | 🔍 |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
@@ -568,7 +567,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M24 · 4.3 | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
 | **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M24 · 4.3 | — | Medir as estratégias atuais em partidas com governo, dólar e crédito; escolher as estratégias novas. |
 | **F285** | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | — | — | — | Escolher o mecanismo (filtrar o seletor, recolorir na tela de quem liga ou reforçar além da cor) e medir o tamanho do conjunto distinguível sob as três simulações |
-| **F289** | Melhoria | Cards de profissão com vantagens e desvantagens | N39, N25 | — | M18 · 4.2 | — | O desenho no canvas e a revisão das frases de cada profissão |
 | **F290** | Feature | Profissões novas | N23, N34 | D19 | M18 · 4.2 | — | Quais profissões entram, os números, o grupo do eleitorado e a medida do governo que chega em cada uma |
 
 <a id="f5"></a>
@@ -649,21 +647,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no servidor, e deixar o 3 para onde só a cor carrega a informação (o mapa). O tamanho do conjunto distinguível sai de medir o ΔE sob as três simulações.
 
-<a id="f289"></a>
-**F289 — Cards de profissão com vantagens e desvantagens.** Serve N39 e N25. A aba Profissão da Minha preparação (`ProfessionCards` em `frontend/shared/components/profession-grid.tsx`) mostra, em cada card, o ícone, o nome, o "N× o salário" e um parágrafo (`feels` em `frontend/shared/lib/professions.ts`) que mistura demissão, reajuste e imposto. O usuário achou denso demais: ninguém lê prosa para escolher. Na escolha, o que importa é o que cada profissão ganha e o que ela perde.
-
-**Proposta:** o parágrafo vira duas partes. **Vantagens** (✓) e **desvantagens** (✗) em lista curta respondem "vale a pena?". **Afetado por** responde "o que eu acompanho durante a partida": as variáveis que movem a renda (da economia ou do governo), como etiquetas curtas, sem dizer se é bom ou ruim. As etiquetas e as frases saem das regras da profissão (`ProfessionRule`: imposto, reajuste, PIB, auxílio, sorteio de demissão), e as listas moram em `PROFESSIONS` no lugar do `feels`, como fonte única do texto.
-
-**Decidido em 13/11:**
-
-- **Renda em R$ e em múltiplo:** cada card mostra o valor do mês com o salário que o host definiu ("R$ 6.000 por mês") e, embaixo, o "1,2× o salário". A nota de rodapé que explicava o "× o salário" sai.
-- **Auxílio:** mostra o total, 0,9× (R$ 4.500), com a divisão "0,5× do bico + 0,4× do auxílio" embaixo.
-- **Regras da sala:** o card mostra só o que vale na sala. Sem o Governo, saem as etiquetas e as vantagens que dependem dele (aumento dos servidores e dos aposentados, gasto com auxílio, impostos); sem a correção pela inflação, sai o aumento. Card sem nenhuma etiqueta diz "Nada que mude na partida".
-- **Dica das etiquetas:** hovercard com o que a variável é e uma tabela curta do efeito em R$ (PIB do empreendedor, desemprego com a frequência do sorteio, imposto, gasto com auxílio, aumento do governo). Sem dica de texto corrido: etiqueta sem tabela fica só com o nome.
-- **Locador:** passa a 1,1× o salário, no card próprio dele no roadmap; os cards já o mostram com R$ 5.500.
-
-**Falta:** o usuário escolher no canvas a variante do card (A: três colunas com lista única; B: duas colunas com Ganha e Perde lado a lado; C: tabela comparativa) e revisar as frases de cada profissão.
-
 <a id="f290"></a>
 **F290 — Profissões novas.** Serve N23 e N34; condicionado por D19. As seis profissões de hoje (`backend/core/professions.py`, `frontend/shared/lib/professions.ts`) ligam a renda ao desemprego, ao PIB, ao reajuste do governo e a um dos três impostos. Profissões novas dão mais escolhas na preparação e mais jogadores que o governo atinge de jeitos diferentes.
 
@@ -695,6 +678,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 |
 | **F287** | Melhoria | Slots dos jogadores do lobby no desenho anterior | N15, N20 | — | M18 · 4.2 |
 | **F288** | Melhoria | Badge de profissão legível no lobby e na Minha preparação | N15, N20 | — | M18 · 4.2 |
+| **F289** | Melhoria | Cards de profissão com vantagens e desvantagens | N39, N25 | — | M18 · 4.2 |
 | **F291** | Melhoria | Locador com aluguel de 1,1× o salário | N39 | — | M18 · 4.2 |
 
 <a id="f249"></a>
@@ -724,6 +708,21 @@ O túnel foi para `features/tunnel/`, a preparação da sala para `features/gove
 **Plano:** a variante do badge de etiqueta ganha contraste no próprio design system (`badgeVariants.ts`): borda `border-input` e fundo que se destaca do card nos dois temas, seja ajustando a `secondary` (se todos os usos dela ganham com isso) ou criando uma variante nova de etiqueta usada pelo badge de profissão, pelo "Bot" e pelo "Novo". Sem `className` por cima da variante. O botão Minha preparação passa a renderizar o `ProfessionBadge` no lugar do texto.
 
 **Aceite:** a borda ou o fundo do badge tem contraste de pelo menos 3:1 contra o fundo do card, no tema claro e no escuro, no card comum e no card do próprio jogador.
+
+<a id="f289"></a>
+**F289 — Cards de profissão com vantagens e desvantagens.** Serve N39 e N25. A aba Profissão da Minha preparação (`ProfessionCards` em `frontend/shared/components/profession-grid.tsx`) mostra, em cada card, o ícone, o nome, o "N× o salário" e um parágrafo (`feels` em `frontend/shared/lib/professions.ts`) que mistura demissão, reajuste e imposto. O usuário achou denso demais: ninguém lê prosa para escolher. Na escolha, o que importa é o que cada profissão ganha e o que ela perde.
+
+**Proposta:** o parágrafo vira duas partes. **Vantagens** (✓) e **desvantagens** (✗) em lista curta respondem "vale a pena?". **Afetado por** responde "o que eu acompanho durante a partida": as variáveis que movem a renda (da economia ou do governo), como etiquetas curtas, sem dizer se é bom ou ruim. As etiquetas e as frases saem das regras da profissão (`ProfessionRule`: imposto, reajuste, PIB, auxílio, sorteio de demissão), e as listas moram em `PROFESSIONS` no lugar do `feels`, como fonte única do texto.
+
+**Decidido em 13/11:**
+
+- **Renda em R$ e em múltiplo:** cada card mostra o valor do mês com o salário que o host definiu ("R$ 6.000 por mês") e, embaixo, o "1,2× o salário". A nota de rodapé que explicava o "× o salário" sai.
+- **Auxílio:** mostra o total, 0,9× (R$ 4.500), com a divisão "0,5× do bico + 0,4× do auxílio" embaixo.
+- **Regras da sala:** o card mostra só o que vale na sala. Sem o Governo, saem as etiquetas e as vantagens que dependem dele (aumento dos servidores e dos aposentados, gasto com auxílio, impostos); sem a correção pela inflação, sai o aumento. Card sem nenhuma etiqueta diz "Nada que mude na partida".
+- **Dica das etiquetas:** hovercard com o que a variável é e uma tabela curta do efeito em R$ (PIB do empreendedor, desemprego com a frequência do sorteio, imposto, gasto com auxílio, aumento do governo). Sem dica de texto corrido: etiqueta sem tabela fica só com o nome.
+- **Locador:** passa a 1,1× o salário, no card próprio dele no roadmap; os cards já o mostram com R$ 5.500.
+
+**Falta:** o usuário escolher no canvas a variante do card (A: três colunas com lista única; B: duas colunas com Ganha e Perde lado a lado; C: tabela comparativa) e revisar as frases de cada profissão.
 
 <a id="f291"></a>
 **F291 — Locador com aluguel de 1,1× o salário.** Serve N39. Hoje o Locador (`backend/core/professions.py`) rende 1× o salário, paga o imposto de renda das pessoas e corre o sorteio de demissão como vacância, igual ao CLT, mas sem o aumento acima da inflação que o CLT ganha quando o PIB cresce. Ele sai igual ou pior que o CLT em tudo, e com as vantagens e desvantagens escritas no card da profissão isso fica à vista: ninguém escolhe o Locador.
