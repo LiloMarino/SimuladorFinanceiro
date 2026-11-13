@@ -60,7 +60,6 @@
 | [**F81**](#f81) | Manutenção | CORS restrito à mesma origem | M27 · 4.5 | — | Baixo | Médio | ⏳ |
 | [**F90**](#f90) | Feature | Cenários | M25 · 4.4 | — | Alto | Bom | ⏳ |
 | [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.4 | — | Médio | Médio | ⏳ |
-| [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F104**](#f104) | Feature | Gestoras: co-gestores | M18 · 4.2 | — | Médio | Bom | ⏳ |
@@ -96,7 +95,7 @@
 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | M18 · 4.2 | — | Médio | Médio | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -120,6 +119,7 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176), [F290](#f290), [F293](#f293) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F227](#f227), [F255](#f255) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
+| [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 | — | — | — | ✅ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | — | — | ✅ |
 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 | — | — | — | ✅ |
 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 | — | — | — | ✅ |
@@ -141,12 +141,12 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 6/19 concluídos
+> **Progresso:** 7/19 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | ✅ Concluído |
-| 2 | [**F101**](#f101) | Feature | Carteira separada do jogador | — | ⏳ Pendente |
+| 2 | [**F101**](#f101) | Feature | Carteira separada do jogador | — | ✅ Concluído |
 | 3 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | 🔍 Em avaliação |
 | 4 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | [F101](#f101) | ⏳ Pendente |
 | 5 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | [F44](#f44) | 🔍 Em avaliação |
@@ -258,8 +258,8 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 15 | Alto | Médio | ⏳ |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M18 · 4.2 · 3º | 0 | — | — | 🔍 |
+| [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.2 · 4º | 14 | Alto | Médio | ⏳ |
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 · 16º | 1 | Alto | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
@@ -306,7 +306,6 @@
 | **F81** | Manutenção | CORS restrito à mesma origem | — | — | M27 · 4.5 | [F6](#f6) | Baixo | Médio | Baixo | Médio |
 | **F90** | Feature | Cenários | N22 | D18 | M25 · 4.4 | — | Alto | Médio | Alto | Bom |
 | **F93** | Feature | Rumores antecipados | N31 | D18 | M25 · 4.4 | — | Médio | Médio | Médio | Médio |
-| **F101** | Feature | Carteira separada do jogador | N23 | D9 | M18 · 4.2 | — | Alto | Alto | Médio | Médio |
 | **F102** | Feature | Gestoras: emissão de novas cotas e recompra | N23 | — | M18 · 4.2 | [F44](#f44) | Médio | Médio | Médio | Bom |
 | **F103** | Feature | Gestoras: troca de gestor pela assembleia | N23 | — | M18 · 4.2 | [F44](#f44) | Médio | Médio | Alto | Bom |
 | **F104** | Feature | Gestoras: co-gestores | N23 | — | M18 · 4.2 | [F44](#f44) | Médio | Baixo | Médio | Bom |
@@ -464,9 +463,6 @@
 **Fora deste card, como ideia futura:** rumor privado sorteado para um ou dois jogadores, que depende de uma caixa de entrada por jogador.
 
 **Aceite:** com a opção desligada nenhum rumor aparece; ligada, os rumores aparecem no jornal marcados como Rumor, de 3 a 10 pregões antes do fato; num teste com muitas partidas sorteadas as proporções ficam perto de 60/25/15; nenhum rumor traz ativo e direção juntos; duas partidas do mesmo período com sementes diferentes têm rumores falsos diferentes.
-
-<a id="f101"></a>
-**F101 — Carteira separada do jogador.** Serve N23; segue a D9. A base da expansão Gestoras (F44): hoje eventos e snapshots pertencem ao jogador (`user_id`), e a gestora precisa de carteira própria. Entra uma tabela `portfolios`, e eventos e snapshots passam a apontar para a carteira; a carteira pessoal de cada jogador é migrada uma a uma, inclusive nas partidas salvas. Nada muda na tela: cada jogador segue com uma carteira só até a F44 existir. Gatilho: a F44 sair da avaliação.
 
 <a id="f102"></a>
 **F102 — Gestoras: emissão de novas cotas e recompra.** Serve N23; amplia a expansão Gestoras (F44).
@@ -800,12 +796,16 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
+| **F101** | Feature | Carteira separada do jogador | N23 | D9 | M18 · 4.2 |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 |
 | **F287** | Melhoria | Slots dos jogadores do lobby no desenho anterior | N15, N20 | — | M18 · 4.2 |
 | **F288** | Melhoria | Badge de profissão legível no lobby e na Minha preparação | N15, N20 | — | M18 · 4.2 |
 | **F289** | Melhoria | Cards de profissão com vantagens e desvantagens | N39, N25 | — | M18 · 4.2 |
 | **F291** | Melhoria | Locador com aluguel de 1,1× o salário | N39 | — | M18 · 4.2 |
 | **F294** | Melhoria | Adicionar vários bots de uma vez | N8 | — | M18 · 4.2 |
+
+<a id="f101"></a>
+**F101 — Carteira separada do jogador.** Serve N23; segue a D9. A base da expansão Gestoras (F44): hoje eventos e snapshots pertencem ao jogador (`user_id`), e a gestora precisa de carteira própria. Entra uma tabela `portfolios`, e eventos e snapshots passam a apontar para a carteira; a carteira pessoal de cada jogador é migrada uma a uma, inclusive nas partidas salvas. Nada muda na tela: cada jogador segue com uma carteira só até a F44 existir. Gatilho: a F44 sair da avaliação.
 
 <a id="f249"></a>
 **F249 — Núcleo do backend sem import de features.** `core/` importava de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
