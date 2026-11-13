@@ -62,16 +62,16 @@ class SummaryRepository:
         self,
         session: Session,
         simulation_id: int,
-        user_id: int,
+        portfolio_id: int,
         since: date,
         until: date,
     ) -> list[PatrimonialHistoryDTO]:
-        """Os snapshots do jogador em [since, until], com o último de antes de `since` à frente."""
+        """Os snapshots da carteira em [since, until], com o último de antes de `since` à frente."""
         previous = (
             select(func.max(Snapshots.snapshot_date))
             .where(
                 Snapshots.simulation_id == simulation_id,
-                Snapshots.user_id == user_id,
+                Snapshots.portfolio_id == portfolio_id,
                 Snapshots.snapshot_date < since,
             )
             .scalar_subquery()
@@ -80,7 +80,7 @@ class SummaryRepository:
             select(Snapshots)
             .where(
                 Snapshots.simulation_id == simulation_id,
-                Snapshots.user_id == user_id,
+                Snapshots.portfolio_id == portfolio_id,
                 or_(
                     Snapshots.snapshot_date.between(since, until),
                     Snapshots.snapshot_date == previous,

@@ -115,7 +115,9 @@ class SimulationEngine:
         )
         self.matching_engine = MatchingEngine(self.broker)
         self._cash: LazyDict[UUID, Decimal] = LazyDict(
-            loader=repository.user.get_user_balance
+            loader=lambda client_id: repository.user.get_user_balance(
+                UserManager.get_portfolio_id(client_id)
+            )
         )
         self.current_date: date = current_date
         self.starting_cash = starting_cash
@@ -247,7 +249,7 @@ class SimulationEngine:
         EventManager.push_event(
             CashflowEventDTO(
                 simulation_id=self.simulation_id,
-                user_id=UserManager.get_user_id(client_id),
+                portfolio_id=UserManager.get_portfolio_id(client_id),
                 event_type=event_type,
                 amount=abs(delta),
                 event_date=self.current_date,
@@ -338,9 +340,9 @@ class SimulationEngine:
         """Debita a contribuição mensal ou a doação de campanha; quem chama já conferiu o caixa."""
         self._move_cash(client_id, -amount, event_type)
 
-    def assess_income_tax(self, user_id: int) -> list[MonthlyTax]:
+    def assess_income_tax(self, portfolio_id: int) -> list[MonthlyTax]:
         return self._assess(
-            repository.portfolio.get_equity_events(user_id), self.current_date
+            repository.portfolio.get_equity_events(portfolio_id), self.current_date
         )
 
     def _assess(
@@ -447,11 +449,11 @@ class SimulationEngine:
             return preview
 
         # IR da venda: o imposto do mês com a venda hipotética menos o imposto sem ela
-        user_id = UserManager.get_user_id(client_id)
-        events = repository.portfolio.get_equity_events(user_id)
+        portfolio_id = UserManager.get_portfolio_id(client_id)
+        events = repository.portfolio.get_equity_events(portfolio_id)
         sale = EquityEventDTO(
             simulation_id=self.simulation_id,
-            user_id=user_id,
+            portfolio_id=portfolio_id,
             event_date=self.current_date,
             ticker=ticker,
             event_type=EquityEventType.SELL,
@@ -569,17 +571,17 @@ class SimulationEngine:
         total_networth = assets_value - debt
 
         # Aporte mensal é capital do jogador, não rendimento
-        user_id = UserManager.get_user_id(client_id)
+        portfolio_id = UserManager.get_portfolio_id(client_id)
         capital_provided = self.starting_cash + repository.user.get_total_contribution(
-            user_id
+            portfolio_id
         )
 
         # A pagar: o apurado que ainda não venceu, o saldo abaixo do mínimo do DARF
         # e o mês corrente até agora
         income_tax_paid = repository.user.get_total_cashflow(
-            user_id, CashflowEventType.TAX
+            portfolio_id, CashflowEventType.TAX
         )
-        months = self.assess_income_tax(user_id)
+        months = self.assess_income_tax(portfolio_id)
         income_tax_assessed = sum((m.tax for m in months), Decimal(0))
         today = self.current_date
         this_month = next(
@@ -597,7 +599,7 @@ class SimulationEngine:
 
         # Proventos: a soma por ativo vem do caixa; o rendimento usa o provento por ação do dia
         received = repository.portfolio.get_dividend_totals(
-            user_id, trailing_window_start(today)
+            portfolio_id, trailing_window_start(today)
         )
         per_share = self.dividends_per_share(today)
 

@@ -26,7 +26,7 @@ from backend.features.government import measures as rules
 from backend.features.government.state import Measure, Term
 from backend.features.tax_policy import DEFAULT_TAX_POLICY, LossPool, TaxPolicy
 from backend.features.variable_income.income_tax import assess
-from tests.fakes import USER_ID
+from tests.fakes import PORTFOLIO_ID
 
 DAY = date(2022, 1, 31)
 CLASSES = {"TAEE11": AssetClass.STOCK, "ITUB4": AssetClass.STOCK}
@@ -72,7 +72,7 @@ def measure(
 def trade(kind: EquityEventType, ticker: str, day: date, price: str) -> EquityEventDTO:
     return EquityEventDTO(
         simulation_id=1,
-        user_id=USER_ID,
+        portfolio_id=PORTFOLIO_ID,
         event_date=day,
         ticker=ticker,
         event_type=kind,

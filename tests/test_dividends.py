@@ -64,7 +64,7 @@ def _equity(
 ) -> EquityEventDTO:
     return EquityEventDTO(
         simulation_id=1,
-        user_id=1,
+        portfolio_id=1,
         event_date=day,
         ticker="ABCD",
         event_type=event_type,

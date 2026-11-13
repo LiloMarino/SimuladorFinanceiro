@@ -8,6 +8,7 @@ from backend.core.enum import StrategyAction, StrategyLogKind, StrategyOrderStat
 class StrategyEventDTO(BaseEventDTO):
     """Uma linha do registro da estratégia: ordem enviada ou mudança de modo."""
 
+    user_id: int
     kind: StrategyLogKind
     strategy_key: str | None = None
     # Parâmetros em vigor, nas linhas que ligam, trocam ou mudam a estratégia

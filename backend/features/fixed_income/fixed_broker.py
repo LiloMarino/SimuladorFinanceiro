@@ -76,13 +76,13 @@ def load_fixed_assets(
     em dólar o `amount` da compra é em reais e o do resgate, em US$, cada um com o dólar
     do dia no `fx_rate`; o IOF do câmbio é o da política padrão, que nenhuma medida muda.
     """
-    user_id = UserManager.get_user_id(client_id)
+    portfolio_id = UserManager.get_portfolio_id(client_id)
 
     assets: dict[UUID, FixedIncomeAssetDTO] = {}
     trades: dict[
         UUID, dict[date, list[tuple[FixedIncomeEventType, Decimal, Decimal | None]]]
     ] = defaultdict(lambda: defaultdict(list))
-    for asset, event in repository.fixed_income.get_events(simulation_id, user_id):
+    for asset, event in repository.fixed_income.get_events(simulation_id, portfolio_id):
         assets[asset.asset_uuid] = asset
         trades[asset.asset_uuid][event.event_date].append(
             (event.event_type, event.amount, event.fx_rate)
@@ -201,7 +201,7 @@ class FixedBroker:
         EventManager.push_event(
             FixedIncomeEventDTO(
                 simulation_id=self._simulation_engine.simulation_id,
-                user_id=UserManager.get_user_id(client_id),
+                portfolio_id=UserManager.get_portfolio_id(client_id),
                 event_type=FixedIncomeEventType.BUY,
                 asset_id=asset_id,
                 amount=value,
@@ -257,7 +257,7 @@ class FixedBroker:
         EventManager.push_event(
             FixedIncomeEventDTO(
                 simulation_id=self._simulation_engine.simulation_id,
-                user_id=UserManager.get_user_id(client_id),
+                portfolio_id=UserManager.get_portfolio_id(client_id),
                 event_type=FixedIncomeEventType.REDEEM,
                 asset_id=asset_id,
                 amount=_event_amount(position, units),
@@ -320,7 +320,7 @@ class FixedBroker:
         EventManager.push_event(
             FixedIncomeEventDTO(
                 simulation_id=self._simulation_engine.simulation_id,
-                user_id=UserManager.get_user_id(client_id),
+                portfolio_id=UserManager.get_portfolio_id(client_id),
                 event_type=FixedIncomeEventType.REDEEM,
                 asset_id=asset_id,
                 amount=curve_amount,
@@ -398,7 +398,7 @@ class FixedBroker:
 
     def apply_daily_interest(self, current_date: date):
         for client_id, assets_by_client in list(self._assets.items()):
-            user_id = UserManager.get_user_id(client_id)
+            portfolio_id = UserManager.get_portfolio_id(client_id)
             for asset_uuid, position in list(assets_by_client.items()):
                 with self._lock:
                     position.accrue(current_date)
@@ -407,13 +407,15 @@ class FixedBroker:
                         del assets_by_client[asset_uuid]
 
                 if expired:
-                    self.redeem_position(current_date, client_id, user_id, position)
+                    self.redeem_position(
+                        current_date, client_id, portfolio_id, position
+                    )
 
     def redeem_position(
         self,
         current_date: date,
         client_id: UUID,
-        user_id: int,
+        portfolio_id: int,
         position: FixedIncomePosition,
     ) -> None:
         quotes = self._simulation_engine.fixed_quotes()
@@ -432,7 +434,7 @@ class FixedBroker:
         EventManager.push_event(
             FixedIncomeEventDTO(
                 simulation_id=simulation_id,
-                user_id=user_id,
+                portfolio_id=portfolio_id,
                 event_type=FixedIncomeEventType.REDEEM,
                 asset_id=asset_id,
                 amount=_event_amount(

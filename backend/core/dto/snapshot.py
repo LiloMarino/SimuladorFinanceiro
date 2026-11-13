@@ -25,7 +25,7 @@ class DayBalanceDTO(NamedTuple):
 
 
 class SnapshotDTO(BaseDTO):
-    user_id: int
+    portfolio_id: int
     snapshot_date: date
     total_equity: Decimal
     total_fixed: Decimal
@@ -49,7 +49,7 @@ class SnapshotDTO(BaseDTO):
     @staticmethod
     def from_model(m: Snapshots) -> SnapshotDTO:
         return SnapshotDTO(
-            user_id=m.user_id,
+            portfolio_id=m.portfolio_id,
             snapshot_date=m.snapshot_date,
             total_equity=m.total_equity,
             total_fixed=m.total_fixed,

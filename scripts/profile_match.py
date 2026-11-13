@@ -160,7 +160,7 @@ def main(argv: list[str]) -> None:
             {p.user_id: p.color for p in players},
             {p.user_id: p.team for p in players if p.team is not None} or None,
         )
-        repository.user.seed_simulation_users(
+        portfolios = repository.portfolio.open(
             scratch_id,
             [p.user_id for p in players],
             settings.start_date,
@@ -174,7 +174,7 @@ def main(argv: list[str]) -> None:
         metrics.enabled = True
         metrics.record = lambda kind, name, ms: record(durations, kind, name, ms)  # pyright: ignore[reportAttributeAccessIssue]
         # O motor lê a partida ativa do gerenciador, como no jogo
-        SimulationManager.set_simulation_id(scratch_id)
+        SimulationManager.set_simulation_id(scratch_id, portfolios)
         sim = Simulation(
             SimulationDTO(id=scratch_id, **settings.model_dump()),
             random_seed=repository.simulation.get_random_seed(scratch_id),

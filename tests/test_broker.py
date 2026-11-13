@@ -33,12 +33,12 @@ def history(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEventDTO]
     """Define o histórico de compras/vendas que `load_positions` lê de cada cliente."""
 
     def _set(by_client: History) -> None:
-        user_ids = {client(name): i for i, name in enumerate(by_client, start=1)}
+        portfolio_ids = {client(name): i for i, name in enumerate(by_client, start=1)}
         events = {
-            user_ids[client(name)]: [
+            portfolio_ids[client(name)]: [
                 EquityEventDTO(
                     simulation_id=1,
-                    user_id=user_ids[client(name)],
+                    portfolio_id=portfolio_ids[client(name)],
                     event_date=date(2020, 1, 2),
                     ticker="ABCD",
                     event_type=event_type,
@@ -50,12 +50,14 @@ def history(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEventDTO]
             for name, trades in by_client.items()
         }
         monkeypatch.setattr(
-            UserManager, "get_user_id", lambda client_id: user_ids.get(client_id, 0)
+            UserManager,
+            "get_portfolio_id",
+            lambda client_id: portfolio_ids.get(client_id, 0),
         )
         monkeypatch.setattr(
             repository.portfolio,
             "get_equity_events",
-            lambda user_id: events.get(user_id, []),
+            lambda portfolio_id: events.get(portfolio_id, []),
         )
 
     _set({})

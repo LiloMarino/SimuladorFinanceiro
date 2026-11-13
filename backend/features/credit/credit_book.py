@@ -300,7 +300,7 @@ class CreditBook:
         self._history = history or (
             lambda client_id, before, last: (
                 repository.portfolio.get_patrimonial_history(
-                    UserManager.get_user_id(client_id), before, last
+                    UserManager.get_portfolio_id(client_id), before, last
                 )
             )
         )
@@ -308,7 +308,7 @@ class CreditBook:
 
     def _load(self, client_id: UUID) -> ClientCredit:
         events = repository.credit.get_events(
-            self._engine.simulation_id, UserManager.get_user_id(client_id)
+            self._engine.simulation_id, UserManager.get_portfolio_id(client_id)
         )
         client = replay(events)
         client.rating = self.closing(client_id, self._engine.current_date)
@@ -749,7 +749,7 @@ class CreditBook:
     ) -> None:
         event = CreditEventDTO(
             simulation_id=self._engine.simulation_id,
-            user_id=UserManager.get_user_id(client_id),
+            portfolio_id=UserManager.get_portfolio_id(client_id),
             event_date=self._engine.current_date,
             loan_id=loan.loan_id,
             event_type=event_type,

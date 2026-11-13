@@ -30,11 +30,12 @@ def _match(name: str) -> int:
 
 
 def _buy(database: Engine, simulation_id: int, user_id: int, asset_id: int) -> None:
+    portfolio_id = repository.portfolio.create(simulation_id, [user_id])[user_id]
     with Session(database) as session, session.begin():
         session.add(
             EventFixedIncome(
                 simulation_id=simulation_id,
-                user_id=user_id,
+                portfolio_id=portfolio_id,
                 asset_id=asset_id,
                 event_type=FixedIncomeEventType.BUY.value,
                 amount=Decimal(100),

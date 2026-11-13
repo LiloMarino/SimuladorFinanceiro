@@ -10,7 +10,7 @@ from backend.core.models.models import EventCredit
 def credit_event_dto(row: EventCredit) -> CreditEventDTO:
     return CreditEventDTO(
         simulation_id=row.simulation_id,
-        user_id=row.user_id,
+        portfolio_id=row.portfolio_id,
         loan_id=row.loan_id,
         event_type=CreditEventType(row.event_type),
         amount=row.amount,
@@ -29,14 +29,14 @@ def credit_event_dto(row: EventCredit) -> CreditEventDTO:
 class CreditRepository:
     @transactional
     def get_events(
-        self, session: Session, simulation_id: int, user_id: int
+        self, session: Session, simulation_id: int, portfolio_id: int
     ) -> list[CreditEventDTO]:
-        """Os eventos de crédito do jogador na ordem em que aconteceram."""
+        """Os eventos de crédito da carteira na ordem em que aconteceram."""
         rows = session.scalars(
             select(EventCredit)
             .where(
                 EventCredit.simulation_id == simulation_id,
-                EventCredit.user_id == user_id,
+                EventCredit.portfolio_id == portfolio_id,
             )
             .order_by(EventCredit.id)
         ).all()

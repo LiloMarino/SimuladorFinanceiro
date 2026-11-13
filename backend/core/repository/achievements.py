@@ -135,10 +135,15 @@ class AchievementsRepository:
 
     @transactional
     def equity_orders(
-        self, session: Session, simulation_id: int, user_id: int, event_type: str | None
+        self,
+        session: Session,
+        simulation_id: int,
+        portfolio_id: int,
+        event_type: str | None,
     ) -> int:
         stmt = select(func.count()).where(
-            EventEquity.simulation_id == simulation_id, EventEquity.user_id == user_id
+            EventEquity.simulation_id == simulation_id,
+            EventEquity.portfolio_id == portfolio_id,
         )
         if event_type is not None:
             stmt = stmt.where(EventEquity.event_type == event_type)
@@ -146,13 +151,13 @@ class AchievementsRepository:
 
     @transactional
     def fixed_income_buys(
-        self, session: Session, simulation_id: int, user_id: int
+        self, session: Session, simulation_id: int, portfolio_id: int
     ) -> int:
         return (
             session.scalar(
                 select(func.count()).where(
                     EventFixedIncome.simulation_id == simulation_id,
-                    EventFixedIncome.user_id == user_id,
+                    EventFixedIncome.portfolio_id == portfolio_id,
                     EventFixedIncome.event_type == "BUY",
                 )
             )
@@ -161,7 +166,7 @@ class AchievementsRepository:
 
     @transactional
     def equity_order_dates(
-        self, session: Session, simulation_id: int, user_id: int, event_type: str
+        self, session: Session, simulation_id: int, portfolio_id: int, event_type: str
     ) -> list[date]:
         """Dias das ordens de ações, do mais antigo ao mais novo."""
         return list(
@@ -169,7 +174,7 @@ class AchievementsRepository:
                 select(EventEquity.event_date)
                 .where(
                     EventEquity.simulation_id == simulation_id,
-                    EventEquity.user_id == user_id,
+                    EventEquity.portfolio_id == portfolio_id,
                     EventEquity.event_type == event_type,
                 )
                 .order_by(EventEquity.event_date)
@@ -177,9 +182,11 @@ class AchievementsRepository:
         )
 
     @transactional
-    def held_assets(self, session: Session, simulation_id: int, user_id: int) -> int:
+    def held_assets(
+        self, session: Session, simulation_id: int, portfolio_id: int
+    ) -> int:
         """Ações e títulos de renda fixa com saldo positivo, somados."""
-        stocks = session.scalars(_held_stock_ids(simulation_id, user_id)).all()
+        stocks = session.scalars(_held_stock_ids(simulation_id, portfolio_id)).all()
 
         signed_amount = case(
             (EventFixedIncome.event_type == "BUY", EventFixedIncome.amount),
@@ -189,7 +196,7 @@ class AchievementsRepository:
             select(EventFixedIncome.asset_id)
             .where(
                 EventFixedIncome.simulation_id == simulation_id,
-                EventFixedIncome.user_id == user_id,
+                EventFixedIncome.portfolio_id == portfolio_id,
             )
             .group_by(EventFixedIncome.asset_id)
             .having(func.sum(signed_amount) > Decimal("0.01"))
@@ -197,21 +204,23 @@ class AchievementsRepository:
         return len(stocks) + len(titles)
 
     @transactional
-    def held_sectors(self, session: Session, simulation_id: int, user_id: int) -> int:
+    def held_sectors(
+        self, session: Session, simulation_id: int, portfolio_id: int
+    ) -> int:
         """Setores distintos das ações com saldo positivo; ativo sem setor não conta."""
         return (
             session.scalar(
                 select(func.count(func.distinct(Segments.sector_id)))
                 .select_from(Stock)
                 .join(Segments, Segments.id == Stock.segment_id)
-                .where(Stock.id.in_(_held_stock_ids(simulation_id, user_id)))
+                .where(Stock.id.in_(_held_stock_ids(simulation_id, portfolio_id)))
             )
             or 0
         )
 
     @transactional
     def day_traded_assets(
-        self, session: Session, simulation_id: int, user_id: int
+        self, session: Session, simulation_id: int, portfolio_id: int
     ) -> int:
         """Quantos pares (ativo, dia) tiveram compra e venda; a cripto não tem day trade."""
         bought = func.sum(case((EventEquity.event_type == "BUY", 1), else_=0))
@@ -221,7 +230,7 @@ class AchievementsRepository:
             .join(Stock, Stock.id == EventEquity.stock_id)
             .where(
                 EventEquity.simulation_id == simulation_id,
-                EventEquity.user_id == user_id,
+                EventEquity.portfolio_id == portfolio_id,
                 Stock.asset_class != AssetClass.CRYPTO.value,
             )
             .group_by(EventEquity.stock_id, EventEquity.event_date)
@@ -232,16 +241,16 @@ class AchievementsRepository:
 
     @transactional
     def equity_flows(
-        self, session: Session, simulation_id: int, user_id: int, since: date
+        self, session: Session, simulation_id: int, portfolio_id: int, since: date
     ) -> list[tuple[str, date, Decimal]]:
-        """Quantidade líquida (compras - vendas) do jogador por ativo e dia, a partir de `since`."""
+        """Quantidade líquida (compras - vendas) da carteira por ativo e dia, a partir de `since`."""
         net = func.sum(_signed_quantity())
         rows = session.execute(
             select(Stock.ticker, EventEquity.event_date, net)
             .join(Stock, Stock.id == EventEquity.stock_id)
             .where(
                 EventEquity.simulation_id == simulation_id,
-                EventEquity.user_id == user_id,
+                EventEquity.portfolio_id == portfolio_id,
                 EventEquity.event_date >= since,
             )
             .group_by(Stock.ticker, EventEquity.event_date)
@@ -268,13 +277,13 @@ def _signed_quantity():
     )
 
 
-def _held_stock_ids(simulation_id: int, user_id: int):
-    """Os ativos de renda variável com saldo positivo do jogador na partida."""
+def _held_stock_ids(simulation_id: int, portfolio_id: int):
+    """Os ativos de renda variável com saldo positivo da carteira na partida."""
     return (
         select(EventEquity.stock_id)
         .where(
             EventEquity.simulation_id == simulation_id,
-            EventEquity.user_id == user_id,
+            EventEquity.portfolio_id == portfolio_id,
         )
         .group_by(EventEquity.stock_id)
         .having(func.sum(_signed_quantity()) > 0)

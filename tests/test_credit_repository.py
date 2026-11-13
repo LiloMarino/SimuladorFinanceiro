@@ -25,16 +25,17 @@ DAY = date(2020, 1, 6)
 
 @pytest.fixture
 def match(database: object, monkeypatch: pytest.MonkeyPatch) -> tuple[int, int]:
-    """Um jogador numa partida ativa; devolve `(user_id, simulation_id)`."""
+    """Um jogador numa partida ativa; devolve `(portfolio_id, simulation_id)`."""
     user = repository.user.create_user(client("Ana"), "Ana")
     simulation_id = repository.simulation.create_simulation(simulation_settings())
     monkeypatch.setattr(SimulationManager, "_active_simulation", object())
     monkeypatch.setattr(SimulationManager, "_simulation_id", simulation_id)
-    return user.id, simulation_id
+    portfolio_id = repository.portfolio.create(simulation_id, [user.id])[user.id]
+    return portfolio_id, simulation_id
 
 
 def credit_event(
-    user_id: int,
+    portfolio_id: int,
     simulation_id: int,
     loan_id,
     kind: CreditEventType,
@@ -43,7 +44,7 @@ def credit_event(
 ) -> CreditEventDTO:
     return CreditEventDTO(
         simulation_id=simulation_id,
-        user_id=user_id,
+        portfolio_id=portfolio_id,
         loan_id=loan_id,
         event_type=kind,
         amount=Decimal(amount),
@@ -53,12 +54,12 @@ def credit_event(
 
 
 def test_credit_events_come_back_in_order_with_every_field(match: tuple[int, int]):
-    user_id, simulation_id = match
+    portfolio_id, simulation_id = match
     loan_id = uuid4()
     repository.event.insert_many(
         [
             credit_event(
-                user_id,
+                portfolio_id,
                 simulation_id,
                 loan_id,
                 CreditEventType.CONTRACT,
@@ -68,7 +69,7 @@ def test_credit_events_come_back_in_order_with_every_field(match: tuple[int, int
                 grade=CreditGrade.A,
             ),
             credit_event(
-                user_id,
+                portfolio_id,
                 simulation_id,
                 loan_id,
                 CreditEventType.PREPAYMENT,
@@ -76,7 +77,7 @@ def test_credit_events_come_back_in_order_with_every_field(match: tuple[int, int
                 prepayment_mode=PrepaymentMode.SHORTEN_TERM,
             ),
             credit_event(
-                user_id,
+                portfolio_id,
                 simulation_id,
                 loan_id,
                 CreditEventType.INSTALLMENT_PAID,
@@ -86,7 +87,7 @@ def test_credit_events_come_back_in_order_with_every_field(match: tuple[int, int
         ]
     )
 
-    events = repository.credit.get_events(simulation_id, user_id)
+    events = repository.credit.get_events(simulation_id, portfolio_id)
 
     assert [e.event_type for e in events] == [
         CreditEventType.CONTRACT,
@@ -103,19 +104,19 @@ def test_credit_events_come_back_in_order_with_every_field(match: tuple[int, int
 
 
 def test_snapshot_networth_discounts_the_debt(match: tuple[int, int]):
-    user_id, simulation_id = match
+    portfolio_id, simulation_id = match
     repository.event.insert_many(
         [
             CashflowEventDTO(
                 simulation_id=simulation_id,
-                user_id=user_id,
+                portfolio_id=portfolio_id,
                 event_type=CashflowEventType.DEPOSIT,
                 amount=Decimal(10000),
                 event_date=DAY,
             ),
             CashflowEventDTO(
                 simulation_id=simulation_id,
-                user_id=user_id,
+                portfolio_id=portfolio_id,
                 event_type=CashflowEventType.LOAN_PROCEEDS,
                 amount=Decimal(5000),
                 event_date=DAY,
@@ -124,7 +125,7 @@ def test_snapshot_networth_discounts_the_debt(match: tuple[int, int]):
     )
 
     snapshot = repository.snapshot.create_snapshot(
-        user_id, DAY, Decimal(0), Decimal(0), Decimal(5000), {}
+        portfolio_id, DAY, Decimal(0), Decimal(0), Decimal(5000), {}
     )
 
     # Caixa de 15.000 menos a dívida de 5.000: tomar o empréstimo não muda o patrimônio

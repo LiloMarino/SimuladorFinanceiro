@@ -70,7 +70,7 @@ def _tick_until(position: FixedIncomePosition, start: date, end: date) -> None:
 def _buy_event(asset_id: int, amount: str, on: date) -> FixedIncomeEventDTO:
     return FixedIncomeEventDTO(
         simulation_id=1,
-        user_id=1,
+        portfolio_id=1,
         asset_id=asset_id,
         event_type=FixedIncomeEventType.BUY,
         amount=Decimal(amount),
@@ -84,6 +84,7 @@ def replay_events(monkeypatch: pytest.MonkeyPatch):
 
     def _set(events: list[tuple[FixedIncomeAssetDTO, FixedIncomeEventDTO]]):
         monkeypatch.setattr(fixed_broker.UserManager, "get_user_id", lambda _: 1)
+        monkeypatch.setattr(fixed_broker.UserManager, "get_portfolio_id", lambda _: 1)
         monkeypatch.setattr(
             fixed_broker.repository.fixed_income,
             "get_events",
@@ -151,7 +152,7 @@ def test_redeemed_position_is_not_rebuilt(replay_events):
     asset = _asset()
     redeem = FixedIncomeEventDTO(
         simulation_id=1,
-        user_id=1,
+        portfolio_id=1,
         asset_id=1,
         event_type=FixedIncomeEventType.REDEEM,
         amount=Decimal("12000"),

@@ -16,7 +16,7 @@ from tests.fakes import client, simulation_settings
 
 
 def cashflow(
-    user_id: int,
+    portfolio_id: int,
     simulation_id: int,
     event_type: CashflowEventType,
     amount: str,
@@ -24,7 +24,7 @@ def cashflow(
 ) -> CashflowEventDTO:
     return CashflowEventDTO(
         simulation_id=simulation_id,
-        user_id=user_id,
+        portfolio_id=portfolio_id,
         event_type=event_type,
         amount=Decimal(amount),
         event_date=date(2020, 1, 6),
@@ -40,22 +40,24 @@ def test_counts_each_players_unexpected_expenses_and_skips_the_layoff_and_good_e
     simulation_id = repository.simulation.create_simulation(simulation_settings())
     monkeypatch.setattr(SimulationManager, "_active_simulation", object())
     monkeypatch.setattr(SimulationManager, "_simulation_id", simulation_id)
+    owners = repository.portfolio.create(simulation_id, [ana.id, bia.id])
+    ana_portfolio, bia_portfolio = owners[ana.id], owners[bia.id]
     unexpected = CashflowEventType.UNEXPECTED_EXPENSE
     repository.event.insert_many(
         [
-            cashflow(ana.id, simulation_id, unexpected, "5000", "REPAIR"),
-            cashflow(ana.id, simulation_id, unexpected, "10000", "HEALTH"),
-            cashflow(ana.id, simulation_id, unexpected, "5000", "REPAIR"),
-            cashflow(ana.id, simulation_id, unexpected, "0", "LAYOFF"),
-            cashflow(ana.id, simulation_id, CashflowEventType.SALARY, "8000"),
+            cashflow(ana_portfolio, simulation_id, unexpected, "5000", "REPAIR"),
+            cashflow(ana_portfolio, simulation_id, unexpected, "10000", "HEALTH"),
+            cashflow(ana_portfolio, simulation_id, unexpected, "5000", "REPAIR"),
+            cashflow(ana_portfolio, simulation_id, unexpected, "0", "LAYOFF"),
+            cashflow(ana_portfolio, simulation_id, CashflowEventType.SALARY, "8000"),
             cashflow(
-                ana.id,
+                ana_portfolio,
                 simulation_id,
                 CashflowEventType.UNEXPECTED_INCOME,
                 "8000",
                 "TAX_REFUND",
             ),
-            cashflow(bia.id, simulation_id, unexpected, "5000", "REPAIR"),
+            cashflow(bia_portfolio, simulation_id, unexpected, "5000", "REPAIR"),
         ]
     )
 

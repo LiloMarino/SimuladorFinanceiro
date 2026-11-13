@@ -45,7 +45,7 @@ class BacktestProgress:
         starting_cash: Decimal,
         total_days: int,
         participants: list[BacktestParticipantDTO],
-        user_ids: list[int],
+        portfolio_ids: list[int],
     ) -> None:
         self._lock = threading.Lock()
         self._simulation_id = simulation_id
@@ -55,7 +55,9 @@ class BacktestProgress:
         self._end_date = end_date
         self._total_days = total_days
         self._participants = participants
-        self._index_of = {user_id: i for i, user_id in enumerate(user_ids)}
+        self._index_of = {
+            portfolio_id: i for i, portfolio_id in enumerate(portfolio_ids)
+        }
         self._wallet = ReferenceWallet(starting_cash)
         self._started_at = time.monotonic()
         self._done_days = 0
@@ -84,7 +86,9 @@ class BacktestProgress:
             if due:
                 equity = [Decimal(0)] * len(self._participants)
                 for snapshot in snapshots:
-                    equity[self._index_of[snapshot.user_id]] = snapshot.total_networth
+                    equity[self._index_of[snapshot.portfolio_id]] = (
+                        snapshot.total_networth
+                    )
                 self._points.append(
                     BacktestPointDTO(
                         day=day,

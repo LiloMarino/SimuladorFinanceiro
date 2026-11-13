@@ -1,11 +1,11 @@
 from decimal import Decimal
 from uuid import UUID
 
-from backend.core.dto.events.base_event import BaseEventDTO
+from backend.core.dto.events.base_event import PortfolioEventDTO
 from backend.core.enum import CreditEventType, CreditGrade, PrepaymentMode
 
 
-class CreditEventDTO(BaseEventDTO):
+class CreditEventDTO(PortfolioEventDTO):
     loan_id: UUID
     event_type: CreditEventType
     # Principal no contrato; valor pago nos demais eventos

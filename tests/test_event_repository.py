@@ -18,18 +18,19 @@ DAY = date(2020, 1, 6)
 
 @pytest.fixture
 def match(database: object) -> tuple[int, int]:
-    """Um jogador, uma ação e uma partida no banco; devolve `(user_id, simulation_id)`."""
+    """Um jogador, uma ação e uma partida no banco; devolve `(portfolio_id, simulation_id)`."""
     user = repository.user.create_user(client("Ana"), "Ana")
     repository.stock.add_stock("ABCD", "ABCD", AssetClass.STOCK)
     simulation_id = repository.simulation.create_simulation(simulation_settings())
-    return user.id, simulation_id
+    portfolio_id = repository.portfolio.create(simulation_id, [user.id])[user.id]
+    return portfolio_id, simulation_id
 
 
 def test_dividend_keeps_the_stock_it_came_from(match: tuple[int, int]):
-    user_id, simulation_id = match
+    portfolio_id, simulation_id = match
     dividend = CashflowEventDTO(
         simulation_id=simulation_id,
-        user_id=user_id,
+        portfolio_id=portfolio_id,
         event_date=DAY,
         event_type=CashflowEventType.DIVIDEND,
         amount=Decimal("67.50"),
@@ -37,7 +38,7 @@ def test_dividend_keeps_the_stock_it_came_from(match: tuple[int, int]):
     )
     deposit = CashflowEventDTO(
         simulation_id=simulation_id,
-        user_id=user_id,
+        portfolio_id=portfolio_id,
         event_date=DAY,
         event_type=CashflowEventType.DEPOSIT,
         amount=Decimal(100),
@@ -45,7 +46,7 @@ def test_dividend_keeps_the_stock_it_came_from(match: tuple[int, int]):
 
     repository.event.insert_many([dividend, deposit])
 
-    read = repository.event.get_cashflow_events(simulation_id, user_id)
+    read = repository.event.get_cashflow_events(simulation_id, portfolio_id)
     assert [(e.event_type, e.amount, e.ticker) for e in read] == [
         (CashflowEventType.DIVIDEND, Decimal("67.50"), "ABCD"),
         (CashflowEventType.DEPOSIT, Decimal("100.00"), None),
@@ -53,12 +54,12 @@ def test_dividend_keeps_the_stock_it_came_from(match: tuple[int, int]):
 
 
 def test_split_and_fraction_sale_are_not_market_flow(match: tuple[int, int]):
-    user_id, simulation_id = match
+    portfolio_id, simulation_id = match
 
     def equity(kind: EquityEventType, quantity: str) -> EquityEventDTO:
         return EquityEventDTO(
             simulation_id=simulation_id,
-            user_id=user_id,
+            portfolio_id=portfolio_id,
             event_date=DAY,
             ticker="ABCD",
             event_type=kind,

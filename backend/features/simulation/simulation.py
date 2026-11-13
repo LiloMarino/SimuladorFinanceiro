@@ -120,6 +120,7 @@ from backend.core.professions import HEALTH_EVENT_KEY, LifeLevers, RealRaise
 from backend.core.rates import period_rate
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
+from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import (
     format_money,
@@ -378,6 +379,7 @@ class Simulation:
         self._achievements = AchievementEvaluator(
             settings, self._engine.assess_income_tax
         )
+        # user_id -> o snapshot do último pregão
         self._last_snapshots: dict[int, SnapshotDTO] = {}
 
         # O mês do último dia processado já recebeu o aporte
@@ -1153,7 +1155,7 @@ class Simulation:
         return [
             self._history_point(point)
             for point in repository.portfolio.get_patrimonial_history(
-                UserManager.get_user_id(client_id)
+                UserManager.get_portfolio_id(client_id)
             )
         ]
 
@@ -1284,9 +1286,12 @@ class Simulation:
                     )
         if self.settings.game_type.has_goal:
             with metrics.measure("engine", ENGINE_GOAL):
-                self._track_goal(snapshots)
+                self._track_goal(users, snapshots)
 
-        self._last_snapshots = {e.snapshot.user_id: e.snapshot for e in snapshots}
+        self._last_snapshots = {
+            user.id: entry.snapshot
+            for user, entry in zip(users, snapshots, strict=True)
+        }
         if month_changed and self._current_date.month == 1:
             with metrics.measure("engine", ENGINE_SUMMARIES):
                 self._deliver_summaries(users)
@@ -1340,7 +1345,7 @@ class Simulation:
     def _balance_snapshot(self, user: UserDTO) -> SnapshotDTO:
         balance = self._engine.balance_sheet(user.client_id)
         return SnapshotDTO(
-            user_id=user.id,
+            portfolio_id=SimulationManager.get_portfolio_id(user.id),
             snapshot_date=self._current_date,
             total_equity=balance.total_equity,
             total_fixed=balance.total_fixed,
@@ -1421,7 +1426,9 @@ class Simulation:
     def get_goal_progress(self) -> GoalProgressDTO | None:
         return self._goal_progress
 
-    def _track_goal(self, snapshots: list[StatisticsSnapshotEntryDTO]) -> None:
+    def _track_goal(
+        self, users: list[UserDTO], snapshots: list[StatisticsSnapshotEntryDTO]
+    ) -> None:
         """Avisa onde cada um está na meta e marca o fim da partida quando alguém chega."""
         colors = repository.simulation_player.colors(self.settings.id)
         teams = repository.simulation_player.teams(self.settings.id)
@@ -1434,16 +1441,19 @@ class Simulation:
             players=[
                 GoalRunnerDTO(
                     nickname=entry.player_nickname,
-                    color=colors[entry.snapshot.user_id],
-                    team=teams.get(entry.snapshot.user_id),
+                    color=colors[user.id],
+                    team=teams.get(user.id),
                     networth=entry.snapshot.total_networth,
                 )
-                for entry in snapshots
+                for user, entry in zip(users, snapshots, strict=True)
             ],
         )
         notify("goal_progress_update", self._goal_progress.to_json())
         self._goal_reached = goal_reached(
-            {e.snapshot.user_id: e.snapshot.total_networth for e in snapshots},
+            {
+                user.id: entry.snapshot.total_networth
+                for user, entry in zip(users, snapshots, strict=True)
+            },
             teams,
             goal,
             self.settings.player_grouping is PlayerGrouping.TEAMS,
@@ -1665,7 +1675,7 @@ class Simulation:
     def get_life_history(self, client_id: UUID) -> list[LifeHistoryRowDTO]:
         """O histórico do viver de renda de `client_id`: os eventos de caixa e, na ordem das datas, as mudanças do orçamento com a origem na economia."""
         events = repository.event.get_cashflow_events(
-            self.settings.id, UserManager.get_user_id(client_id)
+            self.settings.id, UserManager.get_portfolio_id(client_id)
         )
         if self._life is None:
             return build_life_history(events, self.settings.life_events)
@@ -1778,7 +1788,7 @@ class Simulation:
     def get_dividends(self, client_id: UUID) -> PortfolioDividendsDTO:
         """Os proventos que o jogador recebeu na partida, até hoje."""
         payments = repository.portfolio.get_dividend_payments(
-            UserManager.get_user_id(client_id)
+            UserManager.get_portfolio_id(client_id)
         )
         return build_portfolio_dividends(payments, self._current_date)
 
@@ -1790,7 +1800,7 @@ class Simulation:
         stock = self._engine.stocks.get(ticker)
         if stock is None:
             return None
-        user_id = UserManager.get_user_id(client_id)
+        portfolio_id = UserManager.get_portfolio_id(client_id)
         position = self._engine.get_positions(client_id).get(ticker)
         last = self._engine.matching_engine.market_data.get_last(ticker)
         return build_asset_events(
@@ -1803,12 +1813,12 @@ class Simulation:
             ),
             equity_events=[
                 e
-                for e in repository.portfolio.get_equity_events(user_id)
+                for e in repository.portfolio.get_equity_events(portfolio_id)
                 if e.ticker == ticker
             ],
             payments=[
                 p
-                for p in repository.portfolio.get_dividend_payments(user_id)
+                for p in repository.portfolio.get_dividend_payments(portfolio_id)
                 if p.ticker == ticker
             ],
             match_start=self.settings.start_date,
@@ -1921,7 +1931,9 @@ class Simulation:
             return
 
         for user in users:
-            months = self._engine.assess_income_tax(user.id)
+            months = self._engine.assess_income_tax(
+                SimulationManager.get_portfolio_id(user.id)
+            )
             darf = next(
                 (m.darf_amount for m in months if m.due_date == self._current_date),
                 None,
@@ -1955,7 +1967,7 @@ class Simulation:
         balances = {}
         for user in users:
             balance = self._engine.balance_sheet(user.client_id)
-            balances[user.id] = DayBalanceDTO(
+            balances[SimulationManager.get_portfolio_id(user.id)] = DayBalanceDTO(
                 balance.total_equity,
                 balance.total_fixed,
                 balance.total_debt,
@@ -1965,7 +1977,7 @@ class Simulation:
 
         entries = []
         for user in users:
-            snapshot = snapshots[user.id]
+            snapshot = snapshots[SimulationManager.get_portfolio_id(user.id)]
             notify(
                 event="snapshot_update",
                 payload=SnapshotUpdateEventDTO(

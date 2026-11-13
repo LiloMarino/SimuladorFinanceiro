@@ -202,7 +202,7 @@ def test_only_the_room_players_are_participants_with_the_deposit(database: Engin
     repository.simulation_player.save(
         simulation_id, {ana.id: PLAYER_COLORS[3], bia.id: PLAYER_COLORS[0]}
     )
-    repository.user.seed_simulation_users(
+    repository.portfolio.open(
         simulation_id, [ana.id, bia.id], date(2020, 1, 1), Decimal(1000)
     )
 
@@ -379,6 +379,12 @@ def start_match(monkeypatch: pytest.MonkeyPatch, join: Join) -> StartMatch:
         sim = FakeRunningSimulation(grouping)
         monkeypatch.setattr(SimulationManager, "_active_simulation", sim)
         monkeypatch.setattr(SimulationManager, "_simulation_id", 1)
+        monkeypatch.setattr(SimulationManager, "_portfolios", {})
+        monkeypatch.setattr(
+            repository.portfolio,
+            "create",
+            lambda _simulation_id, user_ids: {u: 100 + u for u in user_ids},
+        )
         monkeypatch.setattr(repository.simulation_player, "colors", store.colors)
         monkeypatch.setattr(
             repository.simulation_player, "participants", store.participants_of

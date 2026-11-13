@@ -16,6 +16,7 @@ from backend.core.models.models import (
     EventCredit,
     EventEquity,
     EventFixedIncome,
+    Portfolios,
     SimulationPlayers,
     Simulations,
     Snapshots,
@@ -54,7 +55,7 @@ class StatisticsRepository:
         snapshots = session.execute(
             select(
                 Snapshots.simulation_id,
-                Snapshots.user_id,
+                Portfolios.user_id,
                 Snapshots.snapshot_date,
                 Snapshots.total_equity,
                 Snapshots.total_fixed,
@@ -63,9 +64,10 @@ class StatisticsRepository:
                 Snapshots.total_contribution,
                 Snapshots.total_debt,
             )
+            .join(Portfolios, Portfolios.id == Snapshots.portfolio_id)
             .where(Snapshots.simulation_id.in_(simulation_ids))
             .order_by(
-                Snapshots.simulation_id, Snapshots.user_id, Snapshots.snapshot_date
+                Snapshots.simulation_id, Portfolios.user_id, Snapshots.snapshot_date
             )
         ).all()
 
@@ -109,7 +111,8 @@ class StatisticsRepository:
         rows = session.execute(
             select(EventEquity, Stock.ticker, Users.nickname)
             .join(Stock, Stock.id == EventEquity.stock_id)
-            .join(Users, Users.id == EventEquity.user_id)
+            .join(Portfolios, Portfolios.id == EventEquity.portfolio_id)
+            .join(Users, Users.id == Portfolios.user_id)
             .where(EventEquity.simulation_id.in_(simulation_ids))
             .order_by(EventEquity.event_date, EventEquity.id)
         ).all()
@@ -119,7 +122,7 @@ class StatisticsRepository:
             trades[(event.simulation_id, nickname)].append(
                 EquityEventDTO(
                     simulation_id=event.simulation_id,
-                    user_id=event.user_id,
+                    portfolio_id=event.portfolio_id,
                     event_date=event.event_date,
                     created_at=event.created_at,
                     ticker=ticker,
@@ -142,7 +145,8 @@ class StatisticsRepository:
                 EventCashflow.life_event_key,
                 func.count(),
             )
-            .join(Users, Users.id == EventCashflow.user_id)
+            .join(Portfolios, Portfolios.id == EventCashflow.portfolio_id)
+            .join(Users, Users.id == Portfolios.user_id)
             .where(
                 EventCashflow.simulation_id.in_(simulation_ids),
                 EventCashflow.event_type == CashflowEventType.UNEXPECTED_EXPENSE.value,
@@ -169,7 +173,8 @@ class StatisticsRepository:
                 Users.nickname,
                 func.sum(EventCashflow.amount),
             )
-            .join(Users, Users.id == EventCashflow.user_id)
+            .join(Portfolios, Portfolios.id == EventCashflow.portfolio_id)
+            .join(Users, Users.id == Portfolios.user_id)
             .where(
                 EventCashflow.simulation_id.in_(simulation_ids),
                 EventCashflow.event_type == CashflowEventType.TAX.value,
@@ -187,7 +192,8 @@ class StatisticsRepository:
         """Os eventos de crédito de cada jogador, na ordem em que aconteceram."""
         rows = session.execute(
             select(EventCredit, Users.nickname)
-            .join(Users, Users.id == EventCredit.user_id)
+            .join(Portfolios, Portfolios.id == EventCredit.portfolio_id)
+            .join(Users, Users.id == Portfolios.user_id)
             .where(EventCredit.simulation_id.in_(simulation_ids))
             .order_by(EventCredit.id)
         ).all()
@@ -208,7 +214,7 @@ class StatisticsRepository:
             select(func.max(Snapshots.snapshot_date))
             .where(
                 Snapshots.simulation_id == EventCashflow.simulation_id,
-                Snapshots.user_id == EventCashflow.user_id,
+                Snapshots.portfolio_id == EventCashflow.portfolio_id,
             )
             .scalar_subquery()
         )
@@ -219,7 +225,8 @@ class StatisticsRepository:
                 EventCashflow.event_type,
                 func.sum(EventCashflow.amount),
             )
-            .join(Users, Users.id == EventCashflow.user_id)
+            .join(Portfolios, Portfolios.id == EventCashflow.portfolio_id)
+            .join(Users, Users.id == Portfolios.user_id)
             .where(
                 EventCashflow.simulation_id.in_(simulation_ids),
                 EventCashflow.event_date <= last_snapshot,
@@ -234,7 +241,7 @@ class StatisticsRepository:
             select(func.max(Snapshots.snapshot_date))
             .where(
                 Snapshots.simulation_id == EventFixedIncome.simulation_id,
-                Snapshots.user_id == EventFixedIncome.user_id,
+                Snapshots.portfolio_id == EventFixedIncome.portfolio_id,
             )
             .scalar_subquery()
         )
@@ -246,7 +253,8 @@ class StatisticsRepository:
                 func.sum(EventFixedIncome.amount),
                 func.sum(EventFixedIncome.tax_withheld),
             )
-            .join(Users, Users.id == EventFixedIncome.user_id)
+            .join(Portfolios, Portfolios.id == EventFixedIncome.portfolio_id)
+            .join(Users, Users.id == Portfolios.user_id)
             .where(
                 EventFixedIncome.simulation_id.in_(simulation_ids),
                 EventFixedIncome.event_date <= fixed_snapshot,

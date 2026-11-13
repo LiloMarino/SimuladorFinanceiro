@@ -1,10 +1,10 @@
 from decimal import Decimal
 
-from backend.core.dto.events.base_event import BaseEventDTO
+from backend.core.dto.events.base_event import PortfolioEventDTO
 from backend.core.enum import FixedIncomeEventType
 
 
-class FixedIncomeEventDTO(BaseEventDTO):
+class FixedIncomeEventDTO(PortfolioEventDTO):
     asset_id: int
     event_type: FixedIncomeEventType
     amount: Decimal

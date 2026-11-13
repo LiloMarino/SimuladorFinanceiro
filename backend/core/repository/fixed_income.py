@@ -74,15 +74,15 @@ class FixedIncomeRepository:
 
     @transactional
     def get_events(
-        self, session: Session, simulation_id: int, user_id: int
+        self, session: Session, simulation_id: int, portfolio_id: int
     ) -> list[tuple[FixedIncomeAssetDTO, FixedIncomeEventDTO]]:
-        """Eventos de renda fixa do jogador, em ordem cronológica, com o ativo de cada um."""
+        """Eventos de renda fixa da carteira, em ordem cronológica, com o ativo de cada um."""
         rows = session.execute(
             select(EventFixedIncome, FixedIncomeAsset)
             .join(FixedIncomeAsset, FixedIncomeAsset.id == EventFixedIncome.asset_id)
             .where(
                 EventFixedIncome.simulation_id == simulation_id,
-                EventFixedIncome.user_id == user_id,
+                EventFixedIncome.portfolio_id == portfolio_id,
             )
             .order_by(EventFixedIncome.event_date, EventFixedIncome.id)
         ).all()
@@ -92,7 +92,7 @@ class FixedIncomeRepository:
                 _to_asset_dto(asset),
                 FixedIncomeEventDTO(
                     simulation_id=event.simulation_id,
-                    user_id=event.user_id,
+                    portfolio_id=event.portfolio_id,
                     asset_id=event.asset_id,
                     event_type=FixedIncomeEventType(event.event_type),
                     amount=event.amount,

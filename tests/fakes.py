@@ -13,6 +13,8 @@ from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.variable_income.entities.position import Position
 
 USER_ID = 1
+# A carteira que o resolvedor devolve para todo cliente dos testes sem banco
+PORTFOLIO_ID = 1
 
 
 def no_pay(*_) -> Decimal:

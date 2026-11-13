@@ -57,11 +57,11 @@ class AchievementEvaluator:
         Roda as métricas do pregão: as do snapshot sempre, as de ordens para quem
         deu ordens e as do histórico na virada do mês, quando o progresso também é guardado.
         """
-        touched = EventManager.pop_touched_users()
+        touched = EventManager.pop_touched_portfolios()
         unlocked = {}
         for user_id, snapshot in snapshots.items():
             triggers = {Trigger.TICK}
-            if user_id in touched:
+            if snapshot.portfolio_id in touched:
                 triggers.add(Trigger.ORDER)
             if month_changed:
                 triggers.add(Trigger.MONTH)

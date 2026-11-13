@@ -416,6 +416,9 @@ class Simulations(Base):
     snapshots: Mapped[list["Snapshots"]] = relationship(
         "Snapshots", back_populates="simulation"
     )
+    portfolios: Mapped[list["Portfolios"]] = relationship(
+        "Portfolios", back_populates="simulation"
+    )
     simulation_players: Mapped[list["SimulationPlayers"]] = relationship(
         "SimulationPlayers", back_populates="simulation"
     )
@@ -461,17 +464,8 @@ class Users(Base):
         JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )
 
-    event_cashflow: Mapped[list["EventCashflow"]] = relationship(
-        "EventCashflow", back_populates="user"
-    )
-    event_equity: Mapped[list["EventEquity"]] = relationship(
-        "EventEquity", back_populates="user"
-    )
-    event_fixed_income: Mapped[list["EventFixedIncome"]] = relationship(
-        "EventFixedIncome", back_populates="user"
-    )
-    snapshots: Mapped[list["Snapshots"]] = relationship(
-        "Snapshots", back_populates="user"
+    portfolios: Mapped[list["Portfolios"]] = relationship(
+        "Portfolios", back_populates="user"
     )
     simulation_players: Mapped[list["SimulationPlayers"]] = relationship(
         "SimulationPlayers", back_populates="user"
@@ -518,6 +512,69 @@ class SimulationPlayers(Base):
     )
 
 
+class Portfolios(Base):
+    """A carteira de um jogador numa partida: dona dos eventos e dos snapshots dela."""
+
+    __tablename__ = "portfolios"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="portfolios_simulation_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="portfolios_user_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="portfolios_pkey"),
+        UniqueConstraint(
+            "simulation_id", "user_id", name="portfolios_simulation_id_user_id_key"
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # O dono da carteira
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
+
+    simulation: Mapped["Simulations"] = relationship(
+        "Simulations", back_populates="portfolios"
+    )
+    user: Mapped["Users"] = relationship("Users", back_populates="portfolios")
+    event_cashflow: Mapped[list["EventCashflow"]] = relationship(
+        "EventCashflow", back_populates="portfolio"
+    )
+    event_equity: Mapped[list["EventEquity"]] = relationship(
+        "EventEquity", back_populates="portfolio"
+    )
+    event_fixed_income: Mapped[list["EventFixedIncome"]] = relationship(
+        "EventFixedIncome", back_populates="portfolio"
+    )
+    snapshots: Mapped[list["Snapshots"]] = relationship(
+        "Snapshots", back_populates="portfolio"
+    )
+
+
 class EventCashflow(Base):
     __tablename__ = "event_cashflow"
     __table_args__ = (
@@ -536,17 +593,17 @@ class EventCashflow(Base):
             name="event_cashflow_stock_id_fkey",
         ),
         ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
+            ["portfolio_id"],
+            ["portfolios.id"],
             ondelete="CASCADE",
             onupdate="CASCADE",
-            name="event_cashflow_user_id_fkey",
+            name="event_cashflow_portfolio_id_fkey",
         ),
         PrimaryKeyConstraint("id", name="event_cashflow_pkey"),
         Index(
-            "event_cashflow_simulation_user_idx",
+            "event_cashflow_simulation_portfolio_idx",
             "simulation_id",
-            "user_id",
+            "portfolio_id",
             "event_date",
         ),
     )
@@ -565,7 +622,7 @@ class EventCashflow(Base):
         primary_key=True,
     )
     simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    portfolio_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     # Um valor de `CashflowEventType`
     event_type: Mapped[str] = mapped_column(Text, nullable=False)
     amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
@@ -578,7 +635,9 @@ class EventCashflow(Base):
         DateTime(True), nullable=False
     )
 
-    user: Mapped["Users"] = relationship("Users", back_populates="event_cashflow")
+    portfolio: Mapped["Portfolios"] = relationship(
+        "Portfolios", back_populates="event_cashflow"
+    )
     simulation: Mapped["Simulations"] = relationship(
         "Simulations", back_populates="event_cashflow"
     )
@@ -602,15 +661,18 @@ class EventEquity(Base):
             name="event_equity_stock_id_fkey",
         ),
         ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
+            ["portfolio_id"],
+            ["portfolios.id"],
             ondelete="CASCADE",
             onupdate="CASCADE",
-            name="event_equity_user_id_fkey",
+            name="event_equity_portfolio_id_fkey",
         ),
         PrimaryKeyConstraint("id", name="event_equity_pkey"),
         Index(
-            "event_equity_simulation_user_idx", "simulation_id", "user_id", "event_date"
+            "event_equity_simulation_portfolio_idx",
+            "simulation_id",
+            "portfolio_id",
+            "event_date",
         ),
     )
 
@@ -628,7 +690,7 @@ class EventEquity(Base):
         primary_key=True,
     )
     simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    portfolio_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     stock_id: Mapped[int] = mapped_column(Integer, nullable=False)
     # Um valor de `EquityEventType`
     event_type: Mapped[str] = mapped_column(Text, nullable=False)
@@ -640,7 +702,9 @@ class EventEquity(Base):
     )
 
     stock: Mapped["Stock"] = relationship("Stock", back_populates="event_equity")
-    user: Mapped["Users"] = relationship("Users", back_populates="event_equity")
+    portfolio: Mapped["Portfolios"] = relationship(
+        "Portfolios", back_populates="event_equity"
+    )
     simulation: Mapped["Simulations"] = relationship(
         "Simulations", back_populates="event_equity"
     )
@@ -664,17 +728,17 @@ class EventFixedIncome(Base):
             name="event_fixed_income_asset_id_fkey",
         ),
         ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
+            ["portfolio_id"],
+            ["portfolios.id"],
             ondelete="CASCADE",
             onupdate="CASCADE",
-            name="event_fixed_income_user_id_fkey",
+            name="event_fixed_income_portfolio_id_fkey",
         ),
         PrimaryKeyConstraint("id", name="event_fixed_income_pkey"),
         Index(
-            "event_fixed_income_simulation_user_idx",
+            "event_fixed_income_simulation_portfolio_idx",
             "simulation_id",
-            "user_id",
+            "portfolio_id",
             "event_date",
         ),
     )
@@ -693,7 +757,7 @@ class EventFixedIncome(Base):
         primary_key=True,
     )
     simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    portfolio_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     asset_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     # Um valor de `FixedIncomeEventType`
     event_type: Mapped[str] = mapped_column(Text, nullable=False)
@@ -712,7 +776,9 @@ class EventFixedIncome(Base):
     asset: Mapped["FixedIncomeAsset"] = relationship(
         "FixedIncomeAsset", back_populates="event_fixed_income"
     )
-    user: Mapped["Users"] = relationship("Users", back_populates="event_fixed_income")
+    portfolio: Mapped["Portfolios"] = relationship(
+        "Portfolios", back_populates="event_fixed_income"
+    )
     simulation: Mapped["Simulations"] = relationship(
         "Simulations", back_populates="event_fixed_income"
     )
@@ -729,15 +795,18 @@ class EventCredit(Base):
             name="event_credit_simulation_id_fkey",
         ),
         ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
+            ["portfolio_id"],
+            ["portfolios.id"],
             ondelete="CASCADE",
             onupdate="CASCADE",
-            name="event_credit_user_id_fkey",
+            name="event_credit_portfolio_id_fkey",
         ),
         PrimaryKeyConstraint("id", name="event_credit_pkey"),
         Index(
-            "event_credit_simulation_user_idx", "simulation_id", "user_id", "event_date"
+            "event_credit_simulation_portfolio_idx",
+            "simulation_id",
+            "portfolio_id",
+            "event_date",
         ),
     )
 
@@ -755,7 +824,7 @@ class EventCredit(Base):
         primary_key=True,
     )
     simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    portfolio_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     loan_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
     # Um valor de `CreditEventType`
     event_type: Mapped[str] = mapped_column(Text, nullable=False)
@@ -913,19 +982,19 @@ class Snapshots(Base):
             name="snapshots_simulation_id_fkey",
         ),
         ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
+            ["portfolio_id"],
+            ["portfolios.id"],
             ondelete="CASCADE",
             onupdate="CASCADE",
-            name="snapshots_user_id_fkey",
+            name="snapshots_portfolio_id_fkey",
         ),
         PrimaryKeyConstraint(
-            "simulation_id", "user_id", "snapshot_date", name="snapshots_pkey"
+            "simulation_id", "portfolio_id", "snapshot_date", name="snapshots_pkey"
         ),
     )
 
     simulation_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    portfolio_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     snapshot_date: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
     total_equity: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False
@@ -946,7 +1015,9 @@ class Snapshots(Base):
         DateTime(True), nullable=False
     )
 
-    user: Mapped["Users"] = relationship("Users", back_populates="snapshots")
+    portfolio: Mapped["Portfolios"] = relationship(
+        "Portfolios", back_populates="snapshots"
+    )
     simulation: Mapped["Simulations"] = relationship(
         "Simulations", back_populates="snapshots"
     )

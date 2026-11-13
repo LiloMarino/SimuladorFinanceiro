@@ -302,6 +302,10 @@ class UserManager:
                 )
                 raise ConflictError(f"{owner} pegou essa cor antes.")
 
+            # A carteira existe antes de o jogador constar entre os participantes
+            SimulationManager.add_portfolios(
+                repository.portfolio.create(simulation_id, [user.id])
+            )
             repository.simulation_player.save(
                 simulation_id,
                 {user.id: color},
@@ -335,6 +339,11 @@ class UserManager:
         if user is None:
             raise NotFoundError(f"Usuário não encontrado para client_id={client_id}")
         return user.id
+
+    @classmethod
+    def get_portfolio_id(cls, client_id: UUID) -> int:
+        """A carteira do player na partida ativa."""
+        return SimulationManager.get_portfolio_id(cls.get_user_id(client_id))
 
     @classmethod
     def list_active_players(cls) -> list[UserDTO]:

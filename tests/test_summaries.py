@@ -112,8 +112,9 @@ def match_of_ana(
     sent: list[tuple[str, object, object]] = []
     monkeypatch.setattr(SimulationManager, "_active_simulation", None)
     monkeypatch.setattr(SimulationManager, "_simulation_id", None)
+    monkeypatch.setattr(SimulationManager, "_portfolios", {})
     monkeypatch.setattr(EventManager, "_events", [])
-    monkeypatch.setattr(EventManager, "_touched_users", set())
+    monkeypatch.setattr(EventManager, "_touched_portfolios", set())
     monkeypatch.setattr(
         RealtimeBrokerManager,
         "get_broker",
@@ -126,10 +127,10 @@ def match_of_ana(
     )
     simulation_id = repository.simulation.create_simulation(settings)
     repository.simulation_player.save(simulation_id, {user.id: PLAYER_COLORS[0]})
-    repository.user.seed_simulation_users(
+    portfolios = repository.portfolio.open(
         simulation_id, [user.id], settings.start_date, settings.starting_cash
     )
-    SimulationManager.set_simulation_id(simulation_id)
+    SimulationManager.set_simulation_id(simulation_id, portfolios)
     sim = Simulation(
         SimulationDTO(id=simulation_id, **settings.model_dump()), random_seed=7
     )

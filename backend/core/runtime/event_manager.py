@@ -2,7 +2,7 @@ from threading import Lock
 from typing import ClassVar
 
 from backend.core import repository
-from backend.core.dto.events.base_event import BaseEventDTO
+from backend.core.dto.events.base_event import BaseEventDTO, PortfolioEventDTO
 
 
 class EventManager:
@@ -16,22 +16,23 @@ class EventManager:
     """
 
     _events: ClassVar[list[BaseEventDTO]] = []
-    # Quem gerou evento desde a última leitura; o flush não o esvazia
-    _touched_users: ClassVar[set[int]] = set()
+    # Carteiras com evento financeiro desde a última leitura; o flush não as esvazia
+    _touched_portfolios: ClassVar[set[int]] = set()
     _lock = Lock()
 
     @classmethod
     def push_event(cls, event: BaseEventDTO) -> None:
         with cls._lock:
             cls._events.append(event)
-            cls._touched_users.add(event.user_id)
+            if isinstance(event, PortfolioEventDTO):
+                cls._touched_portfolios.add(event.portfolio_id)
 
     @classmethod
-    def pop_touched_users(cls) -> set[int]:
-        """Quem gerou evento desde a última chamada; zera a marcação."""
+    def pop_touched_portfolios(cls) -> set[int]:
+        """As carteiras com evento financeiro desde a última chamada; zera a marcação."""
         with cls._lock:
-            touched = set(cls._touched_users)
-            cls._touched_users.clear()
+            touched = set(cls._touched_portfolios)
+            cls._touched_portfolios.clear()
             return touched
 
     @classmethod

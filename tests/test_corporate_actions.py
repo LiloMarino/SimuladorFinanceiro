@@ -182,7 +182,7 @@ def test_replay_reaches_the_same_state_as_the_live_game(
     broker, _ = _setup(15, "10")
     buy = EquityEventDTO(
         simulation_id=1,
-        user_id=1,
+        portfolio_id=1,
         event_date=date(2020, 1, 2),
         ticker="ABCD",
         event_type=EquityEventType.BUY,

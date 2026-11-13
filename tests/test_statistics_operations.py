@@ -20,7 +20,7 @@ JAN, FEB = date(2020, 1, 6), date(2020, 2, 3)
 def trade(day: date, kind: EquityEventType, quantity: int, price: str):
     return EquityEventDTO(
         simulation_id=1,
-        user_id=1,
+        portfolio_id=1,
         event_date=day,
         ticker="ITUB4",
         event_type=kind,

@@ -52,22 +52,22 @@ class EventRepository:
 
     @transactional
     def get_cashflow_events(
-        self, session: Session, simulation_id: int, user_id: int
+        self, session: Session, simulation_id: int, portfolio_id: int
     ) -> list[CashflowEventDTO]:
-        """Os eventos de caixa do jogador na ordem em que aconteceram."""
+        """Os eventos de caixa da carteira na ordem em que aconteceram."""
         rows = session.execute(
             select(EventCashflow, Stock.ticker)
             .outerjoin(Stock, Stock.id == EventCashflow.stock_id)
             .where(
                 EventCashflow.simulation_id == simulation_id,
-                EventCashflow.user_id == user_id,
+                EventCashflow.portfolio_id == portfolio_id,
             )
             .order_by(EventCashflow.event_date, EventCashflow.id)
         ).all()
         return [
             CashflowEventDTO(
                 simulation_id=row.simulation_id,
-                user_id=row.user_id,
+                portfolio_id=row.portfolio_id,
                 event_type=CashflowEventType(row.event_type),
                 amount=row.amount,
                 event_date=row.event_date,
@@ -145,7 +145,7 @@ class EventRepository:
         cashflow_models = [
             EventCashflow(
                 simulation_id=e.simulation_id,
-                user_id=e.user_id,
+                portfolio_id=e.portfolio_id,
                 event_type=e.event_type.value,
                 amount=e.amount,
                 event_date=e.event_date,
@@ -168,7 +168,7 @@ class EventRepository:
         equity_models = [
             EventEquity(
                 simulation_id=e.simulation_id,
-                user_id=e.user_id,
+                portfolio_id=e.portfolio_id,
                 stock_id=stock_map[e.ticker],
                 event_type=e.event_type.value,
                 quantity=e.quantity,
@@ -186,7 +186,7 @@ class EventRepository:
         fixed_income_models = [
             EventFixedIncome(
                 simulation_id=e.simulation_id,
-                user_id=e.user_id,
+                portfolio_id=e.portfolio_id,
                 asset_id=e.asset_id,
                 event_type=e.event_type.value,
                 amount=e.amount,
@@ -210,7 +210,7 @@ class EventRepository:
         session.add_all(
             EventCredit(
                 simulation_id=e.simulation_id,
-                user_id=e.user_id,
+                portfolio_id=e.portfolio_id,
                 loan_id=e.loan_id,
                 event_type=e.event_type.value,
                 amount=e.amount,

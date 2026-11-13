@@ -63,7 +63,7 @@ def event(
 ) -> CashflowEventDTO:
     return CashflowEventDTO(
         simulation_id=1,
-        user_id=1,
+        portfolio_id=1,
         event_date=day,
         event_type=type_,
         amount=Decimal(amount),

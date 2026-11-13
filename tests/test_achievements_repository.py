@@ -17,19 +17,20 @@ DAY = date(2020, 1, 2)
 
 
 @pytest.fixture
-def match(database: object) -> tuple[int, int]:
-    """Um jogador e uma partida no banco; devolve `(user_id, simulation_id)`."""
+def match(database: object) -> tuple[int, int, int]:
+    """Um jogador e uma partida no banco; devolve `(user_id, simulation_id, portfolio_id)`."""
     user = repository.user.create_user(client("Ana"), "Ana")
     simulation_id = repository.simulation.create_simulation(simulation_settings())
-    return user.id, simulation_id
+    portfolio_id = repository.portfolio.create(simulation_id, [user.id])[user.id]
+    return user.id, simulation_id, portfolio_id
 
 
 def order(
-    user_id: int, simulation_id: int, ticker: str, kind: EquityEventType, day: date
+    portfolio_id: int, simulation_id: int, ticker: str, kind: EquityEventType, day: date
 ) -> EquityEventDTO:
     return EquityEventDTO(
         simulation_id=simulation_id,
-        user_id=user_id,
+        portfolio_id=portfolio_id,
         event_date=day,
         ticker=ticker,
         event_type=kind,
@@ -38,8 +39,10 @@ def order(
     )
 
 
-def test_unlock_is_idempotent_and_returns_only_the_new_ones(match: tuple[int, int]):
-    user_id, simulation_id = match
+def test_unlock_is_idempotent_and_returns_only_the_new_ones(
+    match: tuple[int, int, int],
+):
+    user_id, simulation_id, _ = match
 
     first = repository.achievements.unlock(
         user_id, ["first_buy", "first_sale"], simulation_id, DAY
@@ -57,8 +60,8 @@ def test_unlock_is_idempotent_and_returns_only_the_new_ones(match: tuple[int, in
     }
 
 
-def test_progress_keeps_the_best_value(match: tuple[int, int]):
-    user_id, _ = match
+def test_progress_keeps_the_best_value(match: tuple[int, int, int]):
+    user_id, _, _ = match
 
     repository.achievements.save_progress(user_id, {"networth_1m": Decimal(600)})
     repository.achievements.save_progress(user_id, {"networth_1m": Decimal(200)})
@@ -69,8 +72,8 @@ def test_progress_keeps_the_best_value(match: tuple[int, int]):
     }
 
 
-def test_new_flag_lasts_until_the_player_marks_them_seen(match: tuple[int, int]):
-    user_id, simulation_id = match
+def test_new_flag_lasts_until_the_player_marks_them_seen(match: tuple[int, int, int]):
+    user_id, simulation_id, _ = match
     repository.achievements.unlock(user_id, ["first_buy"], simulation_id, DAY)
 
     before = {a.code: a for a in service.list_achievements(user_id)}
@@ -86,8 +89,8 @@ def test_new_flag_lasts_until_the_player_marks_them_seen(match: tuple[int, int])
     assert after["first_sale"].unlock is None
 
 
-def test_deleting_the_match_keeps_its_achievements(match: tuple[int, int]):
-    user_id, simulation_id = match
+def test_deleting_the_match_keeps_its_achievements(match: tuple[int, int, int]):
+    user_id, simulation_id, _ = match
     repository.achievements.unlock(user_id, ["first_buy"], simulation_id, DAY)
 
     repository.simulation.delete(simulation_id)
@@ -98,8 +101,8 @@ def test_deleting_the_match_keeps_its_achievements(match: tuple[int, int]):
     assert unlock.game_date == DAY
 
 
-def test_other_players_do_not_see_each_others_achievements(match: tuple[int, int]):
-    user_id, simulation_id = match
+def test_other_players_do_not_see_each_others_achievements(match: tuple[int, int, int]):
+    user_id, simulation_id, _ = match
     other = repository.user.create_user(client("Bia"), "Bia")
     repository.achievements.unlock(user_id, ["first_buy"], simulation_id, DAY)
 
@@ -108,33 +111,33 @@ def test_other_players_do_not_see_each_others_achievements(match: tuple[int, int
     assert listed["first_buy"].unlock is None
 
 
-def test_event_measures_follow_the_orders(match: tuple[int, int]):
-    user_id, simulation_id = match
+def test_event_measures_follow_the_orders(match: tuple[int, int, int]):
+    _, simulation_id, portfolio_id = match
     for ticker in ("AAA", "BBB"):
         repository.stock.add_stock(ticker, ticker, AssetClass.STOCK)
     buy, sell = EquityEventType.BUY, EquityEventType.SELL
     repository.event.insert_many(
         [
-            order(user_id, simulation_id, "AAA", buy, date(2020, 1, 2)),
-            order(user_id, simulation_id, "BBB", buy, date(2020, 1, 3)),
-            order(user_id, simulation_id, "AAA", sell, date(2020, 1, 6)),
+            order(portfolio_id, simulation_id, "AAA", buy, date(2020, 1, 2)),
+            order(portfolio_id, simulation_id, "BBB", buy, date(2020, 1, 3)),
+            order(portfolio_id, simulation_id, "AAA", sell, date(2020, 1, 6)),
         ]
     )
     stats = repository.achievements
 
-    assert stats.equity_orders(simulation_id, user_id, None) == 3
-    assert stats.equity_orders(simulation_id, user_id, "SELL") == 1
-    assert stats.equity_order_dates(simulation_id, user_id, "BUY") == [
+    assert stats.equity_orders(simulation_id, portfolio_id, None) == 3
+    assert stats.equity_orders(simulation_id, portfolio_id, "SELL") == 1
+    assert stats.equity_order_dates(simulation_id, portfolio_id, "BUY") == [
         date(2020, 1, 2),
         date(2020, 1, 3),
     ]
     # AAA foi vendida inteira, sobra BBB
-    assert stats.held_assets(simulation_id, user_id) == 1
-    assert stats.fixed_income_buys(simulation_id, user_id) == 0
+    assert stats.held_assets(simulation_id, portfolio_id) == 1
+    assert stats.fixed_income_buys(simulation_id, portfolio_id) == 0
 
 
-def test_sector_day_trade_and_flow_measures(match: tuple[int, int]):
-    user_id, simulation_id = match
+def test_sector_day_trade_and_flow_measures(match: tuple[int, int, int]):
+    _, simulation_id, portfolio_id = match
     sectors = {"AAA": "Energia", "BBB": "Energia", "CCC": "Bancos"}
     for ticker, sector in sectors.items():
         repository.stock.add_stock(ticker, ticker, AssetClass.STOCK)
@@ -143,28 +146,28 @@ def test_sector_day_trade_and_flow_measures(match: tuple[int, int]):
     buy, sell = EquityEventType.BUY, EquityEventType.SELL
     repository.event.insert_many(
         [
-            order(user_id, simulation_id, "AAA", buy, date(2020, 1, 2)),
-            order(user_id, simulation_id, "BBB", buy, date(2020, 1, 2)),
-            order(user_id, simulation_id, "CCC", buy, date(2020, 1, 2)),
+            order(portfolio_id, simulation_id, "AAA", buy, date(2020, 1, 2)),
+            order(portfolio_id, simulation_id, "BBB", buy, date(2020, 1, 2)),
+            order(portfolio_id, simulation_id, "CCC", buy, date(2020, 1, 2)),
             # Sem setor, não conta
-            order(user_id, simulation_id, "DDD", buy, date(2020, 1, 2)),
+            order(portfolio_id, simulation_id, "DDD", buy, date(2020, 1, 2)),
             # CCC comprada e vendida no mesmo dia: day trade, e sai da carteira
-            order(user_id, simulation_id, "CCC", sell, date(2020, 1, 2)),
-            order(user_id, simulation_id, "AAA", sell, date(2020, 1, 3)),
+            order(portfolio_id, simulation_id, "CCC", sell, date(2020, 1, 2)),
+            order(portfolio_id, simulation_id, "AAA", sell, date(2020, 1, 3)),
         ]
     )
     stats = repository.achievements
 
     # AAA foi vendida inteira: sobram BBB (Energia) e DDD (sem setor)
-    assert stats.held_sectors(simulation_id, user_id) == 1
-    assert stats.day_traded_assets(simulation_id, user_id) == 1
-    assert stats.equity_flows(simulation_id, user_id, date(2020, 1, 3)) == [
+    assert stats.held_sectors(simulation_id, portfolio_id) == 1
+    assert stats.day_traded_assets(simulation_id, portfolio_id) == 1
+    assert stats.equity_flows(simulation_id, portfolio_id, date(2020, 1, 3)) == [
         ("AAA", date(2020, 1, 3), Decimal(-10))
     ]
 
 
-def test_real_market_end_ignores_generated_days(match: tuple[int, int]):
-    _, simulation_id = match
+def test_real_market_end_ignores_generated_days(match: tuple[int, int, int]):
+    _, simulation_id, _ = match
     stock = repository.stock.add_stock("AAA", "AAA", AssetClass.STOCK)
     assert repository.achievements.real_market_end(simulation_id) is None
 

@@ -73,11 +73,12 @@ def saved_match(engine: Engine, start: date, played_until: date) -> int:
         )
     )
     user = repository.user.create_user(uuid.uuid4(), f"J{uuid.uuid4().hex[:6]}")
+    portfolio_id = repository.portfolio.create(simulation_id, [user.id])[user.id]
     with Session(engine) as session:
         session.add(
             Snapshots(
                 simulation_id=simulation_id,
-                user_id=user.id,
+                portfolio_id=portfolio_id,
                 snapshot_date=played_until,
                 total_equity=Decimal(0),
                 total_fixed=Decimal(0),

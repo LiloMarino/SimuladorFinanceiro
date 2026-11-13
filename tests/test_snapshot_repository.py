@@ -19,12 +19,12 @@ NEXT_DAY = date(2020, 1, 7)
 
 @pytest.fixture
 def match(database: Engine, monkeypatch: pytest.MonkeyPatch) -> int:
-    """Um jogador numa partida ativa; devolve o `user_id`."""
+    """Um jogador numa partida ativa; devolve o `portfolio_id`."""
     user = repository.user.create_user(client("Ana"), "Ana")
     simulation_id = repository.simulation.create_simulation(simulation_settings())
     monkeypatch.setattr(SimulationManager, "_active_simulation", object())
     monkeypatch.setattr(SimulationManager, "_simulation_id", simulation_id)
-    return user.id
+    return repository.portfolio.create(simulation_id, [user.id])[user.id]
 
 
 def test_history_returns_the_equity_by_class_that_was_recorded(match: int):

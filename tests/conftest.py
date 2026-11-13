@@ -41,7 +41,7 @@ from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.types import ClientID, Event, JSONValue
-from tests.fakes import USER_ID, client, simulation_settings
+from tests.fakes import PORTFOLIO_ID, USER_ID, client, simulation_settings
 from tests.test_synthetic_series import build_history
 
 
@@ -56,13 +56,14 @@ class _SilentRealtimeBroker:
 def captured_events(monkeypatch: pytest.MonkeyPatch) -> list[BaseEventDTO]:
     """
     Isola o domínio dos singletons: realtime mudo, todo cliente é o usuário
-    `USER_ID` (sem cadastro carregado) e os eventos que iriam ao banco ficam na
+    `USER_ID` com a carteira `PORTFOLIO_ID` (sem cadastro carregado) e os eventos que iriam ao banco ficam na
     lista devolvida.
     """
     events: list[BaseEventDTO] = []
     monkeypatch.setattr(EventManager, "push_event", events.append)
     monkeypatch.setattr(UserManager, "get_user", lambda _: None)
     monkeypatch.setattr(UserManager, "get_user_id", lambda _: USER_ID)
+    monkeypatch.setattr(UserManager, "get_portfolio_id", lambda _: PORTFOLIO_ID)
     monkeypatch.setattr(
         RealtimeBrokerManager, "get_broker", lambda: _SilentRealtimeBroker()
     )

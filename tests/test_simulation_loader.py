@@ -50,7 +50,7 @@ def saved_match(players: list[UserDTO], buyer: UserDTO) -> int:
     repository.simulation_player.save(
         simulation_id, {p.id: PLAYER_COLORS[i] for i, p in enumerate(players)}
     )
-    repository.user.seed_simulation_users(
+    portfolios = repository.portfolio.open(
         simulation_id, [p.id for p in players], START, CASH
     )
     # A compra é gravada como o broker grava: a ação e o dinheiro que saiu do caixa
@@ -58,7 +58,7 @@ def saved_match(players: list[UserDTO], buyer: UserDTO) -> int:
         [
             EquityEventDTO(
                 simulation_id=simulation_id,
-                user_id=buyer.id,
+                portfolio_id=portfolios[buyer.id],
                 event_date=BOUGHT_ON,
                 ticker="BANK_A",
                 event_type=EquityEventType.BUY,
@@ -67,7 +67,7 @@ def saved_match(players: list[UserDTO], buyer: UserDTO) -> int:
             ),
             CashflowEventDTO(
                 simulation_id=simulation_id,
-                user_id=buyer.id,
+                portfolio_id=portfolios[buyer.id],
                 event_date=BOUGHT_ON,
                 event_type=CashflowEventType.WITHDRAW,
                 amount=PRICE * QUANTITY,

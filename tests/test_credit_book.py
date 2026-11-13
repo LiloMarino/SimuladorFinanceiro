@@ -277,7 +277,7 @@ def test_grade_d_blocks_new_credit(engine):
     engine.credit_book.client(PLAYER).events.append(
         CreditEventDTO(
             simulation_id=1,
-            user_id=1,
+            portfolio_id=1,
             event_date=START,
             loan_id=uuid.uuid4(),
             event_type=CreditEventType.INSTALLMENT_LATE,

@@ -36,7 +36,7 @@ from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.statistics.cache import ReportCache
 from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.position import Position
-from tests.fakes import USER_ID, client
+from tests.fakes import PORTFOLIO_ID, USER_ID, client
 
 PLAYER = client("player")
 TODAY = date(2020, 1, 6)
@@ -58,18 +58,20 @@ def player_book(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEvent
     10 ações compradas a R$ 10 e R$ 1.000 num CDB aplicado hoje.
     """
     monkeypatch.setattr(
-        repository.user, "get_user_balance", lambda _client_id: Decimal("880")
+        repository.user, "get_user_balance", lambda _portfolio_id: Decimal("880")
     )
     monkeypatch.setattr(
-        repository.user, "get_total_contribution", lambda _user_id: Decimal("600")
+        repository.user, "get_total_contribution", lambda _portfolio_id: Decimal("600")
     )
     monkeypatch.setattr(
         repository.user,
         "get_total_cashflow",
-        lambda _user_id, event_type: {CashflowEventType.TAX: Decimal("0")}[event_type],
+        lambda _portfolio_id, event_type: {CashflowEventType.TAX: Decimal("0")}[
+            event_type
+        ],
     )
     monkeypatch.setattr(
-        repository.credit, "get_events", lambda _simulation_id, _user_id: []
+        repository.credit, "get_events", lambda _simulation_id, _portfolio_id: []
     )
     monkeypatch.setattr(
         repository.portfolio, "get_patrimonial_history", lambda *_args: []
@@ -94,7 +96,7 @@ def player_book(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEvent
         lambda _user_id: [
             EquityEventDTO(
                 simulation_id=1,
-                user_id=USER_ID,
+                portfolio_id=PORTFOLIO_ID,
                 event_date=TODAY,
                 ticker="ABCD",
                 event_type=EquityEventType.BUY,
@@ -111,7 +113,7 @@ def player_book(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEvent
                 FIXED_ASSET,
                 FixedIncomeEventDTO(
                     simulation_id=1,
-                    user_id=USER_ID,
+                    portfolio_id=PORTFOLIO_ID,
                     asset_id=1,
                     event_type=FixedIncomeEventType.BUY,
                     amount=Decimal("1000"),
@@ -218,7 +220,7 @@ def test_balance_sheet_splits_equity_by_asset_class(
         lambda _user_id: [
             EquityEventDTO(
                 simulation_id=1,
-                user_id=USER_ID,
+                portfolio_id=PORTFOLIO_ID,
                 event_date=TODAY,
                 ticker=ticker,
                 event_type=EquityEventType.BUY,
@@ -274,12 +276,12 @@ def test_stock_catalog_is_reused_and_reloaded_for_a_new_simulation(
     engine = _engine()
     first = engine.get_portfolio(PLAYER)
     assert engine.get_portfolio(PLAYER) == first
-    engine.assess_income_tax(USER_ID)
+    engine.assess_income_tax(PORTFOLIO_ID)
     engine.preview_order(PLAYER, "ABCD", OrderAction.SELL, Decimal(1), 12)
     assert calls == [True]
 
     # O catálogo não é global: uma nova partida vê o que a Central alterou.
-    _engine().assess_income_tax(USER_ID)
+    _engine().assess_income_tax(PORTFOLIO_ID)
     assert calls == [True, True]
 
 

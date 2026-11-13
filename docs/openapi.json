@@ -32439,9 +32439,9 @@
       },
       "SnapshotDTO": {
         "properties": {
-          "user_id": {
+          "portfolio_id": {
             "type": "integer",
-            "title": "User Id"
+            "title": "Portfolio Id"
           },
           "snapshot_date": {
             "type": "string",
@@ -32488,7 +32488,7 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "user_id",
+          "portfolio_id",
           "snapshot_date",
           "total_equity",
           "total_fixed",

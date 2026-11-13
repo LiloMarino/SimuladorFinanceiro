@@ -19,53 +19,55 @@ from backend.core.runtime.simulation_manager import SimulationManager
 class SnapshotRepository:
     def create_snapshot(
         self,
-        user_id: int,
+        portfolio_id: int,
         snapshot_date: date,
         total_equity: Decimal,
         total_fixed: Decimal,
         total_debt: Decimal,
         equity_by_class: dict[AssetClass, Decimal],
     ) -> SnapshotDTO:
-        """O snapshot de um jogador só, pelo mesmo caminho do dia de todos."""
+        """O snapshot de uma carteira só, pelo mesmo caminho do dia de todos."""
         balance = DayBalanceDTO(total_equity, total_fixed, total_debt, equity_by_class)
-        return self.create_snapshots(snapshot_date, {user_id: balance})[user_id]
+        return self.create_snapshots(snapshot_date, {portfolio_id: balance})[
+            portfolio_id
+        ]
 
     @transactional
     def create_snapshots(
         self, session: Session, snapshot_date: date, balances: dict[int, DayBalanceDTO]
     ) -> dict[int, SnapshotDTO]:
         """
-        Grava o snapshot do dia de cada `user_id` numa ida ao banco para ler e outra
+        Grava o snapshot do dia de cada `portfolio_id` numa ida ao banco para ler e outra
         para gravar. As ações e a renda fixa vêm do motor: as ações ao preço negociado
         na simulação, que difere do histórico quando o impacto de preço está ligado, e
         a renda fixa com o rendimento do dia já acumulado. A dívida é o saldo devedor
-        do dia: o patrimônio é o que o jogador tem menos o que deve. O caixa e o aporte
+        do dia: o patrimônio é o que a carteira tem menos o que deve. O caixa e o aporte
         são a soma dos eventos de caixa até o dia.
         """
         simulation_id = SimulationManager.get_active_simulation_id()
         cashflow = {
-            user_id: (Decimal(cash), Decimal(contribution))
-            for user_id, cash, contribution in session.execute(
+            portfolio_id: (Decimal(cash), Decimal(contribution))
+            for portfolio_id, cash, contribution in session.execute(
                 select(
-                    EventCashflow.user_id,
+                    EventCashflow.portfolio_id,
                     cash_delta(),
                     cash_delta(CONTRIBUTION_TYPES),
                 )
                 .where(
-                    EventCashflow.user_id.in_(balances),
+                    EventCashflow.portfolio_id.in_(balances),
                     EventCashflow.simulation_id == simulation_id,
                     EventCashflow.event_date <= snapshot_date,
                 )
-                .group_by(EventCashflow.user_id)
+                .group_by(EventCashflow.portfolio_id)
             ).all()
         }
 
         created_at = datetime.now(UTC)
         snapshots: dict[int, SnapshotDTO] = {}
-        for user_id, balance in balances.items():
-            cash, contribution = cashflow.get(user_id, (Decimal(0), Decimal(0)))
-            snapshots[user_id] = SnapshotDTO(
-                user_id=user_id,
+        for portfolio_id, balance in balances.items():
+            cash, contribution = cashflow.get(portfolio_id, (Decimal(0), Decimal(0)))
+            snapshots[portfolio_id] = SnapshotDTO(
+                portfolio_id=portfolio_id,
                 snapshot_date=snapshot_date,
                 total_equity=balance.total_equity,
                 total_fixed=balance.total_fixed,
@@ -90,11 +92,11 @@ class SnapshotRepository:
         )
         session.execute(
             stmt.on_conflict_do_update(
-                index_elements=["simulation_id", "user_id", "snapshot_date"],
+                index_elements=["simulation_id", "portfolio_id", "snapshot_date"],
                 set_={
                     column: stmt.excluded[column]
                     for column in SnapshotDTO.model_fields
-                    if column not in ("user_id", "snapshot_date")
+                    if column not in ("portfolio_id", "snapshot_date")
                 },
             )
         )

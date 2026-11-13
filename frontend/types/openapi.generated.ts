@@ -11411,8 +11411,8 @@ export interface components {
         };
         /** SnapshotDTO */
         SnapshotDTO: {
-            /** User Id */
-            user_id: number;
+            /** Portfolio Id */
+            portfolio_id: number;
             /**
              * Snapshot Date
              * Format: date

@@ -174,9 +174,10 @@ def test_light_snapshots_match_the_values_the_events_add_up_to(events, market: E
     simulation_id = run_to_the_end(events)
     bots = repository.simulation_player.participants(simulation_id)
     last_day = nth_day(total_days())
+    portfolios = repository.portfolio.ids(simulation_id)
     with Session(market) as session:
         stored = {
-            row.user_id: row
+            row.portfolio_id: row
             for row in session.scalars(
                 select(Snapshots).where(
                     Snapshots.simulation_id == simulation_id,
@@ -184,32 +185,33 @@ def test_light_snapshots_match_the_values_the_events_add_up_to(events, market: E
                 )
             )
         }
-    assert set(stored) == {bot.id for bot in bots}
+    assert set(stored) == {portfolios[bot.id] for bot in bots}
 
-    SimulationManager.set_simulation_id(simulation_id)
+    SimulationManager.set_simulation_id(simulation_id, portfolios)
     for bot in bots:
+        portfolio_id = portfolios[bot.id]
         # O caminho completo soma o caixa e o aporte direto dos eventos
         full = repository.snapshot.create_snapshot(
-            user_id=bot.id,
+            portfolio_id=portfolio_id,
             snapshot_date=last_day,
             total_equity=Decimal(0),
             total_fixed=Decimal(0),
             total_debt=Decimal(0),
             equity_by_class={},
         )
-        assert stored[bot.id].total_cash == full.total_cash
-        assert stored[bot.id].total_contribution == full.total_contribution
-        assert stored[bot.id].total_networth == (
-            stored[bot.id].total_cash
-            + stored[bot.id].total_equity
-            + stored[bot.id].total_fixed
-            - stored[bot.id].total_debt
+        assert stored[portfolio_id].total_cash == full.total_cash
+        assert stored[portfolio_id].total_contribution == full.total_contribution
+        assert stored[portfolio_id].total_networth == (
+            stored[portfolio_id].total_cash
+            + stored[portfolio_id].total_equity
+            + stored[portfolio_id].total_fixed
+            - stored[portfolio_id].total_debt
         )
         # Cada tipo e o total arredondam na sexta casa, cada um por si
-        by_class = stored[bot.id].equity_by_class
+        by_class = stored[portfolio_id].equity_by_class
         assert by_class is not None
         split = sum(map(Decimal, by_class.values()), Decimal(0))
-        assert abs(split - stored[bot.id].total_equity) < Decimal("0.00001")
+        assert abs(split - stored[portfolio_id].total_equity) < Decimal("0.00001")
 
 
 def nth_day(n: int) -> date:

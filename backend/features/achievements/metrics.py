@@ -70,7 +70,7 @@ class MatchResult:
 NO_MATCH = MatchResult(winners=frozenset(), players_count=0, ended_by_goal=False)
 
 
-def no_income_tax(_user_id: int) -> list[MonthlyTax]:
+def no_income_tax(_portfolio_id: int) -> list[MonthlyTax]:
     return []
 
 
@@ -82,7 +82,7 @@ def no_market_end() -> date | None:
 class Sources:
     """Leituras que dependem da partida em andamento e valem para todos os jogadores."""
 
-    # Apuração mensal do IR de um jogador, como o motor a calcula
+    # Apuração mensal do IR de uma carteira, como o motor a calcula
     income_tax: Callable[[int], list[MonthlyTax]] = no_income_tax
     # Último pregão com dado real; None sem mercado real
     market_real_end: Callable[[], date | None] = no_market_end
@@ -103,12 +103,16 @@ class Context:
     _values: dict[str, Decimal] = field(default_factory=dict)
 
     @property
+    def portfolio_id(self) -> int:
+        return self.snapshot.portfolio_id
+
+    @property
     def today(self) -> date:
         return self.snapshot.snapshot_date
 
     @cached_property
     def history(self) -> list[PatrimonialHistoryDTO]:
-        return repository.portfolio.get_patrimonial_history(self.user_id)
+        return repository.portfolio.get_patrimonial_history(self.portfolio_id)
 
     @cached_property
     def days(self) -> risk.DailyReturns:
@@ -125,12 +129,12 @@ class Context:
 
     def buy_dates(self) -> list[date]:
         return repository.achievements.equity_order_dates(
-            self.settings.id, self.user_id, "BUY"
+            self.settings.id, self.portfolio_id, "BUY"
         )
 
     def sell_dates(self) -> list[date]:
         return repository.achievements.equity_order_dates(
-            self.settings.id, self.user_id, "SELL"
+            self.settings.id, self.portfolio_id, "SELL"
         )
 
     def value(self, name: str) -> Decimal:
@@ -213,44 +217,50 @@ def candle_challenge_hits(ctx: Context) -> Decimal:
 @metric("equity_buys", Trigger.ORDER)
 def equity_buys(ctx: Context) -> Decimal:
     return Decimal(
-        repository.achievements.equity_orders(ctx.settings.id, ctx.user_id, "BUY")
+        repository.achievements.equity_orders(ctx.settings.id, ctx.portfolio_id, "BUY")
     )
 
 
 @metric("equity_sells", Trigger.ORDER)
 def equity_sells(ctx: Context) -> Decimal:
     return Decimal(
-        repository.achievements.equity_orders(ctx.settings.id, ctx.user_id, "SELL")
+        repository.achievements.equity_orders(ctx.settings.id, ctx.portfolio_id, "SELL")
     )
 
 
 @metric("fixed_income_buys", Trigger.ORDER)
 def fixed_income_buys(ctx: Context) -> Decimal:
     return Decimal(
-        repository.achievements.fixed_income_buys(ctx.settings.id, ctx.user_id)
+        repository.achievements.fixed_income_buys(ctx.settings.id, ctx.portfolio_id)
     )
 
 
 @metric("order_count", Trigger.ORDER)
 def order_count(ctx: Context) -> Decimal:
-    equity = repository.achievements.equity_orders(ctx.settings.id, ctx.user_id, None)
+    equity = repository.achievements.equity_orders(
+        ctx.settings.id, ctx.portfolio_id, None
+    )
     return Decimal(equity) + ctx.value("fixed_income_buys")
 
 
 @metric("held_assets", Trigger.ORDER)
 def held_assets(ctx: Context) -> Decimal:
-    return Decimal(repository.achievements.held_assets(ctx.settings.id, ctx.user_id))
+    return Decimal(
+        repository.achievements.held_assets(ctx.settings.id, ctx.portfolio_id)
+    )
 
 
 @metric("held_sectors", Trigger.ORDER)
 def held_sectors(ctx: Context) -> Decimal:
-    return Decimal(repository.achievements.held_sectors(ctx.settings.id, ctx.user_id))
+    return Decimal(
+        repository.achievements.held_sectors(ctx.settings.id, ctx.portfolio_id)
+    )
 
 
 @metric("day_traded", Trigger.ORDER)
 def day_traded(ctx: Context) -> Decimal:
     return _flag(
-        repository.achievements.day_traded_assets(ctx.settings.id, ctx.user_id) > 0
+        repository.achievements.day_traded_assets(ctx.settings.id, ctx.portfolio_id) > 0
     )
 
 
@@ -266,7 +276,7 @@ def moved_market(ctx: Context) -> Decimal:
         return ZERO
     since = ctx.today - timedelta(days=MARKET_MOVE_LOOKBACK_DAYS)
     for ticker, day, quantity in repository.achievements.equity_flows(
-        settings.id, ctx.user_id, since
+        settings.id, ctx.portfolio_id, since
     ):
         average_volume = repository.stock.get_average_volume(
             ticker, day, AVERAGE_VOLUME_WINDOW, simulation_id=settings.id
@@ -325,7 +335,7 @@ def exempt_month(ctx: Context) -> Decimal:
             (m.year, m.month) < current_month
             and m.stock_exempt_profit > 0
             and m.tax == 0
-            for m in ctx.sources.income_tax(ctx.user_id)
+            for m in ctx.sources.income_tax(ctx.portfolio_id)
         )
     )
 

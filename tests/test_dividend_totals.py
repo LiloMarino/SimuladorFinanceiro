@@ -17,12 +17,13 @@ from tests.fakes import client, simulation_settings
 
 @pytest.fixture
 def match(database: object, monkeypatch: pytest.MonkeyPatch) -> tuple[int, int]:
-    """Um jogador, uma ação e uma partida ativa no banco; devolve `(user_id, simulation_id)`."""
+    """Um jogador, uma ação e uma partida ativa no banco; devolve `(portfolio_id, simulation_id)`."""
     user = repository.user.create_user(client("Ana"), "Ana")
     repository.stock.add_stock("ABCD", "ABCD", AssetClass.STOCK)
     simulation_id = repository.simulation.create_simulation(simulation_settings())
     monkeypatch.setattr(SimulationManager, "_simulation_id", simulation_id)
-    return user.id, simulation_id
+    portfolio_id = repository.portfolio.create(simulation_id, [user.id])[user.id]
+    return portfolio_id, simulation_id
 
 
 def _cashflow(
@@ -32,10 +33,10 @@ def _cashflow(
     amount: str,
     ticker: str | None = None,
 ) -> CashflowEventDTO:
-    user_id, simulation_id = match
+    portfolio_id, simulation_id = match
     return CashflowEventDTO(
         simulation_id=simulation_id,
-        user_id=user_id,
+        portfolio_id=portfolio_id,
         event_date=day,
         event_type=event_type,
         amount=Decimal(amount),
@@ -46,7 +47,7 @@ def _cashflow(
 def test_dividend_totals_split_the_match_from_the_recent_window(
     match: tuple[int, int],
 ):
-    user_id, _simulation_id = match
+    portfolio_id, _simulation_id = match
     repository.event.insert_many(
         [
             _cashflow(
@@ -59,7 +60,7 @@ def test_dividend_totals_split_the_match_from_the_recent_window(
         ]
     )
 
-    totals = repository.portfolio.get_dividend_totals(user_id, date(2020, 7, 1))
+    totals = repository.portfolio.get_dividend_totals(portfolio_id, date(2020, 7, 1))
 
     # O depósito não é provento; a janela recente só pega o de agosto
     assert totals["ABCD"].total == Decimal("65.50")
@@ -67,7 +68,7 @@ def test_dividend_totals_split_the_match_from_the_recent_window(
 
 
 def test_dividend_payments_come_in_date_order_with_the_asset(match: tuple[int, int]):
-    user_id, _simulation_id = match
+    portfolio_id, _simulation_id = match
     repository.event.insert_many(
         [
             _cashflow(
@@ -79,7 +80,7 @@ def test_dividend_payments_come_in_date_order_with_the_asset(match: tuple[int, i
         ]
     )
 
-    payments = repository.portfolio.get_dividend_payments(user_id)
+    payments = repository.portfolio.get_dividend_payments(portfolio_id)
 
     assert [(p.ticker, p.event_date, p.amount) for p in payments] == [
         ("ABCD", date(2020, 1, 6), Decimal("40")),
@@ -88,13 +89,13 @@ def test_dividend_payments_come_in_date_order_with_the_asset(match: tuple[int, i
 
 
 def test_return_flows_stop_at_the_last_snapshot(match: tuple[int, int]):
-    user_id, simulation_id = match
+    portfolio_id, simulation_id = match
     last_day = date(2020, 3, 2)
     repository.snapshot.create_many(
         simulation_id,
         [
             SnapshotDTO(
-                user_id=user_id,
+                portfolio_id=portfolio_id,
                 snapshot_date=last_day,
                 total_equity=Decimal(0),
                 total_fixed=Decimal(0),

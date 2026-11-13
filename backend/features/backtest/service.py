@@ -53,7 +53,7 @@ def start(config: BacktestConfigDTO) -> BacktestStatusDTO:
             simulation_id,
             {bot.id: p.color for bot, (p, _) in zip(bots, participants, strict=True)},
         )
-        repository.user.seed_simulation_users(
+        portfolios = repository.portfolio.open(
             simulation_id,
             [bot.id for bot in bots],
             settings.start_date,
@@ -61,7 +61,7 @@ def start(config: BacktestConfigDTO) -> BacktestStatusDTO:
         )
 
         SimulationManager.clear_simulation()
-        SimulationManager.set_simulation_id(simulation_id)
+        SimulationManager.set_simulation_id(simulation_id, portfolios)
         progress = BacktestProgress(
             simulation_id=simulation_id,
             name=settings.name,
@@ -73,7 +73,7 @@ def start(config: BacktestConfigDTO) -> BacktestStatusDTO:
                 settings.start_date, settings.end_date
             ),
             participants=[p for p, _ in participants],
-            user_ids=[bot.id for bot in bots],
+            portfolio_ids=[portfolios[bot.id] for bot in bots],
         )
         sim = Simulation(
             SimulationDTO(id=simulation_id, **settings.model_dump()),

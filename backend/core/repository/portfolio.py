@@ -1,8 +1,9 @@
-from datetime import date
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import NamedTuple
 
 from sqlalchemy import case, func, select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
@@ -14,6 +15,7 @@ from backend.core.enum import AssetClass, CashflowEventType, EquityEventType
 from backend.core.models.models import (
     EventCashflow,
     EventEquity,
+    Portfolios,
     SimulationPlayers,
     Snapshots,
     Stock,
@@ -29,19 +31,90 @@ class DividendTotal(NamedTuple):
     recent: Decimal
 
 
+def _create_portfolios(
+    session: Session, simulation_id: int, user_ids: list[int]
+) -> dict[int, int]:
+    """Uma carteira por jogador na partida; quem já tem a sua a mantém. Devolve user_id -> portfolio_id."""
+    if not user_ids:
+        return {}
+    session.execute(
+        insert(Portfolios)
+        .values(
+            [
+                {
+                    "simulation_id": simulation_id,
+                    "user_id": user_id,
+                    "created_at": datetime.now(UTC),
+                }
+                for user_id in user_ids
+            ]
+        )
+        .on_conflict_do_nothing(index_elements=["simulation_id", "user_id"])
+    )
+    rows = session.execute(
+        select(Portfolios.user_id, Portfolios.id).where(
+            Portfolios.simulation_id == simulation_id,
+            Portfolios.user_id.in_(user_ids),
+        )
+    )
+    return {user_id: portfolio_id for user_id, portfolio_id in rows}
+
+
 class PortfolioRepository:
+    @transactional
+    def create(
+        self, session: Session, simulation_id: int, user_ids: list[int]
+    ) -> dict[int, int]:
+        """Abre a carteira de cada jogador sem movimentar o caixa: user_id -> portfolio_id."""
+        return _create_portfolios(session, simulation_id, user_ids)
+
+    @transactional
+    def open(
+        self,
+        session: Session,
+        simulation_id: int,
+        user_ids: list[int],
+        event_date: date,
+        starting_cash: Decimal,
+    ) -> dict[int, int]:
+        """Abre a carteira de cada jogador com o depósito inicial: user_id -> portfolio_id."""
+        portfolios = _create_portfolios(session, simulation_id, user_ids)
+        now = datetime.now(UTC)
+        session.add_all(
+            EventCashflow(
+                simulation_id=simulation_id,
+                portfolio_id=portfolio_id,
+                event_type=CashflowEventType.DEPOSIT.value,
+                amount=starting_cash,
+                event_date=event_date,
+                created_at=now,
+            )
+            for portfolio_id in portfolios.values()
+        )
+        return portfolios
+
+    @transactional
+    def ids(self, session: Session, simulation_id: int) -> dict[int, int]:
+        """As carteiras da partida: user_id -> portfolio_id."""
+        rows = session.execute(
+            select(Portfolios.user_id, Portfolios.id).where(
+                Portfolios.simulation_id == simulation_id
+            )
+        )
+        return {user_id: portfolio_id for user_id, portfolio_id in rows}
+
     @transactional
     def get_patrimonial_history(
         self,
         session: Session,
-        user_id: int,
+        portfolio_id: int,
         before: date | None = None,
         last: int | None = None,
     ) -> list[PatrimonialHistoryDTO]:
         """Os snapshots em ordem de data; com `last`, só os `last` mais recentes antes de `before`."""
         simulation_id = SimulationManager.get_active_simulation_id()
         stmt = select(Snapshots).where(
-            Snapshots.user_id == user_id,
+            Snapshots.portfolio_id == portfolio_id,
             Snapshots.simulation_id == simulation_id,
         )
         if before is not None:
@@ -73,11 +146,12 @@ class PortfolioRepository:
         rows = session.execute(
             select(EventEquity, Users.nickname, SimulationPlayers.color)
             .join(Stock, Stock.id == EventEquity.stock_id)
-            .join(Users, Users.id == EventEquity.user_id)
+            .join(Portfolios, Portfolios.id == EventEquity.portfolio_id)
+            .join(Users, Users.id == Portfolios.user_id)
             .join(
                 SimulationPlayers,
-                (SimulationPlayers.simulation_id == EventEquity.simulation_id)
-                & (SimulationPlayers.user_id == EventEquity.user_id),
+                (SimulationPlayers.simulation_id == Portfolios.simulation_id)
+                & (SimulationPlayers.user_id == Portfolios.user_id),
             )
             .where(
                 Stock.ticker == ticker,
@@ -104,15 +178,15 @@ class PortfolioRepository:
 
     @transactional
     def get_dividend_payments(
-        self, session: Session, user_id: int
+        self, session: Session, portfolio_id: int
     ) -> list[DividendPaymentDTO]:
-        """Os créditos de provento no caixa do jogador, em ordem de data."""
+        """Os créditos de provento no caixa da carteira, em ordem de data."""
         simulation_id = SimulationManager.get_active_simulation_id()
         rows = session.execute(
             select(EventCashflow, Stock.ticker, Stock.name, Stock.asset_class)
             .join(Stock, Stock.id == EventCashflow.stock_id)
             .where(
-                EventCashflow.user_id == user_id,
+                EventCashflow.portfolio_id == portfolio_id,
                 EventCashflow.simulation_id == simulation_id,
                 EventCashflow.event_type == CashflowEventType.DIVIDEND.value,
             )
@@ -131,9 +205,9 @@ class PortfolioRepository:
 
     @transactional
     def get_dividend_totals(
-        self, session: Session, user_id: int, since: date
+        self, session: Session, portfolio_id: int, since: date
     ) -> dict[str, DividendTotal]:
-        """Quanto cada ativo pagou ao jogador na partida inteira e de `since` em diante."""
+        """Quanto cada ativo pagou à carteira na partida inteira e de `since` em diante."""
         simulation_id = SimulationManager.get_active_simulation_id()
         since_total = func.coalesce(
             func.sum(
@@ -145,7 +219,7 @@ class PortfolioRepository:
             select(Stock.ticker, func.sum(EventCashflow.amount), since_total)
             .join(Stock, Stock.id == EventCashflow.stock_id)
             .where(
-                EventCashflow.user_id == user_id,
+                EventCashflow.portfolio_id == portfolio_id,
                 EventCashflow.simulation_id == simulation_id,
                 EventCashflow.event_type == CashflowEventType.DIVIDEND.value,
             )
@@ -157,14 +231,16 @@ class PortfolioRepository:
         }
 
     @transactional
-    def get_equity_events(self, session: Session, user_id: int) -> list[EquityEventDTO]:
-        """Eventos de renda variável do jogador, em ordem cronológica."""
+    def get_equity_events(
+        self, session: Session, portfolio_id: int
+    ) -> list[EquityEventDTO]:
+        """Eventos de renda variável da carteira, em ordem cronológica."""
         simulation_id = SimulationManager.get_active_simulation_id()
         rows = session.execute(
             select(EventEquity, Stock.ticker)
             .join(Stock, Stock.id == EventEquity.stock_id)
             .where(
-                EventEquity.user_id == user_id,
+                EventEquity.portfolio_id == portfolio_id,
                 EventEquity.simulation_id == simulation_id,
             )
             .order_by(EventEquity.event_date, EventEquity.id)
@@ -173,7 +249,7 @@ class PortfolioRepository:
         return [
             EquityEventDTO(
                 simulation_id=event.simulation_id,
-                user_id=event.user_id,
+                portfolio_id=event.portfolio_id,
                 event_type=EquityEventType(event.event_type),
                 ticker=ticker,
                 quantity=event.quantity,

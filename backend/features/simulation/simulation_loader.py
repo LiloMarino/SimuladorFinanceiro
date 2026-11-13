@@ -60,7 +60,7 @@ class SimulationLoader:
             UserManager.chosen_teams() if in_teams else None,
             UserManager.chosen_professions() if settings.uses_professions else None,
         )
-        repository.user.seed_simulation_users(
+        portfolios = repository.portfolio.open(
             simulation_id,
             list(room_colors),
             settings.start_date,
@@ -84,7 +84,7 @@ class SimulationLoader:
         UserManager.release_room_teams()
 
         SimulationManager.clear_simulation()
-        SimulationManager.set_simulation_id(simulation_id)
+        SimulationManager.set_simulation_id(simulation_id, portfolios)
         sim = Simulation(
             SimulationDTO(id=simulation_id, **settings.model_dump()),
             random_seed=repository.simulation.get_random_seed(simulation_id),
@@ -155,7 +155,7 @@ class SimulationLoader:
             if summary.uses_professions
             else None,
         )
-        repository.user.seed_simulation_users(
+        repository.portfolio.open(
             summary.id,
             list(newcomers),
             resume_from or summary.start_date,
@@ -171,7 +171,9 @@ class SimulationLoader:
             repository.strategy.rewind(summary.id, resume_from)
 
         SimulationManager.clear_simulation()
-        SimulationManager.set_simulation_id(summary.id)
+        SimulationManager.set_simulation_id(
+            summary.id, repository.portfolio.ids(summary.id)
+        )
         sim = Simulation(
             SimulationDTO.model_validate(
                 summary.model_dump(include=set(SimulationDTO.model_fields))

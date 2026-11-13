@@ -45,7 +45,7 @@ def snapshot(
     day: date = START,
 ) -> SnapshotDTO:
     return SnapshotDTO(
-        user_id=1,
+        portfolio_id=1,
         snapshot_date=day,
         total_equity=Decimal(equity),
         total_fixed=Decimal(0),
@@ -150,7 +150,7 @@ def fake(monkeypatch: pytest.MonkeyPatch) -> FakeAchievements:
     monkeypatch.setattr(repository, "achievements", fake)
     monkeypatch.setattr(repository.portfolio, "get_patrimonial_history", lambda _: [])
     monkeypatch.setattr(repository.candle_challenge, "total_hits", lambda _: 0)
-    monkeypatch.setattr(EventManager, "pop_touched_users", lambda: set())
+    monkeypatch.setattr(EventManager, "pop_touched_portfolios", lambda: set())
     return fake
 
 
@@ -203,7 +203,7 @@ def test_order_metrics_wait_for_the_player_to_have_new_events(
     evaluator = AchievementEvaluator(SETTINGS)
 
     quiet = evaluator.on_tick({1: snapshot()}, month_changed=False)
-    monkeypatch.setattr(EventManager, "pop_touched_users", lambda: {1})
+    monkeypatch.setattr(EventManager, "pop_touched_portfolios", lambda: {1})
     busy = evaluator.on_tick({1: snapshot()}, month_changed=False)
 
     assert quiet == {}
@@ -336,7 +336,7 @@ def risk_month(month: date, value: str, cdi: str):
 def test_history_metrics_read_the_history_once(monkeypatch: pytest.MonkeyPatch):
     reads = []
 
-    def history(_user_id: int) -> list[PatrimonialHistoryDTO]:
+    def history(_portfolio_id: int) -> list[PatrimonialHistoryDTO]:
         reads.append(1)
         return []
 
@@ -385,7 +385,7 @@ def test_exempt_month_needs_a_closed_month_with_exempt_stock_profit_and_no_tax()
         ([], 0),
     ]
     for months, expected in cases:
-        sources = Sources(income_tax=lambda _user_id, m=months: m)
+        sources = Sources(income_tax=lambda _portfolio_id, m=months: m)
 
         ctx = context(today, sources=sources)
 

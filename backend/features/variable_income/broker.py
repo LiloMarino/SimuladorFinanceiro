@@ -53,10 +53,10 @@ def to_money(price: float) -> Decimal:
 
 def load_positions(client_id: UUID) -> dict[str, Position]:
     """Reconstrói as posições repetindo os eventos com as mesmas operações do jogo ao vivo."""
-    user_id = UserManager.get_user_id(client_id)
+    portfolio_id = UserManager.get_portfolio_id(client_id)
 
     positions: dict[str, Position] = {}
-    for event in repository.portfolio.get_equity_events(user_id):
+    for event in repository.portfolio.get_equity_events(portfolio_id):
         position = positions.setdefault(event.ticker, Position(event.ticker))
         match event.event_type:
             case EquityEventType.BUY:
@@ -211,7 +211,7 @@ class Broker:
         EventManager.push_event(
             EquityEventDTO(
                 simulation_id=self._simulation_engine.simulation_id,
-                user_id=UserManager.get_user_id(client_id),
+                portfolio_id=UserManager.get_portfolio_id(client_id),
                 event_type=event_type,
                 ticker=ticker,
                 quantity=quantity,
@@ -410,7 +410,7 @@ class Broker:
         EventManager.push_event(
             EquityEventDTO(
                 simulation_id=self._simulation_engine.simulation_id,
-                user_id=UserManager.get_user_id(client_id),
+                portfolio_id=UserManager.get_portfolio_id(client_id),
                 event_type=EquityEventType.BUY,
                 ticker=ticker,
                 quantity=size,
@@ -441,7 +441,7 @@ class Broker:
         EventManager.push_event(
             EquityEventDTO(
                 simulation_id=self._simulation_engine.simulation_id,
-                user_id=UserManager.get_user_id(client_id),
+                portfolio_id=UserManager.get_portfolio_id(client_id),
                 event_type=EquityEventType.SELL,
                 ticker=ticker,
                 quantity=size,
