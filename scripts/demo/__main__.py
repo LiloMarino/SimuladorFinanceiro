@@ -53,6 +53,13 @@ def seed(playwright: Playwright, base_url: str) -> None:
     indicadores, só as séries que ainda não estão lá.
     """
     api = playwright.request.new_context(base_url=base_url)
+    import_stocks(api)
+    for series in missing_indicators(api):
+        fetch_indicator(api, series)
+    api.dispose()
+
+
+def import_stocks(api: APIRequestContext) -> None:
     for ticker, (sector, segment) in STOCKS.items():
         csv = DATA_DIR / f"{ticker}.csv"
         response = api.post(
@@ -75,9 +82,6 @@ def seed(playwright: Playwright, base_url: str) -> None:
         )
         if not response.ok:
             raise RuntimeError(f"Classificação de {ticker} falhou: {response.text()}")
-    for series in missing_indicators(api):
-        fetch_indicator(api, series)
-    api.dispose()
 
 
 def missing_indicators(api: APIRequestContext) -> list[str]:
