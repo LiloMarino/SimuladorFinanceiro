@@ -37,18 +37,18 @@ function FieldLegend({
   );
 }
 
-/** Título curto em caixa-alta de um grupo de controles; `future` marca o que olha para o futuro gerado. */
+/** Título curto em caixa-alta de um grupo de controles; `future` marca o que olha para o futuro gerado, `success` e `destructive` o que é ganho e o que é perda. */
 function FieldCaption({
   className,
   tone = "default",
   ...props
-}: React.ComponentProps<"span"> & { tone?: "default" | "future" }) {
+}: React.ComponentProps<"span"> & { tone?: "default" | "future" | "success" | "destructive" }) {
   return (
     <span
       data-slot="field-caption"
       data-tone={tone}
       className={cn(
-        "text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase data-[tone=future]:text-future",
+        "text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase data-[tone=future]:text-future data-[tone=success]:text-success data-[tone=destructive]:text-destructive",
         className,
       )}
       {...props}

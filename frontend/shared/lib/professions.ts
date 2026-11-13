@@ -1,5 +1,27 @@
 import { Armchair, Briefcase, Building2, HandCoins, Landmark, Store, type LucideIcon } from "lucide-react";
-import type { IncomeLoss, LifeStatus, Profession } from "@/types";
+import type { IncomeLoss, LifeStatus, Profession, SimulationSettings } from "@/types";
+
+/** As regras da sala que decidem o que cada profissão sente: o card só mostra o que vale na partida. */
+export type RoomRules = Pick<
+  SimulationSettings["simulation"],
+  "government_enabled" | "inflation_adjusted" | "monthly_salary"
+>;
+
+/** Regra da sala de que uma vantagem, desvantagem ou etiqueta depende; todas precisam estar ligadas. */
+type RoomRequirement = "government" | "inflationAdjusted";
+
+export type TagKey =
+  | "unemployment"
+  | "gdp"
+  | "personalTax"
+  | "corporateTax"
+  | "consumptionTax"
+  | "servantRaise"
+  | "retireeRaise"
+  | "welfareSpending";
+
+type ProfessionPoint = { text: string; requires?: RoomRequirement[] };
+type ProfessionTag = { key: TagKey; requires?: RoomRequirement[] };
 
 export type ProfessionInfo = {
   name: string;
@@ -8,53 +30,90 @@ export type ProfessionInfo = {
   incomeMultiple: number;
   /** Quanto da renda vem do auxílio do governo, nos gastos de referência (o resto é a renda do trabalho) */
   benefitMultiple?: number;
-  /** O que a renda sente: a medida do governo, o imposto e o sorteio de demissão */
-  feels: string;
+  /** O que a profissão tem de melhor que as outras */
+  gains: ProfessionPoint[];
+  /** O que a profissão tem de pior que as outras */
+  losses: ProfessionPoint[];
+  /** O que muda a renda da profissão durante a partida */
+  tags: ProfessionTag[];
 };
+
+const GOVERNMENT: RoomRequirement[] = ["government"];
+const GOVERNMENT_RAISE: RoomRequirement[] = ["government", "inflationAdjusted"];
+const INFLATION: RoomRequirement[] = ["inflationAdjusted"];
 
 export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   CLT: {
     name: "CLT",
     icon: Briefcase,
     incomeMultiple: 1,
-    feels:
-      "Pode ser demitido quando o desemprego sobe. Reajuste: IPCA mais metade do crescimento do PIB. Sente o imposto de renda das pessoas.",
+    gains: [{ text: "Renda cheia" }, { text: "Aumento acima da inflação quando o PIB cresce", requires: INFLATION }],
+    losses: [{ text: "Pode ser demitido e ficar um mês sem salário, mais quando o desemprego sobe" }],
+    tags: [{ key: "unemployment" }, { key: "gdp" }, { key: "personalTax", requires: GOVERNMENT }],
   },
   PUBLIC_SERVANT: {
     name: "Servidor",
     icon: Landmark,
     incomeMultiple: 0.9,
-    feels:
-      "Nunca é demitido. Reajuste: IPCA mais o aumento que o governo der aos servidores. Sente o imposto de renda das pessoas.",
+    gains: [
+      { text: "Nunca é demitido" },
+      { text: "Aumento acima da inflação quando o governo dá aos servidores", requires: GOVERNMENT_RAISE },
+    ],
+    losses: [{ text: "Ganha 10% menos que o CLT" }],
+    tags: [
+      { key: "servantRaise", requires: GOVERNMENT_RAISE },
+      { key: "personalTax", requires: GOVERNMENT },
+    ],
   },
   ENTREPRENEUR: {
     name: "Empreendedor",
     icon: Store,
     incomeMultiple: 1.2,
-    feels:
-      "A renda sobe e desce com o PIB dos últimos 12 meses. Não é demitido. Sente o imposto de renda das empresas.",
+    gains: [
+      { text: "Ganha 20% mais que o CLT" },
+      { text: "Não é demitido" },
+      { text: "A renda sobe quando o PIB passa de 2% ao ano" },
+    ],
+    losses: [{ text: "A renda cai quando o PIB fica abaixo de 2%, até a metade" }],
+    tags: [{ key: "gdp" }, { key: "corporateTax", requires: GOVERNMENT }],
   },
   RETIREE: {
     name: "Aposentado",
     icon: Armchair,
     incomeMultiple: 0.85,
-    feels:
-      "Nunca é demitido, mas o imprevisto de saúde custa o dobro. Reajuste: IPCA mais o aumento que o governo der aos aposentados.",
+    gains: [
+      { text: "Nunca é demitido" },
+      { text: "Aumento acima da inflação quando o governo dá aos aposentados", requires: GOVERNMENT_RAISE },
+    ],
+    losses: [{ text: "Ganha 15% menos que o CLT" }, { text: "Despesa de saúde custa o dobro" }],
+    tags: [
+      { key: "retireeRaise", requires: GOVERNMENT_RAISE },
+      { key: "personalTax", requires: GOVERNMENT },
+    ],
   },
   WELFARE: {
     name: "Auxílio",
     icon: HandCoins,
     incomeMultiple: 0.5,
     benefitMultiple: 0.4,
-    feels:
-      "Faz bico (perde a parte do bico no sorteio de demissão) e recebe o auxílio, que cresce com o gasto do governo. Sente o imposto sobre consumo.",
+    gains: [{ text: "O auxílio nunca some, nem no sorteio de demissão" }],
+    losses: [{ text: "Mais da metade da renda é bico, e o sorteio de demissão tira o bico por um mês" }],
+    tags: [
+      { key: "unemployment" },
+      { key: "welfareSpending", requires: GOVERNMENT },
+      { key: "consumptionTax", requires: GOVERNMENT },
+    ],
   },
   LANDLORD: {
     name: "Locador",
     icon: Building2,
     incomeMultiple: 1.1,
-    feels:
-      "Vive de aluguel: o sorteio de demissão vira vacância e o mês fica sem aluguel. Sente o imposto de renda das pessoas.",
+    gains: [{ text: "Ganha 10% mais que o CLT" }],
+    losses: [
+      { text: "O sorteio de demissão deixa o imóvel vago: um mês sem aluguel" },
+      { text: "O aluguel só sobe com a inflação", requires: INFLATION },
+    ],
+    tags: [{ key: "unemployment" }, { key: "personalTax", requires: GOVERNMENT }],
   },
 };
 
@@ -65,6 +124,32 @@ export function professionIncome(profession: Profession, salary: number) {
   const { incomeMultiple, benefitMultiple = 0 } = PROFESSIONS[profession];
   return salary * (incomeMultiple + benefitMultiple);
 }
+
+function isActive(requires: RoomRequirement[] | undefined, room: RoomRules) {
+  return (requires ?? []).every((rule) => (rule === "government" ? room.government_enabled : room.inflation_adjusted));
+}
+
+/** O que a profissão tem de vantagem, desvantagem e etiqueta nas regras desta sala. */
+export function visibleProfession(profession: Profession, room: RoomRules) {
+  const { gains, losses, tags } = PROFESSIONS[profession];
+  return {
+    gains: gains.filter((point) => isActive(point.requires, room)),
+    losses: losses.filter((point) => isActive(point.requires, room)),
+    tags: tags.filter((tag) => isActive(tag.requires, room)).map((tag) => tag.key),
+  };
+}
+
+/** O nome de cada etiqueta "Afetado por". */
+export const TAG_NAMES: Record<TagKey, string> = {
+  unemployment: "Desemprego",
+  gdp: "PIB",
+  personalTax: "IR das pessoas",
+  corporateTax: "IR das empresas",
+  consumptionTax: "Imposto sobre consumo",
+  servantRaise: "Aumento dos servidores",
+  retireeRaise: "Aumento dos aposentados",
+  welfareSpending: "Gasto com auxílio",
+};
 
 /** O que a demissão sorteada tira de cada profissão que a sente. */
 export const INCOME_LOSS_NAMES: Record<IncomeLoss, { event: string; missing: string }> = {

@@ -351,7 +351,7 @@ Com uma partida salva selecionada, o seletor fica desabilitado (as regras dela n
 
 O botão **Minha preparação**, no topo do lobby, abre o que você deixa pronto antes de a partida começar. Ele mostra a sua profissão e o seu partido e conta os convites de vice sem resposta. Tudo é salvo sozinho, um instante depois de você mexer: o rodapé diz **Salvando…** e depois **Salvo automaticamente**, e se algo falhar aparece **Tentar de novo**. Não há botão Salvar.
 
-* **Profissão** (com as profissões ligadas nas regras): a grade mostra as seis profissões, com a renda de cada uma em múltiplos do salário (Ex.: com salário de R$ 8.000, **0,9× o salário** é R$ 7.200 por mês) e o que ela sente. Clicar escolhe e salva na hora. Com as profissões desligadas, a aba fica desabilitada com a etiqueta **desligada nas regras**; com uma partida salva selecionada, quem já jogou volta com a sua e a escolha fica travada
+* **Profissão** (com as profissões ligadas nas regras): a grade mostra as seis profissões, com a renda de cada uma em reais por mês (Ex.: com salário de R$ 8.000, o Servidor, a **0,9× o salário**, recebe R$ 7.200), o que ela ganha e perde em relação às outras e as etiquetas **Afetado por**, que mostram numa tabela como cada coisa mexe na renda. Só aparece o que vale nas regras da sala: sem o Governo, saem os impostos e os aumentos de servidores e aposentados. Clicar escolhe e salva na hora. Com as profissões desligadas, a aba fica desabilitada com a etiqueta **desligada nas regras**; com uma partida salva selecionada, quem já jogou volta com a sua e a escolha fica travada
 
 Com a expansão [Governo & Política](./governo.md) ligada numa partida nova, a aba **Partido** diz o que você faz no começo da partida, sem precisar estar com o relógio andando:
 

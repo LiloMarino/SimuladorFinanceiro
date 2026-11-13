@@ -79,15 +79,12 @@ export function SalaryModeFields({ form, readOnly }: SalaryModeFieldsProps) {
             Renda no 1º mês, sobre o salário acima. A despesa e a meta continuam as mesmas para todos.
           </span>
           {PROFESSION_ORDER.map((profession) => {
-            const { name, icon: Icon, feels } = PROFESSIONS[profession];
+            const { name, icon: Icon } = PROFESSIONS[profession];
             return (
               <div key={profession} className="flex items-baseline justify-between gap-3 border-t border-muted py-1.5">
-                <span className="grid min-w-0">
-                  <span className="flex items-center gap-1.5 text-[13px] font-semibold">
-                    <Icon className="size-3.5 text-muted-foreground" />
-                    {name}
-                  </span>
-                  <span className="text-xs text-muted-foreground">{feels}</span>
+                <span className="flex items-center gap-1.5 text-[13px] font-semibold">
+                  <Icon className="size-3.5 text-muted-foreground" />
+                  {name}
                 </span>
                 <span className="font-mono font-semibold whitespace-nowrap">
                   {salaryAmount > 0 ? displayMoney(professionIncome(profession, salaryAmount)) : "—"}

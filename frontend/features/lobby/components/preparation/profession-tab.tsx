@@ -1,8 +1,8 @@
 import { Info, Lock, TriangleAlert } from "lucide-react";
-import { ProfessionCards } from "@/shared/components/profession-grid";
+import { ProfessionCards } from "@/shared/components/profession-cards";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
-import { PROFESSIONS } from "@/shared/lib/professions";
-import { displayDecimal, displayMoneyWhole } from "@/shared/lib/utils/display";
+import { PROFESSIONS, type RoomRules } from "@/shared/lib/professions";
+import { displayMoneyWhole } from "@/shared/lib/utils/display";
 import type { Profession } from "@/types";
 import { useChooseProfession } from "../../hooks/mutations/useChooseProfession";
 import { PreparationFooter } from "./preparation-footer";
@@ -14,19 +14,17 @@ type ProfessionTabProps = {
   lockedBy: string | null;
   /** O nome da partida salva em que o jogador entra como novo; nulo fora desse caso */
   joiningNew: string | null;
-  /** O salário que o host definiu, base do "× o salário" */
-  monthlySalary: string;
+  /** As regras da sala: o salário que o host definiu e o que cada profissão sente */
+  room: RoomRules;
   onClose: () => void;
 };
 
 /** Aba Profissão: cada clique grava na hora; o servidor recusa fora da hora e a escolha volta à anterior. */
-export function ProfessionTab({ current, lockedBy, joiningNew, monthlySalary, onClose }: ProfessionTabProps) {
+export function ProfessionTab({ current, lockedBy, joiningNew, room, onClose }: ProfessionTabProps) {
   const { mutate, isPending, variables, error } = useChooseProfession();
   const locked = lockedBy !== null;
   // Durante o salvamento o cartão clicado já aparece marcado; sem a resposta do servidor ele volta ao anterior
   const shown = isPending ? variables : current;
-  const salary = Number(monthlySalary);
-  const example = (profession: Profession) => displayMoneyWhole(salary * PROFESSIONS[profession].incomeMultiple);
 
   return (
     <div className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]">
@@ -37,6 +35,9 @@ export function ProfessionTab({ current, lockedBy, joiningNew, monthlySalary, on
           </b>
           <span className="text-[13px] text-muted-foreground">
             Muda só o que entra por mês e o que o governo faz com a renda: a despesa e a meta são as mesmas para todos.
+            Valores com o salário de{" "}
+            <b className="font-mono font-semibold text-foreground">{displayMoneyWhole(Number(room.monthly_salary))}</b>{" "}
+            que o host definiu.
           </span>
         </div>
 
@@ -59,7 +60,7 @@ export function ProfessionTab({ current, lockedBy, joiningNew, monthlySalary, on
           </Alert>
         )}
 
-        <ProfessionCards selected={shown} disabled={locked} onSelect={(profession) => mutate(profession)} />
+        <ProfessionCards room={room} selected={shown} disabled={locked} onSelect={(profession) => mutate(profession)} />
 
         {/* Recusa do servidor */}
         {error && (
@@ -72,13 +73,6 @@ export function ProfessionTab({ current, lockedBy, joiningNew, monthlySalary, on
             </AlertDescription>
           </Alert>
         )}
-
-        <span className="text-xs text-muted-foreground">
-          “× o salário” é a renda do mês comparada ao salário que o host definiu. Com salário de{" "}
-          {displayMoneyWhole(salary)}, {displayDecimal(PROFESSIONS.ENTREPRENEUR.incomeMultiple)}× dá{" "}
-          {example("ENTREPRENEUR")} e {displayDecimal(PROFESSIONS.WELFARE.incomeMultiple)}× dá {example("WELFARE")} (no
-          Auxílio, {displayDecimal(PROFESSIONS.WELFARE.benefitMultiple ?? 0)}× disso vem do governo).
-        </span>
       </div>
 
       <PreparationFooter

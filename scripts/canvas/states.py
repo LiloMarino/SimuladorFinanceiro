@@ -16,7 +16,7 @@ from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from urllib.parse import urljoin, urlparse
 
-from playwright.sync_api import Page, Playwright, expect, sync_playwright
+from playwright.sync_api import Locator, Page, Playwright, expect, sync_playwright
 
 from backend.core.utils import PROJECT_ROOT
 from scripts.demo.__main__ import import_stocks, missing_indicators
@@ -165,6 +165,19 @@ def open_saved_match(page: Page, nickname: str, simulation_name: str) -> None:
         if not stopped.ok:
             raise RuntimeError(f"A partida ativa não parou: HTTP {stopped.status}")
         page.goto("/lobby")
+    select_saved_match(page, simulation_name).click()
+    page.get_by_role("heading", name="Carteira").wait_for()
+
+
+def select_saved_match(page: Page, simulation_name: str) -> Locator:
+    """
+    No lobby sem partida ativa, deixa a simulação salva pelo nome selecionada e devolve o botão
+    "Continuar" dela, sem clicar: se ela já é a selecionada, nada muda; senão ela é escolhida na
+    lista de simulações salvas.
+    """
+    lobby = page.get_by_role(
+        "button", name=re.compile(r"^(Continuar|Escolher partida salva|Trocar partida)")
+    )
     lobby.first.wait_for()
     continue_button = page.get_by_role(
         "button", name=f"Continuar {simulation_name}", exact=True
@@ -184,8 +197,7 @@ def open_saved_match(page: Page, nickname: str, simulation_name: str) -> None:
         )
         row.get_by_role("button", name="Selecionar", exact=True).click()
         continue_button.wait_for()
-    continue_button.click()
-    page.get_by_role("heading", name="Carteira").wait_for()
+    return continue_button
 
 
 def map_default(page: Page) -> None:
@@ -231,15 +243,19 @@ def map_error(page: Page) -> None:
     dismiss_topic(page)
 
 
+# O menos das tabelas é o tipográfico (U+2212), não o hífen
+MINUS = chr(0x2212)
+
 PROFESSION_NAMES = re.compile(
     r"^(CLT|Servidor|Empreendedor|Aposentado|Auxílio|Locador)\b"
 )
 
 
-def lobby_with_professions(page: Page) -> None:
+def lobby_with_professions(page: Page, *, rules: dict | None = None) -> None:
     """
     Lobby sem partida ativa, com as profissões ligadas: viver de renda, modo de profissões e
     salário de 5000 do host. As regras vão pela API das settings, a mesma que o formulário chama.
+    `rules` sobrescreve campos da sala por cima disso (ex.: governo desligado).
     """
     page.goto("/login")
     page.get_by_label("Seu nickname").fill(demo_settings()["host"]["nickname"])
@@ -268,11 +284,15 @@ def lobby_with_professions(page: Page) -> None:
         raise RuntimeError(
             "Há uma partida salva selecionada: as regras dela não mudam pela API."
         )
-    body = settings["simulation"] | {
-        "game_type": "FINANCIAL_INDEPENDENCE",
-        "salary_mode": "PROFESSIONS",
-        "monthly_salary": "5000",
-    }
+    body = (
+        settings["simulation"]
+        | {
+            "game_type": "FINANCIAL_INDEPENDENCE",
+            "salary_mode": "PROFESSIONS",
+            "monthly_salary": "5000",
+        }
+        | (rules or {})
+    )
     saved = page.request.put(urljoin(page.url, "/api/simulation/settings"), data=body)
     if not saved.ok:
         raise RuntimeError(
@@ -284,20 +304,30 @@ def lobby_with_professions(page: Page) -> None:
     dismiss_topic(page)
 
 
-def preparation_profession(page: Page) -> None:
-    """Lobby com as profissões ligadas e o diálogo "Minha preparação" na aba Profissão, com os 6 cartões."""
-    lobby_with_professions(page)
+def profession_card(dialog: Locator, name: str) -> Locator:
+    """O cartão de uma profissão: o pai do radio, que também contém as etiquetas "Afetado por"."""
+    return dialog.get_by_role("radio", name=re.compile(rf"^{name}")).locator("xpath=..")
+
+
+def preparation_profession_with(page: Page, rules: dict | None) -> None:
+    """Como preparation_profession, com as regras de `rules` aplicadas à sala."""
+    lobby_with_professions(page, rules=rules)
     page.get_by_role("button", name="Minha preparação").click()
     dialog = page.get_by_role("dialog")
-    expect(dialog.get_by_role("button", name=PROFESSION_NAMES)).to_have_count(6)
+    expect(dialog.get_by_role("radio", name=PROFESSION_NAMES)).to_have_count(6)
     page.wait_for_load_state("networkidle")
+
+
+def preparation_profession(page: Page) -> None:
+    """Lobby com as profissões ligadas e o diálogo "Minha preparação" na aba Profissão, com os 6 cartões."""
+    preparation_profession_with(page, None)
 
 
 def preparation_profession_selected(page: Page) -> None:
     """Como preparacao/profissao, com o cartão Empreendedor escolhido e gravado: marcado, e o rodapé diz "Salvo automaticamente"."""
     preparation_profession(page)
     dialog = page.get_by_role("dialog")
-    entrepreneur = dialog.get_by_role("button", name=re.compile(r"^Empreendedor"))
+    entrepreneur = dialog.get_by_role("radio", name=re.compile(r"^Empreendedor"))
     with page.expect_response(
         lambda response: (
             response.request.method == "PUT"
@@ -305,9 +335,112 @@ def preparation_profession_selected(page: Page) -> None:
         )
     ):
         entrepreneur.click()
-    expect(entrepreneur).to_have_attribute("aria-pressed", "true")
+    expect(entrepreneur).to_have_attribute("aria-checked", "true")
     dialog.get_by_text("Salvo automaticamente").wait_for()
     page.wait_for_load_state("networkidle")
+
+
+def preparation_profession_tag_open(page: Page) -> None:
+    """Como preparacao/profissao, com o hovercard da etiqueta "PIB" do cartão Empreendedor aberto por foco de teclado: a tabela de renda por crescimento."""
+    preparation_profession(page)
+    dialog = page.get_by_role("dialog")
+    profession_card(dialog, "Empreendedor").get_by_role(
+        "button", name="PIB", exact=True
+    ).focus()
+    # O foco programático não abre o cartão: é preciso uma tecla de navegação (Shift+Tab, Tab)
+    # para o foco ser de teclado. O cartão sai do diálogo: a tabela é procurada na página inteira
+    page.keyboard.press("Shift+Tab")
+    page.keyboard.press("Tab")
+    expect(
+        page.get_by_text("O crescimento da economia nos últimos 12 meses")
+    ).to_be_visible()
+    expect(page.get_by_text(f"{MINUS}15% ou menos", exact=True)).to_be_visible()
+    page.wait_for_load_state("networkidle")
+
+
+def preparation_profession_no_government(page: Page) -> None:
+    """Como preparacao/profissao, com o governo desligado nas regras da sala: o cartão Servidor fica sem etiqueta e diz "Nada que mude na partida", e nenhuma etiqueta "IR das pessoas" aparece."""
+    preparation_profession_with(page, {"government_enabled": False})
+    dialog = page.get_by_role("dialog")
+    expect(
+        profession_card(dialog, "Servidor").get_by_text("Nada que mude na partida")
+    ).to_be_visible()
+    expect(
+        dialog.get_by_role("button", name="IR das pessoas", exact=True)
+    ).to_have_count(0)
+
+
+def preparation_profession_no_inflation(page: Page) -> None:
+    """Como preparacao/profissao, com a inflação fora do reajuste das regras: o cartão CLT perde "Aumento acima da inflação quando o PIB cresce", e a etiqueta "PIB" segue, já que o PIB não depende da inflação."""
+    preparation_profession_with(page, {"inflation_adjusted": False})
+    dialog = page.get_by_role("dialog")
+    expect(
+        dialog.get_by_text("Aumento acima da inflação quando o PIB cresce")
+    ).to_have_count(0)
+    expect(
+        profession_card(dialog, "CLT").get_by_role("button", name="PIB", exact=True)
+    ).to_have_count(1)
+
+
+def preparation_profession_saved_match(page: Page) -> None:
+    """
+    Lobby com a partida salva selecionada e sem partida ativa, e o diálogo "Minha preparação" na
+    aba Profissão: como a salva guarda a profissão do jogador, os 6 cartões ficam travados e o
+    aviso diz que a profissão fica com a partida salva. A conta vem de `CANVAS_NICKNAME` e a
+    salva, que precisa ter profissões ligadas, de `CANVAS_PROFESSION_SAVE_NAME`.
+    """
+    nickname, _ = saved_match()
+    simulation_name = os.environ.get("CANVAS_PROFESSION_SAVE_NAME")
+    if not simulation_name:
+        raise RuntimeError(
+            "A receita pede CANVAS_PROFESSION_SAVE_NAME: a simulação salva com profissões ligadas."
+        )
+    open_saved_match(page, nickname, simulation_name)
+    # O lobby só abre sem partida ativa. Parar a partida também tira a seleção da salva, então
+    # o lobby a seleciona de novo, sem continuar: a aba Profissão só lê a salva selecionada
+    stopped = page.request.post(urljoin(page.url, "/api/simulation/stop"))
+    if not stopped.ok:
+        raise RuntimeError(f"A partida salva não parou: HTTP {stopped.status}")
+    page.goto("/lobby")
+    select_saved_match(page, simulation_name).wait_for()
+    dismiss_topic(page)
+    page.get_by_role("button", name="Minha preparação").click()
+    dialog = page.get_by_role("dialog")
+    radios = dialog.get_by_role("radio", name=PROFESSION_NAMES)
+    expect(radios).to_have_count(6)
+    for index in range(6):
+        expect(radios.nth(index)).to_be_disabled()
+    expect(dialog.get_by_text("A profissão fica com a partida salva")).to_be_visible()
+    page.wait_for_load_state("networkidle")
+
+
+def preparation_profession_refused(page: Page) -> None:
+    """
+    Como preparacao/profissao, com a troca recusada: a resposta de `PUT /players/me/profession`
+    é forjada, um 409 com mensagem própria. O alerta "Não deu para trocar a profissão" aparece e
+    o cartão clicado volta a não marcado, porque a escolha só vale com a resposta do servidor.
+    """
+    preparation_profession(page)
+    page.route(
+        "**/players/me/profession",
+        lambda route: route.fulfill(
+            status=409,
+            content_type="application/json",
+            body='{"message": "A profissão não muda agora."}',
+        ),
+    )
+    dialog = page.get_by_role("dialog")
+    entrepreneur = dialog.get_by_role("radio", name=re.compile(r"^Empreendedor"))
+    with page.expect_response(
+        lambda response: (
+            response.request.method == "PUT"
+            and "/players/me/profession" in response.url
+        )
+    ):
+        entrepreneur.click()
+    expect(dialog.get_by_text("Não deu para trocar a profissão")).to_be_visible()
+    expect(dialog.get_by_text("A profissão não muda agora.")).to_be_visible()
+    expect(entrepreneur).to_have_attribute("aria-checked", "false")
 
 
 STATES: dict[str, Callable[[Page], None]] = {
@@ -321,4 +454,9 @@ STATES: dict[str, Callable[[Page], None]] = {
     "mapa/erro": map_error,
     "preparacao/profissao": preparation_profession,
     "preparacao/profissao-escolhida": preparation_profession_selected,
+    "preparacao/profissao-dica": preparation_profession_tag_open,
+    "preparacao/profissao-sem-governo": preparation_profession_no_government,
+    "preparacao/profissao-sem-inflacao": preparation_profession_no_inflation,
+    "preparacao/profissao-partida-salva": preparation_profession_saved_match,
+    "preparacao/profissao-recusa": preparation_profession_refused,
 }

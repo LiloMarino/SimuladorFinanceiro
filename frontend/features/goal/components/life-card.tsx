@@ -5,12 +5,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/aler
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { ProfessionBadge } from "@/shared/components/profession-badge";
+import { ProfessionTags } from "@/shared/components/profession-tags";
 import { StackedBar } from "@/shared/components/stacked-bar";
 import { cn } from "@/shared/lib/utils";
 import { displayAnnualExpenseMultiple, displayRatePercent } from "@/shared/lib/financial-independence";
 import { displayProjectionDistance, type GoalProjection } from "@/shared/lib/goal";
 import { GOAL_ETA, INDEPENDENCE_GOAL, PROFESSION_INCOME, RESERVE_MONTHS } from "@/shared/lib/life-metrics";
-import { INCOME_LOSS_NAMES, PROFESSIONS, TAX_NAMES } from "@/shared/lib/professions";
+import { INCOME_LOSS_NAMES, TAX_NAMES, visibleProfession } from "@/shared/lib/professions";
 import { displayMoney, displayMoneyWhole, displayMonthName, displaySignedMoney } from "@/shared/lib/utils/display";
 import type { LifeStatus, SimulationData } from "@/types";
 import { RESERVE_FRAGILE_MONTHS, RESERVE_FULL_MONTHS, reserveShares, reserveTone } from "../lib/reserve";
@@ -57,6 +58,7 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
   const leftover = (salaryMissing ? 0 : salary) - expense;
   const startYear = match.start_date.slice(0, 4);
   const lossNames = life.income_loss ? INCOME_LOSS_NAMES[life.income_loss] : null;
+  const tags = life.profession ? visibleProfession(life.profession, match).tags : [];
 
   return (
     <Card>
@@ -91,7 +93,12 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
               <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <ProfessionBadge profession={life.profession} />
                 <MetricHint metric={PROFESSION_INCOME} />
-                <span className="text-xs text-muted-foreground">{PROFESSIONS[life.profession].feels}</span>
+                {tags.length > 0 && (
+                  <>
+                    <span className="text-xs font-semibold text-muted-foreground">Afetado por</span>
+                    <ProfessionTags profession={life.profession} tags={tags} salary={Number(match.monthly_salary)} />
+                  </>
+                )}
               </span>
               <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs">
                 {life.tax && life.tax_rate && life.tax_reference && (

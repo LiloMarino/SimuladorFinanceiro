@@ -5,7 +5,7 @@ import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { GroupingBadge } from "@/shared/components/grouping-badge";
 import { ColorSwatchPicker } from "@/shared/components/color-swatch-picker";
 import { ProfessionBadge } from "@/shared/components/profession-badge";
-import { ProfessionGrid } from "@/shared/components/profession-grid";
+import { ProfessionCards } from "@/shared/components/profession-cards";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { TeamGrid } from "@/shared/components/team-grid";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
@@ -177,7 +177,8 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
             {withProfessions && (
               <div className="grid gap-2">
                 <span className="text-xs font-semibold text-muted-foreground">Sua profissão</span>
-                <ProfessionGrid
+                <ProfessionCards
+                  room={match}
                   selected={profession}
                   disabled={isPending}
                   onSelect={(next) => {

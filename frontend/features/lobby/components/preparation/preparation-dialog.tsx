@@ -133,11 +133,11 @@ function PreparationDialogContent({
                 current={myProfession}
                 lockedBy={hasSavedProfession ? savedSimulationName : null}
                 joiningNew={savedPlayers.length > 0 && !hasSavedProfession ? savedSimulationName : null}
-                monthlySalary={rules.monthly_salary}
+                room={rules}
                 onClose={onClose}
               />
             ) : (
-              <PreparationSkeleton columns={3} />
+              <ProfessionSkeleton />
             )}
           </TabsContent>
           <TabsContent value="party" className="grid min-h-0">
@@ -177,19 +177,20 @@ function PreparationDialogContent({
   );
 }
 
-function PreparationSkeleton({ columns = 2 }: { columns?: 2 | 3 }) {
-  if (columns === 3) {
-    return (
-      <div className="grid content-start gap-4 p-6" aria-busy="true" aria-label="Carregando a sua preparação">
-        <Skeleton className="h-5 w-1/3" />
-        <div className="grid grid-cols-3 gap-3">
-          {Array.from({ length: 6 }, (_, index) => (
-            <Skeleton key={index} className="h-28 w-full" />
-          ))}
-        </div>
+function ProfessionSkeleton() {
+  return (
+    <div className="grid content-start gap-4 p-6" aria-busy="true" aria-label="Carregando a sua preparação">
+      <Skeleton className="h-5 w-1/3" />
+      <div className="grid grid-cols-2 gap-3">
+        {Array.from({ length: 6 }, (_, index) => (
+          <Skeleton key={index} className="h-56 w-full" />
+        ))}
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+function PreparationSkeleton() {
   return (
     <div className="grid gap-4 p-6" aria-busy="true" aria-label="Carregando a sua preparação">
       <Skeleton className="h-9 w-full" />
