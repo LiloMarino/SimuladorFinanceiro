@@ -119,6 +119,24 @@ def stock_detail(page: Page) -> None:
     dismiss_topic(page)
 
 
+def stock_detail_with_order(page: Page) -> None:
+    """
+    Detalhe da PETR4 com uma compra limitada do jogador 5% abaixo do preço de hoje: a ordem
+    fica aberta no livro, longe das ofertas do Mercado, até o pregão seguinte.
+    """
+    stock_detail(page)
+    page.get_by_label("Tipo de ordem").get_by_text("Limitada").click()
+    page.locator("#order-size").fill("100")
+    hint = page.get_by_text(re.compile(r"Hoje:")).inner_text()
+    today = re.search(r"Hoje:\s*R\$\s*([\d.,]+)", hint)
+    assert today, f"o preço de hoje não apareceu na boleta: {hint!r}"
+    price = float(today.group(1).replace(".", "").replace(",", ".")) * 0.95
+    page.locator("#order-limit").fill(f"{price:.2f}".replace(".", ","))
+    page.get_by_role("button", name=re.compile(r"^Comprar 100 PETR4 a")).click()
+    page.get_by_role("row", name=re.compile(r"\(você\)")).wait_for()
+    page.wait_for_load_state("networkidle")
+
+
 def saved_match() -> tuple[str, str]:
     """
     O nickname e o nome da simulação salva que as receitas do Mapa abrem, lidos de
@@ -446,6 +464,7 @@ def preparation_profession_refused(page: Page) -> None:
 STATES: dict[str, Callable[[Page], None]] = {
     "carteira/vazia": portfolio_empty,
     "renda-variavel/detalhe": stock_detail,
+    "renda-variavel/livro-com-ordem": stock_detail_with_order,
     "renda-variavel/lista": stocks_list,
     "mapa/padrao": map_default,
     "mapa/estados-expandido": map_states_expanded,
