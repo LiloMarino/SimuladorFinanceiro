@@ -11,13 +11,14 @@ import { StrategyParamsForm } from "@/shared/components/strategy-params-form";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/shared/components/ui/dialog";
-import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { useBotStrategies } from "@/shared/hooks/queries/useBotStrategies";
 import { useBotTickers } from "@/shared/hooks/queries/useBotTickers";
-import type { BotFormValues, TakenSlot } from "@/shared/lib/bot-form";
+import { RANDOM_STRATEGY, type BotFormValues, type TakenSlot } from "@/shared/lib/bot-form";
 import { drawBotName, isDrawnName, nameTaken } from "@/shared/lib/bot-names";
 import { NAME_MAX_LENGTH, NAME_TOO_LONG } from "@/shared/lib/name-limit";
 import { PLAYER_SWATCHES, playerOwners } from "@/shared/lib/player-colors";
@@ -28,8 +29,14 @@ import type { BotTicker, StrategyGroup, StrategyInfo } from "@/types";
 
 const GROUPS: StrategyGroup[] = ["reference", "tactic"];
 
-/** O que o diálogo entrega ao confirmar: os campos do formulário e os parâmetros já como números. */
-export type BotSubmit = BotFormValues & { params: ParamValues };
+/** Os campos do diálogo: os do bot e, ao adicionar na sala, a quantidade de bots a criar. */
+type BotDialogValues = BotFormValues & { quantity: number };
+
+/**
+ * O que o diálogo entrega ao confirmar: os campos do formulário e os parâmetros já como números.
+ * `strategyKey` é `RANDOM_STRATEGY` quando cada bot do lote leva uma estratégia sorteada (sem parâmetros).
+ */
+export type BotSubmit = BotDialogValues & { params: ParamValues };
 
 type BotSubmitControls = {
   close: () => void;
@@ -59,7 +66,9 @@ type BotDialogProps = {
   submitIcon?: ReactNode;
   saving: boolean;
   /** Campos a mais depois da cor, como a equipe da sala */
-  extraFields?: (form: UseFormReturn<BotFormValues>, others: TakenSlot[]) => ReactNode;
+  extraFields?: (form: UseFormReturn<BotDialogValues>, others: TakenSlot[]) => ReactNode;
+  /** Quantos bots o diálogo cria de uma vez, no máximo; sem ele o diálogo cria um só */
+  maxQuantity?: number | undefined;
   /** Compara os parâmetros com o padrão da estratégia, em vez de com o salvo */
   compareToDefault?: boolean | undefined;
   /** Os dados que chegam por fora do diálogo (a sala, as regras) ainda carregam */
@@ -136,6 +145,24 @@ function BotDialogSkeleton() {
   );
 }
 
+type StrategyOptionProps = { value: string; name: string; summary: string; selected: boolean };
+
+/** Uma estratégia da lista: o rádio com o nome e o resumo. */
+function StrategyOption({ value, name, summary, selected }: StrategyOptionProps) {
+  return (
+    <label
+      className={cn(
+        "grid cursor-pointer grid-cols-[auto_1fr] items-center gap-x-2.5 gap-y-px rounded-lg border border-transparent px-3 py-2 text-[13px]",
+        selected ? "border-primary bg-info-soft ring-1 ring-primary" : "hover:bg-muted",
+      )}
+    >
+      <RadioGroupItem value={value} className="row-span-2" />
+      <span className={selected ? "font-semibold" : "font-medium"}>{name}</span>
+      <span className="col-start-2 text-xs text-muted-foreground">{summary}</span>
+    </label>
+  );
+}
+
 type BotFormProps = Omit<BotDialogContentProps, "title" | "description" | "startDate" | "loading"> & {
   strategies: StrategyInfo[];
   tickerOptions: BotTicker[];
@@ -155,44 +182,69 @@ function BotForm({
   submitIcon,
   saving,
   extraFields,
+  maxQuantity = 1,
   compareToDefault,
   onSubmit,
   onClose,
 }: BotFormProps) {
   const takenNames = others.map((p) => p.nickname);
 
-  // O nome vale contra quem ocupa nomes agora: a validação roda a cada digitação
-  const schema = z.object({
-    nickname: z
-      .string()
-      .trim()
-      .min(1, "Dê um nome ao bot.")
-      .max(NAME_MAX_LENGTH, NAME_TOO_LONG)
-      .refine((name) => !nameTaken(name, takenNames), nameTakenMessage),
-    strategyKey: z.string(),
-    color: z.string(),
-    team: z.number().nullable(),
-    drafts: z.record(z.string(), z.any()),
-  });
+  // O nome vale contra quem ocupa nomes agora: a validação roda a cada digitação.
+  // Em lote os nomes saem sorteados da lista de cada estratégia, então o campo só vale com um bot.
+  const schema = z
+    .object({
+      nickname: z.string(),
+      strategyKey: z.string(),
+      color: z.string(),
+      team: z.number().nullable(),
+      drafts: z.record(z.string(), z.any()),
+      quantity: z
+        .number({ error: `Informe de 1 a ${maxQuantity}.` })
+        .int()
+        .min(1, `Informe de 1 a ${maxQuantity}.`)
+        .max(maxQuantity, `Só há ${maxQuantity} vagas livres na sala.`),
+    })
+    .superRefine(({ nickname: typed, quantity: count }, ctx) => {
+      if (count > 1) return;
+      const name = typed.trim();
+      const message = !name
+        ? "Dê um nome ao bot."
+        : name.length > NAME_MAX_LENGTH
+          ? NAME_TOO_LONG
+          : nameTaken(name, takenNames)
+            ? nameTakenMessage
+            : null;
+      if (message) ctx.addIssue({ code: "custom", path: ["nickname"], message });
+    });
 
-  const form = useForm<BotFormValues>({
+  const form = useForm<BotDialogValues>({
     resolver: zodResolver(schema),
     mode: "onChange",
-    defaultValues: initial(strategies),
+    defaultValues: { ...initial(strategies), quantity: 1 },
   });
-  const { strategyKey, nickname, color, drafts } = useWatch({ control: form.control }) as BotFormValues;
+  const { strategyKey, nickname, color, drafts, quantity } = useWatch({ control: form.control }) as BotDialogValues;
 
   const strategy = strategies.find((s) => s.key === strategyKey) ?? strategies[0];
   if (!strategy) return null;
 
+  // Vários bots: nome, cor e equipe são automáticos; "Sortear" dispensa os parâmetros
+  const batch = quantity > 1;
+  const random = batch && strategyKey === RANDOM_STRATEGY;
+
   const draft = drafts[strategy.key] ?? toDraft(defaultValues(strategy));
   const errors = draftErrors(strategy.params, draft);
   const values = fromDraft(strategy.params, draft);
-  const canSave = values !== null && Object.keys(errors).length === 0 && form.formState.isValid && !saving;
+  const canSave =
+    (random || (values !== null && Object.keys(errors).length === 0)) && form.formState.isValid && !saving;
 
   const pickStrategy = (key: string) => {
+    if (key === strategyKey) return;
+    if (key === RANDOM_STRATEGY) {
+      form.setValue("strategyKey", RANDOM_STRATEGY);
+      return;
+    }
     const next = strategies.find((s) => s.key === key);
-    if (!next || next.key === strategy.key) return;
+    if (!next) return;
     form.setValue("strategyKey", next.key);
     // O nome sorteado acompanha a estratégia; o digitado fica
     if (isDrawnName(nickname, strategy)) {
@@ -200,14 +252,26 @@ function BotForm({
     }
   };
 
+  const pickQuantity = (next: number) => {
+    // "Sortear para cada bot" só existe em lote: com um bot a estratégia volta à primeira
+    if (next <= 1 && strategyKey === RANDOM_STRATEGY) form.setValue("strategyKey", strategies[0]?.key ?? "");
+    form.setValue("quantity", next, { shouldValidate: true });
+  };
+
   const setDraft = (next: BotFormValues["drafts"][string]) =>
     form.setValue("drafts", { ...drafts, [strategy.key]: next }, { shouldValidate: true });
 
   const submit = form.handleSubmit((formValues) => {
-    if (!values) return;
+    const params = random ? {} : values;
+    if (!params) return;
     const refuseName = () => form.setError("nickname", { type: "server", message: nameTakenMessage });
     onSubmit(
-      { ...formValues, nickname: formValues.nickname.trim(), strategyKey: strategy.key, params: values },
+      {
+        ...formValues,
+        nickname: formValues.nickname.trim(),
+        strategyKey: random ? RANDOM_STRATEGY : strategy.key,
+        params,
+      },
       { close: onClose, refuseName },
     );
   });
@@ -220,7 +284,21 @@ function BotForm({
           <div className="px-0.5 pb-1.5 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
             Estratégia
           </div>
-          <RadioGroup value={strategy.key} onValueChange={pickStrategy} dense aria-label="Estratégia">
+          <RadioGroup
+            value={random ? RANDOM_STRATEGY : strategy.key}
+            onValueChange={pickStrategy}
+            dense
+            aria-label="Estratégia"
+          >
+            {/* Sorteio por bot */}
+            {batch && (
+              <StrategyOption
+                value={RANDOM_STRATEGY}
+                name="Sortear para cada bot"
+                summary="Cada bot joga uma estratégia do catálogo, com os parâmetros padrão."
+                selected={random}
+              />
+            )}
             {GROUPS.map((group) => {
               const items = strategies.filter((s) => s.group === group);
               if (items.length === 0) return null;
@@ -232,22 +310,15 @@ function BotForm({
                       {GROUP_SECTION[group].hint}
                     </InfoHint>
                   </div>
-                  {items.map((item) => {
-                    const selected = item.key === strategy.key;
-                    return (
-                      <label
-                        key={item.key}
-                        className={cn(
-                          "grid cursor-pointer grid-cols-[auto_1fr] items-center gap-x-2.5 gap-y-px rounded-lg border border-transparent px-3 py-2 text-[13px]",
-                          selected ? "border-primary bg-info-soft ring-1 ring-primary" : "hover:bg-muted",
-                        )}
-                      >
-                        <RadioGroupItem value={item.key} className="row-span-2" />
-                        <span className={selected ? "font-semibold" : "font-medium"}>{item.name}</span>
-                        <span className="col-start-2 text-xs text-muted-foreground">{item.summary}</span>
-                      </label>
-                    );
-                  })}
+                  {items.map((item) => (
+                    <StrategyOption
+                      key={item.key}
+                      value={item.key}
+                      name={item.name}
+                      summary={item.summary}
+                      selected={!random && item.key === strategy.key}
+                    />
+                  ))}
                 </div>
               );
             })}
@@ -257,81 +328,122 @@ function BotForm({
         {/* Prévia, nome, cor, campos extras e parâmetros */}
         <div className="min-h-0 overflow-y-auto px-6 py-5">
           <div className="grid min-w-0 content-start gap-4.5">
+            {/* Quantidade */}
+            {maxQuantity > 1 && (
+              <Controller
+                control={form.control}
+                name="quantity"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={!!fieldState.error}>
+                    <FieldLabel htmlFor="bot-quantity">Quantidade</FieldLabel>
+                    <Input
+                      id="bot-quantity"
+                      type="number"
+                      numeric
+                      min={1}
+                      max={maxQuantity}
+                      className="w-28"
+                      value={Number.isNaN(field.value) ? "" : field.value}
+                      aria-invalid={!!fieldState.error}
+                      onChange={(event) => pickQuantity(event.target.valueAsNumber)}
+                      onBlur={field.onBlur}
+                    />
+                    {fieldState.error ? (
+                      <FieldError errors={[fieldState.error]} />
+                    ) : (
+                      <FieldDescription>
+                        De 1 até {maxQuantity}, as vagas livres da sala. Com mais de um, o nome sai da lista da
+                        estratégia e a cor, a profissão e a equipe são automáticas.
+                      </FieldDescription>
+                    )}
+                  </Field>
+                )}
+              />
+            )}
+
             {/* Prévia */}
-            <div className="flex min-w-0 items-center gap-3 rounded-[10px] border border-muted bg-subtle p-3">
-              <PlayerAvatar nickname={nickname} color={color} bot size="lg" />
-              <div className="grid min-w-0 gap-0.5">
-                <span className="flex min-w-0 items-center gap-2.5">
-                  <span className="truncate font-semibold">{nickname.trim() || "Sem nome"}</span>
-                  <Badge variant="secondary" size="tag">
-                    Bot
-                  </Badge>
-                </span>
-                <span className="truncate text-xs text-muted-foreground">{strategy.name}</span>
+            {!batch && (
+              <div className="flex min-w-0 items-center gap-3 rounded-[10px] border border-muted bg-subtle p-3">
+                <PlayerAvatar nickname={nickname} color={color} bot size="lg" />
+                <div className="grid min-w-0 gap-0.5">
+                  <span className="flex min-w-0 items-center gap-2.5">
+                    <span className="truncate font-semibold">{nickname.trim() || "Sem nome"}</span>
+                    <Badge variant="secondary" size="tag">
+                      Bot
+                    </Badge>
+                  </span>
+                  <span className="truncate text-xs text-muted-foreground">{strategy.name}</span>
+                </div>
+                <span className="ml-auto shrink-0 text-xs text-muted-foreground">Assim ele aparece</span>
               </div>
-              <span className="ml-auto shrink-0 text-xs text-muted-foreground">Assim ele aparece</span>
-            </div>
+            )}
 
             {/* Nome */}
-            <Controller
-              control={form.control}
-              name="nickname"
-              render={({ field, fieldState }) => (
-                <BotNameField
-                  id="bot-nickname"
-                  value={field.value}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  error={fieldState.error}
-                  help={nameHelp}
-                  onDraw={() =>
-                    form.setValue("nickname", drawBotName(strategy, [...takenNames, nickname]), {
-                      shouldValidate: true,
-                    })
-                  }
-                />
-              )}
-            />
+            {!batch && (
+              <Controller
+                control={form.control}
+                name="nickname"
+                render={({ field, fieldState }) => (
+                  <BotNameField
+                    id="bot-nickname"
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    error={fieldState.error}
+                    help={nameHelp}
+                    onDraw={() =>
+                      form.setValue("nickname", drawBotName(strategy, [...takenNames, nickname]), {
+                        shouldValidate: true,
+                      })
+                    }
+                  />
+                )}
+              />
+            )}
 
             {/* Cor */}
-            <Field>
-              <FieldLabel>Cor</FieldLabel>
-              <ColorSwatchPicker
-                colors={PLAYER_SWATCHES}
-                taken={playerOwners(others)}
-                value={color}
-                onChange={(next) => form.setValue("color", next)}
-                columns={6}
-                label="Cor do bot"
-              />
-              <FieldDescription>Já vem a próxima livre. As esmaecidas estão em uso.</FieldDescription>
-            </Field>
+            {!batch && (
+              <Field>
+                <FieldLabel>Cor</FieldLabel>
+                <ColorSwatchPicker
+                  colors={PLAYER_SWATCHES}
+                  taken={playerOwners(others)}
+                  value={color}
+                  onChange={(next) => form.setValue("color", next)}
+                  columns={6}
+                  label="Cor do bot"
+                />
+                <FieldDescription>Já vem a próxima livre. As esmaecidas estão em uso.</FieldDescription>
+              </Field>
+            )}
 
-            {extraFields?.(form, others)}
+            {!batch && extraFields?.(form, others)}
 
             {/* Parâmetros */}
-            <StrategyParamsForm
-              key={strategy.key}
-              strategy={strategy}
-              draft={draft}
-              saved={saved?.strategyKey === strategy.key ? saved.params : {}}
-              compareToDefault={compareToDefault}
-              errors={errors}
-              tickerOptions={tickerOptions}
-              cash={startingCash}
-              cashLabel={cashLabel}
-              headerAction={
-                <Button
-                  type="button"
-                  variant="link-muted"
-                  size="sm"
-                  onClick={() => setDraft(toDraft(defaultValues(strategy)))}
-                >
-                  Restaurar padrão
-                </Button>
-              }
-              onChange={setDraft}
-            />
+            {!random && (
+              <StrategyParamsForm
+                key={strategy.key}
+                strategy={strategy}
+                draft={draft}
+                saved={saved?.strategyKey === strategy.key ? saved.params : {}}
+                compareToDefault={compareToDefault}
+                errors={errors}
+                tickerOptions={tickerOptions}
+                cash={startingCash}
+                cashLabel={cashLabel}
+                headerAction={
+                  <Button
+                    type="button"
+                    variant="link-muted"
+                    size="sm"
+                    onClick={() => setDraft(toDraft(defaultValues(strategy)))}
+                  >
+                    Restaurar padrão
+                  </Button>
+                }
+                onChange={setDraft}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -343,7 +455,7 @@ function BotForm({
         </Button>
         <Button type="submit" disabled={!canSave}>
           {saving ? <Spinner /> : submitIcon}
-          {submitLabel}
+          {batch ? `Adicionar ${quantity} bots` : submitLabel}
         </Button>
       </div>
     </form>

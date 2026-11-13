@@ -857,17 +857,57 @@ class UserManager:
                 raise LockedError(ROOM_FULL)
             cls._ensure_name_free(nickname)
             chosen = cls._claim_color(color)
-            bot = repository.user.create_user(uuid4(), nickname, is_bot=True)
-            cls._active_players[bot.client_id] = bot
-            cls._colors[bot.id] = chosen
-            cls._bots[bot.client_id] = config
-            # A profissão do bot sai no sorteio de quando ele entra e fica com ele
-            cls._professions[bot.id] = random.choice(list(Profession))
-            if team is not None:
-                cls._teams[bot.id] = team
+            bot = cls._create_bot(nickname, config, chosen, team)
 
         cls._client_user_cache[bot.client_id] = bot
         cls._emit_player_join(bot, chosen)
+        return bot
+
+    @classmethod
+    def add_bots(cls, bots: list[tuple[str, BotConfig]]) -> list[UserDTO]:
+        """
+        Põe na sala vários bots novos, cada um com a próxima cor livre e sem equipe. Vagas e
+        nomes do lote inteiro são conferidos antes de criar o primeiro: ou entram todos, ou nenhum.
+        """
+        nicknames = [cls.bot_nickname(nickname) for nickname, _ in bots]
+        if cls._saved_colors:
+            raise ConflictError(
+                "Com uma partida salva selecionada os bots são os dela: não dá para adicionar outro."
+            )
+        cls._ensure_no_match()
+
+        created: list[tuple[UserDTO, str]] = []
+        with cls._lock:
+            if len(cls._active_players) + len(bots) > MAX_PLAYERS:
+                raise LockedError(ROOM_FULL)
+            if len({n.casefold() for n in nicknames}) < len(nicknames):
+                raise ConflictError(BOT_NAME_TAKEN)
+            for nickname in nicknames:
+                cls._ensure_name_free(nickname)
+            for nickname, (_, config) in zip(nicknames, bots, strict=True):
+                chosen = cls._free_color()
+                created.append(
+                    (cls._create_bot(nickname, config, chosen, None), chosen)
+                )
+
+        for bot, chosen in created:
+            cls._client_user_cache[bot.client_id] = bot
+            cls._emit_player_join(bot, chosen)
+        return [bot for bot, _ in created]
+
+    @classmethod
+    def _create_bot(
+        cls, nickname: str, config: BotConfig, color: str, team: int | None
+    ) -> UserDTO:
+        """O chamador segura o `_lock` e já conferiu vaga, nome e cor."""
+        bot = repository.user.create_user(uuid4(), nickname, is_bot=True)
+        cls._active_players[bot.client_id] = bot
+        cls._colors[bot.id] = color
+        cls._bots[bot.client_id] = config
+        # A profissão do bot sai no sorteio de quando ele entra e fica com ele
+        cls._professions[bot.id] = random.choice(list(Profession))
+        if team is not None:
+            cls._teams[bot.id] = team
         return bot
 
     @classmethod

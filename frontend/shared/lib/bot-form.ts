@@ -15,6 +15,9 @@ export type BotFormValues = {
   drafts: Record<string, ParamDraft>;
 };
 
+/** A "estratégia" que, ao adicionar vários bots, sorteia uma do catálogo para cada um. */
+export const RANDOM_STRATEGY = "random";
+
 /** Um bot já existente, no formato que abre o formulário para editar. */
 export type BotSource = {
   nickname: string;

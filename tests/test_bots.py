@@ -20,7 +20,7 @@ from backend.core.player_colors import PLAYER_COLORS
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
-from backend.core.runtime.user_manager import UserManager
+from backend.core.runtime.user_manager import BotConfig, UserManager
 from backend.features.achievements import evaluator
 from backend.features.simulation.saved_bots import saved_bots
 from backend.features.simulation.simulation_loader import SimulationLoader
@@ -160,6 +160,72 @@ def test_a_taken_color_is_refused(room):
     assert "Um pegou essa cor antes" in refusal(
         lambda: UserManager.add_bot("Dois", resolve_bot("cdi_100", {}), color="chart-2")
     )
+
+
+def batch(*names: str) -> list[tuple[str, BotConfig]]:
+    return [(name, resolve_bot("cdi_100", {})) for name in names]
+
+
+def test_adding_several_bots_gives_each_one_its_own_color(room):
+    person("Ana")
+
+    bots = UserManager.add_bots(batch("Um", "Dois", "Tres"))
+
+    assert [b.nickname for b in bots] == ["Um", "Dois", "Tres"]
+    colors = UserManager.room_colors()
+    assert len({colors[b.id] for b in bots}) == 3
+    assert all(b.is_bot for b in bots)
+    assert len(UserManager.room_bots()) == 3
+
+
+def test_a_batch_beyond_the_free_slots_adds_none(room):
+    person("Ana")
+    free = len(PLAYER_COLORS) - 1
+
+    detail = refusal(
+        lambda: UserManager.add_bots(batch(*(f"Bot {i}" for i in range(free + 1)))),
+        status=423,
+    )
+
+    assert "A sala está cheia" in detail
+    assert UserManager.room_bots() == []
+    assert len(UserManager.add_bots(batch(*(f"Bot {i}" for i in range(free))))) == free
+
+
+def test_a_batch_with_a_repeated_name_adds_none(room):
+    person("Ana")
+
+    assert "Já tem um jogador com esse nome" in refusal(
+        lambda: UserManager.add_bots(batch("Um", "um"))
+    )
+    assert "Já tem um jogador com esse nome" in refusal(
+        lambda: UserManager.add_bots(batch("Novo", "Ana"))
+    )
+    assert UserManager.room_bots() == []
+
+
+def test_the_batch_route_adds_all_and_only_for_the_host(room):
+    host = person(config.toml.host.nickname)
+    ana = person("Ana")
+    app = FastAPI()
+    app.include_router(simulation_router)
+    http = TestClient(app)
+    body = {
+        "bots": [
+            {"nickname": "Um", "strategy_key": "cdi_100"},
+            {"nickname": "Dois", "strategy_key": "buy_and_hold"},
+        ]
+    }
+
+    app.dependency_overrides[get_client_id] = lambda: ana.client_id
+    assert http.post("/api/simulation/bots/batch", json=body).status_code == 403
+
+    app.dependency_overrides[get_client_id] = lambda: host.client_id
+    added = http.post("/api/simulation/bots/batch", json=body)
+    assert added.status_code == 201
+    assert [p["nickname"] for p in added.json()] == ["Um", "Dois"]
+    assert added.json()[1]["bot"]["strategy_name"] == "Comprar e segurar"
+    assert http.post("/api/simulation/bots/batch", json={"bots": []}).status_code == 422
 
 
 def test_invalid_parameters_are_refused_with_the_strategy_message(room):

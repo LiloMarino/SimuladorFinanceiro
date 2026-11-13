@@ -3276,6 +3276,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/bots/batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Adicionar vários bots à sala
+         * @description Cria de uma vez um bot por item, cada um com a próxima cor livre e sem equipe. Ou entram todos ou nenhum: recusa com 409 o nome repetido na sala ou no próprio lote e a partida salva selecionada; com 423, o lote que passa das vagas livres. Apenas o host pode executar.
+         */
+        post: operations["add_bots_api_simulation_bots_batch_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/bots/{nickname}": {
         parameters: {
             query?: never;
@@ -10447,6 +10467,11 @@ export interface components {
             color?: string | null;
             /** Team */
             team?: number | null;
+        };
+        /** RoomBotsRequest */
+        RoomBotsRequest: {
+            /** Bots */
+            bots: components["schemas"]["RoomBotRequest"][];
         };
         /** RoundDonationDTO */
         RoundDonationDTO: {
@@ -19865,6 +19890,48 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlayerNickname"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_bots_api_simulation_bots_batch_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoomBotsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlayerNickname"][];
                 };
             };
             /** @description Unprocessable Content */

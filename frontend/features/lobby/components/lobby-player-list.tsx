@@ -317,6 +317,7 @@ export function LobbyPlayersList({
         bot={botDialog?.bot}
         grouping={grouping}
         naming={naming}
+        freeSlots={freeSlots}
       />
     </Card>
   );

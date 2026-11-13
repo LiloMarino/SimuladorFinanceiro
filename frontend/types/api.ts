@@ -182,6 +182,7 @@ export type SimulationSettings = components["schemas"]["SimulationSettingsRespon
 export type RoomPlayer = components["schemas"]["PlayerNickname"];
 // Bots: a estratégia que o jogador-robô joga, como a sala e o ranking o mostram
 export type RoomBotRequest = components["schemas"]["RoomBotRequest"];
+export type RoomBotsRequest = components["schemas"]["RoomBotsRequest"];
 export type BotReport = components["schemas"]["BotReportDTO"];
 export type BotParam = BotReport["params"][number];
 // O que o jogador está fazendo na sala (a tela em que está, ou fora da aba do jogo)

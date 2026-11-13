@@ -1,7 +1,44 @@
-import type { RoomBotRequest, RoomPlayer } from "@/types";
+import { drawBotName } from "@/shared/lib/bot-names";
+import { defaultValues, type ParamValues } from "@/shared/lib/strategy-params";
+import { RANDOM_STRATEGY } from "@/shared/lib/bot-form";
+import type { RoomBotRequest, RoomPlayer, StrategyInfo } from "@/types";
 
 /** O servidor recusa com 409 o nome que já está na sala. */
 export const NAME_TAKEN_STATUS = 409;
+
+type BatchChoice = { strategyKey: string; params: ParamValues; quantity: number };
+
+/**
+ * Os pedidos de um lote de bots: cada um com o nome sorteado da lista da própria estratégia,
+ * fora dos nomes da sala e dos já sorteados no lote. `RANDOM_STRATEGY` sorteia a estratégia
+ * de cada bot, com os parâmetros padrão; uma estratégia escolhida leva os parâmetros do formulário.
+ * Cor e equipe ficam por conta do servidor.
+ */
+export function batchRequests(
+  strategies: StrategyInfo[],
+  takenNames: string[],
+  { strategyKey, params, quantity }: BatchChoice,
+  random: () => number = Math.random,
+): RoomBotRequest[] {
+  const taken = [...takenNames];
+  const requests: RoomBotRequest[] = [];
+  for (let i = 0; i < quantity; i++) {
+    const strategy =
+      strategyKey === RANDOM_STRATEGY
+        ? strategies[Math.floor(random() * strategies.length)]
+        : strategies.find((s) => s.key === strategyKey);
+    if (!strategy) break;
+
+    const nickname = drawBotName(strategy, taken, random);
+    taken.push(nickname);
+    requests.push({
+      nickname,
+      strategy_key: strategy.key,
+      params: strategyKey === RANDOM_STRATEGY ? defaultValues(strategy) : params,
+    });
+  }
+  return requests;
+}
 
 /** O bot da sala como o pedido que o recria: nome, estratégia, parâmetros, cor e equipe. */
 export function toBotRequest(player: RoomPlayer): RoomBotRequest | null {

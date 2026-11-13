@@ -2,13 +2,15 @@ import { UserPlus } from "lucide-react";
 import { BotDialog } from "@/shared/components/bot-dialog";
 import { TeamGrid } from "@/shared/components/team-grid";
 import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
+import { useBotStrategies } from "@/shared/hooks/queries/useBotStrategies";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
 import { addValues, editValues } from "@/shared/lib/bot-form";
 import type { PlayerGrouping, RoomPlayer, TeamNaming } from "@/types";
 import { useAddBot } from "../hooks/mutations/useAddBot";
+import { useAddBots } from "../hooks/mutations/useAddBots";
 import { useUpdateBot } from "../hooks/mutations/useUpdateBot";
-import { NAME_TAKEN_STATUS } from "../lib/bot-form";
+import { batchRequests, NAME_TAKEN_STATUS } from "../lib/bot-form";
 
 const NAME_TAKEN_MESSAGE = "Já tem um jogador com esse nome na sala. Sorteie outro ou mude.";
 
@@ -19,13 +21,17 @@ type LobbyBotDialogProps = {
   bot?: RoomPlayer | undefined;
   grouping: PlayerGrouping;
   naming: TeamNaming;
+  /** As vagas livres da sala: o teto da quantidade ao adicionar */
+  freeSlots: number;
 };
 
 /** Adicionar ou configurar um bot da sala: o diálogo de bot com a equipe e a chamada ao servidor. */
-export function LobbyBotDialog({ open, onOpenChange, bot, grouping, naming }: LobbyBotDialogProps) {
+export function LobbyBotDialog({ open, onOpenChange, bot, grouping, naming, freeSlots }: LobbyBotDialogProps) {
   const { data: players } = useRoomPlayers();
   const { data: settings } = useSimulationSettings();
+  const { data: strategies } = useBotStrategies();
   const add = useAddBot();
+  const addMany = useAddBots();
   const update = useUpdateBot(bot?.nickname ?? "");
 
   // Cor, nome e equipe dos outros jogadores: o bot em edição não conta contra si mesmo
@@ -57,7 +63,8 @@ export function LobbyBotDialog({ open, onOpenChange, bot, grouping, naming }: Lo
       nameHelp="Da lista da estratégia; é o nome no ranking."
       submitLabel={bot ? "Salvar" : "Adicionar bot"}
       submitIcon={bot ? null : <UserPlus className="size-3.5" />}
-      saving={add.isPending || update.isPending}
+      saving={add.isPending || addMany.isPending || update.isPending}
+      maxQuantity={bot ? undefined : freeSlots}
       extraFields={(form) =>
         grouping === "TEAMS" && (
           <Field>
@@ -75,6 +82,16 @@ export function LobbyBotDialog({ open, onOpenChange, bot, grouping, naming }: Lo
         )
       }
       onSubmit={(values, { close, refuseName }) => {
+        // Vários bots: o servidor cria o lote inteiro, com nomes já sorteados fora dos da sala
+        if (!bot && values.quantity > 1) {
+          const requests = batchRequests(
+            strategies ?? [],
+            others.map((p) => p.nickname),
+            values,
+          );
+          addMany.mutate(requests, { onSuccess: close });
+          return;
+        }
         const request = {
           nickname: values.nickname,
           strategy_key: values.strategyKey,

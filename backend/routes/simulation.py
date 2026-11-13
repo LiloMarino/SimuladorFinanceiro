@@ -59,6 +59,7 @@ from backend.core.enum import (
 )
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
+from backend.core.player_colors import MAX_PLAYERS
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
@@ -230,6 +231,11 @@ class RoomBotRequest(BaseModel):
     color: str | None = None
     # Índice da equipe (1 a 10); só vale no modo em equipes
     team: int | None = None
+
+
+class RoomBotsRequest(BaseModel):
+    # Cada bot fica com a próxima cor livre e sem equipe: `color` e `team` dos itens não valem aqui
+    bots: list[RoomBotRequest] = Field(min_length=1, max_length=MAX_PLAYERS)
 
 
 class SimulationSettingsResponse(BaseModel):
@@ -791,6 +797,26 @@ def add_bot(payload: RoomBotRequest, _: HostVerified):
         payload.team,
     )
     return _room_player(bot)
+
+
+@simulation_router.post(
+    "/bots/batch",
+    status_code=status.HTTP_201_CREATED,
+    response_model=list[PlayerNickname],
+    summary="Adicionar vários bots à sala",
+    description="Cria de uma vez um bot por item, cada um com a próxima cor livre e sem equipe. Ou entram todos ou nenhum: recusa com 409 o nome repetido na sala ou no próprio lote e a partida salva selecionada; com 423, o lote que passa das vagas livres. Apenas o host pode executar.",
+)
+def add_bots(payload: RoomBotsRequest, _: HostVerified):
+    """
+    Adiciona vários bots à sala.
+    """
+    bots = UserManager.add_bots(
+        [
+            (item.nickname, resolve_bot(item.strategy_key, item.params))
+            for item in payload.bots
+        ]
+    )
+    return [_room_player(bot) for bot in bots]
 
 
 @simulation_router.put(

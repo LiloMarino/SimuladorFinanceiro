@@ -9325,6 +9325,67 @@
         ]
       }
     },
+    "/api/simulation/bots/batch": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Adicionar vários bots à sala",
+        "description": "Cria de uma vez um bot por item, cada um com a próxima cor livre e sem equipe. Ou entram todos ou nenhum: recusa com 409 o nome repetido na sala ou no próprio lote e a partida salva selecionada; com 423, o lote que passa das vagas livres. Apenas o host pode executar.",
+        "operationId": "add_bots_api_simulation_bots_batch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomBotsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PlayerNickname"
+                  },
+                  "type": "array",
+                  "title": "Response Add Bots Api Simulation Bots Batch Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/bots/{nickname}": {
       "put": {
         "tags": [
@@ -29929,6 +29990,24 @@
           "strategy_key"
         ],
         "title": "RoomBotRequest"
+      },
+      "RoomBotsRequest": {
+        "properties": {
+          "bots": {
+            "items": {
+              "$ref": "#/components/schemas/RoomBotRequest"
+            },
+            "type": "array",
+            "maxItems": 12,
+            "minItems": 1,
+            "title": "Bots"
+          }
+        },
+        "type": "object",
+        "required": [
+          "bots"
+        ],
+        "title": "RoomBotsRequest"
       },
       "RoundDonationDTO": {
         "properties": {
