@@ -624,28 +624,6 @@ def test_donation_goes_only_to_a_finalist_and_only_from_an_eliminated_party(
     )
 
 
-def test_the_contribution_cap_is_refused_on_found_set_donation_and_runoff(
-    book: GovernmentBook,
-):
-    with pytest.raises(UnprocessableEntityError, match="teto da contribuição"):
-        found(book, ALICE, "AAA", RED, "8000.01")
-
-    found(book, ALICE, "AAA", RED, "8000")
-    found(book, BOB, "BBB", BLUE, "2000", NICHE)
-    with pytest.raises(UnprocessableEntityError, match="teto da contribuição"):
-        book.set_contribution(ALICE, CAMPAIGN_OPEN, Decimal(9000))
-    with pytest.raises(UnprocessableEntityError, match="teto da contribuição"):
-        book.join_party(CARLA, CAMPAIGN_OPEN, party_of(book, ALICE).id, Decimal(9000))
-
-    run_campaign(book)
-    book.on_tick(USERS, FIRST_ROUND, False)
-    gap = date(2021, 10, 10)
-    with pytest.raises(UnprocessableEntityError, match="teto da contribuição"):
-        book.donate(BOB, gap, party_of(book, ALICE).id, Decimal(9000))
-    with pytest.raises(UnprocessableEntityError, match="teto da contribuição"):
-        book.contribute_runoff(ALICE, gap, Decimal(9000))
-
-
 def test_unspent_party_cash_becomes_ads_at_the_next_month_close(
     book: GovernmentBook, engine: PoliticalEngine
 ):

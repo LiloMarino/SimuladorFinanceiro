@@ -49,17 +49,10 @@ export function RunoffContributionDialog({
     .reduce((sum, item) => sum + Number(item.amount), 0);
   const effect = monthlyYield(before + amount) - monthlyYield(before);
 
-  const overCap = amount > Number(panel.contribution_cap);
-  const canSubmit = amount > 0 && !overCash && !overCap && !contribute.isPending;
+  const canSubmit = amount > 0 && !overCash && !contribute.isPending;
   // O motivo do botão apagado: o que falta para contribuir
   const blockedReason =
-    amount <= 0
-      ? "Digite quanto quer contribuir."
-      : overCash
-        ? `Seu caixa hoje é ${displayMoney(cash)}.`
-        : overCap
-          ? `O teto é ${displayMoney(panel.contribution_cap)} por pessoa.`
-          : null;
+    amount <= 0 ? "Digite quanto quer contribuir." : overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null;
 
   const submit = () =>
     contribute.mutate({ amount: contributionAmount(text) }, { onSuccess: () => onOpenChange(false) });
@@ -83,7 +76,6 @@ export function RunoffContributionDialog({
               }}
             >
               <ContributionField
-                cap={panel.contribution_cap}
                 id="runoff-contribution"
                 autoFocus
                 value={text}

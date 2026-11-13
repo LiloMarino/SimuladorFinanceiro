@@ -468,8 +468,6 @@ class ElectionPanelDTO(BaseDTO):
     radar_flag: Decimal
     # A pesquisa mostra a margem de erro; desligada, mostra o número exato
     poll_margin: bool
-    # O teto da contribuição mensal de cada filiado (e de cada doação), de hoje
-    contribution_cap: Decimal
     parties: list[PartyDTO]
     # Indecisos na última pesquisa publicada
     undecided: Decimal

@@ -6234,8 +6234,6 @@ export interface components {
             radar_flag: string;
             /** Poll Margin */
             poll_margin: boolean;
-            /** Contribution Cap */
-            contribution_cap: string;
             /** Parties */
             parties: components["schemas"]["PartyDTO"][];
             /** Undecided */

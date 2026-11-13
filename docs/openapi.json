@@ -17728,10 +17728,6 @@
             "type": "boolean",
             "title": "Poll Margin"
           },
-          "contribution_cap": {
-            "type": "string",
-            "title": "Contribution Cap"
-          },
           "parties": {
             "items": {
               "$ref": "#/components/schemas/PartyDTO"
@@ -17935,7 +17931,6 @@
           "radar_neutral",
           "radar_flag",
           "poll_margin",
-          "contribution_cap",
           "parties",
           "undecided",
           "polls",

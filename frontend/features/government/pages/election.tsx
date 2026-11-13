@@ -453,7 +453,6 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
         parties={playerParties}
         initialPartyId={joinPartyId}
         cash={cash}
-        cap={panel.contribution_cap}
         collectionNote={collectionNote(panel)}
       />
       {party && mine && (
@@ -465,7 +464,6 @@ function ElectionContent({ panel, initialDialog, initialTab }: ElectionContentPr
             current={mine.contribution}
             currentCongress={mine.congress}
             cash={cash}
-            cap={panel.contribution_cap}
             collectionNote={collectionNote(panel)}
           />
           <TicketDialog open={dialog === "ticket"} onOpenChange={close} party={party} panel={panel} cash={cash} />

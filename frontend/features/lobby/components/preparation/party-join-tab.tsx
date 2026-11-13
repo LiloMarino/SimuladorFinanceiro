@@ -15,7 +15,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/shared/components/ui/empty";
-import { contributionAmount, contributionText, STARTING_CONTRIBUTION_CAP } from "@/shared/lib/contribution";
+import { contributionAmount, contributionText } from "@/shared/lib/contribution";
 import { cn } from "@/shared/lib/utils";
 import { displayMoneyWhole } from "@/shared/lib/utils/display";
 import type { PlayerPreparation, RoomPlayer } from "@/types";
@@ -132,7 +132,6 @@ export function PartyJoinTab({
                     id="prep-join-contribution"
                     value={amount}
                     onChange={setAmount}
-                    cap={STARTING_CONTRIBUTION_CAP}
                     note={`${cashShare(contributionAmount(amount), rules.starting_cash)} do saldo inicial desta sala (${displayMoneyWhole(rules.starting_cash)}). Vai para o caixa do ${chosen.party.abbr} no 1º dia útil de cada mês da campanha. Mês sem caixa vira pendência.`}
                   />
                 </PreparationSection>

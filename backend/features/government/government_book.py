@@ -835,7 +835,7 @@ class GovernmentBook:
         self._ensure_membership_open()
         self._ensure_without_party(user)
         self._ensure_valid_flags(flags)
-        self._ensure_contribution(contribution, congress, today)
+        self._ensure_contribution(contribution, congress)
         if not PARTY_ABBR_PATTERN.match(abbr):
             raise UnprocessableEntityError("A sigla tem de 2 a 8 letras.")
         parties = self.state.parties.values()
@@ -898,7 +898,7 @@ class GovernmentBook:
         self._ensure_person(user)
         self._ensure_membership_open()
         self._ensure_without_party(user)
-        self._ensure_contribution(contribution, congress, today)
+        self._ensure_contribution(contribution, congress)
         party = self._party(party_id)
         if party.is_computer:
             raise ConflictError("O partido do computador não aceita filiados.")
@@ -928,7 +928,7 @@ class GovernmentBook:
         congress: Decimal = Decimal(0),
     ) -> None:
         self._ensure_membership_open()
-        self._ensure_contribution(contribution, congress, today)
+        self._ensure_contribution(contribution, congress)
         party = self._my_party(user)
         self._emit(
             GovernmentEventType.CONTRIBUTION_SET,
@@ -939,17 +939,7 @@ class GovernmentBook:
         )
         self._notice(GovernmentNoticeKind.UPDATED, user, party_abbr=party.abbr)
 
-    def _ensure_under_cap(self, amount: Decimal, today: date) -> None:
-        cap = self.contribution_cap(today)
-        if amount > cap:
-            raise UnprocessableEntityError(
-                f"O teto da contribuição por pessoa é R$ {cap:,.2f}."
-            )
-
-    def _ensure_contribution(
-        self, contribution: Decimal, congress: Decimal, today: date
-    ) -> None:
-        self._ensure_under_cap(contribution, today)
+    def _ensure_contribution(self, contribution: Decimal, congress: Decimal) -> None:
         if not 0 <= congress <= contribution:
             raise UnprocessableEntityError(
                 "A parte do Congresso fica entre zero e a contribuição inteira."
@@ -2351,7 +2341,6 @@ class GovernmentBook:
             raise ConflictError("Só quem ficou de fora doa a um finalista.")
         if party_id not in finalists:
             raise ConflictError("A doação vai para um dos finalistas.")
-        self._ensure_under_cap(amount, today)
         if self._engine.get_cash(user.client_id) < amount:
             raise ConflictError("Caixa insuficiente para essa doação.")
         party = self._party(party_id)
@@ -2432,7 +2421,6 @@ class GovernmentBook:
             raise ConflictError("A contribuição do 2º turno é uma só.")
         if amount <= 0:
             raise UnprocessableEntityError("Informe um valor maior que zero.")
-        self._ensure_under_cap(amount, today)
         if self._engine.get_cash(user.client_id) < amount:
             raise ConflictError("Caixa insuficiente para essa contribuição.")
         self._engine.pay_campaign(
@@ -3709,7 +3697,7 @@ class GovernmentBook:
     def _collect(self, people: dict[int, UserDTO], today: date) -> None:
         """
         No 1º dia útil do mês a sobra do caixa do mês anterior vira propaganda; cada
-        filiado paga a contribuição que escolheu (até o teto), se o caixa cobre, e quem não
+        filiado paga a contribuição que escolheu, se o caixa cobre, e quem não
         pôde pagar fica anotado. O fundo público e as contribuições entram no caixa do
         partido; o partido do computador gasta o fundo vezes a dificuldade.
         """
@@ -3725,7 +3713,6 @@ class GovernmentBook:
         to_house: dict[str, str] = {}
         unpaid: dict[str, str] = {}
         fund: dict[str, str] = {}
-        cap = self.contribution_cap(today)
         for party in self.state.player_parties():
             total = Decimal(0)
             house_total = Decimal(0)
@@ -3734,7 +3721,7 @@ class GovernmentBook:
             runs = election.runs(self.state, party)
             for user_id, member_contribution in party.members.items():
                 user = people.get(user_id)
-                contribution = min(member_contribution, cap)
+                contribution = member_contribution
                 if user is None or contribution <= 0:
                     continue
                 self._engine.cover_before_debit(
@@ -3787,7 +3774,7 @@ class GovernmentBook:
                 GovernmentEventType.CAMPAIGN_LEFTOVER, today, converted=converted
             )
 
-    # O fundo, o teto e a verba do computador valem em reais de referência e sobem pelo
+    # O fundo e a verba do computador valem em reais de referência e sobem pelo
     # IPCA como os preços das ações, quando a partida corrige os valores
 
     def _adjusted(self, amount: Decimal, today: date) -> Decimal:
@@ -3801,10 +3788,6 @@ class GovernmentBook:
     def fund_of(self, party: Party, today: date) -> Decimal:
         """O fundo público do mês do partido."""
         return self._adjusted(election.fund_of(self.state, party, today), today)
-
-    def contribution_cap(self, today: date) -> Decimal:
-        """O teto da contribuição mensal de cada filiado, e de cada doação."""
-        return self._adjusted(campaign.CONTRIBUTION_CAP, today)
 
     def computer_budget(self, party: Party, today: date) -> Decimal:
         """A verba do mês do partido do computador: o fundo dele vezes a dificuldade."""

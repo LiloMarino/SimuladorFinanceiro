@@ -107,7 +107,6 @@ export function FoundPartyDialog({ panel, open, onOpenChange, taken, founderColo
 
             <ContributionField
               id="found-contribution"
-              cap={panel.contribution_cap}
               value={contribution}
               onChange={setContribution}
               error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}

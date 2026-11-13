@@ -31,10 +31,9 @@ PRICES: dict[CampaignActionKind, Decimal] = {
     K.ATTACK: Decimal(2500),
 }
 
-# Fundo público do mês por partido que concorre e teto da contribuição mensal de cada
-# filiado, em valores de referência: sobem pelo IPCA como os preços
+# Fundo público do mês por partido que concorre, em valor de referência: sobe pelo IPCA
+# como os preços
 FUND_PER_PARTY = Decimal(8000)
-CONTRIBUTION_CAP = Decimal(8000)
 
 # Pontos de apoio que a ação rende na faixa normal, em cada grupo que ela atinge
 NORMAL_GAIN: dict[CampaignActionKind, Decimal] = {

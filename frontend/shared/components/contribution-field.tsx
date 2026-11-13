@@ -1,10 +1,10 @@
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
-import { displayMoney, displayMoneyCompact } from "@/shared/lib/utils/display";
+import { displayMoneyCompact } from "@/shared/lib/utils/display";
 import { formatMoney } from "@/shared/lib/utils/format";
 import type { ReactNode } from "react";
-import { addToContribution, contributionAmount, contributionText } from "@/shared/lib/contribution";
+import { addToContribution, contributionText } from "@/shared/lib/contribution";
 
 const SHORTCUTS = [2000, 5000, 10000];
 
@@ -14,21 +14,15 @@ type ContributionFieldProps = {
   onChange: (value: string) => void;
   /** Explicação sob o campo; some quando há erro */
   note: ReactNode;
-  /** O teto da contribuição de cada pessoa por mês, de hoje, em reais */
-  cap: string;
   error?: string | null | undefined;
   /** O campo recebe o foco ao abrir o diálogo */
   autoFocus?: boolean;
 };
 
 /** "Sua contribuição mensal": campo de valor, atalhos e a nota de como o dinheiro sai. */
-export function ContributionField({ id, value, onChange, note, cap, error, autoFocus }: ContributionFieldProps) {
-  const capError =
-    Number(contributionAmount(value)) > Number(cap) ? `O teto é ${displayMoney(cap)} por pessoa ao mês.` : null;
-  const shown = capError ?? error;
-
+export function ContributionField({ id, value, onChange, note, error, autoFocus }: ContributionFieldProps) {
   return (
-    <Field data-invalid={!!shown}>
+    <Field data-invalid={!!error}>
       <FieldLabel htmlFor={id}>Sua contribuição mensal</FieldLabel>
       <Input
         id={id}
@@ -37,7 +31,7 @@ export function ContributionField({ id, value, onChange, note, cap, error, autoF
         inputMode="decimal"
         placeholder="R$ 0,00"
         value={value}
-        aria-invalid={!!shown}
+        aria-invalid={!!error}
         onChange={(event) => onChange(formatMoney(event.target.value))}
       />
       {/* Zerar o campo e atalhos que somam ao valor */}
@@ -57,13 +51,7 @@ export function ContributionField({ id, value, onChange, note, cap, error, autoF
           </Button>
         ))}
       </div>
-      {shown ? (
-        <FieldError>{shown}</FieldError>
-      ) : (
-        <FieldDescription>
-          {note} Teto de {displayMoney(cap)} por pessoa ao mês.
-        </FieldDescription>
-      )}
+      {error ? <FieldError>{error}</FieldError> : <FieldDescription>{note}</FieldDescription>}
     </Field>
   );
 }

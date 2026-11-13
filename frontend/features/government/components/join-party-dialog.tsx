@@ -30,8 +30,6 @@ type JoinPartyDialogProps = {
   parties: ElectionParty[];
   initialPartyId?: number | undefined;
   cash: string | undefined;
-  /** O teto da contribuição por pessoa ao mês */
-  cap: string;
   /** Quando a cobrança começa, se ainda não começou */
   collectionNote: string;
 };
@@ -43,7 +41,6 @@ export function JoinPartyDialog({
   parties,
   initialPartyId,
   cash,
-  cap,
   collectionNote,
 }: JoinPartyDialogProps) {
   const [partyId, setPartyId] = useState(initialPartyId ?? parties[0]?.id);
@@ -100,7 +97,6 @@ export function JoinPartyDialog({
               <>
                 <ContributionField
                   id="join-contribution"
-                  cap={cap}
                   value={contribution}
                   onChange={setContribution}
                   error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}

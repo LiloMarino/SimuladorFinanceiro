@@ -309,7 +309,6 @@ function ActionsContent({ panel, election, onPropose, onGo }: ActionsContentProp
         current={mine.contribution}
         currentCongress={mine.congress}
         cash={portfolio?.cash}
-        cap={election.contribution_cap}
         collectionNote={collectionNote(election)}
       />
       <RequestImpeachmentDialog open={dialog === "impeachment"} onOpenChange={close} />

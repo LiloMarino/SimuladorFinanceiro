@@ -100,7 +100,6 @@ def build_panel(
         radar_neutral=voters.RADAR_NEUTRAL,
         radar_flag=voters.RADAR_FLAG,
         poll_margin=settings.poll_margin,
-        contribution_cap=book.contribution_cap(today),
         parties=[
             _party(state, p, people, latest)
             for p in sorted(state.parties.values(), key=lambda p: p.id)

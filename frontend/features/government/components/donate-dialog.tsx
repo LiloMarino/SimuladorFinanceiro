@@ -47,8 +47,7 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
   const target = finalists.find((party) => party.id === partyId);
   const overCash = cash !== undefined && amount > Number(cash);
 
-  const overCap = amount > Number(panel.contribution_cap);
-  const canSubmit = !!target && amount > 0 && !overCash && !overCap && !donate.isPending;
+  const canSubmit = !!target && amount > 0 && !overCash && !donate.isPending;
   // O motivo do botão apagado: o que falta para doar
   const blockedReason = !target
     ? "Escolha um finalista."
@@ -56,9 +55,7 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
       ? "Digite quanto quer doar."
       : overCash
         ? `Seu caixa hoje é ${displayMoney(cash)}.`
-        : overCap
-          ? `O teto é ${displayMoney(panel.contribution_cap)} por doação.`
-          : null;
+        : null;
 
   const submit = () =>
     target &&
@@ -120,7 +117,7 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
                 if (canSubmit) submit();
               }}
             >
-              <Field data-invalid={overCash || overCap}>
+              <Field data-invalid={overCash}>
                 <FieldLabel htmlFor="donation-amount">Quanto</FieldLabel>
                 <Input
                   id="donation-amount"
@@ -130,7 +127,7 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
                   inputMode="decimal"
                   placeholder="R$ 0,00"
                   value={text}
-                  aria-invalid={overCash || overCap}
+                  aria-invalid={overCash}
                   onChange={(event) => setText(formatMoney(event.target.value))}
                 />
                 {/* Atalhos: as frações valem sobre o caixa */}
@@ -143,11 +140,7 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
                   baseLabel="do caixa"
                   limitLabel="caixa"
                   fixed={[5000, 10000, 20000]}
-                  error={
-                    overCash
-                      ? `Seu caixa hoje é ${displayMoney(cash)}.`
-                      : overCap && `O teto é ${displayMoney(panel.contribution_cap)} por doação.`
-                  }
+                  error={overCash ? `Seu caixa hoje é ${displayMoney(cash)}.` : null}
                   note={
                     <>
                       {" "}

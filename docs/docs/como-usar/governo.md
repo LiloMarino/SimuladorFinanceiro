@@ -32,7 +32,7 @@ Só se concorre por partido, e o partido existe desde o 1º dia da partida:
 
 - **Fundar:** nome, sigla de 2 a 8 letras, cor, **promessa** na régua (veja abaixo) e a contribuição mensal. Nome, sigla e cor não podem repetir os de outro partido. Quem funda é o **fundador**.
 - **Filiar-se:** escolhe um partido de jogadores e quanto contribui por mês. Cada jogador está em um partido só; para trocar, é preciso sair antes.
-- **Contribuir:** cada filiado define a própria contribuição mensal, que pode ser **zero**. A contribuição tem **teto de R$ 8.000 por mês** para cada filiado, corrigido pelo IPCA. O dinheiro entra no **caixa do partido**, junto com o fundo público (veja "A verba do partido"). O valor fica salvo no perfil: ao fundar ou entrar num partido, inclusive pela preparação do lobby, o jogador começa com a última contribuição que escolheu.
+- **Contribuir:** cada filiado define a própria contribuição mensal, que pode ser **zero**. A contribuição não tem teto. O dinheiro entra no **caixa do partido**, junto com o fundo público (veja "A verba do partido"). O valor fica salvo no perfil: ao fundar ou entrar num partido, inclusive pela preparação do lobby, o jogador começa com a última contribuição que escolheu.
 - **Sair** e **expulsar:** quem sai para de contribuir na hora, e o que já saiu do caixa não volta. Só o fundador expulsa, e a expulsão é pública. Bots não entram em partido.
 
 Fundar, filiar-se e sair valem desde o 1º dia da partida; entre os turnos só se doa. Três coisas esperam a campanha abrir:
@@ -104,7 +104,7 @@ Cada partido tem **um caixa só**. Nele entram o **fundo público** e as contrib
 
 **Fundo público.** Todo mês de campanha, no 1º dia útil, o país reparte **R$ 8.000 × o número de concorrentes** (corrigidos pelo IPCA). Metade vai **igual** para cada concorrente e metade **proporcional às cadeiras** da casa em exercício; sem casa eleita ainda, tudo é igual. Uma federação conta como **um** concorrente: o líder recebe o fundo e o parceiro, nada. Ex.: com 5 partidos o fundo é R$ 40.000; sem casa, cada um recebe R$ 8.000. Com uma casa de 101 cadeiras em que o partido A tem 20, A recebe 4.000 + 20.000 × 20 ÷ 101 = **R$ 7.960** e quem não tem cadeira recebe R$ 4.000; com 40 cadeiras, A recebe **R$ 11.920**.
 
-**Contribuição.** A contribuição de cada filiado é debitada do caixa dele no **1º dia útil de cada mês** de campanha, no valor definido, limitado ao teto do mês, e entra no caixa do partido. Se faltar caixa naquele mês, a contribuição é **pulada** (não vira dívida) e vira uma pendência, "Sua contribuição de R$ 2.000,00 não foi paga em março, por falta de caixa", que some quando a contribuição seguinte é paga ou quando você muda o valor. As doações do 2º turno têm o mesmo teto por doação.
+**Contribuição.** A contribuição de cada filiado é debitada do caixa dele no **1º dia útil de cada mês** de campanha, no valor definido, e entra no caixa do partido. Se faltar caixa naquele mês, a contribuição é **pulada** (não vira dívida) e vira uma pendência, "Sua contribuição de R$ 2.000,00 não foi paga em março, por falta de caixa", que some quando a contribuição seguinte é paga ou quando você muda o valor.
 
 **A sobra vira propaganda.** O que o partido **não gasta em ações** no mês vira propaganda nos 6 grupos de eleitores, **com metade da força** das ações:
 

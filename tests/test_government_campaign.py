@@ -154,8 +154,7 @@ def test_fund_is_split_in_half_equally_and_in_half_by_seats():
     assert round(campaign.fund(5, Decimal(40) / 101), 2) == Decimal("11920.79")
 
 
-def test_fund_and_cap_stay_fixed_without_inflation_adjustment():
+def test_fund_stays_fixed_without_inflation_adjustment():
     start, day = date(2020, 1, 1), date(2024, 5, 1)
 
     assert campaign.adjusted(campaign.FUND_PER_PARTY, start, day, False) == 8000
-    assert campaign.adjusted(campaign.CONTRIBUTION_CAP, start, day, False) == 8000
