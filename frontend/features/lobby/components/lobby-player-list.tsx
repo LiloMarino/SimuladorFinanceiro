@@ -39,7 +39,7 @@ type LobbyPlayersListProps = {
   /** Como a sala joga e como as equipes se chamam */
   grouping: PlayerGrouping;
   naming: TeamNaming;
-  /** Viver de renda com profissões: cada cartão mostra a profissão e cada um escolhe a sua */
+  /** Viver de renda com profissões: cada cartão mostra a profissão; a escolha fica na Minha preparação */
   professions: boolean;
   /** Governo & Política ligada: cada cartão mostra o partido preparado */
   governmentEnabled: boolean;
@@ -64,7 +64,7 @@ export function LobbyPlayersList({
   const { data: savedSimulations } = useSimulationList();
   const simulationName = savedSimulations?.find((s) => s.id === selectedSimulationId)?.name;
 
-  // Em equipes, quem vê vem primeiro e ocupa a linha toda (cabem a cor e a equipe); depois o host e quem joga, em ordem alfabética
+  // Em equipes, quem vê vem primeiro; depois o host e quem joga, em ordem alfabética
   const inTeams = grouping === "TEAMS";
   const rank = (nickname: string) =>
     Number(inTeams && nickname === user?.nickname) * 2 + Number(nickname === hostNickname);
@@ -115,7 +115,7 @@ export function LobbyPlayersList({
       </CardHeader>
 
       <CardContent>
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="grid gap-2.5">
           {sorted.map((player) => {
             const isYou = player.nickname === user?.nickname;
             const isRoomHost = player.nickname === hostNickname;
@@ -130,24 +130,16 @@ export function LobbyPlayersList({
                   "flex items-center gap-3 rounded-[10px] border p-3",
                   isYou ? "border-info-border bg-info-soft" : bot ? "border-border bg-subtle" : "border-border bg-card",
                   inTeams && player.team && "border-l-[3px] border-l-(--team)",
-                  isYou && "col-span-2",
                 )}
               >
                 <PlayerAvatar nickname={player.nickname} color={player.color} bot={!!bot} size="lg" />
-                <div className="grid min-w-0 flex-1 gap-1">
-                  {/* Nome */}
-                  <span className="min-w-0 truncate font-semibold" title={player.nickname}>
-                    {player.nickname}
-                    {isYou && <span className="font-normal text-secondary-foreground"> (você)</span>}
-                  </span>
-                  {/* Profissão e papel na sala */}
-                  <span className="flex min-w-0 flex-wrap items-center gap-1.5 empty:hidden">
-                    {professions && <ProfessionBadge profession={player.profession} />}
-                    {bot && (
-                      <Badge variant="secondary" size="sm" className="shrink-0">
-                        Bot
-                      </Badge>
-                    )}
+                <div className="grid min-w-0 flex-1 gap-0.5">
+                  {/* Nome e badges */}
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    <span className="min-w-0 truncate font-semibold" title={player.nickname}>
+                      {player.nickname}
+                      {isYou && <span className="font-normal text-secondary-foreground"> (você)</span>}
+                    </span>
                     {isRoomHost && (
                       <Badge variant="info" size="sm" className="shrink-0">
                         Host
@@ -158,31 +150,30 @@ export function LobbyPlayersList({
                         Novo
                       </Badge>
                     )}
+                    {professions && <ProfessionBadge profession={player.profession} />}
                   </span>
-                  {/* Presença e partido preparado */}
-                  <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-                    {bot ? (
-                      <span className="truncate" title={bot.strategy_name}>
-                        {bot.strategy_name}
-                      </span>
-                    ) : (
-                      <PlayerActivityStatus activity={player.activity} />
-                    )}
-                    {showParties && !bot && (
-                      <>
-                        <span aria-hidden="true">·</span>
-                        {party ? (
-                          <span className="flex min-w-0 items-center gap-1">
-                            <PartyMark abbr={party.party.abbr} color={party.party.color} size="sm" />
-                            {party.candidate && <span className="truncate">candidato</span>}
-                          </span>
-                        ) : (
-                          <span className="truncate">sem partido</span>
-                        )}
-                      </>
-                    )}
-                  </span>
+                  {/* Presença do jogador ou estratégia do bot */}
+                  {bot ? (
+                    <span className="truncate text-xs text-muted-foreground" title={bot.strategy_name}>
+                      {bot.strategy_name}
+                    </span>
+                  ) : (
+                    <PlayerActivityStatus activity={player.activity} />
+                  )}
                 </div>
+                {/* Partido preparado */}
+                {showParties && !bot && (
+                  <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                    {party ? (
+                      <>
+                        <PartyMark abbr={party.party.abbr} color={party.party.color} size="sm" />
+                        {party.candidate && "candidato"}
+                      </>
+                    ) : (
+                      "sem partido"
+                    )}
+                  </span>
+                )}
                 {isYou ? (
                   <div className="flex items-center gap-1.5">
                     <LobbyColorPicker
@@ -238,20 +229,25 @@ export function LobbyPlayersList({
           ))}
 
           {/* Vagas livres */}
-          {canAddBot && (
-            <button
-              type="button"
-              onClick={() => setBotDialog({})}
-              className="col-span-2 flex h-11 cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-dashed border-info-border bg-info-soft/50 text-[13px] font-semibold text-primary outline-none hover:border-solid hover:border-primary hover:bg-info-soft focus-visible:ring-3 focus-visible:ring-ring/50"
-            >
-              <Plus className="size-4" />
-              Adicionar bot
-            </button>
-          )}
-          {freeSlots > 0 && (
-            <div className="col-span-2 flex h-11 items-center justify-center rounded-[10px] border border-dashed border-input text-[13px] text-faint-foreground">
-              {plural(freeSlots, "vaga livre", "vagas livres")} · a sala aceita até {MAX_PLAYERS}
-            </div>
+          {Array.from({ length: freeSlots }, (_, i) =>
+            i === 0 && canAddBot ? (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setBotDialog({})}
+                className="flex h-16.5 cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-dashed border-info-border bg-info-soft/50 text-[13px] font-semibold text-primary outline-none hover:border-solid hover:border-primary hover:bg-info-soft focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                <Plus className="size-4" />
+                Adicionar bot
+              </button>
+            ) : (
+              <div
+                key={i}
+                className="flex h-16.5 items-center justify-center rounded-[10px] border border-dashed border-input text-[13px] text-faint-foreground"
+              >
+                Vaga livre
+              </div>
+            ),
           )}
         </div>
 
