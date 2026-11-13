@@ -94,10 +94,9 @@
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 | — | Alto | Bom | ⏳ |
 | [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | M18 · 4.2 | — | Médio | Médio | ⏳ |
-| [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | M18 · 4.2 | — | Baixo | Excelente | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -126,6 +125,7 @@
 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 | — | — | — | ✅ |
 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 | — | — | — | ✅ |
 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | M18 · 4.2 | — | — | — | ✅ |
+| [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
 
@@ -141,7 +141,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 5/19 concluídos
+> **Progresso:** 6/19 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -163,7 +163,7 @@
 | 16 | [**F290**](#f290) | Feature | Profissões novas | — | ⏳ Pendente |
 | 17 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | [F290](#f290), [F102](#f102) | ⏳ Pendente |
 | 18 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | — | ✅ Concluído |
-| 19 | [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | — | ⏳ Pendente |
+| 19 | [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | — | ✅ Concluído |
 
 ### 4.3 — Mesa do trader (M24)
 
@@ -261,7 +261,6 @@
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 15 | Alto | Médio | ⏳ |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M18 · 4.2 · 3º | 0 | — | — | 🔍 |
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 · 16º | 1 | Alto | Bom | ⏳ |
-| [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | M18 · 4.2 · 19º | 0 | Baixo | Excelente | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
@@ -330,7 +329,6 @@
 | **F290** | Feature | Profissões novas | N23, N34 | D19 | M18 · 4.2 | — | Alto | Médio | Alto | Bom |
 | **F292** | Feature | Fundo Soberano: o governo compra ações e cotas | N34, N41 | — | M18 · 4.2 | [F101](#f101), [F44](#f44), [F255](#f255) | Médio | Médio | Médio | Bom |
 | **F293** | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | N23, N34 | D19 | M18 · 4.2 | [F290](#f290), [F102](#f102) | Médio | Médio | Médio | Médio |
-| **F294** | Melhoria | Adicionar vários bots de uma vez | N8 | — | M18 · 4.2 | — | Baixo | Baixo | Médio | Excelente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -697,11 +695,6 @@ Os bots recebem uma profissão sorteada entre todas, e o host pode fixá-la no s
 
 **Aceite:** com a expansão desligada a profissão não aparece; o Comissionado muda de renda no mês seguinte à troca de governo; uma oferta de R$ 100 mil paga R$ 1 mil ao Banqueiro.
 
-<a id="f294"></a>
-**F294 — Adicionar vários bots de uma vez.** Serve N8. Hoje cada bot é um diálogo inteiro (`frontend/features/lobby/components/lobby-bot-dialog.tsx`): encher a sala é repetir nome, estratégia e salvar várias vezes. O diálogo de adicionar ganha um campo de quantidade, de 1 até as vagas livres da sala, e o seletor de estratégia ganha "Sortear para cada bot". Com quantidade maior que 1, o nome sai da lista da estratégia, e a profissão e o time são automáticos; cada um continua editável no slot depois. Com quantidade 1 o diálogo é o de hoje. O desenho é registrado no canvas depois de implementado.
-
-**Aceite:** adicionar 5 bots com "Sortear" cria 5 slots com nomes diferentes e estratégias sorteadas; a quantidade não passa das vagas livres.
-
 ---
 
 ## 🔍 Em avaliação
@@ -812,6 +805,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F288** | Melhoria | Badge de profissão legível no lobby e na Minha preparação | N15, N20 | — | M18 · 4.2 |
 | **F289** | Melhoria | Cards de profissão com vantagens e desvantagens | N39, N25 | — | M18 · 4.2 |
 | **F291** | Melhoria | Locador com aluguel de 1,1× o salário | N39 | — | M18 · 4.2 |
+| **F294** | Melhoria | Adicionar vários bots de uma vez | N8 | — | M18 · 4.2 |
 
 <a id="f249"></a>
 **F249 — Núcleo do backend sem import de features.** `core/` importava de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
@@ -860,6 +854,9 @@ O túnel foi para `features/tunnel/`, a preparação da sala para `features/gove
 **F291 — Locador com aluguel de 1,1× o salário.** Serve N39. Hoje o Locador (`backend/core/professions.py`) rende 1× o salário, paga o imposto de renda das pessoas e corre o sorteio de demissão como vacância, igual ao CLT, mas sem o aumento acima da inflação que o CLT ganha quando o PIB cresce. Ele sai igual ou pior que o CLT em tudo, e com as vantagens e desvantagens escritas no card da profissão isso fica à vista: ninguém escolhe o Locador.
 
 **Decidido em 13/11:** o aluguel passa a 1,1× o salário (R$ 5.500 com salário de R$ 5.000), 10% mais que o CLT, e segue só com a inflação. A escolha vira uma troca: mais renda agora contra o CLT, que cresce. Com PIB de 2% ao ano o CLT ganha 1% ao ano acima da inflação e alcança o Locador em uns 10 anos de partida. Muda o `income_multiple` do Locador no backend e no `frontend/shared/lib/professions.ts`, e os testes de profissão que fixam o 1×.
+
+<a id="f294"></a>
+**F294 — Adicionar vários bots de uma vez.** Serve N8. O diálogo de adicionar bot (`frontend/features/lobby/components/lobby-bot-dialog.tsx`) ganhou o campo de quantidade, de 1 até as vagas livres da sala, e, com quantidade maior que 1, o item "Sortear para cada bot" na lista de estratégias. No lote, o nome sai da lista da estratégia e a cor, a profissão e o time são automáticos; cada bot continua editável no slot depois. Com quantidade 1 o diálogo é o de sempre. Os bots entram pela rota `POST /api/simulation/bots/batch`, sob um único lock: se faltar vaga ou algum nome se repetir, nenhum entra. O desenho é registrado no canvas depois de implementado.
 
 ---
 
