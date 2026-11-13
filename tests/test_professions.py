@@ -60,7 +60,8 @@ def test_reference_rates_match_the_default_tax_policy():
         (Profession.RETIREE, "4250"),
         # Bico de 0,5x + auxílio de 0,4x no gasto de referência
         (Profession.WELFARE, "4500"),
-        (Profession.LANDLORD, "5000"),
+        # Aluguel de 1,1x o salário
+        (Profession.LANDLORD, "5500"),
     ],
 )
 def test_each_profession_earns_its_multiple_of_the_host_salary(

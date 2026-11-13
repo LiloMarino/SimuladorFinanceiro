@@ -242,7 +242,7 @@ Ela vem do estudo **Trinity**, feito com dados dos EUA. O estudo viu que retirar
 | Empreendedor | 1,2×, corrigido pelo PIB | A renda sobe e cai com o PIB dos últimos 12 meses; sente o imposto de renda das empresas |
 | Aposentado | 0,85× | O imprevisto de saúde custa o dobro; reajuste de IPCA + o reajuste real dos aposentados |
 | Auxílio | bico de 0,5× + auxílio | O bico some no sorteio de demissão; o auxílio cresce com o gasto do governo com auxílio; sente o imposto sobre consumo |
-| Locador | 1,0× de aluguel | A vacância (um mês sem aluguel) cai no sorteio de demissão; imposto de renda das pessoas |
+| Locador | 1,1× de aluguel | A vacância (um mês sem aluguel) cai no sorteio de demissão; imposto de renda das pessoas |
 
 Ex.: salário do host de R$ 8.000 e Servidor: a renda é R$ 7.200 por mês. O sorteio de imprevistos é um só para a partida, então o mesmo dia que demite o CLT tira o bico do Auxílio e o aluguel do Locador; o Servidor, o Empreendedor e o Aposentado ignoram essa perda. O cartão de Vida financeira mostra a profissão e o que ela sente agora.
 

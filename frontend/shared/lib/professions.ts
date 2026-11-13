@@ -52,7 +52,7 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   LANDLORD: {
     name: "Locador",
     icon: Building2,
-    incomeMultiple: 1,
+    incomeMultiple: 1.1,
     feels:
       "Vive de aluguel: o sorteio de demissão vira vacância e o mês fica sem aluguel. Sente o imposto de renda das pessoas.",
   },

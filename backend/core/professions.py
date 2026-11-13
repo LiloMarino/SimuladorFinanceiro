@@ -135,7 +135,7 @@ PROFESSIONS: dict[Profession, ProfessionRule] = {
         benefit_multiple=Decimal("0.4"),
     ),
     Profession.LANDLORD: ProfessionRule(
-        income_multiple=Decimal(1),
+        income_multiple=Decimal("1.1"),
         tax=TaxBase.PERSONAL,
         loss=IncomeLoss.VACANCY,
     ),
