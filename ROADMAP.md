@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-13):** Arquivada a 4.1 Câmbio e Poder, com os itens concluídos e o marco, e fechadas no arquivo morto as necessidades já atendidas.
+> **Última mudança (2026-11-13):** Registrados na 4.2 a volta dos slots do lobby ao desenho anterior, o badge de profissão legível, os cards de profissão com vantagens e desvantagens e as profissões novas.
 
 ## Glossário
 
@@ -30,19 +30,19 @@
 | **N12** | — | Continuar jogando depois do último dia com dado real | — | — | — | — | — |
 | **N13** | — | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — | — |
 | **N14** | — | Atualizar para uma versão nova sem perder as partidas salvas | — | [F56](#f56) | — | — | — |
-| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211) | — | — | — |
+| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211), [F287](#f287), [F288](#f288) | — | — | — |
 | **N19** | — | Analisar um ativo com as ferramentas de um trader | — | [F34](#f34), [F131](#f131), [F193](#f193) | — | — | — |
-| **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | [F285](#f285) | — | — | — |
+| **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | [F285](#f285), [F287](#f287), [F288](#f288) | — | — | — |
 | **N21** | — | Jogar "na unha", sem a interface apontar a melhor escolha | — | — | — | — | — |
 | **N22** | — | Ter objetivos para buscar além de vencer a partida | — | [F90](#f90), [F123](#f123), [F159](#f159) | — | — | — |
-| **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F44](#f44), [F55](#f55), [F101](#f101), [F102](#f102), [F103](#f103), [F104](#f104), [F105](#f105) | — | — | — |
+| **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F44](#f44), [F55](#f55), [F101](#f101), [F102](#f102), [F103](#f103), [F104](#f104), [F105](#f105), [F290](#f290) | — | — | — |
 | **N24** | — | Saber onde está a lentidão durante uma partida | — | — | — | — | — |
-| **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F193](#f193), [F225](#f225) | — | — | — |
+| **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F193](#f193), [F225](#f225), [F289](#f289) | — | — | — |
 | **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | — | — | — | — |
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93) | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F227](#f227), [F255](#f255), [F284](#f284) | — | — | — |
-| **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | — | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F227](#f227), [F255](#f255), [F284](#f284), [F290](#f290) | — | — | — |
+| **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F289](#f289) | — | — | — |
 | **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F221](#f221) | — | — | — |
 | **N41** | — | Aprender como a economia real funciona, jogando | — | [F225](#f225), [F227](#f227), [F255](#f255) | — | — | — |
 | **N42** | — | Chegar a um estado da partida sem jogar até ele | — | [F286](#f286) | — | — | — |
@@ -92,6 +92,10 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
+| [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 | — | Baixo | Bom | ⏳ |
+| [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 | — | Baixo | Excelente | ⏳ |
+| [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 | — | — | — | 🔍 |
+| [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 | — | — | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
@@ -115,7 +119,7 @@
 | **D16** | — | Estratégias do app no host, personalização pela API | — | — | — | — | ✅ |
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | [F90](#f90), [F93](#f93) | — | — | ✅ |
-| **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176) | — | — | ✅ |
+| **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176), [F290](#f290) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F227](#f227), [F255](#f255) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 
@@ -133,7 +137,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 0/11 concluídos
+> **Progresso:** 0/15 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -148,6 +152,10 @@
 | 9 | [**F255**](#f255) | Feature | Estatais | [F44](#f44) | ⏳ Pendente |
 | 10 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | [F44](#f44) | 🔍 Em avaliação |
 | 11 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | [F44](#f44) | ⏳ Pendente |
+| 12 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | — | ⏳ Pendente |
+| 13 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | — | ⏳ Pendente |
+| 14 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | — | 🔍 Em avaliação |
+| 15 | [**F290**](#f290) | Feature | Profissões novas | — | 🔍 Em avaliação |
 
 ### 4.3 — Mesa do trader (M24)
 
@@ -244,6 +252,10 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 · 1º | 0 | Alto | Médio | ⏳ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
+| [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 · 12º | 0 | Baixo | Bom | ⏳ |
+| [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 · 13º | 0 | Baixo | Excelente | ⏳ |
+| [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 · 14º | 0 | — | — | 🔍 |
+| [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 · 15º | 0 | — | — | 🔍 |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.3 · 3º | 0 | — | — | 🔍 |
@@ -306,6 +318,8 @@
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Alto | Alto | Alto | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
+| **F287** | Melhoria | Slots dos jogadores do lobby no desenho anterior | N15, N20 | — | M18 · 4.2 | — | Baixo | Baixo | Médio | Bom |
+| **F288** | Melhoria | Badge de profissão legível no lobby e na Minha preparação | N15, N20 | — | M18 · 4.2 | — | Baixo | Baixo | Médio | Excelente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -543,6 +557,27 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
+<a id="f287"></a>
+**F287 — Slots dos jogadores do lobby no desenho anterior.** Serve N15 e N20. O redesenho do topo do lobby também refez o card de cada jogador (`lobby-player-list.tsx`): o nome ficou sozinho na primeira linha, a profissão e os papéis desceram para uma segunda linha, a presença e o partido preparado viraram uma terceira, e as vagas livres viraram uma faixa só ("N vagas livres · a sala aceita até 12"), com "Adicionar bot" numa faixa à parte. O usuário preferiu o desenho anterior e pediu a volta.
+
+**O que volta** (o estado do arquivo antes do commit "Redesenhado o topo do lobby e movida a profissão para a Minha preparação"): o nome com os badges ao lado na mesma linha (profissão, Bot, Novo); embaixo, a presença do jogador ou a estratégia do bot; o partido preparado à direita do card ("candidato" ou "sem partido"); cada vaga livre como um card próprio, na altura do card de jogador, e "Adicionar bot" ocupando a primeira vaga.
+
+**O que fica:** o topo do lobby redesenhado e a escolha da profissão dentro da Minha preparação. Na linha do nome volta só o badge de profissão (leitura), sem o seletor.
+
+**O problema que o redesenho resolvia:** no card do bot, "Bot", "CLT" e "robô não prepara" se sobrepunham e o nome da estratégia cortava sem dica. Na volta, o card do bot deixa de mostrar "robô não prepara" (bot nunca tem partido, o lado direito fica vazio) e a estratégia trunca com a dica do nome inteiro.
+
+**Conferência:** sala com 12 jogadores, bot com estratégia de nome longo e o próprio jogador com partido de candidato, a 1366 e a 1920; nenhum texto sobreposto nem cortado sem dica.
+
+<a id="f288"></a>
+**F288 — Badge de profissão legível no lobby e na Minha preparação.** Serve N15 e N20. Dois problemas vistos no lobby:
+
+- **Contraste.** O `ProfessionBadge` (`frontend/shared/components/profession-badge.tsx`) usa a variante `secondary` do Badge (`bg-muted`, texto `secondary-foreground`, sem borda). Sobre o card do jogador (`bg-card`, e o do próprio jogador em `bg-info-soft`) o fundo do badge quase some e não se vê onde ele começa. Os badges "Bot" e "Novo" do mesmo card usam a mesma variante e sofrem igual.
+- **Botão Minha preparação.** O botão do topo (`preparation-button.tsx`) mostra a profissão como texto solto ("CLT" cinza, sem ícone), quando o desenho aprovado no canvas tinha o badge com ícone, e antes do redesenho a profissão aparecia como badge no card do jogador.
+
+**Plano:** a variante do badge de etiqueta ganha contraste no próprio design system (`badgeVariants.ts`): borda `border-input` e fundo que se destaca do card nos dois temas, seja ajustando a `secondary` (se todos os usos dela ganham com isso) ou criando uma variante nova de etiqueta usada pelo badge de profissão, pelo "Bot" e pelo "Novo". Sem `className` por cima da variante. O botão Minha preparação passa a renderizar o `ProfessionBadge` no lugar do texto.
+
+**Aceite:** a borda ou o fundo do badge tem contraste de pelo menos 3:1 contra o fundo do card, no tema claro e no escuro, no card comum e no card do próprio jogador.
+
 ---
 
 ## 🔍 Em avaliação
@@ -566,6 +601,8 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M24 · 4.3 | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
 | **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M24 · 4.3 | — | Medir as estratégias atuais em partidas com governo, dólar e crédito; escolher as estratégias novas. |
 | **F285** | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | — | — | — | Escolher o mecanismo (filtrar o seletor, recolorir na tela de quem liga ou reforçar além da cor) e medir o tamanho do conjunto distinguível sob as três simulações |
+| **F289** | Melhoria | Cards de profissão com vantagens e desvantagens | N39, N25 | — | M18 · 4.2 | — | O desenho no canvas e a revisão das frases de cada profissão |
+| **F290** | Feature | Profissões novas | N23, N34 | D19 | M18 · 4.2 | — | Quais profissões entram, os números, o grupo do eleitorado e a medida do governo que chega em cada uma |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -641,6 +678,33 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 3. Reforço além da cor: sigla, listra ou forma junto da cor, no mapa e nos gráficos. Vale para qualquer tipo de daltonismo, mas cada gráfico precisa de desenho próprio.
 
 Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no servidor, e deixar o 3 para onde só a cor carrega a informação (o mapa). O tamanho do conjunto distinguível sai de medir o ΔE sob as três simulações.
+
+<a id="f289"></a>
+**F289 — Cards de profissão com vantagens e desvantagens.** Serve N39 e N25. A aba Profissão da Minha preparação (`ProfessionCards` em `frontend/shared/components/profession-grid.tsx`) mostra, em cada card, o ícone, o nome, o "N× o salário" e um parágrafo (`feels` em `frontend/shared/lib/professions.ts`) que mistura demissão, reajuste e imposto. O usuário achou denso demais: ninguém lê prosa para escolher. Na escolha, o que importa é o que cada profissão ganha e o que ela perde.
+
+**Proposta:** o parágrafo vira duas partes. **Vantagens** (✓) e **desvantagens** (✗) em lista curta respondem "vale a pena?". **Afetado por** responde "o que eu acompanho durante a partida": as variáveis que movem a renda (da economia ou do governo), como etiquetas curtas, sem dizer se é bom ou ruim, porque isso depende de para onde elas andam e de quem governa. Rascunho, a partir das regras de `backend/core/professions.py`:
+
+- **CLT (1×):** ✓ aumento acima da inflação quando o país cresce · ✗ pode ser demitido quando o desemprego sobe · afetado por: desemprego, PIB, imposto de renda das pessoas.
+- **Servidor (0,9×):** ✓ nunca é demitido · ✗ ganha 10% menos que o CLT · afetado por: aumento dos servidores, imposto de renda das pessoas.
+- **Empreendedor (1,2×):** ✓ ganha 20% mais · ✓ não é demitido · ✗ a renda cai na recessão, até a metade · afetado por: PIB, imposto de renda das empresas.
+- **Aposentado (0,85×):** ✓ nunca é demitido · ✗ ganha 15% menos · ✗ imprevisto de saúde custa o dobro · afetado por: aumento dos aposentados, imposto de renda das pessoas.
+- **Auxílio (0,5× + auxílio):** ✓ o auxílio nunca some · ✗ a menor renda · ✗ perde o bico no sorteio de demissão · afetado por: desemprego, gasto com auxílio, imposto sobre consumo.
+- **Locador (1×):** ✓ renda cheia · ✗ no sorteio de demissão o imóvel fica vago e o mês fica sem aluguel · afetado por: desemprego, imposto de renda das pessoas.
+
+As etiquetas do "afetado por" saem das regras da profissão (`ProfessionRule`: imposto, reajuste, PIB, auxílio, sorteio de demissão), então a profissão nova que seguir o dólar ou a Selic ganha a etiqueta dela sem texto à mão. Os cards ficam mais altos e a aba já rola (`profession-tab.tsx`, `overflow-y-auto`), o que comporta as profissões novas. As listas moram em `PROFESSIONS` no lugar do `feels`, como fonte única do texto.
+
+**Falta:** o desenho no canvas (lista com ✓/✗ ou duas colunas, o "afetado por" como etiquetas no rodapé do card, a altura do card, quantas colunas a aba comporta e como fica o card selecionado) e o usuário revisar as frases de cada profissão.
+
+<a id="f290"></a>
+**F290 — Profissões novas.** Serve N23 e N34; condicionado por D19. As seis profissões de hoje (`backend/core/professions.py`, `frontend/shared/lib/professions.ts`) ligam a renda ao desemprego, ao PIB, ao reajuste do governo e a um dos três impostos. Profissões novas dão mais escolhas na preparação e mais jogadores que o governo atinge de jeitos diferentes.
+
+**Ideia de partida:** cada profissão nova aposta numa variável que a partida já simula e que nenhuma das seis usa, para a escolha ser uma leitura da economia, e cada uma tem um preço:
+
+- renda que segue o **dólar** (exportador, agro): ganha quando o real se desvaloriza e perde quando ele se valoriza;
+- renda que segue a **Selic** (bancário): ganha com juro alto, perde quando o Banco Central corta;
+- renda alta **sem reajuste** nenhum (autônomo): a inflação come a renda ao longo da partida, e o sorteio de demissão vira mês sem cliente.
+
+**Falta:** quais profissões entram e os números de cada uma (múltiplo do salário, o que o sorteio de demissão faz, reajuste, imposto); o grupo do eleitorado de cada uma e a medida do governo que chega nela, porque profissão que nenhuma medida atinge fica fora do jogo político; a profissão dos bots; e as vantagens e desvantagens no formato novo dos cards de profissão.
 
 ---
 
