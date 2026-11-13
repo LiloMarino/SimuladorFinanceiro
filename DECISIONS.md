@@ -37,12 +37,6 @@ O valor mostrado na tela tem que ser o valor guardado, e uma simulação pausada
 **N4. Testar uma estratégia de investimento automática e ver como ela se sai**
 Escrever a lógica de decisão (quando comprar, quando vender) e deixar o simulador executá-la enquanto o tempo passa, sem operar na mão.
 
-**N5. Saber quanto risco foi corrido para chegar num resultado**
-Retorno sozinho não diz se a estratégia foi boa: ganhar 20% passando por uma queda de 50% no meio do caminho é diferente de ganhar 20% de forma estável.
-
-**N6. Comparar resultados de simulações diferentes**
-Pôr lado a lado o desempenho de partidas distintas (a mesma pessoa em duas simulações, duas estratégias em períodos iguais).
-
 **N7. Que o simulador cobre os custos de operar do mercado real**
 Uma ordem enorme num ativo pouco negociado move o preço contra quem compra. Sem isso, a estratégia que ganha no simulador pode não valer nada fora dele.
 
@@ -70,15 +64,6 @@ Hoje toda mudança no banco (F11, F13) obriga a começar de um banco novo: a rel
 **N15. Usar uma interface agradável e coerente, à altura de um jogo**
 A interface amigável é metade da proposta — é o que separa o simulador de um backtest por código. Cada tela nova (bots, backtest, fechamento, central de dados) precisa nascer no mesmo visual.
 
-**N16. Ver a carteira e o mercado por setor e segmento**
-Saber quanto está em bancos, em energia, em varejo; e poder escrever estratégias que decidem por setor.
-
-**N17. Enxergar a estrutura do banco e esboçar mudanças nela**
-Ter uma visão do schema atual — tabelas, colunas, relações — para entender o que existe e conversar sobre uma modelagem nova ("e se fosse 1-N aqui?") antes de virar código.
-
-**N18. Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia**
-Diversificar só funciona entre ativos que não caem juntos. Sem medir isso, duas posições "diferentes" podem ser a mesma aposta.
-
 **N19. Analisar um ativo com as ferramentas de um trader**
 Quem decide pelo gráfico precisa dos indicadores (MACD, IFR, médias móveis, Bandas de Bollinger) e das ferramentas de desenho (linha de tendência, suporte e resistência, Fibonacci) que sites como o Investing.com oferecem. Sem eles, quem usa análise técnica joga em desvantagem — e a estratégia automática não tem com o que decidir.
 
@@ -103,41 +88,14 @@ Quem chega pelo GitHub decide em segundos se baixa, e decide pelo que vê funcio
 **N26. Achar a causa de um erro sem vasculhar o log inteiro**
 Quando algo dá errado, na máquina de quem hospeda ou na de um amigo, o erro precisa estar num lugar curto para ler e para mandar, em vez de perdido entre as linhas de uma partida inteira.
 
-**N27. Entrar numa partida que já começou**
-Quem chega depois do início, ou volta a uma partida salva sem ter jogado nela, precisa poder participar sem estragar a conta de quem já está jogando: com depósito inicial, cor própria e o mesmo ranking.
-
-**N28. Liberar uma vaga sem depender de o jogador sair**
-Com a sala cheia, ou com uma partida salva que não comporta quem está nela, o host precisa poder abrir a vaga sozinho, em vez de pedir pelo chat para alguém fechar a aba.
-
-**N29. Saber o que cada jogador está fazendo enquanto a partida não começa**
-Na espera do lobby, "Online" diz só que a pessoa está lá. Saber que ela está na Central de dados ou olhando o resultado da última partida dá vida à sala e explica a demora de quem ainda não está pronto, como o "Navegando nos menus" dos jogos online.
-
-**N30. Repetir uma configuração de partida sem montá-la de novo**
-A cada feature nova a partida ganha mais o que configurar (período, capital, regras, modo de jogo, o futuro gerado). O host quer salvar a combinação que gosta e voltar a ela num clique, em vez de refazer tudo a cada partida.
-
 **N31. Saber o que está movendo o mercado da partida, como quem lê o noticiário**
 Hoje o preço só se mexe: a SELIC sobe, uma ação despenca, e nada na tela diz que aconteceu algo. Quem investe de verdade decide lendo o que acontece no mundo, e um mercado que conta a própria história também ensina a ligar o fato ao preço.
-
-**N32. Saber como foi o mês sem montar a conta**
-Com o tempo correndo, um mês passa em segundos. Quanto o patrimônio andou, se bateu o CDI, o que rendeu e o que afundou, quanto entrou de provento e saiu de imposto: tudo isso existe espalhado pelas telas, e ninguém para a partida para juntar.
 
 **N33. Investir com dinheiro emprestado, pagando o juro do momento**
 Pegar crédito para aproveitar uma oportunidade é uma decisão real de quem investe, e a mais perigosa: com a SELIC alta, o juro come o ganho; com a carteira caindo, a dívida continua lá. Sem crédito, o jogo não deixa errar (nem acertar) nessa decisão.
 
 **N34. Disputar o poder de mudar as regras da economia da partida**
 Em vez de só reagir aos impostos e ao cenário, chegar ao governo e mexer neles, como nos jogos em que o empresário vira prefeito. É outro jeito de ganhar e de atrapalhar os amigos, e precisa custar caro o bastante para o governo não virar o jogador mais forte da sala.
-
-**N35. Tirar da lista as partidas que não interessam mais**
-Partidas de teste, abandonadas no começo ou repetidas se acumulam em "Simulações salvas" e na comparação de partidas, e hoje não há como apagar nenhuma: a lista só cresce, e achar a partida que importa fica cada vez mais difícil.
-
-**N36. Encontrar rapidamente os menores e maiores valores nos dados do jogo**
-Comparar preços, taxas, quantidades e resultados sem procurar linha por linha. O usuário pediu essa capacidade em todas as tabelas de dados, incluindo estatísticas e telas de manutenção, e precisa que as atualizações da partida preservem a escolha de comparação.
-
-**N37. Comprar bitcoin do jeito que dá na vida real, em frações**
-Um bitcoin custa dezenas de milhares de reais, e hoje o jogo só vende ativo em quantidade inteira: ou se compra 1 bitcoin inteiro, ou nenhum. Na vida real se compra 0,5 ou 0,001, pelo valor que o investidor quer aplicar. Sem isso, o bitcoin fica fora do alcance de quem joga com uma carteira normal, e a partida perde um dos ativos mais conhecidos do mundo real.
-
-**N38. Saber quando as estatísticas vão mudar, sem achar que travaram**
-As estatísticas fecham uma vez por mês de jogo, e entre uma virada e outra os números ficam parados. Sem a tela dizer isso, parece defeito; o jogador precisa saber que a atualização é mensal e quanto falta para a próxima.
 
 **N39. Chegar ao primeiro dia da partida com as próprias escolhas já feitas**
 Na espera do lobby, só o host mexe em alguma coisa: o resto da sala espera. Tudo o que é de cada jogador (partido, campanha, estratégia) só se faz depois do início, com o relógio andando, e quem demora a configurar larga atrás. Pior: boa parte disso é igual de uma partida para a outra (o mesmo partido, os mesmos parâmetros de estratégia, a mesma contribuição) e é refeita do zero a cada vez. O jogador quer usar a espera para se preparar, deixar salvo o que se repete e começar jogando.
@@ -266,7 +224,7 @@ O número sai dos commits, que seguem o Conventional Commits: `feat:` pede a men
 
 **Atualização (2026-10-27): nome da versão.** Versão menor e maior saem com nome; correção sai só com o número. O nome é o tema principal da versão, normalmente o título do marco que ela fecha ("Eleição disputada"); quando a versão fecha mais de um marco, vale o do tema principal. O nome entra pela primeira linha do `--message-file` do `pnpm release` e aparece no título da release e no CHANGELOG. O nome não acompanha a maior porque ela sobe por quebra de compatibilidade, não por conteúdo: uma maior que só troca o banco ficaria com nome, e uma menor cheia de conteúdo, sem.
 
-**Atualização (2026-11-04): a maior não se fabrica.** A maior sai só de uma quebra que o trabalho exige; a expansão grande se destaca pelo nome da versão, como qualquer menor, e nunca por uma quebra criada para justificar o número. A 3.0 foi uma maior sem quebra necessária, decidida antes de existir o nome da versão para dar destaque à expansão do governo. A próxima maior é a 4.0 Dividendos, porque o preço bruto invalida as partidas salvas; a expansão das gestoras, que não quebra nada, sai como 4.1. Quando o trabalho de um marco pede uma quebra, o commit com `!` entra na main junto com o marco que vai sair como maior, e as quebras desse marco saem todas na mesma maior.
+**Atualização (2026-11-04): a maior não se fabrica.** A maior sai só de uma quebra que o trabalho exige; a expansão grande se destaca pelo nome da versão, como qualquer menor, e nunca por uma quebra criada para justificar o número. A 3.0 foi uma maior sem quebra necessária, decidida antes de existir o nome da versão para dar destaque à expansão do governo. A próxima maior é a 4.0 Dividendos, porque o preço bruto invalida as partidas salvas; a expansão das gestoras, que não quebra nada, sai como menor, na 4.2. Quando o trabalho de um marco pede uma quebra, o commit com `!` entra na main junto com o marco que vai sair como maior, e as quebras desse marco saem todas na mesma maior.
 
 ### D13 — Um canal de tempo real só: Socket.IO, com fallback de polling
 **Status:** ✅ Decidida

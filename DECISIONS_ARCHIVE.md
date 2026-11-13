@@ -1607,6 +1607,456 @@ Por fora nada mudou.
 
 **F245 — Limpeza de scripts e docs.** Saíram `scripts/plot_beta_distribution.py`, `scripts/tree.py` e `scripts/tree_descriptions.yaml`, junto com a seção "Atualização da Árvore de Estrutura" de `docs/docs/desenvolvimento/estrutura-pastas.md`, que ensinava a rodá-los. Os scripts `profile:line` e `profile:line:view` saíram do `package.json`, e com eles `line-profiler` (`pyproject.toml`, exclude do `.spec`) e `cross-env`; os dois lockfiles foram regenerados e o deptry confirma. O padrão `*.lprof` saiu do script `clean`. Na docs de estrutura de pastas, o exemplo `base-card.tsx`, que não existe, passou a `shared/components/kpi.tsx`. O `matplotlib`, que só o `plot_beta_distribution.py` usava, continua no grupo `dev` do `pyproject.toml`.
 
+### F69 · arquivado em 2026-11-13
+
+*Kanban:* Imprevistos configuráveis e tipos novos · Feature · ✅ Concluído · atende N23 · marco M26
+
+**F69 — Imprevistos configuráveis e tipos novos.** Serve N23. O modo viver de renda (F53) já nasce com os tipos de imprevisto num registro, em que cada tipo é uma entrada com nome, múltiplo da despesa mensal, efeito (sai do caixa ou corta o salário do mês seguinte) e peso no sorteio; adicionar um tipo é acrescentar uma entrada, sem mexer no motor, no log nem nas telas. Esta feature expõe esse registro ao host: no lobby, o host edita o valor de cada tipo (por exemplo, o conserto passa de 1 para 2 despesas mensais), liga e desliga tipos e cria tipos próprios com nome, valor e efeito. O sorteio continua saindo da semente da partida, então todos os jogadores seguem recebendo os mesmos imprevistos nos mesmos dias, e a configuração vale para a partida salva.
+
+### F194 · arquivado em 2026-11-13
+
+*Kanban:* Dólar e ativos internacionais · Feature · ✅ Concluído · atende N34, N11 · decisões D20 · marco M26
+
+**F194 — Dólar e ativos internacionais.** Serve N34 e N11; condicionado por D20. Ideia do playtest de 31/out: a cotação do dólar no jogo, subindo com a desconfiança na moeda e caindo com o juro real alto, e os ativos internacionais andando junto. Antes tudo era em real: não existia a desvalorização da moeda, e investir fora não protegia de nada. Agora ter ativo dolarizado é estratégia de proteção, e o governo irresponsável pesa no câmbio e, pelo câmbio, na inflação.
+
+**Feito.**
+1. **O dólar da partida** é a PTAX da história vezes e elevado ao desvio: cada ponto de prêmio de risco acima da história soma 4% ao dólar e cada ponto de juro real acima da história tira 2%, cada causa com teto no expoente. Sem governo, o dólar da partida é a PTAX. Depois do último dado real a PTAX vira série macro e anda pela paridade do poder de compra.
+2. **Repasse à inflação:** cada 1% de alta do dólar em 12 meses, contra a da história, soma 0,07 ponto ao IPCA em 12 meses. O prêmio de risco deixou de entrar direto no IPCA e chega a ele só pelo dólar. Para fechar o ciclo prêmio, dólar, inflação e juro com números finitos, a dívida do governo tem teto de 300% do PIB.
+3. **Origem do ativo:** Nacional ou Internacional, inferida na importação (moeda USD ou classe BDR é Internacional), com troca manual na Central de dados que a reimportação preserva. O ativo Internacional anda só com o fator do dólar da partida (a razão entre o dólar da partida e a PTAX do dia, para o câmbio não contar duas vezes).
+4. **Na tela:** card do dólar e KPI no painel da Economia, com o detalhe de cada ligação; seletor de origem com bandeirinha na Central de dados; filtro e bandeira na listagem de renda variável.
+
+**Fica de fora.** O caixa em dólar com o juro americano é a F260. A calibragem dos pesos usa o CLI da economia (`.claude/trabalho/economia/calibrate10.py`); o teto de 300% do PIB deixa o cenário de gasto desenfreado com o BC cooperando derrubar a bolsa a perto de 5 mil pontos em 2010.
+
+### F226 · arquivado em 2026-11-13
+
+*Kanban:* Mercado reage à surpresa: o Focus da partida · Feature · ✅ Concluído · atende N34, N31, N41 · decisões D20 · marco M26
+
+**F226 — Mercado reage à surpresa: o Focus da partida.** Serve N34, N31 e N41; condicionado por D20. Antes a bolsa reagia ao tamanho do desvio da SELIC no mesmo dia da decisão, anunciada ou não. No mercado real o preço já carrega o esperado, e no dia só mexe a parte que ninguém esperava. Agora a bolsa separa o esperado da surpresa, e a pesquisa Focus do Banco Central entra na base.
+
+**Feito.**
+1. **A bolsa reage em duas partes.** O esperado é a regra do Banco Central e se dilui no trimestre; a surpresa é o afastamento que o presidente mostrou na última reunião e entra inteira no dia em que a decisão passa a valer (o dia seguinte à reunião). Os 2,9% por ponto valem para as duas, então um desvio mantido por um ano dá o mesmo efeito acumulado de antes: muda o momento, não o tamanho. O presidente que segue a regra move a bolsa antes da reunião; quem segura a SELIC com a inflação alta surpreende no dia.
+2. **O Focus é importado:** a SELIC da próxima reunião, o IPCA dos próximos 12 meses, o PIB do ano e o câmbio do fim do ano, todos pela mediana da pesquisa inteira, a partir da API de expectativas do Banco Central. As quatro aparecem na Central de dados, num grupo próprio, com dica de como ler; não limitam o período da partida nem ganham futuro gerado.
+3. **No cartão da SELIC,** o KPI "Mercado espera": a mediana do Focus quando a última pesquisa tem até 30 dias (senão, a SELIC de hoje) mais o que o mercado espera do presidente, com a dica do que é o Focus e de como a surpresa mexe na bolsa.
+
+**Fica de fora.** Só a SELIC esperada entra na conta da bolsa; IPCA, PIB e câmbio do Focus ficam como informação. O comunicado do Copom, que move a expectativa e cobra credibilidade, segue fora.
+
+### F232 · arquivado em 2026-11-13
+
+*Kanban:* Crescimento que sente o rombo do governo · Correção · ✅ Concluído · atende N34 · decisões D20 · marco M26
+
+**F232 — Crescimento que sente o rombo do governo.** Serve N34; condicionado por D20. Na calibragem de 10 anos, o presidente que dá reajuste real de 15% ao ano por 10 anos chega a um primário de −22,7% do PIB e mesmo assim cresce 8% ao ano, o teto do jogo (`MAX_GROWTH` em `backend/features/economy/growth.py`), em 78 de 120 meses, com o desemprego no piso de 4% em 81. O crescimento do jogo já é o real, descontada a inflação, então o número é implausível de fato. O impulso fiscal (`IMPULSE` em `backend/features/economy/links.py`) empurra o PIB a cada piora do primário, e nada do outro lado segura o crescimento. Pior: o presidente que gasta e segura a SELIC baixa gera inflação alta e juro real muito negativo, e o modelo lê o juro real negativo como estímulo, então a inflação alta empurra o PIB para cima.
+
+**Plano.** Duas ligações novas no alvo de crescimento (`GrowthAim`), cada uma sobre "partida menos história" (D20), uma linha própria no detalhe do PIB e uma entrada no `EconomyLink`, com a fonte na docs da economia:
+1. **Inflação acima do limiar tira crescimento.** O IPCA de 12 meses acima de 12% ao ano tira crescimento a cada ponto acima do limiar; abaixo dele, nada. Base: Khan e Senhadji (FMI, 2001) acharam que, em países emergentes, a inflação acima de 11 a 12% ao ano passa a reduzir o crescimento, porque a incerteza trava o investimento; Bruno e Easterly (1998) mostram a queda forte do crescimento nas crises acima de 40% ao ano, como a dos anos 1980 no Brasil.
+2. **O prêmio de risco encarece o crédito (efeito expulsão).** O prêmio acima da história tira crescimento mesmo com a SELIC baixa, porque o juro longo que as empresas pagam sobe com a desconfiança no governo, e elas investem menos. Foi o caminho do Brasil em 2002 e de 2014 a 2016.
+
+**Sai a faixa do crescimento da partida:** o teto de 8% e o piso de −6% deixam de valer para o desvio (`next_month`), e quem segura o crescimento passa a ser o freio, com cada número explicado por uma ligação. Só sobra um piso de −15% ao ano (`COLLAPSE_GROWTH`), porque abaixo disso o ciclo dívida, prêmio e crescimento deixa de ser finito; para cima não há teto. Calibrado em 1,2 ponto por ponto de IPCA acima de 12% e 0,75 ponto por ponto de prêmio acima da história. A faixa do modelo da história onde a série não cobre (`step_growth`) fica, porque ali nenhuma medida do governo age.
+
+**Calibragem** pelo CLI, com os cinco presidentes do roteiro em `.claude/trabalho/economia/calibrate10.py`, junto com a dos impostos e cortes (F253), que mexe na mesma conta.
+
+**Aceite:** na calibragem de 10 anos, o gastador que nunca para cresce abaixo da história na média dos anos 6 a 10 e entra em recessão quando o prêmio dispara; os presidentes que não geram inflação acima de 12% (historiador, austero, austero com Banco Central autônomo) ficam a menos de 0,5 ponto do crescimento médio que já fecharam; nenhum mês de nenhum presidente passa de 15% ou de −15% ao ano. Quem gasta por 4 anos passa de 12% de IPCA e perde crescimento pelo freio, que é o efeito pedido.
+
+### F250 · arquivado em 2026-11-13
+
+*Kanban:* Correções da 4.1 · Correção · ✅ Concluído · atende N15, N34 · marco M26
+
+**F250 — Correções da 4.1.** Lote do playtest de 08/11. Serve N15 e N34.
+
+1. **Nome do jogador com limite.** O apelido não tem tamanho máximo em lugar nenhum (`backend/routes/auth.py:16`, `frontend/features/auth/pages/login.tsx:17`; a coluna `users.nickname` é `Text`), e um apelido gigante quebrou os diálogos da partida. Entra o limite de 20 caracteres no DTO e no formulário do login. Na mesma varredura, o nome do bot (30 no front e sem limite no backend, `routes/simulation.py:198`), o nome da partida e o do backtest (sem limite nos dois lados) ganham o mesmo limite no DTO e no formulário, e a sigla do partido aceita o mesmo tamanho nos dois lados (o front aceita de 2 a 8 letras e o DTO recusa acima de 5, `core/dto/government.py:44`). Os diálogos que mostram o apelido inteiro cortam com reticências e mostram o nome completo numa dica: `lobby-player-menu.tsx:52`, `expel-dialog.tsx:30`, `danger-zone-card.tsx:60` e `frozen-portfolio-card.tsx:38`. Os apelidos longos das partidas salvas continuam valendo e aparecem cortados; confere-se abrindo uma partida salva com o apelido longo.
+2. **"Ver como tabela" do Mapa e tabela da Economia.** No Mapa, o link (`map-view.tsx:80`) rola até a tabela de lugares, e com pouca página para rolar o clique parece não fazer nada: sai o link, e a tabela de lugares fica no fim da página. Na Economia sai a tabela que abre e fecha (`economy-table.tsx`, usada só em `economy.tsx:55`), porque os gráficos já mostram os números.
+3. **Card da aprovação sem o mapa.** O mini mapa de `approval-regions.tsx` abre um vão grande no card da aprovação (`approval-card.tsx`). Sai o mapa, e ficam o gráfico e um botão "Ver no mapa", que abre o Mapa na lente de aprovação (`mapLink("approval", "region")` de `lib/map-url.ts`, que o Mapa já lê da URL).
+4. **Sai o aviso "Novo: indicadores técnicos".** O aviso (`stock-chart/index.tsx:338`) aparece sempre que nenhum indicador está ligado e não tem botão de dispensar. Ele depende do estado, e não de um "já visto": volta toda vez que o jogador desliga o último indicador, e em toda conta nova. Os indicadores já não são novidade, então o aviso sai, e o botão de indicadores do gráfico continua.
+5. **Abertura da campanha na janela central do Jornal.** O resultado de turno e o "vão ao 2º turno" saem na janela central, porque o tipo resultado de eleição tem o nível janela fixo (`features/notifications/registry.py:108`). A manchete da abertura da campanha é do tipo calendário eleitoral, que sai como cartão por padrão (`registry.py:130`, `government/headlines.py:73`). Ela passa a sair na janela central, com o nível fixo como o do resultado de turno, e o diálogo de campanha aberta que pausa a partida continua. A janela do Jornal e o diálogo da pausa aparecem um depois do outro, sem se cobrir.
+6. **Triagem: orientar a bancada num governo do computador.** O backend respeita a orientação do líder da bancada num governo do computador (teste em `tests/test_congress.py`). O relato de que a orientação Sim por padrão não podia ser recusada tem três causas de desenho, sem bug de código: o acordo de apoio força Sim e o Não só pega depois de "Orientar Não e romper"; o controle aparece mesmo quando a federação tem outro partido como líder e o clique volta 403; e em velocidade alta o mês passa antes de a medida ser orientada, porque a janela vai até a véspera, o último dia útil do mês.
+
+### F251 · arquivado em 2026-11-13
+
+*Kanban:* Mapa da eleição ao longo do tempo · Melhoria · ✅ Concluído · atende N34 · marco M26
+
+**F251 — Mapa da eleição ao longo do tempo.** Serve N34; retrabalho do mapa por região (F164). O Mapa mostrava só o momento atual; agora uma linha do tempo percorre o ciclo inteiro de cada eleição da partida.
+
+**Entregue:** o seletor escolhe o ano e a régua cobre o ciclo (pesquisas mensais do 1º turno, apuração do 1º turno, pesquisas semanais do 2º turno e apuração do 2º). A lente "Quem lidera" junta a pesquisa e o resultado: ponto de pesquisa mostra quem lidera (listras no empate técnico), ponto de resultado mostra quem venceu. Aprovação, Rejeição e Onde vive cada grupo não têm data e escondem a linha do tempo inteira. A Variação compara com o ponto anterior. Marcos entre as pesquisas (promessa, ações de campanha e aliança) aparecem na régua, no máximo dois por intervalo e o resto em "+N". O card do lugar ganha o gráfico "<Lugar> ao longo da campanha", e clicar num ponto leva a régua até ele. As setas ← e → andam a régua, "Reproduzir" anda um ponto por segundo até o hoje e "Voltar ao hoje" sai do ponto passado. Com cinco eleições ou mais, os anos antigos vão para a grade "Anteriores". Se o histórico falha, só a régua mostra o erro, com "Tentar de novo"; o mapa segue no hoje.
+
+**Aceite:** a rota `/api/government/map/timeline` devolve anos, pontos e marcos; conferido no app de teste com duas eleições passadas, a 1920 e a 1366, e com a rota do histórico falhando.
+
+### F252 · arquivado em 2026-11-13
+
+*Kanban:* Atalhos de valor no Tesouro e varredura de qualidade de vida · Melhoria · ✅ Concluído · atende N15 · marco M26
+
+**F252 — Atalhos de valor no Tesouro e varredura de qualidade de vida.** Atalhos de 25%, 50% e Tudo na compra e na venda do Tesouro (a venda perdeu o seletor e ganhou o campo sempre visível). Varredura: Enter confirma, foco no primeiro campo e motivo do botão desabilitado (dica ao passar o mouse) nas telas de valor e de ação; atalhos de valor no pagamento antecipado do crédito.
+
+### F253 · arquivado em 2026-11-13
+
+*Kanban:* Impostos e cortes que fecham a conta do governo · Melhoria · ✅ Concluído · atende N34, N41 · decisões D20 · marco M26
+
+**F253 — Impostos e cortes que fecham a conta do governo.** Serve N34 e N41; condicionado por D20. No playtest de 08/11, taxar não pagou a dívida e não houve como cortar gasto, e o código confirma as duas coisas.
+
+**Receita hoje:** os impostos do jogo são só os do investimento (IR das vendas comuns, do day trade, da renda fixa e da LCI/LCA, e as regras por setor), modelados em % do PIB. Com a política padrão eles somam 0,69% do PIB (`backend/features/government/budget.py:213`); o resto da receita é um valor fixo que fecha o gasto-base de 19% do PIB (`spending.py:26`). Cada imposto rende `base × (alíquota ÷ referência)^(1 − elasticidade)`. A renda fixa a 50% (a referência é 17,5%) passa de 0,60% para cerca de 1,46% do PIB, e as vendas de ações a 100% (referência de 15%) passam de 0,06% para cerca de 0,19%. Na vida real, o IR sobre aplicações também é uma fatia pequena de uma carga de cerca de 32% do PIB: o grosso vem do imposto de renda de pessoas e empresas, dos impostos sobre consumo e da contribuição à previdência.
+
+**Gasto hoje:** só o auxílio e as obras descem, e só até zero. O gasto-base não se mexe, e o reajuste de servidores e de aposentadorias não aceita valor negativo (`spending.py:43`).
+
+**Plano.**
+1. **Quatro impostos novos abrem o valor fixo da receita**, cada um um `MeasureKind` novo com a alíquota de referência que reproduz a história e a mesma fórmula de rendimento dos de hoje. Com as alíquotas de referência, a soma deles é o valor fixo de hoje, então sem governo a conta não muda (D20). Cada um cobra um preço, como parcela do desvio:
+   - **Consumo (ICMS/IPI):** arrecada muito e com elasticidade baixa; sobe a inflação na hora e tira aprovação dos grupos de renda baixa (D19).
+   - **IR das empresas:** tira lucro e derruba a bolsa, no molde do risco fiscal no Ibovespa.
+   - **IR das pessoas:** pesa nos grupos de renda alta e desconta do salário no viver de renda (F257).
+   - **Contribuição sobre a folha:** arrecada bem e encarece contratar: sobe o desvio do desemprego.
+2. **O gasto-base se abre em folha, previdência e custeio**, nos pesos do orçamento real. O reajuste de servidores e de aposentadorias aceita valor real negativo, o reajuste abaixo da inflação do teto de gastos de 2016, e irrita servidores e aposentados. O corte de custeio é uma medida nova que freia o PIB, no molde das obras com o sinal trocado. A reforma da previdência fica fora.
+3. **A isenção move o setor:** enquanto a isenção por setor vale, as ações do setor ganham uma alta como camada sobre o preço histórico, como a redução do IPI dos carros em 2012.
+4. **Calibragem** pelo CLI (`.claude/trabalho/economia/calibrate10.py`), junto com a do crescimento que sente o rombo (F232), que mexe na mesma conta: a elasticidade e o efeito de cada imposto e corte na inflação, no PIB, no desemprego e na aprovação.
+
+A aba Contas mostra cada imposto e cada parte do gasto-base como card próprio, com a dica do que ele custa. A docs da economia ganha os impostos e os cortes novos.
+
+**Aceite:** sem governo, receita, gasto e primário saem iguais aos de antes da mudança em toda a calibragem; um presidente que usa as alavancas novas consegue mudar o primário em 3 pontos do PIB dentro de um mandato, e cada alavanca cobra o preço dela (inflação, bolsa, desemprego ou aprovação) no painel da Economia.
+
+### F254 · arquivado em 2026-11-13
+
+*Kanban:* Programas de governo com nome · Feature · ✅ Concluído · atende N34, N31 · decisões D19 · marco M26
+
+**F254 — Programas de governo com nome.** Serve N34 e N31; condicionado por D19. Hoje o auxílio é uma medida de gasto sem nome (`WELFARE_SPENDING`, em passos de 0,5 ponto do PIB até 5%). A ideia do playtest de 08/11: o presidente cria o programa com nome ("Bolsa Família", "Auxílio Brasil"), e o nome aparece no Jornal ("Governo lança o Bolsa Família") e no card de gasto da aba Contas.
+
+**Plano.** O nome é um campo da medida de hoje, sem medida nova:
+1. O auxílio (`WELFARE_SPENDING`) e as obras (`PUBLIC_WORKS`) aceitam nome ao propor a medida, com até 30 caracteres no DTO e no formulário, no molde dos outros nomes da partida. O nome sai no Jornal e no card de gasto da aba Contas; sem nome, tudo fica como hoje.
+2. **Extinguir custa mais:** levar a verba de um programa com nome a zero soma rejeição no grupo que a medida atende (a memória da D19), além da queda de apoio que o mesmo corte sem nome já dá. Reduzir sem zerar funciona como hoje.
+3. **Rebatizar** (o "Auxílio Brasil" no lugar do "Bolsa Família", em 2021) mantém a verba e o apoio do programa e custa uma vez um pouco de aprovação geral, com a manchete no Jornal.
+4. O tamanho do custo de extinguir e de rebatizar se calibra jogando, como os outros números da D19.
+
+Plano econômico com nome ("Plano Real") fica fora: não existe medida de plano econômico.
+
+### F256 · arquivado em 2026-11-13
+
+*Kanban:* SELIC abaixo de zero em futuro com deflação · Melhoria · ✅ Concluído · atende N34 · decisões D20 · marco M26
+
+**F256 — SELIC abaixo de zero em futuro com deflação.** Serve N34; condicionado por D20. Hoje o piso da SELIC é 0%, no DTO (`SelicRequest`, `backend/core/dto/government.py:1098`) e na janela de cada reunião (`backend/features/economy/monetary.py:76` e `frontend/features/government/lib/monetary.ts:17`). No histórico do Brasil a inflação é sempre positiva, e com a SELIC a 0% o juro real já fica muito negativo. A SELIC negativa só faz sentido num futuro gerado com deflação (o regime de inflação do gerador vai até −5 pontos), como no Japão e na Europa dos anos 2010.
+
+**Plano.**
+1. Com o IPCA de 12 meses negativo, o piso da SELIC desce para −0,5%, o do Banco Central Europeu; com ele de volta acima de zero, a reunião seguinte volta a ter piso 0%. A regra vale no DTO, na janela da reunião e no formulário, e a dica da SELIC explica quando o piso abaixo de zero abre.
+2. O caixa do jogador continua rendendo 0%. Com a SELIC negativa, o dinheiro foge da renda fixa pós-fixada para o caixa, que é a lição real do piso perto de zero: os bancos centrais não descem muito porque as pessoas sacam o dinheiro.
+3. A renda fixa pós-fixada rende negativo e mostra isso como qualquer perda, e o IR sobre o rendimento negativo é zero; confere-se o cálculo do IR e do extrato com o rendimento abaixo de zero.
+
+**Aceite:** num futuro gerado com deflação, o presidente leva a SELIC a −0,5%, o Tesouro Selic perde valor dia a dia e o caixa não; com o IPCA de volta acima de zero, a reunião seguinte recusa valor abaixo de 0%.
+
+### F257 · arquivado em 2026-11-13
+
+*Kanban:* Viver de renda que sente a economia · Feature · ✅ Concluído · atende N23, N34 · decisões D20 · marco M26
+
+**F257 — Viver de renda que sente a economia.** Serve N23 e N34; condicionado por D20. No modo viver de renda, o salário e a despesa são valores fixos da partida (`backend/core/life_budget.py:39`). Eles só se corrigem pelo IPCA de 12 meses em cada aniversário do começo da partida, e só com a correção pela inflação ligada (`life_budget.py:55`, `core/indicators.py:254`). O IPCA lido é o da camada da economia (`features/economy/layer.py:270`), então o gasto do governo, que sobe a inflação, chega ao salário e à despesa por esse caminho indireto. Nada mais chega. O IR é só sobre o investimento (`simulation.py:1645`), sem tocar no salário. O juro do cheque especial é fixo e não segue a SELIC (`simulation.py:225`). A demissão é sorteada da semente com a mesma chance por pregão, sem ler o desemprego nem o PIB (`features/simulation/life_events.py:76`).
+
+**Plano.** Quatro ligações, cada uma lendo a série da partida, que sem governo é a história:
+1. **A demissão segue o desemprego:** a chance por pregão passa a ser a de hoje vezes o desemprego da partida sobre o neutro de 9%. Com 18% de desemprego, demite o dobro; com 4%, menos da metade. O sorteio continua saindo da semente.
+2. **Reajuste real pelo PIB:** no aniversário da partida, além da correção pelo IPCA, o salário ganha parte do crescimento real do PIB dos 12 meses quando ele é positivo; na recessão, não há reajuste real.
+3. **O cheque especial segue a SELIC:** o juro passa a ser a SELIC mais um spread fixo, escolhido para que, na SELIC média da história, dê o juro fixo de hoje.
+4. **O IR das pessoas desconta do salário:** o desvio da alíquota do IR das pessoas (F253) contra a referência desconta do salário. Sem governo, o salário líquido é o de hoje.
+
+O registro do orçamento mostra cada mudança no salário, na despesa e no juro com a origem ("reajuste pelo PIB de 3,1%", "demissão com desemprego de 14%"). A profissão do jogador, que liga o salário a um grupo do eleitorado, é um card próprio que parte deste.
+
+**Aceite:** com a mesma semente, uma partida sem governo e de desemprego alto sorteia mais demissões que uma de desemprego baixo, e o registro do orçamento mostra a origem de toda mudança de salário, despesa e juro.
+
+### F258 · arquivado em 2026-11-13
+
+*Kanban:* Orientação da bancada que se explica · Melhoria · ✅ Concluído · atende N34 · marco M26
+
+**F258 — Orientação da bancada que se explica.** Serve N34. O líder orienta a bancada até o fim do dia da votação, e a casa apura à noite, com a orientação que ele deu até lá. O acordo de apoio mostra o Não pendente, com o aviso do rompimento e o botão de confirmar; fechar sem confirmar mantém o Sim e avisa. Na federação em que outro partido orienta, o controle aparece travado, dizendo quem orienta.
+
+### F259 · arquivado em 2026-11-13
+
+*Kanban:* Preço dos ativos cotados em dólar convertido para real · Correção · ✅ Concluído · atende N11, N34 · marco M26
+
+**F259 — Preço dos ativos cotados em dólar convertido para real.** Serve N11. O importador manda ao Yahoo Finance o ticker como está quando ele não é da B3 (`yfinance_symbol` em `backend/features/import_data/importer_service.py:44`), e o download (`from_yfinance`, linhas 55-85, e `from_yfinance_batch`) guarda o preço sem ler a moeda que o Yahoo devolve. A AAPL a US$ 200 entra como R$ 200, e o mesmo vale para a MSFT e para o BTC-USD; a tela formata tudo em real (`frontend/shared/lib/utils/format.ts:50`). Comprar uma ação americana sai cinco vezes mais barato do que na vida real, e a alta do dólar não mexe nela. Os BDRs (AAPL34) já vêm em reais e não mudam.
+
+**Plano.**
+1. A PTAX, a cotação oficial do dólar que o Banco Central publica todo dia (série 1 do SGS), entra como série nova, desde 1994, e aparece na Central de dados.
+2. O importador lê a moeda do ativo no Yahoo e guarda numa coluna nova do ativo (migração pelo `pnpm db:revision`). O preço em dólar se converte para real pela PTAX de cada dia na importação e na atualização, e o histórico antes da PTAX fica de fora. Ativo em outra moeda é recusado na importação com o motivo.
+3. Os ativos em dólar já importados ganham a moeda e o preço convertido pela atualização de ativos que já existe. As partidas salvas com esses ativos mudam de preço, então o commit leva `!`.
+4. A docs da importação passa a dizer que o preço de fora vem convertido pela PTAX do dia.
+
+**Aceite:** a AAPL e o BTC-USD importados mostram, num dia qualquer, o fechamento do Yahoo vezes a PTAX daquele dia, ao centavo; os ativos da B3 saem iguais aos de antes.
+
+### F260 · arquivado em 2026-11-13
+
+*Kanban:* Caixa em dólar com o juro americano · Feature · ✅ Concluído · atende N41, N34 · marco M26
+
+**F260 — Caixa em dólar com o juro americano.** Serve N41 e N34; amplia o dólar e os ativos internacionais ([F194](#f194)). O carry trade é tomar dinheiro onde o juro é baixo e aplicar onde é alto, ganhando a diferença enquanto a moeda não vira contra. Exemplo: com o CDI a 13% e o juro americano a 5%, quem aplica em real ganha 8 pontos ao ano a mais, e uma alta de 10% do dólar come todo esse ganho. Antes o dólar já se movia e os ativos de fora já protegiam, mas não existia um ativo em dólar que só rendesse juro, e a escolha "CDI ou dólar com juro americano" não aparecia. Agora ela aparece, com o dólar que empata a conta à vista.
+
+**Feito.**
+1. **O juro americano da partida:** a série Fed Funds (taxa básica dos EUA, em % ao ano, baixada do FRED na Central de dados) entra como série macro com início em jul/1994, o da PTAX. Depois do último dado real ela volta a 3% pela metade do caminho a cada 2 anos.
+2. **A conta em dólar (Nomad):** ativo de liquidez diária que rende 100% do juro americano, marcado pelo dólar da partida. A compra paga 1,1% de IOF de câmbio e vira dólares ao dólar do dia; o saldo em dólar cresce com o fator diário do Fed e o valor em reais acompanha o dólar. O resgate leva IR de 15% sobre o ganho em reais, sem IOF, e a cobertura automática do caixa vende a conta como vende o CDB de liquidez diária. A conta não entra no cálculo da melhor taxa de renda fixa do crédito.
+3. **Na tela:** dois cards lado a lado no topo da Renda fixa (CDB de liquidez diária e conta em dólar, com o "empata se o dólar subir"), prévia em dólares e IOF na boleta de investir, "sai da conta" e IR de 15% na de resgatar, saldo em dólar nos detalhes e na carteira, e a série do Fed com dica na Central de dados.
+
+**Fica de fora.** Empréstimo em dólar (o carry trade completo), título do Tesouro americano, apuração anual do IR sobre a variação cambial e alíquota de IR do câmbio definida pelo governo.
+
+### F261 · arquivado em 2026-11-13
+
+*Kanban:* Profissão no viver de renda · Feature · ✅ Concluído · atende N23, N34 · decisões D19 · marco M26
+
+**F261 — Profissão no viver de renda.** Serve N23 e N34; parte do viver de renda que sente a economia ([F257](#f257)). Hoje o salário e a despesa são os mesmos para todos os jogadores da partida (`SimulationSettingsDTO`, `backend/core/dto/simulation.py:108`; `_live` em `simulation.py:1340`). A ideia do playtest de 08/11: uma opção do modo, "salário igual para todos" (o de hoje) ou "cada um escolhe a profissão", como uma classe de RPG. Cada profissão pertence a um grupo do eleitorado (D19), então a medida que taxa os mais ricos, reforça o auxílio ou reajusta as aposentadorias chega direto na renda dos jogadores daquele grupo: o jogador que governa mexe na vida dos outros, e o servidor sente na pele o ajuste fiscal que o presidente aprova.
+
+**Equilíbrio sem limitar a renda.** A renda muda de verdade entre as profissões e oscila com a economia; nenhuma é a melhor em tudo. As alavancas candidatas:
+- **Com o que a renda oscila:** o CLT pela demissão que segue o desemprego; o servidor pelo reajuste do governo, que congela no ajuste fiscal, mas não é demitido; o aposentado pelo reajuste das aposentadorias, com renda menor e sem demissão; o empresário pelo PIB e pela bolsa, com renda alta nos anos bons e meses sem retirada, ou com aporte, na recessão; quem vive de auxílio pelo auxílio do governo, que é cortado quando a renda passa do limite.
+- **Padrão de vida:** a despesa acompanha a profissão, e a meta do modo (o patrimônio que paga a despesa do ano, `goal_on` em `backend/features/statistics/goal.py:13`) passa a ser a de cada jogador. O empresário ganha mais e precisa de mais para viver de renda. Hoje a meta é uma só por partida: mudar isso muda o contrato do `goal_on`.
+- **Alvo das medidas:** o IR das pessoas ([F253](#f253)) e as medidas por grupo pesam mais em quem ganha mais.
+- **Vantagens próprias:** a estabilidade do servidor, o FGTS e o seguro-desemprego do CLT na demissão, o crédito do empresário.
+
+**Falta:** a lista de profissões e os números de cada uma; se a meta passa a ser de cada jogador ou se o placar compensa a renda de outro jeito; qual profissão os bots escolhem; e como o imprevisto, que é um múltiplo da despesa mensal ([F69](#f69)), se comporta com a despesa de cada jogador: o dia do sorteio segue igual para todos, e o valor sai da despesa de cada um.
+
+**Feito.**
+
+### F262 · arquivado em 2026-11-13
+
+*Kanban:* Pedido de impeachment aberto por jogador · Feature · ✅ Concluído · atende N34 · marco M26
+
+**F262 — Pedido de impeachment aberto por jogador.** Serve N34. O líder de um partido com pelo menos uma cadeira na casa, fora o do partido do presidente, abre o pedido enquanto a aprovação de um presidente jogador está abaixo do piso de 25% e fora da carência dos 12 primeiros meses. Há um pedido aberto por vez e cada partido pede uma vez por mandato. O pedido rejeitado soma 5 pontos de rejeição ao partido de quem pediu, nos grupos de eleitores que ainda aprovam o presidente. O pedido sai em manchete para a sala toda e em aviso ao presidente, com o partido que pediu; a tela do Congresso mostra o botão com o custo explicado antes de confirmar. A bancada na base orienta Não e protege o presidente, sem código novo. Os 5 pontos ficam para a calibragem pelo CLI.
+
+### F263 · arquivado em 2026-11-13
+
+*Kanban:* Bolsa com piso e dividendo que acompanha o preço da partida · Correção · ✅ Concluído · atende N3, N34 · decisões D20 · marco M26
+
+**F263 — Bolsa com piso e dividendo que acompanha o preço da partida.** Serve N3 e N34; condicionado por D20. Na Simulação #3, o nível da bolsa da partida (`level` em `backend/features/economy/layer.py:270`, a exponencial da soma das forças, sem limite para baixo) levou as ações a 1/400 da série guardada: a PETR4 foi de ~R$ 4,40 a R$ 0,01 no fim de 2031 e ficou assim até o fim. O provento continuou igual ao histórico por ação (`broker.py:142` paga `event.value` sem o fator da partida), e o rendimento passou de ~9% para milhares de por cento ao ano. Uma jogadora aplicou R$ 50 mi em PETR4 entre 2033 e 2035 e recebeu R$ 3,69 bi em dividendos. O arredondamento ao centavo (`_scale` em `variable_income/price_impact.py`) piora o quadro: a ação alterna entre R$ 0,00 e R$ 0,01, e a carteira de um bot foi de R$ 30 mil a R$ 0,01 num pregão e voltou a R$ 7,5 mil.
+
+**Plano.**
+1. **Provento na escala da partida.** O dividendo e o JCP por ação são multiplicados pelo `stock_factor` do dia do pagamento, o mesmo do preço. O histórico de proventos e o rendimento (`dividends.py`, `trailing_per_share`) leem o valor já escalado.
+2. **Piso com amortecimento no nível da bolsa.** Abaixo de um limiar, a queda do nível se comprime em vez de seguir a exponencial. O limiar e o piso são calibrados na calibragem de 10 anos, com o pior governo que ela simula.
+3. **Preço que não arredonda a zero.** O OHLC escalado tem piso de R$ 0,01.
+
+**Aceite.** Teste com o fator da bolsa a 1/400: o provento sai a 1/400 do histórico. A calibragem de 10 anos com o pior governo não leva a bolsa abaixo do piso. Nenhum preço de ação sai R$ 0,00.
+
+### F264 · arquivado em 2026-11-13
+
+*Kanban:* Nota de desempenho que não explode com patrimônio quase zero · Correção · ✅ Concluído · atende N9, N3 · decisões D10 · marco M26
+
+**F264 — Nota de desempenho que não explode com patrimônio quase zero.** Serve N9 e N3; condicionado por D10.
+
+**Sintoma.** Na Simulação #3 o bot Vovô Investidor venceu por nota com 9.067.544 pontos tendo perdido 42%; os outros ficaram entre 117 e 367. O patrimônio dele foi de R$ 30 mil a R$ 0,01 num pregão (ação arredondada a R$ 0,00) e voltou a R$ 7,5 mil dias depois.
+
+**Como reproduzir.** Um histórico de pelo menos 63 pregões que rende perto do CDI, com um pregão em que o patrimônio vai de 30.000 a 0,01 e outro em que volta a 7.500, sem aporte entre eles. `player_score` devolve milhões de pontos no eixo de eficiência.
+
+**Causa.** O retorno do dia é o ganho dividido pelo patrimônio da véspera (`_ScoreWalk.add`, `backend/features/statistics/score.py:122-141`). Sobre uma véspera de R$ 0,01, o dia da volta vale dezenas de milhões de por cento. A média de retornos simples não é simétrica: cair 50% e subir 100% deixa o patrimônio igual, mas a média dos dois dias dá +25% por dia. Esse único dia puxa a média do excesso sobre o CDI para cima, o desvio só das quedas quase não se mexe, e o Sortino (retorno acima do CDI dividido pela oscilação para baixo) sai em centenas de milhares; como a reta de pontos não tem teto (`Band.points`, `score.py:40-42`), viram milhões de pontos. O mesmo cálculo existe uma segunda vez em `backend/features/statistics/risk.py` (`annual_volatility` :92, `rolling_volatility` :99, `sharpe_ratio` :160, `sortino_ratio` :172), que alimenta a aba de risco, o ranking e o critério de vitória por Sharpe (`ranking.py:318-319`), e sofre do mesmo dia.
+
+**O que muda.** As métricas que são média ou desvio de retornos diários passam a usar o retorno em escala logarítmica, `ln(1 + retorno)`. Nessa escala cair 50% vale −0,693 e subir 100% vale +0,693: os dois se anulam, e a ida a R$ 0,01 e a volta entram como dois dias enormes de sinais opostos, que contam como oscilação e não como ganho. A nota continua sem teto de pontos (a D10 fica como está): uma carteira só de renda fixa acima do CDI continua podendo tirar nota muito alta em eficiência, por decisão.
+
+1. Em `risk.py`, uma função `log_return(daily)` devolve `ln(max(1 + daily, LOG_FLOOR))`, com `LOG_FLOOR = Decimal("1e-9")`: a perda total do dia entra como −99,9999999%, porque o logaritmo de zero não existe. O piso fica abaixo de qualquer queda com patrimônio positivo (de R$ 30 mil a R$ 0,01 o fator é 3,3e-7); com piso de 0,0001 a ida a R$ 0,01 seria cortada e a volta não a anularia. O CDI do dia ganha a versão logarítmica guardada junto da tabela que `cdi_return` já mantém.
+2. Passam para a escala logarítmica: `annual_volatility`, `rolling_volatility`, `sharpe_ratio` e `sortino_ratio` em `risk.py`, e as somas `_sum`, `_squares`, `_excess` e `_downside` de `_ScoreWalk`. O excesso do dia é `log_return(daily) - ln(1 + cdi)`.
+3. Ficam como estão, compostos pelo retorno simples: a cota, a queda máxima, o tempo abaixo do pico, os retornos mensais, o retorno anual e os retornos sobre o CDI e o Ibovespa. `daily_returns` continua devolvendo o retorno simples; a conversão acontece dentro das quatro funções.
+4. O caminho incremental (`_ScoreWalk`) e o direto (`player_score` sobre `risk.py`) continuam dando a mesma nota: os testes que comparam os dois ficam.
+5. `tests/test_statistics_score.py` e `tests/test_statistics_risk.py` ganham o caso do patrimônio quase zero e o caso simétrico (−50% e +100%), e os valores esperados dos casos atuais são recalculados.
+6. `docs/docs/como-usar/estatisticas.md` (trechos de volatilidade, Sharpe e Sortino) e as descrições das métricas em `frontend/features/statistics/lib/metrics.ts` passam a dizer que a oscilação é medida numa escala em que queda e alta do mesmo tamanho se anulam, com o exemplo dos 50% e 100%.
+7. `Decimal.ln()` roda duas vezes por snapshot. Medir o tempo do histórico da nota numa partida de 10 anos antes e depois; se passar de 10% a mais, calcular com `math.log1p` sobre `float` e converter para `Decimal`.
+
+**Efeito nas partidas salvas.** A nota é recalculada dos snapshots a cada leitura, então toda partida muda um pouco. Estimativa: de 2 a 7 pontos a menos no eixo de eficiência, mais para quem oscila mais (com volatilidade de 20% ao ano o Sharpe cai cerca de 0,1). A conquista dos 250 pontos (`achievements/catalog.py:282-288`) usa a nota nova.
+
+**Aceite:** no histórico do "como reproduzir", Sharpe e Sortino saem negativos, a volatilidade dá 0 ponto e a nota total fica na casa das dezenas (antes, 9 milhões de pontos). Num histórico de dois dias com −50% e +100%, a média dos retornos usada no Sharpe é 0. Um histórico comum, com volatilidade de até 30% ao ano, muda menos de 10 pontos na nota total.
+
+### F265 · arquivado em 2026-11-13
+
+*Kanban:* Acabamentos do mapa, do Tesouro e dos cards da economia · Correção · ✅ Concluído · atende N15, N34 · marco M26
+
+**F265 — Acabamentos do mapa, do Tesouro e dos cards da economia.** Serve N15 e N34. Lote de consertos pequenos que saíram da partida de 10/11.
+
+1. **Mapa que acompanha a eleição.** `useElectionMap.ts` e `useElectionTimeline.ts` não ouvem o socket nem recarregam: só invalidam no resultado da eleição (`government-notifications.tsx:66-69`). Com isso, a pesquisa nova não aparece até a apuração. Passam a invalidar a cada pesquisa publicada. As pesquisas semanais do 2º turno já estão na linha do tempo (`map_timeline.py:163-172`), e a nota de que elas não apareciam entre os turnos provavelmente tem a mesma causa: conferir no app depois do conserto.
+2. **Tesouro sem título vencido.** O catálogo só renova no dia 1 do mês (`useTreasuryCatalog.ts:11-14`). O título vencido continua na lista e devolve 409 ao investir (`fixed_broker.py:159-161`). O catálogo passa a ser invalidado no vencimento.
+3. **Card do dólar sem vão.** O `dollar-card.tsx` abre um vão na grade da Economia.
+4. **Card Dívida ÷ PIB.** O gráfico não ocupa a altura do card e sobra um vão acima dele. O eixo x repete rótulos ("dez/21 dez/21", "fev/22 fev/22"). "Resultado primário 0,0%" aparece ao lado de "Resultado do mês −R$ 61,6 bi": conferir se o 0,0% é arredondamento ou leitura errada.
+5. **Diálogo do resultado da eleição.** Os três botões de `round-result-dialog.tsx:159-172` (Ver no mapa, Fechar e o principal) ficam desalinhados, e o conteúdo fica mais curto.
+6. **Lentes do mapa alinhadas.** Os rótulos "precisa de 2 pesquisas" e "sem dados por lugar" na mesma linha desalinham os atalhos numerados. O espaçamento fica igual em todas as lentes.
+7. **Atalhos de valor que somam.** Na contribuição mensal (`contribution-field.tsx:9`) e na doação (`donate-dialog.tsx:36`), o atalho substitui o valor; na renda fixa (`investment-ticket.tsx:30-34`), ele soma. Os dois passam a somar, como na renda fixa.
+8. **Selo do partido no jornal.** A manchete cita a sigla só em texto ("UPR"); passa a mostrar o selo do partido, o mesmo das telas de governo.
+9. **Juro americano na prévia do futuro gerado.** O FED_FUNDS é gerado (`synthetic.py:854-870`), mas não está no `FuturePreviewDTO` (`dto/generated_future.py:78-95`), então não aparece na prévia do diálogo de geração.
+
+### F266 · arquivado em 2026-11-13
+
+*Kanban:* Central de dados redesenhada · Melhoria · ✅ Concluído · atende N13, N15 · marco M26
+
+**F266 — Central de dados redesenhada.** Serve N13 e N15. A tabela de séries ficou apertada: nomes cortados ("FOCUS_S…", "GDP_GRO…") e três colunas que só mostram "—". As séries do Focus são importadas e não ganham futuro gerado, por desenho (F226), mas a legenda genérica "repete o último valor" (`how-to-read.tsx:29`) não diz isso.
+
+### F267 · arquivado em 2026-11-13
+
+*Kanban:* Lobby com topo enxuto e profissão na preparação · Melhoria · ✅ Concluído · atende N15, N39 · marco M26
+
+**F267 — Lobby com topo enxuto e profissão na preparação.** Serve N15 e N39. O topo do lobby quebra linha e fica desarmônico: Conquistas, Minha preparação e Como jogar dividem a linha com o título, o link de convite e o Desafio da vela. No card do bot, "Bot", "CLT" e "robô não prepara" se sobrepõem e "Comp…" corta (`lobby-player-list.tsx:173`, `:192-198`). A profissão sai do seletor do card e vira uma aba do diálogo Minha preparação (`preparation-dialog.tsx:73`, que hoje tem as abas partido e estratégias).
+
+### F268 · arquivado em 2026-11-13
+
+*Kanban:* Tela do Mapa repensada · Melhoria · ✅ Concluído · atende N34, N15 · marco M26
+
+**F268 — Tela do Mapa repensada.** Serve N34 e N15. Em "Estados, do maior para o menor", o "Ver mais" abre um card pequeno numa coluna estreita à direita, com rolagem horizontal, e deixa a página vazia à esquerda. Os rótulos das lentes ocupam espaços desiguais.
+
+### F269 · arquivado em 2026-11-13
+
+*Kanban:* Governo e Eleição com as ações do jogador num lugar só · Melhoria · ✅ Concluído · atende N34, N15 · marco M26
+
+**F269 — Governo e Eleição com as ações do jogador num lugar só.** Serve N34 e N15. Governo e Eleição ganharam a aba "Suas ações", a primeira de cada página, com "Para decidir agora" (o que tem prazo), as ações por papel (presidente, líder, filiado, fundador) e o motivo de cada ação apagada escrito à vista. Cada linha abre o diálogo que já existe ou leva à aba onde a ação mora. A faixa "O país" (PIB, crescimento em 12 meses e dívida) fica no cabeçalho das duas páginas, em todas as abas.
+
+### F270 · arquivado em 2026-11-13
+
+*Kanban:* Cards permanentes da Renda fixa integrados à tela · Melhoria · ✅ Concluído · atende N15 · marco M26
+
+**F270 — Cards permanentes da Renda fixa integrados à tela.** Serve N15. Os cards fixos "CDB Nubank Liquidez Diária", em verde, e "Conta em dólar", em azul, destoam da tela: as cores, o layout e a posição não seguem o resto da Renda fixa.
+
+### F271 · arquivado em 2026-11-13
+
+*Kanban:* Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único · Melhoria · ✅ Concluído · atende N20 · marco M26 · dependência de F285
+
+**F271 — Paleta de 20 cores para os partidos, sala de 12 jogadores e um seletor de cor único.** Serve N20.
+
+**O que foi feito.** Os partidos têm 20 cores com nome em `PARTY_PALETTE` (`frontend/shared/lib/party-colors.ts`): as 12 dos jogadores, na mesma ordem, mais 8 só de partido: Vermelho `#D92D20`, Laranja `#E8590C`, Caramelo `#A85F00`, Verde `#1A9A44`, Vinho `#800020`, Magenta `#B5179E`, Âmbar `#CC8A00` e Musgo `#517722`. Os jogadores passaram de 10 para 12 cores (`chart-1` a `chart-12`; Rosa e Azul-céu são as novas) e a sala, de 10 para 12 vagas. O teto de bots, o do backtest e a documentação acompanham `PLAYER_COLORS`/`MAX_PLAYERS`; as equipes mantêm o teto próprio de 10. Vermelho e Âmbar ficam só de partido: nos gráficos de carteira o vermelho significa perda e o âmbar, alerta. A paleta de partido tem sempre mais cores que a sala tem vagas, então toda fundadora acha uma cor livre (o teste confere).
+
+**Avaliação com as tintas do Minecraft.** O alvo do card era uma paleta no nível das 16 tintas do Minecraft. Medidas lado a lado (sem branco, cinzas e preto, que o sistema reserva):
+
+- Contraste contra o fundo do app (de 1, cores iguais, a 21, preto no branco; 3 é o mínimo para um elemento gráfico ser visto): 6 das 12 tintas coloridas ficam abaixo de 3 (Amarelo 1,2; Lima 1,8; Rosa 2,0; Azul-claro 2,1; Laranja 2,3; Ciano 2,9). Nas nossas, só 3 ficavam abaixo, por pouco (Lima, Salmão e Lavanda, entre 2,88 e 2,97), e foram escurecidas de forma imperceptível (ΔE de cada uma contra a original abaixo de 2) até passar de 3.
+- Distinção entre cores, pelo ΔE (CIEDE2000: mede o quanto duas cores parecem diferentes; abaixo de 2 quase ninguém nota, perto de 10 dá para distinguir lado a lado, acima de 20 são claramente outras cores): o par mais próximo do Minecraft é Azul~Roxo (14,5) e o da nossa paleta de 16 era Laranja~Vermelho (13,0). Empatam.
+- O Minecraft é uma paleta feita para tingir blocos, não para marcar partido sobre fundo claro. O que ele tem de bom é a gama (as famílias de cor cobrem o círculo todo) e o reconhecimento; a nossa pega a mesma gama, com a luminosidade corrigida para o fundo.
+- Daltonismo (simulação de Machado, 2009, com ΔE sobre as cores simuladas): as duas têm pares críticos. No Minecraft, Azul~Roxo (2,4 na protanopia) e Verde~MNV (1,2 na deuteranopia); na nossa, Caramelo~MNV (0,8 na protanopia), Vermelho~Caramelo (2,8) e Verde-água~sem cor (2,4 na deuteranopia). A escolha das cores foi só pelo contraste e pelo ΔE normal; o modo daltonismo é um card à parte.
+
+**Por que 20.** Com a paleta de 16, cabiam mais 22 cores com ΔE de pelo menos 12 e contraste de pelo menos 3, mas quase todas quase pretas ou neon. Entraram as 4 que ficam vivas e fáceis de nomear: Vinho (ΔE 14,2 para a Marrom), Magenta (14,5 para a Rosa), Âmbar (15,9 para o Caramelo) e Musgo (14,5 para o Verde). Turquesa não entrou: contra a Verde-água fica a ΔE 5 a 7, e o tom que se separa dela cai abaixo de 3 de contraste. Amarelo e contraste não combinam: o amarelo vivo (`#FFD400`) dá 1,25 para 1 contra o fundo e some, e o mais claro que passa de 3 para 1 é uma mostarda (`#B4811A`), que ficou feia ao lado das outras. O Âmbar é o meio-termo escolhido: `#CC8A00` tem 2,55 para 1 contra o fundo mais escuro do app (abaixo do piso de 3, a única exceção), é bem mais amarelo que a mostarda e se separa de todas as outras por ΔE de pelo menos 15,9. Para um amarelo mais vivo ainda, `#E0A100` dá 1,98 para 1: o preço é sumir mais no fundo.
+
+- O teste da paleta (`party-colors.test.ts`) exige as 20 cores com hex único, contraste de 3 para 1 contra cada fundo do app (2,5 para 1 no Âmbar), texto da sigla com 4,5 para 1 (o mínimo para texto) e ΔE de pelo menos 12 entre as 20, incluídas UPR, ACI, MNV e o cinza sem cor, além de a paleta ter mais cores que a sala tem vagas. O cálculo fica em `frontend/shared/lib/color-math.ts`, sem dependência nova.
+- `ColorSwatchPicker` (`frontend/shared/components/color-swatch-picker.tsx`) substitui os três seletores antigos: `radiogroup` com setas, Home e End, nome da cor embaixo, cor em uso esmaecida com a sigla de quem usa, 10 colunas para partidos (2 linhas) e 6 para jogadores (2 linhas). Usam o componente o lobby, a entrada na partida, o diálogo de bot, o editor do backtest e a fundação de partido (preparação e partida).
+- Bot não funda nem entra em partido: a cor dele é só a de jogador, escolhida no diálogo de bot entre as livres. As cores dos partidos do computador (UPR, ACI, MNV) ficam fixas e fora da paleta de escolha.
+- Conferido no navegador: seletor de 20 cores na fundação de partido, 12 cores no lobby e no diálogo de bot (com a cor do host esmaecida e a sigla dele) e sala com 12 vagas. A Eleição, o mapa por estado com contorno do lugar selecionado e o gráfico de intenção de voto foram conferidos com a paleta de 16 cores da primeira versão; as 4 cores acrescentadas depois (Vinho, Magenta, Âmbar e Musgo) passaram nos testes de contraste e ΔE, mas ainda não foram vistas no mapa.
+
+**Aceite:** o teste da paleta passa com 20 cores de partido; fundar partido, lobby, diálogo de bot e editor do backtest usam o mesmo componente de seletor; a paleta dos jogadores tem 12 cores, `chart-1` a `chart-12`, e a sala tem 12 vagas.
+
+### F272 · arquivado em 2026-11-13
+
+*Kanban:* Seletores e combobox novos · Melhoria · ✅ Concluído · atende N15 · marco M26
+
+**F272 — Seletores e combobox novos.** Serve N15. Um componente só (`OptionSelect`, em cima do Combobox do base-ui) no lugar do `select.tsx` e dos quatro combobox de Command: busca a partir de 8 opções, grupo "Indisponíveis" com o motivo escrito, lista que abre embaixo e opções de 48 px. O campo "Ações que ela opera" ganhou a variante com a contagem no botão e as ações marcadas em etiquetas (limite de 30 vindo do backend, "Só as da carteira", "Voltar ao padrão" e "Limpar"), e `/api/simulation/bots/tickers` passou a devolver código e nome da empresa.
+
+### F273 · arquivado em 2026-11-13
+
+*Kanban:* Convites que se escolhem e se acumulam · Melhoria · ✅ Concluído · atende N34, N23 · marco M26
+
+**F273 — Convites que se escolhem e se acumulam.** Serve N34 e N23. Convidar o vice virou ação própria: escolher no seletor não envia nada, o botão Convidar envia e Retirar convite desfaz, na partida e no lobby. Inscrever a chapa e salvar a fundação deixam de convidar. Quem recebe acumula convites de vice e propostas de federação; aceitar um recusa os incompatíveis do mesmo tipo (vice e federação não se cruzam) e avisa quem convidou. O proponente envia uma proposta de federação por vez. O convite recusado aparece na tela da chapa e no card público do partido.
+
+### F274 · arquivado em 2026-11-13
+
+*Kanban:* Presidência e base do governo que valem a pena · Feature · ✅ Concluído · atende N34 · marco M26
+
+**F274 — Presidência e base do governo que valem a pena.** Serve N34. Revisa duas escolhas antigas do arquivo morto (F95, "o ganho de governar chega só pela própria carteira", e F154, "o aliado ganha só o apoio dos grupos dele"). O presidente recebe 3 vezes o salário da partida no lugar da renda da profissão, sem perda por imprevisto, e acumula legado: 5% de um salário por ponto de aprovação acima de 40 a cada mês fechado, pago no fim normal do mandato e perdido no impeachment (`presidency.py`, `GovernmentBook._pay_legacy`). A medida de obras aceita setor e segmento: as ações do alvo sobem 2,5 vezes a fatia do PIB, até 7,5%, em rampa de 6 meses, e apontar para um setor em que o presidente tem ações tira 6 pontos de aprovação vezes a fatia dele, gravada na medida (`sector_boost.py`, `approval.favoritism_factor`). Ao aceitar o acordo, o líder aliado escolhe o setor da emenda: alta de 30 vezes a fatia do PIB por ano, até 6%, que cai quando o acordo acaba ou é rompido; o partido do computador escolhe um setor fixo, mostrado na prévia. Isenção, obra e emendas somam até 20% por setor. A proposta, a negociação e o card da base mostram o apoio mensal do acordo em verba de campanha (R$ 4.096 por mês, `voters.campaign_amount`). As regras estão em `docs/docs/como-usar/governo.md`. Ficam para o playtest: partida com salário zero não paga a presidência, salário alto pode dominar, e o presidente pode empurrar o próprio setor pela emenda de um aliado sem pagar favorecimento. O ministério para o aliado virou card próprio (F284).
+
+### F275 · arquivado em 2026-11-13
+
+*Kanban:* Vitória política separada do capital · Feature · ✅ Concluído · atende N34, N22 · marco M26
+
+**F275 — Vitória política separada do capital.** Serve N34 e N22. A vitória política deixa de somar o patrimônio dos filiados: vence o partido com mais **capital político**, pontos acumulados a cada mês fechado (`backend/features/government/capital.py`, `party_capital`). Só partidos de jogador pontuam: 1 ponto por cadeira na casa em exercício; a aprovação do fechamento (0 a 100) para o partido do presidente (`governed_months` no `GovernmentState`, gravado no `APPROVAL_MEASURED`); `100 × fração cumprida` por promessa no balanço do mandato; e o impeachment tira metade do que a presidência rendeu naquele mandato. Desempate por cadeiras na casa atual. Decisões: medida aprovada não pontua por si (pesa pela aprovação); vence o partido e os filiados dividem a colocação; continua o tipo "Política", sem tipo novo nas regras (a vitória da Expansão Gestoras citada como molde ainda não existe); o ranking de partidos é por capital político em toda partida com a expansão, e a soma de patrimônio saiu de tela, diálogos e textos. O ranking individual segue em patrimônio, informativo. `PoliticalCapitalDTO` (total e as quatro parcelas) substitui `total_networth` no painel e no relatório; a página Eleição mostra total e parcelas, e a tela de resultado ganhou o pódio de partidos. Sem evento novo: partida salva recalcula pelo replay, e uma migration de dados zera o resultado guardado das partidas políticas. Limite conhecido, fora deste card: com o patrimônio fora do placar, gastar tudo em campanha deixa de ter custo na vitória política.
+
+### F276 · arquivado em 2026-11-13
+
+*Kanban:* Governo ruim perde aprovação · Correção · ✅ Concluído · atende N34, N41 · marco M26
+
+**F276 — Governo ruim perde aprovação.** Serve N34 e N41.
+
+**Sintoma.** Na Simulação #3, com SELIC de 30 a 33% (2030–2031), IPCA de 1 a 1,9% ao mês (2028–2032) e a bolsa em −99,8%, o governo de um jogador (posse em janeiro de 2031) passou 2032 inteiro com aprovação entre 26 e 30 e só caiu no 35º dos 48 meses do mandato.
+
+**O que os eventos da partida mostram.** O contador de meses abaixo do piso funcionou. Em 2031 valeu a carência de 12 meses. Em 2032 a aprovação nunca fechou abaixo de 25, então o contador ficou em 0. De maio a outubro de 2033 fechou em 24, 23, 22, 21, 20 e 19: o contador chegou a 6, o pedido de impeachment abriu e foi aprovado por 79 a 22 em 30/11/2033. A aprovação de 21 com contador em 0, de janeiro de 2034, é do governo interino do computador, para quem o piso não conta por desenho (`_close_month`, `backend/features/government/government_book.py:2970-2976`). A satisfação dos investidores em 0,0006 é só o caminho de um terço por mês até um alvo 0.
+
+**Causa.** A aprovação satura. Cada fator do alvo tem um limite de punição em `backend/features/government/approval.py`: a inflação para de pesar 5 pontos percentuais além da meta mais 1,5 (`INFLATION_CAP`; com meta de 3%, inflação de 25% ao ano pune igual a 9,5%), a bolsa para em 3 passos de 10% (`STOCKS_CAP`; −99,8% pune igual a −25%) e o juro real para 6 pontos fora da faixa de 2% a 7% (`REAL_RATE_CAP`). Com tudo no limite, o alvo geral sem medidas fica em 17,6, contra um piso de 25. Uma crise comum dá 24,6 e a catástrofe total dá cerca de 20: sete pontos separam as duas, e uma medida popular soma 6 por unidade de reação.
+
+**Como reproduzir.** `group_target` para os seis grupos com meta 3%, IPCA 22%, SELIC 31%, bolsa −99,8% em 12 meses, desemprego 13% e prêmio de risco de 6 pontos, sem medidas: `overall` dos alvos dá 20,6.
+
+**O que muda.**
+
+1. Punição que segue crescendo. No lado ruim de inflação, juro real e bolsa, o que passa do limite atual continua tirando pontos com metade do peso (constante nova, `EXCESS_WEIGHT = Decimal("0.5")`). A distância usada na conta deixa de ser `min(distância, limite)` e passa a ser `limite + (distância − limite) × 0,5` quando a distância passa do limite. Vale para: inflação acima da meta mais 1,5 (`inflation_factor`), juro real abaixo de 2% e acima de 7% (`real_rate_factor`) e bolsa em queda (`stocks_factor`). O lado bom continua com o teto de hoje (inflação abaixo da meta, bolsa em alta), e desemprego e prêmio de risco ficam como estão. `group_target` continua limitando o alvo de cada grupo a 0–100. Piso (25), carência (12) e meses seguidos (6) não mudam.
+2. Dentro dos limites atuais nada muda: governo medíocre e governo bom recebem exatamente os mesmos pontos de antes.
+3. Governo do computador continua imune ao piso, e a tela passa a dizer isso. O DTO da aprovação (`GovernmentApproval`, em `backend/core/dto/government.py`) ganha um campo booleano que diz se o piso vale para o governo em curso (falso quando `term.president_id` é nulo). Em `frontend/features/government/components/impeachment-floor.tsx` o contador ("N de 6") dá lugar a "não conta", com o texto "Governo do computador: o piso de impeachment não conta e ele fica até o fim do mandato"; `impeachment-alert.tsx` segue sem aparecer nesse caso. Rodar `pnpm openapi`.
+4. `docs/docs/como-usar/governo.md` (trecho do piso e dos fatores) explica a regra da metade do peso com um exemplo (inflação de 12% com meta de 3%: 5 pontos percentuais cheios mais 2,5 pela metade) e o caso do governo do computador.
+
+**Testes.** Em `tests/test_government_rules.py`, a tabela de cenários do aceite e um teste de que cada fator, no valor exato do limite e antes dele, devolve os mesmos pontos de hoje. Em `tests/test_government_book.py`, um governo de jogador sob o cenário de catástrofe abre o pedido de impeachment no 18º fechamento do mandato (12 de carência mais 6), e o governo do computador no mesmo cenário mantém o contador em 0. Em `frontend/features/government/lib`, o rótulo do piso para o governo do computador.
+
+**Aceite:** alvo geral sem medidas, com meta de inflação de 3% (IPCA, SELIC, bolsa em 12 meses, desemprego, prêmio de risco):
+
+- neutro (4,5%, 9%, +5%, 9%, 0): 50,0, igual a hoje;
+- medíocre (8%, 13%, −10%, 10%, 1 ponto): 34,6, igual a hoje;
+- tudo no limite (9,5%, 22,5%, −25%, 13%, 6 pontos): 17,6, igual a hoje;
+- crise (12%, 18%, −30%, 12%, 3 pontos): 20,0 (hoje 24,6);
+- crise forte (15%, 22%, −45%, 13%, 4 pontos): 13,1 (hoje 23,4);
+- Simulação #3 em 2031–2032 (22%, 31%, −99,8%, 13%, 6 pontos): abaixo de 5 (hoje 20,6).
+
+Com o cenário da Simulação #3 mantido desde a posse, o pedido de impeachment de um governo de jogador abre no 18º mês do mandato (na partida, abriu no 34º).
+
+### F277 · arquivado em 2026-11-13
+
+*Kanban:* Jornal com eventos raros em destaque e manchetes variadas · Melhoria · ✅ Concluído · atende N31 · marco M26
+
+**F277 — Jornal com eventos raros em destaque e manchetes variadas.** Serve N31.
+
+**O que existe.** Na Simulação #3 o jornal teve 6.815 notícias em 14 anos, e duas regras fizeram 88,6% delas: movimento forte de ativo (3.053, cerca de 18 por mês) e máxima de 52 semanas (2.983, cerca de 18 por mês); "GOLD11 renova a máxima de 52 semanas" saiu 195 vezes. As duas moram em `backend/features/newsroom/companies.py`: movimento forte é toda variação acima de 5% no dia (`MOVE_THRESHOLD`), até 3 por pregão, sem intervalo por ativo; a máxima é todo fechamento acima do maior dos últimos 252, até 3 por pregão, então um ativo em tendência de alta vira notícia quase todo dia. No meio disso se perdem os eventos raros: campanha teve 43 notícias (15 ações que viralizaram), vida de partido 11, e programa lançado, rebatizado ou extinto 3. As manchetes do governo (`backend/features/government/headlines.py`, 30 construtores) têm texto fixo; só a redação das empresas sorteia variações com `pick()` (`backend/features/newsroom/text.py:156-161`), semeado por partida, dia e ativo.
+
+**O que muda e por quê.**
+
+1. Três tipos de notícia novos, que abrem a janela central por padrão (nível `WINDOW` sem `fixed`: a manchete grande por 8 segundos, sem pausar a sala), cada um rebaixável nas preferências como os outros:
+   - ação de campanha crítica: tudo o que `campaign_action` (`headlines.py:535-581`) publica, que já é só o dado crítico (viraliza ou dá errado) e o ataque;
+   - programa com nome: o lançamento, o rebatismo e a extinção de `program_event` (`headlines.py:353-361`), que hoje saem como medida votada;
+   - ruptura de partido: `expelled`, `federation_formed`, `federation_left`, `deal_broken` e `deal_left`.
+   Promessas e apoio no 2º turno continuam no tipo de campanha; fundação, doação e acordo fechado continuam em vida de partido. Os tipos entram em `NewsType` (`backend/core/enum/__init__.py:1073-1092`), no registro (`backend/features/notifications/registry.py`, na posição de importância deles, com rótulo e descrição; a descrição do tipo de campanha perde o que saiu) e no catálogo do front (`frontend/features/news/lib/catalog.ts`). `news.news_type` é texto, então não há migration; as notícias já gravadas ficam com o tipo antigo. Rodar `pnpm openapi`.
+2. Movimento forte relativo ao próprio ativo. Vira notícia a variação do dia que é pelo menos K vezes a oscilação normal daquele ativo, e não mais um percentual fixo. Oscilação normal é a média do tamanho da variação diária (em módulo) dos últimos 126 pregões; com menos de 63 pregões de histórico vale o limite fixo de 5% de hoje. Exemplo: uma ação que costuma mexer 2% por dia só é notícia a partir de 6%; um fundo imobiliário que costuma mexer 0,8% é notícia com 3%. K começa em 3 e há um piso absoluto de 3%, para que um ativo quase parado não vire manchete com 1%. A ordem dentro do pregão passa a ser por quantas vezes a oscilação normal, e ficam os 3 por pregão. O texto da manchete não muda. K é calibrado numa partida de 10 anos até a meta do aceite.
+3. Máxima de 52 semanas só no rompimento: vira notícia quando o fechamento supera uma máxima que já tinha pelo menos 63 pregões (3 meses) de idade. A renovação diária de quem está em tendência de alta deixa de sair, e o mesmo ativo aparece no máximo 4 vezes por ano.
+4. Três redações para cada manchete do governo. Cada um dos 30 construtores de `headlines.py` passa a ter 3 variações de título (e de linha fina, onde há), escolhidas por `pick()` com a semente da partida, a data e o identificador do fato (medida, partido ou ação), para a sala inteira ver o mesmo texto e a repetição da leitura dar o mesmo resultado. Os construtores passam a receber essa semente de quem os chama em `government_book.py`. As linhas finas de campanha hoje escolhidas por `action_id % len` passam para o mesmo `pick()`. São cerca de 90 títulos, escritos no tom do jornal e com os mesmos dados da manchete atual.
+5. `tests/test_newsroom.py` cobre o limite relativo (os dois exemplos acima, o piso de 3% e o histórico curto) e o rompimento da máxima; `tests/test_government_headlines.py` passa a conferir, por construtor, 3 textos distintos entre sementes e o mesmo texto para a mesma semente; os testes do front cobrem os tipos novos no catálogo e na fila da janela (`frontend/features/news/lib`).
+6. `docs/docs/como-usar` (página do jornal) descreve os tipos novos e a regra do movimento forte.
+
+**Como medir.** Uma partida de 10 anos rodada pela linha de comando no banco de teste, contando as notícias por tipo e por manchete na tabela `news`, antes e depois.
+
+**Aceite:** na partida de 10 anos, movimento forte fica entre 5 e 8 notícias por mês em média (hoje cerca de 18) e máxima de 52 semanas em até 4 por mês (hoje cerca de 18); os dois tipos somados ficam abaixo de 60% do total (hoje 88,6% de 6.815); nenhum ativo tem mais de 4 manchetes de máxima no mesmo ano; cada construtor de manchete do governo tem 3 redações.
+
+### F278 · arquivado em 2026-11-13
+
+*Kanban:* Imprevistos e eventos de vida mais variados · Feature · ✅ Concluído · atende N23 · marco M26
+
+**F278 — Imprevistos e eventos de vida mais variados.** Serve N23.
+
+**O que o jogador passa a poder fazer.** Viver imprevistos que não são sempre os mesmos três nem sempre ruins: cerca de 20 tipos, um em cada quatro deles bom (dinheiro que entra), com o texto da profissão de cada um e dois eventos próprios da profissão. O anfitrião regula a frequência por família de evento no lobby, em vez de criar tipos.
+
+**O que existe.** Três tipos de fábrica em `DEFAULT_LIFE_EVENTS` (`backend/core/dto/life.py:35-60`): conserto do carro (1 despesa mensal, peso 3), despesa de saúde (2 despesas, peso 2) e demissão (pula o próximo salário, peso 1). Dois efeitos (`LifeEventEffect`: `CASH_OUT` e `SKIP_NEXT_SALARY`). O sorteio é diário, semeado pela semente da partida e pelo dia, e o evento é o mesmo para a sala inteira (`backend/features/simulation/life_events.py:35-61`); a aplicação fica em `simulation.py:1408-1478`. A demissão já tem versão por profissão (demissão, perda do bico, imóvel vago, pelo `income_loss` de `backend/core/professions.py:108-142`) e pula quem não tem. O lobby deixa criar tipos (`frontend/features/lobby/components/life-events-editor.tsx`), que só repetem os dois efeitos; a frequência é uma só para tudo (`unexpected_per_year`: Nenhum 0, Raros 1, Normais 3, Frequentes 6) e o peso de cada tipo não aparece na tela. `validate_life_events` limita a 12 tipos.
+
+**Mecanismo.**
+
+1. Efeito novo `CASH_IN`: credita no caixa o múltiplo da despesa mensal do jogador. O multiplicador de saúde do aposentado continua valendo só para despesa de saúde.
+2. Três famílias (enum novo): despesas, renda e emprego, e eventos bons. Cada tipo do catálogo tem família, peso e múltiplo. Catálogo de fábrica, com o múltiplo da despesa mensal entre parênteses (textos e múltiplos podem ser ajustados na implementação, mantendo a contagem e a regra do item 3):
+   - despesas: conserto do carro (1), despesa de saúde (2), conserto da casa (1,5), eletrodoméstico queimado (0,75), celular quebrado (0,5), multa de trânsito (0,25), veterinário (0,5), dentista de urgência (0,75), golpe no cartão (1), viagem de emergência (1), rateio extra do condomínio (0,5), ajuda a um parente (1);
+   - renda e emprego: demissão (pula o salário) e revés da profissão (1);
+   - eventos bons: restituição do imposto de renda (1), bônus do trabalho (1), prêmio de sorteio (0,5), herança pequena (3), venda de um bem usado (0,75), presente de família (0,5) e boa fase da profissão (1).
+3. Um em quatro é bom: com as três famílias em Normal, os pesos dos eventos bons somam 25% do peso total, e o valor esperado dos bons fica abaixo do dos ruins, para o imprevisto continuar sendo, na média, um custo que pede reserva de emergência.
+4. Profissão em dois níveis, os dois com o mesmo efeito e o mesmo tamanho para todos, para nenhuma profissão sair favorecida:
+   - texto por profissão nos eventos genéricos em que faz sentido (o bônus vira PLR para o CLT, gratificação para o servidor, cliente que pagou adiantado para o empresário, 13º adiantado para o aposentado, bico extra para quem recebe auxílio, reajuste do aluguel para quem vive de aluguel);
+   - "revés da profissão" e "boa fase da profissão" são dois tipos do catálogo que cada jogador vive na versão da própria profissão (empresário: máquina quebrada e contrato grande; quem vive de aluguel: reforma entre inquilinos e multa de rescisão recebida; e um par para cada uma das outras quatro profissões). É o mesmo padrão que a demissão já usa, e o sorteio continua único para a sala.
+   Os textos por profissão moram junto do catálogo, que sai do arquivo de DTO para um módulo próprio em `backend/core/`.
+5. Frequência por família no lobby. A frequência geral (`unexpected_per_year`) continua e diz quantos imprevistos por ano saem com tudo em Normal. Cada família ganha Desligado, Raro, Normal ou Frequente, que multiplica a chance dos tipos dela por 0, 0,5, 1 ou 2; dentro da família, cada tipo tem liga e desliga. Deixar despesas em Frequente não tira chance dos eventos bons. A chance por pregão de um tipo é `(por ano ÷ 252) × (peso do tipo ÷ peso total do catálogo ligado em Normal) × multiplicador da família`, e a correção da demissão pelo desemprego continua. As configurações da sala ganham o nível de cada família, com Normal de padrão.
+6. Sai a criação de tipos: `life-events-editor.tsx` perde "Adicionar tipo", o nome editável, o campo de valor e o seletor de efeito, e passa a mostrar as três famílias com o controle de frequência e os tipos de cada uma com o interruptor; `lib/simulation-form.ts` perde `newLifeEvent()`. O DTO do tipo continua aceitando os tipos criados em salas e partidas já salvas (família deduzida do efeito), e `validate_life_events` sobe o limite para caber o catálogo. Partida em andamento segue com os tipos com que foi criada.
+7. Exibição: o aviso em tempo real (`frontend/shared/notifications/life-notifications.tsx:30-55`) usa aviso de sucesso e valor com sinal de mais para os bons, e o histórico (`backend/features/simulation/life_history.py`, `frontend/features/goal/components/life-history.tsx`) mostra o sinal certo. O nome mostrado é o da profissão do jogador. O contador de imprevistos conta só os que tiram dinheiro ou salário.
+8. Mudou DTO: `pnpm openapi`; se as configurações da sala não forem JSON livre, `pnpm db:revision`. `docs/docs/como-usar/lobby.md` (trecho dos imprevistos) descreve as famílias e o catálogo.
+
+**Testes.** `tests/test_life_events.py`: `CASH_IN` credita o valor certo; em 10.000 sorteios semeados com tudo em Normal, os eventos bons ficam entre 22% e 28%; família em Desligado nunca sai e em Frequente sai o dobro; os dois tipos de profissão aplicam o mesmo valor a todos, com o texto de cada profissão. `tests/test_life_history.py` e `test_unexpected_count.py` para o sinal e o contador; `simulation-form.test.ts` e `life-history.test.ts` no front.
+
+**Aceite:** o catálogo de fábrica tem pelo menos 20 tipos; com tudo em Normal, de 22% a 28% dos sorteios são eventos bons (10.000 sorteios); numa sala com as seis profissões, o mesmo sorteio aplica o mesmo valor a todos; o lobby não cria mais tipos e uma sala salva com tipo criado continua abrindo e jogando.
+
+### F280 · arquivado em 2026-11-13
+
+*Kanban:* Corrida eleitoral com bots sempre presentes e campanha que pesa · Melhoria · ✅ Concluído · atende N34, N8 · marco M26
+
+**F280 — Corrida eleitoral com bots sempre presentes e campanha que pesa.**
+
+Disputa sempre com os três partidos do computador, fundo público mensal de R$ 8.000 por concorrente (metade igual, metade por cadeiras), teto de contribuição de R$ 8.000 por filiado, caixa único do partido e sobra virando propaganda com √sobra ÷ 128. Limite conhecido: os finalistas chegam ao 2º turno com o caixa zerado até o playtest decidir.
+
+### F281 · arquivado em 2026-11-13
+
+*Kanban:* Banco Central autônomo que decide em reunião, em passos de 0,25, olhando através do imposto · Correção · ✅ Concluído · atende N34 · decisões D20 · marco M26
+
+**F281 — Banco Central autônomo que decide em reunião, olhando através do imposto.** O Banco Central autônomo decide só nos dias de reunião do Copom (`meeting_days`, hoje em `backend/core/copom.py`, com `SELIC_STEP` e `to_step`): em cada uma leva a regra do dia ao passo de 0,25 ponto, a até 1 ponto da decisão anterior (`autonomous_decision` e `AUTONOMOUS_CAP` em `monetary.py`), e mantém os pontos até a reunião seguinte. A SELIC da partida é a história do dia mais esses pontos segurados (`EconomyLayer.autonomous_points`, `layer.py`); sem efeito do governo nada muda, e entre `first_day` e a primeira reunião o desvio vale 0. A regra olha através do imposto: `reading_points` tira de `inflation_points` o degrau de preço do imposto sobre consumo (`consumption_points`), então um corte do imposto não derruba a SELIC; a regra também alimenta o presidente computador e o esperado do mercado, e a linha do imposto sobre consumo no painel da economia deixa de mostrar efeito na SELIC e na bolsa. No futuro gerado (`synthetic.py`, `_decided_in_meetings`), a SELIC inteira (trecho sorteado mais regime e surto) só muda no pregão seguinte a uma reunião, em múltiplos de 0,25, e o CDI anda colado; o gráfico "Juros e inflação" fica com no máximo 8 marcadores do Copom por ano no futuro. Limite conhecido: no trecho histórico da partida o marcador soma as mudanças reais da história e as reuniões do autônomo, e a SELIC absoluta segue a da história (o múltiplo de 0,25 vale para o desvio do autônomo).
+
+### F282 · arquivado em 2026-11-13
+
+*Kanban:* Texto dos gráficos com no mínimo 12 px · Correção · ✅ Concluído · atende N15 · marco M26
+
+**F282 — Texto dos gráficos com no mínimo 12 px.** Serve N15. O texto de gráfico (eixos, legendas, rótulos e tooltips) usa um token só, de 12 px: `CHART_TICK` e `CHART_FONT_SIZE`, em `shared/lib/chart-text.ts`. O teste de tamanho mínimo passou a pegar também `fontSize` literal abaixo de 12, além das classes `text-[Npx]`.
+
+### F283 · arquivado em 2026-11-13
+
+*Kanban:* Campos de valor com o mesmo controle de R$ e de porcentagem · Melhoria · ✅ Concluído · atende N15 · marco M26
+
+**F283 — Campos de valor com o mesmo controle de R$ e de porcentagem.**
+Os campos de valor (comprar e vender Tesouro, amortizar, aplicar e resgatar renda fixa, doação) ganharam o mesmo controle R$ | % antes dos atalhos, com Shift para ver o outro modo, modo lembrado por tipo de campo e atalho em R$ que para no máximo. A contribuição mensal ficou só com a grade de quatro. Conferido no app em todos menos doação e contribuição mensal.
+
 ## Itens descartados
 
 ### F15 · arquivado em 2026-10-17
@@ -1749,6 +2199,12 @@ Por fora nada mudou.
 
 > **Objetivo:** O preço é o negociado na época, e o ativo desdobra e paga dividendo na partida, no real e no futuro gerado.
 
+### M26 · arquivado em 2026-11-13
+
+*Marco:* Câmbio e Poder · versão 4.1 · serve N15, N34, N23, N11, N31, N41 · itens F250, F252, F253, F232, F254, F256, F251, F69, F257, F226, F259, F194, F260, F261, F258, F262, F263, F264, F265, F266, F267, F268, F269, F270, F271, F272, F273, F274, F275, F276, F277, F278, F280, F281, F282, F283
+
+> **Objetivo:** O governo ganha impostos de verdade, cortes com preço e programas com nome; o crescimento sente o rombo; o mapa da eleição percorre o tempo; o viver de renda sente a economia, ganha imprevistos novos e a profissão de cada jogador; a economia traz o Focus e o dólar reage, com os ativos de fora cotados em real, protegendo a carteira, e o caixa em dólar rendendo o juro americano. Abre com os consertos e os atalhos que o playtest de 08/11 pediu.
+
 ## Decisões
 
 ### D5 · arquivado em 2026-10-23
@@ -1772,3 +2228,103 @@ O código mora numa pasta, para editar no editor de sempre; ao iniciar a partida
 - **Pasta mais cópia no banco.** A pasta deixa editar no editor; a cópia faz a partida retomada decidir com o mesmo código que a jogou até ali, em vez de seguir com o arquivo editado depois.
 
 **Consequências:** a classe base ganha o contexto e o jogador dono da estratégia (hoje ela só recebe o `MatchingEngine`, sem `client_id`). O `MarketData` guarda só os 30 últimos candles, então o histórico longo (a média de 200 dias da F9) vem do banco, na versão de séries da partida (D7). A renda fixa só volta ao caixa no vencimento, então uma estratégia não tira dinheiro dela antes da F71. O estado interno da estratégia (atributos do objeto) não sobrevive à retomada: a estratégia deriva o que precisa do contexto, que tem o histórico. O PyInstaller só empacota o que o app importa, então a lista de bibliotecas prometidas é conferida no build da release. Reabre se o custo por tick do processo filho pesar no backtest ou se as estratégias pedirem com frequência uma biblioteca que o executável não traz.
+
+## Necessidades
+
+### N5 · arquivado em 2026-11-13
+
+*Glossário:* Saber quanto risco foi corrido para chegar num resultado · —
+
+**N5. Saber quanto risco foi corrido para chegar num resultado**
+Retorno sozinho não diz se a estratégia foi boa: ganhar 20% passando por uma queda de 50% no meio do caminho é diferente de ganhar 20% de forma estável.
+
+### N6 · arquivado em 2026-11-13
+
+*Glossário:* Comparar resultados de simulações diferentes · —
+
+**N6. Comparar resultados de simulações diferentes**
+Pôr lado a lado o desempenho de partidas distintas (a mesma pessoa em duas simulações, duas estratégias em períodos iguais).
+
+### N16 · arquivado em 2026-11-13
+
+*Glossário:* Ver a carteira e o mercado por setor e segmento · —
+
+**N16. Ver a carteira e o mercado por setor e segmento**
+Saber quanto está em bancos, em energia, em varejo; e poder escrever estratégias que decidem por setor.
+
+### N17 · arquivado em 2026-11-13
+
+*Glossário:* Enxergar a estrutura do banco e esboçar mudanças nela · —
+
+**N17. Enxergar a estrutura do banco e esboçar mudanças nela**
+Ter uma visão do schema atual — tabelas, colunas, relações — para entender o que existe e conversar sobre uma modelagem nova ("e se fosse 1-N aqui?") antes de virar código.
+
+### N18 · arquivado em 2026-11-13
+
+*Glossário:* Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia · —
+
+**N18. Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia**
+Diversificar só funciona entre ativos que não caem juntos. Sem medir isso, duas posições "diferentes" podem ser a mesma aposta.
+
+### N27 · arquivado em 2026-11-13
+
+*Glossário:* Entrar numa partida que já começou · —
+
+**N27. Entrar numa partida que já começou**
+Quem chega depois do início, ou volta a uma partida salva sem ter jogado nela, precisa poder participar sem estragar a conta de quem já está jogando: com depósito inicial, cor própria e o mesmo ranking.
+
+### N28 · arquivado em 2026-11-13
+
+*Glossário:* Liberar uma vaga sem depender de o jogador sair · —
+
+**N28. Liberar uma vaga sem depender de o jogador sair**
+Com a sala cheia, ou com uma partida salva que não comporta quem está nela, o host precisa poder abrir a vaga sozinho, em vez de pedir pelo chat para alguém fechar a aba.
+
+### N29 · arquivado em 2026-11-13
+
+*Glossário:* Saber o que cada jogador está fazendo enquanto a partida não começa · —
+
+**N29. Saber o que cada jogador está fazendo enquanto a partida não começa**
+Na espera do lobby, "Online" diz só que a pessoa está lá. Saber que ela está na Central de dados ou olhando o resultado da última partida dá vida à sala e explica a demora de quem ainda não está pronto, como o "Navegando nos menus" dos jogos online.
+
+### N30 · arquivado em 2026-11-13
+
+*Glossário:* Repetir uma configuração de partida sem montá-la de novo · —
+
+**N30. Repetir uma configuração de partida sem montá-la de novo**
+A cada feature nova a partida ganha mais o que configurar (período, capital, regras, modo de jogo, o futuro gerado). O host quer salvar a combinação que gosta e voltar a ela num clique, em vez de refazer tudo a cada partida.
+
+### N32 · arquivado em 2026-11-13
+
+*Glossário:* Saber como foi o mês sem montar a conta · —
+
+**N32. Saber como foi o mês sem montar a conta**
+Com o tempo correndo, um mês passa em segundos. Quanto o patrimônio andou, se bateu o CDI, o que rendeu e o que afundou, quanto entrou de provento e saiu de imposto: tudo isso existe espalhado pelas telas, e ninguém para a partida para juntar.
+
+### N35 · arquivado em 2026-11-13
+
+*Glossário:* Tirar da lista as partidas que não interessam mais · —
+
+**N35. Tirar da lista as partidas que não interessam mais**
+Partidas de teste, abandonadas no começo ou repetidas se acumulam em "Simulações salvas" e na comparação de partidas, e hoje não há como apagar nenhuma: a lista só cresce, e achar a partida que importa fica cada vez mais difícil.
+
+### N36 · arquivado em 2026-11-13
+
+*Glossário:* Encontrar rapidamente os menores e maiores valores nos dados do jogo · —
+
+**N36. Encontrar rapidamente os menores e maiores valores nos dados do jogo**
+Comparar preços, taxas, quantidades e resultados sem procurar linha por linha. O usuário pediu essa capacidade em todas as tabelas de dados, incluindo estatísticas e telas de manutenção, e precisa que as atualizações da partida preservem a escolha de comparação.
+
+### N37 · arquivado em 2026-11-13
+
+*Glossário:* Comprar bitcoin do jeito que dá na vida real, em frações · —
+
+**N37. Comprar bitcoin do jeito que dá na vida real, em frações**
+Um bitcoin custa dezenas de milhares de reais, e hoje o jogo só vende ativo em quantidade inteira: ou se compra 1 bitcoin inteiro, ou nenhum. Na vida real se compra 0,5 ou 0,001, pelo valor que o investidor quer aplicar. Sem isso, o bitcoin fica fora do alcance de quem joga com uma carteira normal, e a partida perde um dos ativos mais conhecidos do mundo real.
+
+### N38 · arquivado em 2026-11-13
+
+*Glossário:* Saber quando as estatísticas vão mudar, sem achar que travaram · —
+
+**N38. Saber quando as estatísticas vão mudar, sem achar que travaram**
+As estatísticas fecham uma vez por mês de jogo, e entre uma virada e outra os números ficam parados. Sem a tela dizer isso, parece defeito; o jogador precisa saber que a atualização é mensal e quanto falta para a próxima.
