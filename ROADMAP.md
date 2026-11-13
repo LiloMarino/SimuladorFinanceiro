@@ -42,7 +42,7 @@
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93) | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
 | **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F227](#f227), [F255](#f255), [F284](#f284), [F290](#f290) | — | — | — |
-| **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F289](#f289) | — | — | — |
+| **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F289](#f289), [F291](#f291) | — | — | — |
 | **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F221](#f221) | — | — | — |
 | **N41** | — | Aprender como a economia real funciona, jogando | — | [F225](#f225), [F227](#f227), [F255](#f255) | — | — | — |
 | **N42** | — | Chegar a um estado da partida sem jogar até ele | — | [F286](#f286) | — | — | — |
@@ -75,7 +75,7 @@
 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | M28 · 4.6 | — | Alto | Bom | ⏳ |
 | [**F141**](#f141) | Docs | README com as features de hoje | M28 · 4.6 | — | Baixo | Excelente | ⏳ |
 | [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | M28 · 4.6 | — | — | — | 🔍 |
-| [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | M18 · 4.2 | — | Baixo | Bom | ⏳ |
+| [**F159**](#f159) | Feature | Rodada de novas conquistas e revisão das existentes | M28 · 4.6 | — | — | — | 🔍 |
 | [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | M24 · 4.3 | — | Baixo | Bom | ⏳ |
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.2 | — | — | — | 🔍 |
@@ -93,6 +93,7 @@
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 | — | — | — | 🔍 |
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 | — | — | — | 🔍 |
+| [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | M18 · 4.2 | — | Baixo | Bom | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
@@ -151,11 +152,11 @@
 | 8 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | [F44](#f44) | 🔍 Em avaliação |
 | 9 | [**F255**](#f255) | Feature | Estatais | [F44](#f44) | ⏳ Pendente |
 | 10 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | [F44](#f44) | 🔍 Em avaliação |
-| 11 | [**F159**](#f159) | Feature | Conquista "Ordem com paciência" | [F44](#f44) | ⏳ Pendente |
-| 12 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | — | ✅ Concluído |
-| 13 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | — | ✅ Concluído |
-| 14 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | — | 🔍 Em avaliação |
-| 15 | [**F290**](#f290) | Feature | Profissões novas | — | 🔍 Em avaliação |
+| 11 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | — | ✅ Concluído |
+| 12 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | — | ✅ Concluído |
+| 13 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | — | 🔍 Em avaliação |
+| 14 | [**F290**](#f290) | Feature | Profissões novas | — | 🔍 Em avaliação |
+| 15 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | — | ⏳ Pendente |
 
 ### 4.3 — Mesa do trader (M24)
 
@@ -215,7 +216,7 @@
 >
 > **Serve:** N25, N19, N22, N15, N41
 >
-> **Progresso:** 0/12 concluídos
+> **Progresso:** 0/13 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -225,12 +226,13 @@
 | 4 | [**F131**](#f131) | Feature | Catálogo de padrões de vela | — | 🔍 Em avaliação |
 | 5 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | [F158](#f158) | 🔍 Em avaliação |
 | 6 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | — | 🔍 Em avaliação |
-| 7 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | — | ⏳ Pendente |
-| 8 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | [F44](#f44) | ⏳ Pendente |
-| 9 | [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | [F140](#f140) | ⏳ Pendente |
-| 10 | [**F37**](#f37) | Feature | Tema escuro | — | ⏳ Pendente |
-| 11 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | [F44](#f44) | ⏳ Pendente |
-| 12 | [**F141**](#f141) | Docs | README com as features de hoje | [F139](#f139) | ⏳ Pendente |
+| 7 | [**F159**](#f159) | Feature | Rodada de novas conquistas e revisão das existentes | [F44](#f44), [F123](#f123) | 🔍 Em avaliação |
+| 8 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | — | ⏳ Pendente |
+| 9 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | [F44](#f44) | ⏳ Pendente |
+| 10 | [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | [F140](#f140) | ⏳ Pendente |
+| 11 | [**F37**](#f37) | Feature | Tema escuro | — | ⏳ Pendente |
+| 12 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | [F44](#f44) | ⏳ Pendente |
+| 13 | [**F141**](#f141) | Docs | README com as features de hoje | [F139](#f139) | ⏳ Pendente |
 
 ### Sem versão
 
@@ -251,8 +253,9 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 · 2º | 13 | Alto | Médio | ⏳ |
-| [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 · 14º | 0 | — | — | 🔍 |
-| [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 · 15º | 0 | — | — | 🔍 |
+| [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 · 13º | 0 | — | — | 🔍 |
+| [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 · 14º | 0 | — | — | 🔍 |
+| [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | M18 · 4.2 · 15º | 0 | Baixo | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M24 · 4.3 · 3º | 0 | — | — | 🔍 |
@@ -274,9 +277,9 @@
 | [**F132**](#f132) | Feature | Tópicos de "como se joga" do Como jogar | M28 · 4.6 · 2º | 0 | Médio | Bom | ⏳ |
 | [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | M28 · 4.6 · 3º | 0 | Baixo | Bom | ⏳ |
 | [**F131**](#f131) | Feature | Catálogo de padrões de vela | M28 · 4.6 · 4º | 0 | — | — | 🔍 |
-| [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 · 6º | 0 | — | — | 🔍 |
-| [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 · 7º | 0 | Alto | Médio | ⏳ |
-| [**F37**](#f37) | Feature | Tema escuro | M28 · 4.6 · 10º | 0 | Médio | Médio | ⏳ |
+| [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 · 6º | 1 | — | — | 🔍 |
+| [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 · 8º | 0 | Alto | Médio | ⏳ |
+| [**F37**](#f37) | Feature | Tema escuro | M28 · 4.6 · 11º | 0 | Médio | Médio | ⏳ |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | 0 | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | 0 | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | 0 | Médio | Bom | ⏳ |
@@ -305,7 +308,6 @@
 | **F139** | Docs | Demonstração regravada com o jogo de hoje | N25 | — | M28 · 4.6 | [F44](#f44) | Médio | Baixo | Alto | Bom |
 | **F140** | Docs | Docs reorganizada por tipo de leitor | N25 | D21 | M28 · 4.6 | [F44](#f44) | Alto | Baixo | Alto | Bom |
 | **F141** | Docs | README com as features de hoje | N25 | — | M28 · 4.6 | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
-| **F159** | Feature | Conquista "Ordem com paciência" | N22 | D1 | M18 · 4.2 | [F44](#f44) | Baixo | Baixo | Baixo | Bom |
 | **F167** | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | M24 · 4.3 | — | Baixo | Baixo | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
@@ -314,6 +316,7 @@
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Alto | Alto | Alto | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
+| **F291** | Melhoria | Locador com aluguel de 1,1× o salário | N39 | — | M18 · 4.2 | — | Baixo | Baixo | Médio | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -440,9 +443,6 @@
 <a id="f141"></a>
 **F141 — README com as features de hoje.** Serve N25; retrabalho da F48. O README lista o que o jogo fazia em 2026-10-21 e termina em "Estratégias automáticas: em breve", que já existe. Plano: (1) "O que ele faz" ganha modo automático com estratégias e bots, crédito, governo e eleição, cripto e análise técnica, cada um com uma frase e a imagem da demonstração regravada (F139); as seções com GIF ficam nas quatro ou cinco mais fortes, e o resto vai para "E também", que deixa de ter item "em breve". (2) O parágrafo de abertura e os tipos de partida conferidos contra o lobby de hoje (presets, período). (3) Os links para os docs apontam para as páginas da reorganização (F140) quando ela tiver mudado os caminhos. (4) A intro dos docs repete a mesma lista, e as duas mudam juntas. Gatilho: F139 publicada.
 
-<a id="f159"></a>
-**F159 — Conquista "Ordem com paciência".** Serve N22; segue a D1. A 9ª conquista da leva de novas conquistas ficou de fora porque o evento de ordem de ações (`event_equity`) não guarda o tipo da ordem que gerou a execução. Plano: coluna `order_type` em `event_equity` (mercado ou limitada), por migration, com as linhas antigas como mercado; o `Broker` grava o tipo na execução; uma `@metric` em `metrics.py` conta as execuções de ordem limitada do jogador, e a conquista entra no `catalog.py`. Vale qualquer ordem limitada executada, inclusive a que executa na hora porque o preço já estava bom. Fica para a rodada de conquistas feita com o usuário depois da Gestoras, junto com a docs, quando dá para ver todas as features que pedem conquista.
-
 <a id="f167"></a>
 **F167 — Notícias do ativo como marcadores no gráfico de preço.** Serve N31. As manchetes de empresas do noticiário (F92) aparecem também na tela do ativo, como marcadores no gráfico de preço, com a manchete ao passar o mouse. Separada da F92 em 29/out: o noticiário sai na 3.1 só com as manchetes, e os marcadores pedem desenho no canvas antes do código. Gatilho: F92 concluída.
 
@@ -546,6 +546,11 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
+<a id="f291"></a>
+**F291 — Locador com aluguel de 1,1× o salário.** Serve N39. Hoje o Locador (`backend/core/professions.py`) rende 1× o salário, paga o imposto de renda das pessoas e corre o sorteio de demissão como vacância, igual ao CLT, mas sem o aumento acima da inflação que o CLT ganha quando o PIB cresce. Ele sai igual ou pior que o CLT em tudo, e com as vantagens e desvantagens escritas no card da profissão isso fica à vista: ninguém escolhe o Locador.
+
+**Decidido em 13/11:** o aluguel passa a 1,1× o salário (R$ 5.500 com salário de R$ 5.000), 10% mais que o CLT, e segue só com a inflação. A escolha vira uma troca: mais renda agora contra o CLT, que cresce. Com PIB de 2% ao ano o CLT ganha 1% ao ano acima da inflação e alcança o Locador em uns 10 anos de partida. Muda o `income_multiple` do Locador no backend e no `frontend/shared/lib/professions.ts`, e os testes de profissão que fixam o 1×.
+
 ---
 
 ## 🔍 Em avaliação
@@ -563,6 +568,7 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 | **F123** | Melhoria | Redesenhar o aviso de conquista desbloqueada | N22, N15 | — | M28 · 4.6 | — | Escolher o desenho do aviso no canvas; liga à F122 |
 | **F131** | Feature | Catálogo de padrões de vela | N19 | — | M28 · 4.6 | — | Tópico do Como jogar com cada padrão animado |
 | **F158** | Melhoria | Animações do Como jogar revistas | N25 | — | M28 · 4.6 | — | O visual numa rodada no canvas dedicada: animações atuais contra as primeiras, número do passo fora da cena, cursor e destaque, e o palco em tamanho real mostrando só o trecho do passo |
+| **F159** | Feature | Rodada de novas conquistas e revisão das existentes | N22 | D1 | M28 · 4.6 | [F44](#f44), [F123](#f123) | Quais conquistas novas entram e o que muda nas existentes; decidido com o usuário numa rodada de ideias |
 | **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.2 | [F44](#f44) | Escolher a variante entre as do canvas, já com o layout das Gestoras |
 | **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | D21 | M28 · 4.6 | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.4 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
@@ -605,6 +611,9 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 
 <a id="f158"></a>
 **F158 — Animações do Como jogar revistas.** Serve N25; retrabalho da F126. No playtest, o tutorial pareceu estranho: o estilo das animações ficou parecido com o do Create, e o número do passo que aparece no meio da animação, num círculo ao lado do alvo (`StepMarker` em `tutorial/stage/stage-kit.tsx:144`, número vindo de `topic-illustration.tsx:57`, usado em `buy-stock.tsx` e `order-types.tsx`), polui a cena. O salto para o trecho do passo ao clicar numa etapa funciona bem e fica como está. Falta escolher o visual numa rodada no canvas: comparar as animações atuais com as primeiras, feitas no canvas a partir das Dicas e truques do Factorio, decidir se o número sai da cena (o passo ativo já fica destacado na lista) e o que muda no cursor e no destaque. **Palco do tutorial (avaliado em 03/11):** a captura mostra o palco com a tela inteira encolhida a uns 70%, então o texto de 12 px do livro de ofertas chega a uns 8 px, e o marcador do passo cobre o texto que aponta. O desenho do retrato (palco em tamanho real mostrando só o trecho que o passo explica, o marcador numa margem à esquerda com uma linha até o alvo e os passos numa fileira abaixo) é coerente e o usuário o reconhece como a direção, mas não vai ser implementado a partir desse board: entra na rodada de canvas dedicada desta F, com o método completo (variantes e estados).
+
+<a id="f159"></a>
+**F159 — Rodada de novas conquistas e revisão das existentes.** Serve N22; segue a D1. Sessão de iteração com o usuário: ele dá as ideias, o Claude ajuda a pensar, critica e propõe, e a mesma rodada revê o catálogo atual (`backend/features/achievements/catalog.py`): quais conquistas ficam, quais mudam de condição ou de texto e quais saem. Vem depois da Gestoras, quando dá para ver todas as features que pedem conquista, e depois da redesenhada do aviso, para as conquistas novas já nascerem no desenho novo. Entra nela a conquista "Ordem com paciência", já planejada: coluna `order_type` em `event_equity` (mercado ou limitada), por migration, com as linhas antigas como mercado; o `Broker` grava o tipo na execução; uma `@metric` em `metrics.py` conta as execuções de ordem limitada do jogador, e a conquista entra no `catalog.py`. Vale qualquer ordem limitada executada, inclusive a que executa na hora porque o preço já estava bom. Sai daqui para Pendente com a lista aprovada e o plano de cada conquista nova.
 
 <a id="f179"></a>
 **F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: depois do selo de pausa vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Hoje isso é um caso extremo; com as Gestoras, governo, gestora e corrida pela meta ligados juntos passam a ser o caso comum, e é lá que o desenho se decide. O desenho no canvas já inclui o layout com as Gestoras, então a topbar é resolvida na 4.1, depois da F44, e entra no app já certa para o conjunto. A topbar não quebra linha, então a variante em duas linhas fica fora. Das outras, o canvas compara: (a) a velocidade num botão só ("10×") que abre as opções; (b) a corrida e o governo como selos compactos, com o detalhe ao passar o mouse. A referência é 1920 de largura, e em 1366 nada pode quebrar; o estado de teste é corrida, governo e gestora ligados, pausa com o motivo mais longo e o x100 destacado. O selo de pausa já sai só com "Pausado" e o motivo numa dica no lote de correções da 3.4 (F217), pedido dos playtests de 31/out e 04/11. Sai daqui para Pendente com a variante escolhida.
@@ -650,18 +659,17 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 <a id="f289"></a>
 **F289 — Cards de profissão com vantagens e desvantagens.** Serve N39 e N25. A aba Profissão da Minha preparação (`ProfessionCards` em `frontend/shared/components/profession-grid.tsx`) mostra, em cada card, o ícone, o nome, o "N× o salário" e um parágrafo (`feels` em `frontend/shared/lib/professions.ts`) que mistura demissão, reajuste e imposto. O usuário achou denso demais: ninguém lê prosa para escolher. Na escolha, o que importa é o que cada profissão ganha e o que ela perde.
 
-**Proposta:** o parágrafo vira duas partes. **Vantagens** (✓) e **desvantagens** (✗) em lista curta respondem "vale a pena?". **Afetado por** responde "o que eu acompanho durante a partida": as variáveis que movem a renda (da economia ou do governo), como etiquetas curtas, sem dizer se é bom ou ruim, porque isso depende de para onde elas andam e de quem governa. Rascunho, a partir das regras de `backend/core/professions.py`:
+**Proposta:** o parágrafo vira duas partes. **Vantagens** (✓) e **desvantagens** (✗) em lista curta respondem "vale a pena?". **Afetado por** responde "o que eu acompanho durante a partida": as variáveis que movem a renda (da economia ou do governo), como etiquetas curtas, sem dizer se é bom ou ruim. As etiquetas e as frases saem das regras da profissão (`ProfessionRule`: imposto, reajuste, PIB, auxílio, sorteio de demissão), e as listas moram em `PROFESSIONS` no lugar do `feels`, como fonte única do texto.
 
-- **CLT (1×):** ✓ aumento acima da inflação quando o país cresce · ✗ pode ser demitido quando o desemprego sobe · afetado por: desemprego, PIB, imposto de renda das pessoas.
-- **Servidor (0,9×):** ✓ nunca é demitido · ✗ ganha 10% menos que o CLT · afetado por: aumento dos servidores, imposto de renda das pessoas.
-- **Empreendedor (1,2×):** ✓ ganha 20% mais · ✓ não é demitido · ✗ a renda cai na recessão, até a metade · afetado por: PIB, imposto de renda das empresas.
-- **Aposentado (0,85×):** ✓ nunca é demitido · ✗ ganha 15% menos · ✗ imprevisto de saúde custa o dobro · afetado por: aumento dos aposentados, imposto de renda das pessoas.
-- **Auxílio (0,5× + auxílio):** ✓ o auxílio nunca some · ✗ a menor renda · ✗ perde o bico no sorteio de demissão · afetado por: desemprego, gasto com auxílio, imposto sobre consumo.
-- **Locador (1×):** ✓ renda cheia · ✗ no sorteio de demissão o imóvel fica vago e o mês fica sem aluguel · afetado por: desemprego, imposto de renda das pessoas.
+**Decidido em 13/11:**
 
-As etiquetas do "afetado por" saem das regras da profissão (`ProfessionRule`: imposto, reajuste, PIB, auxílio, sorteio de demissão), então a profissão nova que seguir o dólar ou a Selic ganha a etiqueta dela sem texto à mão. Os cards ficam mais altos e a aba já rola (`profession-tab.tsx`, `overflow-y-auto`), o que comporta as profissões novas. As listas moram em `PROFESSIONS` no lugar do `feels`, como fonte única do texto.
+- **Renda em R$ e em múltiplo:** cada card mostra o valor do mês com o salário que o host definiu ("R$ 6.000 por mês") e, embaixo, o "1,2× o salário". A nota de rodapé que explicava o "× o salário" sai.
+- **Auxílio:** mostra o total, 0,9× (R$ 4.500), com a divisão "0,5× do bico + 0,4× do auxílio" embaixo.
+- **Regras da sala:** o card mostra só o que vale na sala. Sem o Governo, saem as etiquetas e as vantagens que dependem dele (aumento dos servidores e dos aposentados, gasto com auxílio, impostos); sem a correção pela inflação, sai o aumento. Card sem nenhuma etiqueta diz "Nada que mude na partida".
+- **Dica das etiquetas:** hovercard com o que a variável é e uma tabela curta do efeito em R$ (PIB do empreendedor, desemprego com a frequência do sorteio, imposto, gasto com auxílio, aumento do governo). Sem dica de texto corrido: etiqueta sem tabela fica só com o nome.
+- **Locador:** passa a 1,1× o salário, no card próprio dele no roadmap; os cards já o mostram com R$ 5.500.
 
-**Falta:** o desenho no canvas (lista com ✓/✗ ou duas colunas, o "afetado por" como etiquetas no rodapé do card, a altura do card, quantas colunas a aba comporta e como fica o card selecionado) e o usuário revisar as frases de cada profissão.
+**Falta:** o usuário escolher no canvas a variante do card (A: três colunas com lista única; B: duas colunas com Ganha e Perde lado a lado; C: tabela comparativa) e revisar as frases de cada profissão.
 
 <a id="f290"></a>
 **F290 — Profissões novas.** Serve N23 e N34; condicionado por D19. As seis profissões de hoje (`backend/core/professions.py`, `frontend/shared/lib/professions.ts`) ligam a renda ao desemprego, ao PIB, ao reajuste do governo e a um dos três impostos. Profissões novas dão mais escolhas na preparação e mais jogadores que o governo atinge de jeitos diferentes.
