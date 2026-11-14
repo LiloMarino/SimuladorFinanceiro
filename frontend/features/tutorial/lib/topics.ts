@@ -97,7 +97,7 @@ const registry = {
     minutes: 1,
     summary: "Comprar na hora pelo melhor preço, ou esperar o preço que você quer.",
     intro: "Toda compra entra no mercado como uma ordem: você escolhe entre comprar já ou esperar o preço que quer.",
-    screens: ["/variable-income/:ticker"],
+    screens: [],
     steps: [
       "Toda compra é uma ordem. Na boleta você escolhe entre **A mercado** e **Limitada**.",
       "**A mercado** compra agora, pelo melhor preço de venda que existe no livro.",

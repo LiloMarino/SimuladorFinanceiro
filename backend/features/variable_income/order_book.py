@@ -91,17 +91,27 @@ class OrderBook:
         return [o for o in self._orders_by_id.values() if o.client_id == client_id]
 
     def get_orders(self, ticker: str) -> list[Order]:
-        """Retorna todas as ordens válidas (BUY + SELL) para um ticker."""
-        orders: list[Order] = []
+        """Ordens válidas do ticker na ordem de prioridade do casamento.
 
-        # BUY
-        for _, _, order in self._buy_heap.get(ticker, []):
-            if order.id in self._orders_by_id:
-                orders.append(order)
-
-        # SELL
-        for _, _, order in self._sell_heap.get(ticker, []):
-            if order.id in self._orders_by_id:
-                orders.append(order)
-
+        Compras do maior para o menor preço, depois vendas do menor para o maior;
+        no mesmo preço, quem chegou primeiro vem antes.
+        """
+        buys = sorted(
+            (
+                entry
+                for entry in self._buy_heap.get(ticker, [])
+                if entry[2].id in self._orders_by_id
+            ),
+            key=lambda entry: entry[:2],
+        )
+        sells = sorted(
+            (
+                entry
+                for entry in self._sell_heap.get(ticker, [])
+                if entry[2].id in self._orders_by_id
+            ),
+            key=lambda entry: entry[:2],
+        )
+        orders: list[Order] = [order for _, _, order in buys]
+        orders.extend(order for _, _, order in sells)
         return orders

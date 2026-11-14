@@ -37,16 +37,19 @@ class Order(ABC):
     def to_dto(self) -> OrderDTO:
         synthetic = self.client_id == MARKET_CLIENT_ID
         color = None
+        is_bot = False
         if synthetic:
             nickname = "Mercado"
         else:
             user = UserManager.get_user(self.client_id)
             nickname = "Unknown" if user is None else user.nickname
             color = None if user is None else UserManager.get_color(user.id)
+            is_bot = user is not None and user.is_bot
         return OrderDTO(
             id=self.id,
             player_nickname=nickname,
             player_color=color,
+            player_is_bot=is_bot,
             action=self.action,
             order_type=OrderType.LIMIT
             if isinstance(self, LimitOrder)

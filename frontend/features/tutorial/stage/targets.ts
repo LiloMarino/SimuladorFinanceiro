@@ -11,6 +11,12 @@ export const tableRow =
   (root) =>
     all(root, "tr").find((row) => normalize(row.textContent).includes(text)) ?? null;
 
+/** Linha do livro de ofertas que contém o texto (um preço ou o nome de quem pôs a oferta). */
+export const bookRow =
+  (text: string): Finder =>
+  (root) =>
+    all(root, "[data-book-row]").find((row) => normalize(row.textContent).includes(text)) ?? null;
+
 export const tableHeader =
   (text: string): Finder =>
   (root) =>

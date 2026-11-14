@@ -32,21 +32,43 @@ const SHORTCUTS = [
   { label: "Máx", share: 1 },
 ];
 
+/** Oferta do livro que o jogador clicou: a boleta prepara a ordem do outro lado, limitada ao preço dela. */
+export type OrderPrefill = {
+  /** Muda a cada clique, para a mesma oferta clicada de novo preencher outra vez */
+  id: number;
+  action: Action;
+  limitPrice: number;
+  /** De quem é a oferta, para o texto "Preenchido pelo livro" */
+  source: string;
+};
+
 type OrderTicketProps = {
   ticker: string;
   assetClass: AssetClass;
   /** Último fechamento: a referência de hoje sob o preço limite */
   todayPrice: number;
+  prefill?: OrderPrefill | undefined;
 };
 
 /** Boleta: escolhe a ordem e mostra, antes de enviar, o que ela faz com o caixa e o IR. */
-export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps) {
+export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTicketProps) {
   const [action, setAction] = useState<Action>("buy");
   const [kind, setKind] = useState<OrderKind>("market");
   const [mode, setMode] = useState<SizeMode>("quantity");
   const [quantityText, setQuantityText] = useState("");
   const [amountText, setAmountText] = useState("");
   const [limitText, setLimitText] = useState("");
+  const [appliedPrefill, setAppliedPrefill] = useState(prefill?.id);
+  const [pickSource, setPickSource] = useState<string | null>(null);
+
+  // Cada clique no livro preenche uma vez; a quantidade já digitada fica como está
+  if (prefill && prefill.id !== appliedPrefill) {
+    setAppliedPrefill(prefill.id);
+    setAction(prefill.action);
+    setKind("limit");
+    setLimitText(String(prefill.limitPrice).replace(".", ","));
+    setPickSource(prefill.source);
+  }
 
   // Só a cripto aceita fração; a API recebe a quantidade como string decimal
   const fractional = assetClass === "CRYPTO";
@@ -179,7 +201,11 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
             size="lg"
             aria-label="Comprar ou vender"
             value={[action]}
-            onValueChange={(values) => values[0] && setAction(values[0] as Action)}
+            onValueChange={(values) => {
+              if (!values[0]) return;
+              setAction(values[0] as Action);
+              setPickSource(null);
+            }}
             className="w-full *:flex-1"
           >
             <ToggleGroupItem value="buy" tone="success">
@@ -205,7 +231,11 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                 variant="segmented"
                 aria-label="Tipo de ordem"
                 value={[kind]}
-                onValueChange={(values) => values[0] && setKind(values[0] as OrderKind)}
+                onValueChange={(values) => {
+                  if (!values[0]) return;
+                  setKind(values[0] as OrderKind);
+                  setPickSource(null);
+                }}
                 className="w-full *:flex-1"
               >
                 <ToggleGroupItem value="market">A mercado</ToggleGroupItem>
@@ -272,7 +302,10 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                       numeric
                       inputMode="decimal"
                       value={limitText}
-                      onChange={(e) => setLimitText(e.target.value)}
+                      onChange={(e) => {
+                        setLimitText(e.target.value);
+                        setPickSource(null);
+                      }}
                       placeholder="0,00"
                     />
                     <FieldDescription>
@@ -283,6 +316,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                       ou {selling ? "mais" : "menos"}. Hoje:{" "}
                       <b className="font-mono text-foreground">{displayMoney(todayPrice)}</b>.
                     </FieldDescription>
+                    {pickSource && <p className="text-xs text-primary">Preenchido pelo livro: {pickSource}.</p>}
                   </Field>
                 )}
               </form>

@@ -25042,6 +25042,10 @@
             ],
             "title": "Player Color"
           },
+          "player_is_bot": {
+            "type": "boolean",
+            "title": "Player Is Bot"
+          },
           "action": {
             "$ref": "#/components/schemas/OrderAction"
           },
@@ -25086,6 +25090,7 @@
           "id",
           "player_nickname",
           "player_color",
+          "player_is_bot",
           "action",
           "order_type",
           "status",

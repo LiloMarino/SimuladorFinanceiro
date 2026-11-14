@@ -3,8 +3,10 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
+from types import SimpleNamespace
 
 from backend.core.enum import OrderAction
+from backend.core.runtime.user_manager import UserManager
 from backend.features.variable_income.entities.order import MARKET_CLIENT_ID, LimitOrder
 from backend.features.variable_income.order_book import OrderBook
 
@@ -110,3 +112,66 @@ def test_order_dto_carries_the_game_day_of_creation():
     )
 
     assert order.to_dto().placed_on == date(2023, 5, 17)
+
+
+def test_get_orders_follows_matching_priority():
+    """Compras do maior para o menor preço, vendas do menor para o maior, e a mais antiga primeiro no empate."""
+    book = OrderBook()
+    buy_low = _limit(9, OrderAction.BUY, seconds=0)
+    buy_high_late = _limit(11, OrderAction.BUY, seconds=5)
+    buy_high_early = _limit(11, OrderAction.BUY, seconds=1)
+    sell_high = _limit(14, OrderAction.SELL, seconds=0)
+    sell_low = _limit(12, OrderAction.SELL, seconds=3)
+    for order in (buy_low, buy_high_late, sell_high, buy_high_early, sell_low):
+        book.add(order)
+
+    assert book.get_orders("ABCD") == [
+        buy_high_early,
+        buy_high_late,
+        buy_low,
+        sell_low,
+        sell_high,
+    ]
+
+
+def test_get_orders_skips_removed_orders_in_priority_order():
+    """Ordem removida não aparece, e as demais seguem a prioridade."""
+    book = OrderBook()
+    top = _limit(11, OrderAction.BUY)
+    next_best = _limit(10, OrderAction.BUY)
+    book.add(next_best)
+    book.add(top)
+
+    book.remove(top)
+
+    assert book.get_orders("ABCD") == [next_best]
+
+
+def test_market_order_dto_is_not_a_bot():
+    """O Mercado não é jogador nem robô."""
+    order = _limit(10, OrderAction.BUY)
+    order.client_id = MARKET_CLIENT_ID
+
+    dto = order.to_dto()
+
+    assert dto.synthetic is True
+    assert dto.player_is_bot is False
+
+
+def test_bot_order_dto_flags_the_robot(monkeypatch):
+    """A ordem de um jogador sem pessoa por trás sai marcada como de robô."""
+    bot = SimpleNamespace(id=7, nickname="Surfista", is_bot=True)
+    monkeypatch.setattr(
+        UserManager, "get_user", classmethod(lambda cls, _client_id: bot)
+    )
+    monkeypatch.setattr(
+        UserManager, "get_color", classmethod(lambda cls, _user_id: "teal")
+    )
+
+    dto = _limit(10, OrderAction.BUY).to_dto()
+
+    assert (dto.player_nickname, dto.player_is_bot, dto.player_color) == (
+        "Surfista",
+        True,
+        "teal",
+    )

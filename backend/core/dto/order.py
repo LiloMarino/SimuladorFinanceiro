@@ -12,6 +12,8 @@ class OrderDTO(BaseDTO):
     player_nickname: str
     # Chave da paleta; None para a liquidez do mercado simulado
     player_color: str | None
+    # Jogador sem pessoa por trás (robô da sala)
+    player_is_bot: bool
     action: OrderAction
     order_type: OrderType
     status: OrderStatus

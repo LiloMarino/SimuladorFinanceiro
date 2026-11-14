@@ -6,51 +6,27 @@ import { useRealtime } from "@/shared/hooks/useRealtime";
 
 export function usePendingOrders(ticker: string | undefined) {
   const queryClient = useQueryClient();
+  const queryKey = queryKeys.variableIncomeOrders(ticker ?? "");
 
-  const { data: pendingOrders } = useQuery({
-    queryKey: queryKeys.variableIncomeOrders(ticker ?? ""),
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey,
     queryFn: ({ signal }) => apiFetch<Order[]>(`/api/variable-income/${ticker}/orders`, { signal }),
     enabled: !!ticker,
   });
 
-  const setPendingOrders = (updater: Order[] | ((prev: Order[] | undefined) => Order[])) => {
-    queryClient.setQueryData(queryKeys.variableIncomeOrders(ticker ?? ""), updater);
-  };
+  // O backend entrega o livro na ordem de prioridade do casamento: o evento de ordem recarrega a lista
+  const reload = () => void queryClient.invalidateQueries({ queryKey });
 
-  useRealtime(
-    `order_added:${ticker}`,
-    ({ order }) => {
-      setPendingOrders((prev) => {
-        if (!prev) return [order];
-
-        if (prev.some((o) => o.id === order.id)) {
-          return prev;
-        }
-
-        return [...prev, order];
-      });
-    },
-    !!ticker,
-  );
-
-  useRealtime(
-    `order_updated:${ticker}`,
-    ({ order }) => {
-      setPendingOrders((prev) => {
-        if (!prev) return [order];
-        return prev.map((o) => (o.id === order.id ? order : o));
-      });
-    },
-    !!ticker,
-  );
+  useRealtime(`order_added:${ticker}`, reload, !!ticker);
+  useRealtime(`order_updated:${ticker}`, reload, !!ticker);
 
   useRealtime(
     `order_book_snapshot:${ticker}`,
     ({ orders }) => {
-      setPendingOrders(orders);
+      queryClient.setQueryData(queryKey, orders);
     },
     !!ticker,
   );
 
-  return pendingOrders ?? [];
+  return { orders: data ?? [], isLoading, error, refetch };
 }

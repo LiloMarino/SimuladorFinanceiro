@@ -8,7 +8,7 @@ import type { IllustrationProps } from "../lib/topics";
 import { STAGE_MY_LIMIT_ORDER, STAGE_SELL_BOOK } from "../stage/stage-data";
 import { Cursor, Highlight, PressWhen, StageToast, StepMarker, TypeInto } from "../stage/stage-kit";
 import { useAfter } from "../stage/useAfter";
-import { buttonNamed, byId, tableRow, type Finder } from "../stage/targets";
+import { bookRow, buttonNamed, byId, type Finder } from "../stage/targets";
 import { TutorialStage } from "../stage/tutorial-stage";
 
 // Trechos da linha do tempo (índices de `beats` em topics.ts)
@@ -35,12 +35,12 @@ interface Target {
 /** O que o cursor, o contorno e o marcador apontam em cada trecho; a comparação final não tem alvo. */
 const TARGETS: Record<number, Target> = {
   [MARKET_TICKET]: { id: "market", finder: buttonNamed("A mercado"), at: [0.5, 0.5], settle: 600 },
-  [MARKET_BOOK]: { id: "best-sale", finder: tableRow("38,12"), at: [0.5, 0.5], settle: 700 },
-  [MARKET_FILLED]: { id: "best-sale", finder: tableRow("38,12"), at: [0.5, 0.5] },
+  [MARKET_BOOK]: { id: "best-sale", finder: bookRow("38,12"), at: [0.5, 0.5], settle: 700 },
+  [MARKET_FILLED]: { id: "best-sale", finder: bookRow("38,12"), at: [0.5, 0.5] },
   [LIMIT_TICKET]: { id: "limit", finder: buttonNamed("Limitada"), click: true, settle: 700 },
   [LIMIT_PRICE]: { id: "limit-input", finder: LIMIT_INPUT, at: [0.3, 0.5], click: true },
-  [WAITING]: { id: "mine", finder: tableRow("Lilo"), at: [0.3, 0.5], settle: 700 },
-  [LIMIT_FILLED]: { id: "mine", finder: tableRow("Lilo"), at: [0.3, 0.5] },
+  [WAITING]: { id: "mine", finder: bookRow("Lilo"), at: [0.3, 0.5], settle: 700 },
+  [LIMIT_FILLED]: { id: "mine", finder: bookRow("Lilo"), at: [0.3, 0.5] },
 };
 
 const withBought = (orders: Order[]) =>
@@ -84,7 +84,7 @@ export default function OrderTypesIllustration({ beat, step, still = false }: Il
                 <OrderTicket ticker="PETR4" assetClass="STOCK" todayPrice={38.12} />
               </div>
             )}
-            {onBook && <OrderBookCard ticker="PETR4" orders={orders} />}
+            {onBook && <OrderBookCard ticker="PETR4" orders={orders} typicalPrice={38.1} onPick={() => undefined} />}
             {beat === COMPARE && <Comparison />}
           </motion.div>
         </AnimatePresence>

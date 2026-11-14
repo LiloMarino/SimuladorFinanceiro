@@ -8805,6 +8805,8 @@ export interface components {
             player_nickname: string;
             /** Player Color */
             player_color: string | null;
+            /** Player Is Bot */
+            player_is_bot: boolean;
             action: components["schemas"]["OrderAction"];
             order_type: components["schemas"]["OrderType"];
             status: components["schemas"]["OrderStatus"];
