@@ -2680,6 +2680,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/funds/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar as contas com que o jogador opera
+         * @description A conta pessoal primeiro e depois cada gestora que o jogador gere, com o caixa de cada uma e o último dia do congelamento, quando o gestor governa o país.
+         */
+        get: operations["get_fund_accounts_api_funds_accounts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/ticker-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Conferir a sigla de uma gestora
+         * @description Diz se a sigla está livre, fora do formato (quatro letras e 11), é de um ativo ou já é de uma gestora (com o nome do dono). Não altera nada.
+         */
+        get: operations["check_fund_ticker_api_funds_ticker_check_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/funds/{fund_id}": {
         parameters: {
             query?: never;
@@ -2731,12 +2771,12 @@ export interface paths {
         put?: never;
         /**
          * Abrir a oferta pública
-         * @description Põe à venda, ao patrimônio líquido do dia, a quantidade de cotas informada. A oferta abre uma vez só e lista a cota no mercado.
+         * @description Põe à venda, ao patrimônio líquido do dia, a quantidade de cotas informada. A oferta abre uma vez só, lista a cota no mercado e dura cinco pregões, contando o da abertura.
          */
         post: operations["open_fund_offer_api_funds__fund_id__offer_post"];
         /**
          * Encerrar a oferta pública
-         * @description Retira do mercado as cotas da oferta que ainda não foram vendidas.
+         * @description Retira do mercado as cotas da oferta que ainda não foram vendidas. A oferta também fecha sozinha ao fim do quinto pregão.
          */
         delete: operations["close_fund_offer_api_funds__fund_id__offer_delete"];
         options?: never;
@@ -6913,6 +6953,22 @@ export interface components {
             /** Share */
             share: string;
         };
+        /**
+         * FundAccountDTO
+         * @description Uma conta com que o jogador opera: a pessoal (sem gestora) ou uma gestora que ele gere.
+         */
+        FundAccountDTO: {
+            /** Fund Id */
+            fund_id: number | null;
+            /** Name */
+            name: string;
+            /** Ticker */
+            ticker: string | null;
+            /** Cash */
+            cash: string;
+            /** Frozen Until */
+            frozen_until: string | null;
+        };
         /** FundContributionRequest */
         FundContributionRequest: {
             /**
@@ -6999,6 +7055,12 @@ export interface components {
             nav: string | null;
             /** Ranking Price */
             ranking_price: string | null;
+            /** Offer Session */
+            offer_session: number | null;
+            /** Offer Ends On */
+            offer_ends_on: string | null;
+            /** Frozen Until */
+            frozen_until: string | null;
             /** Days */
             days: components["schemas"]["FundDayDTO"][];
         };
@@ -7068,6 +7130,27 @@ export interface components {
             nav: string | null;
             /** Ranking Price */
             ranking_price: string | null;
+            /** Offer Session */
+            offer_session: number | null;
+            /** Offer Ends On */
+            offer_ends_on: string | null;
+            /** Frozen Until */
+            frozen_until: string | null;
+        };
+        /**
+         * FundTickerCheckDTO
+         * @description O que a conferência da sigla achou: livre, fora do formato, de um ativo ou de uma gestora.
+         */
+        FundTickerCheckDTO: {
+            /** Ticker */
+            ticker: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "free" | "format" | "asset" | "fund";
+            /** Owner Name */
+            owner_name: string | null;
         };
         /**
          * FutureParamsDTO
@@ -18981,6 +19064,84 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FundSummaryDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_fund_accounts_api_funds_accounts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundAccountDTO"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    check_fund_ticker_api_funds_ticker_check_get: {
+        parameters: {
+            query: {
+                ticker: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundTickerCheckDTO"];
                 };
             };
             /** @description Unprocessable Content */

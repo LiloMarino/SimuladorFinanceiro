@@ -54,16 +54,31 @@ def _columns() -> list[str]:
     ]
 
 
+def _letters_taken_by_asset(session: Session, ticker: str) -> bool:
+    """Se as quatro letras do ticker já são de um ativo importado (PETR11 conflita com PETR4)."""
+    return (
+        session.execute(
+            select(Stock.id)
+            .where(
+                Stock.ticker.startswith(ticker[:4], autoescape=True),
+                Stock.asset_class != AssetClass.FUND.value,
+            )
+            .limit(1)
+        ).first()
+        is not None
+    )
+
+
 class FundRepository:
     @transactional
-    def claim_stock(
-        self, session: Session, ticker: str, name: str, founder_user_id: int
-    ) -> StockDTO | None:
-        """A linha de `stock` da cota de uma gestora do fundador.
+    def claim_stock(self, session: Session, ticker: str, name: str) -> StockDTO | None:
+        """A linha de `stock` da cota de uma gestora.
 
-        O ticker é global: nasce com a primeira gestora dele e volta ao mesmo fundador em outra
-        partida. Ativo importado ou cota de outro fundador devolve None.
+        O ticker é global: a cota nasce com a primeira gestora e as demais partidas reusam a
+        linha. Quatro letras de um ativo importado devolvem None.
         """
+        if _letters_taken_by_asset(session, ticker):
+            return None
         stock = session.execute(
             select(Stock).where(Stock.ticker == ticker)
         ).scalar_one_or_none()
@@ -77,17 +92,12 @@ class FundRepository:
             )
             session.add(stock)
             session.flush()
-            return StockDTO.from_model(stock)
-        if stock.asset_class != AssetClass.FUND.value:
-            return None
-        founders = set(
-            session.execute(
-                select(Funds.founder_user_id).where(Funds.stock_id == stock.id)
-            ).scalars()
-        )
-        if founders and founder_user_id not in founders:
-            return None
         return StockDTO.from_model(stock)
+
+    @transactional
+    def letters_taken_by_asset(self, session: Session, ticker: str) -> bool:
+        """A conferência de `claim_stock` sem gravar: as quatro letras já são de um ativo importado."""
+        return _letters_taken_by_asset(session, ticker)
 
     @transactional
     def create(

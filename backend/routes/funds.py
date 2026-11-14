@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status
 
 from backend.core.dto.fund import (
+    FundAccountDTO,
     FundContributionRequest,
     FundContributionResponse,
     FundDetailsDTO,
@@ -8,6 +9,7 @@ from backend.core.dto.fund import (
     FundFoundRequest,
     FundOfferRequest,
     FundSummaryDTO,
+    FundTickerCheckDTO,
 )
 from backend.routes.dependencies import ActiveSimulation, CurrentUser
 
@@ -35,6 +37,26 @@ def found_fund(
     simulation: ActiveSimulation, user: CurrentUser, payload: FundFoundRequest
 ):
     return simulation.found_fund(user, payload)
+
+
+@funds_router.get(
+    "/accounts",
+    response_model=list[FundAccountDTO],
+    summary="Listar as contas com que o jogador opera",
+    description="A conta pessoal primeiro e depois cada gestora que o jogador gere, com o caixa de cada uma e o último dia do congelamento, quando o gestor governa o país.",
+)
+def get_fund_accounts(simulation: ActiveSimulation, user: CurrentUser):
+    return simulation.get_fund_accounts(user)
+
+
+@funds_router.get(
+    "/ticker-check",
+    response_model=FundTickerCheckDTO,
+    summary="Conferir a sigla de uma gestora",
+    description="Diz se a sigla está livre, fora do formato (quatro letras e 11), é de um ativo ou já é de uma gestora (com o nome do dono). Não altera nada.",
+)
+def check_fund_ticker(simulation: ActiveSimulation, user: CurrentUser, ticker: str):
+    return simulation.check_fund_ticker(user, ticker)
 
 
 @funds_router.get(
@@ -66,7 +88,7 @@ def contribute_to_fund(
     "/{fund_id}/offer",
     response_model=FundSummaryDTO,
     summary="Abrir a oferta pública",
-    description="Põe à venda, ao patrimônio líquido do dia, a quantidade de cotas informada. A oferta abre uma vez só e lista a cota no mercado.",
+    description="Põe à venda, ao patrimônio líquido do dia, a quantidade de cotas informada. A oferta abre uma vez só, lista a cota no mercado e dura cinco pregões, contando o da abertura.",
 )
 def open_fund_offer(
     simulation: ActiveSimulation,
@@ -81,7 +103,7 @@ def open_fund_offer(
     "/{fund_id}/offer",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Encerrar a oferta pública",
-    description="Retira do mercado as cotas da oferta que ainda não foram vendidas.",
+    description="Retira do mercado as cotas da oferta que ainda não foram vendidas. A oferta também fecha sozinha ao fim do quinto pregão.",
 )
 def close_fund_offer(simulation: ActiveSimulation, user: CurrentUser, fund_id: int):
     simulation.close_fund_offer(user, fund_id)

@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from datetime import date, timedelta
 from decimal import Decimal
+from types import SimpleNamespace
+from uuid import uuid4
 
 import pytest
 
@@ -19,9 +22,11 @@ from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.funds.fund_book import FundBook
+from backend.features.government.measures import short_date
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_loader import SimulationLoader
-from backend.features.variable_income.entities.order import MarketOrder
+from backend.features.variable_income.entities.order import LimitOrder, MarketOrder
+from tests.fakes import simulation_settings
 from tests.test_fund_simulation import TICKER, empty_match
 from tests.test_simulation_loader import started  # noqa: F401
 
@@ -59,20 +64,20 @@ def test_founding_the_same_ticker_twice_is_a_conflict(flow):
         sim.found_fund(ana, found_request())
 
 
-def test_imported_asset_ticker_is_not_claimed(flow):
-    repository.stock.add_stock("ABCD11", "Importado", AssetClass.STOCK)
+def test_ticker_with_the_letters_of_an_imported_asset_is_not_claimed(flow):
+    repository.stock.add_stock("PETR4", "Importado", AssetClass.STOCK)
 
-    assert repository.fund.claim_stock("ABCD11", "Aura", 1) is None
+    assert repository.fund.claim_stock("PETR11", "Aura") is None
+    assert repository.fund.claim_stock("PETS11", "Aura") is not None
 
 
-def test_quota_of_another_founder_is_not_claimed_but_the_founder_gets_the_same_row(
-    flow,
-):
+def test_quota_row_is_shared_by_the_funds_with_the_same_ticker(flow):
+    """O ticker é uma linha global: outra partida, ou outro fundador, reusa a mesma cota."""
     sim, ana = flow
     fund = sim.found_fund(ana, found_request())
 
-    assert repository.fund.claim_stock(TICKER, "Aura", ana.id + 1) is None
-    reclaimed = repository.fund.claim_stock(TICKER, "Aura", ana.id)
+    reclaimed = repository.fund.claim_stock(TICKER, "Outra gestora")
+
     assert reclaimed is not None
     assert reclaimed.id == book_of(sim).get(TICKER).terms.stock_id
     assert fund.ticker == TICKER
@@ -319,3 +324,176 @@ def test_saved_fund_resumes_with_the_maker_state_and_the_pending_fees(flow, star
     assert after.terms.pending_from == before.terms.pending_from
     held = resumed._engine.broker.get_positions(after.account.client_id)["BANK_A"]
     assert held.size == 40
+
+
+def test_accounts_list_the_personal_one_first_and_only_the_funds_the_player_runs(
+    started,  # noqa: F811
+):
+    sim, ana = empty_match("Bruno")
+    bruno = player(sim, "Bruno")
+    sim.found_fund(bruno, found_request("ZETA11"))
+    fund_id = fund_with_cash(sim, ana)
+
+    accounts = sim.get_fund_accounts(ana)
+
+    personal, managed = accounts
+    assert (personal.fund_id, personal.ticker) == (None, None)
+    assert personal.cash == sim._engine.get_cash(ana.client_id)
+    assert (managed.fund_id, managed.ticker, managed.name) == (fund_id, TICKER, "Aura")
+    assert managed.cash == Decimal(5000)
+    assert managed.frozen_until is None and personal.frozen_until is None
+    assert sim.get_fund_accounts(bruno)[0].fund_id is None
+    assert len(sim.get_fund_accounts(bruno)) == 2
+
+
+def test_ticker_check_tells_free_format_asset_and_fund_without_changing_anything(
+    started,  # noqa: F811
+):
+    sim, ana = empty_match("Bruno")
+    bruno = player(sim, "Bruno")
+    repository.stock.add_stock("PETR3", "Importado", AssetClass.STOCK)
+    repository.stock.add_stock("PETR4", "Importado", AssetClass.STOCK)
+    repository.stock.add_stock("KNRI11", "Importado", AssetClass.FII)
+    sim.found_fund(ana, found_request())
+
+    def check(ticker: str, user: UserDTO = bruno) -> tuple[str, str | None]:
+        result = sim.check_fund_ticker(user, ticker)
+        return result.status, result.owner_name
+
+    assert check("ZETA11") == ("free", None)
+    assert check("ZETA1") == ("format", None)
+    assert check("zeta11") == ("format", None)
+    assert check("PETR11") == ("asset", None)
+    assert check("KNRI11") == ("asset", None)
+    assert check(TICKER) == ("fund", "Ana")
+    assert check(TICKER, ana) == ("free", None)
+    assert [f.ticker for f in sim.get_funds()] == [TICKER]
+
+
+def test_ticker_check_ignores_the_fund_of_a_founder_in_another_match(
+    started,  # noqa: F811
+):
+    """A sigla é conferida só contra a partida: gestora de outro jogador em outra partida não conflita."""
+    sim, ana = empty_match("Bruno")
+    bruno = player(sim, "Bruno")
+    stock = repository.fund.claim_stock("OMEG11", "Omega")
+    assert stock is not None
+    other_match = repository.simulation.create_simulation(
+        simulation_settings().model_copy(
+            update={"name": "Outra", "funds_enabled": True}
+        )
+    )
+    repository.fund.create(
+        simulation_id=other_match,
+        stock_id=stock.id,
+        ticker="OMEG11",
+        client_id=uuid4(),
+        founder_user_id=ana.id,
+        manager_user_id=ana.id,
+        name="Omega",
+        management_fee=Decimal("0.01"),
+        performance_fee=Decimal("0.10"),
+    )
+
+    assert sim.check_fund_ticker(bruno, "OMEG11").status == "free"
+    founded = sim.found_fund(bruno, found_request("OMEG11"))
+    assert founded.ticker == "OMEG11"
+    assert sim.check_fund_ticker(ana, "OMEG11").status == "fund"
+
+
+def test_offer_sold_out_is_closed_in_the_facade(flow):
+    sim, ana = flow
+    fund_id = fund_with_cash(sim, ana)
+    sim.open_fund_offer(ana, fund_id, 20)
+    book_of(sim).by_id(fund_id).account.issue(Decimal(20))
+
+    summary = sim.get_fund(fund_id)
+
+    assert (summary.offer_session, summary.offer_ends_on) == (None, None)
+    with pytest.raises(ConflictError, match="não tem oferta"):
+        sim.close_fund_offer(ana, fund_id)
+    with pytest.raises(ConflictError, match="uma vez só"):
+        sim.open_fund_offer(ana, fund_id, 20)
+
+
+def governing(sim: Simulation, president: UserDTO, term_end: date) -> dict:
+    """Põe um governo de mentira em que `president` governa até `term_end`; trocar a chave `on` termina o mandato."""
+    state = {"on": True}
+    sim._government = SimpleNamespace(  # type: ignore[assignment]
+        president=lambda: president if state["on"] else None,
+        term_end=lambda: term_end,
+        ensure_can_trade=lambda _client_id: None,
+    )
+    return state
+
+
+def test_taking_office_freezes_the_managers_fund_until_the_term_ends(flow):
+    sim, ana = flow
+    fund_id = fund_with_cash(sim, ana)
+    fund_client = book_of(sim).by_id(fund_id).account.client_id
+    term_end = date(2004, 12, 31)
+    resting = LimitOrder(
+        client_id=fund_client,
+        ticker=TICKER,
+        size=Decimal(1),
+        action=OrderAction.BUY,
+        placed_on=sim._current_date,
+        price=1.0,
+    )
+    sim._engine.matching_engine.submit(resting)
+    state = governing(sim, ana, term_end)
+    back_on = short_date(term_end + timedelta(days=1))
+    message = f"A gestora está congelada enquanto o gestor governa: ela volta a operar em {back_on}."
+
+    sim._take_office(ana, sim._current_date)
+
+    assert sim._engine.matching_engine.order_book.orders_of(fund_client) == []
+    order = MarketOrder(
+        client_id=fund_client,
+        ticker=TICKER,
+        size=Decimal(1),
+        action=OrderAction.SELL,
+        placed_on=sim._current_date,
+    )
+    with pytest.raises(ConflictError) as refused:
+        sim.create_order(order)
+    assert refused.value.detail == message
+    with pytest.raises(ConflictError, match="congelada"):
+        sim.cancel_order(order_id="qualquer", client_id=fund_client)
+    with pytest.raises(ConflictError, match="congelada"):
+        sim._ensure_can_operate(fund_client)
+    with pytest.raises(ConflictError, match="congelada"):
+        sim.contribute_to_fund(ana, fund_id, FundContributionRequest(cash=Decimal(100)))
+    with pytest.raises(ConflictError, match="congelada"):
+        sim.open_fund_offer(ana, fund_id, 10)
+    with pytest.raises(ConflictError, match="congelada"):
+        sim.set_fund_fees(
+            ana,
+            fund_id,
+            FundFeesRequest(
+                management_fee=Decimal("0.02"), performance_fee=Decimal("0.20")
+            ),
+        )
+    # Ler a conta segue valendo, e o DTO e a lista de contas dizem até quando congela
+    assert sim.acting_client(ana.client_id, fund_id) == fund_client
+    assert sim.get_fund(fund_id).frozen_until == term_end
+    fund_account = sim.get_fund_accounts(ana)[1]
+    assert fund_account.frozen_until == term_end
+    assert sim.get_fund_accounts(ana)[0].frozen_until == term_end
+
+    state["on"] = False
+
+    assert sim.get_fund(fund_id).frozen_until is None
+    sim.open_fund_offer(ana, fund_id, 10)
+
+
+def test_a_fund_of_someone_else_keeps_operating_while_the_manager_governs(started):  # noqa: F811
+    sim, ana = empty_match("Bruno")
+    bruno = player(sim, "Bruno")
+    bruno_fund = sim.found_fund(bruno, found_request("ZETA11"))
+    governing(sim, ana, date(2004, 12, 31))
+
+    sim._take_office(ana, sim._current_date)
+
+    assert sim.get_fund(bruno_fund.id).frozen_until is None
+    sim._ensure_can_operate(book_of(sim).by_id(bruno_fund.id).account.client_id)

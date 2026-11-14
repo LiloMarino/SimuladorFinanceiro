@@ -7793,6 +7793,115 @@
         ]
       }
     },
+    "/api/funds/accounts": {
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Listar as contas com que o jogador opera",
+        "description": "A conta pessoal primeiro e depois cada gestora que o jogador gere, com o caixa de cada uma e o último dia do congelamento, quando o gestor governa o país.",
+        "operationId": "get_fund_accounts_api_funds_accounts_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FundAccountDTO"
+                  },
+                  "type": "array",
+                  "title": "Response Get Fund Accounts Api Funds Accounts Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/funds/ticker-check": {
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Conferir a sigla de uma gestora",
+        "description": "Diz se a sigla está livre, fora do formato (quatro letras e 11), é de um ativo ou já é de uma gestora (com o nome do dono). Não altera nada.",
+        "operationId": "check_fund_ticker_api_funds_ticker_check_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "ticker",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticker"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundTickerCheckDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/funds/{fund_id}": {
       "get": {
         "tags": [
@@ -7920,7 +8029,7 @@
           "Funds"
         ],
         "summary": "Abrir a oferta pública",
-        "description": "Põe à venda, ao patrimônio líquido do dia, a quantidade de cotas informada. A oferta abre uma vez só e lista a cota no mercado.",
+        "description": "Põe à venda, ao patrimônio líquido do dia, a quantidade de cotas informada. A oferta abre uma vez só, lista a cota no mercado e dura cinco pregões, contando o da abertura.",
         "operationId": "open_fund_offer_api_funds__fund_id__offer_post",
         "security": [
           {
@@ -7986,7 +8095,7 @@
           "Funds"
         ],
         "summary": "Encerrar a oferta pública",
-        "description": "Retira do mercado as cotas da oferta que ainda não foram vendidas.",
+        "description": "Retira do mercado as cotas da oferta que ainda não foram vendidas. A oferta também fecha sozinha ao fim do quinto pregão.",
         "operationId": "close_fund_offer_api_funds__fund_id__offer_delete",
         "security": [
           {
@@ -19999,6 +20108,63 @@
         ],
         "title": "FrozenSliceDTO"
       },
+      "FundAccountDTO": {
+        "properties": {
+          "fund_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fund Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "cash": {
+            "type": "string",
+            "title": "Cash"
+          },
+          "frozen_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frozen Until"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fund_id",
+          "name",
+          "ticker",
+          "cash",
+          "frozen_until"
+        ],
+        "title": "FundAccountDTO",
+        "description": "Uma conta com que o jogador opera: a pessoal (sem gestora) ou uma gestora que ele gere."
+      },
       "FundContributionRequest": {
         "properties": {
           "cash": {
@@ -20260,6 +20426,41 @@
             ],
             "title": "Ranking Price"
           },
+          "offer_session": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Session"
+          },
+          "offer_ends_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Ends On"
+          },
+          "frozen_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frozen Until"
+          },
           "days": {
             "items": {
               "$ref": "#/components/schemas/FundDayDTO"
@@ -20290,6 +20491,9 @@
           "last_performance_on",
           "nav",
           "ranking_price",
+          "offer_session",
+          "offer_ends_on",
+          "frozen_until",
           "days"
         ],
         "title": "FundDetailsDTO",
@@ -20336,7 +20540,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "maxLength": 30,
+            "maxLength": 40,
             "minLength": 3,
             "title": "Name"
           },
@@ -20548,6 +20752,41 @@
               }
             ],
             "title": "Ranking Price"
+          },
+          "offer_session": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Session"
+          },
+          "offer_ends_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Ends On"
+          },
+          "frozen_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frozen Until"
           }
         },
         "additionalProperties": false,
@@ -20571,10 +20810,51 @@
           "high_water_mark_on",
           "last_performance_on",
           "nav",
-          "ranking_price"
+          "ranking_price",
+          "offer_session",
+          "offer_ends_on",
+          "frozen_until"
         ],
         "title": "FundSummaryDTO",
         "description": "A gestora na lista da partida, com o PL por cota de agora e o preço de ranking."
+      },
+      "FundTickerCheckDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "free",
+              "format",
+              "asset",
+              "fund"
+            ],
+            "title": "Status"
+          },
+          "owner_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "status",
+          "owner_name"
+        ],
+        "title": "FundTickerCheckDTO",
+        "description": "O que a conferência da sigla achou: livre, fora do formato, de um ativo ou de uma gestora."
       },
       "FutureParamsDTO": {
         "properties": {

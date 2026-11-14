@@ -3,16 +3,17 @@ from __future__ import annotations
 import uuid
 from datetime import date
 from decimal import Decimal
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import Field, StringConstraints
 
 from backend.core.dto.base import BaseDTO
 
 # Quatro letras e o 11 das cotas
-FundTicker = Annotated[str, StringConstraints(pattern=r"^[A-Z]{4}11$")]
+FUND_TICKER_PATTERN = r"^[A-Z]{4}11$"
+FundTicker = Annotated[str, StringConstraints(pattern=FUND_TICKER_PATTERN)]
 FundName = Annotated[
-    str, StringConstraints(strip_whitespace=True, min_length=3, max_length=30)
+    str, StringConstraints(strip_whitespace=True, min_length=3, max_length=40)
 ]
 # Taxa ao ano em fração: 0,02 é 2%
 FeeRate = Annotated[Decimal, Field(ge=0, le=1, decimal_places=4)]
@@ -65,12 +66,35 @@ class FundSummaryDTO(FundTermsDTO):
 
     nav: Decimal | None
     ranking_price: Decimal | None
+    # O pregão da oferta pública (1 a 5) e o dia em que ela fecha sozinha; nulos sem oferta aberta
+    offer_session: int | None
+    offer_ends_on: date | None
+    # O último dia do mandato do gestor presidente, em que a gestora fica congelada; nulo se opera
+    frozen_until: date | None
 
 
 class FundDetailsDTO(FundSummaryDTO):
     """A gestora com a série de fechamentos dos pregões, do mais antigo ao mais recente."""
 
     days: list[FundDayDTO]
+
+
+class FundAccountDTO(BaseDTO):
+    """Uma conta com que o jogador opera: a pessoal (sem gestora) ou uma gestora que ele gere."""
+
+    fund_id: int | None
+    name: str
+    ticker: str | None
+    cash: Decimal
+    frozen_until: date | None
+
+
+class FundTickerCheckDTO(BaseDTO):
+    """O que a conferência da sigla achou: livre, fora do formato, de um ativo ou de uma gestora."""
+
+    ticker: str
+    status: Literal["free", "format", "asset", "fund"]
+    owner_name: str | None
 
 
 class FundFoundRequest(BaseDTO):

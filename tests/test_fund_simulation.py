@@ -212,3 +212,46 @@ def test_bot_at_the_ceiling_is_refused_and_selling_is_untouched(match):
         runner._quantity_allowed(ana, buy(TICKER, 1, "teste"))
     assert runner._quantity_allowed(ana, sell(TICKER, 50, "teste")) == 50
     assert runner._quantity_allowed(ana, buy("BANK_A", 5000, "teste")) == 5000
+
+
+def test_offer_closes_by_itself_after_the_fifth_session(match):
+    """Aberta no pregão 1 (o dia da abertura), a oferta segue até o fim do pregão 5 e some da gravação."""
+    sim, _ = match
+    assert sim._funds is not None
+    fund = sim._funds.get(TICKER)
+    summary = sim._funds.summary(fund)
+    assert summary.offer_session == 1
+    assert summary.offer_ends_on is not None
+
+    # Quatro pregões depois da abertura chega-se ao quinto
+    for session in (2, 3, 4):
+        sim.next_tick()
+        assert sim._funds.summary(fund).offer_session == session
+        assert fund.account.offer_remaining is not None
+    sim.next_tick()
+
+    assert sim._current_date == summary.offer_ends_on
+    assert fund.account.offer_remaining is None
+    closed = sim._funds.summary(fund)
+    assert (closed.offer_session, closed.offer_ends_on) == (None, None)
+    [saved] = repository.fund.of_simulation(sim.settings.id)
+    assert saved.offer_remaining is None
+    assert sim._engine.matching_engine.order_book.get_orders(TICKER)
+
+
+def test_resumed_offer_keeps_counting_its_sessions(match, started):  # noqa: F811
+    sim, _ = match
+    assert sim._funds is not None
+    sim.next_tick()
+    opened_on = sim._funds.get(TICKER).terms.listed_on
+    summary = repository.simulation.get_simulation(sim.settings.id)
+    assert summary is not None
+
+    SimulationLoader.load(summary)
+
+    resumed = SimulationManager.get_active_simulation()
+    assert resumed._funds is not None
+    fund = resumed._funds.get(TICKER)
+    assert fund.terms.listed_on == opened_on
+    assert fund.account.offer_remaining is not None
+    assert resumed._funds.summary(fund).offer_session == 3

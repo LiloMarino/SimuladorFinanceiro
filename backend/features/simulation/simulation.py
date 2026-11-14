@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 import threading
 from collections.abc import Callable
 from dataclasses import replace
@@ -35,12 +36,15 @@ from backend.core.dto.fixed_income_projection import (
     NextTaxDropDTO,
 )
 from backend.core.dto.fund import (
+    FUND_TICKER_PATTERN,
+    FundAccountDTO,
     FundContributionRequest,
     FundContributionResponse,
     FundDetailsDTO,
     FundFeesRequest,
     FundFoundRequest,
     FundSummaryDTO,
+    FundTickerCheckDTO,
 )
 from backend.core.dto.goal import GoalProgressDTO, GoalRunnerDTO
 from backend.core.dto.government import (
@@ -204,6 +208,7 @@ from backend.features.government.governance import build_governance, sector_opti
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.map_panel import build_map
 from backend.features.government.map_timeline import build_timeline
+from backend.features.government.measures import short_date
 from backend.features.government.panel import build_panel
 from backend.features.government.promise_panel import (
     build_balances,
@@ -392,6 +397,7 @@ class Simulation:
                 self._engine,
                 self._client_of_user,
                 lambda day, headline: news.publish(settings.id, day, headline),
+                self._manager_frozen_until,
             )
             if settings.funds_enabled and backtest is None
             else None
@@ -921,6 +927,49 @@ class Simulation:
         return fund.account.client_id
 
     @synchronized
+    def get_fund_accounts(self, user: UserDTO) -> list[FundAccountDTO]:
+        """As contas do jogador: a pessoal e depois cada gestora que ele gere."""
+        book = self._ensure_funds()
+        accounts = [
+            FundAccountDTO(
+                fund_id=None,
+                name="Conta pessoal",
+                ticker=None,
+                cash=self._engine.get_cash(user.client_id),
+                frozen_until=self._manager_frozen_until(user.id),
+            )
+        ]
+        accounts.extend(
+            FundAccountDTO(
+                fund_id=fund.terms.id,
+                name=fund.terms.name,
+                ticker=fund.ticker,
+                cash=self._engine.get_cash(fund.account.client_id),
+                frozen_until=book.frozen_until(fund),
+            )
+            for fund in book.funds()
+            if fund.terms.manager_user_id == user.id
+        )
+        return accounts
+
+    @synchronized
+    def check_fund_ticker(self, user: UserDTO, ticker: str) -> FundTickerCheckDTO:
+        """Confere a sigla de uma gestora sem alterar nada: formato, ativo (as quatro letras), gestora de outro jogador da partida ou livre."""
+        book = self._ensure_funds()
+        if re.fullmatch(FUND_TICKER_PATTERN, ticker) is None:
+            return FundTickerCheckDTO(ticker=ticker, status="format", owner_name=None)
+        if repository.fund.letters_taken_by_asset(ticker):
+            return FundTickerCheckDTO(ticker=ticker, status="asset", owner_name=None)
+        founder_id = book.founder_of(ticker)
+        if founder_id is not None and founder_id != user.id:
+            return FundTickerCheckDTO(
+                ticker=ticker,
+                status="fund",
+                owner_name=self._nickname_of(founder_id),
+            )
+        return FundTickerCheckDTO(ticker=ticker, status="free", owner_name=None)
+
+    @synchronized
     def get_funds(self) -> list[FundSummaryDTO]:
         book = self._ensure_funds()
         return [book.summary(fund) for fund in book.funds()]
@@ -1004,7 +1053,33 @@ class Simulation:
         fund = self._ensure_funds().by_id(fund_id)
         if fund.terms.manager_user_id != user.id:
             raise ForbiddenError("Só o gestor opera esta gestora.")
+        self._ensure_fund_active(fund)
         return fund
+
+    def _ensure_fund_active(self, fund: Fund) -> None:
+        """A gestora do gestor que governa fica congelada até o fim do mandato dele."""
+        until = self._ensure_funds().frozen_until(fund)
+        if until is not None:
+            raise ConflictError(
+                "A gestora está congelada enquanto o gestor governa: ela volta a "
+                f"operar em {short_date(until + timedelta(days=1))}."
+            )
+
+    def _manager_frozen_until(self, user_id: int) -> date | None:
+        """O último dia do mandato de `user_id` quando ele é o presidente; sem governo ou sem mandato, nulo."""
+        government = self._government
+        if government is None:
+            return None
+        president = government.president()
+        if president is None or president.id != user_id:
+            return None
+        return government.term_end()
+
+    def _nickname_of(self, user_id: int) -> str | None:
+        for user in repository.simulation_player.participants(self.settings.id):
+            if user.id == user_id:
+                return user.nickname
+        return None
 
     def _ensure_fees_within_ceiling(
         self, management_fee: Decimal, performance_fee: Decimal
@@ -1026,17 +1101,23 @@ class Simulation:
         return self._engine.tax_policy_on(self._current_date)
 
     def _ensure_can_trade(self, client_id: UUID) -> None:
-        """A carteira do presidente fica congelada durante o mandato."""
+        """A carteira do presidente e a das gestoras dele ficam congeladas durante o mandato."""
         if self._government is not None:
             self._government.ensure_can_trade(client_id)
+        if self._funds is not None:
+            fund = self._funds.of_client(client_id)
+            if fund is not None:
+                self._ensure_fund_active(fund)
 
     def _ensure_can_operate(self, client_id: UUID) -> None:
         self._ensure_can_trade(client_id)
         self._strategies.ensure_manual(client_id)
 
     def _take_office(self, president: UserDTO, day: date) -> None:
-        """Na posse as ordens abertas somem e o automático desliga: a carteira congela."""
+        """Na posse as ordens abertas somem e o automático desliga: a carteira congela, com as gestoras do presidente."""
         self._engine.matching_engine.cancel_all(president.client_id)
+        if self._funds is not None:
+            self._funds.on_office(president.id)
         self._strategies.set_mode(
             president,
             None,

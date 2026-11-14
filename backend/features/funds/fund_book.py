@@ -46,6 +46,9 @@ FIRST_NAV = Decimal(100)
 # Pregões da série devolvida no detalhe da gestora
 SERIES_LIMIT = 500
 
+# Pregões da oferta pública, contando o da abertura: ao fim do último ela fecha sozinha
+OFFER_SESSIONS = 5
+
 
 def nav_per_quota(
     cash: Decimal,
@@ -73,6 +76,24 @@ def cdi_growth(start: date, end: date) -> Decimal:
             factor *= 1 + rate
         day = next_business_day(day)
     return factor
+
+
+def offer_ends_on(listed_on: date) -> date:
+    """O último pregão da oferta: o quinto dia útil a partir da abertura, contando o dia dela."""
+    day = listed_on
+    for _ in range(OFFER_SESSIONS - 1):
+        day = next_business_day(day)
+    return day
+
+
+def offer_session(listed_on: date, today: date) -> int:
+    """O pregão da oferta em `today`: 1 no dia da abertura, até `OFFER_SESSIONS`."""
+    session = 1
+    day = listed_on
+    while day < today and session < OFFER_SESSIONS:
+        day = next_business_day(day)
+        session += 1
+    return session
 
 
 def months_between(start: date, end: date) -> int:
@@ -144,7 +165,12 @@ class FundBook:
 
     O dia tem duas pontas, na ordem do tick: `on_open` recalcula o PL e refaz as ordens do
     formador e da oferta antes de qualquer jogador ou bot operar; `on_close` fecha a vela com
-    os negócios do pregão, grava e deixa o preço de ranking pronto para o snapshot.
+    os negócios do pregão, fecha a oferta que chegou ao último pregão, grava e deixa o preço de
+    ranking pronto para o snapshot.
+
+    A gestora congela enquanto o gestor governa o país: `frozen_until` devolve o último dia do
+    mandato dele, lido do governo a cada consulta. A sala segue negociando a cota; só a conta da
+    gestora e o que o gestor decide nela (aporte, oferta, taxas) param, e as taxas não correm.
     """
 
     def __init__(
@@ -153,11 +179,14 @@ class FundBook:
         engine: SimulationEngine,
         client_of_user: Callable[[int], UUID],
         publish: Callable[[date, Headline], None] | None = None,
+        frozen_until: Callable[[int], date | None] | None = None,
     ) -> None:
         self._simulation_id = simulation_id
         self._engine = engine
         self._client_of_user = client_of_user
         self._publish = publish
+        # O último dia do mandato do gestor que governa, por id de usuário; nulo se ele não governa
+        self._manager_frozen_until = frozen_until or (lambda _user_id: None)
         self._funds: dict[str, Fund] = {}
         accounts = engine.broker.fund_accounts
         self._maker = FundMaker(engine.matching_engine, accounts)
@@ -182,12 +211,35 @@ class FundBook:
                 return fund
         raise NotFoundError("Gestora não encontrada")
 
+    def founder_of(self, ticker: str) -> int | None:
+        """O fundador da gestora que já tem este ticker na partida."""
+        fund = self._funds.get(ticker)
+        return fund.terms.founder_user_id if fund else None
+
+    def of_client(self, client_id: UUID) -> Fund | None:
+        """A gestora dona da conta `client_id` no motor."""
+        for fund in self._funds.values():
+            if fund.account.client_id == client_id:
+                return fund
+        return None
+
+    def frozen_until(self, fund: Fund) -> date | None:
+        """O último dia em que a gestora fica congelada: o fim do mandato do gestor presidente."""
+        return self._manager_frozen_until(fund.terms.manager_user_id)
+
     def summary(self, fund: Fund) -> FundSummaryDTO:
-        """A gestora com o PL por cota de agora e o preço de ranking."""
+        """A gestora com o PL por cota de agora, o preço de ranking, a oferta e o congelamento."""
+        listed_on = fund.terms.listed_on
+        open_on = listed_on if fund.account.offer_remaining is not None else None
         return FundSummaryDTO(
             **fund.terms.model_dump(include=set(FundTermsDTO.model_fields)),
             nav=self._nav(fund),
             ranking_price=self._engine.ranking_prices.get(fund.ticker),
+            offer_session=(
+                offer_session(open_on, self._engine.current_date) if open_on else None
+            ),
+            offer_ends_on=offer_ends_on(open_on) if open_on else None,
+            frozen_until=self.frozen_until(fund),
         )
 
     def details(self, fund: Fund) -> FundDetailsDTO:
@@ -213,9 +265,9 @@ class FundBook:
         """Cria a gestora vazia: a cota entra no catálogo da partida e a carteira dela, no motor."""
         if ticker in self._funds:
             raise ConflictError("Já existe uma gestora com este ticker na partida")
-        stock = repository.fund.claim_stock(ticker, name, founder_user_id)
+        stock = repository.fund.claim_stock(ticker, name)
         if stock is None:
-            raise ConflictError("Este ticker já é de outro ativo ou de outro fundador")
+            raise ConflictError("As quatro letras deste ticker já são de um ativo")
         terms = repository.fund.create(
             simulation_id=self._simulation_id,
             stock_id=stock.id,
@@ -329,6 +381,12 @@ class FundBook:
         self._offer.close(ticker)
         self._save(fund)
 
+    def on_office(self, manager_user_id: int) -> None:
+        """O gestor assumiu a presidência: as ordens abertas das gestoras dele saem do livro."""
+        for fund in self._funds.values():
+            if fund.terms.manager_user_id == manager_user_id:
+                self._engine.matching_engine.cancel_all(fund.account.client_id)
+
     def set_fees(
         self, ticker: str, management_fee: Decimal, performance_fee: Decimal
     ) -> None:
@@ -412,6 +470,14 @@ class FundBook:
                 ),
             )
             self._engine.update_market_data([candle])
+            # A oferta vale até o fim do último pregão dela; o que não vendeu não nasce
+            listed_on = fund.terms.listed_on
+            if (
+                listed_on is not None
+                and fund.account.offer_remaining is not None
+                and today >= offer_ends_on(listed_on)
+            ):
+                self._offer.close(fund.ticker)
             self._save(fund)
             candles.append(candle)
         return candles
@@ -420,7 +486,11 @@ class FundBook:
         """Vira as taxas pedidas e cobra as do mês: administração todo mês e performance a cada semestre."""
         for fund in self._funds.values():
             self._apply_pending(fund, today)
-            if not fund.listed or fund.nav is None:
+            if (
+                not fund.listed
+                or fund.nav is None
+                or self.frozen_until(fund) is not None
+            ):
                 continue
             self._charge_management(fund)
             self._charge_performance(fund, today)

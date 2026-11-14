@@ -29,6 +29,8 @@ from backend.features.funds.fund_book import (
     close_candle,
     months_between,
     nav_per_quota,
+    offer_ends_on,
+    offer_session,
 )
 from backend.features.funds.ranking_price import RANKING_WINDOW
 from backend.features.notifications.news import Headline
@@ -40,6 +42,7 @@ from backend.features.variable_income.broker import Broker
 from backend.features.variable_income.entities.order import (
     FUND_ISSUER_CLIENT_ID,
     FUND_MAKER_CLIENT_ID,
+    LimitOrder,
     MarketOrder,
 )
 from backend.features.variable_income.matching_engine import MatchingEngine
@@ -82,9 +85,7 @@ class MemoryFunds:
     days_saved: dict[int, list[FundDayDTO]] = field(default_factory=dict)
     candles: list[CandleDTO] = field(default_factory=list)
 
-    def claim_stock(
-        self, ticker: str, name: str, founder_user_id: int
-    ) -> StockDTO | None:
+    def claim_stock(self, ticker: str, name: str) -> StockDTO | None:
         return StockDTO(id=1, ticker=ticker, name=name, asset_class=AssetClass.FUND)
 
     def create(self, *, simulation_id: int, **fields) -> FundDTO:
@@ -185,9 +186,10 @@ def _setup(
     quotas: int = 1000,
     cash: int = 100000,
     publish: Callable[[date, Headline], None] | None = None,
+    frozen_until: Callable[[int], date | None] | None = None,
 ) -> Setup:
     engine = FundEngine()
-    book = FundBook(1, engine, lambda user_id: MANAGER, publish)
+    book = FundBook(1, engine, lambda user_id: MANAGER, publish, frozen_until)
     book.found(
         ticker=TICKER,
         name="Aura",
@@ -594,13 +596,15 @@ def test_unknown_fund_id_is_not_found(memory: MemoryFunds):
         setup.book.by_id(999)
 
 
-def test_found_rejects_a_ticker_that_belongs_to_someone_else(
+def test_found_rejects_a_ticker_whose_letters_belong_to_an_asset(
     memory: MemoryFunds, monkeypatch: pytest.MonkeyPatch
 ):
     setup = _setup(memory)
     monkeypatch.setattr(memory, "claim_stock", lambda *_: None)
 
-    with pytest.raises(ConflictError, match="outro ativo ou de outro fundador"):
+    with pytest.raises(
+        ConflictError, match="quatro letras deste ticker já são de um ativo"
+    ):
         setup.book.found(
             ticker="ZETA11",
             name="Zeta",
@@ -609,3 +613,176 @@ def test_found_rejects_a_ticker_that_belongs_to_someone_else(
             management_fee=Decimal("0.01"),
             performance_fee=Decimal("0.10"),
         )
+
+
+def test_offer_lasts_five_business_days_counting_the_opening_day():
+    """Aberta numa segunda, a oferta tem o pregão 1 na segunda e o 5 na sexta; fim de semana não conta."""
+    monday = date(2020, 1, 6)
+
+    assert offer_ends_on(monday) == date(2020, 1, 10)
+    assert offer_ends_on(date(2020, 1, 9)) == date(2020, 1, 15)
+    assert [offer_session(monday, date(2020, 1, d)) for d in (6, 7, 8, 9, 10)] == [
+        1,
+        2,
+        3,
+        4,
+        5,
+    ]
+    assert offer_session(monday, date(2020, 1, 13)) == 5
+
+
+def test_summary_shows_the_offer_session_and_end_date(memory: MemoryFunds):
+    setup = _setup(memory)
+    fund = setup.book.get(TICKER)
+    assert setup.book.summary(fund).offer_session is None
+    setup.book.open_offer(TICKER, Decimal(200))
+    opening = setup.book.summary(fund)
+    setup.engine.current_date = date(2020, 1, 8)
+    third = setup.book.summary(fund)
+
+    assert (opening.offer_session, opening.offer_ends_on) == (1, date(2020, 1, 10))
+    assert (third.offer_session, third.offer_ends_on) == (3, date(2020, 1, 10))
+
+
+def test_offer_closes_by_itself_at_the_end_of_the_fifth_session(memory: MemoryFunds):
+    """Nos pregões 1 a 4 a oferta segue aberta; ao fim do quinto fecha, só as cotas vendidas existem e a gravação acompanha."""
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+    fund = setup.book.get(TICKER)
+    setup.tick(date(2020, 1, 7))
+    setup.buy(50)
+    quotas_after_sale = fund.account.quotas + 0
+
+    for day in (7, 8, 9):
+        setup.tick(date(2020, 1, day))
+        setup.book.on_close(date(2020, 1, day))
+        assert fund.account.offer_remaining is not None
+    setup.tick(date(2020, 1, 10))
+    setup.book.on_close(date(2020, 1, 10))
+
+    assert fund.account.offer_remaining is None
+    assert memory.funds[fund.terms.id].offer_remaining is None
+    assert fund.account.quotas >= quotas_after_sale
+    summary = setup.book.summary(fund)
+    assert (summary.offer_session, summary.offer_ends_on) == (None, None)
+    orders = setup.engine.matching_engine.order_book.get_orders(TICKER)
+    assert FUND_ISSUER_CLIENT_ID not in {o.client_id for o in orders}
+
+
+def test_manual_close_still_ends_the_offer_before_the_fifth_session(
+    memory: MemoryFunds,
+):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+
+    setup.book.close_offer(TICKER)
+
+    assert setup.book.get(TICKER).account.offer_remaining is None
+
+
+def test_summary_carries_the_frozen_until_of_the_manager_who_governs(
+    memory: MemoryFunds,
+):
+    term_end = date(2020, 12, 31)
+    governing = {"on": True}
+    setup = _setup(
+        memory,
+        frozen_until=lambda user_id: (
+            term_end if governing["on"] and user_id == MANAGER_USER else None
+        ),
+    )
+    fund = setup.book.get(TICKER)
+
+    assert setup.book.summary(fund).frozen_until == term_end
+    governing["on"] = False
+    assert setup.book.summary(fund).frozen_until is None
+
+
+def test_frozen_fund_does_not_charge_fees_and_charges_again_once_free(
+    memory: MemoryFunds,
+):
+    """Enquanto o gestor governa nenhuma taxa corre; no mês em que a gestora volta, a cobrança retoma."""
+    governing = {"on": True}
+    setup = _setup(
+        memory,
+        frozen_until=lambda user_id: date(2020, 12, 31) if governing["on"] else None,
+    )
+    setup.book.open_offer(TICKER, Decimal(200))
+    setup.engine.cash[setup.fund_client] *= 2
+    fund = setup.book.get(TICKER)
+    base = fund.terms.last_performance_on
+
+    setup.tick(date(2020, 7, 1))
+    fund_cash = setup.engine.cash[setup.fund_client]
+    setup.book.on_month(date(2020, 7, 1))
+
+    assert setup.engine.cash[MANAGER] == 0
+    assert setup.engine.cash[setup.fund_client] == fund_cash
+    assert fund.terms.last_performance_on == base
+
+    governing["on"] = False
+    setup.book.on_month(date(2020, 8, 3))
+
+    assert setup.engine.cash[MANAGER] > 0
+    assert fund.terms.last_performance_on == date(2020, 8, 3)
+
+
+def test_on_office_cancels_the_open_orders_of_the_managers_funds_only(
+    memory: MemoryFunds,
+):
+    setup = _setup(memory)
+    fund_client = setup.fund_client
+    setup.book.open_offer(TICKER, Decimal(200))
+    resting = LimitOrder(
+        client_id=fund_client,
+        ticker=TICKER,
+        size=Decimal(5),
+        action=OrderAction.BUY,
+        placed_on=TODAY,
+        price=1.0,
+    )
+    setup.engine.matching_engine.submit(resting)
+    assert fund_client in {
+        o.client_id for o in setup.engine.matching_engine.order_book.get_orders(TICKER)
+    }
+
+    setup.book.on_office(MANAGER_USER + 1)
+    still_there = fund_client in {
+        o.client_id for o in setup.engine.matching_engine.order_book.get_orders(TICKER)
+    }
+    setup.book.on_office(MANAGER_USER)
+
+    orders = setup.engine.matching_engine.order_book.get_orders(TICKER)
+    assert still_there
+    assert fund_client not in {o.client_id for o in orders}
+    # O formador e a oferta seguem no livro: a sala continua negociando a cota
+    assert {FUND_MAKER_CLIENT_ID, FUND_ISSUER_CLIENT_ID} <= {
+        o.client_id for o in orders
+    }
+
+
+def test_sold_out_offer_is_closed_and_not_shown_as_open(memory: MemoryFunds):
+    """Vendida a última cota, a oferta está encerrada: sem saldo gravado, sem pregão e sem data no resumo."""
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(20))
+    fund = setup.book.get(TICKER)
+    assert setup.book.summary(fund).offer_session == 1
+
+    fund.account.issue(Decimal(20))
+
+    assert fund.account.offer_remaining is None
+    summary = setup.book.summary(fund)
+    assert (summary.offer_session, summary.offer_ends_on) == (None, None)
+    setup.book.on_close(TODAY)
+    assert memory.funds[fund.terms.id].offer_remaining is None
+
+
+def test_partly_sold_offer_stays_open(memory: MemoryFunds):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(20))
+    fund = setup.book.get(TICKER)
+
+    fund.account.issue(Decimal(5))
+
+    assert fund.account.offer_remaining == 15
+    assert setup.book.summary(fund).offer_session == 1

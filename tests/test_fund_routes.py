@@ -42,6 +42,9 @@ class _Book:
 
     client_ids: ClassVar[list] = [ANA_FUND]
 
+    def frozen_until(self, fund: Any) -> date | None:
+        return None
+
     def by_id(self, fund_id: int) -> Any:
         if fund_id != 5:
             raise ConflictError("Gestora não encontrada")
@@ -99,6 +102,8 @@ def with_funds() -> Iterator[TestClient]:
     [
         ("get", "/api/funds", None),
         ("get", "/api/funds/5", None),
+        ("get", "/api/funds/accounts", None),
+        ("get", "/api/funds/ticker-check?ticker=AURA11", None),
         ("post", "/api/funds", FOUND_BODY),
         ("post", "/api/funds/5/contributions", {"cash": "100"}),
         ("post", "/api/funds/5/offer", {"quotas": 10}),
@@ -203,3 +208,16 @@ def test_fund_account_does_not_buy_fund_quotas(monkeypatch: pytest.MonkeyPatch):
 
     with pytest.raises(ConflictError, match="não compra cota de gestora"):
         simulation.create_order(order)
+
+
+def test_ticker_check_outside_the_format_is_answered_without_touching_anything(
+    with_funds: TestClient,
+):
+    response = with_funds.get("/api/funds/ticker-check", params={"ticker": "ABC11"})
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "ticker": "ABC11",
+        "status": "format",
+        "owner_name": None,
+    }
