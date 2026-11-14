@@ -133,6 +133,12 @@ def stock_detail_with_order(page: Page) -> None:
     fica aberta no livro, longe das ofertas do Mercado, até o pregão seguinte.
     """
     stock_detail(page)
+    orders = page.get_by_role("region", name="Suas ordens")
+    # Com o app mantido de pé, a ordem das rodadas anteriores continua aberta: um estado só tem uma
+    if orders.is_visible():
+        expect(page.locator("#order-size")).to_have_value("")
+        page.wait_for_load_state("networkidle")
+        return
     page.get_by_label("Tipo de ordem").get_by_text("Limitada").click()
     page.locator("#order-size").fill("100")
     hint = page.get_by_text(re.compile(r"Hoje:")).inner_text()
@@ -142,6 +148,9 @@ def stock_detail_with_order(page: Page) -> None:
     page.locator("#order-limit").fill(f"{price:.2f}".replace(".", ","))
     page.get_by_role("button", name=re.compile(r"^Comprar 100 PETR4 a")).click()
     page.get_by_role("region", name="Suas ordens").wait_for()
+    # A boleta zera a quantidade e refaz a conferência depois do envio: o retrato sai com ela assentada
+    expect(page.get_by_text("Conferindo a ordem…")).to_be_hidden()
+    expect(page.locator("#order-size")).to_have_value("")
     page.wait_for_load_state("networkidle")
 
 
