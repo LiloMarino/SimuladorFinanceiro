@@ -226,3 +226,62 @@ def test_fund_account_order_dto_names_the_fund(monkeypatch):
         OrderOwner.FUND,
         None,
     )
+
+
+def test_best_sell_with_skip_returns_the_next_in_priority():
+    """A melhor venda recusada fica no book e a próxima na prioridade preço-tempo é devolvida."""
+    book = OrderBook()
+    skipped = _limit(9, OrderAction.SELL)
+    cheap_late = _limit(10, OrderAction.SELL, seconds=5)
+    cheap_early = _limit(10, OrderAction.SELL, seconds=1)
+    for order in (cheap_late, skipped, cheap_early, _limit(11, OrderAction.SELL)):
+        book.add(order)
+
+    assert book.best_sell("ABCD", lambda order: order is skipped) is cheap_early
+    assert book.best_sell("ABCD") is skipped
+    assert book.find(skipped.id) is skipped
+
+
+def test_best_buy_with_skip_returns_the_next_in_priority():
+    """A melhor compra recusada fica no book e a próxima na prioridade é devolvida."""
+    book = OrderBook()
+    skipped = _limit(11, OrderAction.BUY)
+    next_best = _limit(10, OrderAction.BUY)
+    book.add(next_best)
+    book.add(skipped)
+    book.add(_limit(9, OrderAction.BUY))
+
+    assert book.best_buy("ABCD", lambda order: order is skipped) is next_best
+
+
+def test_skip_that_refuses_every_order_has_no_best():
+    """Sem ordem aceita pelo skip, não há melhor; as ordens seguem no book."""
+    book = OrderBook()
+    book.add(_limit(10, OrderAction.SELL))
+    book.add(_limit(11, OrderAction.SELL))
+
+    assert book.best_sell("ABCD", lambda _order: True) is None
+    assert len(book.get_orders("ABCD")) == 2
+
+
+def test_best_with_skip_ignores_removed_orders():
+    """Ordens removidas não voltam como próxima da recusada."""
+    book = OrderBook()
+    skipped = _limit(9, OrderAction.SELL)
+    removed = _limit(10, OrderAction.SELL)
+    kept = _limit(11, OrderAction.SELL)
+    for order in (skipped, removed, kept):
+        book.add(order)
+    book.remove(removed)
+
+    assert book.best_sell("ABCD", lambda order: order is skipped) is kept
+
+
+def test_skip_is_not_consulted_when_the_side_is_empty():
+    """Lado vazio devolve nulo sem chamar o skip."""
+    book = OrderBook()
+
+    def never_called(_order: LimitOrder) -> bool:
+        raise AssertionError("skip consultado em lado vazio")
+
+    assert book.best_sell("ABCD", never_called) is None

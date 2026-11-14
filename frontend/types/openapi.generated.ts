@@ -9398,6 +9398,21 @@ export interface components {
             /** Orders */
             orders: components["schemas"]["OrderDTO"][];
         };
+        /**
+         * OrderCanceledEventDTO
+         * @description O motor cancelou o resto da ordem do jogador, com o motivo.
+         */
+        OrderCanceledEventDTO: {
+            /** Order Id */
+            order_id: string;
+            /** Ticker */
+            ticker: string;
+            action: components["schemas"]["OrderAction"];
+            /** Quantity */
+            quantity: string;
+            /** Reason */
+            reason: string;
+        };
         /** OrderDTO */
         OrderDTO: {
             /** Id */
@@ -10942,6 +10957,7 @@ export interface components {
             corporate_actions: components["schemas"]["CorporateActionsEventDTO"];
             order_executed: components["schemas"]["OrderExecutedEventDTO"];
             order_partial_executed: components["schemas"]["OrderPartialExecutedEventDTO"];
+            order_canceled: components["schemas"]["OrderCanceledEventDTO"];
             player_join: components["schemas"]["PlayerPresenceEventDTO"];
             player_exit: components["schemas"]["PlayerPresenceEventDTO"];
             player_removed: components["schemas"]["PlayerRemovedEventDTO"];

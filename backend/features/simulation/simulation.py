@@ -409,6 +409,9 @@ class Simulation:
         if self._funds is not None:
             self._engine.use_account_route(self._funds.audience_of)
 
+        # No livro de ofertas, a conta pessoal e as gestoras de um jogador têm o mesmo dono
+        self._engine.matching_engine.owner_of = self._account_owner
+
         # O noticiário lê as séries de cada pregão e entrega as manchetes ao jornal
         self._newsroom = (
             Newsroom(
@@ -1618,6 +1621,15 @@ class Simulation:
                     self._human_snapshots(users), month_changed
                 ),
             )
+
+    def _account_owner(self, client_id: UUID) -> int | None:
+        """O user_id dono da conta `client_id`: o gestor para a conta de uma gestora, o próprio jogador para a pessoal."""
+        if self._funds is not None:
+            fund = self._funds.of_client(client_id)
+            if fund is not None:
+                return fund.terms.manager_user_id
+        user = UserManager.get_user(client_id)
+        return user.id if user is not None else None
 
     def _client_of_user(self, user_id: int) -> UUID:
         """O client_id do participante da partida."""

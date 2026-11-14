@@ -17,7 +17,7 @@ from backend.core.dto.fund import (
     FundFoundRequest,
 )
 from backend.core.dto.user import UserDTO
-from backend.core.enum import AssetClass, EquityEventType, OrderAction
+from backend.core.enum import AssetClass, EquityEventType, OrderAction, OrderStatus
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
@@ -26,7 +26,11 @@ from backend.features.funds.fund_book import FundBook
 from backend.features.government.measures import short_date
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_loader import SimulationLoader
-from backend.features.variable_income.entities.order import LimitOrder, MarketOrder
+from backend.features.variable_income.entities.order import (
+    MARKET_CLIENT_ID,
+    LimitOrder,
+    MarketOrder,
+)
 from tests.fakes import simulation_settings
 from tests.test_fund_simulation import TICKER, empty_match
 from tests.test_simulation_loader import started  # noqa: F401
@@ -883,3 +887,43 @@ def test_a_quota_trade_announces_the_funds_update(started, sent_events):  # noqa
     )
 
     assert sent_events.count("funds_update") == 1
+
+
+def test_the_managers_accounts_share_one_owner_in_the_order_book(started):  # noqa: F811
+    sim, ana = empty_match("Bruno")
+    bruno = player(sim, "Bruno")
+    fund = book_of(sim).by_id(fund_with_cash(sim, ana))
+
+    assert sim._account_owner(ana.client_id) == ana.id
+    assert sim._account_owner(fund.account.client_id) == ana.id
+    assert sim._account_owner(bruno.client_id) == bruno.id
+    assert sim._account_owner(MARKET_CLIENT_ID) is None
+
+
+def test_fund_does_not_trade_with_the_managers_personal_account(started):  # noqa: F811
+    sim, ana = empty_match()
+    fund = book_of(sim).by_id(fund_with_cash(sim, ana))
+    engine = sim._engine.matching_engine
+    sale = LimitOrder(
+        client_id=ana.client_id,
+        ticker=TICKER,
+        price=100.0,
+        size=Decimal(10),
+        action=OrderAction.SELL,
+        placed_on=sim._current_date,
+    )
+    engine.submit(sale)
+
+    purchase = LimitOrder(
+        client_id=fund.account.client_id,
+        ticker=TICKER,
+        price=101.0,
+        size=Decimal(10),
+        action=OrderAction.BUY,
+        placed_on=sim._current_date,
+    )
+    engine.submit(purchase)
+
+    assert purchase.status is OrderStatus.CANCELED
+    assert sale.remaining == 10
+    assert engine.order_book.find(sale.id) is sale

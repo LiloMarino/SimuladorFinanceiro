@@ -30,6 +30,7 @@ export type SimulationEvents = {
   statistics_snapshot_update: RealtimeEventCatalog["statistics_snapshot_update"];
   order_executed: OrderExecutedEvent;
   order_partial_executed: OrderPartialExecutedEvent;
+  order_canceled: RealtimeEventCatalog["order_canceled"];
   player_join: RealtimeEventCatalog["player_join"];
   player_exit: RealtimeEventCatalog["player_exit"];
   player_removed: RealtimeEventCatalog["player_removed"];

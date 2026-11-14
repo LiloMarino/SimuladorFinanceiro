@@ -42,6 +42,14 @@ export function GlobalNotifications() {
     isToastOn("ORDER_PARTIAL"),
   );
 
+  // O motor cancelou o resto da ordem: o motivo vem do servidor
+  useRealtime("order_canceled", (event) => {
+    toast.warning(`${event.action === "buy" ? "Compra" : "Venda"} cancelada`, {
+      description: `${displayQuantity(event.quantity)} ${event.ticker} · ${event.reason}`,
+      action: { label: "Ver", onClick: () => void navigate(`/variable-income/${event.ticker}`) },
+    });
+  });
+
   useRealtime(
     "player_join",
     ({ nickname }) => {

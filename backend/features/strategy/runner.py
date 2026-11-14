@@ -751,13 +751,15 @@ def _order_result(order: Order) -> dict:
     average = to_money(order.notional / float(executed)) if executed else None
     if isinstance(order, LimitOrder):
         done = order.remaining == 0
+        if order.status is OrderStatus.CANCELED:
+            status = StrategyOrderStatus.CANCELED
+        else:
+            status = StrategyOrderStatus.EXECUTED if done else StrategyOrderStatus.OPEN
         return {
             "order_id": order.id,
             "quantity": order.size,
             "price": average if done and average else to_money(order.price),
-            "status": StrategyOrderStatus.EXECUTED
-            if done
-            else StrategyOrderStatus.OPEN,
+            "status": status,
         }
     return {
         "order_id": order.id,

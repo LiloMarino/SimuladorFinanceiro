@@ -92,6 +92,16 @@ class OrderPartialExecutedEventDTO(OrderExecutedEventDTO):
     remaining: Decimal
 
 
+class OrderCanceledEventDTO(BaseDTO):
+    """O motor cancelou o resto da ordem do jogador, com o motivo."""
+
+    order_id: str
+    ticker: str
+    action: OrderAction
+    quantity: Decimal
+    reason: str
+
+
 class StocksUpdateEventDTO(BaseDTO):
     stocks: list[CandleDTO]
 
@@ -344,6 +354,7 @@ class RealtimeEventCatalog(BaseDTO):
     corporate_actions: CorporateActionsEventDTO
     order_executed: OrderExecutedEventDTO
     order_partial_executed: OrderPartialExecutedEventDTO
+    order_canceled: OrderCanceledEventDTO
     player_join: PlayerPresenceEventDTO
     player_exit: PlayerPresenceEventDTO
     player_removed: PlayerRemovedEventDTO

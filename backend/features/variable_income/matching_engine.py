@@ -13,6 +13,7 @@ from backend.core.exceptions.http_exceptions import (
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     OrderBookSnapshotEventDTO,
+    OrderCanceledEventDTO,
     OrderEventDTO,
     OrderExecutedEventDTO,
     OrderPartialExecutedEventDTO,
@@ -32,6 +33,11 @@ from backend.features.variable_income.market_liquidity import MarketLiquidity
 from backend.features.variable_income.order_book import OrderBook
 
 logger = logging.getLogger(__name__)
+
+SAME_OWNER_CANCEL_REASON = (
+    "O resto da ordem foi cancelado: ele negociaria com uma ordem sua "
+    "ou da gestora que você gere"
+)
 
 
 class MatchingEngine:
@@ -54,6 +60,11 @@ class MatchingEngine:
         self.market_liquidity = MarketLiquidity(order_book=self.order_book)
         # Chamado quando uma ordem que descansava no book sai dele (executada por inteiro ou cancelada)
         self.on_order_closed: Callable[[Order], None] | None = None
+        # O dono de uma conta do motor: o jogador, ou o gestor para a conta de uma gestora; nulo
+        # para quem não tem dono. Contas do mesmo dono não negociam entre si no livro: o gestor
+        # não tira dinheiro dos cotistas vendendo caro da pessoal para a gestora, e negócio
+        # consigo mesmo não forja o preço da cota.
+        self.owner_of: Callable[[UUID], int | None] | None = None
 
     # =========================
     # API pública
@@ -75,8 +86,12 @@ class MatchingEngine:
             # LIMIT tenta consumir o book
             self._consume_book(order)
 
+            # A sobra que cruzaria uma ordem do mesmo dono sai; o livro nunca fica cruzado
+            if order.remaining > 0 and self._crosses_own_order(order):
+                self._cancel_same_owner_remainder(order)
+
             # LIMIT que sobrou → entra no book
-            if order.remaining > 0:
+            elif order.remaining > 0:
                 self.order_book.add(order)
                 notify(
                     event=f"order_added:{order.ticker}",
@@ -181,12 +196,15 @@ class MatchingEngine:
         - preço (se LIMIT)
         - melhor preço disponível
         - price-time priority
+        - contas do mesmo dono não negociam entre si: a contraparte dele é pulada e segue
+          intacta no book
         """
+        skip = self._same_owner_as(order)
         while order.remaining > 0:
             counter = (
-                self.order_book.best_sell(order.ticker)
+                self.order_book.best_sell(order.ticker, skip)
                 if order.action == OrderAction.BUY
-                else self.order_book.best_buy(order.ticker)
+                else self.order_book.best_buy(order.ticker, skip)
             )
 
             if not counter:
@@ -215,6 +233,68 @@ class MatchingEngine:
                 price = order.price
             self._execute_trade(order, counter, price, qty)
         return order.size - order.remaining
+
+    def _same_owner_as(self, order: Order) -> Callable[[LimitOrder], bool] | None:
+        """Quem pergunta se uma ordem do book é do mesmo dono de `order`; nulo quando `order` não tem dono.
+
+        As contas sintéticas (Mercado, formador, oferta) não têm dono e nunca são travadas.
+        """
+        if self.owner_of is None or order.client_id in UNRESERVED_CLIENT_IDS:
+            return None
+        owner_of = self.owner_of
+        owner = owner_of(order.client_id)
+        if owner is None:
+            return None
+
+        def same_owner(counter: LimitOrder) -> bool:
+            return (
+                counter.client_id not in UNRESERVED_CLIENT_IDS
+                and owner_of(counter.client_id) == owner
+            )
+
+        return same_owner
+
+    def _crosses_own_order(self, order: LimitOrder) -> bool:
+        """A sobra de `order` cruzaria a melhor ordem do book, que é do mesmo dono.
+
+        O consumo já levou toda contraparte de outro dono que cruzava; se a melhor do book
+        ainda cruza e é do mesmo dono, é a que foi pulada.
+        """
+        same_owner = self._same_owner_as(order)
+        if same_owner is None:
+            return False
+        best = (
+            self.order_book.best_sell(order.ticker)
+            if order.action == OrderAction.BUY
+            else self.order_book.best_buy(order.ticker)
+        )
+        if best is None or not same_owner(best):
+            return False
+        if order.action == OrderAction.BUY:
+            return best.price <= order.price
+        return best.price >= order.price
+
+    def _cancel_same_owner_remainder(self, order: LimitOrder) -> None:
+        """Cancela a sobra de `order` e conta o motivo ao jogador."""
+        canceled = order.remaining
+        self.broker.release_limit_order(order)
+        order.status = OrderStatus.CANCELED
+        order.remaining = Decimal(0)
+
+        # O aviso da ordem de estratégia é o `strategy_orders`
+        if order.automatic or order.client_id in UNRESERVED_CLIENT_IDS:
+            return
+        notify(
+            event="order_canceled",
+            payload=OrderCanceledEventDTO(
+                order_id=order.id,
+                ticker=order.ticker,
+                action=order.action,
+                quantity=canceled,
+                reason=SAME_OWNER_CANCEL_REASON,
+            ).to_json(),
+            to=order.client_id,
+        )
 
     def _execute_trade(
         self, taker: Order, maker: LimitOrder, price: float, qty: Decimal

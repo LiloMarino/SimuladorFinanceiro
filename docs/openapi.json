@@ -27521,6 +27521,40 @@
         ],
         "title": "OrderBookSnapshotEventDTO"
       },
+      "OrderCanceledEventDTO": {
+        "properties": {
+          "order_id": {
+            "type": "string",
+            "title": "Order Id"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "action": {
+            "$ref": "#/components/schemas/OrderAction"
+          },
+          "quantity": {
+            "type": "string",
+            "title": "Quantity"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "order_id",
+          "ticker",
+          "action",
+          "quantity",
+          "reason"
+        ],
+        "title": "OrderCanceledEventDTO",
+        "description": "O motor cancelou o resto da ordem do jogador, com o motivo."
+      },
       "OrderDTO": {
         "properties": {
           "id": {
@@ -32134,6 +32168,9 @@
           "order_partial_executed": {
             "$ref": "#/components/schemas/OrderPartialExecutedEventDTO"
           },
+          "order_canceled": {
+            "$ref": "#/components/schemas/OrderCanceledEventDTO"
+          },
           "player_join": {
             "$ref": "#/components/schemas/PlayerPresenceEventDTO"
           },
@@ -32257,6 +32294,7 @@
           "corporate_actions",
           "order_executed",
           "order_partial_executed",
+          "order_canceled",
           "player_join",
           "player_exit",
           "player_removed",

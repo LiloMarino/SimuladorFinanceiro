@@ -1,5 +1,6 @@
 import heapq
 from collections import defaultdict
+from collections.abc import Callable
 from datetime import datetime
 from uuid import UUID
 
@@ -56,30 +57,48 @@ class OrderBook:
         """
         self._orders_by_id.pop(order.id, None)
 
-    def best_buy(self, ticker: str) -> LimitOrder | None:
+    def best_buy(
+        self, ticker: str, skip: Callable[[LimitOrder], bool] | None = None
+    ) -> LimitOrder | None:
         """
-        Retorna melhor BUY disponível.
+        Retorna melhor BUY disponível, na prioridade preço-tempo, sem as que `skip` recusa.
         Lazy remove ordens canceladas.
-        Custo: O(1) para peek, O(log n) se precisar limpar lazy deletes
+        Custo: O(1) para peek, O(log n) se precisar limpar lazy deletes; a lista só é
+        ordenada quando a melhor é recusada por `skip`
         """
-        while self._buy_heap[ticker]:
-            _, _, order = self._buy_heap[ticker][0]
-            if order.id in self._orders_by_id:
-                return order
-            heapq.heappop(self._buy_heap[ticker])  # limpa ordem inválida
-        return None
+        return self._best(self._buy_heap[ticker], skip)
 
-    def best_sell(self, ticker: str) -> LimitOrder | None:
+    def best_sell(
+        self, ticker: str, skip: Callable[[LimitOrder], bool] | None = None
+    ) -> LimitOrder | None:
         """
-        Retorna melhor SELL disponível.
+        Retorna melhor SELL disponível, na prioridade preço-tempo, sem as que `skip` recusa.
         Lazy remove ordens canceladas.
-        Custo: O(1) para peek, O(log n) se precisar limpar lazy deletes
+        Custo: O(1) para peek, O(log n) se precisar limpar lazy deletes; a lista só é
+        ordenada quando a melhor é recusada por `skip`
         """
-        while self._sell_heap[ticker]:
-            _, _, order = self._sell_heap[ticker][0]
+        return self._best(self._sell_heap[ticker], skip)
+
+    def _best(
+        self,
+        heap: list[tuple[float, datetime, LimitOrder]],
+        skip: Callable[[LimitOrder], bool] | None,
+    ) -> LimitOrder | None:
+        while heap:
+            _, _, order = heap[0]
             if order.id in self._orders_by_id:
-                return order
-            heapq.heappop(self._sell_heap[ticker])
+                break
+            heapq.heappop(heap)  # limpa ordem inválida
+        else:
+            return None
+
+        if skip is None or not skip(order):
+            return order
+
+        # A recusada continua no book; a próxima na prioridade vem da cópia ordenada
+        for _, _, candidate in sorted(heap, key=lambda entry: entry[:2]):
+            if candidate.id in self._orders_by_id and not skip(candidate):
+                return candidate
         return None
 
     def all_open(self) -> list[LimitOrder]:
