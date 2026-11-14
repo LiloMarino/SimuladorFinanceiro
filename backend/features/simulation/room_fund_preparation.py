@@ -125,7 +125,7 @@ class RoomFundPreparation:
                     )
                     for user, identity in cls.prepared(humans)
                 ],
-                "conflicts": [*snapshot.conflicts, *cls.conflicts(humans)],
+                "fund_conflicts": cls.conflicts(humans),
                 "fund_locked_reason": reason,
             }
         )

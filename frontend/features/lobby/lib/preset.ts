@@ -155,7 +155,10 @@ export function presetIncludes(values: SimulationFormValues): { label: string; v
     },
     {
       label: RULE_GROUP_LABELS.EXPANSIONS,
-      value: values.governmentEnabled ? EXPANSIONS.government.label : "Nenhuma",
+      value:
+        [values.governmentEnabled && EXPANSIONS.government.label, values.fundsEnabled && EXPANSIONS.funds.label]
+          .filter(Boolean)
+          .join(" · ") || "Nenhuma",
     },
   ];
 }

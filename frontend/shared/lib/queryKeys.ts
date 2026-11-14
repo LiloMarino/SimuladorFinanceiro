@@ -30,6 +30,7 @@ export const queryKeys = {
   preparations: () => ["simulation", "preparations"] as const,
   myPreparation: () => ["simulation", "preparations", "me"] as const,
   myParty: () => ["settings", "party"] as const,
+  myFund: () => ["settings", "fund"] as const,
   partyContribution: () => ["settings", "party", "contribution"] as const,
   savedStrategyParams: () => ["settings", "strategy-params"] as const,
   matchPlayers: () => ["simulation", "match-players"] as const,

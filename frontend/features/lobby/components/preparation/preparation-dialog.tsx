@@ -12,16 +12,19 @@ import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useSavedStrategyParams } from "@/shared/hooks/queries/useSavedStrategyParams";
 import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import type { SimulationSettings } from "@/types";
+import { useMyFund } from "../../hooks/queries/useMyFund";
 import { useMyParty } from "../../hooks/queries/useMyParty";
 import { useMyPreparation } from "../../hooks/queries/useMyPreparation";
 import { usePartyContribution } from "../../hooks/queries/usePartyContribution";
 import { usePreparations } from "../../hooks/queries/usePreparations";
+import { fundTabBadge } from "../../lib/fund-preparation";
 import { adjustedStrategies } from "../../lib/preparation";
+import { FundTab } from "./fund-tab";
 import { PartyTab } from "./party-tab";
 import { ProfessionTab } from "./profession-tab";
 import { StrategiesTab } from "./strategies-tab";
 
-type Tab = "profession" | "party" | "strategies";
+type Tab = "profession" | "party" | "strategies" | "fund";
 
 type PreparationDialogProps = {
   open: boolean;
@@ -62,6 +65,7 @@ function PreparationDialogContent({
   const preparations = usePreparations();
   const mine = useMyPreparation();
   const party = useMyParty();
+  const fund = useMyFund();
   const contribution = usePartyContribution();
   const room = useRoomPlayers();
   const simulations = useSimulationList();
@@ -70,7 +74,9 @@ function PreparationDialogContent({
   const saved = useSavedStrategyParams();
   const { user } = useAuth();
 
-  const failed = [preparations, mine, party, contribution, room, strategies, saved].find((query) => query.error);
+  const failed = [preparations, mine, party, fund, contribution, room, strategies, saved, tickers].find(
+    (query) => query.error,
+  );
   const savedSimulation = simulations.data?.find((simulation) => simulation.id === selectedSimulationId);
   const adjusted =
     strategies.data && saved.data && tickers.data
@@ -79,6 +85,8 @@ function PreparationDialogContent({
   const savedSimulationName = selectedSimulationId ? (savedSimulation?.name ?? "partida salva") : null;
   // A profissão da partida salva fica com ela; quem entra como jogador novo escolhe antes de entrar
   const hasSavedProfession = !!user && savedPlayers.some((player) => player.nickname === user.nickname);
+  const fundBadge =
+    preparations.data && user ? fundTabBadge(rules.funds_enabled, preparations.data, user.nickname) : null;
   const myProfession = room.data?.find((player) => player.nickname === user?.nickname)?.profession;
 
   return (
@@ -107,11 +115,13 @@ function PreparationDialogContent({
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="fund" disabled className="flex-none">
+          <TabsTrigger value="fund" className="flex-none">
             <Briefcase /> Gestora
-            <Badge variant="outline" size="sm">
-              com a expansão Gestoras
-            </Badge>
+            {fundBadge && (
+              <Badge variant={fundBadge.variant} size="sm" numeric={fundBadge.variant === "fund"}>
+                {fundBadge.label}
+              </Badge>
+            )}
           </TabsTrigger>
         </TabsList>
       </div>
@@ -165,6 +175,22 @@ function PreparationDialogContent({
                 saved={saved.data}
                 tickers={tickers.data}
                 startingCash={rules.starting_cash}
+                onClose={onClose}
+              />
+            ) : (
+              <PreparationSkeleton />
+            )}
+          </TabsContent>
+          <TabsContent value="fund" className="grid min-h-0">
+            {preparations.data && fund.isSuccess && tickers.data && room.data && user ? (
+              <FundTab
+                preparations={preparations.data}
+                saved={fund.data}
+                humans={room.data.filter((player) => !player.bot)}
+                assets={tickers.data}
+                nickname={user.nickname}
+                rules={rules}
+                savedSimulation={savedSimulationName}
                 onClose={onClose}
               />
             ) : (

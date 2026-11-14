@@ -169,6 +169,11 @@ function SavedSimulationsContent({
                   <ExpansionEmblem expansion="government" size="sm" />
                 </span>
               )}
+              {s.funds_enabled && (
+                <span title={EXPANSIONS.funds.label}>
+                  <ExpansionEmblem expansion="funds" size="sm" />
+                </span>
+              )}
               {s.status === "FINISHED" ? (
                 <Badge variant="success" size="sm">
                   {s.is_backtest ? "Concluído" : `Terminou${s.winner_nickname ? ` · ${s.winner_nickname} venceu` : ""}`}

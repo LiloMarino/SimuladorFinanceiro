@@ -187,5 +187,5 @@ def test_a_taken_ticker_shows_up_among_the_conflicts(http: TestClient):
 
     http.put("/api/simulation/players/me/fund-preparation", json={"kind": "FOUND"})
 
-    conflicts = http.get("/api/simulation/preparations").json()["conflicts"]
+    conflicts = http.get("/api/simulation/preparations").json()["fund_conflicts"]
     assert any("Ana e Bia" in message for message in conflicts)

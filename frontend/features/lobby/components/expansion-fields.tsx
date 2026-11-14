@@ -1,8 +1,9 @@
 import { Fragment } from "react";
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
-import { TriangleAlert } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { Lock, TriangleAlert } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
+import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { DateField } from "@/shared/components/date-field";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { InfoHint } from "@/shared/components/info-hint";
@@ -28,6 +29,8 @@ import {
 } from "../lib/government-rules";
 import { useInitialAccount } from "../hooks/queries/useInitialAccount";
 import type { SimulationFormValues } from "../lib/simulation-form";
+import { ExpansionIntro } from "./expansion-intro";
+import { FundsCard } from "./funds-card";
 
 const GOVERNMENT = EXPANSIONS.government;
 
@@ -35,13 +38,23 @@ type ExpansionFieldsProps = {
   form: UseFormReturn<SimulationFormValues>;
   /** Sem edição: convidado ou regras de uma partida salva */
   readOnly: boolean;
+  /** Regras de uma partida que já começou: as expansões ficam como foram gravadas */
+  locked: boolean;
 };
 
 /** A aba "Expansões" das regras: um cartão por expansão, com as chaves e as regras de cada uma. */
-export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
-  const [enabled, startDate, endDate, firstElection, difficulty, gameType] = useWatch({
+export function ExpansionFields({ form, readOnly, locked }: ExpansionFieldsProps) {
+  const [enabled, startDate, endDate, firstElection, difficulty, gameType, fundsEnabled] = useWatch({
     control: form.control,
-    name: ["governmentEnabled", "startDate", "endDate", "firstElection", "computerDifficulty", "gameType"],
+    name: [
+      "governmentEnabled",
+      "startDate",
+      "endDate",
+      "firstElection",
+      "computerDifficulty",
+      "gameType",
+      "fundsEnabled",
+    ],
   });
   const longEnough = spansYears(startDate, endDate, GOVERNMENT_MIN_YEARS);
   const initialAccount = useInitialAccount(startDate, { enabled: enabled && isIsoDate(startDate) });
@@ -59,44 +72,52 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
 
   return (
     <div className="grid items-start gap-4">
-      <div className={cn("self-start overflow-hidden rounded-xl border bg-card", enabled && "border-2 border-primary")}>
-        {/* Faixa do cartão */}
-        <div className={cn("relative flex h-28 items-end px-4 py-3.5", GOVERNMENT.bannerClass)}>
-          <span className="inline-flex size-14 items-center justify-center rounded-[14px] bg-white/15 text-white ring-1 ring-white/25 ring-inset">
-            <GOVERNMENT.icon className="size-[30px]" />
+      {/* Expansões da partida já começada */}
+      {locked && (
+        <div className="grid gap-3 rounded-xl border bg-card p-4">
+          <span className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-sidebar-muted uppercase">
+            <Lock className="size-3" />
+            Expansões
           </span>
-          <span className="ml-3 grid text-white">
-            <b className="text-xl">{GOVERNMENT.label}</b>
-            <span className="text-xs opacity-80">Expansão</span>
+          <span className="flex flex-wrap gap-1.5">
+            {enabled && (
+              <Badge variant="outline">
+                <ExpansionEmblem expansion="government" size="xs" />
+                {GOVERNMENT.label}
+              </Badge>
+            )}
+            {fundsEnabled && (
+              <Badge variant="outline">
+                <ExpansionEmblem expansion="funds" size="xs" />
+                {EXPANSIONS.funds.label}
+              </Badge>
+            )}
+            {!enabled && !fundsEnabled && (
+              <span className="text-sm text-muted-foreground">Nenhuma expansão ligada</span>
+            )}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            A partida já começou: as expansões ficam como estão até o fim, porque a gestora e o governo guardam
+            histórico desde o primeiro dia.
           </span>
         </div>
+      )}
 
-        {/* O que a expansão traz e a chave */}
-        <div className="grid gap-2.5 px-4 py-3.5">
-          <span className="text-[13px]">{GOVERNMENT.description}</span>
-          <ul className="list-disc pl-[18px] text-xs leading-normal text-muted-foreground">
-            {GOVERNMENT.highlights.map((highlight) => (
-              <li key={highlight} className="mb-1">
-                {highlight}
-              </li>
-            ))}
-          </ul>
-          <div className="flex items-center justify-between gap-2.5">
-            <Badge variant={enabled ? "info" : "secondary"}>{enabled ? "Ligada nesta partida" : "Desligada"}</Badge>
-            <Controller
-              control={form.control}
-              name="governmentEnabled"
-              render={({ field }) => (
-                <Switch
-                  aria-label={`Ligar ${GOVERNMENT.label}`}
-                  checked={field.value}
-                  disabled={readOnly || (!longEnough && !field.value)}
-                  onCheckedChange={(checked) => toggle(checked, field.onChange)}
-                />
-              )}
-            />
-          </div>
-        </div>
+      <div className={cn("self-start overflow-hidden rounded-xl border bg-card", enabled && "border-2 border-primary")}>
+        <ExpansionIntro expansion="government" enabled={enabled}>
+          <Controller
+            control={form.control}
+            name="governmentEnabled"
+            render={({ field }) => (
+              <Switch
+                aria-label={`Ligar ${GOVERNMENT.label}`}
+                checked={field.value}
+                disabled={readOnly || (!longEnough && !field.value)}
+                onCheckedChange={(checked) => toggle(checked, field.onChange)}
+              />
+            )}
+          />
+        </ExpansionIntro>
 
         {/* Partida curta demais */}
         {!longEnough && (
@@ -356,6 +377,8 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
           </div>
         )}
       </div>
+
+      <FundsCard form={form} readOnly={readOnly} />
     </div>
   );
 }

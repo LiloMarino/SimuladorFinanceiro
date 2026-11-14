@@ -99,6 +99,7 @@ export function RulesSheet({
     startingCash,
     goalNetWorth,
     governmentEnabled,
+    fundsEnabled,
   ] = useWatch({
     control: form.control,
     name: [
@@ -111,6 +112,7 @@ export function RulesSheet({
       "startingCash",
       "goalNetWorth",
       "governmentEnabled",
+      "fundsEnabled",
     ],
   });
   const [tab, setTab] = useState<RulesTab>("rules");
@@ -119,6 +121,7 @@ export function RulesSheet({
   const derivedMode = priceImpactModeOf(impactEnabled, impactK, impactT);
   const impactMode: PriceImpactMode = customOpen && impactEnabled ? "CUSTOM" : derivedMode;
   const readOnly = !isHost || locked;
+  const enabledExpansions = Number(governmentEnabled) + Number(fundsEnabled);
   const startingCashAmount = Number(normalizeNumberString(startingCash));
   const goalAmount = Number(normalizeNumberString(goalNetWorth));
 
@@ -176,9 +179,9 @@ export function RulesSheet({
               <TabsTrigger value="rules">Regras</TabsTrigger>
               <TabsTrigger value="expansions">
                 Expansões
-                {governmentEnabled && (
+                {enabledExpansions > 0 && (
                   <Badge variant="info" size="tag">
-                    1 ligada
+                    {enabledExpansions} {enabledExpansions === 1 ? "ligada" : "ligadas"}
                   </Badge>
                 )}
               </TabsTrigger>
@@ -265,7 +268,7 @@ export function RulesSheet({
         {/* Expansões */}
         {tab === "expansions" && (
           <div className="flex-1 overflow-y-auto px-6 py-5">
-            <ExpansionFields form={form} readOnly={readOnly} />
+            <ExpansionFields form={form} readOnly={readOnly} locked={locked} />
           </div>
         )}
 

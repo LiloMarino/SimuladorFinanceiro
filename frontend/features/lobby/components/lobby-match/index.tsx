@@ -131,9 +131,9 @@ export function LobbyMatch({
   const teamsBlock = inTeams && !teams.ready;
   // Iniciar a partida encerra o desafio da vela que estiver rolando; o host é avisado antes
   const challengeQuestion = useRunningChallenge();
-  // Partidos preparados que repetem sigla, nome ou cor bloqueiam o início, como as equipes
+  // Partidos ou gestoras preparados em conflito bloqueiam o início, como as equipes
   const { data: preparations } = usePreparations();
-  const preparationBlock = (preparations?.conflicts.length ?? 0) > 0;
+  const preparationBlock = (preparations?.conflicts.length ?? 0) + (preparations?.fund_conflicts.length ?? 0) > 0;
   const pendingInvites = preparations?.pending_invites ?? 0;
   const canStart =
     isHost &&

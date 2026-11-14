@@ -126,7 +126,7 @@ def test_the_same_ticker_blocks_both_players():
     RoomFundPreparation.choose(ANA, FOUND, fund("Aurora", "AURA11"))
     RoomFundPreparation.choose(BIA, FOUND, fund("Brisa", "AURA11"))
 
-    [message] = snapshot().conflicts
+    [message] = snapshot().fund_conflicts
     assert "Ana e Bia" in message and "AURA11" in message
     detail = refusal(lambda: RoomFundPreparation.ensure_ready(HUMANS, enabled=True))
     assert "Ana e Bia" in detail
@@ -136,7 +136,7 @@ def test_the_same_name_blocks_both_players_whatever_the_case():
     RoomFundPreparation.choose(ANA, FOUND, fund("Aurora", "AURA11"))
     RoomFundPreparation.choose(BIA, FOUND, fund("AURORA", "BRIS11"))
 
-    [message] = snapshot().conflicts
+    [message] = snapshot().fund_conflicts
     assert "Ana e Bia" in message and "nome" in message
 
 
@@ -145,7 +145,7 @@ def test_different_funds_do_not_conflict():
     RoomFundPreparation.choose(BIA, FOUND, fund("Brisa", "BRIS11"))
     RoomFundPreparation.choose(CAIO, NONE, None)
 
-    assert snapshot().conflicts == []
+    assert snapshot().fund_conflicts == []
     RoomFundPreparation.ensure_ready(HUMANS, enabled=True)
 
 
@@ -154,20 +154,20 @@ def test_who_stays_without_fund_does_not_conflict_with_the_name_of_another():
     RoomFundPreparation.choose(BIA, FOUND, fund("Brisa", "BRIS11"))
     RoomFundPreparation.choose(BIA, NONE, None)
 
-    assert snapshot().conflicts == []
+    assert snapshot().fund_conflicts == []
 
 
 def test_ticker_with_the_letters_of_an_imported_asset_blocks_the_start():
     RoomFundPreparation.choose(ANA, FOUND, fund("Petro", "PETR11"))
 
-    [message] = snapshot().conflicts
+    [message] = snapshot().fund_conflicts
     assert "Ana" in message and "PETR" in message
     assert "ativo" in refusal(
         lambda: RoomFundPreparation.ensure_ready(HUMANS, enabled=True)
     )
 
 
-def test_the_fund_conflicts_join_the_party_ones_in_the_same_list():
+def test_the_fund_conflicts_stay_apart_from_the_party_ones():
     RoomFundPreparation.choose(ANA, FOUND, fund("Aurora", "AURA11"))
     RoomFundPreparation.choose(BIA, FOUND, fund("Brisa", "AURA11"))
     party_conflict = RoomPreparation.snapshot(HUMANS).model_copy(
@@ -176,8 +176,9 @@ def test_the_fund_conflicts_join_the_party_ones_in_the_same_list():
 
     merged = RoomFundPreparation.apply(party_conflict, HUMANS)
 
-    assert len(merged.conflicts) == 2
-    assert merged.conflicts[0] == "Ana e Bia escolheram a mesma cor."
+    assert merged.conflicts == ["Ana e Bia escolheram a mesma cor."]
+    [message] = merged.fund_conflicts
+    assert "AURA11" in message
 
 
 def test_with_the_expansion_off_the_choice_is_ignored(monkeypatch: pytest.MonkeyPatch):
@@ -189,5 +190,5 @@ def test_with_the_expansion_off_the_choice_is_ignored(monkeypatch: pytest.Monkey
     merged = snapshot()
 
     assert merged.funds == []
-    assert merged.conflicts == []
+    assert merged.fund_conflicts == []
     RoomFundPreparation.ensure_ready(HUMANS, enabled=False)

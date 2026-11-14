@@ -15,6 +15,7 @@ export const badgeVariants = cva(
         dividend: "bg-dividend-soft text-dividend",
         split: "bg-split-soft text-split",
         federation: "bg-federation-soft text-federation",
+        fund: "bg-fund-soft text-fund-strong",
         outline: "border-input bg-card text-foreground",
         // Etiqueta neutra de um card (profissão, "Bot"): a borda separa o selo do fundo do card
         label: "border-label-border bg-muted text-secondary-foreground",

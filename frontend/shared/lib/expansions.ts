@@ -1,6 +1,6 @@
-import { Landmark, type LucideIcon } from "lucide-react";
+import { Briefcase, Landmark, type LucideIcon } from "lucide-react";
 
-export type ExpansionKey = "government";
+export type ExpansionKey = "government" | "funds";
 
 type ExpansionInfo = {
   label: string;
@@ -29,5 +29,18 @@ export const EXPANSIONS: Record<ExpansionKey, ExpansionInfo> = {
     emblemClass: "bg-expansion-government",
     bannerClass:
       "bg-[repeating-linear-gradient(135deg,rgb(255_255_255/0.07)_0_2px,transparent_2px_14px),linear-gradient(120deg,var(--expansion-government),var(--foreground))]",
+  },
+  funds: {
+    label: "Gestoras",
+    description: "Cada jogador abre a própria gestora, vende cotas aos amigos e disputa o controle.",
+    highlights: [
+      "Fundar a gestora com parte da carteira, em troca de cotas",
+      "Oferta pública: os amigos investem em você",
+      "Taxas todo mês e assembleia: mais da metade das cotas troca o gestor",
+    ],
+    icon: Briefcase,
+    emblemClass: "bg-fund",
+    bannerClass:
+      "bg-[repeating-linear-gradient(135deg,rgb(255_255_255/0.07)_0_2px,transparent_2px_14px),linear-gradient(120deg,var(--fund),var(--fund-strong))]",
   },
 };

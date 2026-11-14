@@ -30499,6 +30499,13 @@
             "type": "array",
             "title": "Funds"
           },
+          "fund_conflicts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fund Conflicts"
+          },
           "fund_locked_reason": {
             "anyOf": [
               {
@@ -30542,6 +30549,7 @@
           "reserved",
           "conflicts",
           "funds",
+          "fund_conflicts",
           "fund_locked_reason",
           "pending_invites",
           "radar_neutral",

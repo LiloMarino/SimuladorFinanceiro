@@ -114,14 +114,25 @@ export function summaryRows(rules: SimulationFormValues, preset: SimulationSetti
     ...typeRows(rules),
     {
       label: "Expansões",
-      value: rules.governmentEnabled ? (
-        <Badge variant="outline">
-          <ExpansionEmblem expansion="government" size="xs" />
-          {EXPANSIONS.government.label}
-        </Badge>
-      ) : (
-        <span className="text-muted-foreground">—</span>
-      ),
+      value:
+        rules.governmentEnabled || rules.fundsEnabled ? (
+          <span className="flex flex-wrap gap-1.5">
+            {rules.governmentEnabled && (
+              <Badge variant="outline">
+                <ExpansionEmblem expansion="government" size="xs" />
+                {EXPANSIONS.government.label}
+              </Badge>
+            )}
+            {rules.fundsEnabled && (
+              <Badge variant="outline">
+                <ExpansionEmblem expansion="funds" size="xs" />
+                {EXPANSIONS.funds.label}
+              </Badge>
+            )}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        ),
     },
     ...(rules.governmentEnabled && isIsoDate(rules.firstElection)
       ? [

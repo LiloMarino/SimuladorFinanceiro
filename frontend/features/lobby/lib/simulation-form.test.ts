@@ -68,8 +68,8 @@ const settings: SimulationSettingsData = {
   show_chart_hints: false,
   government_enabled: false,
   funds_enabled: false,
-  fund_max_management_fee: "0.02",
-  fund_max_performance_fee: "0.20",
+  fund_max_management_fee: "0.0200",
+  fund_max_performance_fee: "0.2000",
   first_election: null,
   computer_difficulty: "NORMAL",
   poll_margin: false,
@@ -135,6 +135,8 @@ describe("regras da partida ↔ formulário do lobby", () => {
     expect(values.startingCash).toBe("R$ 10.000,00");
     expect(values.priceImpactK).toBe("0,02");
     expect(values.withdrawalRate).toBe("4");
+    expect(values.fundMaxManagementFee).toBe("2");
+    expect(values.fundMaxPerformanceFee).toBe("20");
   });
 
   it("o corpo leva o dinheiro em centavos, truncado", () => {

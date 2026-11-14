@@ -43,6 +43,7 @@ const PREPARATIONS: Preparations = {
   reserved: [{ name: "Movimento Nacional", abbr: "MNV", flags: ["FREE_MARKET", "STABILITY", "DEVELOPMENT"] }],
   conflicts: [],
   funds: [],
+  fund_conflicts: [],
   fund_locked_reason: null,
   pending_invites: 0,
   radar_neutral: "30",

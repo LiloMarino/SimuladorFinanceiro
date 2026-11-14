@@ -12,6 +12,8 @@ export type StockDetails = Omit<components["schemas"]["StockDetailsDTO"], "id">;
 
 // Gestoras
 export type FundAccount = components["schemas"]["FundAccountDTO"];
+export type FundIdentity = components["schemas"]["FundIdentityDTO"];
+export type FundPreparationRequest = components["schemas"]["FundPreparationRequest"];
 
 // Portfolio
 export type Position = components["schemas"]["PositionDTO"];

@@ -118,10 +118,12 @@ class PreparationsDTO(BaseDTO):
 
     players: list[PlayerPreparationDTO]
     reserved: list[ReservedPartyDTO]
-    # Sigla, nome ou cor repetidos entre os preparados e com os partidos do computador; nome ou sigla repetidos entre as gestoras e sigla de ativo importado (só com a expansão Gestoras ligada)
+    # Sigla, nome ou cor repetidos entre os partidos preparados e com os do computador
     conflicts: list[str]
     # Quem funda gestora; vazio com a expansão Gestoras desligada
     funds: list[FundPreparationDTO] = Field(default_factory=list)
+    # Nome ou sigla de gestora repetidos entre os jogadores, ou sigla com as letras de um ativo; cada frase começa pelos apelidos envolvidos
+    fund_conflicts: list[str] = Field(default_factory=list)
     # Por que a escolha da gestora está travada (partida em andamento ou salva selecionada); nulo quando aberta
     fund_locked_reason: str | None = None
     # Convites de vice ainda sem resposta na sala, sem dizer de quem

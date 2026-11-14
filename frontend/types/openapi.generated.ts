@@ -10401,6 +10401,8 @@ export interface components {
             conflicts: string[];
             /** Funds */
             funds: components["schemas"]["FundPreparationDTO"][];
+            /** Fund Conflicts */
+            fund_conflicts: string[];
             /** Fund Locked Reason */
             fund_locked_reason: string | null;
             /**

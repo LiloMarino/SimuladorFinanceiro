@@ -22,6 +22,7 @@ import type {
   TeamNaming,
   VictoryCriterion,
 } from "@/types";
+import { FUND_FEE_CAP_MESSAGE, feeCapToBody, feeCapToField, isFeeCap } from "./fund-rules";
 import { governmentRuleError } from "./government-rules";
 import {
   calculatedGoal,
@@ -139,8 +140,9 @@ export const simulationFormSchema = z
     governmentEnabled: z.boolean(),
     fundsEnabled: z.boolean(),
     // Tetos de taxa das gestoras: o formulário só os carrega, o back valida
-    fundMaxManagementFee: z.string(),
-    fundMaxPerformanceFee: z.string(),
+    // Teto de cada taxa em percentual, como o host digita ("2" é 2% ao ano)
+    fundMaxManagementFee: z.string().refine(isFeeCap, FUND_FEE_CAP_MESSAGE),
+    fundMaxPerformanceFee: z.string().refine(isFeeCap, FUND_FEE_CAP_MESSAGE),
     // ISO quando a data está completa; vazio com a expansão desligada
     firstElection: z.string().superRefine((value, ctx) => {
       const message = dateFieldError(value);
@@ -233,8 +235,8 @@ export function toFormValues(settings: SimulationSettingsData): SimulationFormVa
     showChartHints: settings.show_chart_hints,
     governmentEnabled: settings.government_enabled,
     fundsEnabled: settings.funds_enabled,
-    fundMaxManagementFee: settings.fund_max_management_fee,
-    fundMaxPerformanceFee: settings.fund_max_performance_fee,
+    fundMaxManagementFee: feeCapToField(settings.fund_max_management_fee),
+    fundMaxPerformanceFee: feeCapToField(settings.fund_max_performance_fee),
     firstElection: settings.first_election ?? "",
     computerDifficulty: settings.computer_difficulty,
     pollMargin: settings.poll_margin,
@@ -284,8 +286,8 @@ export function toSettingsBody(values: SimulationFormValues): CreateSimulationRe
     show_chart_hints: values.showChartHints,
     government_enabled: values.governmentEnabled,
     funds_enabled: values.fundsEnabled,
-    fund_max_management_fee: values.fundMaxManagementFee,
-    fund_max_performance_fee: values.fundMaxPerformanceFee,
+    fund_max_management_fee: feeCapToBody(values.fundMaxManagementFee),
+    fund_max_performance_fee: feeCapToBody(values.fundMaxPerformanceFee),
     first_election: values.governmentEnabled && values.firstElection ? values.firstElection : null,
     computer_difficulty: values.computerDifficulty,
     poll_margin: values.pollMargin,
