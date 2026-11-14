@@ -10,13 +10,21 @@ cópia descartável do banco-base, semeado com as cotações fixas da demo. Toda
 parte do mesmo dado.
 """
 
+import json
 import os
 import re
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from urllib.parse import urljoin, urlparse
 
-from playwright.sync_api import Locator, Page, Playwright, expect, sync_playwright
+from playwright.sync_api import (
+    Locator,
+    Page,
+    Playwright,
+    Route,
+    expect,
+    sync_playwright,
+)
 
 from backend.core.utils import PROJECT_ROOT
 from scripts.demo.__main__ import import_stocks, missing_indicators
@@ -133,7 +141,7 @@ def stock_detail_with_order(page: Page) -> None:
     price = float(today.group(1).replace(".", "").replace(",", ".")) * 0.95
     page.locator("#order-limit").fill(f"{price:.2f}".replace(".", ","))
     page.get_by_role("button", name=re.compile(r"^Comprar 100 PETR4 a")).click()
-    page.get_by_role("row", name=re.compile(r"\(você\)")).wait_for()
+    page.get_by_role("region", name="Suas ordens").wait_for()
     page.wait_for_load_state("networkidle")
 
 
@@ -467,6 +475,331 @@ def preparation_profession_refused(page: Page) -> None:
     expect(entrepreneur).to_have_attribute("aria-checked", "false")
 
 
+# O livro da PETR4 e as rotas que as receitas forjam (o `GET` do livro e o da estratégia)
+ORDERS_PATH = "/api/variable-income/PETR4/orders"
+ORDERS_GLOB = "**/api/variable-income/PETR4/orders"
+STRATEGY_GLOB = "**/api/strategies/me"
+LONG_NICKNAME = "Maria Eduarda Albuquerque de Souza Nogueira"
+# A data da simulação da demo (02 jan 2023): as datas das ordens forjadas caem nela
+FORGED_DATE = "2023-01-02"
+
+
+def fulfill_get(page: Page, glob: str, body: str, status: int = 200) -> None:
+    """
+    Responde os `GET` de `glob` com `body`. Os outros métodos seguem para o servidor, então a
+    ordem enviada pela boleta continua real.
+    """
+
+    def handle(route: Route) -> None:
+        if route.request.method != "GET":
+            route.continue_()
+            return
+        route.fulfill(status=status, content_type="application/json", body=body)
+
+    page.route(glob, handle)
+
+
+def real_orders(page: Page) -> list[dict]:
+    """O livro que o servidor devolve agora: a base que as receitas forjadas alteram."""
+    response = page.request.get(urljoin(page.url, ORDERS_PATH))
+    if not response.ok:
+        raise RuntimeError(f"O livro real não respondeu: HTTP {response.status}")
+    return response.json()
+
+
+def reload_detail(page: Page) -> None:
+    """Recarrega o detalhe com as rotas já ligadas: o livro e a estratégia são pedidos de novo, forjados."""
+    page.reload()
+    page.get_by_role("heading", name=re.compile("PETR4")).first.wait_for()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+
+
+def open_stock(page: Page) -> None:
+    """Na lista de ações, abre a PETR4 sem esperar a rede assentar: as respostas pendentes ou com erro não assentam."""
+    page.get_by_role("row", name=re.compile(r"^PETR4")).click()
+    page.get_by_role("heading", name=re.compile("PETR4")).first.wait_for()
+
+
+def money_value(text: str) -> float:
+    """O valor em reais de um texto pt-BR: "R$ 1.234,55" vira 1234.55."""
+    found = re.search(r"\d[\d.]*,\d+", text)
+    assert found, f"sem valor em reais em {text!r}"
+    return float(found.group(0).replace(".", "").replace(",", "."))
+
+
+def number_in_field(field: Locator) -> float:
+    """O número digitado num campo pt-BR; campo vazio ou sem número vira -1, que nunca bate com um preço."""
+    found = re.fullmatch(r"\s*(\d[\d.]*)(?:,(\d+))?\s*", field.input_value())
+    if not found:
+        return -1.0
+    return float(f"{found.group(1).replace('.', '')}.{found.group(2) or '0'}")
+
+
+def book_partial_order(page: Page) -> None:
+    """
+    Detalhe da PETR4 com uma venda do jogador já parcialmente executada: 40 de 100, 60 restantes a
+    R$ 12,40. A faixa "Suas ordens" mostra o progresso e o botão "Cancelar as 60 restantes".
+    Dado forjado: a resposta de `GET /api/variable-income/PETR4/orders` é a lista real mais uma ordem
+    de venda do jogador logado (status partial, size 100, remaining 60).
+    """
+    stock_detail(page)
+    forged = {
+        "id": "ordem-forjada-parcial",
+        "player_nickname": demo_settings()["host"]["nickname"],
+        "player_color": None,
+        "player_is_bot": False,
+        "action": "sell",
+        "order_type": "limit",
+        "status": "partial",
+        "size": "100",
+        "remaining": "60",
+        "limit_price": 12.4,
+        "placed_on": FORGED_DATE,
+        "synthetic": False,
+    }
+    fulfill_get(page, ORDERS_GLOB, json.dumps([*real_orders(page), forged]))
+    reload_detail(page)
+    region = page.get_by_role("region", name="Suas ordens")
+    expect(region).to_be_visible()
+    expect(page.get_by_text("executou 40 de 100")).to_be_visible()
+    expect(
+        page.get_by_role("button", name="Cancelar as 60 restantes", exact=True)
+    ).to_be_visible()
+
+
+def book_automatic(page: Page) -> None:
+    """
+    Detalhe da PETR4 com uma compra limitada do jogador (a de `stock_detail_with_order`) e a
+    estratégia automática ligada: a faixa "Suas ordens" diz que a estratégia cuida das ordens, e
+    nenhuma ordem tem botão de cancelar.
+    Dado forjado: a resposta de `GET /api/strategies/me` é a real com `active` preenchido pela
+    primeira estratégia da lista; o resto da resposta fica como veio.
+    """
+    stock_detail_with_order(page)
+    key = page.request.get(urljoin(page.url, "/api/strategies")).json()[0]["key"]
+    mine = page.request.get(urljoin(page.url, "/api/strategies/me")).json()
+    forged = mine | {"active": {"key": key, "params": {}, "since": FORGED_DATE}}
+    fulfill_get(page, STRATEGY_GLOB, json.dumps(forged))
+    reload_detail(page)
+    region = page.get_by_role("region", name="Suas ordens")
+    expect(region).to_be_visible()
+    expect(
+        page.get_by_text("A estratégia automática cuida das suas ordens")
+    ).to_be_visible()
+    expect(region.get_by_role("button", name="Cancelar")).to_have_count(0)
+
+
+def book_click_fills(page: Page) -> None:
+    """
+    Detalhe da PETR4 sem ordem, com 100 na quantidade. Clicar numa compra do livro prepara uma
+    venda; clicar numa venda prepara uma compra limitada ao preço da linha, com a quantidade
+    digitada mantida e a boleta dizendo de onde veio ("Preenchido pelo livro"). Com o mouse sobre a
+    venda, a linha mostra "Comprar a R$ … →". Sem dado forjado.
+    """
+    stock_detail(page)
+    page.locator("#order-size").fill("100")
+    buy_row = page.get_by_role("region", name="Compra").locator("[data-book-row]").first
+    sell_row = page.get_by_role("region", name="Venda").locator("[data-book-row]").first
+    buy_row.click()
+    expect(page.get_by_role("button", name="Vender", exact=True)).to_have_attribute(
+        "aria-pressed", "true"
+    )
+    sell_row.click()
+    expect(page.get_by_role("button", name="Comprar", exact=True)).to_have_attribute(
+        "aria-pressed", "true"
+    )
+    # O aviso e o preço do campo mudam no mesmo render: quando o aviso aparece, o campo já tem o valor
+    expect(page.get_by_text("Preenchido pelo livro")).to_be_visible()
+    price = money_value(sell_row.inner_text())
+    assert number_in_field(page.locator("#order-limit")) == price, (
+        "o preço limite não veio da linha clicada"
+    )
+    expect(page.locator("#order-size")).to_have_value("100")
+    sell_row.hover()
+    expect(sell_row.get_by_text(re.compile(r"Comprar a R\$"))).to_be_visible()
+
+
+def book_own_row(page: Page) -> None:
+    """
+    Detalhe da PETR4 com a compra do jogador no livro, "Mostrar todas" aberto. A linha própria
+    (com "(você)" na seção Compra) não é botão: clicar nela não mexe no preço da boleta.
+    Dado forjado: nenhum; usa a ordem real de `stock_detail_with_order`.
+    """
+    stock_detail_with_order(page)
+    page.get_by_role("button", name=re.compile(r"^Mostrar todas")).click()
+    page.get_by_role(
+        "button", name="Mostrar só as 8 mais perto do preço", exact=True
+    ).wait_for()
+    own = (
+        page.get_by_role("region", name="Compra")
+        .locator("[data-book-row]")
+        .filter(has_text="(você)")
+    )
+    expect(own).to_have_count(1)
+    expect(own.locator("button")).to_have_count(0)
+    limit = page.locator("#order-limit")
+    before = limit.input_value()
+    own.click()
+    expect(limit).to_have_value(before)
+    expect(page.get_by_text("Preenchido pelo livro")).to_have_count(0)
+
+
+def book_show_all(page: Page) -> None:
+    """
+    Detalhe da PETR4 com "Mostrar todas" aberto: o livro mostra todas as compras e vendas abertas,
+    não só as 8 mais perto do preço. A contagem de linhas de cada seção bate com o botão.
+    Sem dado forjado.
+    """
+    stock_detail(page)
+    show = page.get_by_role("button", name=re.compile(r"^Mostrar todas"))
+    counts = re.search(r"(\d+) compras e (\d+) vendas", show.inner_text())
+    assert counts, "o botão 'Mostrar todas' não trouxe a contagem do livro"
+    buys, sells = int(counts.group(1)), int(counts.group(2))
+    show.click()
+    page.get_by_role(
+        "button", name="Mostrar só as 8 mais perto do preço", exact=True
+    ).wait_for()
+    expect(
+        page.get_by_role("region", name="Compra").locator("[data-book-row]")
+    ).to_have_count(buys)
+    expect(
+        page.get_by_role("region", name="Venda").locator("[data-book-row]")
+    ).to_have_count(sells)
+
+
+def book_hint(page: Page) -> None:
+    """
+    Detalhe da PETR4 com o popover "De onde vêm essas ofertas" aberto pelo botão (i): explica
+    a diferença entre as duas melhores ofertas e a barra de quantidade. Sem dado forjado.
+    """
+    stock_detail(page)
+    page.get_by_role("button", name="De onde vêm essas ofertas").click()
+    expect(page.get_by_text("Diferença", exact=True)).to_be_visible()
+    expect(page.get_by_text("Barra", exact=True)).to_be_visible()
+
+
+def book_loading(page: Page) -> None:
+    """
+    Detalhe da PETR4 com o `GET` do livro pendente: ele nunca responde, então o card mostra o
+    esqueleto e não tem as seções Compra e Venda. O título "Livro de ofertas" já está na tela.
+    Dado forjado: a rota do livro recebe a requisição e não responde (não há fulfill nem continue).
+    """
+    stocks_list(page)
+    page.route(ORDERS_GLOB, lambda route: None)
+    open_stock(page)
+    page.wait_for_selector('[data-slot="skeleton"]')
+    expect(page.get_by_text("Livro de ofertas", exact=True)).to_be_visible()
+    expect(page.get_by_role("region", name="Compra")).to_have_count(0)
+    expect(page.get_by_role("region", name="Venda")).to_have_count(0)
+    dismiss_topic(page)
+
+
+def book_history(page: Page) -> None:
+    """
+    Detalhe da PETR4 com a aba "Histórico" do livro aberta. O banco da demo não tem negócio
+    fechado na PETR4, então a aba mostra o vazio "Nenhum negócio ainda" (a tabela com a coluna
+    "Comprou · vendeu" só aparece com negócios). Sem dado forjado.
+    """
+    stock_detail(page)
+    page.get_by_role("button", name="Histórico", exact=True).click()
+    expect(page.get_by_text("Nenhum negócio ainda", exact=True)).to_be_visible()
+
+
+def book_error(page: Page) -> None:
+    """
+    Detalhe da PETR4 quando `GET /api/variable-income/PETR4/orders` falha: a resposta é forjada
+    com status 500 e o corpo de erro da API. O card diz que não deu para carregar o livro e oferece
+    "Tentar de novo". Sem ordens do jogador, o erro é o que aparece.
+    """
+    stocks_list(page)
+    fulfill_get(
+        page, ORDERS_GLOB, '{"message": "Falha ao consultar o livro."}', status=500
+    )
+    open_stock(page)
+    expect(page.get_by_text("Não deu para carregar o livro.")).to_be_visible(
+        timeout=60_000
+    )
+    expect(
+        page.get_by_role("button", name="Tentar de novo", exact=True)
+    ).to_be_visible()
+    dismiss_topic(page)
+
+
+def book_empty(page: Page) -> None:
+    """
+    Detalhe da PETR4 com o livro vazio: `GET /api/variable-income/PETR4/orders` responde `[]`.
+    A aba de ofertas mostra "Sem ofertas hoje" e conta "Ofertas · 0".
+    Dado forjado: a resposta do livro é uma lista vazia.
+    """
+    stocks_list(page)
+    fulfill_get(page, ORDERS_GLOB, "[]")
+    open_stock(page)
+    page.wait_for_load_state("networkidle")
+    expect(page.get_by_text("Sem ofertas hoje")).to_be_visible()
+    expect(page.get_by_role("button", name="Ofertas · 0", exact=True)).to_be_visible()
+    dismiss_topic(page)
+
+
+def book_long_text(page: Page) -> None:
+    """
+    Detalhe da PETR4 com números grandes no livro: preços de 4 dígitos (R$ 1.234,55 e R$ 1.234,57)
+    e quantidades de 8 dígitos (87.650.000, 123.460.000 e 98.770.000), e um jogador com apelido longo.
+    A página não pode ganhar rolagem horizontal: o nome longo fica truncado na linha.
+    Dado forjado: a resposta real de `GET /api/variable-income/PETR4/orders` ganha três ordens na
+    frente (duas compras e uma venda), copiadas de uma ordem real e com preço, quantidade e nome trocados.
+    """
+    stock_detail(page)
+    orders = real_orders(page)
+    assert orders, "o livro real da PETR4 veio vazio: não há ordem para usar de modelo"
+    base = orders[0] | {
+        "player_color": None,
+        "player_is_bot": False,
+        "order_type": "limit",
+        "status": "pending",
+        "synthetic": False,
+        "placed_on": FORGED_DATE,
+    }
+    forged = [
+        base
+        | {
+            "id": "forjada-compra-longa",
+            "player_nickname": LONG_NICKNAME,
+            "action": "buy",
+            "limit_price": 1234.55,
+            "size": "87650000",
+            "remaining": "87650000",
+        },
+        base
+        | {
+            "id": "forjada-compra",
+            "player_nickname": "Ana",
+            "action": "buy",
+            "limit_price": 1234.5,
+            "size": "98770000",
+            "remaining": "98770000",
+        },
+        base
+        | {
+            "id": "forjada-venda",
+            "player_nickname": "Bruno",
+            "action": "sell",
+            "limit_price": 1234.57,
+            "size": "123460000",
+            "remaining": "123460000",
+        },
+    ]
+    fulfill_get(page, ORDERS_GLOB, json.dumps(forged + orders))
+    reload_detail(page)
+    expect(page.get_by_text(LONG_NICKNAME).first).to_be_visible()
+    fits = page.evaluate(
+        "() => document.documentElement.scrollWidth <= document.documentElement.clientWidth"
+    )
+    assert fits, (
+        "a página ganhou rolagem horizontal com o livro de números e nomes longos"
+    )
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "carteira/vazia": portfolio_empty,
     "renda-variavel/detalhe": stock_detail,
@@ -484,4 +817,15 @@ STATES: dict[str, Callable[[Page], None]] = {
     "preparacao/profissao-sem-inflacao": preparation_profession_no_inflation,
     "preparacao/profissao-partida-salva": preparation_profession_saved_match,
     "preparacao/profissao-recusa": preparation_profession_refused,
+    "renda-variavel/livro-ordem-parcial": book_partial_order,
+    "renda-variavel/livro-automatico": book_automatic,
+    "renda-variavel/livro-clique-preenche": book_click_fills,
+    "renda-variavel/livro-clique-propria": book_own_row,
+    "renda-variavel/livro-mostrar-todas": book_show_all,
+    "renda-variavel/livro-dica": book_hint,
+    "renda-variavel/livro-carregando": book_loading,
+    "renda-variavel/livro-historico": book_history,
+    "renda-variavel/livro-erro": book_error,
+    "renda-variavel/livro-vazio": book_empty,
+    "renda-variavel/livro-texto-longo": book_long_text,
 }
