@@ -8,6 +8,7 @@ export const INCOME_TAX_RATE: Record<AssetClass, number> = {
   ETF: 0.15,
   BDR: 0.15,
   CRYPTO: 0.15,
+  FUND: 0.15,
 };
 
 /** Classes com isenção mensal sobre as vendas, e como o texto chama essas vendas. */

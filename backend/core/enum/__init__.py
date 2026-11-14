@@ -77,6 +77,14 @@ class CashflowEventType(Enum):
     CAMPAIGN_DONATION = "CAMPAIGN_DONATION"
     CAMPAIGN_ACTION = "CAMPAIGN_ACTION"
     PRESIDENT_LEGACY = "PRESIDENT_LEGACY"
+    # Integralização em dinheiro: sai do caixa pessoal e entra no da gestora
+    FUND_TRANSFER_OUT = "FUND_TRANSFER_OUT"
+    FUND_TRANSFER_IN = "FUND_TRANSFER_IN"
+    # Taxas da gestora: saem do caixa dela e entram no caixa pessoal do gestor
+    FUND_MANAGEMENT_FEE = "FUND_MANAGEMENT_FEE"
+    FUND_PERFORMANCE_FEE = "FUND_PERFORMANCE_FEE"
+    FUND_MANAGEMENT_FEE_INCOME = "FUND_MANAGEMENT_FEE_INCOME"
+    FUND_PERFORMANCE_FEE_INCOME = "FUND_PERFORMANCE_FEE_INCOME"
 
     @property
     def sign(self) -> int:
@@ -106,6 +114,12 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.CAMPAIGN_DONATION: -1,
     CashflowEventType.CAMPAIGN_ACTION: -1,
     CashflowEventType.PRESIDENT_LEGACY: 1,
+    CashflowEventType.FUND_TRANSFER_OUT: -1,
+    CashflowEventType.FUND_TRANSFER_IN: 1,
+    CashflowEventType.FUND_MANAGEMENT_FEE: -1,
+    CashflowEventType.FUND_PERFORMANCE_FEE: -1,
+    CashflowEventType.FUND_MANAGEMENT_FEE_INCOME: 1,
+    CashflowEventType.FUND_PERFORMANCE_FEE_INCOME: 1,
 }
 
 # Aporte, salário, legado do presidente, despesa e imprevisto (ruim ou bom) são o
@@ -146,6 +160,9 @@ class EquityEventType(Enum):
     SPLIT = "SPLIT"
     # Venda da fração que sobra do desdobramento numa classe sem fração
     FRACTION_SELL = "FRACTION_SELL"
+    # Integralização de ações na gestora: a posição muda de carteira, sem venda e sem DARF
+    TRANSFER_IN = "TRANSFER_IN"
+    TRANSFER_OUT = "TRANSFER_OUT"
 
     @property
     def quantity_sign(self) -> int:
@@ -154,8 +171,8 @@ class EquityEventType(Enum):
 
     @property
     def is_trade(self) -> bool:
-        """Compra ou venda de verdade; o desdobramento só reescreve a quantidade."""
-        return self is not EquityEventType.SPLIT
+        """Compra ou venda de verdade; o desdobramento e a transferência só mexem na quantidade."""
+        return self not in NON_TRADE_EQUITY_TYPES
 
 
 QUANTITY_SIGN: dict[EquityEventType, int] = {
@@ -164,7 +181,17 @@ QUANTITY_SIGN: dict[EquityEventType, int] = {
     # A variação já vem com o sinal: negativa no grupamento
     EquityEventType.SPLIT: 1,
     EquityEventType.FRACTION_SELL: -1,
+    EquityEventType.TRANSFER_IN: 1,
+    EquityEventType.TRANSFER_OUT: -1,
 }
+
+NON_TRADE_EQUITY_TYPES = frozenset(
+    {
+        EquityEventType.SPLIT,
+        EquityEventType.TRANSFER_IN,
+        EquityEventType.TRANSFER_OUT,
+    }
+)
 
 
 class Currency(Enum):
@@ -185,6 +212,8 @@ class AssetClass(Enum):
     ETF = "ETF"
     BDR = "BDR"
     CRYPTO = "CRYPTO"
+    # Cota de gestora
+    FUND = "FUND"
 
     @property
     def fractional(self) -> bool:
@@ -449,6 +478,9 @@ class PlayerActivity(Enum):
 class FixedIncomeEventType(Enum):
     BUY = "BUY"
     REDEEM = "REDEEM"
+    # Integralização de título na gestora: o título muda de carteira, sem resgate
+    TRANSFER_IN = "TRANSFER_IN"
+    TRANSFER_OUT = "TRANSFER_OUT"
 
 
 class CreditEventType(Enum):
@@ -1163,6 +1195,8 @@ class NewsType(Enum):
     STRONG_MOVE = "STRONG_MOVE"
     WEEK_HIGH = "WEEK_HIGH"
     HISTORICAL_MILESTONE = "HISTORICAL_MILESTONE"
+    FUND_FEE_CHANGED = "FUND_FEE_CHANGED"
+    FUND_OFFER_OPENED = "FUND_OFFER_OPENED"
 
 
 class NewsLevel(Enum):

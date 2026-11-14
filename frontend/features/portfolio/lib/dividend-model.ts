@@ -10,6 +10,7 @@ export const DIVIDEND_CLASS_COLORS: Record<AssetClass, string> = {
   ETF: "bg-dividend-bar-etf",
   BDR: "bg-dividend-bar-bdr",
   CRYPTO: "bg-dividend-bar",
+  FUND: "bg-dividend-bar-soft",
 };
 
 const STEPS = [1, 2, 2.5, 5, 10];

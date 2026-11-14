@@ -331,7 +331,8 @@ class Stock(Base):
     ticker: Mapped[str] = mapped_column(Text, nullable=False)
     name: Mapped[str] = mapped_column(Text, nullable=False)
     asset_class: Mapped[str] = mapped_column(
-        Enum("STOCK", "FII", "ETF", "BDR", "CRYPTO", name="asset_class"), nullable=False
+        Enum("STOCK", "FII", "ETF", "BDR", "CRYPTO", "FUND", name="asset_class"),
+        nullable=False,
     )
     # Moeda em que a fonte cota o ativo; o preço guardado é sempre em real
     currency: Mapped[str] = mapped_column(
@@ -551,8 +552,8 @@ class Portfolios(Base):
         primary_key=True,
     )
     simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    # O dono da carteira
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    # O dono da carteira; nulo na carteira de uma gestora
+    user_id: Mapped[int | None] = mapped_column(Integer)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )
@@ -564,7 +565,7 @@ class Portfolios(Base):
     simulation: Mapped["Simulations"] = relationship(
         "Simulations", back_populates="portfolios"
     )
-    user: Mapped["Users"] = relationship("Users", back_populates="portfolios")
+    user: Mapped["Users | None"] = relationship("Users", back_populates="portfolios")
     event_cashflow: Mapped[list["EventCashflow"]] = relationship(
         "EventCashflow", back_populates="portfolio"
     )
@@ -1274,4 +1275,143 @@ class TickerProfile(Base):
     industry: Mapped[str | None] = mapped_column(Text)
     fetched_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False, server_default=text("now()")
+    )
+
+
+class Funds(Base):
+    """Uma gestora numa partida: a cota é uma linha de `stock` e o caixa e as posições moram na carteira dela."""
+
+    __tablename__ = "funds"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="funds_simulation_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["stock_id"],
+            ["stock.id"],
+            ondelete="RESTRICT",
+            onupdate="CASCADE",
+            name="funds_stock_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["portfolio_id"],
+            ["portfolios.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="funds_portfolio_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["founder_user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="funds_founder_user_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["manager_user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="funds_manager_user_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="funds_pkey"),
+        UniqueConstraint("portfolio_id", name="funds_portfolio_id_key"),
+        UniqueConstraint(
+            "simulation_id", "stock_id", name="funds_simulation_stock_key"
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # A cota da gestora
+    stock_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    portfolio_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # A conta da gestora no motor
+    client_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    founder_user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    manager_user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    # Cotas em circulação, com as do formador de mercado
+    quotas: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
+    maker_quotas: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
+    # Caixa sintético do formador: fica só nesta linha, para auditoria
+    maker_cash: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
+    # Cotas da oferta pública ainda à venda; nulo sem oferta aberta
+    offer_remaining: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+    # Dia da oferta pública; nulo antes dela
+    listed_on: Mapped[datetime.date | None] = mapped_column(Date)
+    management_fee: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(8, 6), nullable=False
+    )
+    performance_fee: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(8, 6), nullable=False
+    )
+    # Troca de taxa pedida: vale a partir de `pending_from`
+    pending_management_fee: Mapped[decimal.Decimal | None] = mapped_column(
+        Numeric(8, 6)
+    )
+    pending_performance_fee: Mapped[decimal.Decimal | None] = mapped_column(
+        Numeric(8, 6)
+    )
+    pending_from: Mapped[datetime.date | None] = mapped_column(Date)
+    # PL por cota que a performance precisa superar, corrigido pelo CDI desde `high_water_mark_on`
+    high_water_mark: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+    high_water_mark_on: Mapped[datetime.date | None] = mapped_column(Date)
+    last_performance_on: Mapped[datetime.date | None] = mapped_column(Date)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
+
+
+class FundDays(Base):
+    """O fechamento de uma gestora num pregão: o PL por cota, o giro e o preço de ranking."""
+
+    __tablename__ = "fund_days"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fund_id"],
+            ["funds.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_days_fund_id_fkey",
+        ),
+        PrimaryKeyConstraint("fund_id", "day", name="fund_days_pkey"),
+    )
+
+    fund_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    day: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
+    # PL por cota
+    nav: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    quotas: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    traded_quantity: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
+    # Soma de preço vezes quantidade dos negócios do dia
+    traded_value: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
+    ranking_price: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
     )

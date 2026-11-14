@@ -11835,7 +11835,8 @@
           "FII",
           "ETF",
           "BDR",
-          "CRYPTO"
+          "CRYPTO",
+          "FUND"
         ],
         "title": "AssetClass"
       },
@@ -24817,7 +24818,9 @@
           "IBOVESPA_EXTREME",
           "STRONG_MOVE",
           "WEEK_HIGH",
-          "HISTORICAL_MILESTONE"
+          "HISTORICAL_MILESTONE",
+          "FUND_FEE_CHANGED",
+          "FUND_OFFER_OPENED"
         ],
         "title": "NewsType",
         "description": "Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro."

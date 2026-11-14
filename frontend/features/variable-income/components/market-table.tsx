@@ -16,6 +16,7 @@ const CLASS_LABELS: Record<MarketQuote["asset_class"], string | null> = {
   ETF: "ETF",
   BDR: "BDR",
   CRYPTO: "Cripto",
+  FUND: "Cota",
 };
 
 /** Onde o fechamento ficou entre a mínima e a máxima do dia. */

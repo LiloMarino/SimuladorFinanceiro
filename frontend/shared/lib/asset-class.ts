@@ -7,6 +7,7 @@ export const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
   ETF: "ETF",
   BDR: "BDR",
   CRYPTO: "Cripto",
+  FUND: "Cotas de gestoras",
 };
 
 /** Os tipos de renda variável na ordem em que as telas os listam. */

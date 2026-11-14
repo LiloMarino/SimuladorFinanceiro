@@ -11,6 +11,7 @@ const CLASS_LABELS: Record<StockDetails["asset_class"], string> = {
   ETF: "ETF",
   BDR: "BDR",
   CRYPTO: "Cripto",
+  FUND: "Cota",
 };
 
 /** Cabeçalho do ativo: código, nome, o pregão do dia e o preço. */

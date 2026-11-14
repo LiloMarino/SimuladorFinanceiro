@@ -61,7 +61,9 @@ def _create_portfolios(
             Portfolios.user_id.in_(user_ids),
         )
     )
-    return {user_id: portfolio_id for user_id, portfolio_id in rows}
+    return {
+        user_id: portfolio_id for user_id, portfolio_id in rows if user_id is not None
+    }
 
 
 class PortfolioRepository:
@@ -129,7 +131,12 @@ class PortfolioRepository:
                 Portfolios.simulation_id == simulation_id
             )
         )
-        return {user_id: portfolio_id for user_id, portfolio_id in rows}
+        # A carteira de gestora não tem jogador dono e fica fora deste mapa
+        return {
+            user_id: portfolio_id
+            for user_id, portfolio_id in rows
+            if user_id is not None
+        }
 
     @transactional
     def get_patrimonial_history(

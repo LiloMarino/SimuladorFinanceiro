@@ -122,8 +122,143 @@ def upgrade() -> None:
                 _index_columns("portfolio_id"),
             )
 
+    # Gestoras: a carteira da gestora não tem jogador dono, e a cota é um ativo `FUND`
+    op.alter_column("portfolios", "user_id", nullable=True)
+    op.execute("ALTER TYPE asset_class ADD VALUE IF NOT EXISTS 'FUND'")
+    op.create_table(
+        "funds",
+        sa.Column(
+            "id",
+            sa.BigInteger(),
+            sa.Identity(
+                always=True,
+                start=1,
+                increment=1,
+                minvalue=1,
+                maxvalue=9223372036854775807,
+                cycle=False,
+                cache=1,
+            ),
+            nullable=False,
+        ),
+        sa.Column("simulation_id", sa.BigInteger(), nullable=False),
+        sa.Column("stock_id", sa.Integer(), nullable=False),
+        sa.Column("portfolio_id", sa.BigInteger(), nullable=False),
+        sa.Column("client_id", sa.Uuid(), nullable=False),
+        sa.Column("founder_user_id", sa.Integer(), nullable=False),
+        sa.Column("manager_user_id", sa.Integer(), nullable=False),
+        sa.Column("name", sa.Text(), nullable=False),
+        sa.Column(
+            "quotas",
+            sa.Numeric(precision=20, scale=6),
+            server_default=sa.text("0"),
+            nullable=False,
+        ),
+        sa.Column(
+            "maker_quotas",
+            sa.Numeric(precision=20, scale=6),
+            server_default=sa.text("0"),
+            nullable=False,
+        ),
+        sa.Column(
+            "maker_cash",
+            sa.Numeric(precision=20, scale=6),
+            server_default=sa.text("0"),
+            nullable=False,
+        ),
+        sa.Column("offer_remaining", sa.Numeric(precision=20, scale=6), nullable=True),
+        sa.Column("listed_on", sa.Date(), nullable=True),
+        sa.Column("management_fee", sa.Numeric(precision=8, scale=6), nullable=False),
+        sa.Column("performance_fee", sa.Numeric(precision=8, scale=6), nullable=False),
+        sa.Column(
+            "pending_management_fee", sa.Numeric(precision=8, scale=6), nullable=True
+        ),
+        sa.Column(
+            "pending_performance_fee", sa.Numeric(precision=8, scale=6), nullable=True
+        ),
+        sa.Column("pending_from", sa.Date(), nullable=True),
+        sa.Column("high_water_mark", sa.Numeric(precision=20, scale=6), nullable=True),
+        sa.Column("high_water_mark_on", sa.Date(), nullable=True),
+        sa.Column("last_performance_on", sa.Date(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            name="funds_simulation_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["stock_id"],
+            ["stock.id"],
+            name="funds_stock_id_fkey",
+            onupdate="CASCADE",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["portfolio_id"],
+            ["portfolios.id"],
+            name="funds_portfolio_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["founder_user_id"],
+            ["users.id"],
+            name="funds_founder_user_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["manager_user_id"],
+            ["users.id"],
+            name="funds_manager_user_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint("id", name="funds_pkey"),
+        sa.UniqueConstraint("portfolio_id", name="funds_portfolio_id_key"),
+        sa.UniqueConstraint(
+            "simulation_id", "stock_id", name="funds_simulation_stock_key"
+        ),
+    )
+    op.create_table(
+        "fund_days",
+        sa.Column("fund_id", sa.BigInteger(), nullable=False),
+        sa.Column("day", sa.Date(), nullable=False),
+        sa.Column("nav", sa.Numeric(precision=20, scale=6), nullable=False),
+        sa.Column("quotas", sa.Numeric(precision=20, scale=6), nullable=False),
+        sa.Column("traded_quantity", sa.Numeric(precision=20, scale=6), nullable=False),
+        sa.Column("traded_value", sa.Numeric(precision=20, scale=6), nullable=False),
+        sa.Column("ranking_price", sa.Numeric(precision=20, scale=6), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["fund_id"],
+            ["funds.id"],
+            name="fund_days_fund_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint("fund_id", "day", name="fund_days_pkey"),
+    )
+
 
 def downgrade() -> None:
+    # O PostgreSQL não remove valor de enum: os valores novos ficam nos tipos
+    op.drop_table("fund_days")
+    op.drop_table("funds")
+    # Sem gestoras, somem a carteira sem dono e a cota (com o que apontava para ela)
+    op.execute("DELETE FROM portfolios WHERE user_id IS NULL")
+    fund_stock = "(SELECT id FROM stock WHERE asset_class = 'FUND')"
+    for table in (
+        "event_equity",
+        "event_cashflow",
+        "stock_price_history",
+        "stock_corporate_event",
+    ):
+        op.execute(f"DELETE FROM {table} WHERE stock_id IN {fund_stock}")
+    op.execute("DELETE FROM stock WHERE asset_class = 'FUND'")
+    op.alter_column("portfolios", "user_id", nullable=False)
+
     for table in OWNED_TABLES:
         op.add_column(table, sa.Column("user_id", sa.Integer(), nullable=True))
         op.execute(

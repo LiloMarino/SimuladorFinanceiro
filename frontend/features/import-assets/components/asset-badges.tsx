@@ -18,6 +18,7 @@ const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
   ETF: "ETF",
   BDR: "BDR",
   CRYPTO: "Cripto",
+  FUND: "Cota",
 };
 
 /** A classe do ativo: o selo abre o menu e a troca vale na hora. */

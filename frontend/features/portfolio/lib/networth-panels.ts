@@ -75,6 +75,12 @@ const TYPE_STYLES: Record<AssetClass, PanelStyle> = {
     areaClass: "fill-chart-6/12",
     dotClass: "stroke-chart-6",
   },
+  FUND: {
+    color: "var(--chart-2)",
+    lineClass: "stroke-chart-2",
+    areaClass: "fill-chart-2/12",
+    dotClass: "stroke-chart-2",
+  },
 };
 
 /** Um painel por tipo de renda variável; o dia sem o tipo em carteira vale zero. */

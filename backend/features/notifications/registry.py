@@ -107,6 +107,20 @@ NEWS: tuple[NewsSpec, ...] = (
         portfolio_filter=True,
     ),
     NewsSpec(
+        NewsType.FUND_OFFER_OPENED,
+        NewsSection.COMPANIES,
+        "Oferta de cotas de uma gestora",
+        "“MEUS11 abre oferta pública de 10 mil cotas”",
+        NewsLevel.JOURNAL,
+    ),
+    NewsSpec(
+        NewsType.FUND_FEE_CHANGED,
+        NewsSection.COMPANIES,
+        "Troca de taxa de uma gestora",
+        "“MEUS11 muda a taxa de administração para 1,5% ao ano”",
+        NewsLevel.JOURNAL,
+    ),
+    NewsSpec(
         NewsType.ELECTION_RESULT,
         NewsSection.POLITICS,
         "Resultado do turno e impeachment",
