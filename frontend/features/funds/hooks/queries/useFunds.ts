@@ -1,17 +1,26 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
+import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { FundSummary } from "@/types";
 import { fundKeys } from "../fund-keys";
 
-// Preço e patrimônio por cota andam com o pregão e não chegam por tempo real: a lista se renova sozinha
-const REFRESH_MS = 10_000;
-
-/** As gestoras da partida, cada uma com o patrimônio por cota de agora e o preço de ranking. */
+/** As gestoras da partida, cada uma com o patrimônio por cota de agora e o preço de ranking. Quando algo muda (funds_update), busca de novo. */
 export function useFunds({ enabled = true }: { enabled?: boolean } = {}) {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: fundKeys.list(),
     queryFn: ({ signal }) => apiFetch<FundSummary[]>("/api/funds", { signal }),
     enabled,
-    refetchInterval: REFRESH_MS,
   });
+
+  useRealtime(
+    "funds_update",
+    () => {
+      void queryClient.invalidateQueries({ queryKey: fundKeys.all() });
+    },
+    enabled,
+  );
+
+  return query;
 }

@@ -221,6 +221,7 @@ from backend.features.notifications import news, registry
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     CorporateActionsEventDTO,
+    FundsUpdateEventDTO,
     PortfolioUpdateEventDTO,
     SimulationTickUpdateEventDTO,
     SnapshotUpdateEventDTO,
@@ -490,6 +491,12 @@ class Simulation:
         finally:
             # Mesmo uma execução parcial precisa aparecer sem esperar outro tick.
             EventManager.flush()
+            # A página da gestora muda com o negócio da cota (preço e cotistas) e com o da carteira dela
+            if self._funds is not None and (
+                self._engine.asset_class(order.ticker) is AssetClass.FUND
+                or self._funds.of_client(order.client_id) is not None
+            ):
+                self._notify_funds_update()
 
     @synchronized
     def cancel_order(self, *, order_id: str, client_id: UUID) -> bool:
@@ -1004,6 +1011,7 @@ class Simulation:
             management_fee=request.management_fee,
             performance_fee=request.performance_fee,
         )
+        self._notify_funds_update()
         return book.summary(fund)
 
     @synchronized
@@ -1019,6 +1027,7 @@ class Simulation:
             )
         quotas = book.contribute(fund.ticker, user.client_id, request.cash, stocks)
         EventManager.flush()
+        self._notify_funds_update()
         return FundContributionResponse(quotas=quotas)
 
     @synchronized
@@ -1033,6 +1042,7 @@ class Simulation:
             raise ConflictError("Integralize antes de abrir a oferta.")
         book.open_offer(fund.ticker, Decimal(quotas))
         EventManager.flush()
+        self._notify_funds_update()
         return book.summary(fund)
 
     @synchronized
@@ -1041,6 +1051,7 @@ class Simulation:
         if fund.account.offer_remaining is None:
             raise ConflictError("A gestora não tem oferta aberta.")
         self._ensure_funds().close_offer(fund.ticker)
+        self._notify_funds_update()
 
     @synchronized
     def set_fund_fees(
@@ -1052,7 +1063,13 @@ class Simulation:
             request.management_fee, request.performance_fee
         )
         book.set_fees(fund.ticker, request.management_fee, request.performance_fee)
+        self._notify_funds_update()
         return book.summary(fund)
+
+    def _notify_funds_update(self) -> None:
+        """Avisa a sala de que as páginas das gestoras mudaram: toda mudança de gestora
+        (pregão, negócio da cota, oferta, taxas, congelamento) passa por aqui."""
+        notify("funds_update", FundsUpdateEventDTO().to_json())
 
     def _ensure_funds(self) -> FundBook:
         if self._funds is None:
@@ -1129,6 +1146,7 @@ class Simulation:
         self._engine.matching_engine.cancel_all(president.client_id)
         if self._funds is not None:
             self._funds.on_office(president.id)
+            self._notify_funds_update()
         self._strategies.set_mode(
             president,
             None,
@@ -1554,6 +1572,8 @@ class Simulation:
                 SimulationTickUpdateEventDTO(current_date=self._current_date).to_json(),
             )
             notify("stocks_update", StocksUpdateEventDTO(stocks=stocks).to_json())
+            if self._funds is not None:
+                self._notify_funds_update()
             for player in UserManager.list_active_players():
                 notify(
                     "portfolio_update",

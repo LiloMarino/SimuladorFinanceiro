@@ -20,6 +20,7 @@ from backend.core.dto.user import UserDTO
 from backend.core.enum import AssetClass, EquityEventType, OrderAction
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.runtime.event_manager import EventManager
+from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.funds.fund_book import FundBook
 from backend.features.government.measures import short_date
@@ -817,3 +818,68 @@ def test_there_is_no_report_before_the_first_month_turn(started):  # noqa: F811
 
     assert page.last_report is None
     assert page.return_since is not None
+
+
+@pytest.fixture
+def sent_events(monkeypatch) -> list[str]:
+    """Os nomes dos eventos de tempo real que a partida emite, na ordem."""
+    sent: list[str] = []
+    monkeypatch.setattr(
+        RealtimeBrokerManager,
+        "get_broker",
+        lambda: SimpleNamespace(
+            notify=lambda event, payload, to=None: sent.append(event)
+        ),
+    )
+    return sent
+
+
+def test_the_close_of_the_session_announces_the_funds_update(flow, sent_events):
+    sim, ana = flow
+    fund_with_cash(sim, ana)
+    sent_events.clear()
+
+    sim.next_tick()
+
+    assert sent_events.count("funds_update") == 1
+
+
+def test_each_manager_action_announces_the_funds_update(flow, sent_events):
+    sim, ana = flow
+
+    fund = sim.found_fund(ana, found_request())
+    assert sent_events.count("funds_update") == 1
+    sim.contribute_to_fund(ana, fund.id, FundContributionRequest(cash=Decimal(5000)))
+    assert sent_events.count("funds_update") == 2
+    sim.open_fund_offer(ana, fund.id, 20)
+    assert sent_events.count("funds_update") == 3
+    sim.set_fund_fees(
+        ana,
+        fund.id,
+        FundFeesRequest(
+            management_fee=Decimal("0.02"), performance_fee=Decimal("0.20")
+        ),
+    )
+    assert sent_events.count("funds_update") == 4
+    sim.close_fund_offer(ana, fund.id)
+    assert sent_events.count("funds_update") == 5
+
+
+def test_a_quota_trade_announces_the_funds_update(started, sent_events):  # noqa: F811
+    sim, ana = empty_match("Bruno")
+    bruno = player(sim, "Bruno")
+    fund_id = fund_with_cash(sim, ana)
+    sim.open_fund_offer(ana, fund_id, 20)
+    sent_events.clear()
+
+    sim.create_order(
+        MarketOrder(
+            client_id=bruno.client_id,
+            ticker=TICKER,
+            size=Decimal(5),
+            action=OrderAction.BUY,
+            placed_on=sim._current_date,
+        )
+    )
+
+    assert sent_events.count("funds_update") == 1

@@ -21867,6 +21867,13 @@
         "title": "FundTickerCheckDTO",
         "description": "O que a conferência da sigla achou: livre, fora do formato, de um ativo ou de uma gestora."
       },
+      "FundsUpdateEventDTO": {
+        "properties": {},
+        "additionalProperties": false,
+        "type": "object",
+        "title": "FundsUpdateEventDTO",
+        "description": "Algo nas gestoras mudou (PL, cotas, cotistas, oferta, taxas ou congelamento): o aviso\nnão carrega dado, quem exibe uma gestora busca de novo."
+      },
       "FutureParamsDTO": {
         "properties": {
           "until": {
@@ -32097,6 +32104,9 @@
           "fixed_assets_update": {
             "$ref": "#/components/schemas/FixedAssetsUpdateEventDTO"
           },
+          "funds_update": {
+            "$ref": "#/components/schemas/FundsUpdateEventDTO"
+          },
           "snapshot_update": {
             "$ref": "#/components/schemas/SnapshotUpdateEventDTO"
           },
@@ -32237,6 +32247,7 @@
           "cash_update",
           "stocks_update",
           "fixed_assets_update",
+          "funds_update",
           "snapshot_update",
           "portfolio_update",
           "statistics_snapshot_update",

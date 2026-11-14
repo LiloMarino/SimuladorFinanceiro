@@ -7386,6 +7386,12 @@ export interface components {
             owner_name: string | null;
         };
         /**
+         * FundsUpdateEventDTO
+         * @description Algo nas gestoras mudou (PL, cotas, cotistas, oferta, taxas ou congelamento): o aviso
+         *     não carrega dado, quem exibe uma gestora busca de novo.
+         */
+        FundsUpdateEventDTO: Record<string, never>;
+        /**
          * FutureParamsDTO
          * @description Os controles de uma geração: os mesmos valores geram o mesmo futuro.
          */
@@ -10926,6 +10932,7 @@ export interface components {
             cash_update: components["schemas"]["CashUpdateEventDTO"];
             stocks_update: components["schemas"]["StocksUpdateEventDTO"];
             fixed_assets_update: components["schemas"]["FixedAssetsUpdateEventDTO"];
+            funds_update: components["schemas"]["FundsUpdateEventDTO"];
             snapshot_update: components["schemas"]["SnapshotUpdateEventDTO"];
             portfolio_update: components["schemas"]["PortfolioUpdateEventDTO"];
             statistics_snapshot_update: components["schemas"]["StatisticsSnapshotUpdateEventDTO"];

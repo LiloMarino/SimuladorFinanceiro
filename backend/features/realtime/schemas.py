@@ -118,6 +118,11 @@ class FixedAssetsUpdateEventDTO(BaseDTO):
     assets: list[FixedIncomeAssetDTO]
 
 
+class FundsUpdateEventDTO(BaseDTO):
+    """Algo nas gestoras mudou (PL, cotas, cotistas, oferta, taxas ou congelamento): o aviso
+    não carrega dado, quem exibe uma gestora busca de novo."""
+
+
 class PortfolioUpdateEventDTO(BaseDTO):
     portfolio: PortfolioDTO
     # A gestora dona da carteira, para o gestor que a gere; nulo é a carteira pessoal
@@ -329,6 +334,7 @@ class RealtimeEventCatalog(BaseDTO):
     cash_update: CashUpdateEventDTO
     stocks_update: StocksUpdateEventDTO
     fixed_assets_update: FixedAssetsUpdateEventDTO
+    funds_update: FundsUpdateEventDTO
     snapshot_update: SnapshotUpdateEventDTO
     portfolio_update: PortfolioUpdateEventDTO
     statistics_snapshot_update: StatisticsSnapshotUpdateEventDTO

@@ -1,16 +1,21 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
+import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { FundDetails } from "@/types";
 import { fundKeys } from "../fund-keys";
 
-// A carteira, os cotistas e o preço andam com o pregão e não chegam por tempo real: a página se renova sozinha
-const REFRESH_MS = 10_000;
-
-/** A página de uma gestora; a carteira posição a posição só vem para o gestor. */
+/** A página de uma gestora; a carteira posição a posição só vem para o gestor. Quando algo muda (funds_update), busca de novo. */
 export function useFund(fundId: number) {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: fundKeys.detail(fundId),
     queryFn: ({ signal }) => apiFetch<FundDetails>(`/api/funds/${fundId}`, { signal }),
-    refetchInterval: REFRESH_MS,
   });
+
+  useRealtime("funds_update", () => {
+    void queryClient.invalidateQueries({ queryKey: fundKeys.all() });
+  });
+
+  return query;
 }
