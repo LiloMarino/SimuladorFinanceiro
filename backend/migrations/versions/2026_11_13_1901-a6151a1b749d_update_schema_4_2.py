@@ -168,6 +168,9 @@ def upgrade() -> None:
         ),
         sa.Column("offer_remaining", sa.Numeric(precision=20, scale=6), nullable=True),
         sa.Column("listed_on", sa.Date(), nullable=True),
+        sa.Column("offer_quotas", sa.Numeric(precision=20, scale=6), nullable=True),
+        sa.Column("offer_price", sa.Numeric(precision=20, scale=6), nullable=True),
+        sa.Column("offer_closed_on", sa.Date(), nullable=True),
         sa.Column("management_fee", sa.Numeric(precision=8, scale=6), nullable=False),
         sa.Column("performance_fee", sa.Numeric(precision=8, scale=6), nullable=False),
         sa.Column(
@@ -240,10 +243,48 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("fund_id", "day", name="fund_days_pkey"),
     )
+    op.create_table(
+        "fund_offer_sales",
+        sa.Column(
+            "id",
+            sa.BigInteger(),
+            sa.Identity(
+                always=True,
+                start=1,
+                increment=1,
+                minvalue=1,
+                maxvalue=9223372036854775807,
+                cycle=False,
+                cache=1,
+            ),
+            nullable=False,
+        ),
+        sa.Column("fund_id", sa.BigInteger(), nullable=False),
+        sa.Column("day", sa.Date(), nullable=False),
+        sa.Column("buyer_user_id", sa.Integer(), nullable=True),
+        sa.Column("quotas", sa.Numeric(precision=20, scale=6), nullable=False),
+        sa.Column("price", sa.Numeric(precision=20, scale=6), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["fund_id"],
+            ["funds.id"],
+            name="fund_offer_sales_fund_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["buyer_user_id"],
+            ["users.id"],
+            name="fund_offer_sales_buyer_user_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint("id", name="fund_offer_sales_pkey"),
+    )
 
 
 def downgrade() -> None:
     # O PostgreSQL não remove valor de enum: os valores novos ficam nos tipos
+    op.drop_table("fund_offer_sales")
     op.drop_table("fund_days")
     op.drop_table("funds")
     # Sem gestoras, somem a carteira sem dono e a cota (com o que apontava para ela)

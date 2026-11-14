@@ -13,6 +13,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
+from backend.core.dto.fund import FundDetailsDTO, FundFeesDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import AssetClass, OrderAction
@@ -221,3 +222,78 @@ def test_ticker_check_outside_the_format_is_answered_without_touching_anything(
         "status": "format",
         "owner_name": None,
     }
+
+
+def _page(fund_id: int) -> FundDetailsDTO:
+    zero = Decimal(0)
+    return FundDetailsDTO(
+        id=fund_id,
+        ticker="AURA11",
+        founder_user_id=ANA.id,
+        manager_user_id=ANA.id,
+        name="Aura",
+        quotas=zero,
+        maker_quotas=zero,
+        offer_remaining=None,
+        listed_on=None,
+        offer_quotas=None,
+        offer_price=None,
+        offer_closed_on=None,
+        management_fee=zero,
+        performance_fee=zero,
+        pending_management_fee=None,
+        pending_performance_fee=None,
+        pending_from=None,
+        high_water_mark=None,
+        high_water_mark_on=None,
+        last_performance_on=None,
+        nav=None,
+        ranking_price=None,
+        price=None,
+        manager_nickname="Ana",
+        offer_session=None,
+        offer_ends_on=None,
+        frozen_until=None,
+        holders=[],
+        control_quotas=Decimal(1),
+        sellable_keeping_control=None,
+        composition=[],
+        return_12m=None,
+        return_since=None,
+        cdi_12m=None,
+        series=[],
+        last_report=None,
+        fees=FundFeesDTO(
+            management_fee=zero,
+            management_monthly_estimate=zero,
+            performance_fee=zero,
+            performance_estimate=None,
+            next_performance_on=None,
+            high_water_mark=None,
+            high_water_mark_on=None,
+            received_12m=zero,
+        ),
+        movements=[],
+        offer_sold=None,
+        offer_raised=None,
+        offer_buyers=None,
+        positions=None,
+        my_quotas=zero,
+        my_value=zero,
+        my_return=None,
+    )
+
+
+def test_fund_page_is_built_for_the_player_who_asks(monkeypatch: pytest.MonkeyPatch):
+    seen: list[tuple[int, int]] = []
+
+    def page(self: Simulation, user: UserDTO, fund_id: int) -> FundDetailsDTO:
+        seen.append((user.id, fund_id))
+        return _page(fund_id)
+
+    monkeypatch.setattr(Simulation, "get_fund", page)
+
+    response = _app(_simulation(_Book()), BRUNO).get("/api/funds/5")
+
+    assert response.status_code == 200
+    assert seen == [(BRUNO.id, 5)]

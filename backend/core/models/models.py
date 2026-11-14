@@ -1362,6 +1362,11 @@ class Funds(Base):
     offer_remaining: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
     # Dia da oferta pública; nulo antes dela
     listed_on: Mapped[datetime.date | None] = mapped_column(Date)
+    # Cotas postas à venda na oferta e o preço delas, fixados na abertura; nulos sem oferta
+    offer_quotas: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+    offer_price: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+    # Dia em que a oferta fechou; nulo com a oferta aberta ou sem oferta
+    offer_closed_on: Mapped[datetime.date | None] = mapped_column(Date)
     management_fee: Mapped[decimal.Decimal] = mapped_column(
         Numeric(8, 6), nullable=False
     )
@@ -1415,3 +1420,46 @@ class FundDays(Base):
     ranking_price: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False
     )
+
+
+class FundOfferSales(Base):
+    """Uma venda da oferta pública: as cotas que o comprador levou da gestora, ao preço da oferta."""
+
+    __tablename__ = "fund_offer_sales"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fund_id"],
+            ["funds.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_offer_sales_fund_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["buyer_user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_offer_sales_buyer_user_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="fund_offer_sales_pkey"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    fund_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    day: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    # Nulo quando o comprador é o formador de mercado da própria gestora
+    buyer_user_id: Mapped[int | None] = mapped_column(Integer)
+    quotas: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    price: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)

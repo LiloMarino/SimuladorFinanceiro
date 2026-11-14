@@ -192,6 +192,7 @@ from backend.features.fixed_income.entities.fixed_income_position import (
 )
 from backend.features.fixed_income.liquidity import total_redeemable
 from backend.features.funds.fund_book import Fund, FundBook
+from backend.features.funds.fund_details import FundDetailsBuilder
 from backend.features.government import presidency
 from backend.features.government.base_panel import build_base
 from backend.features.government.base_panel import (
@@ -398,6 +399,7 @@ class Simulation:
                 self._client_of_user,
                 lambda day, headline: news.publish(settings.id, day, headline),
                 self._manager_frozen_until,
+                lambda: repository.simulation_player.participants(settings.id),
             )
             if settings.funds_enabled and backtest is None
             else None
@@ -971,13 +973,19 @@ class Simulation:
 
     @synchronized
     def get_funds(self) -> list[FundSummaryDTO]:
-        book = self._ensure_funds()
-        return [book.summary(fund) for fund in book.funds()]
+        return self._ensure_funds().summaries()
 
     @synchronized
-    def get_fund(self, fund_id: int) -> FundDetailsDTO:
+    def get_fund(self, user: UserDTO, fund_id: int) -> FundDetailsDTO:
+        """A página da gestora como `user` a vê: a carteira viva é só do gestor."""
         book = self._ensure_funds()
-        return book.details(book.by_id(fund_id))
+        builder = FundDetailsBuilder(
+            book,
+            self._engine,
+            self.settings.id,
+            lambda: repository.simulation_player.colors(self.settings.id),
+        )
+        return builder.build(book.by_id(fund_id), user)
 
     @synchronized
     def found_fund(self, user: UserDTO, request: FundFoundRequest) -> FundSummaryDTO:

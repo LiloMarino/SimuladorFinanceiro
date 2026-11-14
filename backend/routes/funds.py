@@ -63,10 +63,10 @@ def check_fund_ticker(simulation: ActiveSimulation, user: CurrentUser, ticker: s
     "/{fund_id}",
     response_model=FundDetailsDTO,
     summary="Detalhar uma gestora",
-    description="Os termos, o PL por cota de agora e a série dos fechamentos dos pregões.",
+    description="Quem tem as cotas, a composição, o desempenho de 12 meses contra o CDI, a série de preço e PL, o último relatório mensal, as taxas, os movimentos, a oferta em andamento e as cotas de quem consulta. A carteira posição a posição e o quanto o gestor vende sem perder o controle só vêm para o gestor.",
 )
-def get_fund(simulation: ActiveSimulation, fund_id: int):
-    return simulation.get_fund(fund_id)
+def get_fund(simulation: ActiveSimulation, user: CurrentUser, fund_id: int):
+    return simulation.get_fund(user, fund_id)
 
 
 @funds_router.post(

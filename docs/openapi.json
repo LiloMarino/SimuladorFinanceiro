@@ -8018,8 +8018,13 @@
           "Funds"
         ],
         "summary": "Detalhar uma gestora",
-        "description": "Os termos, o PL por cota de agora e a série dos fechamentos dos pregões.",
+        "description": "Quem tem as cotas, a composição, o desempenho de 12 meses contra o CDI, a série de preço e PL, o último relatório mensal, as taxas, os movimentos, a oferta em andamento e as cotas de quem consulta. A carteira posição a posição e o quanto o gestor vende sem perder o controle só vêm para o gestor.",
         "operationId": "get_fund_api_funds__fund_id__get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
         "parameters": [
           {
             "name": "fund_id",
@@ -20332,6 +20337,30 @@
         "title": "FundAccountDTO",
         "description": "Uma conta com que o jogador opera: a pessoal (sem gestora) ou uma gestora que ele gere."
       },
+      "FundCompositionDTO": {
+        "properties": {
+          "asset_class": {
+            "$ref": "#/components/schemas/FundHoldingClass"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "fraction": {
+            "type": "string",
+            "title": "Fraction"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "asset_class",
+          "value",
+          "fraction"
+        ],
+        "title": "FundCompositionDTO",
+        "description": "O patrimônio da gestora numa classe, hoje."
+      },
       "FundContributionRequest": {
         "properties": {
           "cash": {
@@ -20400,47 +20429,6 @@
         ],
         "title": "FundContributionStockRequest"
       },
-      "FundDayDTO": {
-        "properties": {
-          "day": {
-            "type": "string",
-            "format": "date",
-            "title": "Day"
-          },
-          "nav": {
-            "type": "string",
-            "title": "Nav"
-          },
-          "quotas": {
-            "type": "string",
-            "title": "Quotas"
-          },
-          "traded_quantity": {
-            "type": "string",
-            "title": "Traded Quantity"
-          },
-          "traded_value": {
-            "type": "string",
-            "title": "Traded Value"
-          },
-          "ranking_price": {
-            "type": "string",
-            "title": "Ranking Price"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "day",
-          "nav",
-          "quotas",
-          "traded_quantity",
-          "traded_value",
-          "ranking_price"
-        ],
-        "title": "FundDayDTO",
-        "description": "O fechamento de uma gestora num pregão."
-      },
       "FundDetailsDTO": {
         "properties": {
           "id": {
@@ -20493,6 +20481,40 @@
               }
             ],
             "title": "Listed On"
+          },
+          "offer_quotas": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Quotas"
+          },
+          "offer_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Price"
+          },
+          "offer_closed_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Closed On"
           },
           "management_fee": {
             "type": "string",
@@ -20593,6 +20615,28 @@
             ],
             "title": "Ranking Price"
           },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "manager_nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manager Nickname"
+          },
           "offer_session": {
             "anyOf": [
               {
@@ -20628,12 +20672,164 @@
             ],
             "title": "Frozen Until"
           },
-          "days": {
+          "holders": {
             "items": {
-              "$ref": "#/components/schemas/FundDayDTO"
+              "$ref": "#/components/schemas/FundHolderDTO"
             },
             "type": "array",
-            "title": "Days"
+            "title": "Holders"
+          },
+          "control_quotas": {
+            "type": "string",
+            "title": "Control Quotas"
+          },
+          "sellable_keeping_control": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sellable Keeping Control"
+          },
+          "composition": {
+            "items": {
+              "$ref": "#/components/schemas/FundCompositionDTO"
+            },
+            "type": "array",
+            "title": "Composition"
+          },
+          "return_12m": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return 12M"
+          },
+          "return_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Since"
+          },
+          "cdi_12m": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cdi 12M"
+          },
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/FundSeriesPointDTO"
+            },
+            "type": "array",
+            "title": "Series"
+          },
+          "last_report": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundReportDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fees": {
+            "$ref": "#/components/schemas/FundFeesDTO"
+          },
+          "movements": {
+            "items": {
+              "$ref": "#/components/schemas/FundMovementDTO"
+            },
+            "type": "array",
+            "title": "Movements"
+          },
+          "offer_sold": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Sold"
+          },
+          "offer_raised": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Raised"
+          },
+          "offer_buyers": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FundOfferBuyerDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Buyers"
+          },
+          "positions": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FundPositionDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Positions"
+          },
+          "my_quotas": {
+            "type": "string",
+            "title": "My Quotas"
+          },
+          "my_value": {
+            "type": "string",
+            "title": "My Value"
+          },
+          "my_return": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "My Return"
           }
         },
         "additionalProperties": false,
@@ -20648,6 +20844,9 @@
           "maker_quotas",
           "offer_remaining",
           "listed_on",
+          "offer_quotas",
+          "offer_price",
+          "offer_closed_on",
           "management_fee",
           "performance_fee",
           "pending_management_fee",
@@ -20658,13 +20857,111 @@
           "last_performance_on",
           "nav",
           "ranking_price",
+          "price",
+          "manager_nickname",
           "offer_session",
           "offer_ends_on",
           "frozen_until",
-          "days"
+          "holders",
+          "control_quotas",
+          "sellable_keeping_control",
+          "composition",
+          "return_12m",
+          "return_since",
+          "cdi_12m",
+          "series",
+          "last_report",
+          "fees",
+          "movements",
+          "offer_sold",
+          "offer_raised",
+          "offer_buyers",
+          "positions",
+          "my_quotas",
+          "my_value",
+          "my_return"
         ],
         "title": "FundDetailsDTO",
-        "description": "A gestora com a série de fechamentos dos pregões, do mais antigo ao mais recente."
+        "description": "A página da gestora: quem tem as cotas, a carteira, o desempenho, as taxas e a oferta."
+      },
+      "FundFeesDTO": {
+        "properties": {
+          "management_fee": {
+            "type": "string",
+            "title": "Management Fee"
+          },
+          "management_monthly_estimate": {
+            "type": "string",
+            "title": "Management Monthly Estimate"
+          },
+          "performance_fee": {
+            "type": "string",
+            "title": "Performance Fee"
+          },
+          "performance_estimate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Performance Estimate"
+          },
+          "next_performance_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Performance On"
+          },
+          "high_water_mark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High Water Mark"
+          },
+          "high_water_mark_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High Water Mark On"
+          },
+          "received_12m": {
+            "type": "string",
+            "title": "Received 12M"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "management_fee",
+          "management_monthly_estimate",
+          "performance_fee",
+          "performance_estimate",
+          "next_performance_on",
+          "high_water_mark",
+          "high_water_mark_on",
+          "received_12m"
+        ],
+        "title": "FundFeesDTO"
       },
       "FundFeesRequest": {
         "properties": {
@@ -20753,6 +21050,75 @@
         ],
         "title": "FundFoundRequest"
       },
+      "FundHolderDTO": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/FundHolderKind"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "user_id",
+          "nickname",
+          "color",
+          "quotas",
+          "share"
+        ],
+        "title": "FundHolderDTO"
+      },
+      "FundHolderKind": {
+        "type": "string",
+        "enum": [
+          "player",
+          "bot",
+          "maker"
+        ]
+      },
+      "FundHoldingClass": {
+        "type": "string",
+        "enum": [
+          "cash",
+          "stocks",
+          "fixed_income",
+          "treasury"
+        ]
+      },
       "FundIdentityDTO": {
         "properties": {
           "name": {
@@ -20776,6 +21142,134 @@
         "title": "FundIdentityDTO",
         "description": "A identidade da gestora que o jogador funda, guardada no perfil: nome e sigla ficam fixos na partida."
       },
+      "FundMovementDTO": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "type": {
+            "$ref": "#/components/schemas/FundMovementType"
+          },
+          "quotas": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quotas"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "day",
+          "type",
+          "quotas",
+          "price",
+          "amount",
+          "ticker"
+        ],
+        "title": "FundMovementDTO"
+      },
+      "FundMovementType": {
+        "type": "string",
+        "enum": [
+          "contribution",
+          "offer_opened",
+          "offer_closed",
+          "management_fee",
+          "performance_fee",
+          "report_published",
+          "manager_buy",
+          "manager_sell"
+        ]
+      },
+      "FundOfferBuyerDTO": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/FundHolderKind"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "user_id",
+          "nickname",
+          "color",
+          "quotas"
+        ],
+        "title": "FundOfferBuyerDTO",
+        "description": "Quem comprou na oferta em andamento; os bots entram somados numa linha só."
+      },
       "FundOfferRequest": {
         "properties": {
           "quotas": {
@@ -20790,6 +21284,59 @@
           "quotas"
         ],
         "title": "FundOfferRequest"
+      },
+      "FundPositionDTO": {
+        "properties": {
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "asset_class": {
+            "$ref": "#/components/schemas/FundHoldingClass"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "fraction": {
+            "type": "string",
+            "title": "Fraction"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "name",
+          "asset_class",
+          "quantity",
+          "value",
+          "fraction"
+        ],
+        "title": "FundPositionDTO",
+        "description": "Uma posição da gestora: o caixa, uma ação (com quantidade) ou um título de renda fixa."
       },
       "FundPreparationDTO": {
         "properties": {
@@ -20837,6 +21384,62 @@
           "kind"
         ],
         "title": "FundPreparationRequest"
+      },
+      "FundReportDTO": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "positions": {
+            "items": {
+              "$ref": "#/components/schemas/FundPositionDTO"
+            },
+            "type": "array",
+            "title": "Positions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "day",
+          "positions"
+        ],
+        "title": "FundReportDTO",
+        "description": "O relatório mensal: as posições no último pregão do mês fechado."
+      },
+      "FundSeriesPointDTO": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "close": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Close"
+          },
+          "nav": {
+            "type": "string",
+            "title": "Nav"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "day",
+          "close",
+          "nav"
+        ],
+        "title": "FundSeriesPointDTO"
       },
       "FundSummaryDTO": {
         "properties": {
@@ -20890,6 +21493,40 @@
               }
             ],
             "title": "Listed On"
+          },
+          "offer_quotas": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Quotas"
+          },
+          "offer_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Price"
+          },
+          "offer_closed_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Closed On"
           },
           "management_fee": {
             "type": "string",
@@ -20990,6 +21627,28 @@
             ],
             "title": "Ranking Price"
           },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "manager_nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manager Nickname"
+          },
           "offer_session": {
             "anyOf": [
               {
@@ -21038,6 +21697,9 @@
           "maker_quotas",
           "offer_remaining",
           "listed_on",
+          "offer_quotas",
+          "offer_price",
+          "offer_closed_on",
           "management_fee",
           "performance_fee",
           "pending_management_fee",
@@ -21048,6 +21710,8 @@
           "last_performance_on",
           "nav",
           "ranking_price",
+          "price",
+          "manager_nickname",
           "offer_session",
           "offer_ends_on",
           "frozen_until"

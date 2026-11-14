@@ -8,11 +8,20 @@ from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.candle import CandleDTO
-from backend.core.dto.fund import FundDayDTO, FundDTO
+from backend.core.dto.events.equity import EquityEventDTO
+from backend.core.dto.fund import FundDayDTO, FundDTO, FundOfferSaleDTO
 from backend.core.dto.stock import StockDTO
-from backend.core.enum import AssetClass, AssetOrigin, Currency, DataOrigin
+from backend.core.enum import (
+    AssetClass,
+    AssetOrigin,
+    Currency,
+    DataOrigin,
+    EquityEventType,
+)
 from backend.core.models.models import (
+    EventEquity,
     FundDays,
+    FundOfferSales,
     Funds,
     Portfolios,
     Stock,
@@ -26,6 +35,9 @@ _MUTABLE = (
     "maker_cash",
     "offer_remaining",
     "listed_on",
+    "offer_quotas",
+    "offer_price",
+    "offer_closed_on",
     "management_fee",
     "performance_fee",
     "pending_management_fee",
@@ -52,6 +64,19 @@ def _columns() -> list[str]:
         "name",
         *_MUTABLE,
     ]
+
+
+def _equity_event(event: EventEquity, ticker: str) -> EquityEventDTO:
+    return EquityEventDTO(
+        simulation_id=event.simulation_id,
+        portfolio_id=event.portfolio_id,
+        event_type=EquityEventType(event.event_type),
+        ticker=ticker,
+        quantity=event.quantity,
+        price=event.price,
+        event_date=event.event_date,
+        created_at=event.created_at,
+    )
 
 
 def _letters_taken_by_asset(session: Session, ticker: str) -> bool:
@@ -194,6 +219,32 @@ class FundRepository:
         )
 
     @transactional
+    def record_offer_sale(
+        self, session: Session, fund_id: int, sale: FundOfferSaleDTO
+    ) -> None:
+        """Grava uma venda da oferta pública no momento em que acontece."""
+        session.add(FundOfferSales(fund_id=fund_id, **sale.model_dump()))
+
+    @transactional
+    def offer_sales(self, session: Session, fund_id: int) -> list[FundOfferSaleDTO]:
+        """As vendas da oferta pública da gestora, na ordem em que aconteceram."""
+        rows = session.execute(
+            select(FundOfferSales)
+            .where(FundOfferSales.fund_id == fund_id)
+            .order_by(FundOfferSales.id)
+        ).scalars()
+        return [FundOfferSaleDTO.model_validate(row) for row in rows]
+
+    @transactional
+    def drop_offer_sales_from(self, session: Session, fund_id: int, day: date) -> None:
+        """Apaga as vendas de `day` em diante: o dia refeito pela retomada recomeça limpo."""
+        session.execute(
+            delete(FundOfferSales).where(
+                FundOfferSales.fund_id == fund_id, FundOfferSales.day >= day
+            )
+        )
+
+    @transactional
     def save_candle(
         self, session: Session, simulation_id: int, candle: CandleDTO
     ) -> None:
@@ -237,3 +288,55 @@ class FundRepository:
             .order_by(StockPriceHistory.price_date.desc())
             .limit(1)
         ).scalar_one_or_none()
+
+    @transactional
+    def last_traded_close(
+        self, session: Session, simulation_id: int, stock_id: int, until: date
+    ) -> float | None:
+        """O fechamento do último pregão em que a cota negociou até `until`, ou None se nunca negociou."""
+        return session.execute(
+            select(StockPriceHistory.close)
+            .where(
+                StockPriceHistory.stock_id == stock_id,
+                StockPriceHistory.version == simulation_id,
+                StockPriceHistory.price_date <= until,
+                StockPriceHistory.volume > 0,
+            )
+            .order_by(StockPriceHistory.price_date.desc())
+            .limit(1)
+        ).scalar_one_or_none()
+
+    @transactional
+    def quota_trades(
+        self, session: Session, simulation_id: int, stock_id: int
+    ) -> list[EquityEventDTO]:
+        """As compras e vendas da cota em todas as carteiras da partida, na ordem em que aconteceram."""
+        rows = session.execute(
+            select(EventEquity, Stock.ticker)
+            .join(Stock, Stock.id == EventEquity.stock_id)
+            .where(
+                EventEquity.simulation_id == simulation_id,
+                EventEquity.stock_id == stock_id,
+                EventEquity.event_type.in_(
+                    [EquityEventType.BUY.value, EquityEventType.SELL.value]
+                ),
+            )
+            .order_by(EventEquity.event_date, EventEquity.id)
+        ).all()
+        return [_equity_event(event, ticker) for event, ticker in rows]
+
+    @transactional
+    def portfolio_equity_events(
+        self, session: Session, simulation_id: int, portfolio_id: int
+    ) -> list[EquityEventDTO]:
+        """Os eventos de renda variável da carteira na partida, na ordem em que aconteceram."""
+        rows = session.execute(
+            select(EventEquity, Stock.ticker)
+            .join(Stock, Stock.id == EventEquity.stock_id)
+            .where(
+                EventEquity.simulation_id == simulation_id,
+                EventEquity.portfolio_id == portfolio_id,
+            )
+            .order_by(EventEquity.event_date, EventEquity.id)
+        ).all()
+        return [_equity_event(event, ticker) for event, ticker in rows]

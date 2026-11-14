@@ -2753,7 +2753,7 @@ export interface paths {
         };
         /**
          * Detalhar uma gestora
-         * @description Os termos, o PL por cota de agora e a série dos fechamentos dos pregões.
+         * @description Quem tem as cotas, a composição, o desempenho de 12 meses contra o CDI, a série de preço e PL, o último relatório mensal, as taxas, os movimentos, a oferta em andamento e as cotas de quem consulta. A carteira posição a posição e o quanto o gestor vende sem perder o controle só vêm para o gestor.
          */
         get: operations["get_fund_api_funds__fund_id__get"];
         put?: never;
@@ -7013,6 +7013,17 @@ export interface components {
             /** Frozen Until */
             frozen_until: string | null;
         };
+        /**
+         * FundCompositionDTO
+         * @description O patrimônio da gestora numa classe, hoje.
+         */
+        FundCompositionDTO: {
+            asset_class: components["schemas"]["FundHoldingClass"];
+            /** Value */
+            value: string;
+            /** Fraction */
+            fraction: string;
+        };
         /** FundContributionRequest */
         FundContributionRequest: {
             /**
@@ -7036,29 +7047,8 @@ export interface components {
             quantity: number | string;
         };
         /**
-         * FundDayDTO
-         * @description O fechamento de uma gestora num pregão.
-         */
-        FundDayDTO: {
-            /**
-             * Day
-             * Format: date
-             */
-            day: string;
-            /** Nav */
-            nav: string;
-            /** Quotas */
-            quotas: string;
-            /** Traded Quantity */
-            traded_quantity: string;
-            /** Traded Value */
-            traded_value: string;
-            /** Ranking Price */
-            ranking_price: string;
-        };
-        /**
          * FundDetailsDTO
-         * @description A gestora com a série de fechamentos dos pregões, do mais antigo ao mais recente.
+         * @description A página da gestora: quem tem as cotas, a carteira, o desempenho, as taxas e a oferta.
          */
         FundDetailsDTO: {
             /** Id */
@@ -7079,6 +7069,12 @@ export interface components {
             offer_remaining: string | null;
             /** Listed On */
             listed_on: string | null;
+            /** Offer Quotas */
+            offer_quotas: string | null;
+            /** Offer Price */
+            offer_price: string | null;
+            /** Offer Closed On */
+            offer_closed_on: string | null;
             /** Management Fee */
             management_fee: string;
             /** Performance Fee */
@@ -7099,14 +7095,69 @@ export interface components {
             nav: string | null;
             /** Ranking Price */
             ranking_price: string | null;
+            /** Price */
+            price: string | null;
+            /** Manager Nickname */
+            manager_nickname: string | null;
             /** Offer Session */
             offer_session: number | null;
             /** Offer Ends On */
             offer_ends_on: string | null;
             /** Frozen Until */
             frozen_until: string | null;
-            /** Days */
-            days: components["schemas"]["FundDayDTO"][];
+            /** Holders */
+            holders: components["schemas"]["FundHolderDTO"][];
+            /** Control Quotas */
+            control_quotas: string;
+            /** Sellable Keeping Control */
+            sellable_keeping_control: string | null;
+            /** Composition */
+            composition: components["schemas"]["FundCompositionDTO"][];
+            /** Return 12M */
+            return_12m: string | null;
+            /** Return Since */
+            return_since: string | null;
+            /** Cdi 12M */
+            cdi_12m: string | null;
+            /** Series */
+            series: components["schemas"]["FundSeriesPointDTO"][];
+            last_report: components["schemas"]["FundReportDTO"] | null;
+            fees: components["schemas"]["FundFeesDTO"];
+            /** Movements */
+            movements: components["schemas"]["FundMovementDTO"][];
+            /** Offer Sold */
+            offer_sold: string | null;
+            /** Offer Raised */
+            offer_raised: string | null;
+            /** Offer Buyers */
+            offer_buyers: components["schemas"]["FundOfferBuyerDTO"][] | null;
+            /** Positions */
+            positions: components["schemas"]["FundPositionDTO"][] | null;
+            /** My Quotas */
+            my_quotas: string;
+            /** My Value */
+            my_value: string;
+            /** My Return */
+            my_return: string | null;
+        };
+        /** FundFeesDTO */
+        FundFeesDTO: {
+            /** Management Fee */
+            management_fee: string;
+            /** Management Monthly Estimate */
+            management_monthly_estimate: string;
+            /** Performance Fee */
+            performance_fee: string;
+            /** Performance Estimate */
+            performance_estimate: string | null;
+            /** Next Performance On */
+            next_performance_on: string | null;
+            /** High Water Mark */
+            high_water_mark: string | null;
+            /** High Water Mark On */
+            high_water_mark_on: string | null;
+            /** Received 12M */
+            received_12m: string;
         };
         /** FundFeesRequest */
         FundFeesRequest: {
@@ -7126,6 +7177,24 @@ export interface components {
             /** Performance Fee */
             performance_fee: number | string;
         };
+        /** FundHolderDTO */
+        FundHolderDTO: {
+            kind: components["schemas"]["FundHolderKind"];
+            /** User Id */
+            user_id: number | null;
+            /** Nickname */
+            nickname: string;
+            /** Color */
+            color: string | null;
+            /** Quotas */
+            quotas: string;
+            /** Share */
+            share: string;
+        };
+        /** @enum {string} */
+        FundHolderKind: "player" | "bot" | "maker";
+        /** @enum {string} */
+        FundHoldingClass: "cash" | "stocks" | "fixed_income" | "treasury";
         /**
          * FundIdentityDTO
          * @description A identidade da gestora que o jogador funda, guardada no perfil: nome e sigla ficam fixos na partida.
@@ -7136,10 +7205,61 @@ export interface components {
             /** Ticker */
             ticker: string;
         };
+        /** FundMovementDTO */
+        FundMovementDTO: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            type: components["schemas"]["FundMovementType"];
+            /** Quotas */
+            quotas: string | null;
+            /** Price */
+            price: string | null;
+            /** Amount */
+            amount: string | null;
+            /** Ticker */
+            ticker: string | null;
+        };
+        /** @enum {string} */
+        FundMovementType: "contribution" | "offer_opened" | "offer_closed" | "management_fee" | "performance_fee" | "report_published" | "manager_buy" | "manager_sell";
+        /**
+         * FundOfferBuyerDTO
+         * @description Quem comprou na oferta em andamento; os bots entram somados numa linha só.
+         */
+        FundOfferBuyerDTO: {
+            kind: components["schemas"]["FundHolderKind"];
+            /** User Id */
+            user_id: number | null;
+            /** Nickname */
+            nickname: string;
+            /** Color */
+            color: string | null;
+            /** Quotas */
+            quotas: string;
+        };
         /** FundOfferRequest */
         FundOfferRequest: {
             /** Quotas */
             quotas: number;
+        };
+        /**
+         * FundPositionDTO
+         * @description Uma posição da gestora: o caixa, uma ação (com quantidade) ou um título de renda fixa.
+         */
+        FundPositionDTO: {
+            /** Ticker */
+            ticker: string | null;
+            /** Name */
+            name: string;
+            asset_class: components["schemas"]["FundHoldingClass"];
+            /** Quantity */
+            quantity: string | null;
+            /** Value */
+            value: string;
+            /** Fraction */
+            fraction: string;
         };
         /**
          * FundPreparationDTO
@@ -7164,6 +7284,31 @@ export interface components {
             kind: components["schemas"]["FundPreparationKind"];
         };
         /**
+         * FundReportDTO
+         * @description O relatório mensal: as posições no último pregão do mês fechado.
+         */
+        FundReportDTO: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Positions */
+            positions: components["schemas"]["FundPositionDTO"][];
+        };
+        /** FundSeriesPointDTO */
+        FundSeriesPointDTO: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Close */
+            close: string | null;
+            /** Nav */
+            nav: string;
+        };
+        /**
          * FundSummaryDTO
          * @description A gestora na lista da partida, com o PL por cota de agora e o preço de ranking.
          */
@@ -7186,6 +7331,12 @@ export interface components {
             offer_remaining: string | null;
             /** Listed On */
             listed_on: string | null;
+            /** Offer Quotas */
+            offer_quotas: string | null;
+            /** Offer Price */
+            offer_price: string | null;
+            /** Offer Closed On */
+            offer_closed_on: string | null;
             /** Management Fee */
             management_fee: string;
             /** Performance Fee */
@@ -7206,6 +7357,10 @@ export interface components {
             nav: string | null;
             /** Ranking Price */
             ranking_price: string | null;
+            /** Price */
+            price: string | null;
+            /** Manager Nickname */
+            manager_nickname: string | null;
             /** Offer Session */
             offer_session: number | null;
             /** Offer Ends On */

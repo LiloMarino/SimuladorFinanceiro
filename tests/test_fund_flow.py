@@ -53,7 +53,7 @@ def test_founding_creates_a_fund_without_quotas(flow):
     assert fund.ticker == TICKER
     assert fund.quotas == 0
     assert [f.ticker for f in sim.get_funds()] == [TICKER]
-    assert sim.get_fund(fund.id).days == []
+    assert sim.get_fund(ana, fund.id).series == []
 
 
 def test_founding_the_same_ticker_twice_is_a_conflict(flow):
@@ -96,7 +96,7 @@ def test_cash_contribution_moves_the_money_and_issues_quotas_to_the_manager(flow
     assert sim._engine.get_cash(ana.client_id) == cash_before - 5000
     held = sim._engine.broker.get_positions(ana.client_id)[TICKER]
     assert held.size == 50
-    assert sim.get_fund(fund.id).quotas == 50
+    assert sim.get_fund(ana, fund.id).quotas == 50
 
 
 def test_only_the_manager_contributes(flow):
@@ -141,7 +141,7 @@ def test_closing_the_offer_stops_the_sale(flow):
 
     sim.close_fund_offer(ana, fund.id)
 
-    assert sim.get_fund(fund.id).offer_remaining in (None, 0)
+    assert sim.get_fund(ana, fund.id).offer_remaining in (None, 0)
     with pytest.raises(ConflictError, match="não tem oferta"):
         sim.close_fund_offer(ana, fund.id)
 
@@ -217,7 +217,7 @@ def test_second_player_buys_the_offer_and_the_cash_reaches_the_fund(started):  #
     # O dinheiro da oferta vai inteiro para a conta da gestora
     assert sim._engine.get_cash(fund.account.client_id) == fund_cash + paid
     assert fund.account.offer_remaining == 15
-    assert sim.get_fund(fund_id).offer_remaining == 15
+    assert sim.get_fund(ana, fund_id).offer_remaining == 15
 
 
 def test_ranking_counts_the_quotas_once_and_keeps_the_fund_out_as_a_player(started):  # noqa: F811
@@ -407,7 +407,7 @@ def test_offer_sold_out_is_closed_in_the_facade(flow):
     sim.open_fund_offer(ana, fund_id, 20)
     book_of(sim).by_id(fund_id).account.issue(Decimal(20))
 
-    summary = sim.get_fund(fund_id)
+    summary = sim.get_fund(ana, fund_id)
 
     assert (summary.offer_session, summary.offer_ends_on) == (None, None)
     with pytest.raises(ConflictError, match="não tem oferta"):
@@ -476,14 +476,14 @@ def test_taking_office_freezes_the_managers_fund_until_the_term_ends(flow):
         )
     # Ler a conta segue valendo, e o DTO e a lista de contas dizem até quando congela
     assert sim.acting_client(ana.client_id, fund_id) == fund_client
-    assert sim.get_fund(fund_id).frozen_until == term_end
+    assert sim.get_fund(ana, fund_id).frozen_until == term_end
     fund_account = sim.get_fund_accounts(ana)[1]
     assert fund_account.frozen_until == term_end
     assert sim.get_fund_accounts(ana)[0].frozen_until == term_end
 
     state["on"] = False
 
-    assert sim.get_fund(fund_id).frozen_until is None
+    assert sim.get_fund(ana, fund_id).frozen_until is None
     sim.open_fund_offer(ana, fund_id, 10)
 
 
@@ -495,5 +495,325 @@ def test_a_fund_of_someone_else_keeps_operating_while_the_manager_governs(starte
 
     sim._take_office(ana, sim._current_date)
 
-    assert sim.get_fund(bruno_fund.id).frozen_until is None
+    assert sim.get_fund(bruno, bruno_fund.id).frozen_until is None
     sim._ensure_can_operate(book_of(sim).by_id(bruno_fund.id).account.client_id)
+
+
+def offered_match() -> tuple[Simulation, UserDTO, UserDTO, int]:
+    """Ana gere a gestora (50 cotas, oferta de 20 aberta) e o Bruno comprou 5 da oferta."""
+    sim, ana = empty_match("Bruno")
+    bruno = player(sim, "Bruno")
+    fund_id = fund_with_cash(sim, ana)
+    sim.open_fund_offer(ana, fund_id, 20)
+    buy_at_market(sim, bruno, TICKER, 5)
+    return sim, ana, bruno, fund_id
+
+
+def buy_for_fund(sim: Simulation, fund_id: int, ticker: str, size: int) -> None:
+    """A gestora compra ações com o caixa dela."""
+    fund = book_of(sim).by_id(fund_id)
+    sim._engine.matching_engine.submit(
+        MarketOrder(
+            client_id=fund.account.client_id,
+            ticker=ticker,
+            size=Decimal(size),
+            action=OrderAction.BUY,
+            placed_on=sim._current_date,
+        )
+    )
+
+
+def run_days(sim: Simulation, days: int) -> None:
+    for _ in range(days):
+        sim.next_tick()
+
+
+def test_list_shows_the_last_trade_price_and_the_manager_nickname(started):  # noqa: F811
+    sim, ana = empty_match("Bruno")
+    bruno = player(sim, "Bruno")
+    fund_id = fund_with_cash(sim, ana)
+    sim.open_fund_offer(ana, fund_id, 20)
+
+    [before] = sim.get_funds()
+    buy_at_market(sim, bruno, TICKER, 5)
+    [after] = sim.get_funds()
+
+    assert (before.price, before.manager_nickname) == (None, "Ana")
+    assert after.price == Decimal(100)
+    assert after.price is not None
+    assert after.nav is not None
+    assert after.price / after.nav - 1 == 0
+
+
+def test_holders_are_listed_from_the_largest_with_color_and_share(started):  # noqa: F811
+    sim, ana, bruno, fund_id = offered_match()
+
+    page = sim.get_fund(bruno, fund_id)
+
+    assert [(h.kind, h.nickname, h.quotas, h.color) for h in page.holders] == [
+        ("player", "Ana", 50, "chart-1"),
+        ("maker", "Formador de mercado", 7, None),
+        ("player", "Bruno", 5, "chart-2"),
+    ]
+    assert page.holders[0].user_id == ana.id
+    assert page.holders[1].user_id is None
+    assert sum(h.share for h in page.holders) == 1
+    assert page.holders[0].share == Decimal(50) / 62
+
+
+def test_control_is_half_plus_one_and_the_manager_alone_sees_what_he_can_sell(
+    started,  # noqa: F811
+):
+    sim, ana, bruno, fund_id = offered_match()
+
+    as_manager = sim.get_fund(ana, fund_id)
+    as_other = sim.get_fund(bruno, fund_id)
+
+    # 62 cotas em circulação: o controle começa em 32 e a Ana, com 50, vende 18
+    assert as_manager.control_quotas == as_other.control_quotas == 32
+    assert as_manager.sellable_keeping_control == 18
+    assert as_other.sellable_keeping_control is None
+
+
+def test_live_portfolio_is_the_managers_and_the_composition_is_the_rooms(started):  # noqa: F811
+    sim, ana, bruno, fund_id = offered_match()
+    stock = next(
+        ticker
+        for ticker, asset in sim._engine.stocks.items()
+        if asset.asset_class == AssetClass.STOCK
+    )
+    buy_for_fund(sim, fund_id, stock, 10)
+    sim.next_tick()
+
+    as_manager = sim.get_fund(ana, fund_id)
+    as_other = sim.get_fund(bruno, fund_id)
+
+    assert as_other.positions is None
+    assert as_manager.positions is not None
+    assert [p.asset_class for p in as_manager.positions] == ["cash", "stocks"]
+    bought = as_manager.positions[1]
+    assert (bought.ticker, bought.quantity) == (stock, 10)
+    assert [c.asset_class for c in as_other.composition] == [
+        "cash",
+        "stocks",
+        "fixed_income",
+        "treasury",
+    ]
+    assert as_other.composition == as_manager.composition
+    assert sum(c.fraction for c in as_other.composition) == 1
+    stocks_class = as_other.composition[1]
+    assert stocks_class.value == bought.value
+    assert [p.value for p in as_manager.positions] == [
+        c.value for c in as_manager.composition if c.value
+    ]
+
+
+def test_offer_in_progress_shows_sold_raised_and_buyers(started):  # noqa: F811
+    sim, _ana, bruno, fund_id = offered_match()
+
+    page = sim.get_fund(bruno, fund_id)
+
+    assert (page.offer_sold, page.offer_raised) == (5, 500)
+    assert page.offer_buyers is not None
+    [buyer] = page.offer_buyers
+    assert (buyer.kind, buyer.user_id, buyer.nickname) == ("player", bruno.id, "Bruno")
+    assert (buyer.quotas, buyer.color) == (5, "chart-2")
+
+
+def test_closed_offer_has_no_progress_and_leaves_its_marks_in_the_movements(started):  # noqa: F811
+    sim, ana, _bruno, fund_id = offered_match()
+    sim.close_fund_offer(ana, fund_id)
+
+    page = sim.get_fund(ana, fund_id)
+
+    assert (page.offer_sold, page.offer_raised, page.offer_buyers) == (None,) * 3
+    closed = next(m for m in page.movements if m.type == "offer_closed")
+    assert (closed.quotas, closed.amount, closed.price) == (5, 500, 100)
+    opened = next(m for m in page.movements if m.type == "offer_opened")
+    assert (opened.price, opened.quotas) == (100, 20)
+    assert opened.day < closed.day == sim._current_date
+    assert page.offer_closed_on == sim._current_date
+
+
+def test_offer_that_ran_its_course_keeps_what_was_offered_and_closes_on_the_last_session(
+    started,  # noqa: F811
+):
+    sim, ana, _bruno, fund_id = offered_match()
+    run_days(sim, 8)
+
+    page = sim.get_fund(ana, fund_id)
+
+    opened = next(m for m in page.movements if m.type == "offer_opened")
+    closed = next(m for m in page.movements if m.type == "offer_closed")
+    assert (opened.quotas, closed.quotas) == (20, 5)
+    assert closed.day == page.offer_closed_on == date(2004, 3, 8)
+
+
+def test_a_player_trade_with_the_day_and_value_of_an_offer_sale_is_not_a_buyer(
+    started,  # noqa: F811
+):
+    sim, ana = empty_match("Bruno", "Caio")
+    bruno = player(sim, "Bruno")
+    caio = player(sim, "Caio")
+    fund_id = fund_with_cash(sim, ana)
+    sim.open_fund_offer(ana, fund_id, 20)
+    engine = sim._engine.matching_engine
+    day = sim._current_date
+
+    # O Bruno leva 5 cotas da oferta a R$ 100 (R$ 500); no mesmo dia a Ana vende 10 cotas
+    # a R$ 50 (R$ 500) à Caio
+    engine.submit(
+        MarketOrder(
+            client_id=bruno.client_id,
+            ticker=TICKER,
+            size=Decimal(5),
+            action=OrderAction.BUY,
+            placed_on=day,
+        )
+    )
+    engine.submit(
+        LimitOrder(
+            client_id=ana.client_id,
+            ticker=TICKER,
+            size=Decimal(10),
+            action=OrderAction.SELL,
+            placed_on=day,
+            price=50.0,
+        )
+    )
+    engine.submit(
+        MarketOrder(
+            client_id=caio.client_id,
+            ticker=TICKER,
+            size=Decimal(10),
+            action=OrderAction.BUY,
+            placed_on=day,
+        )
+    )
+    sim.next_tick()
+
+    page = sim.get_fund(ana, fund_id)
+    assert sim._engine.broker.get_positions(caio.client_id)[TICKER].size == 10
+    assert (page.offer_sold, page.offer_raised) == (5, 500)
+    assert page.offer_buyers is not None
+    assert [(b.user_id, b.quotas) for b in page.offer_buyers] == [(bruno.id, 5)]
+
+
+def resumed_page(sim: Simulation, viewer: UserDTO, fund_id: int):
+    """Grava a partida como está, retoma e devolve a página da gestora na partida retomada."""
+    summary = repository.simulation.get_simulation(sim.settings.id)
+    assert summary is not None
+    SimulationLoader.load(summary)
+    return SimulationManager.get_active_simulation().get_fund(viewer, fund_id)
+
+
+def test_resumed_match_keeps_the_offer_in_progress(started):  # noqa: F811
+    sim, _ana, bruno, fund_id = offered_match()
+    before = sim.get_fund(bruno, fund_id)
+
+    after = resumed_page(sim, bruno, fund_id)
+
+    assert (after.offer_quotas, after.offer_price) == (20, 100)
+    assert (after.offer_sold, after.offer_raised) == (5, 500)
+    assert after.offer_buyers == before.offer_buyers
+    assert after.offer_closed_on is None
+
+
+def test_resumed_match_keeps_the_closed_offer(started):  # noqa: F811
+    sim, ana, _bruno, fund_id = offered_match()
+    sim.close_fund_offer(ana, fund_id)
+    before = sim.get_fund(ana, fund_id)
+
+    after = resumed_page(sim, ana, fund_id)
+
+    assert after.offer_closed_on == before.offer_closed_on is not None
+    closed = next(m for m in after.movements if m.type == "offer_closed")
+    opened = next(m for m in after.movements if m.type == "offer_opened")
+    assert (opened.quotas, closed.quotas, closed.amount) == (20, 5, 500)
+
+
+def test_viewer_sees_his_own_quotas_value_and_return(started):  # noqa: F811
+    sim, ana = empty_match("Bruno", "Caio")
+    bruno = player(sim, "Bruno")
+    caio = player(sim, "Caio")
+    fund_id = fund_with_cash(sim, ana)
+    sim.open_fund_offer(ana, fund_id, 20)
+    buy_at_market(sim, bruno, TICKER, 5)
+
+    mine = sim.get_fund(bruno, fund_id)
+    manager = sim.get_fund(ana, fund_id)
+    without_quotas = sim.get_fund(caio, fund_id)
+
+    assert (mine.my_quotas, mine.my_value, mine.my_return) == (5, 500, 0)
+    assert (manager.my_quotas, manager.my_value) == (50, 5000)
+    assert (
+        without_quotas.my_quotas,
+        without_quotas.my_value,
+        without_quotas.my_return,
+    ) == (0, 0, None)
+
+
+def test_a_month_in_shows_report_fees_series_and_returns(started):  # noqa: F811
+    sim, ana, _bruno, fund_id = offered_match()
+    stock = next(
+        ticker
+        for ticker, asset in sim._engine.stocks.items()
+        if asset.asset_class == AssetClass.STOCK
+    )
+    buy_for_fund(sim, fund_id, stock, 10)
+    run_days(sim, 45)
+
+    page = sim.get_fund(ana, fund_id)
+
+    # A taxa de administração cai na virada do mês e vai para o gestor
+    fees = [m for m in page.movements if m.type == "management_fee"]
+    assert len(fees) == 2
+    assert page.fees.received_12m == sum(m.amount for m in fees if m.amount)
+    # 1% ao ano / 12 sobre o PL por cota (~R$ 100) das 55 cotas fora do formador
+    assert page.fees.management_monthly_estimate == Decimal("4.56")
+    assert page.fees.next_performance_on == date(2004, 9, 1)
+    assert page.fees.performance_estimate == 0
+    # Os movimentos vêm do mais novo para o mais antigo
+    days = [m.day for m in page.movements]
+    assert days == sorted(days, reverse=True)
+    reports = [m for m in page.movements if m.type == "report_published"]
+    assert [m.day for m in reports] == [date(2004, 5, 3), date(2004, 4, 1)]
+    # O relatório é o do último pregão antes da virada de maio, com a ação comprada
+    assert page.last_report is not None
+    assert page.last_report.day == date(2004, 4, 30)
+    held = {p.ticker for p in page.last_report.positions}
+    assert held == {None, stock}
+    assert sum(p.fraction for p in page.last_report.positions) == 1
+    # A série abre no dia da oferta, ao preço dela, e a gestora é mais nova que 12 meses
+    assert page.series[0].day == date(2004, 3, 2)
+    assert page.series[0].nav == page.offer_price
+    assert page.series[-1].day == sim._current_date
+    assert page.return_since == page.series[0].day
+    assert page.nav is not None
+    assert page.return_12m == page.nav / page.series[0].nav - 1
+    assert page.cdi_12m is not None
+    assert page.cdi_12m > 0
+
+
+def test_report_is_kept_until_the_next_month_turn(started):  # noqa: F811
+    sim, ana, bruno, fund_id = offered_match()
+    run_days(sim, 45)
+    first = sim.get_fund(ana, fund_id).last_report
+    fund = book_of(sim).by_id(fund_id)
+
+    again = sim.get_fund(bruno, fund_id).last_report
+
+    assert first is not None
+    assert again is first
+    assert fund.report is not None
+    assert fund.report[1] is first
+
+
+def test_there_is_no_report_before_the_first_month_turn(started):  # noqa: F811
+    sim, ana, _bruno, fund_id = offered_match()
+    run_days(sim, 5)
+
+    page = sim.get_fund(ana, fund_id)
+
+    assert page.last_report is None
+    assert page.return_since is not None

@@ -5,15 +5,17 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from decimal import Decimal
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.events.base_event import BaseEventDTO
-from backend.core.dto.fund import FundDayDTO, FundDTO
+from backend.core.dto.events.equity import EquityEventDTO
+from backend.core.dto.fund import FundDayDTO, FundDTO, FundOfferSaleDTO
 from backend.core.dto.stock import StockDTO
+from backend.core.dto.user import UserDTO
 from backend.core.enum import AssetClass, OrderAction
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -46,7 +48,7 @@ from backend.features.variable_income.entities.order import (
     MarketOrder,
 )
 from backend.features.variable_income.matching_engine import MatchingEngine
-from tests.fakes import FakeSimulationEngine, client
+from tests.fakes import USER_ID, FakeSimulationEngine, client
 
 TICKER = "AURA11"
 TODAY = date(2020, 1, 6)
@@ -84,6 +86,9 @@ class MemoryFunds:
     funds: dict[int, FundDTO] = field(default_factory=dict)
     days_saved: dict[int, list[FundDayDTO]] = field(default_factory=dict)
     candles: list[CandleDTO] = field(default_factory=list)
+    trades: list[EquityEventDTO] = field(default_factory=list)
+    portfolio_events: list[EquityEventDTO] = field(default_factory=list)
+    offer_sales_saved: dict[int, list[FundOfferSaleDTO]] = field(default_factory=dict)
 
     def claim_stock(self, ticker: str, name: str) -> StockDTO | None:
         return StockDTO(id=1, ticker=ticker, name=name, asset_class=AssetClass.FUND)
@@ -97,6 +102,9 @@ class MemoryFunds:
             maker_cash=Decimal(0),
             offer_remaining=None,
             listed_on=None,
+            offer_quotas=None,
+            offer_price=None,
+            offer_closed_on=None,
             pending_management_fee=None,
             pending_performance_fee=None,
             pending_from=None,
@@ -125,6 +133,17 @@ class MemoryFunds:
             d for d in self.days_saved.get(fund_id, []) if d.day < day
         ]
 
+    def record_offer_sale(self, fund_id: int, sale: FundOfferSaleDTO) -> None:
+        self.offer_sales_saved.setdefault(fund_id, []).append(sale)
+
+    def offer_sales(self, fund_id: int) -> list[FundOfferSaleDTO]:
+        return self.offer_sales_saved.get(fund_id, [])
+
+    def drop_offer_sales_from(self, fund_id: int, day: date) -> None:
+        self.offer_sales_saved[fund_id] = [
+            sale for sale in self.offer_sales_saved.get(fund_id, []) if sale.day < day
+        ]
+
     def save_candle(self, simulation_id: int, candle: CandleDTO) -> None:
         self.candles.append(candle)
 
@@ -133,6 +152,22 @@ class MemoryFunds:
     ) -> float | None:
         closes = [c.close for c in self.candles if c.price_date <= until]
         return closes[-1] if closes else None
+
+    def last_traded_close(
+        self, simulation_id: int, stock_id: int, until: date
+    ) -> float | None:
+        closes = [
+            c.close for c in self.candles if c.price_date <= until and c.volume > 0
+        ]
+        return closes[-1] if closes else None
+
+    def quota_trades(self, simulation_id: int, stock_id: int) -> list[EquityEventDTO]:
+        return self.trades
+
+    def portfolio_equity_events(
+        self, simulation_id: int, portfolio_id: int
+    ) -> list[EquityEventDTO]:
+        return self.portfolio_events
 
 
 @pytest.fixture(autouse=True)
@@ -187,9 +222,12 @@ def _setup(
     cash: int = 100000,
     publish: Callable[[date, Headline], None] | None = None,
     frozen_until: Callable[[int], date | None] | None = None,
+    participants: Callable[[], list[UserDTO]] | None = None,
 ) -> Setup:
     engine = FundEngine()
-    book = FundBook(1, engine, lambda user_id: MANAGER, publish, frozen_until)
+    book = FundBook(
+        1, engine, lambda user_id: MANAGER, publish, frozen_until, participants
+    )
     book.found(
         ticker=TICKER,
         name="Aura",
@@ -589,6 +627,52 @@ def test_summary_carries_the_live_nav_and_the_ranking_price(memory: MemoryFunds)
     assert summary.ticker == TICKER
 
 
+def test_summary_price_is_the_last_trade_and_empty_before_the_first(
+    memory: MemoryFunds,
+):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+    setup.tick(TODAY + timedelta(days=1))
+    fund = setup.book.get(TICKER)
+
+    assert setup.book.summary(fund).price is None
+    setup.buy(10)
+    during_the_day = setup.book.summary(fund).price
+    setup.book.on_close(setup.engine.current_date)
+    setup.tick(TODAY + timedelta(days=2))
+    next_day = setup.book.summary(fund).price
+
+    assert during_the_day == Decimal(100)
+    assert next_day == during_the_day
+
+
+def test_reload_recovers_the_last_trade_price_from_the_traded_candles(
+    memory: MemoryFunds,
+):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+    setup.tick(TODAY + timedelta(days=1))
+    setup.buy(10)
+    setup.book.on_close(setup.engine.current_date)
+    setup.tick(TODAY + timedelta(days=2))
+    setup.book.on_close(setup.engine.current_date)
+    assert memory.candles[-1].volume == 0
+
+    reloaded = FundBook(1, setup.engine, lambda user_id: MANAGER).get(TICKER)
+
+    assert reloaded.last_trade_price == Decimal(100)
+
+
+def test_summary_names_the_manager_from_the_participants(memory: MemoryFunds):
+    manager = UserDTO(id=MANAGER_USER, client_id=MANAGER, nickname="Ana")
+    other = UserDTO(id=MANAGER_USER + 1, client_id=uuid4(), nickname="Bruno")
+    setup = _setup(memory, participants=lambda: [other, manager])
+
+    summary = setup.book.summary(setup.book.get(TICKER))
+
+    assert summary.manager_nickname == "Ana"
+
+
 def test_unknown_fund_id_is_not_found(memory: MemoryFunds):
     setup = _setup(memory)
 
@@ -786,3 +870,88 @@ def test_partly_sold_offer_stays_open(memory: MemoryFunds):
 
     assert fund.account.offer_remaining == 15
     assert setup.book.summary(fund).offer_session == 1
+
+
+def test_open_offer_stores_the_size_and_the_price_of_the_offer(memory: MemoryFunds):
+    setup = _setup(memory)
+
+    setup.book.open_offer(TICKER, Decimal(200))
+
+    stored = memory.funds[setup.book.get(TICKER).terms.id]
+    assert (stored.offer_quotas, stored.offer_price) == (Decimal(200), Decimal(100))
+    assert stored.offer_closed_on is None
+
+
+def test_a_purchase_from_the_offer_is_stored_as_a_sale_of_that_buyer(
+    memory: MemoryFunds,
+):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+    fund = setup.book.get(TICKER)
+
+    setup.buy(30)
+
+    sales = memory.offer_sales(fund.terms.id)
+    assert [(s.day, s.buyer_user_id, s.quotas, s.price) for s in sales] == [
+        (TODAY, USER_ID, Decimal(30), Decimal(100))
+    ]
+    assert fund.terms.offer_closed_on is None
+
+
+def test_the_sale_that_empties_the_offer_closes_it_on_that_day(memory: MemoryFunds):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(20))
+    fund = setup.book.get(TICKER)
+
+    setup.buy(20)
+
+    assert fund.account.offer_remaining is None
+    assert memory.funds[fund.terms.id].offer_closed_on == TODAY
+    assert sum(s.quotas for s in memory.offer_sales(fund.terms.id)) == 20
+
+
+def test_the_offer_that_ran_its_course_stores_the_last_session_as_closing_day(
+    memory: MemoryFunds,
+):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+    fund = setup.book.get(TICKER)
+
+    for day in (7, 8, 9):
+        setup.tick(date(2020, 1, day))
+        setup.book.on_close(date(2020, 1, day))
+        assert memory.funds[fund.terms.id].offer_closed_on is None
+    setup.tick(date(2020, 1, 10))
+    setup.book.on_close(date(2020, 1, 10))
+
+    assert memory.funds[fund.terms.id].offer_closed_on == date(2020, 1, 10)
+
+
+def test_manual_close_stores_the_day_it_happened(memory: MemoryFunds):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+
+    setup.book.close_offer(TICKER)
+
+    terms = memory.funds[setup.book.get(TICKER).terms.id]
+    assert terms.offer_closed_on == TODAY
+
+
+def test_the_maker_bids_stay_below_the_offer_so_it_never_buys_from_it(
+    memory: MemoryFunds,
+):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+    fund = setup.book.get(TICKER)
+    for day in (7, 8):
+        setup.tick(date(2020, 1, day))
+
+    book = setup.engine.matching_engine.order_book
+    best_bid, issuer = book.best_buy(TICKER), book.best_sell(TICKER)
+    assert best_bid is not None and issuer is not None
+    assert (best_bid.client_id, issuer.client_id) == (
+        FUND_MAKER_CLIENT_ID,
+        FUND_ISSUER_CLIENT_ID,
+    )
+    assert best_bid.price < issuer.price
+    assert memory.offer_sales(fund.terms.id) == []

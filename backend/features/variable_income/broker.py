@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import threading
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from decimal import ROUND_DOWN, Decimal
 from typing import TYPE_CHECKING
 from uuid import UUID
@@ -59,12 +59,10 @@ def to_money(price: float) -> Decimal:
     return Decimal(str(price))
 
 
-def load_positions(client_id: UUID) -> dict[str, Position]:
-    """Reconstrói as posições repetindo os eventos com as mesmas operações do jogo ao vivo."""
-    portfolio_id = UserManager.get_portfolio_id(client_id)
-
+def replay_positions(events: Iterable[EquityEventDTO]) -> dict[str, Position]:
+    """As posições em aberto depois de repetir os eventos com as mesmas operações do jogo ao vivo."""
     positions: dict[str, Position] = {}
-    for event in repository.portfolio.get_equity_events(portfolio_id):
+    for event in events:
         position = positions.setdefault(event.ticker, Position(event.ticker))
         match event.event_type:
             case EquityEventType.BUY | EquityEventType.TRANSFER_IN:
@@ -79,6 +77,12 @@ def load_positions(client_id: UUID) -> dict[str, Position]:
                 position.update_split(event.quantity)
 
     return {ticker: p for ticker, p in positions.items() if p.size > 0}
+
+
+def load_positions(client_id: UUID) -> dict[str, Position]:
+    """Reconstrói as posições da carteira do cliente a partir dos eventos dela."""
+    portfolio_id = UserManager.get_portfolio_id(client_id)
+    return replay_positions(repository.portfolio.get_equity_events(portfolio_id))
 
 
 class Broker:
@@ -106,6 +110,11 @@ class Broker:
         self._positions: LazyDict[UUID, dict[str, Position]] = LazyDict(load_positions)
         # A gestora de cada cota negociada, pelo ticker
         self.fund_accounts: dict[str, FundAccount] = {}
+        # Chamado a cada venda da oferta pública com o ticker, o comprador (nulo para o
+        # formador de mercado), as cotas e o preço
+        self.on_fund_offer_sale: (
+            Callable[[str, int | None, Decimal, Decimal], None] | None
+        ) = None
 
     def get_positions(self, client_id: UUID) -> dict[str, Position]:
         with self._lock:
@@ -346,11 +355,13 @@ class Broker:
                 order=taker_order,
                 size=size,
                 price=price,
+                counterparty=maker_order,
             )
             self._execute_order(
                 order=maker_order,
                 size=size,
                 price=price,
+                counterparty=taker_order,
             )
             # Cada negócio da cota de gestora conta uma vez, para a vela e o giro do dia
             account = self.fund_accounts.get(taker_order.ticker)
@@ -387,6 +398,7 @@ class Broker:
         order: Order,
         size: Decimal,
         price: float,
+        counterparty: Order,
     ):
         if order.client_id == MARKET_CLIENT_ID:
             return
@@ -396,7 +408,7 @@ class Broker:
             )
             return
         if order.client_id == FUND_ISSUER_CLIENT_ID:
-            self._execute_fund_offer(order, size, price)
+            self._execute_fund_offer(order, size, price, counterparty)
             return
         match order.action:
             case OrderAction.BUY:
@@ -404,8 +416,11 @@ class Broker:
             case OrderAction.SELL:
                 self._execute_sell(order, size, price)
 
-    def _execute_fund_offer(self, order: Order, size: Decimal, price: float) -> None:
-        """A venda da oferta emite as cotas e põe o dinheiro no caixa da gestora."""
+    def _execute_fund_offer(
+        self, order: Order, size: Decimal, price: float, buyer: Order
+    ) -> None:
+        """A venda da oferta emite as cotas, põe o dinheiro no caixa da gestora e grava a venda
+        com o comprador: o dono da ordem contrária, ou ninguém quando é o formador de mercado."""
         if order.action != OrderAction.SELL:
             raise ValueError("A oferta pública só vende")
         account = self.fund_accounts[order.ticker]
@@ -413,6 +428,15 @@ class Broker:
         self._simulation_engine.credit_fund_offer(
             account.client_id, to_money(price) * size
         )
+        if self.on_fund_offer_sale is not None:
+            self.on_fund_offer_sale(
+                order.ticker,
+                None
+                if buyer.client_id == FUND_MAKER_CLIENT_ID
+                else UserManager.get_user_id(buyer.client_id),
+                size,
+                to_money(price),
+            )
 
     def _validate_market_order(self, order: MarketOrder, size: Decimal, price: float):
         if order.client_id not in UNRESERVED_CLIENT_IDS:

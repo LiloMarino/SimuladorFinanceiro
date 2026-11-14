@@ -9,12 +9,14 @@ from backend.core import repository
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.fund import (
     FundDayDTO,
-    FundDetailsDTO,
     FundDTO,
+    FundOfferSaleDTO,
+    FundReportDTO,
     FundSummaryDTO,
     FundTermsDTO,
 )
 from backend.core.dto.stock import StockDTO
+from backend.core.dto.user import UserDTO
 from backend.core.enum import AssetClass, IndicatorSeries
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -27,6 +29,7 @@ from backend.core.utils import next_business_day, next_month_turn
 from backend.features.funds import headlines
 from backend.features.funds.fees import management_fee, performance_charge
 from backend.features.funds.fund_account import DayTrades, FundAccount
+from backend.features.funds.fund_ledger import PERFORMANCE_PERIOD_MONTHS
 from backend.features.funds.fund_maker import STOCK_SHARE, FundMaker
 from backend.features.funds.fund_offer import FundOffer
 from backend.features.funds.ranking_price import (
@@ -37,14 +40,8 @@ from backend.features.funds.ranking_price import (
 from backend.features.notifications.news import Headline
 from backend.features.simulation.simulation_engine import SimulationEngine
 
-# Meses entre duas cobranças de performance, contados da oferta
-PERFORMANCE_PERIOD_MONTHS = 6
-
 # O PL por cota da primeira integralização
 FIRST_NAV = Decimal(100)
-
-# Pregões da série devolvida no detalhe da gestora
-SERIES_LIMIT = 500
 
 # Pregões da oferta pública, contando o da abertura: ao fim do último ela fecha sozinha
 OFFER_SESSIONS = 5
@@ -139,6 +136,10 @@ def close_candle(
     )
 
 
+def _decimal_or_none(value: float | None) -> Decimal | None:
+    return None if value is None else Decimal(str(value))
+
+
 @dataclass
 class Fund:
     """O estado vivo de uma gestora: os termos gravados, a conta do motor e o último PL."""
@@ -149,6 +150,10 @@ class Fund:
     days: list[TradedDay] = field(default_factory=list)
     nav: Decimal | None = None
     last_close: float | None = None
+    # O preço do último negócio da cota, de pregões já fechados; nulo se nunca negociou
+    last_trade_price: Decimal | None = None
+    # O relatório mensal do último fechamento de mês, guardado pelo dia da virada que o gerou
+    report: tuple[date, FundReportDTO] | None = None
 
     @property
     def ticker(self) -> str:
@@ -180,6 +185,7 @@ class FundBook:
         client_of_user: Callable[[int], UUID],
         publish: Callable[[date, Headline], None] | None = None,
         frozen_until: Callable[[int], date | None] | None = None,
+        participants: Callable[[], list[UserDTO]] | None = None,
     ) -> None:
         self._simulation_id = simulation_id
         self._engine = engine
@@ -187,10 +193,13 @@ class FundBook:
         self._publish = publish
         # O último dia do mandato do gestor que governa, por id de usuário; nulo se ele não governa
         self._manager_frozen_until = frozen_until or (lambda _user_id: None)
+        # Os jogadores e bots da partida, lidos a cada consulta
+        self.participants = participants or (lambda: [])
         self._funds: dict[str, Fund] = {}
         accounts = engine.broker.fund_accounts
         self._maker = FundMaker(engine.matching_engine, accounts)
         self._offer = FundOffer(engine.matching_engine, accounts)
+        engine.broker.on_fund_offer_sale = self._record_offer_sale
         for terms in repository.fund.of_simulation(simulation_id):
             self._load(terms)
 
@@ -227,14 +236,28 @@ class FundBook:
         """O último dia em que a gestora fica congelada: o fim do mandato do gestor presidente."""
         return self._manager_frozen_until(fund.terms.manager_user_id)
 
-    def summary(self, fund: Fund) -> FundSummaryDTO:
-        """A gestora com o PL por cota de agora, o preço de ranking, a oferta e o congelamento."""
+    def price(self, fund: Fund) -> Decimal | None:
+        """O preço do último negócio da cota: o de hoje se já negociou, senão o do último pregão com negócio."""
+        today = fund.account.day
+        return today.close if today.open is not None else fund.last_trade_price
+
+    def summary(
+        self, fund: Fund, nicknames: Mapping[int, str] | None = None
+    ) -> FundSummaryDTO:
+        """A gestora com o PL por cota de agora, o preço de ranking, o último negócio, a oferta e o congelamento.
+
+        `nicknames` são os apelidos por id de usuário; sem eles a consulta lê os participantes.
+        """
+        if nicknames is None:
+            nicknames = {user.id: user.nickname for user in self.participants()}
         listed_on = fund.terms.listed_on
         open_on = listed_on if fund.account.offer_remaining is not None else None
         return FundSummaryDTO(
             **fund.terms.model_dump(include=set(FundTermsDTO.model_fields)),
             nav=self._nav(fund),
             ranking_price=self._engine.ranking_prices.get(fund.ticker),
+            price=self.price(fund),
+            manager_nickname=nicknames.get(fund.terms.manager_user_id),
             offer_session=(
                 offer_session(open_on, self._engine.current_date) if open_on else None
             ),
@@ -242,11 +265,10 @@ class FundBook:
             frozen_until=self.frozen_until(fund),
         )
 
-    def details(self, fund: Fund) -> FundDetailsDTO:
-        """O resumo da gestora com a série dos últimos fechamentos."""
-        after = self._engine.current_date + timedelta(days=1)
-        days = repository.fund.days(fund.terms.id, after, SERIES_LIMIT)
-        return FundDetailsDTO(**self.summary(fund).model_dump(), days=days)
+    def summaries(self) -> list[FundSummaryDTO]:
+        """A lista de gestoras da partida, com os apelidos lidos uma vez."""
+        nicknames = {user.id: user.nickname for user in self.participants()}
+        return [self.summary(fund, nicknames) for fund in self._funds.values()]
 
     # =========================
     # Criação e oferta
@@ -367,6 +389,8 @@ class FundBook:
         fund.terms = fund.terms.model_copy(
             update={
                 "listed_on": today,
+                "offer_quotas": size,
+                "offer_price": Decimal(str(round(float(nav), 2))),
                 "high_water_mark": nav,
                 "high_water_mark_on": today,
             }
@@ -377,9 +401,7 @@ class FundBook:
 
     def close_offer(self, ticker: str) -> None:
         """Encerra a oferta: o que não vendeu não é emitido."""
-        fund = self._funds[ticker]
-        self._offer.close(ticker)
-        self._save(fund)
+        self._close_offer(self._funds[ticker], self._engine.current_date)
 
     def on_office(self, manager_user_id: int) -> None:
         """O gestor assumiu a presidência: as ordens abertas das gestoras dele saem do livro."""
@@ -451,6 +473,8 @@ class FundBook:
             stock = self._engine.stocks[fund.ticker]
             candle = close_candle(stock, today, trades, fund.last_close, fund.nav)
             fund.last_close = candle.close
+            if trades.open is not None:
+                fund.last_trade_price = trades.close
             fund.days = [*fund.days, TradedDay(trades.quantity, trades.value)][
                 -RANKING_WINDOW:
             ]
@@ -477,7 +501,7 @@ class FundBook:
                 and fund.account.offer_remaining is not None
                 and today >= offer_ends_on(listed_on)
             ):
-                self._offer.close(fund.ticker)
+                self._close_offer(fund, today)
             self._save(fund)
             candles.append(candle)
         return candles
@@ -582,6 +606,7 @@ class FundBook:
         # Os dias depois do último processado são refeitos pelo tick
         after = self._engine.current_date + timedelta(days=1)
         repository.fund.drop_days_from(terms.id, after)
+        repository.fund.drop_offer_sales_from(terms.id, after)
         days = repository.fund.days(terms.id, after, RANKING_WINDOW)
         fund = Fund(
             terms=terms,
@@ -589,6 +614,11 @@ class FundBook:
             days=[TradedDay(d.traded_quantity, d.traded_value) for d in days],
             last_close=repository.fund.last_close(
                 self._simulation_id, terms.stock_id, self._engine.current_date
+            ),
+            last_trade_price=_decimal_or_none(
+                repository.fund.last_traded_close(
+                    self._simulation_id, terms.stock_id, self._engine.current_date
+                )
             ),
         )
         self._funds[terms.ticker] = fund
@@ -625,6 +655,33 @@ class FundBook:
             return
         self._maker.refresh(fund.ticker, float(fund.nav), fund.account.quotas, today)
         self._offer.refresh(fund.ticker, float(fund.nav), today)
+
+    def _close_offer(self, fund: Fund, day: date) -> None:
+        """Fecha a oferta e grava o dia em que fechou."""
+        self._offer.close(fund.ticker)
+        fund.terms = fund.terms.model_copy(update={"offer_closed_on": day})
+        self._save(fund)
+
+    def _record_offer_sale(
+        self,
+        ticker: str,
+        buyer_user_id: int | None,
+        quotas: Decimal,
+        price: Decimal,
+    ) -> None:
+        """Grava a venda da oferta no dia dela, junto das cotas emitidas; a que zera o saldo
+        fecha a oferta nesse mesmo dia."""
+        fund = self._funds[ticker]
+        today = self._engine.current_date
+        repository.fund.record_offer_sale(
+            fund.terms.id,
+            FundOfferSaleDTO(
+                day=today, buyer_user_id=buyer_user_id, quotas=quotas, price=price
+            ),
+        )
+        if fund.account.offer_remaining is None:
+            fund.terms = fund.terms.model_copy(update={"offer_closed_on": today})
+        self._save(fund)
 
     def _save(self, fund: Fund) -> None:
         account = fund.account
