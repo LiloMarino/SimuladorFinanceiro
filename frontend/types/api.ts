@@ -27,6 +27,8 @@ export type FundIssuanceSubscriptionRequest = components["schemas"]["FundIssuanc
 export type FundIssuancePreview = components["schemas"]["FundIssuancePreviewDTO"];
 export type FundIssuanceSubscriptionPreview = components["schemas"]["FundIssuanceSubscriptionPreviewDTO"];
 export type FundBuybackRequest = components["schemas"]["FundBuybackRequest"];
+export type FundAssemblyConveneRequest = components["schemas"]["FundAssemblyConveneRequest"];
+export type FundAssemblyVoteRequest = components["schemas"]["FundAssemblyVoteRequest"];
 export type FundBuybackPreview = components["schemas"]["FundBuybackPreviewDTO"];
 
 // Portfolio

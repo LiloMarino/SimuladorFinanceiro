@@ -14,6 +14,8 @@ from backend.core.dto.candle import CandleDTO
 from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.fund import (
+    FundAssemblyDTO,
+    FundAssemblyVoteDTO,
     FundBuybackDTO,
     FundDayDTO,
     FundDTO,
@@ -23,7 +25,7 @@ from backend.core.dto.fund import (
 )
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import AssetClass, OrderAction
+from backend.core.enum import AssetClass, FundAssemblyStatus, OrderAction
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     NotFoundError,
@@ -99,6 +101,10 @@ class MemoryFunds:
     issuances_saved: dict[int, list[FundIssuanceDTO]] = field(default_factory=dict)
     rights_saved: dict[int, list[FundIssuanceRightDTO]] = field(default_factory=dict)
     buybacks_saved: dict[int, list[FundBuybackDTO]] = field(default_factory=dict)
+    assemblies_saved: dict[int, list[FundAssemblyDTO]] = field(default_factory=dict)
+    assembly_votes_saved: dict[int, dict[int, FundAssemblyVoteDTO]] = field(
+        default_factory=dict
+    )
     next_id: int = 1
 
     @property
@@ -206,6 +212,40 @@ class MemoryFunds:
         for index, row in enumerate(rows):
             if row.state == "open":
                 rows[index] = row.model_copy(update={"state": "canceled"})
+
+    def create_assembly(
+        self, fund_id: int, assembly: FundAssemblyDTO
+    ) -> FundAssemblyDTO:
+        created = assembly.model_copy(update={"id": self.next_id})
+        self.next_id += 1
+        self.assemblies_saved.setdefault(fund_id, []).append(created)
+        return created
+
+    def save_assembly(self, assembly: FundAssemblyDTO) -> None:
+        for rows in self.assemblies_saved.values():
+            for index, row in enumerate(rows):
+                if row.id == assembly.id:
+                    rows[index] = assembly
+
+    def assemblies(self, fund_id: int) -> list[FundAssemblyDTO]:
+        return list(self.assemblies_saved.get(fund_id, []))
+
+    def save_assembly_vote(self, assembly_id: int, vote: FundAssemblyVoteDTO) -> None:
+        self.assembly_votes_saved.setdefault(assembly_id, {})[vote.user_id] = vote
+
+    def assembly_votes(self, assembly_id: int) -> list[FundAssemblyVoteDTO]:
+        return list(self.assembly_votes_saved.get(assembly_id, {}).values())
+
+    def last_removal(self, simulation_id: int, user_id: int) -> date | None:
+        removed = [
+            a.closed_on
+            for rows in self.assemblies_saved.values()
+            for a in rows
+            if a.previous_manager_user_id == user_id
+            and a.status is FundAssemblyStatus.REPLACED
+            and a.closed_on is not None
+        ]
+        return max(removed, default=None)
 
     def drop_offer_sales_from(self, fund_id: int, day: date) -> None:
         self.offer_sales_saved[fund_id] = [

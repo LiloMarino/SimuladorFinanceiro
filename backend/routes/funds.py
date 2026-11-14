@@ -5,6 +5,8 @@ from fastapi import APIRouter, Query, status
 
 from backend.core.dto.fund import (
     FundAccountDTO,
+    FundAssemblyConveneRequest,
+    FundAssemblyVoteRequest,
     FundBuybackDTO,
     FundBuybackPreviewDTO,
     FundBuybackRequest,
@@ -205,6 +207,70 @@ def open_fund_buyback(
 )
 def cancel_fund_buyback(simulation: ActiveSimulation, user: CurrentUser, fund_id: int):
     simulation.cancel_fund_buyback(user, fund_id)
+
+
+@funds_router.post(
+    "/{fund_id}/assembly",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Convocar a assembleia de troca de gestor",
+    description="Quem tem 10% ou mais das cotas convoca, indicando a si mesmo ou um aliado jogador para a gestão. Indicado o próprio convocador, a votação abre já por 5 pregões; um aliado tem 5 pregões para aceitar. Uma assembleia a cada 3 meses por gestora; durante ela a gestora não emite cotas.",
+)
+def convene_fund_assembly(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    payload: FundAssemblyConveneRequest,
+):
+    simulation.convene_fund_assembly(user, fund_id, payload)
+
+
+@funds_router.delete(
+    "/{fund_id}/assembly",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Cancelar o convite da assembleia",
+    description="Quem convocou cancela o convite que o aliado ainda não respondeu. O cancelamento não conta no intervalo entre assembleias.",
+)
+def cancel_fund_assembly(simulation: ActiveSimulation, user: CurrentUser, fund_id: int):
+    simulation.cancel_fund_assembly(user, fund_id)
+
+
+@funds_router.post(
+    "/{fund_id}/assembly/acceptance",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Aceitar o convite da assembleia",
+    description="O aliado indicado aceita e a votação abre, com quem convocou a favor.",
+)
+def accept_fund_assembly_invite(
+    simulation: ActiveSimulation, user: CurrentUser, fund_id: int
+):
+    simulation.answer_fund_assembly_invite(user, fund_id, True)
+
+
+@funds_router.post(
+    "/{fund_id}/assembly/refusal",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Recusar o convite da assembleia",
+    description="O aliado indicado recusa e a assembleia se encerra, sem contar no intervalo entre assembleias.",
+)
+def refuse_fund_assembly_invite(
+    simulation: ActiveSimulation, user: CurrentUser, fund_id: int
+):
+    simulation.answer_fund_assembly_invite(user, fund_id, False)
+
+
+@funds_router.put(
+    "/{fund_id}/assembly/vote",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Votar na assembleia",
+    description="O cotista vota a favor ou contra a troca, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. O gestor não vota: as cotas dele contam contra.",
+)
+def vote_fund_assembly(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    payload: FundAssemblyVoteRequest,
+):
+    simulation.vote_fund_assembly(user, fund_id, payload)
 
 
 @funds_router.get(

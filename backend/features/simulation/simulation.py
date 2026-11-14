@@ -38,6 +38,8 @@ from backend.core.dto.fixed_income_projection import (
 from backend.core.dto.fund import (
     FUND_TICKER_PATTERN,
     FundAccountDTO,
+    FundAssemblyConveneRequest,
+    FundAssemblyVoteRequest,
     FundBuybackDTO,
     FundBuybackPreviewDTO,
     FundBuybackRequest,
@@ -1012,6 +1014,12 @@ class Simulation:
     @synchronized
     def found_fund(self, user: UserDTO, request: FundFoundRequest) -> FundSummaryDTO:
         book = self._ensure_funds()
+        blocked_until = book.founding_blocked_until(user.id)
+        if blocked_until is not None:
+            raise ConflictError(
+                "Quem foi afastado da gestão por assembleia só funda outra gestora "
+                f"em {short_date(blocked_until)}."
+            )
         self._ensure_fees_within_ceiling(
             request.management_fee, request.performance_fee
         )
@@ -1104,6 +1112,41 @@ class Simulation:
     def cancel_fund_buyback(self, user: UserDTO, fund_id: int) -> None:
         fund = self._managed_fund(user, fund_id)
         self._ensure_funds().cancel_buyback(fund.ticker)
+        EventManager.flush()
+        self._notify_funds_update()
+
+    @synchronized
+    def convene_fund_assembly(
+        self, user: UserDTO, fund_id: int, request: FundAssemblyConveneRequest
+    ) -> None:
+        book = self._ensure_funds()
+        fund = book.by_id(fund_id)
+        book.convene_assembly(fund.ticker, user, request.candidate_nickname)
+        EventManager.flush()
+        self._notify_funds_update()
+
+    @synchronized
+    def cancel_fund_assembly(self, user: UserDTO, fund_id: int) -> None:
+        book = self._ensure_funds()
+        book.cancel_assembly(book.by_id(fund_id).ticker, user)
+        EventManager.flush()
+        self._notify_funds_update()
+
+    @synchronized
+    def answer_fund_assembly_invite(
+        self, user: UserDTO, fund_id: int, accept: bool
+    ) -> None:
+        book = self._ensure_funds()
+        book.answer_assembly_invite(book.by_id(fund_id).ticker, user, accept)
+        EventManager.flush()
+        self._notify_funds_update()
+
+    @synchronized
+    def vote_fund_assembly(
+        self, user: UserDTO, fund_id: int, request: FundAssemblyVoteRequest
+    ) -> None:
+        book = self._ensure_funds()
+        book.cast_assembly_vote(book.by_id(fund_id).ticker, user, request.in_favor)
         EventManager.flush()
         self._notify_funds_update()
 
@@ -1274,6 +1317,16 @@ class Simulation:
                 )
             items.append(registry.pending(PendingType.NEGATIVE_CASH, detail))
         items += self._strategies.pending(user)
+        if self._funds is not None:
+            items += [
+                registry.pending(
+                    PendingType.FUND_ASSEMBLY_INVITE,
+                    f"{convener} convoca a assembleia da {fund.ticker} e indica você para a gestão · responda até {invite.ends_on:%d/%m}",
+                    ref=str(fund.terms.id),
+                    title=f"Convite para gerir a {fund.ticker}",
+                )
+                for fund, invite, convener in self._funds.invites_for(user)
+            ]
         if self._government is not None:
             items += self._government.pending(user, today)
         return registry.sort_pending(items)

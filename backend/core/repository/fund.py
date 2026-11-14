@@ -10,6 +10,8 @@ from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.fund import (
+    FundAssemblyDTO,
+    FundAssemblyVoteDTO,
     FundBuybackDTO,
     FundBuybackState,
     FundDayDTO,
@@ -25,9 +27,12 @@ from backend.core.enum import (
     Currency,
     DataOrigin,
     EquityEventType,
+    FundAssemblyStatus,
 )
 from backend.core.models.models import (
     EventEquity,
+    FundAssemblies,
+    FundAssemblyVotes,
     FundBuybacks,
     FundDays,
     FundIssuanceRights,
@@ -41,6 +46,7 @@ from backend.core.models.models import (
 
 # Colunas da linha de `funds` que mudam depois de a gestora nascer
 _MUTABLE = (
+    "manager_user_id",
     "quotas",
     "maker_quotas",
     "maker_cash",
@@ -64,6 +70,23 @@ def _to_dto(fund: Funds, ticker: str) -> FundDTO:
     return FundDTO(ticker=ticker, **{k: getattr(fund, k) for k in _columns()})
 
 
+def _assembly_dto(row: FundAssemblies) -> FundAssemblyDTO:
+    return FundAssemblyDTO(
+        id=row.id,
+        convener_user_id=row.convener_user_id,
+        candidate_user_id=row.candidate_user_id,
+        previous_manager_user_id=row.previous_manager_user_id,
+        status=FundAssemblyStatus(row.status),
+        called_on=row.called_on,
+        started_on=row.started_on,
+        ends_on=row.ends_on,
+        closed_on=row.closed_on,
+        in_favor_quotas=row.in_favor_quotas,
+        against_quotas=row.against_quotas,
+        abstention_quotas=row.abstention_quotas,
+    )
+
+
 def _columns() -> list[str]:
     return [
         "id",
@@ -71,7 +94,6 @@ def _columns() -> list[str]:
         "portfolio_id",
         "client_id",
         "founder_user_id",
-        "manager_user_id",
         "name",
         *_MUTABLE,
     ]
@@ -367,6 +389,89 @@ class FundRepository:
             .where(FundBuybacks.fund_id == fund_id, FundBuybacks.state == "open")
             .values(state=canceled)
         )
+
+    @transactional
+    def create_assembly(
+        self, session: Session, fund_id: int, assembly: FundAssemblyDTO
+    ) -> FundAssemblyDTO:
+        """Grava a assembleia recém-convocada; devolve com o id."""
+        values = assembly.model_dump(exclude={"id"})
+        values["status"] = assembly.status.value
+        row = FundAssemblies(fund_id=fund_id, **values)
+        session.add(row)
+        session.flush()
+        return _assembly_dto(row)
+
+    @transactional
+    def save_assembly(self, session: Session, assembly: FundAssemblyDTO) -> None:
+        """Grava o que muda na assembleia: estado, datas e o placar do fechamento."""
+        session.execute(
+            update(FundAssemblies)
+            .where(FundAssemblies.id == assembly.id)
+            .values(
+                status=assembly.status.value,
+                started_on=assembly.started_on,
+                ends_on=assembly.ends_on,
+                closed_on=assembly.closed_on,
+                in_favor_quotas=assembly.in_favor_quotas,
+                against_quotas=assembly.against_quotas,
+                abstention_quotas=assembly.abstention_quotas,
+            )
+        )
+
+    @transactional
+    def assemblies(self, session: Session, fund_id: int) -> list[FundAssemblyDTO]:
+        """As assembleias da gestora, da mais antiga à mais nova."""
+        rows = session.execute(
+            select(FundAssemblies)
+            .where(FundAssemblies.fund_id == fund_id)
+            .order_by(FundAssemblies.id)
+        ).scalars()
+        return [_assembly_dto(row) for row in rows]
+
+    @transactional
+    def save_assembly_vote(
+        self, session: Session, assembly_id: int, vote: FundAssemblyVoteDTO
+    ) -> None:
+        """Grava o voto do cotista; votar de novo troca o voto."""
+        values = {"assembly_id": assembly_id, **vote.model_dump()}
+        session.execute(
+            insert(FundAssemblyVotes)
+            .values(values)
+            .on_conflict_do_update(
+                index_elements=["assembly_id", "user_id"],
+                set_={"in_favor": vote.in_favor, "voted_on": vote.voted_on},
+            )
+        )
+
+    @transactional
+    def assembly_votes(
+        self, session: Session, assembly_id: int
+    ) -> list[FundAssemblyVoteDTO]:
+        """Os votos de uma assembleia, um por cotista."""
+        rows = session.execute(
+            select(FundAssemblyVotes)
+            .where(FundAssemblyVotes.assembly_id == assembly_id)
+            .order_by(FundAssemblyVotes.user_id)
+        ).scalars()
+        return [FundAssemblyVoteDTO.model_validate(row) for row in rows]
+
+    @transactional
+    def last_removal(
+        self, session: Session, simulation_id: int, user_id: int
+    ) -> date | None:
+        """O dia em que `user_id` foi afastado da gestão de uma gestora da partida, o mais recente."""
+        return session.execute(
+            select(FundAssemblies.closed_on)
+            .join(Funds, Funds.id == FundAssemblies.fund_id)
+            .where(
+                Funds.simulation_id == simulation_id,
+                FundAssemblies.previous_manager_user_id == user_id,
+                FundAssemblies.status == FundAssemblyStatus.REPLACED.value,
+            )
+            .order_by(FundAssemblies.closed_on.desc())
+            .limit(1)
+        ).scalar_one_or_none()
 
     @transactional
     def drop_offer_sales_from(self, session: Session, fund_id: int, day: date) -> None:

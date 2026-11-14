@@ -8,6 +8,7 @@ from typing import Annotated, Literal
 from pydantic import Field, StringConstraints
 
 from backend.core.dto.base import BaseDTO
+from backend.core.enum import FundAssemblyStatus
 
 # Quatro letras e o 11 das cotas
 FUND_TICKER_PATTERN = r"^[A-Z]{4}11$"
@@ -103,6 +104,35 @@ class FundBuybackDTO(BaseDTO):
     bought: Decimal
     paid: Decimal
     state: FundBuybackState
+
+
+class FundAssemblyDTO(BaseDTO):
+    """Uma assembleia de troca de gestor, como a linha de `fund_assemblies` a guarda."""
+
+    id: int
+    convener_user_id: int
+    candidate_user_id: int
+    # O gestor de quando a assembleia foi convocada
+    previous_manager_user_id: int
+    status: FundAssemblyStatus
+    called_on: date
+    # O dia em que a votação abriu; nulo enquanto o convite espera o aliado
+    started_on: date | None
+    # O último pregão da fase de agora: o do convite ou o da votação
+    ends_on: date
+    closed_on: date | None
+    # O placar do fechamento, em cotas; nulo até a votação fechar
+    in_favor_quotas: Decimal | None
+    against_quotas: Decimal | None
+    abstention_quotas: Decimal | None
+
+
+class FundAssemblyVoteDTO(BaseDTO):
+    """O voto de um cotista, que ele muda até o fim da votação."""
+
+    user_id: int
+    in_favor: bool
+    voted_on: date
 
 
 class FundDayDTO(BaseDTO):
@@ -243,6 +273,90 @@ class FundIssuanceStatusDTO(FundIssuanceDTO):
     my_bought: Decimal | None
 
 
+type FundAssemblyStance = Literal["favor", "against", "abstain"]
+type FundAssemblyBlock = Literal["share", "interval", "pending", "manager", "unlisted"]
+
+
+class FundAssemblyVoterDTO(BaseDTO):
+    """Um cotista jogador no placar: as cotas dele no momento e para onde elas vão."""
+
+    user_id: int
+    nickname: str
+    color: str | None
+    quotas: Decimal
+    # Fração das cotas em circulação: 0,25 é 25%
+    share: Decimal
+    stance: FundAssemblyStance
+    is_manager: bool
+
+
+class FundAssemblyTallyDTO(BaseDTO):
+    """O placar em cotas: a favor, contra e abstenção (quem não votou, bots e formador de mercado)."""
+
+    in_favor: Decimal
+    against: Decimal
+    abstention: Decimal
+    total: Decimal
+    # Cotas a favor que faltam para a troca vencer; zero quando ela já vence (empate mantém o gestor)
+    missing_to_replace: Decimal
+
+
+class FundAssemblyStatusDTO(BaseDTO):
+    """A assembleia em andamento como quem consulta a vê."""
+
+    id: int
+    status: FundAssemblyStatus
+    convener_user_id: int
+    convener_nickname: str
+    candidate_user_id: int
+    candidate_nickname: str
+    called_on: date
+    started_on: date | None
+    ends_on: date
+    # O pregão da votação ou do convite (1 a 5) e o total de pregões
+    session: int
+    sessions: int
+    # Placar e cotistas de agora; nulos com o convite esperando o aliado
+    tally: FundAssemblyTallyDTO | None
+    voters: list[FundAssemblyVoterDTO]
+    # A parte da abstenção que são bots e formador de mercado, que não votam
+    non_voting: Decimal
+    # O voto de quem consulta: a favor, contra, ou nulo se ainda não votou
+    my_vote: bool | None
+    # Se quem consulta pode votar agora (tem cota, não é o gestor)
+    can_vote: bool
+
+
+class FundAssemblyResultDTO(BaseDTO):
+    """O resultado da última votação concluída."""
+
+    id: int
+    status: FundAssemblyStatus
+    convener_nickname: str
+    candidate_nickname: str
+    previous_manager_nickname: str
+    started_on: date
+    closed_on: date
+    tally: FundAssemblyTallyDTO
+
+
+class FundAssemblyPanelDTO(BaseDTO):
+    """A seção Assembleia da página da gestora: a em andamento, o último resultado e quem pode convocar."""
+
+    current: FundAssemblyStatusDTO | None
+    last_result: FundAssemblyResultDTO | None
+    can_convene: bool
+    # Por que quem consulta não pode convocar; nulo quando pode
+    block: FundAssemblyBlock | None
+    # Cotas mínimas para convocar (10% das em circulação) e as de quem consulta
+    convene_quotas: Decimal
+    my_quotas: Decimal
+    # Quando a gestora aceita nova assembleia, se o intervalo é o que bloqueia
+    next_allowed_on: date | None
+    # Até quando quem consulta, afastado de uma gestora, não pode fundar outra
+    blocked_founding_until: date | None
+
+
 class FundDetailsDTO(FundSummaryDTO):
     """A página da gestora: quem tem as cotas, a carteira, o desempenho, as taxas e a oferta."""
 
@@ -269,6 +383,8 @@ class FundDetailsDTO(FundSummaryDTO):
     # A emissão e a recompra em aberto; nulas quando a gestora não tem
     issuance: FundIssuanceStatusDTO | None
     buyback: FundBuybackDTO | None
+    # A troca de gestor pela assembleia dos cotistas
+    assembly: FundAssemblyPanelDTO
     # A carteira posição a posição, ao vivo; só o gestor vê
     positions: list[FundPositionDTO] | None
     # As cotas de quem consulta, ao preço de ranking (o do patrimônio no ranking), e o retorno
@@ -332,6 +448,15 @@ class FundIssuanceSubscriptionRequest(BaseDTO):
 class FundBuybackRequest(BaseDTO):
     quantity: int = Field(gt=0)
     max_price: Decimal = Field(gt=0, decimal_places=2)
+
+
+class FundAssemblyConveneRequest(BaseDTO):
+    # O apelido do jogador indicado a gestor; nulo é quem convoca
+    candidate_nickname: str | None = None
+
+
+class FundAssemblyVoteRequest(BaseDTO):
+    in_favor: bool
 
 
 class FundIssuancePreviewDTO(BaseDTO):

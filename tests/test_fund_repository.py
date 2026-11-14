@@ -10,8 +10,8 @@ import pytest
 
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
-from backend.core.dto.fund import FundDayDTO
-from backend.core.enum import AssetClass
+from backend.core.dto.fund import FundAssemblyDTO, FundAssemblyVoteDTO, FundDayDTO
+from backend.core.enum import AssetClass, FundAssemblyStatus
 from tests.fakes import client, simulation_settings
 
 DAY = date(2020, 1, 6)
@@ -157,3 +157,77 @@ def test_quota_stays_out_of_the_imported_stock_lists(match: Match):
     assert TICKER not in {
         c.ticker for c in repository.stock.get_stocks_by_date(DAY, match.simulation_id)
     }
+
+
+def _assembly(match: Match, status: FundAssemblyStatus) -> FundAssemblyDTO:
+    return FundAssemblyDTO(
+        id=0,
+        convener_user_id=match.user_id,
+        candidate_user_id=match.user_id,
+        previous_manager_user_id=match.user_id,
+        status=status,
+        called_on=DAY,
+        started_on=DAY,
+        ends_on=date(2020, 1, 10),
+        closed_on=None,
+        in_favor_quotas=None,
+        against_quotas=None,
+        abstention_quotas=None,
+    )
+
+
+def test_assembly_keeps_its_result_and_the_votes_change(match: Match):
+    created = repository.fund.create_assembly(
+        match.fund.id, _assembly(match, FundAssemblyStatus.VOTING)
+    )
+    closed = created.model_copy(
+        update={
+            "status": FundAssemblyStatus.REPLACED,
+            "closed_on": date(2020, 1, 10),
+            "in_favor_quotas": Decimal(500),
+            "against_quotas": Decimal(400),
+            "abstention_quotas": Decimal(220),
+        }
+    )
+
+    repository.fund.save_assembly(closed)
+    repository.fund.save_assembly_vote(
+        created.id,
+        FundAssemblyVoteDTO(user_id=match.user_id, in_favor=True, voted_on=DAY),
+    )
+    repository.fund.save_assembly_vote(
+        created.id,
+        FundAssemblyVoteDTO(
+            user_id=match.user_id, in_favor=False, voted_on=date(2020, 1, 7)
+        ),
+    )
+
+    assert repository.fund.assemblies(match.fund.id) == [closed]
+    [vote] = repository.fund.assembly_votes(created.id)
+    assert (vote.in_favor, vote.voted_on) == (False, date(2020, 1, 7))
+
+
+def test_last_removal_counts_only_replaced_assemblies(match: Match):
+    kept = repository.fund.create_assembly(
+        match.fund.id, _assembly(match, FundAssemblyStatus.VOTING)
+    )
+    repository.fund.save_assembly(
+        kept.model_copy(update={"status": FundAssemblyStatus.KEPT, "closed_on": DAY})
+    )
+    assert repository.fund.last_removal(match.simulation_id, match.user_id) is None
+
+    replaced = repository.fund.create_assembly(
+        match.fund.id, _assembly(match, FundAssemblyStatus.VOTING)
+    )
+    repository.fund.save_assembly(
+        replaced.model_copy(
+            update={
+                "status": FundAssemblyStatus.REPLACED,
+                "closed_on": date(2020, 1, 10),
+            }
+        )
+    )
+
+    assert repository.fund.last_removal(match.simulation_id, match.user_id) == date(
+        2020, 1, 10
+    )

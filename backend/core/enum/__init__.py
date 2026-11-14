@@ -1228,6 +1228,9 @@ class NewsType(Enum):
     FUND_ISSUANCE_OPENED = "FUND_ISSUANCE_OPENED"
     FUND_ISSUANCE_CLOSED = "FUND_ISSUANCE_CLOSED"
     FUND_BUYBACK_OPENED = "FUND_BUYBACK_OPENED"
+    FUND_ASSEMBLY_CALLED = "FUND_ASSEMBLY_CALLED"
+    FUND_ASSEMBLY_REPLACED = "FUND_ASSEMBLY_REPLACED"
+    FUND_ASSEMBLY_KEPT = "FUND_ASSEMBLY_KEPT"
 
 
 class NewsLevel(Enum):
@@ -1267,6 +1270,7 @@ class PendingType(Enum):
     DEAL_PROPOSAL = "DEAL_PROPOSAL"
     DEAL_DEMAND = "DEAL_DEMAND"
     SELIC_MEETING = "SELIC_MEETING"
+    FUND_ASSEMBLY_INVITE = "FUND_ASSEMBLY_INVITE"
 
 
 class PendingSeverity(Enum):
@@ -1290,3 +1294,18 @@ class ToastType(Enum):
     CORPORATE_ACTIONS = "CORPORATE_ACTIONS"
     YEAR_REVIEW = "YEAR_REVIEW"
     VICE_ANSWER = "VICE_ANSWER"
+
+
+class FundAssemblyStatus(Enum):
+    """O andamento de uma assembleia de troca de gestor: do convite ao aliado ao resultado."""
+
+    # O aliado indicado ainda não respondeu ao convite
+    INVITED = "INVITED"
+    VOTING = "VOTING"
+    # Concluídas pela votação: o gestor foi trocado ou ficou
+    REPLACED = "REPLACED"
+    KEPT = "KEPT"
+    # Encerradas sem votação: o aliado recusou, o convite venceu ou quem convocou cancelou
+    DECLINED = "DECLINED"
+    EXPIRED = "EXPIRED"
+    CANCELLED = "CANCELLED"

@@ -31,6 +31,12 @@ describe("pendingTarget", () => {
     expect(pendingTarget(pending({ type: "CAMPAIGN_OPEN" })).state).toEqual({ dialog: "campaign" });
     expect(pendingTarget(pending({ type: "FEDERATION_PROPOSAL" })).state).toEqual({ dialog: "federation-answer" });
   });
+
+  it("leva o convite da assembleia à página da gestora", () => {
+    const item = pending({ type: "FUND_ASSEMBLY_INVITE", key: "FUND_ASSEMBLY_INVITE:7" });
+
+    expect(pendingTarget(item)).toEqual({ label: "Responder", to: "/funds/7" });
+  });
 });
 
 describe("severeCount", () => {

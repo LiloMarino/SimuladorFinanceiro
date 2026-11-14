@@ -25,6 +25,8 @@ const TARGETS: Record<PendingType, (item: Pending) => PendingTarget> = {
   DEAL_DEMAND: () => ({ label: "Responder", to: "/government?tab=accounts" }),
   CAMPAIGN_OPEN: () => ({ label: "Ver eleição", to: "/election", state: { dialog: "campaign" } }),
   UNPAID_CONTRIBUTION: () => ({ label: "Mudar valor", to: "/election", state: { dialog: "contribution" } }),
+  // A chave do convite é "FUND_ASSEMBLY_INVITE:<id da gestora>"
+  FUND_ASSEMBLY_INVITE: (item) => ({ label: "Responder", to: `/funds/${item.key.split(":")[1]}` }),
 };
 
 export function pendingTarget(item: Pending): PendingTarget {

@@ -13,7 +13,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from backend.core.dto.fund import FundDetailsDTO, FundFeesDTO
+from backend.core.dto.fund import FundAssemblyPanelDTO, FundDetailsDTO, FundFeesDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import AssetClass, OrderAction
@@ -43,6 +43,26 @@ class _Book:
 
     client_ids: ClassVar[list] = [ANA_FUND]
 
+    def __init__(self) -> None:
+        self.calls: list[tuple] = []
+
+    def founding_blocked_until(self, user_id: int) -> date | None:
+        return None
+
+    def convene_assembly(
+        self, ticker: str, convener: UserDTO, candidate_nickname: str | None
+    ) -> None:
+        self.calls.append(("convene", ticker, convener.id, candidate_nickname))
+
+    def cancel_assembly(self, ticker: str, user: UserDTO) -> None:
+        self.calls.append(("cancel", ticker, user.id))
+
+    def answer_assembly_invite(self, ticker: str, user: UserDTO, accept: bool) -> None:
+        self.calls.append(("answer", ticker, user.id, accept))
+
+    def cast_assembly_vote(self, ticker: str, user: UserDTO, in_favor: bool) -> None:
+        self.calls.append(("vote", ticker, user.id, in_favor))
+
     def frozen_until(self, fund: Any) -> date | None:
         return None
 
@@ -50,6 +70,7 @@ class _Book:
         if fund_id != 5:
             raise ConflictError("Gestora não encontrada")
         return SimpleNamespace(
+            ticker="AURA11",
             terms=SimpleNamespace(manager_user_id=ANA.id),
             account=SimpleNamespace(client_id=ANA_FUND),
         )
@@ -176,6 +197,55 @@ def test_only_the_manager_operates_the_fund(method: str, path: str, body: dict |
     assert response.status_code == 403
 
 
+@pytest.mark.parametrize(
+    ("method", "path", "body", "call"),
+    [
+        (
+            "post",
+            "/api/funds/5/assembly",
+            {"candidate_nickname": "Bruno"},
+            ("convene", "AURA11", 2, "Bruno"),
+        ),
+        ("post", "/api/funds/5/assembly", {}, ("convene", "AURA11", 2, None)),
+        ("delete", "/api/funds/5/assembly", None, ("cancel", "AURA11", 2)),
+        (
+            "post",
+            "/api/funds/5/assembly/acceptance",
+            None,
+            ("answer", "AURA11", 2, True),
+        ),
+        (
+            "post",
+            "/api/funds/5/assembly/refusal",
+            None,
+            ("answer", "AURA11", 2, False),
+        ),
+        (
+            "put",
+            "/api/funds/5/assembly/vote",
+            {"in_favor": False},
+            ("vote", "AURA11", 2, False),
+        ),
+    ],
+)
+def test_assembly_routes_forward_the_shareholder_to_the_book(
+    monkeypatch: pytest.MonkeyPatch,
+    method: str,
+    path: str,
+    body: dict | None,
+    call: tuple,
+):
+    """Convocar, responder ao convite e votar são de cotista: nenhuma passa pelo acesso de gestor."""
+    monkeypatch.setattr(Simulation, "_notify_funds_update", lambda _self: None)
+    book = _Book()
+    other = _app(_simulation(book), BRUNO)
+
+    response = other.request(method, path, json=body)
+
+    assert response.status_code == 204
+    assert book.calls == [call]
+
+
 def test_acting_client_without_the_header_is_the_player(with_funds: TestClient):
     assert with_funds.get("/acting").json() == str(ANA.client_id)
 
@@ -255,6 +325,16 @@ def _page(fund_id: int) -> FundDetailsDTO:
         offer_ends_on=None,
         issuance=None,
         buyback=None,
+        assembly=FundAssemblyPanelDTO(
+            current=None,
+            last_result=None,
+            can_convene=False,
+            block="share",
+            convene_quotas=zero,
+            my_quotas=zero,
+            next_allowed_on=None,
+            blocked_founding_until=None,
+        ),
         frozen_until=None,
         holders=[],
         control_quotas=Decimal(1),

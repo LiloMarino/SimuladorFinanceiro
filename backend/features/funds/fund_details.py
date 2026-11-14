@@ -195,6 +195,9 @@ class FundDetailsBuilder:
             offer_buyers=offer.buyers,
             issuance=self._issuance(fund, viewer, today),
             buyback=book.buyback_of(fund),
+            assembly=book.assembly_panel(
+                fund, viewer, {user.id: user.nickname for user in users}, self._colors()
+            ),
             positions=positions_of(live) if is_manager else None,
             my_quotas=my_quotas,
             my_value=my_value,

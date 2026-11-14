@@ -1584,3 +1584,99 @@ class FundBuybacks(Base):
     paid: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     # Um valor de `FundBuybackState`
     state: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class FundAssemblies(Base):
+    """Uma assembleia de troca de gestor: convite ao aliado, votação dos cotistas e resultado."""
+
+    __tablename__ = "fund_assemblies"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fund_id"],
+            ["funds.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_assemblies_fund_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["convener_user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_assemblies_convener_user_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["candidate_user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_assemblies_candidate_user_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["previous_manager_user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_assemblies_previous_manager_user_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="fund_assemblies_pkey"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    fund_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    convener_user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    candidate_user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    # O gestor de quando a assembleia foi convocada
+    previous_manager_user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    # Um valor de `FundAssemblyStatus`
+    status: Mapped[str] = mapped_column(Text, nullable=False)
+    called_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    # O dia em que a votação abriu; nulo enquanto o convite espera o aliado
+    started_on: Mapped[datetime.date | None] = mapped_column(Date)
+    # O último pregão da fase de agora: o do convite ou o da votação
+    ends_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    closed_on: Mapped[datetime.date | None] = mapped_column(Date)
+    # O placar do fechamento, em cotas; nulo até a votação fechar
+    in_favor_quotas: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+    against_quotas: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+    abstention_quotas: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+
+
+class FundAssemblyVotes(Base):
+    """O voto de um cotista numa assembleia; ele muda até o fim da votação."""
+
+    __tablename__ = "fund_assembly_votes"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["assembly_id"],
+            ["fund_assemblies.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_assembly_votes_assembly_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_assembly_votes_user_id_fkey",
+        ),
+        PrimaryKeyConstraint("assembly_id", "user_id", name="fund_assembly_votes_pkey"),
+    )
+
+    assembly_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    in_favor: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    voted_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)

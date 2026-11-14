@@ -9,6 +9,8 @@ from uuid import UUID, uuid4
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.fund import (
+    FundAssemblyDTO,
+    FundAssemblyPanelDTO,
     FundBuybackDTO,
     FundDayDTO,
     FundDTO,
@@ -22,7 +24,13 @@ from backend.core.dto.fund import (
 )
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import AssetClass, IndicatorSeries, OrderAction, OrderStatus
+from backend.core.enum import (
+    AssetClass,
+    FundAssemblyStatus,
+    IndicatorSeries,
+    OrderAction,
+    OrderStatus,
+)
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     NotFoundError,
@@ -34,6 +42,7 @@ from backend.core.utils import format_quantity, next_business_day, next_month_tu
 from backend.features.funds import headlines
 from backend.features.funds.fees import management_fee, performance_charge
 from backend.features.funds.fund_account import DayTrades, FundAccount
+from backend.features.funds.fund_assembly import FundAssemblies
 from backend.features.funds.fund_ledger import PERFORMANCE_PERIOD_MONTHS
 from backend.features.funds.fund_maker import STOCK_SHARE, FundMaker
 from backend.features.funds.fund_offer import FundOffer
@@ -42,6 +51,7 @@ from backend.features.funds.ranking_price import (
     TradedDay,
     ranking_price,
 )
+from backend.features.funds.sessions import window_end, window_session
 from backend.features.notifications.news import Headline
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.variable_income.broker import to_money
@@ -88,24 +98,6 @@ def cdi_growth(start: date, end: date) -> Decimal:
             factor *= 1 + rate
         day = next_business_day(day)
     return factor
-
-
-def window_end(start: date, sessions: int) -> date:
-    """O último pregão de uma janela de `sessions` pregões que abre em `start`, contando o dia dele."""
-    day = start
-    for _ in range(sessions - 1):
-        day = next_business_day(day)
-    return day
-
-
-def window_session(start: date, today: date, sessions: int) -> int:
-    """O pregão da janela em `today`: 1 no dia de `start`, até `sessions`."""
-    session = 1
-    day = start
-    while day < today and session < sessions:
-        day = next_business_day(day)
-        session += 1
-    return session
 
 
 def offer_ends_on(listed_on: date) -> date:
@@ -192,6 +184,11 @@ class Fund:
     # A recompra aberta e a ordem de compra dela no livro
     buyback: FundBuybackDTO | None = None
     buyback_order: LimitOrder | None = None
+    # A assembleia de troca de gestor em andamento (convite ou votação), os votos dela por id de
+    # usuário e a última votação concluída, que marca o intervalo até a próxima
+    assembly: FundAssemblyDTO | None = None
+    assembly_votes: dict[int, bool] = field(default_factory=dict)
+    last_assembly: FundAssemblyDTO | None = None
 
     @property
     def ticker(self) -> str:
@@ -243,6 +240,9 @@ class FundBook:
         accounts = engine.broker.fund_accounts
         self._maker = FundMaker(engine.matching_engine, accounts)
         self._offer = FundOffer(engine.matching_engine, accounts)
+        self._assemblies = FundAssemblies(
+            simulation_id, engine, lambda: self.participants()
+        )
         engine.broker.on_fund_offer_sale = self._record_offer_sale
         engine.broker.on_fund_buyback = self._record_buyback
         for terms in repository.fund.of_simulation(simulation_id):
@@ -496,6 +496,10 @@ class FundBook:
             raise ConflictError("A gestora já tem uma oferta ou emissão em andamento")
         if fund.buyback is not None:
             raise ConflictError("Encerre a recompra antes de emitir cotas")
+        if fund.assembly is not None:
+            raise ConflictError(
+                "A gestora tem uma assembleia em andamento e não emite cotas até o resultado"
+            )
         if size <= 0 or size != size.to_integral_value():
             raise UnprocessableEntityError("Informe uma quantidade inteira de cotas")
         if size > account.quotas * ISSUANCE_LIMIT:
@@ -758,6 +762,118 @@ class FundBook:
         repository.fund.save_buyback(fund.buyback)
         self._save(fund)
 
+    # =========================
+    # Assembleia
+    # =========================
+
+    def convene_assembly(
+        self, ticker: str, convener: UserDTO, candidate_nickname: str | None
+    ) -> None:
+        """Convoca a assembleia de troca de gestor; com o próprio convocador indicado a votação abre já."""
+        fund = self._funds[ticker]
+        today = self._engine.current_date
+        self._assemblies.convene(fund, convener, candidate_nickname, today)
+        self._announce_voting_opened(fund, today)
+
+    def answer_assembly_invite(self, ticker: str, user: UserDTO, accept: bool) -> None:
+        """O aliado indicado aceita (a votação abre) ou recusa o convite."""
+        fund = self._funds[ticker]
+        today = self._engine.current_date
+        self._assemblies.answer(fund, user, accept, today)
+        self._announce_voting_opened(fund, today)
+
+    def cancel_assembly(self, ticker: str, user: UserDTO) -> None:
+        """Quem convocou cancela o convite que o aliado ainda não respondeu."""
+        self._assemblies.cancel(self._funds[ticker], user, self._engine.current_date)
+
+    def cast_assembly_vote(self, ticker: str, user: UserDTO, in_favor: bool) -> None:
+        """O cotista vota na assembleia aberta; mudar o voto vale até o fim."""
+        self._assemblies.vote(
+            self._funds[ticker], user, in_favor, self._engine.current_date
+        )
+
+    def assembly_panel(
+        self,
+        fund: Fund,
+        viewer: UserDTO,
+        nicknames: Mapping[int, str],
+        colors: Mapping[int, str],
+    ) -> FundAssemblyPanelDTO:
+        """A seção Assembleia da gestora como `viewer` a vê."""
+        return self._assemblies.panel(
+            fund, viewer, self._engine.current_date, nicknames, colors
+        )
+
+    def invites_for(self, user: UserDTO) -> list[tuple[Fund, FundAssemblyDTO, str]]:
+        """Os convites de assembleia que esperam a resposta de `user`: a gestora, o convite e o apelido de quem convocou."""
+        names = self._nicknames()
+        return [
+            (fund, fund.assembly, names.get(fund.assembly.convener_user_id, "?"))
+            for fund in self._funds.values()
+            if fund.assembly is not None
+            and fund.assembly.status is FundAssemblyStatus.INVITED
+            and fund.assembly.candidate_user_id == user.id
+        ]
+
+    def founding_blocked_until(self, user_id: int) -> date | None:
+        """Até quando o gestor afastado por assembleia não funda outra gestora."""
+        return self._assemblies.founding_blocked_until(
+            user_id, self._engine.current_date
+        )
+
+    def _announce_voting_opened(self, fund: Fund, today: date) -> None:
+        """A manchete da convocação sai quando a votação abre."""
+        assembly = fund.assembly
+        if assembly is None or assembly.status is not FundAssemblyStatus.VOTING:
+            return
+        names = self._nicknames()
+        self._announce(
+            today,
+            headlines.assembly_called(
+                fund.ticker,
+                names.get(assembly.convener_user_id, "?"),
+                names.get(assembly.candidate_user_id, "?"),
+                assembly.ends_on,
+            ),
+        )
+
+    def _advance_assembly(self, fund: Fund, today: date) -> None:
+        """O fechamento do pregão da assembleia: o convite sem resposta cai e a votação do
+        último pregão é apurada; se a troca vence, o candidato assume na hora."""
+        self._assemblies.expire_invite(fund, today)
+        closed = self._assemblies.close_voting(fund, today)
+        if closed is None:
+            return
+        assembly, _ = closed
+        names = self._nicknames()
+        if assembly.status is FundAssemblyStatus.REPLACED:
+            self._replace_manager(fund, assembly.candidate_user_id)
+            self._announce(
+                today,
+                headlines.assembly_replaced(
+                    fund.ticker,
+                    names.get(assembly.previous_manager_user_id, "?"),
+                    names.get(assembly.candidate_user_id, "?"),
+                ),
+            )
+        else:
+            self._announce(
+                today,
+                headlines.assembly_kept(
+                    fund.ticker, names.get(assembly.previous_manager_user_id, "?")
+                ),
+            )
+
+    def _replace_manager(self, fund: Fund, manager_user_id: int) -> None:
+        """O candidato assume: as ordens do gestor afastado saem do livro e a recompra dele cai."""
+        self._sync_buyback(fund)
+        fund.terms = fund.terms.model_copy(update={"manager_user_id": manager_user_id})
+        self._engine.matching_engine.cancel_all(fund.account.client_id)
+        self._finish_buyback(fund, "canceled")
+
+    def _nicknames(self) -> dict[int, str]:
+        return {user.id: user.nickname for user in self.participants()}
+
     def on_office(self, manager_user_id: int) -> None:
         """O gestor assumiu a presidência: as ordens abertas das gestoras dele saem do livro."""
         for fund in self._funds.values():
@@ -866,6 +982,7 @@ class FundBook:
                 today >= issuance.ends_on or issuance.sold >= issuance.quotas
             ):
                 self._close_issuance(fund, today)
+            self._advance_assembly(fund, today)
             self._sync_buyback(fund)
             self._save(fund)
             candles.append(candle)
@@ -979,9 +1096,13 @@ class FundBook:
             (i for i in repository.fund.issuances(terms.id) if i.closed_on is None),
             None,
         )
+        assembly, assembly_votes, last_assembly = self._assemblies.load(terms.id)
         fund = Fund(
             terms=terms,
             account=account,
+            assembly=assembly,
+            assembly_votes=assembly_votes,
+            last_assembly=last_assembly,
             days=[TradedDay(d.traded_quantity, d.traded_value) for d in days],
             last_close=repository.fund.last_close(
                 self._simulation_id, terms.stock_id, self._engine.current_date

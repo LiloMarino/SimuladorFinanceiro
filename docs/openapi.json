@@ -8735,6 +8735,279 @@
         }
       }
     },
+    "/api/funds/{fund_id}/assembly": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Convocar a assembleia de troca de gestor",
+        "description": "Quem tem 10% ou mais das cotas convoca, indicando a si mesmo ou um aliado jogador para a gestão. Indicado o próprio convocador, a votação abre já por 5 pregões; um aliado tem 5 pregões para aceitar. Uma assembleia a cada 3 meses por gestora; durante ela a gestora não emite cotas.",
+        "operationId": "convene_fund_assembly_api_funds__fund_id__assembly_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundAssemblyConveneRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Cancelar o convite da assembleia",
+        "description": "Quem convocou cancela o convite que o aliado ainda não respondeu. O cancelamento não conta no intervalo entre assembleias.",
+        "operationId": "cancel_fund_assembly_api_funds__fund_id__assembly_delete",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/assembly/acceptance": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Aceitar o convite da assembleia",
+        "description": "O aliado indicado aceita e a votação abre, com quem convocou a favor.",
+        "operationId": "accept_fund_assembly_invite_api_funds__fund_id__assembly_acceptance_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/assembly/refusal": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Recusar o convite da assembleia",
+        "description": "O aliado indicado recusa e a assembleia se encerra, sem contar no intervalo entre assembleias.",
+        "operationId": "refuse_fund_assembly_invite_api_funds__fund_id__assembly_refusal_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/assembly/vote": {
+      "put": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Votar na assembleia",
+        "description": "O cotista vota a favor ou contra a troca, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. O gestor não vota: as cotas dele contam contra.",
+        "operationId": "vote_fund_assembly_api_funds__fund_id__assembly_vote_put",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundAssemblyVoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/funds/{fund_id}/buyback/preview": {
       "get": {
         "tags": [
@@ -20914,6 +21187,405 @@
         "title": "FundAccountDTO",
         "description": "Uma conta com que o jogador opera: a pessoal (sem gestora) ou uma gestora que ele gere."
       },
+      "FundAssemblyBlock": {
+        "type": "string",
+        "enum": [
+          "share",
+          "interval",
+          "pending",
+          "manager",
+          "unlisted"
+        ]
+      },
+      "FundAssemblyConveneRequest": {
+        "properties": {
+          "candidate_nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Nickname"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "FundAssemblyConveneRequest"
+      },
+      "FundAssemblyPanelDTO": {
+        "properties": {
+          "current": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundAssemblyStatusDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundAssemblyResultDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "can_convene": {
+            "type": "boolean",
+            "title": "Can Convene"
+          },
+          "block": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundAssemblyBlock"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "convene_quotas": {
+            "type": "string",
+            "title": "Convene Quotas"
+          },
+          "my_quotas": {
+            "type": "string",
+            "title": "My Quotas"
+          },
+          "next_allowed_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Allowed On"
+          },
+          "blocked_founding_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocked Founding Until"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "current",
+          "last_result",
+          "can_convene",
+          "block",
+          "convene_quotas",
+          "my_quotas",
+          "next_allowed_on",
+          "blocked_founding_until"
+        ],
+        "title": "FundAssemblyPanelDTO",
+        "description": "A seção Assembleia da página da gestora: a em andamento, o último resultado e quem pode convocar."
+      },
+      "FundAssemblyResultDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FundAssemblyStatus"
+          },
+          "convener_nickname": {
+            "type": "string",
+            "title": "Convener Nickname"
+          },
+          "candidate_nickname": {
+            "type": "string",
+            "title": "Candidate Nickname"
+          },
+          "previous_manager_nickname": {
+            "type": "string",
+            "title": "Previous Manager Nickname"
+          },
+          "started_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Started On"
+          },
+          "closed_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Closed On"
+          },
+          "tally": {
+            "$ref": "#/components/schemas/FundAssemblyTallyDTO"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "convener_nickname",
+          "candidate_nickname",
+          "previous_manager_nickname",
+          "started_on",
+          "closed_on",
+          "tally"
+        ],
+        "title": "FundAssemblyResultDTO",
+        "description": "O resultado da última votação concluída."
+      },
+      "FundAssemblyStance": {
+        "type": "string",
+        "enum": [
+          "favor",
+          "against",
+          "abstain"
+        ]
+      },
+      "FundAssemblyStatus": {
+        "type": "string",
+        "enum": [
+          "INVITED",
+          "VOTING",
+          "REPLACED",
+          "KEPT",
+          "DECLINED",
+          "EXPIRED",
+          "CANCELLED"
+        ],
+        "title": "FundAssemblyStatus",
+        "description": "O andamento de uma assembleia de troca de gestor: do convite ao aliado ao resultado."
+      },
+      "FundAssemblyStatusDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FundAssemblyStatus"
+          },
+          "convener_user_id": {
+            "type": "integer",
+            "title": "Convener User Id"
+          },
+          "convener_nickname": {
+            "type": "string",
+            "title": "Convener Nickname"
+          },
+          "candidate_user_id": {
+            "type": "integer",
+            "title": "Candidate User Id"
+          },
+          "candidate_nickname": {
+            "type": "string",
+            "title": "Candidate Nickname"
+          },
+          "called_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Called On"
+          },
+          "started_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started On"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Ends On"
+          },
+          "session": {
+            "type": "integer",
+            "title": "Session"
+          },
+          "sessions": {
+            "type": "integer",
+            "title": "Sessions"
+          },
+          "tally": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundAssemblyTallyDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "voters": {
+            "items": {
+              "$ref": "#/components/schemas/FundAssemblyVoterDTO"
+            },
+            "type": "array",
+            "title": "Voters"
+          },
+          "non_voting": {
+            "type": "string",
+            "title": "Non Voting"
+          },
+          "my_vote": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "My Vote"
+          },
+          "can_vote": {
+            "type": "boolean",
+            "title": "Can Vote"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "convener_user_id",
+          "convener_nickname",
+          "candidate_user_id",
+          "candidate_nickname",
+          "called_on",
+          "started_on",
+          "ends_on",
+          "session",
+          "sessions",
+          "tally",
+          "voters",
+          "non_voting",
+          "my_vote",
+          "can_vote"
+        ],
+        "title": "FundAssemblyStatusDTO",
+        "description": "A assembleia em andamento como quem consulta a vê."
+      },
+      "FundAssemblyTallyDTO": {
+        "properties": {
+          "in_favor": {
+            "type": "string",
+            "title": "In Favor"
+          },
+          "against": {
+            "type": "string",
+            "title": "Against"
+          },
+          "abstention": {
+            "type": "string",
+            "title": "Abstention"
+          },
+          "total": {
+            "type": "string",
+            "title": "Total"
+          },
+          "missing_to_replace": {
+            "type": "string",
+            "title": "Missing To Replace"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "in_favor",
+          "against",
+          "abstention",
+          "total",
+          "missing_to_replace"
+        ],
+        "title": "FundAssemblyTallyDTO",
+        "description": "O placar em cotas: a favor, contra e abstenção (quem não votou, bots e formador de mercado)."
+      },
+      "FundAssemblyVoteRequest": {
+        "properties": {
+          "in_favor": {
+            "type": "boolean",
+            "title": "In Favor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "in_favor"
+        ],
+        "title": "FundAssemblyVoteRequest"
+      },
+      "FundAssemblyVoterDTO": {
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "title": "User Id"
+          },
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          },
+          "stance": {
+            "$ref": "#/components/schemas/FundAssemblyStance"
+          },
+          "is_manager": {
+            "type": "boolean",
+            "title": "Is Manager"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "user_id",
+          "nickname",
+          "color",
+          "quotas",
+          "share",
+          "stance",
+          "is_manager"
+        ],
+        "title": "FundAssemblyVoterDTO",
+        "description": "Um cotista jogador no placar: as cotas dele no momento e para onde elas vão."
+      },
       "FundBuybackDTO": {
         "properties": {
           "id": {
@@ -21551,6 +22223,9 @@
               }
             ]
           },
+          "assembly": {
+            "$ref": "#/components/schemas/FundAssemblyPanelDTO"
+          },
           "positions": {
             "anyOf": [
               {
@@ -21631,6 +22306,7 @@
           "offer_buyers",
           "issuance",
           "buyback",
+          "assembly",
           "positions",
           "my_quotas",
           "my_value",
@@ -28275,7 +28951,10 @@
           "FUND_OFFER_OPENED",
           "FUND_ISSUANCE_OPENED",
           "FUND_ISSUANCE_CLOSED",
-          "FUND_BUYBACK_OPENED"
+          "FUND_BUYBACK_OPENED",
+          "FUND_ASSEMBLY_CALLED",
+          "FUND_ASSEMBLY_REPLACED",
+          "FUND_ASSEMBLY_KEPT"
         ],
         "title": "NewsType",
         "description": "Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro."
@@ -29778,7 +30457,8 @@
           "FEDERATION_PROPOSAL",
           "DEAL_PROPOSAL",
           "DEAL_DEMAND",
-          "SELIC_MEETING"
+          "SELIC_MEETING",
+          "FUND_ASSEMBLY_INVITE"
         ],
         "title": "PendingType",
         "description": "Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar."

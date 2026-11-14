@@ -2912,6 +2912,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/funds/{fund_id}/assembly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Convocar a assembleia de troca de gestor
+         * @description Quem tem 10% ou mais das cotas convoca, indicando a si mesmo ou um aliado jogador para a gestão. Indicado o próprio convocador, a votação abre já por 5 pregões; um aliado tem 5 pregões para aceitar. Uma assembleia a cada 3 meses por gestora; durante ela a gestora não emite cotas.
+         */
+        post: operations["convene_fund_assembly_api_funds__fund_id__assembly_post"];
+        /**
+         * Cancelar o convite da assembleia
+         * @description Quem convocou cancela o convite que o aliado ainda não respondeu. O cancelamento não conta no intervalo entre assembleias.
+         */
+        delete: operations["cancel_fund_assembly_api_funds__fund_id__assembly_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/assembly/acceptance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Aceitar o convite da assembleia
+         * @description O aliado indicado aceita e a votação abre, com quem convocou a favor.
+         */
+        post: operations["accept_fund_assembly_invite_api_funds__fund_id__assembly_acceptance_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/assembly/refusal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Recusar o convite da assembleia
+         * @description O aliado indicado recusa e a assembleia se encerra, sem contar no intervalo entre assembleias.
+         */
+        post: operations["refuse_fund_assembly_invite_api_funds__fund_id__assembly_refusal_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/assembly/vote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Votar na assembleia
+         * @description O cotista vota a favor ou contra a troca, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. O gestor não vota: as cotas dele contam contra.
+         */
+        put: operations["vote_fund_assembly_api_funds__fund_id__assembly_vote_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/funds/{fund_id}/buyback/preview": {
         parameters: {
             query?: never;
@@ -7139,6 +7223,148 @@ export interface components {
             /** Frozen Until */
             frozen_until: string | null;
         };
+        /** @enum {string} */
+        FundAssemblyBlock: "share" | "interval" | "pending" | "manager" | "unlisted";
+        /** FundAssemblyConveneRequest */
+        FundAssemblyConveneRequest: {
+            /** Candidate Nickname */
+            candidate_nickname?: string | null;
+        };
+        /**
+         * FundAssemblyPanelDTO
+         * @description A seção Assembleia da página da gestora: a em andamento, o último resultado e quem pode convocar.
+         */
+        FundAssemblyPanelDTO: {
+            current: components["schemas"]["FundAssemblyStatusDTO"] | null;
+            last_result: components["schemas"]["FundAssemblyResultDTO"] | null;
+            /** Can Convene */
+            can_convene: boolean;
+            block: components["schemas"]["FundAssemblyBlock"] | null;
+            /** Convene Quotas */
+            convene_quotas: string;
+            /** My Quotas */
+            my_quotas: string;
+            /** Next Allowed On */
+            next_allowed_on: string | null;
+            /** Blocked Founding Until */
+            blocked_founding_until: string | null;
+        };
+        /**
+         * FundAssemblyResultDTO
+         * @description O resultado da última votação concluída.
+         */
+        FundAssemblyResultDTO: {
+            /** Id */
+            id: number;
+            status: components["schemas"]["FundAssemblyStatus"];
+            /** Convener Nickname */
+            convener_nickname: string;
+            /** Candidate Nickname */
+            candidate_nickname: string;
+            /** Previous Manager Nickname */
+            previous_manager_nickname: string;
+            /**
+             * Started On
+             * Format: date
+             */
+            started_on: string;
+            /**
+             * Closed On
+             * Format: date
+             */
+            closed_on: string;
+            tally: components["schemas"]["FundAssemblyTallyDTO"];
+        };
+        /** @enum {string} */
+        FundAssemblyStance: "favor" | "against" | "abstain";
+        /**
+         * FundAssemblyStatus
+         * @description O andamento de uma assembleia de troca de gestor: do convite ao aliado ao resultado.
+         * @enum {string}
+         */
+        FundAssemblyStatus: "INVITED" | "VOTING" | "REPLACED" | "KEPT" | "DECLINED" | "EXPIRED" | "CANCELLED";
+        /**
+         * FundAssemblyStatusDTO
+         * @description A assembleia em andamento como quem consulta a vê.
+         */
+        FundAssemblyStatusDTO: {
+            /** Id */
+            id: number;
+            status: components["schemas"]["FundAssemblyStatus"];
+            /** Convener User Id */
+            convener_user_id: number;
+            /** Convener Nickname */
+            convener_nickname: string;
+            /** Candidate User Id */
+            candidate_user_id: number;
+            /** Candidate Nickname */
+            candidate_nickname: string;
+            /**
+             * Called On
+             * Format: date
+             */
+            called_on: string;
+            /** Started On */
+            started_on: string | null;
+            /**
+             * Ends On
+             * Format: date
+             */
+            ends_on: string;
+            /** Session */
+            session: number;
+            /** Sessions */
+            sessions: number;
+            tally: components["schemas"]["FundAssemblyTallyDTO"] | null;
+            /** Voters */
+            voters: components["schemas"]["FundAssemblyVoterDTO"][];
+            /** Non Voting */
+            non_voting: string;
+            /** My Vote */
+            my_vote: boolean | null;
+            /** Can Vote */
+            can_vote: boolean;
+        };
+        /**
+         * FundAssemblyTallyDTO
+         * @description O placar em cotas: a favor, contra e abstenção (quem não votou, bots e formador de mercado).
+         */
+        FundAssemblyTallyDTO: {
+            /** In Favor */
+            in_favor: string;
+            /** Against */
+            against: string;
+            /** Abstention */
+            abstention: string;
+            /** Total */
+            total: string;
+            /** Missing To Replace */
+            missing_to_replace: string;
+        };
+        /** FundAssemblyVoteRequest */
+        FundAssemblyVoteRequest: {
+            /** In Favor */
+            in_favor: boolean;
+        };
+        /**
+         * FundAssemblyVoterDTO
+         * @description Um cotista jogador no placar: as cotas dele no momento e para onde elas vão.
+         */
+        FundAssemblyVoterDTO: {
+            /** User Id */
+            user_id: number;
+            /** Nickname */
+            nickname: string;
+            /** Color */
+            color: string | null;
+            /** Quotas */
+            quotas: string;
+            /** Share */
+            share: string;
+            stance: components["schemas"]["FundAssemblyStance"];
+            /** Is Manager */
+            is_manager: boolean;
+        };
         /**
          * FundBuybackDTO
          * @description Uma recompra: a ordem de compra da gestora, com o que já foi comprado e pago.
@@ -7322,6 +7548,7 @@ export interface components {
             offer_buyers: components["schemas"]["FundOfferBuyerDTO"][] | null;
             issuance: components["schemas"]["FundIssuanceStatusDTO"] | null;
             buyback: components["schemas"]["FundBuybackDTO"] | null;
+            assembly: components["schemas"]["FundAssemblyPanelDTO"];
             /** Positions */
             positions: components["schemas"]["FundPositionDTO"][] | null;
             /** My Quotas */
@@ -9632,7 +9859,7 @@ export interface components {
          * @description Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro.
          * @enum {string}
          */
-        NewsType: "ELECTION_CALENDAR" | "CAMPAIGN_OPENED" | "ELECTION_RESULT" | "CAMPAIGN_ACTION" | "NAMED_PROGRAM" | "PARTY_RUPTURE" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN" | "COPOM_DECISION" | "MONTHLY_INFLATION" | "IBOVESPA_EXTREME" | "STRONG_MOVE" | "WEEK_HIGH" | "HISTORICAL_MILESTONE" | "FUND_FEE_CHANGED" | "FUND_OFFER_OPENED" | "FUND_ISSUANCE_OPENED" | "FUND_ISSUANCE_CLOSED" | "FUND_BUYBACK_OPENED";
+        NewsType: "ELECTION_CALENDAR" | "CAMPAIGN_OPENED" | "ELECTION_RESULT" | "CAMPAIGN_ACTION" | "NAMED_PROGRAM" | "PARTY_RUPTURE" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN" | "COPOM_DECISION" | "MONTHLY_INFLATION" | "IBOVESPA_EXTREME" | "STRONG_MOVE" | "WEEK_HIGH" | "HISTORICAL_MILESTONE" | "FUND_FEE_CHANGED" | "FUND_OFFER_OPENED" | "FUND_ISSUANCE_OPENED" | "FUND_ISSUANCE_CLOSED" | "FUND_BUYBACK_OPENED" | "FUND_ASSEMBLY_CALLED" | "FUND_ASSEMBLY_REPLACED" | "FUND_ASSEMBLY_KEPT";
         /** NewsTypeInfo */
         NewsTypeInfo: {
             type: components["schemas"]["NewsType"];
@@ -10169,7 +10396,7 @@ export interface components {
          * @description Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar.
          * @enum {string}
          */
-        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "FEDERATION_PROPOSAL" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING";
+        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "FEDERATION_PROPOSAL" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING" | "FUND_ASSEMBLY_INVITE";
         /**
          * PlaceKind
          * @description Um lugar do mapa é um estado ou uma região.
@@ -20242,6 +20469,204 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    convene_fund_assembly_api_funds__fund_id__assembly_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundAssemblyConveneRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    cancel_fund_assembly_api_funds__fund_id__assembly_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    accept_fund_assembly_invite_api_funds__fund_id__assembly_acceptance_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    refuse_fund_assembly_invite_api_funds__fund_id__assembly_refusal_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    vote_fund_assembly_api_funds__fund_id__assembly_vote_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundAssemblyVoteRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             204: {

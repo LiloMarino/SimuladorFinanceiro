@@ -36,7 +36,7 @@ export const EXPANSIONS: Record<ExpansionKey, ExpansionInfo> = {
     highlights: [
       "Fundar a gestora com parte da carteira, em troca de cotas",
       "Oferta pública: os amigos investem em você",
-      "Taxas todo mês e assembleia: mais da metade das cotas troca o gestor",
+      "Taxas todo mês e assembleia: os cotistas votam a troca do gestor",
     ],
     icon: Briefcase,
     emblemClass: "bg-fund",

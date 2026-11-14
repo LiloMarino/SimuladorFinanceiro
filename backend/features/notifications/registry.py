@@ -128,6 +128,27 @@ NEWS: tuple[NewsSpec, ...] = (
         NewsLevel.JOURNAL,
     ),
     NewsSpec(
+        NewsType.FUND_ASSEMBLY_CALLED,
+        NewsSection.COMPANIES,
+        "Assembleia de troca de gestor",
+        "“Ana convoca assembleia da MEUS11 e indica Beto para a gestão”",
+        NewsLevel.JOURNAL,
+    ),
+    NewsSpec(
+        NewsType.FUND_ASSEMBLY_REPLACED,
+        NewsSection.COMPANIES,
+        "Gestor trocado pela assembleia",
+        "“Assembleia troca o gestor da MEUS11: Beto assume no lugar de Caio”",
+        NewsLevel.JOURNAL,
+    ),
+    NewsSpec(
+        NewsType.FUND_ASSEMBLY_KEPT,
+        NewsSection.COMPANIES,
+        "Gestor mantido pela assembleia",
+        "“Assembleia mantém Caio na gestão da MEUS11”",
+        NewsLevel.JOURNAL,
+    ),
+    NewsSpec(
         NewsType.FUND_BUYBACK_OPENED,
         NewsSection.COMPANIES,
         "Recompra de cotas de uma gestora",
@@ -356,6 +377,12 @@ PENDING: tuple[PendingSpec, ...] = (
         PendingSeverity.WARNING,
         "Reunião do Copom sem SELIC marcada",
         "Só para o presidente; some ao marcar a SELIC ou quando a reunião acontece",
+    ),
+    PendingSpec(
+        PendingType.FUND_ASSEMBLY_INVITE,
+        PendingSeverity.WARNING,
+        "Convite para assumir uma gestora",
+        "Some ao responder, quando quem convocou cancela ou quando o convite vence",
     ),
 )
 

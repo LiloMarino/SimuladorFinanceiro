@@ -1,4 +1,4 @@
-import { Lock } from "lucide-react";
+import { Gavel, Lock } from "lucide-react";
 import { useRef, useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { CardState } from "@/shared/components/card-state";
@@ -20,6 +20,7 @@ import type { FundDetails } from "@/types";
 import { ContributeDialog } from "../components/contribute-dialog";
 import { BuybackDialog } from "../components/buyback-dialog";
 import { FeesDialog } from "../components/fees-dialog";
+import { FundAssembly } from "../components/fund-assembly";
 import { FundBuybackCard } from "../components/fund-buyback-card";
 import { FundComposition } from "../components/fund-composition";
 import { FundFeesCard } from "../components/fund-fees-card";
@@ -92,6 +93,7 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
   const [buybackOpen, setBuybackOpen] = useState(false);
   const [contributeOpen, setContributeOpen] = useState(false);
   const quantityRef = useRef<HTMLInputElement>(null);
+  const assemblyRef = useRef<HTMLDivElement>(null);
   const { fund: activeFund, switchAccount } = useActiveAccount();
   const closeOffer = useCloseFundOffer(fund.id);
 
@@ -104,6 +106,8 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
   const nav = fund.nav === null ? FIRST_QUOTA_PRICE : Number(fund.nav);
   const issuanceOpenNow = fund.issuance !== null && fund.issuance.closed_on === null;
   const buybackOpenNow = fund.buyback?.state === "open";
+  const assemblyOpenNow = fund.assembly.current !== null;
+  const voting = fund.assembly.current?.status === "VOTING";
 
   const buyInOffer = () => {
     quantityRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -126,7 +130,7 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
         <>
           <Button
             variant="outline"
-            disabled={total === 0 || issuanceOpenNow || buybackOpenNow}
+            disabled={total === 0 || issuanceOpenNow || buybackOpenNow || assemblyOpenNow}
             onClick={() => setIssuanceOpen(true)}
           >
             Emitir cotas
@@ -212,6 +216,44 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Defesa do gestor durante a votação */}
+      {voting && !viewer && (
+        <Alert variant="destructive">
+          <Gavel />
+          <AlertTitle>Há uma assembleia para trocar você da gestão</AlertTitle>
+          <AlertDescription>
+            <div className="grid gap-3">
+              <p>
+                O voto pesa pelas cotas no fechamento do último pregão, e você conta contra com as suas. Recomprar cotas
+                dos outros cotistas tira o peso deles do placar.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => assemblyRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                >
+                  Ver a votação
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={total === 0 || buybackOpenNow}
+                  onClick={() => setBuybackOpen(true)}
+                >
+                  Recomprar
+                </Button>
+              </div>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Assembleia */}
+      <div ref={assemblyRef}>
+        <FundAssembly fund={fund} />
+      </div>
 
       {/* Oferta pública */}
       <FundOfferCard fund={fund} action={offerAction} />

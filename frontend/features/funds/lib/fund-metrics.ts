@@ -105,9 +105,9 @@ export const HIGH_WATER_MARK: MetricInfo = {
 
 export const CONTROL: MetricInfo = {
   label: "Controle",
-  description: "Ter mais da metade das cotas é ter a gestora nas mãos",
+  description: "Com mais da metade das cotas, nenhuma assembleia troca o gestor",
   definition:
-    "É ter mais de 50% das cotas. Vender cotas ou emitir cotas novas numa oferta diminui a sua parte; abaixo de 50%, outro cotista pode passar à frente.",
+    "É ter mais de 50% das cotas. Vender cotas ou emitir cotas novas numa oferta diminui a sua parte; abaixo de 50%, os outros cotistas podem juntar mais votos que você numa assembleia.",
   example: "Ex.: de 10.000 cotas, o controle exige 5.001. Com 5.800, o gestor pode vender 799 cotas e ainda controlar.",
   reading: "Acima de 50% a gestora é sua. Perto da marca, uma compra de outro cotista no mercado já a ameaça.",
   format: (value) => `${value}%`,
