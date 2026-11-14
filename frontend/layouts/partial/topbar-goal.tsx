@@ -121,7 +121,7 @@ export function TopbarGoal({ grouping, teamNaming, currentDate }: TopbarGoalProp
               <ProgressEndMark />
             </>
           }
-          className="h-7 w-60 items-center"
+          className="h-7 w-[150px] items-center 2xl:w-60"
         />
 
         {/* Seu percentual */}
@@ -188,7 +188,7 @@ function TopbarGoalSkeleton() {
         </span>
         <span className="font-mono text-[13px] font-semibold text-faint-foreground">—</span>
       </span>
-      <Skeleton className="h-2 w-60" />
+      <Skeleton className="h-2 w-[150px] 2xl:w-60" />
       <span className="grid justify-items-end">
         <span className="font-mono text-[13px] font-semibold text-faint-foreground">—</span>
         <span className="text-xs text-muted-foreground">você</span>
