@@ -15,6 +15,7 @@ import os
 import re
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
+from typing import Any
 from urllib.parse import urljoin, urlparse
 
 from playwright.sync_api import (
@@ -280,6 +281,8 @@ def map_error(page: Page) -> None:
 
 # O menos das tabelas é o tipográfico (U+2212), não o hífen
 MINUS = chr(0x2212)
+# O sinal de vezes (U+00D7) dos rótulos de velocidade
+TIMES = chr(0xD7)
 
 PROFESSION_NAMES = re.compile(
     r"^(CLT|Servidor|Empreendedor|Aposentado|Auxílio|Locador|Exportador|Bancário"
@@ -493,7 +496,9 @@ LONG_NICKNAME = "Maria Eduarda Albuquerque de Souza Nogueira"
 FORGED_DATE = "2023-01-02"
 
 
-def fulfill_get(page: Page, glob: str, body: str, status: int = 200) -> None:
+def fulfill_get(
+    page: Page, glob: str | re.Pattern[str], body: str, status: int = 200
+) -> None:
     """
     Responde os `GET` de `glob` com `body`. Os outros métodos seguem para o servidor, então a
     ordem enviada pela boleta continua real.
@@ -807,6 +812,787 @@ def book_long_text(page: Page) -> None:
     )
 
 
+# As gestoras: a partida com a expansão ligada e a gestora do host em cada fase da vida dela
+FUND_NAME = "Aurora Gestão"
+FUND_TICKER = "AURO11"
+# Governo & Política exige 5 anos de partida: os CSVs da demo começam em jan 2021
+GOVERNMENT_RULES = {
+    "start_date": "2021-01-05",
+    "end_date": "2026-01-05",
+    "first_election": "2022-10-02",
+}
+# O dia em que a carteira do presidente deixa de estar congelada, nas receitas que forjam o governo
+FROZEN_UNTIL = "2023-01-01"
+# Fases da gestora, da recém-fundada à oferta já encerrada
+FUND_STAGES = ("founded", "contributed", "offer-open", "offer-closed")
+
+
+def host_login(page: Page) -> None:
+    """Entra com o nickname do host e espera o app abrir: o lobby ou a partida ativa."""
+    page.goto("/login")
+    page.get_by_label("Seu nickname").fill(demo_settings()["host"]["nickname"])
+    page.get_by_role("button", name="Entrar").click()
+    returning = page.get_by_role("button", name="Sou eu, entrar")
+    lobby = page.get_by_role(
+        "button",
+        name=re.compile(r"^(Iniciar nova simulação|Continuar|Escolher partida salva)"),
+    )
+    portfolio = page.get_by_role("heading", name="Carteira")
+    returning.or_(lobby).or_(portfolio).first.wait_for()
+    if returning.is_visible():
+        returning.click()
+    page.wait_for_url(re.compile(r"/(lobby)?$"))
+
+
+def api_json(page: Page, path: str) -> Any:
+    response = page.request.get(urljoin(page.url, path))
+    if not response.ok:
+        raise RuntimeError(f"GET {path}: HTTP {response.status}")
+    return response.json()
+
+
+def api_send(page: Page, method: str, path: str, data: dict | None = None) -> None:
+    response = page.request.fetch(urljoin(page.url, path), method=method, data=data)
+    if not response.ok:
+        raise RuntimeError(
+            f"{method} {path}: HTTP {response.status} {response.text()[:300]}"
+        )
+
+
+def fund_stage(funds: list[dict], nickname: str, name: str) -> str | None:
+    """A fase da gestora `name` do jogador, lida da lista da sala; nula quando ela não existe."""
+    mine = next(
+        (
+            fund
+            for fund in funds
+            if fund["manager_nickname"] == nickname and fund["name"] == name
+        ),
+        None,
+    )
+    if mine is None:
+        return None
+    if mine["offer_closed_on"] is not None:
+        return "offer-closed"
+    if mine["listed_on"] is not None:
+        return "offer-open"
+    return "contributed" if float(mine["quotas"]) > 0 else "founded"
+
+
+def fund_matches(page: Page, nickname: str, fund_name: str, stage: str) -> bool:
+    """A sala já está na `stage` pedida: sem nenhuma gestora do jogador (`none`) ou com a `fund_name` nessa fase."""
+    funds = api_json(page, "/api/funds")
+    if stage == "none":
+        return not any(fund["manager_nickname"] == nickname for fund in funds)
+    return fund_stage(funds, nickname, fund_name) == stage
+
+
+def fund_match(
+    page: Page,
+    *,
+    funds: bool = True,
+    stage: str = "founded",
+    government: bool = True,
+    game_type: str = "GOAL_RACE",
+    fund_name: str = FUND_NAME,
+    ticker: str = FUND_TICKER,
+) -> None:
+    """
+    Leva o host a uma partida com as regras pedidas e, com `funds`, a gestora dele na
+    `stage` pedida (`none`: a expansão ligada e o host sem gestora). A partida que já está aberta com essas regras e nessa fase é reaproveitada;
+    senão ela é encerrada e uma nova nasce pela API das regras, a mesma que o formulário chama.
+    A gestora nasce por `POST /api/funds`, recebe caixa da carteira (R$ 5.000, a 100 por cota) e
+    abre a oferta de 20 cotas, como o gestor faria nos diálogos.
+    """
+    host_login(page)
+    nickname = demo_settings()["host"]["nickname"]
+    status = api_json(page, "/api/simulation/status")
+    running = status.get("simulation")
+    if running:
+        same_rules = (
+            running["funds_enabled"] == funds
+            and running["government_enabled"] == government
+            and running["game_type"] == game_type
+        )
+        # Sem a expansão a lista de gestoras recusa o pedido: só se consulta com as regras iguais
+        same_fund = same_rules and (
+            not funds or fund_matches(page, nickname, fund_name, stage)
+        )
+        if same_fund:
+            page.goto("/")
+            page.get_by_role("heading", name="Carteira").wait_for()
+            page.wait_for_load_state("networkidle")
+            dismiss_topic(page)
+            return
+        api_send(page, "POST", "/api/simulation/stop")
+    page.goto("/lobby")
+    page.get_by_role("button", name="Minha preparação").wait_for()
+    current_settings = api_json(page, "/api/simulation/settings")
+    if current_settings["selected_simulation_id"] is not None:
+        raise RuntimeError(
+            "Há uma partida salva selecionada: as regras não mudam pela API."
+        )
+    rules = (
+        current_settings["simulation"]
+        | {
+            "game_type": game_type,
+            "funds_enabled": funds,
+            "government_enabled": government,
+            "first_election": None,
+        }
+        | (GOVERNMENT_RULES if government else {})
+    )
+    api_send(page, "PUT", "/api/simulation/settings", rules)
+    # A gestora nasce só pelos passos desta receita: o perfil não funda nada no 1º dia
+    api_send(
+        page,
+        "PUT",
+        "/api/simulation/players/me/fund-preparation",
+        {"kind": "NONE"},
+    )
+    api_send(page, "POST", "/api/simulation/create", rules)
+    if funds and stage != "none":
+        api_send(
+            page,
+            "POST",
+            "/api/funds",
+            {
+                "name": fund_name,
+                "ticker": ticker,
+                "management_fee": "0.02",
+                "performance_fee": "0.2",
+            },
+        )
+        fund_id = api_json(page, "/api/funds")[0]["id"]
+        steps = FUND_STAGES.index(stage)
+        if steps >= 1:
+            api_send(
+                page,
+                "POST",
+                f"/api/funds/{fund_id}/contributions",
+                {"cash": "5000", "stocks": []},
+            )
+        if steps >= 2:
+            api_send(page, "POST", f"/api/funds/{fund_id}/offer", {"quotas": 20})
+        if steps >= 3:
+            api_send(page, "DELETE", f"/api/funds/{fund_id}/offer")
+    page.goto("/")
+    page.get_by_role("heading", name="Carteira").wait_for()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+
+
+def patch_get(
+    page: Page, glob: str | re.Pattern[str], change: Callable[[dict | list], None]
+) -> None:
+    """
+    Dado forjado sobre o dado real: os `GET` de `glob` vão ao servidor e a resposta volta
+    depois de `change` alterar o JSON no lugar; os outros métodos seguem sem alteração.
+    """
+
+    def handle(route: Route) -> None:
+        if route.request.method != "GET":
+            route.continue_()
+            return
+        response = route.fetch()
+        body = response.json()
+        change(body)
+        route.fulfill(response=response, body=json.dumps(body))
+
+    page.route(glob, handle)
+
+
+def hang_get(page: Page, glob: str | re.Pattern[str]) -> None:
+    """A rota nunca responde: a consulta fica carregando."""
+    page.route(glob, lambda route: None)
+
+
+# Camadas em portal: o menu e a dica do design system
+MENU_LAYER = '[role="menu"]'
+TOOLTIP_LAYER = '[data-slot="tooltip-content"]'
+STATE_GLOB = "**/api/get-simulation-state"
+ACCOUNTS_GLOB = "**/api/funds/accounts"
+GOVERNMENT_GLOB = "**/api/government"
+
+
+def forge_running_speed(page: Page, speed: int = 10) -> None:
+    """Dado forjado: o estado da simulação responde rodando na velocidade pedida (a partida da receita fica pausada)."""
+
+    def change(state: dict | list) -> None:
+        assert isinstance(state, dict)
+        state["speed"] = speed
+
+    patch_get(page, STATE_GLOB, change)
+
+
+def forge_president(page: Page) -> None:
+    """
+    Dado forjado: o host governa. O painel do governo responde `is_president` com a carteira
+    congelada até `FROZEN_UNTIL`, e as contas do caixa trazem o mesmo congelamento.
+    """
+
+    def panel(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        body["is_president"] = True
+        body["computer_until_inauguration"] = False
+        body["portfolio"] = {
+            "nickname": demo_settings()["host"]["nickname"],
+            "total_networth": "18420.35",
+            "frozen_until": FROZEN_UNTIL,
+            "slices": [],
+            "interests": [],
+        }
+
+    def accounts(body: dict | list) -> None:
+        assert isinstance(body, list)
+        for account in body:
+            account["frozen_until"] = FROZEN_UNTIL
+
+    patch_get(page, GOVERNMENT_GLOB, panel)
+    patch_get(page, ACCOUNTS_GLOB, accounts)
+
+
+def open_stocks(page: Page) -> None:
+    """A página Renda variável, que o board da topbar desenha: o título da topbar vem dela."""
+    sidebar(page, "Renda variável").click()
+    page.get_by_role("row", name=re.compile(r"^PETR4")).wait_for()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+
+
+def reload_stocks(page: Page) -> None:
+    """Recarrega a Renda variável com as rotas forjadas já ligadas: a topbar pede o dado de novo."""
+    page.reload()
+    page.get_by_role("row", name=re.compile(r"^PETR4")).wait_for()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+
+
+def adopt_layer(page: Page, layer_selector: str, into: str = "header") -> None:
+    """
+    A camada flutuante aberta (menu, dica) achada por `layer_selector` passa para dentro de `into`: o
+    retrato da tela parte de uma raiz só, e o board desenha a camada dentro da topbar. A camada
+    segue na mesma posição da tela: o novo pai muda o ponto de referência do posicionamento, e
+    o deslocamento que isso causa volta pelo `left`/`top` do posicionador.
+    """
+    moved = page.evaluate(
+        """([selector, into]) => {
+            const layer = document.querySelector(selector);
+            const target = document.querySelector(into);
+            if (!layer || !target) return false;
+            let top = layer;
+            while (top.parentElement && top.parentElement !== document.body) top = top.parentElement;
+            if (target.contains(top)) return true;
+            const before = layer.getBoundingClientRect();
+            target.appendChild(top);
+            const after = layer.getBoundingClientRect();
+            let positioner = layer;
+            while (positioner !== top && getComputedStyle(positioner).position !== "absolute") {
+                positioner = positioner.parentElement;
+            }
+            positioner.style.left = `${before.x - after.x}px`;
+            positioner.style.top = `${before.y - after.y}px`;
+            return true;
+        }""",
+        [layer_selector, into],
+    )
+    assert moved, f"nenhuma camada {layer_selector} aberta para levar a {into}"
+
+
+def topbar_open(page: Page, **match) -> None:
+    """A Renda variável aberta numa partida com as regras de `match`, pausada."""
+    fund_match(page, **match)
+    open_stocks(page)
+
+
+# O nome mais longo que a sala aceita (40 letras): o rótulo do caixa corta com reticências
+LONG_FUND_NAME = "Fundo Multiestratégia Patrimonial Rafael"
+LONG_FUND_CASH = "12345678901.23"
+
+
+def cash_button(page: Page) -> Locator:
+    """O botão do caixa na topbar: abre o menu "Operar com" quando há mais de uma conta."""
+    return page.locator("header").get_by_role("button", name=re.compile(r"Caixa ·"))
+
+
+def open_account_menu(page: Page) -> None:
+    """Abre o menu "Operar com" e o leva para dentro da topbar, onde o retrato o alcança."""
+    cash_button(page).click()
+    page.get_by_role("menu").get_by_text("Operar com").wait_for()
+    adopt_layer(page, MENU_LAYER)
+
+
+def topbar_default(page: Page) -> None:
+    """
+    Topbar a 1920 com tudo ligado (gestora, governo do computador, corrida à meta) na conta
+    pessoal, rodando a dez vezes. Dado forjado: o estado da simulação responde a velocidade 10 (a
+    partida da receita fica pausada).
+    """
+    topbar_open(page)
+    forge_running_speed(page)
+    reload_stocks(page)
+    expect(
+        page.locator("header").get_by_role("button", name="Pausar simulação")
+    ).to_be_visible()
+
+
+def topbar_1366(page: Page) -> None:
+    """Como topbar/padrao, a 1366 de largura: o selo do governo vira ícone e uma palavra e a topbar fica numa linha só."""
+    topbar_default(page)
+    page.set_viewport_size({"width": 1366, "height": 768})
+    expect(page.locator("header").get_by_text("Computador", exact=True)).to_be_visible()
+    one_row = page.evaluate("() => document.querySelector('header').offsetHeight <= 80")
+    assert one_row, "a topbar a 1366 passou de uma linha"
+
+
+def topbar_paused(page: Page) -> None:
+    """Topbar pausada: o jogador pausa a partida que corria a dez vezes, e a data vira "Pausado" sobre o âmbar com o play no lugar do pause."""
+    topbar_open(page)
+    api_send(page, "POST", "/api/set-speed", {"speed": 10})
+    reload_stocks(page)
+    page.get_by_role("button", name="Pausar simulação").click()
+    expect(page.locator("header").get_by_role("status")).to_contain_text("Pausado")
+    expect(page.get_by_role("button", name="Retomar simulação")).to_be_visible()
+
+
+def topbar_pip_hint(page: Page) -> None:
+    """Como topbar/padrao, com a dica do tracinho de dez vezes aberta por hover: a velocidade, a tecla do tracinho e o atalho de pausa."""
+    topbar_default(page)
+    page.get_by_role("button", name=f"Velocidade 10{TIMES}").hover()
+    tooltip = page.locator(TOOLTIP_LAYER)
+    expect(tooltip).to_contain_text("tecla")
+    expect(tooltip).to_contain_text("Espaço")
+    adopt_layer(page, TOOLTIP_LAYER)
+
+
+def topbar_menu_open(page: Page) -> None:
+    """Como topbar/padrao, com o menu "Operar com" aberto: a carteira pessoal marcada e a gestora na lista."""
+    topbar_default(page)
+    open_account_menu(page)
+    expect(page.get_by_role("menu").get_by_text(FUND_NAME)).to_be_visible()
+
+
+def topbar_operating_fund(page: Page) -> None:
+    """Topbar operando a gestora, escolhida no menu "Operar com": rótulo e valor na cor dela e a faixa sob a topbar."""
+    topbar_default(page)
+    cash_button(page).click()
+    page.get_by_role("menuitem", name=re.compile(FUND_NAME)).click()
+    expect(page.get_by_text("Você está operando a")).to_be_visible()
+    expect(cash_button(page)).to_contain_text(FUND_NAME)
+    page.wait_for_load_state("networkidle")
+
+
+def forge_governing(page: Page) -> None:
+    """Como topbar/padrao, com o host governando: carteira congelada (dado forjado em `/api/government` e `/api/funds/accounts`)."""
+    topbar_open(page)
+    forge_running_speed(page)
+    forge_president(page)
+    reload_stocks(page)
+    expect(
+        page.locator("header").get_by_role("img", name=re.compile("^Congelada até"))
+    ).to_be_visible()
+
+
+def topbar_governing_hint(page: Page) -> None:
+    """Dado forjado: o host governa (carteira congelada). A dica do cadeado, no rótulo do caixa, aberta por hover."""
+    forge_governing(page)
+    page.locator("header").get_by_role(
+        "img", name=re.compile("^Congelada até")
+    ).first.hover()
+    tooltip = page.locator(TOOLTIP_LAYER)
+    expect(tooltip).to_contain_text("Você governa")
+    adopt_layer(page, TOOLTIP_LAYER)
+
+
+def topbar_governing_menu(page: Page) -> None:
+    """Dado forjado: o host governa (carteira congelada). O menu "Operar com" aberto, com as duas contas congeladas e o rodapé que diz isso."""
+    forge_governing(page)
+    open_account_menu(page)
+    expect(
+        page.get_by_role("menu").get_by_text("As contas estão congeladas até")
+    ).to_be_visible()
+
+
+def topbar_overdraft(page: Page) -> None:
+    """
+    Topbar do viver de renda sem gestoras, com o caixa negativo: o rótulo vira "Cheque especial"
+    com o juro. Dado forjado: o estado da simulação responde o caixa pessoal negativo.
+    """
+    topbar_open(page, funds=False, game_type="FINANCIAL_INDEPENDENCE")
+
+    def change(state: dict | list) -> None:
+        assert isinstance(state, dict)
+        state["cash"] = "-4210"
+        state["speed"] = 10
+
+    patch_get(page, STATE_GLOB, change)
+    reload_stocks(page)
+    expect(page.locator("header").get_by_text("Cheque especial")).to_be_visible()
+
+
+def topbar_long_fund_name(page: Page) -> None:
+    """
+    Topbar a 1366 operando uma gestora de nome no limite de 40 letras e caixa de 11 dígitos:
+    o rótulo corta com reticências e o selo do governo fica curto. Dado forjado: o caixa da
+    gestora em `/api/funds/accounts`.
+    """
+    topbar_open(page, fund_name=LONG_FUND_NAME, ticker="FMPR11")
+    forge_running_speed(page)
+
+    def change(accounts: dict | list) -> None:
+        assert isinstance(accounts, list)
+        for account in accounts:
+            if account["fund_id"] is not None:
+                account["cash"] = LONG_FUND_CASH
+
+    patch_get(page, ACCOUNTS_GLOB, change)
+    reload_stocks(page)
+    page.set_viewport_size({"width": 1366, "height": 768})
+    cash_button(page).click()
+    page.get_by_role("menuitem", name=re.compile("^Fundo Multi")).click()
+    expect(page.get_by_text("Você está operando a")).to_be_visible()
+    page.wait_for_load_state("networkidle")
+
+
+def topbar_classic(page: Page) -> None:
+    """Topbar da partida clássica: sem gestora, sem governo e sem corrida à meta."""
+    topbar_open(page, funds=False, government=False, game_type="CLASSIC")
+    forge_running_speed(page)
+    reload_stocks(page)
+    expect(page.locator("header").get_by_text("Meta")).to_have_count(0)
+
+
+def topbar_loading(page: Page) -> None:
+    """Dado forjado: o estado da simulação nunca responde, e a data e o caixa ficam em esqueleto."""
+    topbar_open(page)
+    hang_get(page, STATE_GLOB)
+    page.reload()
+    page.locator("header").get_by_role("heading").wait_for()
+
+
+# A gestora de outro jogador, vista pelo host: o dono do cartão é a Duda
+OTHER_MANAGER_ID = 999_999
+FUND_DETAIL_PATTERN = re.compile(r"/api/funds/\d+$")
+FUNDS_LIST_PATTERN = re.compile(r"/api/funds$")
+
+
+def open_funds_page(page: Page) -> None:
+    """A página das gestoras pelo menu: com gestora própria ela abre na página da gestora."""
+    page.goto("/funds")
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+
+
+def fund_page(page: Page, stage: str, **match) -> None:
+    """A página da gestora do host na fase `stage`, aberta pelo menu Gestoras."""
+    fund_match(page, stage=stage, **match)
+    open_funds_page(page)
+    page.locator(CONTENT).get_by_role(
+        "heading", name=match.get("fund_name", FUND_NAME)
+    ).wait_for()
+
+
+def funds_none(page: Page) -> None:
+    """A página das gestoras de quem ainda não fundou: o convite e a lista da sala."""
+    fund_match(page, stage="none")
+    open_funds_page(page)
+    page.get_by_role("heading", name="Funde a sua gestora").wait_for()
+
+
+def funds_founded(page: Page) -> None:
+    """A gestora fundada junto com a sala: nasce sem caixa nem cotas."""
+    fund_page(page, "founded")
+    page.get_by_text("A gestora nasceu com a sala e está vazia").wait_for()
+
+
+def funds_closed(page: Page) -> None:
+    """A gestora fechada, com as cotas do gestor e sem oferta."""
+    fund_page(page, "contributed")
+
+
+def funds_offer_open(page: Page) -> None:
+    """A gestora com a oferta pública aberta, vista pelo gestor."""
+    fund_page(page, "offer-open")
+    page.get_by_text("Oferta pública em andamento").wait_for()
+
+
+def funds_offer_closed(page: Page) -> None:
+    """A gestora depois da oferta pública encerrada."""
+    fund_page(page, "offer-closed")
+    page.get_by_text("Oferta pública encerrada").first.wait_for()
+
+
+def funds_loading(page: Page) -> None:
+    """Dado forjado: a lista de gestoras nunca responde e a página fica em esqueleto."""
+    fund_match(page, stage="none")
+    hang_get(page, FUNDS_LIST_PATTERN)
+    page.goto("/funds")
+    page.locator('[aria-busy="true"]').first.wait_for()
+
+
+def funds_error(page: Page) -> None:
+    """Dado forjado: a lista de gestoras responde 500 e a página mostra o erro com a nova tentativa."""
+    fund_match(page, stage="none")
+    fulfill_get(page, FUNDS_LIST_PATTERN, '{"detail": "falha"}', status=500)
+    page.goto("/funds")
+    page.get_by_role("button", name="Tentar de novo").wait_for()
+
+
+def funds_long_text(page: Page) -> None:
+    """A gestora de nome no limite de 40 letras."""
+    fund_page(page, "contributed", fund_name=LONG_FUND_NAME, ticker="FMPR11")
+
+
+def funds_viewer(page: Page) -> None:
+    """
+    A gestora de outro jogador vista pelo host, que tem cotas dela. Dado forjado: o gestor
+    da gestora é outra pessoa e as cotas do host vêm em `my_quotas`.
+    """
+    fund_match(page, stage="offer-open")
+
+    def change(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        body["manager_user_id"] = OTHER_MANAGER_ID
+        body["manager_nickname"] = "Duda"
+        body["my_quotas"] = "300"
+        body["my_value"] = "30000"
+        body["my_return"] = "0.0812"
+
+    patch_get(page, FUND_DETAIL_PATTERN, change)
+    open_funds_page(page)
+    page.goto(f"/funds/{api_json(page, '/api/funds')[0]['id']}")
+    page.get_by_text("Gerida por Duda").wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def found_fund_open(page: Page) -> None:
+    """A tela de fundar a gestora, de quem ainda não fundou."""
+    fund_match(page, stage="none")
+    page.goto("/funds/new")
+    page.get_by_role("heading", name="Fundar uma gestora").wait_for()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+
+
+def found_fund_filled(page: Page) -> None:
+    """A fundação com nome, sigla livre e um valor levado do caixa: a conta das cotas ao lado."""
+    found_fund_open(page)
+    page.get_by_label("Nome da gestora").fill(FUND_NAME)
+    page.get_by_label("Sigla da cota").fill("AURO")
+    page.get_by_label("Caixa").fill("1000")
+    page.get_by_role("button", name="Fundar a Aurora Gestão").wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def found_fund_ticker_taken(page: Page) -> None:
+    """A sigla digitada é a de um ativo da partida: a resposta aparece enquanto o jogador digita."""
+    found_fund_open(page)
+    page.get_by_label("Sigla da cota").fill("PETR")
+    page.get_by_role("status").filter(has_text="já é um ativo da partida").wait_for()
+
+
+def fund_dialog(page: Page, stage: str, button: str) -> Locator:
+    """A página da gestora na fase `stage` com o diálogo do botão `button` aberto."""
+    fund_page(page, stage)
+    page.get_by_role("button", name=button).first.click()
+    dialog = page.get_by_role("dialog")
+    dialog.wait_for()
+    return dialog
+
+
+def dialog_offer(page: Page) -> None:
+    """Oferta pública: o gestor escolhe quantas cotas a sala pode comprar."""
+    dialog = fund_dialog(page, "contributed", "Oferta pública")
+    dialog.get_by_label("Quantas cotas").fill("20")
+    dialog.get_by_text("Você mantém o controle").wait_for()
+
+
+def dialog_offer_too_big(page: Page) -> None:
+    """Oferta que tira o controle do gestor: o aviso troca de cor antes do clique."""
+    dialog = fund_dialog(page, "contributed", "Oferta pública")
+    dialog.get_by_label("Quantas cotas").fill("200")
+    dialog.get_by_text("Você perde o controle").wait_for()
+
+
+def dialog_contribute(page: Page) -> None:
+    """Levar da carteira: a gestora fechada recebe caixa do gestor."""
+    dialog = fund_dialog(page, "founded", "Levar da carteira")
+    dialog.get_by_label("Caixa").fill("1000")
+
+
+def dialog_fees(page: Page) -> None:
+    """Taxas: as duas taxas com o teto da partida e o aviso de que a nova vale no mês seguinte."""
+    fund_dialog(page, "contributed", "Taxas")
+
+
+def fund_account_stock(page: Page) -> None:
+    """A página de uma ação operada pela gestora: o painel de ordem leva a cor dela."""
+    topbar_operating_fund(page)
+    open_stock(page)
+    page.wait_for_load_state("networkidle")
+
+
+def fund_selling(page: Page) -> None:
+    """O gestor digita uma venda que o deixa sem a maioria das cotas: o aviso de controle aparece antes do clique."""
+    fund_page(page, "offer-closed")
+    page.get_by_placeholder("Ex.: 50").fill("49")
+    page.get_by_text("Você perde o controle").wait_for()
+
+
+def fund_governing(page: Page) -> None:
+    """Dado forjado: o gestor governa e a gestora não tem co-gestor, então a página dela avisa que a carteira está congelada."""
+
+    def change(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        body["frozen_until"] = FROZEN_UNTIL
+
+    fund_match(page, stage="contributed")
+    patch_get(page, FUND_DETAIL_PATTERN, change)
+    open_funds_page(page)
+    page.get_by_text("A carteira está congelada").wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def fund_frozen_panel(page: Page) -> None:
+    """Dado forjado: o host governa e opera pela gestora, então o painel de ordem dela avisa o congelamento."""
+    fund_match(page, stage="contributed")
+    forge_president(page)
+    open_funds_page(page)
+    page.locator(CONTENT).get_by_role("heading", name=FUND_NAME).wait_for()
+    cash_button(page).click()
+    page.get_by_role("menuitem", name=re.compile(FUND_NAME)).click()
+    page.get_by_text(f"{FUND_NAME} congelada até").wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def fund_premium_hint(page: Page) -> None:
+    """A página da gestora com a dica do ágio aberta por hover."""
+    fund_page(page, "contributed")
+    page.get_by_role("button", name="O que é Ágio").hover()
+    page.locator('[data-slot="tooltip-content"]').wait_for()
+
+
+# A identidade da gestora salva no perfil e a rota que grava a escolha da aba Gestora
+SAVED_FUND_GLOB = "**/api/settings/fund"
+FUND_PREPARATION_GLOB = "**/api/simulation/players/me/fund-preparation"
+
+
+def lobby_fund_tab(
+    page: Page,
+    *,
+    choice: str = "NONE",
+    saved: dict | None = None,
+    funds: bool = True,
+) -> None:
+    """
+    Lobby com o diálogo "Minha preparação" na aba Gestora. Com `saved`, a identidade vai ao
+    perfil e a escolha `FOUND` à sala, como o formulário faz; sem `saved`, o perfil responde
+    vazio (dado forjado em `/api/settings/fund`) e a escolha `FOUND` é a da tela, que o botão
+    "Fundar a minha gestora" muda. A aba abre sempre no mesmo ponto, qualquer que seja a
+    rodada anterior.
+    """
+    lobby_with_professions(page, rules={"funds_enabled": funds})
+    if funds and saved is not None:
+        api_send(page, "PUT", "/api/settings/fund", saved)
+    if funds:
+        kind = "FOUND" if saved is not None else "NONE"
+        api_send(
+            page, "PUT", "/api/simulation/players/me/fund-preparation", {"kind": kind}
+        )
+    if saved is None:
+        fulfill_get(page, SAVED_FUND_GLOB, "null")
+    page.get_by_role("button", name="Minha preparação").click()
+    dialog = page.get_by_role("dialog")
+    dialog.get_by_role("tab", name=re.compile(r"^Gestora")).click()
+    if funds and choice == "FOUND" and saved is None:
+        dialog.get_by_role("button", name="Fundar a minha gestora", exact=True).click()
+    page.wait_for_load_state("networkidle")
+
+
+def lobby_fund_none(page: Page) -> None:
+    """A aba Gestora de quem não fundou nem salvou nada: abre em "Sem gestora"."""
+    lobby_fund_tab(page, choice="NONE")
+    page.get_by_role("dialog").get_by_role("button", name="Sem gestora").wait_for()
+
+
+def lobby_fund_blank(page: Page) -> None:
+    """Fundar a minha gestora escolhido pela primeira vez: nome e sigla em branco."""
+    lobby_fund_tab(page, choice="FOUND")
+    page.get_by_role("dialog").get_by_label("Nome da gestora").wait_for()
+
+
+def lobby_fund_filled(page: Page) -> None:
+    """Fundar a minha gestora com a identidade salva no perfil: nome e sigla preenchidos."""
+    lobby_fund_tab(page, saved={"name": FUND_NAME, "ticker": FUND_TICKER})
+    expect(page.get_by_role("dialog").get_by_label("Nome da gestora")).to_have_value(
+        FUND_NAME
+    )
+
+
+def lobby_fund_ticker_taken(page: Page) -> None:
+    """A sigla digitada é a de um ativo da partida: a resposta aparece embaixo do campo."""
+    lobby_fund_tab(page, choice="FOUND")
+    dialog = page.get_by_role("dialog")
+    dialog.get_by_label("Sigla da cota").fill("PETR")
+    dialog.get_by_text("já é um ativo da partida").wait_for()
+
+
+def lobby_fund_long_text(page: Page) -> None:
+    """A identidade salva com o nome no limite de 40 letras."""
+    lobby_fund_tab(page, saved={"name": LONG_FUND_NAME, "ticker": "FMPR11"})
+    expect(page.get_by_role("dialog").get_by_label("Nome da gestora")).to_have_value(
+        LONG_FUND_NAME
+    )
+
+
+def lobby_fund_disabled(page: Page) -> None:
+    """A expansão Gestoras desligada nas regras da sala: a aba explica e aponta o host."""
+    lobby_fund_tab(page, funds=False)
+    page.get_by_text("Gestora só com a expansão Gestoras").wait_for()
+
+
+def lobby_fund_loading(page: Page) -> None:
+    """Dado forjado: a identidade salva nunca responde, e a aba fica em esqueleto."""
+    lobby_with_professions(page, rules={"funds_enabled": True})
+    hang_get(page, SAVED_FUND_GLOB)
+    page.reload()
+    page.get_by_role("button", name="Minha preparação").click()
+    dialog = page.get_by_role("dialog")
+    dialog.get_by_role("tab", name=re.compile(r"^Gestora")).click()
+    dialog.locator('[aria-busy="true"]').first.wait_for()
+
+
+def lobby_fund_save_failed(page: Page) -> None:
+    """Dado forjado: o servidor recusa o salvamento da gestora, e o rodapé diz que nada se perdeu."""
+
+    def refuse(route: Route) -> None:
+        if route.request.method != "PUT":
+            route.continue_()
+            return
+        route.fulfill(
+            status=500,
+            content_type="application/json",
+            body='{"detail": "falha"}',
+        )
+
+    lobby_fund_tab(page, saved={"name": FUND_NAME, "ticker": FUND_TICKER})
+    page.route(FUND_PREPARATION_GLOB, refuse)
+    dialog = page.get_by_role("dialog")
+    dialog.get_by_label("Nome da gestora").fill("Aurora Gestão Ltda")
+    dialog.get_by_text("Nada se perdeu").wait_for()
+
+
+def lobby_expansions(page: Page) -> None:
+    """As regras da sala na aba Expansões, com o Governo e as Gestoras ligados."""
+    lobby_with_professions(
+        page,
+        rules={"funds_enabled": True, "government_enabled": True} | GOVERNMENT_RULES,
+    )
+    page.get_by_role("button", name="Editar regras").click()
+    page.get_by_role("tab", name=re.compile(r"^Expansões")).click()
+    page.get_by_role("switch", name="Ligar Gestoras").wait_for()
+    page.wait_for_load_state("networkidle")
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "carteira/vazia": portfolio_empty,
     "renda-variavel/detalhe": stock_detail,
@@ -835,4 +1621,46 @@ STATES: dict[str, Callable[[Page], None]] = {
     "renda-variavel/livro-erro": book_error,
     "renda-variavel/livro-vazio": book_empty,
     "renda-variavel/livro-texto-longo": book_long_text,
+    "topbar/padrao": topbar_default,
+    "topbar/padrao-1366": topbar_1366,
+    "topbar/pausado": topbar_paused,
+    "topbar/dica-tracinho": topbar_pip_hint,
+    "topbar/menu-aberto": topbar_menu_open,
+    "topbar/operando-gestora": topbar_operating_fund,
+    "topbar/governa-dica": topbar_governing_hint,
+    "topbar/governa-menu": topbar_governing_menu,
+    "topbar/cheque-especial": topbar_overdraft,
+    "topbar/nome-longo-1366": topbar_long_fund_name,
+    "topbar/classica": topbar_classic,
+    "topbar/carregando": topbar_loading,
+    "gestoras/sem-gestora": funds_none,
+    "gestoras/fundada-vazia": funds_founded,
+    "gestoras/fechada": funds_closed,
+    "gestoras/oferta-aberta": funds_offer_open,
+    "gestoras/oferta-encerrada": funds_offer_closed,
+    "gestoras/carregando": funds_loading,
+    "gestoras/erro": funds_error,
+    "gestoras/texto-longo": funds_long_text,
+    "gestoras/cotista": funds_viewer,
+    "gestoras/fundar": found_fund_open,
+    "gestoras/fundar-preenchida": found_fund_filled,
+    "gestoras/fundar-sigla-recusada": found_fund_ticker_taken,
+    "gestoras/dialogo-oferta": dialog_offer,
+    "gestoras/dialogo-oferta-grande": dialog_offer_too_big,
+    "gestoras/dialogo-levar": dialog_contribute,
+    "gestoras/dialogo-taxas": dialog_fees,
+    "gestoras/conta-da-gestora": fund_account_stock,
+    "gestoras/gestor-vendendo": fund_selling,
+    "gestoras/gestor-governa": fund_governing,
+    "gestoras/painel-congelado": fund_frozen_panel,
+    "gestoras/dica-agio": fund_premium_hint,
+    "lobby-gestora/sem-gestora": lobby_fund_none,
+    "lobby-gestora/fundar-vazia": lobby_fund_blank,
+    "lobby-gestora/fundar-preenchida": lobby_fund_filled,
+    "lobby-gestora/sigla-recusada": lobby_fund_ticker_taken,
+    "lobby-gestora/texto-longo": lobby_fund_long_text,
+    "lobby-gestora/expansao-desligada": lobby_fund_disabled,
+    "lobby-gestora/carregando": lobby_fund_loading,
+    "lobby-gestora/erro-ao-salvar": lobby_fund_save_failed,
+    "regras/expansoes": lobby_expansions,
 }
