@@ -16011,6 +16011,11 @@
             "title": "Government Enabled",
             "default": false
           },
+          "funds_enabled": {
+            "type": "boolean",
+            "title": "Funds Enabled",
+            "default": false
+          },
           "first_election": {
             "anyOf": [
               {
@@ -30608,6 +30613,11 @@
             "title": "Government Enabled",
             "default": false
           },
+          "funds_enabled": {
+            "type": "boolean",
+            "title": "Funds Enabled",
+            "default": false
+          },
           "first_election": {
             "anyOf": [
               {
@@ -30743,6 +30753,7 @@
           "show_maturity_projection",
           "show_chart_hints",
           "government_enabled",
+          "funds_enabled",
           "first_election",
           "computer_difficulty",
           "poll_margin",
@@ -31782,6 +31793,11 @@
             "title": "Government Enabled",
             "default": false
           },
+          "funds_enabled": {
+            "type": "boolean",
+            "title": "Funds Enabled",
+            "default": false
+          },
           "first_election": {
             "anyOf": [
               {
@@ -31844,6 +31860,7 @@
           "show_maturity_projection",
           "show_chart_hints",
           "government_enabled",
+          "funds_enabled",
           "first_election",
           "computer_difficulty",
           "poll_margin",
@@ -32063,6 +32080,11 @@
             "title": "Government Enabled",
             "default": false
           },
+          "funds_enabled": {
+            "type": "boolean",
+            "title": "Funds Enabled",
+            "default": false
+          },
           "first_election": {
             "anyOf": [
               {
@@ -32238,6 +32260,11 @@
             "title": "Government Enabled",
             "default": false
           },
+          "funds_enabled": {
+            "type": "boolean",
+            "title": "Funds Enabled",
+            "default": false
+          },
           "first_election": {
             "anyOf": [
               {
@@ -32296,6 +32323,7 @@
           "show_maturity_projection",
           "show_chart_hints",
           "government_enabled",
+          "funds_enabled",
           "first_election",
           "computer_difficulty",
           "poll_margin",
@@ -36224,6 +36252,11 @@
           "government_enabled": {
             "type": "boolean",
             "title": "Government Enabled",
+            "default": false
+          },
+          "funds_enabled": {
+            "type": "boolean",
+            "title": "Funds Enabled",
             "default": false
           },
           "first_election": {

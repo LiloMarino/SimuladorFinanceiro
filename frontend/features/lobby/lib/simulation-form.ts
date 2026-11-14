@@ -137,6 +137,7 @@ export const simulationFormSchema = z
     showMaturityProjection: z.boolean(),
     showChartHints: z.boolean(),
     governmentEnabled: z.boolean(),
+    fundsEnabled: z.boolean(),
     // ISO quando a data está completa; vazio com a expansão desligada
     firstElection: z.string().superRefine((value, ctx) => {
       const message = dateFieldError(value);
@@ -228,6 +229,7 @@ export function toFormValues(settings: SimulationSettingsData): SimulationFormVa
     showMaturityProjection: settings.show_maturity_projection,
     showChartHints: settings.show_chart_hints,
     governmentEnabled: settings.government_enabled,
+    fundsEnabled: settings.funds_enabled,
     firstElection: settings.first_election ?? "",
     computerDifficulty: settings.computer_difficulty,
     pollMargin: settings.poll_margin,
@@ -276,6 +278,7 @@ export function toSettingsBody(values: SimulationFormValues): CreateSimulationRe
     show_maturity_projection: values.showMaturityProjection,
     show_chart_hints: values.showChartHints,
     government_enabled: values.governmentEnabled,
+    funds_enabled: values.fundsEnabled,
     first_election: values.governmentEnabled && values.firstElection ? values.firstElection : null,
     computer_difficulty: values.computerDifficulty,
     poll_margin: values.pollMargin,

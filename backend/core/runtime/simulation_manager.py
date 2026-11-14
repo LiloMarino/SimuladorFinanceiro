@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from threading import Lock
 from typing import TYPE_CHECKING, ClassVar
+from uuid import UUID
 
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import NotFoundError
@@ -29,12 +30,15 @@ class SimulationManager:
     _backtest = False
     # user_id -> portfolio_id das carteiras da partida em `_simulation_id`
     _portfolios: ClassVar[dict[int, int]] = {}
+    # client_id da gestora -> portfolio_id: a carteira dela não tem jogador dono
+    _fund_portfolios: ClassVar[dict[UUID, int]] = {}
 
     @classmethod
     def register_simulation(cls, sim: Simulation, *, backtest: bool = False) -> None:
         with cls._lock:
             if cls._simulation_id != sim.settings.id:
                 cls._portfolios = {}
+                cls._fund_portfolios = {}
             cls._active_simulation = sim
             cls._simulation_id = sim.settings.id
             cls._backtest = backtest
@@ -87,6 +91,17 @@ class SimulationManager:
             cls._portfolios = {**cls._portfolios, **portfolios}
 
     @classmethod
+    def find_fund_portfolio(cls, client_id: UUID) -> int | None:
+        """A carteira da gestora dona do `client_id`, ou None quando ele não é de gestora."""
+        return cls._fund_portfolios.get(client_id)
+
+    @classmethod
+    def add_fund_portfolios(cls, portfolios: dict[UUID, int]) -> None:
+        """Soma as carteiras de gestora da partida em andamento (client_id -> portfolio_id)."""
+        with cls._lock:
+            cls._fund_portfolios = {**cls._fund_portfolios, **portfolios}
+
+    @classmethod
     def set_simulation_id(
         cls, simulation_id: int, portfolios: dict[int, int] | None = None
     ) -> None:
@@ -94,6 +109,7 @@ class SimulationManager:
         with cls._lock:
             cls._simulation_id = simulation_id
             cls._portfolios = dict(portfolios or {})
+            cls._fund_portfolios = {}
 
     @classmethod
     def clear_simulation(cls) -> None:
@@ -101,4 +117,5 @@ class SimulationManager:
             cls._active_simulation = None
             cls._simulation_id = None
             cls._portfolios = {}
+            cls._fund_portfolios = {}
             cls._backtest = False

@@ -120,6 +120,9 @@ class SimulationEngine:
         )
         self.current_date: date = current_date
         self.simulation_id = simulation_id
+        # As cotas de gestora desta partida e o preço de ranking do dia de cada uma
+        self.fund_stocks: dict[str, StockDTO] = {}
+        self.ranking_prices: dict[str, Decimal] = {}
         # (pregão, provento por ação dos últimos 12 meses): o rendimento da Carteira lê daqui
         self._per_share_cache: tuple[date, dict[int, Decimal]] | None = None
 
@@ -295,6 +298,34 @@ class SimulationEngine:
     def credit_fund_offer(self, client_id: UUID, amount: Decimal) -> None:
         """Dinheiro da venda da oferta pública no caixa da gestora."""
         self._move_cash(client_id, amount, CashflowEventType.FUND_OFFER_PROCEEDS)
+
+    def credit_fund_subscription(self, client_id: UUID, amount: Decimal) -> None:
+        """Dinheiro sintético da subscrição do formador no caixa da gestora."""
+        self._move_cash(client_id, amount, CashflowEventType.FUND_MAKER_SUBSCRIPTION)
+
+    def charge_fund_fee(
+        self, client_id: UUID, amount: Decimal, performance: bool
+    ) -> None:
+        """A taxa de administração ou de performance sai do caixa da gestora, que pode ficar negativo."""
+        self._move_cash(
+            client_id,
+            -amount,
+            CashflowEventType.FUND_PERFORMANCE_FEE
+            if performance
+            else CashflowEventType.FUND_MANAGEMENT_FEE,
+        )
+
+    def receive_fund_fee(
+        self, client_id: UUID, amount: Decimal, performance: bool
+    ) -> None:
+        """A taxa que a gestora pagou entra no caixa pessoal do gestor."""
+        self._move_cash(
+            client_id,
+            amount,
+            CashflowEventType.FUND_PERFORMANCE_FEE_INCOME
+            if performance
+            else CashflowEventType.FUND_MANAGEMENT_FEE_INCOME,
+        )
 
     def add_contribution(self, client_id: UUID, amount: Decimal) -> None:
         """Adiciona aporte mensal (não conta como retorno de investimento)"""
@@ -496,14 +527,26 @@ class SimulationEngine:
             self.matching_engine.on_tick(s.ticker)
 
     def get_current_price(self, position: Position) -> Decimal:
-        """Último fechamento do ativo; sem candle no buffer, o preço médio da posição."""
+        """Último fechamento do ativo; sem candle no buffer, o preço médio da posição.
+
+        A cota de gestora vale o preço de ranking do dia, o mesmo no snapshot e no ranking.
+        """
+        ranking = self.ranking_prices.get(position.ticker)
+        if ranking is not None:
+            return ranking
         candle = self.matching_engine.market_data.get_last(position.ticker)
         return to_money(candle.close) if candle else position.avg_price
 
     @cached_property
     def stocks(self) -> dict[str, StockDTO]:
-        """Catálogo estável na partida: nomes e classes só mudam na Central, fora dela."""
-        return {stock.ticker: stock for stock in repository.stock.get_stocks()}
+        """Os ativos importados, estáveis na partida (nomes e classes só mudam na Central, fora dela), mais as cotas de gestora dela."""
+        imported = {stock.ticker: stock for stock in repository.stock.get_stocks()}
+        return {**imported, **self.fund_stocks}
+
+    def add_fund_stock(self, stock: StockDTO) -> None:
+        """A cota de uma gestora entra no catálogo da partida."""
+        self.fund_stocks[stock.ticker] = stock
+        self.__dict__.pop("stocks", None)
 
     @cached_property
     def classification(self) -> dict[str, StockSegmentDTO]:

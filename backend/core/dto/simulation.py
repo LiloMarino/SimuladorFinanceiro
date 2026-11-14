@@ -133,6 +133,8 @@ class SimulationSettingsDTO(BaseDTO):
     show_chart_hints: bool = True
     # Expansão Governo & Política: trava quando a partida começa
     government_enabled: bool = False
+    # Expansão Gestoras: trava quando a partida começa
+    funds_enabled: bool = False
     # Data do 1º turno da primeira eleição; as seguintes caem a cada 4 anos
     first_election: date | None = None
     computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL

@@ -5,7 +5,7 @@ import traceback
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
-from decimal import Decimal
+from decimal import ROUND_FLOOR, Decimal
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -49,6 +49,7 @@ from backend.core.runtime.event_manager import EventManager
 from backend.core.utils import required
 from backend.features.fixed_income.accrual import offer
 from backend.features.fixed_income.liquidity import redeemable_today
+from backend.features.funds.fund_account import BOT_QUOTA_LIMIT
 from backend.features.notifications import registry
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
@@ -477,12 +478,13 @@ class StrategyRunner:
             case StrategyAction.BUY | StrategyAction.SELL:
                 if not intent.ticker or not intent.quantity:
                     raise ValueError("Compra e venda precisam de ativo e quantidade")
+                quantity = self._quantity_allowed(user, intent)
                 order: Order = (
                     LimitOrder(
                         placed_on=engine.current_date,
                         client_id=user.client_id,
                         ticker=intent.ticker,
-                        size=intent.quantity,
+                        size=quantity,
                         action=_order_action(intent.action),
                         price=intent.limit,
                         automatic=True,
@@ -492,7 +494,7 @@ class StrategyRunner:
                         placed_on=engine.current_date,
                         client_id=user.client_id,
                         ticker=intent.ticker,
-                        size=intent.quantity,
+                        size=quantity,
                         action=_order_action(intent.action),
                         automatic=True,
                     )
@@ -556,6 +558,36 @@ class StrategyRunner:
                         "status": StrategyOrderStatus.EXECUTED,
                     }
                 )
+
+    def _quantity_allowed(self, user: UserDTO, intent: Intent) -> Decimal:
+        """A quantidade da intenção; a compra de cota de gestora cabe em BOT_QUOTA_LIMIT das cotas.
+
+        O teto desconta a posição do bot e as compras dele ainda abertas.
+        """
+        quantity = required(intent.quantity)
+        ticker = required(intent.ticker)
+        engine = self._engine
+        account = engine.broker.fund_accounts.get(ticker)
+        if account is None or intent.action is not StrategyAction.BUY:
+            return quantity
+        position = engine.broker.get_positions(user.client_id).get(ticker)
+        held = position.size if position is not None else Decimal(0)
+        resting = sum(
+            (
+                order.remaining
+                for order in engine.matching_engine.order_book.orders_of(user.client_id)
+                if order.ticker == ticker and order.action is OrderAction.BUY
+            ),
+            Decimal(0),
+        )
+        room = (
+            (account.quotas * BOT_QUOTA_LIMIT).to_integral_value(rounding=ROUND_FLOOR)
+            - held
+            - resting
+        )
+        if room <= 0:
+            raise ConflictError("A posição do bot na gestora já está no teto")
+        return min(quantity, room)
 
     def _on_order_closed(self, order: Order) -> None:
         """A ordem limitada de estratégia que saiu do book fecha a linha dela no registro."""

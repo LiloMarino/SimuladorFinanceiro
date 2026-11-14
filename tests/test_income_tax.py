@@ -25,6 +25,7 @@ CLASSES = {
     "EFGH11": AssetClass.FII,
     "IJKL11": AssetClass.ETF,
     "MNOP34": AssetClass.BDR,
+    "GEST11": AssetClass.FUND,
     "BTC": AssetClass.CRYPTO,
 }
 
@@ -196,6 +197,30 @@ def test_etf_and_bdr_have_no_exemption():
 
     assert months[(2024, 2)].exempt_profit == 0
     assert months[(2024, 2)].tax == Decimal("300.00")
+
+
+def test_fund_quota_pays_fifteen_percent_without_exemption():
+    """A cota de gestora paga 15% sobre o ganho, mesmo com vendas abaixo dos R$ 20.000."""
+    months = _assess(
+        _buy("GEST11", date(2024, 1, 10), 10, "100"),
+        _sell("GEST11", date(2024, 2, 5), 10, "200"),
+    )
+
+    assert months[(2024, 2)].exempt_profit == 0
+    assert months[(2024, 2)].tax == Decimal("150.00")
+
+
+def test_fund_loss_offsets_stock_gain():
+    """O prejuízo da cota de gestora é comum: abate o ganho de ação do mês seguinte."""
+    months = _assess(
+        _buy("GEST11", date(2024, 1, 10), 100, "100"),
+        _sell("GEST11", date(2024, 1, 20), 100, "50"),
+        _buy("ABCD3", date(2024, 1, 10), 400, "100"),
+        _sell("ABCD3", date(2024, 2, 5), 400, "150"),
+    )
+
+    # Ganho de 20.000 menos o prejuízo de 5.000, a 15%
+    assert months[(2024, 2)].tax == Decimal("2250.00")
 
 
 def test_tax_below_minimum_is_carried_until_it_reaches_it():

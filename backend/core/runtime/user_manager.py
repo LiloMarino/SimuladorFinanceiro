@@ -352,7 +352,10 @@ class UserManager:
 
     @classmethod
     def get_portfolio_id(cls, client_id: UUID) -> int:
-        """A carteira do player na partida ativa."""
+        """A carteira do player na partida ativa; a conta de gestora resolve pelo mapa das gestoras."""
+        fund_portfolio = SimulationManager.find_fund_portfolio(client_id)
+        if fund_portfolio is not None:
+            return fund_portfolio
         return SimulationManager.get_portfolio_id(cls.get_user_id(client_id))
 
     @classmethod

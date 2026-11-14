@@ -119,7 +119,7 @@ class StockRepository:
     def get_stocks_by_date(
         self, session: Session, current_date: date, simulation_id: int | None = None
     ) -> list[CandleDTO]:
-        """Última cotação de cada ativo, em uma consulta com busca limitada pelo índice."""
+        """Última cotação de cada ativo importado, em uma consulta com busca limitada pelo índice."""
         seen = seen_by(StockPriceHistory, reading_version(simulation_id))
         latest = (
             select(StockPriceHistory)
@@ -137,6 +137,7 @@ class StockRepository:
             select(Stock, price)
             .select_from(Stock)
             .join(latest, true())
+            .where(Stock.asset_class != AssetClass.FUND.value)
             .order_by(Stock.id)
         ).all()
         return [CandleDTO.from_prices(stock, history) for stock, history in rows]
@@ -493,8 +494,19 @@ class StockRepository:
 
     @transactional
     def get_stocks(self, session: Session) -> list[StockDTO]:
-        """Todas as ações, inclusive as que ainda não têm preço, em ordem de ticker."""
-        stocks = session.execute(select(Stock).order_by(Stock.ticker)).scalars().all()
+        """Os ativos importados, inclusive os que ainda não têm preço, em ordem de ticker.
+
+        A cota de gestora nasce na partida e vem do `FundBook`, não daqui.
+        """
+        stocks = (
+            session.execute(
+                select(Stock)
+                .where(Stock.asset_class != AssetClass.FUND.value)
+                .order_by(Stock.ticker)
+            )
+            .scalars()
+            .all()
+        )
         return [StockDTO.from_model(stock) for stock in stocks]
 
     @transactional

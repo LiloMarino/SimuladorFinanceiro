@@ -313,6 +313,10 @@ class Broker:
                 size=size,
                 price=price,
             )
+            # Cada negócio da cota de gestora conta uma vez, para a vela e o giro do dia
+            account = self.fund_accounts.get(taker_order.ticker)
+            if account is not None:
+                account.record_trade(size, to_money(price))
 
     def market_buy_limit(self, order: MarketOrder, price: float) -> Decimal:
         """Quanto a compra a mercado ainda pode comprar a este preço com o caixa e o valor da ordem.

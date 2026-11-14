@@ -111,6 +111,19 @@ class FakeSimulationEngine(SimulationEngine):
     def credit_fund_offer(self, client_id: uuid.UUID, amount: Decimal) -> None:
         self.cash[client_id] += amount
 
+    def credit_fund_subscription(self, client_id: uuid.UUID, amount: Decimal) -> None:
+        self.cash[client_id] += amount
+
+    def charge_fund_fee(
+        self, client_id: uuid.UUID, amount: Decimal, performance: bool
+    ) -> None:
+        self.cash[client_id] -= amount
+
+    def receive_fund_fee(
+        self, client_id: uuid.UUID, amount: Decimal, performance: bool
+    ) -> None:
+        self.cash[client_id] += amount
+
     def pay_dividend(self, client_id: uuid.UUID, ticker: str, amount: Decimal) -> None:
         self.cash[client_id] += amount
         self.dividends.append((client_id, ticker, amount))

@@ -5624,6 +5624,11 @@ export interface components {
              * @default false
              */
             government_enabled: boolean;
+            /**
+             * Funds Enabled
+             * @default false
+             */
+            funds_enabled: boolean;
             /** First Election */
             first_election?: string | null;
             /** @default NORMAL */
@@ -10694,6 +10699,11 @@ export interface components {
              * @default false
              */
             government_enabled: boolean;
+            /**
+             * Funds Enabled
+             * @default false
+             */
+            funds_enabled: boolean;
             /** First Election */
             first_election: string | null;
             /** @default NORMAL */
@@ -11138,6 +11148,11 @@ export interface components {
              * @default false
              */
             government_enabled: boolean;
+            /**
+             * Funds Enabled
+             * @default false
+             */
+            funds_enabled: boolean;
             /** First Election */
             first_election: string | null;
             /** @default NORMAL */
@@ -11259,6 +11274,11 @@ export interface components {
              * @default false
              */
             government_enabled: boolean;
+            /**
+             * Funds Enabled
+             * @default false
+             */
+            funds_enabled: boolean;
             /** First Election */
             first_election?: string | null;
             /** @default NORMAL */
@@ -11345,6 +11365,11 @@ export interface components {
              * @default false
              */
             government_enabled: boolean;
+            /**
+             * Funds Enabled
+             * @default false
+             */
+            funds_enabled: boolean;
             /** First Election */
             first_election: string | null;
             /** @default NORMAL */
@@ -12652,6 +12677,11 @@ export interface components {
              * @default false
              */
             government_enabled: boolean;
+            /**
+             * Funds Enabled
+             * @default false
+             */
+            funds_enabled: boolean;
             /** First Election */
             first_election?: string | null;
             /** @default NORMAL */

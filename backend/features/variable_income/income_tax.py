@@ -9,10 +9,10 @@ IRPF da Receita:
   R$ 20.000,00; a isenção cobre só ação em operação comum;
 - o ganho com cripto é isento quando as vendas de cripto do mês somam até
   R$ 35.000,00; cripto paga 15% e não tem day trade distinto: toda venda é comum;
-- o prejuízo comum (ação, ETF e BDR) compensa ganho comum, o de day trade compensa
+- o prejuízo comum (ação, ETF, BDR e cota de gestora) compensa ganho comum, o de day trade compensa
   day trade, o de FII compensa FII e o de cripto compensa cripto, no mês ou em
   qualquer mês seguinte;
-- o FII paga 20%;
+- o FII paga 20%; a cota de gestora paga 15% e não tem isenção, como o ETF;
 - o DARF vence no último dia útil do mês seguinte; imposto abaixo de R$ 10,00 soma
   ao do período seguinte.
 """

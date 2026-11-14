@@ -105,6 +105,7 @@ from backend.core.metrics import (
     ENGINE_BOTS,
     ENGINE_CONTRIBUTION,
     ENGINE_FIXED_INCOME,
+    ENGINE_FUNDS,
     ENGINE_GOAL,
     ENGINE_GOVERNMENT,
     ENGINE_NEWS,
@@ -171,6 +172,7 @@ from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
 from backend.features.fixed_income.liquidity import total_redeemable
+from backend.features.funds.fund_book import FundBook
 from backend.features.government import presidency
 from backend.features.government.base_panel import build_base
 from backend.features.government.base_panel import (
@@ -365,6 +367,13 @@ class Simulation:
                 self._macro,
             )
             if settings.government_enabled and backtest is None
+            else None
+        )
+
+        # Expansão Gestoras: as gestoras e as cotas delas voltam dos registros gravados
+        self._funds = (
+            FundBook(settings.id, self._engine, self._client_of_user)
+            if settings.funds_enabled and backtest is None
             else None
         )
 
@@ -1234,13 +1243,18 @@ class Simulation:
                     )
                 ),
                 stocks,
-                [user.client_id for user in users],
+                [user.client_id for user in users]
+                + (self._funds.client_ids if self._funds is not None else []),
             )
             self._engine.update_market_data(stocks)
 
         # Juros da renda fixa e, em seguida, as estratégias ligadas operam o dia
         with metrics.measure("engine", ENGINE_FIXED_INCOME):
             self._engine.next(self._current_date)
+        # O PL e as ordens do formador e da oferta valem antes de qualquer jogador ou bot operar
+        if self._funds is not None:
+            with metrics.measure("engine", ENGINE_FUNDS):
+                self._funds.on_open(self._current_date)
         with metrics.measure("engine", ENGINE_BOTS):
             self._strategies.run(users, self._current_date)
         month_changed = self._has_month_changed()
@@ -1261,6 +1275,9 @@ class Simulation:
                 )
             if reason:
                 self._pause_for_result(reason)
+        if self._funds is not None and month_changed:
+            with metrics.measure("engine", ENGINE_FUNDS):
+                self._funds.on_month(self._current_date)
         with metrics.measure("engine", ENGINE_TAXES):
             self._collect_income_tax(users)
             if self._life is not None:
@@ -1268,6 +1285,11 @@ class Simulation:
             EventManager.flush()
         with metrics.measure("engine", ENGINE_NEWS):
             self._publish_newsroom(stocks)
+
+        # A vela das cotas fecha antes do snapshot: o preço de ranking do dia já vale nele
+        if self._funds is not None:
+            with metrics.measure("engine", ENGINE_FUNDS):
+                self._funds.on_close(self._current_date)
 
         if self.backtest is not None:
             with metrics.measure("engine", ENGINE_BACKTEST_DAY):
@@ -1330,6 +1352,13 @@ class Simulation:
                     self._human_snapshots(users), month_changed
                 ),
             )
+
+    def _client_of_user(self, user_id: int) -> UUID:
+        """O client_id do participante da partida."""
+        for user in repository.simulation_player.participants(self.settings.id):
+            if user.id == user_id:
+                return user.client_id
+        raise NotFoundError("Jogador fora da partida")
 
     def _government_inflation(self, day: date) -> float:
         """Os pontos de IPCA que o governo soma à série no dia, pelas medidas e pelas ligações da economia; zero sem o governo."""

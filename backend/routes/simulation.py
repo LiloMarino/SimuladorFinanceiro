@@ -115,6 +115,7 @@ class SimulationRulesRequest(BaseModel):
     show_maturity_projection: bool = True
     show_chart_hints: bool = True
     government_enabled: bool = False
+    funds_enabled: bool = False
     first_election: date | None = None
     computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL
     poll_margin: bool = True

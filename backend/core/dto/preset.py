@@ -37,6 +37,7 @@ RULE_GROUP_FIELDS: dict[PresetRuleGroup, tuple[str, ...]] = {
     ),
     PresetRuleGroup.EXPANSIONS: (
         "government_enabled",
+        "funds_enabled",
         "first_election",
         "computer_difficulty",
         "poll_margin",

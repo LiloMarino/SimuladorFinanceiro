@@ -1,9 +1,33 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from uuid import UUID
 
 from backend.core.enum import OrderAction
 from backend.core.exceptions import InsufficentPositionError
+
+# A fatia das cotas em circulação que um bot pode ter numa gestora (posição e compras abertas)
+BOT_QUOTA_LIMIT = Decimal("0.20")
+
+
+@dataclass
+class DayTrades:
+    """Os negócios da cota num pregão: a vela do dia sai daqui."""
+
+    open: Decimal | None = None
+    high: Decimal = Decimal(0)
+    low: Decimal = Decimal(0)
+    close: Decimal = Decimal(0)
+    quantity: Decimal = Decimal(0)
+    value: Decimal = Decimal(0)
+
+    def add(self, size: Decimal, price: Decimal) -> None:
+        if self.open is None:
+            self.open = self.high = self.low = price
+        self.high = max(self.high, price)
+        self.low = min(self.low, price)
+        self.close = price
+        self.quantity += size
+        self.value += size * price
 
 
 @dataclass
@@ -21,6 +45,8 @@ class FundAccount:
     maker_cash: Decimal = Decimal(0)
     # Nulo sem oferta aberta
     offer_remaining: Decimal | None = None
+    # Os negócios do pregão corrente; `take_day` fecha o pregão e zera
+    day: DayTrades = field(default_factory=DayTrades)
 
     @property
     def outside_quotas(self) -> Decimal:
@@ -50,3 +76,12 @@ class FundAccount:
             raise ValueError("Não há oferta aberta para emitir essa quantidade")
         self.quotas += size
         self.offer_remaining -= size
+
+    def record_trade(self, size: Decimal, price: Decimal) -> None:
+        """Um negócio da cota entra nos números do pregão."""
+        self.day.add(size, price)
+
+    def take_day(self) -> DayTrades:
+        """Entrega os negócios do pregão e abre o seguinte vazio."""
+        day, self.day = self.day, DayTrades()
+        return day

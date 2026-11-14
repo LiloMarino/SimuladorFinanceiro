@@ -67,6 +67,7 @@ const settings: SimulationSettingsData = {
   show_maturity_projection: true,
   show_chart_hints: false,
   government_enabled: false,
+  funds_enabled: false,
   first_election: null,
   computer_difficulty: "NORMAL",
   poll_margin: false,

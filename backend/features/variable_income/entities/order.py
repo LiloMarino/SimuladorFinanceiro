@@ -15,6 +15,13 @@ FUND_MAKER_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__FUND_MAKER__
 # Dono da ordem de venda da oferta pública das cotas de uma gestora
 FUND_ISSUER_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__FUND_ISSUER__")
 
+# Os donos sintéticos e o apelido que cada um mostra no livro de ofertas
+SYNTHETIC_NICKNAMES: dict[uuid.UUID, str] = {
+    MARKET_CLIENT_ID: "Mercado",
+    FUND_MAKER_CLIENT_ID: "Formador de mercado",
+    FUND_ISSUER_CLIENT_ID: "Oferta pública",
+}
+
 
 @dataclass(kw_only=True)
 class Order(ABC):
@@ -39,11 +46,12 @@ class Order(ABC):
         self.remaining = self.size
 
     def to_dto(self) -> OrderDTO:
-        synthetic = self.client_id == MARKET_CLIENT_ID
+        synthetic_nickname = SYNTHETIC_NICKNAMES.get(self.client_id)
+        synthetic = synthetic_nickname is not None
         color = None
         is_bot = False
-        if synthetic:
-            nickname = "Mercado"
+        if synthetic_nickname is not None:
+            nickname = synthetic_nickname
         else:
             user = UserManager.get_user(self.client_id)
             nickname = "Unknown" if user is None else user.nickname

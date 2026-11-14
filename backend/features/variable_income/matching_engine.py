@@ -91,7 +91,9 @@ class MatchingEngine:
         if not candle:
             return
 
-        self.market_liquidity.refresh(candle, self._process_market_order)
+        # A liquidez da cota de gestora é a do formador de mercado dela, não a da vela
+        if ticker not in self.broker.fund_accounts:
+            self.market_liquidity.refresh(candle, self._process_market_order)
 
         notify(
             event=f"order_book_snapshot:{candle.ticker}",
