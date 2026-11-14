@@ -81,7 +81,6 @@
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | M28 · 4.6 | — | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.4 | — | — | — | 🔍 |
-| [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M18 · 4.2 | — | — | — | 🔍 |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | M28 · 4.6 | — | Alto | Bom | ⏳ |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | Alto | Médio | ⏳ |
@@ -94,7 +93,7 @@
 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | M18 · 4.2 | — | Médio | Médio | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -119,6 +118,7 @@
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F227](#f227), [F255](#f255) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 | — | — | — | ✅ |
+| [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M18 · 4.2 | — | — | — | ✅ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | — | — | ✅ |
 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 | — | — | — | ✅ |
 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 | — | — | — | ✅ |
@@ -141,13 +141,13 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 8/19 concluídos
+> **Progresso:** 9/19 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | ✅ Concluído |
 | 2 | [**F101**](#f101) | Feature | Carteira separada do jogador | — | ✅ Concluído |
-| 3 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | 🔍 Em avaliação |
+| 3 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | ✅ Concluído |
 | 4 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | [F101](#f101) | ⏳ Pendente |
 | 5 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | [F44](#f44) | 🔍 Em avaliação |
 | 6 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | [F44](#f44) | ⏳ Pendente |
@@ -258,7 +258,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M18 · 4.2 · 3º | 0 | — | — | 🔍 |
 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.2 · 4º | 14 | Alto | Médio | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
@@ -684,7 +683,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 | **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.2 | [F44](#f44) | Recombinar no canvas as peças escolhidas (tracinhos, corrida inteira, governo que compacta, troca de conta pelo caixa) e decidir o aviso de carteira congelada e os atalhos |
 | **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | D21 | M28 · 4.6 | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.4 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
-| **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M18 · 4.2 | — | o desenho do livro (variantes e estados no canvas) e se a ordenação por preço vem do backend |
 | **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M24 · 4.3 | — | Medir as estratégias atuais em várias bases com governo, dólar e crédito; calibrar os níveis de dificuldade; escolher as estratégias novas |
 | **F285** | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | — | — | — | Escolher o mecanismo (filtrar o seletor, recolorir na tela de quem liga ou reforçar além da cor) e medir o tamanho do conjunto distinguível sob as três simulações |
 
@@ -731,14 +729,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 
 **Aceite:** o backtest de 10 anos com 5 bots leva no máximo metade do tempo de 2.500 dias de partida comum com os mesmos bots, e o patrimônio final de cada bot sai igual ao de antes da mudança com a mesma semente.
 
-<a id="f211"></a>
-**F211 — Livro de ofertas e ordens abertas do detalhe do ativo.** Serve N15. O livro (`features/variable-income/components/order-book-card.tsx`) simula a profundidade de mercado a partir do candle do dia, e a ordem do jogador se perde no meio dele. O que o código faz hoje:
-- **O livro vem do candle do dia corrente**, o pregão que o jogo acabou de avançar (`market_liquidity.py`: compra abaixo do preço típico `(máxima + mínima + fechamento) / 3`, venda acima, com a distribuição de volume do candle). Não é o candle do dia seguinte.
-- **A ordem do jogador entra no livro com a data do dia em que foi enviada** (`operation.py:185`) e só executa quando o candle do dia seguinte injeta liquidez do outro lado; ela executa no preço dela (`matching_engine.py:197`).
-- **O livro não vem ordenado por preço**: `order_book.py:93-107` devolve o heap na ordem interna e a tela não define ordenação inicial (`order-book-card.tsx:69`), por isso a ordem do jogador aparece no meio.
-
-**Falta** desenhar, numa rodada no canvas em Opus com variantes e estados (como numa feature nova), a tela do livro. O desenho de 03/11 parte de: a ordem aberta do jogador numa faixa no topo com Cancelar à mão; o livro em duas colunas, Compra (maior preço no topo) e Venda (menor preço no topo), com a melhor compra e a melhor venda em destaque, ligadas à boleta; uma barra de quantidade; a coluna Situação sai (repetia "Aberta"); o balão "Tópico" some. O usuário gostou do rumo e pediu o refinamento pelo método completo. A rodada decide também o que o livro diz sobre si mesmo (que é a pressão ao redor do preço do candle de hoje) e se a ordenação por preço passa a vir do backend. Entra na 4.2, antes das Gestoras: a cota da gestora é negociada nesse livro, e cada linha leva a sigla e a cor de quem pôs a ordem (jogador ou bot), então o livro já é desenhado com essas linhas.
-
 <a id="f279"></a>
 **F279 — Estratégias automáticas novas e revisão das atuais.** Serve N4 e N8. As estratégias automáticas e os bots foram desenhados antes do governo, do dólar, do crédito e das expansões. Precisa conferir se continuam competitivas e se faltam estratégias que usem o que entrou. O rebalanceamento por meta com várias classes já é a F197, na Mesa do trader. **Dificuldade:** os bots da partida ganham os níveis Fácil, Médio e Difícil, como os bots da eleição. O Difícil diversifica entre classes e rebalanceia; o Fácil gira muito a carteira e paga corretagem e imposto. A medida são backtests em várias bases e vários sorteios, para o ativo sorteado não decidir o resultado: na base atual o buy and hold vence porque compra bitcoin. **Estratégias novas** incluem as de renda fixa e de alocação, no molde da 100% CDI, além das de gráfico.
 
@@ -775,6 +765,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F101** | Feature | Carteira separada do jogador | N23 | D9 | M18 · 4.2 |
+| **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M18 · 4.2 |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 |
 | **F287** | Melhoria | Slots dos jogadores do lobby no desenho anterior | N15, N20 | — | M18 · 4.2 |
 | **F288** | Melhoria | Badge de profissão legível no lobby e na Minha preparação | N15, N20 | — | M18 · 4.2 |
@@ -785,6 +776,14 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 <a id="f101"></a>
 **F101 — Carteira separada do jogador.** Serve N23; segue a D9. A base da expansão Gestoras (F44): hoje eventos e snapshots pertencem ao jogador (`user_id`), e a gestora precisa de carteira própria. Entra uma tabela `portfolios`, e eventos e snapshots passam a apontar para a carteira; a carteira pessoal de cada jogador é migrada uma a uma, inclusive nas partidas salvas. Nada muda na tela: cada jogador segue com uma carteira só até a F44 existir. Gatilho: a F44 sair da avaliação.
+
+<a id="f211"></a>
+**F211 — Livro de ofertas e ordens abertas do detalhe do ativo.** Serve N15. O livro (`features/variable-income/components/order-book-card.tsx`) simula a profundidade de mercado a partir do candle do dia, e a ordem do jogador se perde no meio dele. O que o código faz hoje:
+- **O livro vem do candle do dia corrente**, o pregão que o jogo acabou de avançar (`market_liquidity.py`: compra abaixo do preço típico `(máxima + mínima + fechamento) / 3`, venda acima, com a distribuição de volume do candle). Não é o candle do dia seguinte.
+- **A ordem do jogador entra no livro com a data do dia em que foi enviada** (`operation.py:185`) e só executa quando o candle do dia seguinte injeta liquidez do outro lado; ela executa no preço dela (`matching_engine.py:197`).
+- **O livro não vem ordenado por preço**: `order_book.py:93-107` devolve o heap na ordem interna e a tela não define ordenação inicial (`order-book-card.tsx:69`), por isso a ordem do jogador aparece no meio.
+
+**Falta** desenhar, numa rodada no canvas em Opus com variantes e estados (como numa feature nova), a tela do livro. O desenho de 03/11 parte de: a ordem aberta do jogador numa faixa no topo com Cancelar à mão; o livro em duas colunas, Compra (maior preço no topo) e Venda (menor preço no topo), com a melhor compra e a melhor venda em destaque, ligadas à boleta; uma barra de quantidade; a coluna Situação sai (repetia "Aberta"); o balão "Tópico" some. O usuário gostou do rumo e pediu o refinamento pelo método completo. A rodada decide também o que o livro diz sobre si mesmo (que é a pressão ao redor do preço do candle de hoje) e se a ordenação por preço passa a vir do backend. Entra na 4.2, antes das Gestoras: a cota da gestora é negociada nesse livro, e cada linha leva a sigla e a cor de quem pôs a ordem (jogador ou bot), então o livro já é desenhado com essas linhas.
 
 <a id="f249"></a>
 **F249 — Núcleo do backend sem import de features.** `core/` importava de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
