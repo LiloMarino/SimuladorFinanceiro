@@ -114,6 +114,27 @@ NEWS: tuple[NewsSpec, ...] = (
         NewsLevel.JOURNAL,
     ),
     NewsSpec(
+        NewsType.FUND_ISSUANCE_OPENED,
+        NewsSection.COMPANIES,
+        "Emissão de cotas de uma gestora",
+        "“MEUS11 emite 5 mil cotas a R$ 104,30”",
+        NewsLevel.JOURNAL,
+    ),
+    NewsSpec(
+        NewsType.FUND_ISSUANCE_CLOSED,
+        NewsSection.COMPANIES,
+        "Fim da emissão de uma gestora",
+        "“MEUS11 encerra a emissão: 3.200 das 5.000 cotas foram vendidas”",
+        NewsLevel.JOURNAL,
+    ),
+    NewsSpec(
+        NewsType.FUND_BUYBACK_OPENED,
+        NewsSection.COMPANIES,
+        "Recompra de cotas de uma gestora",
+        "“MEUS11 abre recompra de 2 mil cotas a até R$ 98,00”",
+        NewsLevel.JOURNAL,
+    ),
+    NewsSpec(
         NewsType.FUND_FEE_CHANGED,
         NewsSection.COMPANIES,
         "Troca de taxa de uma gestora",

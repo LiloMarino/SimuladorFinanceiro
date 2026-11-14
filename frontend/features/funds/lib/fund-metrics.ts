@@ -112,3 +112,27 @@ export const CONTROL: MetricInfo = {
   reading: "Acima de 50% a gestora é sua. Perto da marca, uma compra de outro cotista no mercado já a ameaça.",
   format: (value) => `${value}%`,
 };
+
+export const PREFERENCE_RIGHT: MetricInfo = {
+  label: "Direito de preferência",
+  description: "Quantas cotas novas só você pode comprar nos primeiros pregões",
+  definition:
+    "Na emissão, quem já tem cota compra primeiro. O direito de cada um é a sua parte das cotas no dia do anúncio, aplicada às cotas novas. Comprar cota no mercado depois do anúncio não aumenta o direito.",
+  example:
+    "Ex.: você tem 10% das cotas e a emissão é de 500 cotas novas: seu direito é 10% × 500 = 50 cotas, ao preço fixo do anúncio.",
+  reading:
+    "Usar o direito mantém a sua parte da gestora, e o preço é o patrimônio por cota do dia do anúncio, sem ágio. Direito que ninguém usa vai para a sobra, aberta a todos.",
+  format: (value) => `${value}`,
+};
+
+export const BUYBACK_PREMIUM_COST: MetricInfo = {
+  label: "Custo do ágio",
+  description: "O quanto a recompra paga acima do valor justo das cotas",
+  definition:
+    "É a quantidade recomprada vezes o que o preço máximo passa do patrimônio por cota. Esse dinheiro sai do caixa da gestora e diminui o patrimônio por cota de quem fica.",
+  example:
+    "Ex.: recomprar 300 cotas a R$ 130,00 com o patrimônio por cota em R$ 125,00 custa 300 × R$ 5,00 = R$ 1.500,00 de ágio.",
+  reading:
+    "Recomprar abaixo do patrimônio por cota (deságio) faz o patrimônio por cota de quem ficou subir; acima, ele cai. O custo do ágio é o tamanho dessa perda.",
+  format: (value) => `${value}`,
+};

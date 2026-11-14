@@ -45,8 +45,13 @@ class FundMaker:
         fair_value: float,
         quotas_outstanding: Decimal,
         today: date,
+        bid_ceiling: float | None = None,
     ) -> None:
-        """Tira as ordens do formador e põe a escada nova, centrada em `fair_value`."""
+        """Tira as ordens do formador e põe a escada nova, centrada em `fair_value`.
+
+        Com `bid_ceiling`, só entram as compras abaixo dele: o formador nunca compra da
+        oferta do emissor, que vende a esse preço.
+        """
         for order in self._orders.pop(ticker, []):
             self._engine.cancel(order_id=order.id, client_id=order.client_id)
         if fair_value <= 0:
@@ -54,6 +59,8 @@ class FundMaker:
         account = self._accounts[ticker]
         side_quantity = float(quotas_outstanding) * DEPTH
         bids = self._ladder(ticker, fair_value, side_quantity, OrderAction.BUY, today)
+        if bid_ceiling is not None:
+            bids = [bid for bid in bids if bid.price < bid_ceiling]
         self._submit(ticker, bids)
         # A venda parte do estoque de depois das compras do dia
         stock = math.floor(account.maker_quotas)

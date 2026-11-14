@@ -253,6 +253,8 @@ def _page(fund_id: int) -> FundDetailsDTO:
         manager_nickname="Ana",
         offer_session=None,
         offer_ends_on=None,
+        issuance=None,
+        buyback=None,
         frozen_until=None,
         holders=[],
         control_quotas=Decimal(1),

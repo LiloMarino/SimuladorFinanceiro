@@ -13,7 +13,14 @@ from backend.core import repository
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
-from backend.core.dto.fund import FundDayDTO, FundDTO, FundOfferSaleDTO
+from backend.core.dto.fund import (
+    FundBuybackDTO,
+    FundDayDTO,
+    FundDTO,
+    FundIssuanceDTO,
+    FundIssuanceRightDTO,
+    FundOfferSaleDTO,
+)
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import AssetClass, OrderAction
@@ -89,6 +96,14 @@ class MemoryFunds:
     trades: list[EquityEventDTO] = field(default_factory=list)
     portfolio_events: list[EquityEventDTO] = field(default_factory=list)
     offer_sales_saved: dict[int, list[FundOfferSaleDTO]] = field(default_factory=dict)
+    issuances_saved: dict[int, list[FundIssuanceDTO]] = field(default_factory=dict)
+    rights_saved: dict[int, list[FundIssuanceRightDTO]] = field(default_factory=dict)
+    buybacks_saved: dict[int, list[FundBuybackDTO]] = field(default_factory=dict)
+    next_id: int = 1
+
+    @property
+    def all_sales(self) -> list[FundOfferSaleDTO]:
+        return [s for sales in self.offer_sales_saved.values() for s in sales]
 
     def claim_stock(self, ticker: str, name: str) -> StockDTO | None:
         return StockDTO(id=1, ticker=ticker, name=name, asset_class=AssetClass.FUND)
@@ -137,7 +152,60 @@ class MemoryFunds:
         self.offer_sales_saved.setdefault(fund_id, []).append(sale)
 
     def offer_sales(self, fund_id: int) -> list[FundOfferSaleDTO]:
-        return self.offer_sales_saved.get(fund_id, [])
+        return [
+            s for s in self.offer_sales_saved.get(fund_id, []) if s.issuance_id is None
+        ]
+
+    def issuance_sales(self, issuance_id: int) -> list[FundOfferSaleDTO]:
+        return [s for s in self.all_sales if s.issuance_id == issuance_id]
+
+    def create_issuance(
+        self,
+        fund_id: int,
+        issuance: FundIssuanceDTO,
+        rights: list[FundIssuanceRightDTO],
+    ) -> FundIssuanceDTO:
+        created = issuance.model_copy(update={"id": self.next_id})
+        self.next_id += 1
+        self.issuances_saved.setdefault(fund_id, []).append(created)
+        self.rights_saved[created.id] = list(rights)
+        return created
+
+    def save_issuance(
+        self, issuance: FundIssuanceDTO, rights: list[FundIssuanceRightDTO]
+    ) -> None:
+        for rows in self.issuances_saved.values():
+            for index, row in enumerate(rows):
+                if row.id == issuance.id:
+                    rows[index] = issuance
+        self.rights_saved[issuance.id] = list(rights)
+
+    def issuances(self, fund_id: int) -> list[FundIssuanceDTO]:
+        return list(self.issuances_saved.get(fund_id, []))
+
+    def issuance_rights(self, issuance_id: int) -> list[FundIssuanceRightDTO]:
+        return list(self.rights_saved.get(issuance_id, []))
+
+    def create_buyback(self, fund_id: int, buyback: FundBuybackDTO) -> FundBuybackDTO:
+        created = buyback.model_copy(update={"id": self.next_id})
+        self.next_id += 1
+        self.buybacks_saved.setdefault(fund_id, []).append(created)
+        return created
+
+    def save_buyback(self, buyback: FundBuybackDTO) -> None:
+        for rows in self.buybacks_saved.values():
+            for index, row in enumerate(rows):
+                if row.id == buyback.id:
+                    rows[index] = buyback
+
+    def buybacks(self, fund_id: int) -> list[FundBuybackDTO]:
+        return list(self.buybacks_saved.get(fund_id, []))
+
+    def cancel_open_buybacks(self, fund_id: int) -> None:
+        rows = self.buybacks_saved.get(fund_id, [])
+        for index, row in enumerate(rows):
+            if row.state == "open":
+                rows[index] = row.model_copy(update={"state": "canceled"})
 
     def drop_offer_sales_from(self, fund_id: int, day: date) -> None:
         self.offer_sales_saved[fund_id] = [

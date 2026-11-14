@@ -82,6 +82,16 @@ class FundAccount:
         if self.offer_remaining <= 0:
             self.offer_remaining = None
 
+    def subscribe(self, size: Decimal) -> None:
+        """A preferência da emissão: `size` cotas passam a existir para quem as comprou direto."""
+        self.quotas += size
+
+    def burn(self, size: Decimal) -> None:
+        """A recompra comprou `size` cotas: elas deixam de existir."""
+        if size > self.quotas:
+            raise ValueError("Não há essa quantidade de cotas para recomprar")
+        self.quotas -= size
+
     def record_trade(self, size: Decimal, price: Decimal) -> None:
         """Um negócio da cota entra nos números do pregão."""
         self.day.add(size, price)

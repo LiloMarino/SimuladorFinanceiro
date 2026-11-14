@@ -3,13 +3,18 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from decimal import ROUND_FLOOR, Decimal
+from typing import Literal
 from uuid import UUID, uuid4
 
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.fund import (
+    FundBuybackDTO,
     FundDayDTO,
     FundDTO,
+    FundIssuanceDTO,
+    FundIssuancePhase,
+    FundIssuanceRightDTO,
     FundOfferSaleDTO,
     FundReportDTO,
     FundSummaryDTO,
@@ -17,7 +22,7 @@ from backend.core.dto.fund import (
 )
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import AssetClass, IndicatorSeries
+from backend.core.enum import AssetClass, IndicatorSeries, OrderAction, OrderStatus
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     NotFoundError,
@@ -25,7 +30,7 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.core.indicators import index_daily_rate
 from backend.core.runtime.simulation_manager import SimulationManager
-from backend.core.utils import next_business_day, next_month_turn
+from backend.core.utils import format_quantity, next_business_day, next_month_turn
 from backend.features.funds import headlines
 from backend.features.funds.fees import management_fee, performance_charge
 from backend.features.funds.fund_account import DayTrades, FundAccount
@@ -39,12 +44,22 @@ from backend.features.funds.ranking_price import (
 )
 from backend.features.notifications.news import Headline
 from backend.features.simulation.simulation_engine import SimulationEngine
+from backend.features.variable_income.broker import to_money
+from backend.features.variable_income.entities.order import LimitOrder
 
 # O PL por cota da primeira integralização
 FIRST_NAV = Decimal(100)
 
 # Pregões da oferta pública, contando o da abertura: ao fim do último ela fecha sozinha
 OFFER_SESSIONS = 5
+
+# Pregões da emissão, contando o do anúncio: primeiro a preferência dos cotistas, depois a
+# sobra aberta a todos. Ao fim do último, o que não vendeu não nasce
+PREFERENCE_SESSIONS = 10
+LEFTOVER_SESSIONS = 5
+
+# O tamanho máximo de uma emissão, como fração das cotas em circulação no anúncio
+ISSUANCE_LIMIT = Decimal(1)
 
 
 def nav_per_quota(
@@ -75,22 +90,39 @@ def cdi_growth(start: date, end: date) -> Decimal:
     return factor
 
 
-def offer_ends_on(listed_on: date) -> date:
-    """O último pregão da oferta: o quinto dia útil a partir da abertura, contando o dia dela."""
-    day = listed_on
-    for _ in range(OFFER_SESSIONS - 1):
+def window_end(start: date, sessions: int) -> date:
+    """O último pregão de uma janela de `sessions` pregões que abre em `start`, contando o dia dele."""
+    day = start
+    for _ in range(sessions - 1):
         day = next_business_day(day)
     return day
 
 
-def offer_session(listed_on: date, today: date) -> int:
-    """O pregão da oferta em `today`: 1 no dia da abertura, até `OFFER_SESSIONS`."""
+def window_session(start: date, today: date, sessions: int) -> int:
+    """O pregão da janela em `today`: 1 no dia de `start`, até `sessions`."""
     session = 1
-    day = listed_on
-    while day < today and session < OFFER_SESSIONS:
+    day = start
+    while day < today and session < sessions:
         day = next_business_day(day)
         session += 1
     return session
+
+
+def offer_ends_on(listed_on: date) -> date:
+    """O último pregão da oferta: o quinto dia útil a partir da abertura, contando o dia dela."""
+    return window_end(listed_on, OFFER_SESSIONS)
+
+
+def offer_session(listed_on: date, today: date) -> int:
+    """O pregão da oferta em `today`: 1 no dia da abertura, até `OFFER_SESSIONS`."""
+    return window_session(listed_on, today, OFFER_SESSIONS)
+
+
+def issuance_windows(announced_on: date) -> tuple[date, date]:
+    """O último pregão da preferência e o da sobra de uma emissão anunciada em `announced_on`."""
+    preference_ends_on = window_end(announced_on, PREFERENCE_SESSIONS)
+    leftover_starts_on = next_business_day(preference_ends_on)
+    return preference_ends_on, window_end(leftover_starts_on, LEFTOVER_SESSIONS)
 
 
 def months_between(start: date, end: date) -> int:
@@ -154,6 +186,12 @@ class Fund:
     last_trade_price: Decimal | None = None
     # O relatório mensal do último fechamento de mês, guardado pelo dia da virada que o gerou
     report: tuple[date, FundReportDTO] | None = None
+    # A emissão aberta e o direito de preferência de cada jogador (por id de usuário)
+    issuance: FundIssuanceDTO | None = None
+    issuance_rights: dict[int, FundIssuanceRightDTO] = field(default_factory=dict)
+    # A recompra aberta e a ordem de compra dela no livro
+    buyback: FundBuybackDTO | None = None
+    buyback_order: LimitOrder | None = None
 
     @property
     def ticker(self) -> str:
@@ -162,6 +200,12 @@ class Fund:
     @property
     def listed(self) -> bool:
         return self.terms.listed_on is not None
+
+    def issuance_phase(self, today: date) -> FundIssuancePhase | None:
+        """A fase da emissão aberta em `today`; nula sem emissão aberta."""
+        if self.issuance is None:
+            return None
+        return "preference" if today <= self.issuance.preference_ends_on else "leftover"
 
 
 class FundBook:
@@ -200,6 +244,7 @@ class FundBook:
         self._maker = FundMaker(engine.matching_engine, accounts)
         self._offer = FundOffer(engine.matching_engine, accounts)
         engine.broker.on_fund_offer_sale = self._record_offer_sale
+        engine.broker.on_fund_buyback = self._record_buyback
         for terms in repository.fund.of_simulation(simulation_id):
             self._load(terms)
 
@@ -262,9 +307,19 @@ class FundBook:
         if nicknames is None:
             nicknames = {user.id: user.nickname for user in self.participants()}
         listed_on = fund.terms.listed_on
-        open_on = listed_on if fund.account.offer_remaining is not None else None
+        # A oferta de abertura é a única que o resumo mostra; a emissão tem estado próprio,
+        # e a sobra dela não faz a gestora voltar ao estágio de oferta
+        opening_offer = fund.issuance is None
+        open_on = (
+            listed_on
+            if fund.account.offer_remaining is not None and opening_offer
+            else None
+        )
+        terms = fund.terms.model_dump(include=set(FundTermsDTO.model_fields))
+        if not opening_offer:
+            terms["offer_remaining"] = None
         return FundSummaryDTO(
-            **fund.terms.model_dump(include=set(FundTermsDTO.model_fields)),
+            **terms,
             nav=self._nav(fund),
             ranking_price=self._engine.ranking_prices.get(fund.ticker),
             price=self.price(fund),
@@ -412,7 +467,296 @@ class FundBook:
 
     def close_offer(self, ticker: str) -> None:
         """Encerra a oferta: o que não vendeu não é emitido."""
-        self._close_offer(self._funds[ticker], self._engine.current_date)
+        fund = self._funds[ticker]
+        if fund.issuance is not None:
+            raise ConflictError("A emissão encerra sozinha ao fim dos pregões dela")
+        self._close_offer(fund, self._engine.current_date)
+
+    # =========================
+    # Emissão
+    # =========================
+
+    def announce_issuance(self, ticker: str, size: Decimal) -> FundIssuanceDTO:
+        """Anuncia a emissão de `size` cotas novas ao PL por cota de hoje, que fica fixo até o fim.
+
+        Cada jogador cotista ganha o direito de comprar `size x (cotas dele / cotas em
+        circulação)` cotas, arredondado para baixo, nos primeiros pregões; o que sobra abre a todos.
+        O caixa recebido sobe junto com as cotas, e por isso o PL por cota de quem não comprou
+        segue o mesmo.
+        """
+        fund = self._funds[ticker]
+        self._sync_buyback(fund)
+        nav = self._nav(fund)
+        account = fund.account
+        if nav is None or not fund.listed:
+            raise ConflictError(
+                "A emissão vale para uma gestora com a oferta pública aberta"
+            )
+        if account.offer_remaining is not None or fund.issuance is not None:
+            raise ConflictError("A gestora já tem uma oferta ou emissão em andamento")
+        if fund.buyback is not None:
+            raise ConflictError("Encerre a recompra antes de emitir cotas")
+        if size <= 0 or size != size.to_integral_value():
+            raise UnprocessableEntityError("Informe uma quantidade inteira de cotas")
+        if size > account.quotas * ISSUANCE_LIMIT:
+            raise UnprocessableEntityError(
+                f"Uma emissão vai até {format_quantity(account.quotas * ISSUANCE_LIMIT)} cotas"
+            )
+
+        today = self._engine.current_date
+        preference_ends_on, ends_on = issuance_windows(today)
+        rights = self._rights_of(fund, size)
+        issuance = repository.fund.create_issuance(
+            fund.terms.id,
+            FundIssuanceDTO(
+                id=0,
+                announced_on=today,
+                quotas=size,
+                price=Decimal(str(round(float(nav), 2))),
+                preference_ends_on=preference_ends_on,
+                ends_on=ends_on,
+                sold=Decimal(0),
+                closed_on=None,
+            ),
+            rights,
+        )
+        fund.issuance = issuance
+        fund.issuance_rights = {right.user_id: right for right in rights}
+        self._announce(today, headlines.issuance_opened(ticker, size, issuance.price))
+        return issuance
+
+    def subscribe_issuance(self, ticker: str, user: UserDTO, quotas: Decimal) -> None:
+        """O cotista compra `quotas` da preferência ao preço da emissão, dentro do direito que resta.
+
+        A compra é direta: o caixa dele paga, a cota vira posição e o dinheiro entra no caixa da
+        gestora junto com a cota nova.
+        """
+        fund = self._funds[ticker]
+        issuance = fund.issuance
+        today = self._engine.current_date
+        if issuance is None or fund.issuance_phase(today) != "preference":
+            raise ConflictError("A preferência desta emissão não está aberta")
+        if quotas <= 0 or quotas != quotas.to_integral_value():
+            raise UnprocessableEntityError("Informe uma quantidade inteira de cotas")
+        right = fund.issuance_rights.get(user.id)
+        left = right.rights - right.bought if right else Decimal(0)
+        if right is None or quotas > left:
+            raise UnprocessableEntityError(
+                f"Você tem direito a mais {format_quantity(left)} cotas nesta emissão"
+            )
+        cost = issuance.price * quotas
+        if self._engine.get_cash(user.client_id) < cost:
+            raise UnprocessableEntityError("Caixa insuficiente para comprar as cotas")
+
+        account = fund.account
+        self._engine.broker.buy_from_fund(
+            user.client_id, ticker, quotas, issuance.price
+        )
+        account.subscribe(quotas)
+        self._engine.credit_fund_offer(account.client_id, cost)
+        repository.fund.record_offer_sale(
+            fund.terms.id,
+            FundOfferSaleDTO(
+                day=today,
+                buyer_user_id=user.id,
+                quotas=quotas,
+                price=issuance.price,
+                issuance_id=issuance.id,
+            ),
+        )
+        fund.issuance_rights[user.id] = right.model_copy(
+            update={"bought": right.bought + quotas}
+        )
+        self._add_issuance_sold(fund, quotas)
+        # A preferência que esgota a emissão a encerra na hora
+        if fund.issuance is not None and fund.issuance.sold >= fund.issuance.quotas:
+            self._close_issuance(fund, today)
+        self._save(fund)
+
+    def _rights_of(self, fund: Fund, size: Decimal) -> list[FundIssuanceRightDTO]:
+        """O retrato dos cotistas no anúncio: o direito de cada jogador pela proporção que ele tem.
+
+        Bots e formador de mercado ficam sem preferência e compram a sobra pelo livro.
+        """
+        total = fund.account.quotas
+        rights: list[FundIssuanceRightDTO] = []
+        for user in self.participants():
+            if user.is_bot:
+                continue
+            position = self._engine.broker.get_positions(user.client_id).get(
+                fund.ticker
+            )
+            if position is None or position.size <= 0:
+                continue
+            quotas = (size * position.size / total).to_integral_value(
+                rounding=ROUND_FLOOR
+            )
+            if quotas > 0:
+                rights.append(
+                    FundIssuanceRightDTO(
+                        user_id=user.id, rights=quotas, bought=Decimal(0)
+                    )
+                )
+        return rights
+
+    def _add_issuance_sold(self, fund: Fund, quotas: Decimal) -> None:
+        """Soma as cotas que acabaram de nascer na emissão e grava o andamento."""
+        issuance = fund.issuance
+        if issuance is None:
+            return
+        fund.issuance = issuance.model_copy(update={"sold": issuance.sold + quotas})
+        repository.fund.save_issuance(
+            fund.issuance, list(fund.issuance_rights.values())
+        )
+
+    def _advance_issuance(self, fund: Fund, today: date) -> None:
+        """A virada do dia da emissão: a sobra vira a oferta do emissor; passado o fim, ela encerra.
+
+        O saldo da sobra sai de `quotas - sold`, gravados, e por isso a emissão em andamento
+        sobrevive a parar e retomar a partida.
+        """
+        issuance = fund.issuance
+        if issuance is None:
+            return
+        if today > issuance.ends_on:
+            self._close_issuance(fund, today)
+        elif fund.issuance_phase(today) == "leftover":
+            leftover = issuance.quotas - issuance.sold
+            fund.account.offer_remaining = leftover if leftover > 0 else None
+
+    def _close_issuance(self, fund: Fund, day: date) -> None:
+        """Encerra a emissão: tira a sobra do livro e grava o fechamento; o que não vendeu não nasce."""
+        issuance = fund.issuance
+        if issuance is None:
+            return
+        self._offer.close(fund.ticker)
+        closed = issuance.model_copy(update={"closed_on": day})
+        repository.fund.save_issuance(closed, list(fund.issuance_rights.values()))
+        fund.issuance = None
+        fund.issuance_rights = {}
+        self._save(fund)
+        self._announce(
+            day, headlines.issuance_closed(fund.ticker, closed.sold, closed.quotas)
+        )
+
+    # =========================
+    # Recompra
+    # =========================
+
+    def open_buyback(
+        self, ticker: str, quantity: Decimal, max_price: Decimal
+    ) -> FundBuybackDTO:
+        """Abre a recompra: uma ordem de compra da gestora no livro, paga com o caixa dela.
+
+        As cotas compradas deixam de existir. O PL por cota conta o caixa reservado da ordem,
+        e por isso ele só se move com o negócio.
+        """
+        fund = self._funds[ticker]
+        self._sync_buyback(fund)
+        account = fund.account
+        if fund.nav is None or not fund.listed:
+            raise ConflictError(
+                "A recompra vale para uma gestora com a oferta pública aberta"
+            )
+        if account.offer_remaining is not None or fund.issuance is not None:
+            raise ConflictError("Encerre a oferta ou a emissão antes de recomprar")
+        if fund.buyback is not None:
+            raise ConflictError("A gestora já tem uma recompra em aberto")
+        if quantity <= 0 or quantity != quantity.to_integral_value():
+            raise UnprocessableEntityError("Informe uma quantidade inteira de cotas")
+        if quantity >= account.quotas:
+            raise UnprocessableEntityError("A recompra não pode levar todas as cotas")
+        price = max_price.quantize(Decimal("0.01"))
+        if price <= 0:
+            raise UnprocessableEntityError("O preço máximo precisa ser maior que zero")
+        if self._engine.get_cash(account.client_id) < price * quantity:
+            raise UnprocessableEntityError(
+                "O caixa da gestora não cobre a recompra ao preço máximo"
+            )
+
+        today = self._engine.current_date
+        buyback = repository.fund.create_buyback(
+            fund.terms.id,
+            FundBuybackDTO(
+                id=0,
+                announced_on=today,
+                quantity=quantity,
+                max_price=price,
+                bought=Decimal(0),
+                paid=Decimal(0),
+                state="open",
+            ),
+        )
+        order = LimitOrder(
+            client_id=account.client_id,
+            ticker=ticker,
+            size=quantity,
+            action=OrderAction.BUY,
+            placed_on=today,
+            price=float(price),
+        )
+        # A recompra existe antes do envio: a ordem pode casar já na submissão
+        fund.buyback = buyback
+        fund.buyback_order = order
+        try:
+            self._engine.matching_engine.submit(order)
+        except Exception:
+            self._finish_buyback(fund, "canceled")
+            raise
+        self._announce(today, headlines.buyback_opened(ticker, quantity, price))
+        self._sync_buyback(fund)
+        return buyback
+
+    def cancel_buyback(self, ticker: str) -> None:
+        """Cancela o resto da recompra: o caixa reservado volta e o que já foi comprado fica queimado."""
+        fund = self._funds[ticker]
+        self._sync_buyback(fund)
+        order = fund.buyback_order
+        if fund.buyback is None or order is None:
+            raise ConflictError("A gestora não tem recompra em aberto")
+        self._engine.matching_engine.cancel(
+            order_id=order.id, client_id=order.client_id
+        )
+        self._sync_buyback(fund)
+
+    def buyback_of(self, fund: Fund) -> FundBuybackDTO | None:
+        """A recompra em aberto da gestora, com o estado de agora."""
+        self._sync_buyback(fund)
+        return fund.buyback
+
+    def _sync_buyback(self, fund: Fund) -> None:
+        """A recompra termina quando a ordem sai do livro: executada por inteiro ou cancelada."""
+        order = fund.buyback_order
+        if fund.buyback is None or order is None:
+            return
+        if order.status in (OrderStatus.PENDING, OrderStatus.PARTIAL):
+            return
+        self._finish_buyback(
+            fund, "done" if order.status is OrderStatus.EXECUTED else "canceled"
+        )
+
+    def _finish_buyback(self, fund: Fund, state: Literal["done", "canceled"]) -> None:
+        buyback = fund.buyback
+        if buyback is None:
+            return
+        repository.fund.save_buyback(buyback.model_copy(update={"state": state}))
+        fund.buyback = None
+        fund.buyback_order = None
+
+    def _record_buyback(self, ticker: str, size: Decimal, price: Decimal) -> None:
+        """Cada compra da recompra soma as cotas queimadas e o que foi pago por elas."""
+        fund = self._funds[ticker]
+        buyback = fund.buyback
+        if buyback is None:
+            return
+        fund.buyback = buyback.model_copy(
+            update={
+                "bought": buyback.bought + size,
+                "paid": buyback.paid + size * price,
+            }
+        )
+        repository.fund.save_buyback(fund.buyback)
+        self._save(fund)
 
     def on_office(self, manager_user_id: int) -> None:
         """O gestor assumiu a presidência: as ordens abertas das gestoras dele saem do livro."""
@@ -469,6 +813,8 @@ class FundBook:
             fund.nav = nav
             self._engine.ranking_prices[fund.ticker] = ranking_price(fund.days, nav)
             if fund.listed:
+                self._sync_buyback(fund)
+                self._advance_issuance(fund, today)
                 self._refresh_orders(fund, today)
 
     def on_close(self, today: date) -> list[CandleDTO]:
@@ -509,10 +855,18 @@ class FundBook:
             listed_on = fund.terms.listed_on
             if (
                 listed_on is not None
+                and fund.issuance is None
                 and fund.account.offer_remaining is not None
                 and today >= offer_ends_on(listed_on)
             ):
                 self._close_offer(fund, today)
+            # A emissão vale até o fim do último pregão da sobra, ou até vender tudo
+            issuance = fund.issuance
+            if issuance is not None and (
+                today >= issuance.ends_on or issuance.sold >= issuance.quotas
+            ):
+                self._close_issuance(fund, today)
+            self._sync_buyback(fund)
             self._save(fund)
             candles.append(candle)
         return candles
@@ -619,6 +973,12 @@ class FundBook:
         repository.fund.drop_days_from(terms.id, after)
         repository.fund.drop_offer_sales_from(terms.id, after)
         days = repository.fund.days(terms.id, after, RANKING_WINDOW)
+        # A retomada desfaz as ordens abertas: a recompra em aberto fica cancelada
+        repository.fund.cancel_open_buybacks(terms.id)
+        issuance = next(
+            (i for i in repository.fund.issuances(terms.id) if i.closed_on is None),
+            None,
+        )
         fund = Fund(
             terms=terms,
             account=account,
@@ -631,6 +991,13 @@ class FundBook:
                     self._simulation_id, terms.stock_id, self._engine.current_date
                 )
             ),
+            issuance=issuance,
+            issuance_rights={
+                right.user_id: right
+                for right in (
+                    repository.fund.issuance_rights(issuance.id) if issuance else []
+                )
+            },
         )
         self._funds[terms.ticker] = fund
         self._engine.broker.fund_accounts[terms.ticker] = account
@@ -650,23 +1017,53 @@ class FundBook:
         if self._publish is not None:
             self._publish(day, headline)
 
+    def nav_of(self, fund: Fund) -> Decimal | None:
+        """O PL por cota de agora, com a reserva da recompra contada."""
+        return self._nav(fund)
+
+    def quotas_of(self, fund: Fund, user: UserDTO) -> Decimal:
+        """As cotas da gestora que `user` tem na carteira pessoal."""
+        position = self._engine.broker.get_positions(user.client_id).get(fund.ticker)
+        return position.size if position else Decimal(0)
+
     def _nav(self, fund: Fund) -> Decimal | None:
         """O PL por cota pelo balanço da carteira da gestora."""
         balance = self._engine.balance_sheet(fund.account.client_id)
         return nav_per_quota(
-            balance.total_cash,
+            balance.total_cash + self._reserved_for_buyback(fund),
             balance.total_equity,
             balance.total_fixed,
             balance.total_debt,
             fund.account.quotas,
         )
 
+    def _reserved_for_buyback(self, fund: Fund) -> Decimal:
+        """O caixa que a ordem de recompra aberta guarda: ele ainda é patrimônio da gestora."""
+        order = fund.buyback_order
+        if (
+            fund.buyback is None
+            or order is None
+            or order.status not in (OrderStatus.PENDING, OrderStatus.PARTIAL)
+        ):
+            return Decimal(0)
+        return to_money(order.price) * order.remaining
+
     def _refresh_orders(self, fund: Fund, today: date) -> None:
-        """A escada do formador e a ordem da oferta, ao PL do dia."""
+        """A escada do formador e a ordem de venda do emissor: ao PL do dia na oferta de abertura,
+        ao preço fixo do anúncio na sobra da emissão."""
         if fund.nav is None:
             return
-        self._maker.refresh(fund.ticker, float(fund.nav), fund.account.quotas, today)
-        self._offer.refresh(fund.ticker, float(fund.nav), today)
+        issuance = fund.issuance
+        fair_value = float(issuance.price) if issuance else float(fund.nav)
+        selling = fund.account.offer_remaining is not None
+        self._maker.refresh(
+            fund.ticker,
+            float(fund.nav),
+            fund.account.quotas,
+            today,
+            bid_ceiling=fair_value if selling else None,
+        )
+        self._offer.refresh(fund.ticker, fair_value, today)
 
     def _close_offer(self, fund: Fund, day: date) -> None:
         """Fecha a oferta e grava o dia em que fechou."""
@@ -685,13 +1082,21 @@ class FundBook:
         fecha a oferta nesse mesmo dia."""
         fund = self._funds[ticker]
         today = self._engine.current_date
+        issuance = fund.issuance
         repository.fund.record_offer_sale(
             fund.terms.id,
             FundOfferSaleDTO(
-                day=today, buyer_user_id=buyer_user_id, quotas=quotas, price=price
+                day=today,
+                buyer_user_id=buyer_user_id,
+                quotas=quotas,
+                price=price,
+                issuance_id=issuance.id if issuance else None,
             ),
         )
-        if fund.account.offer_remaining is None:
+        if issuance is not None:
+            # A venda da sobra soma na emissão; quem a encerra é o fim do pregão
+            self._add_issuance_sold(fund, quotas)
+        elif fund.account.offer_remaining is None:
             fund.terms = fund.terms.model_copy(update={"offer_closed_on": today})
         self._save(fund)
 

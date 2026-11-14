@@ -20,6 +20,12 @@ export function movementText(movement: Movement): string {
       return `Taxa de administração de ${amount}`;
     case "performance_fee":
       return `Taxa de performance de ${amount}`;
+    case "issuance_opened":
+      return `Emissão de cotas aberta: ${quotas} ao preço de ${movement.price === null ? "—" : displayMoney(movement.price)}`;
+    case "issuance_closed":
+      return `Emissão de cotas encerrada: ${quotas} vendidas, somando ${amount}`;
+    case "buyback_opened":
+      return `Recompra aberta: ${quotas} a até ${movement.price === null ? "—" : displayMoney(movement.price)} cada`;
     case "report_published":
       return "Relatório mensal publicado";
     case "manager_buy":

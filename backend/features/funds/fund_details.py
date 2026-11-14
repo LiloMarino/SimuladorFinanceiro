@@ -15,6 +15,7 @@ from backend.core.dto.fund import (
     FundHolderDTO,
     FundHolderKind,
     FundHoldingClass,
+    FundIssuanceStatusDTO,
     FundOfferBuyerDTO,
     FundOfferSaleDTO,
     FundPositionDTO,
@@ -181,6 +182,8 @@ class FundDetailsBuilder:
                     trade for trade in trades if trade.portfolio_id == manager_portfolio
                 ],
                 offer=offer.facts,
+                issuances=repository.fund.issuances(terms.id),
+                buybacks=repository.fund.buybacks(terms.id),
                 today=today,
             ),
             offer_sold=offer.facts.totals.sold
@@ -190,6 +193,8 @@ class FundDetailsBuilder:
             if offer.facts and offer.facts.in_progress
             else None,
             offer_buyers=offer.buyers,
+            issuance=self._issuance(fund, viewer, today),
+            buyback=book.buyback_of(fund),
             positions=positions_of(live) if is_manager else None,
             my_quotas=my_quotas,
             my_value=my_value,
@@ -457,6 +462,27 @@ class FundDetailsBuilder:
             received_12m=fund_ledger.fees_received(
                 cash_events, fund_ledger.one_year_before(today)
             ),
+        )
+
+    # =========================
+    # Emissão
+    # =========================
+
+    def _issuance(
+        self, fund: Fund, viewer: UserDTO, today: date
+    ) -> FundIssuanceStatusDTO | None:
+        """A emissão aberta com a fase de hoje e o direito de preferência de quem consulta."""
+        issuance = fund.issuance
+        phase = fund.issuance_phase(today)
+        if issuance is None or phase is None:
+            return None
+        right = fund.issuance_rights.get(viewer.id)
+        return FundIssuanceStatusDTO(
+            **issuance.model_dump(),
+            phase=phase,
+            raised=issuance.sold * issuance.price,
+            my_rights=right.rights if right else None,
+            my_bought=right.bought if right else None,
         )
 
     # =========================

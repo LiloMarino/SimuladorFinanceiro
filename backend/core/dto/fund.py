@@ -56,12 +56,53 @@ class FundDTO(FundTermsDTO):
 
 
 class FundOfferSaleDTO(BaseDTO):
-    """Uma venda da oferta pública; sem comprador quando quem levou as cotas foi o formador de mercado."""
+    """Uma venda da oferta pública ou da emissão; sem comprador quando quem levou as cotas não é jogador."""
 
     day: date
     buyer_user_id: int | None
     quotas: Decimal
     price: Decimal
+    # A emissão a que a venda pertence; nulo na oferta pública de abertura
+    issuance_id: int | None = None
+
+
+class FundIssuanceDTO(BaseDTO):
+    """Uma emissão de cotas novas, com o preço fixado no anúncio."""
+
+    id: int
+    announced_on: date
+    quotas: Decimal
+    price: Decimal
+    # Último dia da preferência dos cotistas e último dia da sobra aberta
+    preference_ends_on: date
+    ends_on: date
+    # Cotas que já nasceram, na preferência e na sobra
+    sold: Decimal
+    # Nulo com a emissão aberta
+    closed_on: date | None
+
+
+class FundIssuanceRightDTO(BaseDTO):
+    """O direito de preferência de um jogador, pela proporção que ele tinha no anúncio."""
+
+    user_id: int
+    rights: Decimal
+    bought: Decimal
+
+
+type FundBuybackState = Literal["open", "done", "canceled"]
+
+
+class FundBuybackDTO(BaseDTO):
+    """Uma recompra: a ordem de compra da gestora, com o que já foi comprado e pago."""
+
+    id: int
+    announced_on: date
+    quantity: Decimal
+    max_price: Decimal
+    bought: Decimal
+    paid: Decimal
+    state: FundBuybackState
 
 
 class FundDayDTO(BaseDTO):
@@ -103,6 +144,9 @@ type FundMovementType = Literal[
     "report_published",
     "manager_buy",
     "manager_sell",
+    "issuance_opened",
+    "issuance_closed",
+    "buyback_opened",
 ]
 
 
@@ -185,6 +229,20 @@ class FundOfferBuyerDTO(BaseDTO):
     quotas: Decimal
 
 
+type FundIssuancePhase = Literal["preference", "leftover"]
+
+
+class FundIssuanceStatusDTO(FundIssuanceDTO):
+    """A emissão aberta como quem consulta a vê: a fase de hoje, o que entrou no caixa e o direito dele."""
+
+    phase: FundIssuancePhase
+    # Dinheiro que as cotas já nascidas levaram ao caixa da gestora
+    raised: Decimal
+    # O direito de preferência de quem consulta e o quanto ele já usou; nulos sem direito
+    my_rights: Decimal | None
+    my_bought: Decimal | None
+
+
 class FundDetailsDTO(FundSummaryDTO):
     """A página da gestora: quem tem as cotas, a carteira, o desempenho, as taxas e a oferta."""
 
@@ -208,6 +266,9 @@ class FundDetailsDTO(FundSummaryDTO):
     offer_sold: Decimal | None
     offer_raised: Decimal | None
     offer_buyers: list[FundOfferBuyerDTO] | None
+    # A emissão e a recompra em aberto; nulas quando a gestora não tem
+    issuance: FundIssuanceStatusDTO | None
+    buyback: FundBuybackDTO | None
     # A carteira posição a posição, ao vivo; só o gestor vê
     positions: list[FundPositionDTO] | None
     # As cotas de quem consulta, ao preço de ranking (o do patrimônio no ranking), e o retorno
@@ -258,6 +319,81 @@ class FundContributionResponse(BaseDTO):
 
 class FundOfferRequest(BaseDTO):
     quotas: int = Field(gt=0)
+
+
+class FundIssuanceRequest(BaseDTO):
+    quotas: int = Field(gt=0)
+
+
+class FundIssuanceSubscriptionRequest(BaseDTO):
+    quotas: int = Field(gt=0)
+
+
+class FundBuybackRequest(BaseDTO):
+    quantity: int = Field(gt=0)
+    max_price: Decimal = Field(gt=0, decimal_places=2)
+
+
+class FundIssuancePreviewDTO(BaseDTO):
+    """O que uma emissão de `quotas` cotas faz, antes de o gestor anunciar."""
+
+    quotas: Decimal
+    # PL por cota de hoje: o preço fixo da emissão
+    price: Decimal
+    # Dinheiro que entra no caixa se todas as cotas forem vendidas
+    raised: Decimal
+    total_after: Decimal
+    # Maior emissão permitida, em cotas
+    limit: Decimal
+    # A parte do gestor hoje e depois da emissão se ele não comprar e se usar o direito dele
+    share_now: Decimal
+    share_if_skip: Decimal
+    keeps_control_if_skip: bool
+    share_if_buy: Decimal
+    keeps_control_if_buy: bool
+    # O direito de preferência do gestor e o que custa usá-lo inteiro
+    manager_rights: Decimal
+    manager_cost: Decimal
+
+
+class FundIssuanceSubscriptionPreviewDTO(BaseDTO):
+    """O que comprar `quotas` da preferência custa e deixa para quem consulta."""
+
+    quotas: Decimal
+    price: Decimal
+    cost: Decimal
+    # O caixa pessoal cobre o custo
+    cash_enough: bool
+    # Cotas de quem consulta e a parte dele depois da compra
+    my_quotas_after: Decimal
+    my_share_after: Decimal
+    # O direito que ainda resta depois da compra
+    rights_left_after: Decimal
+
+
+class FundBuybackPreviewDTO(BaseDTO):
+    """O que uma recompra de `quantity` cotas a até `max_price` faz, antes de o gestor confirmar."""
+
+    quantity: Decimal
+    max_price: Decimal
+    # PL por cota de hoje
+    nav: Decimal
+    # Ágio (positivo) ou deságio (negativo) do preço máximo sobre o PL por cota: 0,10 é 10%
+    premium: Decimal
+    # Caixa da gestora que a ordem reserva ao preço máximo
+    cost: Decimal
+    # Quanto desse custo é ágio sobre o PL por cota: sai do patrimônio de quem fica
+    premium_cost: Decimal
+    # O que sobra no caixa e se ele cobre o custo
+    cash_after: Decimal
+    cash_enough: bool
+    # PL por cota de quem fica se tudo for comprado ao preço máximo
+    nav_after: Decimal
+    total_after: Decimal
+    # A parte do gestor hoje e depois da recompra
+    share_now: Decimal
+    share_after: Decimal
+    keeps_control_after: bool
 
 
 class FundFeesRequest(BaseDTO):

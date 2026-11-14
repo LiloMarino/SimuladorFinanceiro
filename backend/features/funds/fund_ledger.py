@@ -10,7 +10,13 @@ from decimal import Decimal
 
 from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
-from backend.core.dto.fund import FundMovementDTO, FundMovementType, FundOfferSaleDTO
+from backend.core.dto.fund import (
+    FundBuybackDTO,
+    FundIssuanceDTO,
+    FundMovementDTO,
+    FundMovementType,
+    FundOfferSaleDTO,
+)
 from backend.core.enum import CashflowEventType, EquityEventType
 from backend.core.utils import is_business_day, next_business_day, next_month_turn
 
@@ -95,6 +101,8 @@ def movements(
     contributed_stocks: Iterable[EquityEventDTO],
     manager_trades: Iterable[EquityEventDTO],
     offer: OfferFacts | None,
+    issuances: Iterable[FundIssuanceDTO] = (),
+    buybacks: Iterable[FundBuybackDTO] = (),
     today: date,
 ) -> list[FundMovementDTO]:
     """Os movimentos mais novos da gestora, do mais recente ao mais antigo."""
@@ -162,6 +170,29 @@ def movements(
         while turn <= today:
             add(turn, "report_published")
             turn = next_month_turn(turn)
+
+    for issuance in issuances:
+        add(
+            issuance.announced_on,
+            "issuance_opened",
+            quotas=issuance.quotas,
+            price=issuance.price,
+        )
+        if issuance.closed_on is not None:
+            add(
+                issuance.closed_on,
+                "issuance_closed",
+                quotas=issuance.sold,
+                price=issuance.price,
+                amount=issuance.sold * issuance.price,
+            )
+    for buyback in buybacks:
+        add(
+            buyback.announced_on,
+            "buyback_opened",
+            quotas=buyback.quantity,
+            price=buyback.max_price,
+        )
 
     found.sort(key=lambda movement: movement.day)
     return found[::-1][:MOVEMENTS_LIMIT]

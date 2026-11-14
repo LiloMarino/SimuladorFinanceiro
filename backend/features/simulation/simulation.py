@@ -38,11 +38,19 @@ from backend.core.dto.fixed_income_projection import (
 from backend.core.dto.fund import (
     FUND_TICKER_PATTERN,
     FundAccountDTO,
+    FundBuybackDTO,
+    FundBuybackPreviewDTO,
+    FundBuybackRequest,
     FundContributionRequest,
     FundContributionResponse,
     FundDetailsDTO,
     FundFeesRequest,
     FundFoundRequest,
+    FundIssuanceDTO,
+    FundIssuancePreviewDTO,
+    FundIssuanceRequest,
+    FundIssuanceSubscriptionPreviewDTO,
+    FundIssuanceSubscriptionRequest,
     FundSummaryDTO,
     FundTickerCheckDTO,
 )
@@ -193,6 +201,7 @@ from backend.features.fixed_income.entities.fixed_income_position import (
 from backend.features.fixed_income.liquidity import total_redeemable
 from backend.features.funds.fund_book import Fund, FundBook
 from backend.features.funds.fund_details import FundDetailsBuilder
+from backend.features.funds.fund_preview import FundPreviewBuilder
 from backend.features.government import presidency
 from backend.features.government.base_panel import build_base
 from backend.features.government.base_panel import (
@@ -1055,6 +1064,72 @@ class Simulation:
             raise ConflictError("A gestora não tem oferta aberta.")
         self._ensure_funds().close_offer(fund.ticker)
         self._notify_funds_update()
+
+    @synchronized
+    def announce_fund_issuance(
+        self, user: UserDTO, fund_id: int, request: FundIssuanceRequest
+    ) -> FundIssuanceDTO:
+        book = self._ensure_funds()
+        fund = self._managed_fund(user, fund_id)
+        issuance = book.announce_issuance(fund.ticker, Decimal(request.quotas))
+        EventManager.flush()
+        self._notify_funds_update()
+        return issuance
+
+    @synchronized
+    def subscribe_fund_issuance(
+        self, user: UserDTO, fund_id: int, request: FundIssuanceSubscriptionRequest
+    ) -> None:
+        book = self._ensure_funds()
+        fund = book.by_id(fund_id)
+        self._ensure_can_operate(user.client_id)
+        book.subscribe_issuance(fund.ticker, user, Decimal(request.quotas))
+        EventManager.flush()
+        self._notify_funds_update()
+
+    @synchronized
+    def open_fund_buyback(
+        self, user: UserDTO, fund_id: int, request: FundBuybackRequest
+    ) -> FundBuybackDTO:
+        book = self._ensure_funds()
+        fund = self._managed_fund(user, fund_id)
+        buyback = book.open_buyback(
+            fund.ticker, Decimal(request.quantity), request.max_price
+        )
+        EventManager.flush()
+        self._notify_funds_update()
+        return buyback
+
+    @synchronized
+    def cancel_fund_buyback(self, user: UserDTO, fund_id: int) -> None:
+        fund = self._managed_fund(user, fund_id)
+        self._ensure_funds().cancel_buyback(fund.ticker)
+        EventManager.flush()
+        self._notify_funds_update()
+
+    @synchronized
+    def preview_fund_issuance(
+        self, user: UserDTO, fund_id: int, quotas: int
+    ) -> FundIssuancePreviewDTO:
+        fund = self._managed_fund(user, fund_id)
+        return self._fund_previews(user).issuance(fund, Decimal(quotas))
+
+    @synchronized
+    def preview_fund_subscription(
+        self, user: UserDTO, fund_id: int, quotas: int
+    ) -> FundIssuanceSubscriptionPreviewDTO:
+        fund = self._ensure_funds().by_id(fund_id)
+        return self._fund_previews(user).subscription(fund, user, Decimal(quotas))
+
+    @synchronized
+    def preview_fund_buyback(
+        self, user: UserDTO, fund_id: int, quantity: int, max_price: Decimal
+    ) -> FundBuybackPreviewDTO:
+        fund = self._managed_fund(user, fund_id)
+        return self._fund_previews(user).buyback(fund, Decimal(quantity), max_price)
+
+    def _fund_previews(self, manager: UserDTO) -> FundPreviewBuilder:
+        return FundPreviewBuilder(self._ensure_funds(), self._engine, manager)
 
     @synchronized
     def set_fund_fees(

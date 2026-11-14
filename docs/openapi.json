@@ -8353,6 +8353,473 @@
         }
       }
     },
+    "/api/funds/{fund_id}/issuance": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Anunciar a emissão de cotas",
+        "description": "Emite cotas novas ao patrimônio líquido por cota do dia, com o preço fixo até o fim. Os cotistas jogadores têm dez pregões de preferência, na proporção que tinham no anúncio; depois a sobra abre a todos por cinco pregões e o que não vender não nasce. O dinheiro entra no caixa da gestora.",
+        "operationId": "announce_fund_issuance_api_funds__fund_id__issuance_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundIssuanceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundIssuanceDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/issuance/subscriptions": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Comprar na preferência da emissão",
+        "description": "O cotista compra cotas novas ao preço fixo da emissão, até o direito que a proporção dele no anúncio deu. Vale só nos pregões da preferência.",
+        "operationId": "subscribe_fund_issuance_api_funds__fund_id__issuance_subscriptions_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundIssuanceSubscriptionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/issuance/preview": {
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Prever uma emissão",
+        "description": "Ao PL por cota de hoje: o caixa que a emissão traz, o direito de preferência do gestor e o controle dele se comprar ou não. Só o gestor consulta; não altera nada.",
+        "operationId": "preview_fund_issuance_api_funds__fund_id__issuance_preview_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          },
+          {
+            "name": "quotas",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Quotas"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundIssuancePreviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/issuance/subscription-preview": {
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Prever a compra na preferência",
+        "description": "O custo, o caixa pessoal e a parte do jogador depois de comprar a quantidade de cotas informada. Não altera nada.",
+        "operationId": "preview_fund_subscription_api_funds__fund_id__issuance_subscription_preview_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          },
+          {
+            "name": "quotas",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Quotas"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundIssuanceSubscriptionPreviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/buyback": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Abrir a recompra de cotas",
+        "description": "Põe no livro uma ordem de compra da gestora pela quantidade e até o preço máximo informados, paga com o caixa dela. As cotas compradas deixam de existir. Uma recompra por vez, e a ordem não casa com cotas do próprio gestor.",
+        "operationId": "open_fund_buyback_api_funds__fund_id__buyback_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundBuybackRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundBuybackDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Cancelar o resto da recompra",
+        "description": "Tira do livro o que a recompra ainda não comprou e devolve o caixa reservado. O que já foi comprado fica queimado.",
+        "operationId": "cancel_fund_buyback_api_funds__fund_id__buyback_delete",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/buyback/preview": {
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Prever uma recompra",
+        "description": "O custo ao preço máximo, quanto dele é ágio sobre o PL por cota, o caixa que sobra, o PL por cota de quem fica e o controle do gestor. Só o gestor consulta; não altera nada.",
+        "operationId": "preview_fund_buyback_api_funds__fund_id__buyback_preview_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          },
+          {
+            "name": "quantity",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Quantity"
+            }
+          },
+          {
+            "name": "max_price",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0.0
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "title": "Max Price"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundBuybackPreviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/funds/{fund_id}/fees": {
       "put": {
         "tags": [
@@ -20447,6 +20914,162 @@
         "title": "FundAccountDTO",
         "description": "Uma conta com que o jogador opera: a pessoal (sem gestora) ou uma gestora que ele gere."
       },
+      "FundBuybackDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "announced_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Announced On"
+          },
+          "quantity": {
+            "type": "string",
+            "title": "Quantity"
+          },
+          "max_price": {
+            "type": "string",
+            "title": "Max Price"
+          },
+          "bought": {
+            "type": "string",
+            "title": "Bought"
+          },
+          "paid": {
+            "type": "string",
+            "title": "Paid"
+          },
+          "state": {
+            "$ref": "#/components/schemas/FundBuybackState"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "announced_on",
+          "quantity",
+          "max_price",
+          "bought",
+          "paid",
+          "state"
+        ],
+        "title": "FundBuybackDTO",
+        "description": "Uma recompra: a ordem de compra da gestora, com o que já foi comprado e pago."
+      },
+      "FundBuybackPreviewDTO": {
+        "properties": {
+          "quantity": {
+            "type": "string",
+            "title": "Quantity"
+          },
+          "max_price": {
+            "type": "string",
+            "title": "Max Price"
+          },
+          "nav": {
+            "type": "string",
+            "title": "Nav"
+          },
+          "premium": {
+            "type": "string",
+            "title": "Premium"
+          },
+          "cost": {
+            "type": "string",
+            "title": "Cost"
+          },
+          "premium_cost": {
+            "type": "string",
+            "title": "Premium Cost"
+          },
+          "cash_after": {
+            "type": "string",
+            "title": "Cash After"
+          },
+          "cash_enough": {
+            "type": "boolean",
+            "title": "Cash Enough"
+          },
+          "nav_after": {
+            "type": "string",
+            "title": "Nav After"
+          },
+          "total_after": {
+            "type": "string",
+            "title": "Total After"
+          },
+          "share_now": {
+            "type": "string",
+            "title": "Share Now"
+          },
+          "share_after": {
+            "type": "string",
+            "title": "Share After"
+          },
+          "keeps_control_after": {
+            "type": "boolean",
+            "title": "Keeps Control After"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quantity",
+          "max_price",
+          "nav",
+          "premium",
+          "cost",
+          "premium_cost",
+          "cash_after",
+          "cash_enough",
+          "nav_after",
+          "total_after",
+          "share_now",
+          "share_after",
+          "keeps_control_after"
+        ],
+        "title": "FundBuybackPreviewDTO",
+        "description": "O que uma recompra de `quantity` cotas a até `max_price` faz, antes de o gestor confirmar."
+      },
+      "FundBuybackRequest": {
+        "properties": {
+          "quantity": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Quantity"
+          },
+          "max_price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Max Price"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quantity",
+          "max_price"
+        ],
+        "title": "FundBuybackRequest"
+      },
+      "FundBuybackState": {
+        "type": "string",
+        "enum": [
+          "open",
+          "done",
+          "canceled"
+        ]
+      },
       "FundCompositionDTO": {
         "properties": {
           "asset_class": {
@@ -20908,6 +21531,26 @@
             ],
             "title": "Offer Buyers"
           },
+          "issuance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundIssuanceStatusDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "buyback": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundBuybackDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "positions": {
             "anyOf": [
               {
@@ -20986,6 +21629,8 @@
           "offer_sold",
           "offer_raised",
           "offer_buyers",
+          "issuance",
+          "buyback",
           "positions",
           "my_quotas",
           "my_value",
@@ -21252,6 +21897,313 @@
         "title": "FundIdentityDTO",
         "description": "A identidade da gestora que o jogador funda, guardada no perfil: nome e sigla ficam fixos na partida."
       },
+      "FundIssuanceDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "announced_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Announced On"
+          },
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "preference_ends_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Preference Ends On"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Ends On"
+          },
+          "sold": {
+            "type": "string",
+            "title": "Sold"
+          },
+          "closed_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "announced_on",
+          "quotas",
+          "price",
+          "preference_ends_on",
+          "ends_on",
+          "sold",
+          "closed_on"
+        ],
+        "title": "FundIssuanceDTO",
+        "description": "Uma emissão de cotas novas, com o preço fixado no anúncio."
+      },
+      "FundIssuancePhase": {
+        "type": "string",
+        "enum": [
+          "preference",
+          "leftover"
+        ]
+      },
+      "FundIssuancePreviewDTO": {
+        "properties": {
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "raised": {
+            "type": "string",
+            "title": "Raised"
+          },
+          "total_after": {
+            "type": "string",
+            "title": "Total After"
+          },
+          "limit": {
+            "type": "string",
+            "title": "Limit"
+          },
+          "share_now": {
+            "type": "string",
+            "title": "Share Now"
+          },
+          "share_if_skip": {
+            "type": "string",
+            "title": "Share If Skip"
+          },
+          "keeps_control_if_skip": {
+            "type": "boolean",
+            "title": "Keeps Control If Skip"
+          },
+          "share_if_buy": {
+            "type": "string",
+            "title": "Share If Buy"
+          },
+          "keeps_control_if_buy": {
+            "type": "boolean",
+            "title": "Keeps Control If Buy"
+          },
+          "manager_rights": {
+            "type": "string",
+            "title": "Manager Rights"
+          },
+          "manager_cost": {
+            "type": "string",
+            "title": "Manager Cost"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quotas",
+          "price",
+          "raised",
+          "total_after",
+          "limit",
+          "share_now",
+          "share_if_skip",
+          "keeps_control_if_skip",
+          "share_if_buy",
+          "keeps_control_if_buy",
+          "manager_rights",
+          "manager_cost"
+        ],
+        "title": "FundIssuancePreviewDTO",
+        "description": "O que uma emissão de `quotas` cotas faz, antes de o gestor anunciar."
+      },
+      "FundIssuanceRequest": {
+        "properties": {
+          "quotas": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Quotas"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quotas"
+        ],
+        "title": "FundIssuanceRequest"
+      },
+      "FundIssuanceStatusDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "announced_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Announced On"
+          },
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "preference_ends_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Preference Ends On"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Ends On"
+          },
+          "sold": {
+            "type": "string",
+            "title": "Sold"
+          },
+          "closed_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed On"
+          },
+          "phase": {
+            "$ref": "#/components/schemas/FundIssuancePhase"
+          },
+          "raised": {
+            "type": "string",
+            "title": "Raised"
+          },
+          "my_rights": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "My Rights"
+          },
+          "my_bought": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "My Bought"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "announced_on",
+          "quotas",
+          "price",
+          "preference_ends_on",
+          "ends_on",
+          "sold",
+          "closed_on",
+          "phase",
+          "raised",
+          "my_rights",
+          "my_bought"
+        ],
+        "title": "FundIssuanceStatusDTO",
+        "description": "A emissão aberta como quem consulta a vê: a fase de hoje, o que entrou no caixa e o direito dele."
+      },
+      "FundIssuanceSubscriptionPreviewDTO": {
+        "properties": {
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "cost": {
+            "type": "string",
+            "title": "Cost"
+          },
+          "cash_enough": {
+            "type": "boolean",
+            "title": "Cash Enough"
+          },
+          "my_quotas_after": {
+            "type": "string",
+            "title": "My Quotas After"
+          },
+          "my_share_after": {
+            "type": "string",
+            "title": "My Share After"
+          },
+          "rights_left_after": {
+            "type": "string",
+            "title": "Rights Left After"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quotas",
+          "price",
+          "cost",
+          "cash_enough",
+          "my_quotas_after",
+          "my_share_after",
+          "rights_left_after"
+        ],
+        "title": "FundIssuanceSubscriptionPreviewDTO",
+        "description": "O que comprar `quotas` da preferência custa e deixa para quem consulta."
+      },
+      "FundIssuanceSubscriptionRequest": {
+        "properties": {
+          "quotas": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Quotas"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quotas"
+        ],
+        "title": "FundIssuanceSubscriptionRequest"
+      },
       "FundMovementDTO": {
         "properties": {
           "day": {
@@ -21329,7 +22281,10 @@
           "performance_fee",
           "report_published",
           "manager_buy",
-          "manager_sell"
+          "manager_sell",
+          "issuance_opened",
+          "issuance_closed",
+          "buyback_opened"
         ]
       },
       "FundOfferBuyerDTO": {
@@ -27317,7 +28272,10 @@
           "WEEK_HIGH",
           "HISTORICAL_MILESTONE",
           "FUND_FEE_CHANGED",
-          "FUND_OFFER_OPENED"
+          "FUND_OFFER_OPENED",
+          "FUND_ISSUANCE_OPENED",
+          "FUND_ISSUANCE_CLOSED",
+          "FUND_BUYBACK_OPENED"
         ],
         "title": "NewsType",
         "description": "Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro."

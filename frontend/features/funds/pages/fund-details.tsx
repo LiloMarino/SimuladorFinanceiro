@@ -18,17 +18,21 @@ import {
 } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
 import { ContributeDialog } from "../components/contribute-dialog";
+import { BuybackDialog } from "../components/buyback-dialog";
 import { FeesDialog } from "../components/fees-dialog";
+import { FundBuybackCard } from "../components/fund-buyback-card";
 import { FundComposition } from "../components/fund-composition";
 import { FundFeesCard } from "../components/fund-fees-card";
 import { FundHeader } from "../components/fund-header";
 import { FundHolders } from "../components/fund-holders";
+import { FundIssuanceCard } from "../components/fund-issuance-card";
 import { FundMetricsRow } from "../components/fund-metrics-row";
 import { FundMovements } from "../components/fund-movements";
 import { FundOfferCard } from "../components/fund-offer-card";
 import { FundOrderPanel } from "../components/fund-order-panel";
 import { FundPriceChart } from "../components/fund-price-chart";
 import { FundSkeleton } from "../components/fund-skeleton";
+import { IssuanceDialog } from "../components/issuance-dialog";
 import { OfferDialog } from "../components/offer-dialog";
 import { useCloseFundOffer } from "../hooks/mutations/useCloseFundOffer";
 import { useFund } from "../hooks/queries/useFund";
@@ -84,6 +88,8 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
   usePageLabel(fund.name);
   const [feesOpen, setFeesOpen] = useState(false);
   const [offerOpen, setOfferOpen] = useState(false);
+  const [issuanceOpen, setIssuanceOpen] = useState(false);
+  const [buybackOpen, setBuybackOpen] = useState(false);
   const [contributeOpen, setContributeOpen] = useState(false);
   const quantityRef = useRef<HTMLInputElement>(null);
   const { fund: activeFund, switchAccount } = useActiveAccount();
@@ -96,6 +102,8 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
   const empty = stage === "closed" && total === 0;
   const operating = activeFund?.fund_id === fund.id;
   const nav = fund.nav === null ? FIRST_QUOTA_PRICE : Number(fund.nav);
+  const issuanceOpenNow = fund.issuance !== null && fund.issuance.closed_on === null;
+  const buybackOpenNow = fund.buyback?.state === "open";
 
   const buyInOffer = () => {
     quantityRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -113,6 +121,24 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
         <Button variant="outline" disabled={total === 0} onClick={() => setOfferOpen(true)}>
           Oferta pública
         </Button>
+      )}
+      {stage === "listed" && (
+        <>
+          <Button
+            variant="outline"
+            disabled={total === 0 || issuanceOpenNow || buybackOpenNow}
+            onClick={() => setIssuanceOpen(true)}
+          >
+            Emitir cotas
+          </Button>
+          <Button
+            variant="outline"
+            disabled={total === 0 || issuanceOpenNow || buybackOpenNow}
+            onClick={() => setBuybackOpen(true)}
+          >
+            Recomprar
+          </Button>
+        </>
       )}
       <Button variant="outline" onClick={() => setFeesOpen(true)}>
         Taxas
@@ -190,6 +216,12 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
       {/* Oferta pública */}
       <FundOfferCard fund={fund} action={offerAction} />
 
+      {/* Emissão de cotas */}
+      <FundIssuanceCard fund={fund} viewer={viewer} />
+
+      {/* Recompra */}
+      <FundBuybackCard fund={fund} viewer={viewer} />
+
       {empty ? (
         <div className="grid items-start gap-5 xl:grid-cols-2">
           {!viewer && <FundFeesCard fund={fund} onChange={() => setFeesOpen(true)} />}
@@ -234,6 +266,21 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
             fundName={fund.name}
             nav={nav}
             managerQuotas={managerQuotas}
+            totalQuotas={total}
+          />
+          <IssuanceDialog
+            open={issuanceOpen}
+            onOpenChange={setIssuanceOpen}
+            fundId={fund.id}
+            fundName={fund.name}
+            nav={nav}
+            totalQuotas={total}
+          />
+          <BuybackDialog
+            open={buybackOpen}
+            onOpenChange={setBuybackOpen}
+            fundId={fund.id}
+            fundName={fund.name}
             totalQuotas={total}
           />
           <ContributeDialog

@@ -22,6 +22,12 @@ export type FundContributionRequest = components["schemas"]["FundContributionReq
 export type FundContributionResponse = components["schemas"]["FundContributionResponse"];
 export type FundOfferRequest = components["schemas"]["FundOfferRequest"];
 export type FundFeesRequest = components["schemas"]["FundFeesRequest"];
+export type FundIssuanceRequest = components["schemas"]["FundIssuanceRequest"];
+export type FundIssuanceSubscriptionRequest = components["schemas"]["FundIssuanceSubscriptionRequest"];
+export type FundIssuancePreview = components["schemas"]["FundIssuancePreviewDTO"];
+export type FundIssuanceSubscriptionPreview = components["schemas"]["FundIssuanceSubscriptionPreviewDTO"];
+export type FundBuybackRequest = components["schemas"]["FundBuybackRequest"];
+export type FundBuybackPreview = components["schemas"]["FundBuybackPreviewDTO"];
 
 // Portfolio
 export type Position = components["schemas"]["PositionDTO"];

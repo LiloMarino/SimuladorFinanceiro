@@ -2808,6 +2808,130 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/funds/{fund_id}/issuance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Anunciar a emissão de cotas
+         * @description Emite cotas novas ao patrimônio líquido por cota do dia, com o preço fixo até o fim. Os cotistas jogadores têm dez pregões de preferência, na proporção que tinham no anúncio; depois a sobra abre a todos por cinco pregões e o que não vender não nasce. O dinheiro entra no caixa da gestora.
+         */
+        post: operations["announce_fund_issuance_api_funds__fund_id__issuance_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/issuance/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Comprar na preferência da emissão
+         * @description O cotista compra cotas novas ao preço fixo da emissão, até o direito que a proporção dele no anúncio deu. Vale só nos pregões da preferência.
+         */
+        post: operations["subscribe_fund_issuance_api_funds__fund_id__issuance_subscriptions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/issuance/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Prever uma emissão
+         * @description Ao PL por cota de hoje: o caixa que a emissão traz, o direito de preferência do gestor e o controle dele se comprar ou não. Só o gestor consulta; não altera nada.
+         */
+        get: operations["preview_fund_issuance_api_funds__fund_id__issuance_preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/issuance/subscription-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Prever a compra na preferência
+         * @description O custo, o caixa pessoal e a parte do jogador depois de comprar a quantidade de cotas informada. Não altera nada.
+         */
+        get: operations["preview_fund_subscription_api_funds__fund_id__issuance_subscription_preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/buyback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Abrir a recompra de cotas
+         * @description Põe no livro uma ordem de compra da gestora pela quantidade e até o preço máximo informados, paga com o caixa dela. As cotas compradas deixam de existir. Uma recompra por vez, e a ordem não casa com cotas do próprio gestor.
+         */
+        post: operations["open_fund_buyback_api_funds__fund_id__buyback_post"];
+        /**
+         * Cancelar o resto da recompra
+         * @description Tira do livro o que a recompra ainda não comprou e devolve o caixa reservado. O que já foi comprado fica queimado.
+         */
+        delete: operations["cancel_fund_buyback_api_funds__fund_id__buyback_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/buyback/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Prever uma recompra
+         * @description O custo ao preço máximo, quanto dele é ágio sobre o PL por cota, o caixa que sobra, o PL por cota de quem fica e o controle do gestor. Só o gestor consulta; não altera nada.
+         */
+        get: operations["preview_fund_buyback_api_funds__fund_id__buyback_preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/funds/{fund_id}/fees": {
         parameters: {
             query?: never;
@@ -7016,6 +7140,69 @@ export interface components {
             frozen_until: string | null;
         };
         /**
+         * FundBuybackDTO
+         * @description Uma recompra: a ordem de compra da gestora, com o que já foi comprado e pago.
+         */
+        FundBuybackDTO: {
+            /** Id */
+            id: number;
+            /**
+             * Announced On
+             * Format: date
+             */
+            announced_on: string;
+            /** Quantity */
+            quantity: string;
+            /** Max Price */
+            max_price: string;
+            /** Bought */
+            bought: string;
+            /** Paid */
+            paid: string;
+            state: components["schemas"]["FundBuybackState"];
+        };
+        /**
+         * FundBuybackPreviewDTO
+         * @description O que uma recompra de `quantity` cotas a até `max_price` faz, antes de o gestor confirmar.
+         */
+        FundBuybackPreviewDTO: {
+            /** Quantity */
+            quantity: string;
+            /** Max Price */
+            max_price: string;
+            /** Nav */
+            nav: string;
+            /** Premium */
+            premium: string;
+            /** Cost */
+            cost: string;
+            /** Premium Cost */
+            premium_cost: string;
+            /** Cash After */
+            cash_after: string;
+            /** Cash Enough */
+            cash_enough: boolean;
+            /** Nav After */
+            nav_after: string;
+            /** Total After */
+            total_after: string;
+            /** Share Now */
+            share_now: string;
+            /** Share After */
+            share_after: string;
+            /** Keeps Control After */
+            keeps_control_after: boolean;
+        };
+        /** FundBuybackRequest */
+        FundBuybackRequest: {
+            /** Quantity */
+            quantity: number;
+            /** Max Price */
+            max_price: number | string;
+        };
+        /** @enum {string} */
+        FundBuybackState: "open" | "done" | "canceled";
+        /**
          * FundCompositionDTO
          * @description O patrimônio da gestora numa classe, hoje.
          */
@@ -7133,6 +7320,8 @@ export interface components {
             offer_raised: string | null;
             /** Offer Buyers */
             offer_buyers: components["schemas"]["FundOfferBuyerDTO"][] | null;
+            issuance: components["schemas"]["FundIssuanceStatusDTO"] | null;
+            buyback: components["schemas"]["FundBuybackDTO"] | null;
             /** Positions */
             positions: components["schemas"]["FundPositionDTO"][] | null;
             /** My Quotas */
@@ -7207,6 +7396,137 @@ export interface components {
             /** Ticker */
             ticker: string;
         };
+        /**
+         * FundIssuanceDTO
+         * @description Uma emissão de cotas novas, com o preço fixado no anúncio.
+         */
+        FundIssuanceDTO: {
+            /** Id */
+            id: number;
+            /**
+             * Announced On
+             * Format: date
+             */
+            announced_on: string;
+            /** Quotas */
+            quotas: string;
+            /** Price */
+            price: string;
+            /**
+             * Preference Ends On
+             * Format: date
+             */
+            preference_ends_on: string;
+            /**
+             * Ends On
+             * Format: date
+             */
+            ends_on: string;
+            /** Sold */
+            sold: string;
+            /** Closed On */
+            closed_on: string | null;
+        };
+        /** @enum {string} */
+        FundIssuancePhase: "preference" | "leftover";
+        /**
+         * FundIssuancePreviewDTO
+         * @description O que uma emissão de `quotas` cotas faz, antes de o gestor anunciar.
+         */
+        FundIssuancePreviewDTO: {
+            /** Quotas */
+            quotas: string;
+            /** Price */
+            price: string;
+            /** Raised */
+            raised: string;
+            /** Total After */
+            total_after: string;
+            /** Limit */
+            limit: string;
+            /** Share Now */
+            share_now: string;
+            /** Share If Skip */
+            share_if_skip: string;
+            /** Keeps Control If Skip */
+            keeps_control_if_skip: boolean;
+            /** Share If Buy */
+            share_if_buy: string;
+            /** Keeps Control If Buy */
+            keeps_control_if_buy: boolean;
+            /** Manager Rights */
+            manager_rights: string;
+            /** Manager Cost */
+            manager_cost: string;
+        };
+        /** FundIssuanceRequest */
+        FundIssuanceRequest: {
+            /** Quotas */
+            quotas: number;
+        };
+        /**
+         * FundIssuanceStatusDTO
+         * @description A emissão aberta como quem consulta a vê: a fase de hoje, o que entrou no caixa e o direito dele.
+         */
+        FundIssuanceStatusDTO: {
+            /** Id */
+            id: number;
+            /**
+             * Announced On
+             * Format: date
+             */
+            announced_on: string;
+            /** Quotas */
+            quotas: string;
+            /** Price */
+            price: string;
+            /**
+             * Preference Ends On
+             * Format: date
+             */
+            preference_ends_on: string;
+            /**
+             * Ends On
+             * Format: date
+             */
+            ends_on: string;
+            /** Sold */
+            sold: string;
+            /** Closed On */
+            closed_on: string | null;
+            phase: components["schemas"]["FundIssuancePhase"];
+            /** Raised */
+            raised: string;
+            /** My Rights */
+            my_rights: string | null;
+            /** My Bought */
+            my_bought: string | null;
+        };
+        /**
+         * FundIssuanceSubscriptionPreviewDTO
+         * @description O que comprar `quotas` da preferência custa e deixa para quem consulta.
+         */
+        FundIssuanceSubscriptionPreviewDTO: {
+            /** Quotas */
+            quotas: string;
+            /** Price */
+            price: string;
+            /** Cost */
+            cost: string;
+            /** Cash Enough */
+            cash_enough: boolean;
+            /** My Quotas After */
+            my_quotas_after: string;
+            /** My Share After */
+            my_share_after: string;
+            /** Rights Left After */
+            rights_left_after: string;
+        };
+        /** FundIssuanceSubscriptionRequest */
+        FundIssuanceSubscriptionRequest: {
+            /** Quotas */
+            quotas: number;
+        };
         /** FundMovementDTO */
         FundMovementDTO: {
             /**
@@ -7225,7 +7545,7 @@ export interface components {
             ticker: string | null;
         };
         /** @enum {string} */
-        FundMovementType: "contribution" | "offer_opened" | "offer_closed" | "management_fee" | "performance_fee" | "report_published" | "manager_buy" | "manager_sell";
+        FundMovementType: "contribution" | "offer_opened" | "offer_closed" | "management_fee" | "performance_fee" | "report_published" | "manager_buy" | "manager_sell" | "issuance_opened" | "issuance_closed" | "buyback_opened";
         /**
          * FundOfferBuyerDTO
          * @description Quem comprou na oferta em andamento; os bots entram somados numa linha só.
@@ -9312,7 +9632,7 @@ export interface components {
          * @description Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro.
          * @enum {string}
          */
-        NewsType: "ELECTION_CALENDAR" | "CAMPAIGN_OPENED" | "ELECTION_RESULT" | "CAMPAIGN_ACTION" | "NAMED_PROGRAM" | "PARTY_RUPTURE" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN" | "COPOM_DECISION" | "MONTHLY_INFLATION" | "IBOVESPA_EXTREME" | "STRONG_MOVE" | "WEEK_HIGH" | "HISTORICAL_MILESTONE" | "FUND_FEE_CHANGED" | "FUND_OFFER_OPENED";
+        NewsType: "ELECTION_CALENDAR" | "CAMPAIGN_OPENED" | "ELECTION_RESULT" | "CAMPAIGN_ACTION" | "NAMED_PROGRAM" | "PARTY_RUPTURE" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN" | "COPOM_DECISION" | "MONTHLY_INFLATION" | "IBOVESPA_EXTREME" | "STRONG_MOVE" | "WEEK_HIGH" | "HISTORICAL_MILESTONE" | "FUND_FEE_CHANGED" | "FUND_OFFER_OPENED" | "FUND_ISSUANCE_OPENED" | "FUND_ISSUANCE_CLOSED" | "FUND_BUYBACK_OPENED";
         /** NewsTypeInfo */
         NewsTypeInfo: {
             type: components["schemas"]["NewsType"];
@@ -19677,6 +19997,301 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    announce_fund_issuance_api_funds__fund_id__issuance_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundIssuanceRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundIssuanceDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    subscribe_fund_issuance_api_funds__fund_id__issuance_subscriptions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundIssuanceSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_fund_issuance_api_funds__fund_id__issuance_preview_get: {
+        parameters: {
+            query: {
+                quotas: number;
+            };
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundIssuancePreviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_fund_subscription_api_funds__fund_id__issuance_subscription_preview_get: {
+        parameters: {
+            query: {
+                quotas: number;
+            };
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundIssuanceSubscriptionPreviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    open_fund_buyback_api_funds__fund_id__buyback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundBuybackRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundBuybackDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    cancel_fund_buyback_api_funds__fund_id__buyback_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_fund_buyback_api_funds__fund_id__buyback_preview_get: {
+        parameters: {
+            query: {
+                quantity: number;
+                max_price: number | string;
+            };
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundBuybackPreviewDTO"];
+                };
             };
             /** @description Unprocessable Content */
             422: {

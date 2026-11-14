@@ -1441,6 +1441,13 @@ class FundOfferSales(Base):
             onupdate="CASCADE",
             name="fund_offer_sales_buyer_user_id_fkey",
         ),
+        ForeignKeyConstraint(
+            ["issuance_id"],
+            ["fund_issuances.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_offer_sales_issuance_id_fkey",
+        ),
         PrimaryKeyConstraint("id", name="fund_offer_sales_pkey"),
     )
 
@@ -1463,3 +1470,117 @@ class FundOfferSales(Base):
     buyer_user_id: Mapped[int | None] = mapped_column(Integer)
     quotas: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     price: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    # A emissão a que a venda pertence; nulo na oferta pública de abertura
+    issuance_id: Mapped[int | None] = mapped_column(BigInteger)
+
+
+class FundIssuances(Base):
+    """Uma emissão de cotas novas: preço fixado no anúncio, preferência dos cotistas e depois a sobra aberta."""
+
+    __tablename__ = "fund_issuances"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fund_id"],
+            ["funds.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_issuances_fund_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="fund_issuances_pkey"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    fund_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    announced_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    # As cotas postas à venda e o preço (o PL por cota do dia do anúncio), fixos até o fim
+    quotas: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    price: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    # Último dia da preferência e último dia da sobra aberta
+    preference_ends_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    ends_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    # Cotas que nasceram até agora (preferência e sobra)
+    sold: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    # O dia em que a emissão fechou; nulo com ela aberta
+    closed_on: Mapped[datetime.date | None] = mapped_column(Date)
+
+
+class FundIssuanceRights(Base):
+    """O direito de preferência de um jogador numa emissão, pela proporção que ele tinha no anúncio."""
+
+    __tablename__ = "fund_issuance_rights"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["issuance_id"],
+            ["fund_issuances.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_issuance_rights_issuance_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_issuance_rights_user_id_fkey",
+        ),
+        PrimaryKeyConstraint(
+            "issuance_id", "user_id", name="fund_issuance_rights_pkey"
+        ),
+    )
+
+    issuance_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    # Cotas que o jogador pode comprar na preferência e quantas já comprou
+    rights: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    bought: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+
+
+class FundBuybacks(Base):
+    """Uma recompra: a ordem de compra da gestora no livro, cujas cotas compradas deixam de existir."""
+
+    __tablename__ = "fund_buybacks"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fund_id"],
+            ["funds.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_buybacks_fund_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="fund_buybacks_pkey"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    fund_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    announced_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    quantity: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    max_price: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    # Cotas já recompradas e o total pago por elas
+    bought: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    paid: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    # Um valor de `FundBuybackState`
+    state: Mapped[str] = mapped_column(Text, nullable=False)

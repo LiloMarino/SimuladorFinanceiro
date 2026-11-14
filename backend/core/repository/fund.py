@@ -9,7 +9,15 @@ from sqlalchemy.orm import Session
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.events.equity import EquityEventDTO
-from backend.core.dto.fund import FundDayDTO, FundDTO, FundOfferSaleDTO
+from backend.core.dto.fund import (
+    FundBuybackDTO,
+    FundBuybackState,
+    FundDayDTO,
+    FundDTO,
+    FundIssuanceDTO,
+    FundIssuanceRightDTO,
+    FundOfferSaleDTO,
+)
 from backend.core.dto.stock import StockDTO
 from backend.core.enum import (
     AssetClass,
@@ -20,7 +28,10 @@ from backend.core.enum import (
 )
 from backend.core.models.models import (
     EventEquity,
+    FundBuybacks,
     FundDays,
+    FundIssuanceRights,
+    FundIssuances,
     FundOfferSales,
     Funds,
     Portfolios,
@@ -227,13 +238,135 @@ class FundRepository:
 
     @transactional
     def offer_sales(self, session: Session, fund_id: int) -> list[FundOfferSaleDTO]:
-        """As vendas da oferta pública da gestora, na ordem em que aconteceram."""
+        """As vendas da oferta pública de abertura, na ordem em que aconteceram."""
         rows = session.execute(
             select(FundOfferSales)
-            .where(FundOfferSales.fund_id == fund_id)
+            .where(
+                FundOfferSales.fund_id == fund_id,
+                FundOfferSales.issuance_id.is_(None),
+            )
             .order_by(FundOfferSales.id)
         ).scalars()
         return [FundOfferSaleDTO.model_validate(row) for row in rows]
+
+    @transactional
+    def issuance_sales(
+        self, session: Session, issuance_id: int
+    ) -> list[FundOfferSaleDTO]:
+        """As vendas de uma emissão (preferência e sobra), na ordem em que aconteceram."""
+        rows = session.execute(
+            select(FundOfferSales)
+            .where(FundOfferSales.issuance_id == issuance_id)
+            .order_by(FundOfferSales.id)
+        ).scalars()
+        return [FundOfferSaleDTO.model_validate(row) for row in rows]
+
+    @transactional
+    def create_issuance(
+        self,
+        session: Session,
+        fund_id: int,
+        issuance: FundIssuanceDTO,
+        rights: list[FundIssuanceRightDTO],
+    ) -> FundIssuanceDTO:
+        """Grava o anúncio de uma emissão com o retrato dos direitos; devolve com o id."""
+        values = issuance.model_dump(exclude={"id"})
+        row = FundIssuances(fund_id=fund_id, **values)
+        session.add(row)
+        session.flush()
+        session.add_all(
+            FundIssuanceRights(issuance_id=row.id, **right.model_dump())
+            for right in rights
+        )
+        return FundIssuanceDTO.model_validate(row)
+
+    @transactional
+    def save_issuance(
+        self,
+        session: Session,
+        issuance: FundIssuanceDTO,
+        rights: list[FundIssuanceRightDTO],
+    ) -> None:
+        """Grava o que muda na emissão: as cotas vendidas, o fechamento e o que cada jogador já comprou."""
+        session.execute(
+            update(FundIssuances)
+            .where(FundIssuances.id == issuance.id)
+            .values(sold=issuance.sold, closed_on=issuance.closed_on)
+        )
+        for right in rights:
+            session.execute(
+                update(FundIssuanceRights)
+                .where(
+                    FundIssuanceRights.issuance_id == issuance.id,
+                    FundIssuanceRights.user_id == right.user_id,
+                )
+                .values(bought=right.bought)
+            )
+
+    @transactional
+    def issuances(self, session: Session, fund_id: int) -> list[FundIssuanceDTO]:
+        """As emissões da gestora, da mais antiga à mais nova."""
+        rows = session.execute(
+            select(FundIssuances)
+            .where(FundIssuances.fund_id == fund_id)
+            .order_by(FundIssuances.id)
+        ).scalars()
+        return [FundIssuanceDTO.model_validate(row) for row in rows]
+
+    @transactional
+    def issuance_rights(
+        self, session: Session, issuance_id: int
+    ) -> list[FundIssuanceRightDTO]:
+        """Os direitos de preferência de uma emissão, um por jogador."""
+        rows = session.execute(
+            select(FundIssuanceRights)
+            .where(FundIssuanceRights.issuance_id == issuance_id)
+            .order_by(FundIssuanceRights.user_id)
+        ).scalars()
+        return [FundIssuanceRightDTO.model_validate(row) for row in rows]
+
+    @transactional
+    def create_buyback(
+        self, session: Session, fund_id: int, buyback: FundBuybackDTO
+    ) -> FundBuybackDTO:
+        """Grava a recompra aberta; devolve com o id."""
+        row = FundBuybacks(fund_id=fund_id, **buyback.model_dump(exclude={"id"}))
+        session.add(row)
+        session.flush()
+        return FundBuybackDTO.model_validate(row)
+
+    @transactional
+    def save_buyback(self, session: Session, buyback: FundBuybackDTO) -> None:
+        """Grava o andamento da recompra: cotas compradas, valor pago e estado."""
+        session.execute(
+            update(FundBuybacks)
+            .where(FundBuybacks.id == buyback.id)
+            .values(
+                bought=buyback.bought,
+                paid=buyback.paid,
+                state=buyback.state,
+            )
+        )
+
+    @transactional
+    def buybacks(self, session: Session, fund_id: int) -> list[FundBuybackDTO]:
+        """As recompras da gestora, da mais antiga à mais nova."""
+        rows = session.execute(
+            select(FundBuybacks)
+            .where(FundBuybacks.fund_id == fund_id)
+            .order_by(FundBuybacks.id)
+        ).scalars()
+        return [FundBuybackDTO.model_validate(row) for row in rows]
+
+    @transactional
+    def cancel_open_buybacks(self, session: Session, fund_id: int) -> None:
+        """A retomada da partida desfaz as ordens abertas: a recompra em aberto fica cancelada."""
+        canceled: FundBuybackState = "canceled"
+        session.execute(
+            update(FundBuybacks)
+            .where(FundBuybacks.fund_id == fund_id, FundBuybacks.state == "open")
+            .values(state=canceled)
+        )
 
     @transactional
     def drop_offer_sales_from(self, session: Session, fund_id: int, day: date) -> None:

@@ -115,6 +115,9 @@ class Broker:
         self.on_fund_offer_sale: (
             Callable[[str, int | None, Decimal, Decimal], None] | None
         ) = None
+        # Chamado a cada compra da gestora nas próprias cotas (a recompra) com o ticker, as
+        # cotas queimadas e o preço pago por cota
+        self.on_fund_buyback: Callable[[str, Decimal, Decimal], None] | None = None
 
     def get_positions(self, client_id: UUID) -> dict[str, Position]:
         with self._lock:
@@ -500,25 +503,38 @@ class Broker:
             refund = (to_money(order.price) - money_price) * size
             self._simulation_engine.add_cash(client_id, refund)
 
+        account = self.fund_accounts.get(ticker)
+        if account is not None and client_id == account.client_id:
+            # A gestora que compra a própria cota a queima: a cota nunca entra na carteira
+            account.burn(size)
+            if self.on_fund_buyback is not None:
+                self.on_fund_buyback(ticker, size, money_price)
+        else:
+            self._open_position(client_id, ticker, size, money_price)
+
+        logger.debug("Compra executada: %sx %s a R$ %s", size, ticker, price)
+
+    def buy_from_fund(
+        self, client_id: UUID, ticker: str, size: Decimal, price: Decimal
+    ) -> None:
+        """A compra direta da preferência: o caixa paga as cotas ao preço da emissão e elas viram posição."""
+        cost = price * size
+        with self._lock:
+            if self._simulation_engine.get_cash(client_id) < cost:
+                raise InsufficentCashError()
+            self._simulation_engine.add_cash(client_id, -cost)
+            self._open_position(client_id, ticker, size, price)
+
+    def _open_position(
+        self, client_id: UUID, ticker: str, size: Decimal, price: Decimal
+    ) -> None:
+        """A compra entra na posição e vira evento de compra na carteira."""
         self._mutate_position(
             client_id=client_id,
             ticker=ticker,
-            mutation=lambda p: p.update_buy(money_price, size),
+            mutation=lambda p: p.update_buy(price, size),
         )
-
-        EventManager.push_event(
-            EquityEventDTO(
-                simulation_id=self._simulation_engine.simulation_id,
-                portfolio_id=UserManager.get_portfolio_id(client_id),
-                event_type=EquityEventType.BUY,
-                ticker=ticker,
-                quantity=size,
-                price=to_money(price),
-                event_date=self._simulation_engine.current_date,
-            )
-        )
-
-        logger.debug("Compra executada: %sx %s a R$ %s", size, ticker, price)
+        self._push_equity_event(client_id, EquityEventType.BUY, ticker, size, price)
 
     def _execute_sell(self, order: Order, size: Decimal, price: float):
         client_id = order.client_id
