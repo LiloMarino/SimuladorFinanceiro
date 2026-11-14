@@ -1385,9 +1385,63 @@ class Funds(Base):
     high_water_mark: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
     high_water_mark_on: Mapped[datetime.date | None] = mapped_column(Date)
     last_performance_on: Mapped[datetime.date | None] = mapped_column(Date)
+    # Parte do lucro realizado do mês que vira rendimento aos cotistas (0,95 é 95%); a troca
+    # pedida vale a partir de `pending_from`, junto das taxas
+    distribution_rate: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(8, 6), nullable=False, server_default=text("0.95")
+    )
+    pending_distribution_rate: Mapped[decimal.Decimal | None] = mapped_column(
+        Numeric(8, 6)
+    )
+    # O lucro realizado desde a última data-com, por origem: dividendos, juros e cupons da
+    # renda fixa, ganho nas vendas e taxas pagas
+    month_dividends: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
+    month_interest: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
+    month_sales_gain: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
+    month_fees: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )
+
+
+class FundDistributions(Base):
+    """O rendimento de um mês da gestora: o que a data-com apurou e, depois, o que foi pago."""
+
+    __tablename__ = "fund_distributions"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fund_id"],
+            ["funds.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_distributions_fund_id_fkey",
+        ),
+        PrimaryKeyConstraint("fund_id", "data_com", name="fund_distributions_pkey"),
+    )
+
+    fund_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    # O último pregão do mês, em que o lucro realizado fecha
+    data_com: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
+    realized_profit: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
+    # A parte distribuída em vigor na data-com
+    rate: Mapped[decimal.Decimal] = mapped_column(Numeric(8, 6), nullable=False)
+    # As cotas fora do formador que dividem o rendimento e o valor por cota apurado
+    quotas: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    per_quota: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    # O que foi pago de fato e quando; nulos até o primeiro pregão do mês seguinte
+    paid_per_quota: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+    paid: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+    paid_on: Mapped[datetime.date | None] = mapped_column(Date)
 
 
 class FundDays(Base):

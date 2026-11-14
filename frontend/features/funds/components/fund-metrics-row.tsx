@@ -18,6 +18,7 @@ import {
   PERFORMANCE_FEE,
   PREMIUM,
   RETURN_VS_CDI,
+  TOTAL_RETURN,
 } from "../lib/fund-metrics";
 import { netWorthOf } from "../lib/fund-view";
 
@@ -86,6 +87,26 @@ function ReturnKpi({ fund }: { fund: FundDetails }) {
   );
 }
 
+/** O retorno total em 12 meses: a variação da cota somada aos rendimentos pagos, contra o CDI. */
+function TotalReturnKpi({ fund }: { fund: FundDetails }) {
+  const gain = fund.total_return_12m === null ? null : Number(fund.total_return_12m);
+  const cdi = fund.cdi_12m === null ? null : Number(fund.cdi_12m);
+  const beats = gain !== null && cdi !== null ? gain >= cdi : null;
+
+  return (
+    <Kpi
+      label={<MetricLabel metric={TOTAL_RETURN} />}
+      value={gain === null ? EMPTY : displaySignedPercent(gain, 1)}
+      tone={beats === null ? "default" : beats ? "success" : "destructive"}
+      note={
+        gain !== null && cdi !== null
+          ? `CDI ${displayPercent(cdi, 1)} · ${displayPercentagePoints(gain - cdi, 1)} sobre o CDI`
+          : TOTAL_RETURN.description
+      }
+    />
+  );
+}
+
 /** As taxas do gestor, como a sala as vê: administração ao ano e performance sobre o que passa do CDI. */
 function FeesKpi({ fund }: { fund: FundDetails }) {
   return (
@@ -103,14 +124,15 @@ function FeesKpi({ fund }: { fund: FundDetails }) {
   );
 }
 
-/** Os cinco números do topo: o gestor vê a rentabilidade contra o CDI, quem olha vê as taxas do gestor. */
+/** Os números do topo: o gestor vê a rentabilidade contra o CDI, quem olha vê as taxas do gestor, e os dois veem o retorno total. */
 export function FundMetricsRow({ fund, viewer }: { fund: FundDetails; viewer: boolean }) {
   return (
     <Card>
       <CardContent>
-        <div className="grid grid-cols-2 gap-x-6 gap-y-5 md:grid-cols-3 xl:grid-cols-5">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-5 md:grid-cols-3 xl:grid-cols-6">
           <CommonKpis fund={fund} />
           {viewer ? <FeesKpi fund={fund} /> : <ReturnKpi fund={fund} />}
+          <TotalReturnKpi fund={fund} />
         </div>
       </CardContent>
     </Card>

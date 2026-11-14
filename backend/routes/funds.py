@@ -13,6 +13,7 @@ from backend.core.dto.fund import (
     FundContributionRequest,
     FundContributionResponse,
     FundDetailsDTO,
+    FundDistributionRequest,
     FundFeesRequest,
     FundFoundRequest,
     FundIssuanceDTO,
@@ -287,6 +288,21 @@ def preview_fund_buyback(
     max_price: Annotated[Decimal, Query(gt=0, decimal_places=2)],
 ):
     return simulation.preview_fund_buyback(user, fund_id, quantity, max_price)
+
+
+@funds_router.put(
+    "/{fund_id}/distribution",
+    response_model=FundSummaryDTO,
+    summary="Mudar a parte do lucro que a gestora distribui",
+    description="A parte do lucro realizado do mês que vira rendimento aos cotistas, de 0% a 100%. A nova parte fica pendente e vale a partir do primeiro dia útil do mês seguinte, junto das taxas.",
+)
+def set_fund_distribution(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    payload: FundDistributionRequest,
+):
+    return simulation.set_fund_distribution(user, fund_id, payload)
 
 
 @funds_router.put(

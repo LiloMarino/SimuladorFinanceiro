@@ -213,6 +213,14 @@ class FixedBroker:
             "Investido %.2f em %s (%s)", value, asset.name, asset.investment_type.value
         )
 
+    def _record_interest(self, client_id: UUID, breakdown: RedemptionBreakdown) -> None:
+        """O juro realizado no resgate é o rendimento do trecho resgatado, líquido de IOF e IR."""
+        self._simulation_engine.record_realized(
+            client_id,
+            "interest",
+            breakdown.yield_amount - breakdown.iof - breakdown.income_tax,
+        )
+
     def redeem(self, client_id: UUID, asset: FixedIncomeAssetDTO, net_wanted: Decimal):
         """
         Resgata de um título de liquidez diária o que o jogador quer receber no
@@ -250,6 +258,7 @@ class FixedBroker:
             else:
                 position.withdraw(units)
             self._simulation_engine.add_cash(client_id, breakdown.net)
+            self._record_interest(client_id, breakdown)
 
         asset_id = repository.fixed_income.get_or_create_asset(
             self._simulation_engine.simulation_id, asset
@@ -313,6 +322,7 @@ class FixedBroker:
             else:
                 position.withdraw(curve_amount)
             self._simulation_engine.add_cash(client_id, breakdown.net)
+            self._record_interest(client_id, breakdown)
 
         asset_id = repository.fixed_income.get_or_create_asset(
             self._simulation_engine.simulation_id, asset
@@ -427,6 +437,7 @@ class FixedBroker:
         )
 
         self._simulation_engine.add_cash(client_id, breakdown.net)
+        self._record_interest(client_id, breakdown)
         asset_id = repository.fixed_income.get_or_create_asset(
             self._simulation_engine.simulation_id, position.asset
         )

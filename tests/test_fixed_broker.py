@@ -183,6 +183,29 @@ def test_partial_redemption_credits_exact_net_and_keeps_proportions(
     )
 
 
+def test_redemption_reports_the_net_interest_as_realized(fixed_income_db):
+    """O juro realizado é o líquido que chegou ao caixa menos o capital que saiu da posição."""
+    broker, engine = _broker(cash="10000")
+    asset = _liquid()
+    broker.buy(INVESTOR, asset, Decimal("10000"))
+    _tick(broker, engine, 100)
+    realized: list[tuple] = []
+    engine.on_realized = lambda client_id, kind, amount: realized.append(
+        (client_id, kind, amount)
+    )
+    position = broker.get_fixed_positions(INVESTOR)[asset.asset_uuid]
+    applied_before = position.total_applied
+
+    broker.redeem(INVESTOR, asset, Decimal("2000"))
+
+    capital_out = applied_before - position.total_applied
+    assert len(realized) == 1
+    client_id, kind, interest = realized[0]
+    assert (client_id, kind) == (INVESTOR, "interest")
+    assert interest > 0
+    assert interest == pytest.approx(Decimal("2000") - capital_out)
+
+
 def test_full_redemption_removes_the_position(fixed_income_db):
     """Pedir o líquido máximo resgata tudo e fecha a posição."""
     broker, engine = _broker(cash="1000")

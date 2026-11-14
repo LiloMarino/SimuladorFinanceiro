@@ -101,6 +101,7 @@ class FakeSimulationEngine(SimulationEngine):
         self.stocks = {}
         self.fixed_broker = NoFixedIncome()
         self.dividends: list[tuple[uuid.UUID, str, Decimal]] = []
+        self.on_realized = None
 
     def get_cash(self, client_id: uuid.UUID) -> Decimal:
         return self.cash[client_id]
@@ -130,9 +131,13 @@ class FakeSimulationEngine(SimulationEngine):
     ) -> None:
         self.cash[client_id] += amount
 
+    def charge_fund_distribution(self, client_id: uuid.UUID, amount: Decimal) -> None:
+        self.cash[client_id] -= amount
+
     def pay_dividend(self, client_id: uuid.UUID, ticker: str, amount: Decimal) -> None:
         self.cash[client_id] += amount
         self.dividends.append((client_id, ticker, amount))
+        self.record_realized(client_id, "dividends", amount)
 
     def get_current_price(self, position: Position) -> Decimal:
         return position.avg_price

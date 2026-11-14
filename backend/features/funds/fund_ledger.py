@@ -131,6 +131,8 @@ def movements(
     for event in cash_events:
         if event.event_type is CashflowEventType.FUND_TRANSFER_IN:
             add(event.event_date, "contribution", amount=event.amount)
+        elif event.event_type is CashflowEventType.FUND_DISTRIBUTION:
+            add(event.event_date, "distribution", amount=event.amount)
         elif event.event_type in _FEE_MOVEMENTS:
             add(
                 event.event_date,

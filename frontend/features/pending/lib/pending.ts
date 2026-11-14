@@ -27,6 +27,8 @@ const TARGETS: Record<PendingType, (item: Pending) => PendingTarget> = {
   UNPAID_CONTRIBUTION: () => ({ label: "Mudar valor", to: "/election", state: { dialog: "contribution" } }),
   // A chave do convite é "FUND_ASSEMBLY_INVITE:<id da gestora>"
   FUND_ASSEMBLY_INVITE: (item) => ({ label: "Responder", to: `/funds/${item.key.split(":")[1]}` }),
+  // A chave do aviso é "FUND_DISTRIBUTION_SHORT_CASH:<id da gestora>"
+  FUND_DISTRIBUTION_SHORT_CASH: (item) => ({ label: "Ver rendimento", to: `/funds/${item.key.split(":")[1]}` }),
 };
 
 export function pendingTarget(item: Pending): PendingTarget {

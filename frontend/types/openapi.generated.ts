@@ -3016,6 +3016,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/funds/{fund_id}/distribution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Mudar a parte do lucro que a gestora distribui
+         * @description A parte do lucro realizado do mês que vira rendimento aos cotistas, de 0% a 100%. A nova parte fica pendente e vale a partir do primeiro dia útil do mês seguinte, junto das taxas.
+         */
+        put: operations["set_fund_distribution_api_funds__fund_id__distribution_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/funds/{fund_id}/fees": {
         parameters: {
             query?: never;
@@ -7506,6 +7526,13 @@ export interface components {
             high_water_mark_on: string | null;
             /** Last Performance On */
             last_performance_on: string | null;
+            /**
+             * Distribution Rate
+             * @default 0.95
+             */
+            distribution_rate: string;
+            /** Pending Distribution Rate */
+            pending_distribution_rate: string | null;
             /** Nav */
             nav: string | null;
             /** Ranking Price */
@@ -7538,6 +7565,11 @@ export interface components {
             series: components["schemas"]["FundSeriesPointDTO"][];
             last_report: components["schemas"]["FundReportDTO"] | null;
             fees: components["schemas"]["FundFeesDTO"];
+            distribution: components["schemas"]["FundDistributionPlanDTO"];
+            /** Distributions */
+            distributions: components["schemas"]["FundDistributionDTO"][];
+            /** Total Return 12M */
+            total_return_12m: string | null;
             /** Movements */
             movements: components["schemas"]["FundMovementDTO"][];
             /** Offer Sold */
@@ -7557,6 +7589,76 @@ export interface components {
             my_value: string;
             /** My Return */
             my_return: string | null;
+        };
+        /**
+         * FundDistributionDTO
+         * @description O rendimento de um mês: o lucro realizado que a data-com apurou e o que foi pago por cota.
+         */
+        FundDistributionDTO: {
+            /**
+             * Data Com
+             * Format: date
+             */
+            data_com: string;
+            /** Realized Profit */
+            realized_profit: string;
+            /** Rate */
+            rate: string;
+            /** Quotas */
+            quotas: string;
+            /** Per Quota */
+            per_quota: string;
+            /** Paid Per Quota */
+            paid_per_quota: string | null;
+            /** Paid */
+            paid: string | null;
+            /** Paid On */
+            paid_on: string | null;
+        };
+        /**
+         * FundDistributionPlanDTO
+         * @description O rendimento do mês corrente: a parte distribuída, o lucro realizado até hoje e as datas.
+         */
+        FundDistributionPlanDTO: {
+            /** Rate */
+            rate: string;
+            /** Pending Rate */
+            pending_rate: string | null;
+            /** Pending From */
+            pending_from: string | null;
+            /** Dividends */
+            dividends: string;
+            /** Interest */
+            interest: string;
+            /** Sales Gain */
+            sales_gain: string;
+            /** Fees */
+            fees: string;
+            /** Realized Profit */
+            realized_profit: string;
+            /** Projected */
+            projected: string;
+            /** Projected Per Quota */
+            projected_per_quota: string;
+            /** Cash */
+            cash: string;
+            /** Cash Enough */
+            cash_enough: boolean;
+            /**
+             * Data Com On
+             * Format: date
+             */
+            data_com_on: string;
+            /**
+             * Pay On
+             * Format: date
+             */
+            pay_on: string;
+        };
+        /** FundDistributionRequest */
+        FundDistributionRequest: {
+            /** Distribution Rate */
+            distribution_rate: number | string;
         };
         /** FundFeesDTO */
         FundFeesDTO: {
@@ -7772,7 +7874,7 @@ export interface components {
             ticker: string | null;
         };
         /** @enum {string} */
-        FundMovementType: "contribution" | "offer_opened" | "offer_closed" | "management_fee" | "performance_fee" | "report_published" | "manager_buy" | "manager_sell" | "issuance_opened" | "issuance_closed" | "buyback_opened";
+        FundMovementType: "contribution" | "offer_opened" | "offer_closed" | "management_fee" | "performance_fee" | "report_published" | "manager_buy" | "manager_sell" | "issuance_opened" | "issuance_closed" | "buyback_opened" | "distribution";
         /**
          * FundOfferBuyerDTO
          * @description Quem comprou na oferta em andamento; os bots entram somados numa linha só.
@@ -7902,6 +8004,13 @@ export interface components {
             high_water_mark_on: string | null;
             /** Last Performance On */
             last_performance_on: string | null;
+            /**
+             * Distribution Rate
+             * @default 0.95
+             */
+            distribution_rate: string;
+            /** Pending Distribution Rate */
+            pending_distribution_rate: string | null;
             /** Nav */
             nav: string | null;
             /** Ranking Price */
@@ -10396,7 +10505,7 @@ export interface components {
          * @description Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar.
          * @enum {string}
          */
-        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "FEDERATION_PROPOSAL" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING" | "FUND_ASSEMBLY_INVITE";
+        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "FEDERATION_PROPOSAL" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING" | "FUND_ASSEMBLY_INVITE" | "FUND_DISTRIBUTION_SHORT_CASH";
         /**
          * PlaceKind
          * @description Um lugar do mapa é um estado ou uma região.
@@ -20716,6 +20825,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FundBuybackPreviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_fund_distribution_api_funds__fund_id__distribution_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundDistributionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundSummaryDTO"];
                 };
             };
             /** @description Unprocessable Content */

@@ -11,6 +11,7 @@ from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.fund import (
     FundCompositionDTO,
     FundDetailsDTO,
+    FundDistributionDTO,
     FundFeesDTO,
     FundHolderDTO,
     FundHolderKind,
@@ -32,6 +33,7 @@ from backend.features.fixed_income.entities.fixed_income_position import (
 from backend.features.fixed_income.fixed_broker import load_fixed_assets
 from backend.features.fixed_income.quotes import FixedIncomeQuotes
 from backend.features.funds import fund_ledger
+from backend.features.funds.distribution import drained_since, paid_since
 from backend.features.funds.fees import management_fee, performance_charge
 from backend.features.funds.fund_book import (
     Fund,
@@ -175,6 +177,11 @@ class FundDetailsBuilder:
             series=series,
             last_report=self._report(fund, today, cash_events, fund_equity),
             fees=self._fees(fund, summary.nav, today, cash_events),
+            distribution=book.distribution_plan(fund),
+            distributions=list(reversed(fund.distributions)),
+            total_return_12m=self._total_return(
+                series, summary.nav, fund.distributions
+            ),
             movements=fund_ledger.movements(
                 cash_events=cash_events,
                 contributed_stocks=fund_equity,
@@ -421,6 +428,18 @@ class FundDetailsBuilder:
             cdi_growth(first.day, today) - 1,
         )
 
+    @staticmethod
+    def _total_return(
+        series: list[FundSeriesPointDTO],
+        nav: Decimal | None,
+        distributions: list[FundDistributionDTO],
+    ) -> Decimal | None:
+        """O retorno total do período da série: a variação do PL por cota mais o rendimento pago por cota."""
+        if not series or nav is None or series[0].nav <= 0:
+            return None
+        first = series[0]
+        return (nav + paid_since(distributions, first.day)) / first.nav - 1
+
     def _fees(
         self,
         fund: Fund,
@@ -446,6 +465,9 @@ class FundDetailsBuilder:
                 high_water_mark_on=terms.high_water_mark_on,
                 today=today,
                 cdi_growth=cdi_growth(terms.high_water_mark_on, today),
+                drained_per_quota=drained_since(
+                    fund.distributions, terms.high_water_mark_on, account.quotas
+                ),
             ).fee
             next_on = fund_ledger.next_performance_on(
                 terms.last_performance_on or terms.listed_on

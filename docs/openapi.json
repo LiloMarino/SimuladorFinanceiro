@@ -9093,6 +9093,74 @@
         }
       }
     },
+    "/api/funds/{fund_id}/distribution": {
+      "put": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Mudar a parte do lucro que a gestora distribui",
+        "description": "A parte do lucro realizado do mês que vira rendimento aos cotistas, de 0% a 100%. A nova parte fica pendente e vale a partir do primeiro dia útil do mês seguinte, junto das taxas.",
+        "operationId": "set_fund_distribution_api_funds__fund_id__distribution_put",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundDistributionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundSummaryDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/funds/{fund_id}/fees": {
       "put": {
         "tags": [
@@ -21998,6 +22066,22 @@
             ],
             "title": "Last Performance On"
           },
+          "distribution_rate": {
+            "type": "string",
+            "title": "Distribution Rate",
+            "default": "0.95"
+          },
+          "pending_distribution_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Distribution Rate"
+          },
           "nav": {
             "anyOf": [
               {
@@ -22160,6 +22244,27 @@
           "fees": {
             "$ref": "#/components/schemas/FundFeesDTO"
           },
+          "distribution": {
+            "$ref": "#/components/schemas/FundDistributionPlanDTO"
+          },
+          "distributions": {
+            "items": {
+              "$ref": "#/components/schemas/FundDistributionDTO"
+            },
+            "type": "array",
+            "title": "Distributions"
+          },
+          "total_return_12m": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Return 12M"
+          },
           "movements": {
             "items": {
               "$ref": "#/components/schemas/FundMovementDTO"
@@ -22283,6 +22388,8 @@
           "high_water_mark",
           "high_water_mark_on",
           "last_performance_on",
+          "distribution_rate",
+          "pending_distribution_rate",
           "nav",
           "ranking_price",
           "price",
@@ -22300,6 +22407,9 @@
           "series",
           "last_report",
           "fees",
+          "distribution",
+          "distributions",
+          "total_return_12m",
           "movements",
           "offer_sold",
           "offer_raised",
@@ -22314,6 +22424,199 @@
         ],
         "title": "FundDetailsDTO",
         "description": "A página da gestora: quem tem as cotas, a carteira, o desempenho, as taxas e a oferta."
+      },
+      "FundDistributionDTO": {
+        "properties": {
+          "data_com": {
+            "type": "string",
+            "format": "date",
+            "title": "Data Com"
+          },
+          "realized_profit": {
+            "type": "string",
+            "title": "Realized Profit"
+          },
+          "rate": {
+            "type": "string",
+            "title": "Rate"
+          },
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "per_quota": {
+            "type": "string",
+            "title": "Per Quota"
+          },
+          "paid_per_quota": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid Per Quota"
+          },
+          "paid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid"
+          },
+          "paid_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data_com",
+          "realized_profit",
+          "rate",
+          "quotas",
+          "per_quota",
+          "paid_per_quota",
+          "paid",
+          "paid_on"
+        ],
+        "title": "FundDistributionDTO",
+        "description": "O rendimento de um mês: o lucro realizado que a data-com apurou e o que foi pago por cota."
+      },
+      "FundDistributionPlanDTO": {
+        "properties": {
+          "rate": {
+            "type": "string",
+            "title": "Rate"
+          },
+          "pending_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Rate"
+          },
+          "pending_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending From"
+          },
+          "dividends": {
+            "type": "string",
+            "title": "Dividends"
+          },
+          "interest": {
+            "type": "string",
+            "title": "Interest"
+          },
+          "sales_gain": {
+            "type": "string",
+            "title": "Sales Gain"
+          },
+          "fees": {
+            "type": "string",
+            "title": "Fees"
+          },
+          "realized_profit": {
+            "type": "string",
+            "title": "Realized Profit"
+          },
+          "projected": {
+            "type": "string",
+            "title": "Projected"
+          },
+          "projected_per_quota": {
+            "type": "string",
+            "title": "Projected Per Quota"
+          },
+          "cash": {
+            "type": "string",
+            "title": "Cash"
+          },
+          "cash_enough": {
+            "type": "boolean",
+            "title": "Cash Enough"
+          },
+          "data_com_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Data Com On"
+          },
+          "pay_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rate",
+          "pending_rate",
+          "pending_from",
+          "dividends",
+          "interest",
+          "sales_gain",
+          "fees",
+          "realized_profit",
+          "projected",
+          "projected_per_quota",
+          "cash",
+          "cash_enough",
+          "data_com_on",
+          "pay_on"
+        ],
+        "title": "FundDistributionPlanDTO",
+        "description": "O rendimento do mês corrente: a parte distribuída, o lucro realizado até hoje e as datas."
+      },
+      "FundDistributionRequest": {
+        "properties": {
+          "distribution_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Distribution Rate"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "distribution_rate"
+        ],
+        "title": "FundDistributionRequest"
       },
       "FundFeesDTO": {
         "properties": {
@@ -22960,7 +23263,8 @@
           "manager_sell",
           "issuance_opened",
           "issuance_closed",
-          "buyback_opened"
+          "buyback_opened",
+          "distribution"
         ]
       },
       "FundOfferBuyerDTO": {
@@ -23346,6 +23650,22 @@
             ],
             "title": "Last Performance On"
           },
+          "distribution_rate": {
+            "type": "string",
+            "title": "Distribution Rate",
+            "default": "0.95"
+          },
+          "pending_distribution_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Distribution Rate"
+          },
           "nav": {
             "anyOf": [
               {
@@ -23449,6 +23769,8 @@
           "high_water_mark",
           "high_water_mark_on",
           "last_performance_on",
+          "distribution_rate",
+          "pending_distribution_rate",
           "nav",
           "ranking_price",
           "price",
@@ -30458,7 +30780,8 @@
           "DEAL_PROPOSAL",
           "DEAL_DEMAND",
           "SELIC_MEETING",
-          "FUND_ASSEMBLY_INVITE"
+          "FUND_ASSEMBLY_INVITE",
+          "FUND_DISTRIBUTION_SHORT_CASH"
         ],
         "title": "PendingType",
         "description": "Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar."

@@ -18,6 +18,9 @@ FundName = Annotated[
 ]
 # Taxa ao ano em fração: 0,02 é 2%
 FeeRate = Annotated[Decimal, Field(ge=0, le=1, decimal_places=4)]
+# Parte do lucro realizado que vira rendimento, em fração: 0,95 é 95%
+DistributionRate = Annotated[Decimal, Field(ge=0, le=1, decimal_places=4)]
+DEFAULT_DISTRIBUTION_RATE = Decimal("0.95")
 
 
 class FundTermsDTO(BaseDTO):
@@ -45,6 +48,9 @@ class FundTermsDTO(BaseDTO):
     high_water_mark: Decimal | None
     high_water_mark_on: date | None
     last_performance_on: date | None
+    # A parte do lucro realizado que vira rendimento aos cotistas e a troca pedida (vale em `pending_from`)
+    distribution_rate: Decimal = DEFAULT_DISTRIBUTION_RATE
+    pending_distribution_rate: Decimal | None = None
 
 
 class FundDTO(FundTermsDTO):
@@ -54,6 +60,26 @@ class FundDTO(FundTermsDTO):
     portfolio_id: int
     client_id: uuid.UUID
     maker_cash: Decimal
+    # O lucro realizado desde a última data-com, por origem
+    month_dividends: Decimal = Decimal(0)
+    month_interest: Decimal = Decimal(0)
+    month_sales_gain: Decimal = Decimal(0)
+    month_fees: Decimal = Decimal(0)
+
+
+class FundDistributionDTO(BaseDTO):
+    """O rendimento de um mês: o lucro realizado que a data-com apurou e o que foi pago por cota."""
+
+    data_com: date
+    realized_profit: Decimal
+    rate: Decimal
+    # As cotas fora do formador que dividem o rendimento
+    quotas: Decimal
+    per_quota: Decimal
+    # O que foi pago de fato; nulos até o pagamento. Abaixo do apurado quando o caixa não cobriu
+    paid_per_quota: Decimal | None
+    paid: Decimal | None
+    paid_on: date | None
 
 
 class FundOfferSaleDTO(BaseDTO):
@@ -177,6 +203,7 @@ type FundMovementType = Literal[
     "issuance_opened",
     "issuance_closed",
     "buyback_opened",
+    "distribution",
 ]
 
 
@@ -237,6 +264,28 @@ class FundFeesDTO(BaseDTO):
     high_water_mark_on: date | None
     # O que o gestor recebeu de taxas (administração e performance) nos últimos 12 meses
     received_12m: Decimal
+
+
+class FundDistributionPlanDTO(BaseDTO):
+    """O rendimento do mês corrente: a parte distribuída, o lucro realizado até hoje e as datas."""
+
+    rate: Decimal
+    pending_rate: Decimal | None
+    pending_from: date | None
+    # O lucro realizado do mês até hoje, por origem; as taxas entram com sinal de menos
+    dividends: Decimal
+    interest: Decimal
+    sales_gain: Decimal
+    fees: Decimal
+    realized_profit: Decimal
+    # O que o mês distribuiria se fechasse hoje e o valor por cota fora do formador
+    projected: Decimal
+    projected_per_quota: Decimal
+    # O caixa da gestora e se ele cobre o rendimento projetado
+    cash: Decimal
+    cash_enough: bool
+    data_com_on: date
+    pay_on: date
 
 
 class FundMovementDTO(BaseDTO):
@@ -374,6 +423,12 @@ class FundDetailsDTO(FundSummaryDTO):
     series: list[FundSeriesPointDTO]
     last_report: FundReportDTO | None
     fees: FundFeesDTO
+    # O rendimento do mês corrente e o histórico dos meses, do mais novo ao mais antigo
+    distribution: FundDistributionPlanDTO
+    distributions: list[FundDistributionDTO]
+    # Retorno total do PL por cota nos últimos 12 meses: a variação da cota mais o que foi pago
+    # de rendimento (0,10 é 10%); vale desde `return_since` numa gestora mais nova
+    total_return_12m: Decimal | None
     # Os movimentos mais novos primeiro
     movements: list[FundMovementDTO]
     # A oferta em andamento: cotas vendidas, o que entrou no caixa e quem comprou; nulos sem oferta aberta
@@ -524,3 +579,7 @@ class FundBuybackPreviewDTO(BaseDTO):
 class FundFeesRequest(BaseDTO):
     management_fee: FeeRate
     performance_fee: FeeRate
+
+
+class FundDistributionRequest(BaseDTO):
+    distribution_rate: DistributionRate

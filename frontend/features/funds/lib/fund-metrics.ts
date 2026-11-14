@@ -136,3 +136,50 @@ export const BUYBACK_PREMIUM_COST: MetricInfo = {
     "Recomprar abaixo do patrimônio por cota (deságio) faz o patrimônio por cota de quem ficou subir; acima, ele cai. O custo do ágio é o tamanho dessa perda.",
   format: (value) => `${value}`,
 };
+
+export const DISTRIBUTION_RATE: MetricInfo = {
+  label: "Parte distribuída",
+  description: "Quanto do lucro realizado no mês vira rendimento dos cotistas",
+  definition:
+    "É a fatia do lucro realizado do mês (dividendos, juros e ganho nas vendas, menos as taxas) que a gestora paga em dinheiro aos cotistas, como um fundo imobiliário. O que não é distribuído fica no caixa e aumenta o patrimônio por cota.",
+  example:
+    "Ex.: a gestora realizou R$ 10.000 de lucro no mês e distribui 95%: paga R$ 9.500 aos cotistas e guarda R$ 500.",
+  reading:
+    "Perto de 100% atrai quem quer renda todo mês, mas deixa a gestora com pouco caixa para comprar ativos. Perto de 0% faz o patrimônio por cota crescer mais, sem pagar nada ao cotista. Não há valor certo: depende do cotista que você quer atrair.",
+  format: (value) => `${value}%`,
+};
+
+export const REALIZED_PROFIT: MetricInfo = {
+  label: "Lucro realizado",
+  description: "O que a carteira ganhou de fato no mês, em dinheiro",
+  definition:
+    "É a soma dos dividendos recebidos, dos juros da renda fixa resgatada e do ganho nas vendas de ações, menos as taxas pagas ao gestor no mês. A valorização do que continua na carteira não entra: só vira lucro realizado quando é vendida.",
+  example:
+    "Ex.: R$ 6.000 de dividendos + R$ 3.000 de juros + R$ 2.000 de ganho vendendo ações − R$ 1.000 de taxas = R$ 10.000 de lucro realizado.",
+  reading:
+    "Positivo é o que pode virar rendimento. Zero ou negativo, o mês não distribui nada, e o prejuízo não é cobrado no mês seguinte.",
+  format: (value) => `${value}`,
+};
+
+export const YIELD_PER_QUOTA: MetricInfo = {
+  label: "Rendimento por cota",
+  description: "Quanto cada cota recebeu em dinheiro no mês",
+  definition:
+    "É o lucro distribuído dividido pelas cotas que estão com os cotistas. O formador de mercado não recebe: a conta usa só as cotas de fora.",
+  example: "Ex.: R$ 9.500 distribuídos para 1.000 cotas de fora: R$ 9,50 por cota. Quem tem 40 cotas recebe R$ 380,00.",
+  reading:
+    "Compare com o patrimônio por cota: R$ 9,50 sobre uma cota de R$ 125,00 é 7,6% no mês. Rendimento alto sustentado por meses é sinal de carteira que realiza lucro de verdade.",
+  format: (value) => `${value}`,
+};
+
+export const TOTAL_RETURN: MetricInfo = {
+  label: "Retorno total em 12 meses",
+  description: "O que a cota rendeu no ano, contando os rendimentos pagos",
+  definition:
+    "É a variação do patrimônio por cota somada ao que a cota pagou em rendimentos no período. Pagar rendimento tira dinheiro da cota e o põe no bolso do cotista, e o retorno total conta os dois lados.",
+  example:
+    "Ex.: a cota foi de R$ 100,00 a R$ 108,00 e pagou R$ 6,00 de rendimentos: retorno total de (108 + 6) ÷ 100 − 1 = 14%. A rentabilidade só da cota seria 8%.",
+  reading:
+    "É a medida justa para comparar gestoras que distribuem muito com as que distribuem pouco, e a mesma em que a taxa de performance é cobrada. Acima do CDI, a gestora entregou mais que a renda fixa segura.",
+  format: (value) => `${value}%`,
+};

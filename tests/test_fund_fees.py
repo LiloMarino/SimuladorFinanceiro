@@ -18,6 +18,7 @@ def _charge(
     quotas: str = "1000",
     outside: str = "900",
     rate: str = "0.20",
+    paid: str = "0",
 ):
     return performance_charge(
         nav=Decimal(nav),
@@ -28,6 +29,7 @@ def _charge(
         high_water_mark_on=mark_on,
         today=today,
         cdi_growth=Decimal(cdi_growth),
+        drained_per_quota=Decimal(paid),
     )
 
 
@@ -96,3 +98,22 @@ def test_performance_fee_uses_the_new_mark_next_semester():
     assert flat.fee == 0
     assert flat.high_water_mark == first.high_water_mark
     assert flat.high_water_mark_on == first.high_water_mark_on
+
+
+def test_performance_fee_counts_the_yield_paid_as_part_of_the_return():
+    """A cota a R$ 120 com R$ 10 de rendimento pago por cota rende o mesmo retorno total de
+    uma cota a R$ 130 que nada pagou: a taxa é a mesma, R$ 4.500, e a marca d'água fica na
+    mesma conta."""
+    distributing = _charge("120", paid="10")
+    retaining = _charge("130")
+
+    assert distributing.fee == retaining.fee == Decimal("4500.00")
+    assert distributing.high_water_mark == retaining.high_water_mark
+
+
+def test_performance_fee_ignores_a_yield_that_does_not_beat_the_line():
+    """Retorno total de R$ 100 + R$ 3 de rendimento fica abaixo da linha de R$ 105: sem taxa."""
+    result = _charge("100", paid="3")
+
+    assert result.fee == 0
+    assert result.high_water_mark == Decimal(100)

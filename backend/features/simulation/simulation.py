@@ -46,6 +46,7 @@ from backend.core.dto.fund import (
     FundContributionRequest,
     FundContributionResponse,
     FundDetailsDTO,
+    FundDistributionRequest,
     FundFeesRequest,
     FundFoundRequest,
     FundIssuanceDTO,
@@ -1187,6 +1188,16 @@ class Simulation:
         self._notify_funds_update()
         return book.summary(fund)
 
+    @synchronized
+    def set_fund_distribution(
+        self, user: UserDTO, fund_id: int, request: FundDistributionRequest
+    ) -> FundSummaryDTO:
+        book = self._ensure_funds()
+        fund = self._managed_fund(user, fund_id)
+        book.set_distribution(fund.ticker, request.distribution_rate)
+        self._notify_funds_update()
+        return book.summary(fund)
+
     def _notify_funds_update(self) -> None:
         """Avisa a sala de que as páginas das gestoras mudaram: toda mudança de gestora
         (pregão, negócio da cota, oferta, taxas, congelamento) passa por aqui."""
@@ -1326,6 +1337,15 @@ class Simulation:
                     title=f"Convite para gerir a {fund.ticker}",
                 )
                 for fund, invite, convener in self._funds.invites_for(user)
+            ]
+            items += [
+                registry.pending(
+                    PendingType.FUND_DISTRIBUTION_SHORT_CASH,
+                    f"O caixa tem {format_money(plan.cash)} e o rendimento projetado é {format_money(plan.projected)} · o pagamento de {plan.pay_on:%d/%m} sai só até o caixa",
+                    ref=str(fund.terms.id),
+                    title=f"Caixa curto para o rendimento da {fund.ticker}",
+                )
+                for fund, plan in self._funds.short_cash_plans(user)
             ]
         if self._government is not None:
             items += self._government.pending(user, today)

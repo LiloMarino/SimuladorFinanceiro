@@ -18,6 +18,7 @@ from backend.core.dto.fund import (
     FundAssemblyVoteDTO,
     FundBuybackDTO,
     FundDayDTO,
+    FundDistributionDTO,
     FundDTO,
     FundIssuanceDTO,
     FundIssuanceRightDTO,
@@ -56,6 +57,7 @@ from backend.features.variable_income.entities.order import (
     LimitOrder,
     MarketOrder,
 )
+from backend.features.variable_income.entities.position import Position
 from backend.features.variable_income.matching_engine import MatchingEngine
 from tests.fakes import USER_ID, FakeSimulationEngine, client
 
@@ -105,6 +107,9 @@ class MemoryFunds:
     assembly_votes_saved: dict[int, dict[int, FundAssemblyVoteDTO]] = field(
         default_factory=dict
     )
+    distributions_saved: dict[int, list[FundDistributionDTO]] = field(
+        default_factory=dict
+    )
     next_id: int = 1
 
     @property
@@ -152,6 +157,24 @@ class MemoryFunds:
     def drop_days_from(self, fund_id: int, day: date) -> None:
         self.days_saved[fund_id] = [
             d for d in self.days_saved.get(fund_id, []) if d.day < day
+        ]
+
+    def save_distribution(
+        self, fund_id: int, distribution: FundDistributionDTO
+    ) -> None:
+        rows = self.distributions_saved.setdefault(fund_id, [])
+        rows[:] = [r for r in rows if r.data_com != distribution.data_com]
+        rows.append(distribution)
+
+    def distributions(self, fund_id: int, before: date) -> list[FundDistributionDTO]:
+        rows = self.distributions_saved.get(fund_id, [])
+        return sorted(
+            (r for r in rows if r.data_com < before), key=lambda r: r.data_com
+        )
+
+    def drop_distributions_from(self, fund_id: int, day: date) -> None:
+        self.distributions_saved[fund_id] = [
+            r for r in self.distributions_saved.get(fund_id, []) if r.data_com < day
         ]
 
     def record_offer_sale(self, fund_id: int, sale: FundOfferSaleDTO) -> None:
@@ -1063,3 +1086,258 @@ def test_the_maker_bids_stay_below_the_offer_so_it_never_buys_from_it(
     )
     assert best_bid.price < issuer.price
     assert memory.offer_sales(fund.terms.id) == []
+
+
+# =========================
+# Rendimentos mensais
+# =========================
+
+DATA_COM = date(2020, 1, 31)  # último pregão de janeiro
+PAY_DAY = date(2020, 2, 3)  # primeiro pregão depois dele
+
+
+def _holding_setup(memory: MemoryFunds) -> Setup:
+    """Uma gestora listada em que o gestor tem as 1.000 cotas de origem e o comprador, 30 da oferta."""
+    manager = UserDTO(id=MANAGER_USER, client_id=MANAGER, nickname="Ana")
+    buyer = UserDTO(id=USER_ID, client_id=BUYER, nickname="Bia")
+    setup = _setup(memory, participants=lambda: [manager, buyer])
+    setup.book.open_offer(TICKER, Decimal(200))
+    setup.engine.broker.get_positions(MANAGER)[TICKER] = Position(TICKER, Decimal(1000))
+    setup.buy(30)
+    return setup
+
+
+def _close_day(setup: Setup, day: date) -> None:
+    setup.tick(day)
+    setup.book.on_close(day)
+
+
+def _earn(setup: Setup, amount: str, kind: str = "dividends") -> None:
+    """O lucro realizado entra no caixa da gestora e no acumulado do mês."""
+    value = Decimal(amount)
+    setup.engine.cash[setup.fund_client] += value
+    setup.engine.record_realized(setup.fund_client, kind, value)  # type: ignore[arg-type]
+
+
+def test_data_com_settles_the_month_and_resets_the_accumulators(memory: MemoryFunds):
+    """No último pregão do mês o lucro realizado vira rendimento por cota e o mês zera."""
+    setup = _holding_setup(memory)
+    fund = setup.book.get(TICKER)
+    _earn(setup, "1000")
+    _earn(setup, "500", "sales_gain")
+    outside = fund.account.outside_quotas
+
+    _close_day(setup, DATA_COM)
+
+    row = fund.distributions[-1]
+    assert row.data_com == DATA_COM
+    assert row.realized_profit == Decimal(1500)
+    assert row.per_quota == (Decimal("0.95") * 1500 / outside).quantize(
+        Decimal("0.000001"), "ROUND_DOWN"
+    )
+    assert row.paid_on is None
+    assert fund.terms.month_dividends == 0
+    assert fund.terms.month_sales_gain == 0
+    assert memory.distributions_saved[fund.terms.id] == [row]
+
+
+def test_a_day_that_is_not_the_data_com_settles_nothing(memory: MemoryFunds):
+    setup = _holding_setup(memory)
+    _earn(setup, "1000")
+
+    _close_day(setup, date(2020, 1, 30))
+
+    fund = setup.book.get(TICKER)
+    assert fund.distributions == []
+    assert fund.terms.month_dividends == 1000
+
+
+def test_yield_is_paid_at_the_next_open_as_a_dividend_of_the_quota(
+    memory: MemoryFunds,
+):
+    """Cada cotista recebe quotas x rendimento por cota como provento da cota, e o caixa da
+    gestora paga o total uma vez."""
+    setup = _holding_setup(memory)
+    fund = setup.book.get(TICKER)
+    _earn(setup, "1000")
+    _close_day(setup, DATA_COM)
+    per_quota = fund.distributions[-1].per_quota
+    cash = setup.engine.cash[setup.fund_client]
+
+    setup.tick(PAY_DAY)
+
+    manager_pay = (MANAGER, TICKER, Decimal(1000) * per_quota)
+    buyer_pay = (
+        BUYER,
+        TICKER,
+        (Decimal(30) * per_quota).quantize(Decimal("0.01"), "ROUND_DOWN"),
+    )
+    assert sorted(setup.engine.dividends, key=lambda d: d[2]) == sorted(
+        [manager_pay, buyer_pay], key=lambda d: d[2]
+    )
+    paid = manager_pay[2] + buyer_pay[2]
+    assert setup.engine.cash[setup.fund_client] == cash - paid
+    row = fund.distributions[-1]
+    assert (row.paid_on, row.paid_per_quota, row.paid) == (PAY_DAY, per_quota, paid)
+
+
+def test_the_maker_receives_no_yield(memory: MemoryFunds):
+    setup = _holding_setup(memory)
+    _earn(setup, "1000")
+    _close_day(setup, DATA_COM)
+
+    setup.tick(PAY_DAY)
+
+    receivers = {client for client, _, _ in setup.engine.dividends}
+    assert receivers == {MANAGER, BUYER}
+
+
+def test_short_cash_pays_cash_over_quotas_and_does_not_owe_the_rest(
+    memory: MemoryFunds,
+):
+    """Com R$ 103 em caixa e 1.030 cotas, cada cota recebe R$ 0,10; o que faltou não é devido."""
+    setup = _holding_setup(memory)
+    fund = setup.book.get(TICKER)
+    _earn(setup, "1000")
+    _close_day(setup, DATA_COM)
+    setup.engine.cash[setup.fund_client] = Decimal(103)
+
+    setup.tick(PAY_DAY)
+
+    row = fund.distributions[-1]
+    assert row.paid_per_quota == Decimal("0.1")
+    assert row.paid == Decimal(103)
+    assert setup.engine.cash[setup.fund_client] == 0
+    setup.tick(date(2020, 2, 4))
+    assert fund.distributions[-1].paid == Decimal(103)
+
+
+def test_a_losing_month_distributes_nothing(memory: MemoryFunds):
+    """Taxas pagas maiores que o ganho dão lucro negativo: nada é pago e o prejuízo não passa
+    para o mês seguinte."""
+    setup = _holding_setup(memory)
+    fund = setup.book.get(TICKER)
+    fund.terms = fund.terms.model_copy(update={"month_fees": Decimal(100)})
+
+    _close_day(setup, DATA_COM)
+    setup.tick(PAY_DAY)
+
+    row = fund.distributions[-1]
+    assert (row.realized_profit, row.per_quota, row.paid) == (
+        Decimal(-100),
+        Decimal(0),
+        Decimal(0),
+    )
+    assert setup.engine.dividends == []
+    assert fund.terms.month_fees == 0
+
+
+def test_month_fees_reduce_the_realized_profit(memory: MemoryFunds):
+    setup = _holding_setup(memory)
+    fund = setup.book.get(TICKER)
+    _earn(setup, "1000")
+    _close_day(setup, date(2020, 1, 30))
+    setup.book.on_month(date(2020, 1, 30))
+    fees = fund.terms.month_fees
+    assert fees > 0
+
+    _close_day(setup, DATA_COM)
+
+    assert fund.distributions[-1].realized_profit == Decimal(1000) - fees
+
+
+def test_new_distribution_rate_waits_for_the_month_turn(memory: MemoryFunds):
+    setup = _holding_setup(memory)
+    fund = setup.book.get(TICKER)
+    assert fund.terms.distribution_rate == Decimal("0.95")
+
+    setup.book.set_distribution(TICKER, Decimal("0.5"))
+
+    assert fund.terms.distribution_rate == Decimal("0.95")
+    assert fund.terms.pending_distribution_rate == Decimal("0.5")
+    assert fund.terms.pending_from == PAY_DAY
+    setup.book.on_month(DATA_COM)
+    assert fund.terms.distribution_rate == Decimal("0.95")
+    setup.book.on_month(PAY_DAY)
+    assert fund.terms.distribution_rate == Decimal("0.5")
+    assert fund.terms.pending_distribution_rate is None
+    assert fund.terms.pending_from is None
+
+
+def test_asking_for_the_current_rate_cancels_the_pending_one(memory: MemoryFunds):
+    setup = _holding_setup(memory)
+    setup.book.set_distribution(TICKER, Decimal("0.5"))
+
+    setup.book.set_distribution(TICKER, Decimal("0.95"))
+
+    terms = setup.book.get(TICKER).terms
+    assert terms.pending_distribution_rate is None
+    assert terms.pending_from is None
+
+
+def test_rate_and_fees_share_the_effective_date(memory: MemoryFunds):
+    """Pedir a taxa num lado não solta a data do que está pendente do outro."""
+    setup = _holding_setup(memory)
+    setup.book.set_distribution(TICKER, Decimal("0.5"))
+
+    setup.book.set_fees(TICKER, Decimal("0.02"), Decimal("0.20"))
+    terms = setup.book.get(TICKER).terms
+    assert terms.pending_distribution_rate == Decimal("0.5")
+    assert terms.pending_from == PAY_DAY
+
+    setup.book.set_fees(TICKER, Decimal("0.01"), Decimal("0.20"))
+    setup.book.set_distribution(TICKER, Decimal("0.95"))
+    terms = setup.book.get(TICKER).terms
+    assert terms.pending_distribution_rate is None
+    assert terms.pending_management_fee == Decimal("0.01")
+    assert terms.pending_from == PAY_DAY
+
+
+def _performance_fee_after_yield(memory: MemoryFunds, rate: str) -> Decimal:
+    """A taxa de performance do semestre numa gestora que rende `rate` do lucro de R$ 20.000
+    do mês e retém o resto."""
+    setup = _holding_setup(memory)
+    fund = setup.book.get(TICKER)
+    fund.terms = fund.terms.model_copy(update={"distribution_rate": Decimal(rate)})
+    _earn(setup, "20000")
+    # Sem a taxa de administração, a diferença entre as gestoras é só o rendimento
+    fund.terms = fund.terms.model_copy(update={"management_fee": Decimal(0)})
+    _close_day(setup, DATA_COM)
+    setup.tick(PAY_DAY)
+    setup.tick(date(2020, 7, 1))
+    manager_cash = setup.engine.cash[MANAGER]
+    setup.book.on_month(date(2020, 7, 1))
+    return setup.engine.cash[MANAGER] - manager_cash
+
+
+def test_yield_does_not_change_the_performance_fee(
+    memory: MemoryFunds, monkeypatch: pytest.MonkeyPatch
+):
+    """Duas gestoras com o mesmo retorno total, uma rendendo 95% do lucro e a outra 0%, pagam
+    a mesma taxa de performance."""
+    distributing = _performance_fee_after_yield(memory, "0.95")
+    monkeypatch.setattr(SimulationManager, "_fund_portfolios", {})
+    other = MemoryFunds()
+    monkeypatch.setattr(repository, "fund", other)
+    retaining = _performance_fee_after_yield(other, "0")
+
+    assert retaining > 0
+    assert distributing == pytest.approx(retaining, abs=Decimal("0.05"))
+
+
+def test_reload_keeps_the_settled_rows_and_drops_the_later_ones(memory: MemoryFunds):
+    setup = _holding_setup(memory)
+    fund = setup.book.get(TICKER)
+    _earn(setup, "1000")
+    _close_day(setup, DATA_COM)
+    setup.tick(PAY_DAY)
+    # Uma apuração gravada depois do dia retomado é refeita pelo tick
+    memory.save_distribution(
+        fund.terms.id,
+        fund.distributions[-1].model_copy(update={"data_com": date(2020, 2, 28)}),
+    )
+    setup.engine.current_date = PAY_DAY
+
+    reloaded = FundBook(1, setup.engine, lambda user_id: MANAGER).get(TICKER)
+
+    assert [d.data_com for d in reloaded.distributions] == [DATA_COM]

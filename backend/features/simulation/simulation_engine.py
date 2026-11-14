@@ -3,7 +3,7 @@ from collections.abc import Callable, Iterable, Sequence
 from datetime import date
 from decimal import Decimal
 from functools import cached_property
-from typing import NamedTuple
+from typing import Literal, NamedTuple
 from uuid import UUID
 
 from backend.core import repository
@@ -64,6 +64,9 @@ from backend.features.variable_income.income_tax import (
 from backend.features.variable_income.matching_engine import MatchingEngine
 from backend.features.variable_income.quantity import affordable_quantity
 
+# A origem de um lucro realizado: dividendos, juros da renda fixa ou ganho nas vendas
+RealizedKind = Literal["dividends", "interest", "sales_gain"]
+
 
 class BalanceSheet(NamedTuple):
     total_equity: Decimal
@@ -123,6 +126,9 @@ class SimulationEngine:
         # As cotas de gestora desta partida e o preço de ranking do dia de cada uma
         self.fund_stocks: dict[str, StockDTO] = {}
         self.ranking_prices: dict[str, Decimal] = {}
+        # Quem acompanha o lucro realizado de cada carteira (as gestoras): recebe a conta, a
+        # origem e o valor de cada realização
+        self.on_realized: Callable[[UUID, RealizedKind, Decimal], None] | None = None
         # (pregão, provento por ação dos últimos 12 meses): o rendimento da Carteira lê daqui
         self._per_share_cache: tuple[date, dict[int, Decimal]] | None = None
 
@@ -282,6 +288,14 @@ class SimulationEngine:
     def pay_dividend(self, client_id: UUID, ticker: str, amount: Decimal) -> None:
         """Provento bruto de `ticker` no caixa do jogador."""
         self._move_cash(client_id, amount, CashflowEventType.DIVIDEND, ticker=ticker)
+        self.record_realized(client_id, "dividends", amount)
+
+    def record_realized(
+        self, client_id: UUID, kind: RealizedKind, amount: Decimal
+    ) -> None:
+        """Avisa a quem acompanha o lucro realizado que a carteira realizou `amount` (negativo é perda)."""
+        if self.on_realized is not None:
+            self.on_realized(client_id, kind, amount)
 
     def apply_corporate_events(
         self,
@@ -333,6 +347,10 @@ class SimulationEngine:
             if performance
             else CashflowEventType.FUND_MANAGEMENT_FEE,
         )
+
+    def charge_fund_distribution(self, client_id: UUID, amount: Decimal) -> None:
+        """O rendimento mensal sai do caixa da gestora; cada cotista o recebe como provento."""
+        self._move_cash(client_id, -amount, CashflowEventType.FUND_DISTRIBUTION)
 
     def receive_fund_fee(
         self, client_id: UUID, amount: Decimal, performance: bool

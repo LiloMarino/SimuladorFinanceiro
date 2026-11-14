@@ -10,11 +10,13 @@ from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.fund import (
+    DEFAULT_DISTRIBUTION_RATE,
     FundAssemblyDTO,
     FundAssemblyVoteDTO,
     FundBuybackDTO,
     FundBuybackState,
     FundDayDTO,
+    FundDistributionDTO,
     FundDTO,
     FundIssuanceDTO,
     FundIssuanceRightDTO,
@@ -35,6 +37,7 @@ from backend.core.models.models import (
     FundAssemblyVotes,
     FundBuybacks,
     FundDays,
+    FundDistributions,
     FundIssuanceRights,
     FundIssuances,
     FundOfferSales,
@@ -63,6 +66,12 @@ _MUTABLE = (
     "high_water_mark",
     "high_water_mark_on",
     "last_performance_on",
+    "distribution_rate",
+    "pending_distribution_rate",
+    "month_dividends",
+    "month_interest",
+    "month_sales_gain",
+    "month_fees",
 )
 
 
@@ -192,6 +201,11 @@ class FundRepository:
             name=name,
             management_fee=management_fee,
             performance_fee=performance_fee,
+            distribution_rate=DEFAULT_DISTRIBUTION_RATE,
+            month_dividends=Decimal(0),
+            month_interest=Decimal(0),
+            month_sales_gain=Decimal(0),
+            month_fees=Decimal(0),
             created_at=now,
         )
         session.add(fund)
@@ -211,7 +225,7 @@ class FundRepository:
 
     @transactional
     def save(self, session: Session, fund: FundDTO) -> None:
-        """Grava as colunas que mudam: cotas, formador, oferta, taxas e marca d'água."""
+        """Grava as colunas que mudam: cotas, formador, oferta, taxas, rendimento e marca d'água."""
         session.execute(
             update(Funds)
             .where(Funds.id == fund.id)
@@ -249,6 +263,58 @@ class FundRepository:
         """Apaga os fechamentos de `day` em diante: o dia refeito pela retomada recomeça limpo."""
         session.execute(
             delete(FundDays).where(FundDays.fund_id == fund_id, FundDays.day >= day)
+        )
+
+    @transactional
+    def save_distribution(
+        self, session: Session, fund_id: int, distribution: FundDistributionDTO
+    ) -> None:
+        """Grava o rendimento do mês: a data-com cria a linha e o pagamento completa os campos pagos."""
+        values = {"fund_id": fund_id, **distribution.model_dump()}
+        session.execute(
+            insert(FundDistributions)
+            .values(values)
+            .on_conflict_do_update(
+                index_elements=["fund_id", "data_com"],
+                set_={
+                    k: v for k, v in values.items() if k not in ("fund_id", "data_com")
+                },
+            )
+        )
+
+    @transactional
+    def distributions(
+        self, session: Session, fund_id: int, before: date
+    ) -> list[FundDistributionDTO]:
+        """Os rendimentos apurados antes de `before`, do mais antigo ao mais novo."""
+        rows = session.execute(
+            select(FundDistributions)
+            .where(
+                FundDistributions.fund_id == fund_id,
+                FundDistributions.data_com < before,
+            )
+            .order_by(FundDistributions.data_com)
+        ).scalars()
+        return [FundDistributionDTO.model_validate(row) for row in rows]
+
+    @transactional
+    def drop_distributions_from(
+        self, session: Session, fund_id: int, day: date
+    ) -> None:
+        """Apaga as datas-com de `day` em diante e desfaz os pagamentos dali: o dia refeito pela retomada recomeça limpo."""
+        session.execute(
+            delete(FundDistributions).where(
+                FundDistributions.fund_id == fund_id,
+                FundDistributions.data_com >= day,
+            )
+        )
+        session.execute(
+            update(FundDistributions)
+            .where(
+                FundDistributions.fund_id == fund_id,
+                FundDistributions.paid_on >= day,
+            )
+            .values(paid_per_quota=None, paid=None, paid_on=None)
         )
 
     @transactional

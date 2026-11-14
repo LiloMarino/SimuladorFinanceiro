@@ -26,6 +26,8 @@ export function movementText(movement: Movement): string {
       return `Emissão de cotas encerrada: ${quotas} vendidas, somando ${amount}`;
     case "buyback_opened":
       return `Recompra aberta: ${quotas} a até ${movement.price === null ? "—" : displayMoney(movement.price)} cada`;
+    case "distribution":
+      return `Rendimento de ${amount} pago aos cotistas`;
     case "report_published":
       return "Relatório mensal publicado";
     case "manager_buy":

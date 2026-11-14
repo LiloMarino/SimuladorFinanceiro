@@ -13,7 +13,12 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from backend.core.dto.fund import FundAssemblyPanelDTO, FundDetailsDTO, FundFeesDTO
+from backend.core.dto.fund import (
+    FundAssemblyPanelDTO,
+    FundDetailsDTO,
+    FundDistributionPlanDTO,
+    FundFeesDTO,
+)
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import AssetClass, OrderAction
@@ -135,6 +140,7 @@ def with_funds() -> Iterator[TestClient]:
             "/api/funds/5/fees",
             {"management_fee": "0.01", "performance_fee": "0.10"},
         ),
+        ("put", "/api/funds/5/distribution", {"distribution_rate": "0.5"}),
     ],
 )
 def test_every_route_is_refused_when_the_expansion_is_off(
@@ -164,6 +170,17 @@ def test_fee_above_the_match_ceiling_is_unprocessable(with_funds: TestClient):
     assert "administração" in response.json()["detail"]
 
 
+@pytest.mark.parametrize("rate", ["-0.01", "1.01"])
+def test_distribution_rate_outside_zero_to_one_hundred_percent_is_unprocessable(
+    with_funds: TestClient, rate: str
+):
+    response = with_funds.put(
+        "/api/funds/5/distribution", json={"distribution_rate": rate}
+    )
+
+    assert response.status_code == 422
+
+
 def test_performance_fee_above_the_match_ceiling_is_unprocessable(
     with_funds: TestClient,
 ):
@@ -187,6 +204,7 @@ def test_performance_fee_above_the_match_ceiling_is_unprocessable(
             "/api/funds/5/fees",
             {"management_fee": "0.01", "performance_fee": "0.10"},
         ),
+        ("put", "/api/funds/5/distribution", {"distribution_rate": "0.5"}),
     ],
 )
 def test_only_the_manager_operates_the_fund(method: str, path: str, body: dict | None):
@@ -355,6 +373,24 @@ def _page(fund_id: int) -> FundDetailsDTO:
             high_water_mark_on=None,
             received_12m=zero,
         ),
+        distribution=FundDistributionPlanDTO(
+            rate=Decimal("0.95"),
+            pending_rate=None,
+            pending_from=None,
+            dividends=zero,
+            interest=zero,
+            sales_gain=zero,
+            fees=zero,
+            realized_profit=zero,
+            projected=zero,
+            projected_per_quota=zero,
+            cash=zero,
+            cash_enough=True,
+            data_com_on=date(2020, 1, 31),
+            pay_on=date(2020, 2, 3),
+        ),
+        distributions=[],
+        total_return_12m=None,
         movements=[],
         offer_sold=None,
         offer_raised=None,

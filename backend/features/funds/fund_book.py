@@ -13,6 +13,8 @@ from backend.core.dto.fund import (
     FundAssemblyPanelDTO,
     FundBuybackDTO,
     FundDayDTO,
+    FundDistributionDTO,
+    FundDistributionPlanDTO,
     FundDTO,
     FundIssuanceDTO,
     FundIssuancePhase,
@@ -40,6 +42,13 @@ from backend.core.indicators import index_daily_rate
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.utils import format_quantity, next_business_day, next_month_turn
 from backend.features.funds import headlines
+from backend.features.funds.distribution import (
+    drained_since,
+    holder_payment,
+    payout_per_quota,
+    realized_profit,
+    settle_month,
+)
 from backend.features.funds.fees import management_fee, performance_charge
 from backend.features.funds.fund_account import DayTrades, FundAccount
 from backend.features.funds.fund_assembly import FundAssemblies
@@ -53,7 +62,10 @@ from backend.features.funds.ranking_price import (
 )
 from backend.features.funds.sessions import window_end, window_session
 from backend.features.notifications.news import Headline
-from backend.features.simulation.simulation_engine import SimulationEngine
+from backend.features.simulation.simulation_engine import (
+    RealizedKind,
+    SimulationEngine,
+)
 from backend.features.variable_income.broker import to_money
 from backend.features.variable_income.entities.order import LimitOrder
 
@@ -115,6 +127,27 @@ def issuance_windows(announced_on: date) -> tuple[date, date]:
     preference_ends_on = window_end(announced_on, PREFERENCE_SESSIONS)
     leftover_starts_on = next_business_day(preference_ends_on)
     return preference_ends_on, window_end(leftover_starts_on, LEFTOVER_SESSIONS)
+
+
+def is_data_com(day: date) -> bool:
+    """Se `day` é o último pregão do mês: o dia em que o lucro realizado do mês fecha."""
+    return next_business_day(day).month != day.month
+
+
+def data_com_of_month(day: date) -> date:
+    """O último pregão do mês de `day`."""
+    last = day
+    while not is_data_com(last):
+        last = next_business_day(last)
+    return last
+
+
+# O campo de `funds` em que cada origem de lucro realizado se acumula no mês
+_REALIZED_FIELDS: dict[RealizedKind, str] = {
+    "dividends": "month_dividends",
+    "interest": "month_interest",
+    "sales_gain": "month_sales_gain",
+}
 
 
 def months_between(start: date, end: date) -> int:
@@ -189,6 +222,9 @@ class Fund:
     assembly: FundAssemblyDTO | None = None
     assembly_votes: dict[int, bool] = field(default_factory=dict)
     last_assembly: FundAssemblyDTO | None = None
+    # Os rendimentos mensais já apurados, do mais antigo ao mais novo; o último ainda pode
+    # estar sem pagamento (entre a data-com e o primeiro pregão do mês seguinte)
+    distributions: list[FundDistributionDTO] = field(default_factory=list)
 
     @property
     def ticker(self) -> str:
@@ -245,6 +281,7 @@ class FundBook:
         )
         engine.broker.on_fund_offer_sale = self._record_offer_sale
         engine.broker.on_fund_buyback = self._record_buyback
+        engine.on_realized = self._record_realized
         for terms in repository.fund.of_simulation(simulation_id):
             self._load(terms)
 
@@ -894,11 +931,15 @@ class FundBook:
         management_changed = management_fee != terms.management_fee
         performance_changed = performance_fee != terms.performance_fee
         changed = management_changed or performance_changed
+        # A data de vigência é uma só para tudo o que está pendente, o rendimento incluído
+        rate_pending = terms.pending_distribution_rate is not None
         fund.terms = terms.model_copy(
             update={
                 "pending_management_fee": management_fee if changed else None,
                 "pending_performance_fee": performance_fee if changed else None,
-                "pending_from": next_month_turn(today) if changed else None,
+                "pending_from": next_month_turn(today)
+                if changed or rate_pending
+                else None,
             }
         )
         self._save(fund)
@@ -913,6 +954,26 @@ class FundBook:
                 today, headlines.performance_fee_changed(ticker, performance_fee)
             )
 
+    def set_distribution(self, ticker: str, rate: Decimal) -> None:
+        """Pede a nova parte distribuída do lucro realizado, que vale no primeiro dia útil do mês seguinte.
+
+        Pedir a parte de hoje desfaz o pedido pendente.
+        """
+        fund = self._funds[ticker]
+        terms = fund.terms
+        today = self._engine.current_date
+        changed = rate != terms.distribution_rate
+        fees_pending = terms.pending_management_fee is not None
+        fund.terms = terms.model_copy(
+            update={
+                "pending_distribution_rate": rate if changed else None,
+                "pending_from": next_month_turn(today)
+                if changed or fees_pending
+                else None,
+            }
+        )
+        self._save(fund)
+
     # =========================
     # Dia
     # =========================
@@ -923,6 +984,8 @@ class FundBook:
         O preço de ranking vale desde já na carteira de quem tem a cota.
         """
         for fund in self._funds.values():
+            # O rendimento apurado na data-com sai do caixa antes de o PL do dia ser calculado
+            self._pay_distribution(fund, today)
             nav = self._nav(fund)
             if nav is None:
                 continue
@@ -984,6 +1047,7 @@ class FundBook:
                 self._close_issuance(fund, today)
             self._advance_assembly(fund, today)
             self._sync_buyback(fund)
+            self._settle_distribution(fund, today)
             self._save(fund)
             candles.append(candle)
         return candles
@@ -1012,6 +1076,10 @@ class FundBook:
             return
         fund.terms = terms.model_copy(
             update={
+                "distribution_rate": terms.pending_distribution_rate
+                if terms.pending_distribution_rate is not None
+                else terms.distribution_rate,
+                "pending_distribution_rate": None,
                 "management_fee": terms.pending_management_fee
                 if terms.pending_management_fee is not None
                 else terms.management_fee,
@@ -1054,9 +1122,12 @@ class FundBook:
             high_water_mark_on=terms.high_water_mark_on,
             today=today,
             cdi_growth=cdi_growth(terms.high_water_mark_on, today),
+            drained_per_quota=drained_since(
+                fund.distributions, terms.high_water_mark_on, fund.account.quotas
+            ),
         )
         self._pay(fund, charge.fee, performance=True)
-        fund.terms = terms.model_copy(
+        fund.terms = fund.terms.model_copy(
             update={
                 "high_water_mark": charge.high_water_mark,
                 "high_water_mark_on": charge.high_water_mark_on,
@@ -1065,12 +1136,155 @@ class FundBook:
         )
 
     def _pay(self, fund: Fund, fee: Decimal, *, performance: bool) -> None:
-        """A taxa sai do caixa da gestora e entra no caixa pessoal do gestor."""
+        """A taxa sai do caixa da gestora e entra no caixa pessoal do gestor; ela abate o lucro realizado do mês."""
         if fee <= 0:
             return
         manager = self._client_of_user(fund.terms.manager_user_id)
         self._engine.charge_fund_fee(fund.account.client_id, fee, performance)
         self._engine.receive_fund_fee(manager, fee, performance)
+        fund.terms = fund.terms.model_copy(
+            update={"month_fees": fund.terms.month_fees + fee}
+        )
+
+    # =========================
+    # Rendimentos mensais
+    # =========================
+
+    def _record_realized(
+        self, client_id: UUID, kind: RealizedKind, amount: Decimal
+    ) -> None:
+        """Soma ao mês da gestora o lucro que a carteira dela acabou de realizar."""
+        fund = self.of_client(client_id)
+        if fund is None or not fund.listed:
+            return
+        column = _REALIZED_FIELDS[kind]
+        fund.terms = fund.terms.model_copy(
+            update={column: getattr(fund.terms, column) + amount}
+        )
+
+    def _settle_distribution(self, fund: Fund, today: date) -> None:
+        """A data-com, no último pregão do mês: apura o rendimento por cota e zera o mês."""
+        if not is_data_com(today):
+            return
+        terms = fund.terms
+        settlement = settle_month(
+            dividends=terms.month_dividends,
+            interest=terms.month_interest,
+            sales_gain=terms.month_sales_gain,
+            fees=terms.month_fees,
+            rate=terms.distribution_rate,
+            outside_quotas=fund.account.outside_quotas,
+        )
+        distribution = FundDistributionDTO(
+            data_com=today,
+            realized_profit=settlement.realized_profit,
+            rate=terms.distribution_rate,
+            quotas=fund.account.outside_quotas,
+            per_quota=settlement.per_quota,
+            paid_per_quota=None,
+            paid=None,
+            paid_on=None,
+        )
+        repository.fund.save_distribution(terms.id, distribution)
+        fund.distributions = [*fund.distributions, distribution]
+        fund.terms = terms.model_copy(
+            update={
+                "month_dividends": Decimal(0),
+                "month_interest": Decimal(0),
+                "month_sales_gain": Decimal(0),
+                "month_fees": Decimal(0),
+            }
+        )
+
+    def _holders(self, fund: Fund) -> list[tuple[UUID, Decimal]]:
+        """Quem tem cota fora do formador: jogadores, bots e outras gestoras, com a posição de cada um."""
+        clients = [user.client_id for user in self.participants()]
+        clients += [c for c in self.client_ids if c != fund.account.client_id]
+        positions = self._engine.broker
+        holders: list[tuple[UUID, Decimal]] = []
+        for client_id in clients:
+            position = positions.get_positions(client_id).get(fund.ticker)
+            if position is not None and position.size > 0:
+                holders.append((client_id, position.size))
+        return holders
+
+    def _pay_distribution(self, fund: Fund, today: date) -> None:
+        """Paga o rendimento apurado na última data-com, no primeiro pregão depois dela.
+
+        O valor por cota sai de `payout_per_quota`: o apurado, ou o caixa dividido pelas cotas
+        quando o caixa não cobre. Cada cotista recebe como provento da cota.
+        """
+        pending = fund.distributions[-1] if fund.distributions else None
+        if pending is None or pending.paid_on is not None or not fund.listed:
+            return
+        holders = self._holders(fund)
+        outside = sum((quotas for _, quotas in holders), Decimal(0))
+        cash = self._engine.get_cash(fund.account.client_id)
+        paid_per_quota = payout_per_quota(pending.per_quota, outside, cash)
+        payments = [
+            (client_id, holder_payment(quotas, paid_per_quota))
+            for client_id, quotas in holders
+        ]
+        total = sum((amount for _, amount in payments), Decimal(0))
+        if total > 0:
+            self._engine.charge_fund_distribution(fund.account.client_id, total)
+            for client_id, amount in payments:
+                if amount > 0:
+                    self._engine.pay_dividend(client_id, fund.ticker, amount)
+        paid = pending.model_copy(
+            update={"paid_per_quota": paid_per_quota, "paid": total, "paid_on": today}
+        )
+        repository.fund.save_distribution(fund.terms.id, paid)
+        fund.distributions = [*fund.distributions[:-1], paid]
+
+    def short_cash_plans(
+        self, user: UserDTO
+    ) -> list[tuple[Fund, FundDistributionPlanDTO]]:
+        """As gestoras do jogador cujo caixa não cobre o rendimento projetado do mês."""
+        plans = [
+            (fund, self.distribution_plan(fund)) for fund in self.managed_by(user.id)
+        ]
+        return [(f, p) for f, p in plans if p.projected > 0 and not p.cash_enough]
+
+    def distribution_plan(self, fund: Fund) -> FundDistributionPlanDTO:
+        """O rendimento do mês corrente: o realizado até hoje, o que ele distribuiria e se o caixa cobre."""
+        terms = fund.terms
+        today = self._engine.current_date
+        outside = fund.account.outside_quotas
+        settlement = settle_month(
+            dividends=terms.month_dividends,
+            interest=terms.month_interest,
+            sales_gain=terms.month_sales_gain,
+            fees=terms.month_fees,
+            rate=terms.distribution_rate,
+            outside_quotas=outside,
+        )
+        projected = settlement.per_quota * outside
+        cash = self._engine.get_cash(fund.account.client_id)
+        data_com_on = data_com_of_month(today)
+        return FundDistributionPlanDTO(
+            rate=terms.distribution_rate,
+            pending_rate=terms.pending_distribution_rate,
+            pending_from=terms.pending_from
+            if terms.pending_distribution_rate is not None
+            else None,
+            dividends=terms.month_dividends,
+            interest=terms.month_interest,
+            sales_gain=terms.month_sales_gain,
+            fees=-terms.month_fees,
+            realized_profit=realized_profit(
+                terms.month_dividends,
+                terms.month_interest,
+                terms.month_sales_gain,
+                terms.month_fees,
+            ),
+            projected=projected,
+            projected_per_quota=settlement.per_quota,
+            cash=cash,
+            cash_enough=cash >= projected,
+            data_com_on=data_com_on,
+            pay_on=next_business_day(data_com_on),
+        )
 
     # =========================
     # Apoio
@@ -1089,6 +1303,7 @@ class FundBook:
         after = self._engine.current_date + timedelta(days=1)
         repository.fund.drop_days_from(terms.id, after)
         repository.fund.drop_offer_sales_from(terms.id, after)
+        repository.fund.drop_distributions_from(terms.id, after)
         days = repository.fund.days(terms.id, after, RANKING_WINDOW)
         # A retomada desfaz as ordens abertas: a recompra em aberto fica cancelada
         repository.fund.cancel_open_buybacks(terms.id)
@@ -1103,6 +1318,7 @@ class FundBook:
             assembly=assembly,
             assembly_votes=assembly_votes,
             last_assembly=last_assembly,
+            distributions=repository.fund.distributions(terms.id, after),
             days=[TradedDay(d.traded_quantity, d.traded_value) for d in days],
             last_close=repository.fund.last_close(
                 self._simulation_id, terms.stock_id, self._engine.current_date

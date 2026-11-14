@@ -15,6 +15,19 @@ describe("movementText", () => {
     expect(text).toContain("160.000,00");
   });
 
+  it("o rendimento diz o total pago aos cotistas", () => {
+    const text = movementText({
+      day: "2024-02-05",
+      type: "distribution",
+      quotas: null,
+      price: null,
+      amount: "9500",
+      ticker: null,
+    });
+    expect(text).toContain("9.500,00");
+    expect(text).toContain("pago aos cotistas");
+  });
+
   it("o relatório mensal não traz número", () => {
     expect(
       movementText({

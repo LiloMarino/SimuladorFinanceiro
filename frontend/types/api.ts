@@ -22,6 +22,7 @@ export type FundContributionRequest = components["schemas"]["FundContributionReq
 export type FundContributionResponse = components["schemas"]["FundContributionResponse"];
 export type FundOfferRequest = components["schemas"]["FundOfferRequest"];
 export type FundFeesRequest = components["schemas"]["FundFeesRequest"];
+export type FundDistributionRequest = components["schemas"]["FundDistributionRequest"];
 export type FundIssuanceRequest = components["schemas"]["FundIssuanceRequest"];
 export type FundIssuanceSubscriptionRequest = components["schemas"]["FundIssuanceSubscriptionRequest"];
 export type FundIssuancePreview = components["schemas"]["FundIssuancePreviewDTO"];

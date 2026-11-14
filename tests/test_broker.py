@@ -260,6 +260,28 @@ def test_limit_sell_credits_cash_and_closes_position(history, captured_events):
     ]
 
 
+def test_sale_reports_the_gain_over_the_average_price_as_realized(history):
+    """Vender 10 a R$ 11 o que custou R$ 8 realiza R$ 30 de ganho; vender abaixo do custo
+    realiza perda."""
+    history({"seller": [(EquityEventType.BUY, "8", 10)]})
+    broker, engine = _broker()
+    realized: list[tuple] = []
+    engine.on_realized = lambda client_id, kind, amount: realized.append(
+        (client_id, kind, amount)
+    )
+    order = _limit(SELLER, OrderAction.SELL, 11, 10)
+    broker.reserve_limit_order(order)
+
+    broker.execute_trade(
+        taker_order=order,
+        maker_order=_limit(MARKET, OrderAction.BUY, 11, 10),
+        size=Decimal(10),
+        price=11,
+    )
+
+    assert realized == [(SELLER, "sales_gain", Decimal(30))]
+
+
 def test_market_liquidity_side_has_no_cash_or_events(history, captured_events):
     """Do lado da liquidez sintética não há caixa, posição nem evento."""
     broker, engine = _broker(buyer="1000")

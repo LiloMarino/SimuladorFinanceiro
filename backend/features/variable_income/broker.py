@@ -542,9 +542,14 @@ class Broker:
 
         self._simulation_engine.add_cash(client_id, to_money(price) * size)
 
+        gain = Decimal(0)
+
         def _sell_mutation(p: Position):
+            nonlocal gain
             if isinstance(order, LimitOrder):
                 p.release(size)
+            # O ganho realizado é o preço de venda menos o custo médio, antes de a posição sair
+            gain = (to_money(price) - p.avg_price) * size
             p.update_sell(size)
 
         self._mutate_position(
@@ -553,6 +558,7 @@ class Broker:
             mutation=_sell_mutation,
         )
 
+        self._simulation_engine.record_realized(client_id, "sales_gain", gain)
         EventManager.push_event(
             EquityEventDTO(
                 simulation_id=self._simulation_engine.simulation_id,

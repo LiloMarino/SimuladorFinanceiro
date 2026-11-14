@@ -384,6 +384,12 @@ PENDING: tuple[PendingSpec, ...] = (
         "Convite para assumir uma gestora",
         "Some ao responder, quando quem convocou cancela ou quando o convite vence",
     ),
+    PendingSpec(
+        PendingType.FUND_DISTRIBUTION_SHORT_CASH,
+        PendingSeverity.WARNING,
+        "Caixa da gestora não cobre o rendimento",
+        "Só para o gestor; some quando o caixa passa a cobrir o rendimento projetado do mês",
+    ),
 )
 
 NEWS_BY_TYPE: dict[NewsType, NewsSpec] = {spec.type: spec for spec in NEWS}

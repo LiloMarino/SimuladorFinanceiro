@@ -89,6 +89,8 @@ class CashflowEventType(Enum):
     FUND_OFFER_PROCEEDS = "FUND_OFFER_PROCEEDS"
     # Subscrição do formador de mercado: o dinheiro sintético entra no caixa da gestora
     FUND_MAKER_SUBSCRIPTION = "FUND_MAKER_SUBSCRIPTION"
+    # Rendimento mensal da gestora: sai do caixa dela e chega aos cotistas como DIVIDEND
+    FUND_DISTRIBUTION = "FUND_DISTRIBUTION"
 
     @property
     def sign(self) -> int:
@@ -126,6 +128,7 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.FUND_PERFORMANCE_FEE_INCOME: 1,
     CashflowEventType.FUND_OFFER_PROCEEDS: 1,
     CashflowEventType.FUND_MAKER_SUBSCRIPTION: 1,
+    CashflowEventType.FUND_DISTRIBUTION: -1,
 }
 
 # Aporte, salário, legado do presidente, despesa e imprevisto (ruim ou bom) são o
@@ -1271,6 +1274,7 @@ class PendingType(Enum):
     DEAL_DEMAND = "DEAL_DEMAND"
     SELIC_MEETING = "SELIC_MEETING"
     FUND_ASSEMBLY_INVITE = "FUND_ASSEMBLY_INVITE"
+    FUND_DISTRIBUTION_SHORT_CASH = "FUND_DISTRIBUTION_SHORT_CASH"
 
 
 class PendingSeverity(Enum):

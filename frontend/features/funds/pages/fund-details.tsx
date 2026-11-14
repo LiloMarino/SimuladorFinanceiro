@@ -19,10 +19,12 @@ import {
 import type { FundDetails } from "@/types";
 import { ContributeDialog } from "../components/contribute-dialog";
 import { BuybackDialog } from "../components/buyback-dialog";
+import { DistributionDialog } from "../components/distribution-dialog";
 import { FeesDialog } from "../components/fees-dialog";
 import { FundAssembly } from "../components/fund-assembly";
 import { FundBuybackCard } from "../components/fund-buyback-card";
 import { FundComposition } from "../components/fund-composition";
+import { FundDistributionsCard } from "../components/fund-distributions-card";
 import { FundFeesCard } from "../components/fund-fees-card";
 import { FundHeader } from "../components/fund-header";
 import { FundHolders } from "../components/fund-holders";
@@ -88,6 +90,7 @@ type DetailsContentProps = { fund: FundDetails; viewer: boolean };
 function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
   usePageLabel(fund.name);
   const [feesOpen, setFeesOpen] = useState(false);
+  const [distributionOpen, setDistributionOpen] = useState(false);
   const [offerOpen, setOfferOpen] = useState(false);
   const [issuanceOpen, setIssuanceOpen] = useState(false);
   const [buybackOpen, setBuybackOpen] = useState(false);
@@ -271,7 +274,7 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
         </div>
       ) : (
         <>
-          {/* Cinco números */}
+          {/* Números do topo */}
           <FundMetricsRow fund={fund} viewer={viewer} />
 
           {/* Gráfico e boleta ou taxas */}
@@ -290,6 +293,9 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
             <FundHolders fund={fund} viewer={viewer} />
           </div>
 
+          {/* Rendimentos */}
+          <FundDistributionsCard fund={fund} {...(viewer ? {} : { onChange: () => setDistributionOpen(true) })} />
+
           {/* Movimentos e venda do gestor */}
           <div className={viewer ? "grid gap-5" : "grid items-start gap-5 xl:grid-cols-2"}>
             <FundMovements movements={fund.movements} />
@@ -301,6 +307,7 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
       {!viewer && (
         <>
           <FeesDialog open={feesOpen} onOpenChange={setFeesOpen} fund={fund} />
+          <DistributionDialog open={distributionOpen} onOpenChange={setDistributionOpen} fund={fund} />
           <OfferDialog
             open={offerOpen}
             onOpenChange={setOfferOpen}
