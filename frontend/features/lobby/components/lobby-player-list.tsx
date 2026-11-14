@@ -13,6 +13,7 @@ import { PlayerActivityStatus } from "@/shared/components/player-activity-status
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { MAX_PLAYERS } from "@/shared/lib/player-colors";
+import { availableProfessions } from "@/shared/lib/professions";
 import { plural } from "@/shared/lib/strategy-orders";
 import { teamColor } from "@/shared/lib/teams";
 import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
@@ -41,6 +42,8 @@ type LobbyPlayersListProps = {
   naming: TeamNaming;
   /** Viver de renda com profissões: cada cartão mostra a profissão; a escolha fica na Minha preparação */
   professions: boolean;
+  /** Correção pela inflação ligada: decide quais profissões a sala oferece aos bots */
+  inflationAdjusted: boolean;
   /** Governo & Política ligada: cada cartão mostra o partido preparado */
   governmentEnabled: boolean;
 };
@@ -54,6 +57,7 @@ export function LobbyPlayersList({
   grouping,
   naming,
   professions,
+  inflationAdjusted,
   governmentEnabled,
 }: LobbyPlayersListProps) {
   const { user } = useAuth();
@@ -317,6 +321,7 @@ export function LobbyPlayersList({
         bot={botDialog?.bot}
         grouping={grouping}
         naming={naming}
+        professions={professions ? availableProfessions({ inflation_adjusted: inflationAdjusted }) : null}
         freeSlots={freeSlots}
       />
     </Card>

@@ -14,13 +14,18 @@ from backend.core.indicators import (
 )
 from backend.core.periods import MONTHS_PER_YEAR
 from backend.core.professions import (
+    DAYS_PER_YEAR,
+    DRIVER_CURVES,
     PROFESSIONS,
     REFERENCE_RATES,
     REFERENCE_WELFARE_SPENDING,
+    IncomeDriver,
     LifeLevers,
     ProfessionRule,
     RealRaise,
-    entrepreneur_gdp_factor,
+    StartingCapital,
+    driver_factor,
+    inheritance_rate,
     no_levers,
 )
 
@@ -32,6 +37,18 @@ SALARY_GDP_SHARE = Decimal("0.5")
 
 def no_growth(day: date) -> Decimal:
     return Decimal(0)
+
+
+def no_dollar_change(day: date) -> Decimal:
+    return DRIVER_CURVES[IncomeDriver.DOLLAR].neutral
+
+
+def neutral_selic(day: date) -> Decimal:
+    return DRIVER_CURVES[IncomeDriver.SELIC].neutral
+
+
+def neutral_stocks_return(day: date) -> Decimal:
+    return DRIVER_CURVES[IncomeDriver.STOCKS].neutral
 
 
 @dataclass(frozen=True)
@@ -53,6 +70,11 @@ class LifeBudget:
     start_date: date
     # Crescimento do PIB de 12 meses da partida em cada dia, em fração (0.031)
     growth_on: Callable[[date], Decimal] = no_growth
+    # A variação do dólar em 12 meses, a SELIC ao ano e o retorno do Ibovespa em 12
+    # meses da partida em cada dia, em fração; o padrão é o valor neutro de cada curva
+    dollar_change_on: Callable[[date], Decimal] = no_dollar_change
+    selic_on: Callable[[date], Decimal] = neutral_selic
+    stocks_return_on: Callable[[date], Decimal] = neutral_stocks_return
     profession: Profession = Profession.CLT
     # As medidas do governo que valem em cada dia; sem governo, o país padrão
     levers_on: Callable[[date], LifeLevers] = no_levers
@@ -66,6 +88,9 @@ class LifeBudget:
         settings: SimulationSettingsDTO,
         growth_on: Callable[[date], Decimal] = no_growth,
         levers_on: Callable[[date], LifeLevers] = no_levers,
+        dollar_change_on: Callable[[date], Decimal] = no_dollar_change,
+        selic_on: Callable[[date], Decimal] = neutral_selic,
+        stocks_return_on: Callable[[date], Decimal] = neutral_stocks_return,
     ) -> "LifeBudget":
         return cls(
             monthly_salary=settings.monthly_salary,
@@ -75,6 +100,9 @@ class LifeBudget:
             start_date=settings.start_date,
             growth_on=growth_on,
             levers_on=levers_on,
+            dollar_change_on=dollar_change_on,
+            selic_on=selic_on,
+            stocks_return_on=stocks_return_on,
         )
 
     def for_profession(self, profession: Profession) -> "LifeBudget":
@@ -96,9 +124,9 @@ class LifeBudget:
             return Decimal(0), cents(
                 self.monthly_salary * self.presidency_multiple * factor
             )
-        exposed = self.monthly_salary * rule.income_multiple * factor
-        if rule.follows_gdp:
-            exposed *= entrepreneur_gdp_factor(self.growth_on(day))
+        exposed = self.monthly_salary * self.multiple_on(day) * factor
+        if rule.driver is not None:
+            exposed *= self.driver_factor_on(day)
         benefit = (
             self.monthly_salary
             * rule.benefit_multiple
@@ -107,6 +135,67 @@ class LifeBudget:
             / REFERENCE_WELFARE_SPENDING
         )
         return cents(exposed), cents(benefit)
+
+    def multiple_on(self, day: date) -> Decimal:
+        """O múltiplo do salário do host que a profissão rende no dia: o da carreira sobe em linha reta desde o início da partida."""
+        rule = self.rule
+        career = rule.career
+        if career is None:
+            return rule.income_multiple
+        progress = career.progress((day - self.start_date).days)
+        return rule.income_multiple + progress * (
+            career.final_multiple - rule.income_multiple
+        )
+
+    def layoff_weight_on(self, day: date) -> Decimal:
+        """Quantas vezes a chance de demissão da sala pesa para a profissão no dia; 1 sem carreira."""
+        career = self.rule.career
+        if career is None:
+            return Decimal(1)
+        progress = career.progress((day - self.start_date).days)
+        return career.layoff_weight - progress * (career.layoff_weight - 1)
+
+    def driver_value_on(self, day: date) -> Decimal | None:
+        """O valor da variável que move a renda da profissão no dia; nulo sem variável."""
+        match self.rule.driver:
+            case IncomeDriver.GDP:
+                return self.growth_on(day)
+            case IncomeDriver.DOLLAR:
+                return self.dollar_change_on(day)
+            case IncomeDriver.SELIC:
+                return self.selic_on(day)
+            case IncomeDriver.STOCKS:
+                return self.stocks_return_on(day)
+            case None:
+                return None
+
+    def driver_factor_on(self, day: date) -> Decimal:
+        """O fator que a variável da profissão põe na renda do dia; 1 sem variável."""
+        driver = self.rule.driver
+        value = self.driver_value_on(day)
+        if driver is None or value is None:
+            return Decimal(1)
+        return driver_factor(DRIVER_CURVES[driver], value)
+
+    def starting_capital(
+        self, room_cash: Decimal, joined: date, end_date: date
+    ) -> Decimal:
+        """
+        O caixa com que o jogador entra em `joined`: o da sala, o da sala mais a herança
+        (o valor presente dos salários que faltam até `end_date`, à taxa de herança do modo da sala) ou zero.
+        """
+        match self.rule.starting_capital:
+            case StartingCapital.ROOM:
+                return room_cash
+            case StartingCapital.ZERO:
+                return Decimal(0)
+            case StartingCapital.ROOM_PLUS_INHERITANCE:
+                years = Decimal(max((end_date - joined).days, 0)) / DAYS_PER_YEAR
+                rate = inheritance_rate(self.inflation_adjusted)
+                annuity = (1 - (1 + rate) ** -years) / rate
+                return room_cash + cents(
+                    self.monthly_salary * MONTHS_PER_YEAR * annuity
+                )
 
     def salary_on(self, day: date) -> Decimal:
         """A renda bruta do mês, antes do imposto."""
@@ -168,7 +257,7 @@ class LifeBudget:
         return inflation_factor(self.start_date, day)
 
     def _salary_factor(self, day: date) -> Decimal:
-        if not self.inflation_adjusted:
+        if not self.inflation_adjusted or not self.rule.inflation_indexed:
             return Decimal(1)
         factor = Decimal(1)
         for anniversary in anniversaries(self.start_date, day):

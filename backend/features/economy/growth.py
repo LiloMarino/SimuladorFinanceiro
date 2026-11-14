@@ -205,6 +205,15 @@ def aim_from(
     )
 
 
+def stocks_return(day: date, *, stored: bool = False) -> Decimal | None:
+    """O retorno do Ibovespa nos 12 meses até `day`; nulo onde a série não cobre."""
+    now = last_known_value(IndicatorSeries.IBOV, day, stored=stored)
+    before = last_known_value(
+        IndicatorSeries.IBOV, day - timedelta(days=STOCKS_WINDOW_DAYS), stored=stored
+    )
+    return now / before - 1 if now is not None and before else None
+
+
 def growth_aim(
     day: date,
     spending: Decimal = ZERO,
@@ -218,14 +227,10 @@ def growth_aim(
     resultado primário e o crédito caro somam; com `stored`, o alvo da história, pelas
     séries guardadas.
     """
-    now = last_known_value(IndicatorSeries.IBOV, day, stored=stored)
-    before = last_known_value(
-        IndicatorSeries.IBOV, day - timedelta(days=STOCKS_WINDOW_DAYS), stored=stored
-    )
     return aim_from(
         annual_index_rate(IndicatorSeries.SELIC, day, stored=stored),
         annual_index_rate(IndicatorSeries.IPCA, day, stored=stored),
-        now / before - 1 if now is not None and before else None,
+        stocks_return(day, stored=stored),
         spending,
         impulse,
         crowding,

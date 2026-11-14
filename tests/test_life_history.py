@@ -21,6 +21,7 @@ from backend.core.enum import (
     CONTRIBUTION_TYPES,
     CashflowEventType,
     GameType,
+    IncomeLoss,
     IndicatorSeries,
     LifeEventEffect,
     LifeEventFamily,
@@ -310,6 +311,7 @@ def _living(
     )
     living = cast(Simulation, fake)
     fake._layoff_factor = partial(Simulation._layoff_factor, living)
+    fake._layoff_factor_for = partial(Simulation._layoff_factor_for, living)
     fake._profession_of = partial(Simulation._profession_of, living)
     fake._life_budget = partial(Simulation._life_budget, living)
     fake._notify_life_event = partial(Simulation._notify_life_event, living)
@@ -579,3 +581,15 @@ def test_a_good_event_is_a_positive_row_with_the_text_of_the_profession():
     assert rows[0].amount == Decimal(8000)
     assert rows[0].label == "Contrato grande"
     assert rows[0].cash_after == Decimal(8000)
+
+
+def test_the_freelancer_layoff_reads_as_a_month_without_clients():
+    rows = build_history(
+        EVENTS,
+        DEFAULT_LIFE_EVENTS,
+        loss=IncomeLoss.NO_CLIENTS,
+        profession=Profession.FREELANCER,
+    )
+
+    layoff = next(r for r in rows if r.kind is LifeHistoryKind.LAYOFF)
+    assert layoff.label == "Mês sem cliente"

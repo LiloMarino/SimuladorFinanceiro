@@ -6,6 +6,7 @@ import { BotNameField } from "@/shared/components/bot-name-field";
 import { ColorSwatchPicker } from "@/shared/components/color-swatch-picker";
 import { ErrorState } from "@/shared/components/error-state";
 import { InfoHint } from "@/shared/components/info-hint";
+import { OptionSelect, type SelectOption } from "@/shared/components/option-select";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { StrategyParamsForm } from "@/shared/components/strategy-params-form";
 import { Badge } from "@/shared/components/ui/badge";
@@ -22,15 +23,22 @@ import { RANDOM_STRATEGY, type BotFormValues, type TakenSlot } from "@/shared/li
 import { drawBotName, isDrawnName, nameTaken } from "@/shared/lib/bot-names";
 import { NAME_MAX_LENGTH, NAME_TOO_LONG } from "@/shared/lib/name-limit";
 import { PLAYER_SWATCHES, playerOwners } from "@/shared/lib/player-colors";
+import { PROFESSIONS } from "@/shared/lib/professions";
 import { GROUP_SECTION } from "@/shared/lib/strategy-groups";
 import { defaultValues, draftErrors, fromDraft, toDraft, type ParamValues } from "@/shared/lib/strategy-params";
 import { cn } from "@/shared/lib/utils";
-import type { BotTicker, StrategyGroup, StrategyInfo } from "@/types";
+import type { BotTicker, Profession, StrategyGroup, StrategyInfo } from "@/types";
 
 const GROUPS: StrategyGroup[] = ["reference", "tactic"];
 
-/** Os campos do diálogo: os do bot e, ao adicionar na sala, a quantidade de bots a criar. */
-type BotDialogValues = BotFormValues & { quantity: number };
+/** A opção da profissão que deixa o servidor sortear uma para o bot. */
+const RANDOM_PROFESSION = "random";
+
+/**
+ * Os campos do diálogo: os do bot, a profissão (nula = sorteada, só em sala de profissões) e,
+ * ao adicionar na sala, a quantidade de bots a criar.
+ */
+type BotDialogValues = BotFormValues & { quantity: number; profession: Profession | null };
 
 /**
  * O que o diálogo entrega ao confirmar: os campos do formulário e os parâmetros já como números.
@@ -65,6 +73,8 @@ type BotDialogProps = {
   submitLabel: string;
   submitIcon?: ReactNode;
   saving: boolean;
+  /** Sala de profissões: as que o bot pode ter e a dele ao configurar (nula ao adicionar, quando o servidor sorteia) */
+  profession?: { available: Profession[]; initial: Profession | null } | undefined;
   /** Campos a mais depois da cor, como a equipe da sala */
   extraFields?: (form: UseFormReturn<BotDialogValues>, others: TakenSlot[]) => ReactNode;
   /** Quantos bots o diálogo cria de uma vez, no máximo; sem ele o diálogo cria um só */
@@ -182,6 +192,7 @@ function BotForm({
   submitIcon,
   saving,
   extraFields,
+  profession: professionField,
   maxQuantity = 1,
   compareToDefault,
   onSubmit,
@@ -197,6 +208,7 @@ function BotForm({
       strategyKey: z.string(),
       color: z.string(),
       team: z.number().nullable(),
+      profession: z.custom<Profession>().nullable(),
       drafts: z.record(z.string(), z.any()),
       quantity: z
         .number({ error: `Informe de 1 a ${maxQuantity}.` })
@@ -220,9 +232,11 @@ function BotForm({
   const form = useForm<BotDialogValues>({
     resolver: zodResolver(schema),
     mode: "onChange",
-    defaultValues: { ...initial(strategies), quantity: 1 },
+    defaultValues: { ...initial(strategies), quantity: 1, profession: professionField?.initial ?? null },
   });
-  const { strategyKey, nickname, color, drafts, quantity } = useWatch({ control: form.control }) as BotDialogValues;
+  const { strategyKey, nickname, color, drafts, quantity, profession } = useWatch({
+    control: form.control,
+  }) as BotDialogValues;
 
   const strategy = strategies.find((s) => s.key === strategyKey) ?? strategies[0];
   if (!strategy) return null;
@@ -251,6 +265,16 @@ function BotForm({
       form.setValue("nickname", drawBotName(next, takenNames), { shouldValidate: true });
     }
   };
+
+  // Ao adicionar o servidor sorteia; ao configurar o bot já tem a sua profissão
+  const professionOptions: SelectOption<Profession | typeof RANDOM_PROFESSION>[] = professionField
+    ? [
+        ...(professionField.initial === null
+          ? [{ value: RANDOM_PROFESSION, label: batch ? "Sortear para cada bot" : "Sortear" } as const]
+          : []),
+        ...professionField.available.map((key) => ({ value: key, label: PROFESSIONS[key].name })),
+      ]
+    : [];
 
   const pickQuantity = (next: number) => {
     // "Sortear para cada bot" só existe em lote: com um bot a estratégia volta à primeira
@@ -359,6 +383,24 @@ function BotForm({
                   </Field>
                 )}
               />
+            )}
+
+            {/* Profissão */}
+            {professionField && (
+              <Field>
+                <FieldLabel htmlFor="bot-profession">Profissão</FieldLabel>
+                <OptionSelect
+                  id="bot-profession"
+                  options={professionOptions}
+                  value={profession ?? RANDOM_PROFESSION}
+                  onChange={(next) => form.setValue("profession", next === RANDOM_PROFESSION ? null : next)}
+                  search={false}
+                />
+                <FieldDescription>
+                  A renda e os riscos do bot seguem a profissão. Sorteando, cada bot recebe uma entre as disponíveis na
+                  sala.
+                </FieldDescription>
+              </Field>
             )}
 
             {/* Prévia */}

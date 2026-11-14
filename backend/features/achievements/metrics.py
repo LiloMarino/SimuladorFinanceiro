@@ -78,6 +78,10 @@ def no_market_end() -> date | None:
     return None
 
 
+def no_starting_cash(_portfolio_id: int) -> Decimal:
+    return ZERO
+
+
 @dataclass(frozen=True)
 class Sources:
     """Leituras que dependem da partida em andamento e valem para todos os jogadores."""
@@ -86,6 +90,8 @@ class Sources:
     income_tax: Callable[[int], list[MonthlyTax]] = no_income_tax
     # Último pregão com dado real; None sem mercado real
     market_real_end: Callable[[], date | None] = no_market_end
+    # O capital com que uma carteira abriu: cada jogador entra com o dele
+    starting_cash: Callable[[int], Decimal] = no_starting_cash
 
 
 NO_SOURCES = Sources()
@@ -181,7 +187,9 @@ def networth(ctx: Context) -> Decimal:
 @metric("capital_multiple", Trigger.TICK)
 def capital_multiple(ctx: Context) -> Decimal:
     """Quantas vezes o patrimônio é o que o jogador colocou: saldo inicial mais aportes."""
-    provided = ctx.settings.starting_cash + ctx.snapshot.total_contribution
+    provided = (
+        ctx.sources.starting_cash(ctx.portfolio_id) + ctx.snapshot.total_contribution
+    )
     return ctx.snapshot.total_networth / provided if provided > 0 else ZERO
 
 

@@ -1,7 +1,9 @@
 from datetime import date
 
 from backend.core.dto.strategy import StrategyParamValue
+from backend.core.enum import Profession
 from backend.core.exceptions.http_exceptions import UnprocessableEntityError
+from backend.core.professions import available_professions
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.user_manager import BotConfig, UserManager
 from backend.features.strategy import catalog
@@ -12,8 +14,13 @@ def resolve_bot(
     strategy_key: str,
     params: dict[str, StrategyParamValue],
     today: date | None = None,
+    profession: Profession | None = None,
 ) -> BotConfig:
-    """Os parâmetros completos pelo catálogo, na data das regras do lobby, e já validados."""
+    """Os parâmetros completos pelo catálogo, na data das regras do lobby, e já validados; a profissão, quando fixa, é uma que a sala permite."""
+    if profession is not None and profession not in available_professions(
+        SettingsManager.effective_inflation_adjusted()
+    ):
+        raise UnprocessableEntityError("Essa profissão não existe nas regras da sala.")
     strategy = get_strategy(strategy_key)
     known = catalog.known_tickers()
     resolved = catalog.with_defaults(
@@ -22,7 +29,7 @@ def resolve_bot(
     errors = strategy.validate(resolved, known)
     if errors:
         raise UnprocessableEntityError(" ".join(errors.values()))
-    return BotConfig(strategy_key, strategy.name, resolved)
+    return BotConfig(strategy_key, strategy.name, resolved, profession=profession)
 
 
 def validate_room_bots(start_date: date) -> None:

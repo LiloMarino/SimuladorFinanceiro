@@ -64,6 +64,11 @@ def player_book(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEvent
         repository.user, "get_total_contribution", lambda _portfolio_id: Decimal("600")
     )
     monkeypatch.setattr(
+        repository.portfolio,
+        "starting_cash",
+        lambda portfolio_ids: dict.fromkeys(portfolio_ids, STARTING_CASH),
+    )
+    monkeypatch.setattr(
         repository.user,
         "get_total_cashflow",
         lambda _portfolio_id, event_type: {CashflowEventType.TAX: Decimal("0")}[
@@ -125,9 +130,7 @@ def player_book(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEvent
 
 
 def _engine() -> SimulationEngine:
-    return SimulationEngine(
-        TODAY, STARTING_CASH, simulation_id=1, end_date=date(2030, 1, 1)
-    )
+    return SimulationEngine(TODAY, simulation_id=1, end_date=date(2030, 1, 1))
 
 
 def _cashflows(events: list[BaseEventDTO]) -> list[tuple[CashflowEventType, Decimal]]:
@@ -337,7 +340,7 @@ def test_preview_buy_uses_limit_price_and_cash(player_book):
 def _next_day_engine() -> SimulationEngine:
     """Um pregão depois da compra: a venda não é day trade."""
     return SimulationEngine(
-        date(2020, 1, 7), STARTING_CASH, simulation_id=1, end_date=date(2030, 1, 1)
+        date(2020, 1, 7), simulation_id=1, end_date=date(2030, 1, 1)
     )
 
 
@@ -373,6 +376,7 @@ def test_player_joining_mid_match_gets_the_starting_deposit_and_the_day_snapshot
     sim._engine = _engine()
     sim.settings = cast("SimulationDTO", SimpleNamespace(starting_cash=Decimal("500")))
     sim.statistics = ReportCache()
+    sim._life = None
     snapshots = []
     monkeypatch.setattr(
         Simulation, "_snapshot_users", lambda _, users: snapshots.extend(users)
@@ -380,7 +384,7 @@ def test_player_joining_mid_match_gets_the_starting_deposit_and_the_day_snapshot
     monkeypatch.setattr(EventManager, "flush", lambda: None)
     user = UserDTO(id=USER_ID, client_id=PLAYER, nickname="Duda")
 
-    sim.add_player(user)
+    sim.add_player(user, Decimal("500"))
 
     assert _cashflows(captured_events) == [(CashflowEventType.DEPOSIT, Decimal("500"))]
     assert [e.event_date for e in captured_events] == [TODAY]

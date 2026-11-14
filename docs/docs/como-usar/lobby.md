@@ -233,7 +233,7 @@ Ela vem do estudo **Trinity**, feito com dados dos EUA. O estudo viu que retirar
 **Salário (opcional).** O **modo de salário** do host define quem ganha o quê:
 
 - **Todos iguais** (padrão): todos são CLT e ganham o salário do host.
-- **Profissões:** cada jogador escolhe a sua na tela de entrada ou na aba **Profissão** do botão [**Minha preparação**](#minha-preparação), e todos a veem no cartão dele na sala. A escolha fica no seu perfil e vale nas próximas salas. Quem já jogou a partida salva volta com a sua; os bots sorteiam uma ao entrar. A meta e a despesa continuam as do host: a profissão muda só a renda e o risco.
+- **Profissões:** cada jogador escolhe a sua na tela de entrada ou na aba **Profissão** do botão [**Minha preparação**](#minha-preparação), e todos a veem no cartão dele na sala. A escolha fica no seu perfil e vale nas próximas salas. Quem já jogou a partida salva volta com a sua; ao adicionar um bot, o host escolhe a profissão dele ou deixa em **Sortear** (num lote, a profissão escolhida vale para todos e **Sortear para cada bot** dá uma a cada um). A meta e a despesa continuam as do host: a profissão muda só a renda e o risco.
 
 | Profissão | Renda por mês | O que ela sente |
 | --- | --- | --- |
@@ -243,6 +243,18 @@ Ela vem do estudo **Trinity**, feito com dados dos EUA. O estudo viu que retirar
 | Aposentado | 0,85× | O imprevisto de saúde custa o dobro; reajuste de IPCA + o reajuste real dos aposentados |
 | Auxílio | bico de 0,5× + auxílio | O bico some no sorteio de demissão; o auxílio cresce com o gasto do governo com auxílio; sente o imposto sobre consumo |
 | Locador | 1,1× de aluguel | A vacância (um mês sem aluguel) cai no sorteio de demissão; imposto de renda das pessoas |
+| Exportador | 1,05×, corrigido pelo dólar | A renda sobe e cai com a variação do dólar em 12 meses (de metade ao dobro); nunca é demitido; sente o imposto de renda das empresas |
+| Bancário | 1,1×, corrigido pela SELIC | A renda sobe quando a SELIC passa de 12% ao ano e cai quando fica abaixo (de metade ao dobro); demissão pelo desemprego |
+| Autônomo | 1,4× | O sorteio de demissão vira um mês sem cliente; a renda não acompanha o IPCA, e a despesa sobe. Só existe com a correção pela inflação ligada |
+| Corretor | 1,05×, corrigido pelo Ibovespa | A renda sobe e cai com o retorno do Ibovespa em 12 meses (neutro em 12%, piso de 40% e teto do dobro); nunca é demitido |
+| Herdeiro | sem renda de trabalho | Começa com o capital da sala mais uma herança; a despesa sai do patrimônio; nunca é demitido |
+| Recém-formado | de 0,6× a 1,5× em 10 anos | Começa sem capital; a chance de demissão é o dobro da do CLT no começo e cai até a dele em 10 anos |
+
+**Variáveis de mercado.** A renda das profissões novas segue o dado da partida de cada dia. O fator que multiplica a renda é 1 + sensibilidade × (valor − neutro), limitado entre o piso e o teto. Ex.: o Bancário, com a SELIC em 16% ao ano, tem fator 1 + 4 × (16% − 12%) = 1,16, e a renda de R$ 8.800 vira R$ 10.208. O Corretor, com o Ibovespa 20% abaixo em 12 meses, tem fator 1 + 1,5 × (−20% − 12%) = 0,52. O Exportador usa a variação do dólar em 12 meses, com neutro em 0%.
+
+**Herdeiro.** A herança é o valor presente dos salários que faltam até o fim da partida, a uma taxa que depende da sala: **5% ao ano** com a correção pela inflação (o salário sobe com o IPCA, então o patrimônio só precisa render juro real) e **10% ao ano** sem ela (o salário fica parado e o patrimônio rende perto do CDI). Ex.: com salário de R$ 8.000 e uma partida de 10 anos, a herança é de cerca de R$ 741 mil com a correção e de cerca de R$ 590 mil sem ela, somada ao capital da sala. Quem entra com a partida rodando recebe a herança só pelos anos que faltam.
+
+**Autônomo e a correção pela inflação.** Sem a correção pela inflação nas regras, o Autônomo não aparece para escolha nem é sorteado para os bots, e quem estava com ele volta a ser CLT.
 
 Ex.: salário do host de R$ 8.000 e Servidor: a renda é R$ 7.200 por mês. O sorteio de imprevistos é um só para a partida, então o mesmo dia que demite o CLT tira o bico do Auxílio e o aluguel do Locador; o Servidor, o Empreendedor e o Aposentado ignoram essa perda. O cartão de Vida financeira mostra a profissão e o que ela sente agora.
 
@@ -351,7 +363,7 @@ Com uma partida salva selecionada, o seletor fica desabilitado (as regras dela n
 
 O botão **Minha preparação**, no topo do lobby, abre o que você deixa pronto antes de a partida começar. Ele mostra a sua profissão e o seu partido e conta os convites de vice sem resposta. Tudo é salvo sozinho, um instante depois de você mexer: o rodapé diz **Salvando…** e depois **Salvo automaticamente**, e se algo falhar aparece **Tentar de novo**. Não há botão Salvar.
 
-* **Profissão** (com as profissões ligadas nas regras): a grade mostra as seis profissões, com a renda de cada uma em reais por mês (Ex.: com salário de R$ 8.000, o Servidor, a **0,9× o salário**, recebe R$ 7.200), o que ela ganha e perde em relação às outras e as etiquetas **Afetado por**, que mostram numa tabela como cada coisa mexe na renda. Só aparece o que vale nas regras da sala: sem o Governo, saem os impostos e os aumentos de servidores e aposentados. Clicar escolhe e salva na hora. Com as profissões desligadas, a aba fica desabilitada com a etiqueta **desligada nas regras**; com uma partida salva selecionada, quem já jogou volta com a sua e a escolha fica travada
+* **Profissão** (com as profissões ligadas nas regras): a grade mostra as doze profissões (onze sem a correção pela inflação, que esconde o Autônomo), com a renda de cada uma em reais por mês (Ex.: com salário de R$ 8.000, o Servidor, a **0,9× o salário**, recebe R$ 7.200), o que ela ganha e perde em relação às outras e as etiquetas **Afetado por**, que mostram numa tabela como cada coisa mexe na renda. Só aparece o que vale nas regras da sala: sem o Governo, saem os impostos e os aumentos de servidores e aposentados. Clicar escolhe e salva na hora. Com as profissões desligadas, a aba fica desabilitada com a etiqueta **desligada nas regras**; com uma partida salva selecionada, quem já jogou volta com a sua e a escolha fica travada
 
 Com a expansão [Governo & Política](./governo.md) ligada numa partida nova, a aba **Partido** diz o que você faz no começo da partida, sem precisar estar com o relógio andando:
 

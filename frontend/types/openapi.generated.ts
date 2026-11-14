@@ -7321,11 +7321,17 @@ export interface components {
             overwrite: boolean;
         };
         /**
+         * IncomeDriver
+         * @description A variável da partida que move a renda da profissão.
+         * @enum {string}
+         */
+        IncomeDriver: "GDP" | "DOLLAR" | "SELIC" | "STOCKS";
+        /**
          * IncomeLoss
          * @description O que a demissão sorteada do mês faz com a renda de quem está exposto a ela.
          * @enum {string}
          */
-        IncomeLoss: "LAYOFF" | "GIG_LOSS" | "VACANCY";
+        IncomeLoss: "LAYOFF" | "GIG_LOSS" | "VACANCY" | "NO_CLIENTS";
         /** IncomeTaxBracketDTO */
         IncomeTaxBracketDTO: {
             /** Max Days */
@@ -7979,8 +7985,9 @@ export interface components {
             real_raise: string | null;
             /** Welfare Spending */
             welfare_spending: string | null;
-            /** Gdp Growth */
-            gdp_growth: string | null;
+            driver: components["schemas"]["IncomeDriver"] | null;
+            /** Driver Value */
+            driver_value: string | null;
         };
         /**
          * LinkEffectDTO
@@ -9966,7 +9973,7 @@ export interface components {
          * @description A profissão do jogador no viver de renda; cada uma pertence a um grupo do eleitorado.
          * @enum {string}
          */
-        Profession: "CLT" | "PUBLIC_SERVANT" | "ENTREPRENEUR" | "RETIREE" | "WELFARE" | "LANDLORD";
+        Profession: "CLT" | "PUBLIC_SERVANT" | "ENTREPRENEUR" | "RETIREE" | "WELFARE" | "LANDLORD" | "EXPORTER" | "BANKER" | "FREELANCER" | "BROKER" | "HEIR" | "NEW_GRADUATE";
         /**
          * ProfileMoveDTO
          * @description Uma medida aprovada que moveu o perfil do partido.
@@ -10467,6 +10474,7 @@ export interface components {
             color?: string | null;
             /** Team */
             team?: number | null;
+            profession?: components["schemas"]["Profession"] | null;
         };
         /** RoomBotsRequest */
         RoomBotsRequest: {

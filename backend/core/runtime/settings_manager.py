@@ -218,6 +218,16 @@ class SettingsManager:
         return cls.get().uses_professions
 
     @classmethod
+    def effective_inflation_adjusted(cls) -> bool:
+        """A sala corrige a renda pela inflação: a partida salva selecionada manda; sem ela, as regras da nova."""
+        selected_id = cls.get_selected_simulation_id()
+        if selected_id is not None:
+            summary = repository.simulation.get_simulation(selected_id)
+            if summary is not None:
+                return summary.inflation_adjusted
+        return cls.get().inflation_adjusted
+
+    @classmethod
     def clear(cls) -> None:
         with cls._lock:
             cls._settings = None

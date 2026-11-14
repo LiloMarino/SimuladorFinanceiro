@@ -21174,12 +21174,24 @@
         ],
         "title": "ImportYFinanceRequest"
       },
+      "IncomeDriver": {
+        "type": "string",
+        "enum": [
+          "GDP",
+          "DOLLAR",
+          "SELIC",
+          "STOCKS"
+        ],
+        "title": "IncomeDriver",
+        "description": "A variável da partida que move a renda da profissão."
+      },
       "IncomeLoss": {
         "type": "string",
         "enum": [
           "LAYOFF",
           "GIG_LOSS",
-          "VACANCY"
+          "VACANCY",
+          "NO_CLIENTS"
         ],
         "title": "IncomeLoss",
         "description": "O que a demissão sorteada do mês faz com a renda de quem está exposto a ela."
@@ -22637,7 +22649,17 @@
             ],
             "title": "Welfare Spending"
           },
-          "gdp_growth": {
+          "driver": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IncomeDriver"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "driver_value": {
             "anyOf": [
               {
                 "type": "string"
@@ -22646,7 +22668,7 @@
                 "type": "null"
               }
             ],
-            "title": "Gdp Growth"
+            "title": "Driver Value"
           }
         },
         "additionalProperties": false,
@@ -22674,7 +22696,8 @@
           "tax_reference",
           "real_raise",
           "welfare_spending",
-          "gdp_growth"
+          "driver",
+          "driver_value"
         ],
         "title": "LifeStatusDTO",
         "description": "A vida financeira de quem pede, no pregão corrente do viver de renda."
@@ -28532,7 +28555,13 @@
           "ENTREPRENEUR",
           "RETIREE",
           "WELFARE",
-          "LANDLORD"
+          "LANDLORD",
+          "EXPORTER",
+          "BANKER",
+          "FREELANCER",
+          "BROKER",
+          "HEIR",
+          "NEW_GRADUATE"
         ],
         "title": "Profession",
         "description": "A profissão do jogador no viver de renda; cada uma pertence a um grupo do eleitorado."
@@ -29982,6 +30011,16 @@
               }
             ],
             "title": "Team"
+          },
+          "profession": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Profession"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",

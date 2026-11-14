@@ -356,10 +356,18 @@ class MatchStore:
 class FakeRunningSimulation:
     def __init__(self, grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL):
         self.added: list[UserDTO] = []
+        # user_id -> o depósito inicial recebido
+        self.deposits: dict[int, Decimal] = {}
+        # user_id -> o capital inicial gravado na carteira
+        self.opened_with: dict[int, Decimal] = {}
         self.settings = simulation_settings(grouping)
 
-    def add_player(self, user: UserDTO) -> None:
+    def starting_cash_for(self, _profession: Profession | None) -> Decimal:
+        return self.settings.starting_cash
+
+    def add_player(self, user: UserDTO, cash: Decimal) -> None:
         self.added.append(user)
+        self.deposits[user.id] = cash
 
 
 type StartMatch = Callable[..., FakeRunningSimulation]
@@ -380,11 +388,14 @@ def start_match(monkeypatch: pytest.MonkeyPatch, join: Join) -> StartMatch:
         monkeypatch.setattr(SimulationManager, "_active_simulation", sim)
         monkeypatch.setattr(SimulationManager, "_simulation_id", 1)
         monkeypatch.setattr(SimulationManager, "_portfolios", {})
-        monkeypatch.setattr(
-            repository.portfolio,
-            "create",
-            lambda _simulation_id, user_ids: {u: 100 + u for u in user_ids},
-        )
+
+        def create(
+            _simulation_id: int, user_ids: list[int], starting_cash: Decimal
+        ) -> dict[int, int]:
+            sim.opened_with.update(dict.fromkeys(user_ids, starting_cash))
+            return {u: 100 + u for u in user_ids}
+
+        monkeypatch.setattr(repository.portfolio, "create", create)
         monkeypatch.setattr(repository.simulation_player, "colors", store.colors)
         monkeypatch.setattr(
             repository.simulation_player, "participants", store.participants_of
@@ -434,6 +445,8 @@ def test_join_match_takes_the_free_color_and_the_deposit(start_match: StartMatch
     UserManager.join_match(late.client_id, PLAYER_COLORS[3])
 
     assert sim.added == [late]
+    # O depósito do dia é o mesmo capital inicial que a carteira guarda
+    assert sim.opened_with == sim.deposits == {late.id: sim.settings.starting_cash}
     assert color_of(late) == PLAYER_COLORS[3]
     assert not UserManager.is_pending_join(late)
     assert repository.simulation_player.colors(1)[late.id] == PLAYER_COLORS[3]

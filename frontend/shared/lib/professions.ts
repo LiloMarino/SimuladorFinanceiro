@@ -1,5 +1,19 @@
-import { Armchair, Briefcase, Building2, HandCoins, Landmark, Store, type LucideIcon } from "lucide-react";
-import type { IncomeLoss, LifeStatus, Profession, SimulationSettings } from "@/types";
+import {
+  Armchair,
+  Banknote,
+  Briefcase,
+  Building2,
+  ChartCandlestick,
+  Gem,
+  GraduationCap,
+  HandCoins,
+  Landmark,
+  Laptop,
+  Ship,
+  Store,
+  type LucideIcon,
+} from "lucide-react";
+import type { IncomeDriver, IncomeLoss, LifeStatus, Profession, SimulationSettings } from "@/types";
 
 /** As regras da sala que decidem o que cada profissão sente: o card só mostra o que vale na partida. */
 export type RoomRules = Pick<
@@ -13,6 +27,9 @@ type RoomRequirement = "government" | "inflationAdjusted";
 export type TagKey =
   | "unemployment"
   | "gdp"
+  | "dollar"
+  | "selic"
+  | "stocks"
   | "personalTax"
   | "corporateTax"
   | "consumptionTax"
@@ -36,6 +53,8 @@ export type ProfessionInfo = {
   losses: ProfessionPoint[];
   /** O que muda a renda da profissão durante a partida */
   tags: ProfessionTag[];
+  /** A regra que a sala precisa ter ligada para a profissão existir; sem ela some da escolha */
+  requires?: Extract<RoomRequirement, "inflationAdjusted">;
 };
 
 const GOVERNMENT: RoomRequirement[] = ["government"];
@@ -115,9 +134,78 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
     ],
     tags: [{ key: "unemployment" }, { key: "personalTax", requires: GOVERNMENT }],
   },
+  EXPORTER: {
+    name: "Exportador",
+    icon: Ship,
+    incomeMultiple: 1.05,
+    gains: [{ text: "Não é demitido" }, { text: "A renda sobe com o dólar, até o dobro" }],
+    losses: [{ text: "A renda cai quando o dólar cai, até a metade" }],
+    tags: [{ key: "dollar" }, { key: "corporateTax", requires: GOVERNMENT }],
+  },
+  BANKER: {
+    name: "Bancário",
+    icon: Banknote,
+    incomeMultiple: 1.1,
+    gains: [{ text: "Ganha 10% mais que o CLT" }, { text: "A renda sobe quando a SELIC passa de 12% ao ano" }],
+    losses: [
+      { text: "Pode ser demitido e ficar um mês sem salário, mais quando o desemprego sobe" },
+      { text: "A renda cai quando a SELIC fica abaixo de 12% ao ano" },
+    ],
+    tags: [{ key: "unemployment" }, { key: "selic" }, { key: "personalTax", requires: GOVERNMENT }],
+  },
+  FREELANCER: {
+    name: "Autônomo",
+    icon: Laptop,
+    incomeMultiple: 1.4,
+    gains: [{ text: "Ganha 40% mais que o CLT" }],
+    losses: [
+      { text: "O sorteio de demissão vira um mês sem cliente: um mês sem renda" },
+      { text: "A renda não sobe com a inflação: a despesa sobe e a renda fica parada" },
+    ],
+    tags: [{ key: "unemployment" }, { key: "personalTax", requires: GOVERNMENT }],
+    requires: "inflationAdjusted",
+  },
+  BROKER: {
+    name: "Corretor",
+    icon: ChartCandlestick,
+    incomeMultiple: 1.05,
+    gains: [{ text: "Não é demitido" }, { text: "A renda sobe quando o Ibovespa rende mais de 12% em 12 meses" }],
+    losses: [{ text: "A renda cai quando o Ibovespa rende menos, até 60% a menos" }],
+    tags: [{ key: "stocks" }, { key: "personalTax", requires: GOVERNMENT }],
+  },
+  HEIR: {
+    name: "Herdeiro",
+    icon: Gem,
+    incomeMultiple: 0,
+    gains: [
+      { text: "Começa com o capital da sala mais uma herança que cobre os salários da partida" },
+      { text: "Nunca é demitido" },
+    ],
+    losses: [{ text: "Não tem renda de trabalho: a despesa sai do patrimônio" }],
+    tags: [],
+  },
+  NEW_GRADUATE: {
+    name: "Recém-formado",
+    icon: GraduationCap,
+    incomeMultiple: 0.6,
+    gains: [
+      { text: "A renda sobe em linha reta até 1,5× o salário em 10 anos" },
+      { text: "Aumento acima da inflação quando o PIB cresce", requires: INFLATION },
+    ],
+    losses: [
+      { text: "Começa ganhando 40% menos que o CLT, sem capital" },
+      { text: "Chance de demissão dobrada no começo, caindo até a do CLT em 10 anos" },
+    ],
+    tags: [{ key: "unemployment" }, { key: "gdp" }, { key: "personalTax", requires: GOVERNMENT }],
+  },
 };
 
-export const PROFESSION_ORDER = Object.keys(PROFESSIONS) as Profession[];
+/** As profissões que a sala oferece, na ordem das cartas: as que exigem a correção pela inflação somem sem ela. */
+export function availableProfessions(room: Pick<RoomRules, "inflation_adjusted">) {
+  return (Object.keys(PROFESSIONS) as Profession[]).filter(
+    (profession) => !PROFESSIONS[profession].requires || room.inflation_adjusted,
+  );
+}
 
 /** Renda de partida da profissão sobre o salário do host; o auxílio conta no gasto de referência. */
 export function professionIncome(profession: Profession, salary: number) {
@@ -143,6 +231,9 @@ export function visibleProfession(profession: Profession, room: RoomRules) {
 export const TAG_NAMES: Record<TagKey, string> = {
   unemployment: "Desemprego",
   gdp: "PIB",
+  dollar: "Dólar",
+  selic: "SELIC",
+  stocks: "Ibovespa",
   personalTax: "IR das pessoas",
   corporateTax: "IR das empresas",
   consumptionTax: "Imposto sobre consumo",
@@ -156,6 +247,15 @@ export const INCOME_LOSS_NAMES: Record<IncomeLoss, { event: string; missing: str
   LAYOFF: { event: "Demitido", missing: "o salário" },
   GIG_LOSS: { event: "Bico perdido", missing: "a renda do bico" },
   VACANCY: { event: "Imóvel vago", missing: "o aluguel" },
+  NO_CLIENTS: { event: "Mês sem cliente", missing: "a renda" },
+};
+
+/** A variável que move a renda da profissão, como a linha do card da vida financeira a nomeia. */
+export const DRIVER_NAMES: Record<IncomeDriver, string> = {
+  GDP: "PIB em 12 meses",
+  DOLLAR: "Variação do dólar em 12 meses",
+  SELIC: "SELIC ao ano",
+  STOCKS: "Retorno do Ibovespa em 12 meses",
 };
 
 /** O imposto cujo desvio contra a lei corta (ou soma à) a renda da profissão. */

@@ -207,6 +207,7 @@ export type TeamNaming = components["schemas"]["TeamNaming"];
 // Viver de renda: salário igual para todos ou uma profissão por jogador
 export type SalaryMode = components["schemas"]["SalaryMode"];
 export type Profession = components["schemas"]["Profession"];
+export type IncomeDriver = components["schemas"]["IncomeDriver"];
 export type IncomeLoss = components["schemas"]["IncomeLoss"];
 
 // Governo & Política

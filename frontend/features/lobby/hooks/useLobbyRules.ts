@@ -8,5 +8,10 @@ export function useLobbyRules(settings: SimulationSettings) {
   const rules = selected ?? settings.simulation;
   // Cada jogador escolhe uma profissão só no viver de renda com o modo de profissões
   const professions = rules.game_type === "FINANCIAL_INDEPENDENCE" && rules.salary_mode === "PROFESSIONS";
-  return { grouping: rules.player_grouping, naming: rules.team_naming, professions };
+  return {
+    grouping: rules.player_grouping,
+    naming: rules.team_naming,
+    professions,
+    inflationAdjusted: rules.inflation_adjusted,
+  };
 }

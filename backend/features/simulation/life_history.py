@@ -32,7 +32,13 @@ from backend.core.enum import (
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
 from backend.core.life_events import life_event_label
-from backend.core.professions import RealRaise, TaxBase, entrepreneur_gdp_factor
+from backend.core.professions import (
+    DRIVER_CURVES,
+    IncomeDriver,
+    RealRaise,
+    TaxBase,
+    driver_factor,
+)
 from backend.core.utils import format_money
 
 
@@ -49,6 +55,15 @@ class BudgetChange:
 _LOSS_NAMES = {
     IncomeLoss.GIG_LOSS: "Bico perdido",
     IncomeLoss.VACANCY: "Vacância",
+    IncomeLoss.NO_CLIENTS: "Mês sem cliente",
+}
+
+# A variável que move a renda, como a linha de mudança a conta
+_DRIVER_NAMES = {
+    IncomeDriver.GDP: "o PIB a {}",
+    IncomeDriver.DOLLAR: "o dólar variando {} em 12 meses",
+    IncomeDriver.SELIC: "a SELIC a {} ao ano",
+    IncomeDriver.STOCKS: "o Ibovespa rendendo {} em 12 meses",
 }
 
 _TAX_NAMES = {
@@ -77,15 +92,16 @@ def budget_changes(
     changes: list[BudgetChange] = []
     for anniversary in life.readjustments(until)[1:]:
         ipca, growth = life.salary_raise_inputs(anniversary)
-        salary = format_money(life.salary_on(anniversary))
         expense = format_money(life.expense_on(anniversary))
-        changes.append(
-            BudgetChange(
-                anniversary,
-                LifeHistoryKind.SALARY_READJUSTED,
-                f"Salário base reajustado para {salary}: {_raise_origin(life, anniversary, ipca, growth)}",
+        if life.rule.inflation_indexed and life.rule.income_multiple > 0:
+            salary = format_money(life.salary_on(anniversary))
+            changes.append(
+                BudgetChange(
+                    anniversary,
+                    LifeHistoryKind.SALARY_READJUSTED,
+                    f"Salário base reajustado para {salary}: {_raise_origin(life, anniversary, ipca, growth)}",
+                )
             )
-        )
         changes.append(
             BudgetChange(
                 anniversary,
@@ -99,7 +115,7 @@ def budget_changes(
     tax_rate = reference
     shown_rate: Decimal | None = None
     shown_welfare: Decimal | None = None
-    shown_growth: Decimal | None = None
+    shown_driver: Decimal | None = None
     for day in _month_starts(life.start_date, until):
         rate = overdraft_rate_on(day)
         if round(rate * 100, 1) != shown_rate:
@@ -136,20 +152,24 @@ def budget_changes(
                         )
                     )
                 shown_welfare = welfare
-        if life.rule.follows_gdp:
-            growth = round(life.growth_on(day) * 100, 1)
-            if growth != shown_growth:
-                if shown_growth is not None:
-                    factor = entrepreneur_gdp_factor(life.growth_on(day))
-                    net = format_money(life.net_salary_on(day))
-                    changes.append(
-                        BudgetChange(
-                            day,
-                            LifeHistoryKind.SALARY_TAX_CHANGED,
-                            f"Renda do mês com o PIB a {_percent(life.growth_on(day))} (fator de {factor:.2f}): {net} líquidos",
-                        )
+        driver = life.rule.driver
+        value = life.driver_value_on(day)
+        if (
+            driver is not None
+            and value is not None
+            and round(value * 100, 1) != shown_driver
+        ):
+            if shown_driver is not None:
+                factor = driver_factor(DRIVER_CURVES[driver], value)
+                net = format_money(life.net_salary_on(day))
+                changes.append(
+                    BudgetChange(
+                        day,
+                        LifeHistoryKind.SALARY_TAX_CHANGED,
+                        f"Renda do mês com {_DRIVER_NAMES[driver].format(_percent(value))} (fator de {factor:.2f}): {net} líquidos",
                     )
-                shown_growth = growth
+                )
+            shown_driver = round(value * 100, 1)
     return sorted(changes, key=lambda change: change.day)
 
 

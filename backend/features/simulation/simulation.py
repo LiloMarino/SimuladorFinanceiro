@@ -116,7 +116,13 @@ from backend.core.metrics import (
     metrics,
 )
 from backend.core.periods import MONTHS_PER_YEAR
-from backend.core.professions import HEALTH_EVENT_KEY, LifeLevers, RealRaise
+from backend.core.professions import (
+    DRIVER_CURVES,
+    HEALTH_EVENT_KEY,
+    IncomeDriver,
+    LifeLevers,
+    RealRaise,
+)
 from backend.core.rates import period_rate
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
@@ -141,7 +147,11 @@ from backend.features.credit.overview import (
     build_prepayment_preview,
 )
 from backend.features.credit.overview import build_quote as build_loan_quote
-from backend.features.economy.growth import MacroCourse, history_dollar
+from backend.features.economy.growth import (
+    MacroCourse,
+    history_dollar,
+    stocks_return,
+)
 from backend.features.economy.panel import build_economy_panel
 from backend.features.fixed_income import treasury, treasury_panel
 from backend.features.fixed_income.accrual import (
@@ -227,6 +237,8 @@ from backend.features.variable_income.price_impact import PriceImpact
 
 # Pregões no mini gráfico da lista de mercado
 SPARKLINE_DAYS = 30
+# A janela da variação do dólar que move a renda do exportador
+DOLLAR_WINDOW_DAYS = 365
 
 logger = logging.getLogger(__name__)
 P = ParamSpec("P")
@@ -294,7 +306,12 @@ class Simulation:
         self._random_seed = random_seed
         self._life = (
             LifeBudget.of(
-                settings, lambda day: self._macro.latest(day).growth, self._levers_on
+                settings,
+                lambda day: self._macro.latest(day).growth,
+                self._levers_on,
+                self._dollar_change_on,
+                self._selic_on,
+                self._stocks_return_on,
             )
             if settings.game_type is GameType.FINANCIAL_INDEPENDENCE
             else None
@@ -304,7 +321,6 @@ class Simulation:
         self._current_date = resume_from or self.settings.start_date - timedelta(days=1)
         self._engine = SimulationEngine(
             self._current_date,
-            settings.starting_cash,
             settings.id,
             settings.end_date,
             settings.start_date,
@@ -367,9 +383,7 @@ class Simulation:
         # As abas das Estatísticas desta partida, montadas uma vez por mês
         self.statistics = ReportCache()
 
-        self._summaries = SummaryDelivery(
-            settings.id, settings.start_date, settings.starting_cash
-        )
+        self._summaries = SummaryDelivery(settings.id, settings.start_date)
 
         # Fora da Clássica: onde cada um está na meta e se alguém já chegou
         self._goal_progress: GoalProgressDTO | None = None
@@ -377,8 +391,12 @@ class Simulation:
 
         # Os snapshots do último pregão são a base da avaliação final das conquistas
         self._achievements = AchievementEvaluator(
-            settings, self._engine.assess_income_tax
+            settings,
+            self._engine.assess_income_tax,
+            self._portfolio_starting_cash,
         )
+        # portfolio_id -> o capital inicial do jogador; ele não muda depois que a carteira abre
+        self._portfolio_cash: dict[int, Decimal] = {}
         # user_id -> o snapshot do último pregão
         self._last_snapshots: dict[int, SnapshotDTO] = {}
 
@@ -1152,17 +1170,27 @@ class Simulation:
     def get_patrimonial_history(
         self, client_id: UUID
     ) -> list[PortfolioHistoryPointDTO]:
+        portfolio_id = UserManager.get_portfolio_id(client_id)
         return [
-            self._history_point(point)
-            for point in repository.portfolio.get_patrimonial_history(
-                UserManager.get_portfolio_id(client_id)
-            )
+            self._history_point(point, portfolio_id)
+            for point in repository.portfolio.get_patrimonial_history(portfolio_id)
         ]
 
-    def _history_point(self, point: PatrimonialHistoryDTO) -> PortfolioHistoryPointDTO:
+    def _portfolio_starting_cash(self, portfolio_id: int) -> Decimal:
+        """O capital inicial do jogador, lido da carteira dele uma vez."""
+        if portfolio_id not in self._portfolio_cash:
+            self._portfolio_cash.update(
+                repository.portfolio.starting_cash([portfolio_id])
+            )
+        return self._portfolio_cash[portfolio_id]
+
+    def _history_point(
+        self, point: PatrimonialHistoryDTO, portfolio_id: int
+    ) -> PortfolioHistoryPointDTO:
         return PortfolioHistoryPointDTO(
             **point.model_dump(),
-            total_provided=self.settings.starting_cash + point.total_contribution,
+            total_provided=self._portfolio_starting_cash(portfolio_id)
+            + point.total_contribution,
         )
 
     @synchronized
@@ -1464,43 +1492,59 @@ class Simulation:
         No 1º pregão do mês a renda de cada jogador entra pela profissão dele (menos
         depois de uma demissão sorteada, nas profissões que a sentem) e a despesa sai;
         todo pregão pode sortear um imprevisto, o mesmo para todos, que cada profissão
-        sente à sua maneira.
+        sente à sua maneira. A carreira que pesa a demissão sorteia com a chance
+        multiplicada pelo peso do dia: sobre o mesmo sorteio, quem pesa mais perde a
+        renda em dias em que a sala não perde.
         """
         day = self._current_date
         per_year = self.settings.unexpected_per_year
         budgets = {user.client_id: self._life_budget(life, user.id) for user in users}
+        skipped_by_weight: dict[Decimal, bool] = {}
+        event_by_weight: dict[Decimal, LifeEventTypeDTO | None] = {}
+
+        def skipped_for(budget: LifeBudget) -> bool:
+            weight = budget.layoff_weight_on(day)
+            if weight not in skipped_by_weight:
+                skipped_by_weight[weight] = salary_skipped(
+                    self._random_seed,
+                    day,
+                    per_year,
+                    self.settings.start_date,
+                    self.settings.life_events,
+                    layoff_factor_on=self._layoff_factor_for(budget),
+                    frequencies=self.settings.life_frequencies,
+                )
+            return skipped_by_weight[weight]
+
+        def event_for(budget: LifeBudget) -> LifeEventTypeDTO | None:
+            weight = budget.layoff_weight_on(day)
+            if weight not in event_by_weight:
+                event_by_weight[weight] = unexpected_on(
+                    self._random_seed,
+                    day,
+                    per_year,
+                    self.settings.life_events,
+                    layoff_factor=self._layoff_factor_for(budget)(day),
+                    frequencies=self.settings.life_frequencies,
+                )
+            return event_by_weight[weight]
+
         if month_changed:
-            skipped = salary_skipped(
-                self._random_seed,
-                day,
-                per_year,
-                self.settings.start_date,
-                self.settings.life_events,
-                layoff_factor_on=self._layoff_factor,
-                frequencies=self.settings.life_frequencies,
-            )
             for user in users:
                 budget = budgets[user.client_id]
-                loses_income = skipped and budget.income_loss() is not None
+                loses_income = budget.income_loss() is not None and skipped_for(budget)
                 salary = budget.net_salary_on(day, income_lost=loses_income)
                 if salary > 0 or not loses_income:
                     self._engine.pay_salary(user.client_id, salary)
                 self._engine.pay_expense(user.client_id, budget.expense_on(day))
 
-        event = unexpected_on(
-            self._random_seed,
-            day,
-            per_year,
-            self.settings.life_events,
-            layoff_factor=self._layoff_factor(day),
-            frequencies=self.settings.life_frequencies,
-        )
-        if event is None:
-            return
-        is_layoff = event.effect is LifeEventEffect.SKIP_NEXT_SALARY
-        is_income = event.effect is LifeEventEffect.CASH_IN
         for user in users:
             budget = budgets[user.client_id]
+            event = event_for(budget)
+            if event is None:
+                continue
+            is_layoff = event.effect is LifeEventEffect.SKIP_NEXT_SALARY
+            is_income = event.effect is LifeEventEffect.CASH_IN
             # A profissão que não sente a demissão sorteada não a registra
             if is_layoff and budget.income_loss() is None:
                 continue
@@ -1514,8 +1558,10 @@ class Simulation:
                 self._notify_life_event(event, amount, budget, user)
         if not self.settings.uses_professions:
             budget = budgets[users[0].client_id] if users else life
-            amount = event.expense_multiple * budget.expense_on(day)
-            self._notify_life_event(event, amount, budget)
+            event = event_for(budget)
+            if event is not None:
+                amount = event.expense_multiple * budget.expense_on(day)
+                self._notify_life_event(event, amount, budget)
 
     def _notify_life_event(
         self,
@@ -1542,6 +1588,26 @@ class Simulation:
     def _layoff_factor(self, day: date) -> float:
         """A chance de demissão em `day` segue o desemprego da partida."""
         return layoff_factor_of(self._macro.latest(day).unemployment)
+
+    def _layoff_factor_for(self, budget: LifeBudget) -> Callable[[date], float]:
+        """A chance de demissão da profissão: a da sala vezes o peso da carreira dela."""
+        return lambda day: (
+            self._layoff_factor(day) * float(budget.layoff_weight_on(day))
+        )
+
+    def _dollar_change_on(self, day: date) -> Decimal:
+        """A variação do dólar da partida em 12 meses; o dia consultado é o último a ficar no cache do motor."""
+        before = self._engine.dollar_on(day - timedelta(days=DOLLAR_WINDOW_DAYS))
+        return self._engine.dollar_on(day) / before - 1
+
+    def _selic_on(self, day: date) -> Decimal:
+        """A SELIC ao ano que a partida vive no dia, a mesma que o cheque especial cobra."""
+        return annual_index_rate(IndicatorSeries.SELIC, day)
+
+    def _stocks_return_on(self, day: date) -> Decimal:
+        """O retorno do Ibovespa da partida em 12 meses; sem série, o valor neutro da curva."""
+        value = stocks_return(day)
+        return DRIVER_CURVES[IncomeDriver.STOCKS].neutral if value is None else value
 
     def _levers_on(self, day: date) -> LifeLevers:
         """As medidas do governo que chegam à renda no dia; sem governo, o país padrão."""
@@ -1618,7 +1684,7 @@ class Simulation:
                 per_year,
                 start,
                 self.settings.life_events,
-                layoff_factor_on=self._layoff_factor,
+                layoff_factor_on=self._layoff_factor_for(budget),
                 frequencies=self.settings.life_frequencies,
             )
             if loss is not None
@@ -1630,7 +1696,7 @@ class Simulation:
                 start,
                 self.settings.life_events,
                 until=day,
-                layoff_factor_on=self._layoff_factor,
+                layoff_factor_on=self._layoff_factor_for(budget),
                 frequencies=self.settings.life_frequencies,
             )
             if loss is not None
@@ -1668,7 +1734,8 @@ class Simulation:
             "welfare_spending": levers.welfare_spending
             if rule.benefit_multiple > 0
             else None,
-            "gdp_growth": budget.growth_on(day) if rule.follows_gdp else None,
+            "driver": rule.driver,
+            "driver_value": budget.driver_value_on(day),
         }
 
     @synchronized
@@ -1986,7 +2053,8 @@ class Simulation:
                             snapshot.model_dump(
                                 include=set(PatrimonialHistoryDTO.model_fields)
                             )
-                        )
+                        ),
+                        snapshot.portfolio_id,
                     )
                 ).to_json(),
                 to=user.client_id,
@@ -1999,13 +2067,24 @@ class Simulation:
         return entries
 
     @synchronized
-    def add_player(self, user: UserDTO) -> None:
+    def starting_cash_for(self, profession: Profession | None) -> Decimal:
+        """O caixa com que quem entra hoje começa: o da profissão, ou o da sala sem o viver de renda."""
+        if self._life is None or profession is None:
+            return self.settings.starting_cash
+        return self._life.for_profession(profession).starting_capital(
+            self.settings.starting_cash, self._current_date, self.settings.end_date
+        )
+
+    @synchronized
+    def add_player(self, user: UserDTO, cash: Decimal) -> None:
         """
-        Quem entra com a partida em andamento recebe o depósito inicial no dia corrente
-        e o snapshot desse dia; o aporte mensal e os snapshots seguintes já o incluem
-        porque `participants` lê a linha dele em `simulation_players`.
+        Quem entra com a partida em andamento recebe o depósito inicial `cash` (o mesmo
+        que a carteira dele guarda) no dia corrente e o snapshot desse dia; o aporte
+        mensal e os snapshots seguintes já o incluem porque `participants` lê a linha
+        dele em `simulation_players`.
         """
-        self._engine.add_cash(user.client_id, self.settings.starting_cash)
+        if cash > 0:
+            self._engine.add_cash(user.client_id, cash)
         EventManager.flush()
         self._snapshot_users([user])
         self.statistics.clear()

@@ -6,7 +6,7 @@ import { useBotStrategies } from "@/shared/hooks/queries/useBotStrategies";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
 import { addValues, editValues } from "@/shared/lib/bot-form";
-import type { PlayerGrouping, RoomPlayer, TeamNaming } from "@/types";
+import type { PlayerGrouping, Profession, RoomPlayer, TeamNaming } from "@/types";
 import { useAddBot } from "../hooks/mutations/useAddBot";
 import { useAddBots } from "../hooks/mutations/useAddBots";
 import { useUpdateBot } from "../hooks/mutations/useUpdateBot";
@@ -21,12 +21,22 @@ type LobbyBotDialogProps = {
   bot?: RoomPlayer | undefined;
   grouping: PlayerGrouping;
   naming: TeamNaming;
+  /** Sala de profissões: as que o bot pode ter; nulo nas outras salas */
+  professions: Profession[] | null;
   /** As vagas livres da sala: o teto da quantidade ao adicionar */
   freeSlots: number;
 };
 
 /** Adicionar ou configurar um bot da sala: o diálogo de bot com a equipe e a chamada ao servidor. */
-export function LobbyBotDialog({ open, onOpenChange, bot, grouping, naming, freeSlots }: LobbyBotDialogProps) {
+export function LobbyBotDialog({
+  open,
+  onOpenChange,
+  bot,
+  grouping,
+  naming,
+  professions,
+  freeSlots,
+}: LobbyBotDialogProps) {
   const { data: players } = useRoomPlayers();
   const { data: settings } = useSimulationSettings();
   const { data: strategies } = useBotStrategies();
@@ -58,6 +68,7 @@ export function LobbyBotDialog({ open, onOpenChange, bot, grouping, naming, free
             })
           : addValues(strategies, players ?? [])
       }
+      profession={professions ? { available: professions, initial: bot?.profession ?? null } : undefined}
       saved={bot?.bot ? { strategyKey: bot.bot.strategy_key, params: bot.bot.params } : undefined}
       nameTakenMessage={NAME_TAKEN_MESSAGE}
       nameHelp="Da lista da estratégia; é o nome no ranking."
@@ -98,6 +109,7 @@ export function LobbyBotDialog({ open, onOpenChange, bot, grouping, naming, free
           params: values.params,
           color: values.color,
           team: grouping === "TEAMS" ? values.team : null,
+          profession: values.profession,
         };
         const options = {
           onSuccess: close,

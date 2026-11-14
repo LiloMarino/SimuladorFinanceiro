@@ -32,9 +32,12 @@ class DividendTotal(NamedTuple):
 
 
 def _create_portfolios(
-    session: Session, simulation_id: int, user_ids: list[int]
+    session: Session,
+    simulation_id: int,
+    user_ids: list[int],
+    starting_cash: dict[int, Decimal],
 ) -> dict[int, int]:
-    """Uma carteira por jogador na partida; quem já tem a sua a mantém. Devolve user_id -> portfolio_id."""
+    """Uma carteira por jogador na partida, com o capital inicial dele (`starting_cash`: user_id -> valor); quem já tem a sua a mantém. Devolve user_id -> portfolio_id."""
     if not user_ids:
         return {}
     session.execute(
@@ -45,6 +48,7 @@ def _create_portfolios(
                     "simulation_id": simulation_id,
                     "user_id": user_id,
                     "created_at": datetime.now(UTC),
+                    "starting_cash": starting_cash[user_id],
                 }
                 for user_id in user_ids
             ]
@@ -63,10 +67,16 @@ def _create_portfolios(
 class PortfolioRepository:
     @transactional
     def create(
-        self, session: Session, simulation_id: int, user_ids: list[int]
+        self,
+        session: Session,
+        simulation_id: int,
+        user_ids: list[int],
+        starting_cash: Decimal = Decimal(0),
     ) -> dict[int, int]:
-        """Abre a carteira de cada jogador sem movimentar o caixa: user_id -> portfolio_id."""
-        return _create_portfolios(session, simulation_id, user_ids)
+        """Abre a carteira de cada jogador com `starting_cash` de capital inicial, sem movimentar o caixa: user_id -> portfolio_id."""
+        return _create_portfolios(
+            session, simulation_id, user_ids, dict.fromkeys(user_ids, starting_cash)
+        )
 
     @transactional
     def open(
@@ -76,22 +86,40 @@ class PortfolioRepository:
         user_ids: list[int],
         event_date: date,
         starting_cash: Decimal,
+        cash_by_user: dict[int, Decimal] | None = None,
     ) -> dict[int, int]:
-        """Abre a carteira de cada jogador com o depósito inicial: user_id -> portfolio_id."""
-        portfolios = _create_portfolios(session, simulation_id, user_ids)
+        """Abre a carteira de cada jogador com o depósito inicial: o `starting_cash` da sala ou, onde `cash_by_user` traz o jogador, o dele (caixa zero não gera depósito). O capital inicial fica gravado na carteira. user_id -> portfolio_id."""
+        cash_by_user = cash_by_user or {}
+        amounts = {
+            user_id: cash_by_user.get(user_id, starting_cash) for user_id in user_ids
+        }
+        portfolios = _create_portfolios(session, simulation_id, user_ids, amounts)
         now = datetime.now(UTC)
         session.add_all(
             EventCashflow(
                 simulation_id=simulation_id,
                 portfolio_id=portfolio_id,
                 event_type=CashflowEventType.DEPOSIT.value,
-                amount=starting_cash,
+                amount=amounts[user_id],
                 event_date=event_date,
                 created_at=now,
             )
-            for portfolio_id in portfolios.values()
+            for user_id, portfolio_id in portfolios.items()
+            if amounts[user_id] > 0
         )
         return portfolios
+
+    @transactional
+    def starting_cash(
+        self, session: Session, portfolio_ids: list[int]
+    ) -> dict[int, Decimal]:
+        """O capital inicial de cada carteira: portfolio_id -> valor."""
+        rows = session.execute(
+            select(Portfolios.id, Portfolios.starting_cash).where(
+                Portfolios.id.in_(portfolio_ids)
+            )
+        )
+        return {portfolio_id: Decimal(cash) for portfolio_id, cash in rows}
 
     @transactional
     def ids(self, session: Session, simulation_id: int) -> dict[int, int]:

@@ -231,6 +231,8 @@ class RoomBotRequest(BaseModel):
     color: str | None = None
     # Índice da equipe (1 a 10); só vale no modo em equipes
     team: int | None = None
+    # Profissão do bot em sala de profissões; sem ela, é sorteada (ao configurar, fica a que tem)
+    profession: Profession | None = None
 
 
 class RoomBotsRequest(BaseModel):
@@ -792,7 +794,9 @@ def add_bot(payload: RoomBotRequest, _: HostVerified):
     """
     bot = UserManager.add_bot(
         payload.nickname,
-        resolve_bot(payload.strategy_key, payload.params),
+        resolve_bot(
+            payload.strategy_key, payload.params, profession=payload.profession
+        ),
         payload.color,
         payload.team,
     )
@@ -812,7 +816,10 @@ def add_bots(payload: RoomBotsRequest, _: HostVerified):
     """
     bots = UserManager.add_bots(
         [
-            (item.nickname, resolve_bot(item.strategy_key, item.params))
+            (
+                item.nickname,
+                resolve_bot(item.strategy_key, item.params, profession=item.profession),
+            )
             for item in payload.bots
         ]
     )
@@ -832,7 +839,9 @@ def update_bot(nickname: str, payload: RoomBotRequest, _: HostVerified):
     UserManager.update_bot(
         nickname,
         payload.nickname,
-        resolve_bot(payload.strategy_key, payload.params),
+        resolve_bot(
+            payload.strategy_key, payload.params, profession=payload.profession
+        ),
         payload.color,
         payload.team,
     )

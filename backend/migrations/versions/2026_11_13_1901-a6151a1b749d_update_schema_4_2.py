@@ -47,6 +47,7 @@ def upgrade() -> None:
         sa.Column("simulation_id", sa.BigInteger(), nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("starting_cash", sa.Numeric(precision=20, scale=6), nullable=False),
         sa.ForeignKeyConstraint(
             ["simulation_id"],
             ["simulations.id"],
@@ -68,15 +69,20 @@ def upgrade() -> None:
     )
 
     # Uma carteira por jogador de cada partida salva: quem tem evento ou snapshot
-    # sem estar em `simulation_players` também ganha a dele, sem linha órfã
+    # sem estar em `simulation_players` também ganha a dele, sem linha órfã. Nas
+    # partidas antigas todo jogador recebeu o `starting_cash` da sala, e é ele que
+    # a carteira guarda como capital inicial
     pairs = " UNION ".join(
         f"SELECT simulation_id, user_id FROM {table}"
         for table in ("simulation_players", *OWNED_TABLES)
     )
     op.execute(
-        "INSERT INTO portfolios (simulation_id, user_id, created_at) "
-        f"SELECT simulation_id, user_id, now() FROM ({pairs}) AS owners "
-        "ORDER BY simulation_id, user_id"
+        "INSERT INTO portfolios (simulation_id, user_id, created_at, starting_cash) "
+        "SELECT owners.simulation_id, owners.user_id, now(), "
+        "COALESCE((s.rules ->> 'starting_cash')::numeric, 0) "
+        f"FROM ({pairs}) AS owners "
+        "JOIN simulations AS s ON s.id = owners.simulation_id "
+        "ORDER BY owners.simulation_id, owners.user_id"
     )
 
     for table in OWNED_TABLES:

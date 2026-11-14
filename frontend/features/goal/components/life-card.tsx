@@ -11,7 +11,7 @@ import { cn } from "@/shared/lib/utils";
 import { displayAnnualExpenseMultiple, displayRatePercent } from "@/shared/lib/financial-independence";
 import { displayProjectionDistance, type GoalProjection } from "@/shared/lib/goal";
 import { GOAL_ETA, INDEPENDENCE_GOAL, PROFESSION_INCOME, RESERVE_MONTHS } from "@/shared/lib/life-metrics";
-import { INCOME_LOSS_NAMES, TAX_NAMES, visibleProfession } from "@/shared/lib/professions";
+import { DRIVER_NAMES, INCOME_LOSS_NAMES, TAX_NAMES, visibleProfession } from "@/shared/lib/professions";
 import { displayMoney, displayMoneyWhole, displayMonthName, displaySignedMoney } from "@/shared/lib/utils/display";
 import type { LifeStatus, SimulationData } from "@/types";
 import { RESERVE_FRAGILE_MONTHS, RESERVE_FULL_MONTHS, reserveShares, reserveTone } from "../lib/reserve";
@@ -117,9 +117,9 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
                     Gasto com auxílio: <b className="font-mono">{displayRatePercent(life.welfare_spending)}</b> do PIB
                   </span>
                 )}
-                {life.gdp_growth && (
+                {life.driver && life.driver_value && (
                   <span>
-                    PIB em 12 meses: <b className="font-mono">{displayRatePercent(life.gdp_growth)}</b>
+                    {DRIVER_NAMES[life.driver]}: <b className="font-mono">{displayRatePercent(life.driver_value)}</b>
                   </span>
                 )}
                 {Number(life.health_multiple) > 1 && <span>Imprevisto de saúde custa {life.health_multiple}×</span>}

@@ -5,6 +5,7 @@ from backend.core import repository
 from backend.core.dto.user import UserDTO
 from backend.core.enum import IndicatorSeries
 from backend.core.indicators import last_known_value
+from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.realtime import notify
 from backend.features.summaries.summary import year_review
 
@@ -15,10 +16,9 @@ class SummaryDelivery:
     retrospectiva do ano que fechou. Bot não lê, então não recebe.
     """
 
-    def __init__(self, simulation_id: int, start_date: date, starting_cash: Decimal):
+    def __init__(self, simulation_id: int, start_date: date):
         self._simulation_id = simulation_id
         self._start_date = start_date
-        self._starting_cash = starting_cash
 
     def on_year_turn(self, users: list[UserDTO], today: date) -> None:
         """Roda no 1º pregão do ano, com os snapshots do ano anterior já gravados."""
@@ -34,7 +34,12 @@ class SummaryDelivery:
             history = repository.summaries.history_between(
                 self._simulation_id, user.id, year_start, year_end
             )
-            review = year_review(year_end.year, history, self._starting_cash, ibov)
+            # O patrimônio de partida do primeiro ano é o capital inicial do próprio jogador
+            portfolio_id = SimulationManager.get_portfolio_id(user.id)
+            starting_cash = repository.portfolio.starting_cash([portfolio_id])[
+                portfolio_id
+            ]
+            review = year_review(year_end.year, history, starting_cash, ibov)
             if review is None:
                 continue
             entry = repository.summaries.create(

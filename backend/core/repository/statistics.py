@@ -35,7 +35,7 @@ class StatisticsRepository:
     def get_players_history(
         self, session: Session, simulation_ids: list[int]
     ) -> list[PlayerHistoryDTO]:
-        # Capital inicial vem da linha da simulação (nunca do formulário),
+        # O capital inicial de cada jogador vem da carteira dele (nunca do formulário),
         # garantindo métricas consistentes ao continuar/carregar simulações.
         players = session.execute(
             select(
@@ -56,6 +56,7 @@ class StatisticsRepository:
             select(
                 Snapshots.simulation_id,
                 Portfolios.user_id,
+                Portfolios.starting_cash,
                 Snapshots.snapshot_date,
                 Snapshots.total_equity,
                 Snapshots.total_fixed,
@@ -73,7 +74,9 @@ class StatisticsRepository:
 
         # Agrupa os snapshots por jogador em cada simulação, preservando a ordem de data
         grouped: dict[tuple[int, int], list[PatrimonialHistoryDTO]] = defaultdict(list)
+        starting_cash: dict[tuple[int, int], Decimal] = {}
         for row in snapshots:
+            starting_cash[(row.simulation_id, row.user_id)] = row.starting_cash
             grouped[(row.simulation_id, row.user_id)].append(
                 PatrimonialHistoryDTO(
                     snapshot_date=row.snapshot_date,
@@ -96,7 +99,7 @@ class StatisticsRepository:
                 is_bot=info[key].is_bot,
                 simulation_id=key[0],
                 simulation_name=info[key].name,
-                starting_cash=settings[key[0]].starting_cash,
+                starting_cash=starting_cash[key],
                 goal_net_worth=settings[key[0]].goal_net_worth,
                 history=history,
             )

@@ -21,6 +21,7 @@ from backend.features.achievements.metrics import (
     Sources,
     Trigger,
     no_income_tax,
+    no_starting_cash,
 )
 from backend.features.statistics.report import build_overview_report
 from backend.features.variable_income.income_tax import MonthlyTax
@@ -38,11 +39,13 @@ class AchievementEvaluator:
         self,
         settings: SimulationDTO,
         income_tax: Callable[[int], list[MonthlyTax]] | None = None,
+        starting_cash: Callable[[int], Decimal] = no_starting_cash,
     ):
         self._settings = settings
         # O mercado real da partida não muda durante ela: lido uma vez
         self._sources = Sources(
             income_tax=income_tax or no_income_tax,
+            starting_cash=starting_cash,
             market_real_end=cache(
                 lambda: repository.achievements.real_market_end(settings.id)
             ),

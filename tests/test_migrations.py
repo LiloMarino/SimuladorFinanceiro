@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import uuid
 from collections.abc import Iterator
+from decimal import Decimal
 
 import pytest
 from alembic import command
@@ -166,13 +167,16 @@ def _seed_saved_match(connection: Connection) -> None:
             ),
             {"nickname": nickname, "now": NOW},
         )
-    for name in ("Partida 1", "Partida 2"):
+    for name, rules in (
+        ("Partida 1", '{"starting_cash": "10000"}'),
+        ("Partida 2", '{"starting_cash": "25000.5"}'),
+    ):
         connection.execute(
             text(
                 "INSERT INTO simulations (name, random_seed, rules, created_at, "
-                "last_simulated_at) VALUES (:name, 7, '{}', :now, :now)"
+                "last_simulated_at) VALUES (:name, 7, CAST(:rules AS jsonb), :now, :now)"
             ),
-            {"name": name, "now": NOW},
+            {"name": name, "rules": rules, "now": NOW},
         )
     for simulation_id, user_id in PLAYERS:
         connection.execute(
@@ -280,6 +284,14 @@ def test_saved_match_gets_one_portfolio_per_player(scratch_url: URL) -> None:
             )
         ]
         assert sorted(portfolios) == sorted(OWNERS)
+        # O capital inicial de cada carteira é o `starting_cash` da partida em que ela abriu
+        cash = {
+            simulation_id: starting_cash
+            for simulation_id, starting_cash in connection.execute(
+                text("SELECT DISTINCT simulation_id, starting_cash FROM portfolios")
+            )
+        }
+        assert cash == {1: 10000, 2: Decimal("25000.5")}
         assert _row_counts(connection) == counts
         for table, column, factor in VALUES_BY_OWNER:
             # A carteira é da mesma partida e do jogador de quem o valor da linha era

@@ -1,7 +1,7 @@
 import type { KeyboardEvent } from "react";
 import { Check, X } from "lucide-react";
 import {
-  PROFESSION_ORDER,
+  availableProfessions,
   PROFESSIONS,
   professionIncome,
   visibleProfession,
@@ -22,11 +22,12 @@ type ProfessionCardsProps = {
   onSelect: (profession: Profession) => void;
 };
 
-/** As 6 profissões em cartões: a renda do mês, o que cada uma ganha e perde e o que mexe na renda dela. */
+/** As profissões da sala em cartões: a renda do mês, o que cada uma ganha e perde e o que mexe na renda dela. */
 export function ProfessionCards({ room, selected, disabled, onSelect }: ProfessionCardsProps) {
   const salary = Number(room.monthly_salary);
+  const professions = availableProfessions(room);
   // Só um cartão entra na ordem do Tab: o marcado, ou o primeiro enquanto não há escolha
-  const tabStop = selected ?? PROFESSION_ORDER[0];
+  const tabStop = selected ?? professions[0];
 
   // Setas movem a escolha entre os cartões, como num grupo de opções
   function moveWithArrows(event: KeyboardEvent<HTMLDivElement>) {
@@ -49,7 +50,7 @@ export function ProfessionCards({ room, selected, disabled, onSelect }: Professi
         onKeyDown={moveWithArrows}
         className="grid gap-3 outline-none @xl:grid-cols-2"
       >
-        {PROFESSION_ORDER.map((profession) => {
+        {professions.map((profession) => {
           const { name, icon: Icon, incomeMultiple, benefitMultiple } = PROFESSIONS[profession];
           const { gains, losses, tags } = visibleProfession(profession, room);
           const isMine = profession === selected;
@@ -114,9 +115,11 @@ export function ProfessionCards({ room, selected, disabled, onSelect }: Professi
                   <ProfessionTags profession={profession} tags={tags} salary={salary} />
                 ) : (
                   <span className="text-xs text-muted-foreground">
-                    {room.inflation_adjusted
-                      ? "Nada que mude na partida: a renda só sobe com a inflação."
-                      : "Nada que mude na partida."}
+                    {incomeMultiple === 0
+                      ? "Sem renda de trabalho: nada que mude na partida."
+                      : room.inflation_adjusted
+                        ? "Nada que mude na partida: a renda só sobe com a inflação."
+                        : "Nada que mude na partida."}
                   </span>
                 )}
               </div>

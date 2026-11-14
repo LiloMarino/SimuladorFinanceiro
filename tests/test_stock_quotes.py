@@ -5,7 +5,6 @@ from __future__ import annotations
 from collections.abc import Generator
 from contextlib import contextmanager
 from datetime import date
-from decimal import Decimal
 
 import pytest
 from sqlalchemy import Engine, event
@@ -276,7 +275,7 @@ def test_market_keeps_quote_and_sparkline_consistent_and_reuses_classification(
 ) -> None:
     sim = object.__new__(Simulation)
     sim._current_date = TODAY
-    sim._engine = SimulationEngine(TODAY, Decimal("1000"), 1, date(2030, 1, 1))
+    sim._engine = SimulationEngine(TODAY, 1, date(2030, 1, 1))
     sim._price_impact = PriceImpact(1, False, 0.02, 20)
     with _selects(quotes) as statements:
         market = sim.get_market()

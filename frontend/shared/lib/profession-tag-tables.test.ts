@@ -70,4 +70,37 @@ describe("tagTable", () => {
     // Aposentado 4.250 × 1,04 = 4.420
     expect(rows(tagTable("retireeRaise", "RETIREE", 5000))[0]).toEqual(["0%", "R$ 4.420 (só o IPCA)"]);
   });
+
+  it("dólar do Exportador: fator 1 + variação, entre 0,5 e 2", () => {
+    // Renda de 5.250 (1,05 × 5.000): +20% → 6.300; −20% → 4.200; +100% bate no teto de 2×; −50% no piso de 0,5×
+    expect(rows(tagTable("dollar", "EXPORTER", 5000))).toEqual([
+      ["+100% ou mais", "R$ 10.500 (teto)"],
+      ["+20%", "R$ 6.300 (+20%)"],
+      ["0%", "R$ 5.250"],
+      ["−20%", "R$ 4.200 (−20%)"],
+      ["−50% ou menos", "R$ 2.625 (piso)"],
+    ]);
+  });
+
+  it("SELIC do Bancário: fator 1 + 4 × (SELIC − 12%)", () => {
+    // Renda de 5.500 (1,1 × 5.000): 16% → 1,16; 8% → 0,84; 20% → 1,32; 4% → 0,68
+    expect(rows(tagTable("selic", "BANKER", 5000))).toEqual([
+      ["20%", "R$ 7.260 (+32%)"],
+      ["16%", "R$ 6.380 (+16%)"],
+      ["12%", "R$ 5.500"],
+      ["8%", "R$ 4.620 (−16%)"],
+      ["4%", "R$ 3.740 (−32%)"],
+    ]);
+  });
+
+  it("Ibovespa do Corretor: fator 1 + 1,5 × (retorno − 12%), entre 0,4 e 2", () => {
+    // Renda de 5.250: +40% → 1,42; 0% → 0,82; −20% → 0,52; −40% → 0,22 vira o piso de 0,4
+    expect(rows(tagTable("stocks", "BROKER", 5000))).toEqual([
+      ["+40%", "R$ 7.455 (+42%)"],
+      ["+12%", "R$ 5.250"],
+      ["0%", "R$ 4.305 (−18%)"],
+      ["−20%", "R$ 2.730 (−48%)"],
+      ["−40% ou menos", "R$ 2.100 (piso)"],
+    ]);
+  });
 });

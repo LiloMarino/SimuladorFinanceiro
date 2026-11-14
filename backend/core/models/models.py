@@ -556,6 +556,10 @@ class Portfolios(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )
+    # O capital com que o jogador entrou na partida: a base do capital colocado dele
+    starting_cash: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
 
     simulation: Mapped["Simulations"] = relationship(
         "Simulations", back_populates="portfolios"

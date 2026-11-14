@@ -99,7 +99,6 @@ class SimulationEngine:
     def __init__(
         self,
         current_date,
-        starting_cash: Decimal,
         simulation_id: int,
         end_date: date,
         start_date: date | None = None,
@@ -120,7 +119,6 @@ class SimulationEngine:
             )
         )
         self.current_date: date = current_date
-        self.starting_cash = starting_cash
         self.simulation_id = simulation_id
         # (pregão, provento por ação dos últimos 12 meses): o rendimento da Carteira lê daqui
         self._per_share_cache: tuple[date, dict[int, Decimal]] | None = None
@@ -570,9 +568,10 @@ class SimulationEngine:
         debt = self.credit_book.debt(client_id, self.current_date)
         total_networth = assets_value - debt
 
-        # Aporte mensal é capital do jogador, não rendimento
+        # O capital colocado é o inicial do jogador mais os aportes: aporte não é rendimento
         portfolio_id = UserManager.get_portfolio_id(client_id)
-        capital_provided = self.starting_cash + repository.user.get_total_contribution(
+        starting_cash = repository.portfolio.starting_cash([portfolio_id])[portfolio_id]
+        capital_provided = starting_cash + repository.user.get_total_contribution(
             portfolio_id
         )
 
@@ -604,7 +603,7 @@ class SimulationEngine:
         per_share = self.dividends_per_share(today)
 
         return PortfolioDTO(
-            starting_cash=self.starting_cash,
+            starting_cash=starting_cash,
             cash=cash,
             total_networth=total_networth,
             invested_value=invested_value,

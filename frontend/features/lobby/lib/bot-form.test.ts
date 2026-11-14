@@ -11,7 +11,12 @@ const rsi = strategy("rsi", ["Gatilho"]);
 
 describe("batchRequests", () => {
   it("dá nomes diferentes aos bots do lote, fora dos que a sala já tem", () => {
-    const requests = batchRequests([hold], ["tio patinhas"], { strategyKey: "buy_and_hold", params: {}, quantity: 3 });
+    const requests = batchRequests([hold], ["tio patinhas"], {
+      strategyKey: "buy_and_hold",
+      params: {},
+      quantity: 3,
+      profession: null,
+    });
 
     const names = requests.map((r) => r.nickname);
     expect(names).toHaveLength(3);
@@ -22,7 +27,12 @@ describe("batchRequests", () => {
   });
 
   it("leva os parâmetros do formulário quando a estratégia é escolhida", () => {
-    const requests = batchRequests([hold, rsi], [], { strategyKey: "rsi", params: { period: 7 }, quantity: 2 });
+    const requests = batchRequests([hold, rsi], [], {
+      strategyKey: "rsi",
+      params: { period: 7 },
+      quantity: 2,
+      profession: null,
+    });
 
     expect(requests.map((r) => [r.strategy_key, r.params])).toEqual([
       ["rsi", { period: 7 }],
@@ -36,7 +46,7 @@ describe("batchRequests", () => {
     const requests = batchRequests(
       [hold, rsi],
       [],
-      { strategyKey: RANDOM_STRATEGY, params: { period: 7 }, quantity: 2 },
+      { strategyKey: RANDOM_STRATEGY, params: { period: 7 }, quantity: 2, profession: null },
       () => draws.shift() ?? 0,
     );
 
@@ -45,9 +55,36 @@ describe("batchRequests", () => {
   });
 
   it("deixa cor e equipe para o servidor", () => {
-    const [request] = batchRequests([hold], [], { strategyKey: "buy_and_hold", params: {}, quantity: 1 });
+    const [request] = batchRequests([hold], [], {
+      strategyKey: "buy_and_hold",
+      params: {},
+      quantity: 1,
+      profession: null,
+    });
 
     expect(request).not.toHaveProperty("color");
     expect(request).not.toHaveProperty("team");
+  });
+
+  it("leva a profissão escolhida a todos os bots do lote", () => {
+    const requests = batchRequests([hold], [], {
+      strategyKey: "buy_and_hold",
+      params: {},
+      quantity: 3,
+      profession: "BANKER",
+    });
+
+    expect(requests.map((r) => r.profession)).toEqual(["BANKER", "BANKER", "BANKER"]);
+  });
+
+  it("deixa a profissão nula para o servidor sortear uma por bot", () => {
+    const requests = batchRequests([hold], [], {
+      strategyKey: "buy_and_hold",
+      params: {},
+      quantity: 2,
+      profession: null,
+    });
+
+    expect(requests.map((r) => r.profession)).toEqual([null, null]);
   });
 });

@@ -12,9 +12,14 @@ export type TagTable = {
 };
 
 // Constantes do backend (core/professions.py, features/economy/growth.py, core/life_events.py)
-const NEUTRAL_GDP = 0.02;
-const ENTREPRENEUR_SENSITIVITY = 3;
-const ENTREPRENEUR_FLOOR = 0.5;
+// Fator da renda = máx(1 + sensibilidade × (valor − neutro), piso), limitado ao teto quando há
+type DriverCurve = { sensitivity: number; neutral: number; floor: number; ceiling?: number };
+const DRIVER_CURVES = {
+  gdp: { sensitivity: 3, neutral: 0.02, floor: 0.5 },
+  dollar: { sensitivity: 1, neutral: 0, floor: 0.5, ceiling: 2 },
+  selic: { sensitivity: 4, neutral: 0.12, floor: 0.5, ceiling: 2 },
+  stocks: { sensitivity: 1.5, neutral: 0.12, floor: 0.4, ceiling: 2 },
+} as const satisfies Record<string, DriverCurve>;
 const CLT_GDP_SHARE = 0.5;
 const NEUTRAL_UNEMPLOYMENT = 0.09;
 // Imprevistos por ano na sala padrão, e a fração deles que é demissão (peso 1 de 40 no catálogo)
@@ -51,12 +56,76 @@ function incomeAgainst(value: number, base: number, note?: string) {
   return suffix ? `${displayMoneyWhole(value)} (${suffix})` : displayMoneyWhole(value);
 }
 
+function driverFactor(curve: DriverCurve, value: number) {
+  const factor = Math.max(1 + curve.sensitivity * (value - curve.neutral), curve.floor);
+  return curve.ceiling === undefined ? factor : Math.min(factor, curve.ceiling);
+}
+
+type DriverTag = "dollar" | "selic" | "stocks";
+
+const DRIVER_TABLES: Record<
+  DriverTag,
+  { subtitle: string; header: [string, string]; samples: [number, string][]; footnote: string }
+> = {
+  dollar: {
+    subtitle: "A variação do dólar nos últimos 12 meses",
+    header: ["Dólar em 12 meses", "Sua renda"],
+    samples: [
+      [1, "+100% ou mais"],
+      [0.2, "+20%"],
+      [0, "0%"],
+      [-0.2, "−20%"],
+      [-0.5, "−50% ou menos"],
+    ],
+    footnote: "Cada ponto de variação do dólar move 1% da renda, entre a metade e o dobro dela.",
+  },
+  selic: {
+    subtitle: "A taxa básica de juros ao ano",
+    header: ["SELIC ao ano", "Sua renda"],
+    samples: [
+      [0.2, "20%"],
+      [0.16, "16%"],
+      [0.12, "12%"],
+      [0.08, "8%"],
+      [0.04, "4%"],
+    ],
+    footnote: "Cada ponto da SELIC longe de 12% move 4% da renda.",
+  },
+  stocks: {
+    subtitle: "Quanto o Ibovespa rendeu nos últimos 12 meses",
+    header: ["Ibovespa em 12 meses", "Sua renda"],
+    samples: [
+      [0.4, "+40%"],
+      [0.12, "+12%"],
+      [0, "0%"],
+      [-0.2, "−20%"],
+      [-0.4, "−40% ou menos"],
+    ],
+    footnote: "Cada ponto longe de 12% move 1,5% da renda, entre 40% e o dobro dela.",
+  },
+};
+
+function driverTable(tag: DriverTag, base: number): TagTable {
+  const curve: DriverCurve = DRIVER_CURVES[tag];
+  const { subtitle, header, samples, footnote } = DRIVER_TABLES[tag];
+  return {
+    title: TAG_NAMES[tag],
+    subtitle,
+    header,
+    rows: samples.map(([value, label]): [string, string] => {
+      const factor = driverFactor(curve, value);
+      const note = factor === curve.floor ? "piso" : factor === curve.ceiling ? "teto" : undefined;
+      return [label, value === curve.neutral ? displayMoneyWhole(base) : incomeAgainst(base * factor, base, note)];
+    }),
+    footnote,
+  };
+}
+
 function gdpTable(profession: Profession, base: number): TagTable {
   const title = TAG_NAMES.gdp;
   const subtitle = "O crescimento da economia nos últimos 12 meses";
   if (profession === "ENTREPRENEUR") {
-    const income = (growth: number) =>
-      base * Math.max(1 + ENTREPRENEUR_SENSITIVITY * (growth - NEUTRAL_GDP), ENTREPRENEUR_FLOOR);
+    const income = (growth: number) => base * driverFactor(DRIVER_CURVES.gdp, growth);
     return {
       title,
       subtitle,
@@ -154,6 +223,10 @@ export function tagTable(tag: TagKey, profession: Profession, salary: number): T
   switch (tag) {
     case "gdp":
       return gdpTable(profession, base);
+    case "dollar":
+    case "selic":
+    case "stocks":
+      return driverTable(tag, base);
     case "unemployment":
       return unemploymentTable();
     case "personalTax":

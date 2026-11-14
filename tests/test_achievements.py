@@ -36,6 +36,14 @@ SETTINGS = SimulationDTO(id=1, **simulation_settings().model_dump())
 START = date(2020, 1, 2)
 
 
+def room_cash(_portfolio_id: int) -> Decimal:
+    """Todos os jogadores abriram com o caixa da sala."""
+    return SETTINGS.starting_cash
+
+
+ROOM_SOURCES = Sources(starting_cash=room_cash)
+
+
 def snapshot(
     networth: str = "10000",
     *,
@@ -62,7 +70,7 @@ def context(
     snap: SnapshotDTO,
     match: MatchResult = metrics.NO_MATCH,
     settings: SimulationDTO = SETTINGS,
-    sources: Sources = metrics.NO_SOURCES,
+    sources: Sources = ROOM_SOURCES,
 ) -> Context:
     return Context(1, settings, snap, match, sources)
 
@@ -186,7 +194,7 @@ def test_locked_goal_achievement_shows_best_progress_capped_at_the_goal(
 
 
 def test_tick_unlocks_by_snapshot_metrics_and_only_once(fake: FakeAchievements):
-    evaluator = AchievementEvaluator(SETTINGS)
+    evaluator = AchievementEvaluator(SETTINGS, starting_cash=room_cash)
     rich = {1: snapshot("150000", contribution="0")}
 
     first = evaluator.on_tick(rich, month_changed=False)
@@ -200,7 +208,7 @@ def test_order_metrics_wait_for_the_player_to_have_new_events(
     monkeypatch: pytest.MonkeyPatch, fake: FakeAchievements
 ):
     fake.order_count = 1
-    evaluator = AchievementEvaluator(SETTINGS)
+    evaluator = AchievementEvaluator(SETTINGS, starting_cash=room_cash)
 
     quiet = evaluator.on_tick({1: snapshot()}, month_changed=False)
     monkeypatch.setattr(EventManager, "pop_touched_portfolios", lambda: {1})
@@ -211,7 +219,7 @@ def test_order_metrics_wait_for_the_player_to_have_new_events(
 
 
 def test_progress_is_saved_on_month_change_and_keeps_the_best(fake: FakeAchievements):
-    evaluator = AchievementEvaluator(SETTINGS)
+    evaluator = AchievementEvaluator(SETTINGS, starting_cash=room_cash)
 
     evaluator.on_tick({1: snapshot("60000", cash="60000")}, month_changed=True)
     evaluator.on_tick({1: snapshot("20000", cash="20000")}, month_changed=True)
@@ -220,7 +228,7 @@ def test_progress_is_saved_on_month_change_and_keeps_the_best(fake: FakeAchievem
 
 
 def test_match_end_unlocks_the_ones_that_need_the_result(fake: FakeAchievements):
-    evaluator = AchievementEvaluator(SETTINGS)
+    evaluator = AchievementEvaluator(SETTINGS, starting_cash=room_cash)
     result = MatchResult(frozenset({1}), players_count=8, ended_by_goal=False)
 
     unlocked = evaluator.on_match_end({1: snapshot()}, result)
@@ -229,7 +237,7 @@ def test_match_end_unlocks_the_ones_that_need_the_result(fake: FakeAchievements)
 
 
 def test_loser_does_not_win_anything_at_match_end(fake: FakeAchievements):
-    evaluator = AchievementEvaluator(SETTINGS)
+    evaluator = AchievementEvaluator(SETTINGS, starting_cash=room_cash)
     result = MatchResult(frozenset({2}), players_count=8, ended_by_goal=False)
 
     unlocked = evaluator.on_match_end({1: snapshot()}, result)
@@ -248,6 +256,23 @@ def test_capital_multiple_counts_contributions_as_capital():
     snap = snapshot("30000", contribution="10000")
 
     assert context(snap).value("capital_multiple") == Decimal("1.5")
+
+
+def test_capital_multiple_uses_the_starting_cash_of_each_portfolio():
+    """Herdeiro e Recém-formado dividem o patrimônio pelo capital que cada um colocou."""
+    snap = snapshot("30000", contribution="10000")
+    heir = Sources(starting_cash=lambda _portfolio_id: Decimal(50000))
+    graduate = Sources(starting_cash=lambda _portfolio_id: Decimal(0))
+
+    assert context(snap, sources=heir).value("capital_multiple") == Decimal("0.5")
+    assert context(snap, sources=graduate).value("capital_multiple") == Decimal(3)
+
+
+def test_capital_multiple_is_zero_without_capital_provided():
+    """Recém-formado antes do primeiro aporte: sem capital colocado o múltiplo é zero."""
+    graduate = Sources(starting_cash=lambda _portfolio_id: Decimal(0))
+
+    assert context(snapshot("0"), sources=graduate).value("capital_multiple") == 0
 
 
 def test_fully_invested_needs_almost_no_cash():

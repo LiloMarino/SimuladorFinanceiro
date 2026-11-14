@@ -1,4 +1,6 @@
 from dataclasses import replace
+from datetime import date
+from decimal import Decimal
 
 from backend.core import repository
 from backend.core.dto.simulation import (
@@ -7,12 +9,13 @@ from backend.core.dto.simulation import (
     SimulationStatusResponse,
     SimulationSummaryDTO,
 )
-from backend.core.enum import PlayerGrouping
+from backend.core.enum import PlayerGrouping, Profession
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     UnprocessableEntityError,
 )
 from backend.core.indicators import ensure_indicator_coverage
+from backend.core.life_budget import LifeBudget
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
@@ -36,6 +39,24 @@ class SimulationLoader:
     def _ensure_no_backtest() -> None:
         if SimulationManager.has_backtest():
             raise ConflictError("Há um backtest em andamento.")
+
+    @staticmethod
+    def _starting_cash_by_user(
+        settings: SimulationSettingsDTO,
+        professions: dict[int, Profession],
+        user_ids: list[int],
+        joined: date,
+    ) -> dict[int, Decimal]:
+        """O caixa inicial de cada jogador pela profissão dele; sem profissões, o da sala vale para todos (mapa vazio)."""
+        if not settings.uses_professions:
+            return {}
+        life = LifeBudget.of(settings)
+        return {
+            user_id: life.for_profession(professions[user_id]).starting_capital(
+                settings.starting_cash, joined, settings.end_date
+            )
+            for user_id in user_ids
+        }
 
     @classmethod
     def create(cls, settings: SimulationSettingsDTO) -> SimulationDTO:
@@ -65,6 +86,12 @@ class SimulationLoader:
             list(room_colors),
             settings.start_date,
             settings.starting_cash,
+            cls._starting_cash_by_user(
+                settings,
+                UserManager.chosen_professions(),
+                list(room_colors),
+                settings.start_date,
+            ),
         )
         # A preparação do lobby vira evento da partida, cada jogador com a contribuição do perfil
         preparation.record(
@@ -160,6 +187,12 @@ class SimulationLoader:
             list(newcomers),
             resume_from or summary.start_date,
             summary.starting_cash,
+            cls._starting_cash_by_user(
+                summary,
+                room_professions,
+                list(newcomers),
+                resume_from or summary.start_date,
+            ),
         )
         RoomPreparation.clear()
         UserManager.release_bots()

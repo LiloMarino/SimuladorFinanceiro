@@ -18,6 +18,7 @@ from backend.core.enum import (
     LifeEventEffect,
     LifeEventFamily,
     LifeFrequency,
+    Profession,
 )
 from backend.core.life_budget import LifeBudget
 from backend.core.life_events import LIFE_EVENT_CATALOG
@@ -29,6 +30,7 @@ from backend.features.simulation.life_events import (
     salary_skipped,
     unexpected_on,
 )
+from backend.features.simulation.simulation import Simulation
 from backend.features.tax_policy import DEFAULT_TAX_POLICY
 from tests.conftest import SetIndicator
 from tests.fakes import monthly_series
@@ -400,3 +402,44 @@ def test_a_saved_room_with_the_three_original_types_still_validates():
         LifeEventFamily.EXPENSES,
         LifeEventFamily.INCOME,
     ]
+
+
+def layoff_days(seed: int, factor: float) -> set[date]:
+    return {
+        day
+        for day in YEARS
+        if (
+            event := unexpected_on(
+                seed, day, 6, DEFAULT_LIFE_EVENTS, layoff_factor=factor
+            )
+        )
+        is not None
+        and event.effect is LifeEventEffect.SKIP_NEXT_SALARY
+    }
+
+
+def test_a_heavier_layoff_weight_keeps_every_layoff_day_and_adds_others():
+    """Com o mesmo número sorteado, quem pesa o dobro é demitido nos dias da sala e em outros."""
+    room = layoff_days(42, 1.0)
+    heavier = layoff_days(42, 2.0)
+
+    assert room < heavier
+
+
+def test_the_new_graduate_layoff_chance_is_the_room_chance_times_the_weight():
+    class Room:
+        _layoff_factor = staticmethod(lambda _day: 1.5)
+
+    budget = LifeBudget(
+        monthly_salary=Decimal(5000),
+        monthly_expense=Decimal(3000),
+        withdrawal_rate=Decimal("0.04"),
+        inflation_adjusted=False,
+        start_date=START,
+        profession=Profession.NEW_GRADUATE,
+    )
+    clt = replace(budget, profession=Profession.CLT)
+
+    factor_of = Simulation._layoff_factor_for
+    assert factor_of(Room(), budget)(START) == pytest.approx(3.0)  # type: ignore[arg-type]
+    assert factor_of(Room(), clt)(START) == pytest.approx(1.5)  # type: ignore[arg-type]

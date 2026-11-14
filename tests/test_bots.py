@@ -14,7 +14,13 @@ from fastapi.testclient import TestClient
 from backend import config
 from backend.core import repository
 from backend.core.dto.user import UserDTO
-from backend.core.enum import GameType, PlayerGrouping, StrategyLogKind
+from backend.core.enum import (
+    GameType,
+    PlayerGrouping,
+    Profession,
+    SalaryMode,
+    StrategyLogKind,
+)
 from backend.core.exceptions.http_exceptions import ForbiddenError
 from backend.core.player_colors import PLAYER_COLORS
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
@@ -577,3 +583,68 @@ def test_resuming_a_match_brings_the_bot_back_with_the_same_parameters(room):
     assert resumed is not None
     assert (resumed.key, resumed.params) == (before.key, before.params)
     assert UserManager.room_bots() == []
+
+
+def professions_rules(**changes: object):
+    return rules(
+        game_type=GameType.FINANCIAL_INDEPENDENCE,
+        salary_mode=SalaryMode.PROFESSIONS,
+        **changes,
+    )
+
+
+def test_a_bot_with_a_fixed_profession_keeps_it(room, monkeypatch):
+    monkeypatch.setattr(SettingsManager, "_settings", professions_rules())
+    person("Ana")
+
+    bot = UserManager.add_bot(
+        "Herdeiro",
+        resolve_bot("cdi_100", {}, profession=Profession.HEIR),
+    )
+
+    assert UserManager.get_profession(bot.id) is Profession.HEIR
+
+
+def test_a_bot_without_a_profession_draws_one_the_room_allows(room, monkeypatch):
+    monkeypatch.setattr(
+        SettingsManager, "_settings", professions_rules(inflation_adjusted=False)
+    )
+    person("Ana")
+
+    drawn = {
+        UserManager.get_profession(
+            UserManager.add_bot(f"Bot {i}", resolve_bot("cdi_100", {})).id
+        )
+        for i in range(8)
+    }
+
+    assert Profession.FREELANCER not in drawn
+    assert drawn <= set(Profession)
+
+
+def test_a_fixed_profession_the_room_does_not_offer_is_refused(room, monkeypatch):
+    monkeypatch.setattr(
+        SettingsManager, "_settings", professions_rules(inflation_adjusted=False)
+    )
+
+    assert "profissão" in refusal(
+        lambda: resolve_bot("cdi_100", {}, profession=Profession.FREELANCER), 422
+    )
+
+
+def test_the_players_start_with_the_capital_of_their_profession(room, monkeypatch):
+    # Sem imprevistos: o caixa do primeiro pregão é só o capital, a renda e a despesa
+    settings = professions_rules(starting_cash=Decimal(10000), unexpected_per_year=0)
+    monkeypatch.setattr(SettingsManager, "_settings", settings)
+    ana, bia, caio = person("Ana"), person("Bia"), person("Caio")
+    UserManager.set_profession(ana.client_id, Profession.HEIR)
+    UserManager.set_profession(bia.client_id, Profession.NEW_GRADUATE)
+    UserManager.set_profession(caio.client_id, Profession.CLT)
+
+    SimulationLoader.create(settings)
+
+    sim = SimulationManager.get_active_simulation()
+    assert sim.get_portfolio(ana.client_id).cash > Decimal(10000)
+    # Quem começa sem capital só tem o que o primeiro pregão paga e cobra
+    assert sim.get_portfolio(bia.client_id).cash < Decimal(1000)
+    assert sim.get_portfolio(caio.client_id).cash > Decimal(9000)

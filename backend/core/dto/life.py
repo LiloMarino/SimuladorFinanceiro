@@ -15,7 +15,7 @@ from backend.core.enum import (
     Profession,
 )
 from backend.core.life_events import LIFE_EVENT_CATALOG
-from backend.core.professions import TaxBase
+from backend.core.professions import IncomeDriver, TaxBase
 
 LIFE_EVENT_LABEL_MAX_LENGTH = 40
 LIFE_EVENT_MAX_EXPENSE_MULTIPLE = 24
@@ -167,8 +167,9 @@ class LifeStatusDTO(BaseDTO):
     real_raise: Decimal | None = None
     # O gasto com auxílio em fração do PIB; nulo fora da profissão que o recebe
     welfare_spending: Decimal | None = None
-    # O PIB de 12 meses que move a renda do empreendedor; nulo nas outras profissões
-    gdp_growth: Decimal | None = None
+    # A variável que move a renda da profissão e o valor dela no dia; nulos nas outras
+    driver: IncomeDriver | None = None
+    driver_value: Decimal | None = None
 
 
 class LifeHistoryRowDTO(BaseDTO):

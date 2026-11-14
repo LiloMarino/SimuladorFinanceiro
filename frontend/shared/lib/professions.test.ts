@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { visibleProfession, type RoomRules } from "./professions";
+import { availableProfessions, PROFESSIONS, visibleProfession, type RoomRules } from "./professions";
 
 const room = (overrides: Partial<RoomRules> = {}): RoomRules => ({
   government_enabled: true,
@@ -29,5 +29,31 @@ describe("visibleProfession", () => {
     expect(visibleProfession("CLT", noInflation).tags).toContain("gdp");
     expect(visibleProfession("PUBLIC_SERVANT", noInflation).tags).toEqual(["personalTax"]);
     expect(visibleProfession("LANDLORD", noInflation).losses).toHaveLength(1);
+  });
+});
+
+describe("availableProfessions", () => {
+  it("na sala com correção pela inflação oferece as doze", () => {
+    expect(availableProfessions(room())).toHaveLength(Object.keys(PROFESSIONS).length);
+    expect(availableProfessions(room())).toContain("FREELANCER");
+  });
+
+  it("sem correção pela inflação o Autônomo some e as outras ficam na mesma ordem", () => {
+    const withInflation = availableProfessions(room());
+    const without = availableProfessions(room({ inflation_adjusted: false }));
+    expect(without).not.toContain("FREELANCER");
+    expect(without).toEqual(withInflation.filter((profession) => profession !== "FREELANCER"));
+  });
+});
+
+describe("visibleProfession das profissões novas", () => {
+  it("o Herdeiro não tem etiqueta: sem renda de trabalho nada mexe nela", () => {
+    expect(visibleProfession("HEIR", room()).tags).toEqual([]);
+  });
+
+  it("cada profissão de variável traz a etiqueta dela", () => {
+    expect(visibleProfession("EXPORTER", room()).tags).toEqual(["dollar", "corporateTax"]);
+    expect(visibleProfession("BANKER", room()).tags).toEqual(["unemployment", "selic", "personalTax"]);
+    expect(visibleProfession("BROKER", room()).tags).toEqual(["stocks", "personalTax"]);
   });
 });

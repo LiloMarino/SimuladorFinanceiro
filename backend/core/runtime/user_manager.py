@@ -23,6 +23,7 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.core.player_colors import MAX_PLAYERS, PLAYER_COLORS, first_free_color
+from backend.core.professions import available_professions
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -51,6 +52,8 @@ class BotConfig:
     params: dict[str, StrategyParamValue]
     # Bot da partida salva selecionada
     locked: bool = False
+    # A profissão escolhida para o bot; nula é sorteada entre as que a sala permite
+    profession: Profession | None = None
 
 
 @dataclass(frozen=True)
@@ -285,6 +288,13 @@ class UserManager:
         uses_professions = sim.settings.uses_professions
         if uses_professions and profession is None:
             raise UnprocessableEntityError("Escolha uma profissão para entrar.")
+        if profession is not None and profession not in available_professions(
+            sim.settings.inflation_adjusted
+        ):
+            raise ConflictError("Essa profissão não existe nas regras desta partida.")
+
+        # O capital inicial é um só: o da carteira e o do depósito do dia
+        starting_cash = sim.starting_cash_for(profession)
 
         with cls._lock:
             colors = repository.simulation_player.colors(simulation_id)
@@ -304,7 +314,7 @@ class UserManager:
 
             # A carteira existe antes de o jogador constar entre os participantes
             SimulationManager.add_portfolios(
-                repository.portfolio.create(simulation_id, [user.id])
+                repository.portfolio.create(simulation_id, [user.id], starting_cash)
             )
             repository.simulation_player.save(
                 simulation_id,
@@ -318,7 +328,7 @@ class UserManager:
             cls._colors[user.id] = color
 
         # Depósito e snapshot do dia: o motor tem o próprio lock, fora do nosso
-        sim.add_player(user)
+        sim.add_player(user, starting_cash)
         cls._emit_player_join(user, color)
 
     # =========================
@@ -655,6 +665,15 @@ class UserManager:
         return SettingsManager.effective_uses_professions()
 
     @classmethod
+    def _usable(cls, profession: Profession) -> Profession:
+        """A profissão que a sala permite: a que o jogador escolheu ou, se as regras a tiraram, CLT."""
+        if profession in available_professions(
+            SettingsManager.effective_inflation_adjusted()
+        ):
+            return profession
+        return Profession.CLT
+
+    @classmethod
     def get_profession(cls, user_id: int) -> Profession | None:
         """Profissão na sala; na partida em andamento vale a gravada nela. `None` fora do modo de profissões."""
         if not cls.uses_professions():
@@ -664,7 +683,7 @@ class UserManager:
                 SimulationManager.get_active_simulation_id()
             ).get(user_id, Profession.CLT)
         with cls._lock:
-            return cls._professions.get(user_id, Profession.CLT)
+            return cls._usable(cls._professions.get(user_id, Profession.CLT))
 
     @classmethod
     def room_professions(cls) -> dict[int, Profession]:
@@ -678,7 +697,7 @@ class UserManager:
         """Profissões que a sala escolheu, valham ou não para o modo vigente (o host decide ao iniciar)."""
         with cls._lock:
             return {
-                p.id: cls._professions.get(p.id, Profession.CLT)
+                p.id: cls._usable(cls._professions.get(p.id, Profession.CLT))
                 for p in cls._active_players.values()
             }
 
@@ -689,6 +708,8 @@ class UserManager:
             raise ConflictError("A sala joga com salário igual: não há profissões.")
         if SimulationManager.has_active_simulation():
             raise ConflictError("A partida já começou: as profissões ficam travadas.")
+        if cls._usable(profession) is not profession:
+            raise ConflictError("Essa profissão não existe nas regras desta sala.")
 
         with cls._lock:
             player = cls._active_players.get(client_id)
@@ -913,8 +934,10 @@ class UserManager:
         cls._active_players[bot.client_id] = bot
         cls._colors[bot.id] = color
         cls._bots[bot.client_id] = config
-        # A profissão do bot sai no sorteio de quando ele entra e fica com ele
-        cls._professions[bot.id] = random.choice(list(Profession))
+        # A profissão do bot é a escolhida ou sai no sorteio de quando ele entra, e fica com ele
+        cls._professions[bot.id] = config.profession or random.choice(
+            available_professions(SettingsManager.effective_inflation_adjusted())
+        )
         if team is not None:
             cls._teams[bot.id] = team
         return bot
@@ -946,6 +969,8 @@ class UserManager:
             cls._active_players[client_id] = bot
             cls._colors[bot.id] = chosen
             cls._bots[client_id] = config
+            if config.profession is not None:
+                cls._professions[bot.id] = config.profession
             if team is not None:
                 cls._teams[bot.id] = team
 

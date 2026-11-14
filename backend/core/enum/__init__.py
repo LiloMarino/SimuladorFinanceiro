@@ -351,6 +351,12 @@ class Profession(Enum):
     RETIREE = "RETIREE"
     WELFARE = "WELFARE"
     LANDLORD = "LANDLORD"
+    EXPORTER = "EXPORTER"
+    BANKER = "BANKER"
+    FREELANCER = "FREELANCER"
+    BROKER = "BROKER"
+    HEIR = "HEIR"
+    NEW_GRADUATE = "NEW_GRADUATE"
 
     @property
     def voter_group(self) -> "VoterGroup":
@@ -366,6 +372,8 @@ class IncomeLoss(Enum):
     GIG_LOSS = "GIG_LOSS"
     # O aluguel do mês seguinte não entra
     VACANCY = "VACANCY"
+    # A renda dos clientes do mês seguinte não entra
+    NO_CLIENTS = "NO_CLIENTS"
 
 
 class LifeHistorySort(Enum):
@@ -1011,6 +1019,12 @@ _PROFESSION_GROUPS = {
     Profession.RETIREE: VoterGroup.RETIREES,
     Profession.WELFARE: VoterGroup.WELFARE,
     Profession.LANDLORD: VoterGroup.INVESTORS,
+    Profession.EXPORTER: VoterGroup.ENTREPRENEURS,
+    Profession.BANKER: VoterGroup.FORMAL_WORKERS,
+    Profession.FREELANCER: VoterGroup.ENTREPRENEURS,
+    Profession.BROKER: VoterGroup.INVESTORS,
+    Profession.HEIR: VoterGroup.INVESTORS,
+    Profession.NEW_GRADUATE: VoterGroup.FORMAL_WORKERS,
 }
 
 

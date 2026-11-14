@@ -265,8 +265,11 @@ def map_error(page: Page) -> None:
 MINUS = chr(0x2212)
 
 PROFESSION_NAMES = re.compile(
-    r"^(CLT|Servidor|Empreendedor|Aposentado|Auxílio|Locador)\b"
+    r"^(CLT|Servidor|Empreendedor|Aposentado|Auxílio|Locador|Exportador|Bancário"
+    r"|Autônomo|Corretor|Herdeiro|Recém-formado)\b"
 )
+# As profissões da sala: o Autônomo só existe com a renda corrigida pela inflação
+PROFESSION_COUNT = 12
 
 
 def lobby_with_professions(page: Page, *, rules: dict | None = None) -> None:
@@ -332,12 +335,14 @@ def preparation_profession_with(page: Page, rules: dict | None) -> None:
     lobby_with_professions(page, rules=rules)
     page.get_by_role("button", name="Minha preparação").click()
     dialog = page.get_by_role("dialog")
-    expect(dialog.get_by_role("radio", name=PROFESSION_NAMES)).to_have_count(6)
+    settings = page.request.get(urljoin(page.url, "/api/simulation/settings")).json()
+    count = PROFESSION_COUNT - (not settings["simulation"]["inflation_adjusted"])
+    expect(dialog.get_by_role("radio", name=PROFESSION_NAMES)).to_have_count(count)
     page.wait_for_load_state("networkidle")
 
 
 def preparation_profession(page: Page) -> None:
-    """Lobby com as profissões ligadas e o diálogo "Minha preparação" na aba Profissão, com os 6 cartões."""
+    """Lobby com as profissões ligadas e o diálogo "Minha preparação" na aba Profissão, com os 12 cartões."""
     preparation_profession_with(page, None)
 
 
@@ -389,7 +394,7 @@ def preparation_profession_no_government(page: Page) -> None:
 
 
 def preparation_profession_no_inflation(page: Page) -> None:
-    """Como preparacao/profissao, com a inflação fora do reajuste das regras: o cartão CLT perde "Aumento acima da inflação quando o PIB cresce", e a etiqueta "PIB" segue, já que o PIB não depende da inflação."""
+    """Como preparacao/profissao, com a inflação fora do reajuste das regras: o Autônomo sai da lista, o cartão CLT perde "Aumento acima da inflação quando o PIB cresce", e a etiqueta "PIB" segue, já que o PIB não depende da inflação."""
     preparation_profession_with(page, {"inflation_adjusted": False})
     dialog = page.get_by_role("dialog")
     expect(
@@ -398,12 +403,13 @@ def preparation_profession_no_inflation(page: Page) -> None:
     expect(
         profession_card(dialog, "CLT").get_by_role("button", name="PIB", exact=True)
     ).to_have_count(1)
+    expect(dialog.get_by_role("radio", name=re.compile("^Autônomo"))).to_have_count(0)
 
 
 def preparation_profession_saved_match(page: Page) -> None:
     """
     Lobby com a partida salva selecionada e sem partida ativa, e o diálogo "Minha preparação" na
-    aba Profissão: como a salva guarda a profissão do jogador, os 6 cartões ficam travados e o
+    aba Profissão: como a salva guarda a profissão do jogador, os cartões ficam travados e o
     aviso diz que a profissão fica com a partida salva. A conta vem de `CANVAS_NICKNAME` e a
     salva, que precisa ter profissões ligadas, de `CANVAS_PROFESSION_SAVE_NAME`.
     """
@@ -425,9 +431,9 @@ def preparation_profession_saved_match(page: Page) -> None:
     page.get_by_role("button", name="Minha preparação").click()
     dialog = page.get_by_role("dialog")
     radios = dialog.get_by_role("radio", name=PROFESSION_NAMES)
-    expect(radios).to_have_count(6)
-    for index in range(6):
-        expect(radios.nth(index)).to_be_disabled()
+    radios.first.wait_for()
+    for radio in radios.all():
+        expect(radio).to_be_disabled()
     expect(dialog.get_by_text("A profissão fica com a partida salva")).to_be_visible()
     page.wait_for_load_state("networkidle")
 
