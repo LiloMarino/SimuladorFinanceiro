@@ -108,6 +108,9 @@ class FakeSimulationEngine(SimulationEngine):
     def add_cash(self, client_id: uuid.UUID, cash: Decimal) -> None:
         self.cash[client_id] += cash
 
+    def credit_fund_offer(self, client_id: uuid.UUID, amount: Decimal) -> None:
+        self.cash[client_id] += amount
+
     def pay_dividend(self, client_id: uuid.UUID, ticker: str, amount: Decimal) -> None:
         self.cash[client_id] += amount
         self.dividends.append((client_id, ticker, amount))

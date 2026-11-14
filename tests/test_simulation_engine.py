@@ -302,6 +302,19 @@ def test_add_cash_records_deposit_or_withdraw(player_book, captured_events):
     ]
 
 
+def test_fund_offer_proceeds_have_their_own_event_type(player_book, captured_events):
+    """O dinheiro da oferta pública entra no caixa como FUND_OFFER_PROCEEDS, e não como DEPOSIT."""
+    engine = _engine()
+
+    engine.credit_fund_offer(PLAYER, Decimal("300"))
+
+    assert engine.get_cash(PLAYER) == Decimal("1180")
+    assert _cashflows(captured_events) == [
+        (CashflowEventType.FUND_OFFER_PROCEEDS, Decimal("300"))
+    ]
+    assert not CashflowEventType.FUND_OFFER_PROCEEDS.is_contribution
+
+
 def test_contribution_is_recorded_apart_from_deposit(player_book, captured_events):
     """Aporte mensal entra no caixa como CONTRIBUTION, separado de depósito."""
     engine = _engine()

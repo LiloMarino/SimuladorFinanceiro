@@ -10,6 +10,10 @@ from backend.core.runtime.user_manager import UserManager
 
 # Dono das ordens da liquidez do mercado simulado, que não é um jogador
 MARKET_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__MARKET__")
+# Dono da escada de compra e venda que o formador de mercado põe em volta do valor justo da cota
+FUND_MAKER_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__FUND_MAKER__")
+# Dono da ordem de venda da oferta pública das cotas de uma gestora
+FUND_ISSUER_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__FUND_ISSUER__")
 
 
 @dataclass(kw_only=True)
@@ -72,3 +76,5 @@ class MarketOrder(Order):
 @dataclass(kw_only=True)
 class LimitOrder(Order):
     price: float
+    # Como taker, executa ao preço da própria ordem, e não ao da ordem do livro que ela casa
+    fills_at_own_price: bool = False

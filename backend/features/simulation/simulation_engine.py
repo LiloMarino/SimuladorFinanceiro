@@ -292,6 +292,10 @@ class SimulationEngine:
             CashflowEventType.DEPOSIT if cash > 0 else CashflowEventType.WITHDRAW,
         )
 
+    def credit_fund_offer(self, client_id: UUID, amount: Decimal) -> None:
+        """Dinheiro da venda da oferta pública no caixa da gestora."""
+        self._move_cash(client_id, amount, CashflowEventType.FUND_OFFER_PROCEEDS)
+
     def add_contribution(self, client_id: UUID, amount: Decimal) -> None:
         """Adiciona aporte mensal (não conta como retorno de investimento)"""
         self._move_cash(client_id, amount, CashflowEventType.CONTRIBUTION)

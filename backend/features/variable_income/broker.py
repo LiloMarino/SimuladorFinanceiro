@@ -20,6 +20,7 @@ from backend.core.exceptions import InsufficentCashError, InsufficentPositionErr
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
+from backend.features.funds.fund_account import FundAccount
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import PositionUpdateEventDTO
 from backend.features.variable_income.corporate_actions import (
@@ -28,6 +29,8 @@ from backend.features.variable_income.corporate_actions import (
     SplitApplied,
 )
 from backend.features.variable_income.entities.order import (
+    FUND_ISSUER_CLIENT_ID,
+    FUND_MAKER_CLIENT_ID,
     MARKET_CLIENT_ID,
     LimitOrder,
     MarketOrder,
@@ -44,6 +47,11 @@ logger = logging.getLogger(__name__)
 CENT = Decimal("0.01")
 # Quantidade negocia com oito casas, como a coluna dos eventos
 QUANTITY_STEP = Decimal("1e-8")
+
+# Contas sintéticas do motor: as ordens delas não reservam caixa nem posição
+UNRESERVED_CLIENT_IDS = frozenset(
+    {MARKET_CLIENT_ID, FUND_MAKER_CLIENT_ID, FUND_ISSUER_CLIENT_ID}
+)
 
 
 def to_money(price: float) -> Decimal:
@@ -80,6 +88,8 @@ class Broker:
     - Registrar eventos de equity (BUY, SELL, DIVIDEND) no EventManager
     - Emitir notificações realtime de atualizações de portfólio
     - Fazer bypass para ordens de liquidez sintética (MARKET_CLIENT_ID)
+    - Mover o estado da gestora nos negócios do formador (FUND_MAKER_CLIENT_ID) e da
+      oferta pública (FUND_ISSUER_CLIENT_ID), sem evento de ação nem reserva
     """
 
     def __init__(
@@ -90,6 +100,8 @@ class Broker:
         self._simulation_engine = simulation_engine
         self._lock = lock
         self._positions: LazyDict[UUID, dict[str, Position]] = LazyDict(load_positions)
+        # A gestora de cada cota negociada, pelo ticker
+        self.fund_accounts: dict[str, FundAccount] = {}
 
     def get_positions(self, client_id: UUID) -> dict[str, Position]:
         with self._lock:
@@ -228,7 +240,7 @@ class Broker:
             return max(Decimal(0), position.size - position.reserved)
 
     def reserve_limit_order(self, order: LimitOrder) -> None:
-        if order.client_id == MARKET_CLIENT_ID:
+        if order.client_id in UNRESERVED_CLIENT_IDS:
             return
 
         with self._lock:
@@ -251,7 +263,7 @@ class Broker:
                 )
 
     def release_limit_order(self, order: LimitOrder) -> None:
-        if order.client_id == MARKET_CLIENT_ID:
+        if order.client_id in UNRESERVED_CLIENT_IDS:
             return
 
         with self._lock:
@@ -310,7 +322,7 @@ class Broker:
         da execução recusa a que não cabe.
         """
         if (
-            order.client_id == MARKET_CLIENT_ID
+            order.client_id in UNRESERVED_CLIENT_IDS
             or order.action != OrderAction.BUY
             or order.automatic
         ):
@@ -333,16 +345,34 @@ class Broker:
         size: Decimal,
         price: float,
     ):
-        # Executa a ordem para o cliente (se não for MARKET)
-        if order.client_id != MARKET_CLIENT_ID:
-            match order.action:
-                case OrderAction.BUY:
-                    self._execute_buy(order, size, price)
-                case OrderAction.SELL:
-                    self._execute_sell(order, size, price)
+        if order.client_id == MARKET_CLIENT_ID:
+            return
+        if order.client_id == FUND_MAKER_CLIENT_ID:
+            self.fund_accounts[order.ticker].maker_trade(
+                order.action, size, to_money(price)
+            )
+            return
+        if order.client_id == FUND_ISSUER_CLIENT_ID:
+            self._execute_fund_offer(order, size, price)
+            return
+        match order.action:
+            case OrderAction.BUY:
+                self._execute_buy(order, size, price)
+            case OrderAction.SELL:
+                self._execute_sell(order, size, price)
+
+    def _execute_fund_offer(self, order: Order, size: Decimal, price: float) -> None:
+        """A venda da oferta emite as cotas e põe o dinheiro no caixa da gestora."""
+        if order.action != OrderAction.SELL:
+            raise ValueError("A oferta pública só vende")
+        account = self.fund_accounts[order.ticker]
+        account.issue(size)
+        self._simulation_engine.credit_fund_offer(
+            account.client_id, to_money(price) * size
+        )
 
     def _validate_market_order(self, order: MarketOrder, size: Decimal, price: float):
-        if order.client_id != MARKET_CLIENT_ID:
+        if order.client_id not in UNRESERVED_CLIENT_IDS:
             if (
                 order.action == OrderAction.SELL
                 and self.get_available_position(order.client_id, order.ticker) < size

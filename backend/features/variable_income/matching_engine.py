@@ -17,9 +17,12 @@ from backend.features.realtime.schemas import (
     OrderExecutedEventDTO,
     OrderPartialExecutedEventDTO,
 )
-from backend.features.variable_income.broker import Broker, to_money
+from backend.features.variable_income.broker import (
+    UNRESERVED_CLIENT_IDS,
+    Broker,
+    to_money,
+)
 from backend.features.variable_income.entities.order import (
-    MARKET_CLIENT_ID,
     LimitOrder,
     MarketOrder,
     Order,
@@ -124,7 +127,7 @@ class MatchingEngine:
         """Cancela as ordens abertas dos jogadores no ativo, devolvendo caixa e posição reservados."""
         canceled = 0
         for order in self.order_book.get_orders(ticker):
-            if order.client_id == MARKET_CLIENT_ID:
+            if order.client_id in UNRESERVED_CLIENT_IDS:
                 continue
             if self.cancel(order_id=order.id, client_id=order.client_id):
                 canceled += 1
@@ -133,7 +136,8 @@ class MatchingEngine:
     def cancel_all(self, client_id: UUID | None = None) -> int:
         """Cancela as ordens abertas de um jogador, ou de todos quando `client_id` é None.
 
-        A liquidez sintética do mercado fica de fora: ela não reserva caixa nem posição.
+        As contas sintéticas (mercado, formador e oferta das gestoras) ficam de fora: elas não
+        reservam caixa nem posição.
         """
         orders = (
             self.order_book.all_open()
@@ -142,7 +146,7 @@ class MatchingEngine:
         )
         canceled = 0
         for order in orders:
-            if order.client_id == MARKET_CLIENT_ID:
+            if order.client_id in UNRESERVED_CLIENT_IDS:
                 continue
             if self.cancel(order_id=order.id, client_id=order.client_id):
                 canceled += 1
@@ -204,7 +208,10 @@ class MatchingEngine:
                     self._close_at_executed(order)
                     break
 
-            self._execute_trade(order, counter, counter.price, qty)
+            price = counter.price
+            if isinstance(order, LimitOrder) and order.fills_at_own_price:
+                price = order.price
+            self._execute_trade(order, counter, price, qty)
         return order.size - order.remaining
 
     def _execute_trade(
@@ -299,7 +306,7 @@ class MatchingEngine:
                 quantity=quantity,
             ).to_json()
 
-        if order.client_id != MARKET_CLIENT_ID:
+        if order.client_id not in UNRESERVED_CLIENT_IDS:
             notify(event=event, payload=payload, to=order.client_id)
 
         self._notify_book_update(order)

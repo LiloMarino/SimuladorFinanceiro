@@ -85,6 +85,8 @@ class CashflowEventType(Enum):
     FUND_PERFORMANCE_FEE = "FUND_PERFORMANCE_FEE"
     FUND_MANAGEMENT_FEE_INCOME = "FUND_MANAGEMENT_FEE_INCOME"
     FUND_PERFORMANCE_FEE_INCOME = "FUND_PERFORMANCE_FEE_INCOME"
+    # Venda da oferta pública das cotas: o dinheiro entra no caixa da gestora
+    FUND_OFFER_PROCEEDS = "FUND_OFFER_PROCEEDS"
 
     @property
     def sign(self) -> int:
@@ -120,6 +122,7 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.FUND_PERFORMANCE_FEE: -1,
     CashflowEventType.FUND_MANAGEMENT_FEE_INCOME: 1,
     CashflowEventType.FUND_PERFORMANCE_FEE_INCOME: 1,
+    CashflowEventType.FUND_OFFER_PROCEEDS: 1,
 }
 
 # Aporte, salário, legado do presidente, despesa e imprevisto (ruim ou bom) são o
