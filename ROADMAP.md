@@ -90,12 +90,11 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
-| [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 | — | Alto | Bom | ⏳ |
 | [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | M18 · 4.2 | — | Médio | Médio | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -124,6 +123,7 @@
 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 | — | — | — | ✅ |
 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 | — | — | — | ✅ |
 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 | — | — | — | ✅ |
+| [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 | — | — | — | ✅ |
 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | M18 · 4.2 | — | — | — | ✅ |
 | [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | M18 · 4.2 | — | — | — | ✅ |
 
@@ -141,7 +141,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 7/19 concluídos
+> **Progresso:** 8/19 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -160,7 +160,7 @@
 | 13 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | — | ✅ Concluído |
 | 14 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | — | ✅ Concluído |
 | 15 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | — | ✅ Concluído |
-| 16 | [**F290**](#f290) | Feature | Profissões novas | — | ⏳ Pendente |
+| 16 | [**F290**](#f290) | Feature | Profissões novas | — | ✅ Concluído |
 | 17 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | [F290](#f290), [F102](#f102) | ⏳ Pendente |
 | 18 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | — | ✅ Concluído |
 | 19 | [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | — | ✅ Concluído |
@@ -260,7 +260,6 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M18 · 4.2 · 3º | 0 | — | — | 🔍 |
 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.2 · 4º | 14 | Alto | Médio | ⏳ |
-| [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 · 16º | 1 | Alto | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
@@ -325,7 +324,6 @@
 | **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Alto | Alto | Alto | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F290** | Feature | Profissões novas | N23, N34 | D19 | M18 · 4.2 | — | Alto | Médio | Alto | Bom |
 | **F292** | Feature | Fundo Soberano: o governo compra ações e cotas | N34, N41 | — | M18 · 4.2 | [F101](#f101), [F44](#f44), [F255](#f255) | Médio | Médio | Médio | Bom |
 | **F293** | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | N23, N34 | D19 | M18 · 4.2 | [F290](#f290), [F102](#f102) | Médio | Médio | Médio | Médio |
 
@@ -644,26 +642,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f290"></a>
-**F290 — Profissões novas.** Serve N23 e N34; condicionado por D19. As seis profissões de hoje (`backend/core/professions.py`, `frontend/shared/lib/professions.ts`) ligam a renda ao desemprego, ao PIB, ao reajuste do governo e a um dos três impostos. Cada profissão nova aposta numa variável que a partida já simula e que nenhuma das seis usa, para a escolha ser uma leitura da economia, e cada uma tem um preço. Os múltiplos abaixo são o ponto de partida; os números finais saem da calibragem.
-
-- **Exportador:** a renda segue o dólar; ganha quando o real se desvaloriza e perde quando ele se valoriza. Imposto de empresa. Grupo dos empreendedores; o governo chega por câmbio e imposto de empresa.
-- **Bancário:** a renda segue a Selic; ganha com juro alto e perde quando o Banco Central corta. Tem sorteio de demissão e imposto de renda. Grupo dos trabalhadores formais; o governo chega pela Selic.
-- **Autônomo:** cerca de 1,4× o salário, sem reajuste nem correção pela inflação, então a inflação come a renda ao longo da partida; o sorteio de demissão vira "mês sem cliente", um mês sem renda. Imposto de renda. Grupo dos empreendedores.
-- **Corretor:** a renda segue o Ibovespa dos últimos 12 meses. Imposto de renda. Grupo dos investidores.
-- **Herdeiro:** sem renda nenhuma; começa com um patrimônio calibrado para empatar com o CLT aplicado no CDI na duração padrão da partida. É trocar a renda pelo capital de partida: ganha de quem investe mal e perde para quem investe bem o salário. Grupo dos investidores; o governo chega pela Selic, que decide quanto o patrimônio rende.
-- **Recém-formado:** começa com patrimônio zero e cerca de 0,6× o salário, que sobe até cerca de 1,5× em 10 anos; o risco de demissão é maior no começo. Imposto de renda. Grupo dos trabalhadores formais.
-
-Os bots recebem uma profissão sorteada entre todas, e o host pode fixá-la no slot do bot. Os cards usam o formato Ganha | Perde dos cards de profissão.
-
-**Plano.**
-
-1. **Calibragem pelo CLI:** cada profissão nova contra o CLT em várias bases e sorteios, ajustando os múltiplos e o patrimônio do Herdeiro.
-2. **Backend:** os campos novos do `ProfessionRule` (renda que segue dólar, Selic ou bolsa; sem reajuste; patrimônio inicial; a curva de renda do Recém-formado; a demissão como mês sem cliente) e a profissão sorteada dos bots.
-3. **Frontend:** os seis cards Ganha | Perde e o seletor de profissão no slot do bot.
-
-**Aceite:** na calibragem, cada profissão nova termina acima do CLT em algum cenário e abaixo em outro; o Herdeiro que deixa tudo no CDI termina perto do CLT que investe o salário no CDI.
-
 <a id="f292"></a>
 **F292 — Fundo Soberano: o governo compra ações e cotas.** Serve N34 e N41. O governo investe em empresas com uma carteira própria. A referência é o Fundo Soberano do Brasil (2008 a 2019): criado com dinheiro do Tesouro, comprou ações da Petrobras e do Banco do Brasil e foi extinto em 2019, com o saldo usado para pagar dívida.
 
@@ -801,6 +779,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F287** | Melhoria | Slots dos jogadores do lobby no desenho anterior | N15, N20 | — | M18 · 4.2 |
 | **F288** | Melhoria | Badge de profissão legível no lobby e na Minha preparação | N15, N20 | — | M18 · 4.2 |
 | **F289** | Melhoria | Cards de profissão com vantagens e desvantagens | N39, N25 | — | M18 · 4.2 |
+| **F290** | Feature | Profissões novas | N23, N34 | D19 | M18 · 4.2 |
 | **F291** | Melhoria | Locador com aluguel de 1,1× o salário | N39 | — | M18 · 4.2 |
 | **F294** | Melhoria | Adicionar vários bots de uma vez | N8 | — | M18 · 4.2 |
 
@@ -849,6 +828,26 @@ O túnel foi para `features/tunnel/`, a preparação da sala para `features/gove
 - **Locador:** passa a 1,1× o salário, no card próprio dele no roadmap; os cards já o mostram com R$ 5.500.
 
 **Falta:** o usuário escolher no canvas a variante do card (A: três colunas com lista única; B: duas colunas com Ganha e Perde lado a lado; C: tabela comparativa) e revisar as frases de cada profissão.
+
+<a id="f290"></a>
+**F290 — Profissões novas.** Serve N23 e N34; condicionado por D19. As seis profissões de hoje (`backend/core/professions.py`, `frontend/shared/lib/professions.ts`) ligam a renda ao desemprego, ao PIB, ao reajuste do governo e a um dos três impostos. Cada profissão nova aposta numa variável que a partida já simula e que nenhuma das seis usa, para a escolha ser uma leitura da economia, e cada uma tem um preço. Os múltiplos abaixo são o ponto de partida; os números finais saem da calibragem.
+
+- **Exportador:** a renda segue o dólar; ganha quando o real se desvaloriza e perde quando ele se valoriza. Imposto de empresa. Grupo dos empreendedores; o governo chega por câmbio e imposto de empresa.
+- **Bancário:** a renda segue a Selic; ganha com juro alto e perde quando o Banco Central corta. Tem sorteio de demissão e imposto de renda. Grupo dos trabalhadores formais; o governo chega pela Selic.
+- **Autônomo:** cerca de 1,4× o salário, sem reajuste nem correção pela inflação, então a inflação come a renda ao longo da partida; o sorteio de demissão vira "mês sem cliente", um mês sem renda. Imposto de renda. Grupo dos empreendedores.
+- **Corretor:** a renda segue o Ibovespa dos últimos 12 meses. Imposto de renda. Grupo dos investidores.
+- **Herdeiro:** sem renda nenhuma; começa com um patrimônio calibrado para empatar com o CLT aplicado no CDI na duração padrão da partida. É trocar a renda pelo capital de partida: ganha de quem investe mal e perde para quem investe bem o salário. Grupo dos investidores; o governo chega pela Selic, que decide quanto o patrimônio rende.
+- **Recém-formado:** começa com patrimônio zero e cerca de 0,6× o salário, que sobe até cerca de 1,5× em 10 anos; o risco de demissão é maior no começo. Imposto de renda. Grupo dos trabalhadores formais.
+
+Os bots recebem uma profissão sorteada entre todas, e o host pode fixá-la no slot do bot. Os cards usam o formato Ganha | Perde dos cards de profissão.
+
+**Plano.**
+
+1. **Calibragem pelo CLI:** cada profissão nova contra o CLT em várias bases e sorteios, ajustando os múltiplos e o patrimônio do Herdeiro.
+2. **Backend:** os campos novos do `ProfessionRule` (renda que segue dólar, Selic ou bolsa; sem reajuste; patrimônio inicial; a curva de renda do Recém-formado; a demissão como mês sem cliente) e a profissão sorteada dos bots.
+3. **Frontend:** os seis cards Ganha | Perde e o seletor de profissão no slot do bot.
+
+**Aceite:** na calibragem, cada profissão nova termina acima do CLT em algum cenário e abaixo em outro; o Herdeiro que deixa tudo no CDI termina perto do CLT que investe o salário no CDI.
 
 <a id="f291"></a>
 **F291 — Locador com aluguel de 1,1× o salário.** Serve N39. Hoje o Locador (`backend/core/professions.py`) rende 1× o salário, paga o imposto de renda das pessoas e corre o sorteio de demissão como vacância, igual ao CLT, mas sem o aumento acima da inflação que o CLT ganha quando o PIB cresce. Ele sai igual ou pior que o CLT em tudo, e com as vantagens e desvantagens escritas no card da profissão isso fica à vista: ninguém escolhe o Locador.
