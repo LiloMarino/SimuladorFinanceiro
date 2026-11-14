@@ -77,7 +77,6 @@
 | [**F159**](#f159) | Feature | Rodada de novas conquistas e revisão das existentes | M28 · 4.6 | — | — | — | 🔍 |
 | [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | M24 · 4.3 | — | Baixo | Bom | ⏳ |
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
-| [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | M28 · 4.6 | — | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.4 | — | — | — | 🔍 |
@@ -94,7 +93,7 @@
 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | M18 · 4.2 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (30 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -119,6 +118,7 @@
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F227](#f227), [F255](#f255) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 | — | — | — | ✅ |
+| [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.2 | — | — | — | ✅ |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M18 · 4.2 | — | — | — | ✅ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | — | — | ✅ |
 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 | — | — | — | ✅ |
@@ -142,7 +142,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 9/20 concluídos
+> **Progresso:** 10/20 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -150,7 +150,7 @@
 | 2 | [**F101**](#f101) | Feature | Carteira separada do jogador | — | ✅ Concluído |
 | 3 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | ✅ Concluído |
 | 4 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | [F101](#f101) | ⏳ Pendente |
-| 5 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | [F44](#f44) | ⏳ Pendente |
+| 5 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | — | ✅ Concluído |
 | 6 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | [F44](#f44) | ⏳ Pendente |
 | 7 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | [F44](#f44) | ⏳ Pendente |
 | 8 | [**F55**](#f55) | Feature | Modo aquisição hostil | [F102](#f102), [F103](#f103) | ⏳ Pendente |
@@ -260,7 +260,7 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.2 · 4º | 14 | Alto | Médio | ⏳ |
+| [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.2 · 4º | 13 | Alto | Médio | ⏳ |
 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | M18 · 4.2 · 20º | 0 | Baixo | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
@@ -319,7 +319,6 @@
 | **F140** | Docs | Docs reorganizada por tipo de leitor | N25 | D21 | M28 · 4.6 | [F44](#f44) | Alto | Baixo | Alto | Bom |
 | **F141** | Docs | README com as features de hoje | N25 | — | M28 · 4.6 | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
 | **F167** | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | M24 · 4.3 | — | Baixo | Baixo | Médio | Bom |
-| **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.2 | [F44](#f44) | Médio | Médio | Bom | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
@@ -544,27 +543,6 @@
 <a id="f167"></a>
 **F167 — Notícias do ativo como marcadores no gráfico de preço.** Serve N31. As manchetes de empresas do noticiário (F92) aparecem também na tela do ativo, como marcadores no gráfico de preço, com a manchete ao passar o mouse. Separada da F92 em 29/out: o noticiário sai na 3.1 só com as manchetes, e os marcadores pedem desenho no canvas antes do código. Gatilho: F92 concluída.
 
-<a id="f179"></a>
-**F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: depois do selo de pausa vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Com as Gestoras, governo, gestora e corrida ligados juntos passam a ser o caso comum, então a topbar é resolvida na 4.2, no mesmo desenho das Gestoras (F44). A referência é 1920 de largura, e em 1366 nada pode quebrar; o estado de teste é corrida, governo e gestora ligados, pausa com o motivo mais longo e o 100× destacado.
-
-**Desenho aprovado em 14/nov** (board "Topbar recombinada" e os estados dela, no canvas). O que muda:
-
-- a velocidade vira tracinhos com o número ao lado, um clique por tracinho, e a dica mostra a tecla (1 a 5); Espaço pausa e retoma, sem agir quando o foco está num campo de texto;
-- o selo "Pausado" sai: a data ganha o fundo âmbar e o texto "Pausado · data", e o motivo da pausa fica na dica;
-- o caixa vira o seletor de conta: "Caixa · Aurora Gestão ▾" abre a lista (carteira pessoal e gestoras), e com a gestora escolhida uma faixa verde-petróleo aparece sob a topbar; o botão "Operando" das Gestoras não existe;
-- o selo "Carteira congelada" do presidente sai: o cadeado entra no rótulo do caixa e nas contas do menu, com a dica "Congelada até <data>".
-
-**Meta e governo ficam como no app de hoje.** O board desenha os dois de forma aproximada, e o código segue os componentes reais (`topbar-goal.tsx`, `topbar-government.tsx`), sem mudar o estilo deles. O que o board não mostra e o app tem: a trilha da meta com 240 px de largura (o board usa 150) e um marcador por jogador ou equipe; a linha sob a meta com o reajuste pelo IPCA, o aviso "quase lá" e a "média da sua equipe"; o governo com presidente no cargo (emblema, nome, aprovação com a seta e a dica ao passar o mouse), que o board só desenha como a pílula "Governo do computador até a posse"; e o botão Como jogar.
-
-**Plano.**
-
-1. **Medir antes de mexer:** o bloco da direita com os componentes de hoje (meta com trilha de 240 px, governo com presidente, Como jogar, tempo e caixa) a 1366 e a 1920, com a velocidade em tracinhos e a pausa dobrada na data. Se a meta e o governo reais não couberem a 1366, o ponto de decisão é aberto e vai para o usuário: encolher a trilha (o board usa 150 px) ou compactar o governo, que o card já previa.
-2. **Tempo:** os tracinhos no lugar do `ToggleGroup`, a data âmbar no lugar do selo, o motivo da pausa na dica e os atalhos Espaço e 1 a 5.
-3. **Caixa:** o rótulo com o seletor de conta, o menu, a faixa verde-petróleo e o cadeado da carteira congelada (fica para quando a gestora existir, na F44; sem ela o rótulo é "Caixa" como hoje).
-4. **Estados:** conferir com a receita do canvas (tudo ligado a 1920 e a 1366, pausado, dica do teclado, menu aberto, governando, cheque especial, nome longo, partida clássica sem expansões, carregando).
-
-**Aceite:** a 1366 a topbar com corrida, governo e gestora ligados cabe numa linha, sem quebra; o 100× e a pausa com o motivo mais longo continuam legíveis; Espaço pausa e 1 a 5 trocam a velocidade, e digitar num campo não aciona nada.
-
 <a id="f197"></a>
 **F197 — Rebalanceamento por meta com várias classes.** Serve N4. Hoje o `TargetRebalance` (`backend/features/strategy/rebalance.py:55`) divide só entre um ativo de ações (BOVA11 por padrão) e a renda fixa de liquidez diária: a meta em ações vai de 10% a 90% (padrão 60%), e o desvio máximo, de 1 a 20 pontos (padrão 5). O playtest de 31/out pediu configurar a meta de cada classe.
 
@@ -783,6 +761,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F101** | Feature | Carteira separada do jogador | N23 | D9 | M18 · 4.2 |
+| **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.2 |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M18 · 4.2 |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 |
 | **F287** | Melhoria | Slots dos jogadores do lobby no desenho anterior | N15, N20 | — | M18 · 4.2 |
@@ -794,6 +773,27 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 <a id="f101"></a>
 **F101 — Carteira separada do jogador.** Serve N23; segue a D9. A base da expansão Gestoras (F44): hoje eventos e snapshots pertencem ao jogador (`user_id`), e a gestora precisa de carteira própria. Entra uma tabela `portfolios`, e eventos e snapshots passam a apontar para a carteira; a carteira pessoal de cada jogador é migrada uma a uma, inclusive nas partidas salvas. Nada muda na tela: cada jogador segue com uma carteira só até a F44 existir. Gatilho: a F44 sair da avaliação.
+
+<a id="f179"></a>
+**F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: depois do selo de pausa vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Com as Gestoras, governo, gestora e corrida ligados juntos passam a ser o caso comum, então a topbar é resolvida na 4.2, no mesmo desenho das Gestoras (F44). A referência é 1920 de largura, e em 1366 nada pode quebrar; o estado de teste é corrida, governo e gestora ligados, pausa com o motivo mais longo e o 100× destacado.
+
+**Desenho aprovado em 14/nov** (board "Topbar recombinada" e os estados dela, no canvas). O que muda:
+
+- a velocidade vira tracinhos com o número ao lado, um clique por tracinho, e a dica mostra a tecla (1 a 5); Espaço pausa e retoma, sem agir quando o foco está num campo de texto;
+- o selo "Pausado" sai: a data ganha o fundo âmbar e o texto "Pausado · data", e o motivo da pausa fica na dica;
+- o caixa vira o seletor de conta: "Caixa · Aurora Gestão ▾" abre a lista (carteira pessoal e gestoras), e com a gestora escolhida uma faixa verde-petróleo aparece sob a topbar; o botão "Operando" das Gestoras não existe;
+- o selo "Carteira congelada" do presidente sai: o cadeado entra no rótulo do caixa e nas contas do menu, com a dica "Congelada até <data>".
+
+**Meta e governo ficam como no app de hoje.** O board desenha os dois de forma aproximada, e o código segue os componentes reais (`topbar-goal.tsx`, `topbar-government.tsx`), sem mudar o estilo deles. O que o board não mostra e o app tem: a trilha da meta com 240 px de largura (o board usa 150) e um marcador por jogador ou equipe; a linha sob a meta com o reajuste pelo IPCA, o aviso "quase lá" e a "média da sua equipe"; o governo com presidente no cargo (emblema, nome, aprovação com a seta e a dica ao passar o mouse), que o board só desenha como a pílula "Governo do computador até a posse"; e o botão Como jogar.
+
+**Plano.**
+
+1. **Medir antes de mexer:** o bloco da direita com os componentes de hoje (meta com trilha de 240 px, governo com presidente, Como jogar, tempo e caixa) a 1366 e a 1920, com a velocidade em tracinhos e a pausa dobrada na data. Se a meta e o governo reais não couberem a 1366, o ponto de decisão é aberto e vai para o usuário: encolher a trilha (o board usa 150 px) ou compactar o governo, que o card já previa.
+2. **Tempo:** os tracinhos no lugar do `ToggleGroup`, a data âmbar no lugar do selo, o motivo da pausa na dica e os atalhos Espaço e 1 a 5.
+3. **Caixa:** o rótulo com o seletor de conta, o menu, a faixa verde-petróleo e o cadeado da carteira congelada (fica para quando a gestora existir, na F44; sem ela o rótulo é "Caixa" como hoje).
+4. **Estados:** conferir com a receita do canvas (tudo ligado a 1920 e a 1366, pausado, dica do teclado, menu aberto, governando, cheque especial, nome longo, partida clássica sem expansões, carregando).
+
+**Aceite:** a 1366 a topbar com corrida, governo e gestora ligados cabe numa linha, sem quebra; o 100× e a pausa com o motivo mais longo continuam legíveis; Espaço pausa e 1 a 5 trocam a velocidade, e digitar num campo não aciona nada.
 
 <a id="f211"></a>
 **F211 — Livro de ofertas e ordens abertas do detalhe do ativo.** Serve N15. O livro (`features/variable-income/components/order-book-card.tsx`) simula a profundidade de mercado a partir do candle do dia, e a ordem do jogador se perde no meio dele. O que o código faz hoje:
