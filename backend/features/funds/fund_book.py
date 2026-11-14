@@ -1,18 +1,30 @@
 import math
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from datetime import date, timedelta
-from decimal import Decimal
+from decimal import ROUND_FLOOR, Decimal
 from uuid import UUID, uuid4
 
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
-from backend.core.dto.fund import FundDayDTO, FundDTO
+from backend.core.dto.fund import (
+    FundDayDTO,
+    FundDetailsDTO,
+    FundDTO,
+    FundSummaryDTO,
+    FundTermsDTO,
+)
 from backend.core.dto.stock import StockDTO
 from backend.core.enum import AssetClass, IndicatorSeries
+from backend.core.exceptions.http_exceptions import (
+    ConflictError,
+    NotFoundError,
+    UnprocessableEntityError,
+)
 from backend.core.indicators import index_daily_rate
 from backend.core.runtime.simulation_manager import SimulationManager
-from backend.core.utils import next_business_day
+from backend.core.utils import next_business_day, next_month_turn
+from backend.features.funds import headlines
 from backend.features.funds.fees import management_fee, performance_charge
 from backend.features.funds.fund_account import DayTrades, FundAccount
 from backend.features.funds.fund_maker import STOCK_SHARE, FundMaker
@@ -22,10 +34,17 @@ from backend.features.funds.ranking_price import (
     TradedDay,
     ranking_price,
 )
+from backend.features.notifications.news import Headline
 from backend.features.simulation.simulation_engine import SimulationEngine
 
 # Meses entre duas cobranças de performance, contados da oferta
 PERFORMANCE_PERIOD_MONTHS = 6
+
+# O PL por cota da primeira integralização
+FIRST_NAV = Decimal(100)
+
+# Pregões da série devolvida no detalhe da gestora
+SERIES_LIMIT = 500
 
 
 def nav_per_quota(
@@ -133,10 +152,12 @@ class FundBook:
         simulation_id: int,
         engine: SimulationEngine,
         client_of_user: Callable[[int], UUID],
+        publish: Callable[[date, Headline], None] | None = None,
     ) -> None:
         self._simulation_id = simulation_id
         self._engine = engine
         self._client_of_user = client_of_user
+        self._publish = publish
         self._funds: dict[str, Fund] = {}
         accounts = engine.broker.fund_accounts
         self._maker = FundMaker(engine.matching_engine, accounts)
@@ -155,6 +176,26 @@ class FundBook:
     def get(self, ticker: str) -> Fund:
         return self._funds[ticker]
 
+    def by_id(self, fund_id: int) -> Fund:
+        for fund in self._funds.values():
+            if fund.terms.id == fund_id:
+                return fund
+        raise NotFoundError("Gestora não encontrada")
+
+    def summary(self, fund: Fund) -> FundSummaryDTO:
+        """A gestora com o PL por cota de agora e o preço de ranking."""
+        return FundSummaryDTO(
+            **fund.terms.model_dump(include=set(FundTermsDTO.model_fields)),
+            nav=self._nav(fund),
+            ranking_price=self._engine.ranking_prices.get(fund.ticker),
+        )
+
+    def details(self, fund: Fund) -> FundDetailsDTO:
+        """O resumo da gestora com a série dos últimos fechamentos."""
+        after = self._engine.current_date + timedelta(days=1)
+        days = repository.fund.days(fund.terms.id, after, SERIES_LIMIT)
+        return FundDetailsDTO(**self.summary(fund).model_dump(), days=days)
+
     # =========================
     # Criação e oferta
     # =========================
@@ -170,7 +211,11 @@ class FundBook:
         performance_fee: Decimal,
     ) -> Fund:
         """Cria a gestora vazia: a cota entra no catálogo da partida e a carteira dela, no motor."""
-        stock = repository.stock.add_stock(ticker, name, AssetClass.FUND)
+        if ticker in self._funds:
+            raise ConflictError("Já existe uma gestora com este ticker na partida")
+        stock = repository.fund.claim_stock(ticker, name, founder_user_id)
+        if stock is None:
+            raise ConflictError("Este ticker já é de outro ativo ou de outro fundador")
         terms = repository.fund.create(
             simulation_id=self._simulation_id,
             stock_id=stock.id,
@@ -183,6 +228,70 @@ class FundBook:
             performance_fee=performance_fee,
         )
         return self._load(terms)
+
+    def contribute(
+        self,
+        ticker: str,
+        manager: UUID,
+        cash: Decimal,
+        stocks: Mapping[str, Decimal],
+    ) -> Decimal:
+        """Integraliza caixa e ações do gestor na gestora e devolve as cotas emitidas a ele.
+
+        As cotas valem o que foi levado a preço de mercado, ao PL do dia (R$ 100 na primeira
+        integralização), arredondadas para baixo; a sobra fica na gestora. O custo médio das
+        ações vai junto e as cotas nascem com o custo contábil do que foi levado, de modo que a
+        integralização não gera venda nem DARF.
+        """
+        fund = self._funds[ticker]
+        if fund.listed:
+            raise ConflictError("A integralização só vale antes da oferta pública")
+        if cash <= 0 and not stocks:
+            raise UnprocessableEntityError("Informe o que integralizar")
+        engine = self._engine
+        if engine.get_cash(manager) < cash:
+            raise UnprocessableEntityError("Caixa insuficiente para integralizar")
+
+        # Confere tudo antes de mover qualquer coisa
+        value = cost = cash
+        positions = engine.broker.get_positions(manager)
+        for held_ticker, quantity in stocks.items():
+            stock = engine.stocks.get(held_ticker)
+            if stock is None or stock.asset_class is AssetClass.FUND:
+                raise UnprocessableEntityError(
+                    f"{held_ticker} não pode ser integralizado"
+                )
+            if quantity <= 0:
+                raise UnprocessableEntityError(
+                    "A quantidade precisa ser maior que zero"
+                )
+            engine.check_quantity(held_ticker, quantity)
+            position = positions.get(held_ticker)
+            if position is None or position.size - position.reserved < quantity:
+                raise UnprocessableEntityError(f"Posição insuficiente em {held_ticker}")
+            value += engine.get_current_price(position) * quantity
+            cost += position.avg_price * quantity
+
+        nav = self._nav(fund) if fund.account.quotas > 0 else FIRST_NAV
+        if nav is None or nav <= 0:
+            raise ConflictError("A gestora não tem patrimônio para emitir cotas")
+        issued = (value / nav).to_integral_value(rounding=ROUND_FLOOR)
+        if issued <= 0:
+            raise UnprocessableEntityError("O valor não chega a uma cota")
+
+        fund_client = fund.account.client_id
+        if cash > 0:
+            engine.transfer_cash(manager, fund_client, cash)
+        for held_ticker, quantity in stocks.items():
+            engine.broker.transfer_position(manager, fund_client, held_ticker, quantity)
+        fund.account.quotas += issued
+        engine.broker.receive_position(manager, ticker, issued, cost / issued)
+        # O preço de ranking da cota já vale na carteira do gestor
+        fund.nav = self._nav(fund)
+        if fund.nav is not None:
+            engine.ranking_prices[ticker] = ranking_price(fund.days, fund.nav)
+        self._save(fund)
+        return issued
 
     def open_offer(self, ticker: str, size: Decimal) -> None:
         """Abre a oferta pública de `size` cotas novas ao PL de hoje.
@@ -212,12 +321,46 @@ class FundBook:
         )
         self._refresh_orders(fund, today)
         self._save(fund)
+        self._announce(today, headlines.offer_opened(ticker, size))
 
     def close_offer(self, ticker: str) -> None:
         """Encerra a oferta: o que não vendeu não é emitido."""
         fund = self._funds[ticker]
         self._offer.close(ticker)
         self._save(fund)
+
+    def set_fees(
+        self, ticker: str, management_fee: Decimal, performance_fee: Decimal
+    ) -> None:
+        """Pede as taxas novas, que valem no primeiro dia útil do mês seguinte.
+
+        Pedir as taxas de hoje desfaz o pedido pendente. Cada taxa que muda vira manchete quando
+        a gestora já é pública.
+        """
+        fund = self._funds[ticker]
+        terms = fund.terms
+        today = self._engine.current_date
+        management_changed = management_fee != terms.management_fee
+        performance_changed = performance_fee != terms.performance_fee
+        changed = management_changed or performance_changed
+        fund.terms = terms.model_copy(
+            update={
+                "pending_management_fee": management_fee if changed else None,
+                "pending_performance_fee": performance_fee if changed else None,
+                "pending_from": next_month_turn(today) if changed else None,
+            }
+        )
+        self._save(fund)
+        if not fund.listed:
+            return
+        if management_changed:
+            self._announce(
+                today, headlines.management_fee_changed(ticker, management_fee)
+            )
+        if performance_changed:
+            self._announce(
+                today, headlines.performance_fee_changed(ticker, performance_fee)
+            )
 
     # =========================
     # Dia
@@ -237,8 +380,12 @@ class FundBook:
             if fund.listed:
                 self._refresh_orders(fund, today)
 
-    def on_close(self, today: date) -> None:
-        """Fecha o pregão das gestoras listadas: vela, fechamento do dia, preço de ranking e estado."""
+    def on_close(self, today: date) -> list[CandleDTO]:
+        """Fecha o pregão das gestoras listadas: vela, fechamento do dia, preço de ranking e estado.
+
+        Devolve as velas do dia, para o tempo real das cotas.
+        """
+        candles: list[CandleDTO] = []
         for fund in self._funds.values():
             if fund.nav is None or not fund.listed:
                 continue
@@ -266,6 +413,8 @@ class FundBook:
             )
             self._engine.update_market_data([candle])
             self._save(fund)
+            candles.append(candle)
+        return candles
 
     def on_month(self, today: date) -> None:
         """Vira as taxas pedidas e cobra as do mês: administração todo mês e performance a cada semestre."""
@@ -384,6 +533,10 @@ class FundBook:
             )
         )
         return fund
+
+    def _announce(self, day: date, headline: Headline) -> None:
+        if self._publish is not None:
+            self._publish(day, headline)
 
     def _nav(self, fund: Fund) -> Decimal | None:
         """O PL por cota pelo balanço da carteira da gestora."""

@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.fund import FundDayDTO, FundDTO
-from backend.core.enum import DataOrigin
+from backend.core.dto.stock import StockDTO
+from backend.core.enum import AssetClass, AssetOrigin, Currency, DataOrigin
 from backend.core.models.models import (
     FundDays,
     Funds,
@@ -54,6 +55,40 @@ def _columns() -> list[str]:
 
 
 class FundRepository:
+    @transactional
+    def claim_stock(
+        self, session: Session, ticker: str, name: str, founder_user_id: int
+    ) -> StockDTO | None:
+        """A linha de `stock` da cota de uma gestora do fundador.
+
+        O ticker é global: nasce com a primeira gestora dele e volta ao mesmo fundador em outra
+        partida. Ativo importado ou cota de outro fundador devolve None.
+        """
+        stock = session.execute(
+            select(Stock).where(Stock.ticker == ticker)
+        ).scalar_one_or_none()
+        if stock is None:
+            stock = Stock(
+                ticker=ticker,
+                name=name,
+                asset_class=AssetClass.FUND.value,
+                currency=Currency.BRL.value,
+                origin=AssetOrigin.DOMESTIC.value,
+            )
+            session.add(stock)
+            session.flush()
+            return StockDTO.from_model(stock)
+        if stock.asset_class != AssetClass.FUND.value:
+            return None
+        founders = set(
+            session.execute(
+                select(Funds.founder_user_id).where(Funds.stock_id == stock.id)
+            ).scalars()
+        )
+        if founders and founder_user_id not in founders:
+            return None
+        return StockDTO.from_model(stock)
+
     @transactional
     def create(
         self,

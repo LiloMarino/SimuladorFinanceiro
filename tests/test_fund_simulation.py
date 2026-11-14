@@ -8,6 +8,7 @@ from decimal import Decimal
 import pytest
 
 from backend.core import repository
+from backend.core.dto.user import UserDTO
 from backend.core.enum import AssetClass, OrderAction
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.player_colors import PLAYER_COLORS
@@ -27,10 +28,12 @@ CASH = Decimal(10000)
 TICKER = "AURA11"
 
 
-def fund_match() -> tuple[Simulation, int]:
-    """Partida com a expansão das gestoras, uma jogadora e a gestora dela com 1.000 cotas ao PL de R$ 100."""
+def empty_match(*others: str) -> tuple[Simulation, UserDTO]:
+    """Partida com a expansão das gestoras e a jogadora Ana, mais os jogadores de `others`, ainda sem gestora."""
     ana = new_user("Ana")
-    UserManager.player_auth(ana.client_id)
+    players = [ana, *(new_user(nickname) for nickname in others)]
+    for player in players:
+        UserManager.player_auth(player.client_id)
     simulation_id = repository.simulation.create_simulation(
         simulation_settings().model_copy(
             update={
@@ -41,12 +44,21 @@ def fund_match() -> tuple[Simulation, int]:
             }
         )
     )
-    repository.simulation_player.save(simulation_id, {ana.id: PLAYER_COLORS[0]})
-    repository.portfolio.open(simulation_id, [ana.id], START, CASH)
+    repository.simulation_player.save(
+        simulation_id, {p.id: PLAYER_COLORS[i] for i, p in enumerate(players)}
+    )
+    repository.portfolio.open(simulation_id, [p.id for p in players], START, CASH)
     summary = repository.simulation.get_simulation(simulation_id)
     assert summary is not None
     SimulationLoader.load(summary)
     sim = SimulationManager.get_active_simulation()
+    assert sim._funds is not None
+    return sim, ana
+
+
+def fund_match() -> tuple[Simulation, int]:
+    """Partida com a expansão das gestoras, uma jogadora e a gestora dela com 1.000 cotas ao PL de R$ 100."""
+    sim, ana = empty_match()
     assert sim._funds is not None
     fund = sim._funds.found(
         ticker=TICKER,

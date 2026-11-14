@@ -41,7 +41,7 @@ from backend.features.technical_analysis.summary import (
 )
 from backend.features.variable_income.broker import to_money
 from backend.features.variable_income.entities.order import LimitOrder, MarketOrder
-from backend.routes.dependencies import ActiveSimulation, ClientID
+from backend.routes.dependencies import ActingClient, ActiveSimulation, ClientID
 
 logger = logging.getLogger(__name__)
 
@@ -185,7 +185,7 @@ def get_variable_income_patterns(simulation: ActiveSimulation, asset: str):
 )
 def submit_order(
     simulation: ActiveSimulation,
-    client_id: ClientID,
+    client_id: ActingClient,
     asset: str,
     payload: SubmitOrderRequest,
 ):
@@ -261,7 +261,7 @@ def submit_order(
 )
 def cancel_order(
     simulation: ActiveSimulation,
-    client_id: ClientID,
+    client_id: ActingClient,
     asset: str,
     payload: CancelOrderRequest,
 ):
@@ -301,7 +301,7 @@ class OrderPreviewRequest(BaseModel):
     description="Preço estimado, total, caixa antes e depois, quantidade máxima e, na venda, o lucro e o IR que a ordem acrescenta ao mês.",
 )
 def preview_order(
-    client_id: ClientID,
+    client_id: ActingClient,
     simulation: ActiveSimulation,
     asset: str,
     payload: OrderPreviewRequest,
@@ -381,7 +381,7 @@ def get_fixed_income_details(simulation: ActiveSimulation, asset_uuid: str):
 )
 def get_fixed_income_projection(
     simulation: ActiveSimulation,
-    client_id: ClientID,
+    client_id: ActingClient,
     asset_uuid: str,
     amount: Annotated[Decimal, Query(ge=0)] = Decimal(0),
 ):
@@ -402,7 +402,7 @@ def get_fixed_income_projection(
 )
 def buy_fixed_income(
     simulation: ActiveSimulation,
-    client_id: ClientID,
+    client_id: ActingClient,
     asset_uuid: str,
     payload: BuyFixedIncomeRequest,
 ):
@@ -426,7 +426,7 @@ def buy_fixed_income(
 )
 def get_fixed_income_redemption(
     simulation: ActiveSimulation,
-    client_id: ClientID,
+    client_id: ActingClient,
     asset_uuid: str,
     amount: Annotated[Decimal, Query(ge=0)] = Decimal(0),
 ):
@@ -447,7 +447,7 @@ def get_fixed_income_redemption(
 )
 def redeem_fixed_income(
     simulation: ActiveSimulation,
-    client_id: ClientID,
+    client_id: ActingClient,
     asset_uuid: str,
     payload: RedeemFixedIncomeRequest,
 ):
@@ -493,7 +493,7 @@ def get_treasury_history(simulation: ActiveSimulation):
     summary="Listar as posições do jogador no Tesouro",
     description="Cada título do Tesouro que o jogador tem: a taxa da compra e a de hoje, o aplicado, o rendimento da curva, a marcação a mercado e o valor de venda.",
 )
-def get_treasury_positions(simulation: ActiveSimulation, client_id: ClientID):
+def get_treasury_positions(simulation: ActiveSimulation, client_id: ActingClient):
     """
     Lista as posições do jogador no Tesouro.
     """
@@ -508,7 +508,7 @@ def get_treasury_positions(simulation: ActiveSimulation, client_id: ClientID):
 )
 def get_treasury_sale_quote(
     simulation: ActiveSimulation,
-    client_id: ClientID,
+    client_id: ActingClient,
     asset_uuid: UUID,
     gross: Annotated[Decimal, Query(ge=0)] = Decimal(0),
 ):
@@ -526,7 +526,7 @@ def get_treasury_sale_quote(
 )
 def sell_treasury(
     simulation: ActiveSimulation,
-    client_id: ClientID,
+    client_id: ActingClient,
     asset_uuid: UUID,
     payload: SellTreasuryRequest,
 ):

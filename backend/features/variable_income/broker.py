@@ -67,9 +67,13 @@ def load_positions(client_id: UUID) -> dict[str, Position]:
     for event in repository.portfolio.get_equity_events(portfolio_id):
         position = positions.setdefault(event.ticker, Position(event.ticker))
         match event.event_type:
-            case EquityEventType.BUY:
+            case EquityEventType.BUY | EquityEventType.TRANSFER_IN:
                 position.update_buy(event.price, event.quantity)
-            case EquityEventType.SELL | EquityEventType.FRACTION_SELL:
+            case (
+                EquityEventType.SELL
+                | EquityEventType.FRACTION_SELL
+                | EquityEventType.TRANSFER_OUT
+            ):
                 position.update_sell(event.quantity)
             case EquityEventType.SPLIT:
                 position.update_split(event.quantity)
@@ -230,6 +234,41 @@ class Broker:
                 price=Decimal(price),
                 event_date=self._simulation_engine.current_date,
             )
+        )
+
+    def transfer_position(
+        self, source: UUID, target: UUID, ticker: str, quantity: Decimal
+    ) -> None:
+        """A integralização de ações: a posição muda de carteira com o preço médio, sem venda e sem DARF."""
+        avg_price = self.get_positions(source)[ticker].avg_price
+        self._mutate_position(
+            client_id=source,
+            ticker=ticker,
+            mutation=lambda p: p.update_sell(quantity),
+        )
+        self._mutate_position(
+            client_id=target,
+            ticker=ticker,
+            mutation=lambda p: p.update_buy(avg_price, quantity),
+        )
+        self._push_equity_event(
+            source, EquityEventType.TRANSFER_OUT, ticker, quantity, avg_price
+        )
+        self._push_equity_event(
+            target, EquityEventType.TRANSFER_IN, ticker, quantity, avg_price
+        )
+
+    def receive_position(
+        self, client_id: UUID, ticker: str, quantity: Decimal, unit_cost: Decimal
+    ) -> None:
+        """Posição que chega sem compra, ao custo dado: as cotas emitidas na integralização."""
+        self._mutate_position(
+            client_id=client_id,
+            ticker=ticker,
+            mutation=lambda p: p.update_buy(unit_cost, quantity),
+        )
+        self._push_equity_event(
+            client_id, EquityEventType.TRANSFER_IN, ticker, quantity, unit_cost
         )
 
     def get_available_position(self, client_id: UUID, ticker: str) -> Decimal:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from decimal import Decimal
@@ -14,6 +15,11 @@ from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.dto.fund import FundDayDTO, FundDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.enum import AssetClass, OrderAction
+from backend.core.exceptions.http_exceptions import (
+    ConflictError,
+    NotFoundError,
+    UnprocessableEntityError,
+)
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.funds import fund_book as fund_book_module
 from backend.features.funds.fund_account import DayTrades
@@ -25,6 +31,7 @@ from backend.features.funds.fund_book import (
     nav_per_quota,
 )
 from backend.features.funds.ranking_price import RANKING_WINDOW
+from backend.features.notifications.news import Headline
 from backend.features.simulation.simulation_engine import (
     BalanceSheet,
     SimulationEngine,
@@ -75,6 +82,11 @@ class MemoryFunds:
     days_saved: dict[int, list[FundDayDTO]] = field(default_factory=dict)
     candles: list[CandleDTO] = field(default_factory=list)
 
+    def claim_stock(
+        self, ticker: str, name: str, founder_user_id: int
+    ) -> StockDTO | None:
+        return StockDTO(id=1, ticker=ticker, name=name, asset_class=AssetClass.FUND)
+
     def create(self, *, simulation_id: int, **fields) -> FundDTO:
         fund = FundDTO(
             id=len(self.funds) + 1,
@@ -122,17 +134,11 @@ class MemoryFunds:
         return closes[-1] if closes else None
 
 
-class Stocks:
-    def add_stock(self, ticker: str, name: str, asset_class: AssetClass) -> StockDTO:
-        return StockDTO(id=1, ticker=ticker, name=name, asset_class=asset_class)
-
-
 @pytest.fixture(autouse=True)
 def isolated(
     captured_events: list[BaseEventDTO], monkeypatch: pytest.MonkeyPatch
 ) -> list[BaseEventDTO]:
     monkeypatch.setattr(repository.portfolio, "get_equity_events", lambda _: [])
-    monkeypatch.setattr(repository, "stock", Stocks())
     monkeypatch.setattr(SimulationManager, "_fund_portfolios", {})
     monkeypatch.setattr(fund_book_module, "index_daily_rate", lambda *_: DAILY_CDI)
     return captured_events
@@ -173,9 +179,15 @@ class Setup:
         )
 
 
-def _setup(memory: MemoryFunds, *, quotas: int = 1000, cash: int = 100000) -> Setup:
+def _setup(
+    memory: MemoryFunds,
+    *,
+    quotas: int = 1000,
+    cash: int = 100000,
+    publish: Callable[[date, Headline], None] | None = None,
+) -> Setup:
     engine = FundEngine()
-    book = FundBook(1, engine, lambda user_id: MANAGER)
+    book = FundBook(1, engine, lambda user_id: MANAGER, publish)
     book.found(
         ticker=TICKER,
         name="Aura",
@@ -453,3 +465,147 @@ def test_pending_fees_apply_when_their_month_arrives(memory: MemoryFunds):
     assert fund.terms.management_fee == Decimal("0.01")
     assert fund.terms.performance_fee == Decimal("0.10")
     assert fund.terms.pending_from is None
+
+
+def test_first_contribution_issues_quotas_at_one_hundred_and_moves_the_cash(
+    memory: MemoryFunds,
+):
+    setup = _setup(memory, quotas=0, cash=0)
+    setup.engine.cash[MANAGER] = Decimal(1050)
+
+    issued = setup.book.contribute(TICKER, MANAGER, Decimal(1050), {})
+
+    assert issued == 10  # floor(1050 / 100)
+    fund = setup.book.get(TICKER)
+    assert fund.account.quotas == 10
+    assert setup.engine.cash[MANAGER] == 0
+    assert setup.engine.cash[setup.fund_client] == 1050
+    assert memory.funds[fund.terms.id].quotas == 10
+    position = setup.engine.broker.get_positions(MANAGER)[TICKER]
+    assert position.size == 10
+    # As cotas nascem com o custo contábil do que foi levado: R$ 1.050 em 10 cotas
+    assert position.avg_price == Decimal(105)
+
+
+def test_next_contribution_issues_quotas_at_the_current_nav(memory: MemoryFunds):
+    setup = _setup(memory, quotas=10, cash=1000)  # PL de 100 por cota
+    setup.engine.cash[MANAGER] = Decimal(550)
+
+    issued = setup.book.contribute(TICKER, MANAGER, Decimal(550), {})
+
+    assert issued == 5  # floor(550 / 100)
+    assert setup.book.get(TICKER).account.quotas == 15
+
+
+def test_contribution_after_the_offer_is_rejected(memory: MemoryFunds):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+    setup.engine.cash[MANAGER] = Decimal(1000)
+
+    with pytest.raises(ConflictError, match="antes da oferta"):
+        setup.book.contribute(TICKER, MANAGER, Decimal(1000), {})
+
+
+def test_contribution_without_enough_cash_moves_nothing(memory: MemoryFunds):
+    setup = _setup(memory, quotas=0, cash=0)
+    setup.engine.cash[MANAGER] = Decimal(50)
+
+    with pytest.raises(UnprocessableEntityError, match="Caixa insuficiente"):
+        setup.book.contribute(TICKER, MANAGER, Decimal(100), {})
+
+    assert setup.engine.cash[MANAGER] == 50
+    assert setup.book.get(TICKER).account.quotas == 0
+
+
+def test_contribution_below_one_quota_is_rejected(memory: MemoryFunds):
+    setup = _setup(memory, quotas=0, cash=0)
+    setup.engine.cash[MANAGER] = Decimal(99)
+
+    with pytest.raises(UnprocessableEntityError, match="uma cota"):
+        setup.book.contribute(TICKER, MANAGER, Decimal(99), {})
+
+
+def test_contribution_of_an_unknown_asset_is_rejected(memory: MemoryFunds):
+    setup = _setup(memory, quotas=0, cash=0)
+
+    with pytest.raises(UnprocessableEntityError, match="não pode ser integralizado"):
+        setup.book.contribute(TICKER, MANAGER, Decimal(0), {"XXXX3": Decimal(1)})
+
+
+def test_new_fees_wait_for_the_month_turn_and_announce_when_listed(
+    memory: MemoryFunds,
+):
+    published: list[tuple[date, Headline]] = []
+    setup = _setup(
+        memory, publish=lambda day, headline: published.append((day, headline))
+    )
+    setup.book.open_offer(TICKER, Decimal(200))
+    published.clear()
+
+    setup.book.set_fees(TICKER, Decimal("0.01"), Decimal("0.20"))
+
+    terms = setup.book.get(TICKER).terms
+    assert terms.management_fee == Decimal("0.02")
+    assert terms.pending_management_fee == Decimal("0.01")
+    assert terms.pending_performance_fee == Decimal("0.20")
+    assert terms.pending_from == date(2020, 2, 3)  # primeiro dia útil de fevereiro
+    assert [h.text for _, h in published] == [
+        "AURA11 muda a taxa de administração para 1% ao ano"
+    ]
+
+
+def test_asking_for_the_current_fees_cancels_the_pending_ones(memory: MemoryFunds):
+    setup = _setup(memory)
+    setup.book.set_fees(TICKER, Decimal("0.01"), Decimal("0.10"))
+
+    setup.book.set_fees(TICKER, Decimal("0.02"), Decimal("0.20"))
+
+    terms = setup.book.get(TICKER).terms
+    assert terms.pending_management_fee is None
+    assert terms.pending_from is None
+
+
+def test_fees_before_the_offer_are_not_announced(memory: MemoryFunds):
+    published: list[tuple[date, Headline]] = []
+    setup = _setup(
+        memory, publish=lambda day, headline: published.append((day, headline))
+    )
+
+    setup.book.set_fees(TICKER, Decimal("0.01"), Decimal("0.10"))
+
+    assert published == []
+
+
+def test_summary_carries_the_live_nav_and_the_ranking_price(memory: MemoryFunds):
+    setup = _setup(memory)
+    setup.book.on_open(TODAY)
+
+    summary = setup.book.summary(setup.book.get(TICKER))
+
+    assert summary.nav == 100
+    assert summary.ranking_price == setup.engine.ranking_prices[TICKER]
+    assert summary.ticker == TICKER
+
+
+def test_unknown_fund_id_is_not_found(memory: MemoryFunds):
+    setup = _setup(memory)
+
+    with pytest.raises(NotFoundError):
+        setup.book.by_id(999)
+
+
+def test_found_rejects_a_ticker_that_belongs_to_someone_else(
+    memory: MemoryFunds, monkeypatch: pytest.MonkeyPatch
+):
+    setup = _setup(memory)
+    monkeypatch.setattr(memory, "claim_stock", lambda *_: None)
+
+    with pytest.raises(ConflictError, match="outro ativo ou de outro fundador"):
+        setup.book.found(
+            ticker="ZETA11",
+            name="Zeta",
+            founder_user_id=8,
+            manager_user_id=8,
+            management_fee=Decimal("0.01"),
+            performance_fee=Decimal("0.10"),
+        )

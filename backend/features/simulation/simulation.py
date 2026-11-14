@@ -34,6 +34,14 @@ from backend.core.dto.fixed_income_projection import (
     FixedIncomeRedemptionQuoteDTO,
     NextTaxDropDTO,
 )
+from backend.core.dto.fund import (
+    FundContributionRequest,
+    FundContributionResponse,
+    FundDetailsDTO,
+    FundFeesRequest,
+    FundFoundRequest,
+    FundSummaryDTO,
+)
 from backend.core.dto.goal import GoalProgressDTO, GoalRunnerDTO
 from backend.core.dto.government import (
     CongressBaseDTO,
@@ -82,6 +90,7 @@ from backend.core.dto.treasury import (
 )
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
+    AssetClass,
     FixedIncomeType,
     GameType,
     IndicatorSeries,
@@ -95,7 +104,12 @@ from backend.core.enum import (
     Profession,
     VoterValue,
 )
-from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
+from backend.core.exceptions.http_exceptions import (
+    ConflictError,
+    ForbiddenError,
+    NotFoundError,
+    UnprocessableEntityError,
+)
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
 from backend.core.life_events import life_event_label
@@ -131,6 +145,7 @@ from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import (
     format_money,
+    format_quantity,
     last_month_turn,
     next_business_day,
     next_month_turn,
@@ -172,7 +187,7 @@ from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
 from backend.features.fixed_income.liquidity import total_redeemable
-from backend.features.funds.fund_book import FundBook
+from backend.features.funds.fund_book import Fund, FundBook
 from backend.features.government import presidency
 from backend.features.government.base_panel import build_base
 from backend.features.government.base_panel import (
@@ -372,7 +387,12 @@ class Simulation:
 
         # Expansão Gestoras: as gestoras e as cotas delas voltam dos registros gravados
         self._funds = (
-            FundBook(settings.id, self._engine, self._client_of_user)
+            FundBook(
+                settings.id,
+                self._engine,
+                self._client_of_user,
+                lambda day, headline: news.publish(settings.id, day, headline),
+            )
             if settings.funds_enabled and backtest is None
             else None
         )
@@ -443,6 +463,13 @@ class Simulation:
     @synchronized
     def create_order(self, order: Order) -> None:
         self._ensure_can_operate(order.client_id)
+        if (
+            order.action is OrderAction.BUY
+            and self._funds is not None
+            and order.client_id in self._funds.client_ids
+            and self._engine.asset_class(order.ticker) is AssetClass.FUND
+        ):
+            raise ConflictError("A gestora não compra cota de gestora.")
         # A compra por valor ganha a quantidade com o book de agora, no mesmo lock da execução
         if isinstance(order, MarketOrder) and order.budget is not None:
             self._engine.size_budget_order(order)
@@ -879,6 +906,122 @@ class Simulation:
     def repropose_measure(self, user: UserDTO, measure_id: int) -> None:
         self._ensure_government().repropose(user, self._current_date, measure_id)
 
+    # =========================
+    # Gestoras
+    # =========================
+
+    @synchronized
+    def acting_client(self, client_id: UUID, fund_id: int | None) -> UUID:
+        """O client_id que opera no mercado: o do jogador, ou o da gestora que ele gere."""
+        if fund_id is None:
+            return client_id
+        fund = self._ensure_funds().by_id(fund_id)
+        if self._client_of_user(fund.terms.manager_user_id) != client_id:
+            raise ForbiddenError("Só o gestor opera a conta da gestora.")
+        return fund.account.client_id
+
+    @synchronized
+    def get_funds(self) -> list[FundSummaryDTO]:
+        book = self._ensure_funds()
+        return [book.summary(fund) for fund in book.funds()]
+
+    @synchronized
+    def get_fund(self, fund_id: int) -> FundDetailsDTO:
+        book = self._ensure_funds()
+        return book.details(book.by_id(fund_id))
+
+    @synchronized
+    def found_fund(self, user: UserDTO, request: FundFoundRequest) -> FundSummaryDTO:
+        book = self._ensure_funds()
+        self._ensure_fees_within_ceiling(
+            request.management_fee, request.performance_fee
+        )
+        fund = book.found(
+            ticker=request.ticker,
+            name=request.name,
+            founder_user_id=user.id,
+            manager_user_id=user.id,
+            management_fee=request.management_fee,
+            performance_fee=request.performance_fee,
+        )
+        return book.summary(fund)
+
+    @synchronized
+    def contribute_to_fund(
+        self, user: UserDTO, fund_id: int, request: FundContributionRequest
+    ) -> FundContributionResponse:
+        book = self._ensure_funds()
+        fund = self._managed_fund(user, fund_id)
+        stocks = {item.ticker: item.quantity for item in request.stocks}
+        if len(stocks) != len(request.stocks):
+            raise UnprocessableEntityError(
+                "Cada ativo entra uma vez só na integralização"
+            )
+        quotas = book.contribute(fund.ticker, user.client_id, request.cash, stocks)
+        EventManager.flush()
+        return FundContributionResponse(quotas=quotas)
+
+    @synchronized
+    def open_fund_offer(
+        self, user: UserDTO, fund_id: int, quotas: int
+    ) -> FundSummaryDTO:
+        book = self._ensure_funds()
+        fund = self._managed_fund(user, fund_id)
+        if fund.listed:
+            raise ConflictError("A oferta pública abre uma vez só.")
+        if fund.account.quotas <= 0:
+            raise ConflictError("Integralize antes de abrir a oferta.")
+        book.open_offer(fund.ticker, Decimal(quotas))
+        EventManager.flush()
+        return book.summary(fund)
+
+    @synchronized
+    def close_fund_offer(self, user: UserDTO, fund_id: int) -> None:
+        fund = self._managed_fund(user, fund_id)
+        if fund.account.offer_remaining is None:
+            raise ConflictError("A gestora não tem oferta aberta.")
+        self._ensure_funds().close_offer(fund.ticker)
+
+    @synchronized
+    def set_fund_fees(
+        self, user: UserDTO, fund_id: int, request: FundFeesRequest
+    ) -> FundSummaryDTO:
+        book = self._ensure_funds()
+        fund = self._managed_fund(user, fund_id)
+        self._ensure_fees_within_ceiling(
+            request.management_fee, request.performance_fee
+        )
+        book.set_fees(fund.ticker, request.management_fee, request.performance_fee)
+        return book.summary(fund)
+
+    def _ensure_funds(self) -> FundBook:
+        if self._funds is None:
+            raise ConflictError("Esta partida não usa a expansão Gestoras.")
+        return self._funds
+
+    def _managed_fund(self, user: UserDTO, fund_id: int) -> Fund:
+        """A gestora de `fund_id`, que só o gestor dela opera."""
+        fund = self._ensure_funds().by_id(fund_id)
+        if fund.terms.manager_user_id != user.id:
+            raise ForbiddenError("Só o gestor opera esta gestora.")
+        return fund
+
+    def _ensure_fees_within_ceiling(
+        self, management_fee: Decimal, performance_fee: Decimal
+    ) -> None:
+        """As taxas escolhidas cabem nos tetos que o host fixou na partida."""
+        settings = self.settings
+        if management_fee > settings.fund_max_management_fee:
+            raise UnprocessableEntityError(
+                "A taxa de administração desta partida vai até "
+                f"{format_quantity(settings.fund_max_management_fee * 100)}% ao ano."
+            )
+        if performance_fee > settings.fund_max_performance_fee:
+            raise UnprocessableEntityError(
+                "A taxa de performance desta partida vai até "
+                f"{format_quantity(settings.fund_max_performance_fee * 100)}% do que passar do CDI."
+            )
+
     def _tax_policy(self) -> TaxPolicy:
         return self._engine.tax_policy_on(self._current_date)
 
@@ -1287,9 +1430,10 @@ class Simulation:
             self._publish_newsroom(stocks)
 
         # A vela das cotas fecha antes do snapshot: o preço de ranking do dia já vale nele
+        fund_candles: list[CandleDTO] = []
         if self._funds is not None:
             with metrics.measure("engine", ENGINE_FUNDS):
-                self._funds.on_close(self._current_date)
+                fund_candles = self._funds.on_close(self._current_date)
 
         if self.backtest is not None:
             with metrics.measure("engine", ENGINE_BACKTEST_DAY):
@@ -1307,7 +1451,7 @@ class Simulation:
             len(users),
         )
         with metrics.measure("engine", ENGINE_PUBLISH):
-            for stock in stocks:
+            for stock in [*stocks, *fund_candles]:
                 ticker = stock.ticker
                 notify(
                     f"stock_update:{ticker}",

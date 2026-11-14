@@ -327,6 +327,11 @@ class SimulationEngine:
             else CashflowEventType.FUND_MANAGEMENT_FEE_INCOME,
         )
 
+    def transfer_cash(self, source: UUID, target: UUID, amount: Decimal) -> None:
+        """A integralização em caixa: sai da carteira do gestor e entra na da gestora."""
+        self._move_cash(source, -amount, CashflowEventType.FUND_TRANSFER_OUT)
+        self._move_cash(target, amount, CashflowEventType.FUND_TRANSFER_IN)
+
     def add_contribution(self, client_id: UUID, amount: Decimal) -> None:
         """Adiciona aporte mensal (não conta como retorno de investimento)"""
         self._move_cash(client_id, amount, CashflowEventType.CONTRIBUTION)

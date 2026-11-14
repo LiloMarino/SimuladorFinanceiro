@@ -108,6 +108,12 @@ class FakeSimulationEngine(SimulationEngine):
     def add_cash(self, client_id: uuid.UUID, cash: Decimal) -> None:
         self.cash[client_id] += cash
 
+    def transfer_cash(
+        self, source: uuid.UUID, target: uuid.UUID, amount: Decimal
+    ) -> None:
+        self.cash[source] -= amount
+        self.cash[target] += amount
+
     def credit_fund_offer(self, client_id: uuid.UUID, amount: Decimal) -> None:
         self.cash[client_id] += amount
 

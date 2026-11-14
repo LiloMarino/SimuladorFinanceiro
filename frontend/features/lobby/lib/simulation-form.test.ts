@@ -68,6 +68,8 @@ const settings: SimulationSettingsData = {
   show_chart_hints: false,
   government_enabled: false,
   funds_enabled: false,
+  fund_max_management_fee: "0.02",
+  fund_max_performance_fee: "0.20",
   first_election: null,
   computer_difficulty: "NORMAL",
   poll_margin: false,

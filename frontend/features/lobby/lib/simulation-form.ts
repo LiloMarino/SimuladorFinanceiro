@@ -138,6 +138,9 @@ export const simulationFormSchema = z
     showChartHints: z.boolean(),
     governmentEnabled: z.boolean(),
     fundsEnabled: z.boolean(),
+    // Tetos de taxa das gestoras: o formulário só os carrega, o back valida
+    fundMaxManagementFee: z.string(),
+    fundMaxPerformanceFee: z.string(),
     // ISO quando a data está completa; vazio com a expansão desligada
     firstElection: z.string().superRefine((value, ctx) => {
       const message = dateFieldError(value);
@@ -230,6 +233,8 @@ export function toFormValues(settings: SimulationSettingsData): SimulationFormVa
     showChartHints: settings.show_chart_hints,
     governmentEnabled: settings.government_enabled,
     fundsEnabled: settings.funds_enabled,
+    fundMaxManagementFee: settings.fund_max_management_fee,
+    fundMaxPerformanceFee: settings.fund_max_performance_fee,
     firstElection: settings.first_election ?? "",
     computerDifficulty: settings.computer_difficulty,
     pollMargin: settings.poll_margin,
@@ -279,6 +284,8 @@ export function toSettingsBody(values: SimulationFormValues): CreateSimulationRe
     show_chart_hints: values.showChartHints,
     government_enabled: values.governmentEnabled,
     funds_enabled: values.fundsEnabled,
+    fund_max_management_fee: values.fundMaxManagementFee,
+    fund_max_performance_fee: values.fundMaxPerformanceFee,
     first_election: values.governmentEnabled && values.firstElection ? values.firstElection : null,
     computer_difficulty: values.computerDifficulty,
     poll_margin: values.pollMargin,

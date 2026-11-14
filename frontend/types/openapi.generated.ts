@@ -2656,6 +2656,114 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/funds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar as gestoras da partida
+         * @description Cada gestora com os termos, o PL por cota de agora e o preço de ranking.
+         */
+        get: operations["get_funds_api_funds_get"];
+        put?: never;
+        /**
+         * Fundar uma gestora
+         * @description O ticker tem quatro letras e o sufixo 11 e fica reservado ao fundador. A gestora nasce sem cotas: o gestor integraliza antes de abrir a oferta.
+         */
+        post: operations["found_fund_api_funds_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Detalhar uma gestora
+         * @description Os termos, o PL por cota de agora e a série dos fechamentos dos pregões.
+         */
+        get: operations["get_fund_api_funds__fund_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/contributions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Integralizar a gestora
+         * @description O gestor passa caixa e ações da própria carteira à gestora e recebe cotas ao patrimônio líquido do dia (100 por cota na primeira integralização). Só vale antes da oferta pública.
+         */
+        post: operations["contribute_to_fund_api_funds__fund_id__contributions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/offer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Abrir a oferta pública
+         * @description Põe à venda, ao patrimônio líquido do dia, a quantidade de cotas informada. A oferta abre uma vez só e lista a cota no mercado.
+         */
+        post: operations["open_fund_offer_api_funds__fund_id__offer_post"];
+        /**
+         * Encerrar a oferta pública
+         * @description Retira do mercado as cotas da oferta que ainda não foram vendidas.
+         */
+        delete: operations["close_fund_offer_api_funds__fund_id__offer_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/fees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Mudar as taxas da gestora
+         * @description As taxas novas ficam pendentes e valem a partir do primeiro dia útil do mês seguinte, dentro dos tetos da partida.
+         */
+        put: operations["set_fund_fees_api_funds__fund_id__fees_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/strategies": {
         parameters: {
             query?: never;
@@ -5629,6 +5737,16 @@ export interface components {
              * @default false
              */
             funds_enabled: boolean;
+            /**
+             * Fund Max Management Fee
+             * @default 0.02
+             */
+            fund_max_management_fee: number | string;
+            /**
+             * Fund Max Performance Fee
+             * @default 0.20
+             */
+            fund_max_performance_fee: number | string;
             /** First Election */
             first_election?: string | null;
             /** @default NORMAL */
@@ -6794,6 +6912,162 @@ export interface components {
             tickers: string[];
             /** Share */
             share: string;
+        };
+        /** FundContributionRequest */
+        FundContributionRequest: {
+            /**
+             * Cash
+             * @default 0
+             */
+            cash: number | string;
+            /** Stocks */
+            stocks?: components["schemas"]["FundContributionStockRequest"][];
+        };
+        /** FundContributionResponse */
+        FundContributionResponse: {
+            /** Quotas */
+            quotas: string;
+        };
+        /** FundContributionStockRequest */
+        FundContributionStockRequest: {
+            /** Ticker */
+            ticker: string;
+            /** Quantity */
+            quantity: number | string;
+        };
+        /**
+         * FundDayDTO
+         * @description O fechamento de uma gestora num pregão.
+         */
+        FundDayDTO: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Nav */
+            nav: string;
+            /** Quotas */
+            quotas: string;
+            /** Traded Quantity */
+            traded_quantity: string;
+            /** Traded Value */
+            traded_value: string;
+            /** Ranking Price */
+            ranking_price: string;
+        };
+        /**
+         * FundDetailsDTO
+         * @description A gestora com a série de fechamentos dos pregões, do mais antigo ao mais recente.
+         */
+        FundDetailsDTO: {
+            /** Id */
+            id: number;
+            /** Ticker */
+            ticker: string;
+            /** Founder User Id */
+            founder_user_id: number;
+            /** Manager User Id */
+            manager_user_id: number;
+            /** Name */
+            name: string;
+            /** Quotas */
+            quotas: string;
+            /** Maker Quotas */
+            maker_quotas: string;
+            /** Offer Remaining */
+            offer_remaining: string | null;
+            /** Listed On */
+            listed_on: string | null;
+            /** Management Fee */
+            management_fee: string;
+            /** Performance Fee */
+            performance_fee: string;
+            /** Pending Management Fee */
+            pending_management_fee: string | null;
+            /** Pending Performance Fee */
+            pending_performance_fee: string | null;
+            /** Pending From */
+            pending_from: string | null;
+            /** High Water Mark */
+            high_water_mark: string | null;
+            /** High Water Mark On */
+            high_water_mark_on: string | null;
+            /** Last Performance On */
+            last_performance_on: string | null;
+            /** Nav */
+            nav: string | null;
+            /** Ranking Price */
+            ranking_price: string | null;
+            /** Days */
+            days: components["schemas"]["FundDayDTO"][];
+        };
+        /** FundFeesRequest */
+        FundFeesRequest: {
+            /** Management Fee */
+            management_fee: number | string;
+            /** Performance Fee */
+            performance_fee: number | string;
+        };
+        /** FundFoundRequest */
+        FundFoundRequest: {
+            /** Name */
+            name: string;
+            /** Ticker */
+            ticker: string;
+            /** Management Fee */
+            management_fee: number | string;
+            /** Performance Fee */
+            performance_fee: number | string;
+        };
+        /** FundOfferRequest */
+        FundOfferRequest: {
+            /** Quotas */
+            quotas: number;
+        };
+        /**
+         * FundSummaryDTO
+         * @description A gestora na lista da partida, com o PL por cota de agora e o preço de ranking.
+         */
+        FundSummaryDTO: {
+            /** Id */
+            id: number;
+            /** Ticker */
+            ticker: string;
+            /** Founder User Id */
+            founder_user_id: number;
+            /** Manager User Id */
+            manager_user_id: number;
+            /** Name */
+            name: string;
+            /** Quotas */
+            quotas: string;
+            /** Maker Quotas */
+            maker_quotas: string;
+            /** Offer Remaining */
+            offer_remaining: string | null;
+            /** Listed On */
+            listed_on: string | null;
+            /** Management Fee */
+            management_fee: string;
+            /** Performance Fee */
+            performance_fee: string;
+            /** Pending Management Fee */
+            pending_management_fee: string | null;
+            /** Pending Performance Fee */
+            pending_performance_fee: string | null;
+            /** Pending From */
+            pending_from: string | null;
+            /** High Water Mark */
+            high_water_mark: string | null;
+            /** High Water Mark On */
+            high_water_mark_on: string | null;
+            /** Last Performance On */
+            last_performance_on: string | null;
+            /** Nav */
+            nav: string | null;
+            /** Ranking Price */
+            ranking_price: string | null;
         };
         /**
          * FutureParamsDTO
@@ -10704,6 +10978,16 @@ export interface components {
              * @default false
              */
             funds_enabled: boolean;
+            /**
+             * Fund Max Management Fee
+             * @default 0.02
+             */
+            fund_max_management_fee: string;
+            /**
+             * Fund Max Performance Fee
+             * @default 0.20
+             */
+            fund_max_performance_fee: string;
             /** First Election */
             first_election: string | null;
             /** @default NORMAL */
@@ -11153,6 +11437,16 @@ export interface components {
              * @default false
              */
             funds_enabled: boolean;
+            /**
+             * Fund Max Management Fee
+             * @default 0.02
+             */
+            fund_max_management_fee: string;
+            /**
+             * Fund Max Performance Fee
+             * @default 0.20
+             */
+            fund_max_performance_fee: string;
             /** First Election */
             first_election: string | null;
             /** @default NORMAL */
@@ -11279,6 +11573,16 @@ export interface components {
              * @default false
              */
             funds_enabled: boolean;
+            /**
+             * Fund Max Management Fee
+             * @default 0.02
+             */
+            fund_max_management_fee: number | string;
+            /**
+             * Fund Max Performance Fee
+             * @default 0.20
+             */
+            fund_max_performance_fee: number | string;
             /** First Election */
             first_election?: string | null;
             /** @default NORMAL */
@@ -11370,6 +11674,16 @@ export interface components {
              * @default false
              */
             funds_enabled: boolean;
+            /**
+             * Fund Max Management Fee
+             * @default 0.02
+             */
+            fund_max_management_fee: string;
+            /**
+             * Fund Max Performance Fee
+             * @default 0.20
+             */
+            fund_max_performance_fee: string;
             /** First Election */
             first_election: string | null;
             /** @default NORMAL */
@@ -12682,6 +12996,16 @@ export interface components {
              * @default false
              */
             funds_enabled: boolean;
+            /**
+             * Fund Max Management Fee
+             * @default 0.02
+             */
+            fund_max_management_fee: number | string;
+            /**
+             * Fund Max Performance Fee
+             * @default 0.20
+             */
+            fund_max_performance_fee: number | string;
             /** First Election */
             first_election?: string | null;
             /** @default NORMAL */
@@ -13153,7 +13477,10 @@ export interface operations {
     submit_order_api_variable_income__asset__orders_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 asset: string;
             };
@@ -13197,7 +13524,10 @@ export interface operations {
     cancel_order_api_variable_income__asset__orders_delete: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 asset: string;
             };
@@ -13239,7 +13569,10 @@ export interface operations {
     preview_order_api_variable_income__asset__order_preview_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 asset: string;
             };
@@ -13403,7 +13736,10 @@ export interface operations {
             query?: {
                 amount?: number | string;
             };
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 asset_uuid: string;
             };
@@ -13443,7 +13779,10 @@ export interface operations {
     buy_fixed_income_api_fixed_income__asset_uuid__buy_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 asset_uuid: string;
             };
@@ -13487,7 +13826,10 @@ export interface operations {
             query?: {
                 amount?: number | string;
             };
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 asset_uuid: string;
             };
@@ -13527,7 +13869,10 @@ export interface operations {
     redeem_fixed_income_api_fixed_income__asset_uuid__redeem_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 asset_uuid: string;
             };
@@ -13645,7 +13990,10 @@ export interface operations {
     get_treasury_positions_api_treasury_positions_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -13685,7 +14033,10 @@ export interface operations {
             query?: {
                 gross?: number | string;
             };
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 asset_uuid: string;
             };
@@ -13725,7 +14076,10 @@ export interface operations {
     sell_treasury_api_treasury__asset_uuid__sell_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 asset_uuid: string;
             };
@@ -18548,6 +18902,296 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_funds_api_funds_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundSummaryDTO"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    found_fund_api_funds_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundFoundRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundSummaryDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_fund_api_funds__fund_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundDetailsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    contribute_to_fund_api_funds__fund_id__contributions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundContributionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundContributionResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    open_fund_offer_api_funds__fund_id__offer_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundOfferRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundSummaryDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    close_fund_offer_api_funds__fund_id__offer_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_fund_fees_api_funds__fund_id__fees_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundFeesRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundSummaryDTO"];
+                };
             };
             /** @description Unprocessable Content */
             422: {

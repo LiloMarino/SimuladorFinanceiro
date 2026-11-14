@@ -308,6 +308,24 @@
               "type": "string",
               "title": "Asset"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
           }
         ],
         "requestBody": {
@@ -374,6 +392,24 @@
               "type": "string",
               "title": "Asset"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
           }
         ],
         "requestBody": {
@@ -490,6 +526,24 @@
               "type": "string",
               "title": "Asset"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
           }
         ],
         "requestBody": {
@@ -732,6 +786,24 @@
               "default": "0",
               "title": "Amount"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -790,6 +862,24 @@
               "type": "string",
               "title": "Asset Uuid"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
           }
         ],
         "requestBody": {
@@ -869,6 +959,24 @@
               "default": "0",
               "title": "Amount"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -927,6 +1035,24 @@
               "type": "string",
               "title": "Asset Uuid"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
           }
         ],
         "requestBody": {
@@ -1062,47 +1188,67 @@
         "summary": "Listar as posições do jogador no Tesouro",
         "description": "Cada título do Tesouro que o jogador tem: a taxa da compra e a de hoje, o aplicado, o rendimento da curva, a marcação a mercado e o valor de venda.",
         "operationId": "get_treasury_positions_api_treasury_positions_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
+                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/TreasuryPositionDTO"
                   },
-                  "type": "array",
                   "title": "Response Get Treasury Positions Api Treasury Positions Get"
                 }
               }
             }
           },
           "422": {
-            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "500": {
-            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Internal Server Error"
           }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ]
+        }
       }
     },
     "/api/treasury/{asset_uuid}/quote": {
@@ -1146,6 +1292,24 @@
               "default": "0",
               "title": "Gross"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -1205,6 +1369,24 @@
               "format": "uuid",
               "title": "Asset Uuid"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
           }
         ],
         "requestBody": {
@@ -7486,6 +7668,413 @@
         "responses": {
           "204": {
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds": {
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Listar as gestoras da partida",
+        "description": "Cada gestora com os termos, o PL por cota de agora e o preço de ranking.",
+        "operationId": "get_funds_api_funds_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FundSummaryDTO"
+                  },
+                  "type": "array",
+                  "title": "Response Get Funds Api Funds Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Fundar uma gestora",
+        "description": "O ticker tem quatro letras e o sufixo 11 e fica reservado ao fundador. A gestora nasce sem cotas: o gestor integraliza antes de abrir a oferta.",
+        "operationId": "found_fund_api_funds_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundFoundRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundSummaryDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/funds/{fund_id}": {
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Detalhar uma gestora",
+        "description": "Os termos, o PL por cota de agora e a série dos fechamentos dos pregões.",
+        "operationId": "get_fund_api_funds__fund_id__get",
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundDetailsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/contributions": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Integralizar a gestora",
+        "description": "O gestor passa caixa e ações da própria carteira à gestora e recebe cotas ao patrimônio líquido do dia (100 por cota na primeira integralização). Só vale antes da oferta pública.",
+        "operationId": "contribute_to_fund_api_funds__fund_id__contributions_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundContributionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundContributionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/offer": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Abrir a oferta pública",
+        "description": "Põe à venda, ao patrimônio líquido do dia, a quantidade de cotas informada. A oferta abre uma vez só e lista a cota no mercado.",
+        "operationId": "open_fund_offer_api_funds__fund_id__offer_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundOfferRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundSummaryDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Encerrar a oferta pública",
+        "description": "Retira do mercado as cotas da oferta que ainda não foram vendidas.",
+        "operationId": "close_fund_offer_api_funds__fund_id__offer_delete",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/fees": {
+      "put": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Mudar as taxas da gestora",
+        "description": "As taxas novas ficam pendentes e valem a partir do primeiro dia útil do mês seguinte, dentro dos tetos da partida.",
+        "operationId": "set_fund_fees_api_funds__fund_id__fees_put",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundFeesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundSummaryDTO"
+                }
+              }
+            }
           },
           "422": {
             "content": {
@@ -16016,6 +16605,34 @@
             "title": "Funds Enabled",
             "default": false
           },
+          "fund_max_management_fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fund Max Management Fee",
+            "default": "0.02"
+          },
+          "fund_max_performance_fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fund Max Performance Fee",
+            "default": "0.20"
+          },
           "first_election": {
             "anyOf": [
               {
@@ -19381,6 +19998,583 @@
           "share"
         ],
         "title": "FrozenSliceDTO"
+      },
+      "FundContributionRequest": {
+        "properties": {
+          "cash": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Cash",
+            "default": "0"
+          },
+          "stocks": {
+            "items": {
+              "$ref": "#/components/schemas/FundContributionStockRequest"
+            },
+            "type": "array",
+            "title": "Stocks"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "FundContributionRequest"
+      },
+      "FundContributionResponse": {
+        "properties": {
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quotas"
+        ],
+        "title": "FundContributionResponse"
+      },
+      "FundContributionStockRequest": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Quantity"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "quantity"
+        ],
+        "title": "FundContributionStockRequest"
+      },
+      "FundDayDTO": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "nav": {
+            "type": "string",
+            "title": "Nav"
+          },
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "traded_quantity": {
+            "type": "string",
+            "title": "Traded Quantity"
+          },
+          "traded_value": {
+            "type": "string",
+            "title": "Traded Value"
+          },
+          "ranking_price": {
+            "type": "string",
+            "title": "Ranking Price"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "day",
+          "nav",
+          "quotas",
+          "traded_quantity",
+          "traded_value",
+          "ranking_price"
+        ],
+        "title": "FundDayDTO",
+        "description": "O fechamento de uma gestora num pregão."
+      },
+      "FundDetailsDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "founder_user_id": {
+            "type": "integer",
+            "title": "Founder User Id"
+          },
+          "manager_user_id": {
+            "type": "integer",
+            "title": "Manager User Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "maker_quotas": {
+            "type": "string",
+            "title": "Maker Quotas"
+          },
+          "offer_remaining": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Remaining"
+          },
+          "listed_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Listed On"
+          },
+          "management_fee": {
+            "type": "string",
+            "title": "Management Fee"
+          },
+          "performance_fee": {
+            "type": "string",
+            "title": "Performance Fee"
+          },
+          "pending_management_fee": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Management Fee"
+          },
+          "pending_performance_fee": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Performance Fee"
+          },
+          "pending_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending From"
+          },
+          "high_water_mark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High Water Mark"
+          },
+          "high_water_mark_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High Water Mark On"
+          },
+          "last_performance_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Performance On"
+          },
+          "nav": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nav"
+          },
+          "ranking_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ranking Price"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/FundDayDTO"
+            },
+            "type": "array",
+            "title": "Days"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "ticker",
+          "founder_user_id",
+          "manager_user_id",
+          "name",
+          "quotas",
+          "maker_quotas",
+          "offer_remaining",
+          "listed_on",
+          "management_fee",
+          "performance_fee",
+          "pending_management_fee",
+          "pending_performance_fee",
+          "pending_from",
+          "high_water_mark",
+          "high_water_mark_on",
+          "last_performance_on",
+          "nav",
+          "ranking_price",
+          "days"
+        ],
+        "title": "FundDetailsDTO",
+        "description": "A gestora com a série de fechamentos dos pregões, do mais antigo ao mais recente."
+      },
+      "FundFeesRequest": {
+        "properties": {
+          "management_fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Management Fee"
+          },
+          "performance_fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Performance Fee"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "management_fee",
+          "performance_fee"
+        ],
+        "title": "FundFeesRequest"
+      },
+      "FundFoundRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 3,
+            "title": "Name"
+          },
+          "ticker": {
+            "type": "string",
+            "pattern": "^[A-Z]{4}11$",
+            "title": "Ticker"
+          },
+          "management_fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Management Fee"
+          },
+          "performance_fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Performance Fee"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "ticker",
+          "management_fee",
+          "performance_fee"
+        ],
+        "title": "FundFoundRequest"
+      },
+      "FundOfferRequest": {
+        "properties": {
+          "quotas": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Quotas"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quotas"
+        ],
+        "title": "FundOfferRequest"
+      },
+      "FundSummaryDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "founder_user_id": {
+            "type": "integer",
+            "title": "Founder User Id"
+          },
+          "manager_user_id": {
+            "type": "integer",
+            "title": "Manager User Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "maker_quotas": {
+            "type": "string",
+            "title": "Maker Quotas"
+          },
+          "offer_remaining": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Remaining"
+          },
+          "listed_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Listed On"
+          },
+          "management_fee": {
+            "type": "string",
+            "title": "Management Fee"
+          },
+          "performance_fee": {
+            "type": "string",
+            "title": "Performance Fee"
+          },
+          "pending_management_fee": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Management Fee"
+          },
+          "pending_performance_fee": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Performance Fee"
+          },
+          "pending_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending From"
+          },
+          "high_water_mark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High Water Mark"
+          },
+          "high_water_mark_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High Water Mark On"
+          },
+          "last_performance_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Performance On"
+          },
+          "nav": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nav"
+          },
+          "ranking_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ranking Price"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "ticker",
+          "founder_user_id",
+          "manager_user_id",
+          "name",
+          "quotas",
+          "maker_quotas",
+          "offer_remaining",
+          "listed_on",
+          "management_fee",
+          "performance_fee",
+          "pending_management_fee",
+          "pending_performance_fee",
+          "pending_from",
+          "high_water_mark",
+          "high_water_mark_on",
+          "last_performance_on",
+          "nav",
+          "ranking_price"
+        ],
+        "title": "FundSummaryDTO",
+        "description": "A gestora na lista da partida, com o PL por cota de agora e o preço de ranking."
       },
       "FutureParamsDTO": {
         "properties": {
@@ -30618,6 +31812,16 @@
             "title": "Funds Enabled",
             "default": false
           },
+          "fund_max_management_fee": {
+            "type": "string",
+            "title": "Fund Max Management Fee",
+            "default": "0.02"
+          },
+          "fund_max_performance_fee": {
+            "type": "string",
+            "title": "Fund Max Performance Fee",
+            "default": "0.20"
+          },
           "first_election": {
             "anyOf": [
               {
@@ -30754,6 +31958,8 @@
           "show_chart_hints",
           "government_enabled",
           "funds_enabled",
+          "fund_max_management_fee",
+          "fund_max_performance_fee",
           "first_election",
           "computer_difficulty",
           "poll_margin",
@@ -31798,6 +33004,16 @@
             "title": "Funds Enabled",
             "default": false
           },
+          "fund_max_management_fee": {
+            "type": "string",
+            "title": "Fund Max Management Fee",
+            "default": "0.02"
+          },
+          "fund_max_performance_fee": {
+            "type": "string",
+            "title": "Fund Max Performance Fee",
+            "default": "0.20"
+          },
           "first_election": {
             "anyOf": [
               {
@@ -31861,6 +33077,8 @@
           "show_chart_hints",
           "government_enabled",
           "funds_enabled",
+          "fund_max_management_fee",
+          "fund_max_performance_fee",
           "first_election",
           "computer_difficulty",
           "poll_margin",
@@ -32085,6 +33303,34 @@
             "title": "Funds Enabled",
             "default": false
           },
+          "fund_max_management_fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fund Max Management Fee",
+            "default": "0.02"
+          },
+          "fund_max_performance_fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fund Max Performance Fee",
+            "default": "0.20"
+          },
           "first_election": {
             "anyOf": [
               {
@@ -32265,6 +33511,16 @@
             "title": "Funds Enabled",
             "default": false
           },
+          "fund_max_management_fee": {
+            "type": "string",
+            "title": "Fund Max Management Fee",
+            "default": "0.02"
+          },
+          "fund_max_performance_fee": {
+            "type": "string",
+            "title": "Fund Max Performance Fee",
+            "default": "0.20"
+          },
           "first_election": {
             "anyOf": [
               {
@@ -32324,6 +33580,8 @@
           "show_chart_hints",
           "government_enabled",
           "funds_enabled",
+          "fund_max_management_fee",
+          "fund_max_performance_fee",
           "first_election",
           "computer_difficulty",
           "poll_margin",
@@ -36258,6 +37516,34 @@
             "type": "boolean",
             "title": "Funds Enabled",
             "default": false
+          },
+          "fund_max_management_fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fund Max Management Fee",
+            "default": "0.02"
+          },
+          "fund_max_performance_fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fund Max Performance Fee",
+            "default": "0.20"
           },
           "first_election": {
             "anyOf": [

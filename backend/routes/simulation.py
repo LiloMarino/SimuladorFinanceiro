@@ -116,6 +116,12 @@ class SimulationRulesRequest(BaseModel):
     show_chart_hints: bool = True
     government_enabled: bool = False
     funds_enabled: bool = False
+    fund_max_management_fee: Decimal = Field(
+        default=Decimal("0.02"), ge=0, le=1, decimal_places=4
+    )
+    fund_max_performance_fee: Decimal = Field(
+        default=Decimal("0.20"), ge=0, le=1, decimal_places=4
+    )
     first_election: date | None = None
     computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL
     poll_margin: bool = True

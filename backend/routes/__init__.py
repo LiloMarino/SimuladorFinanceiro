@@ -21,6 +21,7 @@ from backend.routes.error import (
     ValidationErrorResponse,
 )
 from backend.routes.frontend import register_frontend_routes
+from backend.routes.funds import funds_router
 from backend.routes.government import government_router
 from backend.routes.importer import import_router
 from backend.routes.news import news_router
@@ -59,6 +60,7 @@ def register_routes(app: FastAPI):
     app.include_router(correlation_router, responses=ERROR_RESPONSES)
     app.include_router(credit_router, responses=ERROR_RESPONSES)
     app.include_router(government_router, responses=ERROR_RESPONSES)
+    app.include_router(funds_router, responses=ERROR_RESPONSES)
     app.include_router(strategy_router, responses=ERROR_RESPONSES)
     app.include_router(simulation_router, responses=ERROR_RESPONSES)
     app.include_router(candle_challenge_router, responses=ERROR_RESPONSES)
