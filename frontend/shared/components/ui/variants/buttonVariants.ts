@@ -64,6 +64,8 @@ export const buttonVariants = cva(
     compoundVariants: [
       // O link não tem caixa: o espaçamento do tamanho não se aplica
       { variant: ["link", "link-destructive", "link-fund", "link-muted"], className: "px-0" },
+      // O link da faixa da gestora tem a altura do texto, qualquer que seja o tamanho
+      { variant: "link-fund", className: "h-auto" },
     ],
     defaultVariants: {
       variant: "default",

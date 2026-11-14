@@ -27,7 +27,7 @@ export function TopbarDate({ date, paused, maxSpeed, pauseHint }: TopbarDateProp
       role="status"
       className={cn(BASE, "gap-1.5 bg-warning-soft font-medium text-warning", pauseHint && "cursor-help")}
     >
-      <Pause className="size-3.5" />
+      <Pause className="size-3.5 fill-current stroke-none" />
       Pausado · <span className="font-mono">{text}</span>
     </span>
   );

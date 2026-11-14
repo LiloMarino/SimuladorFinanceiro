@@ -61,13 +61,7 @@ export function TopbarTime() {
   }, [changeSpeed, loading, speed, resumeSpeed]);
 
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-border bg-subtle p-1">
-      <TopbarDate
-        date={simData?.current_date ? displayShortDate(simData.current_date) : undefined}
-        paused={paused}
-        maxSpeed={speed === MAX_SPEED}
-        pauseHint={pauseHint}
-      />
+    <div className="flex items-center gap-1.5 rounded-lg bg-subtle p-1">
       <Button
         variant="dark"
         size="icon-sm"
@@ -75,8 +69,14 @@ export function TopbarTime() {
         aria-label={paused ? "Retomar simulação" : "Pausar simulação"}
         onClick={() => changeSpeed(paused ? resumeSpeed : 0)}
       >
-        {paused ? <Play /> : <Pause />}
+        {paused ? <Play className="fill-current stroke-none" /> : <Pause className="fill-current stroke-none" />}
       </Button>
+      <TopbarDate
+        date={simData?.current_date ? displayShortDate(simData.current_date) : undefined}
+        paused={paused}
+        maxSpeed={speed === MAX_SPEED}
+        pauseHint={pauseHint}
+      />
       <SpeedPips speed={speed} resumeSpeed={resumeSpeed} disabled={loading} onChange={changeSpeed} />
     </div>
   );
