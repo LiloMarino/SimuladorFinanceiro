@@ -60,7 +60,6 @@
 | [**F90**](#f90) | Feature | Cenários | M25 · 4.4 | — | Alto | Bom | ⏳ |
 | [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.4 | — | Médio | Médio | ⏳ |
 | [**F104**](#f104) | Feature | Gestoras: co-gestores | M18 · 4.2 | — | Médio | Bom | ⏳ |
-| [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F110**](#f110) | Feature | Combinar estratégias | M25 · 4.4 | — | Médio | Bom | ⏳ |
 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | M25 · 4.4 | — | Baixo | Bom | ⏳ |
 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 | — | — | — | 🔍 |
@@ -90,7 +89,7 @@
 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | M18 · 4.2 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (33 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (34 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -118,6 +117,7 @@
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 | — | — | — | ✅ |
 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | M18 · 4.2 | — | — | — | ✅ |
 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | M18 · 4.2 | — | — | — | ✅ |
+| [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | M18 · 4.2 | — | — | — | ✅ |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.2 | — | — | — | ✅ |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M18 · 4.2 | — | — | — | ✅ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | — | — | ✅ |
@@ -142,7 +142,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 13/20 concluídos
+> **Progresso:** 14/20 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -155,7 +155,7 @@
 | 7 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | — | ✅ Concluído |
 | 8 | [**F55**](#f55) | Feature | Modo aquisição hostil | [F102](#f102), [F103](#f103) | ⏳ Pendente |
 | 9 | [**F104**](#f104) | Feature | Gestoras: co-gestores | [F44](#f44) | ⏳ Pendente |
-| 10 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | [F44](#f44) | ⏳ Pendente |
+| 10 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | — | ✅ Concluído |
 | 11 | [**F255**](#f255) | Feature | Estatais | [F44](#f44) | ⏳ Pendente |
 | 12 | [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | [F101](#f101), [F44](#f44), [F255](#f255) | ⏳ Pendente |
 | 13 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | — | ✅ Concluído |
@@ -262,7 +262,6 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F55**](#f55) | Feature | Modo aquisição hostil | M18 · 4.2 · 8º | 0 | Médio | Médio | ⏳ |
 | [**F104**](#f104) | Feature | Gestoras: co-gestores | M18 · 4.2 · 9º | 0 | Médio | Bom | ⏳ |
-| [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | M18 · 4.2 · 10º | 0 | Médio | Bom | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 · 11º | 1 | Alto | Médio | ⏳ |
 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | M18 · 4.2 · 17º | 0 | Médio | Médio | ⏳ |
 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | M18 · 4.2 · 20º | 0 | Baixo | Bom | ⏳ |
@@ -313,7 +312,6 @@
 | **F90** | Feature | Cenários | N22 | D18 | M25 · 4.4 | — | Alto | Médio | Alto | Bom |
 | **F93** | Feature | Rumores antecipados | N31 | D18 | M25 · 4.4 | — | Médio | Médio | Médio | Médio |
 | **F104** | Feature | Gestoras: co-gestores | N23 | — | M18 · 4.2 | [F44](#f44) | Médio | Baixo | Médio | Bom |
-| **F105** | Feature | Gestoras: rendimentos mensais | N23 | — | M18 · 4.2 | [F44](#f44) | Médio | Médio | Médio | Bom |
 | **F110** | Feature | Combinar estratégias | N4 | D8 | M25 · 4.4 | — | Médio | Médio | Médio | Bom |
 | **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | M25 · 4.4 | — | Baixo | Baixo | Médio | Bom |
 | **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | D21 | M28 · 4.6 | — | Médio | Baixo | Alto | Bom |
@@ -464,19 +462,6 @@
 **Plano.** Convite e aceite por aviso; a lista de co-gestores na página da gestora, com a parte de cada um; a divisão no pagamento mensal da administração e no semestral da performance; a saída e a remoção. O acesso à conta da gestora pelo caixa vale para todos os gestores. As telas entram na sessão de canvas das Gestoras.
 
 **Aceite:** a soma das partes dá 100% da taxa; remover um co-gestor tira o acesso no mesmo pregão.
-
-<a id="f105"></a>
-**F105 — Gestoras: rendimentos mensais.** Serve N23; amplia a expansão Gestoras (F44). Como um FII, a gestora distribui todo mês parte do lucro aos cotistas, em dinheiro no caixa de cada um, e a cota deixa de render só por valorização. Os proventos existem na partida desde a 4.0, então os dividendos e cupons da carteira da gestora já caem no caixa dela.
-
-**Regras.**
-
-- **Lucro é só o realizado no mês:** dividendos, juros e cupons recebidos e o ganho nas vendas, menos as taxas. A valorização do que não foi vendido fica na cota. Mês com prejuízo não distribui.
-- **O gestor escolhe a parte distribuída**, de 0% a 100%, com padrão de 95%, que é o mínimo dos FIIs reais sobre o lucro do semestre.
-- **A taxa de performance e a marca d'água medem o retorno total**, a cota mais o que foi distribuído, para distribuir não derrubar a cota abaixo da marca. Exemplo: uma cota de R$ 100 que distribui R$ 1 e fecha o mês em R$ 100 rendeu 1%.
-
-**Plano.** O cálculo mensal do lucro realizado da gestora; o pagamento aos cotistas na proporção das cotas; a performance pelo retorno total; a escolha da parte nas ações do gestor; e o rendimento no extrato do cotista como provento.
-
-**Aceite:** duas gestoras com o mesmo retorno, uma distribuindo 95% e outra 0%, pagam a mesma taxa de performance.
 
 <a id="f110"></a>
 **F110 — Combinar estratégias.** Serve N4; segue a D8. O jogador liga mais de uma estratégia ao mesmo tempo, cada uma com uma fatia do patrimônio (ex.: 30% em 100% no CDI e 70% no cruzamento de médias). O motor guarda, por jogador, a lista de estratégias com a fatia de cada uma e a origem de cada posição; cada estratégia recebe um contexto restrito à fatia dela (caixa e posições que ela comprou) e só opera dentro dele. A página de Estratégias passa de um interruptor para uma lista de fatias que somam 100%, e o log de ordens ganha o filtro por estratégia. Gatilho: F8 concluída e o uso pedir mais de uma estratégia.
@@ -723,6 +708,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F101** | Feature | Carteira separada do jogador | N23 | D9 | M18 · 4.2 |
 | **F102** | Feature | Gestoras: emissão de novas cotas e recompra | N23 | — | M18 · 4.2 |
 | **F103** | Feature | Gestoras: troca de gestor pela assembleia | N23 | — | M18 · 4.2 |
+| **F105** | Feature | Gestoras: rendimentos mensais | N23 | — | M18 · 4.2 |
 | **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.2 |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M18 · 4.2 |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 |
@@ -767,6 +753,9 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 **Plano.** Backend da assembleia: convocação, votos, apuração no fim do 5º pregão e a troca do gestor, que leva junto o acesso à conta da gestora. Aviso a todos os cotistas e manchete no jornal na convocação e no resultado. A tela de votação entra na sessão de canvas das Gestoras.
 
 **Aceite:** comprar cotas no último pregão da votação muda o resultado; empate mantém o gestor; o afastado não funda gestora antes de 6 meses.
+
+<a id="f105"></a>
+**F105 — Gestoras: rendimentos mensais.** A gestora distribui parte do lucro realizado do mês (padrão 95%, de 0 a 100%, escolhida pelo gestor); a performance e a marca d'água seguem o retorno total.
 
 <a id="f179"></a>
 **F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: depois do selo de pausa vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Com as Gestoras, governo, gestora e corrida ligados juntos passam a ser o caso comum, então a topbar é resolvida na 4.2, no mesmo desenho das Gestoras (F44). A referência é 1920 de largura, e em 1366 nada pode quebrar; o estado de teste é corrida, governo e gestora ligados, pausa com o motivo mais longo e o 100× destacado.
