@@ -49,6 +49,7 @@ export const queryKeys = {
     ["fixed-income", id, "projection", amount, currentDate] as const,
   fixedIncomeRedemption: (id: string, amount: string, currentDate: string) =>
     ["fixed-income", id, "redemption", amount, currentDate] as const,
+  fundAccounts: () => ["funds", "accounts"] as const,
   treasury: () => ["treasury"] as const,
   treasuryCatalog: () => ["treasury", "catalog"] as const,
   treasuryHistory: () => ["treasury", "history"] as const,

@@ -1,4 +1,4 @@
-import { ChevronRight, Lock } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
 import { Badge } from "@/shared/components/ui/badge";
@@ -21,7 +21,8 @@ export function TopbarGovernment() {
     return (
       <Badge variant="secondary">
         <ExpansionEmblem expansion="government" size="xs" />
-        Governo do computador até a posse
+        <span className="2xl:hidden">Computador</span>
+        <span className="hidden 2xl:inline">Governo do computador até a posse</span>
       </Badge>
     );
   }
@@ -41,48 +42,39 @@ export function TopbarGovernment() {
   const queued = panel.queue.filter((measure) => measure.status === "QUEUED").length;
 
   return (
-    <>
-      <HoverCard>
-        <HoverCardTrigger chip delay={150} render={<Link to="/government" />}>
-          <ExpansionEmblem expansion="government" size="sm" className="size-6.5" />
-          <span className="grid">
-            <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">Governo</span>
-            <span className="flex items-center gap-1.5 text-[13px]">
-              <PersonMark person={president} />
-              <b className="font-semibold">{president.name}</b>
-              <span className={cn("font-mono text-xs", tone)}>
-                aprovação {approval.value}% {approvalArrow(approval)}
-              </span>
+    <HoverCard>
+      <HoverCardTrigger chip delay={150} render={<Link to="/government" />}>
+        <ExpansionEmblem expansion="government" size="sm" className="size-6.5" />
+        <span className="grid">
+          <span className="text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">Governo</span>
+          <span className="flex items-center gap-1.5 text-[13px]">
+            <PersonMark person={president} />
+            <b className="font-semibold">{president.name}</b>
+            <span className={cn("font-mono text-xs", tone)}>
+              aprovação {approval.value}% {approvalArrow(approval)}
             </span>
           </span>
-          <ChevronRight className="size-3.5 text-muted-foreground" />
-        </HoverCardTrigger>
-        <HoverCardContent compact align="end">
-          <div className="flex justify-between">
-            <b className="text-sm">Governo {president.name}</b>
-            <span className={cn("font-mono font-semibold", tone)}>{approval.value}%</span>
-          </div>
-          <ApprovalChart approval={approval} height={64} compact />
-          <span className="text-xs text-muted-foreground">
-            Aprovação do governo: de cada 100 eleitores, {approval.value} aprovam.{" "}
-            {queued > 0
-              ? `${queued} ${queued === 1 ? "medida" : "medidas"} na fila para ${displayDayMonth(panel.next_vote)}.`
-              : "Nenhuma medida na fila."}
-          </span>
-          <Link to="/government" className="text-[13px] font-medium text-primary hover:text-primary-hover">
-            {isComputerGovernment(panel.term)
-              ? "Ver impostos e a fila do computador"
-              : `Ver impostos, fila e a carteira de ${president.name}`}
-          </Link>
-        </HoverCardContent>
-      </HoverCard>
-
-      {panel.is_president && (
-        <Badge variant="warning" className="h-7.5">
-          <Lock />
-          Carteira congelada
-        </Badge>
-      )}
-    </>
+        </span>
+        <ChevronRight className="size-3.5 text-muted-foreground" />
+      </HoverCardTrigger>
+      <HoverCardContent compact align="end">
+        <div className="flex justify-between">
+          <b className="text-sm">Governo {president.name}</b>
+          <span className={cn("font-mono font-semibold", tone)}>{approval.value}%</span>
+        </div>
+        <ApprovalChart approval={approval} height={64} compact />
+        <span className="text-xs text-muted-foreground">
+          Aprovação do governo: de cada 100 eleitores, {approval.value} aprovam.{" "}
+          {queued > 0
+            ? `${queued} ${queued === 1 ? "medida" : "medidas"} na fila para ${displayDayMonth(panel.next_vote)}.`
+            : "Nenhuma medida na fila."}
+        </span>
+        <Link to="/government" className="text-[13px] font-medium text-primary hover:text-primary-hover">
+          {isComputerGovernment(panel.term)
+            ? "Ver impostos e a fila do computador"
+            : `Ver impostos, fila e a carteira de ${president.name}`}
+        </Link>
+      </HoverCardContent>
+    </HoverCard>
   );
 }

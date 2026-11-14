@@ -10,6 +10,9 @@ export type Trade = components["schemas"]["TradeDTO"];
 export type StockCandle = components["schemas"]["StockPriceHistoryDTO"];
 export type StockDetails = Omit<components["schemas"]["StockDetailsDTO"], "id">;
 
+// Gestoras
+export type FundAccount = components["schemas"]["FundAccountDTO"];
+
 // Portfolio
 export type Position = components["schemas"]["PositionDTO"];
 export type PortfolioHistoryPoint = components["schemas"]["PortfolioHistoryPointDTO"];

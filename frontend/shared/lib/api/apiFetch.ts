@@ -1,6 +1,10 @@
 import type { ZodType } from "zod";
 import { handleApiResponse } from "@/shared/lib/utils/api";
 import ApiError, { defaultErrorMessage, NETWORK_ERROR_STATUS } from "@/shared/lib/models/ApiError";
+import { accountHeaders, getSelectedFundId } from "@/shared/lib/active-account";
+import { queryClient } from "@/shared/lib/queryClient";
+import { queryKeys } from "@/shared/lib/queryKeys";
+import type { FundAccount, SimulationInfo } from "@/types";
 
 export interface ApiFetchInit<R = unknown> {
   readonly method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
@@ -8,6 +12,13 @@ export interface ApiFetchInit<R = unknown> {
   readonly headers?: Record<string, string> | undefined;
   readonly responseSchema?: ZodType<R>;
   readonly signal?: AbortSignal | undefined;
+}
+
+/** A conta escolhida na partida em curso (só existe com a expansão Gestoras ligada). */
+function currentAccountHeaders() {
+  const match = queryClient.getQueryData<SimulationInfo>(queryKeys.simulationStatus())?.simulation;
+  if (!match?.funds_enabled) return {};
+  return accountHeaders(getSelectedFundId(match.id), queryClient.getQueryData<FundAccount[]>(queryKeys.fundAccounts()));
 }
 
 /**
@@ -29,7 +40,11 @@ export async function apiFetch<R = unknown>(path: string, init: ApiFetchInit<R> 
       method,
       credentials: "include",
       signal: requestSignal ?? null,
-      headers: isFormData ? (headers ?? {}) : { "Content-Type": "application/json", ...(headers ?? {}) },
+      headers: {
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
+        ...currentAccountHeaders(),
+        ...(headers ?? {}),
+      },
       body: body === undefined ? null : isFormData ? body : JSON.stringify(body),
     });
     return await handleApiResponse<R>(res, responseSchema);

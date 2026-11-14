@@ -50,6 +50,11 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-warning-soft: var(--warning-soft);
   --color-expansion-government: var(--expansion-government);
+  --color-fund: var(--fund);
+  --color-fund-foreground: var(--fund-foreground);
+  --color-fund-soft: var(--fund-soft);
+  --color-fund-border: var(--fund-border);
+  --color-fund-strong: var(--fund-strong);
   --color-dividend: var(--dividend);
   --color-dividend-soft: var(--dividend-soft);
   --color-dividend-bar: var(--dividend-bar);
@@ -178,6 +183,12 @@
   --warning-soft: #fdf1dc;
   /* Emblema de cada expansão */
   --expansion-government: #9a3412;
+  /* Conta de gestora: faixa, rótulo do caixa e botão da ordem */
+  --fund: #0f766e;
+  --fund-foreground: #ffffff;
+  --fund-soft: #e6f4f1;
+  --fund-border: #9fe3d6;
+  --fund-strong: #0b4f4a;
   /* Provento (âmbar) e desdobramento (violeta): selo, fundo de coluna, barras e marcadores do gráfico */
   --dividend: #8a5a06;
   --dividend-soft: #fdf3e1;

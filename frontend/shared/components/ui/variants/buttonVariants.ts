@@ -35,8 +35,13 @@ export const buttonVariants = cva(
           "bg-info-soft text-primary ring-1 ring-primary ring-inset hover:bg-info-soft/70 [&_svg:not([class*='size-'])]:size-4.5",
         success: "bg-success text-success-foreground hover:bg-success/90 focus-visible:ring-success/20",
         warning: "bg-warning text-warning-foreground hover:bg-warning/90 focus-visible:ring-warning/20",
+        // Ação feita pela conta de uma gestora
+        fund: "bg-fund text-fund-foreground hover:bg-fund/90 focus-visible:ring-fund/20",
         link: "h-auto px-0 text-primary hover:text-primary-hover",
         "link-destructive": "h-auto px-0 text-destructive hover:text-destructive/80",
+        // Link sobre a faixa da gestora: texto claro sublinhado
+        "link-fund":
+          "h-auto px-0 font-semibold text-fund-foreground underline underline-offset-3 hover:text-fund-foreground/80",
         // Ação secundária em texto, ao lado de um título ("Restaurar padrão")
         "link-muted": "h-auto px-0 font-normal text-muted-foreground hover:text-foreground",
       },
@@ -58,7 +63,7 @@ export const buttonVariants = cva(
     },
     compoundVariants: [
       // O link não tem caixa: o espaçamento do tamanho não se aplica
-      { variant: ["link", "link-destructive", "link-muted"], className: "px-0" },
+      { variant: ["link", "link-destructive", "link-fund", "link-muted"], className: "px-0" },
     ],
     defaultVariants: {
       variant: "default",

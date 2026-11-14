@@ -1,5 +1,6 @@
 "use client";
 
+import type * as React from "react";
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 import { cn } from "@/shared/lib/utils";
 import { badgeVariants } from "./variants/badgeVariants";
@@ -8,12 +9,12 @@ function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
   return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
 }
 
-/** `badge`: o gatilho tem o corpo de um selo, para o selo que abre o menu de troca do valor. */
+/** `badge`: o gatilho tem o corpo de um selo, para o selo que abre o menu de troca do valor; `block`: o gatilho é um bloco de linhas de texto (rótulo e valor) que acende ao passar o mouse. */
 function DropdownMenuTrigger({
   variant = "default",
   className,
   ...props
-}: Omit<MenuPrimitive.Trigger.Props, "className"> & { variant?: "default" | "badge"; className?: string }) {
+}: Omit<MenuPrimitive.Trigger.Props, "className"> & { variant?: "default" | "badge" | "block"; className?: string }) {
   return (
     <MenuPrimitive.Trigger
       data-slot="dropdown-menu-trigger"
@@ -24,6 +25,8 @@ function DropdownMenuTrigger({
             badgeVariants({ variant: "secondary" }),
             "cursor-pointer hover:bg-muted/70 disabled:cursor-default disabled:opacity-60",
           ),
+        variant === "block" &&
+          "grid cursor-pointer rounded-md px-2 py-1 text-left outline-none hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring/50 aria-expanded:bg-subtle aria-expanded:ring-1 aria-expanded:ring-border aria-expanded:ring-inset",
         className,
       )}
       {...props}
@@ -61,14 +64,14 @@ function DropdownMenuContent({
   );
 }
 
-/** `selected`: o item que está valendo; `action`: chamada para outra tela, em destaque; `rich`: item de mais de uma linha (nome e resumo). */
+/** `selected`: o item que está valendo; `fund`: o item valendo quando é a conta de uma gestora; `action`: chamada para outra tela, em destaque; `rich`: item de mais de uma linha (nome e resumo). */
 function DropdownMenuItem({
   className,
   variant = "default",
   size = "default",
   ...props
 }: MenuPrimitive.Item.Props & {
-  variant?: "default" | "destructive" | "selected" | "action";
+  variant?: "default" | "destructive" | "selected" | "fund" | "action";
   size?: "default" | "rich";
 }) {
   return (
@@ -77,9 +80,20 @@ function DropdownMenuItem({
       data-variant={variant}
       data-size={size}
       className={cn(
-        "flex h-8.5 cursor-pointer items-center gap-2 rounded-md px-2.5 text-[13px] outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-muted data-[size=rich]:h-auto data-[size=rich]:items-start data-[size=rich]:py-2 data-[variant=destructive]:text-destructive data-[variant=action]:font-medium data-[variant=action]:text-primary data-[variant=selected]:bg-info-soft [&>svg]:size-3.5 [&>svg]:shrink-0",
+        "flex h-8.5 cursor-pointer items-center gap-2 rounded-md px-2.5 text-[13px] outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-muted data-[size=rich]:h-auto data-[size=rich]:items-start data-[size=rich]:py-2 data-[variant=destructive]:text-destructive data-[variant=action]:font-medium data-[variant=action]:text-primary data-[variant=selected]:bg-info-soft data-[variant=fund]:bg-fund-soft [&>svg]:size-3.5 [&>svg]:shrink-0",
         className,
       )}
+      {...props}
+    />
+  );
+}
+
+/** Título de um grupo de itens do menu. */
+function DropdownMenuLabel({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="dropdown-menu-label"
+      className={cn("px-2.5 py-1.5 text-xs font-semibold tracking-[.06em] text-sidebar-muted uppercase", className)}
       {...props}
     />
   );
@@ -95,4 +109,11 @@ function DropdownMenuSeparator({ className, ...props }: MenuPrimitive.Separator.
   );
 }
 
-export { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger };
+export {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+};
