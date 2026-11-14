@@ -207,6 +207,20 @@ class SimulationEngine:
     def use_cover_marked(self, source: Callable[[UUID], bool]) -> None:
         self._cover_marked_source = source
 
+    # O caixa de uma gestora é do gestor que a gere: a fonte devolve (client_id do gestor, id
+    # da gestora) para a conta da gestora e nulo para as demais, que falam por si
+    _account_route: Callable[[UUID], tuple[UUID, int] | None] | None = None
+
+    def use_account_route(
+        self, source: Callable[[UUID], tuple[UUID, int] | None]
+    ) -> None:
+        self._account_route = source
+
+    def audience(self, client_id: UUID) -> tuple[UUID, int | None]:
+        """Quem recebe o tempo real da conta `client_id`, e a gestora que o evento carrega (nula na pessoal)."""
+        route = self._account_route(client_id) if self._account_route else None
+        return route if route is not None else (client_id, None)
+
     def get_cash(self, client_id: UUID) -> Decimal:
         with self._lock:
             return self._cash[client_id]
@@ -258,7 +272,12 @@ class SimulationEngine:
                 ticker=ticker,
             )
         )
-        notify("cash_update", CashUpdateEventDTO(cash=new_cash).to_json(), to=client_id)
+        audience, account = self.audience(client_id)
+        notify(
+            "cash_update",
+            CashUpdateEventDTO(cash=new_cash, account=account).to_json(),
+            to=audience,
+        )
 
     def pay_dividend(self, client_id: UUID, ticker: str, amount: Decimal) -> None:
         """Provento bruto de `ticker` no caixa do jogador."""
@@ -464,17 +483,30 @@ class SimulationEngine:
 
         total = (price or Decimal(0)) * quantity
         buying = action == OrderAction.BUY
+        cash_after = cash - total if buying else cash + total
+        held_after = held + quantity if buying else max(held - quantity, Decimal(0))
+        # Sem posição, o preço estimado é a melhor marcação do que a ordem compra
+        mark = self.get_current_price(position) if position else (price or Decimal(0))
+        # Só a posição no ativo e o caixa mudam: o patrimônio depois troca uma pela outra
+        assets_after = (
+            self._assets_value(client_id)
+            - cash
+            + cash_after
+            + (held_after - held) * mark
+        )
         preview = OrderPreviewDTO(
             price=price,
             quantity=quantity,
             total=total,
             cash_before=cash,
-            cash_after=cash - total if buying else cash + total,
+            cash_after=cash_after,
             max_quantity=self.affordable(ticker, cash, price)
             if buying
             else held - reserved,
             held=held,
             reserved=reserved,
+            held_after=held_after,
+            networth_share_after=ratio(held_after * mark, assets_after),
             profit=None,
             tax=None,
             month_sales_after=None,
@@ -573,6 +605,15 @@ class SimulationEngine:
             ]
             fixed = list(self.fixed_broker.get_fixed_positions(client_id).values())
             return equity, fixed, self._cash[client_id]
+
+    def _assets_value(self, client_id: UUID) -> Decimal:
+        """Ações a preço de mercado, renda fixa e caixa do jogador: o denominador das frações do patrimônio."""
+        equity, fixed, cash = self._holdings(client_id)
+        return (
+            sum((p.current_value for p in equity), Decimal(0))
+            + self.fixed_market_value(fixed)
+            + cash
+        )
 
     def fixed_market_value(self, positions: Iterable[FixedIncomePosition]) -> Decimal:
         """O que a renda fixa vale vendida hoje: o Tesouro entra pelo preço de mercado."""

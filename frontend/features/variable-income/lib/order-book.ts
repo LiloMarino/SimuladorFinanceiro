@@ -73,8 +73,14 @@ export function displayDayMonth(date: string) {
   return `${day}/${month}`;
 }
 
+const OFFER_SOURCE: Partial<Record<Order["owner"], string>> = {
+  market: "do Mercado",
+  fund_maker: "do formador de mercado",
+  fund_issuer: "da oferta pública",
+};
+
 /** Quem pôs a oferta, para o texto da boleta: "a venda de R$ 12,35 do Mercado". */
 export function describeOffer(order: Order, price: string) {
   const side = order.action === "sell" ? "a venda" : "a compra";
-  return `${side} de ${price} ${order.synthetic ? "do Mercado" : `de ${order.player_nickname}`}`;
+  return `${side} de ${price} ${OFFER_SOURCE[order.owner] ?? `de ${order.player_nickname}`}`;
 }

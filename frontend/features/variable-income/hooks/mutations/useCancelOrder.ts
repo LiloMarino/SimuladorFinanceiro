@@ -8,7 +8,11 @@ export function useCancelOrder(ticker: string) {
 
   return useMutation({
     mutationFn: (orderId: string) =>
-      apiFetch<void>(`/api/variable-income/${ticker}/orders`, { method: "DELETE", body: { order_id: orderId } }),
+      apiFetch<void>(`/api/variable-income/${ticker}/orders`, {
+        method: "DELETE",
+        body: { order_id: orderId },
+        activeAccount: true,
+      }),
     onError: (err) => toastApiError(err),
     onSettled: () => revalidateOrder(queryClient, ticker),
   });

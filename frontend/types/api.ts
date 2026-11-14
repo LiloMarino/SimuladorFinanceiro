@@ -14,6 +14,14 @@ export type StockDetails = Omit<components["schemas"]["StockDetailsDTO"], "id">;
 export type FundAccount = components["schemas"]["FundAccountDTO"];
 export type FundIdentity = components["schemas"]["FundIdentityDTO"];
 export type FundPreparationRequest = components["schemas"]["FundPreparationRequest"];
+export type FundSummary = components["schemas"]["FundSummaryDTO"];
+export type FundDetails = components["schemas"]["FundDetailsDTO"];
+export type FundTickerCheck = components["schemas"]["FundTickerCheckDTO"];
+export type FundFoundRequest = components["schemas"]["FundFoundRequest"];
+export type FundContributionRequest = components["schemas"]["FundContributionRequest"];
+export type FundContributionResponse = components["schemas"]["FundContributionResponse"];
+export type FundOfferRequest = components["schemas"]["FundOfferRequest"];
+export type FundFeesRequest = components["schemas"]["FundFeesRequest"];
 
 // Portfolio
 export type Position = components["schemas"]["PositionDTO"];

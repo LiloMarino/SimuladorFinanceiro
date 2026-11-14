@@ -9,7 +9,7 @@ export function useRedeemFixedIncome(assetId: string) {
 
   return useMutation({
     mutationFn: (body: RedeemFixedIncomeRequest) =>
-      apiFetch(`/api/fixed-income/${assetId}/redeem`, { method: "POST", body }),
+      apiFetch(`/api/fixed-income/${assetId}/redeem`, { method: "POST", body, activeAccount: true }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() });
       void queryClient.invalidateQueries({ queryKey: queryKeys.simulationState() });

@@ -350,6 +350,34 @@ def test_preview_buy_uses_limit_price_and_cash(player_book):
     assert preview.tax is None
 
 
+def test_preview_buy_shows_the_position_and_networth_share_after(player_book):
+    """Comprar 10 a mercado de R$ 12: 20 cotas e R$ 240 de R$ 2.000 em ativos, 12% do patrimônio."""
+    engine = _engine()
+    engine.matching_engine.market_data.add_candle(
+        Candle("ABCD", TODAY, open=11, high=12.5, low=10.5, close=12, volume=100)
+    )
+
+    preview = engine.preview_order(PLAYER, "ABCD", OrderAction.BUY, Decimal(10), 12.0)
+
+    assert preview.held_after == 20
+    assert preview.networth_share_after == Decimal("0.12")
+
+
+def test_preview_sell_shows_the_position_and_networth_share_after(player_book):
+    """Vender 4 de 10 a R$ 15: sobram 6 (R$ 72 a R$ 12) e o caixa sobe R$ 60, no lugar de R$ 48 da posição."""
+    engine = _next_day_engine()
+    engine.matching_engine.market_data.add_candle(
+        Candle("ABCD", TODAY, open=11, high=12.5, low=10.5, close=12, volume=100)
+    )
+
+    assets_before = engine.get_portfolio(PLAYER).assets_value
+
+    preview = engine.preview_order(PLAYER, "ABCD", OrderAction.SELL, Decimal(4), 15.0)
+
+    assert preview.held_after == 6
+    assert preview.networth_share_after == Decimal(72) / (assets_before + 60 - 48)
+
+
 def _next_day_engine() -> SimulationEngine:
     """Um pregão depois da compra: a venda não é day trade."""
     return SimulationEngine(

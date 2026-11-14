@@ -32,6 +32,8 @@ class SimulationManager:
     _portfolios: ClassVar[dict[int, int]] = {}
     # client_id da gestora -> portfolio_id: a carteira dela não tem jogador dono
     _fund_portfolios: ClassVar[dict[UUID, int]] = {}
+    # client_id da gestora -> nome dela, que o livro de ofertas mostra como dono da ordem
+    _fund_names: ClassVar[dict[UUID, str]] = {}
 
     @classmethod
     def register_simulation(cls, sim: Simulation, *, backtest: bool = False) -> None:
@@ -39,6 +41,7 @@ class SimulationManager:
             if cls._simulation_id != sim.settings.id:
                 cls._portfolios = {}
                 cls._fund_portfolios = {}
+                cls._fund_names = {}
             cls._active_simulation = sim
             cls._simulation_id = sim.settings.id
             cls._backtest = backtest
@@ -102,6 +105,17 @@ class SimulationManager:
             cls._fund_portfolios = {**cls._fund_portfolios, **portfolios}
 
     @classmethod
+    def find_fund_name(cls, client_id: UUID) -> str | None:
+        """O nome da gestora dona do `client_id`, ou None quando ele não é de gestora."""
+        return cls._fund_names.get(client_id)
+
+    @classmethod
+    def add_fund_names(cls, names: dict[UUID, str]) -> None:
+        """Soma os nomes das gestoras da partida em andamento (client_id -> nome)."""
+        with cls._lock:
+            cls._fund_names = {**cls._fund_names, **names}
+
+    @classmethod
     def set_simulation_id(
         cls, simulation_id: int, portfolios: dict[int, int] | None = None
     ) -> None:
@@ -110,6 +124,7 @@ class SimulationManager:
             cls._simulation_id = simulation_id
             cls._portfolios = dict(portfolios or {})
             cls._fund_portfolios = {}
+            cls._fund_names = {}
 
     @classmethod
     def clear_simulation(cls) -> None:
@@ -118,4 +133,5 @@ class SimulationManager:
             cls._simulation_id = None
             cls._portfolios = {}
             cls._fund_portfolios = {}
+            cls._fund_names = {}
             cls._backtest = False

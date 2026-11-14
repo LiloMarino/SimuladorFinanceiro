@@ -404,6 +404,9 @@ class Simulation:
             if settings.funds_enabled and backtest is None
             else None
         )
+        # O caixa da gestora chega, pelo tempo real, ao gestor que a gere
+        if self._funds is not None:
+            self._engine.use_account_route(self._funds.audience_of)
 
         # O noticiário lê as séries de cada pregão e entrega as manchetes ao jornal
         self._newsroom = (
@@ -1555,10 +1558,20 @@ class Simulation:
                 notify(
                     "portfolio_update",
                     PortfolioUpdateEventDTO(
-                        portfolio=self.get_portfolio(player.client_id)
+                        portfolio=self.get_portfolio(player.client_id), account=None
                     ).to_json(),
                     to=player.client_id,
                 )
+                # Cada gestora que o jogador gere vai ao gestor marcada com o id dela
+                for fund in self._funds.managed_by(player.id) if self._funds else []:
+                    notify(
+                        "portfolio_update",
+                        PortfolioUpdateEventDTO(
+                            portfolio=self.get_portfolio(fund.account.client_id),
+                            account=fund.terms.id,
+                        ).to_json(),
+                        to=player.client_id,
+                    )
                 # Só quem tinha o ativo na abertura recebe o aviso do pregão
                 actions = corporate_actions.get(player.client_id)
                 if actions is not None:

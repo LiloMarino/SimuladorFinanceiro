@@ -1,19 +1,19 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { MarketMark } from "@/features/variable-income/components/market-mark";
-import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { Order } from "@/types";
+import { type BookViewer, isSyntheticOwner, ownsOrder } from "../lib/order-owner";
+import { OrderOwnerBadge } from "./order-owner-badge";
 import { BOOK_ROWS, type OrderBook, barShare, displayBookQuantity, largestQuantity } from "../lib/order-book";
 
 type Side = Order["action"];
 type PricedOrder = OrderBook["buys"][number];
 
 const GRID: Record<Side, string> = {
-  buy: "grid-cols-[22px_minmax(0,1fr)_64px_76px]",
-  sell: "grid-cols-[76px_64px_minmax(0,1fr)_22px]",
+  buy: "grid-cols-[34px_minmax(0,1fr)_64px_76px]",
+  sell: "grid-cols-[76px_64px_minmax(0,1fr)_34px]",
 };
 
 type BookRowProps = {
@@ -27,12 +27,12 @@ type BookRowProps = {
 };
 
 function Maker({ order, mine }: { order: Order; mine: boolean }) {
-  if (order.synthetic) return <span>Mercado</span>;
+  if (isSyntheticOwner(order)) return <span>{order.player_nickname}</span>;
   return (
     <>
       {order.player_nickname}
       {mine && <span className="font-normal text-muted-foreground"> (você)</span>}
-      {order.player_is_bot && <span className="font-normal text-muted-foreground"> robô</span>}
+      {order.owner === "bot" && <span className="font-normal text-muted-foreground"> robô</span>}
     </>
   );
 }
@@ -42,24 +42,19 @@ function BookRow({ order, side, share, best, mine, pickable, onPick }: BookRowPr
   const verb = side === "sell" ? "Comprar" : "Vender";
   const numberAlign = side === "buy" ? "text-right" : "text-left";
 
-  const avatar = order.synthetic ? (
-    <MarketMark size="sm" />
-  ) : (
-    <PlayerAvatar
-      nickname={order.player_nickname}
-      color={order.player_color ?? undefined}
-      bot={order.player_is_bot}
-      size="sm"
-    />
-  );
+  const synthetic = isSyntheticOwner(order);
   const cells = {
-    avatar: <span className="flex justify-center">{avatar}</span>,
+    avatar: (
+      <span className="flex justify-center">
+        <OrderOwnerBadge order={order} />
+      </span>
+    ),
     name: (
       <span
         className={cn(
           "block truncate text-[13px]",
           side === "sell" && "text-right",
-          order.synthetic ? "text-muted-foreground" : "font-medium",
+          synthetic ? "text-muted-foreground" : "font-medium",
         )}
       >
         <span className={cn(pickable && "group-hover/row:hidden")}>
@@ -73,7 +68,7 @@ function BookRow({ order, side, share, best, mine, pickable, onPick }: BookRowPr
       </span>
     ),
     quantity: (
-      <span className={cn("block font-mono text-[13px]", numberAlign, order.synthetic && "text-muted-foreground")}>
+      <span className={cn("block font-mono text-[13px]", numberAlign, synthetic && "text-muted-foreground")}>
         {displayBookQuantity(order.remaining)}
       </span>
     ),
@@ -146,12 +141,12 @@ type BookColumnProps = {
   side: Side;
   orders: PricedOrder[];
   largest: number;
-  nickname: string | undefined;
+  viewer: BookViewer;
   pickable: boolean;
   onPick: (order: Order) => void;
 };
 
-function BookColumn({ side, orders, largest, nickname, pickable, onPick }: BookColumnProps) {
+function BookColumn({ side, orders, largest, viewer, pickable, onPick }: BookColumnProps) {
   const title = side === "buy" ? "Compra" : "Venda";
 
   return (
@@ -178,7 +173,7 @@ function BookColumn({ side, orders, largest, nickname, pickable, onPick }: BookC
       ) : (
         <ul>
           {orders.map((order, index) => {
-            const mine = !order.synthetic && order.player_nickname === nickname;
+            const mine = ownsOrder(order, viewer);
             return (
               <BookRow
                 key={order.id}
@@ -200,7 +195,7 @@ function BookColumn({ side, orders, largest, nickname, pickable, onPick }: BookC
 
 type OrderBookColumnsProps = {
   book: OrderBook;
-  nickname: string | undefined;
+  viewer: BookViewer;
   /** Com a estratégia automática ligada a boleta é só leitura: a linha não prepara ordem */
   pickable: boolean;
   expanded: boolean;
@@ -209,7 +204,7 @@ type OrderBookColumnsProps = {
 };
 
 /** Compras à esquerda, vendas à direita, as melhores ofertas junto ao centro. */
-export function OrderBookColumns({ book, nickname, pickable, expanded, onToggle, onPick }: OrderBookColumnsProps) {
+export function OrderBookColumns({ book, viewer, pickable, expanded, onToggle, onPick }: OrderBookColumnsProps) {
   const largest = largestQuantity(book);
   const buys = expanded ? book.buys : book.buys.slice(0, BOOK_ROWS);
   const sells = expanded ? book.sells : book.sells.slice(0, BOOK_ROWS);
@@ -218,22 +213,8 @@ export function OrderBookColumns({ book, nickname, pickable, expanded, onToggle,
   return (
     <>
       <div className="grid grid-cols-2 divide-x divide-border border-t border-border">
-        <BookColumn
-          side="buy"
-          orders={buys}
-          largest={largest}
-          nickname={nickname}
-          pickable={pickable}
-          onPick={onPick}
-        />
-        <BookColumn
-          side="sell"
-          orders={sells}
-          largest={largest}
-          nickname={nickname}
-          pickable={pickable}
-          onPick={onPick}
-        />
+        <BookColumn side="buy" orders={buys} largest={largest} viewer={viewer} pickable={pickable} onPick={onPick} />
+        <BookColumn side="sell" orders={sells} largest={largest} viewer={viewer} pickable={pickable} onPick={onPick} />
       </div>
       {hasMore && (
         <div className="flex justify-center border-t border-border py-2">
@@ -259,7 +240,7 @@ export function OrderBookColumnsSkeleton() {
           <Skeleton className="h-7" />
           {SKELETON_NAME_WIDTHS.map((width) => (
             <div key={width} className="flex h-9 items-center gap-2.5 px-4">
-              <Skeleton circle className="size-[22px]" />
+              <Skeleton className="h-5 w-[34px]" />
               <Skeleton className="h-3" style={{ width }} />
             </div>
           ))}

@@ -5392,6 +5392,8 @@ export interface components {
         CashUpdateEventDTO: {
             /** Cash */
             cash: string;
+            /** Account */
+            account: number | null;
         };
         /** @enum {string} */
         ChallengeDirection: "up" | "down";
@@ -9398,8 +9400,7 @@ export interface components {
             player_nickname: string;
             /** Player Color */
             player_color: string | null;
-            /** Player Is Bot */
-            player_is_bot: boolean;
+            owner: components["schemas"]["OrderOwner"];
             action: components["schemas"]["OrderAction"];
             order_type: components["schemas"]["OrderType"];
             status: components["schemas"]["OrderStatus"];
@@ -9414,8 +9415,6 @@ export interface components {
              * Format: date
              */
             placed_on: string;
-            /** Synthetic */
-            synthetic: boolean;
         };
         /** OrderEventDTO */
         OrderEventDTO: {
@@ -9433,6 +9432,12 @@ export interface components {
             /** Quantity */
             quantity: string;
         };
+        /**
+         * OrderOwner
+         * @description Quem pôs a ordem no livro.
+         * @enum {string}
+         */
+        OrderOwner: "player" | "bot" | "fund" | "fund_maker" | "market" | "fund_issuer";
         /** OrderPartialExecutedEventDTO */
         OrderPartialExecutedEventDTO: {
             /** Order Id */
@@ -9468,6 +9473,10 @@ export interface components {
             held: string;
             /** Reserved */
             reserved: string;
+            /** Held After */
+            held_after: string;
+            /** Networth Share After */
+            networth_share_after: string;
             /** Profit */
             profit: string | null;
             /** Tax */
@@ -10317,6 +10326,8 @@ export interface components {
         /** PortfolioUpdateEventDTO */
         PortfolioUpdateEventDTO: {
             portfolio: components["schemas"]["PortfolioDTO"];
+            /** Account */
+            account: number | null;
         };
         /** PositionDTO */
         PositionDTO: {
@@ -10342,6 +10353,8 @@ export interface components {
         /** PositionUpdateEventDTO */
         PositionUpdateEventDTO: {
             position: components["schemas"]["PositionDTO"];
+            /** Account */
+            account: number | null;
         };
         /**
          * PremiumPointDTO
@@ -14441,7 +14454,10 @@ export interface operations {
     get_portfolio_api_portfolio_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -14479,7 +14495,10 @@ export interface operations {
     get_patrimonial_history_api_portfolio_history_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -14517,7 +14536,10 @@ export interface operations {
     get_cash_api_portfolio_cash_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -14555,7 +14577,10 @@ export interface operations {
     get_dividends_api_portfolio_dividends_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -14593,7 +14618,10 @@ export interface operations {
     get_portfolio_ticker_api_portfolio__ticker__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 ticker: string;
             };

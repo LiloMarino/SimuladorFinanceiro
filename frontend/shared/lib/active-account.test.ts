@@ -2,6 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { FundAccount } from "@/types";
 import {
   accountHeaders,
+  accountKey,
+  effectiveFundId,
+  eventAccountKey,
   getSelectedFundId,
   resolveActiveAccount,
   selectFund,
@@ -106,5 +109,31 @@ describe("cabeçalho da conta", () => {
 
   it("uma gestora fora da lista carregada não é enviada", () => {
     expect(accountHeaders(3, [personal])).toEqual({});
+  });
+});
+
+describe("chave de cache da carteira", () => {
+  it("a conta pessoal é a chave padrão", () => {
+    expect(accountKey(null, [personal, aurora])).toBe("personal");
+  });
+
+  it("a gestora escolhida dá a chave pelo id dela", () => {
+    expect(accountKey(3, [personal, aurora])).toBe(3);
+  });
+
+  it("concorda com o cabeçalho: gestora fora da lista cai na pessoal nos dois", () => {
+    expect(effectiveFundId(3, [personal])).toBeNull();
+    expect(accountKey(3, [personal])).toBe("personal");
+    expect(accountHeaders(3, [personal])).toEqual({});
+  });
+
+  it("antes da lista a escolha lembrada dá a chave e o cabeçalho", () => {
+    expect(accountKey(3, undefined)).toBe(3);
+    expect(accountHeaders(3, undefined)).toEqual({ "X-Account": "3" });
+  });
+
+  it("evento sem conta é da carteira pessoal; com conta, da gestora", () => {
+    expect(eventAccountKey(null)).toBe("personal");
+    expect(eventAccountKey(3)).toBe(3);
   });
 });

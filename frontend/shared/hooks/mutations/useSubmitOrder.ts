@@ -28,7 +28,11 @@ export function useSubmitOrder(ticker: string) {
 
   return useMutation({
     mutationFn: (order: SubmitOrderRequest) =>
-      apiFetch<SubmitOrderResponse>(`/api/variable-income/${ticker}/orders`, { method: "POST", body: order }),
+      apiFetch<SubmitOrderResponse>(`/api/variable-income/${ticker}/orders`, {
+        method: "POST",
+        body: order,
+        activeAccount: true,
+      }),
     onSuccess: (response, order) => {
       if (order.type === "market" && order.action === "buy") notifyExecution(ticker, order, response);
     },

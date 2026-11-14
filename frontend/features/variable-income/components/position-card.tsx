@@ -1,26 +1,36 @@
 import type { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Badge } from "@/shared/components/ui/badge";
 import { MetricLabel } from "@/shared/components/metric-hint";
+import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import { YIELD_ON_COST } from "@/shared/lib/dividend-metrics";
 import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayPercent, displayQuantity } from "@/shared/lib/utils/display";
 import type { Position } from "@/types";
 import { useCorporateEvents } from "../hooks/queries/useCorporateEvents";
 
-/** A posição do jogador no ativo, com o que está preso em ordens abertas. */
+/** A posição da conta ativa (a do jogador ou a da gestora) no ativo, com o que está preso em ordens abertas. */
 export function PositionCard({ ticker, position }: { ticker: string; position: Position | null }) {
   const held = position && Number(position.size) > 0 ? position : null;
   const positive = held ? Number(held.return_value) >= 0 : true;
   const { data: events } = useCorporateEvents(ticker);
+  const { fund } = useActiveAccount();
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sua posição</CardTitle>
+        <CardTitle>{fund ? `Posição da ${fund.name}` : "Sua posição"}</CardTitle>
+        {fund && (
+          <Badge variant="info" size="tag" className="justify-self-start">
+            conta: {fund.name}
+          </Badge>
+        )}
       </CardHeader>
       <CardContent>
         {!held ? (
-          <p className="text-[13px] text-muted-foreground">Você não tem {ticker}.</p>
+          <p className="text-[13px] text-muted-foreground">
+            {fund ? `A ${fund.name} não tem ${ticker}.` : `Você não tem ${ticker}.`}
+          </p>
         ) : (
           <dl>
             <PositionRow label="Quantidade">

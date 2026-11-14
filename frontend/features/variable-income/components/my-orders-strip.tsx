@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Progress } from "@/shared/components/ui/progress";
 import { displayMoney, displayQuantity } from "@/shared/lib/utils/display";
 import type { Order } from "@/types";
 import { displayDayMonth } from "../lib/order-book";
+import { OrderOwnerBadge } from "./order-owner-badge";
 
 type MyOrdersStripProps = {
   orders: Order[];
@@ -34,12 +34,7 @@ function MyOrder({
   return (
     <li data-book-row className="grid gap-1 px-3 py-2">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <PlayerAvatar
-          nickname={order.player_nickname}
-          color={order.player_color ?? undefined}
-          bot={order.player_is_bot}
-          size="sm"
-        />
+        <OrderOwnerBadge order={order} />
         <span className="text-[13px] font-medium">
           {order.player_nickname} <span className="font-normal text-muted-foreground">(você)</span>
         </span>

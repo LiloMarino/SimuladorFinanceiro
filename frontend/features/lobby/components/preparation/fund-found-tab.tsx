@@ -8,12 +8,11 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/compon
 import { Input } from "@/shared/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/shared/components/ui/input-group";
 import { displayRatePercent } from "@/shared/lib/financial-independence";
+import { cleanTickerLetters, FUND_NAME_MAX_LENGTH, tickerOf } from "@/shared/lib/fund-ticker";
 import { useSaveMyFund } from "../../hooks/mutations/useSaveMyFund";
 import { useSetFundPreparation } from "../../hooks/mutations/useSetFundPreparation";
 import { useAutosave } from "../../hooks/useAutosave";
 import {
-  cleanTickerLetters,
-  FUND_NAME_MAX_LENGTH,
   fundFormSchema,
   type FundForm,
   fundFromForm,
@@ -21,7 +20,6 @@ import {
   nameOwners,
   rivalFunds,
   tickerHint,
-  tickerOf,
   type TickerHint,
 } from "../../lib/fund-preparation";
 import { FundConflictsAlert, FundRoomSection } from "./fund-room-section";

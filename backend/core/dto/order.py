@@ -4,16 +4,16 @@ from datetime import date
 from decimal import Decimal
 
 from backend.core.dto.base import BaseDTO
-from backend.core.enum import OrderAction, OrderStatus, OrderType
+from backend.core.enum import OrderAction, OrderOwner, OrderStatus, OrderType
 
 
 class OrderDTO(BaseDTO):
     id: str
+    # Quem pôs a ordem: o apelido do jogador, o nome da gestora ou o do dono sintético
     player_nickname: str
-    # Chave da paleta; None para a liquidez do mercado simulado
+    # Chave da paleta do jogador; None para quem não tem cor (bot sem cor, gestora e donos sintéticos)
     player_color: str | None
-    # Jogador sem pessoa por trás (robô da sala)
-    player_is_bot: bool
+    owner: OrderOwner
     action: OrderAction
     order_type: OrderType
     status: OrderStatus
@@ -22,5 +22,3 @@ class OrderDTO(BaseDTO):
     limit_price: float | None
     # O dia da partida em que a ordem foi criada
     placed_on: date
-    # Liquidez do mercado simulado, não de um jogador
-    synthetic: bool

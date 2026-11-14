@@ -31,6 +31,10 @@ export const badgeVariants = cva(
         team: "rounded-md border-[color-mix(in_srgb,var(--team)_25%,transparent)] bg-[color-mix(in_srgb,var(--team)_8%,transparent)] font-semibold text-foreground [&>svg]:fill-(--team) [&>svg]:stroke-(--team)",
         // Selo de bandeira: a cor vem da variável --tint, definida por quem renderiza
         tint: "rounded-md bg-[color-mix(in_srgb,var(--tint)_12%,transparent)] text-(--tint)",
+        // Selo de quem pôs a ordem no livro: a cor do jogador vem das variáveis --owner e --owner-foreground, definidas por quem renderiza
+        "owner-player": "min-w-[34px] rounded-md bg-(--owner) font-bold tracking-wide text-(--owner-foreground)",
+        "owner-fund": "min-w-[34px] rounded-md bg-fund font-bold tracking-wide text-fund-foreground",
+        "owner-neutral": "min-w-[34px] rounded-md bg-sidebar-muted font-bold tracking-wide text-white",
         // Contagem do que espera resposta do jogador ("1" convite): vermelho cheio
         count: "bg-destructive font-bold text-white",
       },

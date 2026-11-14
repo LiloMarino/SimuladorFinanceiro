@@ -14,7 +14,7 @@ const order = (patch: Partial<Order>): Order => ({
   id: "o",
   player_nickname: "ana",
   player_color: null,
-  player_is_bot: false,
+  owner: "player",
   action: "buy",
   order_type: "limit",
   status: "pending",
@@ -22,7 +22,6 @@ const order = (patch: Partial<Order>): Order => ({
   remaining: "100",
   limit_price: 10,
   placed_on: "2024-01-02",
-  synthetic: false,
   ...patch,
 });
 

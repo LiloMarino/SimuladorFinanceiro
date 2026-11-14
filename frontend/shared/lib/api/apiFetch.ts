@@ -12,9 +12,11 @@ export interface ApiFetchInit<R = unknown> {
   readonly headers?: Record<string, string> | undefined;
   readonly responseSchema?: ZodType<R>;
   readonly signal?: AbortSignal | undefined;
+  /** A chamada sai pela conta em uso (X-Account); sem a marca ela é da carteira pessoal. */
+  readonly activeAccount?: boolean;
 }
 
-/** A conta escolhida na partida em curso (só existe com a expansão Gestoras ligada). */
+/** Cabeçalho da conta escolhida na partida em curso (só existe com a expansão Gestoras ligada). */
 function currentAccountHeaders() {
   const match = queryClient.getQueryData<SimulationInfo>(queryKeys.simulationStatus())?.simulation;
   if (!match?.funds_enabled) return {};
@@ -27,7 +29,7 @@ function currentAccountHeaders() {
  * serializável (vira JSON) ou uma instância de FormData (enviada crua).
  */
 export async function apiFetch<R = unknown>(path: string, init: ApiFetchInit<R> = {}): Promise<R> {
-  const { method = "GET", body, headers, responseSchema, signal } = init;
+  const { method = "GET", body, headers, responseSchema, signal, activeAccount = false } = init;
   const isFormData = body instanceof FormData;
   // Só leituras têm timeout: uma compra enviada pode ter sido executada mesmo
   // se a conexão cair e não deve ser reenviada automaticamente.
@@ -42,7 +44,7 @@ export async function apiFetch<R = unknown>(path: string, init: ApiFetchInit<R> 
       signal: requestSignal ?? null,
       headers: {
         ...(isFormData ? {} : { "Content-Type": "application/json" }),
-        ...currentAccountHeaders(),
+        ...(activeAccount ? currentAccountHeaders() : {}),
         ...(headers ?? {}),
       },
       body: body === undefined ? null : isFormData ? body : JSON.stringify(body),

@@ -1,6 +1,6 @@
 import { Button } from "@/shared/components/ui/button";
 import { FundMark } from "@/shared/components/fund-mark";
-import { useActiveAccount } from "./useActiveAccount";
+import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 
 /** Faixa sob a topbar enquanto o jogador opera pela conta de uma gestora. */
 export function FundBanner() {

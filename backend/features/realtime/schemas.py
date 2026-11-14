@@ -52,6 +52,8 @@ from backend.features.variable_income.corporate_actions import PlayerCorporateAc
 
 class CashUpdateEventDTO(BaseDTO):
     cash: Decimal
+    # A gestora dona do caixa, para o gestor que a gere; nulo é o caixa pessoal
+    account: int | None
 
 
 class SpeedUpdateEventDTO(BaseDTO):
@@ -100,6 +102,8 @@ class StockUpdateEventDTO(BaseDTO):
 
 class PositionUpdateEventDTO(BaseDTO):
     position: PositionDTO
+    # A gestora dona da posição, para o gestor que a gere; nulo é a posição pessoal
+    account: int | None
 
 
 class OrderEventDTO(BaseDTO):
@@ -116,6 +120,8 @@ class FixedAssetsUpdateEventDTO(BaseDTO):
 
 class PortfolioUpdateEventDTO(BaseDTO):
     portfolio: PortfolioDTO
+    # A gestora dona da carteira, para o gestor que a gere; nulo é a carteira pessoal
+    account: int | None
 
 
 class SnapshotUpdateEventDTO(BaseDTO):

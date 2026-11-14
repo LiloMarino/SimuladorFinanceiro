@@ -8,6 +8,8 @@ import { Input } from "@/shared/components/ui/input";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { DisabledHint } from "@/shared/components/disabled-hint";
+import { AccountOriginNotice } from "@/shared/components/account-origin-notice";
+import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { ErrorState } from "@/shared/components/error-state";
@@ -20,7 +22,7 @@ import { EXEMPT_SALES_LABEL, INCOME_TAX_RATE, salesMonthName } from "@/shared/li
 import { displayPercent } from "@/shared/lib/utils/display";
 import type { AssetClass, OrderPreview, OrderPreviewRequest } from "@/types";
 import { useOrderPreview } from "../hooks/queries/useOrderPreview";
-import { useSubmitOrder } from "../hooks/mutations/useSubmitOrder";
+import { useSubmitOrder } from "@/shared/hooks/mutations/useSubmitOrder";
 
 type Action = "buy" | "sell";
 type OrderKind = "market" | "limit";
@@ -95,8 +97,12 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
   // Com o automático ligado a boleta fica só para leitura
   const tradeLock = useTradeLock();
   const locked = tradeLock !== null;
+  // Com uma gestora ativa a ordem sai do caixa dela
+  const { fund } = useActiveAccount();
+  const cashLabel = fund ? "Caixa da gestora" : "Caixa";
 
   const selling = action === "sell";
+  const shareAfter = preview ? `${displayPercent(preview.networth_share_after, 1)} do patrimônio` : "—";
   const maxQuantity = preview?.max_quantity ?? "0";
   const cash = Number(preview?.cash_before ?? 0);
   const overMax = !byAmount && quantityNumber > Number(maxQuantity);
@@ -196,6 +202,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
       <CardContent>
         {tradeLock && <TradeLockNotice lock={tradeLock} />}
         <div inert={locked} className={cn("grid gap-4", locked && "mt-4 opacity-55")}>
+          {!locked && <AccountOriginNotice />}
           <ToggleGroup
             variant="segmented"
             size="lg"
@@ -348,6 +355,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
                           tone={Number(preview.profit) >= 0 ? "positive" : "negative"}
                         />
                       )}
+                      {fund && <Row label={`${ticker} na gestora depois`} value={shareAfter} />}
                     </>
                   ) : (
                     <>
@@ -366,11 +374,17 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
                         value={overCash ? "—" : `${byAmount ? approx : ""}${displayMoney(preview.total)}`}
                         strong
                       />
-                      <Row label="Caixa agora" value={displayMoney(preview.cash_before)} />
+                      <Row label={`${cashLabel} agora`} value={displayMoney(preview.cash_before)} />
                       <Row
-                        label="Caixa depois"
+                        label={`${cashLabel} depois`}
                         value={overCash ? "—" : `${byAmount ? approx : ""}${displayMoney(preview.cash_after)}`}
                       />
+                      {fund && (
+                        <Row
+                          label={`${ticker} na gestora depois`}
+                          value={overCash ? "—" : `${byAmount ? approx : ""}${shareAfter}`}
+                        />
+                      )}
                     </>
                   )}
                 </dl>
@@ -387,17 +401,27 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
                   type="submit"
                   form="order-form"
                   size="lg"
-                  variant={selling ? "destructive" : "success"}
+                  variant={fund ? "fund" : selling ? "destructive" : "success"}
                   disabled={!canSubmit || submit.isPending}
                 >
                   {submit.isPending && <Spinner />}
-                  {selling ? "Vender" : "Comprar"}{" "}
-                  {byAmount ? (amountNumber > 0 ? `${amountText} em ${ticker}` : ticker) : `${quantityText} ${ticker}`}
-                  {!byAmount && preview?.price && quantityNumber > 0
-                    ? kind === "limit"
-                      ? ` a ${displayMoney(preview.price)}`
-                      : ` · ${displayMoney(preview.total)}`
-                    : ""}
+                  {fund ? (
+                    `${selling ? "Vender" : "Comprar"} pela ${fund.name}`
+                  ) : (
+                    <>
+                      {selling ? "Vender" : "Comprar"}{" "}
+                      {byAmount
+                        ? amountNumber > 0
+                          ? `${amountText} em ${ticker}`
+                          : ticker
+                        : `${quantityText} ${ticker}`}
+                      {!byAmount && preview?.price && quantityNumber > 0
+                        ? kind === "limit"
+                          ? ` a ${displayMoney(preview.price)}`
+                          : ` · ${displayMoney(preview.total)}`
+                        : ""}
+                    </>
+                  )}
                 </Button>
               </DisabledHint>
             </>

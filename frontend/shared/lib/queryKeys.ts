@@ -1,3 +1,5 @@
+import type { AccountKey } from "./active-account";
+
 export const queryKeys = {
   authSession: () => ["auth", "session"] as const,
   simulationStatus: () => ["simulation", "status"] as const,
@@ -67,11 +69,13 @@ export const queryKeys = {
   candlePatterns: (ticker: string) => ["variable-income", ticker, "patterns"] as const,
   candleChallenge: () => ["candle-challenge"] as const,
   variableIncomeOrders: (ticker: string) => ["variable-income", ticker, "orders"] as const,
+  // Prefixo de toda a carteira: renova a de todas as contas
   portfolio: () => ["portfolio"] as const,
-  patrimonialHistory: () => ["portfolio", "history"] as const,
-  portfolioPosition: (ticker: string) => ["portfolio", ticker] as const,
-  portfolioCash: () => ["portfolio", "cash"] as const,
-  portfolioDividends: () => ["portfolio", "dividends"] as const,
+  portfolioOf: (account: AccountKey) => ["portfolio", account] as const,
+  patrimonialHistory: (account: AccountKey) => ["portfolio", account, "history"] as const,
+  portfolioPosition: (account: AccountKey, ticker: string) => ["portfolio", account, "position", ticker] as const,
+  portfolioCash: (account: AccountKey) => ["portfolio", account, "cash"] as const,
+  portfolioDividends: (account: AccountKey) => ["portfolio", account, "dividends"] as const,
   corporateEvents: (ticker: string) => ["variable-income", ticker, "corporate-events"] as const,
   statistics: () => ["statistics"] as const,
   statisticsNextUpdate: () => ["statistics", "next-update"] as const,

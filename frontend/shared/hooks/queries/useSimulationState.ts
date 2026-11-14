@@ -27,7 +27,10 @@ export function useSimulationState() {
 
   useRealtime("simulation_update", patch);
   useRealtime("speed_update", patch);
-  useRealtime("cash_update", patch);
+  // O estado traz o caixa pessoal: o caixa de uma gestora entra na lista de contas
+  useRealtime("cash_update", ({ cash, account }) => {
+    if (account === null) patch({ cash });
+  });
 
   return query;
 }

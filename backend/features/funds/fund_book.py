@@ -232,6 +232,17 @@ class FundBook:
                 return fund
         return None
 
+    def managed_by(self, user_id: int) -> list[Fund]:
+        """As gestoras que o jogador gere."""
+        return [f for f in self._funds.values() if f.terms.manager_user_id == user_id]
+
+    def audience_of(self, client_id: UUID) -> tuple[UUID, int] | None:
+        """Para a conta de uma gestora: o client_id do gestor e o id dela; nulo para qualquer outra conta."""
+        fund = self.of_client(client_id)
+        if fund is None:
+            return None
+        return self._client_of_user(fund.terms.manager_user_id), fund.terms.id
+
     def frozen_until(self, fund: Fund) -> date | None:
         """O último dia em que a gestora fica congelada: o fim do mandato do gestor presidente."""
         return self._manager_frozen_until(fund.terms.manager_user_id)
@@ -624,6 +635,7 @@ class FundBook:
         self._funds[terms.ticker] = fund
         self._engine.broker.fund_accounts[terms.ticker] = account
         SimulationManager.add_fund_portfolios({terms.client_id: terms.portfolio_id})
+        SimulationManager.add_fund_names({terms.client_id: terms.name})
         self._engine.add_fund_stock(
             StockDTO(
                 id=terms.stock_id,

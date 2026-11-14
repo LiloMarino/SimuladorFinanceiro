@@ -2,6 +2,8 @@ import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { differenceInCalendarDays } from "date-fns";
 import { CircleCheck, Info, TriangleAlert } from "lucide-react";
+import { AccountOriginNotice } from "@/shared/components/account-origin-notice";
+import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { DailyLiquidityBadge } from "@/shared/components/daily-liquidity-badge";
@@ -117,6 +119,8 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
   // Com o automático ligado a boleta fica só para leitura
   const tradeLock = useTradeLock();
   const locked = tradeLock !== null;
+  // Com uma gestora ativa a ordem sai do caixa dela
+  const { fund } = useActiveAccount();
 
   const max = quote ? Number(quote.max_amount) : 0;
   const zero = amount <= 0;
@@ -189,6 +193,7 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
     <>
       {tradeLock && <TradeLockNotice lock={tradeLock} />}
       <div inert={locked} className={cn("grid gap-4", locked && "opacity-55")}>
+        {!locked && <AccountOriginNotice />}
         {leftCatalogOn && <LeftCatalog date={leftCatalogOn} offer={offer} />}
 
         <form
@@ -272,7 +277,9 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
                     {current ? displayMoney(current.net_amount ?? 0) : "—"}
                   </dd>
                 </div>
-                <Row label="Caixa depois">{current ? displayMoney(current.cash_after ?? 0) : "—"}</Row>
+                <Row label={fund ? "Caixa da gestora depois" : "Caixa depois"}>
+                  {current ? displayMoney(current.cash_after ?? 0) : "—"}
+                </Row>
                 {current && !current.full && (
                   <Row label="Continua aplicado">{displayMoney(current.remaining ?? 0)}</Row>
                 )}
@@ -297,7 +304,7 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
         {leftCatalogOn && permanentCdbId && <PermanentCdbLink id={permanentCdbId} />}
 
         <DisabledHint reason={canSubmit || locked || redeem.isPending ? null : blockedReason} className="flex *:flex-1">
-          <Button type="submit" form="redeem-form" size="lg" variant="dark" disabled={!canSubmit}>
+          <Button type="submit" form="redeem-form" size="lg" variant={fund ? "fund" : "dark"} disabled={!canSubmit}>
             {redeem.isPending && <Spinner />}
             {redeem.isPending
               ? "Resgatando…"

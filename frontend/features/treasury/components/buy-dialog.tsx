@@ -21,6 +21,8 @@ import { KeyValueRow } from "@/shared/components/key-value-row";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { useBuyFixedIncome } from "@/shared/hooks/mutations/useBuyFixedIncome";
 import { useFixedIncomeProjection } from "@/shared/hooks/queries/useFixedIncomeProjection";
+import { AccountOriginNotice } from "@/shared/components/account-origin-notice";
+import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
@@ -45,6 +47,8 @@ export function BuyDialog({ title, currentDate, onClose }: BuyDialogProps) {
   const buy = useBuyFixedIncome(title.asset_uuid);
   const tradeLock = useTradeLock();
   const locked = tradeLock !== null;
+  // Com uma gestora ativa a ordem sai do caixa dela
+  const { fund } = useActiveAccount();
 
   const cash = quote ? Number(quote.cash_before) : 0;
   const zero = amount <= 0;
@@ -82,7 +86,7 @@ export function BuyDialog({ title, currentDate, onClose }: BuyDialogProps) {
         </DialogHeader>
 
         <DialogBody>
-          {tradeLock && <TradeLockNotice lock={tradeLock} />}
+          {tradeLock ? <TradeLockNotice lock={tradeLock} /> : <AccountOriginNotice />}
 
           {/* Valor */}
           <form
@@ -187,7 +191,7 @@ export function BuyDialog({ title, currentDate, onClose }: BuyDialogProps) {
             Cancelar
           </Button>
           <DisabledHint reason={locked ? null : blockedReason}>
-            <Button type="submit" form="treasury-buy-form" disabled={!canSubmit}>
+            <Button type="submit" form="treasury-buy-form" variant={fund ? "fund" : "default"} disabled={!canSubmit}>
               {buy.isPending && <Spinner />}
               {invalid ? "Investir" : `Investir ${displayMoney(amount)}`}
             </Button>

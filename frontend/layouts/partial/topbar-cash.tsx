@@ -12,7 +12,7 @@ import { cn } from "@/shared/lib/utils";
 import { displayMoney, displaySignedMoney } from "@/shared/lib/utils/display";
 import { AccountMenu } from "./account-menu";
 import { FrozenLock } from "./frozen-lock";
-import { useActiveAccount } from "./useActiveAccount";
+import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 
 type TopbarCashProps = {
   /** Caixa pessoal de hoje; indefinido antes do primeiro dado */

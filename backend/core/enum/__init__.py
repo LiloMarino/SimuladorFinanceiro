@@ -152,6 +152,21 @@ class OrderAction(Enum):
     SELL = "sell"
 
 
+class OrderOwner(Enum):
+    """Quem pôs a ordem no livro."""
+
+    PLAYER = "player"
+    # Jogador sem pessoa por trás (robô da sala)
+    BOT = "bot"
+    # A conta de uma gestora, operada pelo gestor
+    FUND = "fund"
+    FUND_MAKER = "fund_maker"
+    # A liquidez do mercado simulado
+    MARKET = "market"
+    # A oferta pública das cotas de uma gestora
+    FUND_ISSUER = "fund_issuer"
+
+
 class OrderStatus(Enum):
     EXECUTED = "executed"
     PARTIAL = "partial"

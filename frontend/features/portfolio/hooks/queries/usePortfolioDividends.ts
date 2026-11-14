@@ -4,12 +4,12 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import type { PortfolioDividends } from "@/types";
 
 /**
- * Proventos recebidos na partida: total, últimos 12 meses, barras por mês e por ano
+ * Proventos recebidos na partida pelo jogador: total, últimos 12 meses, barras por mês e por ano
  * e quem mais pagou. Renovado quando a carteira é invalidada (aviso de provento).
  */
 export function usePortfolioDividends() {
   return useQuery({
-    queryKey: queryKeys.portfolioDividends(),
+    queryKey: queryKeys.portfolioDividends("personal"),
     queryFn: ({ signal }) => apiFetch<PortfolioDividends>("/api/portfolio/dividends", { signal }),
   });
 }

@@ -67,7 +67,8 @@ export function LifeNotifications() {
   // O caixa negativo avisa pela pendência; aqui o caixa só renova a vida financeira
   useRealtime(
     "cash_update",
-    () => {
+    ({ account }) => {
+      if (account !== null) return;
       void queryClient.invalidateQueries({
         queryKey: queryKeys.lifeStatus(simulationId),
       });

@@ -25,4 +25,10 @@ describe("prévia do palco", () => {
   it("o máximo é quanto o caixa paga: 100.000 ÷ 38,12 = 2.623 ações", () => {
     expect(fakeOrderPreview({ action: "buy", quantity: "1" }).max_quantity).toBe("2623");
   });
+
+  it("a posição depois é a quantidade comprada e ocupa 3,812% dos ativos: R$ 3.812 de R$ 100.000", () => {
+    const preview = fakeOrderPreview({ action: "buy", quantity: "100", limit_price: null });
+    expect(preview.held_after).toBe("100");
+    expect(Number(preview.networth_share_after)).toBeCloseTo(0.03812, 6);
+  });
 });

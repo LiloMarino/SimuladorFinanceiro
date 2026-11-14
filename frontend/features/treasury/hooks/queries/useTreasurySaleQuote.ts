@@ -11,7 +11,10 @@ export function useTreasurySaleQuote(id: string, gross: string, currentDate: str
   return useQuery({
     queryKey: queryKeys.treasurySaleQuote(id, debouncedGross, currentDate),
     queryFn: ({ signal }) =>
-      apiFetch<TreasurySaleQuote>(`/api/treasury/${id}/quote?gross=${encodeURIComponent(debouncedGross)}`, { signal }),
+      apiFetch<TreasurySaleQuote>(`/api/treasury/${id}/quote?gross=${encodeURIComponent(debouncedGross)}`, {
+        signal,
+        activeAccount: true,
+      }),
     placeholderData: keepPreviousData,
   });
 }

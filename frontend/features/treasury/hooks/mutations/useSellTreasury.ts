@@ -8,7 +8,8 @@ export function useSellTreasury(assetId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (body: SellTreasuryRequest) => apiFetch(`/api/treasury/${assetId}/sell`, { method: "POST", body }),
+    mutationFn: (body: SellTreasuryRequest) =>
+      apiFetch(`/api/treasury/${assetId}/sell`, { method: "POST", body, activeAccount: true }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.treasuryPositions() });
       void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() });

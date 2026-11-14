@@ -74,7 +74,7 @@ const sellOrder = (id: string, size: string, price: number): Order => ({
   id,
   player_nickname: "Mercado",
   player_color: null,
-  player_is_bot: false,
+  owner: "market",
   action: "sell",
   order_type: "limit",
   status: "pending",
@@ -82,7 +82,6 @@ const sellOrder = (id: string, size: string, price: number): Order => ({
   remaining: size,
   limit_price: price,
   placed_on: "2023-03-14",
-  synthetic: true,
 });
 
 /** O livro de quem vende PETR4, da menor venda para a maior. */
@@ -97,7 +96,7 @@ export const STAGE_MY_LIMIT_ORDER: Order = {
   id: "m1",
   player_nickname: "Lilo",
   player_color: null,
-  player_is_bot: false,
+  owner: "player",
   action: "buy",
   order_type: "limit",
   status: "pending",
@@ -105,5 +104,4 @@ export const STAGE_MY_LIMIT_ORDER: Order = {
   remaining: "100",
   limit_price: 37.5,
   placed_on: "2023-03-14",
-  synthetic: false,
 };

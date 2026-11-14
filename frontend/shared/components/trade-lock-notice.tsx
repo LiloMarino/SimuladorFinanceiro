@@ -6,9 +6,23 @@ import { useSetMyStrategy } from "@/shared/hooks/mutations/useSetMyStrategy";
 import type { TradeLock } from "@/shared/hooks/useTradeLock";
 import { displayShortDate } from "@/shared/lib/utils/display";
 
-/** Aviso das boletas travadas: o automático se desliga aqui mesmo (ou se troca em Estratégias); o presidente espera o fim do mandato. */
+/** Aviso das boletas travadas: o automático se desliga aqui mesmo (ou se troca em Estratégias); o presidente e a gestora dele esperam o fim do mandato. */
 export function TradeLockNotice({ lock }: { lock: TradeLock }) {
   const setStrategy = useSetMyStrategy();
+
+  if (lock.reason === "fund") {
+    return (
+      <div className="flex items-center gap-2.5 rounded-[10px] bg-warning-soft px-3 py-2.5 text-[13px]">
+        <Lock className="size-4 shrink-0 text-warning" />
+        <span>
+          <b className="font-bold">
+            {lock.name} congelada até {displayShortDate(lock.until)}:
+          </b>{" "}
+          você governa e ela não tem co-gestor. A sala vê o que ela tem.
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-2.5 rounded-lg border border-border bg-subtle px-3 py-2.5 text-[13px]">

@@ -5,7 +5,8 @@ from datetime import UTC, date, datetime
 from decimal import Decimal
 
 from backend.core.dto.order import OrderDTO
-from backend.core.enum import OrderAction, OrderStatus, OrderType
+from backend.core.enum import OrderAction, OrderOwner, OrderStatus, OrderType
+from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 
 # Dono das ordens da liquidez do mercado simulado, que não é um jogador
@@ -15,11 +16,11 @@ FUND_MAKER_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__FUND_MAKER__
 # Dono da ordem de venda da oferta pública das cotas de uma gestora
 FUND_ISSUER_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__FUND_ISSUER__")
 
-# Os donos sintéticos e o apelido que cada um mostra no livro de ofertas
-SYNTHETIC_NICKNAMES: dict[uuid.UUID, str] = {
-    MARKET_CLIENT_ID: "Mercado",
-    FUND_MAKER_CLIENT_ID: "Formador de mercado",
-    FUND_ISSUER_CLIENT_ID: "Oferta pública",
+# Os donos sintéticos, o apelido que cada um mostra no livro de ofertas e o tipo de dono
+SYNTHETIC_OWNERS: dict[uuid.UUID, tuple[str, OrderOwner]] = {
+    MARKET_CLIENT_ID: ("Mercado", OrderOwner.MARKET),
+    FUND_MAKER_CLIENT_ID: ("Formador de mercado", OrderOwner.FUND_MAKER),
+    FUND_ISSUER_CLIENT_ID: ("Oferta pública", OrderOwner.FUND_ISSUER),
 }
 
 
@@ -46,22 +47,12 @@ class Order(ABC):
         self.remaining = self.size
 
     def to_dto(self) -> OrderDTO:
-        synthetic_nickname = SYNTHETIC_NICKNAMES.get(self.client_id)
-        synthetic = synthetic_nickname is not None
-        color = None
-        is_bot = False
-        if synthetic_nickname is not None:
-            nickname = synthetic_nickname
-        else:
-            user = UserManager.get_user(self.client_id)
-            nickname = "Unknown" if user is None else user.nickname
-            color = None if user is None else UserManager.get_color(user.id)
-            is_bot = user is not None and user.is_bot
+        nickname, owner, color = self._owner()
         return OrderDTO(
             id=self.id,
             player_nickname=nickname,
             player_color=color,
-            player_is_bot=is_bot,
+            owner=owner,
             action=self.action,
             order_type=OrderType.LIMIT
             if isinstance(self, LimitOrder)
@@ -71,8 +62,21 @@ class Order(ABC):
             remaining=self.remaining,
             status=self.status,
             placed_on=self.placed_on,
-            synthetic=synthetic,
         )
+
+    def _owner(self) -> tuple[str, OrderOwner, str | None]:
+        """O apelido, o tipo de dono e a cor da paleta de quem pôs a ordem."""
+        synthetic = SYNTHETIC_OWNERS.get(self.client_id)
+        if synthetic is not None:
+            return (*synthetic, None)
+        fund_name = SimulationManager.find_fund_name(self.client_id)
+        if fund_name is not None:
+            return fund_name, OrderOwner.FUND, None
+        user = UserManager.get_user(self.client_id)
+        if user is None:
+            return "Unknown", OrderOwner.PLAYER, None
+        owner = OrderOwner.BOT if user.is_bot else OrderOwner.PLAYER
+        return user.nickname, owner, UserManager.get_color(user.id)
 
 
 @dataclass(kw_only=True)

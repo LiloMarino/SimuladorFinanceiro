@@ -1,10 +1,6 @@
 import { z } from "zod";
+import { FUND_NAME_MAX_LENGTH, FUND_NAME_MIN_LENGTH, TICKER_LETTERS, tickerOf } from "@/shared/lib/fund-ticker";
 import type { BotTicker, FundIdentity, Preparations } from "@/types";
-
-const FUND_NAME_MIN_LENGTH = 3;
-export const FUND_NAME_MAX_LENGTH = 40;
-const TICKER_LETTERS = 4;
-const TICKER_SUFFIX = "11";
 
 /** Uma gestora que um jogador da sala vai fundar no 1º dia. */
 export type PreparedFund = Preparations["funds"][number];
@@ -32,15 +28,6 @@ export function fundToForm(saved: FundIdentity | null): FundForm {
 export function fundFromForm(form: FundForm): FundIdentity {
   return { name: form.name.trim(), ticker: tickerOf(form.letters) };
 }
-
-export const tickerOf = (letters: string) => `${letters}${TICKER_SUFFIX}`;
-
-/** O campo da sigla aceita só letras, em maiúsculas, até quatro. */
-export const cleanTickerLetters = (value: string) =>
-  value
-    .toUpperCase()
-    .replace(/[^A-Z]/g, "")
-    .slice(0, TICKER_LETTERS);
 
 const sameName = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
 

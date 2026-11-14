@@ -14,6 +14,7 @@ import {
   Flag,
   Medal,
   Banknote,
+  Briefcase,
   Landmark,
   Map as MapIcon,
   Gavel,
@@ -28,6 +29,9 @@ import EconomyPage from "./features/economy/pages/economy";
 import ElectionPage from "./features/government/pages/election";
 import GovernmentPage from "./features/government/pages/government";
 import MapPage from "./features/government/pages/map";
+import FundDetailsPage from "./features/funds/pages/fund-details";
+import FundFoundPage from "./features/funds/pages/fund-found";
+import FundsPage from "./features/funds/pages/funds";
 import PortfolioPage from "./features/portfolio/pages/portfolio";
 import SettingsPage from "./features/settings/pages/settings";
 import FixedIncomePage from "./features/fixed-income/pages/fixed-income";
@@ -109,6 +113,14 @@ const navItems: NavItem[] = [
     expansion: "government",
     pendingTypes: ["IMPEACHMENT_RISK", "UNGUIDED_VOTE", "DEAL_PROPOSAL", "DEAL_DEMAND", "SELIC_MEETING"],
   },
+  {
+    key: "funds",
+    label: "Gestoras",
+    endpoint: "/funds",
+    icon: Briefcase,
+    group: "Expansões",
+    expansion: "funds",
+  },
   { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3, group: "Ferramentas" },
   { key: "tutorial", label: "Como jogar", endpoint: "", icon: GraduationCap, group: "Ferramentas", tutorial: true },
   {
@@ -185,6 +197,9 @@ export default function App() {
                           <Route path="/election" element={<ElectionPage />} />
                           <Route path="/map" element={<MapPage />} />
                           <Route path="/government" element={<GovernmentPage />} />
+                          <Route path="/funds" element={<FundsPage />} />
+                          <Route path="/funds/new" element={<FundFoundPage />} />
+                          <Route path="/funds/:fundId" element={<FundDetailsPage />} />
                         </Route>
                         <Route element={<SimulationModeLayout navItems={navItems} />}>
                           <Route path="/correlation" element={<CorrelationPage />} />

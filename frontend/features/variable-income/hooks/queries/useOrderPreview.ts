@@ -18,7 +18,12 @@ export function useOrderPreview(ticker: string, request: OrderPreviewRequest) {
   return useQuery({
     queryKey: queryKeys.orderPreview(ticker, request),
     queryFn: ({ signal }) =>
-      apiFetch<OrderPreview>(`/api/variable-income/${ticker}/order-preview`, { method: "POST", body: request, signal }),
+      apiFetch<OrderPreview>(`/api/variable-income/${ticker}/order-preview`, {
+        method: "POST",
+        body: request,
+        signal,
+        activeAccount: true,
+      }),
     staleTime: 0,
   });
 }

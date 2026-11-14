@@ -473,16 +473,18 @@ class Broker:
             if position.size == 0 and position.reserved == 0:
                 del self._positions[client_id][ticker]
 
+            audience, account = self._simulation_engine.audience(client_id)
             position_payload = PositionUpdateEventDTO(
                 position=position.to_dto(
                     self._simulation_engine.get_current_price(position)
-                )
+                ),
+                account=account,
             ).to_json()
 
         notify(
             event=f"position_update:{ticker}",
             payload=position_payload,
-            to=client_id,
+            to=audience,
         )
 
     def _execute_buy(self, order: Order, size: Decimal, price: float):

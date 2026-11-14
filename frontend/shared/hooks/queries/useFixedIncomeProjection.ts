@@ -21,6 +21,7 @@ export function useFixedIncomeProjection(id: string, amount: string, currentDate
     queryFn: ({ signal }) =>
       apiFetch<FixedIncomeQuote>(`/api/fixed-income/${id}/projection?amount=${encodeURIComponent(debouncedAmount)}`, {
         signal,
+        activeAccount: true,
       }),
     placeholderData: keepPreviousData,
   });

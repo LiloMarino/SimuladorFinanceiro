@@ -9,12 +9,12 @@ export function usePatrimonialHistory() {
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: queryKeys.patrimonialHistory(),
+    queryKey: queryKeys.patrimonialHistory("personal"),
     queryFn: ({ signal }) => apiFetch<PortfolioHistoryPoint[]>("/api/portfolio/history", { signal }),
   });
 
   useRealtime("snapshot_update", ({ snapshot }) => {
-    queryClient.setQueryData(queryKeys.patrimonialHistory(), (prev: PortfolioHistoryPoint[] | undefined) => {
+    queryClient.setQueryData(queryKeys.patrimonialHistory("personal"), (prev: PortfolioHistoryPoint[] | undefined) => {
       if (!prev) return prev;
 
       const map = new Map(prev.map((h) => [h.snapshot_date, h]));

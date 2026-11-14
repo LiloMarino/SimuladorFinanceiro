@@ -557,7 +557,7 @@ def book_partial_order(page: Page) -> None:
         "id": "ordem-forjada-parcial",
         "player_nickname": demo_settings()["host"]["nickname"],
         "player_color": None,
-        "player_is_bot": False,
+        "owner": "player",
         "action": "sell",
         "order_type": "limit",
         "status": "partial",
@@ -565,7 +565,6 @@ def book_partial_order(page: Page) -> None:
         "remaining": "60",
         "limit_price": 12.4,
         "placed_on": FORGED_DATE,
-        "synthetic": False,
     }
     fulfill_get(page, ORDERS_GLOB, json.dumps([*real_orders(page), forged]))
     reload_detail(page)
@@ -763,10 +762,9 @@ def book_long_text(page: Page) -> None:
     assert orders, "o livro real da PETR4 veio vazio: não há ordem para usar de modelo"
     base = orders[0] | {
         "player_color": None,
-        "player_is_bot": False,
+        "owner": "player",
         "order_type": "limit",
         "status": "pending",
-        "synthetic": False,
         "placed_on": FORGED_DATE,
     }
     forged = [

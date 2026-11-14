@@ -24,7 +24,7 @@ const NO_SECTOR = "__none__";
 
 export default function VariableIncomePage() {
   const { data: quotes, isLoading, error, refetch } = useVariableIncomeStocks();
-  const { data: portfolio } = usePortfolio();
+  const { data: portfolio } = usePortfolio({ activeAccount: true });
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("ALL");
   // Nenhuma origem marcada mostra todas

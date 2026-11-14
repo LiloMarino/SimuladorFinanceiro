@@ -17,6 +17,8 @@ import { DisabledHint } from "@/shared/components/disabled-hint";
 import { AmountShortcuts } from "@/shared/components/amount-shortcuts";
 import { KeyValueRow } from "@/shared/components/key-value-row";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
+import { AccountOriginNotice } from "@/shared/components/account-origin-notice";
+import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
@@ -63,6 +65,8 @@ export function SellDialog({ position, currentDate, onClose }: SellDialogProps) 
   const { data: latestQuote } = useTreasurySaleQuote(asset.asset_uuid, gross, currentDate);
   const sell = useSellTreasury(asset.asset_uuid);
   const tradeLock = useTradeLock();
+  // Com uma gestora ativa a ordem sai do caixa dela
+  const { fund } = useActiveAccount();
 
   const max = Number(position.market_value);
   const partAmount = Number(partString) || 0;
@@ -105,7 +109,7 @@ export function SellDialog({ position, currentDate, onClose }: SellDialogProps) 
         </DialogHeader>
 
         <DialogBody>
-          {tradeLock && <TradeLockNotice lock={tradeLock} />}
+          {tradeLock ? <TradeLockNotice lock={tradeLock} /> : <AccountOriginNotice />}
 
           {/* Quanto vender */}
           <form
@@ -161,7 +165,7 @@ export function SellDialog({ position, currentDate, onClose }: SellDialogProps) 
             Cancelar
           </Button>
           <DisabledHint reason={blockedReason}>
-            <Button type="submit" form="treasury-sell-form" variant="dark" disabled={!canSubmit}>
+            <Button type="submit" form="treasury-sell-form" variant={fund ? "fund" : "dark"} disabled={!canSubmit}>
               {sell.isPending && <Spinner />}
               {net ? `Vender por ${displayMoney(net)}` : "Vender"}
             </Button>

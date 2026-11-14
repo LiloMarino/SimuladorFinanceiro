@@ -5,6 +5,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { ErrorState } from "@/shared/components/error-state";
 import { InfoHint } from "@/shared/components/info-hint";
+import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
 import type ApiError from "@/shared/lib/models/ApiError";
@@ -12,6 +13,7 @@ import { displayMoney } from "@/shared/lib/utils/display";
 import type { Order } from "@/types";
 import { useCancelOrder } from "../hooks/mutations/useCancelOrder";
 import { bookSpread, isOpenOrder, splitBook } from "../lib/order-book";
+import { type BookViewer, ownsOrder } from "../lib/order-owner";
 import { MyOrdersStrip } from "./my-orders-strip";
 import { OrderBookColumns, OrderBookColumnsSkeleton } from "./order-book-columns";
 import { OrderBookSpread, OrderBookSpreadSkeleton } from "./order-book-spread";
@@ -68,6 +70,9 @@ export function OrderBookCard({
   onPick,
 }: OrderBookCardProps) {
   const { user } = useAuth();
+  const { active } = useActiveAccount();
+  // A conta ativa é quem "você" é no livro: o jogador ou a gestora que ele gere
+  const viewer: BookViewer = { nickname: user?.nickname, fundName: active?.fund_id != null ? active.name : null };
   const [tab, setTab] = useState<Tab>("OPEN");
   const [expanded, setExpanded] = useState(false);
 
@@ -77,7 +82,7 @@ export function OrderBookCard({
 
   const open = orders.filter(isOpenOrder);
   const book = splitBook(orders);
-  const mine = open.filter((order) => !order.synthetic && order.player_nickname === user?.nickname);
+  const mine = open.filter((order) => ownsOrder(order, viewer));
   const loadFailed = !!error && open.length === 0;
 
   const body = () => {
@@ -123,12 +128,15 @@ export function OrderBookCard({
         <OrderBookSpread book={book} spread={bookSpread(book, typicalPrice)} />
         <OrderBookColumns
           book={book}
-          nickname={user?.nickname}
+          viewer={viewer}
           pickable={!automatic}
           expanded={expanded}
           onToggle={() => setExpanded((value) => !value)}
           onPick={onPick}
         />
+        <p className="border-t border-border px-4 py-2 text-xs text-muted-foreground">
+          Cada ordem mostra a sigla do jogador na cor dele. Robôs, o formador de mercado e o Mercado aparecem em cinza.
+        </p>
       </>
     );
   };

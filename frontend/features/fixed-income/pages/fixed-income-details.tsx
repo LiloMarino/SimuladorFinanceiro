@@ -98,7 +98,7 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
     refetch,
   } = useFixedIncomeProjection(id, normalizeNumberString(amountText), today);
   const { data: offers } = useFixedIncomeAssets();
-  const { data: portfolio } = usePortfolio();
+  const { data: portfolio } = usePortfolio({ activeAccount: true });
   const position = portfolio?.fixed_income.find((p) => p.asset.asset_uuid === id);
   const daysToRedeem = quote
     ? differenceInCalendarDays(parseLocalDate(quote.redemption_date), parseLocalDate(today))

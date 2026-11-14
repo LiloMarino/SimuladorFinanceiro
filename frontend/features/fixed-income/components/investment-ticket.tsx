@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { addDays, format } from "date-fns";
 import { CircleCheck } from "lucide-react";
+import { AccountOriginNotice } from "@/shared/components/account-origin-notice";
+import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { cn } from "@/shared/lib/utils";
@@ -54,6 +56,9 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
   // Com o automático ligado a boleta fica só para leitura
   const tradeLock = useTradeLock();
   const locked = tradeLock !== null;
+  // Com uma gestora ativa a ordem sai do caixa dela
+  const { fund } = useActiveAccount();
+  const cashLabel = fund ? "Caixa da gestora" : "Caixa";
 
   if (invest.isSuccess) {
     return (
@@ -97,6 +102,7 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
     <>
       {tradeLock && <TradeLockNotice lock={tradeLock} />}
       <div inert={locked} className={cn("grid gap-4", locked && "opacity-55")}>
+        {!locked && <AccountOriginNotice />}
         {cap !== null && offer.offered_until && (
           <RareOfferCap cap={cap} applied={applied} room={room} offeredUntil={offer.offered_until} />
         )}
@@ -145,11 +151,11 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
 
         <dl className="grid gap-1.5 border-t border-muted pt-3 text-[13px]">
           <div className="flex justify-between">
-            <dt className="text-muted-foreground">Caixa agora</dt>
+            <dt className="text-muted-foreground">{cashLabel} agora</dt>
             <dd className="font-mono">{displayMoney(quote.cash_before)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted-foreground">Caixa depois</dt>
+            <dt className="text-muted-foreground">{cashLabel} depois</dt>
             <dd className="font-mono">{overCash || overCap ? "—" : displayMoney(quote.cash_after)}</dd>
           </div>
           {offer.fx_rate && dollarBuy && (
@@ -187,7 +193,7 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
         </dl>
 
         <DisabledHint reason={canSubmit || locked || invest.isPending ? null : errorText} className="flex *:flex-1">
-          <Button type="submit" form="invest-form" size="lg" variant="success" disabled={!canSubmit}>
+          <Button type="submit" form="invest-form" size="lg" variant={fund ? "fund" : "success"} disabled={!canSubmit}>
             {invest.isPending && <Spinner />}
             {invest.isPending ? "Investindo…" : invalid && !zero ? "Investir" : `Investir ${displayMoney(amount)}`}
           </Button>

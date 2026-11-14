@@ -27,7 +27,7 @@ export interface NavItem {
   /** Abre a janela Como jogar em vez de navegar; só aparece quando o jogador escolheu o acesso pelo menu */
   tutorial?: boolean;
   /** Só aparece nas partidas com a expansão ligada */
-  expansion?: "government";
+  expansion?: "government" | "funds";
 }
 
 export type RedirectState = {

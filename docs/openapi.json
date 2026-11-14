@@ -1434,6 +1434,31 @@
         "summary": "Obter portfólio",
         "description": "Retorna o portfólio atual do cliente com todas as posições, saldos, totais e rentabilidade já calculados.",
         "operationId": "get_portfolio_api_portfolio_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1446,31 +1471,26 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "500": {
-            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Internal Server Error"
           }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ]
+        }
       }
     },
     "/api/portfolio/history": {
@@ -1481,47 +1501,67 @@
         "summary": "Obter histórico patrimonial",
         "description": "Retorna os snapshots mensais do patrimônio do cliente, em ordem cronológica.",
         "operationId": "get_patrimonial_history_api_portfolio_history_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
+                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/PortfolioHistoryPointDTO"
                   },
-                  "type": "array",
                   "title": "Response Get Patrimonial History Api Portfolio History Get"
                 }
               }
             }
           },
           "422": {
-            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "500": {
-            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Internal Server Error"
           }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ]
+        }
       }
     },
     "/api/portfolio/cash": {
@@ -1532,6 +1572,31 @@
         "summary": "Obter saldo em caixa",
         "description": "Retorna o saldo de caixa (dinheiro disponível) do cliente.",
         "operationId": "get_cash_api_portfolio_cash_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1544,31 +1609,26 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "500": {
-            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Internal Server Error"
           }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ]
+        }
       }
     },
     "/api/portfolio/dividends": {
@@ -1579,6 +1639,31 @@
         "summary": "Proventos recebidos",
         "description": "Os proventos que o jogador recebeu na partida: o total, o dos 12 meses-calendário até hoje, a divisão por mês, por ano e por classe, e quem mais pagou.",
         "operationId": "get_dividends_api_portfolio_dividends_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1591,31 +1676,26 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "500": {
-            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Internal Server Error"
           }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ]
+        }
       }
     },
     "/api/portfolio/{ticker}": {
@@ -1640,6 +1720,24 @@
               "type": "string",
               "title": "Ticker"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -15655,12 +15753,24 @@
           "cash": {
             "type": "string",
             "title": "Cash"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "cash"
+          "cash",
+          "account"
         ],
         "title": "CashUpdateEventDTO"
       },
@@ -27425,9 +27535,8 @@
             ],
             "title": "Player Color"
           },
-          "player_is_bot": {
-            "type": "boolean",
-            "title": "Player Is Bot"
+          "owner": {
+            "$ref": "#/components/schemas/OrderOwner"
           },
           "action": {
             "$ref": "#/components/schemas/OrderAction"
@@ -27461,10 +27570,6 @@
             "type": "string",
             "format": "date",
             "title": "Placed On"
-          },
-          "synthetic": {
-            "type": "boolean",
-            "title": "Synthetic"
           }
         },
         "additionalProperties": false,
@@ -27473,15 +27578,14 @@
           "id",
           "player_nickname",
           "player_color",
-          "player_is_bot",
+          "owner",
           "action",
           "order_type",
           "status",
           "size",
           "remaining",
           "limit_price",
-          "placed_on",
-          "synthetic"
+          "placed_on"
         ],
         "title": "OrderDTO"
       },
@@ -27530,6 +27634,19 @@
           "quantity"
         ],
         "title": "OrderExecutedEventDTO"
+      },
+      "OrderOwner": {
+        "type": "string",
+        "enum": [
+          "player",
+          "bot",
+          "fund",
+          "fund_maker",
+          "market",
+          "fund_issuer"
+        ],
+        "title": "OrderOwner",
+        "description": "Quem pôs a ordem no livro."
       },
       "OrderPartialExecutedEventDTO": {
         "properties": {
@@ -27610,6 +27727,14 @@
             "type": "string",
             "title": "Reserved"
           },
+          "held_after": {
+            "type": "string",
+            "title": "Held After"
+          },
+          "networth_share_after": {
+            "type": "string",
+            "title": "Networth Share After"
+          },
           "profit": {
             "anyOf": [
               {
@@ -27671,6 +27796,8 @@
           "max_quantity",
           "held",
           "reserved",
+          "held_after",
+          "networth_share_after",
           "profit",
           "tax",
           "month_sales_after",
@@ -30271,12 +30398,24 @@
         "properties": {
           "portfolio": {
             "$ref": "#/components/schemas/PortfolioDTO"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "portfolio"
+          "portfolio",
+          "account"
         ],
         "title": "PortfolioUpdateEventDTO"
       },
@@ -30338,12 +30477,24 @@
         "properties": {
           "position": {
             "$ref": "#/components/schemas/PositionDTO"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "position"
+          "position",
+          "account"
         ],
         "title": "PositionUpdateEventDTO"
       },

@@ -16,7 +16,7 @@ export function useFixedIncomeRedemption(id: string, amount: string, currentDate
     queryFn: ({ signal }) =>
       apiFetch<FixedIncomeRedemptionQuote>(
         `/api/fixed-income/${id}/redemption?amount=${encodeURIComponent(debouncedAmount)}`,
-        { signal },
+        { signal, activeAccount: true },
       ),
     enabled,
     placeholderData: keepPreviousData,

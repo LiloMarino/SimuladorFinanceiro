@@ -18,6 +18,10 @@ class OrderPreviewDTO(BaseDTO):
     max_quantity: Decimal
     held: Decimal
     reserved: Decimal
+    # A posição no ativo depois da ordem, e a fração do patrimônio (ativos da conta que opera: ações,
+    # renda fixa e caixa) que ela passa a ocupar, ao preço de mercado de hoje
+    held_after: Decimal
+    networth_share_after: Decimal
     # Só na venda: lucro sobre o preço médio e o IR que a venda acrescenta ao mês
     profit: Decimal | None
     tax: Decimal | None

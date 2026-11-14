@@ -22,6 +22,9 @@ export function fakeOrderPreview(request: OrderPreviewRequest): OrderPreview {
     max_quantity: String(Math.floor(STAGE_CASH_CENTS / priceCents)),
     held: "0",
     reserved: "0",
+    held_after: String(quantity),
+    // Sem posição antes: o que a compra ocupa dos ativos, que partem só do caixa
+    networth_share_after: String(totalCents / STAGE_CASH_CENTS),
     profit: null,
     tax: null,
     month_sales_after: null,

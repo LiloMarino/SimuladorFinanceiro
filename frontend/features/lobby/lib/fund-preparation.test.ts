@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Preparations } from "@/types";
 import {
-  cleanTickerLetters,
   fundChoice,
   fundFormSchema,
   fundFromForm,
@@ -60,11 +59,6 @@ describe("formulário da gestora", () => {
     expect(parse("AUR")).toBe(false);
     expect(parse("AURO1")).toBe(false);
     expect(parse("auro")).toBe(false);
-  });
-
-  it("o campo da sigla limpa o que digitam: maiúsculas, só letras, até quatro", () => {
-    expect(cleanTickerLetters("au1ro-x")).toBe("AURO");
-    expect(cleanTickerLetters("aurora")).toBe("AURO");
   });
 });
 

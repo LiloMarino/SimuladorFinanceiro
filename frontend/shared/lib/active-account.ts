@@ -53,12 +53,29 @@ export function resolveActiveAccount(accounts: FundAccount[] | undefined, select
   return selected ?? personal;
 }
 
+/** A conta de uma leitura da carteira: a pessoal ou a gestora (pelo id dela). */
+export type AccountKey = "personal" | number;
+
 /**
- * Cabeçalhos da conta para a requisição. Com a lista já carregada, só uma gestora que ela traz
- * é enviada; antes da lista, a escolha lembrada segue valendo.
+ * A gestora por cujo caixa as requisições saem agora. Com a lista já carregada, só uma gestora
+ * que ela traz vale; antes da lista, a escolha lembrada segue valendo.
  */
-export function accountHeaders(selectedFundId: number | null, accounts: FundAccount[] | undefined) {
-  if (selectedFundId === null) return {};
+export function effectiveFundId(selectedFundId: number | null, accounts: FundAccount[] | undefined) {
+  if (selectedFundId === null) return null;
   const known = accounts === undefined || accounts.some((account) => account.fund_id === selectedFundId);
-  return known ? { [ACCOUNT_HEADER]: String(selectedFundId) } : {};
+  return known ? selectedFundId : null;
+}
+
+/** A chave de cache da carteira da conta: a mesma conta que o cabeçalho X-Account manda ao servidor. */
+export function accountKey(selectedFundId: number | null, accounts: FundAccount[] | undefined): AccountKey {
+  return effectiveFundId(selectedFundId, accounts) ?? "personal";
+}
+
+/** Chave da conta que um evento de tempo real traz: sem `account` o evento é da conta pessoal. */
+export const eventAccountKey = (account: number | null): AccountKey => account ?? "personal";
+
+/** Cabeçalhos da conta para a requisição: só a gestora tem cabeçalho. */
+export function accountHeaders(selectedFundId: number | null, accounts: FundAccount[] | undefined) {
+  const fundId = effectiveFundId(selectedFundId, accounts);
+  return fundId === null ? {} : { [ACCOUNT_HEADER]: String(fundId) };
 }

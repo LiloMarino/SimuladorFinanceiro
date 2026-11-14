@@ -57,7 +57,7 @@ const matchesType = (o: FixedIncomeOffer, filter: TypeFilter) =>
 export default function FixedIncomePage() {
   const [searchParams] = useSearchParams();
   const { data: offers, isLoading, error, refetch } = useFixedIncomeAssets();
-  const { data: portfolio } = usePortfolio();
+  const { data: portfolio } = usePortfolio({ activeAccount: true });
   const { data: simulation } = useSimulationState();
   const { data: indicators } = useEconomicIndicators();
   const { simulation: match } = useSimulation();

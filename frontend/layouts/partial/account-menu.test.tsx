@@ -38,13 +38,13 @@ afterEach(() => {
 const sentHeaders = async () => {
   const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
   vi.stubGlobal("fetch", fetch);
-  await apiFetch("/api/variable-income/ABCD3/orders", { method: "POST", body: {} });
+  await apiFetch("/api/variable-income/ABCD3/orders", { method: "POST", body: {}, activeAccount: true });
   const init = fetch.mock.calls[0]?.[1] as RequestInit;
   return init.headers as Record<string, string>;
 };
 
 describe("menu Operar com", () => {
-  it("escolher a gestora no menu faz as próximas requisições levarem X-Account", async () => {
+  it("escolher a gestora no menu faz as próximas chamadas de mercado levarem X-Account", async () => {
     queryClient.setQueryData(queryKeys.simulationStatus(), { simulation: { id: SIMULATION, funds_enabled: true } });
     const onSelect = vi.fn((fundId: number | null) => selectFund(SIMULATION, fundId));
     const tree = AccountMenu({ accounts: [personal, aurora], active: personal, onSelect });

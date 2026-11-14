@@ -7,7 +7,7 @@ from backend.core.dto.dividends import PortfolioDividendsDTO
 from backend.core.dto.patrimonial_history import PortfolioHistoryPointDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
-from backend.routes.dependencies import ActiveSimulation, ClientID
+from backend.routes.dependencies import ActingClient, ActiveSimulation
 
 portfolio_router = APIRouter(prefix="/api/portfolio", tags=["Portfolio"])
 
@@ -22,9 +22,9 @@ class CashResponse(BaseModel):
     summary="Obter portfólio",
     description="Retorna o portfólio atual do cliente com todas as posições, saldos, totais e rentabilidade já calculados.",
 )
-def get_portfolio(client_id: ClientID, simulation: ActiveSimulation):
+def get_portfolio(client_id: ActingClient, simulation: ActiveSimulation):
     """
-    Retorna o portfólio atual do cliente.
+    Retorna o portfólio da conta que opera: a do cliente, ou a da gestora do header X-Account.
     """
     portfolio_data = simulation.get_portfolio(client_id)
     return portfolio_data
@@ -36,7 +36,7 @@ def get_portfolio(client_id: ClientID, simulation: ActiveSimulation):
     summary="Obter histórico patrimonial",
     description="Retorna os snapshots mensais do patrimônio do cliente, em ordem cronológica.",
 )
-def get_patrimonial_history(client_id: ClientID, simulation: ActiveSimulation):
+def get_patrimonial_history(client_id: ActingClient, simulation: ActiveSimulation):
     """
     Retorna o histórico patrimonial do cliente.
     """
@@ -49,7 +49,7 @@ def get_patrimonial_history(client_id: ClientID, simulation: ActiveSimulation):
     summary="Obter saldo em caixa",
     description="Retorna o saldo de caixa (dinheiro disponível) do cliente.",
 )
-def get_cash(client_id: ClientID, simulation: ActiveSimulation):
+def get_cash(client_id: ActingClient, simulation: ActiveSimulation):
     """
     Retorna o saldo em caixa do cliente.
     """
@@ -66,7 +66,7 @@ def get_cash(client_id: ClientID, simulation: ActiveSimulation):
         "até hoje, a divisão por mês, por ano e por classe, e quem mais pagou."
     ),
 )
-def get_dividends(client_id: ClientID, simulation: ActiveSimulation):
+def get_dividends(client_id: ActingClient, simulation: ActiveSimulation):
     return simulation.get_dividends(client_id)
 
 
@@ -77,7 +77,7 @@ def get_dividends(client_id: ClientID, simulation: ActiveSimulation):
     description="Retorna as informações de posição (quantidade, preço médio, etc.) de um ativo específico no portfólio.",
 )
 def get_portfolio_ticker(
-    client_id: ClientID, simulation: ActiveSimulation, ticker: str
+    client_id: ActingClient, simulation: ActiveSimulation, ticker: str
 ):
     """
     Retorna a posição de um ativo específico.

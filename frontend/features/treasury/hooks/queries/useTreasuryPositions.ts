@@ -14,6 +14,6 @@ export function useTreasuryPositions() {
 
   return useQuery({
     queryKey: queryKeys.treasuryPositions(),
-    queryFn: ({ signal }) => apiFetch<TreasuryPosition[]>("/api/treasury/positions", { signal }),
+    queryFn: ({ signal }) => apiFetch<TreasuryPosition[]>("/api/treasury/positions", { signal, activeAccount: true }),
   });
 }
