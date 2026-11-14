@@ -20,7 +20,8 @@ desempenho", e não "F45". Isso inclui o assunto e o corpo de commits e de PRs.
 
 ## Antes de commitar
 
-- Rode `pnpm run check` na raiz (ruff, deptry, pyright, pytest, oxlint, oxfmt, tsc, knip e vitest).
+- Rode `pnpm format` e `pnpm lint:fix`, e depois `pnpm run check` na raiz (ruff, deptry, pyright, pytest, oxlint, oxfmt, tsc, knip e vitest).
+- O check roda três trilhas em paralelo e fecha com o tempo de cada uma: `check:back` (lints e pyright), `test` (pytest) e `check:front` (lints, tsc, knip e vitest). Depois de uma falha, a correção roda de novo só a trilha que falhou; as que passaram continuam valendo, a menos que a correção mexa no código delas.
 - Mudou rota ou DTO do backend: rode `pnpm openapi` (regenera `docs/openapi.json` e os tipos do front); o `tests/test_openapi.py` falha se estiver defasado.
 - Mudou os models: `pnpm db:revision` (veja `docs/docs/desenvolvimento/ciclo-banco-dados.md`).
 

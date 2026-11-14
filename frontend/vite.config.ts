@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { existsSync, readFileSync } from "node:fs";
 import path from "path";
 import tailwindcss from "@tailwindcss/vite";
@@ -26,6 +27,11 @@ export default defineConfig({
     alias: {
       "@": path.resolve(import.meta.dirname, "."),
     },
+  },
+  test: {
+    // Os arquivos de teste dividem o worker: quem troca um global ou espiona um
+    // módulo desfaz a troca no próprio arquivo.
+    isolate: false,
   },
   build: {
     outDir: path.resolve(import.meta.dirname, "../backend/static"),
