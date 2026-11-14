@@ -30,7 +30,7 @@
 | **N12** | — | Continuar jogando depois do último dia com dado real | — | — | — | — | — |
 | **N13** | — | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — | — |
 | **N14** | — | Atualizar para uma versão nova sem perder as partidas salvas | — | [F56](#f56) | — | — | — |
-| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211), [F287](#f287), [F288](#f288) | — | — | — |
+| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211), [F287](#f287), [F288](#f288), [F295](#f295) | — | — | — |
 | **N19** | — | Analisar um ativo com as ferramentas de um trader | — | [F34](#f34), [F131](#f131), [F193](#f193) | — | — | — |
 | **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | [F285](#f285), [F287](#f287), [F288](#f288) | — | — | — |
 | **N21** | — | Jogar "na unha", sem a interface apontar a melhor escolha | — | — | — | — | — |
@@ -91,6 +91,7 @@
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
 | [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | M18 · 4.2 | — | Médio | Médio | ⏳ |
+| [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | M18 · 4.2 | — | Baixo | Bom | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
@@ -141,7 +142,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 9/19 concluídos
+> **Progresso:** 9/20 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -164,6 +165,7 @@
 | 17 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | [F290](#f290), [F102](#f102) | ⏳ Pendente |
 | 18 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | — | ✅ Concluído |
 | 19 | [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | — | ✅ Concluído |
+| 20 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | — | ⏳ Pendente |
 
 ### 4.3 — Mesa do trader (M24)
 
@@ -259,6 +261,7 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.2 · 4º | 14 | Alto | Médio | ⏳ |
+| [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | M18 · 4.2 · 20º | 0 | Baixo | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
@@ -326,6 +329,7 @@
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F292** | Feature | Fundo Soberano: o governo compra ações e cotas | N34, N41 | — | M18 · 4.2 | [F101](#f101), [F44](#f44), [F255](#f255) | Médio | Médio | Médio | Bom |
 | **F293** | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | N23, N34 | D19 | M18 · 4.2 | [F290](#f290), [F102](#f102) | Médio | Médio | Médio | Médio |
+| **F295** | Manutenção | Orçamento, painel econômico e base do governo por tempo real | N15 | — | M18 · 4.2 | — | Baixo | Baixo | Médio | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -690,6 +694,11 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 **Plano.** A profissão com requisito de expansão, que só aparece com ela ligada; a escolha do partido na aba Profissão da preparação; a renda do Comissionado lida da presidência e da base a cada mês; a comissão do Banqueiro paga a cada oferta e emissão; os dois cards Ganha | Perde.
 
 **Aceite:** com a expansão desligada a profissão não aparece; o Comissionado muda de renda no mês seguinte à troca de governo; uma oferta de R$ 100 mil paga R$ 1 mil ao Banqueiro.
+
+<a id="f295"></a>
+**F295 — Orçamento, painel econômico e base do governo por tempo real.** O orçamento do país (`useBudget`), o painel econômico (`useEconomyPanel`) e a base do governo (`features/government/hooks/queries/useBase.ts`) buscam os dados de novo a cada 10 s por `refetchInterval`. O resto do app atualiza por tempo real: o backend emite um evento pelo websocket quando o dado muda e o hook invalida a query.
+
+**Aceite:** os três hooks sem `refetchInterval`; um evento do backend para cada dado, emitido quando ele muda (no tick ou na ação que o altera), e o hook invalidando a query ao receber. Molde: `useFixedIncomeAssets` com `fixed_assets_update`, e as páginas da gestora com `funds_update`. O painel de desempenho do modo debug segue buscando de tempo em tempo, porque mede o servidor.
 
 ---
 
