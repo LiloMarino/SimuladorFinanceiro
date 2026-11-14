@@ -1,18 +1,19 @@
-"""A preparação de cada jogador no lobby e o Meu partido salvo no perfil."""
+"""A preparação de cada jogador no lobby, o Meu partido e a Minha gestora salvos no perfil."""
 
 from decimal import Decimal
 from typing import Annotated
 
-from pydantic import StringConstraints
+from pydantic import Field, StringConstraints
 
 from backend.core.dto.base import BaseDTO
+from backend.core.dto.fund import FundName, FundTicker
 from backend.core.dto.government import (
     PARTY_COLOR_PATTERN,
     Contribution,
     PartyAbbr,
     PartyName,
 )
-from backend.core.enum import PreparationKind, VoterValue
+from backend.core.enum import FundPreparationKind, PreparationKind, VoterValue
 
 
 class PartyIdentityDTO(BaseDTO):
@@ -22,6 +23,17 @@ class PartyIdentityDTO(BaseDTO):
     abbr: PartyAbbr
     color: Annotated[str, StringConstraints(pattern=PARTY_COLOR_PATTERN)]
     flags: list[VoterValue]
+
+
+class FundIdentityDTO(BaseDTO):
+    """A identidade da gestora que o jogador funda, guardada no perfil: nome e sigla ficam fixos na partida."""
+
+    name: FundName
+    ticker: FundTicker
+
+
+class FundPreparationRequest(BaseDTO):
+    kind: FundPreparationKind
 
 
 class PartyContributionDTO(BaseDTO):
@@ -85,6 +97,14 @@ class PlayerPreparationDTO(BaseDTO):
     federation: PreparationFederationDTO | None = None
 
 
+class FundPreparationDTO(BaseDTO):
+    """A gestora que um jogador da sala vai fundar no 1º dia da partida."""
+
+    nickname: str
+    name: str
+    ticker: str
+
+
 class ReservedPartyDTO(BaseDTO):
     """Um partido do computador, cujo nome e sigla ninguém repete, com as bandeiras fixas dele."""
 
@@ -98,8 +118,12 @@ class PreparationsDTO(BaseDTO):
 
     players: list[PlayerPreparationDTO]
     reserved: list[ReservedPartyDTO]
-    # Sigla, nome ou cor repetidos entre os preparados e com os partidos do computador
+    # Sigla, nome ou cor repetidos entre os preparados e com os partidos do computador; nome ou sigla repetidos entre as gestoras e sigla de ativo importado (só com a expansão Gestoras ligada)
     conflicts: list[str]
+    # Quem funda gestora; vazio com a expansão Gestoras desligada
+    funds: list[FundPreparationDTO] = Field(default_factory=list)
+    # Por que a escolha da gestora está travada (partida em andamento ou salva selecionada); nulo quando aberta
+    fund_locked_reason: str | None = None
     # Convites de vice ainda sem resposta na sala, sem dizer de quem
     pending_invites: int = 0
     # No perfil de 0 a 100: onde fica o valor que o partido não defende e onde fica a bandeira

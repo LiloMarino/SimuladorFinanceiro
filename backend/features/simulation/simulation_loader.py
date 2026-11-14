@@ -3,6 +3,7 @@ from datetime import date
 from decimal import Decimal
 
 from backend.core import repository
+from backend.core.dto.fund import FundFoundRequest
 from backend.core.dto.simulation import (
     SimulationDTO,
     SimulationSettingsDTO,
@@ -23,6 +24,7 @@ from backend.features.candle_challenge.game import candle_game
 from backend.features.government import preparation
 from backend.features.government.room_preparation import RoomPreparation
 from backend.features.realtime import notify
+from backend.features.simulation.room_fund_preparation import RoomFundPreparation
 from backend.features.simulation.saved_simulation import (
     is_finished,
     leader_reached_goal,
@@ -68,6 +70,7 @@ class SimulationLoader:
             UserManager.ensure_teams_ready({})
         humans = [p for p in UserManager.list_active_players() if not p.is_bot]
         RoomPreparation.ensure_ready(humans)
+        RoomFundPreparation.ensure_ready(humans, enabled=settings.funds_enabled)
         # As regras de agora valem para cada bot antes de a partida ser gravada
         validate_room_bots(settings.start_date)
         bots = UserManager.room_bots()
@@ -106,6 +109,8 @@ class SimulationLoader:
             ],
         )
         RoomPreparation.clear()
+        founders = RoomFundPreparation.prepared(humans)
+        RoomFundPreparation.clear()
         UserManager.release_bots()
         UserManager.release_saved_colors()
         UserManager.release_room_teams()
@@ -117,6 +122,18 @@ class SimulationLoader:
             random_seed=repository.simulation.get_random_seed(simulation_id),
         )
         SimulationManager.register_simulation(sim)
+        # Quem escolheu fundar leva a gestora vazia (sem cotas, fechada, taxas zero) já no 1º dia
+        if settings.funds_enabled:
+            for founder, identity in founders:
+                sim.found_fund(
+                    founder,
+                    FundFoundRequest(
+                        name=identity.name,
+                        ticker=identity.ticker,
+                        management_fee=Decimal(0),
+                        performance_fee=Decimal(0),
+                    ),
+                )
         # Cada bot joga a estratégia dele desde o primeiro pregão que o relógio roda
         for bot, config in bots:
             sim.set_my_strategy(bot, config.strategy_key, config.params)
@@ -195,6 +212,7 @@ class SimulationLoader:
             ),
         )
         RoomPreparation.clear()
+        RoomFundPreparation.clear()
         UserManager.release_bots()
         UserManager.release_saved_colors()
         UserManager.release_room_teams()

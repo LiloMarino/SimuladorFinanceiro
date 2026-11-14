@@ -1888,6 +1888,116 @@
         ]
       }
     },
+    "/api/settings/fund": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Obter a Minha gestora",
+        "description": "O nome e a sigla da gestora que o jogador funda nas partidas com a expansão Gestoras; nulo enquanto não salvou uma.",
+        "operationId": "get_my_fund_api_settings_fund_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/FundIdentityDTO"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get My Fund Api Settings Fund Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Salvar a Minha gestora",
+        "description": "Grava o nome (3 a 40 letras) e a sigla (4 letras e 11, como ABCD11) da gestora do jogador no perfil. Valem a partir da próxima sala; na partida, nome e sigla não mudam depois de fundada.",
+        "operationId": "put_my_fund_api_settings_fund_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundIdentityDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundIdentityDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/settings/party/contribution": {
       "get": {
         "tags": [
@@ -9460,7 +9570,7 @@
           "Simulation"
         ],
         "summary": "Preparação dos jogadores no lobby",
-        "description": "O que cada jogador da sala preparou para a partida (fundar partido, filiar-se, chapa e vice), os conflitos de sigla, nome e cor e o motivo da trava, quando há.",
+        "description": "O que cada jogador da sala preparou para a partida (fundar partido, filiar-se, chapa e vice, e fundar gestora com a expansão Gestoras ligada), os conflitos de sigla, nome e cor e o motivo da trava, quando há.",
         "operationId": "get_preparations_api_simulation_preparations_get",
         "responses": {
           "200": {
@@ -9554,6 +9664,63 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/PreparationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparationsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/players/me/fund-preparation": {
+      "put": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Preparar a gestora do jogador",
+        "description": "Escolhe se o jogador funda a Minha gestora no 1º dia da partida ou fica sem gestora; sem escolha salva, é sem gestora. Fundar exige a Minha gestora salva no perfil. Recusa com 409 com a partida em andamento ou salva selecionada; com a expansão Gestoras desligada a escolha fica guardada e é ignorada.",
+        "operationId": "set_player_fund_preparation_api_simulation_players_me_fund_preparation_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundPreparationRequest"
               }
             }
           },
@@ -20586,6 +20753,29 @@
         ],
         "title": "FundFoundRequest"
       },
+      "FundIdentityDTO": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 3,
+            "title": "Name"
+          },
+          "ticker": {
+            "type": "string",
+            "pattern": "^[A-Z]{4}11$",
+            "title": "Ticker"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "ticker"
+        ],
+        "title": "FundIdentityDTO",
+        "description": "A identidade da gestora que o jogador funda, guardada no perfil: nome e sigla ficam fixos na partida."
+      },
       "FundOfferRequest": {
         "properties": {
           "quotas": {
@@ -20600,6 +20790,53 @@
           "quotas"
         ],
         "title": "FundOfferRequest"
+      },
+      "FundPreparationDTO": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "name",
+          "ticker"
+        ],
+        "title": "FundPreparationDTO",
+        "description": "A gestora que um jogador da sala vai fundar no 1º dia da partida."
+      },
+      "FundPreparationKind": {
+        "type": "string",
+        "enum": [
+          "FOUND",
+          "NONE"
+        ],
+        "title": "FundPreparationKind",
+        "description": "O que o jogador prepara no lobby para a expansão Gestoras: fundar a própria gestora ou ficar sem."
+      },
+      "FundPreparationRequest": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/FundPreparationKind"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "FundPreparationRequest"
       },
       "FundSummaryDTO": {
         "properties": {
@@ -29591,6 +29828,24 @@
             "type": "array",
             "title": "Conflicts"
           },
+          "funds": {
+            "items": {
+              "$ref": "#/components/schemas/FundPreparationDTO"
+            },
+            "type": "array",
+            "title": "Funds"
+          },
+          "fund_locked_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fund Locked Reason"
+          },
           "pending_invites": {
             "type": "integer",
             "title": "Pending Invites",
@@ -29622,6 +29877,8 @@
           "players",
           "reserved",
           "conflicts",
+          "funds",
+          "fund_locked_reason",
           "pending_invites",
           "radar_neutral",
           "radar_flag",

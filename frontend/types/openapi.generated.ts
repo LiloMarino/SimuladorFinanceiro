@@ -540,6 +540,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings/fund": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter a Minha gestora
+         * @description O nome e a sigla da gestora que o jogador funda nas partidas com a expansão Gestoras; nulo enquanto não salvou uma.
+         */
+        get: operations["get_my_fund_api_settings_fund_get"];
+        /**
+         * Salvar a Minha gestora
+         * @description Grava o nome (3 a 40 letras) e a sigla (4 letras e 11, como ABCD11) da gestora do jogador no perfil. Valem a partir da próxima sala; na partida, nome e sigla não mudam depois de fundada.
+         */
+        put: operations["put_my_fund_api_settings_fund_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings/party/contribution": {
         parameters: {
             query?: never;
@@ -3229,7 +3253,7 @@ export interface paths {
         };
         /**
          * Preparação dos jogadores no lobby
-         * @description O que cada jogador da sala preparou para a partida (fundar partido, filiar-se, chapa e vice), os conflitos de sigla, nome e cor e o motivo da trava, quando há.
+         * @description O que cada jogador da sala preparou para a partida (fundar partido, filiar-se, chapa e vice, e fundar gestora com a expansão Gestoras ligada), os conflitos de sigla, nome e cor e o motivo da trava, quando há.
          */
         get: operations["get_preparations_api_simulation_preparations_get"];
         put?: never;
@@ -3257,6 +3281,26 @@ export interface paths {
          * @description Escolhe o que o jogador faz no começo da partida: fundar o Meu partido (com a chapa), convidar ou retirar o vice da chapa que fundou, entrar no partido que outro jogador preparou ou nada. Salvar a fundação não convida ninguém. Só vale em partida nova com a expansão ligada; recusa com 409 fora disso.
          */
         put: operations["set_player_preparation_api_simulation_players_me_preparation_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/players/me/fund-preparation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Preparar a gestora do jogador
+         * @description Escolhe se o jogador funda a Minha gestora no 1º dia da partida ou fica sem gestora; sem escolha salva, é sem gestora. Fundar exige a Minha gestora salva no perfil. Recusa com 409 com a partida em andamento ou salva selecionada; com a expansão Gestoras desligada a escolha fica guardada e é ignorada.
+         */
+        put: operations["set_player_fund_preparation_api_simulation_players_me_fund_preparation_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -7082,10 +7126,42 @@ export interface components {
             /** Performance Fee */
             performance_fee: number | string;
         };
+        /**
+         * FundIdentityDTO
+         * @description A identidade da gestora que o jogador funda, guardada no perfil: nome e sigla ficam fixos na partida.
+         */
+        FundIdentityDTO: {
+            /** Name */
+            name: string;
+            /** Ticker */
+            ticker: string;
+        };
         /** FundOfferRequest */
         FundOfferRequest: {
             /** Quotas */
             quotas: number;
+        };
+        /**
+         * FundPreparationDTO
+         * @description A gestora que um jogador da sala vai fundar no 1º dia da partida.
+         */
+        FundPreparationDTO: {
+            /** Nickname */
+            nickname: string;
+            /** Name */
+            name: string;
+            /** Ticker */
+            ticker: string;
+        };
+        /**
+         * FundPreparationKind
+         * @description O que o jogador prepara no lobby para a expansão Gestoras: fundar a própria gestora ou ficar sem.
+         * @enum {string}
+         */
+        FundPreparationKind: "FOUND" | "NONE";
+        /** FundPreparationRequest */
+        FundPreparationRequest: {
+            kind: components["schemas"]["FundPreparationKind"];
         };
         /**
          * FundSummaryDTO
@@ -10168,6 +10244,10 @@ export interface components {
             reserved: components["schemas"]["ReservedPartyDTO"][];
             /** Conflicts */
             conflicts: string[];
+            /** Funds */
+            funds: components["schemas"]["FundPreparationDTO"][];
+            /** Fund Locked Reason */
+            fund_locked_reason: string | null;
             /**
              * Pending Invites
              * @default 0
@@ -14531,6 +14611,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PartyIdentityDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_my_fund_api_settings_fund_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundIdentityDTO"] | null;
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    put_my_fund_api_settings_fund_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundIdentityDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundIdentityDTO"];
                 };
             };
             /** @description Unprocessable Content */
@@ -20405,6 +20565,48 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["PreparationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreparationsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_player_fund_preparation_api_simulation_players_me_fund_preparation_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundPreparationRequest"];
             };
         };
         responses: {

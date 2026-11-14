@@ -7,7 +7,11 @@ from pydantic import BaseModel, ConfigDict
 from backend import config
 from backend.config.paths import app_files_dir
 from backend.core import repository
-from backend.core.dto.preparation import PartyContributionDTO, PartyIdentityDTO
+from backend.core.dto.preparation import (
+    FundIdentityDTO,
+    PartyContributionDTO,
+    PartyIdentityDTO,
+)
 from backend.core.dto.strategy import StrategyParamValue
 from backend.core.dto.technical_indicators import IndicatorSettingsDTO
 from backend.core.dto.treasury import TreasuryCoverDTO
@@ -161,6 +165,27 @@ def put_my_party(client_id: ClientID, data: PartyIdentityDTO):
             "andam juntas."
         )
     repository.settings.set_my_party(UserManager.get_user_id(client_id), data)
+    return data
+
+
+@settings_router.get(
+    "/fund",
+    response_model=FundIdentityDTO | None,
+    summary="Obter a Minha gestora",
+    description="O nome e a sigla da gestora que o jogador funda nas partidas com a expansão Gestoras; nulo enquanto não salvou uma.",
+)
+def get_my_fund(client_id: ClientID):
+    return repository.settings.get_my_fund(UserManager.get_user_id(client_id))
+
+
+@settings_router.put(
+    "/fund",
+    response_model=FundIdentityDTO,
+    summary="Salvar a Minha gestora",
+    description="Grava o nome (3 a 40 letras) e a sigla (4 letras e 11, como ABCD11) da gestora do jogador no perfil. Valem a partir da próxima sala; na partida, nome e sigla não mudam depois de fundada.",
+)
+def put_my_fund(client_id: ClientID, data: FundIdentityDTO):
+    repository.settings.set_my_fund(UserManager.get_user_id(client_id), data)
     return data
 
 

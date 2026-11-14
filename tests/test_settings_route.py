@@ -122,15 +122,51 @@ def test_contribution_starts_at_zero_and_keeps_the_saved_amount(
     assert client.get("/api/settings/party/contribution").json() == {"amount": "2500"}
 
 
+def test_my_fund_starts_empty_and_keeps_the_saved_identity(client: TestClient) -> None:
+    assert client.get("/api/settings/fund").json() is None
+
+    saved = client.put(
+        "/api/settings/fund", json={"name": "  Aurora ", "ticker": "AURA11"}
+    )
+
+    assert saved.json() == {"name": "Aurora", "ticker": "AURA11"}
+    assert client.get("/api/settings/fund").json() == {
+        "name": "Aurora",
+        "ticker": "AURA11",
+    }
+
+
+@pytest.mark.parametrize(
+    "identity",
+    [
+        {"name": "Au", "ticker": "AURA11"},
+        {"name": "A" * 41, "ticker": "AURA11"},
+        {"name": "Aurora", "ticker": "AURA4"},
+        {"name": "Aurora", "ticker": "aura11"},
+        {"name": "Aurora", "ticker": "AUR111"},
+        {"name": "Aurora", "ticker": "AURAA11"},
+    ],
+)
+def test_my_fund_refuses_a_bad_name_or_ticker(
+    client: TestClient, stored: _FakeSettingsRepository, identity: dict[str, str]
+) -> None:
+    assert client.put("/api/settings/fund", json=identity).status_code == 422
+    assert "my_fund" not in stored.stored
+
+
 def test_put_of_the_preferences_keeps_the_profile(
     client: TestClient, stored: _FakeSettingsRepository, market: None
 ) -> None:
     client.put("/api/settings/party/contribution", json={"amount": "2500"})
     client.put("/api/settings/strategy-params/moving_average_cross", json=CROSS)
+    client.put("/api/settings/fund", json={"name": "Aurora", "ticker": "AURA11"})
+    stored.stored["fund_choice"] = "FOUND"
 
     client.put("/api/settings", json=PREFERENCES)
 
     assert stored.stored["party_contribution"] == "2500"
+    assert stored.stored["my_fund"] == {"name": "Aurora", "ticker": "AURA11"}
+    assert stored.stored["fund_choice"] == "FOUND"
     assert stored.stored["strategy_params"] == {"moving_average_cross": CROSS}
 
 

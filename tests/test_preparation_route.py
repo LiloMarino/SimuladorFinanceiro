@@ -3,19 +3,21 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from types import SimpleNamespace
 
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from backend.core import repository
-from backend.core.dto.preparation import PartyIdentityDTO
+from backend.core.dto.preparation import FundIdentityDTO, PartyIdentityDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import PreparationKind, VoterValue
+from backend.core.enum import FundPreparationKind, PreparationKind, VoterValue
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.government.room_preparation import RoomPreparation
+from backend.features.simulation.room_fund_preparation import RoomFundPreparation
 from backend.routes import simulation as routes
 from backend.routes.dependencies.auth import get_client_id
 from tests.fakes import client, simulation_settings
@@ -30,9 +32,23 @@ PARTY = PartyIdentityDTO(
 )
 
 
+FUND = FundIdentityDTO(name="Aurora", ticker="AURA11")
+
+
 class _Profile:
     def __init__(self) -> None:
         self.choice: dict[int, PreparationKind] = {}
+        self.fund: FundIdentityDTO | None = FUND
+        self.fund_choice: dict[int, FundPreparationKind] = {}
+
+    def get_my_fund(self, _user_id: int) -> FundIdentityDTO | None:
+        return self.fund
+
+    def get_fund_choice(self, user_id: int) -> FundPreparationKind:
+        return self.fund_choice.get(user_id, FundPreparationKind.NONE)
+
+    def set_fund_choice(self, user_id: int, kind: FundPreparationKind) -> None:
+        self.fund_choice[user_id] = kind
 
     def get_my_party(self, _user_id: int) -> PartyIdentityDTO:
         return PARTY
@@ -53,8 +69,14 @@ def profile(monkeypatch: pytest.MonkeyPatch) -> _Profile:
 
 @pytest.fixture
 def http(monkeypatch: pytest.MonkeyPatch, profile: _Profile) -> Iterator[TestClient]:
-    rules = simulation_settings().model_copy(update={"government_enabled": True})
+    rules = simulation_settings().model_copy(
+        update={"government_enabled": True, "funds_enabled": True}
+    )
     monkeypatch.setattr(SettingsManager, "_settings", rules)
+    monkeypatch.setattr(RoomFundPreparation, "_entries", {})
+    monkeypatch.setattr(
+        repository, "fund", SimpleNamespace(letters_taken_by_asset=lambda _t: False)
+    )
     monkeypatch.setattr(SettingsManager, "_selected_simulation_id", None)
     monkeypatch.setattr(SimulationManager, "_active_simulation", None)
     monkeypatch.setattr(RoomPreparation, "_entries", {})
@@ -108,3 +130,62 @@ def test_who_chose_no_party_stays_without_one(http: TestClient):
     http.get("/api/simulation/players/me/preparation")
 
     assert RoomPreparation.snapshot([ANA, BIA]).players == []
+
+
+def test_a_player_without_a_saved_choice_has_no_fund(http: TestClient):
+    http.get("/api/simulation/players/me/preparation")
+
+    assert http.get("/api/simulation/preparations").json()["funds"] == []
+
+
+def test_founding_a_fund_is_remembered_and_shown_to_the_room(
+    http: TestClient, profile: _Profile
+):
+    answer = http.put(
+        "/api/simulation/players/me/fund-preparation", json={"kind": "FOUND"}
+    )
+
+    assert answer.status_code == 200
+    assert profile.fund_choice == {ANA.id: FundPreparationKind.FOUND}
+    assert http.get("/api/simulation/preparations").json()["funds"] == [
+        {"nickname": "Ana", "name": "Aurora", "ticker": "AURA11"}
+    ]
+
+    http.put("/api/simulation/players/me/fund-preparation", json={"kind": "NONE"})
+
+    assert profile.fund_choice == {ANA.id: FundPreparationKind.NONE}
+    assert http.get("/api/simulation/preparations").json()["funds"] == []
+
+
+def test_founding_a_fund_without_a_saved_one_is_refused(
+    http: TestClient, profile: _Profile
+):
+    profile.fund = None
+
+    answer = http.put(
+        "/api/simulation/players/me/fund-preparation", json={"kind": "FOUND"}
+    )
+
+    assert answer.status_code == 409
+    assert profile.fund_choice == {}
+
+
+def test_the_fund_founder_of_the_last_room_comes_back_founding(
+    http: TestClient, profile: _Profile
+):
+    profile.fund_choice[ANA.id] = FundPreparationKind.FOUND
+
+    http.get("/api/simulation/players/me/preparation")
+
+    assert [
+        f["ticker"] for f in http.get("/api/simulation/preparations").json()["funds"]
+    ] == ["AURA11"]
+
+
+def test_a_taken_ticker_shows_up_among_the_conflicts(http: TestClient):
+    RoomFundPreparation.choose(BIA, FundPreparationKind.FOUND, FUND)
+
+    http.put("/api/simulation/players/me/fund-preparation", json={"kind": "FOUND"})
+
+    conflicts = http.get("/api/simulation/preparations").json()["conflicts"]
+    assert any("Ana e Bia" in message for message in conflicts)

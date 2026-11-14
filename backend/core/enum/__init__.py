@@ -461,6 +461,13 @@ class PreparationKind(Enum):
     WITHDRAW_VICE = "WITHDRAW_VICE"
 
 
+class FundPreparationKind(Enum):
+    """O que o jogador prepara no lobby para a expansão Gestoras: fundar a própria gestora ou ficar sem."""
+
+    FOUND = "FOUND"
+    NONE = "NONE"
+
+
 class TeamNaming(Enum):
     """Como a equipe é chamada: pelo nome da cor (Índigo) ou pelo número."""
 

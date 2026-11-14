@@ -20,6 +20,7 @@ from backend.core.dto.life import (
 from backend.core.dto.preparation import (
     FederationAnswerRequest,
     FederationOfferRequest,
+    FundPreparationRequest,
     MyPreparationDTO,
     PreparationRequest,
     PreparationsDTO,
@@ -44,6 +45,7 @@ from backend.core.dto.strategy import (
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     ComputerDifficulty,
+    FundPreparationKind,
     GameType,
     InitialAccount,
     LifeHistoryCategory,
@@ -72,6 +74,7 @@ from backend.features.realtime.schemas import (
     SimulationSelectedEventDTO,
 )
 from backend.features.simulation.life_history import history_page
+from backend.features.simulation.room_fund_preparation import RoomFundPreparation
 from backend.features.simulation.saved_bots import saved_bot_infos, saved_bots
 from backend.features.simulation.saved_simulation import describe
 from backend.features.simulation.simulation_loader import SimulationLoader
@@ -521,6 +524,7 @@ def remove_player(nickname: str, _: HostVerified):
     UserManager.remove_player(nickname)
     if removed is not None:
         RoomPreparation.drop(removed.id)
+        RoomFundPreparation.drop(removed.id)
         _notify_preparations()
 
 
@@ -567,8 +571,14 @@ def _room_humans() -> list[UserDTO]:
     return [p for p in UserManager.list_active_players() if not p.is_bot]
 
 
+def _preparations() -> PreparationsDTO:
+    """A preparação do partido com as gestoras e os conflitos de ambos."""
+    humans = _room_humans()
+    return RoomFundPreparation.apply(RoomPreparation.snapshot(humans), humans)
+
+
 def _notify_preparations() -> PreparationsDTO:
-    snapshot = RoomPreparation.snapshot(_room_humans())
+    snapshot = _preparations()
     notify("preparations_update", snapshot.to_json())
     return snapshot
 
@@ -577,13 +587,13 @@ def _notify_preparations() -> PreparationsDTO:
     "/preparations",
     response_model=PreparationsDTO,
     summary="Preparação dos jogadores no lobby",
-    description="O que cada jogador da sala preparou para a partida (fundar partido, filiar-se, chapa e vice), os conflitos de sigla, nome e cor e o motivo da trava, quando há.",
+    description="O que cada jogador da sala preparou para a partida (fundar partido, filiar-se, chapa e vice, e fundar gestora com a expansão Gestoras ligada), os conflitos de sigla, nome e cor e o motivo da trava, quando há.",
 )
 def get_preparations():
     """
     Lista a preparação da sala.
     """
-    return RoomPreparation.snapshot(_room_humans())
+    return _preparations()
 
 
 @simulation_router.get(
@@ -604,11 +614,19 @@ def get_my_preparation(client_id: ClientID):
     founds = (
         repository.settings.get_preparation_choice(user.id) is PreparationKind.FOUND
     )
-    if (
+    fund = repository.settings.get_my_fund(user.id)
+    fund_founds = (
+        repository.settings.get_fund_choice(user.id) is FundPreparationKind.FOUND
+    )
+    restored_party = (
         founds
         and identity is not None
         and RoomPreparation.restore(user, humans, identity)
-    ):
+    )
+    restored_fund = (
+        fund_founds and fund is not None and RoomFundPreparation.restore(user, fund)
+    )
+    if restored_party or restored_fund:
         _notify_preparations()
     return RoomPreparation.mine(user, humans)
 
@@ -648,6 +666,26 @@ def set_player_preparation(payload: PreparationRequest, client_id: ClientID):
         else PreparationKind.NONE
     )
     repository.settings.set_preparation_choice(user.id, remembered)
+    return _notify_preparations()
+
+
+@simulation_router.put(
+    "/players/me/fund-preparation",
+    response_model=PreparationsDTO,
+    summary="Preparar a gestora do jogador",
+    description="Escolhe se o jogador funda a Minha gestora no 1º dia da partida ou fica sem gestora; sem escolha salva, é sem gestora. Fundar exige a Minha gestora salva no perfil. Recusa com 409 com a partida em andamento ou salva selecionada; com a expansão Gestoras desligada a escolha fica guardada e é ignorada.",
+)
+def set_player_fund_preparation(payload: FundPreparationRequest, client_id: ClientID):
+    """
+    Troca a escolha da gestora do jogador na sala.
+    """
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    RoomFundPreparation.choose(
+        user, payload.kind, repository.settings.get_my_fund(user.id)
+    )
+    repository.settings.set_fund_choice(user.id, payload.kind)
     return _notify_preparations()
 
 

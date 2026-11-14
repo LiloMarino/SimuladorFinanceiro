@@ -4,13 +4,15 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
-from backend.core.dto.preparation import PartyIdentityDTO
+from backend.core.dto.preparation import FundIdentityDTO, PartyIdentityDTO
 from backend.core.dto.strategy import StrategyParamValue
-from backend.core.enum import PreparationKind, Profession
+from backend.core.enum import FundPreparationKind, PreparationKind, Profession
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.models.models import Users
 
 MY_PARTY_KEY = "my_party"
+MY_FUND_KEY = "my_fund"
+FUND_CHOICE_KEY = "fund_choice"
 PARTY_CONTRIBUTION_KEY = "party_contribution"
 STRATEGY_PARAMS_KEY = "strategy_params"
 PREPARATION_CHOICE_KEY = "preparation_choice"
@@ -20,6 +22,8 @@ PROFESSION_KEY = "profession"
 PROFILE_KEYS = frozenset(
     {
         MY_PARTY_KEY,
+        MY_FUND_KEY,
+        FUND_CHOICE_KEY,
         PARTY_CONTRIBUTION_KEY,
         STRATEGY_PARAMS_KEY,
         PREPARATION_CHOICE_KEY,
@@ -57,6 +61,26 @@ class SettingsRepository:
 
     def set_my_party(self, user_id: int, party: PartyIdentityDTO) -> None:
         self._set_key(user_id, MY_PARTY_KEY, party.model_dump(mode="json"))
+
+    def get_my_fund(self, user_id: int) -> FundIdentityDTO | None:
+        """A Minha gestora salva no perfil; nula enquanto o jogador não salvou uma."""
+        raw = self.get_by_user_id(user_id).get(MY_FUND_KEY)
+        return None if raw is None else FundIdentityDTO.model_validate(raw)
+
+    def set_my_fund(self, user_id: int, fund: FundIdentityDTO) -> None:
+        self._set_key(user_id, MY_FUND_KEY, fund.model_dump(mode="json"))
+
+    def get_fund_choice(self, user_id: int) -> FundPreparationKind:
+        """A última escolha da gestora no lobby; sem escolha salva, o jogador fica sem gestora."""
+        raw = self.get_by_user_id(user_id).get(FUND_CHOICE_KEY)
+        return (
+            FundPreparationKind.FOUND
+            if raw == FundPreparationKind.FOUND.value
+            else FundPreparationKind.NONE
+        )
+
+    def set_fund_choice(self, user_id: int, kind: FundPreparationKind) -> None:
+        self._set_key(user_id, FUND_CHOICE_KEY, kind.value)
 
     def get_party_contribution(self, user_id: int) -> Decimal:
         """A contribuição mensal que o jogador leva a cada partido; zero enquanto não salvou uma."""
