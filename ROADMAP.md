@@ -59,7 +59,6 @@
 | [**F81**](#f81) | Manutenção | CORS restrito à mesma origem | M27 · 4.5 | — | Baixo | Médio | ⏳ |
 | [**F90**](#f90) | Feature | Cenários | M25 · 4.4 | — | Alto | Bom | ⏳ |
 | [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.4 | — | Médio | Médio | ⏳ |
-| [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F104**](#f104) | Feature | Gestoras: co-gestores | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F110**](#f110) | Feature | Combinar estratégias | M25 · 4.4 | — | Médio | Bom | ⏳ |
@@ -91,7 +90,7 @@
 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | M18 · 4.2 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (32 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (33 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -118,6 +117,7 @@
 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.2 | — | — | — | ✅ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 | — | — | — | ✅ |
 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | M18 · 4.2 | — | — | — | ✅ |
+| [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | M18 · 4.2 | — | — | — | ✅ |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.2 | — | — | — | ✅ |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M18 · 4.2 | — | — | — | ✅ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | — | — | ✅ |
@@ -142,7 +142,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 12/20 concluídos
+> **Progresso:** 13/20 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -152,7 +152,7 @@
 | 4 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | — | ✅ Concluído |
 | 5 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | — | ✅ Concluído |
 | 6 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | — | ✅ Concluído |
-| 7 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | [F44](#f44) | ⏳ Pendente |
+| 7 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | — | ✅ Concluído |
 | 8 | [**F55**](#f55) | Feature | Modo aquisição hostil | [F102](#f102), [F103](#f103) | ⏳ Pendente |
 | 9 | [**F104**](#f104) | Feature | Gestoras: co-gestores | [F44](#f44) | ⏳ Pendente |
 | 10 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | [F44](#f44) | ⏳ Pendente |
@@ -260,7 +260,7 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | M18 · 4.2 · 7º | 1 | Médio | Bom | ⏳ |
+| [**F55**](#f55) | Feature | Modo aquisição hostil | M18 · 4.2 · 8º | 0 | Médio | Médio | ⏳ |
 | [**F104**](#f104) | Feature | Gestoras: co-gestores | M18 · 4.2 · 9º | 0 | Médio | Bom | ⏳ |
 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | M18 · 4.2 · 10º | 0 | Médio | Bom | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 · 11º | 1 | Alto | Médio | ⏳ |
@@ -312,7 +312,6 @@
 | **F81** | Manutenção | CORS restrito à mesma origem | — | — | M27 · 4.5 | [F6](#f6) | Baixo | Médio | Baixo | Médio |
 | **F90** | Feature | Cenários | N22 | D18 | M25 · 4.4 | — | Alto | Médio | Alto | Bom |
 | **F93** | Feature | Rumores antecipados | N31 | D18 | M25 · 4.4 | — | Médio | Médio | Médio | Médio |
-| **F103** | Feature | Gestoras: troca de gestor pela assembleia | N23 | — | M18 · 4.2 | [F44](#f44) | Médio | Médio | Alto | Bom |
 | **F104** | Feature | Gestoras: co-gestores | N23 | — | M18 · 4.2 | [F44](#f44) | Médio | Baixo | Médio | Bom |
 | **F105** | Feature | Gestoras: rendimentos mensais | N23 | — | M18 · 4.2 | [F44](#f44) | Médio | Médio | Médio | Bom |
 | **F110** | Feature | Combinar estratégias | N4 | D8 | M25 · 4.4 | — | Médio | Médio | Médio | Bom |
@@ -454,21 +453,6 @@
 **Fora deste card, como ideia futura:** rumor privado sorteado para um ou dois jogadores, que depende de uma caixa de entrada por jogador.
 
 **Aceite:** com a opção desligada nenhum rumor aparece; ligada, os rumores aparecem no jornal marcados como Rumor, de 3 a 10 pregões antes do fato; num teste com muitas partidas sorteadas as proporções ficam perto de 60/25/15; nenhum rumor traz ativo e direção juntos; duas partidas do mesmo período com sementes diferentes têm rumores falsos diferentes.
-
-<a id="f103"></a>
-**F103 — Gestoras: troca de gestor pela assembleia.** Serve N23; amplia a expansão Gestoras (F44). É o custo de abrir capital; a defesa é a recompra (F102) e comprar cotas com as taxas recebidas. O modo aquisição hostil (F55) se apoia nesta regra.
-
-**Regras.**
-
-1. **Convocar:** quem tem pelo menos 10% das cotas convoca a assembleia e já indica o novo gestor: ele mesmo ou um aliado que aceite o convite.
-2. **Votação:** dura 5 pregões. Cada cotista vota a favor ou contra, e o voto conta as cotas que ele tem no fim da janela, então comprar cotas durante a votação vira uma corrida entre quem quer trocar e quem defende. O gestor vota com as cotas dele; os bots se abstêm.
-3. **Resultado:** vence a maioria das cotas que votaram; empate mantém o gestor.
-4. **O gestor afastado** vira cotista comum: mantém as cotas e as taxas já recebidas, perde a operação e as taxas futuras, e só funda outra gestora depois de 6 meses de jogo.
-5. **Intervalo:** cada gestora tem no máximo uma assembleia a cada 3 meses, para a convocação não virar assédio permanente.
-
-**Plano.** Backend da assembleia: convocação, votos, apuração no fim do 5º pregão e a troca do gestor, que leva junto o acesso à conta da gestora. Aviso a todos os cotistas e manchete no jornal na convocação e no resultado. A tela de votação entra na sessão de canvas das Gestoras.
-
-**Aceite:** comprar cotas no último pregão da votação muda o resultado; empate mantém o gestor; o afastado não funda gestora antes de 6 meses.
 
 <a id="f104"></a>
 **F104 — Gestoras: co-gestores.** Serve N23; amplia a expansão Gestoras (F44). A gestora pode ter mais de um gestor: eles operam a mesma carteira pela troca de conta no caixa da topbar e dividem as taxas, como sócios.
@@ -738,6 +722,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F44** | Feature | Expansão Gestoras: fundar a gestora e abrir capital | N23 | — | M18 · 4.2 |
 | **F101** | Feature | Carteira separada do jogador | N23 | D9 | M18 · 4.2 |
 | **F102** | Feature | Gestoras: emissão de novas cotas e recompra | N23 | — | M18 · 4.2 |
+| **F103** | Feature | Gestoras: troca de gestor pela assembleia | N23 | — | M18 · 4.2 |
 | **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.2 |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M18 · 4.2 |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 |
@@ -767,6 +752,21 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 <a id="f102"></a>
 **F102 — Gestoras: emissão de novas cotas e recompra.** Emissão com preço fixo, preferência de 10 pregões e sobra de 5, recompra pelo livro com queima das cotas e prévias calculadas no backend; página das gestoras na documentação.
+
+<a id="f103"></a>
+**F103 — Gestoras: troca de gestor pela assembleia.** Serve N23; amplia a expansão Gestoras (F44). É o custo de abrir capital; a defesa é a recompra (F102) e comprar cotas com as taxas recebidas. O modo aquisição hostil (F55) se apoia nesta regra.
+
+**Regras.**
+
+1. **Convocar:** quem tem pelo menos 10% das cotas convoca a assembleia e já indica o novo gestor: ele mesmo ou um aliado que aceite o convite.
+2. **Votação:** dura 5 pregões. Cada cotista vota a favor ou contra, e o voto conta as cotas que ele tem no fim da janela, então comprar cotas durante a votação vira uma corrida entre quem quer trocar e quem defende. O gestor vota com as cotas dele; os bots se abstêm.
+3. **Resultado:** vence a maioria das cotas que votaram; empate mantém o gestor.
+4. **O gestor afastado** vira cotista comum: mantém as cotas e as taxas já recebidas, perde a operação e as taxas futuras, e só funda outra gestora depois de 6 meses de jogo.
+5. **Intervalo:** cada gestora tem no máximo uma assembleia a cada 3 meses, para a convocação não virar assédio permanente.
+
+**Plano.** Backend da assembleia: convocação, votos, apuração no fim do 5º pregão e a troca do gestor, que leva junto o acesso à conta da gestora. Aviso a todos os cotistas e manchete no jornal na convocação e no resultado. A tela de votação entra na sessão de canvas das Gestoras.
+
+**Aceite:** comprar cotas no último pregão da votação muda o resultado; empate mantém o gestor; o afastado não funda gestora antes de 6 meses.
 
 <a id="f179"></a>
 **F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: depois do selo de pausa vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Com as Gestoras, governo, gestora e corrida ligados juntos passam a ser o caso comum, então a topbar é resolvida na 4.2, no mesmo desenho das Gestoras (F44). A referência é 1920 de largura, e em 1366 nada pode quebrar; o estado de teste é corrida, governo e gestora ligados, pausa com o motivo mais longo e o 100× destacado.
