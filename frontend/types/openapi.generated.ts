@@ -7420,7 +7420,7 @@ export interface components {
             role: ("manager" | "comanager") | null;
         };
         /** @enum {string} */
-        FundAssemblyBlock: "share" | "interval" | "pending" | "manager" | "unlisted";
+        FundAssemblyBlock: "share" | "interval" | "pending" | "manager" | "unlisted" | "grace";
         /** FundAssemblyConveneRequest */
         FundAssemblyConveneRequest: {
             /** Candidate Nickname */

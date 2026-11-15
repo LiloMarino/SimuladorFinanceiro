@@ -59,6 +59,7 @@ describe("blockReason", () => {
 
   it("o intervalo de 3 meses diz quando a próxima pode ser convocada", () => {
     expect(blockReason(panel({ block: "interval", next_allowed_on: "2026-04-10" }))).toContain("a cada 3 meses");
+    expect(blockReason(panel({ block: "grace", next_allowed_on: "2027-01-01" }))).toContain("depois da carência");
   });
 
   it("cada motivo tem frase própria", () => {

@@ -173,6 +173,12 @@ def test_stance_of_the_manager_is_always_against():
     ("kwargs", "expected"),
     [
         ({"listed": False}, ("unlisted", None)),
+        (
+            {"listed": False, "grace_ends": date(2020, 7, 1)},
+            ("grace", date(2020, 7, 1)),
+        ),
+        ({"grace_ends": date(2020, 1, 7)}, ("grace", date(2020, 1, 7))),
+        ({"grace_ends": date(2020, 1, 6)}, (None, None)),
         ({"is_manager": True}, ("manager", None)),
         ({"active": True}, ("pending", None)),
         ({"quotas": Decimal(99)}, ("share", None)),
@@ -227,6 +233,19 @@ def test_convening_needs_ten_percent_of_the_quotas(memory: MemoryFunds):
 
     with pytest.raises(ConflictError, match="10%"):
         setup.book.convene_assembly(TICKER, small, None)
+
+
+def test_convening_waits_for_the_end_of_the_grace_period(memory: MemoryFunds):
+    setup = _assemblable(memory)
+    setup.book._assemblies.grace_ends = date(2020, 7, 1)
+
+    with pytest.raises(ConflictError, match="depois da carência, em 01/07/2020"):
+        setup.book.convene_assembly(TICKER, ANA, None)
+
+    # No dia em que a carência acaba a assembleia já abre
+    setup.book._assemblies.grace_ends = TODAY
+    setup.book.convene_assembly(TICKER, ANA, None)
+    assert setup.book.get(TICKER).assembly is not None
 
 
 def test_the_manager_does_not_convene_against_himself(memory: MemoryFunds):

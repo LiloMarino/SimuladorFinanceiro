@@ -20,6 +20,8 @@ from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 
+MIN_TAKEOVER_PLAYERS = 2
+
 
 class RoomFundPreparation:
     # user_id -> a identidade da gestora que o jogador funda; quem fica sem gestora não tem entrada
@@ -87,10 +89,12 @@ class RoomFundPreparation:
         ]
 
     @classmethod
-    def conflicts(cls, humans: list[UserDTO]) -> list[str]:
-        """Nome ou sigla repetidos entre quem funda, e sigla cujas quatro letras já são de um ativo."""
+    def conflicts(cls, humans: list[UserDTO], *, takeover: bool = False) -> list[str]:
+        """Nome ou sigla repetidos entre quem funda, sigla cujas quatro letras já são de um ativo e, no modo aquisição hostil, quem ficou sem gestora."""
         founding = cls.prepared(humans)
         messages: list[str] = []
+        if takeover:
+            messages.extend(_takeover_conflicts(humans, founding))
         for index, (user, identity) in enumerate(founding):
             if repository.fund.letters_taken_by_asset(identity.ticker):
                 messages.append(
@@ -125,21 +129,41 @@ class RoomFundPreparation:
                     )
                     for user, identity in cls.prepared(humans)
                 ],
-                "fund_conflicts": cls.conflicts(humans),
+                "fund_conflicts": cls.conflicts(
+                    humans, takeover=SettingsManager.get().fund_takeover_enabled
+                ),
                 "fund_locked_reason": reason,
             }
         )
 
     @classmethod
-    def ensure_ready(cls, humans: list[UserDTO], *, enabled: bool) -> None:
-        """Conferido ao iniciar com a expansão ligada: nenhuma gestora preparada repete nome ou sigla, nem usa letras de um ativo."""
+    def ensure_ready(
+        cls, humans: list[UserDTO], *, enabled: bool, takeover: bool = False
+    ) -> None:
+        """Conferido ao iniciar com a expansão ligada: nenhuma gestora preparada repete nome ou sigla, nem usa letras de um ativo; no modo aquisição hostil, todo jogador funda a dele."""
         if not enabled:
             return
-        conflicts = cls.conflicts(humans)
+        conflicts = cls.conflicts(humans, takeover=takeover)
         if conflicts:
             raise ConflictError(
                 "Há gestoras em conflito na preparação: " + " ".join(conflicts)
             )
+
+
+def _takeover_conflicts(
+    humans: list[UserDTO], founding: list[tuple[UserDTO, FundIdentityDTO]]
+) -> list[str]:
+    """No modo aquisição hostil toda gestora é de um jogador e há ao menos dois deles."""
+    messages: list[str] = []
+    if len(humans) < MIN_TAKEOVER_PLAYERS:
+        messages.append("O modo aquisição hostil precisa de ao menos dois jogadores.")
+    founders = {user.id for user, _ in founding}
+    messages.extend(
+        f"{user.nickname}: no modo aquisição hostil todo jogador funda a própria gestora."
+        for user in sorted(humans, key=_by_id)
+        if user.id not in founders
+    )
+    return messages
 
 
 def _by_id(user: UserDTO) -> int:

@@ -126,8 +126,11 @@ def convene_block(
     active: bool,
     last_end: date | None,
     today: date,
+    grace_ends: date | None = None,
 ) -> tuple[FundAssemblyBlock | None, date | None]:
-    """Por que alguém não pode convocar agora, e quando o intervalo libera; nulo quando pode."""
+    """Por que alguém não pode convocar agora, e quando o intervalo ou a carência libera; nulo quando pode."""
+    if grace_ends is not None and today < grace_ends:
+        return "grace", grace_ends
     if not listed:
         return "unlisted", None
     if is_manager:
@@ -155,10 +158,13 @@ class FundAssemblies:
         simulation_id: int,
         engine: SimulationEngine,
         participants: Callable[[], list[UserDTO]],
+        grace_ends: date | None = None,
     ) -> None:
         self._simulation_id = simulation_id
         self._engine = engine
         self._participants = participants
+        # No modo aquisição hostil a assembleia só abre a partir deste dia; nulo, sem carência
+        self.grace_ends = grace_ends
 
     # =========================
     # Estado gravado
@@ -229,6 +235,7 @@ class FundAssemblies:
             active=fund.assembly is not None,
             last_end=last.closed_on if last else None,
             today=today,
+            grace_ends=self.grace_ends,
         )
 
     def convene(
@@ -556,6 +563,10 @@ def _block_message(block: FundAssemblyBlock, next_allowed: date | None) -> str:
             return "A gestora já tem uma assembleia em andamento."
         case "share":
             return f"Convocar exige {CONVENE_SHARE:.0%} das cotas da gestora."
+        case "grace" if next_allowed is not None:
+            return (
+                f"A assembleia só abre depois da carência, em {next_allowed:%d/%m/%Y}."
+            )
         case "interval" if next_allowed is not None:
             return (
                 f"A gestora aceita nova assembleia a partir de {next_allowed:%d/%m/%Y}."

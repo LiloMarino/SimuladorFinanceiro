@@ -330,7 +330,9 @@ class FundIssuanceStatusDTO(FundIssuanceDTO):
 
 
 type FundAssemblyStance = Literal["favor", "against", "abstain"]
-type FundAssemblyBlock = Literal["share", "interval", "pending", "manager", "unlisted"]
+type FundAssemblyBlock = Literal[
+    "share", "interval", "pending", "manager", "unlisted", "grace"
+]
 
 
 class FundAssemblyVoterDTO(BaseDTO):

@@ -274,6 +274,7 @@ class FundBook:
         publish: Callable[[date, Headline], None] | None = None,
         frozen_until: Callable[[int], date | None] | None = None,
         participants: Callable[[], list[UserDTO]] | None = None,
+        grace_ends: date | None = None,
     ) -> None:
         self._simulation_id = simulation_id
         self._engine = engine
@@ -288,7 +289,7 @@ class FundBook:
         self._maker = FundMaker(engine.matching_engine, accounts)
         self._offer = FundOffer(engine.matching_engine, accounts)
         self._assemblies = FundAssemblies(
-            simulation_id, engine, lambda: self.participants()
+            simulation_id, engine, lambda: self.participants(), grace_ends
         )
         self._comanagers = FundComanagers(lambda: self.participants())
         engine.broker.on_fund_offer_sale = self._record_offer_sale

@@ -40,6 +40,10 @@ export function blockReason(panel: Panel): string | null {
       return "O gestor não convoca assembleia contra si mesmo.";
     case "unlisted":
       return "A assembleia só existe depois da oferta pública.";
+    case "grace":
+      return panel.next_allowed_on === null
+        ? "A assembleia só abre depois da carência."
+        : `A assembleia só abre depois da carência, em ${displayIsoDate(panel.next_allowed_on)}.`;
   }
 }
 

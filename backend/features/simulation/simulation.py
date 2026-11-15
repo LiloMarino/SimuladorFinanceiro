@@ -181,6 +181,7 @@ from backend.features.credit.overview import (
     build_prepayment_preview,
 )
 from backend.features.credit.overview import build_quote as build_loan_quote
+from backend.features.credit.price import add_months
 from backend.features.economy.growth import (
     MacroCourse,
     history_dollar,
@@ -436,6 +437,10 @@ class Simulation:
                 lambda day, headline: news.publish(settings.id, day, headline),
                 self._manager_frozen_until,
                 lambda: repository.simulation_player.participants(settings.id),
+                # No modo aquisição hostil a assembleia espera o fim da carência
+                add_months(settings.start_date, settings.fund_grace_months)
+                if settings.fund_takeover_enabled
+                else None,
             )
             if settings.funds_enabled and backtest is None
             else None

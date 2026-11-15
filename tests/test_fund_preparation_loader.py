@@ -125,3 +125,63 @@ def test_a_saved_match_does_not_found_again():
     assert sim._funds is not None
     assert [f.ticker for f in sim._funds.funds()] == ["AURA11"]
     assert RoomFundPreparation.prepared([ana, bia]) == []
+
+
+# =========================
+# Modo aquisição hostil
+# =========================
+
+
+def takeover_rules():
+    return rules(funds_enabled=True, fund_takeover_enabled=True)
+
+
+def test_in_takeover_mode_the_whole_wallet_goes_into_the_fund_on_day_one():
+    ana, bia = person("Ana"), person("Bia")
+    prepare(ana, "Aurora", "AURA11")
+    prepare(bia, "Brisa", "BRIS11")
+
+    settings = takeover_rules()
+    SimulationLoader.create(settings)
+
+    sim = SimulationManager.get_active_simulation()
+    assert sim._funds is not None
+    for user, ticker in ((ana, "AURA11"), (bia, "BRIS11")):
+        fund = sim._funds.get(ticker)
+        # R$ 10.000 ao PL inicial de R$ 100 por cota são 100 cotas
+        assert fund.account.quotas == settings.starting_cash / 100
+        assert sim._engine.get_cash(fund.account.client_id) == settings.starting_cash
+        assert sim._engine.get_cash(user.client_id) == Decimal(0)
+
+
+def test_in_takeover_mode_every_player_must_found_a_fund():
+    ana, _bia = person("Ana"), person("Bia")
+    prepare(ana, "Aurora", "AURA11")
+
+    detail = refusal(lambda: SimulationLoader.create(takeover_rules()))
+
+    assert "Bia: no modo aquisição hostil todo jogador funda" in detail
+    assert not SimulationManager.has_active_simulation()
+
+
+def test_takeover_mode_needs_at_least_two_players():
+    ana = person("Ana")
+    prepare(ana, "Aurora", "AURA11")
+
+    detail = refusal(lambda: SimulationLoader.create(takeover_rules()))
+
+    assert "ao menos dois jogadores" in detail
+    assert not SimulationManager.has_active_simulation()
+
+
+def test_the_lobby_lists_who_is_missing_a_fund_in_takeover_mode(monkeypatch):
+    ana, bia = person("Ana"), person("Bia")
+    prepare(ana, "Aurora", "AURA11")
+    monkeypatch.setattr(SettingsManager, "_settings", takeover_rules())
+
+    conflicts = RoomFundPreparation.conflicts([ana, bia], takeover=True)
+
+    assert conflicts == [
+        "Bia: no modo aquisição hostil todo jogador funda a própria gestora."
+    ]
+    assert RoomFundPreparation.conflicts([ana, bia]) == []

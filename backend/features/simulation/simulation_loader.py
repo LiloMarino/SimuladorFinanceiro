@@ -3,7 +3,7 @@ from datetime import date
 from decimal import Decimal
 
 from backend.core import repository
-from backend.core.dto.fund import FundFoundRequest
+from backend.core.dto.fund import FundContributionRequest, FundFoundRequest
 from backend.core.dto.simulation import (
     SimulationDTO,
     SimulationSettingsDTO,
@@ -89,7 +89,11 @@ class SimulationLoader:
         RoomPreparation.ensure_ready(humans)
         if settings.uses_professions:
             cls._ensure_commissioned_parties(humans)
-        RoomFundPreparation.ensure_ready(humans, enabled=settings.funds_enabled)
+        RoomFundPreparation.ensure_ready(
+            humans,
+            enabled=settings.funds_enabled,
+            takeover=settings.fund_takeover_enabled,
+        )
         # As regras de agora valem para cada bot antes de a partida ser gravada
         validate_room_bots(settings.start_date)
         bots = UserManager.room_bots()
@@ -142,10 +146,10 @@ class SimulationLoader:
             random_seed=repository.simulation.get_random_seed(simulation_id),
         )
         SimulationManager.register_simulation(sim)
-        # Quem escolheu fundar leva a gestora vazia (sem cotas, fechada, taxas zero) já no 1º dia
+        # Quem escolheu fundar leva a gestora (fechada, taxas zero) já no 1º dia
         if settings.funds_enabled:
             for founder, identity in founders:
-                sim.found_fund(
+                fund = sim.found_fund(
                     founder,
                     FundFoundRequest(
                         name=identity.name,
@@ -154,6 +158,13 @@ class SimulationLoader:
                         performance_fee=Decimal(0),
                     ),
                 )
+                # No modo aquisição hostil toda a carteira do jogador entra na gestora no 1º dia
+                if settings.fund_takeover_enabled:
+                    sim.contribute_to_fund(
+                        founder,
+                        fund.id,
+                        FundContributionRequest(cash=sim.get_cash(founder.client_id)),
+                    )
         # Cada bot joga a estratégia dele desde o primeiro pregão que o relógio roda
         for bot, config in bots:
             sim.set_my_strategy(bot, config.strategy_key, config.params)

@@ -21743,7 +21743,8 @@
           "interval",
           "pending",
           "manager",
-          "unlisted"
+          "unlisted",
+          "grace"
         ]
       },
       "FundAssemblyConveneRequest": {
