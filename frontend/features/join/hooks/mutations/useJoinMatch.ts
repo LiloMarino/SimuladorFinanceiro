@@ -13,11 +13,13 @@ export function useJoinMatch() {
       color,
       team,
       profession,
+      party,
     }: {
       color: string;
       team?: number | undefined;
       profession?: Profession | undefined;
-    }) => apiFetch<void>("/api/simulation/join", { method: "POST", body: { color, team, profession } }),
+      party?: string | undefined;
+    }) => apiFetch<void>("/api/simulation/join", { method: "POST", body: { color, team, profession, party } }),
     onSuccess: async (_, { color }) => {
       saveColorPreference(color);
       await queryClient.invalidateQueries({ queryKey: queryKeys.authSession() });

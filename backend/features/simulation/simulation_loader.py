@@ -10,6 +10,7 @@ from backend.core.dto.simulation import (
     SimulationStatusResponse,
     SimulationSummaryDTO,
 )
+from backend.core.dto.user import UserDTO
 from backend.core.enum import PlayerGrouping, Profession
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -60,6 +61,22 @@ class SimulationLoader:
             for user_id in user_ids
         }
 
+    @staticmethod
+    def _ensure_commissioned_parties(humans: list[UserDTO]) -> None:
+        """Conferido ao iniciar: todo Comissionado da sala leva o partido de uma sigla que a partida terá."""
+        valid = RoomPreparation.party_abbrs(humans)
+        parties = UserManager.chosen_parties()
+        stale = [
+            p.nickname
+            for p in humans
+            if UserManager.get_profession(p.id) is Profession.COMMISSIONED
+            and parties.get(p.id) not in valid
+        ]
+        if stale:
+            raise ConflictError(
+                f"Escolha de novo o partido do Comissionado: {', '.join(stale)}."
+            )
+
     @classmethod
     def create(cls, settings: SimulationSettingsDTO) -> SimulationDTO:
         """Persiste, instancia e inicia uma nova simulação com quem está na sala."""
@@ -70,6 +87,8 @@ class SimulationLoader:
             UserManager.ensure_teams_ready({})
         humans = [p for p in UserManager.list_active_players() if not p.is_bot]
         RoomPreparation.ensure_ready(humans)
+        if settings.uses_professions:
+            cls._ensure_commissioned_parties(humans)
         RoomFundPreparation.ensure_ready(humans, enabled=settings.funds_enabled)
         # As regras de agora valem para cada bot antes de a partida ser gravada
         validate_room_bots(settings.start_date)
@@ -83,6 +102,7 @@ class SimulationLoader:
             room_colors,
             UserManager.chosen_teams() if in_teams else None,
             UserManager.chosen_professions() if settings.uses_professions else None,
+            UserManager.chosen_parties() if settings.uses_professions else None,
         )
         portfolios = repository.portfolio.open(
             simulation_id,
@@ -196,6 +216,13 @@ class SimulationLoader:
             if in_teams
             else None,
             {user_id: room_professions[user_id] for user_id in newcomers}
+            if summary.uses_professions
+            else None,
+            {
+                user_id: party
+                for user_id, party in UserManager.chosen_parties().items()
+                if user_id in newcomers
+            }
             if summary.uses_professions
             else None,
         )

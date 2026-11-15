@@ -5,6 +5,7 @@ import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { GroupingBadge } from "@/shared/components/grouping-badge";
 import { ColorSwatchPicker } from "@/shared/components/color-swatch-picker";
 import { ProfessionBadge } from "@/shared/components/profession-badge";
+import { CommissionedPartyPicker } from "@/shared/components/commissioned-party-picker";
 import { ProfessionCards } from "@/shared/components/profession-cards";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { TeamGrid } from "@/shared/components/team-grid";
@@ -27,6 +28,7 @@ import { toCentsString } from "@/shared/lib/utils/display";
 import { LoadingPage } from "@/pages/loading";
 import type { Profession, RoomPlayer, SimulationData } from "@/types";
 import { useJoinMatch } from "../hooks/mutations/useJoinMatch";
+import { useMatchParties } from "../hooks/queries/useMatchParties";
 import { useMatchPlayers } from "../hooks/queries/useMatchPlayers";
 
 /** Tela de quem chegou com a partida em andamento: escolhe uma cor que sobrou e entra jogando. */
@@ -81,6 +83,10 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
   // Com profissões a escolha também é obrigatória: quem entra decide o que faz da vida
   const withProfessions = match.game_type === "FINANCIAL_INDEPENDENCE" && match.salary_mode === "PROFESSIONS";
   const [profession, setProfession] = useState<Profession | null>(null);
+  // O Comissionado escolhe também o partido, entre os da partida
+  const commissioned = profession === "COMMISSIONED";
+  const [party, setParty] = useState<string | null>(null);
+  const { data: parties } = useMatchParties(commissioned);
 
   const isFree = (color: string | null): color is string => color !== null && !players.some((p) => p.color === color);
   const firstFree = PLAYER_COLORS.find((c) => isFree(c.key))?.key;
@@ -186,6 +192,17 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
                     setProfession(next);
                   }}
                 />
+                {commissioned && (
+                  <CommissionedPartyPicker
+                    options={(parties ?? []).map((abbr) => ({ abbr, color: null }))}
+                    value={party}
+                    disabled={isPending}
+                    onChange={(next) => {
+                      reset();
+                      setParty(next);
+                    }}
+                  />
+                )}
               </div>
             )}
 
@@ -201,10 +218,20 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
               <Button
                 size="lg"
                 disabled={
-                  !selected || isPending || (inTeams && team === null) || (withProfessions && profession === null)
+                  !selected ||
+                  isPending ||
+                  (inTeams && team === null) ||
+                  (withProfessions && profession === null) ||
+                  (commissioned && party === null)
                 }
                 onClick={() =>
-                  selected && join({ color: selected, team: team ?? undefined, profession: profession ?? undefined })
+                  selected &&
+                  join({
+                    color: selected,
+                    team: team ?? undefined,
+                    profession: profession ?? undefined,
+                    party: commissioned ? (party ?? undefined) : undefined,
+                  })
                 }
               >
                 {isPending ? <Spinner /> : <DoorOpen />}

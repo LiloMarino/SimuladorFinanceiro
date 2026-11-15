@@ -16,7 +16,9 @@ Depois da oferta pública inicial, o gestor pode **emitir cotas novas** pelo bot
 - **Preferência (10 pregões):** só quem já tem cotas compra, até a proporção que tinha no anúncio. Ex.: com 20% das cotas numa emissão de 1.000, o direito é de 200 cotas. Comprar cotas no mercado depois do anúncio não dá direito.
 - **Sobra (5 pregões):** o que ninguém comprou na preferência abre a todos, pelo livro de ofertas, ao mesmo preço fixo. Cada bot compra no máximo 20% da gestora.
 - **O que não vende não nasce:** ao fim dos 15 pregões, as cotas que sobraram deixam de existir.
-- **O dinheiro vai para o caixa da gestora.**
+- **O dinheiro vai para o caixa da gestora**, menos a comissão dos Banqueiros de ofertas, se a sala tiver algum.
+
+**Comissão dos Banqueiros de ofertas.** Cada oferta pública e cada emissão paga **1% do valor captado** aos jogadores com a profissão [Banqueiro de ofertas](lobby.md), em partes iguais, e o 1% sai do caixa da gestora: o comprador paga o mesmo. Ex.: uma captação de R$ 100.000,00 deixa R$ 99.000,00 na gestora e paga R$ 1.000,00 ao Banqueiro; com dois Banqueiros, cada um recebe R$ 500,00. Sem Banqueiro na sala, nada é descontado. O diálogo de emissão mostra a comissão antes de confirmar.
 
 Quem não compra não perde: como o preço é o patrimônio por cota do dia, o patrimônio por cota de quem não comprou fica igual antes e depois da emissão. O que muda é a parte dele no total, que diminui. Por isso o gestor vê o aviso de controle: com menos de 50%, os outros cotistas podem juntar mais votos que ele numa assembleia.
 

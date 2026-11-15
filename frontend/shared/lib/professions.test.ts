@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { availableProfessions, PROFESSIONS, visibleProfession, type RoomRules } from "./professions";
+import {
+  availableBotProfessions,
+  availableProfessions,
+  PROFESSIONS,
+  visibleProfession,
+  type RoomRules,
+} from "./professions";
 
 const room = (overrides: Partial<RoomRules> = {}): RoomRules => ({
+  funds_enabled: true,
   government_enabled: true,
   inflation_adjusted: true,
   monthly_salary: "5000",
@@ -33,7 +40,7 @@ describe("visibleProfession", () => {
 });
 
 describe("availableProfessions", () => {
-  it("na sala com correção pela inflação oferece as doze", () => {
+  it("na sala com correção pela inflação e as duas expansões oferece todas", () => {
     expect(availableProfessions(room())).toHaveLength(Object.keys(PROFESSIONS).length);
     expect(availableProfessions(room())).toContain("FREELANCER");
   });
@@ -43,6 +50,17 @@ describe("availableProfessions", () => {
     const without = availableProfessions(room({ inflation_adjusted: false }));
     expect(without).not.toContain("FREELANCER");
     expect(without).toEqual(withInflation.filter((profession) => profession !== "FREELANCER"));
+  });
+
+  it("sem a expansão a profissão dela some", () => {
+    expect(availableProfessions(room({ government_enabled: false }))).not.toContain("COMMISSIONED");
+    expect(availableProfessions(room({ funds_enabled: false }))).not.toContain("OFFERS_BANKER");
+    expect(availableProfessions(room({ funds_enabled: false }))).toContain("COMMISSIONED");
+  });
+
+  it("o bot não recebe o Comissionado, que segue o partido escolhido pelo jogador", () => {
+    expect(availableBotProfessions(room())).not.toContain("COMMISSIONED");
+    expect(availableBotProfessions(room())).toContain("OFFERS_BANKER");
   });
 });
 

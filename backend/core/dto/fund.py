@@ -522,6 +522,8 @@ class FundIssuancePreviewDTO(BaseDTO):
     price: Decimal
     # Dinheiro que entra no caixa se todas as cotas forem vendidas
     raised: Decimal
+    # A parte de `raised` que vai aos Banqueiros de ofertas da partida; zero sem Banqueiro
+    commission: Decimal
     total_after: Decimal
     # Maior emissão permitida, em cotas
     limit: Decimal

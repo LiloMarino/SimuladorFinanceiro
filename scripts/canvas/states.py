@@ -286,9 +286,9 @@ TIMES = chr(0xD7)
 
 PROFESSION_NAMES = re.compile(
     r"^(CLT|Servidor|Empreendedor|Aposentado|Auxílio|Locador|Exportador|Bancário"
-    r"|Autônomo|Corretor|Herdeiro|Recém-formado)\b"
+    r"|Autônomo|Corretor|Herdeiro|Recém-formado|Comissionado|Banqueiro de ofertas)\b"
 )
-# As profissões da sala: o Autônomo só existe com a renda corrigida pela inflação
+# As profissões da sala sem expansões: o Autônomo só existe com a renda corrigida pela inflação
 PROFESSION_COUNT = 12
 
 

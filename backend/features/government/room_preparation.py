@@ -461,6 +461,18 @@ class RoomPreparation:
         return entry
 
     @classmethod
+    def party_abbrs(cls, humans: list[UserDTO]) -> frozenset[str]:
+        """As siglas que a partida terá: as do computador e as dos partidos que quem está na sala preparou."""
+        present = {u.id for u in humans}
+        with cls._lock:
+            founded = {
+                e.found.abbr
+                for uid, e in cls._entries.items()
+                if uid in present and e.found
+            }
+        return frozenset(founded | set(house.COMPUTER_KEYS))
+
+    @classmethod
     def snapshot(cls, humans: list[UserDTO]) -> PreparationsDTO:
         """A preparação de quem está na sala, com os conflitos e o motivo da trava."""
         present = {u.id: u for u in humans}

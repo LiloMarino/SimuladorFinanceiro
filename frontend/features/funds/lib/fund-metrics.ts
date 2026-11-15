@@ -125,6 +125,18 @@ export const PREFERENCE_RIGHT: MetricInfo = {
   format: (value) => `${value}`,
 };
 
+export const OFFER_COMMISSION: MetricInfo = {
+  label: "Comissão dos banqueiros de ofertas",
+  description: "O 1% da captação que vai para os jogadores com essa profissão",
+  definition:
+    "Cada oferta pública ou emissão de cotas paga 1% do valor captado aos jogadores que são Banqueiros de ofertas, divididos em partes iguais. O 1% sai do que a gestora receberia: o comprador paga o mesmo.",
+  example:
+    "Ex.: uma captação de R$ 100.000,00 deixa R$ 99.000,00 no caixa da gestora e paga R$ 1.000,00 aos banqueiros.",
+  reading:
+    "Sem nenhum Banqueiro de ofertas na sala, nada é descontado e o caixa recebe o valor inteiro. O valor mostrado vale para a captação completa; vendendo menos, a comissão cai na mesma proporção.",
+  format: (value) => `${value}`,
+};
+
 export const BUYBACK_PREMIUM_COST: MetricInfo = {
   label: "Custo do ágio",
   description: "O quanto a recompra paga acima do valor justo das cotas",

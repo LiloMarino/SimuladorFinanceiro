@@ -313,6 +313,7 @@ def _living(
     fake._layoff_factor = partial(Simulation._layoff_factor, living)
     fake._layoff_factor_for = partial(Simulation._layoff_factor_for, living)
     fake._profession_of = partial(Simulation._profession_of, living)
+    fake._with_party = partial(Simulation._with_party, living)
     fake._life_budget = partial(Simulation._life_budget, living)
     fake._notify_life_event = partial(Simulation._notify_life_event, living)
     return living, LifeBudget.of(settings)

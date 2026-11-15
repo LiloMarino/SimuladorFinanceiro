@@ -152,6 +152,7 @@ from backend.core.professions import (
     IncomeDriver,
     LifeLevers,
     RealRaise,
+    is_party_bound,
 )
 from backend.core.rates import period_rate
 from backend.core.repository.strategy import LogFilter
@@ -354,6 +355,10 @@ class Simulation:
         )
         # A profissão de cada jogador (user_id), lida da partida quando ela joga com profissões
         self._professions: dict[int, Profession] = {}
+        # O partido de cada Comissionado (user_id) e os Banqueiros de ofertas da partida; lidos
+        # da partida na primeira vez e refeitos quando entra jogador
+        self._parties: dict[int, str] = {}
+        self._offer_bankers: list[UUID] | None = None
         self._current_date = resume_from or self.settings.start_date - timedelta(days=1)
         self._engine = SimulationEngine(
             self._current_date,
@@ -420,6 +425,8 @@ class Simulation:
         # O caixa da gestora chega, pelo tempo real, ao gestor que a gere
         if self._funds is not None:
             self._engine.use_account_route(self._funds.audience_of)
+            # Toda captação de gestora paga a comissão aos Banqueiros de ofertas da partida
+            self._engine.use_offer_bankers(self._bankers_of_offers)
 
         # No livro de ofertas, a conta pessoal e as gestoras de um jogador têm o mesmo dono
         self._engine.matching_engine.owner_of = self._account_owner
@@ -1303,7 +1310,12 @@ class Simulation:
 
     def _life_budget(self, life: LifeBudget, user_id: int) -> LifeBudget:
         """O orçamento do jogador no dia: o da profissão dele ou, no cargo de presidente, o do salário da presidência."""
-        budget = life.for_profession(self._profession_of(user_id))
+        # O salário do 1º pregão do mês (`_live`) sai antes de `GovernmentBook.on_tick` do mesmo
+        # dia, e o governo só passa a valer a partir do dia seguinte à posse: a troca de
+        # governo muda a renda do Comissionado no mês seguinte
+        budget = self._with_party(
+            life.for_profession(self._profession_of(user_id)), user_id
+        )
         president = self._government.president() if self._government else None
         if president is not None and president.id == user_id:
             return budget.as_president(presidency.SALARY_MULTIPLE)
@@ -2103,6 +2115,39 @@ class Simulation:
             )
         return self._professions.get(user_id, Profession.CLT)
 
+    def _party_of(self, user_id: int) -> str | None:
+        """A sigla do partido que o Comissionado escolheu ao entrar."""
+        if user_id not in self._parties:
+            self._parties = repository.simulation_player.parties(self.settings.id)
+        return self._parties.get(user_id)
+
+    def _with_party(self, budget: LifeBudget, user_id: int) -> LifeBudget:
+        """A renda de quem tem profissão presa a partido acompanha se o partido escolhido está no governo."""
+        government = self._government
+        if government is None or not is_party_bound(budget.profession):
+            return budget
+        party = self._party_of(user_id)
+        if party is None:
+            return budget
+        return budget.with_party(lambda day: government.is_aligned(party, day))
+
+    def party_abbrs(self) -> frozenset[str]:
+        """As siglas dos partidos da partida; vazio sem o Governo & Política."""
+        return (
+            frozenset() if self._government is None else self._government.party_abbrs()
+        )
+
+    def _bankers_of_offers(self) -> list[UUID]:
+        """Os jogadores que são Banqueiros de ofertas na partida."""
+        if self._offer_bankers is None:
+            professions = repository.simulation_player.professions(self.settings.id)
+            self._offer_bankers = [
+                user.client_id
+                for user in repository.simulation_player.participants(self.settings.id)
+                if professions.get(user.id) is Profession.OFFERS_BANKER
+            ]
+        return self._offer_bankers
+
     def _charge_overdraft(self, users: list[UserDTO]):
         rate = _overdraft_rate(self._current_date)
         for user in users:
@@ -2201,8 +2246,9 @@ class Simulation:
         )
         if self._life is None:
             return build_life_history(events, self.settings.life_events)
-        budget = self._life.for_profession(
-            self._profession_of(UserManager.get_user_id(client_id))
+        user_id = UserManager.get_user_id(client_id)
+        budget = self._with_party(
+            self._life.for_profession(self._profession_of(user_id)), user_id
         )
         changes = budget_changes(budget, self._current_date, _overdraft_rate)
         return build_life_history(
@@ -2538,6 +2584,7 @@ class Simulation:
         mensal e os snapshots seguintes já o incluem porque `participants` lê a linha
         dele em `simulation_players`.
         """
+        self._offer_bankers = None
         if cash > 0:
             self._engine.add_cash(user.client_id, cash)
         EventManager.flush()

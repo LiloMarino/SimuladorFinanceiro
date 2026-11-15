@@ -315,6 +315,54 @@ def test_fund_offer_proceeds_have_their_own_event_type(player_book, captured_eve
     assert not CashflowEventType.FUND_OFFER_PROCEEDS.is_contribution
 
 
+BANKER_A = client("banker-a")
+BANKER_B = client("banker-b")
+
+
+def test_offer_commission_is_one_percent_taken_from_the_raised_amount(
+    player_book, captured_events
+):
+    """Uma oferta de R$ 100 mil paga R$ 1 mil ao Banqueiro e deixa R$ 99 mil na gestora."""
+    engine = _engine()
+    engine.use_offer_bankers(lambda: [BANKER_A])
+
+    engine.credit_fund_offer(PLAYER, Decimal("100000"))
+
+    assert engine.get_cash(PLAYER) == Decimal("99880")
+    assert engine.get_cash(BANKER_A) == Decimal("1880")
+    assert _cashflows(captured_events) == [
+        (CashflowEventType.FUND_OFFER_PROCEEDS, Decimal("99000")),
+        (CashflowEventType.OFFER_COMMISSION, Decimal("1000")),
+    ]
+
+
+def test_several_bankers_split_the_one_percent(player_book, captured_events):
+    """A gestora perde sempre 1%: com dois Banqueiros, cada um recebe metade."""
+    engine = _engine()
+    engine.use_offer_bankers(lambda: [BANKER_A, BANKER_B])
+
+    engine.credit_fund_offer(PLAYER, Decimal("100000"))
+
+    assert _cashflows(captured_events) == [
+        (CashflowEventType.FUND_OFFER_PROCEEDS, Decimal("99000")),
+        (CashflowEventType.OFFER_COMMISSION, Decimal("500")),
+        (CashflowEventType.OFFER_COMMISSION, Decimal("500")),
+    ]
+    assert engine.offer_commission_on(Decimal("100000")) == Decimal("1000")
+
+
+def test_without_bankers_the_fund_keeps_the_whole_offer(player_book, captured_events):
+    engine = _engine()
+    engine.use_offer_bankers(lambda: [])
+
+    engine.credit_fund_offer(PLAYER, Decimal("100000"))
+
+    assert _cashflows(captured_events) == [
+        (CashflowEventType.FUND_OFFER_PROCEEDS, Decimal("100000"))
+    ]
+    assert engine.offer_commission_on(Decimal("100000")) == Decimal(0)
+
+
 def test_contribution_is_recorded_apart_from_deposit(player_book, captured_events):
     """Aporte mensal entra no caixa como CONTRIBUTION, separado de depósito."""
     engine = _engine()

@@ -19,6 +19,7 @@ from backend.core.professions import (
     REFERENCE_PERSONAL_RATE,
     IncomeDriver,
     LifeLevers,
+    available_bot_professions,
     available_professions,
     driver_factor,
     no_levers,
@@ -83,6 +84,8 @@ def test_reference_rates_match_the_default_tax_policy():
         (Profession.HEIR, "0"),
         # Começa em 0,6x e sobe com a carreira
         (Profession.NEW_GRADUATE, "3000"),
+        # Salário fixo do Banqueiro de ofertas; a comissão entra pelo caixa
+        (Profession.OFFERS_BANKER, "3500"),
     ],
 )
 def test_each_profession_earns_its_multiple_of_the_host_salary(
@@ -184,6 +187,8 @@ def test_each_profession_loses_income_in_its_own_way():
         Profession.BROKER: None,
         Profession.HEIR: None,
         Profession.NEW_GRADUATE: IncomeLoss.LAYOFF,
+        Profession.COMMISSIONED: None,
+        Profession.OFFERS_BANKER: IncomeLoss.LAYOFF,
     }
 
 
@@ -315,12 +320,59 @@ def test_the_inheritance_is_the_present_value_of_the_salaries_left_in_the_match(
     assert short < late < long
 
 
-def test_the_freelancer_exists_only_in_a_room_with_inflation_correction():
-    assert Profession.FREELANCER in available_professions(True)
-    assert Profession.FREELANCER not in available_professions(False)
-    assert set(available_professions(False)) == set(Profession) - {
-        Profession.FREELANCER
+def rooms(**changes: bool) -> dict[str, bool]:
+    return {
+        "inflation_adjusted": True,
+        "government_enabled": True,
+        "funds_enabled": True,
+        **changes,
     }
+
+
+def test_the_freelancer_exists_only_in_a_room_with_inflation_correction():
+    assert Profession.FREELANCER in available_professions(**rooms())
+    assert Profession.FREELANCER not in available_professions(
+        **rooms(inflation_adjusted=False)
+    )
+    assert set(available_professions(**rooms(inflation_adjusted=False))) == set(
+        Profession
+    ) - {Profession.FREELANCER}
+
+
+def test_each_expansion_profession_exists_only_with_its_expansion():
+    assert set(available_professions(**rooms())) == set(Profession)
+    no_government = available_professions(**rooms(government_enabled=False))
+    no_funds = available_professions(**rooms(funds_enabled=False))
+    assert Profession.COMMISSIONED not in no_government
+    assert Profession.OFFERS_BANKER in no_government
+    assert Profession.OFFERS_BANKER not in no_funds
+    assert Profession.COMMISSIONED in no_funds
+
+
+def test_the_bot_never_gets_the_commissioned():
+    assert Profession.COMMISSIONED in available_professions(**rooms())
+    assert Profession.COMMISSIONED not in available_bot_professions(**rooms())
+    assert Profession.OFFERS_BANKER in available_bot_professions(**rooms())
+
+
+def commissioned(in_government: bool) -> LifeBudget:
+    return budget(Profession.COMMISSIONED).with_party(lambda _day: in_government)
+
+
+def test_the_commissioned_earns_one_and_a_half_with_the_party_in_government():
+    assert commissioned(True).net_salary_on(START) == Decimal("7500")
+
+
+def test_the_commissioned_earns_half_with_the_party_out_of_government():
+    assert commissioned(False).net_salary_on(START) == Decimal("2500")
+
+
+def test_the_commissioned_income_follows_the_party_day_by_day():
+    handover = START + timedelta(days=30)
+    life = budget(Profession.COMMISSIONED).with_party(lambda day: day < handover)
+
+    assert life.net_salary_on(START) == Decimal("7500")
+    assert life.net_salary_on(handover) == Decimal("2500")
 
 
 def test_the_room_without_inflation_correction_discounts_the_inheritance_at_a_higher_rate():

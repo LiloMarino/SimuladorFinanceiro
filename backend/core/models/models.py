@@ -506,6 +506,8 @@ class SimulationPlayers(Base):
     team: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
     # Nome da profissão no viver de renda com profissões; nulo vale CLT
     profession: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Sigla do partido que o Comissionado escolheu; nulo nas demais profissões
+    party: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     user: Mapped["Users"] = relationship("Users", back_populates="simulation_players")
     simulation: Mapped["Simulations"] = relationship(

@@ -164,6 +164,13 @@ class CareerCurve:
         return min(done, Decimal(1))
 
 
+class Expansion(Enum):
+    """As expansões da partida que liberam profissões próprias."""
+
+    GOVERNMENT = "GOVERNMENT"
+    FUNDS = "FUNDS"
+
+
 @dataclass(frozen=True)
 class ProfessionRule:
     # A renda do mês exposta ao sorteio da demissão, em múltiplos do salário do host
@@ -181,6 +188,11 @@ class ProfessionRule:
     starting_capital: StartingCapital = StartingCapital.ROOM
     # A profissão só existe na sala que corrige a renda e a despesa pela inflação
     requires_inflation_adjusted: bool = False
+    # A profissão só existe na sala com esta expansão ligada
+    requires_expansion: Expansion | None = None
+    # O múltiplo da renda quando o partido escolhido está fora do governo; nulo quando a
+    # renda não depende do partido. `income_multiple` vale para o partido no governo
+    outside_multiple: Decimal | None = None
     # A parte da renda que o auxílio paga, em múltiplos do salário no gasto de referência;
     # a demissão não a tira
     benefit_multiple: Decimal = Decimal(0)
@@ -258,6 +270,20 @@ PROFESSIONS: dict[Profession, ProfessionRule] = {
         career=CareerCurve(Decimal("1.5"), years=10, layoff_weight=Decimal(2)),
         starting_capital=StartingCapital.ZERO,
     ),
+    # Rende 1,5x com o partido escolhido no governo (presidência ou base) e 0,5x fora dele
+    Profession.COMMISSIONED: ProfessionRule(
+        income_multiple=Decimal("1.5"),
+        tax=TaxBase.PERSONAL,
+        requires_expansion=Expansion.GOVERNMENT,
+        outside_multiple=Decimal("0.5"),
+    ),
+    # O salário fixo; a comissão das ofertas e emissões entra pelo caixa, a cada captação
+    Profession.OFFERS_BANKER: ProfessionRule(
+        income_multiple=Decimal("0.7"),
+        tax=TaxBase.PERSONAL,
+        loss=IncomeLoss.LAYOFF,
+        requires_expansion=Expansion.FUNDS,
+    ),
 }
 
 # O imprevisto cujo valor a saúde de cada profissão multiplica
@@ -270,10 +296,37 @@ def driver_factor(curve: DriverCurve, value: Decimal) -> Decimal:
     return factor if curve.ceiling is None else min(factor, curve.ceiling)
 
 
-def available_professions(inflation_adjusted: bool) -> list[Profession]:
-    """As profissões que a sala pode escolher: as que exigem a correção pela inflação somem sem ela."""
+def available_professions(
+    *, inflation_adjusted: bool, government_enabled: bool, funds_enabled: bool
+) -> list[Profession]:
+    """As profissões que a sala pode escolher: somem as que exigem a correção pela inflação ou uma expansão que a sala não tem."""
+    expansions = {
+        Expansion.GOVERNMENT: government_enabled,
+        Expansion.FUNDS: funds_enabled,
+    }
     return [
         profession
         for profession, rule in PROFESSIONS.items()
-        if inflation_adjusted or not rule.requires_inflation_adjusted
+        if (inflation_adjusted or not rule.requires_inflation_adjusted)
+        and (rule.requires_expansion is None or expansions[rule.requires_expansion])
+    ]
+
+
+def is_party_bound(profession: Profession) -> bool:
+    """A renda da profissão segue um partido que o jogador escolhe ao entrar."""
+    return PROFESSIONS[profession].outside_multiple is not None
+
+
+def available_bot_professions(
+    *, inflation_adjusted: bool, government_enabled: bool, funds_enabled: bool
+) -> list[Profession]:
+    """As profissões que o bot pode ter: as da sala, sem as presas a um partido (o bot não escolhe partido)."""
+    return [
+        profession
+        for profession in available_professions(
+            inflation_adjusted=inflation_adjusted,
+            government_enabled=government_enabled,
+            funds_enabled=funds_enabled,
+        )
+        if not is_party_bound(profession)
     ]

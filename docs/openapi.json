@@ -10933,6 +10933,52 @@
         }
       }
     },
+    "/api/simulation/match-parties": {
+      "get": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Listar os partidos da partida em andamento",
+        "description": "Retorna a sigla de cada partido da partida ativa, em ordem alfabética; vazia sem a expansão Governo & Política. Serve a quem chega e escolhe o partido do Comissionado.",
+        "operationId": "get_match_parties_api_simulation_match_parties_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "title": "Response Get Match Parties Api Simulation Match Parties Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/simulation/bots/strategies": {
       "get": {
         "tags": [
@@ -22958,6 +23004,10 @@
             "type": "string",
             "title": "Raised"
           },
+          "commission": {
+            "type": "string",
+            "title": "Commission"
+          },
           "total_after": {
             "type": "string",
             "title": "Total After"
@@ -23001,6 +23051,7 @@
           "quotas",
           "price",
           "raised",
+          "commission",
           "total_after",
           "limit",
           "share_now",
@@ -26448,6 +26499,17 @@
                 "type": "null"
               }
             ]
+          },
+          "party": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party"
           }
         },
         "type": "object",
@@ -30973,6 +31035,17 @@
               }
             ]
           },
+          "party": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party"
+          },
           "activity": {
             "anyOf": [
               {
@@ -31000,6 +31073,7 @@
           "color",
           "team",
           "profession",
+          "party",
           "activity",
           "bot"
         ],
@@ -31227,6 +31301,17 @@
               }
             ]
           },
+          "party": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party"
+          },
           "activity": {
             "anyOf": [
               {
@@ -31266,6 +31351,7 @@
           "color",
           "team",
           "profession",
+          "party",
           "activity",
           "bot",
           "previous_nickname"
@@ -31277,6 +31363,17 @@
         "properties": {
           "profession": {
             "$ref": "#/components/schemas/Profession"
+          },
+          "party": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party"
           }
         },
         "type": "object",
@@ -33130,7 +33227,9 @@
           "FREELANCER",
           "BROKER",
           "HEIR",
-          "NEW_GRADUATE"
+          "NEW_GRADUATE",
+          "COMMISSIONED",
+          "OFFERS_BANKER"
         ],
         "title": "Profession",
         "description": "A profissão do jogador no viver de renda; cada uma pertence a um grupo do eleitorado."

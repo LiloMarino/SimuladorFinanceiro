@@ -1,4 +1,6 @@
 import { Info, Lock, TriangleAlert } from "lucide-react";
+import { useState } from "react";
+import { CommissionedPartyPicker, type PartyOption } from "@/shared/components/commissioned-party-picker";
 import { ProfessionCards } from "@/shared/components/profession-cards";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { PROFESSIONS, type RoomRules } from "@/shared/lib/professions";
@@ -10,6 +12,10 @@ import { PreparationFooter } from "./preparation-footer";
 type ProfessionTabProps = {
   /** A profissão do jogador na sala; nula enquanto ele não escolheu */
   current: Profession | null | undefined;
+  /** A sigla do partido do Comissionado; nula nas outras profissões */
+  currentParty: string | null;
+  /** Os partidos que o Comissionado pode escolher */
+  parties: PartyOption[];
   /** O nome da partida salva que guarda a profissão do jogador; nulo fora dela */
   lockedBy: string | null;
   /** O nome da partida salva em que o jogador entra como novo; nulo fora desse caso */
@@ -20,11 +26,34 @@ type ProfessionTabProps = {
 };
 
 /** Aba Profissão: cada clique grava na hora; o servidor recusa fora da hora e a escolha volta à anterior. */
-export function ProfessionTab({ current, lockedBy, joiningNew, room, onClose }: ProfessionTabProps) {
+export function ProfessionTab({
+  current,
+  currentParty,
+  parties,
+  lockedBy,
+  joiningNew,
+  room,
+  onClose,
+}: ProfessionTabProps) {
   const { mutate, isPending, variables, error } = useChooseProfession();
   const locked = lockedBy !== null;
   // Durante o salvamento o cartão clicado já aparece marcado; sem a resposta do servidor ele volta ao anterior
-  const shown = isPending ? variables : current;
+  const shown = isPending ? variables.profession : current;
+  // O Comissionado só vai ao servidor com partido: o clique no cartão abre a escolha do partido
+  const [choosingParty, setChoosingParty] = useState(false);
+  const commissioned = shown === "COMMISSIONED" || choosingParty;
+  const partyValid = currentParty !== null && parties.some((party) => party.abbr === currentParty);
+
+  function selectProfession(profession: Profession) {
+    if (profession !== "COMMISSIONED") {
+      setChoosingParty(false);
+      mutate({ profession });
+    } else if (partyValid) {
+      mutate({ profession, party: currentParty });
+    } else {
+      setChoosingParty(true);
+    }
+  }
 
   return (
     <div className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]">
@@ -60,7 +89,25 @@ export function ProfessionTab({ current, lockedBy, joiningNew, room, onClose }: 
           </Alert>
         )}
 
-        <ProfessionCards room={room} selected={shown} disabled={locked} onSelect={(profession) => mutate(profession)} />
+        <ProfessionCards
+          room={room}
+          selected={choosingParty ? "COMMISSIONED" : shown}
+          disabled={locked}
+          onSelect={selectProfession}
+        />
+
+        {/* Partido do Comissionado */}
+        {commissioned && (
+          <CommissionedPartyPicker
+            options={parties}
+            value={partyValid ? currentParty : null}
+            disabled={locked}
+            onChange={(party) => {
+              setChoosingParty(false);
+              mutate({ profession: "COMMISSIONED", party });
+            }}
+          />
+        )}
 
         {/* Recusa do servidor */}
         {error && (

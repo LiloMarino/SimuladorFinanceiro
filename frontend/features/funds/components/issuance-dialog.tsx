@@ -18,7 +18,7 @@ import { displayMoney, displayPercent, displayQuantity } from "@/shared/lib/util
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
 import { useAnnounceFundIssuance } from "../hooks/mutations/useAnnounceFundIssuance";
 import { useFundIssuancePreview } from "../hooks/queries/useFundIssuancePreview";
-import { PREFERENCE_RIGHT } from "../lib/fund-metrics";
+import { OFFER_COMMISSION, PREFERENCE_RIGHT } from "../lib/fund-metrics";
 import { ControlNotice } from "./control-notice";
 
 type IssuanceDialogProps = {
@@ -91,6 +91,12 @@ export function IssuanceDialog({ open, onOpenChange, fundId, fundName, nav, tota
               label="Se vender tudo, entra no caixa"
               value={valid && preview ? displayMoney(preview.raised) : "—"}
             />
+            {valid && preview && Number(preview.commission) > 0 && (
+              <KeyValueRow
+                label={<MetricLabel metric={OFFER_COMMISSION} />}
+                value={`− ${displayMoney(preview.commission)}`}
+              />
+            )}
             {valid && preview && Number(preview.manager_rights) > 0 && (
               <KeyValueRow
                 label={<MetricLabel metric={PREFERENCE_RIGHT} />}

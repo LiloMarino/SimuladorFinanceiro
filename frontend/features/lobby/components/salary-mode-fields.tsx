@@ -38,9 +38,9 @@ type SalaryModeFieldsProps = {
 
 /** Como o salário da partida vira renda: igual para todos ou por profissão, com a renda de cada uma sobre o salário digitado. */
 export function SalaryModeFields({ form, readOnly }: SalaryModeFieldsProps) {
-  const [mode, salary, inflationAdjusted] = useWatch({
+  const [mode, salary, inflationAdjusted, governmentEnabled, fundsEnabled] = useWatch({
     control: form.control,
-    name: ["salaryMode", "monthlySalary", "inflationAdjusted"],
+    name: ["salaryMode", "monthlySalary", "inflationAdjusted", "governmentEnabled", "fundsEnabled"],
   });
   const salaryAmount = Number(normalizeNumberString(salary));
 
@@ -81,7 +81,11 @@ export function SalaryModeFields({ form, readOnly }: SalaryModeFieldsProps) {
           <span className="text-xs text-muted-foreground">
             Renda no 1º mês, sobre o salário acima. A despesa e a meta continuam as mesmas para todos.
           </span>
-          {availableProfessions({ inflation_adjusted: inflationAdjusted }).map((profession) => {
+          {availableProfessions({
+            inflation_adjusted: inflationAdjusted,
+            government_enabled: governmentEnabled,
+            funds_enabled: fundsEnabled,
+          }).map((profession) => {
             const { name, icon: Icon } = PROFESSIONS[profession];
             return (
               <div key={profession} className="flex items-baseline justify-between gap-3 border-t border-muted py-1.5">

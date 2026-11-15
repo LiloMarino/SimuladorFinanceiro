@@ -87,6 +87,8 @@ class CashflowEventType(Enum):
     FUND_PERFORMANCE_FEE_INCOME = "FUND_PERFORMANCE_FEE_INCOME"
     # Venda da oferta pública das cotas: o dinheiro entra no caixa da gestora
     FUND_OFFER_PROCEEDS = "FUND_OFFER_PROCEEDS"
+    # Comissão do Banqueiro de ofertas: sai da captação da gestora e entra no caixa pessoal dele
+    OFFER_COMMISSION = "OFFER_COMMISSION"
     # Subscrição do formador de mercado: o dinheiro sintético entra no caixa da gestora
     FUND_MAKER_SUBSCRIPTION = "FUND_MAKER_SUBSCRIPTION"
     # Rendimento mensal da gestora: sai do caixa dela e chega aos cotistas como DIVIDEND
@@ -127,6 +129,7 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.FUND_MANAGEMENT_FEE_INCOME: 1,
     CashflowEventType.FUND_PERFORMANCE_FEE_INCOME: 1,
     CashflowEventType.FUND_OFFER_PROCEEDS: 1,
+    CashflowEventType.OFFER_COMMISSION: 1,
     CashflowEventType.FUND_MAKER_SUBSCRIPTION: 1,
     CashflowEventType.FUND_DISTRIBUTION: -1,
 }
@@ -410,6 +413,9 @@ class Profession(Enum):
     BROKER = "BROKER"
     HEIR = "HEIR"
     NEW_GRADUATE = "NEW_GRADUATE"
+    # Profissões das expansões: só existem na sala com a expansão ligada
+    COMMISSIONED = "COMMISSIONED"
+    OFFERS_BANKER = "OFFERS_BANKER"
 
     @property
     def voter_group(self) -> "VoterGroup":
@@ -1088,6 +1094,8 @@ _PROFESSION_GROUPS = {
     Profession.BROKER: VoterGroup.INVESTORS,
     Profession.HEIR: VoterGroup.INVESTORS,
     Profession.NEW_GRADUATE: VoterGroup.FORMAL_WORKERS,
+    Profession.COMMISSIONED: VoterGroup.PUBLIC_SERVANTS,
+    Profession.OFFERS_BANKER: VoterGroup.INVESTORS,
 }
 
 

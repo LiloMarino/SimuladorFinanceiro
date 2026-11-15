@@ -18,6 +18,7 @@ STRATEGY_PARAMS_KEY = "strategy_params"
 PREPARATION_CHOICE_KEY = "preparation_choice"
 COVER_WITH_TREASURY_KEY = "cover_with_treasury"
 PROFESSION_KEY = "profession"
+PARTY_CHOICE_KEY = "commissioned_party"
 # As chaves que o jogador grava pelas rotas próprias do perfil, e que as preferências atravessam
 PROFILE_KEYS = frozenset(
     {
@@ -29,6 +30,7 @@ PROFILE_KEYS = frozenset(
         PREPARATION_CHOICE_KEY,
         COVER_WITH_TREASURY_KEY,
         PROFESSION_KEY,
+        PARTY_CHOICE_KEY,
     }
 )
 
@@ -105,6 +107,13 @@ class SettingsRepository:
 
     def set_profession(self, user_id: int, profession: Profession) -> None:
         self._set_key(user_id, PROFESSION_KEY, profession.value)
+
+    def get_party_choice(self, user_id: int) -> str | None:
+        """A sigla do partido que o jogador escolheu como Comissionado na última sala; nula sem escolha."""
+        return self.get_by_user_id(user_id).get(PARTY_CHOICE_KEY)
+
+    def set_party_choice(self, user_id: int, party: str | None) -> None:
+        self._set_key(user_id, PARTY_CHOICE_KEY, party)
 
     def get_strategy_params(
         self, user_id: int

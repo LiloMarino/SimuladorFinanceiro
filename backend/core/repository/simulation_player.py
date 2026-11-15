@@ -18,16 +18,19 @@ class SimulationPlayerRepository:
         colors: dict[int, str],
         teams: dict[int, int] | None = None,
         professions: dict[int, Profession] | None = None,
+        parties: dict[int, str] | None = None,
     ):
         """
         Grava a cor de cada jogador na partida; quem já tem linha troca de cor.
         `teams` (user_id -> equipe) só vem em partida em equipes e grava junto com a cor;
-        `professions` (user_id -> profissão) só vem no viver de renda com profissões.
+        `professions` (user_id -> profissão) só vem no viver de renda com profissões;
+        `parties` (user_id -> sigla) é o partido de quem joga de Comissionado.
         """
         if not colors:
             return
         teams = teams or {}
         professions = professions or {}
+        parties = parties or {}
         stmt = insert(SimulationPlayers).values(
             [
                 {
@@ -38,6 +41,7 @@ class SimulationPlayerRepository:
                     "profession": (
                         professions[user_id].value if user_id in professions else None
                     ),
+                    "party": parties.get(user_id),
                 }
                 for user_id, color in colors.items()
             ]
@@ -49,6 +53,7 @@ class SimulationPlayerRepository:
                     "color": stmt.excluded.color,
                     "team": stmt.excluded.team,
                     "profession": stmt.excluded.profession,
+                    "party": stmt.excluded.party,
                 },
             )
         )
@@ -90,6 +95,17 @@ class SimulationPlayerRepository:
             for user_id, profession in rows
             if profession is not None
         }
+
+    @transactional
+    def parties(self, session: Session, simulation_id: int) -> dict[int, str]:
+        """Sigla do partido de cada Comissionado da partida, por `user_id`."""
+        rows = session.execute(
+            select(SimulationPlayers.user_id, SimulationPlayers.party).where(
+                SimulationPlayers.simulation_id == simulation_id,
+                SimulationPlayers.party.is_not(None),
+            )
+        ).all()
+        return {user_id: party for user_id, party in rows if party is not None}
 
     @transactional
     def participants(self, session: Session, simulation_id: int) -> list[UserDTO]:

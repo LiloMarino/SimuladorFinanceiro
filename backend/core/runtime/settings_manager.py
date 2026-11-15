@@ -228,6 +228,26 @@ class SettingsManager:
         return cls.get().inflation_adjusted
 
     @classmethod
+    def effective_government_enabled(cls) -> bool:
+        """A sala tem a expansão Governo & Política: a partida salva selecionada manda; sem ela, as regras da nova."""
+        selected_id = cls.get_selected_simulation_id()
+        if selected_id is not None:
+            summary = repository.simulation.get_simulation(selected_id)
+            if summary is not None:
+                return summary.government_enabled
+        return cls.get().government_enabled
+
+    @classmethod
+    def effective_funds_enabled(cls) -> bool:
+        """A sala tem a expansão Gestoras: a partida salva selecionada manda; sem ela, as regras da nova."""
+        selected_id = cls.get_selected_simulation_id()
+        if selected_id is not None:
+            summary = repository.simulation.get_simulation(selected_id)
+            if summary is not None:
+                return summary.funds_enabled
+        return cls.get().funds_enabled
+
+    @classmethod
     def clear(cls) -> None:
         with cls._lock:
             cls._settings = None

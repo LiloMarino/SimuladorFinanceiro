@@ -18,7 +18,7 @@ import { useMyPreparation } from "../../hooks/queries/useMyPreparation";
 import { usePartyContribution } from "../../hooks/queries/usePartyContribution";
 import { usePreparations } from "../../hooks/queries/usePreparations";
 import { fundTabBadge } from "../../lib/fund-preparation";
-import { adjustedStrategies } from "../../lib/preparation";
+import { adjustedStrategies, rivalsOf } from "../../lib/preparation";
 import { FundTab } from "./fund-tab";
 import { PartyTab } from "./party-tab";
 import { ProfessionTab } from "./profession-tab";
@@ -87,7 +87,12 @@ function PreparationDialogContent({
   const hasSavedProfession = !!user && savedPlayers.some((player) => player.nickname === user.nickname);
   const fundBadge =
     preparations.data && user ? fundTabBadge(rules.funds_enabled, preparations.data, user.nickname) : null;
-  const myProfession = room.data?.find((player) => player.nickname === user?.nickname)?.profession;
+  const me = room.data?.find((player) => player.nickname === user?.nickname);
+  const myProfession = me?.profession;
+  // Os partidos que o Comissionado pode escolher: os do computador e os fundados na sala, o próprio incluído
+  const partyOptions = preparations.data
+    ? rivalsOf(preparations.data, "").map(({ abbr, color }) => ({ abbr, color }))
+    : [];
 
   return (
     <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)} className="contents">
@@ -141,6 +146,8 @@ function PreparationDialogContent({
             {room.data && user ? (
               <ProfessionTab
                 current={myProfession}
+                currentParty={me?.party ?? null}
+                parties={partyOptions}
                 lockedBy={hasSavedProfession ? savedSimulationName : null}
                 joiningNew={savedPlayers.length > 0 && !hasSavedProfession ? savedSimulationName : null}
                 room={rules}

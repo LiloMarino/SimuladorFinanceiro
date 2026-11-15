@@ -109,6 +109,8 @@ LIFE_EVENT_CATALOG: tuple[LifeEventSpec, ...] = (
                 "BROKER": "Operação estornada",
                 "HEIR": "Taxa do inventário",
                 "NEW_GRADUATE": "Curso de especialização pago do bolso",
+                "COMMISSIONED": "Contribuição extra ao partido",
+                "OFFERS_BANKER": "Oferta cancelada sem comissão",
             }
         ),
     ),
@@ -131,6 +133,8 @@ LIFE_EVENT_CATALOG: tuple[LifeEventSpec, ...] = (
         BROKER="Comissão extra",
         HEIR="Distribuição do fundo da família",
         NEW_GRADUATE="Bônus de contratação",
+        COMMISSIONED="Gratificação de função comissionada",
+        OFFERS_BANKER="Bônus da oferta bem-sucedida",
     ),
     _in("RAFFLE", "Prêmio de sorteio", 1, "0.5"),
     _in("SMALL_INHERITANCE", "Herança pequena", 1, "3"),
@@ -157,6 +161,8 @@ LIFE_EVENT_CATALOG: tuple[LifeEventSpec, ...] = (
                 "BROKER": "Comissão de uma grande operação",
                 "HEIR": "Venda de um imóvel da família",
                 "NEW_GRADUATE": "Promoção inesperada",
+                "COMMISSIONED": "Nomeação para um cargo melhor",
+                "OFFERS_BANKER": "Oferta recorde fechada",
             }
         ),
     ),

@@ -510,6 +510,8 @@ class GovernmentState:
     # O eleito que espera a posse
     pending_term: Term | None = None
     term: Term | None = None
+    # O partido que governa desde cada posse ou sucessão, na ordem; nulo é o governo do computador sem partido
+    governing_since: list[tuple[date, int | None]] = field(default_factory=list)
     measures: dict[int, Measure] = field(default_factory=dict)
     next_measure_id: int = 1
     # A satisfação medida no fechamento de cada mês do governo em curso
@@ -566,6 +568,11 @@ class GovernmentState:
         """A casa em exercício no dia: a última cuja posse já chegou, ou a inicial do computador."""
         seated = [e for e in self.houses if e.takes_office <= day]
         return seated[-1].house if seated else house.initial_house()
+
+    def governing_party_on(self, day: date) -> int | None:
+        """O partido no governo no dia: vale a posse ou sucessão de dias antes dele, a do próprio dia entra no seguinte."""
+        governing = [party for since, party in self.governing_since if since < day]
+        return governing[-1] if governing else None
 
     def deals_in_force(self, day: date) -> list[Deal]:
         """Os acordos que valem no dia, na ordem em que foram propostos."""
@@ -913,6 +920,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 promises=pending.promises if pending else (),
             )
             state.pending_term = None
+            state.governing_since.append((day, state.term.party_id))
             _reset_government(state, day)
         case Event.MEASURE_PROPOSED:
             measure_id = _int(p, "measure_id")
@@ -1170,6 +1178,7 @@ def _apply_impeachment(state: GovernmentState, event: GovernmentEventDTO) -> Non
         weighed=term.weighed,
         applied=term.applied,
     )
+    state.governing_since.append((event.event_date, state.term.party_id))
     _reset_government(state, event.event_date)
 
 

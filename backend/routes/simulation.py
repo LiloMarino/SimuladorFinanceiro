@@ -200,6 +200,8 @@ class PlayerTeamRequest(BaseModel):
 
 class PlayerProfessionRequest(BaseModel):
     profession: Profession
+    # Sigla do partido; obrigatória para o Comissionado e ignorada nas demais profissões
+    party: str | None = None
 
 
 class UpdateSettingsRequest(SimulationRulesRequest):
@@ -212,6 +214,8 @@ class JoinMatchRequest(BaseModel):
     team: int | None = None
     # Obrigatória quando a partida é com profissões
     profession: Profession | None = None
+    # Obrigatória para o Comissionado: a sigla de um partido da partida
+    party: str | None = None
 
 
 class PlayerNickname(BaseModel):
@@ -225,6 +229,8 @@ class PlayerNickname(BaseModel):
     team: int | None = None
     # Profissão no viver de renda com profissões; nula nos outros modos
     profession: Profession | None = None
+    # Sigla do partido do Comissionado; nula nas outras profissões
+    party: str | None = None
     # O que o jogador está fazendo na sala; só a lista da sala preenche, nulo é "Online"
     activity: PlayerActivity | None = None
     # Presente quando o jogador é um bot: a estratégia que ele joga
@@ -348,6 +354,7 @@ def select_simulation(payload: SelectSimulationRequest, _: HostVerified):
         repository.simulation_player.teams(payload.id),
         saved_bots(payload.id),
         repository.simulation_player.professions(payload.id),
+        repository.simulation_player.parties(payload.id),
     )
     SettingsManager.select_simulation(payload.id)
     notify(
@@ -493,6 +500,7 @@ def get_active_players():
     colors = UserManager.room_colors()
     teams = UserManager.room_teams()
     professions = UserManager.room_professions()
+    parties = UserManager.room_parties()
     activities = UserManager.room_activities()
     return [
         PlayerNickname(
@@ -500,6 +508,7 @@ def get_active_players():
             color=colors[p.id],
             team=teams.get(p.id),
             profession=professions.get(p.id),
+            party=parties.get(p.id),
             activity=activities.get(p.id),
             bot=UserManager.room_bot(p),
         )
@@ -564,7 +573,12 @@ def set_player_profession(payload: PlayerProfessionRequest, client_id: ClientID)
     """
     Escolhe a profissão do jogador na sala.
     """
-    UserManager.set_profession(client_id, payload.profession)
+    UserManager.set_profession(
+        client_id,
+        payload.profession,
+        payload.party,
+        RoomPreparation.party_abbrs(_room_humans()),
+    )
 
 
 def _room_humans() -> list[UserDTO]:
@@ -780,6 +794,7 @@ def get_match_players():
         SimulationManager.get_active_simulation().settings.uses_professions
     )
     professions = repository.simulation_player.professions(simulation_id)
+    parties = repository.simulation_player.parties(simulation_id)
     bots = saved_bot_infos(simulation_id)
     return [
         PlayerNickname(
@@ -789,10 +804,26 @@ def get_match_players():
             profession=professions.get(p.id, Profession.CLT)
             if uses_professions
             else None,
+            party=parties.get(p.id),
             bot=bots.get(p.id),
         )
         for p in repository.simulation_player.participants(simulation_id)
     ]
+
+
+@simulation_router.get(
+    "/match-parties",
+    response_model=list[str],
+    summary="Listar os partidos da partida em andamento",
+    description="Retorna a sigla de cada partido da partida ativa, em ordem alfabética; vazia sem a expansão Governo & Política. Serve a quem chega e escolhe o partido do Comissionado.",
+)
+def get_match_parties():
+    """
+    Lista as siglas dos partidos da partida ativa.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    return sorted(SimulationManager.get_active_simulation().party_abbrs())
 
 
 @simulation_router.get(
@@ -912,6 +943,7 @@ def _room_player(player: UserDTO) -> PlayerNickname:
         color=UserManager.room_colors()[player.id],
         team=UserManager.room_teams().get(player.id),
         profession=UserManager.room_professions().get(player.id),
+        party=UserManager.room_parties().get(player.id),
         activity=UserManager.room_activities().get(player.id),
         bot=UserManager.room_bot(player),
     )
@@ -986,7 +1018,9 @@ def join_match(payload: JoinMatchRequest, client_id: ClientID):
     """
     Entra na partida em andamento com a cor escolhida.
     """
-    UserManager.join_match(client_id, payload.color, payload.team, payload.profession)
+    UserManager.join_match(
+        client_id, payload.color, payload.team, payload.profession, payload.party
+    )
 
 
 @simulation_router.get(

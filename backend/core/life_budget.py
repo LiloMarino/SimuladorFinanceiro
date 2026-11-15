@@ -39,6 +39,10 @@ def no_growth(day: date) -> Decimal:
     return Decimal(0)
 
 
+def never_in_government(day: date) -> bool:
+    return False
+
+
 def no_dollar_change(day: date) -> Decimal:
     return DRIVER_CURVES[IncomeDriver.DOLLAR].neutral
 
@@ -81,6 +85,9 @@ class LifeBudget:
     # No cargo de presidente a renda é este múltiplo do salário do host, no lugar da
     # renda da profissão, e nenhum sorteio de demissão a alcança
     presidency_multiple: Decimal | None = None
+    # Se o partido escolhido pelo jogador está no governo no dia; lido por quem tem renda
+    # presa ao partido (`outside_multiple` da profissão)
+    in_government_on: Callable[[date], bool] = never_in_government
 
     @classmethod
     def of(
@@ -107,6 +114,10 @@ class LifeBudget:
 
     def for_profession(self, profession: Profession) -> "LifeBudget":
         return replace(self, profession=profession)
+
+    def with_party(self, in_government_on: Callable[[date], bool]) -> "LifeBudget":
+        """O orçamento de quem escolheu um partido: a renda acompanha se ele está no governo."""
+        return replace(self, in_government_on=in_government_on)
 
     def as_president(self, multiple: Decimal) -> "LifeBudget":
         """O orçamento de quem recebe `multiple` salários do host pela presidência; reajuste e imposto seguem os da profissão."""
@@ -140,6 +151,8 @@ class LifeBudget:
         """O múltiplo do salário do host que a profissão rende no dia: o da carreira sobe em linha reta desde o início da partida."""
         rule = self.rule
         career = rule.career
+        if rule.outside_multiple is not None and not self.in_government_on(day):
+            return rule.outside_multiple
         if career is None:
             return rule.income_multiple
         progress = career.progress((day - self.start_date).days)

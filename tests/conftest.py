@@ -373,13 +373,20 @@ type Join = Callable[[str], UserDTO]
 
 @pytest.fixture(autouse=True)
 def remembered_professions(monkeypatch: pytest.MonkeyPatch) -> dict[int, Profession]:
-    """O perfil em memória: entrar na sala lê a profissão dele e escolher uma a grava."""
+    """O perfil em memória: entrar na sala lê a profissão e o partido dele, e escolher uma profissão grava os dois."""
     stored: dict[int, Profession] = {}
     monkeypatch.setattr(repository.settings, "get_profession", stored.get)
     monkeypatch.setattr(
         repository.settings,
         "set_profession",
         lambda user_id, p: stored.update({user_id: p}),
+    )
+    parties: dict[int, str | None] = {}
+    monkeypatch.setattr(repository.settings, "get_party_choice", parties.get)
+    monkeypatch.setattr(
+        repository.settings,
+        "set_party_choice",
+        lambda user_id, party: parties.update({user_id: party}),
     )
     return stored
 

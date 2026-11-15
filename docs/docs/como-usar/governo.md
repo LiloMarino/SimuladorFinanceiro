@@ -359,6 +359,10 @@ Romper custa caro para quem rompe: se o aliado sai ou orienta Não, os grupos do
 
 **Teto por setor.** A isenção de imposto do setor (+10%), a obra e as emendas se somam, mas a alta total de um setor nunca passa de **+20%**. Ex.: isenção (+10%), obra (+7,5%) e emenda (+6%) no mesmo setor dariam +23,5% e ficam em +20%.
 
+### Profissão de Comissionado
+
+Com as profissões ligadas, o jogador pode ser **Comissionado**: ao escolher a profissão, indica um partido (do computador ou fundado na sala), e a renda segue esse partido. Com ele na **presidência ou na base do governo** (acordo de emenda vigente), a renda é **1,5× o salário**; fora do governo, **0,5×**. Ex.: com salário de R$ 8.000, são R$ 12.000 por mês no governo e R$ 4.000 fora. A renda é paga no 1º pregão do mês, então a posse de um novo governo só aparece no mês seguinte. Um partido de jogador que não chegou a ser fundado no 1º dia da partida conta como fora do governo. Os bots não são Comissionados.
+
 ---
 
 ## Referências

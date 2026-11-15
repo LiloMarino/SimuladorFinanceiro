@@ -23,7 +23,11 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.core.player_colors import MAX_PLAYERS, PLAYER_COLORS, first_free_color
-from backend.core.professions import available_professions
+from backend.core.professions import (
+    available_bot_professions,
+    available_professions,
+    is_party_bound,
+)
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -109,6 +113,12 @@ class UserManager:
     # 🔹 Profissões guardadas da partida salva selecionada: quem já jogou fica travado nelas
     _saved_professions: ClassVar[dict[int, Profession]] = {}
 
+    # 🔹 Partido (sigla) que cada Comissionado da sala escolheu; só vale para a profissão presa a partido
+    _parties: ClassVar[dict[int, str]] = {}
+
+    # 🔹 Partidos guardados da partida salva selecionada: quem já jogou fica travado neles
+    _saved_parties: ClassVar[dict[int, str]] = {}
+
     # 🔹 O que cada aba aberta do player está fazendo (client_id -> sid -> (ordem do aviso, atividade));
     # só memória. O selo da sala é o da aba mais relevante: aba à vista ganha de ausente, e entre
     # as à vista vale o aviso mais recente
@@ -191,6 +201,9 @@ class UserManager:
                 remembered = repository.settings.get_profession(user.id)
                 if remembered is not None:
                     cls._professions.setdefault(user.id, remembered)
+                party = repository.settings.get_party_choice(user.id)
+                if party is not None:
+                    cls._parties.setdefault(user.id, party)
 
         cls._emit_player_join(user, color)
         return user
@@ -261,6 +274,7 @@ class UserManager:
         color: str,
         team: int | None = None,
         profession: Profession | None = None,
+        party: str | None = None,
     ) -> None:
         """
         Entra na partida em andamento com `color` (e `team`, em partida em equipes; e
@@ -289,9 +303,17 @@ class UserManager:
         if uses_professions and profession is None:
             raise UnprocessableEntityError("Escolha uma profissão para entrar.")
         if profession is not None and profession not in available_professions(
-            sim.settings.inflation_adjusted
+            inflation_adjusted=sim.settings.inflation_adjusted,
+            government_enabled=sim.settings.government_enabled,
+            funds_enabled=sim.settings.funds_enabled,
         ):
             raise ConflictError("Essa profissão não existe nas regras desta partida.")
+        # O Comissionado entra com o partido de uma sigla que existe na partida
+        chosen_party = None
+        if profession is not None and is_party_bound(profession):
+            if party is None or party not in sim.party_abbrs():
+                raise UnprocessableEntityError("Escolha o partido do Comissionado.")
+            chosen_party = party
 
         # O capital inicial é um só: o da carteira e o do depósito do dia
         starting_cash = sim.starting_cash_for(profession)
@@ -323,6 +345,7 @@ class UserManager:
                 {user.id: profession}
                 if uses_professions and profession is not None
                 else None,
+                {user.id: chosen_party} if chosen_party is not None else None,
             )
             cls._active_players[client_id] = user
             cls._colors[user.id] = color
@@ -481,10 +504,11 @@ class UserManager:
         teams: dict[int, int] | None = None,
         bots: list[tuple[UserDTO, BotConfig]] | None = None,
         professions: dict[int, Profession] | None = None,
+        parties: dict[int, str] | None = None,
     ) -> None:
         """
-        Ao selecionar uma partida salva: quem já jogou volta com a cor (a equipe e a
-        profissão) guardada e fica travado; quem nunca jogou mantém a sua, se sobrou, ou ganha
+        Ao selecionar uma partida salva: quem já jogou volta com a cor (a equipe, a
+        profissão e o partido do Comissionado) guardada e fica travado; quem nunca jogou mantém a sua, se sobrou, ou ganha
         uma livre. Os bots da partida salva (`bots`) entram na sala travados; os de
         partida nova ficam guardados até a seleção sair.
         """
@@ -518,6 +542,7 @@ class UserManager:
             cls._saved_colors = dict(colors)
             cls._saved_teams = dict(teams or {})
             cls._saved_professions = dict(professions or {})
+            cls._saved_parties = dict(parties or {})
             for player in cls._active_players.values():
                 if player.id in colors:
                     cls._colors[player.id] = colors[player.id]
@@ -525,6 +550,8 @@ class UserManager:
                     cls._teams[player.id] = cls._saved_teams[player.id]
                 if player.id in cls._saved_professions:
                     cls._professions[player.id] = cls._saved_professions[player.id]
+                if player.id in cls._saved_parties:
+                    cls._parties[player.id] = cls._saved_parties[player.id]
 
             # Cores guardadas valem para quem jogou; as dos ausentes ficam reservadas
             taken = set(colors.values())
@@ -585,6 +612,7 @@ class UserManager:
             cls._saved_colors = {}
             cls._saved_teams = {}
             cls._saved_professions = {}
+            cls._saved_parties = {}
             left = cls._take_out_bots(park=False)
             restored, dropped = cls._restore_parked_bots()
 
@@ -671,7 +699,9 @@ class UserManager:
     def _usable(cls, profession: Profession) -> Profession:
         """A profissão que a sala permite: a que o jogador escolheu ou, se as regras a tiraram, CLT."""
         if profession in available_professions(
-            SettingsManager.effective_inflation_adjusted()
+            inflation_adjusted=SettingsManager.effective_inflation_adjusted(),
+            government_enabled=SettingsManager.effective_government_enabled(),
+            funds_enabled=SettingsManager.effective_funds_enabled(),
         ):
             return profession
         return Profession.CLT
@@ -687,6 +717,39 @@ class UserManager:
             ).get(user_id, Profession.CLT)
         with cls._lock:
             return cls._usable(cls._professions.get(user_id, Profession.CLT))
+
+    @classmethod
+    def get_party(cls, user_id: int) -> str | None:
+        """A sigla do partido do Comissionado; nula para quem tem outra profissão ou ainda não escolheu."""
+        profession = cls.get_profession(user_id)
+        if profession is None or not is_party_bound(profession):
+            return None
+        if SimulationManager.has_active_simulation():
+            return repository.simulation_player.parties(
+                SimulationManager.get_active_simulation_id()
+            ).get(user_id)
+        with cls._lock:
+            return cls._parties.get(user_id)
+
+    @classmethod
+    def chosen_parties(cls) -> dict[int, str]:
+        """O partido de cada Comissionado da sala, por user_id; quem tem outra profissão não entra."""
+        with cls._lock:
+            return {
+                p.id: cls._parties[p.id]
+                for p in cls._active_players.values()
+                if p.id in cls._parties
+                and is_party_bound(
+                    cls._usable(cls._professions.get(p.id, Profession.CLT))
+                )
+            }
+
+    @classmethod
+    def room_parties(cls) -> dict[int, str]:
+        """O partido de cada Comissionado presente na sala, por user_id; vazio fora do modo de profissões."""
+        if not cls.uses_professions():
+            return {}
+        return cls.chosen_parties()
 
     @classmethod
     def room_professions(cls) -> dict[int, Profession]:
@@ -705,14 +768,23 @@ class UserManager:
             }
 
     @classmethod
-    def set_profession(cls, client_id: UUID, profession: Profession) -> None:
-        """Cada um escolhe a própria profissão; profissão não tem dono nem limite de jogadores."""
+    def set_profession(
+        cls,
+        client_id: UUID,
+        profession: Profession,
+        party: str | None = None,
+        valid_parties: frozenset[str] = frozenset(),
+    ) -> None:
+        """Cada um escolhe a própria profissão; profissão não tem dono nem limite de jogadores. A presa a partido leva a sigla de um dos `valid_parties`."""
         if not cls.uses_professions():
             raise ConflictError("A sala joga com salário igual: não há profissões.")
         if SimulationManager.has_active_simulation():
             raise ConflictError("A partida já começou: as profissões ficam travadas.")
         if cls._usable(profession) is not profession:
             raise ConflictError("Essa profissão não existe nas regras desta sala.")
+        bound = is_party_bound(profession)
+        if bound and (party is None or party not in valid_parties):
+            raise UnprocessableEntityError("Escolha o partido do Comissionado.")
 
         with cls._lock:
             player = cls._active_players.get(client_id)
@@ -723,7 +795,18 @@ class UserManager:
                 raise ConflictError("Sua profissão é a da partida selecionada.")
 
             repository.settings.set_profession(player.id, profession)
-            if cls._professions.get(player.id, Profession.CLT) == profession:
+            # Só a profissão presa a partido guarda sigla; as demais saem sem ela
+            repository.settings.set_party_choice(player.id, party if bound else None)
+            unchanged = cls._professions.get(
+                player.id, Profession.CLT
+            ) == profession and cls._parties.get(player.id) == (
+                party if bound else None
+            )
+            if bound and party is not None:
+                cls._parties[player.id] = party
+            else:
+                cls._parties.pop(player.id, None)
+            if unchanged:
                 return
 
             cls._professions[player.id] = profession
@@ -780,6 +863,7 @@ class UserManager:
         with cls._lock:
             cls._teams.clear()
             cls._professions.clear()
+            cls._parties.clear()
 
     @classmethod
     def ensure_teams_ready(cls, saved_teams: dict[int, int]) -> None:
@@ -939,7 +1023,11 @@ class UserManager:
         cls._bots[bot.client_id] = config
         # A profissão do bot é a escolhida ou sai no sorteio de quando ele entra, e fica com ele
         cls._professions[bot.id] = config.profession or random.choice(
-            available_professions(SettingsManager.effective_inflation_adjusted())
+            available_bot_professions(
+                inflation_adjusted=SettingsManager.effective_inflation_adjusted(),
+                government_enabled=SettingsManager.effective_government_enabled(),
+                funds_enabled=SettingsManager.effective_funds_enabled(),
+            )
         )
         if team is not None:
             cls._teams[bot.id] = team
@@ -1190,6 +1278,7 @@ class UserManager:
                 color=color,
                 team=cls.get_team(user.id),
                 profession=cls.get_profession(user.id),
+                party=cls.get_party(user.id),
                 activity=cls.room_activities().get(user.id),
                 bot=cls.room_bot(user),
             ).to_json(),
@@ -1225,6 +1314,7 @@ class UserManager:
                 color=color,
                 team=team,
                 profession=cls.get_profession(user.id),
+                party=cls.get_party(user.id),
                 activity=cls.room_activities().get(user.id),
                 bot=cls.room_bot(user),
             ).to_json(),
@@ -1242,6 +1332,7 @@ class UserManager:
                 color=color,
                 team=team,
                 profession=cls.get_profession(user.id),
+                party=cls.get_party(user.id),
                 activity=cls.room_activities().get(user.id),
                 bot=cls.room_bot(user),
             ).to_json(),
@@ -1259,6 +1350,7 @@ class UserManager:
                 color=color,
                 team=cls.get_team(user.id),
                 profession=cls.get_profession(user.id),
+                party=cls.get_party(user.id),
                 activity=cls.room_activities().get(user.id),
                 bot=cls.room_bot(user),
             ).to_json(),
@@ -1276,6 +1368,7 @@ class UserManager:
                 color=color,
                 team=cls.get_team(user.id),
                 profession=cls.get_profession(user.id),
+                party=cls.get_party(user.id),
                 activity=activity,
                 bot=cls.room_bot(user),
             ).to_json(),
@@ -1291,6 +1384,7 @@ class UserManager:
                 color=color,
                 team=cls.get_team(user.id),
                 profession=cls.get_profession(user.id),
+                party=cls.get_party(user.id),
                 activity=cls.room_activities().get(user.id),
                 bot=cls.room_bot(user),
             ).to_json(),

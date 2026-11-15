@@ -36,6 +36,7 @@ export const queryKeys = {
   partyContribution: () => ["settings", "party", "contribution"] as const,
   savedStrategyParams: () => ["settings", "strategy-params"] as const,
   matchPlayers: () => ["simulation", "match-players"] as const,
+  matchParties: () => ["simulation", "match-parties"] as const,
   botStrategies: (startDate?: string) =>
     startDate === undefined
       ? (["simulation", "bot-strategies"] as const)

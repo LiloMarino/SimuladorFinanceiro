@@ -105,6 +105,44 @@ def test_the_computer_answers_in_the_next_session_and_accepts_with_two_shared_fl
     assert answered and answered[-1]["accepted"] is True
 
 
+# Alinhamento do partido escolhido pelo Comissionado
+
+
+def test_the_governing_party_is_aligned_from_the_day_after_the_inauguration(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+
+    assert not book.is_aligned("AAA", TERM_START)
+    assert book.is_aligned("AAA", NEXT_DAY)
+
+
+def test_a_party_with_a_deal_in_force_is_aligned_with_the_base(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+
+    assert not book.is_aligned("MNV", NEXT_DAY)
+    ally_deal(book, MNV)
+
+    assert book.is_aligned("MNV", NEXT_DAY)
+    assert not book.is_aligned("ACI", NEXT_DAY)
+
+
+def test_a_party_outside_the_government_and_an_unknown_acronym_are_not_aligned(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+
+    assert not book.is_aligned("UPR", NEXT_DAY)
+    assert not book.is_aligned("ZZZ", NEXT_DAY)
+
+
+def test_every_party_is_outside_before_any_government(book: GovernmentBook):
+    assert not book.is_aligned("MNV", date(2020, 6, 1))
+    assert {"UPR", "MNV", "ACI"} <= book.party_abbrs()
+
+
 def test_the_computer_declines_when_it_shares_fewer_than_two_flags(
     book: GovernmentBook, engine, market
 ):

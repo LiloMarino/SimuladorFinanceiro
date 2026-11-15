@@ -3636,6 +3636,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/match-parties": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar os partidos da partida em andamento
+         * @description Retorna a sigla de cada partido da partida ativa, em ordem alfabética; vazia sem a expansão Governo & Política. Serve a quem chega e escolhe o partido do Comissionado.
+         */
+        get: operations["get_match_parties_api_simulation_match_parties_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/bots/strategies": {
         parameters: {
             query?: never;
@@ -7769,6 +7789,8 @@ export interface components {
             price: string;
             /** Raised */
             raised: string;
+            /** Commission */
+            commission: string;
             /** Total After */
             total_after: string;
             /** Limit */
@@ -9002,6 +9024,8 @@ export interface components {
             /** Team */
             team?: number | null;
             profession?: components["schemas"]["Profession"] | null;
+            /** Party */
+            party?: string | null;
         };
         /** JoinPartyRequest */
         JoinPartyRequest: {
@@ -10572,6 +10596,8 @@ export interface components {
             /** Team */
             team: number | null;
             profession: components["schemas"]["Profession"] | null;
+            /** Party */
+            party: string | null;
             activity: components["schemas"]["PlayerActivity"] | null;
             bot: components["schemas"]["RoomBotDTO"] | null;
         };
@@ -10636,6 +10662,8 @@ export interface components {
             /** Team */
             team: number | null;
             profession: components["schemas"]["Profession"] | null;
+            /** Party */
+            party: string | null;
             activity: components["schemas"]["PlayerActivity"] | null;
             bot: components["schemas"]["RoomBotDTO"] | null;
             /** Previous Nickname */
@@ -10644,6 +10672,8 @@ export interface components {
         /** PlayerProfessionRequest */
         PlayerProfessionRequest: {
             profession: components["schemas"]["Profession"];
+            /** Party */
+            party?: string | null;
         };
         /** PlayerRankingDTO */
         PlayerRankingDTO: {
@@ -11264,7 +11294,7 @@ export interface components {
          * @description A profissão do jogador no viver de renda; cada uma pertence a um grupo do eleitorado.
          * @enum {string}
          */
-        Profession: "CLT" | "PUBLIC_SERVANT" | "ENTREPRENEUR" | "RETIREE" | "WELFARE" | "LANDLORD" | "EXPORTER" | "BANKER" | "FREELANCER" | "BROKER" | "HEIR" | "NEW_GRADUATE";
+        Profession: "CLT" | "PUBLIC_SERVANT" | "ENTREPRENEUR" | "RETIREE" | "WELFARE" | "LANDLORD" | "EXPORTER" | "BANKER" | "FREELANCER" | "BROKER" | "HEIR" | "NEW_GRADUATE" | "COMMISSIONED" | "OFFERS_BANKER";
         /**
          * ProfileMoveDTO
          * @description Uma medida aprovada que moveu o perfil do partido.
@@ -22218,6 +22248,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlayerNickname"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_match_parties_api_simulation_match_parties_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
                 };
             };
             /** @description Unprocessable Content */

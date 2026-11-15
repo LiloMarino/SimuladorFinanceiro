@@ -25,6 +25,7 @@ from backend.core.enum import (
     OrderAction,
 )
 from backend.core.exceptions.http_exceptions import UnprocessableEntityError
+from backend.core.life_budget import cents
 from backend.core.repository.portfolio import DividendTotal
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
@@ -85,6 +86,10 @@ COVER_REASONS: dict[CashflowEventType, str] = {
     CashflowEventType.LOAN_PAYMENT: "a parcela do empréstimo",
     CashflowEventType.CAMPAIGN_CONTRIBUTION: "a contribuição ao partido",
 }
+
+
+# A fatia da captação de uma gestora que vai aos Banqueiros de ofertas da sala
+OFFER_COMMISSION_RATE = Decimal("0.01")
 
 
 class SimulationEngine:
@@ -328,9 +333,38 @@ class SimulationEngine:
             CashflowEventType.DEPOSIT if cash > 0 else CashflowEventType.WITHDRAW,
         )
 
+    # Toda captação de gestora (oferta pelo livro e preferência da emissão) entra por
+    # `credit_fund_offer`: a comissão dos Banqueiros de ofertas sai do valor captado ali.
+    # A fonte devolve o client_id de cada Banqueiro da sala; vazia, a gestora fica com tudo
+    _offer_bankers_source: Callable[[], list[UUID]] | None = None
+
+    def use_offer_bankers(self, source: Callable[[], list[UUID]]) -> None:
+        self._offer_bankers_source = source
+
+    def _offer_split(self, amount: Decimal) -> tuple[list[UUID], Decimal]:
+        """Os Banqueiros da sala e a parte de cada um: a comissão total é repartida em partes iguais."""
+        source = self._offer_bankers_source
+        bankers = source() if source else []
+        if not bankers:
+            return [], Decimal(0)
+        return bankers, cents(amount * OFFER_COMMISSION_RATE / len(bankers))
+
+    def offer_commission_on(self, amount: Decimal) -> Decimal:
+        """A comissão total que uma captação de `amount` paga aos Banqueiros de ofertas."""
+        bankers, share = self._offer_split(amount)
+        return share * len(bankers)
+
     def credit_fund_offer(self, client_id: UUID, amount: Decimal) -> None:
-        """Dinheiro da venda da oferta pública no caixa da gestora."""
-        self._move_cash(client_id, amount, CashflowEventType.FUND_OFFER_PROCEEDS)
+        """Dinheiro da captação da gestora, já sem a comissão dos Banqueiros de ofertas."""
+        bankers, share = self._offer_split(amount)
+        self._move_cash(
+            client_id,
+            amount - share * len(bankers),
+            CashflowEventType.FUND_OFFER_PROCEEDS,
+        )
+        if share > 0:
+            for banker in bankers:
+                self._move_cash(banker, share, CashflowEventType.OFFER_COMMISSION)
 
     def credit_fund_subscription(self, client_id: UUID, amount: Decimal) -> None:
         """Dinheiro sintético da subscrição do formador no caixa da gestora."""

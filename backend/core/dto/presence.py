@@ -12,6 +12,8 @@ class PlayerPresenceEventDTO(BaseDTO):
     team: int | None = None
     # Profissão no viver de renda com profissões; nula nos outros modos
     profession: Profession | None = None
+    # Sigla do partido do Comissionado; nula nas outras profissões
+    party: str | None = None
     # O que o jogador está fazendo; nulo é "Online" (partida em andamento ou sem aviso ainda)
     activity: PlayerActivity | None = None
     # Presente quando o jogador é um bot da sala: a estratégia que ele joga

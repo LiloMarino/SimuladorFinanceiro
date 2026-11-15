@@ -41,10 +41,12 @@ class FundPreviewBuilder:
         mine = self._book.quotas_of(fund, self._manager)
         total_after = total + quotas
         rights = (quotas * mine / total).to_integral_value(rounding=ROUND_FLOOR)
+        raised = nav * quotas
         return FundIssuancePreviewDTO(
             quotas=quotas,
             price=nav,
-            raised=nav * quotas,
+            raised=raised,
+            commission=self._engine.offer_commission_on(raised),
             total_after=total_after,
             limit=total * ISSUANCE_LIMIT,
             share_now=_share(mine, total),

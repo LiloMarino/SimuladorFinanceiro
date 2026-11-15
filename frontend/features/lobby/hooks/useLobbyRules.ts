@@ -12,6 +12,11 @@ export function useLobbyRules(settings: SimulationSettings) {
     grouping: rules.player_grouping,
     naming: rules.team_naming,
     professions,
-    inflationAdjusted: rules.inflation_adjusted,
+    // As regras que decidem quais profissões a sala oferece
+    professionRules: {
+      inflation_adjusted: rules.inflation_adjusted,
+      government_enabled: rules.government_enabled,
+      funds_enabled: rules.funds_enabled,
+    },
   };
 }

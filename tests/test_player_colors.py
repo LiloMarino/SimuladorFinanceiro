@@ -347,6 +347,7 @@ class MatchStore:
         colors: dict[int, str],
         teams: dict[int, int] | None = None,
         professions: dict[int, Profession] | None = None,
+        parties: dict[int, str] | None = None,
     ) -> None:
         for uid, color in colors.items():
             self.participants[uid] = (f"U{uid}", color)

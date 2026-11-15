@@ -1165,6 +1165,21 @@ class GovernmentBook:
             return None
         return self.state.house_on(day).of_party(term.party_id)
 
+    def party_abbrs(self) -> frozenset[str]:
+        """As siglas dos partidos da partida: os do computador e os fundados por jogadores."""
+        return frozenset(
+            {*house.COMPUTER_KEYS, *(p.abbr for p in self.state.player_parties())}
+        )
+
+    def is_aligned(self, abbr: str, day: date) -> bool:
+        """O partido da sigla governa ou tem acordo de apoio em vigor no dia; a posse do dia só vale a partir do seguinte."""
+        governing_id = self.state.governing_party_on(day)
+        governing = self.state.parties.get(governing_id) if governing_id else None
+        if governing is not None and governing.abbr == abbr:
+            return True
+        bloc = next((b for b in self.state.house_on(day).blocs if b.abbr == abbr), None)
+        return bloc is not None and self.state.deal_of(bloc.key, day) is not None
+
     def base_seats(self, day: date) -> int:
         """As cadeiras da base: a bancada do governo mais as dos acordos em vigor."""
         current = self.state.house_on(day)

@@ -5,8 +5,10 @@ import {
   Building2,
   ChartCandlestick,
   Gem,
+  Gavel,
   GraduationCap,
   HandCoins,
+  Handshake,
   Landmark,
   Laptop,
   Ship,
@@ -18,11 +20,11 @@ import type { IncomeDriver, IncomeLoss, LifeStatus, Profession, SimulationSettin
 /** As regras da sala que decidem o que cada profissão sente: o card só mostra o que vale na partida. */
 export type RoomRules = Pick<
   SimulationSettings["simulation"],
-  "government_enabled" | "inflation_adjusted" | "monthly_salary"
+  "funds_enabled" | "government_enabled" | "inflation_adjusted" | "monthly_salary"
 >;
 
 /** Regra da sala de que uma vantagem, desvantagem ou etiqueta depende; todas precisam estar ligadas. */
-type RoomRequirement = "government" | "inflationAdjusted";
+type RoomRequirement = "government" | "funds" | "inflationAdjusted";
 
 export type TagKey =
   | "unemployment"
@@ -54,7 +56,9 @@ export type ProfessionInfo = {
   /** O que muda a renda da profissão durante a partida */
   tags: ProfessionTag[];
   /** A regra que a sala precisa ter ligada para a profissão existir; sem ela some da escolha */
-  requires?: Extract<RoomRequirement, "inflationAdjusted">;
+  requires?: RoomRequirement;
+  /** A renda segue um partido que o jogador escolhe ao entrar; o bot não escolhe, então não a recebe */
+  partyBound?: boolean;
 };
 
 const GOVERNMENT: RoomRequirement[] = ["government"];
@@ -198,13 +202,48 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
     ],
     tags: [{ key: "unemployment" }, { key: "gdp" }, { key: "personalTax", requires: GOVERNMENT }],
   },
+  COMMISSIONED: {
+    name: "Comissionado",
+    icon: Handshake,
+    incomeMultiple: 1.5,
+    gains: [{ text: "Ganha 50% mais que o CLT enquanto o seu partido está na presidência ou na base" }],
+    losses: [
+      { text: "Ganha 50% menos que o CLT quando o partido sai do governo" },
+      { text: "A renda só muda no mês seguinte à troca de governo" },
+    ],
+    tags: [{ key: "personalTax", requires: GOVERNMENT }],
+    requires: "government",
+    partyBound: true,
+  },
+  OFFERS_BANKER: {
+    name: "Banqueiro de ofertas",
+    icon: Gavel,
+    incomeMultiple: 0.7,
+    gains: [{ text: "Recebe 1% de toda oferta pública e emissão de cotas da sala, dividido com os outros banqueiros" }],
+    losses: [
+      { text: "Ganha 30% menos que o CLT de salário fixo" },
+      { text: "Pode ser demitido e ficar um mês sem salário, mais quando o desemprego sobe" },
+    ],
+    tags: [{ key: "unemployment" }, { key: "personalTax", requires: GOVERNMENT }],
+    requires: "funds",
+  },
 };
 
-/** As profissões que a sala oferece, na ordem das cartas: as que exigem a correção pela inflação somem sem ela. */
-export function availableProfessions(room: Pick<RoomRules, "inflation_adjusted">) {
-  return (Object.keys(PROFESSIONS) as Profession[]).filter(
-    (profession) => !PROFESSIONS[profession].requires || room.inflation_adjusted,
-  );
+/** As profissões que a sala oferece, na ordem das cartas: as que exigem uma regra ou expansão somem sem ela. */
+export function availableProfessions(
+  room: Pick<RoomRules, "funds_enabled" | "government_enabled" | "inflation_adjusted">,
+) {
+  return (Object.keys(PROFESSIONS) as Profession[]).filter((profession) => {
+    const { requires } = PROFESSIONS[profession];
+    return !requires || isActive([requires], room);
+  });
+}
+
+/** As profissões que o bot pode ter: as da sala, sem as que seguem um partido escolhido pelo jogador. */
+export function availableBotProfessions(
+  room: Pick<RoomRules, "funds_enabled" | "government_enabled" | "inflation_adjusted">,
+) {
+  return availableProfessions(room).filter((profession) => !PROFESSIONS[profession].partyBound);
 }
 
 /** Renda de partida da profissão sobre o salário do host; o auxílio conta no gasto de referência. */
@@ -213,8 +252,20 @@ export function professionIncome(profession: Profession, salary: number) {
   return salary * (incomeMultiple + benefitMultiple);
 }
 
-function isActive(requires: RoomRequirement[] | undefined, room: RoomRules) {
-  return (requires ?? []).every((rule) => (rule === "government" ? room.government_enabled : room.inflation_adjusted));
+const ROOM_RULE: Record<
+  RoomRequirement,
+  keyof Pick<RoomRules, "funds_enabled" | "government_enabled" | "inflation_adjusted">
+> = {
+  government: "government_enabled",
+  funds: "funds_enabled",
+  inflationAdjusted: "inflation_adjusted",
+};
+
+function isActive(
+  requires: RoomRequirement[] | undefined,
+  room: Pick<RoomRules, "funds_enabled" | "government_enabled" | "inflation_adjusted">,
+) {
+  return (requires ?? []).every((rule) => room[ROOM_RULE[rule]]);
 }
 
 /** O que a profissão tem de vantagem, desvantagem e etiqueta nas regras desta sala. */
