@@ -81,10 +81,9 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
-| [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | M18 · 4.2 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (39 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (40 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -124,6 +123,7 @@
 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 | — | — | — | ✅ |
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 | — | — | — | ✅ |
 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | M18 · 4.2 | — | — | — | ✅ |
+| [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | M18 · 4.2 | — | — | — | ✅ |
 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | M18 · 4.2 | — | — | — | ✅ |
 | [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | M18 · 4.2 | — | — | — | ✅ |
 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | M18 · 4.2 | — | — | — | ✅ |
@@ -142,7 +142,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 19/20 concluídos
+> **Progresso:** 20/20 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -157,7 +157,7 @@
 | 9 | [**F104**](#f104) | Feature | Gestoras: co-gestores | — | ✅ Concluído |
 | 10 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | — | ✅ Concluído |
 | 11 | [**F255**](#f255) | Feature | Estatais | — | ✅ Concluído |
-| 12 | [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | [F101](#f101), [F44](#f44), [F255](#f255) | ⏳ Pendente |
+| 12 | [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | — | ✅ Concluído |
 | 13 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | — | ✅ Concluído |
 | 14 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | — | ✅ Concluído |
 | 15 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | — | ✅ Concluído |
@@ -260,7 +260,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | M18 · 4.2 · 12º | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
@@ -320,7 +319,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F292** | Feature | Fundo Soberano: o governo compra ações e cotas | N34, N41 | — | M18 · 4.2 | [F101](#f101), [F44](#f44), [F255](#f255) | Médio | Médio | Médio | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -522,24 +520,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f292"></a>
-**F292 — Fundo Soberano: o governo compra ações e cotas.** Serve N34 e N41. O governo investe em empresas com uma carteira própria. A referência é o Fundo Soberano do Brasil (2008 a 2019): criado com dinheiro do Tesouro, comprou ações da Petrobras e do Banco do Brasil e foi extinto em 2019, com o saldo usado para pagar dívida.
-
-**Regras.**
-
-1. **É um destino do gasto público**, como o auxílio e as obras: o aporte é uma medida que passa pelo Congresso. A medida sempre existe, sem chave nas configurações do governo.
-2. **O presidente escolhe as compras**, ativo por ativo, fora da fila do Congresso, porque o dinheiro já foi aprovado. Toda compra e toda venda sai no jornal.
-3. **Como compra:** o presidente troca o caixa da topbar para o Fundo Soberano, como faz com uma gestora, e compra na Renda Variável de sempre, com gráfico, livro de ofertas e busca; uma faixa avisa que a ordem é do fundo. A compra passa pelo livro e mexe no preço, como a de qualquer jogador grande.
-4. **O que o fundo compra:** ações importadas, inclusive as das estatais, e até 20% das cotas de cada gestora (F44). Comprar a gestora de um aliado, do partido do presidente ou da base, dá manchete de favorecimento e rejeição nos grupos do eleitorado.
-5. **Sem impulso no PIB:** comprar ação na bolsa não constrói nada, o dinheiro só troca de mão. Venda e dividendos voltam ao Tesouro e abatem a dívida.
-6. **A carteira do fundo** é uma carteira separada (F101). As telas estão desenhadas no canvas, na linha das Estatais (F255), com a compra pelo caixa da topbar.
-
-**Plano.** A medida de aporte entre os gastos públicos; a carteira do governo; as ações de compra e venda do presidente; as manchetes de compra, de venda e de favorecimento; o teto de 20% por gestora; o retorno de venda e dividendos ao Tesouro.
-
-**Riscos.** O presidente pode usar o fundo para inflar a cota de um aliado; o teto de 20%, a manchete e a rejeição são o preço. Comprar antes de uma medida que valoriza o ativo é informação privilegiada, aceita como nas estatais, porque o aporte passa pelo Congresso à vista de todos.
-
-**Aceite:** sem aporte aprovado o fundo não compra nada; vender devolve o dinheiro ao Tesouro e abate a dívida; o fundo nunca passa de 20% das cotas de uma gestora; comprar ação não move o PIB.
-
 ---
 
 ## 🔍 Em avaliação
@@ -638,6 +618,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F289** | Melhoria | Cards de profissão com vantagens e desvantagens | N39, N25 | — | M18 · 4.2 |
 | **F290** | Feature | Profissões novas | N23, N34 | D19 | M18 · 4.2 |
 | **F291** | Melhoria | Locador com aluguel de 1,1× o salário | N39 | — | M18 · 4.2 |
+| **F292** | Feature | Fundo Soberano: o governo compra ações e cotas | N34, N41 | — | M18 · 4.2 |
 | **F293** | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | N23, N34 | D19 | M18 · 4.2 |
 | **F294** | Melhoria | Adicionar vários bots de uma vez | N8 | — | M18 · 4.2 |
 | **F295** | Manutenção | Orçamento, painel econômico e base do governo por tempo real | N15 | — | M18 · 4.2 |
@@ -793,6 +774,24 @@ Os bots recebem uma profissão sorteada entre todas, e o host pode fixá-la no s
 **F291 — Locador com aluguel de 1,1× o salário.** Serve N39. Hoje o Locador (`backend/core/professions.py`) rende 1× o salário, paga o imposto de renda das pessoas e corre o sorteio de demissão como vacância, igual ao CLT, mas sem o aumento acima da inflação que o CLT ganha quando o PIB cresce. Ele sai igual ou pior que o CLT em tudo, e com as vantagens e desvantagens escritas no card da profissão isso fica à vista: ninguém escolhe o Locador.
 
 **Decidido em 13/11:** o aluguel passa a 1,1× o salário (R$ 5.500 com salário de R$ 5.000), 10% mais que o CLT, e segue só com a inflação. A escolha vira uma troca: mais renda agora contra o CLT, que cresce. Com PIB de 2% ao ano o CLT ganha 1% ao ano acima da inflação e alcança o Locador em uns 10 anos de partida. Muda o `income_multiple` do Locador no backend e no `frontend/shared/lib/professions.ts`, e os testes de profissão que fixam o 1×.
+
+<a id="f292"></a>
+**F292 — Fundo Soberano: o governo compra ações e cotas.** Serve N34 e N41. O governo investe em empresas com uma carteira própria. A referência é o Fundo Soberano do Brasil (2008 a 2019): criado com dinheiro do Tesouro, comprou ações da Petrobras e do Banco do Brasil e foi extinto em 2019, com o saldo usado para pagar dívida.
+
+**Regras.**
+
+1. **É um destino do gasto público**, como o auxílio e as obras: o aporte é uma medida que passa pelo Congresso. A medida sempre existe, sem chave nas configurações do governo.
+2. **O presidente escolhe as compras**, ativo por ativo, fora da fila do Congresso, porque o dinheiro já foi aprovado. Toda compra e toda venda sai no jornal.
+3. **Como compra:** o presidente troca o caixa da topbar para o Fundo Soberano, como faz com uma gestora, e compra na Renda Variável de sempre, com gráfico, livro de ofertas e busca; uma faixa avisa que a ordem é do fundo. A compra passa pelo livro e mexe no preço, como a de qualquer jogador grande.
+4. **O que o fundo compra:** ações importadas, inclusive as das estatais, e até 20% das cotas de cada gestora (F44). Comprar a gestora de um aliado, do partido do presidente ou da base, dá manchete de favorecimento e rejeição nos grupos do eleitorado.
+5. **Sem impulso no PIB:** comprar ação na bolsa não constrói nada, o dinheiro só troca de mão. Venda e dividendos voltam ao Tesouro e abatem a dívida.
+6. **A carteira do fundo** é uma carteira separada (F101). As telas estão desenhadas no canvas, na linha das Estatais (F255), com a compra pelo caixa da topbar.
+
+**Plano.** A medida de aporte entre os gastos públicos; a carteira do governo; as ações de compra e venda do presidente; as manchetes de compra, de venda e de favorecimento; o teto de 20% por gestora; o retorno de venda e dividendos ao Tesouro.
+
+**Riscos.** O presidente pode usar o fundo para inflar a cota de um aliado; o teto de 20%, a manchete e a rejeição são o preço. Comprar antes de uma medida que valoriza o ativo é informação privilegiada, aceita como nas estatais, porque o aporte passa pelo Congresso à vista de todos.
+
+**Aceite:** sem aporte aprovado o fundo não compra nada; vender devolve o dinheiro ao Tesouro e abate a dívida; o fundo nunca passa de 20% das cotas de uma gestora; comprar ação não move o PIB.
 
 <a id="f293"></a>
 **F293 — Profissões das expansões.** Serve N23 e N34; condicionado por D19. Duas profissões que só aparecem com a expansão delas ligada, no formato Ganha | Perde dos cards de profissão. Os múltiplos são o ponto de partida; os números finais saem da calibragem.
