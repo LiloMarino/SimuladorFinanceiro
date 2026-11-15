@@ -18,7 +18,11 @@ import type { SpendingKind } from "@/shared/lib/spending-kinds";
 
 const MINUS = "−";
 
-export type GeneralKind = Exclude<MeasureKind, "SECTOR_EXEMPT" | "SECTOR_TAX" | SpendingKind>;
+/** As medidas das estatais têm diálogo próprio; as gerais são as de imposto e tabela. */
+export type GeneralKind = Exclude<
+  MeasureKind,
+  "SECTOR_EXEMPT" | "SECTOR_TAX" | "FOUND_STATE_COMPANY" | "PRIVATIZE_STATE_COMPANY" | SpendingKind
+>;
 
 export const GENERAL_KINDS = [
   "STOCK_PROFIT_RATE",

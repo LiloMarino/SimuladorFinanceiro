@@ -129,7 +129,7 @@ class SimulationEngine:
         self.current_date: date = current_date
         self.simulation_id = simulation_id
         # As cotas de gestora desta partida e o preço de ranking do dia de cada uma
-        self.fund_stocks: dict[str, StockDTO] = {}
+        self.created_stocks: dict[str, StockDTO] = {}
         self.ranking_prices: dict[str, Decimal] = {}
         # Quem acompanha o lucro realizado de cada carteira (as gestoras): recebe a conta, a
         # origem e o valor de cada realização
@@ -626,13 +626,13 @@ class SimulationEngine:
 
     @cached_property
     def stocks(self) -> dict[str, StockDTO]:
-        """Os ativos importados, estáveis na partida (nomes e classes só mudam na Central, fora dela), mais as cotas de gestora dela."""
+        """Os ativos importados, estáveis na partida (nomes e classes só mudam na Central, fora dela), mais os ativos que a partida criou: cotas de gestora e ações de estatal fundada."""
         imported = {stock.ticker: stock for stock in repository.stock.get_stocks()}
-        return {**imported, **self.fund_stocks}
+        return {**imported, **self.created_stocks}
 
-    def add_fund_stock(self, stock: StockDTO) -> None:
-        """A cota de uma gestora entra no catálogo da partida."""
-        self.fund_stocks[stock.ticker] = stock
+    def add_created_stock(self, stock: StockDTO) -> None:
+        """O ativo criado na partida, cota de gestora ou ação de estatal fundada, entra no catálogo dela."""
+        self.created_stocks[stock.ticker] = stock
         self.__dict__.pop("stocks", None)
 
     @cached_property
@@ -819,7 +819,7 @@ class SimulationEngine:
         return scale_dividends(
             events,
             {stock.id: ticker for ticker, stock in self.stocks.items()},
-            lambda ticker, day: repository.economic.stock_factor(
+            lambda ticker, day: repository.economic.dividend_factor(
                 self.simulation_id, ticker, day
             ),
         )

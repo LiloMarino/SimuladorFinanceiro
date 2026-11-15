@@ -36,17 +36,17 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.funds import fund_book as fund_book_module
-from backend.features.funds.fund_account import DayTrades
 from backend.features.funds.fund_book import (
     FundBook,
     cdi_growth,
-    close_candle,
     months_between,
     nav_per_quota,
     offer_ends_on,
     offer_session,
 )
 from backend.features.funds.ranking_price import RANKING_WINDOW
+from backend.features.market_maker.account import DayTrades
+from backend.features.market_maker.candle import close_candle
 from backend.features.notifications.news import Headline
 from backend.features.simulation.simulation_engine import (
     BalanceSheet,
@@ -55,7 +55,7 @@ from backend.features.simulation.simulation_engine import (
 from backend.features.variable_income.broker import Broker
 from backend.features.variable_income.entities.order import (
     FUND_ISSUER_CLIENT_ID,
-    FUND_MAKER_CLIENT_ID,
+    MARKET_MAKER_CLIENT_ID,
     LimitOrder,
     MarketOrder,
 )
@@ -79,14 +79,14 @@ class FundEngine(FakeSimulationEngine):
         self.broker = Broker(self, threading.RLock())
         self.matching_engine = MatchingEngine(self.broker)
         self.ranking_prices: dict[str, Decimal] = {}
-        self.fund_stocks: dict[str, StockDTO] = {}
+        self.created_stocks: dict[str, StockDTO] = {}
 
     def balance_sheet(self, client_id: UUID) -> BalanceSheet:
         return BalanceSheet(
             Decimal(0), Decimal(0), self.cash[client_id], Decimal(0), {}
         )
 
-    def add_fund_stock(self, stock: StockDTO) -> None:
+    def add_created_stock(self, stock: StockDTO) -> None:
         self.stocks[stock.ticker] = stock
 
     update_market_data = SimulationEngine.update_market_data
@@ -466,7 +466,7 @@ def test_open_offer_lists_the_fund_and_sets_the_maker_stake(memory: MemoryFunds)
     assert memory.funds[fund.terms.id].listed_on == TODAY
     orders = setup.engine.matching_engine.order_book.get_orders(TICKER)
     assert {o.client_id for o in orders} == {
-        FUND_MAKER_CLIENT_ID,
+        MARKET_MAKER_CLIENT_ID,
         FUND_ISSUER_CLIENT_ID,
     }
     assert {o.to_dto().player_nickname for o in orders} == {
@@ -998,7 +998,7 @@ def test_on_office_cancels_the_open_orders_of_the_managers_funds_only(
     assert still_there
     assert fund_client not in {o.client_id for o in orders}
     # O formador e a oferta seguem no livro: a sala continua negociando a cota
-    assert {FUND_MAKER_CLIENT_ID, FUND_ISSUER_CLIENT_ID} <= {
+    assert {MARKET_MAKER_CLIENT_ID, FUND_ISSUER_CLIENT_ID} <= {
         o.client_id for o in orders
     }
 
@@ -1108,7 +1108,7 @@ def test_the_maker_bids_stay_below_the_offer_so_it_never_buys_from_it(
     best_bid, issuer = book.best_buy(TICKER), book.best_sell(TICKER)
     assert best_bid is not None and issuer is not None
     assert (best_bid.client_id, issuer.client_id) == (
-        FUND_MAKER_CLIENT_ID,
+        MARKET_MAKER_CLIENT_ID,
         FUND_ISSUER_CLIENT_ID,
     )
     assert best_bid.price < issuer.price

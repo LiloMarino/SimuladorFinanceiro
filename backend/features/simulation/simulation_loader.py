@@ -98,6 +98,9 @@ class SimulationLoader:
         validate_room_bots(settings.start_date)
         bots = UserManager.room_bots()
         simulation_id = repository.simulation.create_simulation(settings)
+        # As estatais da base viram as estatais da partida, só quando há governo
+        if settings.government_enabled:
+            repository.state_company.copy_marks(simulation_id)
 
         # O primeiro tick da Simulation já lê os participantes, que gravam antes dela
         room_colors = UserManager.room_colors()

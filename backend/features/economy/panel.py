@@ -147,6 +147,7 @@ def debt_summary(linked: LinkedEconomy, today: date) -> DebtSummaryDTO:
             growth=causes.growth,
             inflation=causes.inflation,
             primary=causes.primary,
+            assets=causes.assets,
         ),
         debt_amount=month.debt * month.gdp,
         gdp=month.gdp,
@@ -327,6 +328,13 @@ def link_effects(linked: LinkedEconomy, today: date) -> list[LinkEffectDTO]:
             0.0,
             0.0,
             unemployment=link.payroll_jobs,
+        ),
+        effect(
+            EconomyLink.STATE_COMPANIES,
+            link.state_gdp_push,
+            float(link.state_inflation_points),
+            0.0,
+            link.state_gdp_push,
         ),
     ]
 

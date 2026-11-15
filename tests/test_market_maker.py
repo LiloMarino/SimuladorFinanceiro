@@ -13,17 +13,14 @@ from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.enum import OrderAction
 from backend.core.exceptions import InsufficentPositionError
 from backend.features.funds.fund_account import FundAccount
-from backend.features.funds.fund_maker import (
-    BAND,
-    DEPTH,
-    FundMaker,
-)
 from backend.features.funds.fund_offer import FundOffer
 from backend.features.funds.ranking_price import TradedDay, ranking_price
+from backend.features.market_maker.account import MakerAccount
+from backend.features.market_maker.maker import BAND, DEPTH, MarketMaker
 from backend.features.variable_income.broker import Broker
 from backend.features.variable_income.entities.order import (
     FUND_ISSUER_CLIENT_ID,
-    FUND_MAKER_CLIENT_ID,
+    MARKET_MAKER_CLIENT_ID,
     LimitOrder,
     MarketOrder,
 )
@@ -48,7 +45,7 @@ class Fill:
 
     @property
     def involves_maker(self) -> bool:
-        return FUND_MAKER_CLIENT_ID in (self.taker, self.maker)
+        return MARKET_MAKER_CLIENT_ID in (self.taker, self.maker)
 
 
 class RecordingBroker(Broker):
@@ -89,9 +86,10 @@ class Market:
             quotas=Decimal(quotas),
             maker_quotas=Decimal(maker_quotas),
         )
-        self.broker.fund_accounts[TICKER] = self.account
-        self.maker = FundMaker(self.matching, self.broker.fund_accounts)
-        self.offer = FundOffer(self.matching, self.broker.fund_accounts)
+        self.broker.maker_accounts[TICKER] = self.account
+        self.accounts = {TICKER: self.account}
+        self.maker = MarketMaker(self.matching, self.broker.maker_accounts)
+        self.offer = FundOffer(self.matching, self.accounts)
 
     @property
     def fills(self) -> list[Fill]:
@@ -135,7 +133,7 @@ class Market:
             o
             for o in self.matching.order_book.get_orders(TICKER)
             if isinstance(o, LimitOrder)
-            and o.client_id == FUND_MAKER_CLIENT_ID
+            and o.client_id == MARKET_MAKER_CLIENT_ID
             and o.action == action
         ]
 
@@ -182,6 +180,26 @@ def test_ladder_surrounds_nav_and_noise_trades_within_three_percent():
 
     assert len(market.fills) == 60
     assert all(f.involves_maker for f in market.fills)
+
+
+def test_founded_state_company_gets_the_ladder_around_fair_value_with_the_maker_stock():
+    """A ação de estatal fundada é um papel de preço sintético como a cota: a escada cerca o
+    valor justo por ação e a venda sai do estoque do formador, os 49% que o governo não tem."""
+    market = Market(quotas=1000, maker_quotas=100)
+    shares = Decimal(1000)
+    account = MakerAccount(quotas=shares, maker_quotas=shares * Decimal("0.49"))
+    market.broker.maker_accounts[TICKER] = account
+    fair_value = 12.5
+
+    market.maker.refresh(TICKER, fair_value, account.quotas, TODAY)
+
+    bids = market.maker_orders(OrderAction.BUY)
+    asks = market.maker_orders(OrderAction.SELL)
+    assert max(o.price for o in bids) < fair_value < min(o.price for o in asks)
+    assert min(o.price for o in bids) >= fair_value * (1 - BAND)
+    assert max(o.price for o in asks) <= fair_value * (1 + BAND)
+    assert sum(o.size for o in asks) <= account.maker_quotas
+    assert 0 < sum(o.size for o in asks) <= shares * Decimal(str(DEPTH))
 
 
 def test_continuous_buying_walks_up_inside_band_and_creates_premium():
@@ -246,7 +264,7 @@ def test_resting_buy_above_first_level_pays_the_level_price():
     market.refresh(95)
 
     (fill,) = market.fills
-    assert (fill.taker, fill.maker) == (FUND_MAKER_CLIENT_ID, BUYER)
+    assert (fill.taker, fill.maker) == (MARKET_MAKER_CLIENT_ID, BUYER)
     assert (fill.price, fill.quantity) == (96.9, 3)
     assert resting.remaining == 0
     assert market.simulation.cash[BUYER] == Decimal(10000) - Decimal("96.9") * 3
@@ -265,7 +283,7 @@ def test_resting_sell_below_first_level_is_bought_at_the_level_price():
     market.refresh()
 
     (fill,) = market.fills
-    assert (fill.taker, fill.maker) == (FUND_MAKER_CLIENT_ID, SELLER)
+    assert (fill.taker, fill.maker) == (MARKET_MAKER_CLIENT_ID, SELLER)
     assert (fill.price, fill.quantity) == (98.0, 2)
     assert market.simulation.cash[SELLER] == 196
     assert market.account.maker_quotas == 102
@@ -369,15 +387,15 @@ def test_maker_trade_moves_synthetic_stock_without_reserving_or_events(
     market = Market(quotas=1000, maker_quotas=100, cash={"buyer": "10000"})
     market.refresh()
 
-    assert market.simulation.cash[FUND_MAKER_CLIENT_ID] == 0
+    assert market.simulation.cash[MARKET_MAKER_CLIENT_ID] == 0
     market.matching.submit(market.market(BUYER, OrderAction.BUY, 3))
 
     first = market.fills[0]
-    assert first.maker == FUND_MAKER_CLIENT_ID
+    assert first.maker == MARKET_MAKER_CLIENT_ID
     assert market.account.maker_quotas == 97
     assert market.account.maker_cash == Decimal(str(first.price)) * 3
     assert market.account.quotas == 1000
-    assert market.simulation.cash[FUND_MAKER_CLIENT_ID] == 0
+    assert market.simulation.cash[MARKET_MAKER_CLIENT_ID] == 0
     assert [e.portfolio_id for e in isolated if isinstance(e, EquityEventDTO)] == [1]
 
 

@@ -69,6 +69,8 @@ class EconomyAdjustment(Protocol):
 
     def stock_factor(self, ticker: str, day: date) -> float: ...
 
+    def dividend_factor(self, ticker: str, day: date) -> float: ...
+
 
 class EconomicRepository:
     def __init__(self) -> None:
@@ -118,6 +120,11 @@ class EconomicRepository:
         """O quanto o efeito do governo move o preço da ação no dia; 1 sem efeito."""
         adjustment = self._adjustments.get(simulation_id)
         return 1.0 if adjustment is None else adjustment.stock_factor(ticker, day)
+
+    def dividend_factor(self, simulation_id: int, ticker: str, day: date) -> float:
+        """O quanto o efeito do governo move o provento da ação no dia; 1 sem efeito."""
+        adjustment = self._adjustments.get(simulation_id)
+        return 1.0 if adjustment is None else adjustment.dividend_factor(ticker, day)
 
     def save_history(
         self, series: IndicatorSeries, rows: list[tuple[date, Decimal]]

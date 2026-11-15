@@ -367,6 +367,55 @@ def test_the_autonomous_bank_looks_through_the_consumption_tax_cut(indicators):
     assert layer.stocks_parts(day).total == pytest.approx(0.0)
 
 
+class MonthlyLinks:
+    """Um mês fechado por vez, de janeiro de 2021 em diante; cada um vale a partir do dia seguinte ao fim dele."""
+
+    def __init__(self, state_points: list[str]):
+        self._links = [
+            LinkMonth(
+                date(2021, 1, 28) + timedelta(days=31 * index),
+                Decimal(0),
+                Decimal(0),
+                Decimal(0),
+                Decimal(0),
+                Decimal(0),
+                state_inflation_points=Decimal(points),
+            )
+            for index, points in enumerate(state_points)
+        ]
+
+    def first_day(self) -> date | None:
+        return self._links[0].month_end + timedelta(days=1)
+
+    def links_on(self, day: date) -> LinkMonth:
+        closed = [link for link in self._links if link.month_end < day]
+        return closed[-1] if closed else NO_LINK
+
+
+def test_the_central_bank_reads_the_state_control_as_the_mean_of_twelve_months(
+    indicators,
+):
+    # Segura 1,4 ponto por 12 meses: -1,4 em cada um, e a represa de 16,8 volta de uma vez
+    state_points = ["-1.4"] * 12 + ["16.8"] + ["0"] * 14
+    layer = EconomyLayer(1, START, fx.SpendingEconomy(), MonthlyLinks(state_points))
+    release = date(2021, 1, 28) + timedelta(days=31 * 12)
+    days = [release + timedelta(days=31 * index + 1) for index in range(14)]
+
+    readings = [layer.reading_points(day) for day in days]
+
+    # O ano de soltura pesa 1,4 ponto no máximo, e a regra pede no máximo 1,5 vez isso
+    assert max(readings) == pytest.approx(1.4)
+    assert max(layer.rule_points(day) for day in days) == pytest.approx(1.5 * 1.4)
+    assert layer.rule_points(days[0]) < 1
+
+
+def test_without_state_control_the_reading_is_the_same_as_before(indicators):
+    layer = linked(unemployment="-0.02", premium="0.02")
+    day = date(2021, 6, 1)
+
+    assert layer.reading_points(day) == layer.inflation_points(day)
+
+
 def test_the_premium_pulls_the_stocks_like_the_selic_over_the_quarter(indicators):
     layer = linked(premium="0.01")
     day = date(2021, 6, 1)

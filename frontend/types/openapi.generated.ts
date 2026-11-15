@@ -989,12 +989,40 @@ export interface paths {
         };
         /**
          * Sugestão de setor do yfinance
-         * @description Setor e segmento que o yfinance sugere para o ativo, ou nada quando ele não sabe.
+         * @description Setor e segmento que o yfinance sugere para o ativo, com as ações em circulação e a alavanca de preço da estatal, ou nada quando ele não sabe.
          */
         get: operations["get_segment_suggestion_api_import_assets_stocks__ticker__suggestion_get"];
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import-assets/stocks/{ticker}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter a marcação de estatal
+         * @description A fatia do governo, as ações em circulação e a alavanca de preço do ativo marcado como estatal, ou nada quando ele é uma empresa comum.
+         */
+        get: operations["get_state_owned_api_import_assets_stocks__ticker__state_get"];
+        /**
+         * Marcar um ativo como estatal
+         * @description Marca o ativo como estatal com a fatia do governo, as ações em circulação e a alavanca de preço. Vale para as partidas criadas depois; a partida em andamento não muda.
+         */
+        put: operations["mark_state_owned_api_import_assets_stocks__ticker__state_put"];
+        post?: never;
+        /**
+         * Tirar a marcação de estatal
+         * @description Tira a marcação de estatal do ativo; ele volta a ser uma empresa comum nas próximas partidas.
+         */
+        delete: operations["unmark_state_owned_api_import_assets_stocks__ticker__state_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2674,6 +2702,106 @@ export interface paths {
          * @description A medida rejeitada deste governo volta à fila do Congresso para o próximo voto.
          */
         post: operations["repropose_measure_api_government_measures__measure_id__repropose_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/state-companies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter as estatais
+         * @description Retorna o resumo (o que o governo tem nas estatais, o que elas renderam ao Tesouro em 12 meses, a inflação represada e o teto de pontos de IPCA), uma linha por estatal com a ordem dada e a em vigor, os movimentos recentes e as ofertas de privatização abertas com o pedido de quem vê. A sala inteira lê; `is_president` diz quem comanda. Recusa com 409 quando a partida não usa a expansão Governo & Política.
+         */
+        get: operations["get_state_companies_api_government_state_companies_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/state-companies/found-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simular a fundação de uma estatal
+         * @description Só o presidente simula. Retorna a medida de fundar (voto, vigência e efeito na dívida) e os efeitos da empresa: o capital posto, o gasto da fundação por mês, o empurrão permanente no crescimento e o dividendo esperado ao Tesouro por ano.
+         */
+        post: operations["preview_state_founding_api_government_state_companies_found_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/state-companies/{ticker}/order-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Simular as ordens de uma estatal
+         * @description Mostra o efeito de cada degrau do controle de preço (pontos de IPCA, corte de lucro, fator de preço e de dividendo, dividendo esperado ao Tesouro por mês e o motivo de estar bloqueado pelo teto) e de cada política de dividendos, mais o teto que sobra à estatal. A sala inteira lê.
+         */
+        get: operations["preview_state_order_api_government_state_companies__ticker__order_preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/state-companies/{ticker}/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Dar a ordem a uma estatal
+         * @description Só o presidente dá, e só à estatal ativa e sem privatização na fila. A ordem (degrau do controle de preço e política de dividendos) vale do mês seguinte; o degrau que levaria a soma de todas as estatais acima do teto de pontos de IPCA é recusado.
+         */
+        put: operations["set_state_order_api_government_state_companies__ticker__order_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/state-companies/offer/reservation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reservar ações na oferta de privatização
+         * @description Pede a quantidade de ações na oferta aberta, sem reservar caixa: cada pedido substitui o anterior e o caixa só paga no fechamento. Recusa com 409 fora da janela da oferta.
+         */
+        post: operations["reserve_state_offer_api_government_state_companies_offer_reservation_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -6542,7 +6670,8 @@ export interface components {
          * DebtCausesDTO
          * @description A variação da dívida nos últimos meses fechados, em fração do PIB, por causa: o juro
          *     a aumenta, o crescimento e a inflação a encolhem (aumentam o PIB) e o primário a
-         *     abate ou a aumenta. A soma das quatro é a variação inteira.
+         *     abate ou a aumenta, e a venda de ativos (privatização) a abate. A soma das cinco é a
+         *     variação inteira.
          */
         DebtCausesDTO: {
             /** Months */
@@ -6555,6 +6684,11 @@ export interface components {
             inflation: string;
             /** Primary */
             primary: string;
+            /**
+             * Assets
+             * @default 0
+             */
+            assets: string;
         };
         /**
          * DebtSummaryDTO
@@ -6675,6 +6809,12 @@ export interface components {
             share: string;
         };
         /**
+         * DividendPolicy
+         * @description Quanto do lucro a estatal paga ao acionista: reinveste, paga o normal ou espreme.
+         * @enum {string}
+         */
+        DividendPolicy: "REINVEST" | "NORMAL" | "SQUEEZE";
+        /**
          * DollarPartsDTO
          * @description O dólar da partida em reais: o da história mais o que o prêmio de risco e o juro real
          *     diferentes da história somam (a soma das quatro é o dólar da partida), e os pontos de
@@ -6744,7 +6884,7 @@ export interface components {
          * @description Uma ligação da economia interligada: o desvio da partida contra a história que mexe nas séries.
          * @enum {string}
          */
-        EconomyLink: "PHILLIPS" | "FISCAL_RISK" | "DOLLAR" | "GDP" | "REAL_RATE" | "SELIC" | "INFLATION_BRAKE" | "CROWDING_OUT" | "CONSUMPTION_TAX" | "CORPORATE_TAX" | "PAYROLL_TAX";
+        EconomyLink: "PHILLIPS" | "FISCAL_RISK" | "DOLLAR" | "GDP" | "REAL_RATE" | "SELIC" | "INFLATION_BRAKE" | "CROWDING_OUT" | "CONSUMPTION_TAX" | "CORPORATE_TAX" | "PAYROLL_TAX" | "STATE_COMPANIES";
         /** EconomyPanelDTO */
         EconomyPanelDTO: {
             /** Points */
@@ -7375,6 +7515,15 @@ export interface components {
              * @default 0
              */
             congress: number | string;
+        };
+        /** FoundStateCompanyRequest */
+        FoundStateCompanyRequest: {
+            /** Name */
+            name: string;
+            /** Ticker */
+            ticker: string;
+            size: components["schemas"]["StateCompanySize"];
+            lever?: components["schemas"]["StateLever"] | null;
         };
         /** FrozenPortfolioDTO */
         FrozenPortfolioDTO: {
@@ -9928,7 +10077,7 @@ export interface components {
          * @description O que uma medida muda: um imposto geral, a regra de um setor ou segmento ou um gasto público.
          * @enum {string}
          */
-        MeasureKind: "STOCK_PROFIT_RATE" | "DAY_TRADE_RATE" | "STOCK_EXEMPTION" | "FIXED_INCOME_TABLE" | "LCI_LCA_RATE" | "CONSUMPTION_TAX_RATE" | "CORPORATE_INCOME_TAX_RATE" | "PERSONAL_INCOME_TAX_RATE" | "PAYROLL_TAX_RATE" | "SECTOR_EXEMPT" | "SECTOR_TAX" | "WELFARE_SPENDING" | "SERVANT_RAISE" | "RETIREE_RAISE" | "PUBLIC_WORKS" | "OPERATING_COST";
+        MeasureKind: "STOCK_PROFIT_RATE" | "DAY_TRADE_RATE" | "STOCK_EXEMPTION" | "FIXED_INCOME_TABLE" | "LCI_LCA_RATE" | "CONSUMPTION_TAX_RATE" | "CORPORATE_INCOME_TAX_RATE" | "PERSONAL_INCOME_TAX_RATE" | "PAYROLL_TAX_RATE" | "SECTOR_EXEMPT" | "SECTOR_TAX" | "WELFARE_SPENDING" | "SERVANT_RAISE" | "RETIREE_RAISE" | "PUBLIC_WORKS" | "OPERATING_COST" | "FOUND_STATE_COMPANY" | "PRIVATIZE_STATE_COMPANY";
         /** MeasurePreviewDTO */
         MeasurePreviewDTO: {
             /** Title */
@@ -10209,7 +10358,7 @@ export interface components {
          * @description Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro.
          * @enum {string}
          */
-        NewsType: "ELECTION_CALENDAR" | "CAMPAIGN_OPENED" | "ELECTION_RESULT" | "CAMPAIGN_ACTION" | "NAMED_PROGRAM" | "PARTY_RUPTURE" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN" | "COPOM_DECISION" | "MONTHLY_INFLATION" | "IBOVESPA_EXTREME" | "STRONG_MOVE" | "WEEK_HIGH" | "HISTORICAL_MILESTONE" | "FUND_FEE_CHANGED" | "FUND_OFFER_OPENED" | "FUND_ISSUANCE_OPENED" | "FUND_ISSUANCE_CLOSED" | "FUND_BUYBACK_OPENED" | "FUND_ASSEMBLY_CALLED" | "FUND_ASSEMBLY_REPLACED" | "FUND_ASSEMBLY_KEPT";
+        NewsType: "ELECTION_CALENDAR" | "CAMPAIGN_OPENED" | "ELECTION_RESULT" | "CAMPAIGN_ACTION" | "NAMED_PROGRAM" | "PARTY_RUPTURE" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN" | "COPOM_DECISION" | "MONTHLY_INFLATION" | "IBOVESPA_EXTREME" | "STRONG_MOVE" | "WEEK_HIGH" | "HISTORICAL_MILESTONE" | "FUND_FEE_CHANGED" | "FUND_OFFER_OPENED" | "FUND_ISSUANCE_OPENED" | "FUND_ISSUANCE_CLOSED" | "FUND_BUYBACK_OPENED" | "FUND_ASSEMBLY_CALLED" | "FUND_ASSEMBLY_REPLACED" | "FUND_ASSEMBLY_KEPT" | "STATE_COMPANY_FOUNDED" | "STATE_PRIVATIZATION_OPENED" | "STATE_PRIVATIZATION_CLOSED" | "STATE_CONTROL_IN_FORCE" | "STATE_CONTROL_RELEASED" | "STATE_DIVIDEND_POLICY_CHANGED";
         /** NewsTypeInfo */
         NewsTypeInfo: {
             type: components["schemas"]["NewsType"];
@@ -11744,6 +11893,10 @@ export interface components {
             segment?: string | null;
             /** Name */
             name?: string | null;
+            /** Ticker */
+            ticker?: string | null;
+            size?: components["schemas"]["StateCompanySize"] | null;
+            lever?: components["schemas"]["StateLever"] | null;
         };
         /**
          * QueueBudgetDTO
@@ -13192,6 +13345,325 @@ export interface components {
             fraction_amount: string;
         };
         /**
+         * StateCompaniesPanelDTO
+         * @description O painel das estatais: todos leem, e só o presidente comanda.
+         */
+        StateCompaniesPanelDTO: {
+            /** Is President */
+            is_president: boolean;
+            rules: components["schemas"]["StateRulesDTO"];
+            summary: components["schemas"]["StateSummaryDTO"];
+            /** Companies */
+            companies: components["schemas"]["StateCompanyRowDTO"][];
+            /** Movements */
+            movements: components["schemas"]["StateMovementDTO"][];
+            /** Offers */
+            offers: components["schemas"]["StateOfferDTO"][];
+        };
+        /**
+         * StateCompanyOrigin
+         * @description De onde a estatal veio: da base importada ou fundada pelo governo na partida.
+         * @enum {string}
+         */
+        StateCompanyOrigin: "IMPORTED" | "FOUNDED";
+        /**
+         * StateCompanyRowDTO
+         * @description Uma estatal da partida no painel, com o que ela vale e a ordem que recebe.
+         */
+        StateCompanyRowDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+            origin: components["schemas"]["StateCompanyOrigin"];
+            status: components["schemas"]["StateCompanyStatus"];
+            lever: components["schemas"]["StateLever"] | null;
+            size: components["schemas"]["StateCompanySize"] | null;
+            /** Government Share */
+            government_share: string;
+            /** Shares */
+            shares: number;
+            /** Price */
+            price: string | null;
+            /** Government Value */
+            government_value: string;
+            /** Invested */
+            invested: string | null;
+            /** Fair Price */
+            fair_price: string | null;
+            order: components["schemas"]["StateOrderDTO"];
+            in_force: components["schemas"]["StateOrderDTO"];
+            /** Held Points */
+            held_points: string;
+            /** Treasury Dividend 12M */
+            treasury_dividend_12m: string;
+            /** Can Command */
+            can_command: boolean;
+            /** Privatization Measure Id */
+            privatization_measure_id: number | null;
+            /** Founded On */
+            founded_on: string | null;
+            /** Privatized On */
+            privatized_on: string | null;
+            /** Proceeds */
+            proceeds: string | null;
+        };
+        /**
+         * StateCompanySize
+         * @description O porte da estatal fundada, pelo valor de mercado inicial.
+         * @enum {string}
+         */
+        StateCompanySize: "SMALL" | "MEDIUM" | "LARGE";
+        /**
+         * StateCompanyStatus
+         * @description Onde a estatal está: com o governo, em oferta de privatização ou já vendida.
+         * @enum {string}
+         */
+        StateCompanyStatus: "ACTIVE" | "PRIVATIZING" | "PRIVATIZED";
+        /**
+         * StateControl
+         * @description O degrau do controle de preço: quantos por cento a estatal segura o preço abaixo do que ele seria.
+         * @enum {string}
+         */
+        StateControl: "NONE" | "P5" | "P10" | "P15" | "P20";
+        /**
+         * StateFoundingPreviewDTO
+         * @description O que fundar a estatal faria: a medida (voto, vigência e dívida) e os efeitos da empresa.
+         */
+        StateFoundingPreviewDTO: {
+            measure: components["schemas"]["MeasurePreviewDTO"];
+            /** Invested */
+            invested: string;
+            /** Monthly Spending */
+            monthly_spending: string;
+            /** Spending Months */
+            spending_months: number;
+            /** Gdp Push */
+            gdp_push: string;
+            /** Expected Treasury Dividend Year */
+            expected_treasury_dividend_year: string;
+        };
+        /**
+         * StateLever
+         * @description O preço que o governo segura numa estatal: combustível, energia ou o crédito dos bancos.
+         * @enum {string}
+         */
+        StateLever: "FUEL" | "ENERGY" | "BANK";
+        /**
+         * StateLeverRuleDTO
+         * @description O peso de uma alavanca: quanto do IPCA e do juro do crédito cada ponto percentual segurado move.
+         */
+        StateLeverRuleDTO: {
+            lever: components["schemas"]["StateLever"];
+            /** Ipca Weight */
+            ipca_weight: string;
+            /** Credit Weight */
+            credit_weight: string;
+        };
+        /**
+         * StateMovementDTO
+         * @description Um fato recente das estatais: fundação, oferta, venda ou mudança de ordem em vigor.
+         */
+        StateMovementDTO: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            kind: components["schemas"]["StateMovementKind"];
+            /** Ticker */
+            ticker: string;
+            control: components["schemas"]["StateControl"] | null;
+            dividend_policy: components["schemas"]["DividendPolicy"] | null;
+            /** Amount */
+            amount: string | null;
+        };
+        /**
+         * StateMovementKind
+         * @description O que o painel das estatais conta nos movimentos recentes.
+         * @enum {string}
+         */
+        StateMovementKind: "FOUNDED" | "PRIVATIZATION_OPENED" | "PRIVATIZED" | "CONTROL_SET" | "CONTROL_RELEASED" | "DIVIDEND_POLICY_SET";
+        /**
+         * StateOfferDTO
+         * @description A oferta de privatização aberta: preço, tamanho, o que a sala pediu e o pedido de quem vê.
+         */
+        StateOfferDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+            /**
+             * Opened On
+             * Format: date
+             */
+            opened_on: string;
+            /**
+             * Ends On
+             * Format: date
+             */
+            ends_on: string;
+            /** Shares */
+            shares: number;
+            /** Price */
+            price: string | null;
+            /** Market Price */
+            market_price: string | null;
+            /** Reserved */
+            reserved: string;
+            /** Your Reservation */
+            your_reservation: string | null;
+            /** Your Cash */
+            your_cash: string;
+        };
+        /**
+         * StateOrderDTO
+         * @description A ordem do presidente numa estatal: o degrau do controle de preço e a política de dividendos.
+         */
+        StateOrderDTO: {
+            control: components["schemas"]["StateControl"];
+            dividend_policy: components["schemas"]["DividendPolicy"];
+        };
+        /**
+         * StateOrderPreviewDTO
+         * @description O que cada degrau e cada política fariam numa estatal, e o teto que sobra a ela.
+         */
+        StateOrderPreviewDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+            lever: components["schemas"]["StateLever"] | null;
+            /** Can Command */
+            can_command: boolean;
+            order: components["schemas"]["StateOrderDTO"];
+            /** Cap Points */
+            cap_points: string;
+            /** Other Points */
+            other_points: string;
+            /** Backlog Points */
+            backlog_points: string;
+            /** Steps */
+            steps: components["schemas"]["StateStepEffectDTO"][];
+            /** Policies */
+            policies: components["schemas"]["StatePolicyEffectDTO"][];
+        };
+        /** StateOrderRequest */
+        StateOrderRequest: {
+            control: components["schemas"]["StateControl"];
+            dividend_policy: components["schemas"]["DividendPolicy"];
+        };
+        /**
+         * StateOwnedStockDTO
+         * @description A marcação de estatal de um ativo da base.
+         */
+        StateOwnedStockDTO: {
+            /** Government Share */
+            government_share: string;
+            /** Shares */
+            shares: number;
+            lever: components["schemas"]["StateLever"] | null;
+            /** Ticker */
+            ticker: string;
+        };
+        /**
+         * StateOwnedStockRequest
+         * @description O que a importação grava ao marcar um ativo como estatal.
+         */
+        StateOwnedStockRequest: {
+            /** Government Share */
+            government_share: number | string;
+            /** Shares */
+            shares: number;
+            lever?: components["schemas"]["StateLever"] | null;
+        };
+        /**
+         * StatePolicyEffectDTO
+         * @description O efeito de uma política de dividendos, com o controle de hoje.
+         */
+        StatePolicyEffectDTO: {
+            dividend_policy: components["schemas"]["DividendPolicy"];
+            /** Payout */
+            payout: string;
+            /** Price Factor */
+            price_factor: string;
+            /** Dividend Factor */
+            dividend_factor: string;
+            /** Monthly Treasury Dividend */
+            monthly_treasury_dividend: string | null;
+        };
+        /** StateReservationRequest */
+        StateReservationRequest: {
+            /** Ticker */
+            ticker: string;
+            /** Quantity */
+            quantity: number;
+        };
+        /**
+         * StateRulesDTO
+         * @description As regras do jogo que o painel mostra: a fatia da fundação, a janela da oferta, os portes e os pesos.
+         */
+        StateRulesDTO: {
+            /** Founding Share */
+            founding_share: string;
+            /** Offer Sessions */
+            offer_sessions: number;
+            /** Sizes */
+            sizes: components["schemas"]["StateSizeRuleDTO"][];
+            /** Levers */
+            levers: components["schemas"]["StateLeverRuleDTO"][];
+        };
+        /**
+         * StateSizeRuleDTO
+         * @description Um porte de estatal: o capital que a fundação põe e a dívida que cabe ao governo.
+         */
+        StateSizeRuleDTO: {
+            size: components["schemas"]["StateCompanySize"];
+            /** Capital */
+            capital: string;
+            /** Government Debt */
+            government_debt: string;
+        };
+        /**
+         * StateStepEffectDTO
+         * @description O efeito de um degrau do controle de preço, com a política de hoje.
+         */
+        StateStepEffectDTO: {
+            control: components["schemas"]["StateControl"];
+            /** Percent */
+            percent: number;
+            /** Held Points */
+            held_points: string;
+            /** Credit Points */
+            credit_points: string;
+            /** Profit Cut */
+            profit_cut: string;
+            /** Price Factor */
+            price_factor: string;
+            /** Dividend Factor */
+            dividend_factor: string;
+            /** Monthly Treasury Dividend */
+            monthly_treasury_dividend: string | null;
+            /** Blocked Reason */
+            blocked_reason: string | null;
+        };
+        /**
+         * StateSummaryDTO
+         * @description O resumo do painel: o que o governo tem nas estatais, o que elas rendem e o que o controle segura.
+         */
+        StateSummaryDTO: {
+            /** Government Value */
+            government_value: string;
+            /** Treasury Dividends 12M */
+            treasury_dividends_12m: string;
+            /** Backlog Points */
+            backlog_points: string;
+            /** Held Points */
+            held_points: string;
+            /** Cap Points */
+            cap_points: string;
+        };
+        /**
          * StatisticsNextUpdateDTO
          * @description Quando as estatísticas fecharam o mês pela última vez e quando fecham de novo.
          */
@@ -13283,6 +13755,19 @@ export interface components {
             sector: string;
             /** Segment */
             segment: string;
+        };
+        /**
+         * StockSuggestionDTO
+         * @description Sugestão da importação: setor e segmento, mais o que a marcação de estatal aproveita.
+         */
+        StockSuggestionDTO: {
+            /** Sector */
+            sector: string;
+            /** Segment */
+            segment: string;
+            /** Shares Outstanding */
+            shares_outstanding: number | null;
+            lever: components["schemas"]["StateLever"] | null;
         };
         /** StockUpdateEventDTO */
         StockUpdateEventDTO: {
@@ -16887,8 +17372,128 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StockSegmentDTO"] | null;
+                    "application/json": components["schemas"]["StockSuggestionDTO"] | null;
                 };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_state_owned_api_import_assets_stocks__ticker__state_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StateOwnedStockDTO"] | null;
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    mark_state_owned_api_import_assets_stocks__ticker__state_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StateOwnedStockRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    unmark_state_owned_api_import_assets_stocks__ticker__state_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unprocessable Content */
             422: {
@@ -20335,6 +20940,208 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_state_companies_api_government_state_companies_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StateCompaniesPanelDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_state_founding_api_government_state_companies_found_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FoundStateCompanyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StateFoundingPreviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_state_order_api_government_state_companies__ticker__order_preview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StateOrderPreviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_state_order_api_government_state_companies__ticker__order_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StateOrderRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    reserve_state_offer_api_government_state_companies_offer_reservation_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StateReservationRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             204: {

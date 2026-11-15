@@ -21,6 +21,7 @@ from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.funds.fund_account import FundAccount
+from backend.features.market_maker.account import MakerAccount
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import PositionUpdateEventDTO
 from backend.features.variable_income.corporate_actions import (
@@ -30,8 +31,8 @@ from backend.features.variable_income.corporate_actions import (
 )
 from backend.features.variable_income.entities.order import (
     FUND_ISSUER_CLIENT_ID,
-    FUND_MAKER_CLIENT_ID,
     MARKET_CLIENT_ID,
+    MARKET_MAKER_CLIENT_ID,
     LimitOrder,
     MarketOrder,
     Order,
@@ -50,7 +51,7 @@ QUANTITY_STEP = Decimal("1e-8")
 
 # Contas sintéticas do motor: as ordens delas não reservam caixa nem posição
 UNRESERVED_CLIENT_IDS = frozenset(
-    {MARKET_CLIENT_ID, FUND_MAKER_CLIENT_ID, FUND_ISSUER_CLIENT_ID}
+    {MARKET_CLIENT_ID, MARKET_MAKER_CLIENT_ID, FUND_ISSUER_CLIENT_ID}
 )
 
 
@@ -96,7 +97,7 @@ class Broker:
     - Registrar eventos de equity (BUY, SELL, DIVIDEND) no EventManager
     - Emitir notificações realtime de atualizações de portfólio
     - Fazer bypass para ordens de liquidez sintética (MARKET_CLIENT_ID)
-    - Mover o estado da gestora nos negócios do formador (FUND_MAKER_CLIENT_ID) e da
+    - Mover o estado da gestora nos negócios do formador (MARKET_MAKER_CLIENT_ID) e da
       oferta pública (FUND_ISSUER_CLIENT_ID), sem evento de ação nem reserva
     """
 
@@ -109,7 +110,8 @@ class Broker:
         self._lock = lock
         self._positions: LazyDict[UUID, dict[str, Position]] = LazyDict(load_positions)
         # A gestora de cada cota negociada, pelo ticker
-        self.fund_accounts: dict[str, FundAccount] = {}
+        # Os papéis de preço sintético: a cota de gestora e a ação de estatal fundada
+        self.maker_accounts: dict[str, MakerAccount] = {}
         # Chamado a cada venda da oferta pública com o ticker, o comprador (nulo para o
         # formador de mercado), as cotas e o preço
         self.on_fund_offer_sale: (
@@ -367,7 +369,7 @@ class Broker:
                 counterparty=taker_order,
             )
             # Cada negócio da cota de gestora conta uma vez, para a vela e o giro do dia
-            account = self.fund_accounts.get(taker_order.ticker)
+            account = self.maker_accounts.get(taker_order.ticker)
             if account is not None:
                 account.record_trade(size, to_money(price))
 
@@ -405,8 +407,8 @@ class Broker:
     ):
         if order.client_id == MARKET_CLIENT_ID:
             return
-        if order.client_id == FUND_MAKER_CLIENT_ID:
-            self.fund_accounts[order.ticker].maker_trade(
+        if order.client_id == MARKET_MAKER_CLIENT_ID:
+            self.maker_accounts[order.ticker].maker_trade(
                 order.action, size, to_money(price)
             )
             return
@@ -419,6 +421,12 @@ class Broker:
             case OrderAction.SELL:
                 self._execute_sell(order, size, price)
 
+    def _fund_account(self, ticker: str) -> FundAccount:
+        account = self.maker_accounts[ticker]
+        if not isinstance(account, FundAccount):
+            raise TypeError(f"{ticker} não é cota de gestora")
+        return account
+
     def _execute_fund_offer(
         self, order: Order, size: Decimal, price: float, buyer: Order
     ) -> None:
@@ -426,7 +434,7 @@ class Broker:
         com o comprador: o dono da ordem contrária, ou ninguém quando é o formador de mercado."""
         if order.action != OrderAction.SELL:
             raise ValueError("A oferta pública só vende")
-        account = self.fund_accounts[order.ticker]
+        account = self._fund_account(order.ticker)
         account.issue(size)
         self._simulation_engine.credit_fund_offer(
             account.client_id, to_money(price) * size
@@ -435,7 +443,7 @@ class Broker:
             self.on_fund_offer_sale(
                 order.ticker,
                 None
-                if buyer.client_id == FUND_MAKER_CLIENT_ID
+                if buyer.client_id == MARKET_MAKER_CLIENT_ID
                 else UserManager.get_user_id(buyer.client_id),
                 size,
                 to_money(price),
@@ -504,8 +512,8 @@ class Broker:
             refund = (to_money(order.price) - money_price) * size
             self._simulation_engine.add_cash(client_id, refund)
 
-        account = self.fund_accounts.get(ticker)
-        if account is not None and client_id == account.client_id:
+        account = self.maker_accounts.get(ticker)
+        if isinstance(account, FundAccount) and client_id == account.client_id:
             # A gestora que compra a própria cota a queima: a cota nunca entra na carteira
             account.burn(size)
             if self.on_fund_buyback is not None:

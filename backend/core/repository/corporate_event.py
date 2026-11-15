@@ -3,11 +3,12 @@ from datetime import date
 from decimal import Decimal
 
 from sqlalchemy import delete, select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.corporate_event import CorporateEventDTO
-from backend.core.enum import DataOrigin
+from backend.core.enum import CorporateEventKind, DataOrigin
 from backend.core.models.models import StockCorporateEvent
 from backend.core.repository.series_version import (
     COMMON_VERSION,
@@ -46,6 +47,32 @@ class CorporateEventRepository:
                 origin=DataOrigin.REAL.value,
             )
             for event in events
+        )
+
+    @transactional
+    def save_dividend(
+        self,
+        session: Session,
+        stock_id: int,
+        ex_date: date,
+        value: float,
+        simulation_id: int,
+    ) -> None:
+        """O dividendo por cota que a partida gerou para o ativo, na série só dela; regrava o do mesmo dia."""
+        values = {"value": Decimal(str(value)), "origin": DataOrigin.GENERATED.value}
+        session.execute(
+            pg_insert(StockCorporateEvent)
+            .values(
+                stock_id=stock_id,
+                ex_date=ex_date,
+                kind=CorporateEventKind.DIVIDEND.value,
+                version=simulation_id,
+                **values,
+            )
+            .on_conflict_do_update(
+                index_elements=["stock_id", "ex_date", "kind", "version"],
+                set_=values,
+            )
         )
 
     @transactional

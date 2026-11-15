@@ -10,6 +10,7 @@ class TickerProfileDTO(BaseDTO):
     quote_type: str | None
     sector: str | None
     industry: str | None
+    shares_outstanding: int | None = None
 
     @staticmethod
     def from_model(m: TickerProfile) -> TickerProfileDTO:
@@ -19,6 +20,7 @@ class TickerProfileDTO(BaseDTO):
             quote_type=m.quote_type,
             sector=m.sector,
             industry=m.industry,
+            shares_outstanding=m.shares_outstanding,
         )
 
 

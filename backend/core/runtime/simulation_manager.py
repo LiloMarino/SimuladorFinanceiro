@@ -99,6 +99,14 @@ class SimulationManager:
         return cls._fund_portfolios.get(client_id)
 
     @classmethod
+    def find_fund_client(cls, portfolio_id: int) -> UUID | None:
+        """A conta da gestora dona da carteira, ou None quando a carteira não é de gestora."""
+        for client_id, fund_portfolio in cls._fund_portfolios.items():
+            if fund_portfolio == portfolio_id:
+                return client_id
+        return None
+
+    @classmethod
     def add_fund_portfolios(cls, portfolios: dict[UUID, int]) -> None:
         """Soma as carteiras de gestora da partida em andamento (client_id -> portfolio_id)."""
         with cls._lock:

@@ -29,17 +29,18 @@ TRAILING_MONTHS = 12
 def scale_dividends(
     events: Iterable[CorporateEventDTO],
     tickers: dict[int, str],
-    factor: Callable[[str, date], float],
+    dividend_factor: Callable[[str, date], float],
 ) -> list[CorporateEventDTO]:
     """
-    Os eventos com o provento na escala do preço da partida: cada dividendo e JCP vale o
-    histórico vezes o fator da bolsa do dia da data ex, o mesmo que escala o preço do ativo.
-    O desdobramento é uma razão e passa como veio.
+    Os eventos com o provento na escala da partida: cada dividendo e JCP vale o histórico
+    vezes o fator de provento do dia da data ex, que a bolsa e a política de dividendos da
+    estatal compõem à parte do fator de preço. O desdobramento é uma razão e passa como veio.
     """
     return [
         event.model_copy(
             update={
-                "value": event.value * factor(tickers[event.stock_id], event.ex_date)
+                "value": event.value
+                * dividend_factor(tickers[event.stock_id], event.ex_date)
             }
         )
         if event.kind is CorporateEventKind.DIVIDEND and event.stock_id in tickers

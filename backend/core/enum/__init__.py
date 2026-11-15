@@ -693,6 +693,84 @@ class SelicControl(Enum):
     GOVERNMENT = "GOVERNMENT"
 
 
+class StateLever(Enum):
+    """O preço que o governo segura numa estatal: combustível, energia ou o crédito dos bancos."""
+
+    FUEL = "FUEL"
+    ENERGY = "ENERGY"
+    BANK = "BANK"
+
+
+class StateControl(Enum):
+    """O degrau do controle de preço: quantos por cento a estatal segura o preço abaixo do que ele seria."""
+
+    NONE = "NONE"
+    P5 = "P5"
+    P10 = "P10"
+    P15 = "P15"
+    P20 = "P20"
+
+    @property
+    def percent(self) -> int:
+        return {
+            StateControl.NONE: 0,
+            StateControl.P5: 5,
+            StateControl.P10: 10,
+            StateControl.P15: 15,
+            StateControl.P20: 20,
+        }[self]
+
+
+class DividendPolicy(Enum):
+    """Quanto do lucro a estatal paga ao acionista: reinveste, paga o normal ou espreme."""
+
+    REINVEST = "REINVEST"
+    NORMAL = "NORMAL"
+    SQUEEZE = "SQUEEZE"
+
+
+class StateCompanySize(Enum):
+    """O porte da estatal fundada, pelo valor de mercado inicial."""
+
+    SMALL = "SMALL"
+    MEDIUM = "MEDIUM"
+    LARGE = "LARGE"
+
+    @property
+    def billions(self) -> int:
+        return {
+            StateCompanySize.SMALL: 30,
+            StateCompanySize.MEDIUM: 100,
+            StateCompanySize.LARGE: 300,
+        }[self]
+
+
+class StateCompanyOrigin(Enum):
+    """De onde a estatal veio: da base importada ou fundada pelo governo na partida."""
+
+    IMPORTED = "IMPORTED"
+    FOUNDED = "FOUNDED"
+
+
+class StateCompanyStatus(Enum):
+    """Onde a estatal está: com o governo, em oferta de privatização ou já vendida."""
+
+    ACTIVE = "ACTIVE"
+    PRIVATIZING = "PRIVATIZING"
+    PRIVATIZED = "PRIVATIZED"
+
+
+class StateMovementKind(Enum):
+    """O que o painel das estatais conta nos movimentos recentes."""
+
+    FOUNDED = "FOUNDED"
+    PRIVATIZATION_OPENED = "PRIVATIZATION_OPENED"
+    PRIVATIZED = "PRIVATIZED"
+    CONTROL_SET = "CONTROL_SET"
+    CONTROL_RELEASED = "CONTROL_RELEASED"
+    DIVIDEND_POLICY_SET = "DIVIDEND_POLICY_SET"
+
+
 class ComputerDifficulty(Enum):
     """A verba de cada partido do computador, em múltiplo do fundo público que ele recebe."""
 
@@ -772,6 +850,10 @@ class GovernmentEventType(Enum):
     SELIC_SET = "SELIC_SET"
     # A reunião do Copom fixa a SELIC, com a credibilidade do Banco Central depois dela
     SELIC_DECIDED = "SELIC_DECIDED"
+    # O presidente dá a ordem de uma estatal: o controle de preço e a política de dividendos
+    STATE_ORDER_SET = "STATE_ORDER_SET"
+    # A virada do mês põe em vigor as ordens dadas durante ele
+    STATE_ORDERS_IN_FORCE = "STATE_ORDERS_IN_FORCE"
     # O fundador propõe a federação a outro partido, retira a proposta ou o outro responde
     FEDERATION_PROPOSED = "FEDERATION_PROPOSED"
     FEDERATION_WITHDRAWN = "FEDERATION_WITHDRAWN"
@@ -922,6 +1004,9 @@ class MeasureKind(Enum):
     RETIREE_RAISE = "RETIREE_RAISE"
     PUBLIC_WORKS = "PUBLIC_WORKS"
     OPERATING_COST = "OPERATING_COST"
+    # Estatais: fundar uma empresa nova ou vender uma que o governo já tem
+    FOUND_STATE_COMPANY = "FOUND_STATE_COMPANY"
+    PRIVATIZE_STATE_COMPANY = "PRIVATIZE_STATE_COMPANY"
 
     @property
     def is_sector(self) -> bool:
@@ -935,6 +1020,13 @@ class MeasureKind(Enum):
             MeasureKind.RETIREE_RAISE,
             MeasureKind.PUBLIC_WORKS,
             MeasureKind.OPERATING_COST,
+        )
+
+    @property
+    def is_state_company(self) -> bool:
+        return self in (
+            MeasureKind.FOUND_STATE_COMPANY,
+            MeasureKind.PRIVATIZE_STATE_COMPANY,
         )
 
 
@@ -976,6 +1068,8 @@ class EconomyLink(Enum):
     CORPORATE_TAX = "CORPORATE_TAX"
     # A contribuição sobre a folha acima do padrão encarece contratar e sobe o desemprego
     PAYROLL_TAX = "PAYROLL_TAX"
+    # As ordens e a fundação das estatais seguram o IPCA, mexem no crédito e empurram o PIB
+    STATE_COMPANIES = "STATE_COMPANIES"
 
 
 class MeasureStatus(Enum):
@@ -1242,6 +1336,12 @@ class NewsType(Enum):
     FUND_ASSEMBLY_CALLED = "FUND_ASSEMBLY_CALLED"
     FUND_ASSEMBLY_REPLACED = "FUND_ASSEMBLY_REPLACED"
     FUND_ASSEMBLY_KEPT = "FUND_ASSEMBLY_KEPT"
+    STATE_COMPANY_FOUNDED = "STATE_COMPANY_FOUNDED"
+    STATE_PRIVATIZATION_OPENED = "STATE_PRIVATIZATION_OPENED"
+    STATE_PRIVATIZATION_CLOSED = "STATE_PRIVATIZATION_CLOSED"
+    STATE_CONTROL_IN_FORCE = "STATE_CONTROL_IN_FORCE"
+    STATE_CONTROL_RELEASED = "STATE_CONTROL_RELEASED"
+    STATE_DIVIDEND_POLICY_CHANGED = "STATE_DIVIDEND_POLICY_CHANGED"
 
 
 class NewsLevel(Enum):

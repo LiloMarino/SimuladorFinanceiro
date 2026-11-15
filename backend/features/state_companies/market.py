@@ -1,0 +1,110 @@
+"""O pregão das estatais fundadas: preço sintético em volta do valor justo, sem série histórica."""
+
+from datetime import date
+from decimal import Decimal
+from functools import cached_property
+
+from backend.core import repository
+from backend.core.dto.candle import CandleDTO
+from backend.core.dto.state_company import StateCompanyDTO
+from backend.core.enum import StateCompanyStatus
+from backend.core.utils import required
+from backend.features.market_maker.account import MakerAccount
+from backend.features.market_maker.candle import close_candle
+from backend.features.market_maker.maker import MarketMaker
+from backend.features.simulation.simulation_engine import SimulationEngine
+from backend.features.state_companies.book import StateCompanyBook, maker_shares
+
+
+class StateCompanyMarket:
+    """
+    Dá liquidez às ações das estatais fundadas. O governo guarda a sua fatia fora do
+    mercado e o formador negocia o resto: vende do estoque dele, que são as ações que
+    nenhuma carteira da partida tem, e compra sem limite. O preço de referência do dia é o
+    valor justo por ação sob a ordem de preço em vigor.
+    """
+
+    def __init__(
+        self, simulation_id: int, engine: SimulationEngine, book: StateCompanyBook
+    ) -> None:
+        self._simulation_id = simulation_id
+        self._engine = engine
+        self._book = book
+        self._accounts: dict[str, MakerAccount] = {}
+        self._last_close: dict[str, float | None] = {}
+        for company in book.companies():
+            if book.is_founded(company.ticker):
+                self.register(company)
+
+    @cached_property
+    def _maker(self) -> MarketMaker:
+        """O formador nasce no primeiro uso: sem estatal fundada, o motor de ordens não é tocado."""
+        return MarketMaker(
+            self._engine.matching_engine, self._engine.broker.maker_accounts
+        )
+
+    def register(self, company: StateCompanyDTO) -> None:
+        """Põe a ação da fundada no motor: o estoque do formador é o que as carteiras não têm."""
+        shares = Decimal(company.shares)
+        held = repository.state_company.shares_held(
+            self._simulation_id, company.stock_id, self._engine.current_date
+        )
+        # Privatizada, a fatia do governo também circula: o estoque do formador é o resto
+        privatized = company.status is StateCompanyStatus.PRIVATIZED
+        stock = shares if privatized else Decimal(maker_shares(company))
+        account = MakerAccount(quotas=shares, maker_quotas=stock - held)
+        self._accounts[company.ticker] = account
+        self._last_close[company.ticker] = repository.fund.last_close(
+            self._simulation_id, company.stock_id, self._engine.current_date
+        )
+        self._engine.broker.maker_accounts[company.ticker] = account
+        self._engine.add_created_stock(
+            required(repository.stock.get_by_ticker(company.ticker))
+        )
+
+    def add_leftover(self, ticker: str, shares: int) -> None:
+        """A sobra da oferta de privatização vai ao estoque do formador, que segue dando liquidez."""
+        self._accounts[ticker].receive_maker(Decimal(shares))
+
+    def _trading(self) -> list[tuple[StateCompanyDTO, MakerAccount]]:
+        """As fundadas com formador: depois de privatizada a ação segue negociando contra ele."""
+        return [
+            (company, account)
+            for ticker, account in self._accounts.items()
+            if (company := self._book.company(ticker)) is not None
+        ]
+
+    def reference_price(self, company: StateCompanyDTO, day: date) -> Decimal:
+        """O valor justo por ação do dia, sob a ordem de preço em vigor."""
+        per_share = self._book.fair_value_on(company, day) / company.shares
+        factor = self._book.founded_price_factor(company.ticker, day)
+        return per_share * Decimal(str(factor))
+
+    def on_open(self, today: date) -> None:
+        """A escada do formador refeita em volta do preço de referência do dia."""
+        for company, account in self._trading():
+            self._maker.refresh(
+                company.ticker,
+                float(self.reference_price(company, today)),
+                account.quotas,
+                today,
+            )
+
+    def on_close(self, today: date) -> list[CandleDTO]:
+        """Fecha a vela do pregão de cada fundada e a grava na série da partida."""
+        candles: list[CandleDTO] = []
+        for company, account in self._trading():
+            trades = account.take_day()
+            stock = self._engine.stocks[company.ticker]
+            candle = close_candle(
+                stock,
+                today,
+                trades,
+                self._last_close[company.ticker],
+                self.reference_price(company, today),
+            )
+            self._last_close[company.ticker] = candle.close
+            repository.fund.save_candle(self._simulation_id, candle)
+            self._engine.update_market_data([candle])
+            candles.append(candle)
+        return candles

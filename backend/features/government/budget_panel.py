@@ -136,7 +136,7 @@ def current_result(course: BudgetCourse, today: date) -> Decimal:
 
 
 def _row_of(rows: Iterable[TaxRow], measure: Measure) -> TaxRow | None:
-    if measure.kind.is_spending:
+    if measure.kind.is_spending or measure.kind.is_state_company:
         return None
     if measure.kind.is_sector:
         name = f"{measure.segment or measure.sector} · setor"
@@ -168,8 +168,12 @@ def measure_budget(
     effective: date,
     term_end: date | None,
     amendments_on: Callable[[date], Decimal],
+    one_off: Decimal = ZERO,
 ) -> BudgetEffectDTO:
-    """O efeito da medida na conta, se ela passar e valer em `effective`."""
+    """
+    O efeito da medida na conta, se ela passar e valer em `effective`. `one_off` é o que
+    a medida gasta de uma vez, em reais, e entra na dívida do fim da projeção.
+    """
     change = budget_rules.measure_effect(policy_before, measure)
     outlay = spending_change(measure)
     before_row = _row_of(budget_rules.tax_rows(policy_before), measure)
@@ -214,7 +218,8 @@ def measure_budget(
         result_after=result_now + change - outlay,
         debt_end=end,
         debt_before=without[-1].debt if without else latest_debt,
-        debt_after=with_measure[-1].debt if with_measure else latest_debt,
+        debt_after=(with_measure[-1].debt if with_measure else latest_debt)
+        + one_off / gdp,
     )
 
 

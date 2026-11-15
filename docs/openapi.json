@@ -3309,7 +3309,7 @@
           "Import Assets"
         ],
         "summary": "Sugestão de setor do yfinance",
-        "description": "Setor e segmento que o yfinance sugere para o ativo, ou nada quando ele não sabe.",
+        "description": "Setor e segmento que o yfinance sugere para o ativo, com as ações em circulação e a alavanca de preço da estatal, ou nada quando ele não sabe.",
         "operationId": "get_segment_suggestion_api_import_assets_stocks__ticker__suggestion_get",
         "parameters": [
           {
@@ -3330,7 +3330,7 @@
                 "schema": {
                   "anyOf": [
                     {
-                      "$ref": "#/components/schemas/StockSegmentDTO"
+                      "$ref": "#/components/schemas/StockSuggestionDTO"
                     },
                     {
                       "type": "null"
@@ -3340,6 +3340,165 @@
                 }
               }
             }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/import-assets/stocks/{ticker}/state": {
+      "get": {
+        "tags": [
+          "Import Assets"
+        ],
+        "summary": "Obter a marcação de estatal",
+        "description": "A fatia do governo, as ações em circulação e a alavanca de preço do ativo marcado como estatal, ou nada quando ele é uma empresa comum.",
+        "operationId": "get_state_owned_api_import_assets_stocks__ticker__state_get",
+        "parameters": [
+          {
+            "name": "ticker",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticker"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/StateOwnedStockDTO"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get State Owned Api Import Assets Stocks  Ticker  State Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Import Assets"
+        ],
+        "summary": "Marcar um ativo como estatal",
+        "description": "Marca o ativo como estatal com a fatia do governo, as ações em circulação e a alavanca de preço. Vale para as partidas criadas depois; a partida em andamento não muda.",
+        "operationId": "mark_state_owned_api_import_assets_stocks__ticker__state_put",
+        "parameters": [
+          {
+            "name": "ticker",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticker"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StateOwnedStockRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Import Assets"
+        ],
+        "summary": "Tirar a marcação de estatal",
+        "description": "Tira a marcação de estatal do ativo; ele volta a ser uma empresa comum nas próximas partidas.",
+        "operationId": "unmark_state_owned_api_import_assets_stocks__ticker__state_delete",
+        "parameters": [
+          {
+            "name": "ticker",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticker"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
           },
           "422": {
             "content": {
@@ -7898,6 +8057,279 @@
             "description": "Internal Server Error"
           }
         }
+      }
+    },
+    "/api/government/state-companies": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter as estatais",
+        "description": "Retorna o resumo (o que o governo tem nas estatais, o que elas renderam ao Tesouro em 12 meses, a inflação represada e o teto de pontos de IPCA), uma linha por estatal com a ordem dada e a em vigor, os movimentos recentes e as ofertas de privatização abertas com o pedido de quem vê. A sala inteira lê; `is_president` diz quem comanda. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+        "operationId": "get_state_companies_api_government_state_companies_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StateCompaniesPanelDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/state-companies/found-preview": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Simular a fundação de uma estatal",
+        "description": "Só o presidente simula. Retorna a medida de fundar (voto, vigência e efeito na dívida) e os efeitos da empresa: o capital posto, o gasto da fundação por mês, o empurrão permanente no crescimento e o dividendo esperado ao Tesouro por ano.",
+        "operationId": "preview_state_founding_api_government_state_companies_found_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FoundStateCompanyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StateFoundingPreviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/state-companies/{ticker}/order-preview": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Simular as ordens de uma estatal",
+        "description": "Mostra o efeito de cada degrau do controle de preço (pontos de IPCA, corte de lucro, fator de preço e de dividendo, dividendo esperado ao Tesouro por mês e o motivo de estar bloqueado pelo teto) e de cada política de dividendos, mais o teto que sobra à estatal. A sala inteira lê.",
+        "operationId": "preview_state_order_api_government_state_companies__ticker__order_preview_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "ticker",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticker"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StateOrderPreviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/government/state-companies/{ticker}/order": {
+      "put": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Dar a ordem a uma estatal",
+        "description": "Só o presidente dá, e só à estatal ativa e sem privatização na fila. A ordem (degrau do controle de preço e política de dividendos) vale do mês seguinte; o degrau que levaria a soma de todas as estatais acima do teto de pontos de IPCA é recusado.",
+        "operationId": "set_state_order_api_government_state_companies__ticker__order_put",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "ticker",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticker"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StateOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/government/state-companies/offer/reservation": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Reservar ações na oferta de privatização",
+        "description": "Pede a quantidade de ações na oferta aberta, sem reservar caixa: cada pedido substitui o anterior e o caixa só paga no fechamento. Recusa com 409 fora da janela da oferta.",
+        "operationId": "reserve_state_offer_api_government_state_companies_offer_reservation_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StateReservationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
       }
     },
     "/api/funds": {
@@ -19279,6 +19711,11 @@
           "primary": {
             "type": "string",
             "title": "Primary"
+          },
+          "assets": {
+            "type": "string",
+            "title": "Assets",
+            "default": "0"
           }
         },
         "additionalProperties": false,
@@ -19288,10 +19725,11 @@
           "interest",
           "growth",
           "inflation",
-          "primary"
+          "primary",
+          "assets"
         ],
         "title": "DebtCausesDTO",
-        "description": "A variação da dívida nos últimos meses fechados, em fração do PIB, por causa: o juro\na aumenta, o crescimento e a inflação a encolhem (aumentam o PIB) e o primário a\nabate ou a aumenta. A soma das quatro é a variação inteira."
+        "description": "A variação da dívida nos últimos meses fechados, em fração do PIB, por causa: o juro\na aumenta, o crescimento e a inflação a encolhem (aumentam o PIB) e o primário a\nabate ou a aumenta, e a venda de ativos (privatização) a abate. A soma das cinco é a\nvariação inteira."
       },
       "DebtSummaryDTO": {
         "properties": {
@@ -19595,6 +20033,16 @@
         ],
         "title": "DividendPayerDTO"
       },
+      "DividendPolicy": {
+        "type": "string",
+        "enum": [
+          "REINVEST",
+          "NORMAL",
+          "SQUEEZE"
+        ],
+        "title": "DividendPolicy",
+        "description": "Quanto do lucro a estatal paga ao acionista: reinveste, paga o normal ou espreme."
+      },
       "DollarPartsDTO": {
         "properties": {
           "history": {
@@ -19755,7 +20203,8 @@
           "CROWDING_OUT",
           "CONSUMPTION_TAX",
           "CORPORATE_TAX",
-          "PAYROLL_TAX"
+          "PAYROLL_TAX",
+          "STATE_COMPANIES"
         ],
         "title": "EconomyLink",
         "description": "Uma ligação da economia interligada: o desvio da partida contra a história que mexe nas séries."
@@ -21594,6 +22043,41 @@
           "flags"
         ],
         "title": "FoundPartyRequest"
+      },
+      "FoundStateCompanyRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "size": {
+            "$ref": "#/components/schemas/StateCompanySize"
+          },
+          "lever": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StateLever"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "ticker",
+          "size"
+        ],
+        "title": "FoundStateCompanyRequest"
       },
       "FrozenPortfolioDTO": {
         "properties": {
@@ -29209,7 +29693,9 @@
           "SERVANT_RAISE",
           "RETIREE_RAISE",
           "PUBLIC_WORKS",
-          "OPERATING_COST"
+          "OPERATING_COST",
+          "FOUND_STATE_COMPANY",
+          "PRIVATIZE_STATE_COMPANY"
         ],
         "title": "MeasureKind",
         "description": "O que uma medida muda: um imposto geral, a regra de um setor ou segmento ou um gasto público."
@@ -30008,7 +30494,13 @@
           "FUND_BUYBACK_OPENED",
           "FUND_ASSEMBLY_CALLED",
           "FUND_ASSEMBLY_REPLACED",
-          "FUND_ASSEMBLY_KEPT"
+          "FUND_ASSEMBLY_KEPT",
+          "STATE_COMPANY_FOUNDED",
+          "STATE_PRIVATIZATION_OPENED",
+          "STATE_PRIVATIZATION_CLOSED",
+          "STATE_CONTROL_IN_FORCE",
+          "STATE_CONTROL_RELEASED",
+          "STATE_DIVIDEND_POLICY_CHANGED"
         ],
         "title": "NewsType",
         "description": "Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro."
@@ -34563,6 +35055,37 @@
               }
             ],
             "title": "Name"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "size": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StateCompanySize"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lever": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StateLever"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -38325,6 +38848,903 @@
         ],
         "title": "SplitLineDTO"
       },
+      "StateCompaniesPanelDTO": {
+        "properties": {
+          "is_president": {
+            "type": "boolean",
+            "title": "Is President"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/StateRulesDTO"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/StateSummaryDTO"
+          },
+          "companies": {
+            "items": {
+              "$ref": "#/components/schemas/StateCompanyRowDTO"
+            },
+            "type": "array",
+            "title": "Companies"
+          },
+          "movements": {
+            "items": {
+              "$ref": "#/components/schemas/StateMovementDTO"
+            },
+            "type": "array",
+            "title": "Movements"
+          },
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/StateOfferDTO"
+            },
+            "type": "array",
+            "title": "Offers"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "is_president",
+          "rules",
+          "summary",
+          "companies",
+          "movements",
+          "offers"
+        ],
+        "title": "StateCompaniesPanelDTO",
+        "description": "O painel das estatais: todos leem, e só o presidente comanda."
+      },
+      "StateCompanyOrigin": {
+        "type": "string",
+        "enum": [
+          "IMPORTED",
+          "FOUNDED"
+        ],
+        "title": "StateCompanyOrigin",
+        "description": "De onde a estatal veio: da base importada ou fundada pelo governo na partida."
+      },
+      "StateCompanyRowDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/StateCompanyOrigin"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StateCompanyStatus"
+          },
+          "lever": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StateLever"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "size": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StateCompanySize"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "government_share": {
+            "type": "string",
+            "title": "Government Share"
+          },
+          "shares": {
+            "type": "integer",
+            "title": "Shares"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "government_value": {
+            "type": "string",
+            "title": "Government Value"
+          },
+          "invested": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invested"
+          },
+          "fair_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fair Price"
+          },
+          "order": {
+            "$ref": "#/components/schemas/StateOrderDTO"
+          },
+          "in_force": {
+            "$ref": "#/components/schemas/StateOrderDTO"
+          },
+          "held_points": {
+            "type": "string",
+            "title": "Held Points"
+          },
+          "treasury_dividend_12m": {
+            "type": "string",
+            "title": "Treasury Dividend 12M"
+          },
+          "can_command": {
+            "type": "boolean",
+            "title": "Can Command"
+          },
+          "privatization_measure_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Privatization Measure Id"
+          },
+          "founded_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Founded On"
+          },
+          "privatized_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Privatized On"
+          },
+          "proceeds": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proceeds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "name",
+          "origin",
+          "status",
+          "lever",
+          "size",
+          "government_share",
+          "shares",
+          "price",
+          "government_value",
+          "invested",
+          "fair_price",
+          "order",
+          "in_force",
+          "held_points",
+          "treasury_dividend_12m",
+          "can_command",
+          "privatization_measure_id",
+          "founded_on",
+          "privatized_on",
+          "proceeds"
+        ],
+        "title": "StateCompanyRowDTO",
+        "description": "Uma estatal da partida no painel, com o que ela vale e a ordem que recebe."
+      },
+      "StateCompanySize": {
+        "type": "string",
+        "enum": [
+          "SMALL",
+          "MEDIUM",
+          "LARGE"
+        ],
+        "title": "StateCompanySize",
+        "description": "O porte da estatal fundada, pelo valor de mercado inicial."
+      },
+      "StateCompanyStatus": {
+        "type": "string",
+        "enum": [
+          "ACTIVE",
+          "PRIVATIZING",
+          "PRIVATIZED"
+        ],
+        "title": "StateCompanyStatus",
+        "description": "Onde a estatal está: com o governo, em oferta de privatização ou já vendida."
+      },
+      "StateControl": {
+        "type": "string",
+        "enum": [
+          "NONE",
+          "P5",
+          "P10",
+          "P15",
+          "P20"
+        ],
+        "title": "StateControl",
+        "description": "O degrau do controle de preço: quantos por cento a estatal segura o preço abaixo do que ele seria."
+      },
+      "StateFoundingPreviewDTO": {
+        "properties": {
+          "measure": {
+            "$ref": "#/components/schemas/MeasurePreviewDTO"
+          },
+          "invested": {
+            "type": "string",
+            "title": "Invested"
+          },
+          "monthly_spending": {
+            "type": "string",
+            "title": "Monthly Spending"
+          },
+          "spending_months": {
+            "type": "integer",
+            "title": "Spending Months"
+          },
+          "gdp_push": {
+            "type": "string",
+            "title": "Gdp Push"
+          },
+          "expected_treasury_dividend_year": {
+            "type": "string",
+            "title": "Expected Treasury Dividend Year"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "measure",
+          "invested",
+          "monthly_spending",
+          "spending_months",
+          "gdp_push",
+          "expected_treasury_dividend_year"
+        ],
+        "title": "StateFoundingPreviewDTO",
+        "description": "O que fundar a estatal faria: a medida (voto, vigência e dívida) e os efeitos da empresa."
+      },
+      "StateLever": {
+        "type": "string",
+        "enum": [
+          "FUEL",
+          "ENERGY",
+          "BANK"
+        ],
+        "title": "StateLever",
+        "description": "O preço que o governo segura numa estatal: combustível, energia ou o crédito dos bancos."
+      },
+      "StateLeverRuleDTO": {
+        "properties": {
+          "lever": {
+            "$ref": "#/components/schemas/StateLever"
+          },
+          "ipca_weight": {
+            "type": "string",
+            "title": "Ipca Weight"
+          },
+          "credit_weight": {
+            "type": "string",
+            "title": "Credit Weight"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "lever",
+          "ipca_weight",
+          "credit_weight"
+        ],
+        "title": "StateLeverRuleDTO",
+        "description": "O peso de uma alavanca: quanto do IPCA e do juro do crédito cada ponto percentual segurado move."
+      },
+      "StateMovementDTO": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/StateMovementKind"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "control": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StateControl"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dividend_policy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DividendPolicy"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "day",
+          "kind",
+          "ticker",
+          "control",
+          "dividend_policy",
+          "amount"
+        ],
+        "title": "StateMovementDTO",
+        "description": "Um fato recente das estatais: fundação, oferta, venda ou mudança de ordem em vigor."
+      },
+      "StateMovementKind": {
+        "type": "string",
+        "enum": [
+          "FOUNDED",
+          "PRIVATIZATION_OPENED",
+          "PRIVATIZED",
+          "CONTROL_SET",
+          "CONTROL_RELEASED",
+          "DIVIDEND_POLICY_SET"
+        ],
+        "title": "StateMovementKind",
+        "description": "O que o painel das estatais conta nos movimentos recentes."
+      },
+      "StateOfferDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "opened_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Opened On"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Ends On"
+          },
+          "shares": {
+            "type": "integer",
+            "title": "Shares"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "market_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Price"
+          },
+          "reserved": {
+            "type": "string",
+            "title": "Reserved"
+          },
+          "your_reservation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Your Reservation"
+          },
+          "your_cash": {
+            "type": "string",
+            "title": "Your Cash"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "name",
+          "opened_on",
+          "ends_on",
+          "shares",
+          "price",
+          "market_price",
+          "reserved",
+          "your_reservation",
+          "your_cash"
+        ],
+        "title": "StateOfferDTO",
+        "description": "A oferta de privatização aberta: preço, tamanho, o que a sala pediu e o pedido de quem vê."
+      },
+      "StateOrderDTO": {
+        "properties": {
+          "control": {
+            "$ref": "#/components/schemas/StateControl"
+          },
+          "dividend_policy": {
+            "$ref": "#/components/schemas/DividendPolicy"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "control",
+          "dividend_policy"
+        ],
+        "title": "StateOrderDTO",
+        "description": "A ordem do presidente numa estatal: o degrau do controle de preço e a política de dividendos."
+      },
+      "StateOrderPreviewDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "lever": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StateLever"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "can_command": {
+            "type": "boolean",
+            "title": "Can Command"
+          },
+          "order": {
+            "$ref": "#/components/schemas/StateOrderDTO"
+          },
+          "cap_points": {
+            "type": "string",
+            "title": "Cap Points"
+          },
+          "other_points": {
+            "type": "string",
+            "title": "Other Points"
+          },
+          "backlog_points": {
+            "type": "string",
+            "title": "Backlog Points"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/StateStepEffectDTO"
+            },
+            "type": "array",
+            "title": "Steps"
+          },
+          "policies": {
+            "items": {
+              "$ref": "#/components/schemas/StatePolicyEffectDTO"
+            },
+            "type": "array",
+            "title": "Policies"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "name",
+          "lever",
+          "can_command",
+          "order",
+          "cap_points",
+          "other_points",
+          "backlog_points",
+          "steps",
+          "policies"
+        ],
+        "title": "StateOrderPreviewDTO",
+        "description": "O que cada degrau e cada política fariam numa estatal, e o teto que sobra a ela."
+      },
+      "StateOrderRequest": {
+        "properties": {
+          "control": {
+            "$ref": "#/components/schemas/StateControl"
+          },
+          "dividend_policy": {
+            "$ref": "#/components/schemas/DividendPolicy"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "control",
+          "dividend_policy"
+        ],
+        "title": "StateOrderRequest"
+      },
+      "StateOwnedStockDTO": {
+        "properties": {
+          "government_share": {
+            "type": "string",
+            "title": "Government Share"
+          },
+          "shares": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Shares"
+          },
+          "lever": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StateLever"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "government_share",
+          "shares",
+          "lever",
+          "ticker"
+        ],
+        "title": "StateOwnedStockDTO",
+        "description": "A marcação de estatal de um ativo da base."
+      },
+      "StateOwnedStockRequest": {
+        "properties": {
+          "government_share": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Government Share"
+          },
+          "shares": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Shares"
+          },
+          "lever": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StateLever"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "government_share",
+          "shares"
+        ],
+        "title": "StateOwnedStockRequest",
+        "description": "O que a importação grava ao marcar um ativo como estatal."
+      },
+      "StatePolicyEffectDTO": {
+        "properties": {
+          "dividend_policy": {
+            "$ref": "#/components/schemas/DividendPolicy"
+          },
+          "payout": {
+            "type": "string",
+            "title": "Payout"
+          },
+          "price_factor": {
+            "type": "string",
+            "title": "Price Factor"
+          },
+          "dividend_factor": {
+            "type": "string",
+            "title": "Dividend Factor"
+          },
+          "monthly_treasury_dividend": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monthly Treasury Dividend"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "dividend_policy",
+          "payout",
+          "price_factor",
+          "dividend_factor",
+          "monthly_treasury_dividend"
+        ],
+        "title": "StatePolicyEffectDTO",
+        "description": "O efeito de uma política de dividendos, com o controle de hoje."
+      },
+      "StateReservationRequest": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "quantity": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Quantity"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "quantity"
+        ],
+        "title": "StateReservationRequest"
+      },
+      "StateRulesDTO": {
+        "properties": {
+          "founding_share": {
+            "type": "string",
+            "title": "Founding Share"
+          },
+          "offer_sessions": {
+            "type": "integer",
+            "title": "Offer Sessions"
+          },
+          "sizes": {
+            "items": {
+              "$ref": "#/components/schemas/StateSizeRuleDTO"
+            },
+            "type": "array",
+            "title": "Sizes"
+          },
+          "levers": {
+            "items": {
+              "$ref": "#/components/schemas/StateLeverRuleDTO"
+            },
+            "type": "array",
+            "title": "Levers"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "founding_share",
+          "offer_sessions",
+          "sizes",
+          "levers"
+        ],
+        "title": "StateRulesDTO",
+        "description": "As regras do jogo que o painel mostra: a fatia da fundação, a janela da oferta, os portes e os pesos."
+      },
+      "StateSizeRuleDTO": {
+        "properties": {
+          "size": {
+            "$ref": "#/components/schemas/StateCompanySize"
+          },
+          "capital": {
+            "type": "string",
+            "title": "Capital"
+          },
+          "government_debt": {
+            "type": "string",
+            "title": "Government Debt"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "size",
+          "capital",
+          "government_debt"
+        ],
+        "title": "StateSizeRuleDTO",
+        "description": "Um porte de estatal: o capital que a fundação põe e a dívida que cabe ao governo."
+      },
+      "StateStepEffectDTO": {
+        "properties": {
+          "control": {
+            "$ref": "#/components/schemas/StateControl"
+          },
+          "percent": {
+            "type": "integer",
+            "title": "Percent"
+          },
+          "held_points": {
+            "type": "string",
+            "title": "Held Points"
+          },
+          "credit_points": {
+            "type": "string",
+            "title": "Credit Points"
+          },
+          "profit_cut": {
+            "type": "string",
+            "title": "Profit Cut"
+          },
+          "price_factor": {
+            "type": "string",
+            "title": "Price Factor"
+          },
+          "dividend_factor": {
+            "type": "string",
+            "title": "Dividend Factor"
+          },
+          "monthly_treasury_dividend": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monthly Treasury Dividend"
+          },
+          "blocked_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocked Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "control",
+          "percent",
+          "held_points",
+          "credit_points",
+          "profit_cut",
+          "price_factor",
+          "dividend_factor",
+          "monthly_treasury_dividend",
+          "blocked_reason"
+        ],
+        "title": "StateStepEffectDTO",
+        "description": "O efeito de um degrau do controle de preço, com a política de hoje."
+      },
+      "StateSummaryDTO": {
+        "properties": {
+          "government_value": {
+            "type": "string",
+            "title": "Government Value"
+          },
+          "treasury_dividends_12m": {
+            "type": "string",
+            "title": "Treasury Dividends 12M"
+          },
+          "backlog_points": {
+            "type": "string",
+            "title": "Backlog Points"
+          },
+          "held_points": {
+            "type": "string",
+            "title": "Held Points"
+          },
+          "cap_points": {
+            "type": "string",
+            "title": "Cap Points"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "government_value",
+          "treasury_dividends_12m",
+          "backlog_points",
+          "held_points",
+          "cap_points"
+        ],
+        "title": "StateSummaryDTO",
+        "description": "O resumo do painel: o que o governo tem nas estatais, o que elas rendem e o que o controle segura."
+      },
       "StatisticsNextUpdateDTO": {
         "properties": {
           "last_update_date": {
@@ -38581,6 +40001,49 @@
           "segment"
         ],
         "title": "StockSegmentRequest"
+      },
+      "StockSuggestionDTO": {
+        "properties": {
+          "sector": {
+            "type": "string",
+            "title": "Sector"
+          },
+          "segment": {
+            "type": "string",
+            "title": "Segment"
+          },
+          "shares_outstanding": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shares Outstanding"
+          },
+          "lever": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StateLever"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sector",
+          "segment",
+          "shares_outstanding",
+          "lever"
+        ],
+        "title": "StockSuggestionDTO",
+        "description": "Sugestão da importação: setor e segmento, mais o que a marcação de estatal aproveita."
       },
       "StockUpdateEventDTO": {
         "properties": {

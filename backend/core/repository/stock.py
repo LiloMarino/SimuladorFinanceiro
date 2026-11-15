@@ -15,11 +15,18 @@ from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
 from backend.core.dto.ticker_profile import TickerProfileDTO
-from backend.core.enum import AssetClass, AssetOrigin, Currency, DataOrigin
+from backend.core.enum import (
+    AssetClass,
+    AssetOrigin,
+    Currency,
+    DataOrigin,
+    StateCompanyOrigin,
+)
 from backend.core.models.models import (
     EventEquity,
     Sectors,
     Segments,
+    StateCompanies,
     Stock,
     StockCorporateEvent,
     StockPriceHistory,
@@ -496,12 +503,17 @@ class StockRepository:
     def get_stocks(self, session: Session) -> list[StockDTO]:
         """Os ativos importados, inclusive os que ainda não têm preço, em ordem de ticker.
 
-        A cota de gestora nasce na partida e vem do `FundBook`, não daqui.
+        A cota de gestora e a ação de estatal fundada nascem na partida e vêm dos livros
+        delas, não daqui.
         """
+        founded = select(StateCompanies.stock_id).where(
+            StateCompanies.origin == StateCompanyOrigin.FOUNDED.value
+        )
         stocks = (
             session.execute(
                 select(Stock)
                 .where(Stock.asset_class != AssetClass.FUND.value)
+                .where(Stock.id.not_in(founded))
                 .order_by(Stock.ticker)
             )
             .scalars()

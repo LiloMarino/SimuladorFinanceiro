@@ -98,6 +98,7 @@ def _simulation(funds: object | None) -> Simulation:
         ),
     )
     simulation._funds = funds  # type: ignore[assignment]
+    simulation._government = None
     simulation._client_of_user = lambda user_id: (
         ANA.client_id if user_id == ANA.id else BRUNO.client_id
     )

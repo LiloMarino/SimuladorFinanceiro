@@ -86,7 +86,8 @@ class DebtCausesDTO(BaseDTO):
     """
     A variação da dívida nos últimos meses fechados, em fração do PIB, por causa: o juro
     a aumenta, o crescimento e a inflação a encolhem (aumentam o PIB) e o primário a
-    abate ou a aumenta. A soma das quatro é a variação inteira.
+    abate ou a aumenta, e a venda de ativos (privatização) a abate. A soma das cinco é a
+    variação inteira.
     """
 
     months: int
@@ -94,6 +95,7 @@ class DebtCausesDTO(BaseDTO):
     growth: Decimal
     inflation: Decimal
     primary: Decimal
+    assets: Decimal = Decimal(0)
 
 
 class DebtSummaryDTO(BaseDTO):

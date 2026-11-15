@@ -5,7 +5,7 @@ eventos e só muda por `_emit`, que grava o evento e o aplica.
 """
 
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal
@@ -13,6 +13,7 @@ from uuid import UUID
 
 from backend.core import repository
 from backend.core.copom import next_meeting, to_step
+from backend.core.dto.candle import CandleDTO
 from backend.core.dto.events.government import GovernmentEventDTO
 from backend.core.dto.government import (
     PARTY_ABBR_PATTERN,
@@ -22,6 +23,12 @@ from backend.core.dto.government import (
 from backend.core.dto.pending import PendingDTO
 from backend.core.dto.promises import PromiseRequest
 from backend.core.dto.simulation import SimulationDTO
+from backend.core.dto.state_company import (
+    StateCompaniesPanelDTO,
+    StateCompanyDTO,
+    StateFoundingPreviewDTO,
+    StateOrderPreviewDTO,
+)
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     CampaignActionKind,
@@ -29,6 +36,7 @@ from backend.core.enum import (
     ComputerDifficulty,
     DealBreaker,
     DealStatus,
+    DividendPolicy,
     FederationStatus,
     GovernmentEventType,
     GovernmentNoticeKind,
@@ -39,6 +47,11 @@ from backend.core.enum import (
     PauseReason,
     PendingType,
     SelicControl,
+    StateCompanyOrigin,
+    StateCompanySize,
+    StateCompanyStatus,
+    StateControl,
+    StateLever,
     VoterGroup,
     VoterValue,
 )
@@ -53,9 +66,11 @@ from backend.core.indicators import (
     inflation_target,
     inflation_tolerance,
 )
+from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.utils import format_money, next_business_day, required
 from backend.features.economy import monetary
 from backend.features.economy.growth import MacroCourse
+from backend.features.economy.layer import StateFactors
 from backend.features.government import approval as approval_rules
 from backend.features.government import budget as budget_rules
 from backend.features.government import (
@@ -84,7 +99,7 @@ from backend.features.government.computer_parties import (
     COMPUTER_FLAGS,
     COMPUTER_PARTIES,
 )
-from backend.features.government.linked_economy import LinkedEconomy
+from backend.features.government.linked_economy import LinkedEconomy, StateFeed
 from backend.features.government.measures import PolicyTimeline
 from backend.features.government.preparation import Prepared
 from backend.features.government.promises import Promise
@@ -105,7 +120,20 @@ from backend.features.notifications.news import Headline
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import GovernmentUpdateEventDTO
 from backend.features.simulation.simulation_engine import SimulationEngine
+from backend.features.state_companies import headlines as state_headlines
+from backend.features.state_companies import levers as state_levers
+from backend.features.state_companies import panel as state_panel
+from backend.features.state_companies.accounts import EngineOfferAccounts
+from backend.features.state_companies.book import (
+    TICKER_PATTERN,
+    StateCompanyBook,
+    government_shares,
+    invested_by,
+)
+from backend.features.state_companies.market import StateCompanyMarket
+from backend.features.state_companies.orders import order_changes
 from backend.features.tax_policy import TaxPolicy
+from backend.features.variable_income.broker import to_money
 
 logger = logging.getLogger(__name__)
 
@@ -145,6 +173,7 @@ class GovernmentBook:
         random_seed: int,
         macro: MacroCourse | None = None,
         on_change: Callable[[], None] | None = None,
+        state_companies: Iterable[StateCompanyDTO] = (),
     ):
         """
         `on_office` roda na posse de cada presidente jogador: a carteira dele congela.
@@ -156,6 +185,7 @@ class GovernmentBook:
         antes por `close_months`, que o tick chama a cada pregão.
         `on_change` roda depois de cada evento gravado fora do tick: o fim do dia publica
         os painéis uma vez só, então o tick não a chama.
+        `state_companies` são as estatais da partida que já existem, importadas ou fundadas.
         """
         self._on_change = on_change
         self._ticking = False
@@ -171,6 +201,8 @@ class GovernmentBook:
             repository.government.get_events(settings.id)
         )
         self._previous_day: date | None = None
+        # As fundações de estatal cujo código já era de outro ativo na vigência: falham uma vez
+        self._failed_foundings: set[int] = set()
         self._people: dict[int, UserDTO] = {}
         self._timeline = PolicyTimeline(self.state.measures.values())
         self._spending = SpendingTimeline(self.state.measures.values())
@@ -188,16 +220,44 @@ class GovernmentBook:
             self.works_on,
             self._economy,
             self.state.selic_board,
+            # O livro das estatais nasce depois da economia; as contas o leem já pronto
+            StateFeed(
+                dividends_on=lambda day: self._state_companies.budget_dividends(day),
+                spending_on=lambda day: self._state_companies.founding_spending(day),
+                assets_on=lambda day: self._state_companies.assets_in(day),
+                inflation_on=lambda day: self._state_companies.inflation_points(day),
+                credit_on=lambda day: self._state_companies.credit_points(day),
+                gdp_push_on=lambda day: self._state_companies.gdp_push(day),
+            ),
         )
         self._economy.update(self.state.measures.values())
         self._linked.layer.use_sector_boost(self.sector_boost_on)
         self._macro = self._linked.macro
         self._budget = self._linked.budget
+        # As ordens que valem em cada mês vêm do histórico do estado, que o replay refaz
+        self._state_companies = StateCompanyBook(
+            settings.id,
+            random_seed,
+            lambda: self.state.state_order_history,
+            state_companies,
+            self._market_price,
+        )
+        self._linked.layer.use_state_companies(
+            StateFactors(
+                self._state_companies.is_founded,
+                self._state_companies.price_factor,
+                self._state_companies.dividend_factor,
+            )
+        )
+        # O pregão das ações de estatal fundada: o formador negocia o que o governo não guarda
+        self._state_market = StateCompanyMarket(
+            settings.id, engine, self._state_companies
+        )
         # O engine lê os impostos, o prêmio de risco, o prêmio a mais do crédito e o desvio do dólar de cada dia
         engine.use_tax_policy(self.policy)
         engine.use_dollar_factor(self._linked.layer.dollar_factor)
         engine.use_risk_premium(self._linked.premium_on)
-        engine.use_premium_gap(self._linked.premium_gap_on)
+        engine.use_premium_gap(self._linked.credit_premium_on)
 
     def close_months(self, day: date) -> None:
         """Fecha os meses da economia cujo último dia já chegou."""
@@ -205,6 +265,79 @@ class GovernmentBook:
 
     def linked(self) -> LinkedEconomy:
         return self._linked
+
+    def state_companies(self) -> StateCompanyBook:
+        return self._state_companies
+
+    def open_state_market(self, today: date) -> None:
+        """A escada de ordens das estatais fundadas, refeita em volta do preço do dia."""
+        self._state_market.on_open(today)
+
+    def close_state_market(self, today: date) -> list[CandleDTO]:
+        """Fecha as ofertas de privatização que chegaram ao último pregão e o pregão das estatais fundadas."""
+        self.close_privatizations(today)
+        return self._state_market.on_close(today)
+
+    def _market_price(self, ticker: str) -> Decimal | None:
+        """O último fechamento da ação importada, que é o preço da oferta de privatização dela."""
+        candle = self._engine.matching_engine.market_data.get_last(ticker)
+        return None if candle is None else to_money(candle.close)
+
+    def _offer_client(self, portfolio_id: int) -> UUID | None:
+        """A conta que opera a carteira na oferta: a da gestora, ou a do jogador da partida."""
+        fund_client = SimulationManager.find_fund_client(portfolio_id)
+        if fund_client is not None:
+            return fund_client
+        for person in self._people.values():
+            if SimulationManager.get_portfolio_id(person.id) == portfolio_id:
+                return person.client_id
+        return None
+
+    def close_privatizations(self, today: date) -> None:
+        """
+        No último pregão da oferta as ações do governo vão aos pedidos. A sobra da fundada
+        fica com o formador; a ordem em vigor acaba, e o efeito dela e o atraso do IPCA
+        mudam no mês seguinte.
+        """
+        accounts = EngineOfferAccounts(self._engine, self._offer_client)
+        for company in self._state_companies.companies():
+            ends_on = self._state_companies.offer_ends_on(company.ticker)
+            if ends_on is None or today < ends_on:
+                continue
+            demand = sum(
+                repository.state_company.reservations_of(company.id).values(),
+                Decimal(0),
+            )
+            result = self._state_companies.close_privatization(
+                company.ticker, today, accounts
+            )
+            self._on_news(
+                today,
+                state_headlines.privatized(
+                    company.ticker,
+                    result.price,
+                    result.proceeds,
+                    demand > government_shares(company),
+                    self._governing_party_abbr(),
+                ),
+            )
+            if company.origin is StateCompanyOrigin.FOUNDED:
+                self._state_market.add_leftover(company.ticker, result.leftover)
+            if company.ticker in self.state.state_orders:
+                self._emit(
+                    GovernmentEventType.STATE_ORDER_SET,
+                    today,
+                    ticker=company.ticker,
+                    control=StateControl.NONE.value,
+                    dividend_policy=DividendPolicy.NORMAL.value,
+                )
+
+    def founding_reserves(self, ticker: str) -> bool:
+        """As quatro letras são de uma fundação que ainda vai ter efeito: na votação ou aprovada à espera da vigência."""
+        return any(
+            m.ticker is not None and m.ticker[:4] == ticker[:4]
+            for m in self._pending_state_measures(MeasureKind.FOUND_STATE_COMPANY)
+        )
 
     def budget(self) -> BudgetCourse:
         return self._budget
@@ -614,6 +747,9 @@ class GovernmentBook:
         self._weigh_promises(cycle, today)
         campaign_opened = self._announce_calendar(cycle, previous, today)
         self._announce_in_force(previous, today)
+        self._announce_state_orders(previous, today)
+        self._put_state_measures_in_force(today)
+        self._release_state_companies(today)
         self._resolve_deals(today)
         self._announce_deals_ended(previous, today)
         self._resolve_federations(today)
@@ -1080,8 +1216,8 @@ class GovernmentBook:
         return party
 
     def effects_of(self, measure: Measure) -> dict[VoterValue, Decimal]:
-        """O que a medida avança (+) ou recua (-) nos valores; a de gasto não mexe neles."""
-        if measure.kind.is_spending:
+        """O que a medida avança (+) ou recua (-) nos valores; a de gasto e a de estatal não mexem neles."""
+        if measure.kind.is_spending or measure.kind.is_state_company:
             return {}
         return voters.measure_effects(measure.kind, measure.value, measure.before)
 
@@ -2892,9 +3028,14 @@ class GovernmentBook:
         sector: str | None,
         segment: str | None,
         name: str | None = None,
+        ticker: str | None = None,
+        size: StateCompanySize | None = None,
+        lever: StateLever | None = None,
     ) -> None:
         self._ensure_president(user)
-        draft = self._draft(user, today, kind, value, sector, segment, name)
+        draft = self._draft(
+            user, today, kind, value, sector, segment, name, ticker, size, lever
+        )
         self._ensure_not_queued(draft)
         self._emit(
             GovernmentEventType.MEASURE_PROPOSED,
@@ -2909,6 +3050,9 @@ class GovernmentBook:
             proposer_id=user.id,
             name=draft.name,
             renamed_from=draft.renamed_from,
+            ticker=draft.ticker,
+            size=None if draft.size is None else draft.size.value,
+            lever=None if draft.lever is None else draft.lever.value,
         )
         self._notice(
             GovernmentNoticeKind.MEASURE_PROPOSED,
@@ -2931,7 +3075,16 @@ class GovernmentBook:
         if old.status is not MeasureStatus.REJECTED or not self.is_current(old):
             raise ConflictError("Só uma medida rejeitada deste governo volta à fila.")
         self.propose(
-            user, today, old.kind, old.value, old.sector, old.segment, old.name
+            user,
+            today,
+            old.kind,
+            old.value,
+            old.sector,
+            old.segment,
+            old.name,
+            old.ticker,
+            old.size,
+            old.lever,
         )
 
     def withdraw(self, user: UserDTO, today: date, measure_id: int) -> None:
@@ -2963,10 +3116,15 @@ class GovernmentBook:
         sector: str | None,
         segment: str | None,
         name: str | None = None,
+        ticker: str | None = None,
+        size: StateCompanySize | None = None,
+        lever: StateLever | None = None,
     ) -> MeasurePreviewDTO:
         """O que a medida faria, sem propô-la: perfil do partido, pontos na aprovação, voto e vigência."""
         self._ensure_president(user)
-        draft = self._draft(user, today, kind, value, sector, segment, name)
+        draft = self._draft(
+            user, today, kind, value, sector, segment, name, ticker, size, lever
+        )
         vote = congress.next_vote_date(today)
         tickers = self.tickers(draft)
         located_works = (
@@ -3001,6 +3159,12 @@ class GovernmentBook:
                 vote + timedelta(days=VIGENCE_DAYS),
                 self.term_end(),
                 self.state.amendments_on,
+                # A fundação põe o capital da empresa de uma vez, e a conta vai à dívida
+                one_off=(
+                    invested_by(draft.size)
+                    if draft.kind is MeasureKind.FOUND_STATE_COMPANY and draft.size
+                    else Decimal(0)
+                ),
             ),
             inflation=spending_panel.inflation_effect(
                 draft, today, reacts=not self.selic_by_government()
@@ -3017,12 +3181,36 @@ class GovernmentBook:
         sector: str | None,
         segment: str | None,
         name: str | None = None,
+        ticker: str | None = None,
+        size: StateCompanySize | None = None,
+        lever: StateLever | None = None,
     ) -> Measure:
         """Valida o pedido e monta a medida como entraria na fila."""
         term = required(self.state.term)
         before: Decimal | None = None
         stake: Decimal | None = None
         name = name or None
+        if kind.is_state_company:
+            self._validate_state_company(
+                kind, value, sector, segment, name, ticker, size, lever
+            )
+            return Measure(
+                id=self.state.next_measure_id,
+                kind=kind,
+                value=None,
+                before=None,
+                sector=None,
+                segment=None,
+                proposer_id=user.id,
+                term_start=term.start,
+                proposed=today,
+                name=name,
+                ticker=ticker,
+                size=size,
+                lever=lever,
+            )
+        if ticker is not None or size is not None or lever is not None:
+            raise UnprocessableEntityError("Essa medida não é de uma estatal.")
         if name is not None and kind not in spending.NAMEABLE:
             raise UnprocessableEntityError("Só o auxílio e as obras têm nome.")
         # O programa em vigor depois de todas as medidas aprovadas valerem
@@ -3108,18 +3296,74 @@ class GovernmentBook:
         ):
             raise NotFoundError("Segmento não encontrado nesse setor.")
 
+    def _validate_state_company(
+        self,
+        kind: MeasureKind,
+        value: Decimal | None,
+        sector: str | None,
+        segment: str | None,
+        name: str | None,
+        ticker: str | None,
+        size: StateCompanySize | None,
+        lever: StateLever | None,
+    ) -> None:
+        """Fundar pede nome, código livre e porte; privatizar pede só o código de uma estatal ativa do governo."""
+        if value is not None or sector is not None or segment is not None:
+            raise UnprocessableEntityError("Essa medida não leva valor nem setor.")
+        if ticker is None or TICKER_PATTERN.fullmatch(ticker) is None:
+            raise UnprocessableEntityError(
+                "O código da ação tem 4 letras e 1 número, como PNOV3."
+            )
+        if kind is MeasureKind.PRIVATIZE_STATE_COMPANY:
+            if name is not None or size is not None or lever is not None:
+                raise UnprocessableEntityError("A privatização pede só o código.")
+            company = self._state_companies.company(ticker)
+            if company is None or company.status is not StateCompanyStatus.ACTIVE:
+                raise ConflictError("Só uma estatal ativa do governo é privatizada.")
+            if self._privatization_pending(ticker):
+                raise ConflictError("Já tem uma privatização dessa empresa na fila.")
+            return
+        if name is None:
+            raise UnprocessableEntityError("Dê um nome à empresa.")
+        if size is None:
+            raise UnprocessableEntityError("Escolha o porte da empresa.")
+        if not self._state_companies.ticker_free(ticker) or self.founding_reserves(
+            ticker
+        ):
+            raise ConflictError("Esse código já é de outro ativo.")
+
+    def _pending_state_measures(self, kind: MeasureKind) -> list[Measure]:
+        """As medidas do tipo que ainda vão ter efeito: na fila ou aprovadas."""
+        return [
+            m
+            for m in self.state.measures.values()
+            if m.kind is kind
+            and m.status in (MeasureStatus.QUEUED, MeasureStatus.APPROVED)
+        ]
+
+    def _privatization_pending(self, ticker: str) -> bool:
+        """Se há privatização da empresa na fila ou aprovada."""
+        return any(
+            m.ticker == ticker
+            for m in self._pending_state_measures(MeasureKind.PRIVATIZE_STATE_COMPANY)
+        )
+
     def _ensure_not_queued(self, draft: Measure) -> None:
         for queued in self._queue():
-            if (queued.kind, queued.sector, queued.segment) == (
+            if (queued.kind, queued.sector, queued.segment, queued.ticker) == (
                 draft.kind,
                 draft.sector,
                 draft.segment,
+                draft.ticker,
             ):
                 raise ConflictError("Já tem uma medida igual na fila.")
 
-    def _ensure_president(self, user: UserDTO) -> None:
+    def is_president(self, user: UserDTO) -> bool:
         president = self.president()
-        if president is None or president.id != user.id:
+        return president is not None and president.id == user.id
+
+    def _ensure_president(self, user: UserDTO) -> None:
+        if not self.is_president(user):
             raise ForbiddenError("Só o presidente propõe medidas.")
 
     def _measure(self, measure_id: int) -> Measure:
@@ -3220,6 +3464,144 @@ class GovernmentBook:
             selic=None if selic is None else str(selic),
         )
         self._notice(GovernmentNoticeKind.UPDATED)
+
+    def set_state_order(
+        self,
+        user: UserDTO,
+        today: date,
+        ticker: str,
+        control: StateControl,
+        dividend_policy: DividendPolicy,
+    ) -> None:
+        """
+        O presidente dá a ordem de uma estatal ativa: o degrau do controle de preço e a
+        política de dividendos. Ela vale do mês seguinte, e o controle de todas as
+        estatais juntas segura no máximo o teto de pontos de IPCA.
+        """
+        president = self.president()
+        if president is None or president.id != user.id:
+            raise ForbiddenError("Só o presidente dá ordem às estatais.")
+        company = self._state_companies.company(ticker)
+        if company is None:
+            raise NotFoundError("Estatal não encontrada.")
+        if (
+            company.status is not StateCompanyStatus.ACTIVE
+            or self._privatization_pending(ticker)
+        ):
+            raise ForbiddenError("A estatal em privatização não recebe ordens.")
+        if control is not StateControl.NONE:
+            if company.lever is None:
+                raise UnprocessableEntityError("Essa estatal não tem preço a segurar.")
+            others = self._state_companies.other_points(ticker, self.state.state_orders)
+            step = next(
+                s
+                for s in state_levers.step_availability(company.lever, others)
+                if s.control is control
+            )
+            if step.blocked_reason is not None:
+                raise UnprocessableEntityError(step.blocked_reason)
+        self._emit(
+            GovernmentEventType.STATE_ORDER_SET,
+            today,
+            ticker=ticker,
+            control=control.value,
+            dividend_policy=dividend_policy.value,
+        )
+        self._notice(GovernmentNoticeKind.UPDATED)
+
+    def state_panel(
+        self, user: UserDTO, today: date, portfolio_id: int | None
+    ) -> StateCompaniesPanelDTO:
+        """O painel das estatais, que a sala inteira lê; a conta de quem vê traz o pedido dele na oferta."""
+        accounts = EngineOfferAccounts(self._engine, self._offer_client)
+        return state_panel.build_panel(
+            self._state_companies,
+            today=today,
+            is_president=self.is_president(user),
+            given=self.state.state_orders,
+            privatizing={
+                m.ticker: m.id
+                for m in self._pending_state_measures(
+                    MeasureKind.PRIVATIZE_STATE_COMPANY
+                )
+                if m.ticker is not None
+            },
+            name_of=self._stock_name,
+            market_price=self._market_price,
+            portfolio_id=portfolio_id,
+            cash_of=accounts.cash,
+        )
+
+    def state_order_preview(
+        self, user: UserDTO, today: date, ticker: str
+    ) -> StateOrderPreviewDTO:
+        """O efeito de cada degrau e de cada política na estatal, com o teto que sobra a ela."""
+        company = self._state_companies.company(ticker)
+        return state_panel.build_order_preview(
+            self._state_companies,
+            ticker,
+            today=today,
+            can_command=(
+                self.is_president(user)
+                and company is not None
+                and company.status is StateCompanyStatus.ACTIVE
+                and not self._privatization_pending(ticker)
+            ),
+            given=self.state.state_orders,
+            name=self._stock_name(ticker),
+        )
+
+    def state_founding_preview(
+        self,
+        user: UserDTO,
+        today: date,
+        name: str,
+        ticker: str,
+        size: StateCompanySize,
+        lever: StateLever | None,
+    ) -> StateFoundingPreviewDTO:
+        """A medida de fundar com os efeitos da empresa: capital, gasto, crescimento e dividendo."""
+        measure = self.preview(
+            user,
+            today,
+            MeasureKind.FOUND_STATE_COMPANY,
+            None,
+            None,
+            None,
+            name,
+            ticker,
+            size,
+            lever,
+        )
+        return state_panel.build_founding_preview(
+            self._state_companies,
+            measure,
+            size=size,
+            lever=lever,
+            real_interest=self._history_real_interest(today),
+        )
+
+    def reserve_state_offer(
+        self, ticker: str, portfolio_id: int, quantity: Decimal, today: date
+    ) -> None:
+        """A carteira pede ações na oferta de privatização aberta; cada pedido substitui o anterior."""
+        self._state_companies.reserve(ticker, portfolio_id, quantity, today)
+
+    def _stock_name(self, ticker: str) -> str:
+        stock = repository.stock.get_by_ticker(ticker)
+        return ticker if stock is None else stock.name
+
+    def _release_state_companies(self, today: date) -> None:
+        """No governo do computador nenhuma estatal tem ordem: o controle solta e os dividendos voltam ao normal."""
+        if self.caretaker() is None or not self.state.state_orders:
+            return
+        self._emit(
+            GovernmentEventType.STATE_ORDER_SET,
+            today,
+            ticker=None,
+            control=StateControl.NONE.value,
+            dividend_policy=DividendPolicy.NORMAL.value,
+        )
 
     def _hold_selic_meeting(self, today: date) -> None:
         """
@@ -3337,6 +3719,18 @@ class GovernmentBook:
                 approval=value,
             )
         self._notice_month_closed(before.value, satisfaction, value)
+        self._close_state_companies_month(today)
+
+    def _close_state_companies_month(self, today: date) -> None:
+        """
+        As estatais fecham o mês com as ordens que valeram nele; as ordens dadas durante
+        o mês passam a valer no seguinte.
+        """
+        self._state_companies.on_month(today)
+        history = self.state.state_order_history
+        in_force = history[max(history)] if history else {}
+        if self.state.state_orders != in_force:
+            self._emit(GovernmentEventType.STATE_ORDERS_IN_FORCE, today)
 
     def _count_votes(self, vote_day: date) -> bool:
         """
@@ -3680,6 +4074,59 @@ class GovernmentBook:
         party = self.state.parties.get(party_id) if party_id is not None else None
         return party.abbr if party else None
 
+    def _governing_party_abbr(self) -> str | None:
+        """A sigla do partido que governa: o do presidente jogador ou o do computador."""
+        term = self.state.term
+        return self._party_abbr(term.party_id) if term is not None else None
+
+    def _announce_state_orders(self, previous: date | None, today: date) -> None:
+        """
+        No mês em que as ordens dadas passam a valer, cada mudança sobre o que valia antes
+        vira manchete: o controle novo, a soltura com a inflação represada que volta e a
+        política de dividendos. Uma soltura que zera todo o controle leva a represa inteira.
+        """
+        if previous is None:
+            return
+        history = self.state.state_order_history
+        party = self._governing_party_abbr()
+        for start in sorted(m for m in history if previous < m <= today):
+            before = next(
+                (history[m] for m in sorted(history, reverse=True) if m < start), {}
+            )
+            released: list[str] = []
+            for change in order_changes(before, history[start]):
+                company = self._state_companies.company(change.ticker)
+                if company is None:
+                    continue
+                if change.control_changed:
+                    if change.after.control is StateControl.NONE:
+                        released.append(change.ticker)
+                    else:
+                        self._on_news(
+                            today,
+                            state_headlines.control_in_force(
+                                change.ticker, change.after.control.percent, party
+                            ),
+                        )
+                if (
+                    change.policy_changed
+                    and company.status is not StateCompanyStatus.PRIVATIZED
+                ):
+                    self._on_news(
+                        today,
+                        state_headlines.dividend_policy_changed(
+                            change.ticker, change.after.dividend_policy, party
+                        ),
+                    )
+            if released:
+                backlog = self._state_companies.released_points(start)
+                self._on_news(
+                    today,
+                    state_headlines.control_released(
+                        tuple(released), backlog if backlog > 0 else None, party
+                    ),
+                )
+
     def _announce_in_force(self, previous: date | None, today: date) -> None:
         """Avisa a sala no dia em que cada medida aprovada passa a valer."""
         if previous is None:
@@ -3696,6 +4143,9 @@ class GovernmentBook:
                     effective=measure.effective,
                     tickers=self.tickers(measure),
                 )
+                # A fundação e a privatização têm manchete própria, no dia em que fazem efeito
+                if measure.kind.is_state_company:
+                    continue
                 seed = self._headline_seed(today, measure.id)
                 if measure.kind.is_spending:
                     news = headlines.spending_in_force(
@@ -3716,6 +4166,79 @@ class GovernmentBook:
                         rules.title(measure), self.tickers(measure), seed=seed
                     )
                 self._on_news(today, news)
+
+    def _put_state_measures_in_force(self, today: date) -> None:
+        """
+        No dia da vigência a fundação aprovada cria a empresa e a privatização aprovada
+        abre a oferta; a medida que já valeu não faz nada de novo.
+        """
+        for measure in sorted(self.state.measures.values(), key=lambda m: m.id):
+            if (
+                not measure.kind.is_state_company
+                or measure.status is not MeasureStatus.APPROVED
+                or measure.effective is None
+                or measure.effective > today
+            ):
+                continue
+            ticker = required(measure.ticker)
+            company = self._state_companies.company(ticker)
+            if measure.kind is MeasureKind.FOUND_STATE_COMPANY:
+                if company is None and measure.id not in self._failed_foundings:
+                    self._found_state_company(measure, measure.effective)
+            elif company is not None and company.status is StateCompanyStatus.ACTIVE:
+                opened = self._state_companies.open_privatization(
+                    ticker, measure.effective
+                )
+                self._on_news(
+                    measure.effective,
+                    state_headlines.privatization_opened(
+                        ticker,
+                        government_shares(opened),
+                        required(self._state_companies.offer_ends_on(ticker)),
+                        self._governing_party_abbr(),
+                    ),
+                )
+
+    def _history_real_interest(self, day: date) -> Decimal:
+        """O juro real da história no dia: a SELIC menos o IPCA guardados, sem o desvio do governo."""
+        return annual_index_rate(
+            IndicatorSeries.SELIC, day, stored=True
+        ) - annual_index_rate(IndicatorSeries.IPCA, day, stored=True)
+
+    def _found_state_company(self, measure: Measure, day: date) -> None:
+        """
+        O juro real do dia da fundação, o da SELIC e do IPCA da história, dá o retorno médio
+        do valor justo. Cada fundação tenta uma vez só: as letras que outra partida tomou
+        no meio do caminho falham com manchete e registro, sem nova tentativa.
+        """
+        real_interest = self._history_real_interest(day)
+        ticker = required(measure.ticker)
+        company = self._state_companies.found(
+            ticker=ticker,
+            name=required(measure.name),
+            size=required(measure.size),
+            lever=measure.lever,
+            real_interest=real_interest,
+            today=day,
+        )
+        if company is None:
+            self._failed_foundings.add(measure.id)
+            logger.warning("Fundação de %s sem ticker livre", ticker)
+            self._on_news(
+                day, state_headlines.not_founded(required(measure.name), ticker)
+            )
+            return
+        self._state_market.register(company)
+        self._on_news(
+            day,
+            state_headlines.founded(
+                required(measure.name),
+                ticker,
+                required(company.size),
+                company.government_share,
+                self._governing_party_abbr(),
+            ),
+        )
 
     # Calendário: contribuição, apuração e posse
 

@@ -3,6 +3,7 @@ import {
   Building2,
   CreditCard,
   DollarSign,
+  Factory,
   Flame,
   Landmark,
   Percent,
@@ -60,6 +61,7 @@ const LINK_ROW: Record<EconomyLinkEffect["link"], { icon: LucideIcon; subject: s
   CONSUMPTION_TAX: { icon: ShoppingCart, subject: "Alíquota do consumo" },
   CORPORATE_TAX: { icon: Building2, subject: "Alíquota do IR das empresas" },
   PAYROLL_TAX: { icon: Briefcase, subject: "Alíquota da folha" },
+  STATE_COMPANIES: { icon: Factory, subject: "PIB das estatais" },
 };
 
 type EffectsCardProps = { panel: EconomyPanel; effects: EconomyEffect[]; links: EconomyLinkEffect[] };

@@ -86,6 +86,12 @@ class LinkMonth:
     payroll_gap: Decimal = ZERO
     # O desvio do dólar do mês de 12 meses antes, de onde sai a alta que o IPCA repassa
     dollar_gap_year_ago: float = 0.0
+    # O que as estatais põem: o efeito no IPCA (negativo no controle, a represa inteira no
+    # primeiro mês sem ele), o juro do crédito que o banco estatal tira e o empurrão
+    # permanente da fundação no PIB, em ponto percentual ao ano
+    state_inflation_points: Decimal = ZERO
+    state_credit_points: Decimal = ZERO
+    state_gdp_push: Decimal = ZERO
 
     @cached_property
     def phillips_points(self) -> float:
@@ -139,7 +145,13 @@ class LinkMonth:
             + self.dollar_inflation_points
             + self.rate_points
             + self.consumption_points
+            + float(self.state_inflation_points)
         )
+
+    @property
+    def credit_premium(self) -> Decimal:
+        """O que o banco estatal soma ao juro do crédito, em fração (negativo baixa o juro)."""
+        return -self.state_credit_points / HUNDRED
 
     @property
     def payroll_jobs(self) -> Decimal:
@@ -177,6 +189,9 @@ class LinkMonth:
             or self.corporate_gap
             or self.payroll_gap
             or self.dollar_gap_year_ago
+            or self.state_inflation_points
+            or self.state_credit_points
+            or self.state_gdp_push
         )
 
     def same_effect(self, other: "LinkMonth") -> bool:
@@ -194,6 +209,9 @@ class LinkMonth:
             and self.corporate_gap == other.corporate_gap
             and self.payroll_gap == other.payroll_gap
             and self.dollar_gap_year_ago == other.dollar_gap_year_ago
+            and self.state_inflation_points == other.state_inflation_points
+            and self.state_credit_points == other.state_credit_points
+            and self.state_gdp_push == other.state_gdp_push
         )
 
 
@@ -213,6 +231,9 @@ def link_month(
     corporate_gap: Decimal = ZERO,
     payroll_gap: Decimal = ZERO,
     dollar_gap_year_ago: float = 0.0,
+    state_inflation_points: Decimal = ZERO,
+    state_credit_points: Decimal = ZERO,
+    state_gdp_push: Decimal = ZERO,
 ) -> LinkMonth:
     """
     O mês fechado: o nível do PIB acumula o crescimento a mais do mês, um doze avos do
@@ -233,6 +254,9 @@ def link_month(
         corporate_gap=corporate_gap,
         payroll_gap=payroll_gap,
         dollar_gap_year_ago=dollar_gap_year_ago,
+        state_inflation_points=state_inflation_points,
+        state_credit_points=state_credit_points,
+        state_gdp_push=state_gdp_push,
     )
 
 

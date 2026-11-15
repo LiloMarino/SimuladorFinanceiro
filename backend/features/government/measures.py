@@ -82,6 +82,9 @@ def apply_measure(policy: TaxPolicy, measure: Measure) -> TaxPolicy:
         ):
             # O gasto público não mexe nos impostos; vive na linha do tempo do gasto
             return policy
+        case MeasureKind.FOUND_STATE_COMPANY | MeasureKind.PRIVATIZE_STATE_COMPANY:
+            # As estatais não mexem nos impostos
+            return policy
 
 
 def general_value(policy: TaxPolicy, kind: MeasureKind) -> Decimal | None:
@@ -120,6 +123,7 @@ class PolicyTimeline:
                 if m.status is MeasureStatus.APPROVED
                 and m.effective is not None
                 and not m.kind.is_spending
+                and not m.kind.is_state_company
             ),
             key=lambda m: (m.effective, m.id),
         )
@@ -193,6 +197,10 @@ def title(measure: Measure) -> str:
             return _program_title(measure, "Obras", target_name(measure))
         case MeasureKind.OPERATING_COST:
             return f"Custeio: {percent(value)} do PIB"
+        case MeasureKind.FOUND_STATE_COMPANY:
+            return f"Fundar a {measure.name} ({measure.ticker})"
+        case MeasureKind.PRIVATIZE_STATE_COMPANY:
+            return f"Privatizar a {measure.ticker}"
 
 
 def _program_title(measure: Measure, label: str, place: str = "") -> str:

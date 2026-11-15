@@ -20,6 +20,7 @@ from backend.core.repository.settings import SettingsRepository
 from backend.core.repository.simulation import SimulationRepository
 from backend.core.repository.simulation_player import SimulationPlayerRepository
 from backend.core.repository.snapshot import SnapshotRepository
+from backend.core.repository.state_company import StateCompanyRepository
 from backend.core.repository.statistics import StatisticsRepository
 from backend.core.repository.stock import StockRepository
 from backend.core.repository.strategy import StrategyRepository
@@ -51,3 +52,4 @@ strategy = StrategyRepository()
 candle_challenge = CandleChallengeRepository()
 summaries = SummaryRepository()
 news = NewsRepository()
+state_company = StateCompanyRepository()

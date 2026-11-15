@@ -26,6 +26,7 @@ import {
   PHILLIPS,
   REAL_RATE_GAP,
   signedPoints,
+  STATE_COMPANIES,
 } from "./economy-metrics";
 
 type EconomyPoint = EconomyPanel["points"][number];
@@ -299,6 +300,7 @@ export const LINK_METRIC: Record<EconomyLinkEffect["link"], MetricInfo> = {
   CONSUMPTION_TAX,
   CORPORATE_TAX,
   PAYROLL_TAX,
+  STATE_COMPANIES,
 };
 
 /** As ligações que mexem em algo hoje: as outras somam menos que a última casa mostrada. */

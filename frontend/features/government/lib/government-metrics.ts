@@ -1,7 +1,7 @@
 import type { MetricInfo } from "@/shared/lib/metric-info";
 import { signedIpca } from "@/shared/lib/effects";
 import { displayPoints } from "@/shared/lib/budget-metrics";
-import { displayMoneyWhole, displayPercent } from "@/shared/lib/utils/display";
+import { displayMoney, displayMoneyLarge, displayMoneyWhole, displayPercent } from "@/shared/lib/utils/display";
 import type { GeneralKind } from "./government";
 import { salariesLabel } from "./presidency";
 
@@ -387,4 +387,124 @@ export const FAVORITISM: MetricInfo = {
   reading:
     "Perto de zero, o presidente quase não tem interesse no setor e o custo é pequeno. Acima de 3 pontos, a obra pesa na aprovação, e o ganho na bolsa precisa compensar.",
   format: (value) => `${value}`,
+};
+
+export const STATE_STAKE: MetricInfo = {
+  label: "Fatia do governo",
+  description: "O que as ações do governo nas estatais valem hoje",
+  definition:
+    "Soma, de cada estatal, as ações que o governo tem (51% ou mais da empresa) vezes o último preço da ação na bolsa.",
+  example:
+    "Ex.: se uma empresa vale R$ 112 bi na bolsa e o governo tem 51%, a fatia dele é 0,51 × R$ 112 bi = R$ 57,1 bi. Com 4 empresas, a faixa soma as 4 fatias.",
+  reading:
+    "Sobe quando as ações sobem e cai quando caem. Vender uma estatal tira a fatia daqui e põe o dinheiro no Tesouro, para abater a dívida.",
+  format: (value) => displayMoneyLarge(value),
+};
+
+export const TREASURY_DIVIDENDS: MetricInfo = {
+  label: "Ao Tesouro em 12 meses",
+  description: "O que as estatais pagaram ao governo de dividendos nos últimos 12 meses fechados",
+  definition:
+    "Dividendo é a parte do lucro que a empresa reparte entre os donos. Como o governo é dono de 51% ou mais, essa parte cai no caixa do Tesouro e entra na receita do país.",
+  example:
+    "Ex.: uma estatal que lucra R$ 8 bi e paga 50% do lucro (política Normal) reparte R$ 4 bi; com 51% das ações, o Tesouro recebe 0,51 × R$ 4 bi = R$ 2,0 bi.",
+  reading:
+    "Quanto maior, mais ajuda o caixa do governo. Espremer os dividendos aumenta o número agora, mas deixa a empresa com menos dinheiro para crescer; segurar o preço também reduz o lucro e, com ele, o dividendo.",
+  format: (value) => displayMoneyLarge(value),
+};
+
+export const BACKLOG: MetricInfo = {
+  label: "Inflação represada",
+  description: "O desconto que o controle de preço tirou do IPCA e que volta quando o controle sai",
+  definition:
+    "O controle de preço faz o IPCA aparecer menor do que seria. O desconto não some: fica guardado e volta aos preços, de uma vez, no mês seguinte ao fim do controle. É medido em pontos de nível de preços, os mesmos que o IPCA de 12 meses soma na soltura.",
+  example:
+    "Ex.: com o IPCA em 6,0% e 0,7 ponto de controle, o índice aparece como 5,3%. Soltar o controle devolve os 0,7: o IPCA volta a 6,0%.",
+  reading:
+    "Bom: zero, sem nada guardado para voltar. Ruim: 1 ponto ou mais, porque a soltura traz essa inflação de uma vez.",
+  format: (value) => displayPoints(Number(value), 1),
+};
+
+export const CONTROL_CAP: MetricInfo = {
+  label: "Teto do controle de preço",
+  description: "Quanto do desconto máximo de IPCA, somando todas as estatais, já está em uso",
+  definition:
+    "O governo pode segurar no máximo 1,5 ponto de IPCA no total, somando o controle de todas as estatais. O degrau que passaria disso fica bloqueado.",
+  example:
+    "Ex.: a Petrobras com controle de 10% segura 0,5 ponto e a Luz Nacional com 5% segura 0,2: são 0,7 de 1,5 ponto em uso, e sobram 0,8 ponto para as duas.",
+  reading:
+    "Bom: bem abaixo de 1,5, com folga para reagir a uma crise. Ruim: no teto, porque nenhuma estatal pode segurar mais até outra soltar o controle.",
+  format: (value) => displayPoints(Number(value), 1),
+};
+
+export const FAIR_VALUE: MetricInfo = {
+  label: "Valor justo",
+  description: "O preço por ação que o jogo calcula pelo lucro da empresa",
+  definition:
+    "É o preço que o formador de mercado do jogo considera certo pela empresa, olhando o lucro e o patrimônio. Pode ficar acima ou abaixo do preço da bolsa, que muda a cada negócio.",
+  example:
+    "Ex.: valor justo de R$ 7,84 e bolsa em R$ 7,31: comprar na oferta custa R$ 0,53 a mais por ação (7% acima da bolsa).",
+  reading:
+    "Valor justo acima da bolsa: a ação está barata no mercado e a oferta sai mais cara que a bolsa. Abaixo: a oferta sai mais barata e vale a pena reservar.",
+  format: (value) => displayMoney(value),
+};
+
+export const SINCE_FOUNDING: MetricInfo = {
+  label: "Desde a fundação",
+  description: "Quanto a fatia do governo na estatal fundada ganhou ou perdeu sobre o que ele pagou",
+  definition:
+    "Compara o valor de hoje da fatia do governo (51% das ações vezes o preço) com o que o governo pôs na fundação: 51% do capital do porte da empresa.",
+  example:
+    "Ex.: o governo pôs R$ 15,3 bi (51% de R$ 30 bi) e a fatia vale R$ 17,1 bi hoje: ganho de 17,1 ÷ 15,3 − 1 = +12%. Se valesse R$ 12,2 bi, seria −20%.",
+  reading:
+    "Positivo: a empresa valorizou e a fundação deu retorno ao Tesouro. Negativo: o governo perdeu dinheiro com a empresa. A estatal importada não tem fundação, e a coluna fica em traço.",
+  format: (value) => `${value}`,
+};
+
+export const PRICE_CONTROL: MetricInfo = {
+  label: "Controle de preço",
+  description: "O quanto o presidente segura do preço que a estatal cobra",
+  definition:
+    "Segurar o preço (gasolina, conta de luz ou juro do banco) baixa o IPCA, mas tira lucro da empresa e, com ele, o dividendo. Cada degrau (5%, 10%, 15% e 20%) segura mais.",
+  example:
+    "Ex.: 10% de controle numa distribuidora de combustíveis tira cerca de 0,5 ponto do IPCA e corta uns 20% do dividendo dela.",
+  reading:
+    "Bom para o presidente: IPCA menor e aprovação maior. Ruim: o desconto fica represado e volta de uma vez quando o controle sai, e a soma de todas as estatais não passa de 1,5 ponto.",
+  format: (value) => `${value}`,
+};
+
+export const DIVIDEND_POLICY: MetricInfo = {
+  label: "Dividendos",
+  description: "Quanto do lucro a estatal reparte e quanto o Tesouro recebeu dela em 12 meses",
+  definition:
+    "A política decide a parte do lucro que vai ao acionista: Reinvestir paga 25%, Normal paga 50% e Espremer paga 80%. O governo, com 51% ou mais, fica com essa fatia do que for pago.",
+  example:
+    "Ex.: lucro de R$ 8 bi na política Normal: a empresa paga R$ 4 bi e o Tesouro recebe 0,51 × 4 = R$ 2,0 bi. Espremer pagaria 0,51 × 6,4 = R$ 3,3 bi.",
+  reading:
+    "Espremer enche o caixa do Tesouro agora, mas a empresa cresce menos e, em 4 anos, a ação tende a valer menos. Reinvestir faz o inverso. A ordem vale a partir do mês seguinte.",
+  format: (value) => displayMoneyLarge(value),
+};
+
+export const FOUNDING_GDP_PUSH: MetricInfo = {
+  label: "Empurrão ao PIB",
+  description: "Quanto a empresa nova soma ao crescimento do PIB, por ano, para sempre",
+  definition:
+    "A estatal investe e emprega, e isso acelera a economia um pouco a cada ano enquanto ela existir. A segunda estatal do mesmo setor soma menos que a primeira, e a venda tira o empurrão.",
+  example:
+    "Ex.: uma estatal média soma cerca de 0,1% ao ano: com o PIB crescendo 2,0% ao ano, ele passa a crescer 2,1%.",
+  reading:
+    "Quanto maior, mais a economia cresce, o que ajuda a aprovação. O efeito é pequeno por ano e só aparece somado ao longo de vários anos.",
+  format: (value) => displayPercent(value, 2),
+};
+
+export const EXPECTED_DIVIDEND: MetricInfo = {
+  label: "Dividendo esperado",
+  description: "O que a empresa nova deve render ao Tesouro por ano, na política Normal e sem controle de preço",
+  definition:
+    "É uma média: a estatal rende cerca de 8% ao ano sobre o capital, paga metade do lucro (política Normal) e o governo fica com 51% do que for pago. O jogo sorteia o desempenho de verdade, então o ano real pode ficar acima ou abaixo.",
+  example:
+    "Ex.: capital de R$ 100 bi rende R$ 8 bi de lucro por ano; a empresa paga R$ 4 bi e o Tesouro recebe 0,51 × 4 = R$ 2,0 bi.",
+  reading:
+    "Quanto maior, mais a empresa ajuda a pagar a dívida da fundação. Segurar o preço ou reinvestir reduz o número; espremer aumenta.",
+  format: (value) => displayMoneyLarge(value),
 };

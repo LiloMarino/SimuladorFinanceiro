@@ -1,31 +1,30 @@
 import math
+from collections.abc import Mapping
 from datetime import date
 from decimal import Decimal
 
 from backend.core.enum import OrderAction
-from backend.features.funds.fund_account import FundAccount
+from backend.features.market_maker.account import MakerAccount
 from backend.features.variable_income.entities.order import (
-    FUND_MAKER_CLIENT_ID,
+    MARKET_MAKER_CLIENT_ID,
     LimitOrder,
 )
 from backend.features.variable_income.matching_engine import MatchingEngine
 
 # Distância da última ordem ao valor justo, em fração dele
 BAND = 0.20
-# Quantidade de cada lado, em fração das cotas em circulação
+# Quantidade de cada lado, em fração dos papéis em circulação
 DEPTH = 0.02
 LEVELS = 10
-# Fração das cotas que o formador subscreve na oferta pública
-STOCK_SHARE = 0.10
 
 # Formato centro: o nível 1, o mais perto do valor justo, pesa mais; os pesos somam 1
 _RAW_WEIGHTS = [1.05 - level / LEVELS for level in range(1, LEVELS + 1)]
 WEIGHTS = [weight / sum(_RAW_WEIGHTS) for weight in _RAW_WEIGHTS]
 
 
-class FundMaker:
-    """Formador de mercado de uma cota: refaz todo dia a escada de ordens em volta do
-    valor justo por cota.
+class MarketMaker:
+    """Formador de mercado de um papel, ação ou cota: refaz todo dia a escada de ordens em
+    volta do valor justo por papel.
 
     A venda sai do estoque do formador e a compra não tem limite. Cada nível entra pelo
     motor de casamento: o que cruza com uma ordem já no livro executa ao preço do próprio
@@ -33,7 +32,7 @@ class FundMaker:
     """
 
     def __init__(
-        self, engine: MatchingEngine, accounts: dict[str, FundAccount]
+        self, engine: MatchingEngine, accounts: Mapping[str, MakerAccount]
     ) -> None:
         self._engine = engine
         self._accounts = accounts
@@ -43,7 +42,7 @@ class FundMaker:
         self,
         ticker: str,
         fair_value: float,
-        quotas_outstanding: Decimal,
+        outstanding: Decimal,
         today: date,
         bid_ceiling: float | None = None,
     ) -> None:
@@ -57,7 +56,7 @@ class FundMaker:
         if fair_value <= 0:
             return
         account = self._accounts[ticker]
-        side_quantity = float(quotas_outstanding) * DEPTH
+        side_quantity = float(outstanding) * DEPTH
         bids = self._ladder(ticker, fair_value, side_quantity, OrderAction.BUY, today)
         if bid_ceiling is not None:
             bids = [bid for bid in bids if bid.price < bid_ceiling]
@@ -89,7 +88,7 @@ class FundMaker:
                 continue
             orders.append(
                 LimitOrder(
-                    client_id=FUND_MAKER_CLIENT_ID,
+                    client_id=MARKET_MAKER_CLIENT_ID,
                     ticker=ticker,
                     size=Decimal(quantity),
                     action=action,

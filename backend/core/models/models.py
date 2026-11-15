@@ -1275,6 +1275,8 @@ class TickerProfile(Base):
     quote_type: Mapped[str | None] = mapped_column(Text)
     sector: Mapped[str | None] = mapped_column(Text)
     industry: Mapped[str | None] = mapped_column(Text)
+    # Ações em circulação que o yfinance informa; base do número de ações de uma estatal
+    shares_outstanding: Mapped[int | None] = mapped_column(BigInteger)
     fetched_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False, server_default=text("now()")
     )
@@ -1818,3 +1820,162 @@ class FundComanagerEvents(Base):
     day: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     # A parte das taxas de quem entrou; nula na saída
     share: Mapped[decimal.Decimal | None] = mapped_column(Numeric(7, 6))
+
+
+class StateOwnedStocks(Base):
+    """A marcação da base: o ativo importado que o governo controla em toda partida nova."""
+
+    __tablename__ = "state_owned_stocks"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["stock_id"],
+            ["stock.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="state_owned_stocks_stock_id_fkey",
+        ),
+        PrimaryKeyConstraint("stock_id", name="state_owned_stocks_pkey"),
+        CheckConstraint(
+            "government_share > 0 AND government_share <= 1",
+            name="state_owned_stocks_share_check",
+        ),
+        CheckConstraint("shares > 0", name="state_owned_stocks_shares_check"),
+    )
+
+    stock_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    # Fatia do governo em fração: 0,5 é metade das ações
+    government_share: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(6, 5), nullable=False
+    )
+    # Ações em circulação da empresa
+    shares: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # Um valor de `StateLever`; nulo quando a empresa não tem preço a segurar
+    lever: Mapped[str | None] = mapped_column(Text)
+
+
+class StateCompanies(Base):
+    """Uma estatal numa partida: importada da marcação da base ou fundada pelo governo."""
+
+    __tablename__ = "state_companies"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="state_companies_simulation_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["stock_id"],
+            ["stock.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="state_companies_stock_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="state_companies_pkey"),
+        UniqueConstraint(
+            "simulation_id", "stock_id", name="state_companies_simulation_stock_key"
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    stock_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    # Um valor de `StateCompanyOrigin`
+    origin: Mapped[str] = mapped_column(Text, nullable=False)
+    government_share: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(6, 5), nullable=False
+    )
+    shares: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # Um valor de `StateLever`; nulo sem preço a segurar
+    lever: Mapped[str | None] = mapped_column(Text)
+    # Um valor de `StateCompanySize`; só a fundada tem porte
+    size: Mapped[str | None] = mapped_column(Text)
+    # Capital que o governo pôs na fundação; zero na importada
+    invested: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
+    # Retorno anual médio e semente do sorteio do valor justo; nulos na importada, que segue a história
+    mean_return: Mapped[decimal.Decimal | None] = mapped_column(Numeric(8, 6))
+    seed: Mapped[int | None] = mapped_column(BigInteger)
+    # Um valor de `StateCompanyStatus`
+    status: Mapped[str] = mapped_column(
+        Text, nullable=False, server_default=text("'ACTIVE'")
+    )
+    founded_on: Mapped[datetime.date | None] = mapped_column(Date)
+    # Dia em que a oferta de privatização abriu
+    offer_opened_on: Mapped[datetime.date | None] = mapped_column(Date)
+    privatized_on: Mapped[datetime.date | None] = mapped_column(Date)
+    # O que o governo recebeu pela fatia na privatização
+    proceeds: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+
+
+class StateCompanyMonths(Base):
+    """O mês de uma estatal: o valor justo, o lucro e o dividendo que foi ao Tesouro."""
+
+    __tablename__ = "state_company_months"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["state_company_id"],
+            ["state_companies.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="state_company_months_state_company_id_fkey",
+        ),
+        PrimaryKeyConstraint(
+            "state_company_id", "month", name="state_company_months_pkey"
+        ),
+    )
+
+    state_company_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    # Primeiro dia do mês
+    month: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
+    fair_value: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    profit: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    treasury_dividend: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
+
+
+class StateOfferReservations(Base):
+    """A reserva de uma conta na oferta de privatização: quantas ações ela pede, sem gastar caixa."""
+
+    __tablename__ = "state_offer_reservations"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["state_company_id"],
+            ["state_companies.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="state_offer_reservations_state_company_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["portfolio_id"],
+            ["portfolios.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="state_offer_reservations_portfolio_id_fkey",
+        ),
+        PrimaryKeyConstraint(
+            "state_company_id", "portfolio_id", name="state_offer_reservations_pkey"
+        ),
+        CheckConstraint("quantity > 0", name="state_offer_reservations_quantity_check"),
+    )
+
+    state_company_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    # A conta que reserva: a carteira do jogador ou a da gestora que ele comanda
+    portfolio_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    quantity: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    reserved_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)

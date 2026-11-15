@@ -11,6 +11,7 @@ import { useRemoveStockSegment } from "../hooks/mutations/useRemoveStockSegment"
 import { useSaveStockSegment } from "../hooks/mutations/useSaveStockSegment";
 import { useSectors } from "../hooks/queries/useSectors";
 import { useSegmentSuggestion } from "../hooks/queries/useSegmentSuggestion";
+import { StateOwnedPopover } from "./state-owned-popover";
 
 type ClassifyRowProps = {
   series: SeriesCoverage;
@@ -117,18 +118,19 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
 
           {/* Ações */}
           <div className="flex items-center justify-between gap-2">
-            {current ? (
-              <Button
-                variant="link-destructive"
-                size="sm"
-                disabled={busy}
-                onClick={() => remove.mutate(undefined, { onSuccess: onClose })}
-              >
-                Tirar classificação
-              </Button>
-            ) : (
-              <span />
-            )}
+            <div className="flex items-center gap-2">
+              {current && (
+                <Button
+                  variant="link-destructive"
+                  size="sm"
+                  disabled={busy}
+                  onClick={() => remove.mutate(undefined, { onSuccess: onClose })}
+                >
+                  Tirar classificação
+                </Button>
+              )}
+              <StateOwnedPopover ticker={series.key} />
+            </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" disabled={busy} onClick={onClose}>
                 Cancelar

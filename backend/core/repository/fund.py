@@ -25,8 +25,6 @@ from backend.core.dto.fund import (
 from backend.core.dto.stock import StockDTO
 from backend.core.enum import (
     AssetClass,
-    AssetOrigin,
-    Currency,
     DataOrigin,
     EquityEventType,
     FundAssemblyStatus,
@@ -47,6 +45,7 @@ from backend.core.models.models import (
     StockPriceHistory,
     Users,
 )
+from backend.core.repository.ticker_claim import claim_stock, letters_taken
 
 # Colunas da linha de `funds` que mudam depois de a gestora nascer
 _MUTABLE = (
@@ -123,50 +122,16 @@ def _equity_event(event: EventEquity, ticker: str) -> EquityEventDTO:
     )
 
 
-def _letters_taken_by_asset(session: Session, ticker: str) -> bool:
-    """Se as quatro letras do ticker já são de um ativo importado (PETR11 conflita com PETR4)."""
-    return (
-        session.execute(
-            select(Stock.id)
-            .where(
-                Stock.ticker.startswith(ticker[:4], autoescape=True),
-                Stock.asset_class != AssetClass.FUND.value,
-            )
-            .limit(1)
-        ).first()
-        is not None
-    )
-
-
 class FundRepository:
     @transactional
     def claim_stock(self, session: Session, ticker: str, name: str) -> StockDTO | None:
-        """A linha de `stock` da cota de uma gestora.
-
-        O ticker é global: a cota nasce com a primeira gestora e as demais partidas reusam a
-        linha. Quatro letras de um ativo importado devolvem None.
-        """
-        if _letters_taken_by_asset(session, ticker):
-            return None
-        stock = session.execute(
-            select(Stock).where(Stock.ticker == ticker)
-        ).scalar_one_or_none()
-        if stock is None:
-            stock = Stock(
-                ticker=ticker,
-                name=name,
-                asset_class=AssetClass.FUND.value,
-                currency=Currency.BRL.value,
-                origin=AssetOrigin.DOMESTIC.value,
-            )
-            session.add(stock)
-            session.flush()
-        return StockDTO.from_model(stock)
+        """A linha de `stock` da cota de uma gestora; None quando as letras são de um ativo importado."""
+        return claim_stock(session, ticker, name, AssetClass.FUND)
 
     @transactional
     def letters_taken_by_asset(self, session: Session, ticker: str) -> bool:
         """A conferência de `claim_stock` sem gravar: as quatro letras já são de um ativo importado."""
-        return _letters_taken_by_asset(session, ticker)
+        return letters_taken(session, ticker, AssetClass.FUND)
 
     @transactional
     def create(

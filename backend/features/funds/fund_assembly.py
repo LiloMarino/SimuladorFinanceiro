@@ -25,7 +25,7 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.core.utils import ratio
 from backend.features.credit.price import add_months
-from backend.features.funds.sessions import window_end, window_session
+from backend.features.market_maker.sessions import window_end, window_session
 from backend.features.simulation.simulation_engine import SimulationEngine
 
 if TYPE_CHECKING:

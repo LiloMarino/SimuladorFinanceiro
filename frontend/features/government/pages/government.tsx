@@ -15,6 +15,7 @@ import { GovernmentHeader } from "../components/government-header";
 import { ImpeachmentAlert } from "../components/impeachment-alert";
 import { CongressTab } from "../components/congress-tab";
 import { BeforeFirstTerm } from "../components/government-states";
+import { StateCompaniesTab } from "../components/state-companies/state-companies-tab";
 import { NewMeasureDialog } from "../components/new-measure-dialog";
 import { PresidencyPayCard } from "../components/presidency-pay-card";
 import { TermPromisesCard } from "../components/term-promises-card";
@@ -51,7 +52,7 @@ export default function GovernmentPage() {
 
 type Proposal = { kind?: MeasureKind | undefined };
 
-const TABS = ["actions", "mandate", "accounts", "congress"] as const;
+const TABS = ["actions", "mandate", "accounts", "state-companies", "congress"] as const;
 type Tab = (typeof TABS)[number];
 
 /** A aba vem do endereço (?tab=); sem ela ou com valor desconhecido, abre Suas ações. */
@@ -88,6 +89,12 @@ function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
           </TabsTrigger>
           <TabsTrigger value="mandate">Mandato</TabsTrigger>
           <TabsTrigger value="accounts">Contas</TabsTrigger>
+          <TabsTrigger value="state-companies">
+            Estatais
+            <Badge variant="info" size="sm">
+              novo
+            </Badge>
+          </TabsTrigger>
           <TabsTrigger value="congress">
             Congresso
             {unguided > 0 && (
@@ -122,6 +129,11 @@ function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
           <div className="pt-3">
             <AccountsTab panel={panel} onPropose={(kind) => setProposal({ kind })} />
           </div>
+        </TabsContent>
+
+        {/* Estatais do governo */}
+        <TabsContent value="state-companies">
+          <StateCompaniesTab panel={panel} onSeeVote={() => setParams({ tab: "congress" }, { replace: true })} />
         </TabsContent>
 
         {/* Fila do Congresso */}

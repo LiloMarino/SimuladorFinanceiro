@@ -272,6 +272,16 @@ export const CORPORATE_TAX: MetricInfo = {
   format: gapPoints,
 };
 
+export const STATE_COMPANIES: MetricInfo = {
+  label: "Estatais",
+  description: "O empurrão das estatais ao PIB, somado ao que o controle de preço faz com o IPCA",
+  definition:
+    "As estatais fundadas pelo governo dão um empurrão permanente ao PIB, que se soma mês a mês. O controle de preço sobre combustível, energia e crédito tira pontos do IPCA enquanto dura, e o banco estatal baixa o juro do crédito.",
+  example: "Ex.: estatais deixando o PIB 0,3% acima do que ele seria sem elas levantam a bolsa uns 0,75% (0,3 × 2,5).",
+  reading: "Positivo é PIB maior e bolsa mais alta; o desconto no IPCA aparece na coluna da inflação.",
+  format: (value) => `${signedPoints(Number(value))}%`,
+};
+
 export const PAYROLL_TAX: MetricInfo = {
   label: "Contribuição sobre a folha",
   description: "A alíquota acima da padrão encarece contratar e sobe o desemprego",

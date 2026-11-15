@@ -10,8 +10,8 @@ from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.variable_income.entities.order import (
     FUND_ISSUER_CLIENT_ID,
-    FUND_MAKER_CLIENT_ID,
     MARKET_CLIENT_ID,
+    MARKET_MAKER_CLIENT_ID,
     LimitOrder,
 )
 from backend.features.variable_income.order_book import OrderBook
@@ -157,7 +157,7 @@ def test_synthetic_owners_are_named_and_have_no_color():
     """Mercado, formador e oferta pública são donos sintéticos: sem cor e com o tipo de cada um."""
     for client_id, nickname, owner in (
         (MARKET_CLIENT_ID, "Mercado", OrderOwner.MARKET),
-        (FUND_MAKER_CLIENT_ID, "Formador de mercado", OrderOwner.FUND_MAKER),
+        (MARKET_MAKER_CLIENT_ID, "Formador de mercado", OrderOwner.FUND_MAKER),
         (FUND_ISSUER_CLIENT_ID, "Oferta pública", OrderOwner.FUND_ISSUER),
     ):
         order = _limit(10, OrderAction.BUY)

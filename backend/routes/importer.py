@@ -15,8 +15,9 @@ from backend.core.dto.generated_future import (
 )
 from backend.core.dto.import_settings import ImportSettingsDTO
 from backend.core.dto.price_correction import PriceCorrectionResultDTO
-from backend.core.dto.sector import SectorDTO, StockSegmentDTO
+from backend.core.dto.sector import SectorDTO, StockSegmentDTO, StockSuggestionDTO
 from backend.core.dto.series_coverage import SeriesCoverageDTO
+from backend.core.dto.state_company import StateOwnedStockDTO, StateOwnedStockRequest
 from backend.core.dto.ticker_profile import TickerSuggestionDTO
 from backend.core.enum import AssetClass, AssetOrigin, IndicatorSeries
 from backend.core.exceptions.http_exceptions import (
@@ -34,10 +35,10 @@ from backend.features.import_data.future import (
 from backend.features.import_data.importer_service import (
     bare_ticker,
     correct_stored_prices,
-    fetch_info,
+    fetch_profile,
     refresh_profile,
     search_tickers,
-    suggest_segment,
+    suggest_stock,
     update_from_csv,
     update_from_yfinance,
     update_from_yfinance_batch,
@@ -291,12 +292,45 @@ def update_import_settings(request: ImportSettingsDTO):
 
 @import_router.get(
     "/stocks/{ticker}/suggestion",
-    response_model=StockSegmentDTO | None,
+    response_model=StockSuggestionDTO | None,
     summary="Sugestão de setor do yfinance",
-    description="Setor e segmento que o yfinance sugere para o ativo, ou nada quando ele não sabe.",
+    description="Setor e segmento que o yfinance sugere para o ativo, com as ações em circulação e a alavanca de preço da estatal, ou nada quando ele não sabe.",
 )
 def get_segment_suggestion(ticker: str):
-    return suggest_segment(fetch_info(ticker))
+    return suggest_stock(fetch_profile(ticker))
+
+
+@import_router.get(
+    "/stocks/{ticker}/state",
+    response_model=StateOwnedStockDTO | None,
+    summary="Obter a marcação de estatal",
+    description="A fatia do governo, as ações em circulação e a alavanca de preço do ativo marcado como estatal, ou nada quando ele é uma empresa comum.",
+)
+def get_state_owned(ticker: str):
+    return repository.state_company.get_mark(ticker)
+
+
+@import_router.put(
+    "/stocks/{ticker}/state",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Marcar um ativo como estatal",
+    description="Marca o ativo como estatal com a fatia do governo, as ações em circulação e a alavanca de preço. Vale para as partidas criadas depois; a partida em andamento não muda.",
+)
+def mark_state_owned(ticker: str, request: StateOwnedStockRequest):
+    if repository.state_company.mark(ticker, request) is None:
+        raise NotFoundError(f"Ativo '{ticker}' não encontrado.")
+
+
+@import_router.delete(
+    "/stocks/{ticker}/state",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Tirar a marcação de estatal",
+    description="Tira a marcação de estatal do ativo; ele volta a ser uma empresa comum nas próximas partidas.",
+)
+def unmark_state_owned(ticker: str):
+    if repository.stock.get_by_ticker(ticker) is None:
+        raise NotFoundError(f"Ativo '{ticker}' não encontrado.")
+    repository.state_company.unmark(ticker)
 
 
 @import_router.post(

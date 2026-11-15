@@ -17,10 +17,14 @@ from backend.core.enum import (
     DealBreaker,
     DealStatus,
     DiceBand,
+    DividendPolicy,
     FederationProposalStatus,
     FederationStatus,
     MeasureKind,
     MeasureStatus,
+    StateCompanySize,
+    StateControl,
+    StateLever,
     VoterGroup,
     VoterValue,
 )
@@ -44,6 +48,7 @@ from backend.features.government.computer_parties import COMPUTER_FLAGS
 from backend.features.government.deals import Deal
 from backend.features.government.federations import Federation, FederationProposal
 from backend.features.government.promises import GroupEffects, Promise
+from backend.features.state_companies.orders import StateOrder
 
 # A medida aprovada vale depois da noventena
 VIGENCE_DAYS = 90
@@ -411,6 +416,11 @@ class Measure:
     # Obra com endereço: a fatia da carteira do presidente no setor (ou segmento) no dia da
     # proposta, de 0 a 1; nula na obra sem endereço e nas outras medidas
     stake: Decimal | None = None
+    # Fundar ou privatizar estatal: o código da ação, o porte (só na fundação) e a alavanca
+    # de preço (só na fundação); o nome da empresa fica em `name`
+    ticker: str | None = None
+    size: StateCompanySize | None = None
+    lever: StateLever | None = None
 
 
 @dataclass(frozen=True)
@@ -546,6 +556,10 @@ class GovernmentState:
     selic_board: SelicBoard = field(default_factory=SelicBoard)
     last_meeting: date | None = None
     selic_plan: Decimal | None = None
+    # As ordens dadas às estatais (só as que fogem do padrão) e, por mês de início da
+    # vigência, as que valem desde então
+    state_orders: dict[str, StateOrder] = field(default_factory=dict)
+    state_order_history: dict[date, dict[str, StateOrder]] = field(default_factory=dict)
     # O dia do último evento aplicado
     today: date | None = None
     # As federações e as propostas, da proposta ao fim, e o partido que saiu de uma
@@ -938,6 +952,9 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 name=_opt_str(p, "name"),
                 renamed_from=_opt_str(p, "renamed_from"),
                 stake=_opt_money(p, "stake"),
+                ticker=_opt_str(p, "ticker"),
+                size=StateCompanySize(p["size"]) if p.get("size") else None,
+                lever=StateLever(p["lever"]) if p.get("lever") else None,
             )
             state.next_measure_id = max(state.next_measure_id, measure_id + 1)
         case Event.MEASURE_WITHDRAWN:
@@ -1005,6 +1022,10 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             )
             state.last_meeting = date.fromisoformat(_str(p, "meeting"))
             state.selic_plan = None
+        case Event.STATE_ORDER_SET:
+            _apply_state_order(state, p)
+        case Event.STATE_ORDERS_IN_FORCE:
+            state.state_order_history[_next_month_start(day)] = dict(state.state_orders)
         case Event.FEDERATION_PROPOSED:
             _apply_federation_proposed(state, event)
         case Event.FEDERATION_WITHDRAWN:
@@ -1019,6 +1040,25 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             for federation_id in _list(p, "federation_ids"):
                 state.federations[int(federation_id)].status = FederationStatus.ENDED  # type: ignore[call-overload]
     _link_partners(state)
+
+
+def _next_month_start(day: date) -> date:
+    return (day.replace(day=1) + timedelta(days=32)).replace(day=1)
+
+
+def _apply_state_order(state: GovernmentState, p: dict[str, object]) -> None:
+    """A ordem dada vale da próxima virada de mês; sem código, solta todas as estatais."""
+    ticker = _opt_str(p, "ticker")
+    if ticker is None:
+        state.state_orders = {}
+        return
+    order = StateOrder(
+        StateControl(_str(p, "control")), DividendPolicy(_str(p, "dividend_policy"))
+    )
+    if order.is_default:
+        state.state_orders.pop(ticker, None)
+    else:
+        state.state_orders[ticker] = order
 
 
 def _link_partners(state: GovernmentState) -> None:

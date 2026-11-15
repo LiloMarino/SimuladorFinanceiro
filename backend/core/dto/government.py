@@ -29,6 +29,8 @@ from backend.core.enum import (
     MilestoneKind,
     PlaceKind,
     Region,
+    StateCompanySize,
+    StateLever,
     TimelinePointKind,
     TimelineYearStatus,
     VicePhase,
@@ -1179,7 +1181,7 @@ class ProposeMeasureRequest(BaseDTO):
     )
     sector: str | None = None
     segment: str | None = None
-    # Só o auxílio e as obras têm nome; o nome em branco vale como sem nome
+    # Só o auxílio, as obras e a estatal fundada têm nome; o nome em branco vale como sem nome
     name: (
         Annotated[
             str,
@@ -1189,6 +1191,11 @@ class ProposeMeasureRequest(BaseDTO):
         ]
         | None
     ) = None
+    # Só a medida de estatal leva o código da ação (PNOV3), o porte e a alavanca de preço;
+    # fundar usa o `name` como o nome da empresa
+    ticker: str | None = None
+    size: StateCompanySize | None = None
+    lever: StateLever | None = None
 
 
 class InflationCurvePointDTO(BaseDTO):

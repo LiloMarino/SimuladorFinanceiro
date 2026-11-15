@@ -12,14 +12,14 @@ from backend.core.runtime.user_manager import UserManager
 # Dono das ordens da liquidez do mercado simulado, que não é um jogador
 MARKET_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__MARKET__")
 # Dono da escada de compra e venda que o formador de mercado põe em volta do valor justo da cota
-FUND_MAKER_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__FUND_MAKER__")
+MARKET_MAKER_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__FUND_MAKER__")
 # Dono da ordem de venda da oferta pública das cotas de uma gestora
 FUND_ISSUER_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__FUND_ISSUER__")
 
 # Os donos sintéticos, o apelido que cada um mostra no livro de ofertas e o tipo de dono
 SYNTHETIC_OWNERS: dict[uuid.UUID, tuple[str, OrderOwner]] = {
     MARKET_CLIENT_ID: ("Mercado", OrderOwner.MARKET),
-    FUND_MAKER_CLIENT_ID: ("Formador de mercado", OrderOwner.FUND_MAKER),
+    MARKET_MAKER_CLIENT_ID: ("Formador de mercado", OrderOwner.FUND_MAKER),
     FUND_ISSUER_CLIENT_ID: ("Oferta pública", OrderOwner.FUND_ISSUER),
 }
 

@@ -10,6 +10,7 @@ que só dependem de meses já fechados, e o resultado não depende de quem leu p
 import threading
 from bisect import bisect_left
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal
 
@@ -35,9 +36,37 @@ from backend.features.government.budget import (
     BudgetCourse,
     Cycle,
     SpendingOn,
+    StateReaisOn,
+    no_state_dividends,
 )
 from backend.features.government.spending_effects import SpendingEconomy
 from backend.features.tax_policy import DEFAULT_TAX_POLICY, TaxPolicy
+
+# Um valor por dia: pontos de IPCA, pontos de juro ou fração ao ano
+PointsOn = Callable[[date], Decimal]
+
+
+def _no_points(_day: date) -> Decimal:
+    return ZERO
+
+
+@dataclass(frozen=True)
+class StateFeed:
+    """
+    O que as estatais dão à economia em cada dia: ao orçamento, em reais (os dividendos
+    que o Tesouro recebe, o gasto da fundação e o que a privatização rende no mês) e às
+    ligações (o efeito no IPCA e no juro do crédito, em pontos, e o empurrão no PIB, em fração ao ano).
+    """
+
+    dividends_on: StateReaisOn = no_state_dividends
+    spending_on: StateReaisOn = no_state_dividends
+    assets_on: StateReaisOn = no_state_dividends
+    inflation_on: PointsOn = _no_points
+    credit_on: PointsOn = _no_points
+    gdp_push_on: PointsOn = _no_points
+
+
+NO_STATE_FEED = StateFeed()
 
 
 class LinkedEconomy:
@@ -59,8 +88,10 @@ class LinkedEconomy:
         works_on: SpendingOn,
         spending: SpendingEconomy,
         monetary: Monetary,
+        state_feed: StateFeed = NO_STATE_FEED,
     ):
         """
+        `state_feed` é o que as estatais dão ao orçamento e às ligações em cada mês.
         `works_on` é o gasto a mais com obras no dia: as obras têm efeito próprio no
         crescimento e ficam fora do impulso. `monetary` traz a SELIC das reuniões do
         governo e a credibilidade, que pesam só na partida; a base é a história.
@@ -69,6 +100,7 @@ class LinkedEconomy:
         self._policy_on = policy_on
         self._monetary = monetary
         self._works_on = works_on
+        self._state = state_feed
         self._lock = threading.RLock()
         self._closed_through = start - timedelta(days=1)
         self._links: list[LinkMonth] = []
@@ -82,6 +114,9 @@ class LinkedEconomy:
             spending_on,
             self._cycle_on,
             self._credibility_premium_on,
+            state_feed.dividends_on,
+            state_spending_on=state_feed.spending_on,
+            state_assets_on=state_feed.assets_on,
         )
         self._base = BudgetCourse(
             start, lambda _day: DEFAULT_TAX_POLICY, account, macro, stored=True
@@ -113,8 +148,9 @@ class LinkedEconomy:
         country = self._macro.latest(month_end)
         game = self.budget.latest(month_end)
         base = self._base.latest(month_end)
-        # O primário que o governo escolheu: sem o ciclo e sem as obras
-        chosen = (game.revenue - game.cycle_revenue) - (
+        # O primário que o governo escolheu: sem o ciclo, sem as obras e sem os dividendos
+        # das estatais, que vêm do lucro delas e não de uma decisão fiscal
+        chosen = (game.revenue - game.cycle_revenue - game.state_dividends) - (
             game.spending - game.insurance - self._works_on(month_end)
         )
         previous = self._links[-1] if self._links else NO_LINK
@@ -160,6 +196,9 @@ class LinkedEconomy:
             corporate_gap=policy.corporate_rate - DEFAULT_TAX_POLICY.corporate_rate,
             payroll_gap=policy.payroll_rate - DEFAULT_TAX_POLICY.payroll_rate,
             dollar_gap_year_ago=dollar_year_ago,
+            state_inflation_points=self._state.inflation_on(month_end),
+            state_credit_points=self._state.credit_on(month_end),
+            state_gdp_push=self._state.gdp_push_on(month_end),
         )
         # A lista das ligações cresce antes da dos dias: quem lê sem a trava acha as duas coerentes
         self._links.append(link)
@@ -184,7 +223,9 @@ class LinkedEconomy:
         return self._links[: bisect_left(self._ends, day + timedelta(days=1))]
 
     def _impulse_on(self, day: date) -> Decimal:
-        return self.links_on(day).impulse
+        """O impulso fiscal mais o empurrão permanente das estatais fundadas."""
+        link = self.links_on(day)
+        return link.impulse + link.state_gdp_push
 
     def _crowding_on(self, day: date) -> Decimal:
         return self.links_on(day).crowding_out
@@ -210,6 +251,12 @@ class LinkedEconomy:
         """O prêmio acima da história que vale no dia, que o crédito soma à taxa."""
         self.close_until(day)
         return self.links_on(day).premium_gap
+
+    def credit_premium_on(self, day: date) -> Decimal:
+        """O que o crédito soma à taxa no dia: o prêmio acima da história e o juro que o banco estatal tira."""
+        self.close_until(day)
+        link = self.links_on(day)
+        return link.premium_gap + link.credit_premium
 
     def base_budget(self) -> BudgetCourse:
         return self._base

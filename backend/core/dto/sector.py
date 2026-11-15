@@ -1,11 +1,19 @@
 from decimal import Decimal
 
 from backend.core.dto.base import BaseDTO
+from backend.core.enum import StateLever
 
 
 class StockSegmentDTO(BaseDTO):
     sector: str
     segment: str
+
+
+class StockSuggestionDTO(StockSegmentDTO):
+    """Sugestão da importação: setor e segmento, mais o que a marcação de estatal aproveita."""
+
+    shares_outstanding: int | None = None
+    lever: StateLever | None = None
 
 
 class SectorDTO(BaseDTO):

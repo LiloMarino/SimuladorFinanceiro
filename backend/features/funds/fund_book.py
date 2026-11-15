@@ -52,7 +52,7 @@ from backend.features.funds.distribution import (
     settle_month,
 )
 from backend.features.funds.fees import management_fee, performance_charge
-from backend.features.funds.fund_account import DayTrades, FundAccount
+from backend.features.funds.fund_account import FundAccount
 from backend.features.funds.fund_assembly import FundAssemblies
 from backend.features.funds.fund_comanagers import (
     FundComanagers,
@@ -62,14 +62,15 @@ from backend.features.funds.fund_comanagers import (
     split_fee,
 )
 from backend.features.funds.fund_ledger import PERFORMANCE_PERIOD_MONTHS
-from backend.features.funds.fund_maker import STOCK_SHARE, FundMaker
 from backend.features.funds.fund_offer import FundOffer
 from backend.features.funds.ranking_price import (
     RANKING_WINDOW,
     TradedDay,
     ranking_price,
 )
-from backend.features.funds.sessions import window_end, window_session
+from backend.features.market_maker.candle import close_candle
+from backend.features.market_maker.maker import MarketMaker
+from backend.features.market_maker.sessions import window_end, window_session
 from backend.features.notifications.news import Headline
 from backend.features.simulation.simulation_engine import (
     RealizedKind,
@@ -77,6 +78,9 @@ from backend.features.simulation.simulation_engine import (
 )
 from backend.features.variable_income.broker import to_money
 from backend.features.variable_income.entities.order import LimitOrder
+
+# Fração das cotas que o formador subscreve na oferta pública
+STOCK_SHARE = 0.10
 
 # O PL por cota da primeira integralização
 FIRST_NAV = Decimal(100)
@@ -182,45 +186,6 @@ def months_between(start: date, end: date) -> int:
     return (end.year - start.year) * 12 + end.month - start.month
 
 
-def close_candle(
-    stock: StockDTO,
-    day: date,
-    trades: DayTrades,
-    previous_close: float | None,
-    nav: Decimal,
-) -> CandleDTO:
-    """A vela do pregão: primeiro negócio, máxima, mínima, último negócio e volume.
-
-    Sem negócio, a vela repete o último fechamento (ou o PL, na estreia) e o volume é zero.
-    """
-    if trades.open is None:
-        close = previous_close if previous_close is not None else float(nav)
-        open_ = high = low = close
-    else:
-        open_, high, low, close = (
-            float(trades.open),
-            float(trades.high),
-            float(trades.low),
-            float(trades.close),
-        )
-    change = close - open_
-    return CandleDTO(
-        id=stock.id,
-        ticker=stock.ticker,
-        name=stock.name,
-        asset_class=stock.asset_class,
-        origin=stock.origin,
-        open=open_,
-        high=high,
-        low=low,
-        close=close,
-        volume=int(trades.quantity),
-        price_date=day,
-        change=round(change, 2),
-        change_pct=change / open_ if open_ else 0,
-    )
-
-
 def _decimal_or_none(value: float | None) -> Decimal | None:
     return None if value is None else Decimal(str(value))
 
@@ -320,9 +285,9 @@ class FundBook:
                 )
             }
         self._funds: dict[str, Fund] = {}
-        accounts = engine.broker.fund_accounts
-        self._maker = FundMaker(engine.matching_engine, accounts)
-        self._offer = FundOffer(engine.matching_engine, accounts)
+        self._accounts: dict[str, FundAccount] = {}
+        self._maker = MarketMaker(engine.matching_engine, engine.broker.maker_accounts)
+        self._offer = FundOffer(engine.matching_engine, self._accounts)
         self._assemblies = FundAssemblies(
             simulation_id, engine, lambda: self.participants(), grace_ends
         )
@@ -1643,10 +1608,11 @@ class FundBook:
             },
         )
         self._funds[terms.ticker] = fund
-        self._engine.broker.fund_accounts[terms.ticker] = account
+        self._accounts[terms.ticker] = account
+        self._engine.broker.maker_accounts[terms.ticker] = account
         SimulationManager.add_fund_portfolios({terms.client_id: terms.portfolio_id})
         SimulationManager.add_fund_names({terms.client_id: terms.name})
-        self._engine.add_fund_stock(
+        self._engine.add_created_stock(
             StockDTO(
                 id=terms.stock_id,
                 ticker=terms.ticker,

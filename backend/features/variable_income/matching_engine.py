@@ -106,8 +106,8 @@ class MatchingEngine:
         if not candle:
             return
 
-        # A liquidez da cota de gestora é a do formador de mercado dela, não a da vela
-        if ticker not in self.broker.fund_accounts:
+        # Um papel de preço sintético tem a liquidez do formador de mercado dele, não a da vela
+        if ticker not in self.broker.maker_accounts:
             self.market_liquidity.refresh(candle, self._process_market_order)
 
         notify(

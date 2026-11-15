@@ -4,8 +4,10 @@ import uuid
 from collections import defaultdict
 from datetime import date
 from decimal import Decimal
+from types import SimpleNamespace
 
 from backend.core.dto.simulation import SimulationSettingsDTO
+from backend.core.dto.stock import StockDTO
 from backend.core.enum import GameType, PlayerGrouping, VictoryCriterion
 from backend.core.utils import is_business_day, next_business_day
 from backend.features.fixed_income.fixed_broker import CoverSale
@@ -99,12 +101,17 @@ class FakeSimulationEngine(SimulationEngine):
         self.current_date = current_date
         self.cash: defaultdict[uuid.UUID, Decimal] = defaultdict(Decimal, cash or {})
         self.stocks = {}
+        self.created_stocks = {}
+        self.broker = SimpleNamespace(maker_accounts={})
         self.fixed_broker = NoFixedIncome()
         self.dividends: list[tuple[uuid.UUID, str, Decimal]] = []
         self.on_realized = None
 
     def get_cash(self, client_id: uuid.UUID) -> Decimal:
         return self.cash[client_id]
+
+    def add_created_stock(self, stock: StockDTO) -> None:
+        self.created_stocks[stock.ticker] = stock
 
     def add_cash(self, client_id: uuid.UUID, cash: Decimal) -> None:
         self.cash[client_id] += cash

@@ -11,10 +11,16 @@ from fastapi import UploadFile
 from backend.core import repository
 from backend.core.dto.generated_future import ReplacedGeneratedDTO
 from backend.core.dto.price_correction import PriceCorrectionResultDTO
-from backend.core.dto.sector import StockSegmentDTO
+from backend.core.dto.sector import StockSegmentDTO, StockSuggestionDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
 from backend.core.dto.ticker_profile import TickerProfileDTO, TickerSuggestionDTO
-from backend.core.enum import AssetClass, AssetOrigin, Currency, DataOrigin
+from backend.core.enum import (
+    AssetClass,
+    AssetOrigin,
+    Currency,
+    DataOrigin,
+    StateLever,
+)
 from backend.core.exceptions.http_exceptions import (
     BadGatewayError,
     NotFoundError,
@@ -239,15 +245,49 @@ def suggest_segment(info: dict[str, str | None]) -> StockSegmentDTO | None:
     )
 
 
+# Palavras do setor e da indústria que apontam a alavanca de preço da estatal
+_LEVER_KEYWORDS = (
+    (StateLever.BANK, ("bank", "banco")),
+    (StateLever.ENERGY, ("electric", "elétric", "energia", "power")),
+    (StateLever.FUEL, ("oil", "gas", "gás", "petról", "petrol", "biocombust")),
+)
+
+
+def suggest_lever(segment: StockSegmentDTO) -> StateLever | None:
+    """A alavanca que o setor e o segmento sugerem; sem palavra conhecida, o usuário escolhe."""
+    text = f"{segment.sector} {segment.segment}".lower()
+    for lever, words in _LEVER_KEYWORDS:
+        if any(word in text for word in words):
+            return lever
+    return None
+
+
+def suggest_stock(profile: TickerProfileDTO | None) -> StockSuggestionDTO | None:
+    """Setor, segmento, ações em circulação e alavanca que o perfil sugere; sem setor, nada."""
+    if profile is None:
+        return None
+    segment = suggest_segment(_profile_to_info(profile))
+    if segment is None:
+        return None
+    return StockSuggestionDTO(
+        sector=segment.sector,
+        segment=segment.segment,
+        shares_outstanding=profile.shares_outstanding,
+        lever=suggest_lever(segment),
+    )
+
+
 def _download_profile(ticker: str) -> TickerProfileDTO:
     """Consulta o yfinance; levanta quando a fonte falha."""
     info = yf.Ticker(yfinance_symbol(ticker)).info or {}
+    shares = info.get("sharesOutstanding")
     return TickerProfileDTO(
         ticker=ticker,
         name=info.get("longName") or info.get("shortName"),
         quote_type=info.get("quoteType"),
         sector=info.get("sector"),
         industry=info.get("industry"),
+        shares_outstanding=int(shares) if shares else None,
     )
 
 
@@ -260,18 +300,24 @@ def _profile_to_info(profile: TickerProfileDTO) -> dict[str, str | None]:
     }
 
 
-def fetch_info(ticker: str) -> dict[str, str | None]:
+def fetch_profile(ticker: str) -> TickerProfileDTO | None:
     """O perfil do ativo: lê o guardado e só vai ao yfinance quando não há. A resposta
-    vazia também é guardada; se a fonte falhar, nada é gravado e volta vazio."""
+    vazia também é guardada; se a fonte falhar, nada é gravado e volta None."""
     if profile := repository.stock.get_ticker_profile(ticker):
-        return _profile_to_info(profile)
+        return profile
     try:
         profile = _download_profile(ticker)
     except Exception as e:  # noqa: BLE001
         logger.warning(f"Não foi possível obter dados de '{ticker}' no yfinance: {e}")
-        return {}
+        return None
     repository.stock.save_ticker_profile(profile)
-    return _profile_to_info(profile)
+    return profile
+
+
+def fetch_info(ticker: str) -> dict[str, str | None]:
+    """O perfil do ativo no formato que a classificação lê; vazio quando a fonte falha."""
+    profile = fetch_profile(ticker)
+    return _profile_to_info(profile) if profile else {}
 
 
 def refresh_profile(ticker: str) -> None:

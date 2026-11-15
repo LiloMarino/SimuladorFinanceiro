@@ -319,17 +319,20 @@ def debt_rate(selic: Decimal, window: tuple[Decimal, ...]) -> Decimal:
 class DebtChange:
     """
     A variação da dívida no mês, em fração do PIB, por causa. As causas se aplicam em
-    sequência (juro, crescimento, inflação e primário), então a soma é a variação inteira.
+    sequência (juro, crescimento, inflação, primário e venda de ativos), então a soma é a
+    variação inteira.
     """
 
     interest: Decimal = ZERO
     growth: Decimal = ZERO
     inflation: Decimal = ZERO
     primary: Decimal = ZERO
+    # A venda de ativos (privatização) abate a dívida e fica abaixo da linha do primário
+    assets: Decimal = ZERO
 
     @property
     def total(self) -> Decimal:
-        return self.interest + self.growth + self.inflation + self.primary
+        return self.interest + self.growth + self.inflation + self.primary + self.assets
 
     def __add__(self, other: "DebtChange") -> "DebtChange":
         return DebtChange(
@@ -337,25 +340,33 @@ class DebtChange:
             self.growth + other.growth,
             self.inflation + other.inflation,
             self.primary + other.primary,
+            self.assets + other.assets,
         )
 
 
 def step(
-    debt: Decimal, rate: Decimal, ipca: Decimal, growth: Decimal, primary: Decimal
+    debt: Decimal,
+    rate: Decimal,
+    ipca: Decimal,
+    growth: Decimal,
+    primary: Decimal,
+    assets: Decimal = ZERO,
 ) -> tuple[Decimal, DebtChange]:
     """
     A dívida um mês depois: ela rende a taxa média, encolhe com o crescimento e a
-    inflação (que aumentam o PIB) e o resultado primário a abate.
+    inflação (que aumentam o PIB), o resultado primário a abate e a venda de ativos,
+    em fração do PIB, a abate de uma vez.
     """
     charged = debt * (1 + period_rate(rate, MONTHS_PER_YEAR))
     grown = charged / (1 + period_rate(growth, MONTHS_PER_YEAR))
     deflated = grown / (1 + period_rate(ipca, MONTHS_PER_YEAR))
     paid = primary * ONE_TWELFTH
-    return deflated - paid, DebtChange(
+    return deflated - paid - assets, DebtChange(
         interest=charged - debt,
         growth=grown - charged,
         inflation=deflated - grown,
         primary=-paid,
+        assets=-assets,
     )
 
 
@@ -414,6 +425,12 @@ class BudgetMonth:
     # O que o ciclo da economia somou à receita e ao gasto (já dentro deles)
     cycle_revenue: Decimal = ZERO
     insurance: Decimal = ZERO
+    # Os dividendos das estatais que o Tesouro recebeu no mês, em fração do PIB por ano (já dentro da receita)
+    state_dividends: Decimal = ZERO
+    # O gasto das estatais no mês (a fundação), em fração do PIB por ano (já dentro do gasto)
+    state_spending: Decimal = ZERO
+    # O que a privatização rendeu no mês, em fração do PIB (abate a dívida, fora do primário)
+    state_assets: Decimal = ZERO
     closed: bool = True
 
     def monthly(self, ratio: Decimal) -> Decimal:
@@ -441,6 +458,18 @@ CycleOn = Callable[[date], Cycle]
 
 def no_cycle(_day: date) -> Cycle:
     return Cycle()
+
+
+# Os dividendos que o Tesouro recebe das estatais no mês do dia, em reais
+StateDividendsOn = Callable[[date], Decimal]
+
+
+def no_state_dividends(_day: date) -> Decimal:
+    return ZERO
+
+
+# O gasto primário das estatais (a fundação) e o que a privatização rendeu no mês do dia, em reais
+StateReaisOn = Callable[[date], Decimal]
 
 
 PremiumOn = Callable[[date], Decimal]
@@ -478,15 +507,25 @@ class BudgetCourse:
         spending_on: SpendingOn = base_spending_on,
         cycle_on: CycleOn = no_cycle,
         extra_premium: PremiumOn = no_extra_premium,
+        state_dividends_on: StateDividendsOn = no_state_dividends,
         *,
+        state_spending_on: StateReaisOn = no_state_dividends,
+        state_assets_on: StateReaisOn = no_state_dividends,
         stored: bool = False,
     ):
-        """`extra_premium` é o prêmio que a dívida paga a mais no fim de cada mês, fora o da dívida."""
+        """
+        `extra_premium` é o prêmio que a dívida paga a mais no fim de cada mês, fora o da dívida.
+        `state_dividends_on` dá, em reais, o que o Tesouro recebe das estatais no mês do dia;
+        `state_spending_on`, o que gasta na fundação; `state_assets_on`, o que a privatização rende.
+        """
         self._policy_on = policy_on
         self._macro = macro
         self._spending_on = spending_on
         self._cycle_on = cycle_on
         self._extra_premium = extra_premium
+        self._state_dividends_on = state_dividends_on
+        self._state_spending_on = state_spending_on
+        self._state_assets_on = state_assets_on
         self._stored = stored
         self._fixed = fixed_revenue(account)
         self._lock = threading.Lock()
@@ -601,13 +640,36 @@ class BudgetCourse:
         extra_revenue: Decimal,
         spending_on: SpendingOn | None = None,
     ) -> BudgetMonth:
-        revenue = self.revenue_on(month_end) + extra_revenue + cycle.revenue
-        spending = (spending_on or self._spending_on)(month_end) + cycle.insurance
+        # Os dividendos em reais viram fração do PIB por ano sobre o PIB com que o mês abre
+        state_dividends = (
+            self._state_dividends_on(month_end) * MONTHS_PER_YEAR / previous.gdp
+            if previous.gdp > 0
+            else ZERO
+        )
+        revenue = (
+            self.revenue_on(month_end) + extra_revenue + cycle.revenue + state_dividends
+        )
+        state_spending = (
+            self._state_spending_on(month_end) * MONTHS_PER_YEAR / previous.gdp
+            if previous.gdp > 0
+            else ZERO
+        )
+        spending = (
+            (spending_on or self._spending_on)(month_end)
+            + cycle.insurance
+            + state_spending
+        )
         primary = revenue - spending
+        # A venda de ativos é um estoque: reais sobre o PIB com que o mês abre
+        state_assets = (
+            self._state_assets_on(month_end) / previous.gdp
+            if previous.gdp > 0
+            else ZERO
+        )
         # O prefixado do mês sai à SELIC do dia mais o prêmio que a dívida cobrava ao entrar nele
         window = (*previous.window[1:], selic + previous.premium)
         rate = debt_rate(selic, window)
-        debt, change = step(previous.debt, rate, ipca, growth, primary)
+        debt, change = step(previous.debt, rate, ipca, growth, primary, state_assets)
         debt = min(debt, MAX_DEBT)
         return BudgetMonth(
             month_end=month_end,
@@ -625,4 +687,7 @@ class BudgetCourse:
             change=change,
             cycle_revenue=cycle.revenue,
             insurance=cycle.insurance,
+            state_dividends=state_dividends,
+            state_spending=state_spending,
+            state_assets=state_assets,
         )

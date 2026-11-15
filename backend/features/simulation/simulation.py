@@ -90,6 +90,14 @@ from backend.core.dto.position import PositionDTO
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.snapshot import DayBalanceDTO, SnapshotDTO
+from backend.core.dto.state_company import (
+    FoundStateCompanyRequest,
+    StateCompaniesPanelDTO,
+    StateFoundingPreviewDTO,
+    StateOrderPreviewDTO,
+    StateOrderRequest,
+    StateReservationRequest,
+)
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.strategy import (
     MyStrategyDTO,
@@ -426,6 +434,7 @@ class Simulation:
                 random_seed,
                 self._macro,
                 self._government_changed,
+                repository.state_company.of_simulation(settings.id),
             )
             if settings.government_enabled and backtest is None
             else None
@@ -954,6 +963,9 @@ class Simulation:
             measure.sector,
             measure.segment,
             measure.name,
+            measure.ticker,
+            measure.size,
+            measure.lever,
         )
 
     @synchronized
@@ -968,6 +980,58 @@ class Simulation:
             measure.sector,
             measure.segment,
             measure.name,
+            measure.ticker,
+            measure.size,
+            measure.lever,
+        )
+
+    @synchronized
+    def get_state_companies(self, user: UserDTO) -> StateCompaniesPanelDTO:
+        return self._ensure_government().state_panel(
+            user, self._current_date, SimulationManager.get_portfolio_id(user.id)
+        )
+
+    @synchronized
+    def preview_state_order(self, user: UserDTO, ticker: str) -> StateOrderPreviewDTO:
+        return self._ensure_government().state_order_preview(
+            user, self._current_date, ticker
+        )
+
+    @synchronized
+    def preview_state_founding(
+        self, user: UserDTO, request: FoundStateCompanyRequest
+    ) -> StateFoundingPreviewDTO:
+        return self._ensure_government().state_founding_preview(
+            user,
+            self._current_date,
+            request.name,
+            request.ticker,
+            request.size,
+            request.lever,
+        )
+
+    @synchronized
+    def set_state_order(
+        self, user: UserDTO, ticker: str, request: StateOrderRequest
+    ) -> None:
+        self._ensure_government().set_state_order(
+            user,
+            self._current_date,
+            ticker,
+            request.control,
+            request.dividend_policy,
+        )
+
+    @synchronized
+    def reserve_state_offer(
+        self, user: UserDTO, request: StateReservationRequest
+    ) -> None:
+        self._ensure_not_eliminated(user)
+        self._ensure_government().reserve_state_offer(
+            request.ticker,
+            SimulationManager.get_portfolio_id(user.id),
+            Decimal(request.quantity),
+            self._current_date,
         )
 
     @synchronized
@@ -1047,7 +1111,9 @@ class Simulation:
         book = self._ensure_funds()
         if re.fullmatch(FUND_TICKER_PATTERN, ticker) is None:
             return FundTickerCheckDTO(ticker=ticker, status="format", owner_name=None)
-        if repository.fund.letters_taken_by_asset(ticker):
+        if repository.fund.letters_taken_by_asset(ticker) or (
+            self._government is not None and self._government.founding_reserves(ticker)
+        ):
             return FundTickerCheckDTO(ticker=ticker, status="asset", owner_name=None)
         founder_id = book.founder_of(ticker)
         if founder_id is not None and founder_id != user.id:
@@ -1078,6 +1144,10 @@ class Simulation:
     def found_fund(self, user: UserDTO, request: FundFoundRequest) -> FundSummaryDTO:
         self._ensure_not_eliminated(user)
         book = self._ensure_funds()
+        if self._government is not None and self._government.founding_reserves(
+            request.ticker
+        ):
+            raise ConflictError("As quatro letras deste ticker já são de um ativo")
         blocked_until = book.founding_blocked_until(user.id)
         if blocked_until is not None:
             raise ConflictError(
@@ -1881,6 +1951,9 @@ class Simulation:
         if self._funds is not None:
             with metrics.measure("engine", ENGINE_FUNDS):
                 self._funds.on_open(self._current_date)
+        if self._government is not None:
+            with metrics.measure("engine", ENGINE_GOVERNMENT):
+                self._government.open_state_market(self._current_date)
         with metrics.measure("engine", ENGINE_BOTS):
             self._strategies.run(users, self._current_date)
         month_changed = self._has_month_changed()
@@ -1913,11 +1986,16 @@ class Simulation:
             self._publish_newsroom(stocks)
 
         # A vela das cotas fecha antes do snapshot: o preço de ranking do dia já vale nele
-        fund_candles: list[CandleDTO] = []
+        created_candles: list[CandleDTO] = []
         if self._funds is not None:
             with metrics.measure("engine", ENGINE_FUNDS):
-                fund_candles = self._funds.on_close(self._current_date)
+                created_candles = self._funds.on_close(self._current_date)
             self._advance_eliminations(users)
+        if self._government is not None:
+            with metrics.measure("engine", ENGINE_GOVERNMENT):
+                created_candles += self._government.close_state_market(
+                    self._current_date
+                )
 
         if self.backtest is not None:
             with metrics.measure("engine", ENGINE_BACKTEST_DAY):
@@ -1935,7 +2013,7 @@ class Simulation:
             len(users),
         )
         with metrics.measure("engine", ENGINE_PUBLISH):
-            for stock in [*stocks, *fund_candles]:
+            for stock in [*stocks, *created_candles]:
                 ticker = stock.ticker
                 notify(
                     f"stock_update:{ticker}",

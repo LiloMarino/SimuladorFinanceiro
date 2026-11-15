@@ -49,7 +49,7 @@ from backend.core.runtime.event_manager import EventManager
 from backend.core.utils import required
 from backend.features.fixed_income.accrual import offer
 from backend.features.fixed_income.liquidity import redeemable_today
-from backend.features.funds.fund_account import BOT_QUOTA_LIMIT
+from backend.features.market_maker.account import BOT_QUOTA_LIMIT
 from backend.features.notifications import registry
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
@@ -560,14 +560,14 @@ class StrategyRunner:
                 )
 
     def _quantity_allowed(self, user: UserDTO, intent: Intent) -> Decimal:
-        """A quantidade da intenção; a compra de cota de gestora cabe em BOT_QUOTA_LIMIT das cotas.
+        """A quantidade da intenção; a compra de papel de preço sintético cabe em BOT_QUOTA_LIMIT dos papéis.
 
         O teto desconta a posição do bot e as compras dele ainda abertas.
         """
         quantity = required(intent.quantity)
         ticker = required(intent.ticker)
         engine = self._engine
-        account = engine.broker.fund_accounts.get(ticker)
+        account = engine.broker.maker_accounts.get(ticker)
         if account is None or intent.action is not StrategyAction.BUY:
             return quantity
         position = engine.broker.get_positions(user.client_id).get(ticker)
@@ -586,7 +586,7 @@ class StrategyRunner:
             - resting
         )
         if room <= 0:
-            raise ConflictError("A posição do bot na gestora já está no teto")
+            raise ConflictError("A posição do bot no ativo já está no teto")
         return min(quantity, room)
 
     def _on_order_closed(self, order: Order) -> None:

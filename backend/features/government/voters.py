@@ -531,6 +531,9 @@ def measure_steps(
     kind: MeasureKind, value: Decimal | None, before: Decimal | None
 ) -> Decimal:
     """Quantos passos de referência a medida anda, no sentido positivo da tabela."""
+    # A medida de estatal não anda nenhum valor do eleitor
+    if kind.is_state_company:
+        return ZERO
     if kind is MeasureKind.SECTOR_EXEMPT:
         return Decimal(1)
     reference = EFFECT_STEPS[kind]
@@ -544,6 +547,8 @@ def measure_effects(
     kind: MeasureKind, value: Decimal | None, before: Decimal | None
 ) -> dict[VoterValue, Decimal]:
     """O quanto a medida avança (positivo) ou recua cada valor."""
+    if kind.is_state_company:
+        return {}
     steps = measure_steps(kind, value, before)
     # Taxar um setor é o inverso de isentá-lo
     table = EFFECTS[

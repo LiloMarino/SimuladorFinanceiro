@@ -14,6 +14,8 @@ type ActionRowProps = {
   icon?: LucideIcon;
   /** O número ou o prazo ao lado do título: "2 sem andar", "até 30 set" */
   chip?: string | undefined;
+  /** O tom do chip: aviso para o que tem prazo, informação para o estado de uma ação */
+  chipVariant?: "warning" | "info";
   /** A ação principal da tela ou a urgente leva o botão cheio */
   primary?: boolean;
   /** O motivo de a ação estar apagada, escrito à vista; com ele o botão não clica */
@@ -29,6 +31,7 @@ export function ActionRow({
   onAction,
   icon: Icon,
   chip,
+  chipVariant = "warning",
   primary = false,
   blockedReason,
 }: ActionRowProps) {
@@ -60,7 +63,7 @@ export function ActionRow({
         >
           {title}
           {chip && (
-            <Badge variant="warning" size="sm">
+            <Badge variant={chipVariant} size="sm">
               {chip}
             </Badge>
           )}

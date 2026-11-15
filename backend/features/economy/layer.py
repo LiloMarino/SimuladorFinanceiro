@@ -22,7 +22,7 @@ from backend.core.copom import next_meeting
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.enum import AssetOrigin, IndicatorSeries
 from backend.core.indicators import annual_index_rate, annualize_daily
-from backend.core.periods import BUSINESS_DAYS_PER_YEAR, DAYS_PER_MONTH
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR, DAYS_PER_MONTH, MONTHS_PER_YEAR
 from backend.core.rates import Percent
 from backend.core.repository.economic import IndicatorHistory
 from backend.features.economy.links import NO_LINK, LinkMonth
@@ -147,6 +147,19 @@ class Links(Protocol):
 SectorBoost = Callable[[str, str, date], float]
 
 
+@dataclass(frozen=True)
+class StateFactors:
+    """O que as estatais da partida fazem com o preço e o provento das ações.
+
+    `founded` marca a ação fundada na partida, que tem preço e provento próprios e não segue a
+    bolsa; `price` e `dividend` dão, no dia, o fator da ação importada, 1 sem ordem do governo.
+    """
+
+    founded: Callable[[str], bool]
+    price: Callable[[str, date], float]
+    dividend: Callable[[str, date], float]
+
+
 class NoLinks:
     def first_day(self) -> date | None:
         return None
@@ -185,10 +198,15 @@ class EconomyLayer:
         self._classification: dict[str, StockSegmentDTO] | None = None
         self._origins: dict[str, AssetOrigin] | None = None
         self._sector_boost: SectorBoost | None = None
+        self._state: StateFactors | None = None
 
     def use_sector_boost(self, boost: SectorBoost) -> None:
         """As ações de um setor que o governo favorece (isenção, obra ou emenda) ganham a alta de `boost`."""
         self._sector_boost = boost
+
+    def use_state_companies(self, factors: StateFactors) -> None:
+        """O preço e o provento das ações de estatal passam a levar o efeito das ordens do presidente."""
+        self._state = factors
 
     def refresh(self) -> None:
         """As medidas de gasto mudaram: as séries lidas de novo refazem todos os dias."""
@@ -246,10 +264,30 @@ class EconomyLayer:
     def reading_points(self, day: date) -> float:
         """
         Pontos de IPCA em 12 meses que o Banco Central lê no dia: gasto, dólar, juros e
-        desemprego. O degrau de preço do imposto sobre consumo fica de fora, e a reação
-        responde à inflação que permanece.
+        desemprego, mais o efeito das estatais pela média dos últimos 12 meses fechados.
+        O IPCA de 12 meses acumula um ano de preços, então a soltura do controle entra
+        na leitura diluída no ano em que ela de fato soma. O degrau de preço do imposto
+        sobre consumo fica de fora, e a reação responde à inflação que permanece.
         """
-        return self.inflation_points(day) - self._links.links_on(day).consumption_points
+        link = self._links.links_on(day)
+        state_month = float(link.state_inflation_points)
+        return (
+            self.inflation_points(day)
+            - state_month
+            + self._state_points_12m(link)
+            - link.consumption_points
+        )
+
+    def _state_points_12m(self, last: LinkMonth) -> float:
+        """A média dos pontos de IPCA das estatais nos 12 meses fechados até `last`."""
+        total = 0.0
+        link = last
+        for _ in range(MONTHS_PER_YEAR):
+            if link.month_end == date.min:
+                break
+            total += float(link.state_inflation_points)
+            link = self._links.links_on(link.month_end)
+        return total / MONTHS_PER_YEAR
 
     def reacts(self, day: date) -> bool:
         """A SELIC do dia é a do Banco Central autônomo: nenhuma reunião do governo vale ainda."""
@@ -402,6 +440,24 @@ class EconomyLayer:
         return math.exp(sum(self.dollar_exponents(day)))
 
     def stock_factor(self, ticker: str, day: date) -> float:
+        """O quanto o efeito do governo move o preço da ação no dia: a bolsa, o setor e as ordens na estatal."""
+        state = self._state
+        if state is None:
+            return self._market_factor(ticker, day)
+        if state.founded(ticker):
+            return 1.0
+        return self._market_factor(ticker, day) * state.price(ticker, day)
+
+    def dividend_factor(self, ticker: str, day: date) -> float:
+        """O quanto o efeito do governo move o provento da ação no dia: a bolsa, o setor e a política de dividendos."""
+        state = self._state
+        if state is None:
+            return self._market_factor(ticker, day)
+        if state.founded(ticker):
+            return 1.0
+        return self._market_factor(ticker, day) * state.dividend(ticker, day)
+
+    def _market_factor(self, ticker: str, day: date) -> float:
         # O ativo internacional anda só com o dólar: o nível da bolsa daqui e a alta
         # setorial não chegam a ele
         if self._is_foreign(ticker):

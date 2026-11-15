@@ -1,8 +1,11 @@
 import {
+  Building2,
   Coins,
   FilePlus2,
+  Gavel,
   Handshake,
   Landmark,
+  Scale,
   Megaphone,
   Percent,
   PiggyBank,
@@ -22,16 +25,19 @@ import { useElection } from "@/shared/hooks/queries/useElection";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { displayDayMonth, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, GovernmentPanel, MeasureKind } from "@/types";
+import { useStateCompanies } from "../hooks/queries/useStateCompanies";
 import { governmentPending } from "../lib/actions";
 import { unguidedCount } from "../lib/house";
+import { commandChip, privatizeChip } from "../lib/state-companies";
 import { affiliationNote, collectionNote, monthYear } from "../lib/election";
 import { ActionGroup, DecideNow } from "./action-card";
 import { ActionRow } from "./action-row";
 import { ContributionDialog } from "./contribution-dialog";
 import { FederationProposeDialog } from "./federation-propose-dialog";
+import { FoundStateCompanyDialog } from "./state-companies/found-state-company-dialog";
 import { RequestImpeachmentDialog } from "./request-impeachment-card";
 
-type GovernmentTab = "mandate" | "accounts" | "congress";
+type GovernmentTab = "mandate" | "accounts" | "state-companies" | "congress";
 
 type ActionsTabProps = {
   panel: GovernmentPanel;
@@ -209,6 +215,9 @@ function ActionsContent({ panel, election, onPropose, onGo }: ActionsContentProp
         </ActionGroup>
       )}
 
+      {/* Estatais, só para o presidente */}
+      {panel.is_president && <StateCompaniesActions panel={panel} onGo={onGo} />}
+
       {/* Como filiado */}
       {!isLeader && (
         <ActionGroup
@@ -314,6 +323,62 @@ function ActionsContent({ panel, election, onPropose, onGo }: ActionsContentProp
       <RequestImpeachmentDialog open={dialog === "impeachment"} onOpenChange={close} />
       <FederationProposeDialog open={dialog === "federation"} onOpenChange={close} panel={election} party={party} />
     </div>
+  );
+}
+
+type StateCompaniesActionsProps = { panel: GovernmentPanel; onGo: (tab: GovernmentTab) => void };
+
+/** As ações do presidente nas estatais: fundar abre o diálogo aqui; comandar e privatizar escolhem a empresa na aba Estatais. */
+function StateCompaniesActions({ panel, onGo }: StateCompaniesActionsProps) {
+  const { data } = useStateCompanies();
+  const [founding, setFounding] = useState(false);
+  const companies = data?.companies ?? [];
+
+  return (
+    <>
+      <ActionGroup title="Estatais" subtitle="O governo funda, comanda e vende empresas que também negociam na bolsa">
+        <ActionRow
+          icon={Building2}
+          title="Fundar uma estatal"
+          chip="vai a votação"
+          chipVariant="info"
+          description="Cria uma empresa do governo num setor e num porte; o Congresso vota."
+          alsoIn="Estatais"
+          actionLabel="Fundar"
+          primary
+          onAction={() => setFounding(true)}
+        />
+        <ActionRow
+          icon={Scale}
+          title="Comandar uma estatal"
+          chip={commandChip(companies) ?? "ordem sua"}
+          chipVariant="info"
+          description="Segura o preço do setor e define quanto a empresa paga de dividendos; vale sem votação."
+          alsoIn="Estatais"
+          actionLabel="Escolher"
+          onAction={() => onGo("state-companies")}
+        />
+        <ActionRow
+          icon={Gavel}
+          title="Privatizar uma estatal"
+          chip={privatizeChip(companies, panel.queue) ?? "vai a votação"}
+          chipVariant="info"
+          description="Vende a fatia do governo à sala numa oferta pública; o Congresso vota."
+          alsoIn="Estatais"
+          actionLabel="Escolher"
+          onAction={() => onGo("state-companies")}
+        />
+      </ActionGroup>
+      {data && (
+        <FoundStateCompanyDialog
+          open={founding}
+          onOpenChange={setFounding}
+          companies={data.companies}
+          rules={data.rules}
+          vigenceDays={panel.vigence_days}
+        />
+      )}
+    </>
   );
 }
 

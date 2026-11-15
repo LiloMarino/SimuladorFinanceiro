@@ -73,7 +73,7 @@ def _equity(
     )
 
 
-def test_the_dividend_follows_the_stock_factor_of_the_ex_date():
+def test_the_dividend_follows_the_dividend_factor_of_the_ex_date():
     """Com a bolsa a 1/400 da história, o provento sai a 1/400 do valor guardado."""
     events = [_dividend(date(2021, 3, 10), 2.0), _dividend(date(2021, 4, 10), 4.0)]
     factors = {date(2021, 3, 10): 1 / 400, date(2021, 4, 10): 0.5}
