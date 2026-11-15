@@ -20,6 +20,11 @@ class RealtimeBroker(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def subscribed_clients(self, event: Event) -> set[ClientID]:
+        """Os clientes com alguma conexão assinando o evento."""
+        raise NotImplementedError
+
+    @abstractmethod
     def notify(
         self,
         event: Event,

@@ -343,7 +343,10 @@ def test_starting_the_match_emits_no_exit_for_the_bots(room, monkeypatch):
     monkeypatch.setattr(
         RealtimeBrokerManager,
         "get_broker",
-        lambda: SimpleNamespace(notify=lambda event, *_a, **_k: sent.append(event)),
+        lambda: SimpleNamespace(
+            subscribed_clients=lambda _event: set(),
+            notify=lambda event, *_a, **_k: sent.append(event),
+        ),
     )
 
     SimulationLoader.create(rules())
@@ -358,7 +361,10 @@ def test_removing_a_bot_emits_its_exit(room, monkeypatch):
     monkeypatch.setattr(
         RealtimeBrokerManager,
         "get_broker",
-        lambda: SimpleNamespace(notify=lambda event, *_a, **_k: sent.append(event)),
+        lambda: SimpleNamespace(
+            subscribed_clients=lambda _event: set(),
+            notify=lambda event, *_a, **_k: sent.append(event),
+        ),
     )
 
     UserManager.remove_bot("Tio Patinhas")

@@ -18,6 +18,14 @@ def get_socket_broker() -> SocketBroker:
     return broker
 
 
+def subscribed_clients(event: Event) -> set[ClientID]:
+    """
+    Os clientes que assinam o evento: quem monta um payload caro só o monta
+    quando alguém o escuta.
+    """
+    return get_broker().subscribed_clients(event)
+
+
 def notify(event: Event, payload: JSONValue, to: ClientID | None = None) -> None:
     """
     API pública para publicar eventos realtime (Pub/Sub).

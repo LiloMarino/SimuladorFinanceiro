@@ -1,16 +1,30 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
+import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { Budget } from "@/types";
 
-const REFRESH_MS = 15_000;
-
-/** A conta do governo no último fechamento de mês; renova enquanto a tela está aberta. */
+/**
+ * A conta do governo: cada dia do pregão e cada ação do governo trazem o orçamento por
+ * budget_update. O cache vale enquanto a tela escuta o evento; a cada montagem a consulta confere de novo.
+ */
 export function useBudget({ enabled = true }: { enabled?: boolean } = {}) {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: queryKeys.budget(),
     queryFn: ({ signal }) => apiFetch<Budget>("/api/government/budget", { signal }),
     enabled,
-    refetchInterval: REFRESH_MS,
+    staleTime: 0,
   });
+
+  useRealtime(
+    "budget_update",
+    (budget) => {
+      queryClient.setQueryData(queryKeys.budget(), budget);
+    },
+    enabled,
+  );
+
+  return query;
 }

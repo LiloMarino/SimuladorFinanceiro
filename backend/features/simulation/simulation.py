@@ -231,7 +231,7 @@ from backend.features.government.promise_panel import (
 )
 from backend.features.newsroom.newsroom import Newsroom
 from backend.features.notifications import news, registry
-from backend.features.realtime import notify
+from backend.features.realtime import notify, subscribed_clients
 from backend.features.realtime.schemas import (
     CorporateActionsEventDTO,
     FundsUpdateEventDTO,
@@ -290,7 +290,16 @@ def synchronized(
     @wraps(method)
     def call(self: Simulation, *args: P.args, **kwargs: P.kwargs) -> R:
         with self.lock:
-            return method(self, *args, **kwargs)
+            self._sync_depth += 1
+            try:
+                return method(self, *args, **kwargs)
+            finally:
+                self._sync_depth -= 1
+                # A operação mais externa fecha com os painéis do país uma única vez,
+                # qualquer que seja o número de mudanças que ela fez no governo
+                if self._sync_depth == 0 and self._panels_stale:
+                    self._panels_stale = False
+                    self._publish_government_panels()
 
     return call
 
@@ -316,6 +325,11 @@ class Simulation:
     - Gerenciar velocidade da simulação e notificar atualizações realtime
     - Limpar caches de usuários ao fazer logout
     """
+
+    # Profundidade das operações sincronizadas em curso e se o governo mudou nelas:
+    # `synchronized` publica os painéis do país ao fechar a operação mais externa
+    _sync_depth = 0
+    _panels_stale = False
 
     def __init__(
         self,
@@ -404,6 +418,7 @@ class Simulation:
                 lambda day, headline: news.publish(settings.id, day, headline),
                 random_seed,
                 self._macro,
+                self._government_changed,
             )
             if settings.government_enabled and backtest is None
             else None
@@ -1210,6 +1225,49 @@ class Simulation:
         (pregão, negócio da cota, oferta, taxas, congelamento) passa por aqui."""
         notify("funds_update", FundsUpdateEventDTO().to_json())
 
+    def _government_changed(self) -> None:
+        """O livro do governo mudou: os painéis saem ao fim da operação em curso e, sem
+        operação em curso, na hora."""
+        with self.lock:
+            self._panels_stale = True
+            if self._sync_depth == 0:
+                self._panels_stale = False
+                self._publish_government_panels()
+
+    @synchronized
+    def _publish_government_panels(self) -> None:
+        """Leva ao vivo o painel da economia, o orçamento e a base do Congresso a quem está
+        com a tela aberta (assina o evento). O payload é o mesmo que a rota devolve e cada
+        painel só é montado quando alguém o escuta; a base vai a cada jogador, porque muda
+        com quem olha. O pregão publica uma vez ao fim do dia e cada ação do governo, uma vez
+        ao fechar, com o estado já completo."""
+        try:
+            if subscribed_clients("economy_update"):
+                notify("economy_update", self.get_economy_panel().to_json())
+            if self._government is None:
+                return
+            if subscribed_clients("budget_update"):
+                notify("budget_update", self.get_budget().to_json())
+            listeners = subscribed_clients("base_update")
+            if listeners:
+                participants = repository.simulation_player.participants(
+                    self.settings.id
+                )
+                for player in UserManager.list_active_players():
+                    if player.client_id in listeners:
+                        notify(
+                            "base_update",
+                            build_base(
+                                self._government,
+                                participants,
+                                player,
+                                self._current_date,
+                            ).to_json(),
+                            to=player.client_id,
+                        )
+        except Exception:
+            logger.exception("Erro ao publicar os painéis do país")
+
     def _ensure_funds(self) -> FundBook:
         if self._funds is None:
             raise ConflictError("Esta partida não usa a expansão Gestoras.")
@@ -1737,6 +1795,7 @@ class Simulation:
             notify("stocks_update", StocksUpdateEventDTO(stocks=stocks).to_json())
             if self._funds is not None:
                 self._notify_funds_update()
+            self._publish_government_panels()
             for player in UserManager.list_active_players():
                 notify(
                     "portfolio_update",

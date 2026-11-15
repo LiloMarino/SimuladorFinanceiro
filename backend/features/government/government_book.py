@@ -144,6 +144,7 @@ class GovernmentBook:
         on_news: Callable[[date, Headline], None],
         random_seed: int,
         macro: MacroCourse | None = None,
+        on_change: Callable[[], None] | None = None,
     ):
         """
         `on_office` roda na posse de cada presidente jogador: a carteira dele congela.
@@ -153,7 +154,11 @@ class GovernmentBook:
         `macro` é o crescimento e o desemprego do país, que o orçamento e a aprovação leem.
         A economia interligada fecha os meses: quem lê o país ou o orçamento num dia passa
         antes por `close_months`, que o tick chama a cada pregão.
+        `on_change` roda depois de cada evento gravado fora do tick: o fim do dia publica
+        os painéis uma vez só, então o tick não a chama.
         """
+        self._on_change = on_change
+        self._ticking = False
         self._settings = settings
         self._engine = engine
         self._on_office = on_office
@@ -582,6 +587,15 @@ class GovernmentBook:
         dia trouxe a abertura da campanha, um resultado de turno ou um impeachment, que
         pausam a partida para todos.
         """
+        self._ticking = True
+        try:
+            return self._run_tick(users, today, month_changed)
+        finally:
+            self._ticking = False
+
+    def _run_tick(
+        self, users: list[UserDTO], today: date, month_changed: bool
+    ) -> PauseReason | None:
         people = {user.id: user for user in users}
         self._people = people
         # O apoio de campanha chega ao dia de hoje com a queda do tempo aplicada
@@ -4400,6 +4414,8 @@ class GovernmentBook:
         )
         repository.government.insert(event)
         apply(self.state, event)
+        if self._on_change is not None and not self._ticking:
+            self._on_change()
 
     def _notice(
         self,

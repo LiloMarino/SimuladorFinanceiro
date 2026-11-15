@@ -48,7 +48,9 @@ def paused_match(
     monkeypatch.setattr(
         RealtimeBrokerManager,
         "get_broker",
-        lambda: SimpleNamespace(notify=lambda *_a, **_kw: None),
+        lambda: SimpleNamespace(
+            subscribed_clients=lambda _event: set(), notify=lambda *_a, **_kw: None
+        ),
     )
     settings = simulation_settings().model_copy(
         update={"start_date": date(2003, 3, 31), "end_date": date(2003, 6, 30)}

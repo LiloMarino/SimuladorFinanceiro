@@ -832,7 +832,8 @@ def sent_events(monkeypatch) -> list[str]:
         RealtimeBrokerManager,
         "get_broker",
         lambda: SimpleNamespace(
-            notify=lambda event, payload, to=None: sent.append(event)
+            subscribed_clients=lambda _event: set(),
+            notify=lambda event, payload, to=None: sent.append(event),
         ),
     )
     return sent

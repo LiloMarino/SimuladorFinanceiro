@@ -148,8 +148,7 @@ def office() -> list[int]:
     return []
 
 
-@pytest.fixture
-def book(engine, stored, notices, captured_events, office, headlines) -> GovernmentBook:
+def new_book(engine, office, headlines, on_change=None) -> GovernmentBook:
     return GovernmentBook(
         settings(),
         engine,
@@ -157,7 +156,27 @@ def book(engine, stored, notices, captured_events, office, headlines) -> Governm
         lambda *_: Decimal(0),
         lambda day, headline: headlines.append((day, headline)),
         SEED,
+        on_change=on_change,
     )
+
+
+@pytest.fixture
+def book(engine, stored, notices, captured_events, office, headlines) -> GovernmentBook:
+    return new_book(engine, office, headlines)
+
+
+@pytest.fixture
+def changes() -> list[None]:
+    """Cada aviso de mudança que o livro mandou à partida, para ela publicar os painéis."""
+    return []
+
+
+@pytest.fixture
+def watched_book(
+    engine, stored, notices, captured_events, office, headlines, changes
+) -> GovernmentBook:
+    """O livro ligado à partida: cada evento gravado chama `on_change`."""
+    return new_book(engine, office, headlines, lambda: changes.append(None))
 
 
 def found(
@@ -184,6 +203,28 @@ def party_of(book: GovernmentBook, user: UserDTO) -> Party:
     party = book.state.party_of(user.id)
     assert party is not None
     return party
+
+
+def test_each_recorded_event_announces_the_change(
+    watched_book: GovernmentBook, stored, changes
+):
+    found(watched_book, ALICE, "AAA", RED)
+
+    assert stored
+    assert len(changes) == len(stored)
+
+
+def test_the_close_of_the_day_does_not_announce_each_event(
+    watched_book: GovernmentBook, stored, changes
+):
+    found(watched_book, ALICE, "AAA", RED)
+    recorded, announced = len(stored), len(changes)
+
+    # A cobrança do mês grava eventos no tick: quem publica é o fim do dia da partida
+    watched_book.on_tick(USERS, date(2020, 11, 3), True)
+
+    assert len(stored) > recorded
+    assert len(changes) == announced
 
 
 def test_the_three_computer_parties_are_always_in_the_race(book: GovernmentBook):

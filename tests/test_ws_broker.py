@@ -93,6 +93,22 @@ def test_targeted_event_skips_other_players(broker):
     assert server.sent == [("portfolio_update", "bia")]
 
 
+def test_subscribed_clients_are_only_those_with_a_tab_listening(broker):
+    socket_broker, _ = broker
+    lilo, bia = uuid4(), uuid4()
+    socket_broker.register_client(lilo, "lilo")
+    socket_broker.register_client(bia, "bia")
+    socket_broker.update_subscription("lilo", ["budget_update"])
+    socket_broker.update_subscription("bia", ["portfolio_update"])
+
+    assert socket_broker.subscribed_clients("budget_update") == {lilo}
+    assert socket_broker.subscribed_clients("economy_update") == set()
+
+    socket_broker.remove_client(lilo, "lilo")
+
+    assert socket_broker.subscribed_clients("budget_update") == set()
+
+
 @pytest.fixture
 def collector(monkeypatch: pytest.MonkeyPatch) -> Metrics:
     collector = Metrics()

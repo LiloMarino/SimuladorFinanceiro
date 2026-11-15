@@ -97,7 +97,10 @@ def started(market: Engine, monkeypatch: pytest.MonkeyPatch) -> list[str]:
     monkeypatch.setattr(
         RealtimeBrokerManager,
         "get_broker",
-        lambda: SimpleNamespace(notify=lambda *_args, **_kwargs: None),
+        lambda: SimpleNamespace(
+            subscribed_clients=lambda _event: set(),
+            notify=lambda *_args, **_kwargs: None,
+        ),
     )
 
     calls: list[str] = []

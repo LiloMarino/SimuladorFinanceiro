@@ -11634,6 +11634,9 @@ export interface components {
             stocks_update: components["schemas"]["StocksUpdateEventDTO"];
             fixed_assets_update: components["schemas"]["FixedAssetsUpdateEventDTO"];
             funds_update: components["schemas"]["FundsUpdateEventDTO"];
+            budget_update: components["schemas"]["BudgetDTO"];
+            economy_update: components["schemas"]["EconomyPanelDTO"];
+            base_update: components["schemas"]["CongressBaseDTO"];
             snapshot_update: components["schemas"]["SnapshotUpdateEventDTO"];
             portfolio_update: components["schemas"]["PortfolioUpdateEventDTO"];
             statistics_snapshot_update: components["schemas"]["StatisticsSnapshotUpdateEventDTO"];

@@ -75,6 +75,14 @@ class SocketBroker(RealtimeBroker):
             for event in events:
                 self._subscriptions[event].add(sid)
 
+    def subscribed_clients(self, event: Event) -> set[ClientID]:
+        with self._lock:
+            return {
+                self._sid_to_client[sid]
+                for sid in self._subscriptions.get(event, set())
+                if sid in self._sid_to_client
+            }
+
     def notify(
         self,
         event: Event,

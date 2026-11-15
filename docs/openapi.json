@@ -34201,6 +34201,15 @@
           "funds_update": {
             "$ref": "#/components/schemas/FundsUpdateEventDTO"
           },
+          "budget_update": {
+            "$ref": "#/components/schemas/BudgetDTO"
+          },
+          "economy_update": {
+            "$ref": "#/components/schemas/EconomyPanelDTO"
+          },
+          "base_update": {
+            "$ref": "#/components/schemas/CongressBaseDTO"
+          },
           "snapshot_update": {
             "$ref": "#/components/schemas/SnapshotUpdateEventDTO"
           },
@@ -34345,6 +34354,9 @@
           "stocks_update",
           "fixed_assets_update",
           "funds_update",
+          "budget_update",
+          "economy_update",
+          "base_update",
           "snapshot_update",
           "portfolio_update",
           "statistics_snapshot_update",

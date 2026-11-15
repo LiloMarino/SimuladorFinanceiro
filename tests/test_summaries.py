@@ -119,7 +119,8 @@ def match_of_ana(
         RealtimeBrokerManager,
         "get_broker",
         lambda: SimpleNamespace(
-            notify=lambda event, payload, to=None: sent.append((event, payload, to))
+            subscribed_clients=lambda _event: set(),
+            notify=lambda event, payload, to=None: sent.append((event, payload, to)),
         ),
     )
     settings = simulation_settings().model_copy(

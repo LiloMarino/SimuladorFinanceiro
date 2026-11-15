@@ -86,7 +86,9 @@ def events(started, monkeypatch: pytest.MonkeyPatch) -> Iterator[Events]:  # noq
         sent.append((event, payload))
 
     monkeypatch.setattr(
-        RealtimeBrokerManager, "get_broker", lambda: SimpleNamespace(notify=notify)
+        RealtimeBrokerManager,
+        "get_broker",
+        lambda: SimpleNamespace(subscribed_clients=lambda _event: set(), notify=notify),
     )
     yield sent
     # O teste que parou no meio deixa o loop parado; o que terminou já o liberou

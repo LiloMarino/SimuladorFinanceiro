@@ -41,7 +41,8 @@ def test_the_removed_player_is_told_directly(room, monkeypatch):  # noqa: F811
         RealtimeBrokerManager,
         "get_broker",
         lambda: SimpleNamespace(
-            notify=lambda event, payload, to=None: sent.append((event, to))
+            subscribed_clients=lambda _event: set(),
+            notify=lambda event, payload, to=None: sent.append((event, to)),
         ),
     )
 

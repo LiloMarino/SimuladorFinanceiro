@@ -19,13 +19,16 @@ from backend.core.dto.backtest import (
     BacktestStatusDTO,
 )
 from backend.core.dto.base import BaseDTO
+from backend.core.dto.budget import BudgetDTO
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.candle_challenge import (
     CandleChallengeStateDTO,
     ChallengeNoticeEventDTO,
 )
+from backend.core.dto.economy import EconomyPanelDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.goal import GoalProgressDTO
+from backend.core.dto.government import CongressBaseDTO
 from backend.core.dto.life import LifeEventDTO
 from backend.core.dto.news import NewsDTO
 from backend.core.dto.order import OrderDTO
@@ -345,6 +348,9 @@ class RealtimeEventCatalog(BaseDTO):
     stocks_update: StocksUpdateEventDTO
     fixed_assets_update: FixedAssetsUpdateEventDTO
     funds_update: FundsUpdateEventDTO
+    budget_update: BudgetDTO
+    economy_update: EconomyPanelDTO
+    base_update: CongressBaseDTO
     snapshot_update: SnapshotUpdateEventDTO
     portfolio_update: PortfolioUpdateEventDTO
     statistics_snapshot_update: StatisticsSnapshotUpdateEventDTO

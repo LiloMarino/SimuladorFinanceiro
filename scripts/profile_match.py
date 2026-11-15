@@ -128,6 +128,9 @@ class SilentBroker(RealtimeBroker):
     def update_subscription(self, sid: SID, events: Iterable[Event]) -> None:
         pass
 
+    def subscribed_clients(self, event: Event) -> set[ClientID]:
+        return set()
+
     def notify(
         self, event: Event, payload: JSONValue, to: ClientID | None = None
     ) -> None:
