@@ -1593,6 +1593,162 @@ def lobby_expansions(page: Page) -> None:
     page.wait_for_load_state("networkidle")
 
 
+# Os co-gestores: dado forjado sobre a gestora real do host, que nasce sem nenhum
+COMANAGER_ACTIVE = {
+    "nickname": "Duda",
+    "color": "#8b5cf6",
+    "share": "0.2",
+    "pending_share": None,
+    "pending_from": None,
+    "invited_on": "2021-02-01",
+    "since": "2021-02-03",
+    "expires_on": None,
+    "status": "ACTIVE",
+}
+COMANAGER_SCHEDULED = COMANAGER_ACTIVE | {
+    "nickname": "Caio",
+    "color": "#10b981",
+    "share": "0.1",
+    "pending_share": "0.15",
+    "pending_from": "2021-04-01",
+    "since": "2021-02-10",
+}
+COMANAGER_INVITED = {
+    "nickname": "Bia",
+    "color": "#f59e0b",
+    "share": "0",
+    "pending_share": "0.1",
+    "pending_from": None,
+    "invited_on": "2021-03-10",
+    "since": None,
+    "expires_on": "2021-03-17",
+    "status": "INVITED",
+}
+
+
+def forge_comanagers(
+    page: Page,
+    comanagers: list[dict],
+    *,
+    role: str = "manager",
+    host_is_comanager: bool = False,
+) -> None:
+    """
+    Dado forjado: a página da gestora traz `comanagers` e o papel `role` do host. Com
+    `host_is_comanager` a gestora passa a ser de outro jogador e a linha `comanagers[-1]`
+    é a do host. A parte do principal é o que sobra das partes em vigor.
+    """
+
+    def change(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        host_id = body["manager_user_id"]
+        rows = [
+            row
+            | {
+                "user_id": host_id
+                if host_is_comanager and index == len(comanagers) - 1
+                else 1000 + index
+            }
+            for index, row in enumerate(comanagers)
+        ]
+        if host_is_comanager:
+            body["manager_user_id"] = OTHER_MANAGER_ID
+            body["manager_nickname"] = "Rafa"
+        body["comanagers"] = rows
+        body["my_role"] = role
+        body["manager_share"] = str(1 - sum(float(row["share"]) for row in rows))
+        body["fees"]["management_monthly_estimate"] = "1666.67"
+
+    patch_get(page, FUND_DETAIL_PATTERN, change)
+
+
+def open_fund_forged(page: Page, heading: str | None = None) -> None:
+    """A página da gestora do host depois de `forge_comanagers`, aberta pelo menu."""
+    open_funds_page(page)
+    page.locator(CONTENT).get_by_role("heading", name=heading or FUND_NAME).wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def comanagers_card(page: Page) -> None:
+    """Dado forjado: o gestor com um co-gestor ativo, um com mudança de parte agendada e um convite pendente."""
+    fund_match(page, stage="contributed")
+    forge_comanagers(page, [COMANAGER_ACTIVE, COMANAGER_SCHEDULED, COMANAGER_INVITED])
+    open_fund_forged(page)
+    page.get_by_text("Passa a 15%").wait_for()
+
+
+def comanagers_full(page: Page) -> None:
+    """Dado forjado: três co-gestores, o limite, e o botão de convidar fica desabilitado."""
+    fund_match(page, stage="contributed")
+    forge_comanagers(
+        page,
+        [
+            COMANAGER_ACTIVE,
+            COMANAGER_SCHEDULED,
+            COMANAGER_INVITED | {"nickname": "Léo"},
+        ],
+    )
+    open_fund_forged(page)
+    page.get_by_role("button", name="Convidar co-gestor").wait_for()
+
+
+def comanager_invite_dialog(page: Page) -> None:
+    """O diálogo de convidar um co-gestor, sem convidado escolhido."""
+    fund_match(page, stage="contributed")
+    forge_comanagers(page, [COMANAGER_ACTIVE])
+    open_fund_forged(page)
+    page.get_by_role("button", name="Convidar co-gestor").click()
+    page.get_by_role("dialog").get_by_text(
+        "Parte do co-gestor nas taxas"
+    ).first.wait_for()
+
+
+def comanager_share_dialog(page: Page) -> None:
+    """O diálogo de mudar a parte de um co-gestor ativo."""
+    fund_match(page, stage="contributed")
+    forge_comanagers(page, [COMANAGER_ACTIVE, COMANAGER_SCHEDULED])
+    open_fund_forged(page)
+    page.get_by_role("button", name="Mudar parte").first.click()
+    page.get_by_role("dialog").get_by_text(
+        "Parte do co-gestor nas taxas"
+    ).first.wait_for()
+
+
+def comanager_remove_dialog(page: Page) -> None:
+    """A confirmação de remover um co-gestor ativo."""
+    fund_match(page, stage="contributed")
+    forge_comanagers(page, [COMANAGER_ACTIVE])
+    open_fund_forged(page)
+    page.get_by_role("button", name="Remover").first.click()
+    page.get_by_role("alertdialog").wait_for()
+
+
+def comanager_view(page: Page) -> None:
+    """Dado forjado: a gestora é de outro jogador e o host é co-gestor dela: opera a carteira e pode sair."""
+    fund_match(page, stage="contributed")
+    forge_comanagers(
+        page,
+        [COMANAGER_ACTIVE | {"nickname": demo_settings()["host"]["nickname"]}],
+        role="comanager",
+        host_is_comanager=True,
+    )
+    open_fund_forged(page)
+    page.get_by_role("button", name="Sair da gestão").wait_for()
+
+
+def comanager_invite_received(page: Page) -> None:
+    """Dado forjado: o host recebe o convite para co-gestor de uma gestora de outro jogador."""
+    fund_match(page, stage="contributed")
+    forge_comanagers(
+        page,
+        [COMANAGER_INVITED | {"nickname": demo_settings()["host"]["nickname"]}],
+        role="viewer",
+        host_is_comanager=True,
+    )
+    open_fund_forged(page)
+    page.get_by_role("button", name="Aceitar").wait_for()
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "carteira/vazia": portfolio_empty,
     "renda-variavel/detalhe": stock_detail,
@@ -1654,6 +1810,13 @@ STATES: dict[str, Callable[[Page], None]] = {
     "gestoras/gestor-governa": fund_governing,
     "gestoras/painel-congelado": fund_frozen_panel,
     "gestoras/dica-agio": fund_premium_hint,
+    "gestoras/co-gestores": comanagers_card,
+    "gestoras/co-gestores-cheio": comanagers_full,
+    "gestoras/dialogo-convidar-co-gestor": comanager_invite_dialog,
+    "gestoras/dialogo-parte-co-gestor": comanager_share_dialog,
+    "gestoras/dialogo-remover-co-gestor": comanager_remove_dialog,
+    "gestoras/co-gestor-opera": comanager_view,
+    "gestoras/convite-co-gestor": comanager_invite_received,
     "lobby-gestora/sem-gestora": lobby_fund_none,
     "lobby-gestora/fundar-vazia": lobby_fund_blank,
     "lobby-gestora/fundar-preenchida": lobby_fund_filled,
