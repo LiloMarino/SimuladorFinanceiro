@@ -85,11 +85,10 @@
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
 | [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | M18 · 4.2 | — | Médio | Bom | ⏳ |
-| [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | M18 · 4.2 | — | Médio | Médio | ⏳ |
 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | M18 · 4.2 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (34 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (35 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -126,6 +125,7 @@
 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 | — | — | — | ✅ |
 | [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 | — | — | — | ✅ |
 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | M18 · 4.2 | — | — | — | ✅ |
+| [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | M18 · 4.2 | — | — | — | ✅ |
 | [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
@@ -142,7 +142,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 14/20 concluídos
+> **Progresso:** 15/20 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -162,7 +162,7 @@
 | 14 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | — | ✅ Concluído |
 | 15 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | — | ✅ Concluído |
 | 16 | [**F290**](#f290) | Feature | Profissões novas | — | ✅ Concluído |
-| 17 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | [F290](#f290), [F102](#f102) | ⏳ Pendente |
+| 17 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | — | ✅ Concluído |
 | 18 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | — | ✅ Concluído |
 | 19 | [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | — | ✅ Concluído |
 | 20 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | — | ⏳ Pendente |
@@ -263,7 +263,6 @@
 | [**F55**](#f55) | Feature | Modo aquisição hostil | M18 · 4.2 · 8º | 0 | Médio | Médio | ⏳ |
 | [**F104**](#f104) | Feature | Gestoras: co-gestores | M18 · 4.2 · 9º | 0 | Médio | Bom | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 · 11º | 1 | Alto | Médio | ⏳ |
-| [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | M18 · 4.2 · 17º | 0 | Médio | Médio | ⏳ |
 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | M18 · 4.2 · 20º | 0 | Baixo | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
@@ -328,7 +327,6 @@
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F292** | Feature | Fundo Soberano: o governo compra ações e cotas | N34, N41 | — | M18 · 4.2 | [F101](#f101), [F44](#f44), [F255](#f255) | Médio | Médio | Médio | Bom |
-| **F293** | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | N23, N34 | D19 | M18 · 4.2 | [F290](#f290), [F102](#f102) | Médio | Médio | Médio | Médio |
 | **F295** | Manutenção | Orçamento, painel econômico e base do governo por tempo real | N15 | — | M18 · 4.2 | — | Baixo | Baixo | Médio | Bom |
 
 <a id="f6"></a>
@@ -607,16 +605,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 
 **Aceite:** sem aporte aprovado o fundo não compra nada; vender devolve o dinheiro ao Tesouro e abate a dívida; o fundo nunca passa de 20% das cotas de uma gestora; comprar ação não move o PIB.
 
-<a id="f293"></a>
-**F293 — Profissões das expansões.** Serve N23 e N34; condicionado por D19. Duas profissões que só aparecem com a expansão delas ligada, no formato Ganha | Perde dos cards de profissão. Os múltiplos são o ponto de partida; os números finais saem da calibragem.
-
-- **Comissionado**, com Governo & Política: cerca de 1,5× o salário enquanto o partido escolhido na preparação, de um jogador ou do computador, ocupa a presidência ou está na base do governo, e cerca de 0,5× fora dela. A eleição decide a renda. Grupo dos servidores públicos.
-- **Banqueiro de ofertas**, com Gestoras: cerca de 0,7× o salário mais 1% de toda oferta pública e emissão de cotas da sala (F102), descontado do valor captado pela gestora, como a comissão dos bancos nas ofertas reais. Ganha quando a sala abre capital. Grupo dos investidores.
-
-**Plano.** A profissão com requisito de expansão, que só aparece com ela ligada; a escolha do partido na aba Profissão da preparação; a renda do Comissionado lida da presidência e da base a cada mês; a comissão do Banqueiro paga a cada oferta e emissão; os dois cards Ganha | Perde.
-
-**Aceite:** com a expansão desligada a profissão não aparece; o Comissionado muda de renda no mês seguinte à troca de governo; uma oferta de R$ 100 mil paga R$ 1 mil ao Banqueiro.
-
 <a id="f295"></a>
 **F295 — Orçamento, painel econômico e base do governo por tempo real.** O orçamento do país (`useBudget`), o painel econômico (`useEconomyPanel`) e a base do governo (`features/government/hooks/queries/useBase.ts`) buscam os dados de novo a cada 10 s por `refetchInterval`. O resto do app atualiza por tempo real: o backend emite um evento pelo websocket quando o dado muda e o hook invalida a query.
 
@@ -717,6 +705,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F289** | Melhoria | Cards de profissão com vantagens e desvantagens | N39, N25 | — | M18 · 4.2 |
 | **F290** | Feature | Profissões novas | N23, N34 | D19 | M18 · 4.2 |
 | **F291** | Melhoria | Locador com aluguel de 1,1× o salário | N39 | — | M18 · 4.2 |
+| **F293** | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | N23, N34 | D19 | M18 · 4.2 |
 | **F294** | Melhoria | Adicionar vários bots de uma vez | N8 | — | M18 · 4.2 |
 
 <a id="f44"></a>
@@ -853,6 +842,16 @@ Os bots recebem uma profissão sorteada entre todas, e o host pode fixá-la no s
 **F291 — Locador com aluguel de 1,1× o salário.** Serve N39. Hoje o Locador (`backend/core/professions.py`) rende 1× o salário, paga o imposto de renda das pessoas e corre o sorteio de demissão como vacância, igual ao CLT, mas sem o aumento acima da inflação que o CLT ganha quando o PIB cresce. Ele sai igual ou pior que o CLT em tudo, e com as vantagens e desvantagens escritas no card da profissão isso fica à vista: ninguém escolhe o Locador.
 
 **Decidido em 13/11:** o aluguel passa a 1,1× o salário (R$ 5.500 com salário de R$ 5.000), 10% mais que o CLT, e segue só com a inflação. A escolha vira uma troca: mais renda agora contra o CLT, que cresce. Com PIB de 2% ao ano o CLT ganha 1% ao ano acima da inflação e alcança o Locador em uns 10 anos de partida. Muda o `income_multiple` do Locador no backend e no `frontend/shared/lib/professions.ts`, e os testes de profissão que fixam o 1×.
+
+<a id="f293"></a>
+**F293 — Profissões das expansões.** Serve N23 e N34; condicionado por D19. Duas profissões que só aparecem com a expansão delas ligada, no formato Ganha | Perde dos cards de profissão. Os múltiplos são o ponto de partida; os números finais saem da calibragem.
+
+- **Comissionado**, com Governo & Política: cerca de 1,5× o salário enquanto o partido escolhido na preparação, de um jogador ou do computador, ocupa a presidência ou está na base do governo, e cerca de 0,5× fora dela. A eleição decide a renda. Grupo dos servidores públicos.
+- **Banqueiro de ofertas**, com Gestoras: cerca de 0,7× o salário mais 1% de toda oferta pública e emissão de cotas da sala (F102), descontado do valor captado pela gestora, como a comissão dos bancos nas ofertas reais. Ganha quando a sala abre capital. Grupo dos investidores.
+
+**Plano.** A profissão com requisito de expansão, que só aparece com ela ligada; a escolha do partido na aba Profissão da preparação; a renda do Comissionado lida da presidência e da base a cada mês; a comissão do Banqueiro paga a cada oferta e emissão; os dois cards Ganha | Perde.
+
+**Aceite:** com a expansão desligada a profissão não aparece; o Comissionado muda de renda no mês seguinte à troca de governo; uma oferta de R$ 100 mil paga R$ 1 mil ao Banqueiro.
 
 <a id="f294"></a>
 **F294 — Adicionar vários bots de uma vez.** Serve N8. O diálogo de adicionar bot (`frontend/features/lobby/components/lobby-bot-dialog.tsx`) ganhou o campo de quantidade, de 1 até as vagas livres da sala, e, com quantidade maior que 1, o item "Sortear para cada bot" na lista de estratégias. No lote, o nome sai da lista da estratégia e a cor, a profissão e o time são automáticos; cada bot continua editável no slot depois. Com quantidade 1 o diálogo é o de sempre. Os bots entram pela rota `POST /api/simulation/bots/batch`, sob um único lock: se faltar vaga ou algum nome se repetir, nenhum entra. O desenho é registrado no canvas depois de implementado.
