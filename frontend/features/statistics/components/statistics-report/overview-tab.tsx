@@ -525,6 +525,7 @@ function Ranking({
                     isYou={isYou}
                     teamNaming={report.team_naming}
                     delinquent={p.delinquent}
+                    eliminated={p.eliminated}
                     onOpenBotLog={onOpenBotLog}
                   />
                 </TableCell>
@@ -607,6 +608,15 @@ function Ranking({
             Negativado
           </Badge>{" "}
           tem parcela em atraso. Patrimônio em vermelho: deve mais do que tem.
+        </p>
+      )}
+      {report.players.some((p) => p.eliminated) && (
+        <p className="px-(--card-spacing) text-xs text-muted-foreground">
+          <Badge variant="secondary" size="tag">
+            Eliminado
+          </Badge>{" "}
+          perdeu a assembleia da própria gestora e parou de jogar: o patrimônio dele fica congelado no dia da
+          eliminação.
         </p>
       )}
     </Card>

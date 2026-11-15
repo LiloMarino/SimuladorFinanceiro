@@ -309,6 +309,16 @@ class FundBook:
         self._manager_cap = manager_cap
         # A ordem de venda das cotas do gestor acima do limite, por ticker
         self._takeover_orders: dict[str, LimitOrder] = {}
+        # No modo aquisição hostil, o dia em que cada fundador perdeu a assembleia da própria
+        # gestora e passou a só assistir, por id de usuário
+        self._eliminated: dict[int, date] = {}
+        if manager_cap is not None:
+            self._eliminated = {
+                user_id: day
+                for _, user_id, _, day in repository.fund.founder_removals(
+                    [simulation_id]
+                )
+            }
         self._funds: dict[str, Fund] = {}
         accounts = engine.broker.fund_accounts
         self._maker = FundMaker(engine.matching_engine, accounts)
@@ -322,6 +332,11 @@ class FundBook:
         engine.on_realized = self._record_realized
         for terms in repository.fund.of_simulation(simulation_id):
             self._load(terms)
+
+    @property
+    def eliminated(self) -> dict[int, date]:
+        """Os eliminados do modo aquisição hostil e o dia da eliminação, por id de usuário."""
+        return dict(self._eliminated)
 
     @property
     def client_ids(self) -> list[UUID]:
@@ -1138,6 +1153,11 @@ class FundBook:
                     names.get(assembly.candidate_user_id, "?"),
                 ),
             )
+            if (
+                self._manager_cap is not None
+                and assembly.previous_manager_user_id == fund.terms.founder_user_id
+            ):
+                self._eliminate(assembly.previous_manager_user_id, fund, today)
         else:
             self._announce(
                 today,
@@ -1145,6 +1165,22 @@ class FundBook:
                     fund.ticker, names.get(assembly.previous_manager_user_id, "?")
                 ),
             )
+
+    def _eliminate(self, user_id: int, lost: Fund, today: date) -> None:
+        """Quem perde a assembleia da gestora que fundou sai da disputa: as ordens dele saem do
+        livro e as outras gestoras que ele gere passam ao maior cotista ativo de cada uma."""
+        self._eliminated.setdefault(user_id, today)
+        self._engine.matching_engine.cancel_all(self._client_of_user(user_id))
+        for fund in self._funds.values():
+            if fund is lost or fund.terms.manager_user_id != user_id:
+                continue
+            holders = {
+                holder: size
+                for holder, size in self._assemblies.holdings(fund).items()
+                if holder not in self._eliminated
+            }
+            if holders:
+                self._replace_manager(fund, max(holders, key=lambda h: holders[h]))
 
     def _replace_manager(self, fund: Fund, manager_user_id: int) -> None:
         """O candidato assume: as ordens do gestor afastado saem do livro e a recompra dele cai."""

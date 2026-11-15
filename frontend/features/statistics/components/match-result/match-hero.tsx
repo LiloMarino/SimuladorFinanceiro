@@ -35,6 +35,8 @@ const reachedGoal = (fraction: string | null) => fraction !== null && Number(fra
 function headline(report: OverviewReport, winner: Player) {
   const value = winner.criterion_value;
   const name = winner.player_nickname;
+  // Os demais perderam a própria gestora: vence quem restou, qualquer que seja o critério
+  if (report.survivor_nickname !== null) return `${name} venceu: restou uma gestora`;
   if (value === null) return `${name} ficou em 1º`;
   switch (rankingMeasure(report)) {
     case "GOAL":
@@ -382,7 +384,8 @@ interface MatchHeroProps {
 
 /** Topo do fim de partida: quem venceu, por qual critério, onde você ficou e o pódio. */
 export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroProps) {
-  const winner = report.players[0];
+  // Com um sobrevivente, ele é o vencedor mesmo que o patrimônio dos eliminados seja maior
+  const winner = report.players.find((p) => p.player_nickname === report.survivor_nickname) ?? report.players[0];
   if (!winner) return null;
 
   const political = report.game_type === "POLITICAL";

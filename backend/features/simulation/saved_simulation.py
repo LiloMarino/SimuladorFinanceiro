@@ -61,11 +61,13 @@ def compute_result(simulation_id: int) -> SimulationResultDTO:
     else:
         leader = players[0].player_nickname if players else None
         positions = {p.player_nickname: p.position for p in players}
+    survivor = overview.survivor_nickname
     return SimulationResultDTO(
         leader_reached_goal=leader_reached_goal(overview),
         players_count=len(players),
-        leader_name=leader,
+        leader_name=survivor or leader,
         positions=positions,
+        last_standing=survivor is not None,
     )
 
 
@@ -105,7 +107,11 @@ def describe(
     ranqueia a equipe: o vencedor é o nome dela e a colocação é a da equipe de `nickname`."""
     resume_from = resume_point(summary.id)
     result = saved_result(summary.id, resume_from)
-    finished = is_finished(summary.end_date, resume_from) or result.leader_reached_goal
+    finished = (
+        is_finished(summary.end_date, resume_from)
+        or result.leader_reached_goal
+        or result.last_standing
+    )
 
     return SavedSimulationDTO(
         **summary.model_dump(),

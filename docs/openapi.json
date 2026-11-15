@@ -21707,6 +21707,18 @@
             ],
             "title": "Frozen Until"
           },
+          "eliminated_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eliminated On"
+          },
           "role": {
             "anyOf": [
               {
@@ -21731,6 +21743,7 @@
           "ticker",
           "cash",
           "frozen_until",
+          "eliminated_on",
           "role"
         ],
         "title": "FundAccountDTO",
@@ -30733,6 +30746,17 @@
             },
             "type": "array",
             "title": "Goal Steps"
+          },
+          "survivor_nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Survivor Nickname"
           }
         },
         "additionalProperties": false,
@@ -30748,7 +30772,8 @@
           "game_type",
           "parties",
           "goal_net_worth",
-          "goal_steps"
+          "goal_steps",
+          "survivor_nickname"
         ],
         "title": "OverviewReportDTO"
       },
@@ -32165,6 +32190,11 @@
             "type": "boolean",
             "title": "Delinquent"
           },
+          "eliminated": {
+            "type": "boolean",
+            "title": "Eliminated",
+            "default": false
+          },
           "unexpected_count": {
             "type": "integer",
             "title": "Unexpected Count"
@@ -32192,6 +32222,7 @@
           "weakest_axis",
           "team_contribution",
           "delinquent",
+          "eliminated",
           "unexpected_count"
         ],
         "title": "PlayerRankingDTO"

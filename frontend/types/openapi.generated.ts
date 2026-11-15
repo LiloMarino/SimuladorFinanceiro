@@ -7416,6 +7416,8 @@ export interface components {
             cash: string;
             /** Frozen Until */
             frozen_until: string | null;
+            /** Eliminated On */
+            eliminated_on: string | null;
             /** Role */
             role: ("manager" | "comanager") | null;
         };
@@ -10474,6 +10476,8 @@ export interface components {
             goal_net_worth: string | null;
             /** Goal Steps */
             goal_steps: components["schemas"]["SeriesPointDTO"][];
+            /** Survivor Nickname */
+            survivor_nickname: string | null;
         };
         /**
          * PartyCandidateDTO
@@ -10928,6 +10932,11 @@ export interface components {
             team_contribution: string | null;
             /** Delinquent */
             delinquent: boolean;
+            /**
+             * Eliminated
+             * @default false
+             */
+            eliminated: boolean;
             /** Unexpected Count */
             unexpected_count: number;
         };

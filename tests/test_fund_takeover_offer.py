@@ -7,6 +7,7 @@ import pytest
 
 from backend.core.dto.user import UserDTO
 from backend.features.funds.fund_book import maker_stake, takeover_offer_size
+from tests.test_fund_assembly import BETO, CAIO, _assemblable, _close_all_sessions
 from tests.test_fund_book import (
     BUYER,
     MANAGER,
@@ -225,3 +226,60 @@ def test_reloading_in_the_middle_of_the_window_keeps_the_cap(
         setup.book.on_close(date(2020, 1, day))
 
     assert _held(setup) / reloaded.account.quotas <= CAP
+
+
+def _lose_the_assembly(memory: MemoryFunds) -> Setup:
+    """O gestor fundador perde a votação da própria gestora para a Ana, que tem a maioria."""
+    setup = _assemblable(memory)
+    setup.book._manager_cap = CAP
+    setup.book.convene_assembly(TICKER, ANA, None)
+    setup.book.cast_assembly_vote(TICKER, BETO, True)
+    _close_all_sessions(setup)
+    return setup
+
+
+def test_the_founder_who_loses_the_assembly_is_eliminated(memory: MemoryFunds):
+    setup = _lose_the_assembly(memory)
+
+    assert set(setup.book.eliminated) == {GESTOR.id}
+    assert setup.book.get(TICKER).terms.manager_user_id == ANA.id
+
+
+def test_losing_the_assembly_without_the_mode_eliminates_nobody(memory: MemoryFunds):
+    setup = _assemblable(memory)
+    setup.book.convene_assembly(TICKER, ANA, None)
+    setup.book.cast_assembly_vote(TICKER, BETO, True)
+    _close_all_sessions(setup)
+
+    assert setup.book.eliminated == {}
+
+
+def test_the_eliminated_manager_loses_the_other_fund_to_its_largest_holder(
+    memory: MemoryFunds,
+):
+    setup = _assemblable(memory)
+    setup.book._manager_cap = CAP
+    # Uma segunda gestora, fundada pela Ana e gerida pelo gestor, com a Caio como maior cotista
+    setup.book.found(
+        ticker="BETA11",
+        name="Beta",
+        founder_user_id=ANA.id,
+        manager_user_id=GESTOR.id,
+        management_fee=Decimal("0.02"),
+        performance_fee=Decimal("0.20"),
+    )
+    beta = setup.book.get("BETA11")
+    beta.account.quotas = Decimal(100)
+    setup.engine.cash[beta.account.client_id] = Decimal(10000)
+    for user, quotas in ((CAIO, 60), (BETO, 30)):
+        setup.engine.cash[user.client_id] += NAV * quotas
+        setup.engine.broker.buy_from_fund(
+            user.client_id, "BETA11", Decimal(quotas), NAV
+        )
+    setup.book.convene_assembly(TICKER, ANA, None)
+    setup.book.cast_assembly_vote(TICKER, BETO, True)
+
+    _close_all_sessions(setup)
+
+    assert beta.terms.manager_user_id == CAIO.id
+    assert setup.book.get(TICKER).terms.manager_user_id == ANA.id

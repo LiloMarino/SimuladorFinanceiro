@@ -380,6 +380,11 @@ function TeamRows({
                       Negativado
                     </Badge>
                   )}
+                  {m.eliminated && (
+                    <Badge variant="secondary" size="tag">
+                      Eliminado
+                    </Badge>
+                  )}
                 </span>
               </TableCell>
               <TableCell>

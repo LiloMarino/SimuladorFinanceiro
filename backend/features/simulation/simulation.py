@@ -278,6 +278,9 @@ from backend.features.variable_income.price_impact import PriceImpact
 
 # Pregões no mini gráfico da lista de mercado
 SPARKLINE_DAYS = 30
+ELIMINATED_MESSAGE = (
+    "Você perdeu o controle da sua gestora e agora só assiste a partida."
+)
 # A janela da variação do dólar que move a renda do exportador
 DOLLAR_WINDOW_DAYS = 365
 
@@ -478,6 +481,12 @@ class Simulation:
         # Fora da Clássica: onde cada um está na meta e se alguém já chegou
         self._goal_progress: GoalProgressDTO | None = None
         self._goal_reached = False
+        # Modo aquisição hostil: os eliminados que já perderam o automático e o aviso de que
+        # restou um único jogador ativo, que encerra a partida no tick seguinte
+        self._eliminations_handled: set[int] = (
+            set(self._funds.eliminated) if self._funds is not None else set()
+        )
+        self._last_standing = False
 
         # Os snapshots do último pregão são a base da avaliação final das conquistas
         self._achievements = AchievementEvaluator(
@@ -985,6 +994,8 @@ class Simulation:
         book = self._ensure_funds()
         fund = book.by_id(fund_id)
         for user_id in book.operators(fund):
+            if user_id in book.eliminated:
+                continue
             if self._client_of_user(user_id) != client_id:
                 continue
             # O co-gestor que governa o país não opera a gestora: o congelamento vale para ele
@@ -1009,6 +1020,7 @@ class Simulation:
                 ticker=None,
                 cash=self._engine.get_cash(user.client_id),
                 frozen_until=self._manager_frozen_until(user.id),
+                eliminated_on=book.eliminated.get(user.id),
                 role=None,
             )
         ]
@@ -1064,6 +1076,7 @@ class Simulation:
 
     @synchronized
     def found_fund(self, user: UserDTO, request: FundFoundRequest) -> FundSummaryDTO:
+        self._ensure_not_eliminated(user)
         book = self._ensure_funds()
         blocked_until = book.founding_blocked_until(user.id)
         if blocked_until is not None:
@@ -1170,6 +1183,7 @@ class Simulation:
     def convene_fund_assembly(
         self, user: UserDTO, fund_id: int, request: FundAssemblyConveneRequest
     ) -> None:
+        self._ensure_not_eliminated(user)
         book = self._ensure_funds()
         fund = book.by_id(fund_id)
         book.convene_assembly(fund.ticker, user, request.candidate_nickname)
@@ -1187,6 +1201,7 @@ class Simulation:
     def answer_fund_assembly_invite(
         self, user: UserDTO, fund_id: int, accept: bool
     ) -> None:
+        self._ensure_not_eliminated(user)
         book = self._ensure_funds()
         book.answer_assembly_invite(book.by_id(fund_id).ticker, user, accept)
         EventManager.flush()
@@ -1278,6 +1293,7 @@ class Simulation:
     def vote_fund_assembly(
         self, user: UserDTO, fund_id: int, request: FundAssemblyVoteRequest
     ) -> None:
+        self._ensure_not_eliminated(user)
         book = self._ensure_funds()
         book.cast_assembly_vote(book.by_id(fund_id).ticker, user, request.in_favor)
         EventManager.flush()
@@ -1383,8 +1399,14 @@ class Simulation:
             raise ConflictError("Esta partida não usa a expansão Gestoras.")
         return self._funds
 
+    def _ensure_not_eliminated(self, user: UserDTO) -> None:
+        """Quem perdeu a assembleia da própria gestora no modo aquisição hostil só assiste."""
+        if self._funds is not None and user.id in self._funds.eliminated:
+            raise ConflictError(ELIMINATED_MESSAGE)
+
     def _managed_fund(self, user: UserDTO, fund_id: int) -> Fund:
         """A gestora de `fund_id`, que só o gestor dela opera."""
+        self._ensure_not_eliminated(user)
         fund = self._ensure_funds().by_id(fund_id)
         if fund.terms.manager_user_id != user.id:
             raise ForbiddenError("Só o gestor opera esta gestora.")
@@ -1443,6 +1465,11 @@ class Simulation:
             fund = self._funds.of_client(client_id)
             if fund is not None:
                 self._ensure_fund_active(fund)
+            if any(
+                self._client_of_user(user_id) == client_id
+                for user_id in self._funds.eliminated
+            ):
+                raise ConflictError(ELIMINATED_MESSAGE)
 
     def _ensure_can_operate(self, client_id: UUID) -> None:
         self._ensure_can_trade(client_id)
@@ -1803,6 +1830,10 @@ class Simulation:
         if self._goal_reached:
             logger.info("Meta alcançada")
             raise StopIteration()
+        # O dia da última eliminação foi processado inteiro; a partida acaba no seguinte
+        if self._last_standing:
+            logger.info("Restou um jogador ativo")
+            raise StopIteration()
 
         # Avança para o próximo dia útil; passou do fim, a simulação terminou
         previous_date = self._current_date
@@ -1886,6 +1917,7 @@ class Simulation:
         if self._funds is not None:
             with metrics.measure("engine", ENGINE_FUNDS):
                 fund_candles = self._funds.on_close(self._current_date)
+            self._advance_eliminations(users)
 
         if self.backtest is not None:
             with metrics.measure("engine", ENGINE_BACKTEST_DAY):
@@ -1961,6 +1993,25 @@ class Simulation:
                     self._human_snapshots(users), month_changed
                 ),
             )
+
+    def _advance_eliminations(self, users: list[UserDTO]) -> None:
+        """Quem acabou de ser eliminado perde o automático; com um humano ativo só, a partida acaba."""
+        funds = self._funds
+        if funds is None or not funds.eliminated:
+            return
+        eliminated = funds.eliminated
+        for user in users:
+            if user.id in eliminated and user.id not in self._eliminations_handled:
+                self._eliminations_handled.add(user.id)
+                self._strategies.set_mode(
+                    user,
+                    None,
+                    {},
+                    self._current_date,
+                    reason="Você perdeu a assembleia da sua gestora: agora só assiste",
+                )
+        active = [u for u in users if not u.is_bot and u.id not in eliminated]
+        self._last_standing = len(active) <= 1
 
     def _account_owners(self, client_id: UUID) -> frozenset[int] | None:
         """Os user_ids donos da conta `client_id`: quem opera a gestora para a conta de uma gestora, o próprio jogador para a pessoal."""

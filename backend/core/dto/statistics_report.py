@@ -104,6 +104,8 @@ class PlayerRankingDTO(PlayerRefDTO):
     team_contribution: Decimal | None
     # Tem parcela em atraso: o selo "Negativado"
     delinquent: bool
+    # Perdeu a assembleia da própria gestora no modo aquisição hostil: a linha congela no dia
+    eliminated: bool = False
     # Imprevistos de vida sorteados na partida (a demissão não entra); 0 fora do viver de renda
     unexpected_count: int
 
@@ -174,6 +176,9 @@ class OverviewReportDTO(TeamReportDTO):
     # A meta em degraus (o início e cada reajuste pelo IPCA) de uma partida com meta;
     # vazia na Clássica e entre partidas
     goal_steps: list[SeriesPointDTO]
+    # Apelido do único jogador que resta no modo aquisição hostil: vence por ser o último ativo,
+    # mesmo que o ranking por patrimônio dê outra ordem
+    survivor_nickname: str | None = None
 
 
 # Rentabilidade

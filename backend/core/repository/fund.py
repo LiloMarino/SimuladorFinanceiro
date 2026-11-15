@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, date, datetime
 from decimal import Decimal
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
@@ -45,6 +45,7 @@ from backend.core.models.models import (
     Portfolios,
     Stock,
     StockPriceHistory,
+    Users,
 )
 
 # Colunas da linha de `funds` que mudam depois de a gestora nascer
@@ -539,6 +540,33 @@ class FundRepository:
             .order_by(FundAssemblies.closed_on.desc())
             .limit(1)
         ).scalar_one_or_none()
+
+    @transactional
+    def founder_removals(
+        self, session: Session, simulation_ids: list[int]
+    ) -> list[tuple[int, int, str, date]]:
+        """Os fundadores afastados da própria gestora por assembleia: simulação, id, apelido e
+        o dia do primeiro afastamento."""
+        rows = session.execute(
+            select(
+                Funds.simulation_id,
+                Users.id,
+                Users.nickname,
+                func.min(FundAssemblies.closed_on),
+            )
+            .select_from(FundAssemblies)
+            .join(Funds, Funds.id == FundAssemblies.fund_id)
+            .join(Users, Users.id == Funds.founder_user_id)
+            .where(
+                Funds.simulation_id.in_(simulation_ids),
+                FundAssemblies.previous_manager_user_id == Funds.founder_user_id,
+                FundAssemblies.status == FundAssemblyStatus.REPLACED.value,
+            )
+            .group_by(Funds.simulation_id, Users.id, Users.nickname)
+        ).all()
+        return [
+            (sim, user, name, day) for sim, user, name, day in rows if day is not None
+        ]
 
     @transactional
     def drop_offer_sales_from(self, session: Session, fund_id: int, day: date) -> None:

@@ -516,6 +516,9 @@ class FundAccountDTO(BaseDTO):
     ticker: str | None
     cash: Decimal
     frozen_until: date | None
+    # O dia em que o jogador perdeu a assembleia da própria gestora e passou a só assistir;
+    # nulo nas gestoras e para quem segue na partida
+    eliminated_on: date | None = None
     # O papel do jogador na gestora; nulo na conta pessoal
     role: Literal["manager", "comanager"] | None
 

@@ -199,9 +199,14 @@ class SimulationLoader:
             raise UnprocessableEntityError(
                 "A simulação já chegou na data final e não pode ser continuada."
             )
-        if leader_reached_goal(build_overview_report([summary.id])):
+        overview = build_overview_report([summary.id])
+        if leader_reached_goal(overview):
             raise UnprocessableEntityError(
                 "Alguém já chegou à meta dessa simulação: ela não pode ser continuada."
+            )
+        if overview.survivor_nickname is not None:
+            raise UnprocessableEntityError(
+                "Só restou um jogador ativo nessa simulação: ela não pode ser continuada."
             )
         ensure_indicator_coverage(summary.start_date)
 

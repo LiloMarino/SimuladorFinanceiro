@@ -65,8 +65,11 @@ from backend.features.variable_income.price_impact import PriceImpact
 def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
     team_naming, in_teams = _team_context(simulation_ids)
     criterion, game_type = _shared_rules(simulation_ids)
+    eliminated = _eliminations(simulation_ids)
     players = _with_goal_of_the_day(
-        repository.statistics.get_players_history(simulation_ids)
+        _frozen_at_elimination(
+            repository.statistics.get_players_history(simulation_ids), eliminated
+        )
     )
     goals = {p.goal_net_worth for p in players}
     standings = _credit_standings(simulation_ids, players)
@@ -79,9 +82,45 @@ def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
         in_teams=in_teams,
         team_naming=team_naming,
         delinquent=frozenset(key for key, s in standings.items() if s.delinquent),
+        eliminated=frozenset(eliminated),
         unexpected=_unexpected_counts(simulation_ids),
         parties=_party_ranking(simulation_ids),
     )
+
+
+def _eliminations(simulation_ids: list[int]) -> dict[tuple[int, str], date]:
+    """O dia em que cada jogador foi eliminado, nas partidas do modo aquisição hostil."""
+    takeover = []
+    for simulation_id in simulation_ids:
+        summary = repository.simulation.get_simulation(simulation_id)
+        if summary is not None and summary.fund_takeover_enabled:
+            takeover.append(simulation_id)
+    if not takeover:
+        return {}
+    return {
+        (simulation_id, nickname): day
+        for simulation_id, _, nickname, day in repository.fund.founder_removals(
+            takeover
+        )
+    }
+
+
+def _frozen_at_elimination(
+    players: list[PlayerHistoryDTO], eliminated: dict[tuple[int, str], date]
+) -> list[PlayerHistoryDTO]:
+    """A linha do eliminado fica como estava no dia da eliminação."""
+    frozen = []
+    for player in players:
+        day = eliminated.get((player.simulation_id, player.player_nickname))
+        history = (
+            [point for point in player.history if point.snapshot_date <= day]
+            if day
+            else []
+        )
+        frozen.append(
+            player.model_copy(update={"history": history}) if history else player
+        )
+    return frozen
 
 
 def _party_ranking(simulation_ids: list[int]) -> list[PartyRankingDTO]:

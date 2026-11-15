@@ -128,3 +128,36 @@ def test_unexpected_count_follows_the_player_and_defaults_to_zero():
 
     counts = {p.player_nickname: p.unexpected_count for p in report.players}
     assert counts == {"Ana": 4, "Bia": 0}
+
+
+def test_the_last_active_human_survives_even_when_an_eliminated_one_ranks_higher():
+    """Com a Bia eliminada (patrimônio maior, congelado), a Ana é a única humana ativa e vence."""
+    report = build_overview(
+        [player("Ana", networth="11000"), player("Bia", networth="15000")],
+        eliminated=frozenset({(1, "Bia")}),
+    )
+
+    assert [(p.player_nickname, p.eliminated) for p in report.players] == [
+        ("Bia", True),
+        ("Ana", False),
+    ]
+    assert report.survivor_nickname == "Ana"
+
+
+def test_without_eliminated_players_nobody_is_the_survivor():
+    report = build_overview([player("Ana", networth="11000")])
+
+    assert report.survivor_nickname is None
+
+
+def test_two_active_humans_left_means_no_survivor_yet():
+    report = build_overview(
+        [
+            player("Ana", networth="11000"),
+            player("Bia", networth="15000"),
+            player("Caio", networth="9000"),
+        ],
+        eliminated=frozenset({(1, "Caio")}),
+    )
+
+    assert report.survivor_nickname is None

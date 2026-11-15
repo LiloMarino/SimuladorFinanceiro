@@ -17,6 +17,7 @@ const personal: FundAccount = {
   ticker: null,
   cash: "1000.00",
   frozen_until: null,
+  eliminated_on: null,
   role: null,
 };
 const aurora: FundAccount = {
@@ -25,6 +26,7 @@ const aurora: FundAccount = {
   ticker: "AURO11",
   cash: "96300.00",
   frozen_until: null,
+  eliminated_on: null,
   role: "manager",
 };
 

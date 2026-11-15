@@ -6,9 +6,21 @@ import { useSetMyStrategy } from "@/shared/hooks/mutations/useSetMyStrategy";
 import type { TradeLock } from "@/shared/hooks/useTradeLock";
 import { displayShortDate } from "@/shared/lib/utils/display";
 
-/** Aviso das boletas travadas: o automático se desliga aqui mesmo (ou se troca em Estratégias); o presidente e a gestora dele esperam o fim do mandato. */
+/** Aviso das boletas travadas: o automático se desliga aqui mesmo (ou se troca em Estratégias); o presidente e a gestora dele esperam o fim do mandato; o eliminado só assiste. */
 export function TradeLockNotice({ lock }: { lock: TradeLock }) {
   const setStrategy = useSetMyStrategy();
+
+  if (lock.reason === "eliminated") {
+    return (
+      <div className="flex items-center gap-2.5 rounded-[10px] bg-destructive-soft px-3 py-2.5 text-[13px]">
+        <Lock className="size-4 shrink-0 text-destructive" />
+        <span>
+          <b className="font-bold">Você perdeu o controle e agora só assiste:</b> a assembleia da sua gestora trocou o
+          gestor em {displayShortDate(lock.since)}. A partida segue sem você operar.
+        </span>
+      </div>
+    );
+  }
 
   if (lock.reason === "fund") {
     return (

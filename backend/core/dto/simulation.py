@@ -240,6 +240,8 @@ class SimulationResultDTO(BaseDTO):
     leader_name: str | None
     # Colocação de cada jogador por apelido (a da equipe dele, em equipes)
     positions: dict[str, int]
+    # Modo aquisição hostil: restou um único jogador ativo, que vence, e a simulação terminou
+    last_standing: bool = False
 
 
 class SavedSimulationDTO(SimulationSummaryDTO):

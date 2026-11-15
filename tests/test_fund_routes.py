@@ -50,6 +50,7 @@ class _Book:
 
     def __init__(self) -> None:
         self.calls: list[tuple] = []
+        self.eliminated: dict[int, date] = {}
 
     def founding_blocked_until(self, user_id: int) -> date | None:
         return None

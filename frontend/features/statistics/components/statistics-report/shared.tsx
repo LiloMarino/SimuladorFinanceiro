@@ -138,6 +138,7 @@ export function PlayerCell({
   isYou,
   teamNaming,
   delinquent = false,
+  eliminated = false,
   onOpenBotLog,
 }: {
   player: PlayerRef;
@@ -148,6 +149,8 @@ export function PlayerCell({
   teamNaming?: TeamNaming;
   /** Parcela de crédito em atraso: o selo "Negativado" aparece ao lado do nome */
   delinquent?: boolean;
+  /** Perdeu a assembleia da própria gestora no modo aquisição hostil: o selo "Eliminado" aparece ao lado do nome */
+  eliminated?: boolean;
   /** Abre o log das ordens do bot; sem ele, o cartão do bot só informa */
   onOpenBotLog?: ((bot: PlayerRef) => void) | undefined;
 }) {
@@ -174,6 +177,11 @@ export function PlayerCell({
       {delinquent && (
         <Badge variant="destructive" size="tag">
           Negativado
+        </Badge>
+      )}
+      {eliminated && (
+        <Badge variant="secondary" size="tag">
+          Eliminado
         </Badge>
       )}
     </span>
