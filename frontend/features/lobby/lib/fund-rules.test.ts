@@ -4,7 +4,10 @@ import {
   feeCapToBody,
   feeCapToField,
   isFeeCap,
+  isGraceMonths,
+  isMarketShare,
   managementFeeExample,
+  managerMaxShare,
   performanceFeeExample,
 } from "./fund-rules";
 
@@ -32,6 +35,39 @@ describe("teto de taxa da gestora", () => {
 
   it("ida e volta devolve o valor do servidor", () => {
     expect(feeCapToBody(feeCapToField("0.0250"))).toBe("0.0250");
+  });
+});
+
+describe("modo aquisição hostil", () => {
+  it("a carência aceita meses inteiros de 1 a 120", () => {
+    expect(isGraceMonths("12")).toBe(true);
+    expect(isGraceMonths("1")).toBe(true);
+    expect(isGraceMonths("120")).toBe(true);
+    expect(isGraceMonths("0")).toBe(false);
+    expect(isGraceMonths("121")).toBe(false);
+    expect(isGraceMonths("1,5")).toBe(false);
+    expect(isGraceMonths("")).toBe(false);
+  });
+
+  it("o mínimo no mercado aceita de 10% a 90%", () => {
+    expect(isMarketShare("50")).toBe(true);
+    expect(isMarketShare("10")).toBe(true);
+    expect(isMarketShare("90")).toBe(true);
+    expect(isMarketShare("9")).toBe(false);
+    expect(isMarketShare("91")).toBe(false);
+    expect(isMarketShare("")).toBe(false);
+  });
+
+  it("o mínimo faz a ida e volta com o servidor", () => {
+    expect(feeCapToField("0.5000")).toBe("50");
+    expect(feeCapToBody("37,5")).toBe("0.3750");
+  });
+
+  it("o gestor mantém o que o mercado não precisa ter", () => {
+    // mínimo de 50% no mercado deixa 100 − 50 = 50% para o gestor
+    expect(managerMaxShare("50")).toBe(50);
+    expect(managerMaxShare("30")).toBe(70);
+    expect(managerMaxShare("5")).toBeNull();
   });
 });
 

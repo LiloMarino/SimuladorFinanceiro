@@ -147,6 +147,19 @@ export function summaryRows(rules: SimulationFormValues, preset: SimulationSetti
           },
         ]
       : []),
+    ...(rules.fundsEnabled && rules.fundTakeoverEnabled
+      ? [
+          {
+            label: "Aquisição hostil",
+            value: (
+              <span>
+                carência de <span className="font-mono">{rules.fundGraceMonths}</span> meses · mercado com ao menos{" "}
+                <span className="font-mono">{rules.fundMinMarketShare}%</span>
+              </span>
+            ),
+          },
+        ]
+      : []),
     {
       label: "Impacto de preço",
       value: (

@@ -57,6 +57,12 @@ def validate_government(
         raise ValueError("A primeira eleição precisa cair dentro da partida.")
 
 
+def validate_funds(*, funds_enabled: bool, fund_takeover_enabled: bool) -> None:
+    """As regras da expansão Gestoras; valem igual para o DTO e para a requisição."""
+    if fund_takeover_enabled and not funds_enabled:
+        raise ValueError("O modo aquisição hostil exige a expansão Gestoras.")
+
+
 def validate_goal(
     *,
     game_type: GameType,
@@ -142,6 +148,17 @@ class SimulationSettingsDTO(BaseDTO):
     fund_max_performance_fee: Decimal = Field(
         default=Decimal("0.20"), ge=0, le=1, decimal_places=4
     )
+    # Modo aquisição hostil: perder a assembleia de troca de gestor tira o dono da partida
+    fund_takeover_enabled: bool = False
+    # Meses em que a assembleia não abre, a contar do início da partida
+    fund_grace_months: int = Field(default=12, ge=1, le=120)
+    # Fração mínima das cotas de cada gestora que fica com o mercado ao fim da carência
+    fund_min_market_share: Decimal = Field(
+        default=Decimal("0.50"),
+        ge=Decimal("0.10"),
+        le=Decimal("0.90"),
+        decimal_places=4,
+    )
     # Data do 1º turno da primeira eleição; as seguintes caem a cada 4 anos
     first_election: date | None = None
     computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL
@@ -181,6 +198,10 @@ class SimulationSettingsDTO(BaseDTO):
             end_date=self.end_date,
             first_election=self.first_election,
             selic_control=self.selic_control,
+        )
+        validate_funds(
+            funds_enabled=self.funds_enabled,
+            fund_takeover_enabled=self.fund_takeover_enabled,
         )
         validate_goal(
             game_type=self.game_type,

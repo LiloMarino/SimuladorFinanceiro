@@ -18271,6 +18271,32 @@
             "title": "Fund Max Performance Fee",
             "default": "0.20"
           },
+          "fund_takeover_enabled": {
+            "type": "boolean",
+            "title": "Fund Takeover Enabled",
+            "default": false
+          },
+          "fund_grace_months": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 1.0,
+            "title": "Fund Grace Months",
+            "default": 12
+          },
+          "fund_min_market_share": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 0.9,
+                "minimum": 0.1
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fund Min Market Share",
+            "default": "0.50"
+          },
           "first_election": {
             "anyOf": [
               {
@@ -35938,6 +35964,23 @@
             "title": "Fund Max Performance Fee",
             "default": "0.20"
           },
+          "fund_takeover_enabled": {
+            "type": "boolean",
+            "title": "Fund Takeover Enabled",
+            "default": false
+          },
+          "fund_grace_months": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 1.0,
+            "title": "Fund Grace Months",
+            "default": 12
+          },
+          "fund_min_market_share": {
+            "type": "string",
+            "title": "Fund Min Market Share",
+            "default": "0.50"
+          },
           "first_election": {
             "anyOf": [
               {
@@ -36076,6 +36119,9 @@
           "funds_enabled",
           "fund_max_management_fee",
           "fund_max_performance_fee",
+          "fund_takeover_enabled",
+          "fund_grace_months",
+          "fund_min_market_share",
           "first_election",
           "computer_difficulty",
           "poll_margin",
@@ -37130,6 +37176,23 @@
             "title": "Fund Max Performance Fee",
             "default": "0.20"
           },
+          "fund_takeover_enabled": {
+            "type": "boolean",
+            "title": "Fund Takeover Enabled",
+            "default": false
+          },
+          "fund_grace_months": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 1.0,
+            "title": "Fund Grace Months",
+            "default": 12
+          },
+          "fund_min_market_share": {
+            "type": "string",
+            "title": "Fund Min Market Share",
+            "default": "0.50"
+          },
           "first_election": {
             "anyOf": [
               {
@@ -37195,6 +37258,9 @@
           "funds_enabled",
           "fund_max_management_fee",
           "fund_max_performance_fee",
+          "fund_takeover_enabled",
+          "fund_grace_months",
+          "fund_min_market_share",
           "first_election",
           "computer_difficulty",
           "poll_margin",
@@ -37447,6 +37513,32 @@
             "title": "Fund Max Performance Fee",
             "default": "0.20"
           },
+          "fund_takeover_enabled": {
+            "type": "boolean",
+            "title": "Fund Takeover Enabled",
+            "default": false
+          },
+          "fund_grace_months": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 1.0,
+            "title": "Fund Grace Months",
+            "default": 12
+          },
+          "fund_min_market_share": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 0.9,
+                "minimum": 0.1
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fund Min Market Share",
+            "default": "0.50"
+          },
           "first_election": {
             "anyOf": [
               {
@@ -37637,6 +37729,23 @@
             "title": "Fund Max Performance Fee",
             "default": "0.20"
           },
+          "fund_takeover_enabled": {
+            "type": "boolean",
+            "title": "Fund Takeover Enabled",
+            "default": false
+          },
+          "fund_grace_months": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 1.0,
+            "title": "Fund Grace Months",
+            "default": 12
+          },
+          "fund_min_market_share": {
+            "type": "string",
+            "title": "Fund Min Market Share",
+            "default": "0.50"
+          },
           "first_election": {
             "anyOf": [
               {
@@ -37698,6 +37807,9 @@
           "funds_enabled",
           "fund_max_management_fee",
           "fund_max_performance_fee",
+          "fund_takeover_enabled",
+          "fund_grace_months",
+          "fund_min_market_share",
           "first_election",
           "computer_difficulty",
           "poll_margin",
@@ -41662,6 +41774,32 @@
             ],
             "title": "Fund Max Performance Fee",
             "default": "0.20"
+          },
+          "fund_takeover_enabled": {
+            "type": "boolean",
+            "title": "Fund Takeover Enabled",
+            "default": false
+          },
+          "fund_grace_months": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 1.0,
+            "title": "Fund Grace Months",
+            "default": 12
+          },
+          "fund_min_market_share": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 0.9,
+                "minimum": 0.1
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fund Min Market Share",
+            "default": "0.50"
           },
           "first_election": {
             "anyOf": [

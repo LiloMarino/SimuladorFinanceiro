@@ -18,6 +18,22 @@ export const isFeeCap = (field: string) => {
 /** O teto no corpo da API: fração com quatro casas ("2" → "0.0200"). */
 export const feeCapToBody = (field: string) => feeCapFraction(field).toFixed(4);
 
+export const FUND_GRACE_MONTHS_MESSAGE = "A carência vai de 1 a 120 meses";
+export const FUND_MARKET_SHARE_MESSAGE = "O mínimo fica entre 10% e 90%";
+
+/** A carência em meses inteiros, a faixa que o servidor aceita. */
+export const isGraceMonths = (field: string) => /^\d+$/.test(field) && Number(field) >= 1 && Number(field) <= 120;
+
+/** O mínimo de cotas no mercado como fração entre 10% e 90%, a faixa que o servidor aceita. */
+export const isMarketShare = (field: string) => {
+  const fraction = feeCapFraction(field);
+  return field !== "" && fraction >= 0.1 - 1e-9 && fraction <= 0.9 + 1e-9;
+};
+
+/** O que o gestor pode manter da gestora, em percentual, com o mínimo digitado ("30" → 70). */
+export const managerMaxShare = (field: string) =>
+  isMarketShare(field) ? 100 - Number(normalizeNumberString(field)) : null;
+
 /** Patrimônio e rendimento do exemplo que acompanha cada teto de taxa. */
 const EXAMPLE_NET_WORTH = 1_000_000;
 const EXAMPLE_YIELD = 0.15;

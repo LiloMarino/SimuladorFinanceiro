@@ -33,6 +33,7 @@ from backend.core.dto.simulation import (
     SavedSimulationDTO,
     SimulationSettingsDTO,
     SimulationStatusResponse,
+    validate_funds,
     validate_goal,
     validate_government,
     validate_independence,
@@ -125,6 +126,14 @@ class SimulationRulesRequest(BaseModel):
     fund_max_performance_fee: Decimal = Field(
         default=Decimal("0.20"), ge=0, le=1, decimal_places=4
     )
+    fund_takeover_enabled: bool = False
+    fund_grace_months: int = Field(default=12, ge=1, le=120)
+    fund_min_market_share: Decimal = Field(
+        default=Decimal("0.50"),
+        ge=Decimal("0.10"),
+        le=Decimal("0.90"),
+        decimal_places=4,
+    )
     first_election: date | None = None
     computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL
     poll_margin: bool = True
@@ -141,6 +150,14 @@ class SimulationRulesRequest(BaseModel):
             end_date=self.end_date,
             first_election=self.first_election,
             selic_control=self.selic_control,
+        )
+        return self
+
+    @model_validator(mode="after")
+    def validate_fund_rules(self):
+        validate_funds(
+            funds_enabled=self.funds_enabled,
+            fund_takeover_enabled=self.fund_takeover_enabled,
         )
         return self
 

@@ -22,7 +22,16 @@ import type {
   TeamNaming,
   VictoryCriterion,
 } from "@/types";
-import { FUND_FEE_CAP_MESSAGE, feeCapToBody, feeCapToField, isFeeCap } from "./fund-rules";
+import {
+  FUND_FEE_CAP_MESSAGE,
+  FUND_GRACE_MONTHS_MESSAGE,
+  FUND_MARKET_SHARE_MESSAGE,
+  feeCapToBody,
+  feeCapToField,
+  isFeeCap,
+  isGraceMonths,
+  isMarketShare,
+} from "./fund-rules";
 import { governmentRuleError } from "./government-rules";
 import {
   calculatedGoal,
@@ -143,6 +152,10 @@ export const simulationFormSchema = z
     // Teto de cada taxa em percentual, como o host digita ("2" é 2% ao ano)
     fundMaxManagementFee: z.string().refine(isFeeCap, FUND_FEE_CAP_MESSAGE),
     fundMaxPerformanceFee: z.string().refine(isFeeCap, FUND_FEE_CAP_MESSAGE),
+    fundTakeoverEnabled: z.boolean(),
+    // Carência em meses inteiros e mínimo de cotas no mercado em percentual
+    fundGraceMonths: z.string().refine(isGraceMonths, FUND_GRACE_MONTHS_MESSAGE),
+    fundMinMarketShare: z.string().refine(isMarketShare, FUND_MARKET_SHARE_MESSAGE),
     // ISO quando a data está completa; vazio com a expansão desligada
     firstElection: z.string().superRefine((value, ctx) => {
       const message = dateFieldError(value);
@@ -237,6 +250,9 @@ export function toFormValues(settings: SimulationSettingsData): SimulationFormVa
     fundsEnabled: settings.funds_enabled,
     fundMaxManagementFee: feeCapToField(settings.fund_max_management_fee),
     fundMaxPerformanceFee: feeCapToField(settings.fund_max_performance_fee),
+    fundTakeoverEnabled: settings.fund_takeover_enabled,
+    fundGraceMonths: String(settings.fund_grace_months),
+    fundMinMarketShare: feeCapToField(settings.fund_min_market_share),
     firstElection: settings.first_election ?? "",
     computerDifficulty: settings.computer_difficulty,
     pollMargin: settings.poll_margin,
@@ -288,6 +304,10 @@ export function toSettingsBody(values: SimulationFormValues): CreateSimulationRe
     funds_enabled: values.fundsEnabled,
     fund_max_management_fee: feeCapToBody(values.fundMaxManagementFee),
     fund_max_performance_fee: feeCapToBody(values.fundMaxPerformanceFee),
+    // O modo depende da expansão; desligada, a partida volta ao modo desligado
+    fund_takeover_enabled: values.fundsEnabled && values.fundTakeoverEnabled,
+    fund_grace_months: Number(values.fundGraceMonths),
+    fund_min_market_share: feeCapToBody(values.fundMinMarketShare),
     first_election: values.governmentEnabled && values.firstElection ? values.firstElection : null,
     computer_difficulty: values.computerDifficulty,
     poll_margin: values.pollMargin,

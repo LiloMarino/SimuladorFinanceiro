@@ -6220,6 +6220,21 @@ export interface components {
              * @default 0.20
              */
             fund_max_performance_fee: number | string;
+            /**
+             * Fund Takeover Enabled
+             * @default false
+             */
+            fund_takeover_enabled: boolean;
+            /**
+             * Fund Grace Months
+             * @default 12
+             */
+            fund_grace_months: number;
+            /**
+             * Fund Min Market Share
+             * @default 0.50
+             */
+            fund_min_market_share: number | string;
             /** First Election */
             first_election?: string | null;
             /** @default NORMAL */
@@ -12234,6 +12249,21 @@ export interface components {
              * @default 0.20
              */
             fund_max_performance_fee: string;
+            /**
+             * Fund Takeover Enabled
+             * @default false
+             */
+            fund_takeover_enabled: boolean;
+            /**
+             * Fund Grace Months
+             * @default 12
+             */
+            fund_grace_months: number;
+            /**
+             * Fund Min Market Share
+             * @default 0.50
+             */
+            fund_min_market_share: string;
             /** First Election */
             first_election: string | null;
             /** @default NORMAL */
@@ -12693,6 +12723,21 @@ export interface components {
              * @default 0.20
              */
             fund_max_performance_fee: string;
+            /**
+             * Fund Takeover Enabled
+             * @default false
+             */
+            fund_takeover_enabled: boolean;
+            /**
+             * Fund Grace Months
+             * @default 12
+             */
+            fund_grace_months: number;
+            /**
+             * Fund Min Market Share
+             * @default 0.50
+             */
+            fund_min_market_share: string;
             /** First Election */
             first_election: string | null;
             /** @default NORMAL */
@@ -12829,6 +12874,21 @@ export interface components {
              * @default 0.20
              */
             fund_max_performance_fee: number | string;
+            /**
+             * Fund Takeover Enabled
+             * @default false
+             */
+            fund_takeover_enabled: boolean;
+            /**
+             * Fund Grace Months
+             * @default 12
+             */
+            fund_grace_months: number;
+            /**
+             * Fund Min Market Share
+             * @default 0.50
+             */
+            fund_min_market_share: number | string;
             /** First Election */
             first_election?: string | null;
             /** @default NORMAL */
@@ -12930,6 +12990,21 @@ export interface components {
              * @default 0.20
              */
             fund_max_performance_fee: string;
+            /**
+             * Fund Takeover Enabled
+             * @default false
+             */
+            fund_takeover_enabled: boolean;
+            /**
+             * Fund Grace Months
+             * @default 12
+             */
+            fund_grace_months: number;
+            /**
+             * Fund Min Market Share
+             * @default 0.50
+             */
+            fund_min_market_share: string;
             /** First Election */
             first_election: string | null;
             /** @default NORMAL */
@@ -14252,6 +14327,21 @@ export interface components {
              * @default 0.20
              */
             fund_max_performance_fee: number | string;
+            /**
+             * Fund Takeover Enabled
+             * @default false
+             */
+            fund_takeover_enabled: boolean;
+            /**
+             * Fund Grace Months
+             * @default 12
+             */
+            fund_grace_months: number;
+            /**
+             * Fund Min Market Share
+             * @default 0.50
+             */
+            fund_min_market_share: number | string;
             /** First Election */
             first_election?: string | null;
             /** @default NORMAL */

@@ -70,6 +70,9 @@ const settings: SimulationSettingsData = {
   funds_enabled: false,
   fund_max_management_fee: "0.0200",
   fund_max_performance_fee: "0.2000",
+  fund_takeover_enabled: false,
+  fund_grace_months: 12,
+  fund_min_market_share: "0.5000",
   first_election: null,
   computer_difficulty: "NORMAL",
   poll_margin: false,
@@ -130,6 +133,12 @@ describe("regras da partida ↔ formulário do lobby", () => {
     expect(toSettingsBody({ ...values, governmentEnabled: true }).first_election).toBe("2010-10-07");
   });
 
+  it("o modo aquisição hostil só segue no corpo com as gestoras ligadas", () => {
+    const values = { ...toFormValues(settings), fundsEnabled: false, fundTakeoverEnabled: true };
+    expect(toSettingsBody(values).fund_takeover_enabled).toBe(false);
+    expect(toSettingsBody({ ...values, fundsEnabled: true }).fund_takeover_enabled).toBe(true);
+  });
+
   it("o formulário mostra o dinheiro com a máscara e a taxa em percentual", () => {
     const values = toFormValues(settings);
     expect(values.startingCash).toBe("R$ 10.000,00");
@@ -137,6 +146,8 @@ describe("regras da partida ↔ formulário do lobby", () => {
     expect(values.withdrawalRate).toBe("4");
     expect(values.fundMaxManagementFee).toBe("2");
     expect(values.fundMaxPerformanceFee).toBe("20");
+    expect(values.fundGraceMonths).toBe("12");
+    expect(values.fundMinMarketShare).toBe("50");
   });
 
   it("o corpo leva o dinheiro em centavos, truncado", () => {
