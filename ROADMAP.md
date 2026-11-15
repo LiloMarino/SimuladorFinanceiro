@@ -59,7 +59,6 @@
 | [**F81**](#f81) | Manutenção | CORS restrito à mesma origem | M27 · 4.5 | — | Baixo | Médio | ⏳ |
 | [**F90**](#f90) | Feature | Cenários | M25 · 4.4 | — | Alto | Bom | ⏳ |
 | [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.4 | — | Médio | Médio | ⏳ |
-| [**F104**](#f104) | Feature | Gestoras: co-gestores | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F110**](#f110) | Feature | Combinar estratégias | M25 · 4.4 | — | Médio | Bom | ⏳ |
 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | M25 · 4.4 | — | Baixo | Bom | ⏳ |
 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 | — | — | — | 🔍 |
@@ -87,7 +86,7 @@
 | [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | M18 · 4.2 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (36 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (37 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -115,6 +114,7 @@
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 | — | — | — | ✅ |
 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | M18 · 4.2 | — | — | — | ✅ |
 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | M18 · 4.2 | — | — | — | ✅ |
+| [**F104**](#f104) | Feature | Gestoras: co-gestores | M18 · 4.2 | — | — | — | ✅ |
 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | M18 · 4.2 | — | — | — | ✅ |
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.2 | — | — | — | ✅ |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M18 · 4.2 | — | — | — | ✅ |
@@ -142,7 +142,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 16/20 concluídos
+> **Progresso:** 17/20 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -154,7 +154,7 @@
 | 6 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | — | ✅ Concluído |
 | 7 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | — | ✅ Concluído |
 | 8 | [**F55**](#f55) | Feature | Modo aquisição hostil | [F102](#f102), [F103](#f103) | ⏳ Pendente |
-| 9 | [**F104**](#f104) | Feature | Gestoras: co-gestores | [F44](#f44) | ⏳ Pendente |
+| 9 | [**F104**](#f104) | Feature | Gestoras: co-gestores | — | ✅ Concluído |
 | 10 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | — | ✅ Concluído |
 | 11 | [**F255**](#f255) | Feature | Estatais | [F44](#f44) | ⏳ Pendente |
 | 12 | [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | [F101](#f101), [F44](#f44), [F255](#f255) | ⏳ Pendente |
@@ -261,7 +261,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F55**](#f55) | Feature | Modo aquisição hostil | M18 · 4.2 · 8º | 0 | Médio | Médio | ⏳ |
-| [**F104**](#f104) | Feature | Gestoras: co-gestores | M18 · 4.2 · 9º | 0 | Médio | Bom | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 · 11º | 1 | Alto | Médio | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
@@ -309,7 +308,6 @@
 | **F81** | Manutenção | CORS restrito à mesma origem | — | — | M27 · 4.5 | [F6](#f6) | Baixo | Médio | Baixo | Médio |
 | **F90** | Feature | Cenários | N22 | D18 | M25 · 4.4 | — | Alto | Médio | Alto | Bom |
 | **F93** | Feature | Rumores antecipados | N31 | D18 | M25 · 4.4 | — | Médio | Médio | Médio | Médio |
-| **F104** | Feature | Gestoras: co-gestores | N23 | — | M18 · 4.2 | [F44](#f44) | Médio | Baixo | Médio | Bom |
 | **F110** | Feature | Combinar estratégias | N4 | D8 | M25 · 4.4 | — | Médio | Médio | Médio | Bom |
 | **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | M25 · 4.4 | — | Baixo | Baixo | Médio | Bom |
 | **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | D21 | M28 · 4.6 | — | Médio | Baixo | Alto | Bom |
@@ -447,17 +445,6 @@
 **Fora deste card, como ideia futura:** rumor privado sorteado para um ou dois jogadores, que depende de uma caixa de entrada por jogador.
 
 **Aceite:** com a opção desligada nenhum rumor aparece; ligada, os rumores aparecem no jornal marcados como Rumor, de 3 a 10 pregões antes do fato; num teste com muitas partidas sorteadas as proporções ficam perto de 60/25/15; nenhum rumor traz ativo e direção juntos; duas partidas do mesmo período com sementes diferentes têm rumores falsos diferentes.
-
-<a id="f104"></a>
-**F104 — Gestoras: co-gestores.** Serve N23; amplia a expansão Gestoras (F44). A gestora pode ter mais de um gestor: eles operam a mesma carteira pela troca de conta no caixa da topbar e dividem as taxas, como sócios.
-
-**Quem manda:** o gestor principal convida, escolhe a parte das taxas de cada co-gestor (por exemplo, 30% para o co-gestor e 70% para ele) e pode tirá-lo a qualquer momento. O co-gestor aceita o convite e pode sair quando quiser. A parte das taxas não depende das cotas: quem tem cotas ganha pela cota, e o controle continua seguindo as cotas pela assembleia (F103).
-
-**Com Governo & Política:** o co-gestor assume a gestora quando o gestor vira presidente (F95); com mais de um, assume o que tem a maior parte das taxas.
-
-**Plano.** Convite e aceite por aviso; a lista de co-gestores na página da gestora, com a parte de cada um; a divisão no pagamento mensal da administração e no semestral da performance; a saída e a remoção. O acesso à conta da gestora pelo caixa vale para todos os gestores. As telas entram na sessão de canvas das Gestoras.
-
-**Aceite:** a soma das partes dá 100% da taxa; remover um co-gestor tira o acesso no mesmo pregão.
 
 <a id="f110"></a>
 **F110 — Combinar estratégias.** Serve N4; segue a D8. O jogador liga mais de uma estratégia ao mesmo tempo, cada uma com uma fatia do patrimônio (ex.: 30% em 100% no CDI e 70% no cruzamento de médias). O motor guarda, por jogador, a lista de estratégias com a fatia de cada uma e a origem de cada posição; cada estratégia recebe um contexto restrito à fatia dela (caixa e posições que ela comprou) e só opera dentro dele. A página de Estratégias passa de um interruptor para uma lista de fatias que somam 100%, e o log de ordens ganha o filtro por estratégia. Gatilho: F8 concluída e o uso pedir mais de uma estratégia.
@@ -689,6 +676,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F101** | Feature | Carteira separada do jogador | N23 | D9 | M18 · 4.2 |
 | **F102** | Feature | Gestoras: emissão de novas cotas e recompra | N23 | — | M18 · 4.2 |
 | **F103** | Feature | Gestoras: troca de gestor pela assembleia | N23 | — | M18 · 4.2 |
+| **F104** | Feature | Gestoras: co-gestores | N23 | — | M18 · 4.2 |
 | **F105** | Feature | Gestoras: rendimentos mensais | N23 | — | M18 · 4.2 |
 | **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.2 |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M18 · 4.2 |
@@ -736,6 +724,17 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 **Plano.** Backend da assembleia: convocação, votos, apuração no fim do 5º pregão e a troca do gestor, que leva junto o acesso à conta da gestora. Aviso a todos os cotistas e manchete no jornal na convocação e no resultado. A tela de votação entra na sessão de canvas das Gestoras.
 
 **Aceite:** comprar cotas no último pregão da votação muda o resultado; empate mantém o gestor; o afastado não funda gestora antes de 6 meses.
+
+<a id="f104"></a>
+**F104 — Gestoras: co-gestores.** Serve N23; amplia a expansão Gestoras (F44). A gestora pode ter mais de um gestor: eles operam a mesma carteira pela troca de conta no caixa da topbar e dividem as taxas, como sócios.
+
+**Quem manda:** o gestor principal convida, escolhe a parte das taxas de cada co-gestor (por exemplo, 30% para o co-gestor e 70% para ele) e pode tirá-lo a qualquer momento. O co-gestor aceita o convite e pode sair quando quiser. A parte das taxas não depende das cotas: quem tem cotas ganha pela cota, e o controle continua seguindo as cotas pela assembleia (F103).
+
+**Com Governo & Política:** o co-gestor assume a gestora quando o gestor vira presidente (F95); com mais de um, assume o que tem a maior parte das taxas.
+
+**Plano.** Convite e aceite por aviso; a lista de co-gestores na página da gestora, com a parte de cada um; a divisão no pagamento mensal da administração e no semestral da performance; a saída e a remoção. O acesso à conta da gestora pelo caixa vale para todos os gestores. As telas entram na sessão de canvas das Gestoras.
+
+**Aceite:** a soma das partes dá 100% da taxa; remover um co-gestor tira o acesso no mesmo pregão.
 
 <a id="f105"></a>
 **F105 — Gestoras: rendimentos mensais.** A gestora distribui parte do lucro realizado do mês (padrão 95%, de 0 a 100%, escolhida pelo gestor); a performance e a marca d'água seguem o retorno total.
