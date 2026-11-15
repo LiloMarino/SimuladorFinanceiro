@@ -77,7 +77,6 @@
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | M28 · 4.6 | — | Alto | Bom | ⏳ |
 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | Alto | Médio | ⏳ |
-| [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M24 · 4.3 | — | — | — | 🔍 |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
@@ -85,7 +84,7 @@
 | [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | M18 · 4.2 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (38 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (39 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -119,6 +118,7 @@
 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.2 | — | — | — | ✅ |
 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M18 · 4.2 | — | — | — | ✅ |
 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | — | — | ✅ |
+| [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | ✅ |
 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 | — | — | — | ✅ |
 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 | — | — | — | ✅ |
 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 | — | — | — | ✅ |
@@ -142,7 +142,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 18/20 concluídos
+> **Progresso:** 19/20 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -156,7 +156,7 @@
 | 8 | [**F55**](#f55) | Feature | Modo aquisição hostil | — | ✅ Concluído |
 | 9 | [**F104**](#f104) | Feature | Gestoras: co-gestores | — | ✅ Concluído |
 | 10 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | — | ✅ Concluído |
-| 11 | [**F255**](#f255) | Feature | Estatais | [F44](#f44) | ⏳ Pendente |
+| 11 | [**F255**](#f255) | Feature | Estatais | — | ✅ Concluído |
 | 12 | [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | [F101](#f101), [F44](#f44), [F255](#f255) | ⏳ Pendente |
 | 13 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | — | ✅ Concluído |
 | 14 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | — | ✅ Concluído |
@@ -260,7 +260,7 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F255**](#f255) | Feature | Estatais | M18 · 4.2 · 11º | 1 | Alto | Médio | ⏳ |
+| [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | M18 · 4.2 · 12º | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
@@ -318,7 +318,6 @@
 | **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Alto | Médio | Médio | Médio |
-| **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 | [F44](#f44) | Alto | Alto | Alto | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F292** | Feature | Fundo Soberano: o governo compra ações e cotas | N34, N41 | — | M18 · 4.2 | [F101](#f101), [F44](#f44), [F255](#f255) | Médio | Médio | Médio | Bom |
@@ -484,33 +483,6 @@
 
 **Aceite:** a partida padrão sem governo continua idêntica à história; cada ligação desligada zera só a própria parcela no painel; a intensidade ×0,5 e ×2 multiplicam o desvio e ×1 não muda nada; a partida fora do padrão não destrava conquista e a com Banco Central desacreditado destrava; o desacreditado começa em 40 com prêmio de 1,2 ponto; a rodada de calibragem da Exagerada fica registrada.
 
-<a id="f255"></a>
-**F255 — Estatais.** Serve N34 e N41; condicionado por D20. Só se implementa depois da expansão Gestoras (F44). A ideia do playtest de 08/11: o governo cria estatais (empresas controladas pelo governo, com ações na bolsa) para gerar receita e PIB. No Brasil, as estatais listadas (Petrobras, Banco do Brasil) pagam dividendos ao Tesouro (dividendo é a parte do lucro que a empresa paga aos acionistas), e os proventos já existem na partida desde a 4.0. Entram quatro medidas, cada uma com o seu preço: fundar, usar o controle, privatizar e a política de dividendos.
-
-**Por que depois das Gestoras.** A estatal é um ativo que os jogadores negociam, e fundar e privatizar reaproveitam o que a expansão Gestoras (F44) constrói: um ativo que nasce no meio da partida, com o preço feito por um formador de mercado sintético (um participante automático que sempre põe ordens de compra e venda em volta do valor justo), e a oferta pública, que é a privatização. Os dividendos ao Tesouro seguem o molde dos rendimentos da gestora (F105). O uso do controle age também nas estatais que já estão entre os ativos importados, como camada sobre o preço histórico, no molde do dólar sobre os ativos de fora (F194).
-
-**Plano.**
-
-1. **Capital.** A estatal fundada nasce listada, com 51% do governo (o controle, como na Petrobras e no Banco do Brasil) e 49% na bolsa. São dois estados: estatal ou privada. Privatizar vende os 51% de uma vez. Os 49% são absorvidos pelo formador de mercado sintético das Gestoras, e o governo arrecada pelo valor justo (o valor que a empresa tem pelo que rende) independentemente de haver gente comprando na sala. Exemplo: uma estatal de R$ 100 bi custa R$ 51 bi de dívida, a fatia que o governo mantém.
-2. **Estatais importadas.** Quem monta a base marca, na importação, quais códigos são estatais; não há lista fixa no código. A tela de importação sugere a marca para os códigos conhecidos da União (PETR3, PETR4, BBAS3). A marcação traz a fatia do governo e o número de ações, necessários para transformar o dividendo por ação em reais. Nas importadas valem o uso do controle e a política de dividendos; fundar e privatizar são só das estatais criadas na partida.
-3. **Usar o controle** (o antigo "segurar preço"). O governo manda a estatal vender abaixo do preço que o mercado pagaria. O efeito na economia depende do setor do ativo, que define a alavanca (o que o governo consegue mexer na economia pela estatal): combustíveis e energia elétrica baixam o IPCA (a gasolina pesa uns 5% do índice, então 10% de desconto nela tira cerca de 0,5 ponto da inflação; a conta de luz pesa uns 4%); banco baixa o juro do crédito e sobe o PIB, e a inflação sobe um pouco; os outros setores não têm alavanca, só o dividendo. O custo é sempre o mesmo: lucro menor, dividendo menor ao Tesouro e ação em queda. Casos reais: Petrobras de 2011 a 2014, Eletrobras em 2012, BB e Caixa em 2012. Fundar pede escolher o setor (combustíveis, energia ou banco), que define a alavanca.
-4. **Inflação represada.** Ao soltar o preço, o que foi segurado volta ao IPCA nos meses seguintes, como em 2015 (a inflação represada é a que foi adiada, não a que sumiu). Sem essa volta, segurar preço evitaria para sempre a perda de credibilidade do Banco Central. Há um teto para a soma das alavancas de IPCA, que sai da calibragem. A alavanca do banco é pequena, para não virar um segundo botão de juro além da SELIC.
-5. **Política de dividendos** (medida nova, em fundadas e importadas). O governo manda a estatal distribuir mais agora, o que rende receita extra, ao custo de ela investir menos, o que dá menos PIB e uma ação mais fraca depois. Exemplo: mandar distribuir 80% do lucro em vez de 50% enche o caixa do Tesouro este ano e deixa a estatal com menos para investir. É o jeito de a importada arrecadar mais, porque pela D20 o dividendo normal dela já está na história e não é desvio.
-6. **Receita.** Os dividendos vão ao Tesouro na proporção da fatia do governo, sobre o lucro da estatal: com fatia de 51%, uma estatal que distribui R$ 10 bi manda R$ 5,1 bi ao Tesouro. A fundada tem valor justo com retorno sorteado por ano em volta de uma média, e pode valer menos que o investido.
-7. **PIB.** Na fundação vem um impulso, pela ligação de ciclo fiscal que já existe; depois vem uma parcela permanente, proporcional ao tamanho (valor) da estatal enquanto ela opera: cresce se ela reinveste e encolhe se o governo a espreme. Cada estatal nova no mesmo setor soma menos. É a sétima ligação da economia e ganha chave no laboratório (F227).
-
-O tamanho dos efeitos sai da calibragem pelo CLI.
-
-**Telas.** Fundar, usar o controle, privatizar e a política de dividendos vão ao canvas antes do código, numa sessão própria junto com a carteira do Fundo Soberano.
-
-**Riscos.**
-
-- **Máquina de dinheiro.** Se o retorno médio da estatal fundada fica acima do juro da história, fundar vira dinheiro de graça (a dívida custa o juro e a estatal rende mais que ele). A média do retorno fica perto ou abaixo do juro real da história (o juro descontada a inflação).
-- **Ciclo fundar e privatizar.** Fundar e vender em sequência não pode render de graça; a calibragem confere isso.
-- **Informação privilegiada.** Colegas de partido sabem antes que uma medida vem e podem comprar ou vender a ação. É aceito porque a medida passa pela fila do Congresso, à vista de todos.
-
-**Aceite:** sem medida de estatal a partida segue a história; a calibragem compara "fundar 10 estatais em 10 anos" com "não fundar nenhuma" e fundar não domina; segurar o preço e soltar devolve a inflação represada; banco estatal não baixa o IPCA; a soma das alavancas respeita o teto; dividendo extra hoje reduz PIB e valor depois.
-
 <a id="f284"></a>
 **F284 — Ministério para o partido da base.** Serve N34.
 
@@ -660,6 +632,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.2 |
 | **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M18 · 4.2 |
 | **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 |
+| **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 |
 | **F287** | Melhoria | Slots dos jogadores do lobby no desenho anterior | N15, N20 | — | M18 · 4.2 |
 | **F288** | Melhoria | Badge de profissão legível no lobby e na Minha preparação | N15, N20 | — | M18 · 4.2 |
 | **F289** | Melhoria | Cards de profissão com vantagens e desvantagens | N39, N25 | — | M18 · 4.2 |
@@ -756,6 +729,9 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 O túnel foi para `features/tunnel/`, a preparação da sala para `features/government/` e as dependências do FastAPI, que só as rotas usam, para `routes/dependencies/`. A interface `RealtimeBroker` e os eventos de presença do jogador subiram para o core, e o `UserManager` publica pelo `RealtimeBrokerManager`. A resolução e a validação da estratégia dos bots foram para `features/strategy/bots.py`: `add_bot` e `update_bot` recebem o `BotConfig` pronto, que já leva o nome da estratégia.
 
 **Aceite:** nenhum import de `backend.features` em tempo de execução no core; ficam o import só de anotação do `SimulationManager` e os prefixos de logger em `core/logger.py`, que são texto de configuração. `uv run pyright` e `uv run pytest -n 4` limpos.
+
+<a id="f255"></a>
+**F255 — Estatais.** O presidente funda estatais em três portes (medida votada, paga com dívida, 51% do governo e 49% no formador), comanda o controle de preço em degraus de 5 a 20% com teto de 1,5 ponto de inflação represada que volta ao soltar, escolhe a política de dividendos (Reinvestir, Normal, Espremer) e privatiza por oferta de 5 pregões com reserva e rateio; a importação marca a estatal histórica, e sem ordem a partida segue a história. O Fundo Soberano fica na F292, e a conferência da tela contra o canvas ficou pendente.
 
 <a id="f287"></a>
 **F287 — Slots dos jogadores do lobby no desenho anterior.** Serve N15 e N20. O redesenho do topo do lobby também refez o card de cada jogador (`lobby-player-list.tsx`): o nome ficou sozinho na primeira linha, a profissão e os papéis desceram para uma segunda linha, a presença e o partido preparado viraram uma terceira, e as vagas livres viraram uma faixa só ("N vagas livres · a sala aceita até 12"), com "Adicionar bot" numa faixa à parte. O usuário preferiu o desenho anterior e pediu a volta.
