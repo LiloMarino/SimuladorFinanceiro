@@ -62,6 +62,8 @@ class FundDTO(FundTermsDTO):
     portfolio_id: int
     client_id: uuid.UUID
     maker_cash: Decimal
+    # O dia em que a oferta automática do modo aquisição hostil abriu; nulo sem ela
+    takeover_offer_on: date | None = None
     # O lucro realizado desde a última data-com, por origem
     month_dividends: Decimal = Decimal(0)
     month_interest: Decimal = Decimal(0)

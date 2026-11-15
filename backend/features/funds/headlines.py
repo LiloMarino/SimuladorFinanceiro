@@ -17,6 +17,15 @@ def offer_opened(ticker: str, quotas: Decimal) -> Headline:
     )
 
 
+def takeover_offer_opened(ticker: str, quotas: Decimal) -> Headline:
+    return Headline(
+        NewsType.FUND_OFFER_OPENED,
+        f"{ticker} abre oferta automática de {format_quantity(quotas)} cotas",
+        "A carência acabou e o gestor tinha cotas acima do limite: elas saem ao patrimônio líquido do dia, por 5 pregões. O que não vender o formador de mercado compra.",
+        (ticker,),
+    )
+
+
 def issuance_opened(ticker: str, quotas: Decimal, price: Decimal) -> Headline:
     return Headline(
         NewsType.FUND_ISSUANCE_OPENED,

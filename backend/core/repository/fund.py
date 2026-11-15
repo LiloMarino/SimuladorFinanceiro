@@ -58,6 +58,7 @@ _MUTABLE = (
     "offer_quotas",
     "offer_price",
     "offer_closed_on",
+    "takeover_offer_on",
     "management_fee",
     "performance_fee",
     "pending_management_fee",

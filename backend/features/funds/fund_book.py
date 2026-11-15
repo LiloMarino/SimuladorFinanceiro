@@ -109,6 +109,25 @@ def nav_per_quota(
     return (cash + equity + fixed - debt) / quotas
 
 
+def maker_stake(quotas: Decimal) -> Decimal:
+    """As cotas que o formador subscreve na oferta de abertura: `STOCK_SHARE` do total, para baixo."""
+    return Decimal(math.floor(float(quotas) * STOCK_SHARE))
+
+
+def takeover_offer_size(held: Decimal, quotas: Decimal, cap: Decimal) -> Decimal:
+    """As cotas novas que a oferta de abertura emite para o gestor, com `held` das `quotas`,
+    ficar com `cap` ou menos do total final.
+
+    O total final é o das cotas depois da oferta mais a subscrição do formador sobre ele, e
+    o gestor mantém o que tem: a conta pede o menor total que dá `held / cap`.
+    """
+    needed = held / cap
+    total = max(quotas + 1, Decimal(math.floor(float(needed) / (1 + STOCK_SHARE))))
+    while total + maker_stake(total) < needed:
+        total += 1
+    return total - quotas
+
+
 def cdi_growth(start: date, end: date) -> Decimal:
     """O fator do CDI acumulado nos dias úteis depois de `start` até `end` (1,05 é 5% acumulados)."""
     factor = Decimal(1)
@@ -275,6 +294,7 @@ class FundBook:
         frozen_until: Callable[[int], date | None] | None = None,
         participants: Callable[[], list[UserDTO]] | None = None,
         grace_ends: date | None = None,
+        manager_cap: Decimal | None = None,
     ) -> None:
         self._simulation_id = simulation_id
         self._engine = engine
@@ -284,6 +304,11 @@ class FundBook:
         self._manager_frozen_until = frozen_until or (lambda _user_id: None)
         # Os jogadores e bots da partida, lidos a cada consulta
         self.participants = participants or (lambda: [])
+        # No modo aquisição hostil, a fração das cotas que o gestor mantém depois da carência;
+        # nulo sem o modo
+        self._manager_cap = manager_cap
+        # A ordem de venda das cotas do gestor acima do limite, por ticker
+        self._takeover_orders: dict[str, LimitOrder] = {}
         self._funds: dict[str, Fund] = {}
         accounts = engine.broker.fund_accounts
         self._maker = FundMaker(engine.matching_engine, accounts)
@@ -493,7 +518,12 @@ class FundBook:
         return issued
 
     def open_offer(self, ticker: str, size: Decimal) -> None:
-        """Abre a oferta pública de `size` cotas novas ao PL de hoje.
+        """Abre a oferta pública de `size` cotas novas ao PL de hoje e anuncia no jornal."""
+        self._open_offer(ticker, size)
+        self._announce(self._engine.current_date, headlines.offer_opened(ticker, size))
+
+    def _open_offer(self, ticker: str, size: Decimal) -> None:
+        """Lista a gestora com a oferta pública de `size` cotas novas ao PL de hoje.
 
         O formador subscreve `STOCK_SHARE x (cotas + size)` ao PL de antes da subscrição e paga
         as cotas dele ao PL em dinheiro sintético, que entra no caixa da gestora: o PL por cota segue o
@@ -507,7 +537,7 @@ class FundBook:
         today = self._engine.current_date
         account = fund.account
         account.offer_remaining = size
-        stake = Decimal(math.floor(float(account.quotas + size) * STOCK_SHARE))
+        stake = maker_stake(account.quotas + size)
         account.subscribe_maker(stake, nav)
         self._engine.credit_fund_subscription(account.client_id, stake * nav)
         fund.nav = nav
@@ -522,7 +552,6 @@ class FundBook:
         )
         self._refresh_orders(fund, today)
         self._save(fund)
-        self._announce(today, headlines.offer_opened(ticker, size))
 
     def close_offer(self, ticker: str) -> None:
         """Encerra a oferta: o que não vendeu não é emitido."""
@@ -530,6 +559,144 @@ class FundBook:
         if fund.issuance is not None:
             raise ConflictError("A emissão encerra sozinha ao fim dos pregões dela")
         self._close_offer(fund, self._engine.current_date)
+
+    # =========================
+    # Oferta automática do modo aquisição hostil
+    # =========================
+
+    def _advance_takeover(self, fund: Fund, today: date) -> None:
+        """A abertura do dia da oferta automática: depois da carência, o gestor que passa do
+        limite de cotas entra numa oferta ao PL de 5 pregões, uma vez por gestora.
+
+        Com a oferta aberta, a venda das cotas do gestor é refeita todo dia ao PL novo.
+        """
+        cap, grace_ends = self._manager_cap, self._assemblies.grace_ends
+        if cap is None or grace_ends is None or today < grace_ends:
+            return
+        started = fund.terms.takeover_offer_on
+        if started is None:
+            self._open_takeover_offer(fund, cap, today)
+        elif not self._takeover_by_offer(fund) and today <= offer_ends_on(started):
+            self._sell_takeover_excess(fund, cap, today)
+
+    def _takeover_by_offer(self, fund: Fund) -> bool:
+        """A oferta automática foi a de abertura da gestora (cotas novas), e não a venda das
+        cotas do gestor: a gestora listou no mesmo dia em que a oferta automática abriu."""
+        return fund.terms.listed_on == fund.terms.takeover_offer_on
+
+    def _manager_held(self, fund: Fund) -> Decimal:
+        """As cotas do gestor na carteira pessoal dele."""
+        return self._assemblies.holdings(fund).get(
+            fund.terms.manager_user_id, Decimal(0)
+        )
+
+    def _takeover_excess(self, fund: Fund, cap: Decimal) -> Decimal:
+        """As cotas do gestor acima do limite, em cotas inteiras; zero ou menos dentro dele."""
+        limit = (cap * fund.account.quotas).to_integral_value(rounding=ROUND_FLOOR)
+        return self._manager_held(fund) - limit
+
+    def _open_takeover_offer(self, fund: Fund, cap: Decimal, today: date) -> None:
+        """Abre a oferta automática se o gestor passa do limite e a gestora não está em oferta
+        ou emissão (que correm até o fim; a conferência volta no pregão seguinte)."""
+        account = fund.account
+        if account.offer_remaining is not None or fund.issuance is not None:
+            return
+        # A recompra queima cotas e levaria o gestor de volta acima do limite
+        self._sync_buyback(fund)
+        if fund.buyback is not None:
+            self.cancel_buyback(fund.ticker)
+        excess = self._takeover_excess(fund, cap)
+        if excess <= 0:
+            return
+        by_offer = not fund.listed
+        if by_offer:
+            size = takeover_offer_size(self._manager_held(fund), account.quotas, cap)
+            self._open_offer(fund.ticker, size)
+        else:
+            size = excess
+        fund.terms = fund.terms.model_copy(update={"takeover_offer_on": today})
+        self._save(fund)
+        if not by_offer:
+            self._sell_takeover_excess(fund, cap, today)
+        self._announce(today, headlines.takeover_offer_opened(fund.ticker, size))
+
+    def _sell_takeover_excess(self, fund: Fund, cap: Decimal, today: date) -> None:
+        """Refaz a ordem de venda das cotas do gestor acima do limite, ao PL do dia.
+
+        O excesso sai das posições de agora do gestor, e por isso a ordem refeita cobre só o
+        que ainda não vendeu, também depois de parar e retomar a partida.
+        """
+        ticker = fund.ticker
+        self._cancel_takeover_order(ticker)
+        excess = self._takeover_excess(fund, cap)
+        if excess <= 0 or fund.nav is None:
+            return
+        manager_client = self._client_of_user(fund.terms.manager_user_id)
+        # A posição do gestor na cota fica livre para a ordem: as outras vendas dele saem
+        matching = self._engine.matching_engine
+        for order in matching.order_book.orders_of(manager_client):
+            if order.ticker == ticker and order.action == OrderAction.SELL:
+                matching.cancel(order_id=order.id, client_id=order.client_id)
+        order = LimitOrder(
+            client_id=manager_client,
+            ticker=ticker,
+            size=excess,
+            action=OrderAction.SELL,
+            placed_on=today,
+            price=round(float(fund.nav), 2),
+        )
+        matching.submit(order)
+        if order.remaining > 0:
+            self._takeover_orders[ticker] = order
+
+    def _cancel_takeover_order(self, ticker: str) -> None:
+        order = self._takeover_orders.pop(ticker, None)
+        if order is not None:
+            self._engine.matching_engine.cancel(
+                order_id=order.id, client_id=order.client_id
+            )
+
+    def _settle_takeover(self, fund: Fund, today: date) -> None:
+        """No último pregão da oferta automática, o formador compra ao PL o que não vendeu."""
+        cap, started = self._manager_cap, fund.terms.takeover_offer_on
+        if (
+            cap is None
+            or started is None
+            or fund.nav is None
+            or today != offer_ends_on(started)
+        ):
+            return
+        account = fund.account
+        price = Decimal(str(round(float(fund.nav), 2)))
+        if self._takeover_by_offer(fund):
+            left = account.offer_remaining
+            if left is None:
+                return
+            # A sobra da oferta nasce já nas mãos do formador, paga em dinheiro sintético
+            self._offer.close(fund.ticker)
+            account.subscribe_maker(left, price)
+            self._engine.credit_fund_subscription(account.client_id, left * price)
+            repository.fund.record_offer_sale(
+                fund.terms.id,
+                FundOfferSaleDTO(
+                    day=today,
+                    buyer_user_id=None,
+                    quotas=left,
+                    price=price,
+                    issuance_id=None,
+                ),
+            )
+            fund.terms = fund.terms.model_copy(update={"offer_closed_on": today})
+        else:
+            self._cancel_takeover_order(fund.ticker)
+            left = self._takeover_excess(fund, cap)
+            if left <= 0:
+                return
+            # As cotas que o gestor não vendeu passam ao formador
+            manager_client = self._client_of_user(fund.terms.manager_user_id)
+            self._engine.broker.sell_to_fund(manager_client, fund.ticker, left, price)
+            account.maker_trade(OrderAction.BUY, left, price)
+        account.record_trade(left, price)
 
     # =========================
     # Emissão
@@ -1088,6 +1255,7 @@ class FundBook:
                 self._sync_buyback(fund)
                 self._advance_issuance(fund, today)
                 self._refresh_orders(fund, today)
+            self._advance_takeover(fund, today)
 
     def on_close(self, today: date) -> list[CandleDTO]:
         """Fecha o pregão das gestoras listadas: vela, fechamento do dia, preço de ranking e estado.
@@ -1101,6 +1269,7 @@ class FundBook:
                 self._save(fund)
             if fund.nav is None or not fund.listed:
                 continue
+            self._settle_takeover(fund, today)
             trades = fund.account.take_day()
             stock = self._engine.stocks[fund.ticker]
             candle = close_candle(stock, today, trades, fund.last_close, fund.nav)

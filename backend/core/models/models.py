@@ -1369,6 +1369,8 @@ class Funds(Base):
     offer_price: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
     # Dia em que a oferta fechou; nulo com a oferta aberta ou sem oferta
     offer_closed_on: Mapped[datetime.date | None] = mapped_column(Date)
+    # Dia em que a oferta automática do modo aquisição hostil abriu; nulo sem ela
+    takeover_offer_on: Mapped[datetime.date | None] = mapped_column(Date)
     management_fee: Mapped[decimal.Decimal] = mapped_column(
         Numeric(8, 6), nullable=False
     )

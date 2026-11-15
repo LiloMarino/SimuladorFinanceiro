@@ -538,19 +538,45 @@ class Broker:
         self._push_equity_event(client_id, EquityEventType.BUY, ticker, size, price)
 
     def _execute_sell(self, order: Order, size: Decimal, price: float):
-        client_id = order.client_id
-        ticker = order.ticker
+        self._settle_sale(
+            order.client_id,
+            order.ticker,
+            size,
+            to_money(price),
+            release=isinstance(order, LimitOrder),
+        )
+        logger.debug("Venda executada: %sx %s a R$ %s", size, order.ticker, price)
 
-        self._simulation_engine.add_cash(client_id, to_money(price) * size)
+    def sell_to_fund(
+        self, client_id: UUID, ticker: str, size: Decimal, price: Decimal
+    ) -> None:
+        """A venda direta ao formador de mercado: a posição sai ao preço dado e o caixa recebe."""
+        with self._lock:
+            self._settle_sale(client_id, ticker, size, price, release=False)
+
+    def _settle_sale(
+        self,
+        client_id: UUID,
+        ticker: str,
+        size: Decimal,
+        price: Decimal,
+        *,
+        release: bool,
+    ) -> None:
+        """A venda entra no caixa, sai da posição e vira ganho realizado e evento de venda.
+
+        Com `release`, a posição vendida estava reservada por uma ordem limite e a reserva cai junto.
+        """
+        self._simulation_engine.add_cash(client_id, price * size)
 
         gain = Decimal(0)
 
         def _sell_mutation(p: Position):
             nonlocal gain
-            if isinstance(order, LimitOrder):
+            if release:
                 p.release(size)
             # O ganho realizado é o preço de venda menos o custo médio, antes de a posição sair
-            gain = (to_money(price) - p.avg_price) * size
+            gain = (price - p.avg_price) * size
             p.update_sell(size)
 
         self._mutate_position(
@@ -567,9 +593,7 @@ class Broker:
                 event_type=EquityEventType.SELL,
                 ticker=ticker,
                 quantity=size,
-                price=to_money(price),
+                price=price,
                 event_date=self._simulation_engine.current_date,
             )
         )
-
-        logger.debug("Venda executada: %sx %s a R$ %s", size, ticker, price)
