@@ -52,7 +52,6 @@
 | [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | M25 · 4.4 | — | Alto | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 | — | — | — | 🔍 |
 | [**F37**](#f37) | Feature | Tema escuro | M28 · 4.6 | — | Médio | Médio | ⏳ |
-| [**F55**](#f55) | Feature | Modo aquisição hostil | M18 · 4.2 | — | Médio | Médio | ⏳ |
 | [**F56**](#f56) | Feature | Novidades no app | M27 · 4.5 | — | Baixo | Bom | ⏳ |
 | [**F60**](#f60) | Feature | Modo servidor dedicado (--headless) | M27 · 4.5 | — | Baixo | Bom | ⏳ |
 | [**F72**](#f72) | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | M24 · 4.3 | — | Médio | Bom | ⏳ |
@@ -86,7 +85,7 @@
 | [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | M18 · 4.2 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (37 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (38 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -111,6 +110,7 @@
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F227](#f227), [F255](#f255) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.2 | — | — | — | ✅ |
+| [**F55**](#f55) | Feature | Modo aquisição hostil | M18 · 4.2 | — | — | — | ✅ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 | — | — | — | ✅ |
 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | M18 · 4.2 | — | — | — | ✅ |
 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | M18 · 4.2 | — | — | — | ✅ |
@@ -142,7 +142,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 17/20 concluídos
+> **Progresso:** 18/20 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -153,7 +153,7 @@
 | 5 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | — | ✅ Concluído |
 | 6 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | — | ✅ Concluído |
 | 7 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | — | ✅ Concluído |
-| 8 | [**F55**](#f55) | Feature | Modo aquisição hostil | [F102](#f102), [F103](#f103) | ⏳ Pendente |
+| 8 | [**F55**](#f55) | Feature | Modo aquisição hostil | — | ✅ Concluído |
 | 9 | [**F104**](#f104) | Feature | Gestoras: co-gestores | — | ✅ Concluído |
 | 10 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | — | ✅ Concluído |
 | 11 | [**F255**](#f255) | Feature | Estatais | [F44](#f44) | ⏳ Pendente |
@@ -260,7 +260,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F55**](#f55) | Feature | Modo aquisição hostil | M18 · 4.2 · 8º | 0 | Médio | Médio | ⏳ |
 | [**F255**](#f255) | Feature | Estatais | M18 · 4.2 · 11º | 1 | Alto | Médio | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
@@ -301,7 +300,6 @@
 | **F14** | Feature | Janela desktop nativa | — | — | M27 · 4.5 | — | Baixo | Baixo | Baixo | Bom |
 | **F28** | Feature | Muitos futuros (Monte Carlo) | N10 | D7 | M25 · 4.4 | — | Alto | Alto | Alto | Bom |
 | **F37** | Feature | Tema escuro | N15 | — | M28 · 4.6 | — | Médio | Baixo | Médio | Médio |
-| **F55** | Feature | Modo aquisição hostil | N23 | — | M18 · 4.2 | [F102](#f102), [F103](#f103) | Médio | Alto | Médio | Médio |
 | **F56** | Feature | Novidades no app | N14 | — | M27 · 4.5 | — | Baixo | Baixo | Médio | Bom |
 | **F60** | Feature | Modo servidor dedicado (--headless) | — | — | M27 · 4.5 | — | Baixo | Baixo | Baixo | Bom |
 | **F72** | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | M24 · 4.3 | — | Médio | Baixo | Médio | Bom |
@@ -366,26 +364,6 @@
 5. Criar um card "Aparência" nas Configurações, com claro, escuro ou "seguir o sistema". A escolha fica no `localStorage`, por ser preferência deste navegador; o padrão é seguir o sistema (`prefers-color-scheme`).
 
 **Gatilho:** quando o design escuro estiver fechado no canvas.
-
-<a id="f55"></a>
-**F55 — Modo aquisição hostil.** Serve N23. Um modo de jogo da expansão "Gestoras" (F44) em que perder o controle tira o jogador da partida. Todo o patrimônio de cada jogador está na própria gestora.
-
-**Incorporar é vencer a assembleia (F103)** de outra gestora: o dono anterior sai da partida, fica só assistindo, com a posição no ranking congelada, e a gestora dele passa a ser gerida por quem venceu. Vence quem sobrar, ou quem tiver o maior patrimônio na data final. A fusão, em que o incorporado vira co-gestor do comprador, fica de fora: ela tiraria o peso de perder.
-
-**Carência:** nos primeiros 12 meses (configurável no lobby) não há assembleia, para que abrir capital cedo não seja suicídio.
-
-**Ninguém fica invulnerável:** no fim da carência, toda gestora precisa ter pelo menos 50% das cotas no mercado (configurável no lobby); quem não abriu capital entra numa oferta automática pelo patrimônio por cota.
-
-**Sem preço mínimo** durante a tentativa de aquisição. A defesa é a recompra (F102) e a compra de cotas com as taxas recebidas, como uma empresa que recompra ações para não ser comprada.
-
-**Plano.**
-
-1. O modo como opção da expansão no lobby, com a carência e a parte mínima no mercado.
-2. No fim da carência, a oferta automática das cotas de quem passar do teto.
-3. O resultado da assembleia tira o perdedor: as telas dele ficam só de leitura e a linha dele no ranking congela.
-4. A partida termina quando sobra uma gestora ou na data final.
-
-**Aceite:** nenhuma assembleia antes do fim da carência; no fim dela, nenhum gestor tem mais da metade das cotas da própria gestora; quem perde a assembleia não consegue mais operar.
 
 <a id="f56"></a>
 **F56 — Novidades no app.** Serve N14. Como as notas de patch de um jogo: o `CHANGELOG.md` da F51 vai junto no executável, o backend o serve com a versão, e o lobby mostra as novidades da versão atual. Na primeira abertura depois de atualizar, o card ou o selo de novidades fica em destaque até ser aberto (o navegador guarda a última versão vista); aberto, mostra "O que há de novo na versão X" e dá acesso ao histórico inteiro. O lugar exato no lobby, que já está cheio, sai de uma iteração no Claude Design antes de implementar.
@@ -673,6 +651,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F44** | Feature | Expansão Gestoras: fundar a gestora e abrir capital | N23 | — | M18 · 4.2 |
+| **F55** | Feature | Modo aquisição hostil | N23 | — | M18 · 4.2 |
 | **F101** | Feature | Carteira separada do jogador | N23 | D9 | M18 · 4.2 |
 | **F102** | Feature | Gestoras: emissão de novas cotas e recompra | N23 | — | M18 · 4.2 |
 | **F103** | Feature | Gestoras: troca de gestor pela assembleia | N23 | — | M18 · 4.2 |
@@ -703,6 +682,9 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 5. **Gestora do presidente:** o congelamento da carteira do presidente passa a valer para a gestora dele.
 
 **Aceite:** no protótipo, sem procura a cota negocia perto do patrimônio por cota; com compra contínua, o preço sobe dentro da faixa e aparece ágio; o formador nunca negocia fora da faixa de 20%; um negócio forçado não leva o preço de ranking além de 30% do patrimônio por cota.
+
+<a id="f55"></a>
+**F55 — Modo aquisição hostil.** Todo jogador funda a gestora no 1º dia; no fim da carência o gestor acima do limite entra em oferta automática ao patrimônio líquido e o formador compra a sobra; perder a assembleia da própria gestora elimina o jogador, e a partida acaba quando resta um só ativo.
 
 <a id="f101"></a>
 **F101 — Carteira separada do jogador.** Serve N23; segue a D9. A base da expansão Gestoras (F44): hoje eventos e snapshots pertencem ao jogador (`user_id`), e a gestora precisa de carteira própria. Entra uma tabela `portfolios`, e eventos e snapshots passam a apontar para a carteira; a carteira pessoal de cada jogador é migrada uma a uma, inclusive nas partidas salvas. Nada muda na tela: cada jogador segue com uma carteira só até a F44 existir. Gatilho: a F44 sair da avaliação.
