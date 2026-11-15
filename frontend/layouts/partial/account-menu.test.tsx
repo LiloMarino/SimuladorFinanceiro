@@ -30,6 +30,16 @@ const aurora: FundAccount = {
   role: "manager",
 };
 
+const sovereign: FundAccount = {
+  fund_id: 0,
+  name: "Fundo Soberano",
+  ticker: null,
+  cash: "25000000000.00",
+  frozen_until: null,
+  eliminated_on: null,
+  role: "president",
+};
+
 // Partida própria deste arquivo: o estado do módulo é compartilhado entre os testes
 const SIMULATION = 9002;
 
@@ -79,5 +89,19 @@ describe("menu Operar com", () => {
     );
 
     expect(variants).toEqual(["default", "fund"]);
+  });
+
+  it("só com o Governo ligado o presidente escolhe o Fundo Soberano e o cabeçalho leva X-Account 0", async () => {
+    queryClient.setQueryData(queryKeys.simulationStatus(), {
+      simulation: { id: SIMULATION, funds_enabled: false, government_enabled: true },
+    });
+    const onSelect = vi.fn((fundId: number | null) => selectFund(SIMULATION, fundId));
+    const tree = AccountMenu({ accounts: [personal, sovereign], active: personal, onSelect });
+    const items = findElements(tree, (element) => element.type === DropdownMenuItem);
+
+    click(items[1]);
+
+    expect(onSelect).toHaveBeenCalledWith(0);
+    expect(await sentHeaders()).toMatchObject({ "X-Account": "0" });
   });
 });

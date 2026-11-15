@@ -9,6 +9,7 @@ import { FundBanner } from "./fund-banner";
 import { GoverningBanner } from "@/features/government/components/governing-banner";
 import { TopbarGovernment } from "@/features/government/components/topbar-government";
 import { NewsStrip } from "@/features/news/components/news-strip";
+import { hasAccountChoice } from "@/shared/lib/active-account";
 import { hasGoal } from "@/shared/lib/game-types";
 
 interface TopbarProps {
@@ -65,8 +66,8 @@ export default function Topbar({ pageLabel }: TopbarProps) {
         </div>
       </div>
 
-      {/* Faixa da gestora */}
-      {match?.funds_enabled && <FundBanner />}
+      {/* Faixa da conta de gestora ou do Fundo Soberano */}
+      {hasAccountChoice(match) && <FundBanner />}
 
       {/* Faixa de manchetes */}
       <NewsStrip />

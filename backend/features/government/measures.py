@@ -10,7 +10,7 @@ from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 
 from backend.core.enum import MeasureKind, MeasureStatus
-from backend.core.utils import required
+from backend.core.utils import format_billions, required
 from backend.features.government.promises import Promise
 from backend.features.government.state import Measure
 from backend.features.tax_policy import (
@@ -82,8 +82,12 @@ def apply_measure(policy: TaxPolicy, measure: Measure) -> TaxPolicy:
         ):
             # O gasto público não mexe nos impostos; vive na linha do tempo do gasto
             return policy
-        case MeasureKind.FOUND_STATE_COMPANY | MeasureKind.PRIVATIZE_STATE_COMPANY:
-            # As estatais não mexem nos impostos
+        case (
+            MeasureKind.FOUND_STATE_COMPANY
+            | MeasureKind.PRIVATIZE_STATE_COMPANY
+            | MeasureKind.CONTRIBUTE_SOVEREIGN_FUND
+        ):
+            # As estatais e o Fundo Soberano não mexem nos impostos
             return policy
 
 
@@ -123,7 +127,7 @@ class PolicyTimeline:
                 if m.status is MeasureStatus.APPROVED
                 and m.effective is not None
                 and not m.kind.is_spending
-                and not m.kind.is_state_company
+                and not m.kind.is_state_measure
             ),
             key=lambda m: (m.effective, m.id),
         )
@@ -201,6 +205,8 @@ def title(measure: Measure) -> str:
             return f"Fundar a {measure.name} ({measure.ticker})"
         case MeasureKind.PRIVATIZE_STATE_COMPANY:
             return f"Privatizar a {measure.ticker}"
+        case MeasureKind.CONTRIBUTE_SOVEREIGN_FUND:
+            return f"Aportar {format_billions(required(value))} no Fundo Soberano"
 
 
 def _program_title(measure: Measure, label: str, place: str = "") -> str:

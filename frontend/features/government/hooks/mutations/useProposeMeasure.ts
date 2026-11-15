@@ -14,6 +14,7 @@ export function useProposeMeasure() {
       renew();
       // Fundar e privatizar mexem na tabela das estatais: a linha ganha o selo de votação
       void queryClient.invalidateQueries({ queryKey: queryKeys.stateCompanies() });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.sovereignFund() });
     },
   });
 }

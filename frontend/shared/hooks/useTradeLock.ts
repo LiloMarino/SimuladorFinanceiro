@@ -2,6 +2,7 @@ import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
 import { useGovernment } from "@/shared/hooks/queries/useGovernment";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import { useSimulation } from "@/shared/hooks/useSimulation";
+import { isSovereignAccount } from "@/shared/lib/active-account";
 
 /**
  * Por que as boletas estão travadas: o automático opera pelo jogador, o presidente não opera
@@ -12,7 +13,8 @@ export type TradeLock =
   | { reason: "eliminated"; since: string }
   | { reason: "automatic" }
   | { reason: "president"; until: string }
-  | { reason: "fund"; until: string; name: string };
+  | { reason: "fund"; until: string; name: string }
+  | { reason: "sovereign"; name: string };
 
 /** O bloqueio das boletas do jogador, ou nulo quando ele opera à mão. */
 export function useTradeLock(): TradeLock | null {
@@ -31,4 +33,12 @@ export function useTradeLock(): TradeLock | null {
     return { reason: "president", until: government.portfolio.frozen_until };
   }
   return automatic ? { reason: "automatic" } : null;
+}
+
+/** O bloqueio das boletas de renda fixa e Tesouro: as de sempre, mais a conta do Fundo Soberano, que só compra ações e cotas de gestora. */
+export function useFixedIncomeLock(): TradeLock | null {
+  const lock = useTradeLock();
+  const { fund } = useActiveAccount();
+  if (lock) return lock;
+  return isSovereignAccount(fund) && fund ? { reason: "sovereign", name: fund.name } : null;
 }

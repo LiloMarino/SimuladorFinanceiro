@@ -8,6 +8,7 @@ import {
   DropdownMenuSeparator,
 } from "@/shared/components/ui/dropdown-menu";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { isSovereignAccount } from "@/shared/lib/active-account";
 import { displayIsoDate, displayMoney } from "@/shared/lib/utils/display";
 import type { FundAccount } from "@/types";
 import { FrozenLock } from "./frozen-lock";
@@ -30,6 +31,7 @@ export function AccountMenu({ accounts, active, onSelect }: AccountMenuProps) {
       {/* Contas */}
       {accounts.map((account) => {
         const isFund = account.fund_id !== null;
+        const sovereign = isSovereignAccount(account);
         const selected = account.fund_id === active.fund_id;
 
         return (
@@ -49,7 +51,8 @@ export function AccountMenu({ accounts, active, onSelect }: AccountMenuProps) {
               <b className="truncate font-semibold">{isFund ? account.name : "Carteira pessoal"}</b>
               <span className="font-mono text-xs text-muted-foreground">
                 {account.ticker ? `${account.ticker} · ` : ""}
-                {account.role === "comanager" ? "co-gestor · " : ""}caixa {displayMoney(account.cash)}
+                {account.role === "comanager" ? "co-gestor · " : ""}
+                {sovereign ? "do governo · " : ""}caixa {displayMoney(account.cash)}
               </span>
             </span>
             <span className="ml-auto flex items-center gap-1.5">

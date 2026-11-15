@@ -134,6 +134,12 @@ class SimulationEngine:
         # Quem acompanha o lucro realizado de cada carteira (as gestoras): recebe a conta, a
         # origem e o valor de cada realização
         self.on_realized: Callable[[UUID, RealizedKind, Decimal], None] | None = None
+        # Quem acompanha o que cada conta compra, vende e recebe de provento (o Fundo Soberano):
+        # recebe a conta, o lado, o ativo, a quantidade e o preço; e a conta, o ativo e o valor
+        self.on_settled: (
+            Callable[[UUID, EquityEventType, str, Decimal, Decimal], None] | None
+        ) = None
+        self.on_dividend: Callable[[UUID, str, Decimal], None] | None = None
         # (pregão, provento por ação dos últimos 12 meses): o rendimento da Carteira lê daqui
         self._per_share_cache: tuple[date, dict[int, Decimal]] | None = None
 
@@ -292,6 +298,20 @@ class SimulationEngine:
         """Provento bruto de `ticker` no caixa do jogador."""
         self._move_cash(client_id, amount, CashflowEventType.DIVIDEND, ticker=ticker)
         self.record_realized(client_id, "dividends", amount)
+        if self.on_dividend is not None:
+            self.on_dividend(client_id, ticker, amount)
+
+    def record_settlement(
+        self,
+        client_id: UUID,
+        side: EquityEventType,
+        ticker: str,
+        size: Decimal,
+        price: Decimal,
+    ) -> None:
+        """Avisa a quem acompanha as contas que a conta liquidou uma compra ou uma venda."""
+        if self.on_settled is not None:
+            self.on_settled(client_id, side, ticker, size, price)
 
     def record_realized(
         self, client_id: UUID, kind: RealizedKind, amount: Decimal
@@ -655,6 +675,10 @@ class SimulationEngine:
             ]
             fixed = list(self.fixed_broker.get_fixed_positions(client_id).values())
             return equity, fixed, self._cash[client_id]
+
+    def equity_positions(self, client_id: UUID) -> list[PositionDTO]:
+        """As posições de renda variável abertas da conta, a preço de agora."""
+        return self._holdings(client_id)[0]
 
     def _assets_value(self, client_id: UUID) -> Decimal:
         """Ações a preço de mercado, renda fixa e caixa do jogador: o denominador das frações do patrimônio."""

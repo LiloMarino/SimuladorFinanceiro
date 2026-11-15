@@ -39,6 +39,10 @@ Uma ação só vira manchete quando se mexe **muito mais do que ela costuma se m
 
 A manchete só sai no **rompimento**: o preço fecha acima da máxima do último ano **e** essa máxima tem pelo menos 63 pregões (cerca de três meses). Uma ação que sobe todo dia renova a máxima todo dia, mas a máxima de ontem tem idade zero e não conta; assim o mesmo ativo gera no máximo 4 manchetes por ano.
 
+## O Fundo Soberano no jornal
+
+Quatro tipos de manchete contam o fundo do governo: o **aporte** que chegou ao caixa dele, cada **compra**, cada **venda** (que devolve o dinheiro ao Tesouro) e o **favorecimento**, quando o fundo compra uma gestora de aliado do governo. Cada uma leva a sigla do partido do presidente. As compras e vendas de um mesmo ativo no dia viram uma manchete só, no fim do pregão. Veja [O Fundo Soberano](governo.md#o-fundo-soberano).
+
 ## Textos que variam
 
 As manchetes do governo e da campanha têm **três redações** cada, e o jogo escolhe uma delas pela partida, pelo dia e pelo fato. O mesmo fato lido de novo traz sempre o mesmo texto, e dois fatos parecidos não saem com a mesma frase.

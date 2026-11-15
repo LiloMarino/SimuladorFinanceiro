@@ -23,7 +23,7 @@ import { useBuyFixedIncome } from "@/shared/hooks/mutations/useBuyFixedIncome";
 import { useFixedIncomeProjection } from "@/shared/hooks/queries/useFixedIncomeProjection";
 import { AccountOriginNotice } from "@/shared/components/account-origin-notice";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
-import { useTradeLock } from "@/shared/hooks/useTradeLock";
+import { useFixedIncomeLock } from "@/shared/hooks/useTradeLock";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { displayMoney } from "@/shared/lib/utils/display";
@@ -45,7 +45,7 @@ export function BuyDialog({ title, currentDate, onClose }: BuyDialogProps) {
 
   const { data: quote } = useFixedIncomeProjection(title.asset_uuid, amountString, currentDate);
   const buy = useBuyFixedIncome(title.asset_uuid);
-  const tradeLock = useTradeLock();
+  const tradeLock = useFixedIncomeLock();
   const locked = tradeLock !== null;
   // Com uma gestora ativa a ordem sai do caixa dela
   const { fund } = useActiveAccount();

@@ -1,7 +1,7 @@
 import type { ZodType } from "zod";
 import { handleApiResponse } from "@/shared/lib/utils/api";
 import ApiError, { defaultErrorMessage, NETWORK_ERROR_STATUS } from "@/shared/lib/models/ApiError";
-import { accountHeaders, getSelectedFundId } from "@/shared/lib/active-account";
+import { accountHeaders, getSelectedFundId, hasAccountChoice } from "@/shared/lib/active-account";
 import { queryClient } from "@/shared/lib/queryClient";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { FundAccount, SimulationInfo } from "@/types";
@@ -16,10 +16,10 @@ export interface ApiFetchInit<R = unknown> {
   readonly activeAccount?: boolean;
 }
 
-/** Cabeçalho da conta escolhida na partida em curso (só existe com a expansão Gestoras ligada). */
+/** Cabeçalho da conta escolhida na partida em curso (só existe com Gestoras ou Governo ligados). */
 function currentAccountHeaders() {
   const match = queryClient.getQueryData<SimulationInfo>(queryKeys.simulationStatus())?.simulation;
-  if (!match?.funds_enabled) return {};
+  if (!match || !hasAccountChoice(match)) return {};
   return accountHeaders(getSelectedFundId(match.id), queryClient.getQueryData<FundAccount[]>(queryKeys.fundAccounts()));
 }
 

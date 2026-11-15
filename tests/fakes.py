@@ -106,6 +106,7 @@ class FakeSimulationEngine(SimulationEngine):
         self.fixed_broker = NoFixedIncome()
         self.dividends: list[tuple[uuid.UUID, str, Decimal]] = []
         self.on_realized = None
+        self.on_settled = None
 
     def get_cash(self, client_id: uuid.UUID) -> Decimal:
         return self.cash[client_id]

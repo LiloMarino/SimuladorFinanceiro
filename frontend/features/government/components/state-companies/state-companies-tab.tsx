@@ -5,9 +5,11 @@ import type { GovernmentPanel, StateCompaniesPanel } from "@/types";
 import { useStateCompanies } from "../../hooks/queries/useStateCompanies";
 import { useToday } from "../../hooks/useToday";
 import { CommandStateCompanyDialog } from "./command-state-company-dialog";
+import { ContributeFundDialog } from "./contribute-fund-dialog";
 import { FoundStateCompanyDialog } from "./found-state-company-dialog";
 import { PrivatizationOfferCard } from "./privatization-offer-card";
 import { PrivatizeDialog } from "./privatize-dialog";
+import { SovereignFundCard } from "./sovereign-fund-card";
 import { StateCompaniesSummary } from "./state-companies-summary";
 import { StateCompaniesTable } from "./state-companies-table";
 import { StateMovementsCard } from "./state-movements-card";
@@ -49,7 +51,7 @@ type StateCompaniesContentProps = {
   onSeeVote: () => void;
 };
 
-type Dialog = { kind: "found" } | { kind: "command" | "privatize"; ticker: string };
+type Dialog = { kind: "found" | "contribute" } | { kind: "command" | "privatize"; ticker: string };
 
 function StateCompaniesContent({ government, state, onSeeVote }: StateCompaniesContentProps) {
   const today = useToday(government);
@@ -77,6 +79,9 @@ function StateCompaniesContent({ government, state, onSeeVote }: StateCompaniesC
         onSeeVote={onSeeVote}
       />
 
+      {/* Fundo Soberano */}
+      <SovereignFundCard onContribute={() => setDialog({ kind: "contribute" })} />
+
       <StateMovementsCard movements={state.movements} />
 
       {/* Diálogos */}
@@ -85,6 +90,11 @@ function StateCompaniesContent({ government, state, onSeeVote }: StateCompaniesC
         onOpenChange={(open) => !open && closeDialog()}
         companies={state.companies}
         rules={state.rules}
+        vigenceDays={government.vigence_days}
+      />
+      <ContributeFundDialog
+        open={dialog?.kind === "contribute"}
+        onOpenChange={(open) => !open && closeDialog()}
         vigenceDays={government.vigence_days}
       />
       {dialog?.kind === "command" && (

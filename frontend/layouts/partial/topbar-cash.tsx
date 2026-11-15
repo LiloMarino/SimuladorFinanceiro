@@ -13,6 +13,7 @@ import { displayMoney, displaySignedMoney } from "@/shared/lib/utils/display";
 import { AccountMenu } from "./account-menu";
 import { FrozenLock } from "./frozen-lock";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
+import { hasAccountChoice } from "@/shared/lib/active-account";
 
 type TopbarCashProps = {
   /** Caixa pessoal de hoje; indefinido antes do primeiro dado */
@@ -40,12 +41,13 @@ export function TopbarCash({ cash, independence }: TopbarCashProps) {
   const fund = active !== undefined && active.fund_id !== null;
   const shownCash = fund ? active.cash : cash;
   const overdraft = independence && !fund && cash !== undefined && Number(cash) < 0;
+  // O congelamento é da carteira pessoal e das gestoras; o Fundo Soberano opera mesmo no mandato
   const frozenUntil = fundsEnabled
     ? active?.frozen_until
-    : panel?.is_president
+    : panel?.is_president && !fund
       ? panel.portfolio?.frozen_until
       : undefined;
-  const hasMenu = active !== undefined && (accounts?.length ?? 0) > 1;
+  const hasMenu = hasAccountChoice(match) && active !== undefined && (accounts?.length ?? 0) > 1;
 
   // O gatilho do menu é um botão: a dica de métrica (outro botão) só entra fora dele
   const lock = frozenUntil ? <FrozenLock until={frozenUntil} severalAccounts={fundsEnabled} /> : null;

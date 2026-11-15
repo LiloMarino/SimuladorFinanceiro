@@ -5,6 +5,7 @@ import { useSimulation } from "@/shared/hooks/useSimulation";
 import {
   accountKey,
   getSelectedFundId,
+  hasAccountChoice,
   resolveActiveAccount,
   selectFund,
   subscribeActiveAccount,
@@ -21,13 +22,13 @@ export function useActiveAccount() {
   const { simulation } = useSimulation();
   const match = simulation?.simulation;
   const simulationId = match?.id;
-  const { data: accounts } = useFundAccounts({ enabled: match?.funds_enabled === true });
+  const { data: accounts } = useFundAccounts({ enabled: hasAccountChoice(match) });
 
   const storedFundId = useSyncExternalStore(subscribeActiveAccount, () =>
     simulationId === undefined ? null : getSelectedFundId(simulationId),
   );
-  // Sem a expansão ligada só existe a conta pessoal
-  const selectedFundId = match?.funds_enabled === true ? storedFundId : null;
+  // Sem Gestoras nem Governo ligados só existe a conta pessoal
+  const selectedFundId = hasAccountChoice(match) ? storedFundId : null;
 
   const switchAccount = (fundId: number | null) => {
     if (simulationId === undefined) return;
@@ -40,7 +41,7 @@ export function useActiveAccount() {
   return {
     accounts,
     active,
-    /** A gestora em uso; nulo na conta pessoal */
+    /** A conta em uso quando não é a pessoal: uma gestora ou o Fundo Soberano; nulo na conta pessoal */
     fund: active !== undefined && active.fund_id !== null ? active : null,
     /** A chave de cache da conta em uso: a mesma que o cabeçalho X-Account manda ao servidor */
     accountKey: accountKey(selectedFundId, accounts),

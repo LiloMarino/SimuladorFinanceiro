@@ -771,6 +771,14 @@ class StateMovementKind(Enum):
     DIVIDEND_POLICY_SET = "DIVIDEND_POLICY_SET"
 
 
+class SovereignFlowKind(Enum):
+    """O que move dinheiro entre o Fundo Soberano e o Tesouro: o aporte entra no fundo, a venda e o dividendo voltam."""
+
+    CONTRIBUTION = "CONTRIBUTION"
+    SALE = "SALE"
+    DIVIDEND = "DIVIDEND"
+
+
 class ComputerDifficulty(Enum):
     """A verba de cada partido do computador, em múltiplo do fundo público que ele recebe."""
 
@@ -854,6 +862,8 @@ class GovernmentEventType(Enum):
     STATE_ORDER_SET = "STATE_ORDER_SET"
     # A virada do mês põe em vigor as ordens dadas durante ele
     STATE_ORDERS_IN_FORCE = "STATE_ORDERS_IN_FORCE"
+    # O Fundo Soberano compra fatia de gestora de aliado: o eleitorado rejeita o governo
+    SOVEREIGN_FAVORITISM = "SOVEREIGN_FAVORITISM"
     # O fundador propõe a federação a outro partido, retira a proposta ou o outro responde
     FEDERATION_PROPOSED = "FEDERATION_PROPOSED"
     FEDERATION_WITHDRAWN = "FEDERATION_WITHDRAWN"
@@ -1007,6 +1017,8 @@ class MeasureKind(Enum):
     # Estatais: fundar uma empresa nova ou vender uma que o governo já tem
     FOUND_STATE_COMPANY = "FOUND_STATE_COMPANY"
     PRIVATIZE_STATE_COMPANY = "PRIVATIZE_STATE_COMPANY"
+    # Fundo Soberano: o aporte em reais que o Congresso aprova e que cai inteiro no caixa do fundo
+    CONTRIBUTE_SOVEREIGN_FUND = "CONTRIBUTE_SOVEREIGN_FUND"
 
     @property
     def is_sector(self) -> bool:
@@ -1028,6 +1040,11 @@ class MeasureKind(Enum):
             MeasureKind.FOUND_STATE_COMPANY,
             MeasureKind.PRIVATIZE_STATE_COMPANY,
         )
+
+    @property
+    def is_state_measure(self) -> bool:
+        """As medidas do Estado empresário: não mexem em imposto, em valor do eleitor nem na fila de gasto."""
+        return self.is_state_company or self is MeasureKind.CONTRIBUTE_SOVEREIGN_FUND
 
 
 class EffectPhase(Enum):
@@ -1342,6 +1359,10 @@ class NewsType(Enum):
     STATE_CONTROL_IN_FORCE = "STATE_CONTROL_IN_FORCE"
     STATE_CONTROL_RELEASED = "STATE_CONTROL_RELEASED"
     STATE_DIVIDEND_POLICY_CHANGED = "STATE_DIVIDEND_POLICY_CHANGED"
+    SOVEREIGN_FUND_FUNDED = "SOVEREIGN_FUND_FUNDED"
+    SOVEREIGN_FUND_BOUGHT = "SOVEREIGN_FUND_BOUGHT"
+    SOVEREIGN_FUND_SOLD = "SOVEREIGN_FUND_SOLD"
+    SOVEREIGN_FUND_FAVORITISM = "SOVEREIGN_FUND_FAVORITISM"
 
 
 class NewsLevel(Enum):

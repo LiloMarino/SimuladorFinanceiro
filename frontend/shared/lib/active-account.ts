@@ -1,4 +1,6 @@
-import type { FundAccount } from "@/types";
+import type { FundAccount, SimulationInfo } from "@/types";
+
+type MatchFlags = Pick<NonNullable<SimulationInfo["simulation"]>, "funds_enabled" | "government_enabled">;
 
 /** O cabeçalho que diz ao servidor por qual conta a ordem sai; a conta pessoal não o envia. */
 const ACCOUNT_HEADER = "X-Account";
@@ -42,6 +44,14 @@ export function subscribeActiveAccount(listener: () => void) {
     listeners.delete(listener);
   };
 }
+
+/** Há mais de uma conta para escolher: as gestoras (expansão Gestoras) ou o Fundo Soberano do presidente (expansão Governo). */
+export const hasAccountChoice = (match: MatchFlags | null | undefined) =>
+  match?.funds_enabled === true || match?.government_enabled === true;
+
+/** O Fundo Soberano é a conta do presidente; as demais contas com id são gestoras. */
+export const isSovereignAccount = (account: Pick<FundAccount, "role"> | null | undefined) =>
+  account?.role === "president";
 
 /**
  * A conta em uso: a escolhida, se ainda está na lista; senão a pessoal.

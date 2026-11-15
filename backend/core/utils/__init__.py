@@ -26,6 +26,13 @@ def format_money(value: Decimal) -> str:
     return "R$ " + f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
+def format_billions(value: Decimal) -> str:
+    """Valor grande em bilhões: R$ 25 bi, R$ 2,5 bi; abaixo de 1 bi vai em milhões (R$ 800 mi)."""
+    if abs(value) >= Decimal(10) ** 9:
+        return f"R$ {format_quantity((value / Decimal(10) ** 9).quantize(Decimal('0.1')))} bi"
+    return f"R$ {format_quantity((value / Decimal(10) ** 6).quantize(Decimal('1')))} mi"
+
+
 def format_quantity(value: Decimal) -> str:
     """Quantidade sem zeros à direita nem expoente: 35, 0,005."""
     text = format(value.normalize(), "f")

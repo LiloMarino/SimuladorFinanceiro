@@ -20,6 +20,7 @@ from backend.core.repository.settings import SettingsRepository
 from backend.core.repository.simulation import SimulationRepository
 from backend.core.repository.simulation_player import SimulationPlayerRepository
 from backend.core.repository.snapshot import SnapshotRepository
+from backend.core.repository.sovereign_fund import SovereignFundRepository
 from backend.core.repository.state_company import StateCompanyRepository
 from backend.core.repository.statistics import StatisticsRepository
 from backend.core.repository.stock import StockRepository
@@ -52,4 +53,5 @@ strategy = StrategyRepository()
 candle_challenge = CandleChallengeRepository()
 summaries = SummaryRepository()
 news = NewsRepository()
+sovereign_fund = SovereignFundRepository()
 state_company = StateCompanyRepository()

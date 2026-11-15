@@ -19,7 +19,7 @@ import { KeyValueRow } from "@/shared/components/key-value-row";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { AccountOriginNotice } from "@/shared/components/account-origin-notice";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
-import { useTradeLock } from "@/shared/hooks/useTradeLock";
+import { useFixedIncomeLock } from "@/shared/hooks/useTradeLock";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { shareToField } from "@/shared/lib/utils/money-field";
@@ -64,7 +64,7 @@ export function SellDialog({ position, currentDate, onClose }: SellDialogProps) 
   const gross = all ? position.market_value : partString;
   const { data: latestQuote } = useTreasurySaleQuote(asset.asset_uuid, gross, currentDate);
   const sell = useSellTreasury(asset.asset_uuid);
-  const tradeLock = useTradeLock();
+  const tradeLock = useFixedIncomeLock();
   // Com uma gestora ativa a ordem sai do caixa dela
   const { fund } = useActiveAccount();
 

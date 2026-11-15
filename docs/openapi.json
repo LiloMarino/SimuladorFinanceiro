@@ -322,10 +322,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "requestBody": {
@@ -406,10 +406,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "requestBody": {
@@ -540,10 +540,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "requestBody": {
@@ -800,10 +800,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -876,10 +876,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "requestBody": {
@@ -973,10 +973,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -1049,10 +1049,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "requestBody": {
@@ -1207,10 +1207,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -1306,10 +1306,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -1383,10 +1383,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "requestBody": {
@@ -1453,10 +1453,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -1520,10 +1520,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -1591,10 +1591,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -1658,10 +1658,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -1734,10 +1734,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador.",
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
               "title": "X-Account"
             },
-            "description": "Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -8303,6 +8303,110 @@
         "responses": {
           "204": {
             "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/sovereign-fund": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter o Fundo Soberano",
+        "description": "Retorna o caixa do fundo, o que o Tesouro aportou e o que voltou a ele (vendas e dividendos), o teto de fatia por empresa e por gestora e a carteira com a fatia de cada ativo. A sala inteira lê; `is_president` diz a quem a conta do fundo se abre. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+        "operationId": "get_sovereign_fund_api_government_sovereign_fund_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SovereignFundPanelDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/sovereign-fund/contribution-preview": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Simular um aporte no Fundo Soberano",
+        "description": "Só o presidente simula. Retorna a medida de aportar (voto, vigência e efeito na dívida) e o caixa do fundo antes e depois. O aporte não move o PIB. Para propor, use a medida `CONTRIBUTE_SOVEREIGN_FUND` com o valor em reais.",
+        "operationId": "preview_sovereign_contribution_api_government_sovereign_fund_contribution_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SovereignContributionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SovereignContributionPreviewDTO"
+                }
+              }
+            }
           },
           "422": {
             "description": "Unprocessable Content",
@@ -22209,7 +22313,8 @@
                 "type": "string",
                 "enum": [
                   "manager",
-                  "comanager"
+                  "comanager",
+                  "president"
                 ]
               },
               {
@@ -22231,7 +22336,7 @@
           "role"
         ],
         "title": "FundAccountDTO",
-        "description": "Uma conta com que o jogador opera: a pessoal (sem gestora) ou uma gestora que ele gere."
+        "description": "Uma conta com que o jogador opera: a pessoal (sem gestora), uma gestora que ele gere ou, ao presidente, o Fundo Soberano."
       },
       "FundAssemblyBlock": {
         "type": "string",
@@ -29695,7 +29800,8 @@
           "PUBLIC_WORKS",
           "OPERATING_COST",
           "FOUND_STATE_COMPANY",
-          "PRIVATIZE_STATE_COMPANY"
+          "PRIVATIZE_STATE_COMPANY",
+          "CONTRIBUTE_SOVEREIGN_FUND"
         ],
         "title": "MeasureKind",
         "description": "O que uma medida muda: um imposto geral, a regra de um setor ou segmento ou um gasto público."
@@ -30500,7 +30606,11 @@
           "STATE_PRIVATIZATION_CLOSED",
           "STATE_CONTROL_IN_FORCE",
           "STATE_CONTROL_RELEASED",
-          "STATE_DIVIDEND_POLICY_CHANGED"
+          "STATE_DIVIDEND_POLICY_CHANGED",
+          "SOVEREIGN_FUND_FUNDED",
+          "SOVEREIGN_FUND_BOUGHT",
+          "SOVEREIGN_FUND_SOLD",
+          "SOVEREIGN_FUND_FAVORITISM"
         ],
         "title": "NewsType",
         "description": "Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro."
@@ -31007,6 +31117,16 @@
               }
             ],
             "title": "Tax Due Date"
+          },
+          "sovereign": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SovereignOrderPreviewDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -31026,7 +31146,8 @@
           "tax",
           "month_sales_after",
           "exemption_limit",
-          "tax_due_date"
+          "tax_due_date",
+          "sovereign"
         ],
         "title": "OrderPreviewDTO",
         "description": "O que uma ordem faria se executasse agora, para a boleta mostrar antes do envio."
@@ -38629,6 +38750,252 @@
           "snapshot"
         ],
         "title": "SnapshotUpdateEventDTO"
+      },
+      "SovereignContributionPreviewDTO": {
+        "properties": {
+          "measure": {
+            "$ref": "#/components/schemas/MeasurePreviewDTO"
+          },
+          "cash_before": {
+            "type": "string",
+            "title": "Cash Before"
+          },
+          "cash_after": {
+            "type": "string",
+            "title": "Cash After"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "measure",
+          "cash_before",
+          "cash_after"
+        ],
+        "title": "SovereignContributionPreviewDTO",
+        "description": "O que o aporte faria: a medida (voto, vigência e dívida) e o caixa do fundo antes e depois."
+      },
+      "SovereignContributionRequest": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value"
+        ],
+        "title": "SovereignContributionRequest",
+        "description": "O aporte que o presidente simula, em reais."
+      },
+      "SovereignFundPanelDTO": {
+        "properties": {
+          "is_president": {
+            "type": "boolean",
+            "title": "Is President"
+          },
+          "cash": {
+            "type": "string",
+            "title": "Cash"
+          },
+          "contributed": {
+            "type": "string",
+            "title": "Contributed"
+          },
+          "returned": {
+            "type": "string",
+            "title": "Returned"
+          },
+          "ceiling": {
+            "type": "string",
+            "title": "Ceiling"
+          },
+          "invested": {
+            "type": "string",
+            "title": "Invested"
+          },
+          "positions": {
+            "items": {
+              "$ref": "#/components/schemas/SovereignPositionDTO"
+            },
+            "type": "array",
+            "title": "Positions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "is_president",
+          "cash",
+          "contributed",
+          "returned",
+          "ceiling",
+          "invested",
+          "positions"
+        ],
+        "title": "SovereignFundPanelDTO",
+        "description": "O Fundo Soberano como a sala vê: caixa, carteira e o que já foi e voltou do Tesouro."
+      },
+      "SovereignOrderPreviewDTO": {
+        "properties": {
+          "issuer": {
+            "type": "string",
+            "title": "Issuer"
+          },
+          "is_fund": {
+            "type": "boolean",
+            "title": "Is Fund"
+          },
+          "stake_before": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stake Before"
+          },
+          "stake_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stake After"
+          },
+          "ceiling": {
+            "type": "string",
+            "title": "Ceiling"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room"
+          },
+          "allied": {
+            "type": "boolean",
+            "title": "Allied"
+          },
+          "refusal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refusal"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "issuer",
+          "is_fund",
+          "stake_before",
+          "stake_after",
+          "ceiling",
+          "room",
+          "allied",
+          "refusal"
+        ],
+        "title": "SovereignOrderPreviewDTO",
+        "description": "O que a compra pelo Fundo Soberano muda na fatia da empresa ou da gestora, para a boleta do fundo."
+      },
+      "SovereignPositionDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "is_fund": {
+            "type": "boolean",
+            "title": "Is Fund"
+          },
+          "size": {
+            "type": "string",
+            "title": "Size"
+          },
+          "avg_price": {
+            "type": "string",
+            "title": "Avg Price"
+          },
+          "current_price": {
+            "type": "string",
+            "title": "Current Price"
+          },
+          "current_value": {
+            "type": "string",
+            "title": "Current Value"
+          },
+          "return_value": {
+            "type": "string",
+            "title": "Return Value"
+          },
+          "stake": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stake"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "name",
+          "is_fund",
+          "size",
+          "avg_price",
+          "current_price",
+          "current_value",
+          "return_value",
+          "stake",
+          "room"
+        ],
+        "title": "SovereignPositionDTO",
+        "description": "Um ativo na carteira do fundo, com a fatia que ele tem da empresa ou da gestora."
       },
       "SpeedUpdateEventDTO": {
         "properties": {

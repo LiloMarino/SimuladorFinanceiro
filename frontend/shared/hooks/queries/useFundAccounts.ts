@@ -4,7 +4,7 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { FundAccount } from "@/types";
 
-/** As contas com que o jogador opera: a pessoal primeiro e depois cada gestora que ele gere. Só existe com a expansão Gestoras ligada. */
+/** As contas com que o jogador opera: a pessoal primeiro e depois cada gestora que ele gere. Só existe com Gestoras ou Governo ligados: o presidente também opera o Fundo Soberano. */
 export function useFundAccounts({ enabled = true }: { enabled?: boolean } = {}) {
   const queryClient = useQueryClient();
 

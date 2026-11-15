@@ -2808,6 +2808,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/government/sovereign-fund": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter o Fundo Soberano
+         * @description Retorna o caixa do fundo, o que o Tesouro aportou e o que voltou a ele (vendas e dividendos), o teto de fatia por empresa e por gestora e a carteira com a fatia de cada ativo. A sala inteira lê; `is_president` diz a quem a conta do fundo se abre. Recusa com 409 quando a partida não usa a expansão Governo & Política.
+         */
+        get: operations["get_sovereign_fund_api_government_sovereign_fund_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/sovereign-fund/contribution-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simular um aporte no Fundo Soberano
+         * @description Só o presidente simula. Retorna a medida de aportar (voto, vigência e efeito na dívida) e o caixa do fundo antes e depois. O aporte não move o PIB. Para propor, use a medida `CONTRIBUTE_SOVEREIGN_FUND` com o valor em reais.
+         */
+        post: operations["preview_sovereign_contribution_api_government_sovereign_fund_contribution_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/funds": {
         parameters: {
             query?: never;
@@ -7552,7 +7592,7 @@ export interface components {
         };
         /**
          * FundAccountDTO
-         * @description Uma conta com que o jogador opera: a pessoal (sem gestora) ou uma gestora que ele gere.
+         * @description Uma conta com que o jogador opera: a pessoal (sem gestora), uma gestora que ele gere ou, ao presidente, o Fundo Soberano.
          */
         FundAccountDTO: {
             /** Fund Id */
@@ -7568,7 +7608,7 @@ export interface components {
             /** Eliminated On */
             eliminated_on: string | null;
             /** Role */
-            role: ("manager" | "comanager") | null;
+            role: ("manager" | "comanager" | "president") | null;
         };
         /** @enum {string} */
         FundAssemblyBlock: "share" | "interval" | "pending" | "manager" | "unlisted" | "grace";
@@ -10077,7 +10117,7 @@ export interface components {
          * @description O que uma medida muda: um imposto geral, a regra de um setor ou segmento ou um gasto público.
          * @enum {string}
          */
-        MeasureKind: "STOCK_PROFIT_RATE" | "DAY_TRADE_RATE" | "STOCK_EXEMPTION" | "FIXED_INCOME_TABLE" | "LCI_LCA_RATE" | "CONSUMPTION_TAX_RATE" | "CORPORATE_INCOME_TAX_RATE" | "PERSONAL_INCOME_TAX_RATE" | "PAYROLL_TAX_RATE" | "SECTOR_EXEMPT" | "SECTOR_TAX" | "WELFARE_SPENDING" | "SERVANT_RAISE" | "RETIREE_RAISE" | "PUBLIC_WORKS" | "OPERATING_COST" | "FOUND_STATE_COMPANY" | "PRIVATIZE_STATE_COMPANY";
+        MeasureKind: "STOCK_PROFIT_RATE" | "DAY_TRADE_RATE" | "STOCK_EXEMPTION" | "FIXED_INCOME_TABLE" | "LCI_LCA_RATE" | "CONSUMPTION_TAX_RATE" | "CORPORATE_INCOME_TAX_RATE" | "PERSONAL_INCOME_TAX_RATE" | "PAYROLL_TAX_RATE" | "SECTOR_EXEMPT" | "SECTOR_TAX" | "WELFARE_SPENDING" | "SERVANT_RAISE" | "RETIREE_RAISE" | "PUBLIC_WORKS" | "OPERATING_COST" | "FOUND_STATE_COMPANY" | "PRIVATIZE_STATE_COMPANY" | "CONTRIBUTE_SOVEREIGN_FUND";
         /** MeasurePreviewDTO */
         MeasurePreviewDTO: {
             /** Title */
@@ -10358,7 +10398,7 @@ export interface components {
          * @description Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro.
          * @enum {string}
          */
-        NewsType: "ELECTION_CALENDAR" | "CAMPAIGN_OPENED" | "ELECTION_RESULT" | "CAMPAIGN_ACTION" | "NAMED_PROGRAM" | "PARTY_RUPTURE" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN" | "COPOM_DECISION" | "MONTHLY_INFLATION" | "IBOVESPA_EXTREME" | "STRONG_MOVE" | "WEEK_HIGH" | "HISTORICAL_MILESTONE" | "FUND_FEE_CHANGED" | "FUND_OFFER_OPENED" | "FUND_ISSUANCE_OPENED" | "FUND_ISSUANCE_CLOSED" | "FUND_BUYBACK_OPENED" | "FUND_ASSEMBLY_CALLED" | "FUND_ASSEMBLY_REPLACED" | "FUND_ASSEMBLY_KEPT" | "STATE_COMPANY_FOUNDED" | "STATE_PRIVATIZATION_OPENED" | "STATE_PRIVATIZATION_CLOSED" | "STATE_CONTROL_IN_FORCE" | "STATE_CONTROL_RELEASED" | "STATE_DIVIDEND_POLICY_CHANGED";
+        NewsType: "ELECTION_CALENDAR" | "CAMPAIGN_OPENED" | "ELECTION_RESULT" | "CAMPAIGN_ACTION" | "NAMED_PROGRAM" | "PARTY_RUPTURE" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN" | "COPOM_DECISION" | "MONTHLY_INFLATION" | "IBOVESPA_EXTREME" | "STRONG_MOVE" | "WEEK_HIGH" | "HISTORICAL_MILESTONE" | "FUND_FEE_CHANGED" | "FUND_OFFER_OPENED" | "FUND_ISSUANCE_OPENED" | "FUND_ISSUANCE_CLOSED" | "FUND_BUYBACK_OPENED" | "FUND_ASSEMBLY_CALLED" | "FUND_ASSEMBLY_REPLACED" | "FUND_ASSEMBLY_KEPT" | "STATE_COMPANY_FOUNDED" | "STATE_PRIVATIZATION_OPENED" | "STATE_PRIVATIZATION_CLOSED" | "STATE_CONTROL_IN_FORCE" | "STATE_CONTROL_RELEASED" | "STATE_DIVIDEND_POLICY_CHANGED" | "SOVEREIGN_FUND_FUNDED" | "SOVEREIGN_FUND_BOUGHT" | "SOVEREIGN_FUND_SOLD" | "SOVEREIGN_FUND_FAVORITISM";
         /** NewsTypeInfo */
         NewsTypeInfo: {
             type: components["schemas"]["NewsType"];
@@ -10554,6 +10594,7 @@ export interface components {
             exemption_limit: string;
             /** Tax Due Date */
             tax_due_date: string | null;
+            sovereign: components["schemas"]["SovereignOrderPreviewDTO"] | null;
         };
         /** OrderPreviewRequest */
         OrderPreviewRequest: {
@@ -13277,6 +13318,93 @@ export interface components {
             snapshot: components["schemas"]["PortfolioHistoryPointDTO"];
         };
         /**
+         * SovereignContributionPreviewDTO
+         * @description O que o aporte faria: a medida (voto, vigência e dívida) e o caixa do fundo antes e depois.
+         */
+        SovereignContributionPreviewDTO: {
+            measure: components["schemas"]["MeasurePreviewDTO"];
+            /** Cash Before */
+            cash_before: string;
+            /** Cash After */
+            cash_after: string;
+        };
+        /**
+         * SovereignContributionRequest
+         * @description O aporte que o presidente simula, em reais.
+         */
+        SovereignContributionRequest: {
+            /** Value */
+            value: number | string;
+        };
+        /**
+         * SovereignFundPanelDTO
+         * @description O Fundo Soberano como a sala vê: caixa, carteira e o que já foi e voltou do Tesouro.
+         */
+        SovereignFundPanelDTO: {
+            /** Is President */
+            is_president: boolean;
+            /** Cash */
+            cash: string;
+            /** Contributed */
+            contributed: string;
+            /** Returned */
+            returned: string;
+            /** Ceiling */
+            ceiling: string;
+            /** Invested */
+            invested: string;
+            /** Positions */
+            positions: components["schemas"]["SovereignPositionDTO"][];
+        };
+        /**
+         * SovereignOrderPreviewDTO
+         * @description O que a compra pelo Fundo Soberano muda na fatia da empresa ou da gestora, para a boleta do fundo.
+         */
+        SovereignOrderPreviewDTO: {
+            /** Issuer */
+            issuer: string;
+            /** Is Fund */
+            is_fund: boolean;
+            /** Stake Before */
+            stake_before: string | null;
+            /** Stake After */
+            stake_after: string | null;
+            /** Ceiling */
+            ceiling: string;
+            /** Room */
+            room: string | null;
+            /** Allied */
+            allied: boolean;
+            /** Refusal */
+            refusal: string | null;
+        };
+        /**
+         * SovereignPositionDTO
+         * @description Um ativo na carteira do fundo, com a fatia que ele tem da empresa ou da gestora.
+         */
+        SovereignPositionDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+            /** Is Fund */
+            is_fund: boolean;
+            /** Size */
+            size: string;
+            /** Avg Price */
+            avg_price: string;
+            /** Current Price */
+            current_price: string;
+            /** Current Value */
+            current_value: string;
+            /** Return Value */
+            return_value: string;
+            /** Stake */
+            stake: string | null;
+            /** Room */
+            room: string | null;
+        };
+        /**
          * SpeedUpdateEventDTO
          * @description Nova velocidade da partida; com ela parada (0), o motivo da pausa.
          */
@@ -15308,7 +15436,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path: {
@@ -15355,7 +15483,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path: {
@@ -15400,7 +15528,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path: {
@@ -15567,7 +15695,7 @@ export interface operations {
                 amount?: number | string;
             };
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path: {
@@ -15610,7 +15738,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path: {
@@ -15657,7 +15785,7 @@ export interface operations {
                 amount?: number | string;
             };
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path: {
@@ -15700,7 +15828,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path: {
@@ -15821,7 +15949,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path?: never;
@@ -15864,7 +15992,7 @@ export interface operations {
                 gross?: number | string;
             };
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path: {
@@ -15907,7 +16035,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path: {
@@ -15952,7 +16080,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path?: never;
@@ -15993,7 +16121,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path?: never;
@@ -16034,7 +16162,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path?: never;
@@ -16075,7 +16203,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path?: never;
@@ -16116,7 +16244,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
-                /** @description Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador. */
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
                 "x-account"?: number | null;
             };
             path: {
@@ -21149,6 +21277,86 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_sovereign_fund_api_government_sovereign_fund_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SovereignFundPanelDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_sovereign_contribution_api_government_sovereign_fund_contribution_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SovereignContributionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SovereignContributionPreviewDTO"];
+                };
             };
             /** @description Unprocessable Content */
             422: {

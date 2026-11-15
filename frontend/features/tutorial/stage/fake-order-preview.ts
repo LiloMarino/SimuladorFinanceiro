@@ -30,5 +30,6 @@ export function fakeOrderPreview(request: OrderPreviewRequest): OrderPreview {
     month_sales_after: null,
     exemption_limit: "20000.00",
     tax_due_date: null,
+    sovereign: null,
   };
 }

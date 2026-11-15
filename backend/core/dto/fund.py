@@ -509,8 +509,9 @@ class FundDetailsDTO(FundSummaryDTO):
 
 
 class FundAccountDTO(BaseDTO):
-    """Uma conta com que o jogador opera: a pessoal (sem gestora) ou uma gestora que ele gere."""
+    """Uma conta com que o jogador opera: a pessoal (sem gestora), uma gestora que ele gere ou, ao presidente, o Fundo Soberano."""
 
+    # O id da gestora; o Fundo Soberano tem o id 0, que nenhuma gestora usa
     fund_id: int | None
     name: str
     ticker: str | None
@@ -519,8 +520,8 @@ class FundAccountDTO(BaseDTO):
     # O dia em que o jogador perdeu a assembleia da própria gestora e passou a só assistir;
     # nulo nas gestoras e para quem segue na partida
     eliminated_on: date | None = None
-    # O papel do jogador na gestora; nulo na conta pessoal
-    role: Literal["manager", "comanager"] | None
+    # O papel do jogador na conta; nulo na conta pessoal
+    role: Literal["manager", "comanager", "president"] | None
 
 
 class FundTickerCheckDTO(BaseDTO):

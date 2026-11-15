@@ -212,6 +212,19 @@ O auxílio e as obras aceitam um **nome de programa** (até 30 caracteres, opcio
 
 Antes de enviar, o diálogo mostra a **prévia**: o que a medida faz na carteira de cada jogador e o efeito esperado na aprovação. Só pode haver uma medida igual na fila por vez, e o presidente pode retirar uma medida enquanto ela espera a votação.
 
+### O Fundo Soberano
+
+O Fundo Soberano é a carteira do governo na bolsa. Ele pertence ao **cargo** de presidente: o caixa, as posições e o histórico seguem com quem governa, e quem assume depois de uma eleição ou de um impeachment recebe o fundo como está.
+
+- **O aporte passa pelo Congresso.** O fundo nasce sem dinheiro e só recebe o que uma medida de **aportar no Fundo Soberano** aprovada manda para o caixa dele, de R$ 1 a R$ 500 bi por medida. Sem aporte aprovado o fundo não compra nada. O aporte aumenta a dívida pública (a prévia mostra a dívida e a dívida/PIB antes e depois), e o PIB **não muda**: o dinheiro sai do Tesouro para o caixa do fundo e não vira consumo.
+- **O presidente escolhe cada compra.** Ele troca o caixa da barra de cima para **Fundo Soberano**, uma faixa avisa que as ordens saem do fundo, e compra e vende na Renda Variável de sempre. A ordem passa pelo livro de ofertas e mexe no preço como qualquer outra. O fundo compra **ações** (inclusive as estatais) e **cotas de gestora**; renda fixa e Tesouro Direto ficam fora.
+- **O teto é de 20%.** O fundo nunca passa de 20% das ações de uma empresa nem de 20% das cotas de uma gestora. Ex.: numa empresa com 1.000 ações, o fundo chega a 200; a ordem que passaria disso é recusada com o tanto que ainda cabe, e as ordens abertas de compra contam no teto. Ação sem o número de ações em circulação não entra: o fundo não a compra.
+- **Venda e dividendos voltam ao Tesouro.** O que o fundo vende e os dividendos que recebe saem do caixa dele no mesmo dia e abatem a dívida pública. O caixa só cresce com aporte.
+- **Favorecimento tem custo.** Comprar cotas de uma gestora cujo gestor é do partido do presidente ou de um partido da base dá manchete de favorecimento e soma rejeição ao partido do governo em todos os grupos de eleitores, proporcional à fatia que o fundo ganhou: cada 6% de fatia custam 1 ponto de rejeição. Ex.: comprar 12% das cotas de uma gestora aliada soma 2 pontos; comprar em duas vezes de 6% soma os mesmos 2 pontos.
+- **Tudo vai ao jornal.** Cada compra e venda do fundo vira manchete, com o ativo e o valor.
+
+Quem não é presidente lê a carteira do fundo, o que o Tesouro aportou e o que voltou a ele, na aba **Estatais e Fundo**.
+
 ### A economia interligada
 
 Na partida com governo, a economia é a história real mais o que o governo mudou. O jogo calcula duas economias lado a lado: a da partida, com as medidas aprovadas, e a da história, com os impostos e o gasto padrão. A diferença entre as duas mexe nas séries por dez ligações. Sem nenhuma medida, as duas são iguais e a partida segue a história exata.
@@ -313,7 +326,7 @@ Com o pedido aprovado, o presidente sofre o impeachment. Quem assume é o **vice
 
 ### A carteira do presidente
 
-Enquanto governa, o presidente **não compra nem vende**: a carteira fica congelada até o fim do mandato, e a boleta mostra o aviso. A carteira é **pública**: todos os jogadores veem os ativos que o presidente tem e a fatia de cada um, para que ninguém governe em causa própria sem a sala saber. A prévia de uma medida setorial também mostra quanto cada jogador tem naquele setor.
+Enquanto governa, o presidente **não compra nem vende**: a carteira fica congelada até o fim do mandato, e a boleta mostra o aviso. A única conta em que ele opera é a do [Fundo Soberano](#o-fundo-soberano). A carteira é **pública**: todos os jogadores veem os ativos que o presidente tem e a fatia de cada um, para que ninguém governe em causa própria sem a sala saber. A prévia de uma medida setorial também mostra quanto cada jogador tem naquele setor.
 
 ### O que o presidente ganha
 

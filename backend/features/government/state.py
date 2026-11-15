@@ -1026,6 +1026,8 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             _apply_state_order(state, p)
         case Event.STATE_ORDERS_IN_FORCE:
             state.state_order_history[_next_month_start(day)] = dict(state.state_orders)
+        case Event.SOVEREIGN_FAVORITISM:
+            _apply_sovereign_favoritism(state, p)
         case Event.FEDERATION_PROPOSED:
             _apply_federation_proposed(state, event)
         case Event.FEDERATION_WITHDRAWN:
@@ -1044,6 +1046,17 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
 
 def _next_month_start(day: date) -> date:
     return (day.replace(day=1) + timedelta(days=32)).replace(day=1)
+
+
+def _apply_sovereign_favoritism(state: GovernmentState, p: dict[str, object]) -> None:
+    """A compra de gestora aliada soma os pontos de rejeição ao partido que governa, em todos os grupos."""
+    term = state.term
+    party = state.parties.get(term.party_id) if term and term.party_id else None
+    if party is None:
+        return
+    points = _money(p, "points")
+    for group in VoterGroup:
+        party.rejection[group] = voters.add_rejection(party.rejection[group], points)
 
 
 def _apply_state_order(state: GovernmentState, p: dict[str, object]) -> None:

@@ -18,10 +18,15 @@ import type { SpendingKind } from "@/shared/lib/spending-kinds";
 
 const MINUS = "−";
 
-/** As medidas das estatais têm diálogo próprio; as gerais são as de imposto e tabela. */
+/** As medidas das estatais e do Fundo Soberano têm diálogo próprio; as gerais são as de imposto e tabela. */
 export type GeneralKind = Exclude<
   MeasureKind,
-  "SECTOR_EXEMPT" | "SECTOR_TAX" | "FOUND_STATE_COMPANY" | "PRIVATIZE_STATE_COMPANY" | SpendingKind
+  | "SECTOR_EXEMPT"
+  | "SECTOR_TAX"
+  | "FOUND_STATE_COMPANY"
+  | "PRIVATIZE_STATE_COMPANY"
+  | "CONTRIBUTE_SOVEREIGN_FUND"
+  | SpendingKind
 >;
 
 export const GENERAL_KINDS = [

@@ -32,6 +32,7 @@ from backend.routes.presets import presets_router
 from backend.routes.realtime import realtime_router
 from backend.routes.settings import settings_router
 from backend.routes.simulation import simulation_router
+from backend.routes.sovereign_fund import sovereign_fund_router
 from backend.routes.state_companies import state_companies_router
 from backend.routes.statistics import statistics_router
 from backend.routes.strategy import strategy_router
@@ -62,6 +63,7 @@ def register_routes(app: FastAPI):
     app.include_router(credit_router, responses=ERROR_RESPONSES)
     app.include_router(government_router, responses=ERROR_RESPONSES)
     app.include_router(state_companies_router, responses=ERROR_RESPONSES)
+    app.include_router(sovereign_fund_router, responses=ERROR_RESPONSES)
     app.include_router(funds_router, responses=ERROR_RESPONSES)
     app.include_router(strategy_router, responses=ERROR_RESPONSES)
     app.include_router(simulation_router, responses=ERROR_RESPONSES)

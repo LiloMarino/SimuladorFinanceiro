@@ -508,3 +508,23 @@ export const EXPECTED_DIVIDEND: MetricInfo = {
     "Quanto maior, mais a empresa ajuda a pagar a dívida da fundação. Segurar o preço ou reinvestir reduz o número; espremer aumenta.",
   format: (value) => displayMoneyLarge(value),
 };
+
+export const FUND_STAKE: MetricInfo = {
+  label: "Fatia do fundo",
+  description: "Que parte da empresa ou da gestora o Fundo Soberano tem",
+  definition:
+    "É o que o fundo guarda do ativo dividido por tudo o que existe em circulação dele (ações da empresa ou cotas da gestora).",
+  example: "Ex.: se a empresa tem 1.000 ações e o fundo tem 150, a fatia é 150 ÷ 1.000 = 15%.",
+  reading:
+    "O teto é 20%: acima disso o fundo não compra mais. Em gestora de aliado, cada 6% de fatia ganha soma 1 ponto de rejeição ao partido do governo.",
+  format: (value) => displayPercent(value, 1),
+};
+
+export const FUND_ROOM: MetricInfo = {
+  label: "Folga até o teto",
+  description: "Quantos papéis o fundo ainda pode comprar",
+  definition: "É quanto falta para a fatia do fundo chegar a 20% do ativo, em ações ou cotas.",
+  example: "Ex.: com 1.000 ações em circulação e 150 no fundo, o teto é 200 e a folga é 50 ações.",
+  reading: "Zerada, o fundo só vende. Fica vazia quando o número de ações da empresa é desconhecido.",
+  format: (value) => String(value),
+};

@@ -14,9 +14,9 @@ def get_acting_client_id(
     x_account: Annotated[
         int | None,
         Header(
-            description="Id da gestora cuja conta opera o mercado; ausente, opera a conta do jogador."
+            description="Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
         ),
     ] = None,
 ) -> UUID:
-    """O client_id que opera: o do jogador, ou o da gestora que ele gere (header X-Account)."""
+    """O client_id que opera: o do jogador, o da gestora que ele gere ou o do Fundo Soberano, se governa (header X-Account)."""
     return simulation.acting_client(client_id, x_account)

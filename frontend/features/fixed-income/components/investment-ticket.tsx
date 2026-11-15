@@ -4,7 +4,7 @@ import { addDays, format } from "date-fns";
 import { CircleCheck } from "lucide-react";
 import { AccountOriginNotice } from "@/shared/components/account-origin-notice";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
-import { useTradeLock } from "@/shared/hooks/useTradeLock";
+import { useFixedIncomeLock } from "@/shared/hooks/useTradeLock";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { cn } from "@/shared/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
@@ -54,7 +54,7 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
 
   const invest = useBuyFixedIncome(assetId);
   // Com o automático ligado a boleta fica só para leitura
-  const tradeLock = useTradeLock();
+  const tradeLock = useFixedIncomeLock();
   const locked = tradeLock !== null;
   // Com uma gestora ativa a ordem sai do caixa dela
   const { fund } = useActiveAccount();

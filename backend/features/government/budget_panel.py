@@ -136,7 +136,7 @@ def current_result(course: BudgetCourse, today: date) -> Decimal:
 
 
 def _row_of(rows: Iterable[TaxRow], measure: Measure) -> TaxRow | None:
-    if measure.kind.is_spending or measure.kind.is_state_company:
+    if measure.kind.is_spending or measure.kind.is_state_measure:
         return None
     if measure.kind.is_sector:
         name = f"{measure.segment or measure.sector} · setor"

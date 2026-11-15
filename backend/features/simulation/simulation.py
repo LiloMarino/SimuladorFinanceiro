@@ -6,7 +6,7 @@ import threading
 from collections.abc import Callable
 from dataclasses import replace
 from datetime import UTC, date, datetime, timedelta
-from decimal import Decimal
+from decimal import ROUND_FLOOR, Decimal
 from functools import wraps
 from typing import Concatenate, Literal, ParamSpec, TypeVar
 from uuid import UUID
@@ -80,7 +80,7 @@ from backend.core.dto.life import (
     LifeStatusDTO,
 )
 from backend.core.dto.order import OrderDTO
-from backend.core.dto.order_preview import OrderPreviewDTO
+from backend.core.dto.order_preview import OrderPreviewDTO, SovereignOrderPreviewDTO
 from backend.core.dto.patrimonial_history import (
     PatrimonialHistoryDTO,
     PortfolioHistoryPointDTO,
@@ -90,6 +90,11 @@ from backend.core.dto.position import PositionDTO
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.snapshot import DayBalanceDTO, SnapshotDTO
+from backend.core.dto.sovereign_fund import (
+    SovereignContributionPreviewDTO,
+    SovereignContributionRequest,
+    SovereignFundPanelDTO,
+)
 from backend.core.dto.state_company import (
     FoundStateCompanyRequest,
     StateCompaniesPanelDTO,
@@ -271,6 +276,9 @@ from backend.features.simulation.life_history import (
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.simulation.simulation_loop import simulation_controller
+from backend.features.sovereign_fund import headlines as fund_headlines
+from backend.features.sovereign_fund import rules as fund_rules
+from backend.features.sovereign_fund.book import FundQuotas
 from backend.features.statistics.cache import ReportCache
 from backend.features.statistics.goal import goal_on, goal_reached
 from backend.features.strategy.runner import StrategyRunner
@@ -435,6 +443,8 @@ class Simulation:
                 self._macro,
                 self._government_changed,
                 repository.state_company.of_simulation(settings.id),
+                repository.sovereign_fund.ensure(settings.id),
+                repository.sovereign_fund.flows(settings.id),
             )
             if settings.government_enabled and backtest is None
             else None
@@ -461,9 +471,11 @@ class Simulation:
             if settings.funds_enabled and backtest is None
             else None
         )
-        # O caixa da gestora chega, pelo tempo real, ao gestor que a gere
+        # O caixa da gestora chega, pelo tempo real, ao gestor que a gere; o do Fundo Soberano, ao presidente
+        self._engine.use_account_route(self._account_route)
+        if self._government is not None:
+            self._government.use_fund_lookup(self._fund_quotas_of)
         if self._funds is not None:
-            self._engine.use_account_route(self._funds.audience_of)
             # Toda captação de gestora paga a comissão aos Banqueiros de ofertas da partida
             self._engine.use_offer_bankers(self._bankers_of_offers)
 
@@ -552,6 +564,7 @@ class Simulation:
         # A compra por valor ganha a quantidade com o book de agora, no mesmo lock da execução
         if isinstance(order, MarketOrder) and order.budget is not None:
             self._engine.size_budget_order(order)
+        self._ensure_sovereign_order(order)
         self._engine.check_quantity(order.ticker, order.size)
         try:
             self._engine.matching_engine.submit(order)
@@ -584,6 +597,7 @@ class Simulation:
         self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal
     ) -> None:
         self._ensure_can_operate(client_id)
+        self._ensure_not_sovereign(client_id)
         self._engine.fixed_broker.buy(client_id, asset, value)
         EventManager.flush()
 
@@ -592,6 +606,7 @@ class Simulation:
         self, client_id: UUID, asset: FixedIncomeAssetDTO, net_amount: Decimal
     ) -> None:
         self._ensure_can_operate(client_id)
+        self._ensure_not_sovereign(client_id)
         self._engine.fixed_broker.redeem(client_id, asset, net_amount)
         EventManager.flush()
 
@@ -1011,6 +1026,18 @@ class Simulation:
         )
 
     @synchronized
+    def get_sovereign_fund(self, user: UserDTO) -> SovereignFundPanelDTO:
+        return self._ensure_government().sovereign_panel(user)
+
+    @synchronized
+    def preview_sovereign_contribution(
+        self, user: UserDTO, request: SovereignContributionRequest
+    ) -> SovereignContributionPreviewDTO:
+        return self._ensure_government().sovereign_contribution_preview(
+            user, self._current_date, request.value
+        )
+
+    @synchronized
     def set_state_order(
         self, user: UserDTO, ticker: str, request: StateOrderRequest
     ) -> None:
@@ -1052,9 +1079,11 @@ class Simulation:
 
     @synchronized
     def acting_client(self, client_id: UUID, fund_id: int | None) -> UUID:
-        """O client_id que opera no mercado: o do jogador, ou o da gestora que ele gere ou co-gere."""
+        """O client_id que opera no mercado: o do jogador, o da gestora que ele gere ou co-gere ou, ao presidente, o do Fundo Soberano."""
         if fund_id is None:
             return client_id
+        if fund_id == fund_rules.ACCOUNT_ID:
+            return self._acting_sovereign(client_id)
         book = self._ensure_funds()
         fund = book.by_id(fund_id)
         for user_id in book.operators(fund):
@@ -1073,10 +1102,126 @@ class Simulation:
             return fund.account.client_id
         raise ForbiddenError("Só quem gere a gestora opera a conta dela.")
 
+    def _fund_quotas_of(self, ticker: str) -> FundQuotas | None:
+        """A gestora dona da cota `ticker`: nome, cotas emitidas e sigla do partido do gestor; nulo se não é cota."""
+        if self._funds is None:
+            return None
+        try:
+            fund = self._funds.get(ticker)
+        except KeyError:
+            return None
+        return FundQuotas(
+            fund.terms.name,
+            fund.account.quotas,
+            self._party_of(fund.terms.manager_user_id),
+        )
+
+    def _ensure_sovereign_order(self, order: Order) -> None:
+        """A compra do Fundo Soberano é só de ação e cota de gestora, com número de papéis conhecido, até o teto de fatia e o caixa que o aporte deu."""
+        government = self._government
+        if government is None or order.action is not OrderAction.BUY:
+            return
+        client_id = government.sovereign_fund().client_id
+        if order.client_id != client_id:
+            return
+        asset_class = self._engine.asset_class(order.ticker)
+        if asset_class not in (AssetClass.STOCK, AssetClass.FUND):
+            raise ConflictError("O Fundo Soberano compra só ações e cotas de gestora.")
+        _, issued, _ = government.issued_of(order.ticker)
+        if not issued:
+            raise ConflictError(
+                "Sem o número de ações em circulação, o fundo não compra esta empresa."
+            )
+        held = self._fund_holding(client_id, order.ticker)
+        room = fund_rules.room(held, issued)
+        if order.size > room:
+            raise ConflictError(
+                f"O fundo não passa de {fund_rules.CEILING:.0%} do que existe: "
+                f"cabem mais {format_quantity(room.to_integral_value(ROUND_FLOOR))} "
+                "dessa compra."
+            )
+
+    def _fund_holding(self, client_id: UUID, ticker: str) -> Decimal:
+        """O que a conta do fundo tem do ativo contando as ordens abertas de compra: é a base do teto de fatia."""
+        position = self._engine.broker.get_positions(client_id).get(ticker)
+        resting = sum(
+            (
+                open_order.remaining
+                for open_order in self._engine.matching_engine.order_book.orders_of(
+                    client_id
+                )
+                if open_order.ticker == ticker and open_order.action is OrderAction.BUY
+            ),
+            Decimal(0),
+        )
+        return (position.size if position is not None else Decimal(0)) + resting
+
+    def _sovereign_preview(
+        self, client_id: UUID, ticker: str, quantity: Decimal
+    ) -> SovereignOrderPreviewDTO | None:
+        """A fatia do fundo no ativo antes e depois da compra, o que cabe sob o teto e o que impede a compra; nulo fora da conta do fundo."""
+        government = self._government
+        if government is None or client_id != government.sovereign_fund().client_id:
+            return None
+        name, issued, is_fund = government.issued_of(ticker)
+        asset_class = self._engine.asset_class(ticker)
+        refusal = None
+        if asset_class not in (AssetClass.STOCK, AssetClass.FUND):
+            refusal = "O Fundo Soberano compra só ações e cotas de gestora."
+        elif not issued:
+            refusal = (
+                "Sem o número de ações em circulação, o fundo não compra esta empresa."
+            )
+        held = self._fund_holding(client_id, ticker)
+        return SovereignOrderPreviewDTO(
+            issuer=name,
+            is_fund=is_fund,
+            stake_before=fund_rules.stake(held, issued) if issued else None,
+            stake_after=fund_rules.stake(held + quantity, issued) if issued else None,
+            ceiling=fund_rules.CEILING,
+            room=fund_rules.room(held, issued) if issued else None,
+            allied=government.is_allied_manager(ticker, self._current_date),
+            refusal=refusal,
+        )
+
+    def _ensure_not_sovereign(self, client_id: UUID) -> None:
+        """O Fundo Soberano não tem renda fixa nem Tesouro Direto."""
+        government = self._government
+        if (
+            government is not None
+            and client_id == government.sovereign_fund().client_id
+        ):
+            raise ConflictError("O Fundo Soberano compra só ações e cotas de gestora.")
+
+    def _acting_sovereign(self, client_id: UUID) -> UUID:
+        """O Fundo Soberano é do cargo: só o presidente em exercício opera a conta dele."""
+        government = self._ensure_government()
+        president = government.president()
+        if (
+            president is None
+            or president.client_id != client_id
+            or not government.governs()
+        ):
+            raise ForbiddenError("Só o presidente em exercício opera o Fundo Soberano.")
+        return government.sovereign_fund().client_id
+
+    def _account_route(self, client_id: UUID) -> tuple[tuple[UUID, ...], int] | None:
+        """Quem recebe o tempo real de uma conta de gestora ou do Fundo Soberano; nulo nas demais."""
+        government = self._government
+        if government is not None and (
+            client_id == government.sovereign_fund().client_id
+        ):
+            president = government.president()
+            audience = () if president is None else (president.client_id,)
+            return audience, fund_rules.ACCOUNT_ID
+        return self._funds.audience_of(client_id) if self._funds is not None else None
+
     @synchronized
     def get_fund_accounts(self, user: UserDTO) -> list[FundAccountDTO]:
-        """As contas do jogador: a pessoal e depois cada gestora que ele gere ou co-gere."""
-        book = self._ensure_funds()
+        """As contas do jogador: a pessoal, cada gestora que ele gere ou co-gere e, ao presidente, o Fundo Soberano."""
+        book = self._funds
+        if book is None and self._government is None:
+            book = self._ensure_funds()
         accounts = [
             FundAccountDTO(
                 fund_id=None,
@@ -1084,11 +1229,27 @@ class Simulation:
                 ticker=None,
                 cash=self._engine.get_cash(user.client_id),
                 frozen_until=self._manager_frozen_until(user.id),
-                eliminated_on=book.eliminated.get(user.id),
+                eliminated_on=book.eliminated.get(user.id) if book else None,
                 role=None,
             )
         ]
-        for fund in book.operated_by(user.id):
+        government = self._government
+        if government is not None:
+            president = government.president()
+            if president is not None and president.id == user.id:
+                accounts.append(
+                    FundAccountDTO(
+                        fund_id=fund_rules.ACCOUNT_ID,
+                        name=fund_headlines.FUND,
+                        ticker=None,
+                        cash=self._engine.get_cash(
+                            government.sovereign_fund().client_id
+                        ),
+                        frozen_until=None,
+                        role="president",
+                    )
+                )
+        for fund in book.operated_by(user.id) if book is not None else []:
             is_manager = fund.terms.manager_user_id == user.id
             accounts.append(
                 FundAccountDTO(
@@ -1097,7 +1258,7 @@ class Simulation:
                     ticker=fund.ticker,
                     cash=self._engine.get_cash(fund.account.client_id),
                     # O co-gestor que governa congela com o país, o principal com a gestora
-                    frozen_until=book.frozen_until(fund)
+                    frozen_until=required(book).frozen_until(fund)
                     if is_manager
                     else self._manager_frozen_until(user.id),
                     role="manager" if is_manager else "comanager",
@@ -1863,6 +2024,7 @@ class Simulation:
         self, client_id: UUID, asset_uuid: UUID, gross: Decimal | None
     ) -> None:
         self._ensure_can_operate(client_id)
+        self._ensure_not_sovereign(client_id)
         asset = self._treasury_position(client_id, asset_uuid).asset
         self._engine.fixed_broker.sell_treasury(client_id, asset, gross)
         EventManager.flush()
@@ -2738,8 +2900,17 @@ class Simulation:
         limit_price: float | None,
         amount: Decimal | None = None,
     ) -> OrderPreviewDTO:
-        return self._engine.preview_order(
+        preview = self._engine.preview_order(
             client_id, ticker, action, quantity, limit_price, amount
+        )
+        if action is not OrderAction.BUY:
+            return preview
+        return preview.model_copy(
+            update={
+                "sovereign": self._sovereign_preview(
+                    client_id, ticker, preview.quantity
+                )
+            }
         )
 
     @synchronized

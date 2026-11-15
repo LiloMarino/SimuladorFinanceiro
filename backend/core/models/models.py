@@ -1979,3 +1979,76 @@ class StateOfferReservations(Base):
     portfolio_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     quantity: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     reserved_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+
+
+class SovereignFunds(Base):
+    """O Fundo Soberano de uma partida: o caixa e as posições moram na carteira dele, que não tem dono jogador."""
+
+    __tablename__ = "sovereign_funds"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="sovereign_funds_simulation_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["portfolio_id"],
+            ["portfolios.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="sovereign_funds_portfolio_id_fkey",
+        ),
+        PrimaryKeyConstraint("simulation_id", name="sovereign_funds_pkey"),
+        UniqueConstraint("portfolio_id", name="sovereign_funds_portfolio_id_key"),
+    )
+
+    simulation_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    portfolio_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # A conta do fundo no motor
+    client_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+
+
+class SovereignFundFlows(Base):
+    """Cada movimento entre o fundo e o Tesouro: aporte, venda e dividendo, com o dia em que aconteceu."""
+
+    __tablename__ = "sovereign_fund_flows"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="sovereign_fund_flows_simulation_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="sovereign_fund_flows_pkey"),
+        # Cada aporte aprovado entra uma vez só
+        UniqueConstraint(
+            "simulation_id",
+            "kind",
+            "measure_id",
+            name="sovereign_fund_flows_measure_key",
+        ),
+        CheckConstraint("amount > 0", name="sovereign_fund_flows_amount_check"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    day: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    kind: Mapped[str] = mapped_column(Text, nullable=False)
+    amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    # A medida do aporte; nulo na venda e no dividendo
+    measure_id: Mapped[int | None] = mapped_column(Integer)

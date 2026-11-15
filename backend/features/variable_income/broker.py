@@ -520,6 +520,9 @@ class Broker:
                 self.on_fund_buyback(ticker, size, money_price)
         else:
             self._open_position(client_id, ticker, size, money_price)
+            self._simulation_engine.record_settlement(
+                client_id, EquityEventType.BUY, ticker, size, money_price
+            )
 
         logger.debug("Compra executada: %sx %s a R$ %s", size, ticker, price)
 
@@ -604,4 +607,7 @@ class Broker:
                 price=price,
                 event_date=self._simulation_engine.current_date,
             )
+        )
+        self._simulation_engine.record_settlement(
+            client_id, EquityEventType.SELL, ticker, size, price
         )

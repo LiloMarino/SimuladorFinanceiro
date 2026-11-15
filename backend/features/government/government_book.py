@@ -9,7 +9,7 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from backend.core import repository
 from backend.core.copom import next_meeting, to_step
@@ -23,6 +23,12 @@ from backend.core.dto.government import (
 from backend.core.dto.pending import PendingDTO
 from backend.core.dto.promises import PromiseRequest
 from backend.core.dto.simulation import SimulationDTO
+from backend.core.dto.sovereign_fund import (
+    SovereignContributionPreviewDTO,
+    SovereignFlowDTO,
+    SovereignFundDTO,
+    SovereignFundPanelDTO,
+)
 from backend.core.dto.state_company import (
     StateCompaniesPanelDTO,
     StateCompanyDTO,
@@ -37,6 +43,7 @@ from backend.core.enum import (
     DealBreaker,
     DealStatus,
     DividendPolicy,
+    EquityEventType,
     FederationStatus,
     GovernmentEventType,
     GovernmentNoticeKind,
@@ -47,6 +54,7 @@ from backend.core.enum import (
     PauseReason,
     PendingType,
     SelicControl,
+    SovereignFlowKind,
     StateCompanyOrigin,
     StateCompanySize,
     StateCompanyStatus,
@@ -120,6 +128,10 @@ from backend.features.notifications.news import Headline
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import GovernmentUpdateEventDTO
 from backend.features.simulation.simulation_engine import SimulationEngine
+from backend.features.sovereign_fund import headlines as fund_headlines
+from backend.features.sovereign_fund import panel as fund_panel
+from backend.features.sovereign_fund import rules as fund_rules
+from backend.features.sovereign_fund.book import FundLookup, SovereignFundBook
 from backend.features.state_companies import headlines as state_headlines
 from backend.features.state_companies import levers as state_levers
 from backend.features.state_companies import panel as state_panel
@@ -174,6 +186,8 @@ class GovernmentBook:
         macro: MacroCourse | None = None,
         on_change: Callable[[], None] | None = None,
         state_companies: Iterable[StateCompanyDTO] = (),
+        sovereign_fund: SovereignFundDTO | None = None,
+        sovereign_flows: Iterable[SovereignFlowDTO] = (),
     ):
         """
         `on_office` roda na posse de cada presidente jogador: a carteira dele congela.
@@ -186,6 +200,8 @@ class GovernmentBook:
         `on_change` roda depois de cada evento gravado fora do tick: o fim do dia publica
         os painéis uma vez só, então o tick não a chama.
         `state_companies` são as estatais da partida que já existem, importadas ou fundadas.
+        `sovereign_fund` e `sovereign_flows` são o registro do Fundo Soberano e o que ele já
+        trocou com o Tesouro; sem registro o fundo nasce em memória, com carteira de id zero.
         """
         self._on_change = on_change
         self._ticking = False
@@ -222,9 +238,15 @@ class GovernmentBook:
             self.state.selic_board,
             # O livro das estatais nasce depois da economia; as contas o leem já pronto
             StateFeed(
-                dividends_on=lambda day: self._state_companies.budget_dividends(day),
+                dividends_on=lambda day: (
+                    self._state_companies.budget_dividends(day)
+                    + self._sovereign_fund.dividends_in(day)
+                ),
                 spending_on=lambda day: self._state_companies.founding_spending(day),
-                assets_on=lambda day: self._state_companies.assets_in(day),
+                assets_on=lambda day: (
+                    self._state_companies.assets_in(day)
+                    + self._sovereign_fund.assets_in(day)
+                ),
                 inflation_on=lambda day: self._state_companies.inflation_points(day),
                 credit_on=lambda day: self._state_companies.credit_points(day),
                 gdp_push_on=lambda day: self._state_companies.gdp_push(day),
@@ -253,6 +275,17 @@ class GovernmentBook:
         self._state_market = StateCompanyMarket(
             settings.id, engine, self._state_companies
         )
+        # O Fundo Soberano: a carteira dele é a de uma gestora sem jogador dono, e o que a
+        # conta dele compra, vende e recebe de provento passa por aqui
+        fund = sovereign_fund or SovereignFundDTO(portfolio_id=0, client_id=uuid4())
+        self._sovereign_fund = SovereignFundBook(settings.id, fund, sovereign_flows)
+        SimulationManager.add_fund_portfolios({fund.client_id: fund.portfolio_id})
+        SimulationManager.add_fund_names({fund.client_id: fund_headlines.FUND})
+        self._fund_lookup: FundLookup = lambda _ticker: None
+        self._fund_bought: dict[str, tuple[Decimal, Decimal]] = {}
+        self._fund_sold: dict[str, Decimal] = {}
+        engine.on_settled = self._fund_settled
+        engine.on_dividend = self._fund_dividend
         # O engine lê os impostos, o prêmio de risco, o prêmio a mais do crédito e o desvio do dólar de cada dia
         engine.use_tax_policy(self.policy)
         engine.use_dollar_factor(self._linked.layer.dollar_factor)
@@ -273,9 +306,120 @@ class GovernmentBook:
         """A escada de ordens das estatais fundadas, refeita em volta do preço do dia."""
         self._state_market.on_open(today)
 
+    def sovereign_fund(self) -> SovereignFundBook:
+        return self._sovereign_fund
+
+    def use_fund_lookup(self, lookup: FundLookup) -> None:
+        """Quem acha a gestora de uma cota: o nome, as cotas que existem e o partido do gestor."""
+        self._fund_lookup = lookup
+
+    def issued_of(self, ticker: str) -> tuple[str, Decimal | None, bool]:
+        """O nome, o total de papéis em circulação (nulo se desconhecido) e se é cota de gestora."""
+        fund = self._fund_lookup(ticker)
+        if fund is not None:
+            return fund.name, fund.quotas or None, True
+        profile = repository.stock.get_ticker_profile(ticker)
+        shares = profile.shares_outstanding if profile is not None else None
+        return self._stock_name(ticker), Decimal(shares) if shares else None, False
+
+    def is_allied_manager(self, ticker: str, day: date) -> bool:
+        """O ticker é cota de gestora cujo gestor é do partido que governa ou da base no dia."""
+        fund = self._fund_lookup(ticker)
+        return (
+            fund is not None
+            and fund.manager_party is not None
+            and self.is_aligned(fund.manager_party, day)
+        )
+
+    def sovereign_panel(self, user: UserDTO) -> SovereignFundPanelDTO:
+        """O fundo como a sala vê: caixa, carteira com a fatia de cada ativo e o que foi e voltou do Tesouro."""
+        book = self._sovereign_fund
+        positions = fund_panel.build_positions(
+            self._engine.equity_positions(book.client_id), self.issued_of
+        )
+        president = self.president()
+        return SovereignFundPanelDTO(
+            is_president=president is not None and president.id == user.id,
+            cash=self._engine.get_cash(book.client_id),
+            contributed=book.contributed(),
+            returned=book.returned(),
+            ceiling=fund_rules.CEILING,
+            invested=sum((p.current_value for p in positions), Decimal(0)),
+            positions=positions,
+        )
+
+    def sovereign_contribution_preview(
+        self, user: UserDTO, today: date, value: Decimal
+    ) -> SovereignContributionPreviewDTO:
+        """A medida de aportar com o caixa do fundo antes e depois."""
+        measure = self.preview(
+            user,
+            today,
+            MeasureKind.CONTRIBUTE_SOVEREIGN_FUND,
+            value,
+            None,
+            None,
+        )
+        cash = self._engine.get_cash(self._sovereign_fund.client_id)
+        return SovereignContributionPreviewDTO(
+            measure=measure, cash_before=cash, cash_after=cash + value
+        )
+
+    def _fund_settled(
+        self,
+        client_id: UUID,
+        side: EquityEventType,
+        ticker: str,
+        size: Decimal,
+        price: Decimal,
+    ) -> None:
+        """A compra do fundo espera o fim do dia para virar manchete; a venda sai do caixa dele para o Tesouro na hora."""
+        if client_id != self._sovereign_fund.client_id:
+            return
+        amount = size * price
+        if side is EquityEventType.BUY:
+            held, spent = self._fund_bought.get(ticker, (Decimal(0), Decimal(0)))
+            self._fund_bought[ticker] = (held + size, spent + amount)
+        elif side is EquityEventType.SELL:
+            self._return_to_treasury(SovereignFlowKind.SALE, amount)
+            self._fund_sold[ticker] = self._fund_sold.get(ticker, Decimal(0)) + amount
+
+    def _fund_dividend(self, client_id: UUID, _ticker: str, amount: Decimal) -> None:
+        """O dividendo que o fundo recebe vai ao Tesouro no mesmo dia."""
+        if client_id == self._sovereign_fund.client_id:
+            self._return_to_treasury(SovereignFlowKind.DIVIDEND, amount)
+
+    def _return_to_treasury(self, kind: SovereignFlowKind, amount: Decimal) -> None:
+        """O caixa do fundo só cresce com aporte: o que entra por venda ou dividendo sai para o Tesouro."""
+        self._engine.add_cash(self._sovereign_fund.client_id, -amount)
+        self._sovereign_fund.record(self._engine.current_date, kind, amount)
+
+    def _flush_fund_orders(self, today: date) -> None:
+        """No fim do dia, uma manchete por ativo comprado ou vendido pelo fundo; a gestora de aliado vira favorecimento."""
+        party = self._governing_party_abbr()
+        for ticker, (held, spent) in self._fund_bought.items():
+            fund = self._fund_lookup(ticker)
+            if fund is None or not self.is_allied_manager(ticker, today):
+                self._on_news(today, fund_headlines.bought(ticker, spent, party))
+                continue
+            gained = fund_rules.stake(held, fund.quotas)
+            self._on_news(
+                today, fund_headlines.favoritism(fund.name, ticker, gained, party)
+            )
+            self._emit(
+                GovernmentEventType.SOVEREIGN_FAVORITISM,
+                today,
+                points=str(fund_rules.favoritism_points(gained)),
+            )
+        for ticker, amount in self._fund_sold.items():
+            self._on_news(today, fund_headlines.sold(ticker, amount, party))
+        self._fund_bought.clear()
+        self._fund_sold.clear()
+
     def close_state_market(self, today: date) -> list[CandleDTO]:
         """Fecha as ofertas de privatização que chegaram ao último pregão e o pregão das estatais fundadas."""
         self.close_privatizations(today)
+        self._flush_fund_orders(today)
         return self._state_market.on_close(today)
 
     def _market_price(self, ticker: str) -> Decimal | None:
@@ -1217,7 +1361,7 @@ class GovernmentBook:
 
     def effects_of(self, measure: Measure) -> dict[VoterValue, Decimal]:
         """O que a medida avança (+) ou recua (-) nos valores; a de gasto e a de estatal não mexem neles."""
-        if measure.kind.is_spending or measure.kind.is_state_company:
+        if measure.kind.is_spending or measure.kind.is_state_measure:
             return {}
         return voters.measure_effects(measure.kind, measure.value, measure.before)
 
@@ -3159,18 +3303,22 @@ class GovernmentBook:
                 vote + timedelta(days=VIGENCE_DAYS),
                 self.term_end(),
                 self.state.amendments_on,
-                # A fundação põe o capital da empresa de uma vez, e a conta vai à dívida
-                one_off=(
-                    invested_by(draft.size)
-                    if draft.kind is MeasureKind.FOUND_STATE_COMPANY and draft.size
-                    else Decimal(0)
-                ),
+                # A fundação e o aporte põem o dinheiro de uma vez, e a conta vai à dívida
+                one_off=self._one_off(draft),
             ),
             inflation=spending_panel.inflation_effect(
                 draft, today, reacts=not self.selic_by_government()
             ),
             reactions=spending_panel.reactions(draft),
         )
+
+    def _one_off(self, draft: Measure) -> Decimal:
+        """O que a medida gasta de uma vez, em reais: o capital da fundação ou o aporte."""
+        if draft.kind is MeasureKind.FOUND_STATE_COMPANY and draft.size:
+            return invested_by(draft.size)
+        if draft.kind is MeasureKind.CONTRIBUTE_SOVEREIGN_FUND:
+            return required(draft.value)
+        return Decimal(0)
 
     def _draft(
         self,
@@ -3190,6 +3338,27 @@ class GovernmentBook:
         before: Decimal | None = None
         stake: Decimal | None = None
         name = name or None
+        if kind is MeasureKind.CONTRIBUTE_SOVEREIGN_FUND:
+            if any(
+                field is not None
+                for field in (sector, segment, name, ticker, size, lever)
+            ):
+                raise UnprocessableEntityError("O aporte só tem um valor.")
+            if value is None or not 0 < value <= fund_rules.MAX_CONTRIBUTION:
+                raise UnprocessableEntityError(
+                    "O aporte vai de R$ 1 a R$ 500 bi por medida."
+                )
+            return Measure(
+                id=self.state.next_measure_id,
+                kind=kind,
+                value=value,
+                before=None,
+                sector=None,
+                segment=None,
+                proposer_id=user.id,
+                term_start=term.start,
+                proposed=today,
+            )
         if kind.is_state_company:
             self._validate_state_company(
                 kind, value, sector, segment, name, ticker, size, lever
@@ -4144,7 +4313,7 @@ class GovernmentBook:
                     tickers=self.tickers(measure),
                 )
                 # A fundação e a privatização têm manchete própria, no dia em que fazem efeito
-                if measure.kind.is_state_company:
+                if measure.kind.is_state_measure:
                     continue
                 seed = self._headline_seed(today, measure.id)
                 if measure.kind.is_spending:
@@ -4173,6 +4342,9 @@ class GovernmentBook:
         abre a oferta; a medida que já valeu não faz nada de novo.
         """
         for measure in sorted(self.state.measures.values(), key=lambda m: m.id):
+            if measure.kind is MeasureKind.CONTRIBUTE_SOVEREIGN_FUND:
+                self._contribute_to_fund(measure, today)
+                continue
             if (
                 not measure.kind.is_state_company
                 or measure.status is not MeasureStatus.APPROVED
@@ -4198,6 +4370,28 @@ class GovernmentBook:
                         self._governing_party_abbr(),
                     ),
                 )
+
+    def _contribute_to_fund(self, measure: Measure, today: date) -> None:
+        """No dia da vigência o aporte aprovado entra no caixa do fundo, uma vez só."""
+        if (
+            measure.status is not MeasureStatus.APPROVED
+            or measure.effective is None
+            or measure.effective > today
+        ):
+            return
+        amount = required(measure.value)
+        if not self._sovereign_fund.record(
+            measure.effective,
+            SovereignFlowKind.CONTRIBUTION,
+            amount,
+            measure.id,
+        ):
+            return
+        self._engine.add_cash(self._sovereign_fund.client_id, amount)
+        self._on_news(
+            measure.effective,
+            fund_headlines.funded(amount, self._governing_party_abbr()),
+        )
 
     def _history_real_interest(self, day: date) -> Decimal:
         """O juro real da história no dia: a SELIC menos o IPCA guardados, sem o desvio do governo."""

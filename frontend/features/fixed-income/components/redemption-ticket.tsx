@@ -4,7 +4,7 @@ import { differenceInCalendarDays } from "date-fns";
 import { CircleCheck, Info, TriangleAlert } from "lucide-react";
 import { AccountOriginNotice } from "@/shared/components/account-origin-notice";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
-import { useTradeLock } from "@/shared/hooks/useTradeLock";
+import { useFixedIncomeLock } from "@/shared/hooks/useTradeLock";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { DailyLiquidityBadge } from "@/shared/components/daily-liquidity-badge";
 import { Button } from "@/shared/components/ui/button";
@@ -117,7 +117,7 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
     refetch,
   } = useFixedIncomeRedemption(assetId, normalizeNumberString(amountText), today, true);
   // Com o automático ligado a boleta fica só para leitura
-  const tradeLock = useTradeLock();
+  const tradeLock = useFixedIncomeLock();
   const locked = tradeLock !== null;
   // Com uma gestora ativa a ordem sai do caixa dela
   const { fund } = useActiveAccount();

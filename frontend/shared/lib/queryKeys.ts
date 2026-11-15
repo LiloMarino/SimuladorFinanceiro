@@ -108,6 +108,9 @@ export const queryKeys = {
   stateCompanies: () => ["government", "state-companies"] as const,
   stateOrderPreview: (ticker: string) => ["government", "state-companies", "order-preview", ticker] as const,
   stateFoundingPreview: (request: object) => ["government", "state-companies", "found-preview", request] as const,
+  sovereignFund: () => ["government", "sovereign-fund"] as const,
+  sovereignContributionPreview: (value: string) =>
+    ["government", "sovereign-fund", "contribution-preview", value] as const,
   stateOwned: (ticker: string) => ["import-assets", "state-owned", ticker] as const,
   campaign: () => ["government", "campaign"] as const,
   campaignHistory: () => ["government", "campaign", "history"] as const,

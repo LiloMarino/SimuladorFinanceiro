@@ -36,6 +36,20 @@ export function TradeLockNotice({ lock }: { lock: TradeLock }) {
     );
   }
 
+  if (lock.reason === "sovereign") {
+    return (
+      <div className="flex items-center gap-2.5 rounded-lg border border-border bg-subtle px-3 py-2.5 text-[13px]">
+        <Lock className="size-4 shrink-0 text-muted-foreground" />
+        <span className="grid gap-0.5">
+          <b className="font-semibold">O {lock.name} não tem renda fixa nem Tesouro</b>
+          <span className="text-xs text-muted-foreground">
+            Ele compra só ações e cotas de gestora. Para investir aqui, troque o caixa, lá em cima.
+          </span>
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center gap-2.5 rounded-lg border border-border bg-subtle px-3 py-2.5 text-[13px]">
       <Lock className="size-4 shrink-0 text-muted-foreground" />

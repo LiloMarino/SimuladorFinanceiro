@@ -4,6 +4,25 @@ from decimal import Decimal
 from backend.core.dto.base import BaseDTO
 
 
+class SovereignOrderPreviewDTO(BaseDTO):
+    """O que a compra pelo Fundo Soberano muda na fatia da empresa ou da gestora, para a boleta do fundo."""
+
+    # O nome da empresa ou da gestora dona do ativo
+    issuer: str
+    is_fund: bool
+    # Fatia do fundo no ativo antes e depois da ordem, contando as ordens abertas de compra;
+    # nula quando o número de papéis em circulação é desconhecido
+    stake_before: Decimal | None
+    stake_after: Decimal | None
+    ceiling: Decimal
+    # Quantos papéis ainda cabem sob o teto, antes desta ordem
+    room: Decimal | None
+    # Cota de gestora cujo gestor é do partido que governa ou da base: a compra vira favorecimento
+    allied: bool
+    # Por que o fundo não compra este ativo; nulo quando pode
+    refusal: str | None
+
+
 class OrderPreviewDTO(BaseDTO):
     """O que uma ordem faria se executasse agora, para a boleta mostrar antes do envio."""
 
@@ -29,6 +48,8 @@ class OrderPreviewDTO(BaseDTO):
     month_sales_after: Decimal | None
     exemption_limit: Decimal
     tax_due_date: date | None
+    # Só quando a conta que opera é o Fundo Soberano e a ordem é de compra
+    sovereign: SovereignOrderPreviewDTO | None = None
 
 
 class TradeDTO(BaseDTO):

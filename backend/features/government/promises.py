@@ -35,7 +35,7 @@ WEIGHED_SHARE = Decimal("0.5")
 COMPUTER_PROMISES = 2
 # As medidas gerais que se prometem: as que têm um valor em vigor
 GENERAL_KINDS = tuple(
-    kind for kind in MeasureKind if not kind.is_sector and not kind.is_state_company
+    kind for kind in MeasureKind if not kind.is_sector and not kind.is_state_measure
 )
 # Teto da alíquota de cada imposto sobre a economia do país
 TAX_LIMITS: dict[MeasureKind, Decimal] = {

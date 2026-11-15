@@ -424,10 +424,13 @@ def test_offer_sold_out_is_closed_in_the_facade(flow):
 def governing(sim: Simulation, president: UserDTO, term_end: date) -> dict:
     """Põe um governo de mentira em que `president` governa até `term_end`; trocar a chave `on` termina o mandato."""
     state = {"on": True}
+    sovereign_client = uuid4()
+    sim._engine._cash[sovereign_client] = Decimal(0)
     sim._government = SimpleNamespace(  # type: ignore[assignment]
         president=lambda: president if state["on"] else None,
         term_end=lambda: term_end,
         ensure_can_trade=lambda _client_id: None,
+        sovereign_fund=lambda: SimpleNamespace(client_id=sovereign_client),
     )
     return state
 
@@ -482,9 +485,10 @@ def test_taking_office_freezes_the_managers_fund_until_the_term_ends(flow):
     # Ler a conta segue valendo, e o DTO e a lista de contas dizem até quando congela
     assert sim.acting_client(ana.client_id, fund_id) == fund_client
     assert sim.get_fund(ana, fund_id).frozen_until == term_end
-    fund_account = sim.get_fund_accounts(ana)[1]
+    accounts = sim.get_fund_accounts(ana)
+    fund_account = next(a for a in accounts if a.fund_id == fund_id)
     assert fund_account.frozen_until == term_end
-    assert sim.get_fund_accounts(ana)[0].frozen_until == term_end
+    assert accounts[0].frozen_until == term_end
 
     state["on"] = False
 

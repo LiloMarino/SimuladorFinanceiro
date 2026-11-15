@@ -34,6 +34,7 @@ import { ActionGroup, DecideNow } from "./action-card";
 import { ActionRow } from "./action-row";
 import { ContributionDialog } from "./contribution-dialog";
 import { FederationProposeDialog } from "./federation-propose-dialog";
+import { ContributeFundDialog } from "./state-companies/contribute-fund-dialog";
 import { FoundStateCompanyDialog } from "./state-companies/found-state-company-dialog";
 import { RequestImpeachmentDialog } from "./request-impeachment-card";
 
@@ -332,6 +333,7 @@ type StateCompaniesActionsProps = { panel: GovernmentPanel; onGo: (tab: Governme
 function StateCompaniesActions({ panel, onGo }: StateCompaniesActionsProps) {
   const { data } = useStateCompanies();
   const [founding, setFounding] = useState(false);
+  const [contributing, setContributing] = useState(false);
   const companies = data?.companies ?? [];
 
   return (
@@ -368,7 +370,18 @@ function StateCompaniesActions({ panel, onGo }: StateCompaniesActionsProps) {
           actionLabel="Escolher"
           onAction={() => onGo("state-companies")}
         />
+        <ActionRow
+          icon={Landmark}
+          title="Aportar no Fundo Soberano"
+          chip="vai a votação"
+          chipVariant="info"
+          description="Põe dinheiro no caixa do fundo, que compra ações e cotas de gestora; o aporte entra na dívida e o Congresso vota."
+          alsoIn="Estatais"
+          actionLabel="Aportar"
+          onAction={() => setContributing(true)}
+        />
       </ActionGroup>
+      <ContributeFundDialog open={contributing} onOpenChange={setContributing} vigenceDays={panel.vigence_days} />
       {data && (
         <FoundStateCompanyDialog
           open={founding}

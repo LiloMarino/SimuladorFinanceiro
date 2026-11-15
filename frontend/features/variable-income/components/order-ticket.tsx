@@ -10,6 +10,7 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { DisabledHint } from "@/shared/components/disabled-hint";
 import { AccountOriginNotice } from "@/shared/components/account-origin-notice";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
+import { isSovereignAccount } from "@/shared/lib/active-account";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { ErrorState } from "@/shared/components/error-state";
@@ -22,6 +23,7 @@ import { EXEMPT_SALES_LABEL, INCOME_TAX_RATE, salesMonthName } from "@/shared/li
 import { displayPercent } from "@/shared/lib/utils/display";
 import type { AssetClass, OrderPreview, OrderPreviewRequest } from "@/types";
 import { useOrderPreview } from "../hooks/queries/useOrderPreview";
+import { SovereignStake } from "./sovereign-stake";
 import { useSubmitOrder } from "@/shared/hooks/mutations/useSubmitOrder";
 
 type Action = "buy" | "sell";
@@ -97,11 +99,15 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
   // Com o automático ligado a boleta fica só para leitura
   const tradeLock = useTradeLock();
   const locked = tradeLock !== null;
-  // Com uma gestora ativa a ordem sai do caixa dela
+  // Com uma gestora ou o Fundo Soberano ativo a ordem sai do caixa dele
   const { fund } = useActiveAccount();
-  const cashLabel = fund ? "Caixa da gestora" : "Caixa";
+  const sovereign = isSovereignAccount(fund);
+  const cashLabel = sovereign ? "Caixa do fundo" : fund ? "Caixa da gestora" : "Caixa";
 
   const selling = action === "sell";
+  // A fatia e o teto do fundo só existem na compra pela conta dele
+  const sovereignStake = !selling && requestMatches ? (preview?.sovereign ?? null) : null;
+  const sovereignRefusal = sovereignStake?.refusal ?? null;
   const shareAfter = preview ? `${displayPercent(preview.networth_share_after, 1)} do patrimônio` : "—";
   const maxQuantity = preview?.max_quantity ?? "0";
   const cash = Number(preview?.cash_before ?? 0);
@@ -124,6 +130,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
     !error &&
     hasSize &&
     !invalidSize &&
+    sovereignRefusal === null &&
     !!preview?.price &&
     (kind === "market" || !!limitPrice);
 
@@ -163,9 +170,11 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
             ? byAmount
               ? amountError
               : quantityError
-            : !preview.price
-              ? "Não há preço de mercado agora."
-              : null;
+            : sovereignRefusal !== null
+              ? sovereignRefusal
+              : !preview.price
+                ? "Não há preço de mercado agora."
+                : null;
 
   // Tudo gasta o caixa inteiro, em reais; as frações valem na unidade do modo ativo
   const fillShortcut = (share: number) => {
@@ -355,7 +364,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
                           tone={Number(preview.profit) >= 0 ? "positive" : "negative"}
                         />
                       )}
-                      {fund && <Row label={`${ticker} na gestora depois`} value={shareAfter} />}
+                      {fund && !sovereign && <Row label={`${ticker} na gestora depois`} value={shareAfter} />}
                     </>
                   ) : (
                     <>
@@ -379,7 +388,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
                         label={`${cashLabel} depois`}
                         value={overCash ? "—" : `${byAmount ? approx : ""}${displayMoney(preview.cash_after)}`}
                       />
-                      {fund && (
+                      {fund && !sovereign && (
                         <Row
                           label={`${ticker} na gestora depois`}
                           value={overCash ? "—" : `${byAmount ? approx : ""}${shareAfter}`}
@@ -390,6 +399,19 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
                 </dl>
               ) : (
                 !error && <SummarySkeleton rows={selling ? 2 : 4} />
+              )}
+
+              {sovereignStake && <SovereignStake data={sovereignStake} />}
+
+              {/* Destino do que o fundo negocia */}
+              {sovereign && (
+                <p className="text-xs text-muted-foreground">
+                  {selling
+                    ? "O dinheiro da venda volta ao Tesouro e abate a dívida. Sai no Diário do Pregão de amanhã."
+                    : `Sai no Diário do Pregão de amanhã: Fundo Soberano compra ${
+                        preview && !overCash ? displayMoney(preview.total) : "—"
+                      } em ${sovereignStake?.is_fund ? "cotas" : "ações"} da ${sovereignStake?.issuer ?? ticker}.`}
+                </p>
               )}
 
               {selling && preview?.tax !== null && preview?.tax !== undefined && quantityNumber > 0 && (
@@ -406,7 +428,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
                 >
                   {submit.isPending && <Spinner />}
                   {fund ? (
-                    `${selling ? "Vender" : "Comprar"} pela ${fund.name}`
+                    `${selling ? "Vender" : "Comprar"} ${sovereign ? "pelo" : "pela"} ${fund.name}`
                   ) : (
                     <>
                       {selling ? "Vender" : "Comprar"}{" "}

@@ -6,6 +6,8 @@ import {
   effectiveFundId,
   eventAccountKey,
   getSelectedFundId,
+  hasAccountChoice,
+  isSovereignAccount,
   resolveActiveAccount,
   selectFund,
   subscribeActiveAccount,
@@ -28,6 +30,16 @@ const aurora: FundAccount = {
   frozen_until: null,
   eliminated_on: null,
   role: "manager",
+};
+
+const sovereign: FundAccount = {
+  fund_id: 0,
+  name: "Fundo Soberano",
+  ticker: null,
+  cash: "25000000000.00",
+  frozen_until: null,
+  eliminated_on: null,
+  role: "president",
 };
 
 // Partida própria deste arquivo: o estado do módulo é compartilhado entre os testes
@@ -139,5 +151,26 @@ describe("chave de cache da carteira", () => {
   it("evento sem conta é da carteira pessoal; com conta, da gestora", () => {
     expect(eventAccountKey(null)).toBe("personal");
     expect(eventAccountKey(3)).toBe(3);
+  });
+});
+
+describe("Fundo Soberano", () => {
+  it("só o papel de presidente marca a conta do fundo", () => {
+    expect(isSovereignAccount(sovereign)).toBe(true);
+    expect(isSovereignAccount(aurora)).toBe(false);
+    expect(isSovereignAccount(personal)).toBe(false);
+    expect(isSovereignAccount(null)).toBe(false);
+  });
+
+  it("o id 0 do fundo vai em X-Account como qualquer outra conta", () => {
+    expect(accountHeaders(0, [personal, sovereign])).toEqual({ "X-Account": "0" });
+    expect(accountKey(0, [personal, sovereign])).toBe(0);
+  });
+
+  it("há escolha de conta com Gestoras ou com Governo ligado", () => {
+    expect(hasAccountChoice({ funds_enabled: true, government_enabled: false })).toBe(true);
+    expect(hasAccountChoice({ funds_enabled: false, government_enabled: true })).toBe(true);
+    expect(hasAccountChoice({ funds_enabled: false, government_enabled: false })).toBe(false);
+    expect(hasAccountChoice(undefined)).toBe(false);
   });
 });
