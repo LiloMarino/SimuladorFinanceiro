@@ -6,7 +6,7 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { queryKeys } from "../lib/queryKeys";
-import { displayMoney, displayQuantity } from "../lib/utils/display";
+import { displayMoney, displayPercent, displayQuantity } from "../lib/utils/display";
 import { AchievementToast } from "./achievement-toast";
 
 const ACHIEVEMENT_TOAST_MS = 6000;
@@ -87,6 +87,43 @@ export function GlobalNotifications() {
       ),
       { duration: ACHIEVEMENT_TOAST_MS },
     );
+  });
+
+  // Convite, resposta, saída ou remoção na co-gestão: o aviso chega só a quem a mudança atinge
+  useRealtime("comanager_update", (event) => {
+    const open = { label: "Ver", onClick: () => void navigate(`/funds/${event.fund_id}`) };
+    const share = event.share === null ? "" : ` com ${displayPercent(event.share, 0)} das taxas`;
+
+    switch (event.kind) {
+      case "invited":
+        if (isToastOn("COMANAGER_INVITED")) {
+          toast.info(`${event.nickname} convidou você para co-gerir a ${event.ticker}`, {
+            description: `Você opera a carteira da gestora${share}. O convite vale por 7 dias.`,
+            action: { label: "Responder", onClick: open.onClick },
+          });
+        }
+        break;
+      case "accepted":
+        if (isToastOn("COMANAGER_ANSWER")) {
+          toast.success(`${event.nickname} aceitou co-gerir a ${event.ticker}`, { action: open });
+        }
+        break;
+      case "declined":
+        if (isToastOn("COMANAGER_ANSWER")) {
+          toast.warning(`${event.nickname} recusou co-gerir a ${event.ticker}`);
+        }
+        break;
+      case "left":
+        if (isToastOn("COMANAGER_ANSWER")) {
+          toast.warning(`${event.nickname} deixou a co-gestão da ${event.ticker}`, { action: open });
+        }
+        break;
+      case "removed":
+        toast.warning(`${event.nickname} tirou você da co-gestão da ${event.ticker}`, {
+          description: "O acesso à carteira da gestora acabou.",
+        });
+        break;
+    }
   });
 
   return null;

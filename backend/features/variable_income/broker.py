@@ -484,11 +484,12 @@ class Broker:
                 account=account,
             ).to_json()
 
-        notify(
-            event=f"position_update:{ticker}",
-            payload=position_payload,
-            to=audience,
-        )
+        for recipient in audience:
+            notify(
+                event=f"position_update:{ticker}",
+                payload=position_payload,
+                to=recipient,
+            )
 
     def _execute_buy(self, order: Order, size: Decimal, price: float):
         client_id = order.client_id

@@ -2996,6 +2996,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/funds/{fund_id}/comanagers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Convidar um co-gestor
+         * @description O gestor principal convida um jogador (bot não) a operar a carteira e dividir as taxas. O convite reserva a parte, vale por 7 dias e a gestora aceita até 3 co-gestores, contando os convites. O co-gestor só opera a carteira.
+         */
+        post: operations["invite_fund_comanager_api_funds__fund_id__comanagers_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/comanagers/acceptance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Aceitar o convite de co-gestão
+         * @description O convidado passa a operar a carteira da gestora na hora; a parte dele vale nas taxas do mês seguinte.
+         */
+        post: operations["accept_fund_comanager_invite_api_funds__fund_id__comanagers_acceptance_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/comanagers/refusal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Recusar o convite de co-gestão
+         * @description O convite some e a parte reservada volta ao gestor principal.
+         */
+        post: operations["refuse_fund_comanager_invite_api_funds__fund_id__comanagers_refusal_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/comanagers/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Sair da co-gestão
+         * @description O co-gestor deixa a gestão e o acesso à carteira cai no mesmo pregão. A parte dele volta ao gestor principal na próxima divisão de taxa.
+         */
+        delete: operations["leave_fund_comanagement_api_funds__fund_id__comanagers_me_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/comanagers/{comanager_user_id}/share": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Mudar a parte de um co-gestor
+         * @description A parte nova vale nas taxas do mês seguinte; as partes dos co-gestores precisam deixar parte para o gestor principal. Pedir a parte de hoje desfaz a mudança agendada.
+         */
+        put: operations["change_fund_comanager_share_api_funds__fund_id__comanagers__comanager_user_id__share_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/comanagers/{comanager_user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remover um co-gestor ou retirar o convite
+         * @description O gestor principal tira o co-gestor e o acesso cai no mesmo pregão; a parte volta a ele na próxima divisão de taxa. Num convite pendente, só o retira.
+         */
+        delete: operations["remove_fund_comanager_api_funds__fund_id__comanagers__comanager_user_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/funds/{fund_id}/buyback/preview": {
         parameters: {
             query?: never;
@@ -5779,6 +5899,25 @@ export interface components {
             /** Neutral */
             neutral: components["schemas"]["VoterGroup"][];
         };
+        /**
+         * ComanagerEventDTO
+         * @description O que mudou na co-gestão de uma gestora para o jogador: convite, resposta, saída ou remoção.
+         */
+        ComanagerEventDTO: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "invited" | "accepted" | "declined" | "left" | "removed";
+            /** Fund Id */
+            fund_id: number;
+            /** Ticker */
+            ticker: string;
+            /** Nickname */
+            nickname: string;
+            /** Share */
+            share: string | null;
+        };
         /** CompleteNotificationSettings */
         CompleteNotificationSettings: {
             /** @default BOTTOM_LEFT */
@@ -7262,6 +7401,8 @@ export interface components {
             cash: string;
             /** Frozen Until */
             frozen_until: string | null;
+            /** Role */
+            role: ("manager" | "comanager") | null;
         };
         /** @enum {string} */
         FundAssemblyBlock: "share" | "interval" | "pending" | "manager" | "unlisted";
@@ -7468,6 +7609,52 @@ export interface components {
         };
         /** @enum {string} */
         FundBuybackState: "open" | "done" | "canceled";
+        /** FundComanagerInviteRequest */
+        FundComanagerInviteRequest: {
+            /** Nickname */
+            nickname: string;
+            /** Share */
+            share: number | string;
+        };
+        /** FundComanagerShareRequest */
+        FundComanagerShareRequest: {
+            /** Share */
+            share: number | string;
+        };
+        /**
+         * FundComanagerStatus
+         * @description O co-gestor da gestora: o convite que espera a resposta ou o gestor que já opera a carteira.
+         * @enum {string}
+         */
+        FundComanagerStatus: "INVITED" | "ACTIVE";
+        /**
+         * FundComanagerViewDTO
+         * @description O co-gestor na página da gestora, com quem ele é e até quando o convite vale.
+         */
+        FundComanagerViewDTO: {
+            /** User Id */
+            user_id: number;
+            status: components["schemas"]["FundComanagerStatus"];
+            /** Share */
+            share: string;
+            /** Pending Share */
+            pending_share: string | null;
+            /** Pending From */
+            pending_from: string | null;
+            /**
+             * Invited On
+             * Format: date
+             */
+            invited_on: string;
+            /** Since */
+            since: string | null;
+            /** Nickname */
+            nickname: string;
+            /** Color */
+            color: string | null;
+            /** Expires On */
+            expires_on: string | null;
+        };
         /**
          * FundCompositionDTO
          * @description O patrimônio da gestora numa classe, hoje.
@@ -7609,6 +7796,13 @@ export interface components {
             my_value: string;
             /** My Return */
             my_return: string | null;
+            /** Comanagers */
+            comanagers: components["schemas"]["FundComanagerViewDTO"][];
+            /** Manager Share */
+            manager_share: string;
+            my_role: components["schemas"]["FundRole"];
+            /** My Share */
+            my_share: string | null;
         };
         /**
          * FundDistributionDTO
@@ -7894,9 +8088,13 @@ export interface components {
             amount: string | null;
             /** Ticker */
             ticker: string | null;
+            /** Nickname */
+            nickname: string | null;
+            /** Share */
+            share: string | null;
         };
         /** @enum {string} */
-        FundMovementType: "contribution" | "offer_opened" | "offer_closed" | "management_fee" | "performance_fee" | "report_published" | "manager_buy" | "manager_sell" | "issuance_opened" | "issuance_closed" | "buyback_opened" | "distribution";
+        FundMovementType: "contribution" | "offer_opened" | "offer_closed" | "management_fee" | "performance_fee" | "report_published" | "manager_buy" | "manager_sell" | "issuance_opened" | "issuance_closed" | "buyback_opened" | "distribution" | "comanager_joined" | "comanager_left";
         /**
          * FundOfferBuyerDTO
          * @description Quem comprou na oferta em andamento; os bots entram somados numa linha só.
@@ -7969,6 +8167,8 @@ export interface components {
             /** Positions */
             positions: components["schemas"]["FundPositionDTO"][];
         };
+        /** @enum {string} */
+        FundRole: "manager" | "comanager" | "viewer";
         /** FundSeriesPointDTO */
         FundSeriesPointDTO: {
             /**
@@ -10529,7 +10729,7 @@ export interface components {
          * @description Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar.
          * @enum {string}
          */
-        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "FEDERATION_PROPOSAL" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING" | "FUND_ASSEMBLY_INVITE" | "FUND_DISTRIBUTION_SHORT_CASH";
+        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "FEDERATION_PROPOSAL" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING" | "FUND_ASSEMBLY_INVITE" | "COMANAGER_INVITE" | "FUND_DISTRIBUTION_SHORT_CASH";
         /**
          * PlaceKind
          * @description Um lugar do mapa é um estado ou uma região.
@@ -11634,6 +11834,7 @@ export interface components {
             stocks_update: components["schemas"]["StocksUpdateEventDTO"];
             fixed_assets_update: components["schemas"]["FixedAssetsUpdateEventDTO"];
             funds_update: components["schemas"]["FundsUpdateEventDTO"];
+            comanager_update: components["schemas"]["ComanagerEventDTO"];
             budget_update: components["schemas"]["BudgetDTO"];
             economy_update: components["schemas"]["EconomyPanelDTO"];
             base_update: components["schemas"]["CongressBaseDTO"];
@@ -13590,7 +13791,7 @@ export interface components {
          * @description Um aviso do que acontece com o próprio jogador, ligado ou desligado por tipo.
          * @enum {string}
          */
-        ToastType: "ORDER_EXECUTED" | "ORDER_PARTIAL" | "STRATEGY_ORDERS" | "PLAYER_PRESENCE" | "CREDIT_PAYMENTS" | "CREDIT_RATING" | "LIFE_EVENT" | "AUTO_REDEEM" | "CORPORATE_ACTIONS" | "YEAR_REVIEW" | "VICE_ANSWER";
+        ToastType: "ORDER_EXECUTED" | "ORDER_PARTIAL" | "STRATEGY_ORDERS" | "PLAYER_PRESENCE" | "CREDIT_PAYMENTS" | "CREDIT_RATING" | "LIFE_EVENT" | "AUTO_REDEEM" | "CORPORATE_ACTIONS" | "YEAR_REVIEW" | "VICE_ANSWER" | "COMANAGER_INVITED" | "COMANAGER_ANSWER";
         /** ToastTypeInfo */
         ToastTypeInfo: {
             type: components["schemas"]["ToastType"];
@@ -20809,6 +21010,244 @@ export interface operations {
                 "application/json": components["schemas"]["FundAssemblyVoteRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    invite_fund_comanager_api_funds__fund_id__comanagers_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundComanagerInviteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    accept_fund_comanager_invite_api_funds__fund_id__comanagers_acceptance_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    refuse_fund_comanager_invite_api_funds__fund_id__comanagers_refusal_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    leave_fund_comanagement_api_funds__fund_id__comanagers_me_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_fund_comanager_share_api_funds__fund_id__comanagers__comanager_user_id__share_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+                comanager_user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundComanagerShareRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    remove_fund_comanager_api_funds__fund_id__comanagers__comanager_user_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+                comanager_user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             204: {

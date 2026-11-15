@@ -3,7 +3,7 @@
 Tudo aqui é função pura sobre listas de eventos, para ser lida sem banco.
 """
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal
@@ -12,6 +12,7 @@ from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.fund import (
     FundBuybackDTO,
+    FundComanagerEventDTO,
     FundIssuanceDTO,
     FundMovementDTO,
     FundMovementType,
@@ -103,6 +104,8 @@ def movements(
     offer: OfferFacts | None,
     issuances: Iterable[FundIssuanceDTO] = (),
     buybacks: Iterable[FundBuybackDTO] = (),
+    comanager_events: Iterable[FundComanagerEventDTO] = (),
+    nicknames: Mapping[int, str] | None = None,
     today: date,
 ) -> list[FundMovementDTO]:
     """Os movimentos mais novos da gestora, do mais recente ao mais antigo."""
@@ -116,6 +119,8 @@ def movements(
         price: Decimal | None = None,
         amount: Decimal | None = None,
         ticker: str | None = None,
+        nickname: str | None = None,
+        share: Decimal | None = None,
     ) -> None:
         found.append(
             FundMovementDTO(
@@ -125,6 +130,8 @@ def movements(
                 price=price,
                 amount=amount,
                 ticker=ticker,
+                nickname=nickname,
+                share=share,
             )
         )
 
@@ -194,6 +201,16 @@ def movements(
             "buyback_opened",
             quotas=buyback.quantity,
             price=buyback.max_price,
+        )
+
+    # Entradas e saídas da co-gestão, com o apelido de quem mudou
+    names = nicknames or {}
+    for change in comanager_events:
+        add(
+            change.day,
+            "comanager_joined" if change.kind == "joined" else "comanager_left",
+            nickname=names.get(change.user_id, "?"),
+            share=change.share,
         )
 
     found.sort(key=lambda movement: movement.day)

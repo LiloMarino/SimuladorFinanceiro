@@ -37,6 +37,12 @@ describe("pendingTarget", () => {
 
     expect(pendingTarget(item)).toEqual({ label: "Responder", to: "/funds/7" });
   });
+
+  it("leva o convite de co-gestor à página da gestora", () => {
+    const item = pending({ type: "COMANAGER_INVITE", key: "COMANAGER_INVITE:4" });
+
+    expect(pendingTarget(item)).toEqual({ label: "Responder", to: "/funds/4" });
+  });
 });
 
 describe("severeCount", () => {

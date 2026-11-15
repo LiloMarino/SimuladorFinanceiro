@@ -895,10 +895,10 @@ def test_the_managers_accounts_share_one_owner_in_the_order_book(started):  # no
     bruno = player(sim, "Bruno")
     fund = book_of(sim).by_id(fund_with_cash(sim, ana))
 
-    assert sim._account_owner(ana.client_id) == ana.id
-    assert sim._account_owner(fund.account.client_id) == ana.id
-    assert sim._account_owner(bruno.client_id) == bruno.id
-    assert sim._account_owner(MARKET_CLIENT_ID) is None
+    assert sim._account_owners(ana.client_id) == {ana.id}
+    assert sim._account_owners(fund.account.client_id) == {ana.id}
+    assert sim._account_owners(bruno.client_id) == {bruno.id}
+    assert sim._account_owners(MARKET_CLIENT_ID) is None
 
 
 def test_fund_does_not_trade_with_the_managers_personal_account(started):  # noqa: F811

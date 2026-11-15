@@ -10,6 +10,8 @@ describe("movementText", () => {
       price: null,
       amount: "160000",
       ticker: null,
+      nickname: null,
+      share: null,
     });
     expect(text).toContain("1.600 cotas");
     expect(text).toContain("160.000,00");
@@ -23,6 +25,8 @@ describe("movementText", () => {
       price: null,
       amount: "9500",
       ticker: null,
+      nickname: null,
+      share: null,
     });
     expect(text).toContain("9.500,00");
     expect(text).toContain("pago aos cotistas");
@@ -37,6 +41,8 @@ describe("movementText", () => {
         price: null,
         amount: null,
         ticker: null,
+        nickname: null,
+        share: null,
       }),
     ).toBe("Relatório mensal publicado");
   });
@@ -50,6 +56,8 @@ describe("movementText", () => {
         price: null,
         amount: null,
         ticker: "PETR4",
+        nickname: null,
+        share: null,
       }),
     ).toBe("O gestor comprou 100 de PETR4");
   });
@@ -61,6 +69,8 @@ describe("movementText", () => {
       price: "125",
       amount: null,
       ticker: null,
+      nickname: null,
+      share: null,
     });
     expect(text).toContain("800 cotas");
     expect(text).toContain("125,00");
@@ -74,6 +84,8 @@ describe("movementText", () => {
       price: "125",
       amount: "66250",
       ticker: null,
+      nickname: null,
+      share: null,
     });
     expect(text).toContain("530 cotas vendidas");
     expect(text).toContain("66.250,00");
@@ -87,8 +99,38 @@ describe("movementText", () => {
       price: "118",
       amount: null,
       ticker: null,
+      nickname: null,
+      share: null,
     });
     expect(text).toContain("300 cotas");
     expect(text).toContain("118,00");
+  });
+
+  it("a entrada do co-gestor diz quem é e a parte das taxas", () => {
+    const text = movementText({
+      day: "2024-03-04",
+      type: "comanager_joined",
+      quotas: null,
+      price: null,
+      amount: null,
+      ticker: null,
+      nickname: "Ana",
+      share: "0.2000",
+    });
+    expect(text).toBe("Ana virou co-gestor, com 20% das taxas");
+  });
+
+  it("a saída do co-gestor diz quem deixou a gestão", () => {
+    const text = movementText({
+      day: "2024-03-09",
+      type: "comanager_left",
+      quotas: null,
+      price: null,
+      amount: null,
+      ticker: null,
+      nickname: "Ana",
+      share: null,
+    });
+    expect(text).toBe("Ana deixou a gestão");
   });
 });

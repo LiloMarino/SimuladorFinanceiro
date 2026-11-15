@@ -296,6 +296,16 @@ TOASTS: tuple[ToastSpec, ...] = (
     ToastSpec(
         ToastType.VICE_ANSWER, "Resposta do vice", "Aceitou ou recusou o seu convite"
     ),
+    ToastSpec(
+        ToastType.COMANAGER_INVITED,
+        "Convite de co-gestão",
+        "Um gestor convida você a co-gerir a gestora dele",
+    ),
+    ToastSpec(
+        ToastType.COMANAGER_ANSWER,
+        "Co-gestor respondeu ou saiu",
+        "Aceitou ou recusou o convite, ou deixou a gestão da sua gestora",
+    ),
 )
 
 # A ordem é a da gravidade: as graves primeiro e, dentro de cada gravidade, a que custa mais antes
@@ -383,6 +393,12 @@ PENDING: tuple[PendingSpec, ...] = (
         PendingSeverity.WARNING,
         "Convite para assumir uma gestora",
         "Some ao responder, quando quem convocou cancela ou quando o convite vence",
+    ),
+    PendingSpec(
+        PendingType.COMANAGER_INVITE,
+        PendingSeverity.WARNING,
+        "Convite para co-gerir uma gestora",
+        "Some ao responder, quando o gestor retira o convite ou quando ele vence em 7 dias",
     ),
     PendingSpec(
         PendingType.FUND_DISTRIBUTION_SHORT_CASH,

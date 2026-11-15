@@ -10,6 +10,8 @@ from backend.core.dto.fund import (
     FundBuybackDTO,
     FundBuybackPreviewDTO,
     FundBuybackRequest,
+    FundComanagerInviteRequest,
+    FundComanagerShareRequest,
     FundContributionRequest,
     FundContributionResponse,
     FundDetailsDTO,
@@ -272,6 +274,88 @@ def vote_fund_assembly(
     payload: FundAssemblyVoteRequest,
 ):
     simulation.vote_fund_assembly(user, fund_id, payload)
+
+
+@funds_router.post(
+    "/{fund_id}/comanagers",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Convidar um co-gestor",
+    description="O gestor principal convida um jogador (bot não) a operar a carteira e dividir as taxas. O convite reserva a parte, vale por 7 dias e a gestora aceita até 3 co-gestores, contando os convites. O co-gestor só opera a carteira.",
+)
+def invite_fund_comanager(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    payload: FundComanagerInviteRequest,
+):
+    simulation.invite_fund_comanager(user, fund_id, payload)
+
+
+@funds_router.post(
+    "/{fund_id}/comanagers/acceptance",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Aceitar o convite de co-gestão",
+    description="O convidado passa a operar a carteira da gestora na hora; a parte dele vale nas taxas do mês seguinte.",
+)
+def accept_fund_comanager_invite(
+    simulation: ActiveSimulation, user: CurrentUser, fund_id: int
+):
+    simulation.answer_fund_comanager_invite(user, fund_id, True)
+
+
+@funds_router.post(
+    "/{fund_id}/comanagers/refusal",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Recusar o convite de co-gestão",
+    description="O convite some e a parte reservada volta ao gestor principal.",
+)
+def refuse_fund_comanager_invite(
+    simulation: ActiveSimulation, user: CurrentUser, fund_id: int
+):
+    simulation.answer_fund_comanager_invite(user, fund_id, False)
+
+
+@funds_router.delete(
+    "/{fund_id}/comanagers/me",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Sair da co-gestão",
+    description="O co-gestor deixa a gestão e o acesso à carteira cai no mesmo pregão. A parte dele volta ao gestor principal na próxima divisão de taxa.",
+)
+def leave_fund_comanagement(
+    simulation: ActiveSimulation, user: CurrentUser, fund_id: int
+):
+    simulation.leave_fund_comanagement(user, fund_id)
+
+
+@funds_router.put(
+    "/{fund_id}/comanagers/{comanager_user_id}/share",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Mudar a parte de um co-gestor",
+    description="A parte nova vale nas taxas do mês seguinte; as partes dos co-gestores precisam deixar parte para o gestor principal. Pedir a parte de hoje desfaz a mudança agendada.",
+)
+def change_fund_comanager_share(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    comanager_user_id: int,
+    payload: FundComanagerShareRequest,
+):
+    simulation.change_fund_comanager_share(user, fund_id, comanager_user_id, payload)
+
+
+@funds_router.delete(
+    "/{fund_id}/comanagers/{comanager_user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Remover um co-gestor ou retirar o convite",
+    description="O gestor principal tira o co-gestor e o acesso cai no mesmo pregão; a parte volta a ele na próxima divisão de taxa. Num convite pendente, só o retira.",
+)
+def remove_fund_comanager(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    comanager_user_id: int,
+):
+    simulation.remove_fund_comanager(user, fund_id, comanager_user_id)
 
 
 @funds_router.get(

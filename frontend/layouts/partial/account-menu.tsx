@@ -48,7 +48,8 @@ export function AccountMenu({ accounts, active, onSelect }: AccountMenuProps) {
             <span className="grid min-w-0">
               <b className="truncate font-semibold">{isFund ? account.name : "Carteira pessoal"}</b>
               <span className="font-mono text-xs text-muted-foreground">
-                {account.ticker ? `${account.ticker} · ` : ""}caixa {displayMoney(account.cash)}
+                {account.ticker ? `${account.ticker} · ` : ""}
+                {account.role === "comanager" ? "co-gestor · " : ""}caixa {displayMoney(account.cash)}
               </span>
             </span>
             <span className="ml-auto flex items-center gap-1.5">

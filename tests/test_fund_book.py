@@ -17,6 +17,8 @@ from backend.core.dto.fund import (
     FundAssemblyDTO,
     FundAssemblyVoteDTO,
     FundBuybackDTO,
+    FundComanagerDTO,
+    FundComanagerEventDTO,
     FundDayDTO,
     FundDistributionDTO,
     FundDTO,
@@ -311,10 +313,35 @@ def isolated(
     return captured_events
 
 
+@dataclass
+class MemoryComanagers:
+    """Os co-gestores e as entradas e saídas das gestoras em memória."""
+
+    rows: dict[int, dict[int, FundComanagerDTO]] = field(default_factory=dict)
+    logged: dict[int, list[FundComanagerEventDTO]] = field(default_factory=dict)
+
+    def of_fund(self, fund_id: int) -> list[FundComanagerDTO]:
+        found = self.rows.get(fund_id, {}).values()
+        return sorted(found, key=lambda row: (row.invited_on, row.user_id))
+
+    def save(self, fund_id: int, comanager: FundComanagerDTO) -> None:
+        self.rows.setdefault(fund_id, {})[comanager.user_id] = comanager
+
+    def delete(self, fund_id: int, user_id: int) -> None:
+        self.rows.get(fund_id, {}).pop(user_id, None)
+
+    def record_event(self, fund_id: int, event: FundComanagerEventDTO) -> None:
+        self.logged.setdefault(fund_id, []).append(event)
+
+    def events(self, fund_id: int) -> list[FundComanagerEventDTO]:
+        return list(self.logged.get(fund_id, []))
+
+
 @pytest.fixture
 def memory(monkeypatch: pytest.MonkeyPatch) -> MemoryFunds:
     memory = MemoryFunds()
     monkeypatch.setattr(repository, "fund", memory)
+    monkeypatch.setattr(repository, "fund_comanager", MemoryComanagers())
     return memory
 
 

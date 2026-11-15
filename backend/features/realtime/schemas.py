@@ -136,6 +136,18 @@ class FundsUpdateEventDTO(BaseDTO):
     não carrega dado, quem exibe uma gestora busca de novo."""
 
 
+class ComanagerEventDTO(BaseDTO):
+    """O que mudou na co-gestão de uma gestora para o jogador: convite, resposta, saída ou remoção."""
+
+    kind: Literal["invited", "accepted", "declined", "left", "removed"]
+    fund_id: int
+    ticker: str
+    # Quem agiu: o principal que convidou ou removeu, ou o co-gestor que respondeu ou saiu
+    nickname: str
+    # A parte das taxas do convite ou do aceite (0,30 é 30%)
+    share: Decimal | None
+
+
 class PortfolioUpdateEventDTO(BaseDTO):
     portfolio: PortfolioDTO
     # A gestora dona da carteira, para o gestor que a gere; nulo é a carteira pessoal
@@ -348,6 +360,7 @@ class RealtimeEventCatalog(BaseDTO):
     stocks_update: StocksUpdateEventDTO
     fixed_assets_update: FixedAssetsUpdateEventDTO
     funds_update: FundsUpdateEventDTO
+    comanager_update: ComanagerEventDTO
     budget_update: BudgetDTO
     economy_update: EconomyPanelDTO
     base_update: CongressBaseDTO

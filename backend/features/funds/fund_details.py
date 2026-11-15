@@ -9,6 +9,7 @@ from backend.core import repository
 from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.fund import (
+    FundComanagerViewDTO,
     FundCompositionDTO,
     FundDetailsDTO,
     FundDistributionDTO,
@@ -24,7 +25,7 @@ from backend.core.dto.fund import (
     FundSeriesPointDTO,
 )
 from backend.core.dto.user import UserDTO
-from backend.core.enum import FixedIncomeType
+from backend.core.enum import FixedIncomeType, FundComanagerStatus
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import last_month_turn, ratio
 from backend.features.fixed_income.entities.fixed_income_position import (
@@ -40,6 +41,7 @@ from backend.features.funds.fund_book import (
     FundBook,
     cdi_growth,
 )
+from backend.features.funds.fund_comanagers import expires_on, manager_share
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.variable_income.broker import replay_positions
 
@@ -129,6 +131,8 @@ class FundDetailsBuilder:
         users = book.participants()
         summary = book.summary(fund, {user.id: user.nickname for user in users})
         is_manager = viewer.id == terms.manager_user_id
+        operators = book.operators(fund)
+        is_operator = viewer.id in operators
         live = self._live_lines(fund)
 
         holders = self._holders(fund, users)
@@ -191,6 +195,8 @@ class FundDetailsBuilder:
                 offer=offer.facts,
                 issuances=repository.fund.issuances(terms.id),
                 buybacks=repository.fund.buybacks(terms.id),
+                comanager_events=repository.fund_comanager.events(terms.id),
+                nicknames={user.id: user.nickname for user in users},
                 today=today,
             ),
             offer_sold=offer.facts.totals.sold
@@ -205,11 +211,53 @@ class FundDetailsBuilder:
             assembly=book.assembly_panel(
                 fund, viewer, {user.id: user.nickname for user in users}, self._colors()
             ),
-            positions=positions_of(live) if is_manager else None,
+            positions=positions_of(live) if is_operator else None,
+            comanagers=self._comanagers(fund, users),
+            manager_share=manager_share(fund),
+            my_role="manager"
+            if is_manager
+            else "comanager"
+            if is_operator
+            else "viewer",
+            my_share=self._my_share(fund, viewer),
             my_quotas=my_quotas,
             my_value=my_value,
             my_return=my_return,
         )
+
+    # =========================
+    # Co-gestores
+    # =========================
+
+    def _comanagers(
+        self, fund: Fund, users: list[UserDTO]
+    ) -> list[FundComanagerViewDTO]:
+        """Os co-gestores ativos e os convites pendentes, com apelido e cor."""
+        names = {user.id: user.nickname for user in users}
+        colors = self._colors()
+        return [
+            FundComanagerViewDTO(
+                **comanager.model_dump(),
+                nickname=names.get(comanager.user_id, "?"),
+                color=colors.get(comanager.user_id),
+                expires_on=expires_on(comanager)
+                if comanager.status is FundComanagerStatus.INVITED
+                else None,
+            )
+            for comanager in fund.comanagers
+        ]
+
+    def _my_share(self, fund: Fund, viewer: UserDTO) -> Decimal | None:
+        """A parte das taxas em vigor de quem consulta; nula para quem não gere a gestora."""
+        if viewer.id == fund.terms.manager_user_id:
+            return manager_share(fund)
+        comanager = next(
+            (c for c in fund.comanagers if c.user_id == viewer.id),
+            None,
+        )
+        if comanager is None or comanager.status is not FundComanagerStatus.ACTIVE:
+            return None
+        return comanager.share
 
     # =========================
     # Quem tem as cotas

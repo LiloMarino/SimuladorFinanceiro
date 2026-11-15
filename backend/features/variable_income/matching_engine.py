@@ -60,11 +60,11 @@ class MatchingEngine:
         self.market_liquidity = MarketLiquidity(order_book=self.order_book)
         # Chamado quando uma ordem que descansava no book sai dele (executada por inteiro ou cancelada)
         self.on_order_closed: Callable[[Order], None] | None = None
-        # O dono de uma conta do motor: o jogador, ou o gestor para a conta de uma gestora; nulo
-        # para quem não tem dono. Contas do mesmo dono não negociam entre si no livro: o gestor
-        # não tira dinheiro dos cotistas vendendo caro da pessoal para a gestora, e negócio
-        # consigo mesmo não forja o preço da cota.
-        self.owner_of: Callable[[UUID], int | None] | None = None
+        # Os donos de uma conta do motor: o jogador, ou quem opera a gestora (o principal e os
+        # co-gestores) para a conta de uma gestora; nulo para quem não tem dono. Contas com um
+        # dono em comum não negociam entre si no livro: o gestor não tira dinheiro dos cotistas
+        # vendendo caro da pessoal para a gestora, e negócio consigo mesmo não forja o preço da cota.
+        self.owner_of: Callable[[UUID], frozenset[int] | None] | None = None
 
     # =========================
     # API pública
@@ -247,10 +247,10 @@ class MatchingEngine:
             return None
 
         def same_owner(counter: LimitOrder) -> bool:
-            return (
-                counter.client_id not in UNRESERVED_CLIENT_IDS
-                and owner_of(counter.client_id) == owner
-            )
+            if counter.client_id in UNRESERVED_CLIENT_IDS:
+                return False
+            counter_owners = owner_of(counter.client_id)
+            return counter_owners is not None and not owner.isdisjoint(counter_owners)
 
         return same_owner
 

@@ -1,5 +1,5 @@
 import type { FundDetails } from "@/types";
-import { displayMoney, displayQuantity } from "@/shared/lib/utils/display";
+import { displayMoney, displayPercent, displayQuantity } from "@/shared/lib/utils/display";
 
 type Movement = FundDetails["movements"][number];
 
@@ -28,6 +28,10 @@ export function movementText(movement: Movement): string {
       return `Recompra aberta: ${quotas} a até ${movement.price === null ? "—" : displayMoney(movement.price)} cada`;
     case "distribution":
       return `Rendimento de ${amount} pago aos cotistas`;
+    case "comanager_joined":
+      return `${movement.nickname ?? "Um jogador"} virou co-gestor${movement.share === null ? "" : `, com ${displayPercent(movement.share, 0)} das taxas`}`;
+    case "comanager_left":
+      return `${movement.nickname ?? "Um jogador"} deixou a gestão`;
     case "report_published":
       return "Relatório mensal publicado";
     case "manager_buy":

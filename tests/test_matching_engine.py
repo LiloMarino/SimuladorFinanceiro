@@ -605,7 +605,13 @@ def test_market_sell_without_position_is_rejected():
 # Contas do mesmo dono
 # =========================
 
-OWNERS = {"ana": 1, "ana_fund": 1, "ana_fund_2": 1, "bia": 2, "bot": 3}
+OWNERS = {
+    "ana": frozenset({1}),
+    "ana_fund": frozenset({1}),
+    "ana_fund_2": frozenset({1}),
+    "bia": frozenset({2}),
+    "bot": frozenset({3}),
+}
 
 
 def _uuid(name: str) -> uuid.UUID:

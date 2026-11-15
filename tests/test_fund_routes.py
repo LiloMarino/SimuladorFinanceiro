@@ -71,6 +71,9 @@ class _Book:
     def frozen_until(self, fund: Any) -> date | None:
         return None
 
+    def operators(self, fund: Any) -> list[int]:
+        return [fund.terms.manager_user_id]
+
     def by_id(self, fund_id: int) -> Any:
         if fund_id != 5:
             raise ConflictError("Gestora não encontrada")
@@ -354,6 +357,10 @@ def _page(fund_id: int) -> FundDetailsDTO:
             blocked_founding_until=None,
         ),
         frozen_until=None,
+        comanagers=[],
+        manager_share=Decimal(1),
+        my_role="manager",
+        my_share=None,
         holders=[],
         control_quotas=Decimal(1),
         sellable_keeping_control=None,

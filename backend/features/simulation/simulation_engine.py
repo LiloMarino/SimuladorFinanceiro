@@ -218,19 +218,19 @@ class SimulationEngine:
     def use_cover_marked(self, source: Callable[[UUID], bool]) -> None:
         self._cover_marked_source = source
 
-    # O caixa de uma gestora é do gestor que a gere: a fonte devolve (client_id do gestor, id
+    # O caixa de uma gestora é de quem a opera: a fonte devolve (client_id de cada operador, id
     # da gestora) para a conta da gestora e nulo para as demais, que falam por si
-    _account_route: Callable[[UUID], tuple[UUID, int] | None] | None = None
+    _account_route: Callable[[UUID], tuple[tuple[UUID, ...], int] | None] | None = None
 
     def use_account_route(
-        self, source: Callable[[UUID], tuple[UUID, int] | None]
+        self, source: Callable[[UUID], tuple[tuple[UUID, ...], int] | None]
     ) -> None:
         self._account_route = source
 
-    def audience(self, client_id: UUID) -> tuple[UUID, int | None]:
+    def audience(self, client_id: UUID) -> tuple[tuple[UUID, ...], int | None]:
         """Quem recebe o tempo real da conta `client_id`, e a gestora que o evento carrega (nula na pessoal)."""
         route = self._account_route(client_id) if self._account_route else None
-        return route if route is not None else (client_id, None)
+        return route if route is not None else ((client_id,), None)
 
     def get_cash(self, client_id: UUID) -> Decimal:
         with self._lock:
@@ -284,11 +284,9 @@ class SimulationEngine:
             )
         )
         audience, account = self.audience(client_id)
-        notify(
-            "cash_update",
-            CashUpdateEventDTO(cash=new_cash, account=account).to_json(),
-            to=audience,
-        )
+        payload = CashUpdateEventDTO(cash=new_cash, account=account).to_json()
+        for recipient in audience:
+            notify("cash_update", payload, to=recipient)
 
     def pay_dividend(self, client_id: UUID, ticker: str, amount: Decimal) -> None:
         """Provento bruto de `ticker` no caixa do jogador."""

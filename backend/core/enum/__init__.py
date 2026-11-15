@@ -1282,6 +1282,7 @@ class PendingType(Enum):
     DEAL_DEMAND = "DEAL_DEMAND"
     SELIC_MEETING = "SELIC_MEETING"
     FUND_ASSEMBLY_INVITE = "FUND_ASSEMBLY_INVITE"
+    COMANAGER_INVITE = "COMANAGER_INVITE"
     FUND_DISTRIBUTION_SHORT_CASH = "FUND_DISTRIBUTION_SHORT_CASH"
 
 
@@ -1306,6 +1307,8 @@ class ToastType(Enum):
     CORPORATE_ACTIONS = "CORPORATE_ACTIONS"
     YEAR_REVIEW = "YEAR_REVIEW"
     VICE_ANSWER = "VICE_ANSWER"
+    COMANAGER_INVITED = "COMANAGER_INVITED"
+    COMANAGER_ANSWER = "COMANAGER_ANSWER"
 
 
 class FundAssemblyStatus(Enum):
@@ -1321,3 +1324,10 @@ class FundAssemblyStatus(Enum):
     DECLINED = "DECLINED"
     EXPIRED = "EXPIRED"
     CANCELLED = "CANCELLED"
+
+
+class FundComanagerStatus(Enum):
+    """O co-gestor da gestora: o convite que espera a resposta ou o gestor que já opera a carteira."""
+
+    INVITED = "INVITED"
+    ACTIVE = "ACTIVE"

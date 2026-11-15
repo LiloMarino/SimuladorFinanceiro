@@ -8,7 +8,7 @@ from dataclasses import replace
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from functools import wraps
-from typing import Concatenate, ParamSpec, TypeVar
+from typing import Concatenate, Literal, ParamSpec, TypeVar
 from uuid import UUID
 
 from backend import config
@@ -43,6 +43,8 @@ from backend.core.dto.fund import (
     FundBuybackDTO,
     FundBuybackPreviewDTO,
     FundBuybackRequest,
+    FundComanagerInviteRequest,
+    FundComanagerShareRequest,
     FundContributionRequest,
     FundContributionResponse,
     FundDetailsDTO,
@@ -233,6 +235,7 @@ from backend.features.newsroom.newsroom import Newsroom
 from backend.features.notifications import news, registry
 from backend.features.realtime import notify, subscribed_clients
 from backend.features.realtime.schemas import (
+    ComanagerEventDTO,
     CorporateActionsEventDTO,
     FundsUpdateEventDTO,
     PortfolioUpdateEventDTO,
@@ -444,7 +447,7 @@ class Simulation:
             self._engine.use_offer_bankers(self._bankers_of_offers)
 
         # No livro de ofertas, a conta pessoal e as gestoras de um jogador têm o mesmo dono
-        self._engine.matching_engine.owner_of = self._account_owner
+        self._engine.matching_engine.owner_of = self._account_owners
 
         # O noticiário lê as séries de cada pregão e entrega as manchetes ao jornal
         self._newsroom = (
@@ -967,17 +970,28 @@ class Simulation:
 
     @synchronized
     def acting_client(self, client_id: UUID, fund_id: int | None) -> UUID:
-        """O client_id que opera no mercado: o do jogador, ou o da gestora que ele gere."""
+        """O client_id que opera no mercado: o do jogador, ou o da gestora que ele gere ou co-gere."""
         if fund_id is None:
             return client_id
-        fund = self._ensure_funds().by_id(fund_id)
-        if self._client_of_user(fund.terms.manager_user_id) != client_id:
-            raise ForbiddenError("Só o gestor opera a conta da gestora.")
-        return fund.account.client_id
+        book = self._ensure_funds()
+        fund = book.by_id(fund_id)
+        for user_id in book.operators(fund):
+            if self._client_of_user(user_id) != client_id:
+                continue
+            # O co-gestor que governa o país não opera a gestora: o congelamento vale para ele
+            if (
+                user_id != fund.terms.manager_user_id
+                and self._manager_frozen_until(user_id) is not None
+            ):
+                raise ConflictError(
+                    "Você governa o país: a carteira da gestora fica congelada até o fim do mandato."
+                )
+            return fund.account.client_id
+        raise ForbiddenError("Só quem gere a gestora opera a conta dela.")
 
     @synchronized
     def get_fund_accounts(self, user: UserDTO) -> list[FundAccountDTO]:
-        """As contas do jogador: a pessoal e depois cada gestora que ele gere."""
+        """As contas do jogador: a pessoal e depois cada gestora que ele gere ou co-gere."""
         book = self._ensure_funds()
         accounts = [
             FundAccountDTO(
@@ -986,19 +1000,24 @@ class Simulation:
                 ticker=None,
                 cash=self._engine.get_cash(user.client_id),
                 frozen_until=self._manager_frozen_until(user.id),
+                role=None,
             )
         ]
-        accounts.extend(
-            FundAccountDTO(
-                fund_id=fund.terms.id,
-                name=fund.terms.name,
-                ticker=fund.ticker,
-                cash=self._engine.get_cash(fund.account.client_id),
-                frozen_until=book.frozen_until(fund),
+        for fund in book.operated_by(user.id):
+            is_manager = fund.terms.manager_user_id == user.id
+            accounts.append(
+                FundAccountDTO(
+                    fund_id=fund.terms.id,
+                    name=fund.terms.name,
+                    ticker=fund.ticker,
+                    cash=self._engine.get_cash(fund.account.client_id),
+                    # O co-gestor que governa congela com o país, o principal com a gestora
+                    frozen_until=book.frozen_until(fund)
+                    if is_manager
+                    else self._manager_frozen_until(user.id),
+                    role="manager" if is_manager else "comanager",
+                )
             )
-            for fund in book.funds()
-            if fund.terms.manager_user_id == user.id
-        )
         return accounts
 
     @synchronized
@@ -1162,6 +1181,88 @@ class Simulation:
         book = self._ensure_funds()
         book.answer_assembly_invite(book.by_id(fund_id).ticker, user, accept)
         EventManager.flush()
+        self._notify_funds_update()
+
+    @synchronized
+    def invite_fund_comanager(
+        self, user: UserDTO, fund_id: int, request: FundComanagerInviteRequest
+    ) -> None:
+        book = self._ensure_funds()
+        fund = self._managed_fund(user, fund_id)
+        invite = book.invite_comanager(fund.ticker, request.nickname, request.share)
+        self._notify_comanager(
+            invite.user_id, "invited", fund, user.nickname, invite.future_share
+        )
+
+    @synchronized
+    def answer_fund_comanager_invite(
+        self, user: UserDTO, fund_id: int, accept: bool
+    ) -> None:
+        book = self._ensure_funds()
+        fund = book.by_id(fund_id)
+        answered = book.answer_comanager_invite(fund.ticker, user, accept)
+        self._notify_comanager(
+            fund.terms.manager_user_id,
+            "accepted" if accept else "declined",
+            fund,
+            user.nickname,
+            answered.future_share,
+        )
+
+    @synchronized
+    def change_fund_comanager_share(
+        self,
+        user: UserDTO,
+        fund_id: int,
+        comanager_user_id: int,
+        request: FundComanagerShareRequest,
+    ) -> None:
+        fund = self._managed_fund(user, fund_id)
+        self._ensure_funds().change_comanager_share(
+            fund.ticker, comanager_user_id, request.share
+        )
+        self._notify_funds_update()
+
+    @synchronized
+    def remove_fund_comanager(
+        self, user: UserDTO, fund_id: int, comanager_user_id: int
+    ) -> None:
+        book = self._ensure_funds()
+        fund = self._managed_fund(user, fund_id)
+        removed = book.remove_comanager(fund.ticker, comanager_user_id)
+        self._notify_comanager(
+            removed.user_id, "removed", fund, user.nickname, removed.future_share
+        )
+
+    @synchronized
+    def leave_fund_comanagement(self, user: UserDTO, fund_id: int) -> None:
+        book = self._ensure_funds()
+        fund = book.by_id(fund_id)
+        book.leave_comanagement(fund.ticker, user)
+        self._notify_comanager(
+            fund.terms.manager_user_id, "left", fund, user.nickname, None
+        )
+
+    def _notify_comanager(
+        self,
+        recipient_user_id: int,
+        kind: Literal["invited", "accepted", "declined", "left", "removed"],
+        fund: Fund,
+        nickname: str,
+        share: Decimal | None,
+    ) -> None:
+        """Avisa quem a mudança de co-gestão atinge e atualiza as páginas das gestoras."""
+        notify(
+            "comanager_update",
+            ComanagerEventDTO(
+                kind=kind,
+                fund_id=fund.terms.id,
+                ticker=fund.ticker,
+                nickname=nickname,
+                share=share,
+            ).to_json(),
+            to=self._client_of_user(recipient_user_id),
+        )
         self._notify_funds_update()
 
     @synchronized
@@ -1407,6 +1508,17 @@ class Simulation:
                     title=f"Convite para gerir a {fund.ticker}",
                 )
                 for fund, invite, convener in self._funds.invites_for(user)
+            ]
+            items += [
+                registry.pending(
+                    PendingType.COMANAGER_INVITE,
+                    f"{manager} convida você a co-gerir a {fund.ticker} com {format_quantity(invite.future_share * 100)}% das taxas · responda até {last_day:%d/%m}",
+                    ref=str(fund.terms.id),
+                    title=f"Convite para co-gerir a {fund.ticker}",
+                )
+                for fund, invite, manager, last_day in self._funds.comanager_invites_for(
+                    user
+                )
             ]
             items += [
                 registry.pending(
@@ -1805,7 +1917,7 @@ class Simulation:
                     to=player.client_id,
                 )
                 # Cada gestora que o jogador gere vai ao gestor marcada com o id dela
-                for fund in self._funds.managed_by(player.id) if self._funds else []:
+                for fund in self._funds.operated_by(player.id) if self._funds else []:
                     notify(
                         "portfolio_update",
                         PortfolioUpdateEventDTO(
@@ -1841,14 +1953,14 @@ class Simulation:
                 ),
             )
 
-    def _account_owner(self, client_id: UUID) -> int | None:
-        """O user_id dono da conta `client_id`: o gestor para a conta de uma gestora, o próprio jogador para a pessoal."""
+    def _account_owners(self, client_id: UUID) -> frozenset[int] | None:
+        """Os user_ids donos da conta `client_id`: quem opera a gestora para a conta de uma gestora, o próprio jogador para a pessoal."""
         if self._funds is not None:
             fund = self._funds.of_client(client_id)
             if fund is not None:
-                return fund.terms.manager_user_id
+                return frozenset(self._funds.operators(fund))
         user = UserManager.get_user(client_id)
-        return user.id if user is not None else None
+        return frozenset({user.id}) if user is not None else None
 
     def _client_of_user(self, user_id: int) -> UUID:
         """O client_id do participante da partida."""

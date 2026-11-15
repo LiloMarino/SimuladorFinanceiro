@@ -12,6 +12,7 @@ from backend.core.dto.fund import (
     FundAssemblyDTO,
     FundAssemblyPanelDTO,
     FundBuybackDTO,
+    FundComanagerDTO,
     FundDayDTO,
     FundDistributionDTO,
     FundDistributionPlanDTO,
@@ -29,6 +30,7 @@ from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     AssetClass,
     FundAssemblyStatus,
+    FundComanagerStatus,
     IndicatorSeries,
     OrderAction,
     OrderStatus,
@@ -52,6 +54,13 @@ from backend.features.funds.distribution import (
 from backend.features.funds.fees import management_fee, performance_charge
 from backend.features.funds.fund_account import DayTrades, FundAccount
 from backend.features.funds.fund_assembly import FundAssemblies
+from backend.features.funds.fund_comanagers import (
+    FundComanagers,
+    expires_on,
+    heir_of,
+    operators_of,
+    split_fee,
+)
 from backend.features.funds.fund_ledger import PERFORMANCE_PERIOD_MONTHS
 from backend.features.funds.fund_maker import STOCK_SHARE, FundMaker
 from backend.features.funds.fund_offer import FundOffer
@@ -222,6 +231,8 @@ class Fund:
     assembly: FundAssemblyDTO | None = None
     assembly_votes: dict[int, bool] = field(default_factory=dict)
     last_assembly: FundAssemblyDTO | None = None
+    # Os co-gestores: convites pendentes e ativos, que operam a carteira e dividem as taxas
+    comanagers: list[FundComanagerDTO] = field(default_factory=list)
     # Os rendimentos mensais já apurados, do mais antigo ao mais novo; o último ainda pode
     # estar sem pagamento (entre a data-com e o primeiro pregão do mês seguinte)
     distributions: list[FundDistributionDTO] = field(default_factory=list)
@@ -279,6 +290,7 @@ class FundBook:
         self._assemblies = FundAssemblies(
             simulation_id, engine, lambda: self.participants()
         )
+        self._comanagers = FundComanagers(lambda: self.participants())
         engine.broker.on_fund_offer_sale = self._record_offer_sale
         engine.broker.on_fund_buyback = self._record_buyback
         engine.on_realized = self._record_realized
@@ -315,15 +327,24 @@ class FundBook:
         return None
 
     def managed_by(self, user_id: int) -> list[Fund]:
-        """As gestoras que o jogador gere."""
+        """As gestoras de que o jogador é o gestor principal."""
         return [f for f in self._funds.values() if f.terms.manager_user_id == user_id]
 
-    def audience_of(self, client_id: UUID) -> tuple[UUID, int] | None:
-        """Para a conta de uma gestora: o client_id do gestor e o id dela; nulo para qualquer outra conta."""
+    def operated_by(self, user_id: int) -> list[Fund]:
+        """As gestoras cuja carteira o jogador opera: como principal ou como co-gestor ativo."""
+        return [f for f in self._funds.values() if user_id in operators_of(f)]
+
+    def operators(self, fund: Fund) -> list[int]:
+        """Os ids de quem opera a carteira da gestora: o principal e os co-gestores ativos."""
+        return operators_of(fund)
+
+    def audience_of(self, client_id: UUID) -> tuple[tuple[UUID, ...], int] | None:
+        """Para a conta de uma gestora: o client_id de cada operador e o id dela; nulo para qualquer outra conta."""
         fund = self.of_client(client_id)
         if fund is None:
             return None
-        return self._client_of_user(fund.terms.manager_user_id), fund.terms.id
+        clients = tuple(self._client_of_user(u) for u in operators_of(fund))
+        return clients, fund.terms.id
 
     def frozen_until(self, fund: Fund) -> date | None:
         """O último dia em que a gestora fica congelada: o fim do mandato do gestor presidente."""
@@ -852,6 +873,62 @@ class FundBook:
             and fund.assembly.candidate_user_id == user.id
         ]
 
+    # =========================
+    # Co-gestores
+    # =========================
+
+    def invite_comanager(
+        self, ticker: str, nickname: str, share: Decimal
+    ) -> FundComanagerDTO:
+        """O principal convida um jogador a co-gestor, reservando a parte dele nas taxas."""
+        return self._comanagers.invite(
+            self._funds[ticker], nickname, share, self._engine.current_date
+        )
+
+    def answer_comanager_invite(
+        self, ticker: str, user: UserDTO, accept: bool
+    ) -> FundComanagerDTO:
+        """O convidado aceita (a parte vale nas taxas do mês seguinte) ou recusa."""
+        return self._comanagers.answer(
+            self._funds[ticker], user, accept, self._engine.current_date
+        )
+
+    def change_comanager_share(
+        self, ticker: str, user_id: int, share: Decimal
+    ) -> FundComanagerDTO:
+        """Pede a parte nova do co-gestor, que vale nas taxas do mês seguinte."""
+        return self._comanagers.change_share(
+            self._funds[ticker], user_id, share, self._engine.current_date
+        )
+
+    def remove_comanager(self, ticker: str, user_id: int) -> FundComanagerDTO:
+        """O principal tira o co-gestor ou retira o convite; o acesso acaba no mesmo pregão."""
+        return self._comanagers.remove(
+            self._funds[ticker], user_id, self._engine.current_date
+        )
+
+    def leave_comanagement(self, ticker: str, user: UserDTO) -> None:
+        """O co-gestor deixa a gestão; o acesso acaba no mesmo pregão."""
+        self._comanagers.leave(self._funds[ticker], user, self._engine.current_date)
+
+    def comanager_invites_for(
+        self, user: UserDTO
+    ) -> list[tuple[Fund, FundComanagerDTO, str, date]]:
+        """Os convites de co-gestão que esperam `user`: a gestora, o convite, o apelido do principal e o último dia dele."""
+        names = self._nicknames()
+        return [
+            (
+                fund,
+                comanager,
+                names.get(fund.terms.manager_user_id, "?"),
+                expires_on(comanager),
+            )
+            for fund in self._funds.values()
+            for comanager in fund.comanagers
+            if comanager.user_id == user.id
+            and comanager.status is FundComanagerStatus.INVITED
+        ]
+
     def founding_blocked_until(self, user_id: int) -> date | None:
         """Até quando o gestor afastado por assembleia não funda outra gestora."""
         return self._assemblies.founding_blocked_until(
@@ -904,6 +981,9 @@ class FundBook:
     def _replace_manager(self, fund: Fund, manager_user_id: int) -> None:
         """O candidato assume: as ordens do gestor afastado saem do livro e a recompra dele cai."""
         self._sync_buyback(fund)
+        # O candidato que já era co-gestor passa a principal e deixa a lista deles
+        if any(c.user_id == manager_user_id for c in fund.comanagers):
+            self._comanagers.drop(fund, manager_user_id)
         fund.terms = fund.terms.model_copy(update={"manager_user_id": manager_user_id})
         self._engine.matching_engine.cancel_all(fund.account.client_id)
         self._finish_buyback(fund, "canceled")
@@ -912,10 +992,22 @@ class FundBook:
         return {user.id: user.nickname for user in self.participants()}
 
     def on_office(self, manager_user_id: int) -> None:
-        """O gestor assumiu a presidência: as ordens abertas das gestoras dele saem do livro."""
+        """O gestor assumiu a presidência: as ordens abertas das gestoras dele saem do livro.
+
+        Com co-gestor ativo a gestora segue operando: o de maior parte vira o principal e o
+        presidente sai da gestão. Sem co-gestor ela congela até o fim do mandato.
+        """
+        today = self._engine.current_date
         for fund in self._funds.values():
-            if fund.terms.manager_user_id == manager_user_id:
-                self._engine.matching_engine.cancel_all(fund.account.client_id)
+            if fund.terms.manager_user_id != manager_user_id:
+                continue
+            self._engine.matching_engine.cancel_all(fund.account.client_id)
+            heir = heir_of(fund)
+            if heir is None:
+                continue
+            self._comanagers.succeed(fund, heir, today)
+            self._replace_manager(fund, heir.user_id)
+            self._save(fund)
 
     def set_fees(
         self, ticker: str, management_fee: Decimal, performance_fee: Decimal
@@ -1003,6 +1095,9 @@ class FundBook:
         """
         candles: list[CandleDTO] = []
         for fund in self._funds.values():
+            # O convite de co-gestão vence também na gestora que ainda não abriu a oferta
+            if self._comanagers.expire_invites(fund, today):
+                self._save(fund)
             if fund.nav is None or not fund.listed:
                 continue
             trades = fund.account.take_day()
@@ -1056,6 +1151,7 @@ class FundBook:
         """Vira as taxas pedidas e cobra as do mês: administração todo mês e performance a cada semestre."""
         for fund in self._funds.values():
             self._apply_pending(fund, today)
+            self._comanagers.apply_pending(fund, today)
             if (
                 not fund.listed
                 or fund.nav is None
@@ -1136,12 +1232,15 @@ class FundBook:
         )
 
     def _pay(self, fund: Fund, fee: Decimal, *, performance: bool) -> None:
-        """A taxa sai do caixa da gestora e entra no caixa pessoal do gestor; ela abate o lucro realizado do mês."""
+        """A taxa sai do caixa da gestora e entra, dividida pelas partes, no caixa pessoal de quem a gere; ela abate o lucro realizado do mês."""
         if fee <= 0:
             return
-        manager = self._client_of_user(fund.terms.manager_user_id)
         self._engine.charge_fund_fee(fund.account.client_id, fee, performance)
-        self._engine.receive_fund_fee(manager, fee, performance)
+        for user_id, amount in split_fee(fund, fee):
+            if amount > 0:
+                self._engine.receive_fund_fee(
+                    self._client_of_user(user_id), amount, performance
+                )
         fund.terms = fund.terms.model_copy(
             update={"month_fees": fund.terms.month_fees + fee}
         )
@@ -1318,6 +1417,7 @@ class FundBook:
             assembly=assembly,
             assembly_votes=assembly_votes,
             last_assembly=last_assembly,
+            comanagers=self._comanagers.load(terms.id),
             distributions=repository.fund.distributions(terms.id, after),
             days=[TradedDay(d.traded_quantity, d.traded_value) for d in days],
             last_close=repository.fund.last_close(

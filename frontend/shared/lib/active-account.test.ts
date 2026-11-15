@@ -17,6 +17,7 @@ const personal: FundAccount = {
   ticker: null,
   cash: "1000.00",
   frozen_until: null,
+  role: null,
 };
 const aurora: FundAccount = {
   fund_id: 3,
@@ -24,6 +25,7 @@ const aurora: FundAccount = {
   ticker: "AURO11",
   cash: "96300.00",
   frozen_until: null,
+  role: "manager",
 };
 
 // Partida própria deste arquivo: o estado do módulo é compartilhado entre os testes

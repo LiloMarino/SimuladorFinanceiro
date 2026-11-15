@@ -1736,3 +1736,83 @@ class FundAssemblyVotes(Base):
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     in_favor: Mapped[bool] = mapped_column(Boolean, nullable=False)
     voted_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+
+
+class FundComanagers(Base):
+    """Um co-gestor da gestora: o convite pendente ou o gestor ativo, com a parte das taxas dele."""
+
+    __tablename__ = "fund_comanagers"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fund_id"],
+            ["funds.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_comanagers_fund_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_comanagers_user_id_fkey",
+        ),
+        PrimaryKeyConstraint("fund_id", "user_id", name="fund_comanagers_pkey"),
+    )
+
+    fund_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    # Um valor de `FundComanagerStatus`
+    status: Mapped[str] = mapped_column(Text, nullable=False)
+    # A parte das taxas em vigor, como fração: 0,30 é 30%; zero enquanto o convite espera
+    share: Mapped[decimal.Decimal] = mapped_column(Numeric(7, 6), nullable=False)
+    # A parte agendada e o dia em que passa a valer
+    pending_share: Mapped[decimal.Decimal | None] = mapped_column(Numeric(7, 6))
+    pending_from: Mapped[datetime.date | None] = mapped_column(Date)
+    invited_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    # O dia em que aceitou; nulo enquanto o convite espera
+    since: Mapped[datetime.date | None] = mapped_column(Date)
+
+
+class FundComanagerEvents(Base):
+    """A entrada ou a saída de um co-gestor, para os movimentos da página da gestora."""
+
+    __tablename__ = "fund_comanager_events"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fund_id"],
+            ["funds.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_comanager_events_fund_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_comanager_events_user_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="fund_comanager_events_pkey"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    fund_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    # `joined` (aceitou o convite) ou `left` (saiu, foi removido ou deixou a gestão)
+    kind: Mapped[str] = mapped_column(Text, nullable=False)
+    day: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    # A parte das taxas de quem entrou; nula na saída
+    share: Mapped[decimal.Decimal | None] = mapped_column(Numeric(7, 6))

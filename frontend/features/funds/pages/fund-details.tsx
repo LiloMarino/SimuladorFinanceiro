@@ -17,6 +17,10 @@ import {
   displaySignedPercent,
 } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
+import { ComanagerInviteAlert } from "../components/comanager-invite-alert";
+import { ComanagerInviteDialog } from "../components/comanager-invite-dialog";
+import { ComanagerRemoveDialog } from "../components/comanager-remove-dialog";
+import { ComanagerShareDialog } from "../components/comanager-share-dialog";
 import { ContributeDialog } from "../components/contribute-dialog";
 import { BuybackDialog } from "../components/buyback-dialog";
 import { DistributionDialog } from "../components/distribution-dialog";
@@ -29,6 +33,7 @@ import { FundFeesCard } from "../components/fund-fees-card";
 import { FundHeader } from "../components/fund-header";
 import { FundHolders } from "../components/fund-holders";
 import { FundIssuanceCard } from "../components/fund-issuance-card";
+import { FundManagersCard } from "../components/fund-managers-card";
 import { FundMetricsRow } from "../components/fund-metrics-row";
 import { FundMovements } from "../components/fund-movements";
 import { FundOfferCard } from "../components/fund-offer-card";
@@ -39,6 +44,7 @@ import { IssuanceDialog } from "../components/issuance-dialog";
 import { OfferDialog } from "../components/offer-dialog";
 import { useCloseFundOffer } from "../hooks/mutations/useCloseFundOffer";
 import { useFund } from "../hooks/queries/useFund";
+import { myInviteOf, type Comanager } from "../lib/fund-comanagers";
 import { FIRST_QUOTA_PRICE } from "../lib/fund-math";
 import { fundStage, managerQuotasOf, managerShareOf } from "../lib/fund-view";
 
@@ -66,7 +72,7 @@ function FundDetailsLoader({ id }: { id: number }) {
     );
   }
 
-  return <FundDetailsContent fund={fund} viewer={fund.manager_user_id !== user.id} />;
+  return <FundDetailsContent fund={fund} userId={user.id} />;
 }
 
 /** "Você tem X% · N cotas · R$ hoje · retorno": a posição de quem olha a gestora de fora. */
@@ -85,10 +91,17 @@ function MyHoldingStrip({ fund }: { fund: FundDetails }) {
   );
 }
 
-type DetailsContentProps = { fund: FundDetails; viewer: boolean };
+type DetailsContentProps = { fund: FundDetails; userId: number };
 
-function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
+function FundDetailsContent({ fund, userId }: DetailsContentProps) {
   usePageLabel(fund.name);
+  // Só o gestor principal comanda a gestora; o co-gestor opera a carteira e o resto da sala é cotista
+  const viewer = fund.my_role !== "manager";
+  const comanager = fund.my_role === "comanager";
+  const invite = myInviteOf(fund, userId);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [shareTarget, setShareTarget] = useState<Comanager | null>(null);
+  const [removeTarget, setRemoveTarget] = useState<Comanager | null>(null);
   const [feesOpen, setFeesOpen] = useState(false);
   const [distributionOpen, setDistributionOpen] = useState(false);
   const [offerOpen, setOfferOpen] = useState(false);
@@ -116,6 +129,16 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
     quantityRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     quantityRef.current?.focus();
   };
+
+  const operateButton = operating ? (
+    <Button variant="outline" onClick={() => switchAccount(null)}>
+      Voltar à minha carteira
+    </Button>
+  ) : (
+    <Button variant="fund" onClick={() => switchAccount(fund.id)}>
+      Operar a carteira da gestora
+    </Button>
+  );
 
   const managerActions = (
     <>
@@ -150,15 +173,7 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
       <Button variant="outline" onClick={() => setFeesOpen(true)}>
         Taxas
       </Button>
-      {operating ? (
-        <Button variant="outline" onClick={() => switchAccount(null)}>
-          Voltar à minha carteira
-        </Button>
-      ) : (
-        <Button variant="fund" onClick={() => switchAccount(fund.id)}>
-          Operar a carteira da gestora
-        </Button>
-      )}
+      {operateButton}
     </>
   );
 
@@ -180,13 +195,18 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
       <FundHeader
         fund={fund}
         subtitle={
-          viewer
-            ? `Gerida por ${fund.manager_nickname ?? "—"}, que controla ${displayPercent(managerShare, 1)} das cotas`
-            : `Você gere esta gestora e controla ${displayPercent(managerShare, 1)} das cotas`
+          comanager
+            ? `Gerida por ${fund.manager_nickname ?? "—"}, que controla ${displayPercent(managerShare, 1)} das cotas · você é co-gestor, com ${displayPercent(Number(fund.my_share ?? 0), 0)} das taxas`
+            : viewer
+              ? `Gerida por ${fund.manager_nickname ?? "—"}, que controla ${displayPercent(managerShare, 1)} das cotas`
+              : `Você gere esta gestora e controla ${displayPercent(managerShare, 1)} das cotas`
         }
-        actions={viewer ? undefined : managerActions}
+        actions={comanager ? operateButton : viewer ? undefined : managerActions}
         footer={viewer ? <MyHoldingStrip fund={fund} /> : undefined}
       />
+
+      {/* Convite para co-gestor */}
+      {invite && <ComanagerInviteAlert fund={fund} invite={invite} />}
 
       {/* Carteira congelada */}
       {fund.frozen_until && !viewer && (
@@ -267,6 +287,22 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
       {/* Recompra */}
       <FundBuybackCard fund={fund} viewer={viewer} />
 
+      {/* Gestores */}
+      {(!viewer || fund.comanagers.length > 0) && (
+        <FundManagersCard
+          fund={fund}
+          {...(viewer
+            ? {}
+            : {
+                actions: {
+                  onInvite: () => setInviteOpen(true),
+                  onChangeShare: setShareTarget,
+                  onRemove: setRemoveTarget,
+                },
+              })}
+        />
+      )}
+
       {empty ? (
         <div className="grid items-start gap-5 xl:grid-cols-2">
           {!viewer && <FundFeesCard fund={fund} onChange={() => setFeesOpen(true)} />}
@@ -307,6 +343,9 @@ function FundDetailsContent({ fund, viewer }: DetailsContentProps) {
       {!viewer && (
         <>
           <FeesDialog open={feesOpen} onOpenChange={setFeesOpen} fund={fund} />
+          <ComanagerInviteDialog open={inviteOpen} onOpenChange={setInviteOpen} fund={fund} />
+          <ComanagerShareDialog comanager={shareTarget} onClose={() => setShareTarget(null)} fund={fund} />
+          <ComanagerRemoveDialog comanager={removeTarget} onClose={() => setRemoveTarget(null)} fundId={fund.id} />
           <DistributionDialog open={distributionOpen} onOpenChange={setDistributionOpen} fund={fund} />
           <OfferDialog
             open={offerOpen}

@@ -8,7 +8,7 @@ from typing import Annotated, Literal
 from pydantic import Field, StringConstraints
 
 from backend.core.dto.base import BaseDTO
-from backend.core.enum import FundAssemblyStatus
+from backend.core.enum import FundAssemblyStatus, FundComanagerStatus
 
 # Quatro letras e o 11 das cotas
 FUND_TICKER_PATTERN = r"^[A-Z]{4}11$"
@@ -20,6 +20,8 @@ FundName = Annotated[
 FeeRate = Annotated[Decimal, Field(ge=0, le=1, decimal_places=4)]
 # Parte do lucro realizado que vira rendimento, em fração: 0,95 é 95%
 DistributionRate = Annotated[Decimal, Field(ge=0, le=1, decimal_places=4)]
+# A parte das taxas de um co-gestor: 0,30 é 30%; o principal fica com o que sobra
+ComanagerShare = Annotated[Decimal, Field(gt=0, lt=1, decimal_places=4)]
 DEFAULT_DISTRIBUTION_RATE = Decimal("0.95")
 
 
@@ -204,6 +206,8 @@ type FundMovementType = Literal[
     "issuance_closed",
     "buyback_opened",
     "distribution",
+    "comanager_joined",
+    "comanager_left",
 ]
 
 
@@ -296,6 +300,9 @@ class FundMovementDTO(BaseDTO):
     # Valor em reais do movimento
     amount: Decimal | None
     ticker: str | None
+    # Quem entrou ou saiu da gestão e a parte das taxas de quem entrou; nulos nos demais movimentos
+    nickname: str | None = None
+    share: Decimal | None = None
 
 
 class FundOfferBuyerDTO(BaseDTO):
@@ -406,6 +413,48 @@ class FundAssemblyPanelDTO(BaseDTO):
     blocked_founding_until: date | None
 
 
+class FundComanagerDTO(BaseDTO):
+    """Um co-gestor como a linha de `fund_comanagers` o guarda."""
+
+    user_id: int
+    status: FundComanagerStatus
+    # A parte das taxas em vigor, como fração (0,30 é 30%); zero enquanto o convite espera
+    share: Decimal
+    # A parte agendada e o dia em que passa a valer
+    pending_share: Decimal | None
+    pending_from: date | None
+    invited_on: date
+    # O dia em que aceitou; nulo enquanto o convite espera
+    since: date | None
+
+    @property
+    def future_share(self) -> Decimal:
+        """A parte que vale daqui em diante: a agendada, se houver, senão a de hoje."""
+        return self.share if self.pending_share is None else self.pending_share
+
+
+class FundComanagerEventDTO(BaseDTO):
+    """A entrada (`joined`) ou a saída (`left`) de um co-gestor, no dia em que aconteceu."""
+
+    user_id: int
+    kind: Literal["joined", "left"]
+    day: date
+    share: Decimal | None
+
+
+class FundComanagerViewDTO(FundComanagerDTO):
+    """O co-gestor na página da gestora, com quem ele é e até quando o convite vale."""
+
+    nickname: str
+    color: str | None
+    # O último dia do convite pendente; nulo no co-gestor ativo
+    expires_on: date | None
+
+
+# O papel de quem consulta a gestora: gestor principal, co-gestor ou só cotista/visitante
+type FundRole = Literal["manager", "comanager", "viewer"]
+
+
 class FundDetailsDTO(FundSummaryDTO):
     """A página da gestora: quem tem as cotas, a carteira, o desempenho, as taxas e a oferta."""
 
@@ -447,6 +496,12 @@ class FundDetailsDTO(FundSummaryDTO):
     my_quotas: Decimal
     my_value: Decimal
     my_return: Decimal | None
+    # Os co-gestores (ativos e convites pendentes), a parte das taxas do principal (o que sobra
+    # das partes dos co-gestores) e o papel de quem consulta, com a parte dele quando co-gestor
+    comanagers: list[FundComanagerViewDTO]
+    manager_share: Decimal
+    my_role: FundRole
+    my_share: Decimal | None
 
 
 class FundAccountDTO(BaseDTO):
@@ -457,6 +512,8 @@ class FundAccountDTO(BaseDTO):
     ticker: str | None
     cash: Decimal
     frozen_until: date | None
+    # O papel do jogador na gestora; nulo na conta pessoal
+    role: Literal["manager", "comanager"] | None
 
 
 class FundTickerCheckDTO(BaseDTO):
@@ -503,6 +560,16 @@ class FundIssuanceSubscriptionRequest(BaseDTO):
 class FundBuybackRequest(BaseDTO):
     quantity: int = Field(gt=0)
     max_price: Decimal = Field(gt=0, decimal_places=2)
+
+
+class FundComanagerInviteRequest(BaseDTO):
+    # O apelido do jogador convidado
+    nickname: str
+    share: ComanagerShare
+
+
+class FundComanagerShareRequest(BaseDTO):
+    share: ComanagerShare
 
 
 class FundAssemblyConveneRequest(BaseDTO):

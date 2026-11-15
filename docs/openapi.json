@@ -9008,6 +9008,350 @@
         }
       }
     },
+    "/api/funds/{fund_id}/comanagers": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Convidar um co-gestor",
+        "description": "O gestor principal convida um jogador (bot não) a operar a carteira e dividir as taxas. O convite reserva a parte, vale por 7 dias e a gestora aceita até 3 co-gestores, contando os convites. O co-gestor só opera a carteira.",
+        "operationId": "invite_fund_comanager_api_funds__fund_id__comanagers_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundComanagerInviteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/comanagers/acceptance": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Aceitar o convite de co-gestão",
+        "description": "O convidado passa a operar a carteira da gestora na hora; a parte dele vale nas taxas do mês seguinte.",
+        "operationId": "accept_fund_comanager_invite_api_funds__fund_id__comanagers_acceptance_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/comanagers/refusal": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Recusar o convite de co-gestão",
+        "description": "O convite some e a parte reservada volta ao gestor principal.",
+        "operationId": "refuse_fund_comanager_invite_api_funds__fund_id__comanagers_refusal_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/comanagers/me": {
+      "delete": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Sair da co-gestão",
+        "description": "O co-gestor deixa a gestão e o acesso à carteira cai no mesmo pregão. A parte dele volta ao gestor principal na próxima divisão de taxa.",
+        "operationId": "leave_fund_comanagement_api_funds__fund_id__comanagers_me_delete",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/comanagers/{comanager_user_id}/share": {
+      "put": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Mudar a parte de um co-gestor",
+        "description": "A parte nova vale nas taxas do mês seguinte; as partes dos co-gestores precisam deixar parte para o gestor principal. Pedir a parte de hoje desfaz a mudança agendada.",
+        "operationId": "change_fund_comanager_share_api_funds__fund_id__comanagers__comanager_user_id__share_put",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          },
+          {
+            "name": "comanager_user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Comanager User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundComanagerShareRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/comanagers/{comanager_user_id}": {
+      "delete": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Remover um co-gestor ou retirar o convite",
+        "description": "O gestor principal tira o co-gestor e o acesso cai no mesmo pregão; a parte volta a ele na próxima divisão de taxa. Num convite pendente, só o retira.",
+        "operationId": "remove_fund_comanager_api_funds__fund_id__comanagers__comanager_user_id__delete",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          },
+          {
+            "name": "comanager_user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Comanager User Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/funds/{fund_id}/buyback/preview": {
       "get": {
         "tags": [
@@ -17041,6 +17385,55 @@
         "title": "ClosingDTO",
         "description": "O que o último fechamento fez com o apoio e a rejeição do partido do presidente."
       },
+      "ComanagerEventDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "invited",
+              "accepted",
+              "declined",
+              "left",
+              "removed"
+            ],
+            "title": "Kind"
+          },
+          "fund_id": {
+            "type": "integer",
+            "title": "Fund Id"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "share": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "fund_id",
+          "ticker",
+          "nickname",
+          "share"
+        ],
+        "title": "ComanagerEventDTO",
+        "description": "O que mudou na co-gestão de uma gestora para o jogador: convite, resposta, saída ou remoção."
+      },
       "CompleteNotificationSettings": {
         "properties": {
           "news_position": {
@@ -21287,6 +21680,21 @@
               }
             ],
             "title": "Frozen Until"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "manager",
+                  "comanager"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
           }
         },
         "additionalProperties": false,
@@ -21296,7 +21704,8 @@
           "name",
           "ticker",
           "cash",
-          "frozen_until"
+          "frozen_until",
+          "role"
         ],
         "title": "FundAccountDTO",
         "description": "Uma conta com que o jogador opera: a pessoal (sem gestora) ou uma gestora que ele gere."
@@ -21856,6 +22265,164 @@
           "canceled"
         ]
       },
+      "FundComanagerInviteRequest": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "share": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMaximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "share"
+        ],
+        "title": "FundComanagerInviteRequest"
+      },
+      "FundComanagerShareRequest": {
+        "properties": {
+          "share": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMaximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "share"
+        ],
+        "title": "FundComanagerShareRequest"
+      },
+      "FundComanagerStatus": {
+        "type": "string",
+        "enum": [
+          "INVITED",
+          "ACTIVE"
+        ],
+        "title": "FundComanagerStatus",
+        "description": "O co-gestor da gestora: o convite que espera a resposta ou o gestor que já opera a carteira."
+      },
+      "FundComanagerViewDTO": {
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "title": "User Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FundComanagerStatus"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          },
+          "pending_share": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Share"
+          },
+          "pending_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending From"
+          },
+          "invited_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Invited On"
+          },
+          "since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Since"
+          },
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "expires_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "user_id",
+          "status",
+          "share",
+          "pending_share",
+          "pending_from",
+          "invited_on",
+          "since",
+          "nickname",
+          "color",
+          "expires_on"
+        ],
+        "title": "FundComanagerViewDTO",
+        "description": "O co-gestor na página da gestora, com quem ele é e até quando o convite vale."
+      },
       "FundCompositionDTO": {
         "properties": {
           "asset_class": {
@@ -22409,6 +22976,31 @@
               }
             ],
             "title": "My Return"
+          },
+          "comanagers": {
+            "items": {
+              "$ref": "#/components/schemas/FundComanagerViewDTO"
+            },
+            "type": "array",
+            "title": "Comanagers"
+          },
+          "manager_share": {
+            "type": "string",
+            "title": "Manager Share"
+          },
+          "my_role": {
+            "$ref": "#/components/schemas/FundRole"
+          },
+          "my_share": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "My Share"
           }
         },
         "additionalProperties": false,
@@ -22466,7 +23058,11 @@
           "positions",
           "my_quotas",
           "my_value",
-          "my_return"
+          "my_return",
+          "comanagers",
+          "manager_share",
+          "my_role",
+          "my_share"
         ],
         "title": "FundDetailsDTO",
         "description": "A página da gestora: quem tem as cotas, a carteira, o desempenho, as taxas e a oferta."
@@ -23287,6 +23883,28 @@
               }
             ],
             "title": "Ticker"
+          },
+          "nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nickname"
+          },
+          "share": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share"
           }
         },
         "additionalProperties": false,
@@ -23297,7 +23915,9 @@
           "quotas",
           "price",
           "amount",
-          "ticker"
+          "ticker",
+          "nickname",
+          "share"
         ],
         "title": "FundMovementDTO"
       },
@@ -23315,7 +23935,9 @@
           "issuance_opened",
           "issuance_closed",
           "buyback_opened",
-          "distribution"
+          "distribution",
+          "comanager_joined",
+          "comanager_left"
         ]
       },
       "FundOfferBuyerDTO": {
@@ -23504,6 +24126,14 @@
         ],
         "title": "FundReportDTO",
         "description": "O relatório mensal: as posições no último pregão do mês fechado."
+      },
+      "FundRole": {
+        "type": "string",
+        "enum": [
+          "manager",
+          "comanager",
+          "viewer"
+        ]
       },
       "FundSeriesPointDTO": {
         "properties": {
@@ -30843,6 +31473,7 @@
           "DEAL_DEMAND",
           "SELIC_MEETING",
           "FUND_ASSEMBLY_INVITE",
+          "COMANAGER_INVITE",
           "FUND_DISTRIBUTION_SHORT_CASH"
         ],
         "title": "PendingType",
@@ -34201,6 +34832,9 @@
           "funds_update": {
             "$ref": "#/components/schemas/FundsUpdateEventDTO"
           },
+          "comanager_update": {
+            "$ref": "#/components/schemas/ComanagerEventDTO"
+          },
           "budget_update": {
             "$ref": "#/components/schemas/BudgetDTO"
           },
@@ -34354,6 +34988,7 @@
           "stocks_update",
           "fixed_assets_update",
           "funds_update",
+          "comanager_update",
           "budget_update",
           "economy_update",
           "base_update",
@@ -39815,7 +40450,9 @@
           "AUTO_REDEEM",
           "CORPORATE_ACTIONS",
           "YEAR_REVIEW",
-          "VICE_ANSWER"
+          "VICE_ANSWER",
+          "COMANAGER_INVITED",
+          "COMANAGER_ANSWER"
         ],
         "title": "ToastType",
         "description": "Um aviso do que acontece com o próprio jogador, ligado ou desligado por tipo."

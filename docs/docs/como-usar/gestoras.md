@@ -46,3 +46,13 @@ Quem tem **10% das cotas ou mais** pode **convocar uma assembleia** pelo botão 
 - **Intervalo:** cada gestora tem no máximo **uma assembleia a cada 3 meses**, aberta ou concluída.
 
 Do convite ao resultado a gestora **não emite cotas**. A **recompra segue liberada** e é a defesa do gestor: as cotas recompradas saem do total e do placar. Os cotistas recebem um aviso quando a votação abre e quando sai o resultado, e a assembleia vira manchete.
+
+## Co-gestores
+
+O gestor principal pode chamar até **3 co-gestores** pelo botão **Convidar co-gestor**, no cartão **Gestores** da página da gestora. O co-gestor **opera a carteira** (compra e vende ações e renda fixa em nome da gestora) e **divide as taxas** com o principal. Taxas, ofertas, emissões, recompras e a escolha de co-gestores seguem só com o principal. Bots não são convidados.
+
+- **Parte nas taxas:** o principal escolhe quantos por cento das taxas de administração e de performance vão para cada co-gestor. Ex.: com a administração rendendo R$ 1.666,67 por mês e 20% para um co-gestor, ele recebe R$ 333,33 e o principal fica com R$ 1.333,34. A parte do principal é o que sobra, e ele sempre fica com pelo menos 1%.
+- **Convite:** vale **7 dias** e já **reserva a parte** oferecida, então os convites pendentes contam na soma. O convidado responde pelo aviso da página ou pelas pendências. Ao aceitar, o acesso à carteira abre na hora.
+- **Quando a parte vale:** a parte nova, ou a parte mudada de quem já opera, entra nas taxas do **mês seguinte**. O cartão mostra a mudança agendada.
+- **Saída:** o co-gestor pode **sair da gestão** e o principal pode **remover** um co-gestor. O acesso à carteira acaba no mesmo pregão, e a parte volta ao principal na próxima divisão de taxas.
+- **Afastamento do principal:** se uma assembleia troca o gestor, o **co-gestor de maior parte** (no empate, o mais antigo) assume como principal e herda a parte de quem saiu. Sem co-gestor, a gestora fica congelada.
