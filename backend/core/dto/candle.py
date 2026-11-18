@@ -46,3 +46,5 @@ class MarketQuoteDTO(CandleDTO):
     sparkline: list[float]
     sector: str | None
     segment: str | None
+    # O governo da partida ainda controla a empresa
+    state_owned: bool

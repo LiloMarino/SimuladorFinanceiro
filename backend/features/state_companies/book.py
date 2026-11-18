@@ -162,6 +162,14 @@ class StateCompanyBook:
     def company(self, ticker: str) -> StateCompanyDTO | None:
         return self._companies.get(ticker)
 
+    def state_tickers(self) -> set[str]:
+        """Os papéis que o governo ainda controla: a privatizada já é uma empresa comum."""
+        return {
+            company.ticker
+            for company in self._companies.values()
+            if company.status is not StateCompanyStatus.PRIVATIZED
+        }
+
     def is_founded(self, ticker: str) -> bool:
         """A ação é de uma estatal fundada na partida: preço e provento próprios, fora da bolsa."""
         company = self._companies.get(ticker)

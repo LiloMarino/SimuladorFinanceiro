@@ -7,6 +7,7 @@ import {
   eventAccountKey,
   getSelectedFundId,
   hasAccountChoice,
+  isManagedFundAccount,
   isSovereignAccount,
   resolveActiveAccount,
   selectFund,
@@ -160,6 +161,12 @@ describe("Fundo Soberano", () => {
     expect(isSovereignAccount(aurora)).toBe(false);
     expect(isSovereignAccount(personal)).toBe(false);
     expect(isSovereignAccount(null)).toBe(false);
+  });
+
+  it("só a gestora de verdade conta como gestora: nem a pessoal nem o Fundo Soberano", () => {
+    expect(isManagedFundAccount(aurora)).toBe(true);
+    expect(isManagedFundAccount(sovereign)).toBe(false);
+    expect(isManagedFundAccount(personal)).toBe(false);
   });
 
   it("o id 0 do fundo vai em X-Account como qualquer outra conta", () => {

@@ -53,6 +53,10 @@ export const hasAccountChoice = (match: MatchFlags | null | undefined) =>
 export const isSovereignAccount = (account: Pick<FundAccount, "role"> | null | undefined) =>
   account?.role === "president";
 
+/** A conta é de uma gestora de verdade: tem id e não é o Fundo Soberano. */
+export const isManagedFundAccount = (account: Pick<FundAccount, "fund_id" | "role">) =>
+  account.fund_id !== null && !isSovereignAccount(account);
+
 /**
  * A conta em uso: a escolhida, se ainda está na lista; senão a pessoal.
  * Sem lista (expansão desligada ou ainda carregando) a escolha não vale.

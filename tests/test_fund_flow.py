@@ -561,7 +561,7 @@ def test_holders_are_listed_from_the_largest_with_color_and_share(started):  # n
 
     assert [(h.kind, h.nickname, h.quotas, h.color) for h in page.holders] == [
         ("player", "Ana", 50, "chart-1"),
-        ("maker", "Formador de mercado", 7, None),
+        ("maker", "Mercado", 7, None),
         ("player", "Bruno", 5, "chart-2"),
     ]
     assert page.holders[0].user_id == ana.id
@@ -629,13 +629,16 @@ def test_offer_in_progress_shows_sold_raised_and_buyers(started):  # noqa: F811
     assert (buyer.quotas, buyer.color) == (5, "chart-2")
 
 
-def test_closed_offer_has_no_progress_and_leaves_its_marks_in_the_movements(started):  # noqa: F811
+def test_closed_offer_keeps_what_was_sold_and_leaves_its_marks_in_the_movements(
+    started,  # noqa: F811
+):
     sim, ana, _bruno, fund_id = offered_match()
     sim.close_fund_offer(ana, fund_id)
 
     page = sim.get_fund(ana, fund_id)
 
-    assert (page.offer_sold, page.offer_raised, page.offer_buyers) == (None,) * 3
+    assert (page.offer_sold, page.offer_raised) == (5, 500)
+    assert page.offer_buyers is None
     closed = next(m for m in page.movements if m.type == "offer_closed")
     assert (closed.quotas, closed.amount, closed.price) == (5, 500, 100)
     opened = next(m for m in page.movements if m.type == "offer_opened")

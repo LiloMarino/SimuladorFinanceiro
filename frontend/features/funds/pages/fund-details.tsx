@@ -147,7 +147,7 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
           Levar da carteira
         </Button>
       )}
-      {stage !== "offer" && (
+      {stage === "closed" && (
         <Button variant="outline" disabled={total === 0} onClick={() => setOfferOpen(true)}>
           Oferta pública
         </Button>

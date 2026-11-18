@@ -42,8 +42,8 @@ describe("ownerBadge", () => {
   });
 
   it.each([
-    ["market", "B3"],
-    ["fund_maker", "FM"],
+    ["market", "MC"],
+    ["fund_maker", "MC"],
     ["fund_issuer", "OP"],
   ] as const)("dono sintético %s tem a sigla %s em cinza", (owner, label) => {
     expect(ownerBadge(order({ owner, player_color: null }))).toMatchObject({ label, tone: "neutral" });
@@ -77,8 +77,8 @@ describe("describeOffer", () => {
       "a venda de R$ 12,35 do Mercado",
     );
     expect(describeOffer(order({}), "R$ 12,35")).toBe("a compra de R$ 12,35 de Ana Souza");
-    expect(describeOffer(order({ owner: "fund_maker", player_nickname: "Formador de mercado" }), "R$ 1,00")).toBe(
-      "a compra de R$ 1,00 do formador de mercado",
+    expect(describeOffer(order({ owner: "fund_maker", player_nickname: "Mercado" }), "R$ 1,00")).toBe(
+      "a compra de R$ 1,00 do Mercado",
     );
   });
 });

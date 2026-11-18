@@ -3,6 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 from backend.core.dto.base import BaseDTO
+from backend.core.enum import AssetClass
 
 
 class PositionDTO(BaseDTO):
@@ -19,6 +20,7 @@ class PositionDTO(BaseDTO):
 
 class PortfolioPositionDTO(PositionDTO):
     name: str
+    asset_class: AssetClass
     portfolio_pct: Decimal
     # Fração (0.06 = 6%) do provento por ação dos últimos 12 meses sobre o preço de hoje;
     # nula na cripto, que não paga

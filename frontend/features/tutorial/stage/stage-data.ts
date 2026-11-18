@@ -30,6 +30,7 @@ const quote = (
   sparkline: sparklineTo(close, changePct * 3),
   sector: null,
   segment: null,
+  state_owned: false,
 });
 
 export const STAGE_QUOTES: MarketQuote[] = [

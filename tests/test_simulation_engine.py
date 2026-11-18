@@ -197,6 +197,7 @@ def test_portfolio_shows_dividends_received_and_yields(
     portfolio = engine.get_portfolio(PLAYER)
 
     position = portfolio.variable_income[0]
+    assert position.asset_class is AssetClass.STOCK
     assert position.dividend_yield_12m == Decimal("0.1")
     assert position.yield_on_cost == Decimal("0.12")
     assert position.dividends_received == Decimal("12")

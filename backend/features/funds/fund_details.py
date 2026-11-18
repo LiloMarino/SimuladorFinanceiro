@@ -48,7 +48,7 @@ from backend.features.variable_income.broker import replay_positions
 # Pregões lidos da série de fechamentos: de sobra para os últimos 12 meses
 SERIES_LIMIT = 500
 
-MAKER_NICKNAME = "Formador de mercado"
+MAKER_NICKNAME = "Mercado"
 BOTS_NICKNAME = "Bots"
 
 _CLASSES: tuple[FundHoldingClass, ...] = (
@@ -199,12 +199,8 @@ class FundDetailsBuilder:
                 nicknames={user.id: user.nickname for user in users},
                 today=today,
             ),
-            offer_sold=offer.facts.totals.sold
-            if offer.facts and offer.facts.in_progress
-            else None,
-            offer_raised=offer.facts.totals.raised
-            if offer.facts and offer.facts.in_progress
-            else None,
+            offer_sold=offer.facts.totals.sold if offer.facts else None,
+            offer_raised=offer.facts.totals.raised if offer.facts else None,
             offer_buyers=offer.buyers,
             issuance=self._issuance(fund, viewer, today),
             buyback=book.buyback_of(fund),

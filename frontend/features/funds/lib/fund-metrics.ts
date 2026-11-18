@@ -177,7 +177,7 @@ export const YIELD_PER_QUOTA: MetricInfo = {
   label: "Rendimento por cota",
   description: "Quanto cada cota recebeu em dinheiro no mês",
   definition:
-    "É o lucro distribuído dividido pelas cotas que estão com os cotistas. O formador de mercado não recebe: a conta usa só as cotas de fora.",
+    "É o lucro distribuído dividido pelas cotas que estão com os cotistas. O Mercado não recebe: a conta usa só as cotas de fora.",
   example: "Ex.: R$ 9.500 distribuídos para 1.000 cotas de fora: R$ 9,50 por cota. Quem tem 40 cotas recebe R$ 380,00.",
   reading:
     "Compare com o patrimônio por cota: R$ 9,50 sobre uma cota de R$ 125,00 é 7,6% no mês. Rendimento alto sustentado por meses é sinal de carteira que realiza lucro de verdade.",

@@ -63,9 +63,9 @@ export function PrivatizationOfferCard({ offer, today }: PrivatizationOfferCardP
             <Badge variant="warning">{offerDaysLabel(offer, today)}</Badge>
           </div>
           <p className="text-[13px] text-muted-foreground">
-            O governo vende a fatia dele a quem reservar, e o formador de mercado do jogo compra o que sobrar. O preço é
-            o valor justo do último dia da oferta; se a sala pedir mais ações do que há, cada um recebe a mesma
-            proporção do que pediu.
+            O governo vende a fatia dele a quem reservar, e o Mercado do jogo compra o que sobrar. O preço é o valor
+            justo do último dia da oferta; se a sala pedir mais ações do que há, cada um recebe a mesma proporção do que
+            pediu.
           </p>
 
           {/* Números da oferta */}

@@ -265,7 +265,7 @@ def test_a_sale_without_buyer_is_the_market_maker():
 
     assert [(b.kind, b.user_id, b.nickname, b.quotas) for b in result] == [
         ("player", 1, "ana", 2),
-        ("maker", None, "Formador de mercado", 4),
+        ("maker", None, "Mercado", 4),
     ]
 
 
@@ -288,7 +288,7 @@ def test_holders_include_bots_and_the_maker_and_skip_empty_positions():
     assert [(h.kind, h.nickname, h.quotas, h.color) for h in result] == [
         ("player", "ana", 60, "chart-1"),
         ("bot", "bot", 30, "chart-3"),
-        ("maker", "Formador de mercado", 10, None),
+        ("maker", "Mercado", 10, None),
     ]
     assert [h.share for h in result] == [
         Decimal(60) / 110,

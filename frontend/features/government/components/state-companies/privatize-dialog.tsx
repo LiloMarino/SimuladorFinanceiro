@@ -123,7 +123,7 @@ export function PrivatizeDialog({ company, offerSessions, onClose }: PrivatizeDi
                 <ul className="grid gap-2">
                   <li className="flex items-start gap-2">
                     <Megaphone className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                    Oferta aberta à sala por {offerSessions} pregões, ao valor justo. O formador do jogo compra o que
+                    Oferta aberta à sala por {offerSessions} pregões, ao valor justo. O Mercado do jogo compra o que
                     sobrar.
                   </li>
                   {company.origin === "FOUNDED" && (

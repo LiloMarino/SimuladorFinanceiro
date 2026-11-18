@@ -2776,6 +2776,11 @@ class Simulation:
         """As cotações do dia com os 30 pregões do mini gráfico; o último ponto é o de hoje, com impacto."""
         closes = repository.stock.get_recent_closes(self._current_date, SPARKLINE_DAYS)
         classification = self._engine.classification
+        state_tickers = (
+            self._government.state_companies().state_tickers()
+            if self._government
+            else set()
+        )
         quotes = []
         for candle in self.get_stocks():
             history = closes.get(candle.ticker, [])
@@ -2788,6 +2793,7 @@ class Simulation:
                     else [candle.close],
                     sector=segment.sector if segment else None,
                     segment=segment.segment if segment else None,
+                    state_owned=candle.ticker in state_tickers,
                 )
             )
         return quotes

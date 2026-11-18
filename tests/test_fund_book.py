@@ -470,7 +470,7 @@ def test_open_offer_lists_the_fund_and_sets_the_maker_stake(memory: MemoryFunds)
         FUND_ISSUER_CLIENT_ID,
     }
     assert {o.to_dto().player_nickname for o in orders} == {
-        "Formador de mercado",
+        "Mercado",
         "Oferta pública",
     }
 

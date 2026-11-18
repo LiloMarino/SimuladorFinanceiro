@@ -119,6 +119,11 @@ export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
                         {classLabel}
                       </Badge>
                     )}
+                    {q.state_owned && (
+                      <Badge variant="state" size="sm">
+                        Estatal
+                      </Badge>
+                    )}
                   </span>
                   <span className="max-w-56 truncate text-xs text-muted-foreground">{q.name}</span>
                 </div>

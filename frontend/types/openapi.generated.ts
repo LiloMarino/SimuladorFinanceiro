@@ -10085,6 +10085,8 @@ export interface components {
             sector: string | null;
             /** Segment */
             segment: string | null;
+            /** State Owned */
+            state_owned: boolean;
         };
         /**
          * MarketRegime
@@ -11460,6 +11462,7 @@ export interface components {
             return_pct: string;
             /** Name */
             name: string;
+            asset_class: components["schemas"]["AssetClass"];
             /** Portfolio Pct */
             portfolio_pct: string;
             /** Dividend Yield 12M */

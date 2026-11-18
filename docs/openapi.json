@@ -29624,6 +29624,10 @@
               }
             ],
             "title": "Segment"
+          },
+          "state_owned": {
+            "type": "boolean",
+            "title": "State Owned"
           }
         },
         "additionalProperties": false,
@@ -29644,7 +29648,8 @@
           "change_pct",
           "sparkline",
           "sector",
-          "segment"
+          "segment",
+          "state_owned"
         ],
         "title": "MarketQuoteDTO"
       },
@@ -33799,6 +33804,9 @@
             "type": "string",
             "title": "Name"
           },
+          "asset_class": {
+            "$ref": "#/components/schemas/AssetClass"
+          },
           "portfolio_pct": {
             "type": "string",
             "title": "Portfolio Pct"
@@ -33843,6 +33851,7 @@
           "return_value",
           "return_pct",
           "name",
+          "asset_class",
           "portfolio_pct",
           "dividend_yield_12m",
           "yield_on_cost",

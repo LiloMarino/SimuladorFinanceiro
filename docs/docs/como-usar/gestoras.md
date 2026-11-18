@@ -40,7 +40,7 @@ Quem tem **10% das cotas ou mais** pode **convocar uma assembleia** pelo botão 
 - **Convite:** se a indicação for um aliado, ele precisa **aceitar** em até 5 pregões. Recusa, silêncio ou cancelamento pelo convocador encerram o convite, e isso **não conta** no intervalo entre assembleias.
 - **Votação (5 pregões):** abre no dia em que o convite é aceito, e o dia da abertura conta. Os votos são abertos, o placar aparece ao vivo e cada um pode mudar o voto até o fim.
 - **Peso do voto:** as cotas que o votante tem no fechamento do 5º pregão. Ex.: quem tem 300 cotas e vota a favor soma 300 ao lado da troca.
-- **Quem entra no placar:** o convocador já começa a favor. Só vota quem tem cota. O gestor não vota: as cotas dele contam **contra**. Quem não votou, os bots e o formador de mercado **abstêm**.
+- **Quem entra no placar:** o convocador já começa a favor. Só vota quem tem cota. O gestor não vota: as cotas dele contam **contra**. Quem não votou, os bots e o Mercado **abstêm**.
 - **Resultado:** a troca acontece se as cotas a favor passam das cotas contra. **Empate mantém o gestor.**
 - **Quem sai:** o gestor afastado vira cotista comum, perde a operação e as taxas futuras, e só pode fundar outra gestora depois de **6 meses**. A recompra aberta dele é cancelada.
 - **Intervalo:** cada gestora tem no máximo **uma assembleia a cada 3 meses**, aberta ou concluída.

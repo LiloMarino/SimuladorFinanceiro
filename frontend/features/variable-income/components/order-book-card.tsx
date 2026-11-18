@@ -135,7 +135,7 @@ export function OrderBookCard({
           onPick={onPick}
         />
         <p className="border-t border-border px-4 py-2 text-xs text-muted-foreground">
-          Cada ordem mostra a sigla do jogador na cor dele. Robôs, o formador de mercado e o Mercado aparecem em cinza.
+          Cada ordem mostra a sigla do jogador na cor dele. Robôs e o Mercado aparecem em cinza.
         </p>
       </>
     );

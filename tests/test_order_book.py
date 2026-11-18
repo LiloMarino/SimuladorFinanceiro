@@ -157,7 +157,7 @@ def test_synthetic_owners_are_named_and_have_no_color():
     """Mercado, formador e oferta pública são donos sintéticos: sem cor e com o tipo de cada um."""
     for client_id, nickname, owner in (
         (MARKET_CLIENT_ID, "Mercado", OrderOwner.MARKET),
-        (MARKET_MAKER_CLIENT_ID, "Formador de mercado", OrderOwner.FUND_MAKER),
+        (MARKET_MAKER_CLIENT_ID, "Mercado", OrderOwner.FUND_MAKER),
         (FUND_ISSUER_CLIENT_ID, "Oferta pública", OrderOwner.FUND_ISSUER),
     ):
         order = _limit(10, OrderAction.BUY)

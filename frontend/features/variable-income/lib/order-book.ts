@@ -75,7 +75,7 @@ export function displayDayMonth(date: string) {
 
 const OFFER_SOURCE: Partial<Record<Order["owner"], string>> = {
   market: "do Mercado",
-  fund_maker: "do formador de mercado",
+  fund_maker: "do Mercado",
   fund_issuer: "da oferta pública",
 };
 

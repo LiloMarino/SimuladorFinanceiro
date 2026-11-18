@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { Calculator } from "lucide-react";
 import type { NavItem } from "@/types";
 import { Badge } from "@/shared/components/ui/badge";
+import { isManagedFundAccount } from "@/shared/lib/active-account";
 import { summarizeAssistances } from "@/shared/lib/assistance";
 import {
   Sidebar as SidebarRoot,
@@ -69,7 +70,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
     (!item.expansion || expansionOn[item.expansion]);
   // O item das Gestoras leva o nome da gestora do jogador
   const { data: fundAccounts } = useFundAccounts({ enabled: expansionOn.funds });
-  const myFundName = fundAccounts?.find((account) => account.fund_id !== null)?.name;
+  const myFundName = fundAccounts?.find(isManagedFundAccount)?.name;
   const labelOf = (item: NavItem) => (item.key === "funds" && myFundName ? myFundName : item.label);
   const isExpert =
     !!match &&

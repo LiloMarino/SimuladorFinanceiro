@@ -28,6 +28,7 @@ from backend.features.state_companies.book import (
 )
 from backend.features.state_companies.orders import StateOrder
 from tests.fakes import simulation_settings
+from tests.test_government_state_orders import company as imported_company
 
 FOUNDED_ON = date(2022, 4, 15)
 REAL_INTEREST = Decimal("0.05")
@@ -275,3 +276,14 @@ def test_other_points_leave_out_the_company_asked_about(database: Engine) -> Non
 @pytest.mark.parametrize("size", list(StateCompanySize))
 def test_every_size_has_a_positive_investment(size: StateCompanySize) -> None:
     assert invested_by(size) > 0
+
+
+def test_state_tickers_leave_out_the_privatized_company() -> None:
+    companies = [
+        imported_company("ENER3", StateLever.ENERGY),
+        imported_company("PETR4", StateLever.FUEL, StateCompanyStatus.PRIVATIZING),
+        imported_company("BANK3", None, StateCompanyStatus.PRIVATIZED),
+    ]
+    book = StateCompanyBook(1, 7, lambda: {}, companies)
+
+    assert book.state_tickers() == {"ENER3", "PETR4"}

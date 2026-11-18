@@ -828,6 +828,7 @@ class SimulationEngine:
         return PortfolioPositionDTO(
             **pos.model_dump(),
             name=names.get(pos.ticker, pos.ticker),
+            asset_class=stock.asset_class,
             portfolio_pct=ratio(pos.current_value, invested_value),
             dividend_yield_12m=dividend_yield(
                 paid, pos.current_price, stock.asset_class

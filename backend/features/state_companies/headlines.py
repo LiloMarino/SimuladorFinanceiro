@@ -73,7 +73,7 @@ def privatized(
     dek = (
         "Os pedidos passaram da oferta e as ações foram rateadas entre os compradores."
         if prorated
-        else "Os pedidos couberam na oferta; a sobra vai ao formador de mercado."
+        else "Os pedidos couberam na oferta; a sobra vai ao Mercado."
     )
     return Headline(
         NewsType.STATE_PRIVATIZATION_CLOSED,

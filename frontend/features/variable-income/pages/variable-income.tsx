@@ -153,7 +153,7 @@ export default function VariableIncomePage() {
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ml-auto flex flex-wrap items-center gap-3">
             <div className="flex h-10 items-center gap-2 rounded-lg border border-input px-3">
               <Switch id="only-held" checked={onlyHeld} onCheckedChange={setOnlyHeld} />
               <Label htmlFor="only-held">Na carteira · {heldCount}</Label>

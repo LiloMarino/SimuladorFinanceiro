@@ -441,7 +441,7 @@ export const FAIR_VALUE: MetricInfo = {
   label: "Valor justo",
   description: "O preço por ação que o jogo calcula pelo lucro da empresa",
   definition:
-    "É o preço que o formador de mercado do jogo considera certo pela empresa, olhando o lucro e o patrimônio. Pode ficar acima ou abaixo do preço da bolsa, que muda a cada negócio.",
+    "É o preço que o Mercado do jogo considera certo pela empresa, olhando o lucro e o patrimônio. Pode ficar acima ou abaixo do preço da bolsa, que muda a cada negócio.",
   example:
     "Ex.: valor justo de R$ 7,84 e bolsa em R$ 7,31: comprar na oferta custa R$ 0,53 a mais por ação (7% acima da bolsa).",
   reading:

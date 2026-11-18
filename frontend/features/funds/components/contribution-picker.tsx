@@ -27,7 +27,10 @@ export function ContributionPicker({
   idPrefix,
 }: ContributionPickerProps) {
   const cashTooHigh = cashOf(cashText) > Number(portfolio.cash) + 1e-9;
-  const positions = portfolio.variable_income.filter((position) => freeSize(position) > 0);
+  // A integralização aceita ações, FIIs e cripto; a cota de gestora não entra
+  const positions = portfolio.variable_income.filter(
+    (position) => position.asset_class !== "FUND" && freeSize(position) > 0,
+  );
 
   const toggle = (ticker: string, checked: boolean, free: number) => {
     const rest = Object.fromEntries(Object.entries(picks).filter(([picked]) => picked !== ticker));

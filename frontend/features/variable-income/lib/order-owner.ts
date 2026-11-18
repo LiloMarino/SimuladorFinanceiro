@@ -9,8 +9,8 @@ export type BookViewer = { nickname: string | undefined; fundName: string | null
 
 /** Donos que não são pessoas nem gestoras: o nome vem do servidor, a sigla é fixa. */
 const SYNTHETIC_LABEL: Partial<Record<Owner, string>> = {
-  market: "B3",
-  fund_maker: "FM",
+  market: "MC",
+  fund_maker: "MC",
   fund_issuer: "OP",
 };
 
@@ -33,7 +33,7 @@ export function ownerBadge(order: Order): OwnerBadge {
   return { label, tone: "player", color: playerColorStyle(order.player_color ?? undefined) };
 }
 
-/** A ordem veio de um dono sintético (Mercado, formador ou oferta pública), sem pessoa por trás. */
+/** A ordem veio de um dono sintético (Mercado ou oferta pública), sem pessoa por trás. */
 export const isSyntheticOwner = (order: Order) => order.owner in SYNTHETIC_LABEL;
 
 /** A ordem é da conta ativa: do jogador na conta pessoal, ou da gestora quando ela está ativa. */

@@ -23,7 +23,7 @@ const LEGEND = [
   {
     field: "abstention",
     label: "abstenção",
-    hint: "quem não votou, bots e formador de mercado",
+    hint: "quem não votou, bots e o Mercado",
     dot: "bg-faint-foreground",
   },
 ] as const;

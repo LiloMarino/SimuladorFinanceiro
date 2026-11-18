@@ -277,12 +277,14 @@ def test_market_keeps_quote_and_sparkline_consistent_and_reuses_classification(
     sim._current_date = TODAY
     sim._engine = SimulationEngine(TODAY, 1, date(2030, 1, 1))
     sim._price_impact = PriceImpact(1, False, 0.02, 20)
+    sim._government = None
     with _selects(quotes) as statements:
         market = sim.get_market()
     assert len(statements) == 3  # cotações, fechamentos e classificação
     assert [q.ticker for q in market] == ["ZETA3", "ALFA11", "ZERO11"]
     assert market[0].sparkline == [9, 12, 10.25]
     assert all(q.sparkline[-1] == q.close for q in market)
+    assert not any(q.state_owned for q in market)
 
     with _selects(quotes) as statements:
         assert sim.get_market() == market

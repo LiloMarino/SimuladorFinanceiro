@@ -19,7 +19,7 @@ FUND_ISSUER_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__FUND_ISSUER
 # Os donos sintéticos, o apelido que cada um mostra no livro de ofertas e o tipo de dono
 SYNTHETIC_OWNERS: dict[uuid.UUID, tuple[str, OrderOwner]] = {
     MARKET_CLIENT_ID: ("Mercado", OrderOwner.MARKET),
-    MARKET_MAKER_CLIENT_ID: ("Formador de mercado", OrderOwner.FUND_MAKER),
+    MARKET_MAKER_CLIENT_ID: ("Mercado", OrderOwner.FUND_MAKER),
     FUND_ISSUER_CLIENT_ID: ("Oferta pública", OrderOwner.FUND_ISSUER),
 }
 

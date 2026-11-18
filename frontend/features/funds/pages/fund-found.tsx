@@ -5,6 +5,7 @@ import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { useSimulation } from "@/shared/hooks/useSimulation";
+import { isManagedFundAccount } from "@/shared/lib/active-account";
 import { FundFoundForm } from "../components/fund-found-form";
 
 /** Fundar a gestora: resolve a carteira e os tetos de taxa da partida e entrega o formulário já com eles. */
@@ -16,7 +17,7 @@ export default function FundFoundPage() {
   const rules = simulation?.simulation;
 
   // Quem já tem gestora abre a dela
-  if (accounts?.some((account) => account.fund_id !== null)) return <Navigate to="/funds" replace />;
+  if (accounts?.some(isManagedFundAccount)) return <Navigate to="/funds" replace />;
 
   if (!portfolio || !rules) {
     return (
