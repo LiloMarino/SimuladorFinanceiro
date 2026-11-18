@@ -35,7 +35,7 @@
 | **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | [F285](#f285), [F287](#f287), [F288](#f288) | — | — | — |
 | **N21** | — | Jogar "na unha", sem a interface apontar a melhor escolha | — | — | — | — | — |
 | **N22** | — | Ter objetivos para buscar além de vencer a partida | — | [F90](#f90), [F123](#f123), [F159](#f159) | — | — | — |
-| **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F44](#f44), [F55](#f55), [F101](#f101), [F102](#f102), [F103](#f103), [F104](#f104), [F105](#f105), [F290](#f290), [F293](#f293), [F296](#f296), [F299](#f299), [F300](#f300), [F301](#f301), [F302](#f302), [F303](#f303), [F304](#f304), [F305](#f305), [F306](#f306) | — | — | — |
+| **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F44](#f44), [F55](#f55), [F101](#f101), [F102](#f102), [F103](#f103), [F104](#f104), [F105](#f105), [F290](#f290), [F293](#f293), [F296](#f296), [F299](#f299), [F300](#f300), [F301](#f301), [F302](#f302), [F303](#f303), [F304](#f304), [F305](#f305), [F306](#f306), [F310](#f310) | — | — | — |
 | **N24** | — | Saber onde está a lentidão durante uma partida | — | — | — | — | — |
 | **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F193](#f193), [F225](#f225), [F289](#f289) | — | — | — |
 | **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | — | — | — | — |
@@ -95,6 +95,7 @@
 | [**F307**](#f307) | Correção | Estatais com preço vivo e receita à vista | M18 · 4.2 | — | — | — | 🔍 |
 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 | — | — | — | 🔍 |
+| [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 | — | — | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (40 itens — clique pra expandir)</strong></summary>
@@ -156,7 +157,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 20/34 concluídos
+> **Progresso:** 20/35 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -184,16 +185,17 @@
 | 22 | [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | — | ⏳ Pendente |
 | 23 | [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | — | ⏳ Pendente |
 | 24 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | — | ⏳ Pendente |
-| 25 | [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | — | 🔍 Em avaliação |
-| 26 | [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | — | 🔍 Em avaliação |
-| 27 | [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | — | 🔍 Em avaliação |
-| 28 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | — | ⏳ Pendente |
-| 29 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | — | ⏳ Pendente |
-| 30 | [**F307**](#f307) | Correção | Estatais com preço vivo e receita à vista | — | 🔍 Em avaliação |
-| 31 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | — | ⏳ Pendente |
-| 32 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | — | 🔍 Em avaliação |
-| 33 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | — | 🔍 Em avaliação |
-| 34 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | — | 🔍 Em avaliação |
+| 25 | [**F310**](#f310) | Feature | Página Ofertas públicas | [F299](#f299) | 🔍 Em avaliação |
+| 26 | [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | — | 🔍 Em avaliação |
+| 27 | [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | — | 🔍 Em avaliação |
+| 28 | [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | — | 🔍 Em avaliação |
+| 29 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | — | ⏳ Pendente |
+| 30 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | — | ⏳ Pendente |
+| 31 | [**F307**](#f307) | Correção | Estatais com preço vivo e receita à vista | — | 🔍 Em avaliação |
+| 32 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | — | ⏳ Pendente |
+| 33 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | — | 🔍 Em avaliação |
+| 34 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | — | 🔍 Em avaliação |
+| 35 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | — | 🔍 Em avaliação |
 
 ### 4.3 — Mesa do trader (M24)
 
@@ -291,17 +293,17 @@
 | [**F296**](#f296) | Correção | Correções do playtest: gestoras e renda variável | M18 · 4.2 · 21º | 0 | Médio | Bom | ⏳ |
 | [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | M18 · 4.2 · 22º | 0 | Médio | Bom | ⏳ |
 | [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | M18 · 4.2 · 23º | 0 | Médio | Bom | ⏳ |
-| [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | M18 · 4.2 · 24º | 0 | Alto | Bom | ⏳ |
-| [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | M18 · 4.2 · 25º | 0 | — | — | 🔍 |
-| [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | M18 · 4.2 · 26º | 0 | — | — | 🔍 |
-| [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | M18 · 4.2 · 27º | 0 | — | — | 🔍 |
-| [**F304**](#f304) | Feature | Co-gestão combinada no lobby | M18 · 4.2 · 28º | 0 | Médio | Bom | ⏳ |
-| [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 · 29º | 0 | Médio | Bom | ⏳ |
-| [**F307**](#f307) | Correção | Estatais com preço vivo e receita à vista | M18 · 4.2 · 30º | 0 | — | — | 🔍 |
-| [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 · 31º | 0 | Médio | Bom | ⏳ |
-| [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 32º | 0 | — | — | 🔍 |
-| [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | M18 · 4.2 · 33º | 0 | — | — | 🔍 |
-| [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 · 34º | 0 | — | — | 🔍 |
+| [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | M18 · 4.2 · 24º | 1 | Alto | Bom | ⏳ |
+| [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | M18 · 4.2 · 26º | 0 | — | — | 🔍 |
+| [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | M18 · 4.2 · 27º | 0 | — | — | 🔍 |
+| [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | M18 · 4.2 · 28º | 0 | — | — | 🔍 |
+| [**F304**](#f304) | Feature | Co-gestão combinada no lobby | M18 · 4.2 · 29º | 0 | Médio | Bom | ⏳ |
+| [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 · 30º | 0 | Médio | Bom | ⏳ |
+| [**F307**](#f307) | Correção | Estatais com preço vivo e receita à vista | M18 · 4.2 · 31º | 0 | — | — | 🔍 |
+| [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 · 32º | 0 | Médio | Bom | ⏳ |
+| [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 33º | 0 | — | — | 🔍 |
+| [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | M18 · 4.2 · 34º | 0 | — | — | 🔍 |
+| [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 · 35º | 0 | — | — | 🔍 |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
@@ -613,6 +615,7 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 | **F305** | Melhoria | Aquisição hostil como modo de vitória | N23 | — | M18 · 4.2 | — | A condição de vitória do modo |
 | **F307** | Correção | Estatais com preço vivo e receita à vista | N34 | — | M18 · 4.2 | — | Como o preço da estatal anda sem negócio |
 | **F309** | Melhoria | Balanceamento das profissões | N39 | — | M18 · 4.2 | — | Regra do Herdeiro em meta de patrimônio |
+| **F310** | Feature | Página Ofertas públicas | N23 | — | M18 · 4.2 | [F299](#f299) | Desenho das ofertas numa sessão de canvas |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -682,6 +685,9 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 <a id="f309"></a>
 **F309 — Balanceamento das profissões.** Serve N39. Do playtest de 17/11. Na partida de Independência financeira, o bot Herdeiro venceu no primeiro dia: a meta era 1,2 milhão (12 × 5.000 ÷ 5%) e o capital inicial do Herdeiro foi de 1,58 milhão (131% da meta), porque a validação da meta (`dto/simulation.py:82-95`) compara com o caixa da sala, não com o capital do Herdeiro (caixa mais o valor presente dos salários). E algumas profissões ficaram bem mais fracas que outras. O plano: medir por backtest a mesma estratégia com cada profissão e comparar o patrimônio final; depois ajustar números ou dar a cada profissão fraca uma mecânica própria. Falta decidir a regra do Herdeiro em meta de patrimônio (meta proporcional ao capital dele, capital limitado abaixo da meta, ou Herdeiro fora desses modos).
+
+<a id="f310"></a>
+**F310 — Página Ofertas públicas.** Serve N23. Da rodada de canvas da tela da gestora em abas, em 17/11. A compra na oferta pública e na emissão de cotas acontece hoje dentro da tela da gestora (campo "Comprar na oferta" e card da emissão), que nos playtests só o próprio gestor abre; quem não tem gestora não acha onde comprar. Como no app das corretoras, a compra passa para uma página própria no menu lateral, "Ofertas públicas": as ofertas e emissões abertas da sala, cada uma com o preço fixo, os pregões que faltam, a preferência do cotista na emissão e o botão de compra, mais o histórico das encerradas. O detalhe da cota na renda variável, com uma oferta ou emissão aberta, leva um atalho direto para ela na página, e a tela da gestora também. A abertura da oferta pública passa a chegar em janela (o nível WINDOW do jornal, no centro da tela, sem pausar), com o botão que leva à compra; a emissão segue no cartão do canto. Desenho numa sessão de canvas antes de implementar.
 
 ---
 
