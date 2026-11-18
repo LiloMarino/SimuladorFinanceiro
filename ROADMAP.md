@@ -81,7 +81,6 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
-| [**F296**](#f296) | Correção | Correções do playtest: gestoras e renda variável | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | M18 · 4.2 | — | Alto | Bom | ⏳ |
@@ -98,7 +97,7 @@
 | [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (40 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (41 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -142,6 +141,7 @@
 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | M18 · 4.2 | — | — | — | ✅ |
 | [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | M18 · 4.2 | — | — | — | ✅ |
 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | M18 · 4.2 | — | — | — | ✅ |
+| [**F296**](#f296) | Correção | Correções do playtest: gestoras e renda variável | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
 
@@ -157,7 +157,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 20/35 concluídos
+> **Progresso:** 21/35 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -181,7 +181,7 @@
 | 18 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | — | ✅ Concluído |
 | 19 | [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | — | ✅ Concluído |
 | 20 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | — | ✅ Concluído |
-| 21 | [**F296**](#f296) | Correção | Correções do playtest: gestoras e renda variável | — | ⏳ Pendente |
+| 21 | [**F296**](#f296) | Correção | Correções do playtest: gestoras e renda variável | — | ✅ Concluído |
 | 22 | [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | — | ⏳ Pendente |
 | 23 | [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | — | ⏳ Pendente |
 | 24 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | — | ⏳ Pendente |
@@ -290,7 +290,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F296**](#f296) | Correção | Correções do playtest: gestoras e renda variável | M18 · 4.2 · 21º | 0 | Médio | Bom | ⏳ |
 | [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | M18 · 4.2 · 22º | 0 | Médio | Bom | ⏳ |
 | [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | M18 · 4.2 · 23º | 0 | Médio | Bom | ⏳ |
 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | M18 · 4.2 · 24º | 1 | Alto | Bom | ⏳ |
@@ -363,7 +362,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F296** | Correção | Correções do playtest: gestoras e renda variável | N23 | — | M18 · 4.2 | — | Médio | Baixo | Alto | Bom |
 | **F297** | Correção | Correções do playtest: governo e eleição | N34 | — | M18 · 4.2 | — | Médio | Médio | Alto | Bom |
 | **F298** | Correção | Correções do playtest: lobby, bots e profissões | N39, N8 | — | M18 · 4.2 | — | Médio | Baixo | Alto | Bom |
 | **F299** | Feature | Cota de gestora negociada na renda variável | N23 | — | M18 · 4.2 | — | Alto | Médio | Alto | Bom |
@@ -571,9 +569,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f296"></a>
-**F296 — Correções do playtest: gestoras e renda variável.** Serve N23. Lote do playtest de 17/11. (1) "Levar da carteira" lista as cotas da própria gestora, e o backend recusa só depois (`fund_book.py:464-467`): o seletor (`contribution-picker.tsx`) deixa de oferecer ativo da classe FUND. (2) O botão "Oferta pública" aparece de novo depois da oferta (`fund-details.tsx:150-154` testa só `stage !== "offer"`) e o backend responde "A oferta pública abre uma vez só." (`simulation.py:1354`): o botão some quando a oferta já aconteceu. (3) O card da oferta encerrada diz "0 de 100 cotas vendidas" quando o banco registra 1 vendida e o formador subscreveu 40: `fund_details.py:202-203` manda `offer_sold` nulo depois do fim e o card usa `?? 0` (`fund-offer-card.tsx:25`); o número vendido segue no DTO depois do encerramento. (4) Para o presidente, a conta do Fundo Soberano (`fund_id` 0) entra primeiro em `get_fund_accounts` e a sidebar troca o item "Gestoras" por "Fundo Soberano" (`sidebar.tsx:70-73`); o `fund-found.tsx:19` também trata essa conta como gestora fundada. O nome da gestora e o redirecionamento olham só gestoras de verdade. (5) A lista de renda variável ganha o selo de estatal ao lado do ticker. (6) A ponta do mercado aparece como "B3" (`order-owner.ts:12`) numa tela e "Formador de mercado" em outras (`order.py:22`, `fund_details.py:51`): um nome só no app inteiro. (7) A linha de filtros da renda variável (`variable-income.tsx:113-173`) transborda; os filtros quebram de linha sem passar da borda em 1366 px.
-
 <a id="f297"></a>
 **F297 — Correções do playtest: governo e eleição.** Serve N34. Lote do playtest de 17/11. (1) Linha do tempo do segundo turno fora de ordem (04 jan, 02 jan, 09 jan, 2º turno) e marcadores de aliança entre os pontos errados: `map_timeline.py:141-226` monta os pontos sem ordenar e o front (`map-timeline.ts:14-34`) dispõe por índice, com o marcador na média dos vizinhos (`map-timeline-ruler.tsx:243-256`); os pontos saem ordenados por data. (2) Convidar vice dentro da partida inscreve a chapa e o convite não chega: `government_book.py:2024-2056` emite VICE_INVITED e deixa o vice pendente, mas a pendência do convidado não aparece; reproduzir no app de teste e corrigir. (3) "Prometido" mostra o valor prometido no hover do selo e no diálogo de mudar (`taxes-card.tsx:196-212`, `spending-card.tsx:151-155`, `measure-action.tsx`): o DTO passa a mandar o valor além do `promised: bool` (`dto/government.py:969, 996`). (4) O selo "Novo" das Estatais é fixo (`government.tsx:93-96`) e sai. (5) Privatizar não chegou ao Congresso: na partida, nenhuma medida de privatização foi registrada; o botão só aparece com `isPresident && company.can_command` (`state-companies-table.tsx:242-247`); reproduzir e corrigir o caminho até a medida. (6) O Fundo Soberano não teve nenhum aporte nem compra na partida (zero fluxos e zero eventos na conta 0); reproduzir o aporte e a compra e corrigir.
 
@@ -726,6 +721,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F293** | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | N23, N34 | D19 | M18 · 4.2 |
 | **F294** | Melhoria | Adicionar vários bots de uma vez | N8 | — | M18 · 4.2 |
 | **F295** | Manutenção | Orçamento, painel econômico e base do governo por tempo real | N15 | — | M18 · 4.2 |
+| **F296** | Correção | Correções do playtest: gestoras e renda variável | N23 | — | M18 · 4.2 |
 
 <a id="f44"></a>
 **F44 — Expansão "Gestoras": fundar a gestora e abrir capital.** Serve N23. Inspiração: o Capitalism Lab (oferta pública, emissão de novas ações, recompra, compra de ações dos concorrentes), o OpenTTD e o Software Inc. Lá cada jogador é uma empresa que fabrica ou transporta; aqui tudo é finanças, então a empresa de cada jogador é uma gestora, e o que ela vende é o próprio desempenho. **Como expansão:** ligável por partida numa **aba própria "Expansões"** no lobby, com banner, emblema e "o que muda", como a loja de DLC dos jogos da Paradox; é enfeite visual, o sistema é o mesmo ligado ou não. **A gestora** tem nome e ticker de 4 letras mais 11, como cota de FII na B3 (o servidor recusa letras que já existam entre os ativos importados), e no livro de ofertas redesenhado (F211) cada linha leva a cor e a sigla de quem pôs a ordem, jogador ou bot, para não se confundir com ativo real. O jogador a funda levando **caixa, ações e títulos** da carteira em troca de cotas, e a opera **pelo rótulo do caixa na topbar** ("Caixa · Aurora Gestão ▾"): o rótulo abre a lista das contas, a pessoal e as gestoras que ele gere, e a escolhida vale para todas as telas de mercado, com uma faixa verde-petróleo dizendo qual conta está ativa. O botão "Operando" do desenho de 22/out sai, porque disputava a linha com a corrida e o governo (F179). **É um fundo fechado listado, como um FII:** (1) **oferta pública** quando o gestor quiser — cotas novas ao preço do patrimônio por cota (patrimônio de R$ 100 mil em 1.000 cotas dá R$ 100), e o dinheiro de quem compra entra na gestora: é investir no amigo; (2) **mercado** — depois da oferta, as cotas são negociadas no livro de ofertas que a renda variável já tem, e o preço sai da oferta e da procura, acima do patrimônio por cota (ágio) quando a sala acredita no gestor e abaixo (deságio) quando não; (3) **liquidez** — a liquidez de fundo do livro nasce dos candles de cada ativo, e a cota não tem candle, então um formador de mercado sintético põe ordens de compra e venda em volta do patrimônio por cota, numa faixa de 20% para cima e para baixo recalculada todo dia; dentro da faixa, o preço sai dos jogadores, e o livro tem contraparte até numa sala de 2; (4) **taxas** — a gestora paga aos gestores taxa de administração todo mês sobre o patrimônio e taxa de performance a cada 6 meses sobre o que passar do CDI, com teto na partida de **2% ao ano de administração e 20% de performance**, e cada gestor escolhe até o teto. Uma taxa nova passa a valer no mês seguinte, com aviso no jornal para a sala. A performance respeita a **marca d'água**, o maior patrimônio por cota sobre o qual a taxa já foi cobrada: se a cota cai de R$ 100 para 80 e volta a 100, a recuperação não paga performance. **O lucro fica dentro da gestora** e valoriza a cota. **Por que abrir capital, e quando:** as taxas são sobre o dinheiro dos outros, e com ágio as cotas do próprio gestor valem mais no ranking; o custo é ficar exposto, porque vender mais da metade abre a porta para perder o controle (F103). Abrir cedo, sem histórico, tende a sair com pouca procura; abrir depois de um bom ano tende a sair com ágio. **O gestor e a própria gestora:** o gestor negocia com a gestora pelo livro como qualquer jogador; a linha leva a sigla dele, então a negociação fica à vista, e quem cobra é a sala, vendendo a cota (deságio) ou trocando o gestor (F103). **Quem compra cotas:** pessoas, jogadores e bots, e o Fundo Soberano do governo; nunca gestoras, o que impede a participação cruzada (A com cotas da B, que tem cotas da A). **Os bots** não fundam gestora: compram e vendem cotas pelas estratégias que já têm, com a cota como mais um ativo do livro, e cada bot fica com no máximo 20% das cotas de uma gestora, para não decidir a assembleia; na assembleia (F103) eles se abstêm. **Regras para o cálculo fechar:** No ranking, cada jogador soma a carteira pessoal, as taxas recebidas e as cotas que tem pelo **preço de ranking**: a média dos negócios dos últimos 20 pregões, ponderada pelo volume e limitada a 30% acima ou abaixo do patrimônio por cota; sem negócio no período, vale o patrimônio por cota. Um ágio de até 30% conta, e um negócio forçado a R$ 1.000 numa cota de R$ 100 conta no máximo como R$ 130. A carteira da gestora só conta através das cotas, sem contar o mesmo dinheiro duas vezes. **Estrutura:** a carteira própria da gestora é a F101; a cota é um ativo no livro de ofertas, com o patrimônio por cota publicado a cada dia. **Com a expansão Governo & Política (F95):** quando o gestor vence a eleição, na posse ele deixa de operar a gestora e de receber as taxas, porque a carteira do presidente fica congelada; um co-gestor (F104) assume e, sem co-gestor, a gestora congela até o fim do mandato; as cotas que ele tem continuam dele. A F95 sai antes, então a carteira congelada do presidente já existe quando a gestora for implementada: cabe a esta feature estender o congelamento à gestora. **Nas features seguintes:** emissão de novas cotas e recompra (F102), troca de gestor pela assembleia (F103), co-gestores (F104) e rendimentos mensais (F105).
@@ -914,6 +910,11 @@ Os bots recebem uma profissão sorteada entre todas, e o host pode fixá-la no s
 **F295 — Orçamento, painel econômico e base do governo por tempo real.** O orçamento do país (`useBudget`), o painel econômico (`useEconomyPanel`) e a base do governo (`features/government/hooks/queries/useBase.ts`) buscam os dados de novo a cada 10 s por `refetchInterval`. O resto do app atualiza por tempo real: o backend emite um evento pelo websocket quando o dado muda e o hook invalida a query.
 
 **Aceite:** os três hooks sem `refetchInterval`; um evento do backend para cada dado, emitido quando ele muda (no tick ou na ação que o altera), e o hook invalidando a query ao receber. Molde: `useFixedIncomeAssets` com `fixed_assets_update`, e as páginas da gestora com `funds_update`. O painel de desempenho do modo debug segue buscando de tempo em tempo, porque mede o servidor.
+
+<a id="f296"></a>
+**F296 — Correções do playtest: gestoras e renda variável.**
+
+Os sete itens do playtest saíram: Levar da carteira sem cotas de gestora, botão de oferta pública só antes da oferta, total vendido na oferta encerrada, menu e tela do presidente com Fundo Soberano, selo de estatal na lista, nome Mercado nas duas pontas do livro e filtros da renda variável em duas linhas a 1366 px.
 
 ---
 
