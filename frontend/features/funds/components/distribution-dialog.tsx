@@ -19,7 +19,7 @@ import { displayIsoDate, displayMoney } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
 import { useSetFundDistribution } from "../hooks/mutations/useSetFundDistribution";
 import { DISTRIBUTION_STEP, distributedOf, rateToBody, rateToPoints } from "../lib/fund-distribution";
-import { DISTRIBUTION_RATE, REALIZED_PROFIT } from "../lib/fund-metrics";
+import { DISTRIBUTION_RATE, REALIZED_PROFIT } from "@/shared/lib/fund-metrics";
 
 type DistributionDialogProps = {
   open: boolean;

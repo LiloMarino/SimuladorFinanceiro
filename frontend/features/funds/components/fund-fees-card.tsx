@@ -5,8 +5,8 @@ import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { displayIsoDate, displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
-import { HIGH_WATER_MARK, MANAGEMENT_FEE, PERFORMANCE_FEE } from "../lib/fund-metrics";
-import { FundSection } from "./fund-section";
+import { HIGH_WATER_MARK, MANAGEMENT_FEE, PERFORMANCE_FEE } from "@/shared/lib/fund-metrics";
+import { FundSection } from "@/shared/components/fund-section";
 
 /** As taxas que o gestor recebe: o que vale hoje, a estimativa em reais, o que já recebeu e a mudança marcada. */
 export function FundFeesCard({ fund, onChange }: { fund: FundDetails; onChange: () => void }) {

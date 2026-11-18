@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Progress } from "@/shared/components/ui/progress";
 import { displayIsoDate, displayMoney, displayQuantity } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
-import { fundStage } from "../lib/fund-view";
+import { fundStage } from "@/shared/lib/fund-view";
 
 /** Cartão da oferta no topo da página: em andamento (com as vendas até agora) ou encerrada (com o resultado). */
 export function FundOfferCard({ fund, action }: { fund: FundDetails; action?: ReactNode }) {

@@ -20,7 +20,11 @@ class MarketData:
     def add_candle(self, candle: Candle):
         if candle.ticker not in self._buffers:
             self._buffers[candle.ticker] = deque(maxlen=self._maxlen)
-        self._buffers[candle.ticker].append(candle)
+        buffer = self._buffers[candle.ticker]
+        # Cada pregão tem uma vela: a de um dia que já está no buffer toma o lugar dela
+        if buffer and buffer[-1].price_date == candle.price_date:
+            buffer.pop()
+        buffer.append(candle)
 
     def get_recent(self, ticker: str) -> list[Candle]:
         return list(self._buffers.get(ticker, []))

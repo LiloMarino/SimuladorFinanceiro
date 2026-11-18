@@ -16,7 +16,7 @@ const CLASS_LABELS: Record<MarketQuote["asset_class"], string | null> = {
   ETF: "ETF",
   BDR: "BDR",
   CRYPTO: "Cripto",
-  FUND: "Cota",
+  FUND: null,
 };
 
 /** Onde o fechamento ficou entre a mínima e a máxima do dia. */
@@ -117,6 +117,11 @@ export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
                     {classLabel && (
                       <Badge variant="secondary" size="sm">
                         {classLabel}
+                      </Badge>
+                    )}
+                    {q.fund && (
+                      <Badge variant="fund" size="sm">
+                        Cota
                       </Badge>
                     )}
                     {q.state_owned && (

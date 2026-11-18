@@ -10,6 +10,8 @@ from backend.core.exceptions.http_exceptions import (
     ForbiddenError,
     UnprocessableEntityError,
 )
+from backend.core.fund_reference import MAX_PREMIUM
+from backend.core.utils import format_money
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     OrderBookSnapshotEventDTO,
@@ -77,6 +79,13 @@ class MatchingEngine:
         if isinstance(order, MarketOrder):
             executed = self._consume_book(order)
             if order.remaining > 0 and executed == 0:
+                if order.price_cap is not None:
+                    ceiling = format_money(Decimal(str(order.price_cap)))
+                    premium = str(MAX_PREMIUM).replace(".", ",")
+                    raise ConflictError(
+                        f"Ninguém vende {order.ticker} até {ceiling}, "
+                        f"{premium} vez o patrimônio por cota"
+                    )
                 raise ConflictError("Sem liquidez no mercado")
 
         if isinstance(order, LimitOrder):
@@ -218,6 +227,15 @@ class MatchingEngine:
                     break
 
             qty = min(order.remaining, counter.remaining)
+
+            # Compra a mercado com teto: o primeiro preço acima dele encerra o consumo
+            if (
+                isinstance(order, MarketOrder)
+                and order.price_cap is not None
+                and order.action == OrderAction.BUY
+                and counter.price > order.price_cap
+            ):
+                break
 
             # Compra a mercado: o caixa e o valor da ordem limitam a quantidade ao preço que vale agora
             if isinstance(order, MarketOrder):

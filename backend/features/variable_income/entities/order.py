@@ -83,6 +83,8 @@ class Order(ABC):
 class MarketOrder(Order):
     # Compra por valor: o dinheiro que ainda pode ser gasto; cada execução desconta o que custou
     budget: Decimal | None = None
+    # O maior preço por unidade que a compra paga: executa o que houver até ele e o resto some
+    price_cap: float | None = None
 
 
 @dataclass(kw_only=True)

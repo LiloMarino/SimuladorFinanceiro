@@ -1,15 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  foundingSummary,
-  holdingAfterBuy,
-  holdingAfterSell,
-  offerControl,
-  premium,
-  premiumPaid,
-  quotasToControl,
-  sellableKeepingControl,
-  tickerFeedback,
-} from "./fund-math";
+import { foundingSummary, offerControl, tickerFeedback } from "./fund-math";
 
 describe("foundingSummary", () => {
   it("emite uma cota a cada R$ 100,00 levados", () => {
@@ -27,25 +17,7 @@ describe("foundingSummary", () => {
   });
 });
 
-describe("controle", () => {
-  it("faltam as cotas até passar de 50%", () => {
-    // Metade de 10.000 é 5.000; precisa de 5.001. Com 2.100: 5.001 − 2.100 = 2.901
-    expect(quotasToControl(2100, 10_000)).toBe(2901);
-  });
-
-  it("quem já controla não precisa de nenhuma", () => {
-    expect(quotasToControl(5800, 10_000)).toBe(0);
-  });
-
-  it("o gestor vende o que passa do mínimo de controle", () => {
-    // Mínimo 5.001; 5.800 − 5.001 = 799
-    expect(sellableKeepingControl(5800, 10_000)).toBe(799);
-  });
-
-  it("sem controle não há o que vender mantendo-o", () => {
-    expect(sellableKeepingControl(4000, 10_000)).toBe(0);
-  });
-
+describe("controle da oferta", () => {
   it("a oferta de 800 cotas, vendida toda, mantém o controle", () => {
     // 5.800 ÷ (10.000 + 800) = 53,7%
     const { share, keepsControl } = offerControl(5800, 10_000, 800);
@@ -62,44 +34,6 @@ describe("controle", () => {
 
   it("exatamente 50% não é controle", () => {
     expect(offerControl(5000, 10_000, 0).keepsControl).toBe(false);
-  });
-});
-
-describe("ágio", () => {
-  it("é o preço sobre o patrimônio por cota, menos 1", () => {
-    // 141,20 ÷ 128,40 − 1 = +9,97%
-    expect(premium(141.2, 128.4)).toBeCloseTo(0.0997, 4);
-  });
-
-  it("deságio fica negativo", () => {
-    // 90 ÷ 100 − 1 = −10%
-    expect(premium(90, 100)).toBeCloseTo(-0.1, 6);
-  });
-
-  it("o ágio pago é quantidade × (preço − patrimônio por cota)", () => {
-    // 100 × (141,60 − 128,40) = 1.320
-    expect(premiumPaid(100, 141.6, 128.4)).toBeCloseTo(1320, 6);
-  });
-});
-
-describe("cotas depois da ordem", () => {
-  it("compra com emissão aumenta o total", () => {
-    // 1.000 + 500 = 1.500 de 10.000 + 500 = 10.500 → 14,29%
-    const after = holdingAfterBuy(1000, 10_000, 500, true);
-    expect(after.quotas).toBe(1500);
-    expect(after.share).toBeCloseTo(1500 / 10_500, 6);
-  });
-
-  it("compra no mercado só muda de dono", () => {
-    // 1.500 de 10.000 = 15%
-    expect(holdingAfterBuy(1000, 10_000, 500, false).share).toBeCloseTo(0.15, 6);
-  });
-
-  it("venda reduz a parte sem mexer no total", () => {
-    // 5.800 − 799 = 5.001 de 10.000
-    const after = holdingAfterSell(5800, 10_000, 799);
-    expect(after.quotas).toBe(5001);
-    expect(after.share).toBeCloseTo(0.5001, 6);
   });
 });
 

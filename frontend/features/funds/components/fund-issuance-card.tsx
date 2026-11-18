@@ -14,7 +14,7 @@ import { formatPositiveInteger } from "@/shared/lib/utils/format";
 import type { FundDetails } from "@/types";
 import { useSubscribeFundIssuance } from "../hooks/mutations/useSubscribeFundIssuance";
 import { useFundSubscriptionPreview } from "../hooks/queries/useFundSubscriptionPreview";
-import { PREFERENCE_RIGHT } from "../lib/fund-metrics";
+import { PREFERENCE_RIGHT } from "@/shared/lib/fund-metrics";
 
 type Issuance = NonNullable<FundDetails["issuance"]>;
 

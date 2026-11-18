@@ -72,10 +72,42 @@ def bot_named(nickname: str) -> UserDTO:
 
 
 def test_the_catalog_suggests_names_for_every_strategy(room):
-    infos = catalog.infos(START, None, catalog.known_tickers())
+    infos = catalog.infos(START, None, catalog.known_tickers(), funds_enabled=True)
 
     assert infos
     assert all(info.bot_names for info in infos)
+
+
+def test_the_fund_strategy_is_in_the_catalog_only_with_the_funds_expansion(room):
+    with_funds = catalog.infos(START, None, catalog.known_tickers(), funds_enabled=True)
+    without_funds = catalog.infos(
+        START, None, catalog.known_tickers(), funds_enabled=False
+    )
+
+    assert "fund_quotas" in {info.key for info in with_funds}
+    assert "fund_quotas" not in {info.key for info in without_funds}
+
+
+def test_a_room_without_funds_refuses_the_fund_strategy_for_bots(room, monkeypatch):
+    monkeypatch.setattr(SettingsManager, "_settings", rules(funds_enabled=False))
+
+    message = refusal(lambda: resolve_bot("fund_quotas", {}), status=422)
+
+    assert "Gestoras" in message
+
+
+def test_a_room_with_funds_accepts_the_fund_strategy_for_bots(room, monkeypatch):
+    monkeypatch.setattr(SettingsManager, "_settings", rules(funds_enabled=True))
+
+    assert resolve_bot("fund_quotas", {}).strategy_key == "fund_quotas"
+
+
+def test_the_backtest_refuses_the_fund_strategy_even_in_a_room_with_funds(
+    room, monkeypatch
+):
+    monkeypatch.setattr(SettingsManager, "_settings", rules(funds_enabled=True))
+
+    refusal(lambda: resolve_bot("fund_quotas", {}, funds_enabled=False), status=422)
 
 
 def test_adding_a_bot_puts_a_new_bot_user_in_the_room(room):

@@ -3,7 +3,7 @@ import type { StockDetails } from "@/types";
 /** Não cria um detalhe incompleto antes do REST nem deixa um evento atrasado regredir a cotação. */
 export function mergeStockUpdate(
   previous: StockDetails | undefined,
-  candle: Omit<StockDetails, "history">,
+  candle: Omit<StockDetails, "history" | "fund_id">,
 ): StockDetails | undefined {
   if (!previous || candle.price_date < previous.price_date) return previous;
   const history = [...previous.history];

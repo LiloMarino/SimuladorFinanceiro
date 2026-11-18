@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { FundComanagerShareRequest } from "@/types";
-import { fundKeys } from "../fund-keys";
+import { fundKeys } from "@/shared/hooks/fund-keys";
 
 type UpdateComanagerShare = FundComanagerShareRequest & { userId: number };
 

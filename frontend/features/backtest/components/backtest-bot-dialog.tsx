@@ -34,6 +34,7 @@ export function BacktestBotDialog({
       title={participant ? "Configurar estratégia" : "Adicionar estratégia"}
       description="Vira um jogador sem pessoa, com carteira própria e as mesmas regras de dinheiro das outras."
       startDate={startDate}
+      fundsEnabled={false}
       others={others}
       startingCash={moneyToBody(startingCash)}
       cashLabel="o saldo inicial"

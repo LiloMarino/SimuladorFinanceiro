@@ -38,10 +38,8 @@ export const queryKeys = {
   savedStrategyParams: () => ["settings", "strategy-params"] as const,
   matchPlayers: () => ["simulation", "match-players"] as const,
   matchParties: () => ["simulation", "match-parties"] as const,
-  botStrategies: (startDate?: string) =>
-    startDate === undefined
-      ? (["simulation", "bot-strategies"] as const)
-      : (["simulation", "bot-strategies", startDate] as const),
+  botStrategies: (startDate?: string, fundsEnabled?: boolean) =>
+    ["simulation", "bot-strategies", startDate ?? null, fundsEnabled ?? null] as const,
   backtestSetup: (from?: number) => ["backtest", "setup", from ?? null] as const,
   backtestStatus: () => ["backtest", "status"] as const,
   backtestResult: (simulationId: number) => ["backtest", "result", simulationId] as const,

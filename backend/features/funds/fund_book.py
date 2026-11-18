@@ -40,6 +40,7 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
+from backend.core.fund_reference import FundReference
 from backend.core.indicators import index_daily_rate
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.utils import format_quantity, next_business_day, next_month_turn
@@ -63,11 +64,18 @@ from backend.features.funds.fund_comanagers import (
 )
 from backend.features.funds.fund_ledger import PERFORMANCE_PERIOD_MONTHS
 from backend.features.funds.fund_offer import FundOffer
+from backend.features.funds.performance import (
+    PERFORMANCE_WINDOW,
+    NavPoint,
+    cut_window,
+    excess_return,
+)
 from backend.features.funds.ranking_price import (
     RANKING_WINDOW,
     TradedDay,
     ranking_price,
 )
+from backend.features.market_maker.account import DayTrades
 from backend.features.market_maker.candle import close_candle
 from backend.features.market_maker.maker import MarketMaker
 from backend.features.market_maker.sessions import window_end, window_session
@@ -198,6 +206,8 @@ class Fund:
     account: FundAccount
     # Os últimos pregões negociados, em ordem cronológica, para o preço de ranking
     days: list[TradedDay] = field(default_factory=list)
+    # O PL por cota dos últimos pregões fechados, em ordem cronológica, para o desempenho
+    navs: list[NavPoint] = field(default_factory=list)
     nav: Decimal | None = None
     last_close: float | None = None
     # O preço do último negócio da cota, de pregões já fechados; nulo se nunca negociou
@@ -313,6 +323,10 @@ class FundBook:
 
     def get(self, ticker: str) -> Fund:
         return self._funds[ticker]
+
+    def find(self, ticker: str) -> Fund | None:
+        """A gestora dona do ticker, ou nulo quando ele não é de cota."""
+        return self._funds.get(ticker)
 
     def by_id(self, fund_id: int) -> Fund:
         for fund in self._funds.values():
@@ -1249,6 +1263,7 @@ class FundBook:
             self._pay_distribution(fund, today)
             nav = self._nav(fund)
             if nav is None:
+                self._engine.fund_references.pop(fund.ticker, None)
                 continue
             fund.nav = nav
             self._engine.ranking_prices[fund.ticker] = ranking_price(fund.days, nav)
@@ -1256,6 +1271,12 @@ class FundBook:
                 self._sync_buyback(fund)
                 self._advance_issuance(fund, today)
                 self._refresh_orders(fund, today)
+                self._engine.fund_references[fund.ticker] = self._reference(
+                    fund, nav, today
+                )
+                self._seed_candle(fund, nav, today)
+            else:
+                self._engine.fund_references.pop(fund.ticker, None)
             self._advance_takeover(fund, today)
 
     def on_close(self, today: date) -> list[CandleDTO]:
@@ -1280,6 +1301,7 @@ class FundBook:
             fund.days = [*fund.days, TradedDay(trades.quantity, trades.value)][
                 -RANKING_WINDOW:
             ]
+            fund.navs = cut_window([*fund.navs, NavPoint(today, fund.nav)])
             ranking = ranking_price(fund.days, fund.nav)
             self._engine.ranking_prices[fund.ticker] = ranking
 
@@ -1574,7 +1596,9 @@ class FundBook:
         repository.fund.drop_days_from(terms.id, after)
         repository.fund.drop_offer_sales_from(terms.id, after)
         repository.fund.drop_distributions_from(terms.id, after)
-        days = repository.fund.days(terms.id, after, RANKING_WINDOW)
+        days = repository.fund.days(
+            terms.id, after, max(RANKING_WINDOW, PERFORMANCE_WINDOW)
+        )
         # A retomada desfaz as ordens abertas: a recompra em aberto fica cancelada
         repository.fund.cancel_open_buybacks(terms.id)
         issuance = next(
@@ -1590,7 +1614,11 @@ class FundBook:
             last_assembly=last_assembly,
             comanagers=self._comanagers.load(terms.id),
             distributions=repository.fund.distributions(terms.id, after),
-            days=[TradedDay(d.traded_quantity, d.traded_value) for d in days],
+            days=[
+                TradedDay(d.traded_quantity, d.traded_value)
+                for d in days[-RANKING_WINDOW:]
+            ],
+            navs=cut_window([NavPoint(d.day, d.nav) for d in days]),
             last_close=repository.fund.last_close(
                 self._simulation_id, terms.stock_id, self._engine.current_date
             ),
@@ -1656,6 +1684,77 @@ class FundBook:
         ):
             return Decimal(0)
         return to_money(order.price) * order.remaining
+
+    def listed_candles(self, today: date) -> list[CandleDTO]:
+        """A última vela de cada cota listada, da memória do motor.
+
+        A cota que ainda não fechou pregão desde a estreia ou desde a retomada ganha a vela
+        plana do dia: ao último fechamento, ou ao PL na estreia.
+        """
+        candles = []
+        for fund in self._funds.values():
+            if not fund.listed or fund.nav is None:
+                continue
+            stock = self._engine.stocks[fund.ticker]
+            last = self._engine.matching_engine.market_data.get_last(fund.ticker)
+            if last is None:
+                candles.append(self._flat_candle(fund, fund.nav, today))
+                continue
+            change = last.close - last.open
+            candles.append(
+                CandleDTO(
+                    **stock.model_dump(),
+                    open=last.open,
+                    high=last.high,
+                    low=last.low,
+                    close=last.close,
+                    volume=last.volume,
+                    price_date=last.price_date,
+                    change=round(change, 2),
+                    change_pct=change / last.open if last.open else 0,
+                )
+            )
+        return candles
+
+    def _flat_candle(self, fund: Fund, nav: Decimal, today: date) -> CandleDTO:
+        """A vela sem negócio do dia: o último fechamento, ou o PL na estreia."""
+        stock = self._engine.stocks[fund.ticker]
+        return close_candle(stock, today, DayTrades(), fund.last_close, nav)
+
+    def _seed_candle(self, fund: Fund, nav: Decimal, today: date) -> None:
+        """A vela plana da cota sem vela na memória do motor, para os bots do pregão a verem.
+
+        A vela de verdade do pregão a substitui no fechamento.
+        """
+        if self._engine.matching_engine.market_data.get_last(fund.ticker) is None:
+            self._engine.update_market_data([self._flat_candle(fund, nav, today)])
+
+    def _reference(self, fund: Fund, nav: Decimal, today: date) -> FundReference:
+        """A referência de negociação da cota no pregão de hoje.
+
+        O preço fixo é o da ordem do emissor no livro: o PL na oferta de abertura e o preço
+        anunciado na sobra da emissão. O último pregão da janela é o fim dela.
+        """
+        issuance = fund.issuance
+        selling = bool(fund.account.offer_remaining)
+        fixed_price: float | None = None
+        last_session = False
+        if selling:
+            fixed_price = round(float(issuance.price if issuance else nav), 2)
+            listed_on = fund.terms.listed_on
+            if issuance is not None:
+                last_session = today >= issuance.ends_on
+            elif listed_on is not None:
+                last_session = today >= offer_ends_on(listed_on)
+        performance = excess_return(
+            fund.navs, nav, today, fund.distributions, cdi_growth
+        )
+        return FundReference(
+            nav=float(nav),
+            performance=float(performance),
+            fixed_price=fixed_price,
+            fixed_price_last_session=last_session,
+        )
 
     def _refresh_orders(self, fund: Fund, today: date) -> None:
         """A escada do formador e a ordem de venda do emissor: ao PL do dia na oferta de abertura,

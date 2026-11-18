@@ -10,6 +10,7 @@ import pandas as pd
 
 from backend.core.dto.fixed_income_asset import FixedIncomeOfferDTO
 from backend.core.enum import OrderAction
+from backend.core.fund_reference import FundReference
 from backend.features.strategy import intents
 from backend.features.strategy.intents import Intent
 from backend.features.variable_income.quantity import affordable_quantity
@@ -27,6 +28,10 @@ class Quote:
     fractional: bool = False
     # Melhor preço de venda do book hoje: o que uma compra a mercado paga; nulo usa o fechamento
     ask: float | None = None
+    # Melhor preço de compra do book hoje; nulo sem comprador
+    bid: float | None = None
+    # A referência da cota de gestora (PL por cota, desempenho, preço fixo); nulo para os demais ativos
+    fund: FundReference | None = None
 
     @property
     def buy_price(self) -> float:
@@ -91,6 +96,8 @@ class StrategyContext:
     quotes: dict[str, Quote]
     indicators: Indicators
     open_orders: list[OpenOrder]
+    # O id do jogador: a semente das escolhas sorteadas, para o mesmo dia repetir o resultado
+    seed: int
     history_source: Callable[[str, int], pd.DataFrame]
     intents: list[Intent] = field(default_factory=list)
 

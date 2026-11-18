@@ -20,8 +20,8 @@ import { displayMoney, displayPercent, displayQuantity } from "@/shared/lib/util
 import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
 import { useOpenFundBuyback } from "../hooks/mutations/useOpenFundBuyback";
 import { useFundBuybackPreview } from "../hooks/queries/useFundBuybackPreview";
-import { BUYBACK_PREMIUM_COST, PREMIUM } from "../lib/fund-metrics";
-import { ControlNotice } from "./control-notice";
+import { BUYBACK_PREMIUM_COST, PREMIUM } from "@/shared/lib/fund-metrics";
+import { ControlNotice } from "@/shared/components/control-notice";
 
 type BuybackDialogProps = {
   open: boolean;

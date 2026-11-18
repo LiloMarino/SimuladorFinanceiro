@@ -14,6 +14,7 @@ from backend.core.dto.strategy import (
     StrategyParamValue,
 )
 from backend.core.enum import StrategyGroup, StrategyParamKind, StrategyView
+from backend.core.professions import Expansion
 from backend.features.strategy.context import StrategyContext
 
 # Ações que uma estratégia pode operar de uma vez
@@ -73,6 +74,16 @@ class BaseStrategy:
     term_hint: ClassVar[str | None] = None
     # Nomes sugeridos para o bot que joga esta estratégia
     bot_names: ClassVar[tuple[str, ...]] = ()
+    # A expansão da partida que a estratégia exige; nulo é a que toda sala tem
+    requires_expansion: ClassVar[Expansion | None] = None
+
+    @classmethod
+    def available(cls, *, funds_enabled: bool) -> bool:
+        """Se a sala tem a expansão que a estratégia exige."""
+        expansions = {Expansion.FUNDS: funds_enabled}
+        return cls.requires_expansion is None or expansions.get(
+            cls.requires_expansion, False
+        )
 
     @classmethod
     def validate(

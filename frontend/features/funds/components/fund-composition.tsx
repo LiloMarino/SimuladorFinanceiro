@@ -8,7 +8,7 @@ import type { FundDetails } from "@/types";
 import { HOLDING_CLASSES } from "../lib/fund-classes";
 import { FundPositionsTable } from "./fund-positions-table";
 import { FundReportDialog } from "./fund-report-dialog";
-import { FundSection } from "./fund-section";
+import { FundSection } from "@/shared/components/fund-section";
 
 /** A barra e a legenda do patrimônio por classe, ao vivo. */
 function ClassBreakdown({ composition }: { composition: FundDetails["composition"] }) {

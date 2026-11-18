@@ -52,7 +52,13 @@ export default function BacktestNewPage() {
 /** Resolve as estratégias na data de início da configuração e as ações que elas podem operar: o formulário só monta com elas prontas. */
 function WithStrategies({ setup }: { setup: BacktestSetup }) {
   const startDate = setupStartDate(setup);
-  const { data: strategies, error: strategiesError, refetch: refetchStrategies } = useBotStrategies(startDate);
+  const {
+    data: strategies,
+    error: strategiesError,
+    refetch: refetchStrategies,
+  } = useBotStrategies(startDate, {
+    fundsEnabled: false,
+  });
   const { data: tickers, error: tickersError, refetch: refetchTickers } = useBotTickers();
   const values = useMemo(() => (strategies ? formValues(setup, strategies) : null), [setup, strategies]);
   const error = strategiesError ?? tickersError;

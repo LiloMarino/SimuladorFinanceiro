@@ -5,10 +5,10 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { displayMoney, displaySignedPercent } from "@/shared/lib/utils/display";
 import type { FundSummary } from "@/types";
-import { premium } from "../lib/fund-math";
-import { MARKET_PRICE, NAV_PER_QUOTA, PREMIUM } from "../lib/fund-metrics";
-import { fundStage } from "../lib/fund-view";
-import { FundSection } from "./fund-section";
+import { premium } from "@/shared/lib/fund-quota";
+import { MARKET_PRICE, NAV_PER_QUOTA, PREMIUM } from "@/shared/lib/fund-metrics";
+import { fundStage } from "@/shared/lib/fund-view";
+import { FundSection } from "@/shared/components/fund-section";
 
 const STAGE_LABEL = { closed: "Fechada", offer: "Oferta aberta", listed: "Negociada" } as const;
 

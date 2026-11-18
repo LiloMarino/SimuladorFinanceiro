@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { FundDetails } from "@/types";
-import { fundKeys } from "../fund-keys";
+import { fundKeys } from "@/shared/hooks/fund-keys";
 
 /** A página de uma gestora; a carteira posição a posição só vem para o gestor. Quando algo muda (funds_update), busca de novo. */
 export function useFund(fundId: number) {

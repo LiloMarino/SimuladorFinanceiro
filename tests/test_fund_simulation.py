@@ -8,9 +8,16 @@ from decimal import Decimal
 import pytest
 
 from backend.core import repository
+from backend.core.dto.events.strategy import StrategyEventDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import AssetClass, OrderAction
+from backend.core.enum import (
+    AssetClass,
+    OrderAction,
+    StrategyLogKind,
+    StrategyOrderStatus,
+)
 from backend.core.exceptions.http_exceptions import ConflictError
+from backend.core.fund_reference import FundReference
 from backend.core.player_colors import PLAYER_COLORS
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -255,3 +262,179 @@ def test_resumed_offer_keeps_counting_its_sessions(match, started):  # noqa: F81
     assert fund.terms.listed_on == opened_on
     assert fund.account.offer_remaining is not None
     assert resumed._funds.summary(fund).offer_session == 3
+
+
+def submit_bot_order(sim: Simulation, user_id: int, intent) -> list:
+    """Passa a intenção pelo runner como se fosse da estratégia da Ana; devolve as ordens abertas dela."""
+    ana = next(
+        u
+        for u in repository.simulation_player.participants(sim.settings.id)
+        if u.id == user_id
+    )
+    row = StrategyEventDTO(
+        simulation_id=sim.settings.id,
+        user_id=ana.id,
+        event_date=sim._current_date,
+        kind=StrategyLogKind.ORDER,
+        strategy_key="teste",
+        action=intent.action,
+        ticker=intent.ticker,
+        quantity=intent.quantity,
+        reason="teste",
+        status=StrategyOrderStatus.REFUSED,
+    )
+    sim._strategies._submit(ana, intent, row)
+    return sim._engine.matching_engine.order_book.orders_of(ana.client_id)
+
+
+def test_automatic_market_buy_of_a_quota_stops_at_the_cap_over_the_nav(match):
+    sim, user_id = match
+    sim.next_tick()
+    # PL por cota de R$ 50: o teto é R$ 60 e o livro só vende a R$ 100
+    sim._engine.fund_references[TICKER] = FundReference(50.0, 0.0, None, False)
+
+    with pytest.raises(ConflictError, match="Ninguém vende AURA11"):
+        submit_bot_order(sim, user_id, buy(TICKER, 5, "teste"))
+
+
+def test_automatic_market_buy_under_the_cap_executes(match):
+    sim, user_id = match
+    sim.next_tick()
+    sim._engine.fund_references[TICKER] = FundReference(100.0, 0.0, None, False)
+
+    submit_bot_order(sim, user_id, buy(TICKER, 5, "teste"))
+    EventManager.flush()
+
+    ana = next(
+        u
+        for u in repository.simulation_player.participants(sim.settings.id)
+        if u.id == user_id
+    )
+    assert sim._engine.broker.get_positions(ana.client_id)[TICKER].size == 5
+
+
+def test_automatic_limit_buy_above_the_cap_is_lowered_to_the_cap(match):
+    sim, user_id = match
+    sim.next_tick()
+    sim._engine.fund_references[TICKER] = FundReference(50.0, 0.0, None, False)
+
+    [resting] = submit_bot_order(sim, user_id, buy(TICKER, 5, "teste", 500.0))
+
+    assert resting.price == 60.0
+
+
+def test_automatic_limit_buy_under_the_cap_keeps_its_price(match):
+    sim, user_id = match
+    sim.next_tick()
+    sim._engine.fund_references[TICKER] = FundReference(50.0, 0.0, None, False)
+
+    [resting] = submit_bot_order(sim, user_id, buy(TICKER, 5, "teste", 55.0))
+
+    assert resting.price == 55.0
+
+
+def test_automatic_buy_of_an_ordinary_stock_has_no_cap(match):
+    sim, user_id = match
+    sim.next_tick()
+    sim._engine.fund_references[TICKER] = FundReference(1.0, 0.0, None, False)
+    price = sim._engine.matching_engine.market_data.get_last("BANK_A")
+    assert price is not None
+
+    [resting] = submit_bot_order(sim, user_id, buy("BANK_A", 1, "teste", 0.01))
+
+    assert resting.price == 0.01
+
+
+def test_market_lists_the_listed_quota_with_the_fund_mark(match):
+    sim, _ = match
+    sim.next_tick()
+
+    quotes = {q.ticker: q for q in sim.get_market()}
+
+    assert quotes[TICKER].fund is True
+    assert not any(q.fund for t, q in quotes.items() if t != TICKER)
+
+
+def test_quota_is_on_the_market_and_in_the_details_as_soon_as_the_offer_opens(match):
+    sim, _ = match
+
+    quotes = {q.ticker: q for q in sim.get_market()}
+    details = sim.get_stock_details(TICKER)
+
+    assert quotes[TICKER].fund is True
+    assert quotes[TICKER].close == 100
+    assert details is not None and details.close == 100
+
+
+def test_quota_is_on_the_bots_market_in_the_first_session_after_resuming(match):
+    sim, _ = match
+    sim._engine.matching_engine.market_data = type(
+        sim._engine.matching_engine.market_data
+    )()
+    assert sim._funds is not None
+
+    sim._funds.on_open(sim._current_date)
+
+    candle = sim._engine.matching_engine.market_data.get_last(TICKER)
+    assert candle is not None and candle.close == 100
+
+
+def test_market_leaves_out_the_fund_that_has_not_opened_its_offer(match):
+    sim, user_id = match
+    assert sim._funds is not None
+    sim._funds.found(
+        ticker="FECH11",
+        name="Fechada",
+        founder_user_id=user_id,
+        manager_user_id=user_id,
+        management_fee=Decimal("0.02"),
+        performance_fee=Decimal("0.20"),
+    )
+    sim.next_tick()
+
+    tickers = {q.ticker for q in sim.get_market()}
+
+    assert TICKER in tickers
+    assert "FECH11" not in tickers
+
+
+def test_stock_details_carry_the_fund_id_and_the_closed_fund_has_none(match):
+    sim, user_id = match
+    assert sim._funds is not None
+    sim._funds.found(
+        ticker="FECH11",
+        name="Fechada",
+        founder_user_id=user_id,
+        manager_user_id=user_id,
+        management_fee=Decimal("0.02"),
+        performance_fee=Decimal("0.20"),
+    )
+    sim.next_tick()
+
+    details = sim.get_stock_details(TICKER)
+
+    assert details is not None
+    assert details.fund_id == sim._funds.get(TICKER).terms.id
+    assert sim.get_stock_details("FECH11") is None
+    ordinary = sim.get_stock_details("BANK_A")
+    assert ordinary is not None and ordinary.fund_id is None
+
+
+def test_resumed_match_reloads_the_nav_window(match, started):  # noqa: F811
+    sim, _ = match
+    assert sim._funds is not None
+    for _ in range(3):
+        sim.next_tick()
+    before = sim._funds.get(TICKER).navs
+    assert len(before) == 3
+    summary = repository.simulation.get_simulation(sim.settings.id)
+    assert summary is not None
+
+    SimulationLoader.load(summary)
+
+    resumed = SimulationManager.get_active_simulation()
+    assert resumed._funds is not None
+    after = resumed._funds.get(TICKER).navs
+    # A retomada já fecha o pregão seguinte: a janela recarregada guarda os mesmos pontos e mais um
+    assert after[: len(before)] == before
+    assert len(after) == len(before) + 1

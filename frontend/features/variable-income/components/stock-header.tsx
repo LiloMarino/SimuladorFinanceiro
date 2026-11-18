@@ -40,7 +40,7 @@ export function StockHeader({ stock }: { stock: StockDetails }) {
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-mono text-[28px] font-semibold">{stock.ticker}</h1>
           <span className="text-muted-foreground">{stock.name}</span>
-          <Badge variant="secondary">{CLASS_LABELS[stock.asset_class]}</Badge>
+          <Badge variant={stock.fund_id === null ? "secondary" : "fund"}>{CLASS_LABELS[stock.asset_class]}</Badge>
         </div>
       </div>
 

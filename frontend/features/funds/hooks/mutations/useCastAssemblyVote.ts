@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { FundAssemblyVoteRequest } from "@/types";
-import { fundKeys } from "../fund-keys";
+import { fundKeys } from "@/shared/hooks/fund-keys";
 
 /** O cotista vota a favor ou contra a troca e muda o voto até o fim da votação. */
 export function useCastAssemblyVote(fundId: number) {

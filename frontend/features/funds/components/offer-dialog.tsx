@@ -17,7 +17,7 @@ import { displayMoney, displayPercent, displayQuantity } from "@/shared/lib/util
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
 import { useOpenFundOffer } from "../hooks/mutations/useOpenFundOffer";
 import { offerControl } from "../lib/fund-math";
-import { ControlNotice } from "./control-notice";
+import { ControlNotice } from "@/shared/components/control-notice";
 
 type OfferDialogProps = {
   open: boolean;

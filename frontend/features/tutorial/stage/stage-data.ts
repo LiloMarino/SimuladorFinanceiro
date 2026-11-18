@@ -31,6 +31,7 @@ const quote = (
   sector: null,
   segment: null,
   state_owned: false,
+  fund: false,
 });
 
 export const STAGE_QUOTES: MarketQuote[] = [
@@ -55,6 +56,7 @@ export const STAGE_STOCK: StockDetails = {
   price_date: "2023-03-14",
   change: 0.67,
   change_pct: 0.018,
+  fund_id: null,
   history: [],
 };
 

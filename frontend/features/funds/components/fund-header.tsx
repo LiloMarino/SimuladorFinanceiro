@@ -4,7 +4,7 @@ import { FundMark } from "@/shared/components/fund-mark";
 import { Badge } from "@/shared/components/ui/badge";
 import { displayIsoDate } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
-import { fundStage } from "../lib/fund-view";
+import { fundStage } from "@/shared/lib/fund-view";
 
 type FundHeaderProps = {
   fund: FundDetails;

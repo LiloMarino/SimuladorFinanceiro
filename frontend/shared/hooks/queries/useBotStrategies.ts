@@ -3,15 +3,21 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { StrategyInfo } from "@/types";
 
+type BotStrategiesOptions = {
+  /** Com `false` a lista sai sem as estratégias de gestoras; sem o valor valem as regras da sala */
+  fundsEnabled?: boolean;
+};
+
 /** As estratégias que um bot pode jogar, com os parâmetros na faixa válida para a data de início (a das regras do lobby, ou `startDate`). */
-export function useBotStrategies(startDate?: string) {
+export function useBotStrategies(startDate?: string, { fundsEnabled }: BotStrategiesOptions = {}) {
+  const params = new URLSearchParams();
+  if (startDate !== undefined) params.set("start_date", startDate);
+  if (fundsEnabled !== undefined) params.set("funds_enabled", String(fundsEnabled));
+  const query = params.size > 0 ? `?${params}` : "";
+
   return useQuery({
-    queryKey: queryKeys.botStrategies(startDate),
-    queryFn: ({ signal }) =>
-      apiFetch<StrategyInfo[]>(
-        `/api/simulation/bots/strategies${startDate === undefined ? "" : `?start_date=${startDate}`}`,
-        { signal },
-      ),
+    queryKey: queryKeys.botStrategies(startDate, fundsEnabled),
+    queryFn: ({ signal }) => apiFetch<StrategyInfo[]>(`/api/simulation/bots/strategies${query}`, { signal }),
     // A faixa depende da data de início: cada abertura do diálogo pede de novo
     staleTime: 0,
   });

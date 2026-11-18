@@ -25,6 +25,7 @@ from backend.core.enum import (
     OrderAction,
 )
 from backend.core.exceptions.http_exceptions import UnprocessableEntityError
+from backend.core.fund_reference import FundReference
 from backend.core.life_budget import cents
 from backend.core.repository.portfolio import DividendTotal
 from backend.core.runtime.event_manager import EventManager
@@ -131,6 +132,8 @@ class SimulationEngine:
         # As cotas de gestora desta partida e o preço de ranking do dia de cada uma
         self.created_stocks: dict[str, StockDTO] = {}
         self.ranking_prices: dict[str, Decimal] = {}
+        # A referência de negociação de cada cota listada, refeita a cada abertura de pregão
+        self.fund_references: dict[str, FundReference] = {}
         # Quem acompanha o lucro realizado de cada carteira (as gestoras): recebe a conta, a
         # origem e o valor de cada realização
         self.on_realized: Callable[[UUID, RealizedKind, Decimal], None] | None = None

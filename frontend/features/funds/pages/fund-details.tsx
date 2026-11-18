@@ -1,6 +1,6 @@
 import { Gavel, Lock } from "lucide-react";
 import { useRef, useState } from "react";
-import { Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { CardState } from "@/shared/components/card-state";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -28,25 +28,24 @@ import { FeesDialog } from "../components/fees-dialog";
 import { FundAssembly } from "../components/fund-assembly";
 import { FundBuybackCard } from "../components/fund-buyback-card";
 import { FundComposition } from "../components/fund-composition";
-import { FundDistributionsCard } from "../components/fund-distributions-card";
+import { FundDistributionsCard } from "@/shared/components/fund-distributions-card";
 import { FundFeesCard } from "../components/fund-fees-card";
 import { FundHeader } from "../components/fund-header";
 import { FundHolders } from "../components/fund-holders";
 import { FundIssuanceCard } from "../components/fund-issuance-card";
 import { FundManagersCard } from "../components/fund-managers-card";
-import { FundMetricsRow } from "../components/fund-metrics-row";
+import { FundMetricsRow } from "@/shared/components/fund-metrics-row";
 import { FundMovements } from "../components/fund-movements";
 import { FundOfferCard } from "../components/fund-offer-card";
-import { FundOrderPanel } from "../components/fund-order-panel";
 import { FundPriceChart } from "../components/fund-price-chart";
 import { FundSkeleton } from "../components/fund-skeleton";
 import { IssuanceDialog } from "../components/issuance-dialog";
 import { OfferDialog } from "../components/offer-dialog";
 import { useCloseFundOffer } from "../hooks/mutations/useCloseFundOffer";
-import { useFund } from "../hooks/queries/useFund";
+import { useFund } from "@/shared/hooks/queries/useFund";
 import { myInviteOf, type Comanager } from "../lib/fund-comanagers";
 import { FIRST_QUOTA_PRICE } from "../lib/fund-math";
-import { fundStage, managerQuotasOf, managerShareOf } from "../lib/fund-view";
+import { fundStage, managerQuotasOf, managerShareOf } from "@/shared/lib/fund-view";
 
 export default function FundDetailsPage() {
   const id = Number(useParams().fundId);
@@ -108,7 +107,6 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
   const [issuanceOpen, setIssuanceOpen] = useState(false);
   const [buybackOpen, setBuybackOpen] = useState(false);
   const [contributeOpen, setContributeOpen] = useState(false);
-  const quantityRef = useRef<HTMLInputElement>(null);
   const assemblyRef = useRef<HTMLDivElement>(null);
   const { fund: activeFund, switchAccount } = useActiveAccount();
   const closeOffer = useCloseFundOffer(fund.id);
@@ -125,10 +123,8 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
   const assemblyOpenNow = fund.assembly.current !== null;
   const voting = fund.assembly.current?.status === "VOTING";
 
-  const buyInOffer = () => {
-    quantityRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    quantityRef.current?.focus();
-  };
+  // A cota é negociada no detalhe do ativo, pelo livro e pela boleta
+  const tradeLink = <Link to={`/variable-income/${fund.ticker}`} />;
 
   const operateButton = operating ? (
     <Button variant="outline" onClick={() => switchAccount(null)}>
@@ -170,6 +166,11 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
           </Button>
         </>
       )}
+      {stage !== "closed" && (
+        <Button variant="outline" nativeButton={false} render={tradeLink}>
+          Vender cotas
+        </Button>
+      )}
       <Button variant="outline" onClick={() => setFeesOpen(true)}>
         Taxas
       </Button>
@@ -177,9 +178,16 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
     </>
   );
 
+  const viewerActions =
+    stage === "listed" ? (
+      <Button variant="outline" nativeButton={false} render={tradeLink}>
+        Negociar cotas
+      </Button>
+    ) : undefined;
+
   const offerAction =
     stage !== "offer" ? undefined : viewer ? (
-      <Button variant="fund" size="sm" onClick={buyInOffer}>
+      <Button variant="fund" size="sm" nativeButton={false} render={tradeLink}>
         Comprar na oferta
       </Button>
     ) : (
@@ -201,7 +209,7 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
               ? `Gerida por ${fund.manager_nickname ?? "—"}, que controla ${displayPercent(managerShare, 1)} das cotas`
               : `Você gere esta gestora e controla ${displayPercent(managerShare, 1)} das cotas`
         }
-        actions={comanager ? operateButton : viewer ? undefined : managerActions}
+        actions={comanager ? operateButton : viewer ? viewerActions : managerActions}
         footer={viewer ? <MyHoldingStrip fund={fund} /> : undefined}
       />
 
@@ -313,15 +321,15 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
           {/* Números do topo */}
           <FundMetricsRow fund={fund} viewer={viewer} />
 
-          {/* Gráfico e boleta ou taxas */}
-          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+          {/* Gráfico e taxas */}
+          {viewer ? (
             <FundPriceChart fund={fund} />
-            {viewer ? (
-              <FundOrderPanel fund={fund} viewer quantityRef={quantityRef} />
-            ) : (
+          ) : (
+            <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+              <FundPriceChart fund={fund} />
               <FundFeesCard fund={fund} onChange={() => setFeesOpen(true)} />
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Carteira e cotistas */}
           <div className="grid items-start gap-5 xl:grid-cols-2">
@@ -332,11 +340,8 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
           {/* Rendimentos */}
           <FundDistributionsCard fund={fund} {...(viewer ? {} : { onChange: () => setDistributionOpen(true) })} />
 
-          {/* Movimentos e venda do gestor */}
-          <div className={viewer ? "grid gap-5" : "grid items-start gap-5 xl:grid-cols-2"}>
-            <FundMovements movements={fund.movements} />
-            {!viewer && <FundOrderPanel fund={fund} viewer={false} />}
-          </div>
+          {/* Movimentos */}
+          <FundMovements movements={fund.movements} />
         </>
       )}
 

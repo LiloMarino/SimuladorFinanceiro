@@ -34,6 +34,7 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
+from backend.core.fund_reference import FundReference
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.funds import fund_book as fund_book_module
 from backend.features.funds.fund_book import (
@@ -44,6 +45,7 @@ from backend.features.funds.fund_book import (
     offer_ends_on,
     offer_session,
 )
+from backend.features.funds.performance import PERFORMANCE_WINDOW
 from backend.features.funds.ranking_price import RANKING_WINDOW
 from backend.features.market_maker.account import DayTrades
 from backend.features.market_maker.candle import close_candle
@@ -79,6 +81,7 @@ class FundEngine(FakeSimulationEngine):
         self.broker = Broker(self, threading.RLock())
         self.matching_engine = MatchingEngine(self.broker)
         self.ranking_prices: dict[str, Decimal] = {}
+        self.fund_references: dict[str, FundReference] = {}
         self.created_stocks: dict[str, StockDTO] = {}
 
     def balance_sheet(self, client_id: UUID) -> BalanceSheet:
@@ -561,6 +564,75 @@ def test_reload_rebuilds_the_fund_from_the_saved_rows(memory: MemoryFunds):
     assert reloaded.account.maker_quotas == before.account.maker_quotas
     assert reloaded.last_close == before.last_close
     assert reloaded.days == before.days
+
+
+def test_close_adds_the_nav_of_the_day_to_the_performance_window(
+    memory: MemoryFunds,
+):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+    fund = setup.book.get(TICKER)
+    day = TODAY
+    for _ in range(PERFORMANCE_WINDOW + 5):
+        day += timedelta(days=1)
+        setup.tick(day)
+        setup.book.on_close(day)
+
+    assert len(fund.navs) == PERFORMANCE_WINDOW
+    assert fund.navs[-1].day == day
+    assert fund.navs[-1].nav == fund.nav
+
+
+def test_reload_rebuilds_the_performance_window_from_the_saved_days(
+    memory: MemoryFunds,
+):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+    day = TODAY
+    for _ in range(PERFORMANCE_WINDOW + 5):
+        day += timedelta(days=1)
+        setup.tick(day)
+        setup.book.on_close(day)
+    before = setup.book.get(TICKER).navs
+
+    reloaded = FundBook(1, setup.engine, lambda user_id: MANAGER).get(TICKER)
+
+    assert len(reloaded.navs) == PERFORMANCE_WINDOW
+    assert reloaded.navs == before
+    # A janela do ranking continua curta, mesmo com a de desempenho longa
+    assert len(reloaded.days) == RANKING_WINDOW
+
+
+def test_open_publishes_the_reference_with_the_fixed_price_of_the_offer(
+    memory: MemoryFunds,
+):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+    listed_on = setup.book.get(TICKER).terms.listed_on
+    assert listed_on is not None
+
+    setup.tick(listed_on)
+    first = setup.engine.fund_references[TICKER]
+    last_day = offer_ends_on(listed_on)
+    setup.tick(last_day)
+    last = setup.engine.fund_references[TICKER]
+
+    assert first.nav == 100.0
+    assert first.fixed_price == 100.0
+    assert not first.fixed_price_last_session
+    assert last.fixed_price_last_session
+
+
+def test_reference_has_no_fixed_price_after_the_offer_ends(memory: MemoryFunds):
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+    fund = setup.book.get(TICKER)
+    assert fund.terms.listed_on is not None
+    fund.account.offer_remaining = None
+
+    setup.tick(offer_ends_on(fund.terms.listed_on) + timedelta(days=1))
+
+    assert setup.engine.fund_references[TICKER].fixed_price is None
 
 
 def test_fund_portfolio_is_registered_for_the_engine(memory: MemoryFunds):

@@ -19,3 +19,6 @@ export const managerShareOf = (fund: Pick<FundDetails, "holders" | "manager_user
 /** As cotas do gestor, que dão o controle quando passam da metade. */
 export const managerQuotasOf = (fund: Pick<FundDetails, "holders" | "manager_user_id">) =>
   Number(fund.holders.find((holder) => holder.user_id === fund.manager_user_id)?.quotas ?? 0);
+
+/** A linha do histórico em que o mês fechou sem lucro realizado: nada a distribuir. */
+export const isLosingMonth = (row: FundDetails["distributions"][number]) => Number(row.realized_profit) <= 0;

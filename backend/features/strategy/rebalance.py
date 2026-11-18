@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import ROUND_DOWN, Decimal
 
-from backend.core.dto.fixed_income_asset import FixedIncomeOfferDTO
 from backend.core.dto.strategy import (
     AllocationItemDTO,
     AllocationViewDTO,
@@ -11,12 +10,11 @@ from backend.core.dto.strategy import (
     StrategyParamValue,
 )
 from backend.core.enum import (
-    RateIndexType,
     StrategyGroup,
     StrategyParamKind,
     StrategyView,
 )
-from backend.core.utils import format_money, format_quantity, required
+from backend.core.utils import format_money, format_quantity
 from backend.features.strategy.allocation import Item, distribute, whole_shares
 from backend.features.strategy.base_strategy import (
     BaseStrategy,
@@ -26,6 +24,7 @@ from backend.features.strategy.base_strategy import (
 )
 from backend.features.strategy.buy_and_hold import DEFAULT_ASSET
 from backend.features.strategy.context import StrategyContext
+from backend.features.strategy.liquidity import liquid_offer, redeem_liquid
 
 ZERO = Decimal(0)
 CENT = Decimal("0.01")
@@ -145,7 +144,7 @@ class TargetRebalance(BaseStrategy):
         # Cada ordem conta com o caixa que as anteriores deixam
         available = ctx.cash
         if fixed_move <= -MIN_MOVE:
-            available += _redeem(ctx, -fixed_move, why)
+            available += redeem_liquid(ctx, -fixed_move, why)
 
         quote = ctx.quotes.get(asset)
         if quote is not None:
@@ -173,7 +172,7 @@ class TargetRebalance(BaseStrategy):
                     )
                     available -= price * shares
 
-        offer = _liquid_offer(ctx)
+        offer = liquid_offer(ctx)
         value = min(fixed_move, available).quantize(CENT, ROUND_DOWN)
         if offer is not None and value >= MIN_MOVE:
             ctx.invest(
@@ -207,7 +206,7 @@ class TargetRebalance(BaseStrategy):
                 item("Renda fixa", held.fixed_value, 100 - target),
             ],
             limit_pp=param_int(params, "max_deviation"),
-            has_liquid_offer=_liquid_offer(ctx) is not None,
+            has_liquid_offer=liquid_offer(ctx) is not None,
             today=[intent.reason for intent in ctx.intents],
         )
 
@@ -231,42 +230,6 @@ def _holdings(ctx: StrategyContext, asset: str) -> _Holdings:
         (h.current_value for h in ctx.fixed_holdings if not h.daily_liquidity), ZERO
     )
     return _Holdings(stock_value, stock_floor, fixed_value, fixed_floor)
-
-
-def _liquid_offer(ctx: StrategyContext) -> FixedIncomeOfferDTO | None:
-    """O CDB de liquidez diária sem teto por jogador: o que comporta o caixa inteiro."""
-    offers = [
-        o
-        for o in ctx.fixed_offers
-        if o.daily_liquidity
-        and o.rate_index is RateIndexType.CDI
-        and o.player_cap is None
-    ]
-    if not offers:
-        return None
-    return min(offers, key=lambda o: (-o.interest_rate, str(o.asset_uuid)))
-
-
-def _redeem(ctx: StrategyContext, need: Decimal, why: str) -> Decimal:
-    """Resgata `need` dos títulos de liquidez diária, os maiores primeiro; devolve o resgatado."""
-    redeemed = ZERO
-    liquid = sorted(
-        (h for h in ctx.fixed_holdings if h.redeemable),
-        key=lambda h: (-(h.redeemable or ZERO), str(h.asset_uuid)),
-    )
-    for holding in liquid:
-        value = min(need - redeemed, required(holding.redeemable)).quantize(
-            CENT, ROUND_DOWN
-        )
-        if value < MIN_MOVE:
-            continue
-        ctx.redeem(
-            holding.asset_uuid,
-            value,
-            f"{why}: resgatou {format_money(value)} de {holding.name}",
-        )
-        redeemed += value
-    return redeemed
 
 
 def _why(held: _Holdings, target: Decimal, rebalancing: bool) -> str:

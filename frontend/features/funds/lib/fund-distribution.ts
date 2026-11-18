@@ -1,5 +1,3 @@
-import type { FundDetails } from "@/types";
-
 /** O passo da régua da parte distribuída, em pontos percentuais. */
 export const DISTRIBUTION_STEP = 5;
 
@@ -11,6 +9,3 @@ export const rateToBody = (points: number) => (points / 100).toFixed(4);
 
 /** Quanto uma parte distribuída paga de um lucro realizado; mês sem lucro não paga nada. */
 export const distributedOf = (profit: number, points: number) => Math.max(0, profit) * (points / 100);
-
-/** A linha do histórico em que o mês fechou sem lucro realizado: nada a distribuir. */
-export const isLosingMonth = (row: FundDetails["distributions"][number]) => Number(row.realized_profit) <= 0;

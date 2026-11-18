@@ -883,14 +883,21 @@ def get_match_parties():
     "/bots/strategies",
     response_model=list[StrategyInfoDTO],
     summary="Listar as estratégias para os bots",
-    description="As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. Serve também à preparação de cada jogador no lobby.",
+    description="As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. A estratégia que exige a expansão Gestoras só vem quando a sala a tem: `funds_enabled` informado manda (o backtest passa falso), e sem ele valem as regras da sala. Serve também à preparação de cada jogador no lobby.",
 )
-def list_bot_strategies(start_date: date | None = None):
+def list_bot_strategies(
+    start_date: date | None = None, funds_enabled: bool | None = None
+):
     """
     Lista as estratégias que um bot pode jogar.
     """
     return catalog.infos(
-        start_date or SettingsManager.get().start_date, None, catalog.known_tickers()
+        start_date or SettingsManager.get().start_date,
+        None,
+        catalog.known_tickers(),
+        funds_enabled=SettingsManager.effective_funds_enabled()
+        if funds_enabled is None
+        else funds_enabled,
     )
 
 

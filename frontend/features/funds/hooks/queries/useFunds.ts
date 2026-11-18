@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { FundSummary } from "@/types";
-import { fundKeys } from "../fund-keys";
+import { fundKeys } from "@/shared/hooks/fund-keys";
 
 /** As gestoras da partida, cada uma com o patrimônio por cota de agora e o preço de ranking. Quando algo muda (funds_update), busca de novo. */
 export function useFunds({ enabled = true }: { enabled?: boolean } = {}) {

@@ -9,7 +9,7 @@ import {
   displaySignedPercent,
 } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
-import { premium } from "../lib/fund-math";
+import { premium } from "@/shared/lib/fund-quota";
 import {
   MANAGEMENT_FEE,
   MARKET_PRICE,
@@ -19,8 +19,8 @@ import {
   PREMIUM,
   RETURN_VS_CDI,
   TOTAL_RETURN,
-} from "../lib/fund-metrics";
-import { netWorthOf } from "../lib/fund-view";
+} from "@/shared/lib/fund-metrics";
+import { netWorthOf } from "@/shared/lib/fund-view";
 
 const EMPTY = "—";
 

@@ -3973,7 +3973,7 @@ export interface paths {
         };
         /**
          * Listar as estratégias para os bots
-         * @description As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. Serve também à preparação de cada jogador no lobby.
+         * @description As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. A estratégia que exige a expansão Gestoras só vem quando a sala a tem: `funds_enabled` informado manda (o backtest passa falso), e sem ele valem as regras da sala. Serve também à preparação de cada jogador no lobby.
          */
         get: operations["list_bot_strategies_api_simulation_bots_strategies_get"];
         put?: never;
@@ -10087,6 +10087,8 @@ export interface components {
             segment: string | null;
             /** State Owned */
             state_owned: boolean;
+            /** Fund */
+            fund: boolean;
         };
         /**
          * MarketRegime
@@ -13881,6 +13883,8 @@ export interface components {
             change_pct: number;
             /** History */
             history: components["schemas"]["StockPriceHistoryDTO"][];
+            /** Fund Id */
+            fund_id: number | null;
         };
         /** StockPriceHistoryDTO */
         StockPriceHistoryDTO: {
@@ -23938,6 +23942,7 @@ export interface operations {
         parameters: {
             query?: {
                 start_date?: string | null;
+                funds_enabled?: boolean | null;
             };
             header?: never;
             path?: never;

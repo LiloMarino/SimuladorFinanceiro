@@ -17,7 +17,7 @@ const candle = {
   change: 1,
   change_pct: 0.1,
 };
-const detail: StockDetails = { ...candle, history: [{ ...candle }] };
+const detail: StockDetails = { ...candle, fund_id: null, history: [{ ...candle }] };
 
 describe("histórico recebido ao pausar", () => {
   it("aguarda o detalhe inicial em vez de criar um histórico vazio pelo WS", () => {

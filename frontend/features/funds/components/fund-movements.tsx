@@ -1,7 +1,7 @@
 import { displayShortDate } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
 import { movementText } from "../lib/fund-movements";
-import { FundSection } from "./fund-section";
+import { FundSection } from "@/shared/components/fund-section";
 
 /** O que aconteceu na gestora, do mais recente ao mais antigo. */
 export function FundMovements({ movements }: { movements: FundDetails["movements"] }) {

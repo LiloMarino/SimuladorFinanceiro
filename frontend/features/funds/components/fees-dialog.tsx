@@ -17,7 +17,7 @@ import { displayIsoDate, displayMoney } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
 import { useSetFundFees } from "../hooks/mutations/useSetFundFees";
 import { aboveWaterMark, feeToBody, feeToPoints, snapFee } from "../lib/fund-fees";
-import { netWorthOf } from "../lib/fund-view";
+import { netWorthOf } from "@/shared/lib/fund-view";
 import { FeeControls } from "./fee-controls";
 
 type FeesDialogProps = {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { distributedOf, isLosingMonth, rateToBody, rateToPoints } from "./fund-distribution";
+import { distributedOf, rateToBody, rateToPoints } from "./fund-distribution";
 
 describe("rendimentos da gestora", () => {
   it("converte a fração do servidor em pontos da régua e de volta", () => {
@@ -13,11 +13,5 @@ describe("rendimentos da gestora", () => {
     expect(distributedOf(10_000, 95)).toBeCloseTo(9_500, 6);
     expect(distributedOf(-500, 95)).toBe(0);
     expect(distributedOf(10_000, 0)).toBe(0);
-  });
-
-  it("o mês sem lucro realizado é de prejuízo", () => {
-    const row = { realized_profit: "-120.00" } as Parameters<typeof isLosingMonth>[0];
-    expect(isLosingMonth(row)).toBe(true);
-    expect(isLosingMonth({ ...row, realized_profit: "300.00" })).toBe(false);
   });
 });

@@ -6,9 +6,9 @@ import { Button } from "@/shared/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { displayIsoDate, displayMoney, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
-import { isLosingMonth } from "../lib/fund-distribution";
-import { DISTRIBUTION_RATE, REALIZED_PROFIT, YIELD_PER_QUOTA } from "../lib/fund-metrics";
-import { FundSection } from "./fund-section";
+import { isLosingMonth } from "@/shared/lib/fund-view";
+import { DISTRIBUTION_RATE, REALIZED_PROFIT, YIELD_PER_QUOTA } from "@/shared/lib/fund-metrics";
+import { FundSection } from "@/shared/components/fund-section";
 
 type Distribution = FundDetails["distributions"][number];
 

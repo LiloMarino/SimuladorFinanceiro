@@ -20,7 +20,7 @@ import { cashOf, contributionBody, contributionReady, picksValue, type StockPick
 import { foundingSummary } from "../lib/fund-math";
 import { ContributionPicker } from "./contribution-picker";
 import { useOperatingAsFund } from "../hooks/useOperatingAsFund";
-import { PersonalAccountNotice } from "./personal-account-notice";
+import { PersonalAccountNotice } from "@/shared/components/personal-account-notice";
 
 type ContributeDialogProps = {
   open: boolean;

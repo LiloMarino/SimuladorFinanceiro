@@ -169,7 +169,7 @@ def test_detail_matches_quote_and_preserves_chronological_history(
     for candle in candles:
         details = repository.stock.get_stock_details(candle.ticker, TODAY)
         assert details is not None
-        assert details.model_dump(exclude={"history"}) == candle.model_dump()
+        assert details.model_dump(exclude={"history", "fund_id"}) == candle.model_dump()
         assert [p.price_date for p in details.history] == sorted(
             p.price_date for p in details.history
         )
@@ -240,7 +240,7 @@ def test_batch_reads_respect_frozen_versions_without_duplicate_dates(
     )
     detail = repository.stock.get_stock_details("ZETA3", TODAY, simulation_id=version)
     assert detail is not None
-    assert detail.model_dump(exclude={"history"}) == candle.model_dump()
+    assert detail.model_dump(exclude={"history", "fund_id"}) == candle.model_dump()
     assert [p.close for p in detail.history] == expected
 
 
@@ -278,6 +278,7 @@ def test_market_keeps_quote_and_sparkline_consistent_and_reuses_classification(
     sim._engine = SimulationEngine(TODAY, 1, date(2030, 1, 1))
     sim._price_impact = PriceImpact(1, False, 0.02, 20)
     sim._government = None
+    sim._funds = None
     with _selects(quotes) as statements:
         market = sim.get_market()
     assert len(statements) == 3  # cotações, fechamentos e classificação

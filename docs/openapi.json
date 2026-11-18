@@ -11907,7 +11907,7 @@
           "Simulation"
         ],
         "summary": "Listar as estratégias para os bots",
-        "description": "As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. Serve também à preparação de cada jogador no lobby.",
+        "description": "As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. A estratégia que exige a expansão Gestoras só vem quando a sala a tem: `funds_enabled` informado manda (o backtest passa falso), e sem ele valem as regras da sala. Serve também à preparação de cada jogador no lobby.",
         "operationId": "list_bot_strategies_api_simulation_bots_strategies_get",
         "parameters": [
           {
@@ -11925,6 +11925,22 @@
                 }
               ],
               "title": "Start Date"
+            }
+          },
+          {
+            "name": "funds_enabled",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Funds Enabled"
             }
           }
         ],
@@ -29628,6 +29644,10 @@
           "state_owned": {
             "type": "boolean",
             "title": "State Owned"
+          },
+          "fund": {
+            "type": "boolean",
+            "title": "Fund"
           }
         },
         "additionalProperties": false,
@@ -29649,7 +29669,8 @@
           "sparkline",
           "sector",
           "segment",
-          "state_owned"
+          "state_owned",
+          "fund"
         ],
         "title": "MarketQuoteDTO"
       },
@@ -40344,6 +40365,17 @@
             },
             "type": "array",
             "title": "History"
+          },
+          "fund_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fund Id"
           }
         },
         "additionalProperties": false,
@@ -40362,7 +40394,8 @@
           "price_date",
           "change",
           "change_pct",
-          "history"
+          "history",
+          "fund_id"
         ],
         "title": "StockDetailsDTO"
       },

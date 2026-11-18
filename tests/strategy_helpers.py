@@ -100,6 +100,7 @@ def context(
         },
         indicators=Indicators(Decimal("0.14"), Decimal("0.14"), Decimal("0.05")),
         open_orders=[],
+        seed=1,
         history_source=lambda ticker, days: frames[ticker].iloc[-days:],
     )
 

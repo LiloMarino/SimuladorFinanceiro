@@ -46,11 +46,12 @@ export const RANKING_PRICE: MetricInfo = {
 };
 
 export const PREMIUM: MetricInfo = {
-  label: "Ágio",
+  label: "Ágio / P/VP",
   description: "Quanto o preço no mercado passa do patrimônio por cota",
   definition:
-    "É o preço no mercado dividido pelo patrimônio por cota, menos 1. Positivo é ágio (a cota custa mais do que vale); negativo é deságio (custa menos).",
-  example: "Ex.: R$ 141,20 ÷ R$ 128,40 − 1 = +10,0%. Quem compra paga R$ 12,80 a mais por cota do que ela vale.",
+    "É o preço no mercado dividido pelo patrimônio por cota, menos 1. Positivo é ágio (a cota custa mais do que vale); negativo é deságio (custa menos). O P/VP é a mesma conta sem o menos 1: preço ÷ patrimônio por cota.",
+  example:
+    "Ex.: R$ 141,20 ÷ R$ 128,40 = P/VP 1,10, ou seja, +10,0% de ágio: quem compra paga R$ 12,80 a mais por cota do que ela vale. P/VP 0,90 seria 10% de deságio.",
   reading:
     "Ágio é bom para o gestor, que vende cotas mais caras na oferta, e ruim para quem compra, que paga a mais. Deságio é o contrário. Perto de zero, o preço é justo.",
   format: (value) => `${value}%`,

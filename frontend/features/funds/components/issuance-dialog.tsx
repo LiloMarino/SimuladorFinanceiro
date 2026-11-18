@@ -18,8 +18,8 @@ import { displayMoney, displayPercent, displayQuantity } from "@/shared/lib/util
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
 import { useAnnounceFundIssuance } from "../hooks/mutations/useAnnounceFundIssuance";
 import { useFundIssuancePreview } from "../hooks/queries/useFundIssuancePreview";
-import { OFFER_COMMISSION, PREFERENCE_RIGHT } from "../lib/fund-metrics";
-import { ControlNotice } from "./control-notice";
+import { OFFER_COMMISSION, PREFERENCE_RIGHT } from "@/shared/lib/fund-metrics";
+import { ControlNotice } from "@/shared/components/control-notice";
 
 type IssuanceDialogProps = {
   open: boolean;

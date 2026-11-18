@@ -3,7 +3,7 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { FundFoundRequest, FundSummary } from "@/types";
-import { fundKeys } from "../fund-keys";
+import { fundKeys } from "@/shared/hooks/fund-keys";
 
 /** Funda a gestora: nasce sem cotas, e quem integraliza depois é o gestor. */
 export function useFoundFund() {

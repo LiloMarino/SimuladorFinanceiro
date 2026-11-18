@@ -499,3 +499,12 @@ def test_a_strategy_without_a_view_block_returns_an_empty_view(match):
     view = sim.get_strategy_view(ana, "cdi_100", {})
 
     assert (view.errors, view.ranking, view.allocation) == ({}, None, None)
+
+
+def test_a_room_without_funds_refuses_the_fund_strategy(match):
+    sim, ana, _ = match
+
+    with pytest.raises(Exception, match="Gestoras"):
+        sim.set_my_strategy(ana, "fund_quotas", {})
+
+    assert sim.get_my_strategy(ana).active is None

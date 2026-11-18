@@ -12,7 +12,7 @@ import { useCancelAssembly } from "../hooks/mutations/useCancelAssembly";
 import { blockReason, resultText, type AssemblyCurrent } from "../lib/fund-assembly";
 import { AssemblyScoreboard } from "./assembly-scoreboard";
 import { ConveneDialog } from "./convene-dialog";
-import { FundSection } from "./fund-section";
+import { FundSection } from "@/shared/components/fund-section";
 
 type FundAssemblyProps = { fund: FundDetails };
 

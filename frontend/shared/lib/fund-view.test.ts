@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fundStage, managerQuotasOf, managerShareOf, netWorthOf } from "./fund-view";
+import { fundStage, isLosingMonth, managerQuotasOf, managerShareOf, netWorthOf } from "./fund-view";
 
 describe("fundStage", () => {
   it("sem data de listagem a gestora está fechada", () => {
@@ -39,5 +39,13 @@ describe("leituras da página", () => {
 
   it("sem linha do gestor, a parte é zero", () => {
     expect(managerShareOf({ holders: [...holders], manager_user_id: 99 })).toBe(0);
+  });
+});
+
+describe("isLosingMonth", () => {
+  it("o mês sem lucro realizado é de prejuízo", () => {
+    const row = { realized_profit: "-120.00" } as Parameters<typeof isLosingMonth>[0];
+    expect(isLosingMonth(row)).toBe(true);
+    expect(isLosingMonth({ ...row, realized_profit: "300.00" })).toBe(false);
   });
 });

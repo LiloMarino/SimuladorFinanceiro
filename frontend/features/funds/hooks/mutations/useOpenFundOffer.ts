@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { FundOfferRequest, FundSummary } from "@/types";
-import { fundKeys } from "../fund-keys";
+import { fundKeys } from "@/shared/hooks/fund-keys";
 
 /** Abre a oferta pública: a cota entra no mercado ao patrimônio por cota do dia. */
 export function useOpenFundOffer(fundId: number) {

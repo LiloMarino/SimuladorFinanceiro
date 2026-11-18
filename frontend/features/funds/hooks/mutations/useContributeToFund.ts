@@ -3,7 +3,7 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { FundContributionRequest, FundContributionResponse } from "@/types";
-import { fundKeys } from "../fund-keys";
+import { fundKeys } from "@/shared/hooks/fund-keys";
 
 /** Leva caixa e ações da carteira do gestor para a gestora, em troca de cotas. */
 export function useContributeToFund() {

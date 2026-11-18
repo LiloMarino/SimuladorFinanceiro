@@ -65,6 +65,8 @@ type BotDialogProps = {
   description: string;
   /** Data de início que fixa a faixa dos parâmetros; sem ela vale a das regras do lobby */
   startDate?: string;
+  /** Com `false` a lista de estratégias sai sem as de gestoras */
+  fundsEnabled?: boolean;
   /** Quem já ocupa nome e cor; o bot em edição fica de fora */
   others: TakenSlot[];
   /** O dinheiro do exemplo em reais dos parâmetros e de onde ele vem */
@@ -109,8 +111,16 @@ export function BotDialog({ open, onOpenChange, ...content }: BotDialogProps) {
 type BotDialogContentProps = Omit<BotDialogProps, "open" | "onOpenChange"> & { onClose: () => void };
 
 /** Cabeçalho e a lista de estratégias resolvida: o formulário só monta com o dado pronto. */
-function BotDialogContent({ title, description, startDate, loading = false, onClose, ...form }: BotDialogContentProps) {
-  const strategies = useBotStrategies(startDate);
+function BotDialogContent({
+  title,
+  description,
+  startDate,
+  fundsEnabled,
+  loading = false,
+  onClose,
+  ...form
+}: BotDialogContentProps) {
+  const strategies = useBotStrategies(startDate, fundsEnabled === undefined ? {} : { fundsEnabled });
   const tickers = useBotTickers();
 
   const ready = strategies.data && strategies.data.length > 0 && tickers.data && !loading;

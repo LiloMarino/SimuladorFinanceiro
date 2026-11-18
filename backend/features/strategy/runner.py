@@ -43,6 +43,7 @@ from backend.core.exceptions.http_exceptions import (
     ConflictError,
     UnprocessableEntityError,
 )
+from backend.core.fund_reference import price_ceiling
 from backend.core.indicators import annual_index_rate
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
@@ -69,7 +70,11 @@ from backend.features.strategy.context import (
 from backend.features.strategy.intents import Intent
 from backend.features.strategy.panel import build_panel
 from backend.features.strategy.price_history import PriceHistory
-from backend.features.strategy.registry import STRATEGIES, get_strategy
+from backend.features.strategy.registry import (
+    STRATEGIES,
+    ensure_available,
+    get_strategy,
+)
 from backend.features.strategy.state import derive_state
 from backend.features.variable_income.broker import to_money
 from backend.features.variable_income.entities.order import (
@@ -106,9 +111,15 @@ class StrategyRunner:
     """
 
     def __init__(
-        self, engine: SimulationEngine, price_impact: PriceImpact, end_date: date
+        self,
+        engine: SimulationEngine,
+        price_impact: PriceImpact,
+        end_date: date,
+        funds_enabled: bool,
     ) -> None:
         self._engine = engine
+        # A partida tem a expansão Gestoras: só nela valem as estratégias que a exigem
+        self._funds_enabled = funds_enabled
         self._history = PriceHistory(engine.simulation_id, end_date, price_impact)
         self._active: dict[UUID, ActiveStrategy] = {}
         # Chamado com o jogador, o dia e a mensagem quando a estratégia dele dá erro
@@ -151,7 +162,12 @@ class StrategyRunner:
     # =========================
 
     def infos(self, today: date) -> list[StrategyInfoDTO]:
-        return catalog.infos(today, self._engine.simulation_id, self._engine.stocks)
+        return catalog.infos(
+            today,
+            self._engine.simulation_id,
+            self._engine.stocks,
+            funds_enabled=self._funds_enabled,
+        )
 
     def pending(self, user: UserDTO) -> list[PendingDTO]:
         """O erro que devolveu o jogador ao manual, até ele ligar uma estratégia de novo."""
@@ -318,6 +334,7 @@ class StrategyRunner:
             return
 
         cls = get_strategy(key)
+        ensure_available(cls, funds_enabled=self._funds_enabled)
         resolved = self._with_defaults(cls, params, today)
         errors = cls.validate(resolved, set(self._engine.stocks))
         if errors:
@@ -479,6 +496,13 @@ class StrategyRunner:
                 if not intent.ticker or not intent.quantity:
                     raise ValueError("Compra e venda precisam de ativo e quantidade")
                 quantity = self._quantity_allowed(user, intent)
+                # Toda compra de cota de gestora respeita o teto de preço sobre o PL por cota
+                reference = engine.fund_references.get(intent.ticker)
+                ceiling = (
+                    price_ceiling(reference.nav)
+                    if reference is not None and intent.action == StrategyAction.BUY
+                    else None
+                )
                 order: Order = (
                     LimitOrder(
                         placed_on=engine.current_date,
@@ -486,7 +510,9 @@ class StrategyRunner:
                         ticker=intent.ticker,
                         size=quantity,
                         action=_order_action(intent.action),
-                        price=intent.limit,
+                        price=intent.limit
+                        if ceiling is None
+                        else min(intent.limit, ceiling),
                         automatic=True,
                     )
                     if intent.limit is not None
@@ -497,6 +523,7 @@ class StrategyRunner:
                         size=quantity,
                         action=_order_action(intent.action),
                         automatic=True,
+                        price_cap=ceiling,
                     )
                 )
                 engine.matching_engine.submit(order)
@@ -615,6 +642,7 @@ class StrategyRunner:
                 continue
             segment = engine.classification.get(ticker)
             best_ask = engine.matching_engine.order_book.best_sell(ticker)
+            best_bid = engine.matching_engine.order_book.best_buy(ticker)
             quotes[ticker] = Quote(
                 ticker,
                 engine.stocks[ticker].name,
@@ -624,6 +652,8 @@ class StrategyRunner:
                 segment.segment if segment else None,
                 engine.stocks[ticker].asset_class.fractional,
                 best_ask.price if best_ask else None,
+                best_bid.price if best_bid else None,
+                engine.fund_references.get(ticker),
             )
         return _Market(
             quotes=quotes,
@@ -678,6 +708,7 @@ class StrategyRunner:
                 )
                 for o in engine.matching_engine.order_book.orders_of(client_id)
             ],
+            seed=user.id,
             history_source=lambda ticker, days: self._history.window(
                 ticker, today, days
             ),

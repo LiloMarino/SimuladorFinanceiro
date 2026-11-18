@@ -182,6 +182,45 @@ def test_market_without_liquidity_raises():
     assert engine.order_book.get_orders("ABCD") == []
 
 
+def test_capped_market_buy_stops_at_the_first_price_above_the_cap():
+    """A compra a mercado com teto executa o que há até o teto; o resto some."""
+    engine = MatchingEngine(FakeBroker())
+    engine.submit(_limit(client_id="s1", price=10, size=3, action=OrderAction.SELL))
+    engine.submit(_limit(client_id="s2", price=12, size=3, action=OrderAction.SELL))
+    engine.submit(_limit(client_id="s3", price=13, size=3, action=OrderAction.SELL))
+
+    buy = _market(client_id="b", size=9, action=OrderAction.BUY)
+    buy.price_cap = 12.0
+    engine.submit(buy)
+
+    assert buy.remaining == 3
+    assert buy.status == OrderStatus.PARTIAL
+    assert [o.size for o in engine.order_book.get_orders("ABCD")] == [3]
+    best = engine.order_book.best_sell("ABCD")
+    assert best is not None and best.price == 13
+
+
+def test_capped_market_buy_without_a_seller_under_the_cap_is_refused():
+    engine = MatchingEngine(FakeBroker())
+    engine.submit(_limit(client_id="s", price=13, size=3, action=OrderAction.SELL))
+
+    buy = _market(client_id="b", size=3, action=OrderAction.BUY)
+    buy.price_cap = 12.0
+
+    with pytest.raises(ConflictError, match=r"até R[$] 12,00"):
+        engine.submit(buy)
+
+
+def test_market_buy_without_a_cap_takes_any_price():
+    engine = MatchingEngine(FakeBroker())
+    engine.submit(_limit(client_id="s", price=50, size=3, action=OrderAction.SELL))
+
+    buy = _market(client_id="b", size=3, action=OrderAction.BUY)
+    engine.submit(buy)
+
+    assert buy.status == OrderStatus.EXECUTED
+
+
 def test_limit_without_liquidity_enters_book():
     """Uma ordem LIMIT sem contraparte deve entrar no book."""
     broker = FakeBroker()

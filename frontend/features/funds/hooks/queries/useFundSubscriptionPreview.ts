@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import type { FundIssuanceSubscriptionPreview } from "@/types";
-import { fundKeys } from "../fund-keys";
+import { fundKeys } from "@/shared/hooks/fund-keys";
 
 /** O custo e a parte do cotista depois de comprar `quotas` cotas na preferência da emissão. */
 export function useFundSubscriptionPreview(fundId: number, quotas: number) {

@@ -418,7 +418,10 @@ class Simulation:
 
         # As estratégias ligadas voltam antes do primeiro tick, que já as roda
         self._strategies = StrategyRunner(
-            self._engine, self._price_impact, settings.end_date
+            self._engine,
+            self._price_impact,
+            settings.end_date,
+            settings.funds_enabled and backtest is None,
         )
         self._strategies.load(
             repository.simulation_player.participants(settings.id), resume_from
@@ -2148,11 +2151,12 @@ class Simulation:
             self._publish_newsroom(stocks)
 
         # A vela das cotas fecha antes do snapshot: o preço de ranking do dia já vale nele
-        created_candles: list[CandleDTO] = []
+        fund_candles: list[CandleDTO] = []
         if self._funds is not None:
             with metrics.measure("engine", ENGINE_FUNDS):
-                created_candles = self._funds.on_close(self._current_date)
+                fund_candles = self._funds.on_close(self._current_date)
             self._advance_eliminations(users)
+        created_candles = list(fund_candles)
         if self._government is not None:
             with metrics.measure("engine", ENGINE_GOVERNMENT):
                 created_candles += self._government.close_state_market(
@@ -2185,7 +2189,11 @@ class Simulation:
                 "simulation_update",
                 SimulationTickUpdateEventDTO(current_date=self._current_date).to_json(),
             )
-            notify("stocks_update", StocksUpdateEventDTO(stocks=stocks).to_json())
+            # As cotas listadas andam junto das ações; as estatais seguem só no evento do ativo
+            notify(
+                "stocks_update",
+                StocksUpdateEventDTO(stocks=[*stocks, *fund_candles]).to_json(),
+            )
             if self._funds is not None:
                 self._notify_funds_update()
             self._publish_government_panels()
@@ -2781,31 +2789,52 @@ class Simulation:
             if self._government
             else set()
         )
-        quotes = []
-        for candle in self.get_stocks():
+
+        def quote_of(candle: CandleDTO, *, fund: bool) -> MarketQuoteDTO:
             history = closes.get(candle.ticker, [])
             segment = classification.get(candle.ticker)
-            quotes.append(
-                MarketQuoteDTO(
-                    **candle.model_dump(),
-                    sparkline=[*history[:-1], candle.close]
-                    if history
-                    else [candle.close],
-                    sector=segment.sector if segment else None,
-                    segment=segment.segment if segment else None,
-                    state_owned=candle.ticker in state_tickers,
-                )
+            return MarketQuoteDTO(
+                **candle.model_dump(),
+                sparkline=[*history[:-1], candle.close] if history else [candle.close],
+                sector=segment.sector if segment else None,
+                segment=segment.segment if segment else None,
+                state_owned=candle.ticker in state_tickers,
+                fund=fund,
             )
+
+        quotes = [quote_of(candle, fund=False) for candle in self.get_stocks()]
+        # As cotas de gestora com a oferta aberta ou já negociando; a gestora fechada fica fora
+        quotes.extend(
+            quote_of(candle, fund=True) for candle in self._listed_fund_candles()
+        )
         return quotes
+
+    def _listed_fund_candles(self) -> list[CandleDTO]:
+        """A última vela de cada cota listada."""
+        if self._funds is None:
+            return []
+        return self._funds.listed_candles(self._current_date)
 
     @synchronized
     def get_stock_details(self, ticker: str) -> StockDetailsDTO | None:
+        fund = self._funds.find(ticker) if self._funds is not None else None
+        # A cota só existe para a partida depois que a gestora abre a oferta
+        if fund is not None and not fund.listed:
+            return None
         details = repository.stock.get_stock_details(ticker, self._current_date)
         if details is None:
             return None
+        # A cota no pregão da estreia ainda não tem vela salva: o preço é o da vela plana do motor
+        if fund is not None and not details.history:
+            listed = next(
+                (c for c in self._listed_fund_candles() if c.ticker == ticker), None
+            )
+            if listed is not None:
+                details = details.model_copy(update=listed.model_dump())
         return self._price_impact.apply(details).model_copy(
             update={
-                "history": self._price_impact.apply_history(ticker, details.history)
+                "history": self._price_impact.apply_history(ticker, details.history),
+                "fund_id": fund.terms.id if fund is not None else None,
             }
         )
 

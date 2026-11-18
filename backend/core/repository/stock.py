@@ -305,6 +305,7 @@ class StockRepository:
         return StockDetailsDTO(
             **candle.model_dump(),
             history=[StockPriceHistoryDTO.from_model(h) for h in history],
+            fund_id=None,
         )
 
     @transactional

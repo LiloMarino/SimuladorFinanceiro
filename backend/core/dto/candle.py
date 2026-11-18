@@ -48,3 +48,5 @@ class MarketQuoteDTO(CandleDTO):
     segment: str | None
     # O governo da partida ainda controla a empresa
     state_owned: bool
+    # A cota de uma gestora da partida, e não uma ação
+    fund: bool

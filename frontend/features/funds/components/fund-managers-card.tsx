@@ -9,7 +9,7 @@ import { displayIsoDate, displayMoney, displayPercent } from "@/shared/lib/utils
 import type { FundDetails } from "@/types";
 import { useLeaveComanagement } from "../hooks/mutations/useLeaveComanagement";
 import { hasScheduledChange, isInvited, MAX_COMANAGERS, splitMonthly, type Comanager } from "../lib/fund-comanagers";
-import { FundSection } from "./fund-section";
+import { FundSection } from "@/shared/components/fund-section";
 
 type ManagerActions = {
   onInvite: () => void;

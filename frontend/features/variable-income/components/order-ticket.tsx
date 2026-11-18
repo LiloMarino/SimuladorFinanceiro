@@ -9,6 +9,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { DisabledHint } from "@/shared/components/disabled-hint";
 import { AccountOriginNotice } from "@/shared/components/account-origin-notice";
+import { PersonalAccountNotice } from "@/shared/components/personal-account-notice";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import { isSovereignAccount } from "@/shared/lib/active-account";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
@@ -21,8 +22,9 @@ import { formatMoney, formatQuantityInput, quantityToInput } from "@/shared/lib/
 import { displayDate, displayMoney, displayQuantity, parseLocalDate, toCentsString } from "@/shared/lib/utils/display";
 import { EXEMPT_SALES_LABEL, INCOME_TAX_RATE, salesMonthName } from "@/shared/lib/income-tax";
 import { displayPercent } from "@/shared/lib/utils/display";
-import type { AssetClass, OrderPreview, OrderPreviewRequest } from "@/types";
+import type { AssetClass, FundDetails, OrderPreview, OrderPreviewRequest } from "@/types";
 import { useOrderPreview } from "../hooks/queries/useOrderPreview";
+import { FundQuotaBlock } from "./fund-quota-block";
 import { SovereignStake } from "./sovereign-stake";
 import { useSubmitOrder } from "@/shared/hooks/mutations/useSubmitOrder";
 
@@ -52,10 +54,12 @@ type OrderTicketProps = {
   /** Último fechamento: a referência de hoje sob o preço limite */
   todayPrice: number;
   prefill?: OrderPrefill | undefined;
+  /** A gestora dona da cota; só existe quando o ativo é cota de gestora */
+  fund?: FundDetails | undefined;
 };
 
 /** Boleta: escolhe a ordem e mostra, antes de enviar, o que ela faz com o caixa e o IR. */
-export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTicketProps) {
+export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quotaFund }: OrderTicketProps) {
   const [action, setAction] = useState<Action>("buy");
   const [kind, setKind] = useState<OrderKind>("market");
   const [mode, setMode] = useState<SizeMode>("quantity");
@@ -103,6 +107,8 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
   const { fund } = useActiveAccount();
   const sovereign = isSovereignAccount(fund);
   const cashLabel = sovereign ? "Caixa do fundo" : fund ? "Caixa da gestora" : "Caixa";
+  // A cota entra e sai da carteira pessoal: com qualquer conta de fundo ativa a ordem fica bloqueada
+  const quotaOnFundAccount = quotaFund !== undefined && fund !== null;
 
   const selling = action === "sell";
   // A fatia e o teto do fundo só existem na compra pela conta dele
@@ -126,6 +132,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
   const hasSize = byAmount ? amountNumber > 0 : quantityNumber > 0;
   const canSubmit =
     !locked &&
+    !quotaOnFundAccount &&
     requestMatches &&
     !error &&
     hasSize &&
@@ -156,25 +163,27 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
     : `${displayMoney(amountNumber)} não paga ${minimumUnit} ${ticker} (${displayMoney(preview?.price ?? 0)}).`;
 
   // O motivo do botão apagado: o primeiro que impede a ordem
-  const blockedReason = error
-    ? "Atualize a prévia antes de enviar."
-    : !requestMatches || !preview
-      ? "Conferindo a ordem…"
-      : !hasSize
-        ? byAmount
-          ? "Digite o valor da ordem."
-          : "Digite a quantidade."
-        : kind === "limit" && !limitPrice
-          ? "Digite o preço limite."
-          : invalidSize
-            ? byAmount
-              ? amountError
-              : quantityError
-            : sovereignRefusal !== null
-              ? sovereignRefusal
-              : !preview.price
-                ? "Não há preço de mercado agora."
-                : null;
+  const blockedReason = quotaOnFundAccount
+    ? "Volte para a carteira pessoal para negociar a cota."
+    : error
+      ? "Atualize a prévia antes de enviar."
+      : !requestMatches || !preview
+        ? "Conferindo a ordem…"
+        : !hasSize
+          ? byAmount
+            ? "Digite o valor da ordem."
+            : "Digite a quantidade."
+          : kind === "limit" && !limitPrice
+            ? "Digite o preço limite."
+            : invalidSize
+              ? byAmount
+                ? amountError
+                : quantityError
+              : sovereignRefusal !== null
+                ? sovereignRefusal
+                : !preview.price
+                  ? "Não há preço de mercado agora."
+                  : null;
 
   // Tudo gasta o caixa inteiro, em reais; as frações valem na unidade do modo ativo
   const fillShortcut = (share: number) => {
@@ -189,9 +198,12 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
     }
   };
 
-  const sendOrder = () =>
+  // `quantityOverride` vende outra quantidade pelo mesmo tipo de ordem (o "Vender só N" da cota)
+  const sendOrder = (quantityOverride?: string) =>
     submit.mutate(
-      byAmount ? { action, type: kind, amount } : { action, type: kind, quantity, limit_price: limitPrice },
+      byAmount && quantityOverride === undefined
+        ? { action, type: kind, amount }
+        : { action, type: kind, quantity: quantityOverride ?? quantity, limit_price: limitPrice },
       {
         onSuccess: () => {
           setQuantityText("");
@@ -211,7 +223,12 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
       <CardContent>
         {tradeLock && <TradeLockNotice lock={tradeLock} />}
         <div inert={locked} className={cn("grid gap-4", locked && "mt-4 opacity-55")}>
-          {!locked && <AccountOriginNotice />}
+          {!locked && !quotaOnFundAccount && <AccountOriginNotice />}
+          {!locked && quotaOnFundAccount && (
+            <PersonalAccountNotice>
+              As cotas entram e saem da sua carteira pessoal. Volte para ela para comprar ou vender.
+            </PersonalAccountNotice>
+          )}
           <ToggleGroup
             variant="segmented"
             size="lg"
@@ -402,6 +419,18 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill }: OrderTi
               )}
 
               {sovereignStake && <SovereignStake data={sovereignStake} />}
+
+              {/* Cota da gestora */}
+              {quotaFund && !quotaOnFundAccount && (
+                <FundQuotaBlock
+                  fund={quotaFund}
+                  action={action}
+                  price={requestMatches ? Number(preview?.price ?? 0) : 0}
+                  quantity={byAmount ? Number(preview?.quantity ?? 0) : quantityNumber}
+                  disabled={locked || submit.isPending || !requestMatches}
+                  onSell={(size) => sendOrder(String(size))}
+                />
+              )}
 
               {/* Destino do que o fundo negocia */}
               {sovereign && (

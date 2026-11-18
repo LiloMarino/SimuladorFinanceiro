@@ -11,8 +11,8 @@ import {
   parseLocalDate,
 } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
-import { RANKING_PRICE } from "../lib/fund-metrics";
-import { FundSection } from "./fund-section";
+import { RANKING_PRICE } from "@/shared/lib/fund-metrics";
+import { FundSection } from "@/shared/components/fund-section";
 
 // Teto e piso do preço de ranking em volta do patrimônio por cota
 const RANKING_BAND = 0.3;

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
-import { fundKeys } from "../fund-keys";
+import { fundKeys } from "@/shared/hooks/fund-keys";
 
 /** Retira do mercado as cotas da oferta que ainda não foram vendidas. */
 export function useCloseFundOffer(fundId: number) {

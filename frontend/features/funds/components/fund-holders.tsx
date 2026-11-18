@@ -4,9 +4,9 @@ import { StackedBar } from "@/shared/components/stacked-bar";
 import { playerColorStyle } from "@/shared/lib/player-colors";
 import { displayPercent, displayQuantity } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
-import { quotasToControl, sellableKeepingControl } from "../lib/fund-math";
-import { CONTROL } from "../lib/fund-metrics";
-import { FundSection } from "./fund-section";
+import { quotasToControl, sellableKeepingControl } from "@/shared/lib/fund-quota";
+import { CONTROL } from "@/shared/lib/fund-metrics";
+import { FundSection } from "@/shared/components/fund-section";
 
 type Holder = FundDetails["holders"][number];
 

@@ -3,6 +3,7 @@ from backend.features.strategy.base_strategy import BaseStrategy
 from backend.features.strategy.breakout import VolumeBreakout
 from backend.features.strategy.buy_and_hold import BuyAndHold
 from backend.features.strategy.cdi import CdiReference
+from backend.features.strategy.fund_quotas import FundQuotas
 from backend.features.strategy.momentum import TwelveMonthMomentum
 from backend.features.strategy.moving_average import MovingAverageCross
 from backend.features.strategy.rebalance import TargetRebalance
@@ -19,8 +20,17 @@ STRATEGIES: dict[str, type[BaseStrategy]] = {
         RelativeStrength,
         VolumeBreakout,
         TwelveMonthMomentum,
+        FundQuotas,
     )
 }
+
+
+def ensure_available(strategy: type[BaseStrategy], *, funds_enabled: bool) -> None:
+    """Recusa a estratégia que exige uma expansão que a sala não tem."""
+    if not strategy.available(funds_enabled=funds_enabled):
+        raise UnprocessableEntityError(
+            f"{strategy.name} exige a expansão Gestoras, que esta sala não tem."
+        )
 
 
 def get_strategy(key: str) -> type[BaseStrategy]:

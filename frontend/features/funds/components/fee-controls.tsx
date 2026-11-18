@@ -4,7 +4,7 @@ import { Slider } from "@/shared/components/ui/slider";
 import { displayRatePercent } from "@/shared/lib/financial-independence";
 import { displayDecimal, displayMoney, displayMoneyWhole } from "@/shared/lib/utils/display";
 import { feeStep, feeToPoints, managementPerMonth, performanceExample } from "../lib/fund-fees";
-import { MANAGEMENT_FEE, PERFORMANCE_FEE } from "../lib/fund-metrics";
+import { MANAGEMENT_FEE, PERFORMANCE_FEE } from "@/shared/lib/fund-metrics";
 
 type FeeControlsProps = {
   managementPoints: number;
