@@ -1835,6 +1835,24 @@ def test_timeline_between_the_rounds_has_the_first_round_and_the_weekly_polls(
     assert not shown.points[-1].happened
 
 
+def test_timeline_keeps_the_calendar_order_when_a_weekly_poll_is_published_late(
+    book: GovernmentBook,
+):
+    timeline_race(book)
+    book.on_tick(USERS, FIRST_ROUND, False)
+    # A pesquisa do dia seguinte ao turno sai no tick de 3 dias depois, fora da grade semanal
+    late = FIRST_ROUND + timedelta(days=3)
+    book.on_tick(USERS, late, False)
+
+    shown = build_timeline(book, settings(), late, None)
+
+    keys = [(p.date, p.kind) for p in shown.points]
+    assert [p.date for p in shown.points] == sorted(p.date for p in shown.points)
+    assert any(p.date == late and p.happened for p in shown.points)
+    assert len(keys) == len(set(keys))
+    assert shown.points[-1].kind is TimelinePointKind.RUNOFF
+
+
 def test_timeline_of_a_finished_year_is_all_history_with_the_winner(
     book: GovernmentBook,
 ):

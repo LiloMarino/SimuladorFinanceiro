@@ -39,6 +39,14 @@ from backend.features.government.state import GovernmentState, RoundResult, Tick
 
 Series = list[tuple[date, voters.Vote]]
 
+# No mesmo dia, o ponto do turno vem depois da pesquisa que o antecede
+_KIND_ORDER = {
+    TimelinePointKind.POLL: 0,
+    TimelinePointKind.FIRST_ROUND: 1,
+    TimelinePointKind.RUNOFF_POLL: 2,
+    TimelinePointKind.RUNOFF: 3,
+}
+
 
 @dataclass(frozen=True)
 class _Item:
@@ -57,7 +65,11 @@ def build_timeline(
     phase = phase_of(state, book.cycle(), today)
     years = _years(book, phase)
     chosen = _chosen(years, year)
-    points = _points(book, settings, chosen, today)
+    # Os pontos seguem a ordem do calendário: os marcos escolhem o par vizinho pelo índice da lista
+    points = sorted(
+        _points(book, settings, chosen, today),
+        key=lambda p: (p.date, _KIND_ORDER[p.kind]),
+    )
     return MapTimelineDTO(
         years=years,
         year=chosen.year,

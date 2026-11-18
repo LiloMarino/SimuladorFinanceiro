@@ -206,7 +206,7 @@ export function MapTimelineRuler({ timeline, selected, flag, focusParty, regions
             const isSelected = point.date === selected.date;
             const name = isTurn ? pointLabel(point) : "Pesquisa";
             return (
-              <div key={point.date}>
+              <div key={`${point.kind}|${point.date}`}>
                 <button
                   type="button"
                   disabled={!point.happened}
