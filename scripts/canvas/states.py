@@ -1321,6 +1321,41 @@ def funds_offer_closed(page: Page) -> None:
     page.get_by_text("Oferta pública encerrada").first.wait_for()
 
 
+def funds_long_distributions(page: Page) -> None:
+    """
+    A gestora listada vista pelo gestor, com 14 meses de rendimentos na tabela, de dezembro de
+    2020 para trás. Dado forjado: a partida nova não tem rendimento apurado, e as linhas vêm
+    prontas em `distributions`.
+    """
+
+    def change(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        rows = []
+        for index in range(14):
+            year, month = divmod(11 - index, 12)
+            day = f"{2020 + year}-{month + 1:02d}-28"
+            profit = 4200 + 310 * (index % 5)
+            rows.append(
+                {
+                    "data_com": day,
+                    "realized_profit": str(profit),
+                    "rate": "0.9",
+                    "quotas": "500",
+                    "per_quota": str(round(profit * 0.9 / 500, 2)),
+                    "paid_per_quota": str(round(profit * 0.9 / 500, 2)),
+                    "paid": str(round(profit * 0.9, 2)),
+                    "paid_on": day,
+                }
+            )
+        body["distributions"] = rows
+
+    fund_match(page, stage="offer-closed")
+    patch_get(page, FUND_DETAIL_PATTERN, change)
+    open_funds_page(page)
+    page.get_by_text("Pago em").wait_for()
+    page.wait_for_load_state("networkidle")
+
+
 def funds_loading(page: Page) -> None:
     """Dado forjado: a lista de gestoras nunca responde e a página fica em esqueleto."""
     fund_match(page, stage="none")
@@ -1353,8 +1388,9 @@ def funds_viewer(page: Page) -> None:
         assert isinstance(body, dict)
         body["manager_user_id"] = OTHER_MANAGER_ID
         body["manager_nickname"] = "Duda"
-        body["my_quotas"] = "300"
-        body["my_value"] = "30000"
+        body["my_role"] = "other"
+        body["my_quotas"] = "5"
+        body["my_value"] = "500"
         body["my_return"] = "0.0812"
 
     patch_get(page, FUND_DETAIL_PATTERN, change)
@@ -1794,6 +1830,7 @@ STATES: dict[str, Callable[[Page], None]] = {
     "gestoras/fechada": funds_closed,
     "gestoras/oferta-aberta": funds_offer_open,
     "gestoras/oferta-encerrada": funds_offer_closed,
+    "gestoras/rendimentos-longos": funds_long_distributions,
     "gestoras/carregando": funds_loading,
     "gestoras/erro": funds_error,
     "gestoras/texto-longo": funds_long_text,
