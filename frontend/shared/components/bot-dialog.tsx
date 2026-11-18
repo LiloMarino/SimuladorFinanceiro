@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { Layers, User } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { Controller, useForm, useWatch, type UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +18,7 @@ import { Input } from "@/shared/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useBotStrategies } from "@/shared/hooks/queries/useBotStrategies";
 import { useBotTickers } from "@/shared/hooks/queries/useBotTickers";
 import { RANDOM_STRATEGY, type BotFormValues, type TakenSlot } from "@/shared/lib/bot-form";
@@ -40,11 +42,15 @@ const RANDOM_PROFESSION = "random";
  */
 type BotDialogValues = BotFormValues & { quantity: number; profession: Profession | null };
 
+/** As duas formas de adicionar: vários bots de uma vez ou um só, com nome e cor escolhidos. */
+type BotMode = "batch" | "single";
+
 /**
  * O que o diálogo entrega ao confirmar: os campos do formulário e os parâmetros já como números.
+ * `batch` diz qual aba confirmou; no lote `quantity` é a quantidade e fora dele vale 1.
  * `strategyKey` é `RANDOM_STRATEGY` quando cada bot do lote leva uma estratégia sorteada (sem parâmetros).
  */
-export type BotSubmit = BotDialogValues & { params: ParamValues };
+export type BotSubmit = BotDialogValues & { params: ParamValues; batch: boolean };
 
 type BotSubmitControls = {
   close: () => void;
@@ -77,7 +83,7 @@ type BotDialogProps = {
   profession?: { available: Profession[]; initial: Profession | null } | undefined;
   /** Campos a mais depois da cor, como a equipe da sala */
   extraFields?: (form: UseFormReturn<BotDialogValues>, others: TakenSlot[]) => ReactNode;
-  /** Quantos bots o diálogo cria de uma vez, no máximo; sem ele o diálogo cria um só */
+  /** Quantos bots o diálogo cria de uma vez, no máximo; acima de 1 o diálogo ganha as abas "Em lote" e "Individual" */
   maxQuantity?: number | undefined;
   /** Compara os parâmetros com o padrão da estratégia, em vez de com o salvo */
   compareToDefault?: boolean | undefined;
@@ -200,8 +206,13 @@ function BotForm({
 }: BotFormProps) {
   const takenNames = others.map((p) => p.nickname);
 
+  // Com a quantidade acima de 1 o diálogo tem as duas abas; a aba é quem diz se o formulário cria um lote
+  const hasTabs = maxQuantity > 1;
+  const [mode, setMode] = useState<BotMode>("single");
+  const batch = hasTabs && mode === "batch";
+
   // O nome vale contra quem ocupa nomes agora: a validação roda a cada digitação.
-  // Em lote os nomes saem sorteados da lista de cada estratégia, então o campo só vale com um bot.
+  // Em lote os nomes saem sorteados da lista de cada estratégia, então o campo só vale no individual.
   const schema = z
     .object({
       nickname: z.string(),
@@ -210,14 +221,19 @@ function BotForm({
       team: z.number().nullable(),
       profession: z.custom<Profession>().nullable(),
       drafts: z.record(z.string(), z.any()),
-      quantity: z
-        .number({ error: `Informe de 1 a ${maxQuantity}.` })
-        .int()
-        .min(1, `Informe de 1 a ${maxQuantity}.`)
-        .max(maxQuantity, `Só há ${maxQuantity} vagas livres na sala.`),
+      quantity: z.number({ error: `Informe de 1 a ${maxQuantity}.` }),
     })
     .superRefine(({ nickname: typed, quantity: count }, ctx) => {
-      if (count > 1) return;
+      if (batch) {
+        const message =
+          !Number.isInteger(count) || count < 1
+            ? `Informe de 1 a ${maxQuantity}.`
+            : count > maxQuantity
+              ? `Só há ${maxQuantity} vagas livres na sala.`
+              : null;
+        if (message) ctx.addIssue({ code: "custom", path: ["quantity"], message });
+        return;
+      }
       const name = typed.trim();
       const message = !name
         ? "Dê um nome ao bot."
@@ -242,7 +258,6 @@ function BotForm({
   if (!strategy) return null;
 
   // Vários bots: nome, cor e equipe são automáticos; "Sortear" dispensa os parâmetros
-  const batch = quantity > 1;
   const random = batch && strategyKey === RANDOM_STRATEGY;
 
   const draft = drafts[strategy.key] ?? toDraft(defaultValues(strategy));
@@ -276,10 +291,14 @@ function BotForm({
       ]
     : [];
 
-  const pickQuantity = (next: number) => {
-    // "Sortear para cada bot" só existe em lote: com um bot a estratégia volta à primeira
-    if (next <= 1 && strategyKey === RANDOM_STRATEGY) form.setValue("strategyKey", strategies[0]?.key ?? "");
-    form.setValue("quantity", next, { shouldValidate: true });
+  const changeMode = (next: BotMode) => {
+    if (next === mode) return;
+    setMode(next);
+    // "Sortear para cada bot" só existe em lote: no individual a estratégia volta à primeira
+    if (next === "single" && strategyKey === RANDOM_STRATEGY) form.setValue("strategyKey", strategies[0]?.key ?? "");
+    form.setValue("quantity", next === "single" ? 1 : Math.max(quantity, 2));
+    // A validação do nome e da quantidade depende da aba: roda de novo na troca
+    void form.trigger();
   };
 
   const setDraft = (next: BotFormValues["drafts"][string]) =>
@@ -293,15 +312,35 @@ function BotForm({
       {
         ...formValues,
         nickname: formValues.nickname.trim(),
+        quantity: batch ? formValues.quantity : 1,
         strategyKey: random ? RANDOM_STRATEGY : strategy.key,
         params,
+        batch,
       },
       { close: onClose, refuseName },
     );
   });
 
   return (
-    <form onSubmit={(event) => void submit(event)} className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]">
+    <form
+      onSubmit={(event) => void submit(event)}
+      className={cn("grid min-h-0", hasTabs ? "grid-rows-[auto_minmax(0,1fr)_auto]" : "grid-rows-[minmax(0,1fr)_auto]")}
+    >
+      {/* Abas: lote ou individual */}
+      {hasTabs && (
+        <div className="border-b px-6 pt-1">
+          <Tabs value={mode} onValueChange={(value) => changeMode(value as BotMode)}>
+            <TabsList variant="line" className="-mb-px">
+              <TabsTrigger value="batch" className="flex-none">
+                <Layers /> Em lote
+              </TabsTrigger>
+              <TabsTrigger value="single" className="flex-none">
+                <User /> Individual
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      )}
       <div className="grid min-h-0 grid-cols-[340px_minmax(0,1fr)]">
         {/* Estratégias por grupo */}
         <div className="min-h-0 overflow-y-auto border-r bg-subtle px-4 pt-4 pb-5">
@@ -353,7 +392,7 @@ function BotForm({
         <div className="min-h-0 overflow-y-auto px-6 py-5">
           <div className="grid min-w-0 content-start gap-4.5">
             {/* Quantidade */}
-            {maxQuantity > 1 && (
+            {batch && (
               <Controller
                 control={form.control}
                 name="quantity"
@@ -369,15 +408,17 @@ function BotForm({
                       className="w-28"
                       value={Number.isNaN(field.value) ? "" : field.value}
                       aria-invalid={!!fieldState.error}
-                      onChange={(event) => pickQuantity(event.target.valueAsNumber)}
+                      onChange={(event) =>
+                        form.setValue("quantity", event.target.valueAsNumber, { shouldValidate: true })
+                      }
                       onBlur={field.onBlur}
                     />
                     {fieldState.error ? (
                       <FieldError errors={[fieldState.error]} />
                     ) : (
                       <FieldDescription>
-                        De 1 até {maxQuantity}, as vagas livres da sala. Com mais de um, o nome sai da lista da
-                        estratégia e a cor, a profissão e a equipe são automáticas.
+                        De 1 até {maxQuantity}, as vagas livres da sala. O nome sai da lista da estratégia e a cor e a
+                        equipe são automáticas.
                       </FieldDescription>
                     )}
                   </Field>
@@ -497,7 +538,7 @@ function BotForm({
         </Button>
         <Button type="submit" disabled={!canSave}>
           {saving ? <Spinner /> : submitIcon}
-          {batch ? `Adicionar ${quantity} bots` : submitLabel}
+          {batch ? `Adicionar ${quantity} ${quantity === 1 ? "bot" : "bots"}` : submitLabel}
         </Button>
       </div>
     </form>

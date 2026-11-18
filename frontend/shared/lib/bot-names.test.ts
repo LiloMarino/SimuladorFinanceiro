@@ -20,17 +20,17 @@ describe("drawBotName", () => {
     expect(drawBotName(strategy, [], () => 0.5)).toBe("Vovô Investidor");
   });
 
-  it("vira '<estratégia> #2' quando a lista acaba e sobe até o menor número livre", () => {
+  it("vira '<estratégia> 2' quando a lista acaba e sobe até o menor número livre", () => {
     const all = ["Tio Patinhas", "Vovô Investidor", "Paciência"];
-    expect(drawBotName(strategy, all)).toBe("Comprar e segurar #2");
-    expect(drawBotName(strategy, [...all, "Comprar e segurar #2"])).toBe("Comprar e segurar #3");
+    expect(drawBotName(strategy, all)).toBe("Comprar e segurar 2");
+    expect(drawBotName(strategy, [...all, "Comprar e segurar 2"])).toBe("Comprar e segurar 3");
   });
 });
 
 describe("isDrawnName", () => {
   it("reconhece o nome da lista e o numerado, não o digitado", () => {
     expect(isDrawnName("Paciência", strategy)).toBe(true);
-    expect(isDrawnName("Comprar e segurar #7", strategy)).toBe(true);
+    expect(isDrawnName("Comprar e segurar 7", strategy)).toBe(true);
     expect(isDrawnName("Meu bot", strategy)).toBe(false);
   });
 });
@@ -40,7 +40,7 @@ describe("nome numerado dentro do limite", () => {
 
   it("corta o nome da estratégia para caber em 20 caracteres", () => {
     const drawn = drawBotName(long, []);
-    expect(drawn).toBe("Cruzamento de méd #2");
+    expect(drawn).toBe("Cruzamento de médi 2");
     expect(drawn.length).toBeLessThanOrEqual(20);
     expect(isDrawnName(drawn, long)).toBe(true);
   });

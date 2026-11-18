@@ -22,8 +22,8 @@ describe("batchRequests", () => {
     expect(names).toHaveLength(3);
     expect(new Set(names.map((n) => n.toLowerCase())).size).toBe(3);
     expect(names).not.toContain("Tio Patinhas");
-    // A lista da estratégia acaba no segundo bot: o terceiro vira "<estratégia> #2"
-    expect(names).toContain("buy_and_hold #2");
+    // A lista da estratégia acaba no segundo bot: o terceiro vira "<estratégia> 2"
+    expect(names).toContain("buy_and_hold 2");
   });
 
   it("leva os parâmetros do formulário quando a estratégia é escolhida", () => {

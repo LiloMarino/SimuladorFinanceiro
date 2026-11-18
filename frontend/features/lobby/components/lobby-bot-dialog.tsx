@@ -93,8 +93,8 @@ export function LobbyBotDialog({
         )
       }
       onSubmit={(values, { close, refuseName }) => {
-        // Vários bots: o servidor cria o lote inteiro, com nomes já sorteados fora dos da sala
-        if (!bot && values.quantity > 1) {
+        // Aba "Em lote": o servidor cria o lote inteiro, com nomes já sorteados fora dos da sala
+        if (!bot && values.batch) {
           const requests = batchRequests(
             strategies ?? [],
             others.map((p) => p.nickname),
