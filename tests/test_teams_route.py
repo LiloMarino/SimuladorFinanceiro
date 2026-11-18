@@ -4,6 +4,7 @@ equipes quando o host volta para todos contra todos."""
 from __future__ import annotations
 
 from collections.abc import Iterator
+from decimal import Decimal
 from types import SimpleNamespace
 
 import pytest
@@ -12,6 +13,7 @@ from fastapi.testclient import TestClient
 
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.enum import GameType, PlayerGrouping, Profession, SalaryMode
+from backend.core.life_budget import LifeBudget
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
@@ -205,6 +207,42 @@ def test_the_profession_of_the_saved_match_wins_over_the_profile(
     ana = join("Ana")
 
     assert UserManager.get_profession(ana.id) == Profession.RETIREE
+
+
+def test_the_profession_of_the_profile_returns_to_the_room_after_the_match_starts(
+    api: tuple[TestClient, Join],
+    monkeypatch: pytest.MonkeyPatch,
+    remembered_professions: dict[int, Profession],
+):
+    http, join = api
+    ana = join("Ana")
+    monkeypatch.setattr(SettingsManager, "_settings", professions_settings())
+    http.put("/api/simulation/players/me/profession", json={"profession": "WELFARE"})
+
+    UserManager.release_room_teams()
+
+    assert remembered_professions == {ana.id: Profession.WELFARE}
+    assert UserManager.chosen_professions() == {ana.id: Profession.WELFARE}
+
+
+def test_the_heir_capital_is_the_room_cash_plus_the_inheritance_of_the_room_rules(
+    api: tuple[TestClient, Join], monkeypatch: pytest.MonkeyPatch
+):
+    http, join = api
+    join("Ana")
+    rules = professions_settings()
+    monkeypatch.setattr(SettingsManager, "_settings", rules)
+
+    response = http.get("/api/simulation/heir-capital")
+
+    expected = (
+        LifeBudget.of(rules)
+        .for_profession(Profession.HEIR)
+        .starting_capital(rules.starting_cash, rules.start_date, rules.end_date)
+    )
+    assert response.status_code == 200
+    assert Decimal(response.json()["starting_capital"]) == expected
+    assert expected > rules.starting_cash
 
 
 def test_equal_salary_room_neither_saves_nor_seeds_a_profession(

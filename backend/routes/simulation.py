@@ -62,6 +62,7 @@ from backend.core.enum import (
 )
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
+from backend.core.life_budget import LifeBudget
 from backend.core.player_colors import MAX_PLAYERS
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -77,7 +78,7 @@ from backend.features.realtime.schemas import (
 from backend.features.simulation.life_history import history_page
 from backend.features.simulation.room_fund_preparation import RoomFundPreparation
 from backend.features.simulation.saved_bots import saved_bot_infos, saved_bots
-from backend.features.simulation.saved_simulation import describe
+from backend.features.simulation.saved_simulation import describe, resume_point
 from backend.features.simulation.simulation_loader import SimulationLoader
 from backend.features.simulation.simulation_loop import simulation_controller
 from backend.features.strategy import catalog
@@ -233,6 +234,14 @@ class JoinMatchRequest(BaseModel):
     profession: Profession | None = None
     # Obrigatória para o Comissionado: a sigla de um partido da partida
     party: str | None = None
+
+
+class HeirCapitalDTO(BaseModel):
+    # Só sai em respostas: o schema de saída traz todos os campos como obrigatórios
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
+    # O caixa com que o Herdeiro entra: o da sala mais a herança que cobre os salários até o fim
+    starting_capital: Decimal
 
 
 class PlayerNickname(BaseModel):
@@ -612,6 +621,33 @@ def _notify_preparations() -> PreparationsDTO:
     snapshot = _preparations()
     notify("preparations_update", snapshot.to_json())
     return snapshot
+
+
+@simulation_router.get(
+    "/heir-capital",
+    response_model=HeirCapitalDTO,
+    summary="Capital inicial do Herdeiro",
+    description="O caixa com que o Herdeiro entra na sala: o da sala mais a herança, pelas regras da partida salva selecionada ou, sem seleção, pelas da nova partida.",
+)
+def get_heir_capital():
+    """
+    Capital inicial do Herdeiro pelas regras que valem para a sala.
+    """
+    selected_id = SettingsManager.get_selected_simulation_id()
+    summary = (
+        repository.simulation.get_simulation(selected_id)
+        if selected_id is not None
+        else None
+    )
+    rules = summary or SettingsManager.get()
+    # Na partida salva o jogador novo entra no último dia processado
+    joined = (resume_point(summary.id) if summary else None) or rules.start_date
+    capital = (
+        LifeBudget.of(rules)
+        .for_profession(Profession.HEIR)
+        .starting_capital(rules.starting_cash, joined, rules.end_date)
+    )
+    return HeirCapitalDTO(starting_capital=capital)
 
 
 @simulation_router.get(

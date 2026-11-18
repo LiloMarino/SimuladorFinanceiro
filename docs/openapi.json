@@ -11355,6 +11355,48 @@
         ]
       }
     },
+    "/api/simulation/heir-capital": {
+      "get": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Capital inicial do Herdeiro",
+        "description": "O caixa com que o Herdeiro entra na sala: o da sala mais a herança, pelas regras da partida salva selecionada ou, sem seleção, pelas da nova partida.",
+        "operationId": "get_heir_capital_api_simulation_heir_capital_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HeirCapitalDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/simulation/preparations": {
       "get": {
         "tags": [
@@ -26562,6 +26604,19 @@
         ],
         "title": "GuideScenarioDTO",
         "description": "O que muda no placar se o líder orientar a bancada dele assim."
+      },
+      "HeirCapitalDTO": {
+        "properties": {
+          "starting_capital": {
+            "type": "string",
+            "title": "Starting Capital"
+          }
+        },
+        "type": "object",
+        "required": [
+          "starting_capital"
+        ],
+        "title": "HeirCapitalDTO"
       },
       "HighlightsDTO": {
         "properties": {

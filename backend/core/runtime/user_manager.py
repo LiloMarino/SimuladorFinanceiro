@@ -859,11 +859,20 @@ class UserManager:
 
     @classmethod
     def release_room_teams(cls) -> None:
-        """A partida começou: as equipes e as profissões passam a morar nela e a próxima sala começa sem elas."""
+        """A partida começou: as equipes passam a morar nela e a próxima sala começa sem elas; a profissão e o partido de cada jogador voltam à escolha guardada no perfil."""
         with cls._lock:
             cls._teams.clear()
             cls._professions.clear()
             cls._parties.clear()
+            for player in cls._active_players.values():
+                if player.is_bot:
+                    continue
+                remembered = repository.settings.get_profession(player.id)
+                if remembered is not None:
+                    cls._professions[player.id] = remembered
+                party = repository.settings.get_party_choice(player.id)
+                if party is not None:
+                    cls._parties[player.id] = party
 
     @classmethod
     def ensure_teams_ready(cls, saved_teams: dict[int, int]) -> None:

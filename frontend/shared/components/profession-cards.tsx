@@ -2,6 +2,7 @@ import type { KeyboardEvent } from "react";
 import { Check, X } from "lucide-react";
 import {
   availableProfessions,
+  EXPANSION_NAME,
   PROFESSIONS,
   professionIncome,
   visibleProfession,
@@ -10,6 +11,7 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { displayDecimal, displayMoneyWhole } from "@/shared/lib/utils/display";
 import type { Profession } from "@/types";
+import { Badge } from "./ui/badge";
 import { FieldCaption } from "./ui/field";
 import { ProfessionTags } from "./profession-tags";
 
@@ -18,12 +20,14 @@ type ProfessionCardsProps = {
   room: RoomRules;
   /** Profissão do próprio jogador, marcada */
   selected: Profession | null | undefined;
+  /** O capital com que o Herdeiro entra (caixa da sala mais a herança); sem ele o card mostra só a renda */
+  heirCapital?: string | undefined;
   disabled?: boolean;
   onSelect: (profession: Profession) => void;
 };
 
 /** As profissões da sala em cartões: a renda do mês, o que cada uma ganha e perde e o que mexe na renda dela. */
-export function ProfessionCards({ room, selected, disabled, onSelect }: ProfessionCardsProps) {
+export function ProfessionCards({ room, selected, heirCapital, disabled, onSelect }: ProfessionCardsProps) {
   const salary = Number(room.monthly_salary);
   const professions = availableProfessions(room);
   // Só um cartão entra na ordem do Tab: o marcado, ou o primeiro enquanto não há escolha
@@ -51,7 +55,8 @@ export function ProfessionCards({ room, selected, disabled, onSelect }: Professi
         className="grid gap-3 outline-none @xl:grid-cols-2"
       >
         {professions.map((profession) => {
-          const { name, icon: Icon, incomeMultiple, benefitMultiple } = PROFESSIONS[profession];
+          const { name, icon: Icon, incomeMultiple, benefitMultiple, hard, requires } = PROFESSIONS[profession];
+          const expansion = requires && EXPANSION_NAME[requires];
           const { gains, losses, tags } = visibleProfession(profession, room);
           const isMine = profession === selected;
           return (
@@ -83,7 +88,19 @@ export function ProfessionCards({ room, selected, disabled, onSelect }: Professi
                     <Icon className="size-4" />
                   </span>
                   <span className="grid min-w-0">
-                    <span className="truncate text-sm leading-5 font-semibold">{name}</span>
+                    <span className="flex flex-wrap items-center gap-1.5">
+                      <span className="truncate text-sm leading-5 font-semibold">{name}</span>
+                      {hard && (
+                        <Badge variant="warning" size="tag">
+                          Difícil
+                        </Badge>
+                      )}
+                      {expansion && (
+                        <Badge variant="label" size="tag">
+                          {expansion}
+                        </Badge>
+                      )}
+                    </span>
                     <span className="flex flex-wrap items-baseline gap-1">
                       <span className="font-mono text-base font-semibold">
                         {displayMoneyWhole(professionIncome(profession, salary))}
@@ -93,6 +110,11 @@ export function ProfessionCards({ room, selected, disabled, onSelect }: Professi
                     <span className="font-mono text-xs text-muted-foreground">
                       {displayDecimal(incomeMultiple + (benefitMultiple ?? 0))}× o salário
                     </span>
+                    {profession === "HEIR" && heirCapital !== undefined && (
+                      <span className="font-mono text-xs text-muted-foreground">
+                        Capital inicial {displayMoneyWhole(Number(heirCapital))}
+                      </span>
+                    )}
                     {benefitMultiple !== undefined && (
                       <span className="font-mono text-xs text-muted-foreground">
                         {displayDecimal(incomeMultiple)}× do bico + {displayDecimal(benefitMultiple)}× do auxílio

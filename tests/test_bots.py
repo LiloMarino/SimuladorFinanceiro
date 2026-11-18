@@ -160,6 +160,19 @@ def test_a_repeated_name_is_refused_for_people_and_bots(room):
     )
 
 
+def test_a_bot_name_with_hash_or_slash_is_refused_and_a_numbered_one_is_accepted(room):
+    person("Ana")
+
+    for name in ("Bot #2", "Bot/2"):
+        assert "sem # nem /" in refusal(
+            lambda name=name: UserManager.add_bot(name, resolve_bot("cdi_100", {})),
+            status=422,
+        )
+
+    UserManager.add_bot("Rentista 2", resolve_bot("cdi_100", {}))
+    assert bot_named("Rentista 2")
+
+
 def test_a_taken_color_is_refused(room):
     UserManager.add_bot("Um", resolve_bot("cdi_100", {}), color="chart-2")
 
@@ -391,6 +404,24 @@ def test_the_bot_runs_its_strategy_and_receives_the_contribution(room):
     assert repository.user.get_total_contribution(
         bot.id
     ) == repository.user.get_total_contribution(ana.id)
+
+
+def test_the_profession_is_saved_in_the_match_and_returns_to_the_room_afterwards(
+    room, remembered_professions, monkeypatch: pytest.MonkeyPatch
+):
+    professions_rules = rules(
+        game_type=GameType.FINANCIAL_INDEPENDENCE, salary_mode=SalaryMode.PROFESSIONS
+    )
+    monkeypatch.setattr(SettingsManager, "_settings", professions_rules)
+    ana = person("Ana")
+    UserManager.set_profession(ana.client_id, Profession.RETIREE)
+
+    simulation = SimulationLoader.create(professions_rules)
+
+    saved = repository.simulation_player.professions(simulation.id)
+    assert saved[ana.id] == Profession.RETIREE
+    assert remembered_professions[ana.id] == Profession.RETIREE
+    assert UserManager._professions[ana.id] == Profession.RETIREE
 
 
 def test_a_bot_never_unlocks_achievements(room):

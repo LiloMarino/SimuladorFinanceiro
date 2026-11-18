@@ -234,6 +234,8 @@ export type TeamNaming = components["schemas"]["TeamNaming"];
 // Viver de renda: salário igual para todos ou uma profissão por jogador
 export type SalaryMode = components["schemas"]["SalaryMode"];
 export type Profession = components["schemas"]["Profession"];
+// O caixa com que o Herdeiro entra na sala
+export type HeirCapital = components["schemas"]["HeirCapitalDTO"];
 export type IncomeDriver = components["schemas"]["IncomeDriver"];
 export type IncomeLoss = components["schemas"]["IncomeLoss"];
 

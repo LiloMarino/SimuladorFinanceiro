@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   availableBotProfessions,
   availableProfessions,
+  EXPANSION_NAME,
   PROFESSIONS,
   visibleProfession,
   type RoomRules,
@@ -73,5 +74,21 @@ describe("visibleProfession das profissões novas", () => {
     expect(visibleProfession("EXPORTER", room()).tags).toEqual(["dollar", "corporateTax"]);
     expect(visibleProfession("BANKER", room()).tags).toEqual(["unemployment", "selic", "personalTax"]);
     expect(visibleProfession("BROKER", room()).tags).toEqual(["stocks", "personalTax"]);
+  });
+});
+
+describe("selos do card", () => {
+  it("só o Herdeiro é difícil", () => {
+    const hard = (Object.keys(PROFESSIONS) as (keyof typeof PROFESSIONS)[]).filter((p) => PROFESSIONS[p].hard);
+    expect(hard).toEqual(["HEIR"]);
+  });
+
+  it("as profissões das expansões levam o nome da expansão e as outras não", () => {
+    const requires = (profession: keyof typeof PROFESSIONS) =>
+      EXPANSION_NAME[PROFESSIONS[profession].requires ?? "inflationAdjusted"];
+    expect(requires("COMMISSIONED")).toBe("Governo & Política");
+    expect(requires("OFFERS_BANKER")).toBe("Gestoras");
+    expect(requires("CLT")).toBeUndefined();
+    expect(requires("FREELANCER")).toBeUndefined();
   });
 });

@@ -3760,6 +3760,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/heir-capital": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Capital inicial do Herdeiro
+         * @description O caixa com que o Herdeiro entra na sala: o da sala mais a herança, pelas regras da partida salva selecionada ou, sem seleção, pelas da nova partida.
+         */
+        get: operations["get_heir_capital_api_simulation_heir_capital_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/preparations": {
         parameters: {
             query?: never;
@@ -8883,6 +8903,11 @@ export interface components {
             cause: components["schemas"]["VoterGroup"] | null;
             /** Cause Share */
             cause_share: string | null;
+        };
+        /** HeirCapitalDTO */
+        HeirCapitalDTO: {
+            /** Starting Capital */
+            starting_capital: string;
         };
         /** HighlightsDTO */
         HighlightsDTO: {
@@ -23445,6 +23470,44 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_heir_capital_api_simulation_heir_capital_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HeirCapitalDTO"];
+                };
             };
             /** @description Unprocessable Content */
             422: {

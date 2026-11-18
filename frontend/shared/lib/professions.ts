@@ -57,8 +57,16 @@ export type ProfessionInfo = {
   tags: ProfessionTag[];
   /** A regra que a sala precisa ter ligada para a profissão existir; sem ela some da escolha */
   requires?: RoomRequirement;
+  /** A profissão exige mais do jogador que as outras: ganha o selo "difícil" no card */
+  hard?: boolean;
   /** A renda segue um partido que o jogador escolhe ao entrar; o bot não escolhe, então não a recebe */
   partyBound?: boolean;
+};
+
+/** O nome da expansão que a regra exige; as regras que não são expansão ficam de fora. */
+export const EXPANSION_NAME: Partial<Record<RoomRequirement, string>> = {
+  government: "Governo & Política",
+  funds: "Gestoras",
 };
 
 const GOVERNMENT: RoomRequirement[] = ["government"];
@@ -187,6 +195,7 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
     ],
     losses: [{ text: "Não tem renda de trabalho: a despesa sai do patrimônio" }],
     tags: [],
+    hard: true,
   },
   NEW_GRADUATE: {
     name: "Recém-formado",

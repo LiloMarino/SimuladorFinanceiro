@@ -7,6 +7,7 @@ import { PROFESSIONS, type RoomRules } from "@/shared/lib/professions";
 import { displayMoneyWhole } from "@/shared/lib/utils/display";
 import type { Profession } from "@/types";
 import { useChooseProfession } from "../../hooks/mutations/useChooseProfession";
+import { useHeirCapital } from "../../hooks/queries/useHeirCapital";
 import { PreparationFooter } from "./preparation-footer";
 
 type ProfessionTabProps = {
@@ -36,6 +37,7 @@ export function ProfessionTab({
   onClose,
 }: ProfessionTabProps) {
   const { mutate, isPending, variables, error } = useChooseProfession();
+  const { data: heirCapital } = useHeirCapital();
   const locked = lockedBy !== null;
   // Durante o salvamento o cartão clicado já aparece marcado; sem a resposta do servidor ele volta ao anterior
   const shown = isPending ? variables.profession : current;
@@ -91,6 +93,7 @@ export function ProfessionTab({
 
         <ProfessionCards
           room={room}
+          heirCapital={heirCapital?.starting_capital}
           selected={choosingParty ? "COMMISSIONED" : shown}
           disabled={locked}
           onSelect={selectProfession}
