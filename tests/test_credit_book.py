@@ -216,6 +216,15 @@ def test_short_cash_is_a_warning_only_inside_the_seven_days_before_the_due_date(
     assert engine.credit_book.pending(PLAYER, due - timedelta(days=7)) == []
 
 
+def test_overdraft_without_an_installment_due_soon_is_no_pending(engine):
+    loan = engine.credit_book.contract(PLAYER, Decimal(5000), 12)
+    engine.cash[PLAYER] = Decimal(-50000)
+    day = loan.state.next_due - timedelta(days=8)
+
+    assert engine.credit_book.pending(PLAYER, day) == []
+    assert engine.credit_book.alert(PLAYER, day) is False
+
+
 def test_late_installment_drops_the_grade_at_once(engine):
     book = engine.credit_book
     assert book.score(PLAYER, START).grade is CreditGrade.AAA

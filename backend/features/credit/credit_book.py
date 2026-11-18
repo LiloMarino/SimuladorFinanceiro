@@ -438,7 +438,11 @@ class CreditBook:
         ]
 
     def _shortfall(self, client_id: UUID, client: ClientCredit, day: date) -> Decimal:
-        due = sum((amount for _, amount in self._due_soon(client, day)), ZERO)
+        # A falta é de parcela que vence em breve: sem parcela, o caixa negativo não falta a nada
+        due_soon = self._due_soon(client, day)
+        if not due_soon:
+            return ZERO
+        due = sum((amount for _, amount in due_soon), ZERO)
         return max(due - self._engine.get_cash(client_id), ZERO)
 
     # ------------------------------------------------------------------ nota
