@@ -89,12 +89,7 @@ function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
           </TabsTrigger>
           <TabsTrigger value="mandate">Mandato</TabsTrigger>
           <TabsTrigger value="accounts">Contas</TabsTrigger>
-          <TabsTrigger value="state-companies">
-            Estatais
-            <Badge variant="info" size="sm">
-              novo
-            </Badge>
-          </TabsTrigger>
+          <TabsTrigger value="state-companies">Estatais</TabsTrigger>
           <TabsTrigger value="congress">
             Congresso
             {unguided > 0 && (

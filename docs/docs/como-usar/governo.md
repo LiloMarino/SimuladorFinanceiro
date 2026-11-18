@@ -223,7 +223,7 @@ O Fundo Soberano é a carteira do governo na bolsa. Ele pertence ao **cargo** de
 - **Favorecimento tem custo.** Comprar cotas de uma gestora cujo gestor é do partido do presidente ou de um partido da base dá manchete de favorecimento e soma rejeição ao partido do governo em todos os grupos de eleitores, proporcional à fatia que o fundo ganhou: cada 6% de fatia custam 1 ponto de rejeição. Ex.: comprar 12% das cotas de uma gestora aliada soma 2 pontos; comprar em duas vezes de 6% soma os mesmos 2 pontos.
 - **Tudo vai ao jornal.** Cada compra e venda do fundo vira manchete, com o ativo e o valor.
 
-Quem não é presidente lê a carteira do fundo, o que o Tesouro aportou e o que voltou a ele, na aba **Estatais e Fundo**.
+Quem não é presidente lê a carteira do fundo, o que o Tesouro aportou e o que voltou a ele, na aba **Estatais**.
 
 ### A economia interligada
 
