@@ -81,7 +81,6 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
-| [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | M18 · 4.2 | — | Alto | Bom | ⏳ |
 | [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | M18 · 4.2 | — | — | — | 🔍 |
 | [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | M18 · 4.2 | — | — | — | 🔍 |
@@ -96,7 +95,7 @@
 | [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (42 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (43 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -141,6 +140,7 @@
 | [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | M18 · 4.2 | — | — | — | ✅ |
 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | M18 · 4.2 | — | — | — | ✅ |
 | [**F296**](#f296) | Correção | Correções do playtest: gestoras e renda variável | M18 · 4.2 | — | — | — | ✅ |
+| [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | M18 · 4.2 | — | — | — | ✅ |
 | [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
@@ -157,7 +157,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 22/35 concluídos
+> **Progresso:** 23/35 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -182,7 +182,7 @@
 | 19 | [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | — | ✅ Concluído |
 | 20 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | — | ✅ Concluído |
 | 21 | [**F296**](#f296) | Correção | Correções do playtest: gestoras e renda variável | — | ✅ Concluído |
-| 22 | [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | — | ⏳ Pendente |
+| 22 | [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | — | ✅ Concluído |
 | 23 | [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | — | ✅ Concluído |
 | 24 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | — | ⏳ Pendente |
 | 25 | [**F310**](#f310) | Feature | Página Ofertas públicas | [F299](#f299) | 🔍 Em avaliação |
@@ -290,7 +290,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | M18 · 4.2 · 22º | 0 | Médio | Bom | ⏳ |
 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | M18 · 4.2 · 24º | 1 | Alto | Bom | ⏳ |
 | [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | M18 · 4.2 · 26º | 0 | — | — | 🔍 |
 | [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | M18 · 4.2 · 27º | 0 | — | — | 🔍 |
@@ -361,7 +360,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F297** | Correção | Correções do playtest: governo e eleição | N34 | — | M18 · 4.2 | — | Médio | Médio | Alto | Bom |
 | **F299** | Feature | Cota de gestora negociada na renda variável | N23 | — | M18 · 4.2 | — | Alto | Médio | Alto | Bom |
 | **F304** | Feature | Co-gestão combinada no lobby | N23 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F306** | Feature | Automático só na carteira da gestora | N23, N4 | — | M18 · 4.2 | — | Médio | Médio | Médio | Bom |
@@ -567,9 +565,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f297"></a>
-**F297 — Correções do playtest: governo e eleição.** Serve N34. Lote do playtest de 17/11. (1) Linha do tempo do segundo turno fora de ordem (04 jan, 02 jan, 09 jan, 2º turno) e marcadores de aliança entre os pontos errados: `map_timeline.py:141-226` monta os pontos sem ordenar e o front (`map-timeline.ts:14-34`) dispõe por índice, com o marcador na média dos vizinhos (`map-timeline-ruler.tsx:243-256`); os pontos saem ordenados por data. (2) Convidar vice dentro da partida inscreve a chapa e o convite não chega: `government_book.py:2024-2056` emite VICE_INVITED e deixa o vice pendente, mas a pendência do convidado não aparece; reproduzir no app de teste e corrigir. (3) "Prometido" mostra o valor prometido no hover do selo e no diálogo de mudar (`taxes-card.tsx:196-212`, `spending-card.tsx:151-155`, `measure-action.tsx`): o DTO passa a mandar o valor além do `promised: bool` (`dto/government.py:969, 996`). (4) O selo "Novo" das Estatais é fixo (`government.tsx:93-96`) e sai. (5) Privatizar não chegou ao Congresso: na partida, nenhuma medida de privatização foi registrada; o botão só aparece com `isPresident && company.can_command` (`state-companies-table.tsx:242-247`); reproduzir e corrigir o caminho até a medida. (6) O Fundo Soberano não teve nenhum aporte nem compra na partida (zero fluxos e zero eventos na conta 0); reproduzir o aporte e a compra e corrigir.
-
 <a id="f299"></a>
 **F299 — Cota de gestora negociada na renda variável.** Serve N23. Do playtest de 17/11. As cotas de gestora listada nunca aparecem na renda variável: `get_stocks_by_date` e `get_stocks` (`stock.py:147` e `:515`) excluem a classe FUND, e por isso o catálogo de estratégias (`strategy/catalog.py:31-33`) também não as vê; nenhum bot negociou cota na partida. Com isso a cota fica parada ("todo mundo compra e segura"), o preço de ranking ficou 40% abaixo do patrimônio por cota (330,20 contra 552,20) e o dono de uma gestora fechada não acha onde vender. O plano: a cota entra na lista de renda variável com o selo de gestora; o detalhe do ativo serve a cota com o livro de ofertas, o gráfico e a análise técnica de sempre, mais cards próprios da gestora (patrimônio por cota, ágio ou deságio, taxas, rendimentos, gestor); o painel de comprar e vender sai da tela da gestora e vira um atalho para esse detalhe; os bots passam a negociar cotas com o patrimônio por cota como preço de referência. Opus planeja o catálogo dos bots e o preço de referência; Sonnet implementa.
 
@@ -717,6 +712,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F294** | Melhoria | Adicionar vários bots de uma vez | N8 | — | M18 · 4.2 |
 | **F295** | Manutenção | Orçamento, painel econômico e base do governo por tempo real | N15 | — | M18 · 4.2 |
 | **F296** | Correção | Correções do playtest: gestoras e renda variável | N23 | — | M18 · 4.2 |
+| **F297** | Correção | Correções do playtest: governo e eleição | N34 | — | M18 · 4.2 |
 | **F298** | Correção | Correções do playtest: lobby, bots e profissões | N39, N8 | — | M18 · 4.2 |
 
 <a id="f44"></a>
@@ -911,6 +907,9 @@ Os bots recebem uma profissão sorteada entre todas, e o host pode fixá-la no s
 **F296 — Correções do playtest: gestoras e renda variável.**
 
 Os sete itens do playtest saíram: Levar da carteira sem cotas de gestora, botão de oferta pública só antes da oferta, total vendido na oferta encerrada, menu e tela do presidente com Fundo Soberano, selo de estatal na lista, nome Mercado nas duas pontas do livro e filtros da renda variável em duas linhas a 1366 px.
+
+<a id="f297"></a>
+**F297 — Correções do playtest: governo e eleição.** Serve N34. Lote do playtest de 17/11. (1) Linha do tempo do segundo turno fora de ordem (04 jan, 02 jan, 09 jan, 2º turno) e marcadores de aliança entre os pontos errados: `map_timeline.py:141-226` monta os pontos sem ordenar e o front (`map-timeline.ts:14-34`) dispõe por índice, com o marcador na média dos vizinhos (`map-timeline-ruler.tsx:243-256`); os pontos saem ordenados por data. (2) Convidar vice dentro da partida inscreve a chapa e o convite não chega: `government_book.py:2024-2056` emite VICE_INVITED e deixa o vice pendente, mas a pendência do convidado não aparece; reproduzir no app de teste e corrigir. (3) "Prometido" mostra o valor prometido no hover do selo e no diálogo de mudar (`taxes-card.tsx:196-212`, `spending-card.tsx:151-155`, `measure-action.tsx`): o DTO passa a mandar o valor além do `promised: bool` (`dto/government.py:969, 996`). (4) O selo "Novo" das Estatais é fixo (`government.tsx:93-96`) e sai. (5) Privatizar não chegou ao Congresso: na partida, nenhuma medida de privatização foi registrada; o botão só aparece com `isPresident && company.can_command` (`state-companies-table.tsx:242-247`); reproduzir e corrigir o caminho até a medida. (6) O Fundo Soberano não teve nenhum aporte nem compra na partida (zero fluxos e zero eventos na conta 0); reproduzir o aporte e a compra e corrigir.
 
 <a id="f298"></a>
 **F298 — Correções do playtest: lobby, bots e profissões.** Serve N39 e N8. Lote do playtest de 17/11. (1) Adicionar 4 bots dá 422 "O nome do bot precisa ter de 1 a 20 caracteres, sem # nem /": esgotados os 3 nomes da estratégia, `bot-names.ts:12-15` gera "<nome> #N" e `user_manager.py:1211-1221` recusa o "#", derrubando o lote inteiro; o nome numerado passa a usar um formato aceito. (2) O diálogo de bots ganha duas abas, como a preparação: "Em lote" (quantidade e sorteio) e "Individual" (o diálogo de um bot, sem o campo de quantidade). (3) Fim de partida dessincronizado: um jogador viu derrota e o outro vitória até recarregar; o caminho é `simulation_ended` → invalidação das estatísticas → `/match-result`; reproduzir com dois navegadores e garantir que o resultado só aparece com o placar final. (4) Cards de profissão: o Herdeiro mostra o capital inicial (o valor que importa, já que o salário é zero) e um selo de "difícil"; as profissões das expansões levam o selo da expansão (`profession-cards.tsx`). (5) O Comissionado e o Banqueiro de ofertas não deixam selecionar (`profession-tab.tsx:47-56` exige o partido do Comissionado): reproduzir e corrigir. (6) A profissão escolhida não volta ao lobby depois de uma partida: na partida jogada, `simulation_players.profession` ficou nulo para todos, embora `users.settings` guardasse a profissão (`settings.py:103-116`, carga em `user_manager.py:199-206`).
