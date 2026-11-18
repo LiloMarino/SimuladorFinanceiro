@@ -93,8 +93,10 @@ function ResultErrorCard({
 /** Fechamento da partida: o vencedor e o pódio, os destaques e o relatório da partida inteira. */
 function MatchResult({ simulationId }: { simulationId: number }) {
   const { user } = useAuth();
-  const { data: overview, error, refetch } = useStatisticsReport("overview", [simulationId]);
+  const { data: cached, error, refetch, isFetchedAfterMount } = useStatisticsReport("overview", [simulationId]);
   const { data: simulations } = useSimulationList();
+  // O relatório em cache pode ser o da partida em andamento (mesma chave das Estatísticas): o veredito sai só da busca feita ao abrir o resultado
+  const overview = isFetchedAfterMount && !error ? cached : undefined;
 
   if (error && !overview) {
     return (
