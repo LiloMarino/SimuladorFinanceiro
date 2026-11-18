@@ -191,18 +191,20 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
                     reset();
                     setProfession(next);
                   }}
+                  partyPicker={
+                    commissioned && (
+                      <CommissionedPartyPicker
+                        options={(parties ?? []).map((abbr) => ({ abbr, color: null }))}
+                        value={party}
+                        disabled={isPending}
+                        onChange={(next) => {
+                          reset();
+                          setParty(next);
+                        }}
+                      />
+                    )
+                  }
                 />
-                {commissioned && (
-                  <CommissionedPartyPicker
-                    options={(parties ?? []).map((abbr) => ({ abbr, color: null }))}
-                    value={party}
-                    disabled={isPending}
-                    onChange={(next) => {
-                      reset();
-                      setParty(next);
-                    }}
-                  />
-                )}
               </div>
             )}
 

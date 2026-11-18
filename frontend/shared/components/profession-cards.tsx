@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 import { Check, X } from "lucide-react";
 import {
   availableProfessions,
@@ -22,12 +22,21 @@ type ProfessionCardsProps = {
   selected: Profession | null | undefined;
   /** O capital com que o Herdeiro entra (caixa da sala mais a herança); sem ele o card mostra só a renda */
   heirCapital?: string | undefined;
+  /** A escolha do partido: abre dentro do cartão do Comissionado enquanto ele está marcado */
+  partyPicker?: ReactNode;
   disabled?: boolean;
   onSelect: (profession: Profession) => void;
 };
 
 /** As profissões da sala em cartões: a renda do mês, o que cada uma ganha e perde e o que mexe na renda dela. */
-export function ProfessionCards({ room, selected, heirCapital, disabled, onSelect }: ProfessionCardsProps) {
+export function ProfessionCards({
+  room,
+  selected,
+  heirCapital,
+  partyPicker,
+  disabled,
+  onSelect,
+}: ProfessionCardsProps) {
   const salary = Number(room.monthly_salary);
   const professions = availableProfessions(room);
   // Só um cartão entra na ordem do Tab: o marcado, ou o primeiro enquanto não há escolha
@@ -145,6 +154,11 @@ export function ProfessionCards({ room, selected, heirCapital, disabled, onSelec
                   </span>
                 )}
               </div>
+
+              {/* Partido do Comissionado */}
+              {isMine && profession === "COMMISSIONED" && partyPicker && (
+                <div className="border-t border-muted pt-3">{partyPicker}</div>
+              )}
             </div>
           );
         })}

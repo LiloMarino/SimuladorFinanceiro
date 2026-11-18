@@ -97,20 +97,20 @@ export function ProfessionTab({
           selected={choosingParty ? "COMMISSIONED" : shown}
           disabled={locked}
           onSelect={selectProfession}
+          partyPicker={
+            commissioned && (
+              <CommissionedPartyPicker
+                options={parties}
+                value={partyValid ? currentParty : null}
+                disabled={locked}
+                onChange={(party) => {
+                  setChoosingParty(false);
+                  mutate({ profession: "COMMISSIONED", party });
+                }}
+              />
+            )
+          }
         />
-
-        {/* Partido do Comissionado */}
-        {commissioned && (
-          <CommissionedPartyPicker
-            options={parties}
-            value={partyValid ? currentParty : null}
-            disabled={locked}
-            onChange={(party) => {
-              setChoosingParty(false);
-              mutate({ profession: "COMMISSIONED", party });
-            }}
-          />
-        )}
 
         {/* Recusa do servidor */}
         {error && (
