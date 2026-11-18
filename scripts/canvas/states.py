@@ -821,6 +821,10 @@ GOVERNMENT_RULES = {
     "end_date": "2026-01-05",
     "first_election": "2022-10-02",
 }
+# A ação que as receitas marcam como estatal, com 51% do governo
+STATE_COMPANY_TICKER = "PETR4"
+STATE_COMPANY_GOVERNMENT_SHARE = "0.51"
+STATE_COMPANY_SHARES = 13_000_000_000
 # O dia em que a carteira do presidente deixa de estar congelada, nas receitas que forjam o governo
 FROZEN_UNTIL = "2023-01-01"
 # Fases da gestora, da recém-fundada à oferta já encerrada
@@ -895,11 +899,16 @@ def fund_match(
     game_type: str = "GOAL_RACE",
     fund_name: str = FUND_NAME,
     ticker: str = FUND_TICKER,
+    state_company: bool = False,
 ) -> None:
     """
     Leva o host a uma partida com as regras pedidas e, com `funds`, a gestora dele na
     `stage` pedida (`none`: a expansão ligada e o host sem gestora). A partida que já está aberta com essas regras e nessa fase é reaproveitada;
     senão ela é encerrada e uma nova nasce pela API das regras, a mesma que o formulário chama.
+    Com `state_company`, a PETR4 nasce estatal na partida; sem ele, comum. A partida copia as
+    marcações da base na criação, e a base só muda fora de uma partida: a marcação se grava a cada
+    partida nova, logo antes da criação, e a partida aberta se reaproveita quando a PETR4 dela está
+    como o pedido.
     A gestora nasce por `POST /api/funds`, recebe caixa da carteira (R$ 5.000, a 100 por cota) e
     abre a oferta de 20 cotas, como o gestor faria nos diálogos.
     """
@@ -912,6 +921,7 @@ def fund_match(
             running["funds_enabled"] == funds
             and running["government_enabled"] == government
             and running["game_type"] == game_type
+            and (STATE_COMPANY_TICKER in state_owned_tickers(page)) == state_company
         )
         # Sem a expansão a lista de gestoras recusa o pedido: só se consulta com as regras iguais
         same_fund = same_rules and (
@@ -949,6 +959,12 @@ def fund_match(
         "/api/simulation/players/me/fund-preparation",
         {"kind": "NONE"},
     )
+    if state_company:
+        mark_state_company(page, STATE_COMPANY_TICKER)
+    else:
+        api_send(
+            page, "DELETE", f"/api/import-assets/stocks/{STATE_COMPANY_TICKER}/state"
+        )
     api_send(page, "POST", "/api/simulation/create", rules)
     if funds and stage != "none":
         api_send(
@@ -1785,6 +1801,74 @@ def comanager_invite_received(page: Page) -> None:
     page.get_by_role("button", name="Aceitar").wait_for()
 
 
+def stock_fund_quota(page: Page) -> None:
+    """
+    Detalhe da cota AURO11 de uma gestora já listada, depois da oferta pública encerrada, com a
+    expansão Gestoras ligada: o livro, a boleta com o bloco da cota e o card "Sobre a gestora".
+    """
+    fund_match(page, stage="offer-closed")
+    page.goto(f"/variable-income/{FUND_TICKER}")
+    page.get_by_role("heading", name=re.compile(FUND_TICKER)).first.wait_for()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+
+
+def funds_room_list(page: Page) -> None:
+    """
+    Gestoras de quem ainda não fundou, com a lista da sala: a gestora listada aparece como de
+    outro jogador. Dado forjado: o dono da primeira gestora da lista vira a Duda, para o host
+    não ter gestora na página e ver o convite para fundar.
+    """
+    fund_match(page, stage="offer-closed")
+
+    def change(body: dict | list) -> None:
+        assert isinstance(body, list)
+        body[0]["manager_user_id"] = OTHER_MANAGER_ID
+        body[0]["manager_nickname"] = "Duda"
+
+    patch_get(page, FUNDS_LIST_PATTERN, change)
+    open_funds_page(page)
+    page.get_by_role("heading", name="Funde a sua gestora").wait_for()
+    page.get_by_text("Gestoras da sala").wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def state_owned_tickers(page: Page) -> set[str]:
+    """Os ativos que são estatais na partida aberta, como a lista da renda variável os marca."""
+    quotes = api_json(page, "/api/variable-income")
+    return {quote["ticker"] for quote in quotes if quote["state_owned"]}
+
+
+def mark_state_company(page: Page, ticker: str) -> None:
+    """Marca o ativo como estatal pela API de importação; a marcação vale para as partidas criadas depois."""
+    api_send(
+        page,
+        "PUT",
+        f"/api/import-assets/stocks/{ticker}/state",
+        {
+            "government_share": STATE_COMPANY_GOVERNMENT_SHARE,
+            "shares": STATE_COMPANY_SHARES,
+            "lever": None,
+        },
+    )
+
+
+def stock_state_owned(page: Page) -> None:
+    """
+    Detalhe da PETR4 numa partida com o governo ligado e a PETR4 estatal. A boleta recebe uma
+    quantidade de 100 para mostrar a conta da ordem; o selo "Estatal" aparece na lista de ativos,
+    não no detalhe.
+    """
+    fund_match(page, funds=False, government=True, state_company=True)
+    sidebar(page, "Renda variável").click()
+    page.get_by_role("row", name=re.compile(rf"^{STATE_COMPANY_TICKER}")).click()
+    page.get_by_role("heading", name=re.compile(STATE_COMPANY_TICKER)).first.wait_for()
+    page.locator("#order-size").fill("100")
+    expect(page.get_by_text("Conferindo a ordem…")).to_be_hidden()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "carteira/vazia": portfolio_empty,
     "renda-variavel/detalhe": stock_detail,
@@ -1863,4 +1947,7 @@ STATES: dict[str, Callable[[Page], None]] = {
     "lobby-gestora/carregando": lobby_fund_loading,
     "lobby-gestora/erro-ao-salvar": lobby_fund_save_failed,
     "regras/expansoes": lobby_expansions,
+    "renda-variavel/cota-gestora": stock_fund_quota,
+    "gestoras/sem-gestora-lista": funds_room_list,
+    "renda-variavel/estatal": stock_state_owned,
 }
