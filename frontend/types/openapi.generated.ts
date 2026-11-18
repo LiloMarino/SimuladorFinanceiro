@@ -13486,6 +13486,8 @@ export interface components {
             pending: components["schemas"]["MeasureDTO"] | null;
             /** Promised */
             promised: boolean;
+            /** Promised Target */
+            promised_target: string | null;
         };
         /** SplitLineDTO */
         SplitLineDTO: {
@@ -14247,6 +14249,8 @@ export interface components {
             pending: components["schemas"]["MeasureDTO"] | null;
             /** Promised */
             promised: boolean;
+            /** Promised Target */
+            promised_target: string | null;
         };
         /**
          * TeamCompositionDTO

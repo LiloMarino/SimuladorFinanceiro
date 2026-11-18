@@ -26,7 +26,8 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
-from backend.features.government import promises, voters
+from backend.features.government import governance, promises, voters
+from backend.features.government.governance import build_governance
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.promise_panel import (
     build_balances,
@@ -35,6 +36,7 @@ from backend.features.government.promise_panel import (
 )
 from backend.features.government.promises import Promise
 from backend.features.government.state import Party, replay
+from tests.fakes import no_pay
 from tests.test_government_book import (
     ALICE,
     BOB,
@@ -538,6 +540,31 @@ def test_the_term_card_shows_the_state_of_each_promise(
     assert card.items[0].current == TARGET
     # O último voto que ainda vale: 90 dias antes do fim do mandato
     assert card.last_vote == date(2025, 9, 30)
+
+
+def test_the_tax_and_spending_rows_carry_the_promised_value(
+    book: GovernmentBook, engine, market, monkeypatch: pytest.MonkeyPatch
+):
+    # A carteira do presidente não entra na conta; o motor em memória não a devolve
+    monkeypatch.setattr(governance, "_portfolio", lambda *_: None)
+    govern_promising(
+        book,
+        engine,
+        request("0.10"),
+        request("0.02", MeasureKind.WELFARE_SPENDING),
+    )
+
+    panel = build_governance(book, engine, USERS, ALICE, TERM_START, no_pay)
+
+    taxes = {row.kind: row for row in panel.taxes}
+    assert taxes[MeasureKind.STOCK_PROFIT_RATE].promised is True
+    assert taxes[MeasureKind.STOCK_PROFIT_RATE].promised_target == Decimal("0.10")
+    assert taxes[MeasureKind.CONSUMPTION_TAX_RATE].promised is False
+    assert taxes[MeasureKind.CONSUMPTION_TAX_RATE].promised_target is None
+    spending = {row.kind: row for row in panel.spending.rows}
+    assert spending[MeasureKind.WELFARE_SPENDING].promised is True
+    assert spending[MeasureKind.WELFARE_SPENDING].promised_target == Decimal("0.02")
+    assert spending[MeasureKind.PUBLIC_WORKS].promised_target is None
 
 
 def test_balance_hides_the_group_numbers_from_outsiders(

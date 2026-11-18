@@ -1,6 +1,5 @@
 import { Plus } from "lucide-react";
 import { InfoHint } from "@/shared/components/info-hint";
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
@@ -10,6 +9,7 @@ import { shareLabel, signedShareLabel } from "../lib/budget";
 import { generalLabel, generalToday, isGeneral, measureTarget, monthYear, sectorEffect } from "../lib/government";
 import { REVENUE, TAX_PRICE, type TaxPrice } from "../lib/government-metrics";
 import { MeasureAction } from "./measure-action";
+import { PromisedBadge } from "./promised-badge";
 
 type TaxRow = GovernmentPanel["taxes"][number];
 
@@ -193,11 +193,7 @@ function TaxRateRow({ row, exemption, isPresident, onPropose }: TaxRateRowProps)
           <span className="flex flex-wrap items-center gap-1.5">
             {generalLabel(kind, row.value)}
             {TAX_PRICE[kind] && <TaxPriceHint label={generalLabel(kind, row.value)} price={TAX_PRICE[kind]} />}
-            {row.promised && (
-              <Badge variant="info" size="sm">
-                prometido
-              </Badge>
-            )}
+            {row.promised && <PromisedBadge kind={kind} target={row.promised_target} />}
           </span>
           {exemption && isGeneral(exemption.kind) && (
             <span className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
@@ -205,11 +201,7 @@ function TaxRateRow({ row, exemption, isPresident, onPropose }: TaxRateRowProps)
               <b className="font-semibold text-foreground">
                 {generalToday(exemption.kind, exemption.value, null).toLowerCase()}
               </b>
-              {exemption.promised && (
-                <Badge variant="info" size="sm">
-                  prometido
-                </Badge>
-              )}
+              {exemption.promised && <PromisedBadge kind={exemption.kind} target={exemption.promised_target} />}
               <MeasureAction
                 pending={exemption.pending}
                 isPresident={isPresident}

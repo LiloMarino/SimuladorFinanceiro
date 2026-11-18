@@ -297,7 +297,10 @@ function ValueField({ kind, row, label, valueText, onValueTextChange }: ValueFie
           <FieldDescription>Hoje {pointsOf(row.value)}%.</FieldDescription>
         </>
       ) : (
-        <FieldDescription>{windowSentence(kind, row)}</FieldDescription>
+        <FieldDescription>
+          {windowSentence(kind, row)}
+          {row.promised_target !== null && ` Prometido: ${spendingValue(kind, row.promised_target)}.`}
+        </FieldDescription>
       )}
     </Field>
   );

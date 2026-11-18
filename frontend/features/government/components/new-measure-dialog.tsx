@@ -39,6 +39,7 @@ import {
   rateToFraction,
   signedPoints,
 } from "../lib/government";
+import { promiseValue } from "../lib/promises";
 import { isNameable, isSpending, SPENDING_KINDS, type SpendingKind } from "@/shared/lib/spending-kinds";
 import { addressOf, NO_SECTOR, WHOLE_SECTOR } from "../lib/sector-address";
 import { checkValue, isRenaming, outsideSentence } from "../lib/spending";
@@ -281,7 +282,7 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
                     {kind === "FIXED_INCOME_TABLE"
                       ? `${percentLabel(row.top_value ?? row.value)} no topo`
                       : percentLabel(row.value)}
-                    .
+                    .{row.promised_target !== null && ` Prometido: ${promiseValue(kind, row.promised_target)}.`}
                   </FieldDescription>
                 </Field>
               )}

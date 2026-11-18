@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { EffectSpark } from "@/shared/components/effect-spark";
 import { SpendingIcon } from "@/shared/components/spending-icon";
 import { MetricHint } from "@/shared/components/metric-hint";
-import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { inflationTone, PHASE_SHORT, signedIpca } from "@/shared/lib/effects";
@@ -14,6 +13,7 @@ import { monthYear } from "../lib/government";
 import { isSpending, SPENDING_LABEL, type SpendingKind } from "@/shared/lib/spending-kinds";
 import { pointsOf } from "../lib/spending";
 import { MeasureAction } from "./measure-action";
+import { PromisedBadge } from "./promised-badge";
 
 const SUBTITLE: Record<SpendingKind, string> = {
   WELFARE_SPENDING: "Transferência para quem depende dele",
@@ -148,11 +148,7 @@ function SpendingRowView({ row, isPresident, onPropose }: SpendingRowViewProps) 
           <span className="grid gap-0.5">
             <span className="flex flex-wrap items-center gap-1.5 font-medium">
               {row.name ?? SPENDING_LABEL[kind]}
-              {row.promised && (
-                <Badge variant="info" size="sm">
-                  prometido
-                </Badge>
-              )}
+              {row.promised && <PromisedBadge kind={kind} target={row.promised_target} />}
             </span>
             <span className="text-xs font-normal text-muted-foreground">
               {row.name ? `${SPENDING_LABEL[kind]} · ${SUBTITLE[kind]}` : SUBTITLE[kind]}

@@ -39221,6 +39221,17 @@
           "promised": {
             "type": "boolean",
             "title": "Promised"
+          },
+          "promised_target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promised Target"
           }
         },
         "additionalProperties": false,
@@ -39240,7 +39251,8 @@
           "curve",
           "elapsed_months",
           "pending",
-          "promised"
+          "promised",
+          "promised_target"
         ],
         "title": "SpendingRowDTO",
         "description": "Uma medida de gasto no cartão Gasto público: o valor em vigor, o que pesa e o que soma à inflação."
@@ -41592,6 +41604,17 @@
           "promised": {
             "type": "boolean",
             "title": "Promised"
+          },
+          "promised_target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promised Target"
           }
         },
         "additionalProperties": false,
@@ -41605,7 +41628,8 @@
           "revenue",
           "difference",
           "pending",
-          "promised"
+          "promised",
+          "promised_target"
         ],
         "title": "TaxRowDTO"
       },

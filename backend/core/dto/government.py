@@ -965,8 +965,9 @@ class TaxRowDTO(BaseDTO):
     difference: Decimal | None
     # A medida da fila ou esperando a vigência que muda esta linha
     pending: MeasureDTO | None
-    # A chapa que governa prometeu mexer nesta linha
+    # A chapa que governa prometeu mexer nesta linha, e o valor que ela prometeu
     promised: bool
+    promised_target: Decimal | None
 
 
 class SpendingRowDTO(BaseDTO):
@@ -993,7 +994,9 @@ class SpendingRowDTO(BaseDTO):
     elapsed_months: int | None
     # A medida da fila ou esperando a vigência que muda esta linha
     pending: MeasureDTO | None
+    # A chapa que governa prometeu mexer nesta medida, e o valor que ela prometeu
     promised: bool
+    promised_target: Decimal | None
 
 
 class SpendingCardDTO(BaseDTO):

@@ -16,6 +16,7 @@ from backend.core.indicators import annual_index_rate
 from backend.features.economy.layer import central_bank_reaction
 from backend.features.government import approval as approval_rules
 from backend.features.government import spending, spending_effects
+from backend.features.government.promises import Promise
 from backend.features.government.state import Measure
 
 HUNDRED = Decimal(100)
@@ -84,7 +85,7 @@ def spending_card(
     gdp: Decimal,
     today: date,
     pending: dict[MeasureKind, MeasureDTO],
-    promised: set[MeasureKind],
+    promised: dict[MeasureKind, Promise],
 ) -> SpendingCardDTO:
     """O cartão Gasto público: cada medida com o valor em vigor, o que pesa no gasto e o que soma ao IPCA hoje."""
     rows = []
@@ -118,6 +119,7 @@ def spending_card(
                 elapsed_months=(max(int(elapsed), 0) if elapsed is not None else None),
                 pending=pending.get(kind),
                 promised=kind in promised,
+                promised_target=promised[kind].target if kind in promised else None,
             )
         )
     total = timeline.spending_on(today)

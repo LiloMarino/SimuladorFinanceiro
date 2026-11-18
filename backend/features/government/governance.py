@@ -81,7 +81,7 @@ def _tax_row(
     kind: MeasureKind,
     policy: TaxPolicy,
     pending: MeasureDTO | None,
-    promised: bool,
+    promise: promises.Promise | None,
     tax_rows: list[TaxRow],
 ) -> TaxRowDTO:
     """Uma linha de imposto: o valor de hoje e o padrão, a arrecadação e a medida na fila."""
@@ -104,7 +104,8 @@ def _tax_row(
         revenue=row.revenue if row else None,
         difference=row.difference if row else None,
         pending=pending,
-        promised=promised,
+        promised=promise is not None,
+        promised_target=promise.target if promise else None,
     )
 
 
@@ -126,7 +127,13 @@ def build_governance(
     measures = sorted(state.measures.values(), key=lambda m: m.id)
 
     # As medidas que a chapa que governa prometeu: ganham a marca de promessa
-    promised = {p.key for p in term.promises} if term is not None else set()
+    promised_keys = {p.key for p in term.promises} if term is not None else set()
+    # As gerais levam também o valor prometido, que o selo e o diálogo mostram
+    promised = (
+        {p.kind: p for p in term.promises if p.sector is None}
+        if term is not None
+        else {}
+    )
 
     def dto(measure: Measure) -> MeasureDTO:
         return _measure(
@@ -136,7 +143,7 @@ def build_governance(
             house_panel.vote_dto(book, viewer, today, measure),
             is_president,
             measures,
-            promised,
+            promised_keys,
             budget_panel.result_change(book.policy_before(measure), measure),
             spending_panel.peak_inflation(measure),
         )
@@ -176,7 +183,7 @@ def build_governance(
                 kind,
                 policy,
                 next((dto(m) for m in reversed(pending) if m.kind is kind), None),
-                any(key[0] is kind for key in promised),
+                promised.get(kind),
                 tax_rows,
             )
             for kind in promises.TAX_KINDS
@@ -187,7 +194,7 @@ def build_governance(
             book.budget().latest(today).gdp,
             today,
             {m.kind: dto(m) for m in pending if m.kind.is_spending},
-            {key[0] for key in promised},
+            promised,
         ),
         sector_measures=[
             SectorMeasureDTO(measure=dto(m), assets=len(book.tickers(m)))
