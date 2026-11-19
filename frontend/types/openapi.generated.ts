@@ -8118,6 +8118,8 @@ export interface components {
             high_water_mark_on: string | null;
             /** Received 12M */
             received_12m: string;
+            /** Payable */
+            payable: string;
         };
         /** FundFeesRequest */
         FundFeesRequest: {
@@ -8392,6 +8394,8 @@ export interface components {
             day: string;
             /** Positions */
             positions: components["schemas"]["FundPositionDTO"][];
+            /** Fee Payable */
+            fee_payable: string;
         };
         /** @enum {string} */
         FundRole: "manager" | "comanager" | "viewer";

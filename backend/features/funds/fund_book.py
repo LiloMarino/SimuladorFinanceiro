@@ -52,7 +52,11 @@ from backend.features.funds.distribution import (
     realized_profit,
     settle_month,
 )
-from backend.features.funds.fees import management_fee, performance_charge
+from backend.features.funds.fees import (
+    management_fee,
+    performance_charge,
+    split_payable,
+)
 from backend.features.funds.fund_account import FundAccount
 from backend.features.funds.fund_assembly import FundAssemblies
 from backend.features.funds.fund_comanagers import (
@@ -119,6 +123,11 @@ def nav_per_quota(
     if quotas <= 0:
         return None
     return (cash + equity + fixed - debt) / quotas
+
+
+def _payable_column(performance: bool) -> str:
+    """O campo da gestora que guarda a taxa a pagar de cada tipo."""
+    return "performance_fee_payable" if performance else "management_fee_payable"
 
 
 def maker_stake(quotas: Decimal) -> Decimal:
@@ -1259,7 +1268,9 @@ class FundBook:
         O preço de ranking vale desde já na carteira de quem tem a cota.
         """
         for fund in self._funds.values():
-            # O rendimento apurado na data-com sai do caixa antes de o PL do dia ser calculado
+            # A taxa a pagar é a primeira a sair do caixa; o rendimento apurado na data-com
+            # paga só o que sobra, e os dois saem antes de o PL do dia ser calculado
+            self._settle_payable(fund)
             self._pay_distribution(fund, today)
             nav = self._nav(fund)
             if nav is None:
@@ -1315,6 +1326,7 @@ class FundBook:
                     traded_quantity=trades.quantity,
                     traded_value=trades.value,
                     ranking_price=ranking,
+                    fee_payable=fund.terms.fee_payable,
                 ),
             )
             self._engine.update_market_data([candle])
@@ -1425,18 +1437,46 @@ class FundBook:
         )
 
     def _pay(self, fund: Fund, fee: Decimal, *, performance: bool) -> None:
-        """A taxa sai do caixa da gestora e entra, dividida pelas partes, no caixa pessoal de quem a gere; ela abate o lucro realizado do mês."""
+        """A taxa sai do caixa da gestora até onde o caixa alcança; o resto vira taxa a pagar.
+
+        A taxa inteira abate o lucro realizado do mês.
+        """
         if fee <= 0:
             return
-        self._engine.charge_fund_fee(fund.account.client_id, fee, performance)
-        for user_id, amount in split_fee(fund, fee):
-            if amount > 0:
+        paid, owed = split_payable(fee, self._engine.get_cash(fund.account.client_id))
+        self._transfer_fee(fund, paid, performance=performance)
+        update = {"month_fees": fund.terms.month_fees + fee}
+        if owed > 0:
+            column = _payable_column(performance)
+            update[column] = getattr(fund.terms, column) + owed
+        fund.terms = fund.terms.model_copy(update=update)
+
+    def _settle_payable(self, fund: Fund) -> None:
+        """A taxa a pagar sai do caixa positivo antes de qualquer outro uso: administração primeiro, depois performance."""
+        client_id = fund.account.client_id
+        update: dict[str, Decimal] = {}
+        for performance in (False, True):
+            column = _payable_column(performance)
+            paid, rest = split_payable(
+                getattr(fund.terms, column), self._engine.get_cash(client_id)
+            )
+            if paid > 0:
+                self._transfer_fee(fund, paid, performance=performance)
+                update[column] = rest
+        if update:
+            fund.terms = fund.terms.model_copy(update=update)
+            self._save(fund)
+
+    def _transfer_fee(self, fund: Fund, amount: Decimal, *, performance: bool) -> None:
+        """O valor sai do caixa da gestora e entra, dividido pelas partes, no caixa pessoal de quem a gere."""
+        if amount <= 0:
+            return
+        self._engine.charge_fund_fee(fund.account.client_id, amount, performance)
+        for user_id, share in split_fee(fund, amount):
+            if share > 0:
                 self._engine.receive_fund_fee(
-                    self._client_of_user(user_id), amount, performance
+                    self._client_of_user(user_id), share, performance
                 )
-        fund.terms = fund.terms.model_copy(
-            update={"month_fees": fund.terms.month_fees + fee}
-        )
 
     # =========================
     # Rendimentos mensais
@@ -1573,7 +1613,7 @@ class FundBook:
             projected=projected,
             projected_per_quota=settlement.per_quota,
             cash=cash,
-            cash_enough=cash >= projected,
+            cash_enough=cash - terms.fee_payable >= projected,
             data_com_on=data_com_on,
             pay_on=next_business_day(data_com_on),
         )
@@ -1670,7 +1710,7 @@ class FundBook:
             balance.total_cash + self._reserved_for_buyback(fund),
             balance.total_equity,
             balance.total_fixed,
-            balance.total_debt,
+            balance.total_debt + fund.terms.fee_payable,
             fund.account.quotas,
         )
 

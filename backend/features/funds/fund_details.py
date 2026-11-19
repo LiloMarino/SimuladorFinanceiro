@@ -404,7 +404,15 @@ class FundDetailsBuilder:
             ).values()
         )
 
-        report = FundReportDTO(day=close, positions=positions_of(lines))
+        # A taxa a pagar do fechamento daquele pregão, gravada junto do PL do dia
+        closed = repository.fund.days(fund.terms.id, turn, 1)
+        report = FundReportDTO(
+            day=close,
+            positions=positions_of(lines),
+            fee_payable=closed[-1].fee_payable
+            if closed and closed[-1].day == close
+            else Decimal(0),
+        )
         fund.report = (turn, report)
         return report
 
@@ -531,6 +539,7 @@ class FundDetailsBuilder:
             received_12m=fund_ledger.fees_received(
                 cash_events, fund_ledger.one_year_before(today)
             ),
+            payable=terms.fee_payable,
         )
 
     # =========================

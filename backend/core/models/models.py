@@ -1413,6 +1413,14 @@ class Funds(Base):
     month_fees: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False, server_default=text("0")
     )
+    # A taxa que o caixa não cobriu, por tipo: dívida da gestora com o gestor, quitada pelo
+    # próximo dinheiro que entra
+    management_fee_payable: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
+    performance_fee_payable: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )
@@ -1479,6 +1487,10 @@ class FundDays(Base):
     )
     ranking_price: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False
+    )
+    # A taxa a pagar da gestora no fim do pregão
+    fee_payable: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
     )
 
 

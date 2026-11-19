@@ -24010,6 +24010,10 @@
           "received_12m": {
             "type": "string",
             "title": "Received 12M"
+          },
+          "payable": {
+            "type": "string",
+            "title": "Payable"
           }
         },
         "additionalProperties": false,
@@ -24022,7 +24026,8 @@
           "next_performance_on",
           "high_water_mark",
           "high_water_mark_on",
-          "received_12m"
+          "received_12m",
+          "payable"
         ],
         "title": "FundFeesDTO"
       },
@@ -24803,13 +24808,18 @@
             },
             "type": "array",
             "title": "Positions"
+          },
+          "fee_payable": {
+            "type": "string",
+            "title": "Fee Payable"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
           "day",
-          "positions"
+          "positions",
+          "fee_payable"
         ],
         "title": "FundReportDTO",
         "description": "O relatório mensal: as posições no último pregão do mês fechado."

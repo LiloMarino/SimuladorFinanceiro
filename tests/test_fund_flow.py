@@ -796,6 +796,9 @@ def test_a_month_in_shows_report_fees_series_and_returns(started):  # noqa: F811
     held = {p.ticker for p in page.last_report.positions}
     assert held == {None, stock}
     assert sum(p.fraction for p in page.last_report.positions) == 1
+    # O caixa cobriu as taxas: nada ficou a pagar
+    assert page.last_report.fee_payable == 0
+    assert page.fees.payable == 0
     # A série abre no dia da oferta, ao preço dela, e a gestora é mais nova que 12 meses
     assert page.series[0].day == date(2004, 3, 2)
     assert page.series[0].nav == page.offer_price

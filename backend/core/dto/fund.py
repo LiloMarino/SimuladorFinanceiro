@@ -69,6 +69,13 @@ class FundDTO(FundTermsDTO):
     month_interest: Decimal = Decimal(0)
     month_sales_gain: Decimal = Decimal(0)
     month_fees: Decimal = Decimal(0)
+    # A taxa que o caixa não cobriu, por tipo
+    management_fee_payable: Decimal = Decimal(0)
+    performance_fee_payable: Decimal = Decimal(0)
+
+    @property
+    def fee_payable(self) -> Decimal:
+        return self.management_fee_payable + self.performance_fee_payable
 
 
 class FundDistributionDTO(BaseDTO):
@@ -174,6 +181,7 @@ class FundDayDTO(BaseDTO):
     traded_quantity: Decimal
     traded_value: Decimal
     ranking_price: Decimal
+    fee_payable: Decimal = Decimal(0)
 
 
 class FundSummaryDTO(FundTermsDTO):
@@ -249,6 +257,8 @@ class FundReportDTO(BaseDTO):
 
     day: date
     positions: list[FundPositionDTO]
+    # A taxa a pagar em aberto no fechamento daquele pregão
+    fee_payable: Decimal
 
 
 class FundSeriesPointDTO(BaseDTO):
@@ -270,6 +280,8 @@ class FundFeesDTO(BaseDTO):
     high_water_mark_on: date | None
     # O que o gestor recebeu de taxas (administração e performance) nos últimos 12 meses
     received_12m: Decimal
+    # A taxa que o caixa não cobriu e a gestora ainda deve ao gestor
+    payable: Decimal
 
 
 class FundDistributionPlanDTO(BaseDTO):

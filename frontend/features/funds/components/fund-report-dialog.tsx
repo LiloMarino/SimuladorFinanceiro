@@ -10,6 +10,7 @@ import {
 } from "@/shared/components/ui/dialog";
 import { displayIsoDate } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
+import { FundPayableFee } from "./fund-payable-fee";
 import { FundPositionsTable } from "./fund-positions-table";
 
 type FundReportDialogProps = {
@@ -33,6 +34,7 @@ export function FundReportDialog({ open, onOpenChange, fundName, report }: FundR
         </DialogHeader>
         <DialogBody>
           <FundPositionsTable positions={report.positions} />
+          <FundPayableFee payable={report.fee_payable} />
         </DialogBody>
         <DialogFooter variant="divided" className="sm:justify-end">
           <Button variant="outline" onClick={() => onOpenChange(false)}>

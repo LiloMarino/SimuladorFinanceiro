@@ -3,7 +3,11 @@ from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 
-from backend.features.funds.fees import management_fee, performance_charge
+from backend.features.funds.fees import (
+    management_fee,
+    performance_charge,
+    split_payable,
+)
 
 LISTED = date(2020, 1, 2)
 
@@ -117,3 +121,13 @@ def test_performance_fee_ignores_a_yield_that_does_not_beat_the_line():
 
     assert result.fee == 0
     assert result.high_water_mark == Decimal(100)
+
+
+def test_payable_split_pays_what_the_cash_covers_and_owes_the_rest():
+    assert split_payable(Decimal(100), Decimal(300)) == (Decimal(100), Decimal(0))
+    assert split_payable(Decimal(100), Decimal(40)) == (Decimal(40), Decimal(60))
+
+
+def test_payable_split_owes_all_without_positive_cash():
+    assert split_payable(Decimal(100), Decimal(0)) == (Decimal(0), Decimal(100))
+    assert split_payable(Decimal(100), Decimal(-50)) == (Decimal(0), Decimal(100))

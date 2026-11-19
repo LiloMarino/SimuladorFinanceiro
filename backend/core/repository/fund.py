@@ -73,6 +73,8 @@ _MUTABLE = (
     "month_interest",
     "month_sales_gain",
     "month_fees",
+    "management_fee_payable",
+    "performance_fee_payable",
 )
 
 
@@ -173,6 +175,8 @@ class FundRepository:
             month_interest=Decimal(0),
             month_sales_gain=Decimal(0),
             month_fees=Decimal(0),
+            management_fee_payable=Decimal(0),
+            performance_fee_payable=Decimal(0),
             created_at=now,
         )
         session.add(fund)

@@ -737,6 +737,88 @@ def test_pending_fees_apply_when_their_month_arrives(memory: MemoryFunds):
     assert fund.terms.pending_from is None
 
 
+def _owing_setup(memory: MemoryFunds) -> tuple[Setup, Decimal]:
+    """Uma gestora listada com R$ 10 em caixa; devolve também a taxa de administração do mês."""
+    setup = _setup(memory)
+    setup.book.open_offer(TICKER, Decimal(200))
+    fund = setup.book.get(TICKER)
+    assert fund.nav is not None
+    fee = (Decimal("0.02") / 12 * fund.nav * fund.account.outside_quotas).quantize(
+        Decimal("0.01"), "ROUND_DOWN"
+    )
+    setup.engine.cash[setup.fund_client] = Decimal(10)
+    return setup, fee
+
+
+def test_fee_beyond_the_cash_becomes_payable_and_the_cash_stays_non_negative(
+    memory: MemoryFunds,
+):
+    """O caixa de R$ 10 paga o que alcança; o resto fica como taxa a pagar e o gestor recebe só o pago."""
+    setup, fee = _owing_setup(memory)
+    fund = setup.book.get(TICKER)
+
+    setup.book.on_month(date(2020, 2, 3))
+
+    assert setup.engine.cash[setup.fund_client] == 0
+    assert setup.engine.cash[MANAGER] == 10
+    assert fund.terms.management_fee_payable == fee - 10
+    assert fund.terms.month_fees == fee
+
+
+def test_payable_fee_discounts_the_nav(memory: MemoryFunds):
+    """A taxa a pagar entra como dívida no PL por cota: ele cai pelo valor devido."""
+    setup, fee = _owing_setup(memory)
+    fund = setup.book.get(TICKER)
+    setup.book.on_month(date(2020, 2, 3))
+
+    nav = setup.book._nav(fund)
+
+    assert nav == -(fee - 10) / fund.account.quotas
+
+
+def test_next_cash_pays_the_payable_fee_to_the_manager_before_anything_else(
+    memory: MemoryFunds,
+):
+    setup, fee = _owing_setup(memory)
+    fund = setup.book.get(TICKER)
+    setup.book.on_month(date(2020, 2, 3))
+
+    setup.engine.cash[setup.fund_client] += Decimal(1000)
+    setup.tick(date(2020, 2, 4))
+
+    assert fund.terms.fee_payable == 0
+    assert setup.engine.cash[MANAGER] == fee
+    assert setup.engine.cash[setup.fund_client] == Decimal(1000) - (fee - 10)
+
+
+def test_partial_cash_pays_part_of_the_payable_fee(memory: MemoryFunds):
+    setup, fee = _owing_setup(memory)
+    fund = setup.book.get(TICKER)
+    setup.book.on_month(date(2020, 2, 3))
+
+    setup.engine.cash[setup.fund_client] += Decimal(5)
+    setup.tick(date(2020, 2, 4))
+
+    assert fund.terms.management_fee_payable == fee - 15
+    assert setup.engine.cash[setup.fund_client] == 0
+
+
+def test_payable_fee_is_saved_and_reloaded(memory: MemoryFunds):
+    setup, fee = _owing_setup(memory)
+    setup.book.on_month(date(2020, 2, 3))
+
+    assert memory.funds[1].management_fee_payable == fee - 10
+
+
+def test_the_closing_day_records_the_payable_fee(memory: MemoryFunds):
+    setup, fee = _owing_setup(memory)
+    setup.book.on_month(date(2020, 2, 3))
+
+    _close_day(setup, date(2020, 2, 3))
+
+    assert memory.days_saved[1][-1].fee_payable == fee - 10
+
+
 def test_first_contribution_issues_quotas_at_one_hundred_and_moves_the_cash(
     memory: MemoryFunds,
 ):
@@ -1309,6 +1391,38 @@ def test_short_cash_pays_cash_over_quotas_and_does_not_owe_the_rest(
     assert setup.engine.cash[setup.fund_client] == 0
     setup.tick(date(2020, 2, 4))
     assert fund.distributions[-1].paid == Decimal(103)
+
+
+def test_the_yield_pays_only_the_cash_left_after_the_payable_fee(memory: MemoryFunds):
+    """Com R$ 600 em caixa e R$ 500 de taxa a pagar, a taxa sai primeiro e o rendimento paga os R$ 100 que sobram."""
+    setup = _holding_setup(memory)
+    fund = setup.book.get(TICKER)
+    _earn(setup, "1000")
+    _close_day(setup, DATA_COM)
+    fund.terms = fund.terms.model_copy(update={"performance_fee_payable": Decimal(500)})
+    setup.engine.cash[setup.fund_client] = Decimal(600)
+
+    setup.tick(PAY_DAY)
+
+    row = fund.distributions[-1]
+    assert fund.terms.fee_payable == 0
+    assert row.paid is not None
+    assert 0 < row.paid <= 100
+    assert setup.engine.cash[setup.fund_client] >= 0
+
+
+def test_the_distribution_plan_counts_the_payable_fee_against_the_cash(
+    memory: MemoryFunds,
+):
+    setup = _holding_setup(memory)
+    fund = setup.book.get(TICKER)
+    _earn(setup, "1000")
+    setup.engine.cash[setup.fund_client] = Decimal(1000)
+    assert setup.book.distribution_plan(fund).cash_enough
+
+    fund.terms = fund.terms.model_copy(update={"management_fee_payable": Decimal(500)})
+
+    assert not setup.book.distribution_plan(fund).cash_enough
 
 
 def test_a_losing_month_distributes_nothing(memory: MemoryFunds):

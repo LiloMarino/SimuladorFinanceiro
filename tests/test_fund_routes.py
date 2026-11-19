@@ -381,6 +381,7 @@ def _page(fund_id: int) -> FundDetailsDTO:
             high_water_mark=None,
             high_water_mark_on=None,
             received_12m=zero,
+            payable=zero,
         ),
         distribution=FundDistributionPlanDTO(
             rate=Decimal("0.95"),

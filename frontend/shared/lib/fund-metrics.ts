@@ -11,6 +11,17 @@ export const NET_WORTH: MetricInfo = {
   format: (value) => `${value}`,
 };
 
+export const FEE_PAYABLE: MetricInfo = {
+  label: "Taxa a pagar",
+  description: "A taxa que o caixa da gestora não cobriu e que ela ainda deve ao gestor",
+  definition:
+    "Quando a taxa vence e o caixa não tem o suficiente, a gestora paga o que dá e deve o resto ao gestor. A dívida desconta do patrimônio e o próximo dinheiro que entra no caixa (dividendo, juro ou venda de ativo) a quita antes de qualquer rendimento.",
+  example: "Ex.: taxa de R$ 10.000 com R$ 4.000 em caixa: o gestor recebe R$ 4.000 e R$ 6.000 ficam como taxa a pagar.",
+  reading:
+    "Valor em aberto é patrimônio que ainda não chegou ao gestor e que o cotista não recebe como rendimento. O ideal é zero: o caixa cobriu a taxa.",
+  format: (value) => `${value}`,
+};
+
 export const NAV_PER_QUOTA: MetricInfo = {
   label: "Patrimônio por cota",
   description: "O valor justo de uma cota, pelo que a gestora tem",

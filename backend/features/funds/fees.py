@@ -24,6 +24,12 @@ def management_fee(
     return fee.quantize(CENT, ROUND_DOWN)
 
 
+def split_payable(fee: Decimal, cash: Decimal) -> tuple[Decimal, Decimal]:
+    """A taxa dividida em (paga, a pagar): o caixa positivo cobre o que alcança e o resto fica devido."""
+    paid = min(fee, max(cash, Decimal(0)))
+    return paid, fee - paid
+
+
 def performance_charge(
     *,
     nav: Decimal,
