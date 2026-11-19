@@ -32,6 +32,8 @@ class Quote:
     bid: float | None = None
     # A referência da cota de gestora (PL por cota, desempenho, preço fixo); nulo para os demais ativos
     fund: FundReference | None = None
+    # O valor justo por ação da estatal fundada no dia; nulo para os demais ativos
+    state_fair_value: float | None = None
 
     @property
     def buy_price(self) -> float:

@@ -15,6 +15,7 @@ from backend.core.enum import (
     StateCompanyStatus,
     StateControl,
     StateLever,
+    StateMonthReason,
     StateMovementKind,
 )
 
@@ -280,3 +281,73 @@ class StateOrderRequest(BaseDTO):
 class StateReservationRequest(BaseDTO):
     ticker: str
     quantity: Annotated[int, Field(gt=0)]
+
+
+class StatePolicyPayoutDTO(BaseDTO):
+    """Uma política de dividendos e a fração do lucro do mês que ela paga ao acionista."""
+
+    dividend_policy: DividendPolicy
+    payout: Decimal
+
+
+class StateCompanyMonthDetailDTO(BaseDTO):
+    """Um mês da estatal fundada na tela da ação, por ação: o que ela fechou e valeu, o que lucrou e o que pagou."""
+
+    # Primeiro dia do mês
+    month: date
+    reason: StateMonthReason
+    # O último fechamento do mês; None sem pregão no mês
+    price: Decimal | None
+    # O valor justo por ação no fim do mês; None depois da venda
+    fair_value: Decimal | None
+    # O que o valor justo andou no mês, por ação; None na fundação e depois da venda
+    profit: Decimal | None
+    # O dividendo pago a cada acionista, por ação; None na fundação e depois da venda
+    dividend: Decimal | None
+    # A política em vigor no mês e a fração do lucro que ela paga; None na fundação e depois da venda
+    dividend_policy: DividendPolicy | None
+    payout: Decimal | None
+
+
+class StateCompanyHoldersDTO(BaseDTO):
+    """Quem tem as ações da estatal, em ações; a soma é o total da empresa."""
+
+    government: Decimal
+    # O estoque do formador de mercado, que vende a quem compra
+    maker: Decimal
+    # Os outros jogadores, sem quem vê
+    players: Decimal
+    bots: Decimal
+    funds: Decimal
+    you: Decimal
+
+
+class StateCompanyDetailDTO(BaseDTO):
+    """
+    A estatal na tela da ação: origem, preço, valor justo, dividendos, política em vigor,
+    os meses e quem tem as ações. A importada traz só o preço, o provento dos 12 últimos meses e a política: `months` vem vazia, e `holders`, `fair_value` e `beta`, nulos.
+    """
+
+    ticker: str
+    origin: StateCompanyOrigin
+    status: StateCompanyStatus
+    founded_on: date | None
+    size: StateCompanySize | None
+    # Fatia do governo em fração: 0,51 é 51% das ações; zero depois da venda
+    government_share: Decimal
+    shares: int
+    # O último preço por ação; None sem pregão
+    price: Decimal | None
+    # O valor justo por ação hoje; None na importada e depois da venda
+    fair_value: Decimal | None
+    # O dividendo por ação: o somado desde a fundação na fundada e o dos 12 meses fechados na importada
+    dividends: Decimal
+    # A política de dividendos em vigor hoje
+    dividend_policy: DividendPolicy
+    # As políticas que o presidente pode escolher, cada uma com o payout dela
+    policies: list[StatePolicyPayoutDTO]
+    # Quanto da bolsa a ação acompanha (0,8 é 80% do retorno do Ibovespa da partida); None na importada
+    beta: Decimal | None
+    # Do mais antigo ao mais novo: a fundação, cada mês fechado e a venda
+    months: list[StateCompanyMonthDetailDTO]
+    holders: StateCompanyHoldersDTO | None

@@ -21,6 +21,7 @@ from backend.core.enum import (
     StateCompanyStatus,
     StateControl,
     StateLever,
+    StateMonthReason,
 )
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -65,6 +66,13 @@ type OrderHistory = Callable[[], Mapping[date, Mapping[str, StateOrder]]]
 
 # O preço de mercado da ação importada no dia; None quando ela não tem preço
 type MarketPrice = Callable[[str], Decimal | None]
+
+# O crescimento do PIB do último mês fechado antes do dia menos a tendência, em fração ao ano
+type GrowthGap = Callable[[date], Decimal]
+
+
+def no_growth_gap(_day: date) -> Decimal:
+    return Decimal(0)
 
 
 class OfferAccounts(Protocol):
@@ -146,12 +154,18 @@ class StateCompanyBook:
         history: OrderHistory,
         companies: Iterable[StateCompanyDTO] = (),
         market_price: MarketPrice = lambda _ticker: None,
+        growth_gap: GrowthGap = no_growth_gap,
     ):
-        """`market_price` dá o preço do dia da ação importada, que é o da privatização dela."""
+        """
+        `market_price` dá o preço do dia da ação importada, que é o da privatização dela.
+        `growth_gap` dá o quanto o PIB cresce acima da tendência no último mês fechado
+        antes do dia: o valor justo de cada mês da fundada usa o do mês anterior a ele.
+        """
         self._simulation_id = simulation_id
         self._seed = random_seed
         self._history = history
         self._market_price = market_price
+        self._growth_gap = growth_gap
         self._companies: dict[str, StateCompanyDTO] = {c.ticker: c for c in companies}
 
     # Empresas
@@ -334,7 +348,9 @@ class StateCompanyBook:
         """
         O valor justo da fundada depois de `months` meses; a importada segue a história. O
         crescimento de cada mês acompanha o porte efetivo da política em vigor nele; os
-        meses depois de `through` seguem a política em vigor nesse dia.
+        meses depois de `through` seguem a política em vigor nesse dia. O mês de ordem m
+        (o primeiro é o da fundação) usa o crescimento do PIB acima da tendência do último
+        mês fechado antes dele.
         """
         if (
             company.origin is not StateCompanyOrigin.FOUNDED
@@ -343,17 +359,24 @@ class StateCompanyBook:
         ):
             return Decimal(0)
         policies: list[DividendPolicy] = []
+        growth_path: list[Decimal] = []
         if company.founded_on is not None:
-            first = _next_month(_month_start(company.founded_on))
+            founded_month = _month_start(company.founded_on)
+            first = _next_month(founded_month)
             policies = self._policies(
                 company.ticker, first, _add_months(first, months - 1), through
             )
+            growth_path = [
+                self._growth_gap(_add_months(founded_month, month) - timedelta(days=1))
+                for month in range(months)
+            ]
         return fair_value.fair_value(
             company.invested,
             company.seed,
             company.mean_return,
             months,
             gdp.size_path(policies),
+            growth_path,
         )
 
     def fair_value_on(self, company: StateCompanyDTO, day: date) -> Decimal:
@@ -376,13 +399,17 @@ class StateCompanyBook:
             return start
         return start * Decimal(str(float(end / start) ** (elapsed - whole)))
 
+    def _month_profit_missing(self, company: StateCompanyDTO, month: date) -> bool:
+        """A fundada ainda não fechou um mês inteiro em `month`: é o da fundação."""
+        return (
+            company.founded_on is None or _months_between(company.founded_on, month) < 1
+        )
+
     def _month_profit(self, company: StateCompanyDTO, month: date) -> Decimal | None:
         """O que o valor justo andou no mês; None enquanto a fundada não fechou um mês inteiro."""
-        if company.founded_on is None:
+        if self._month_profit_missing(company, month):
             return None
-        months = _months_between(company.founded_on, month)
-        if months < 1:
-            return None
+        months = _months_between(required(company.founded_on), month)
         return self.fair_value_after(company, months) - self.fair_value_after(
             company, months - 1
         )
@@ -407,6 +434,28 @@ class StateCompanyBook:
         return payout.dividend(
             max(profit, Decimal(0)), order.dividend_policy, order.control
         )
+
+    def month_reason(
+        self, company: StateCompanyDTO, month: date, profit: Decimal | None
+    ) -> StateMonthReason:
+        """
+        Por que o mês da fundada tem ou não dividendo, pela mesma decisão de `month_dividend`:
+        sem lucro modelado é o mês da fundação, depois da venda é a privatização, com lucro
+        não positivo é prejuízo e nos demais a política paga.
+        """
+        if self._month_profit_missing(company, month):
+            return StateMonthReason.FOUNDING
+        if not self._pays_dividends(company, month):
+            return StateMonthReason.PRIVATIZED
+        if profit is not None and profit <= 0:
+            return StateMonthReason.LOSS
+        return StateMonthReason.PAID
+
+    def privatized_month(self, company: StateCompanyDTO) -> date | None:
+        """O primeiro mês em que a estatal já não paga dividendo ao governo; None enquanto ela não foi vendida."""
+        if company.privatized_on is None:
+            return None
+        return _effect_month(company.privatized_on)
 
     def _dividend_events(
         self, company: StateCompanyDTO, until: date
@@ -487,6 +536,23 @@ class StateCompanyBook:
             subtract_months(this_month, 12),
             this_month - timedelta(days=1),
             deviation=False,
+        )
+
+    def imported_dividend_per_share_12m(
+        self, company: StateCompanyDTO, today: date
+    ) -> Decimal:
+        """O provento por ação da importada nos 12 meses fechados antes do mês de `today`, com o fator da ordem de cada data ex."""
+        this_month = _month_start(today)
+        first = subtract_months(this_month, 12)
+        last = this_month - timedelta(days=1)
+        return sum(
+            (
+                Decimal(str(event.value))
+                * Decimal(str(self.dividend_factor(company.ticker, event.ex_date)))
+                for event in self._dividend_events(company, last)
+                if event.ex_date >= first
+            ),
+            Decimal(0),
         )
 
     def expected_imported_dividend(

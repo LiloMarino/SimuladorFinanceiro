@@ -31,6 +31,7 @@ from backend.core.dto.sovereign_fund import (
 )
 from backend.core.dto.state_company import (
     StateCompaniesPanelDTO,
+    StateCompanyDetailDTO,
     StateCompanyDTO,
     StateFoundingPreviewDTO,
     StateOrderPreviewDTO,
@@ -77,7 +78,7 @@ from backend.core.indicators import (
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.utils import format_money, next_business_day, required
 from backend.features.economy import monetary
-from backend.features.economy.growth import MacroCourse
+from backend.features.economy.growth import TREND, MacroCourse
 from backend.features.economy.layer import StateFactors
 from backend.features.government import approval as approval_rules
 from backend.features.government import budget as budget_rules
@@ -132,6 +133,7 @@ from backend.features.sovereign_fund import headlines as fund_headlines
 from backend.features.sovereign_fund import panel as fund_panel
 from backend.features.sovereign_fund import rules as fund_rules
 from backend.features.sovereign_fund.book import FundLookup, SovereignFundBook
+from backend.features.state_companies import detail as state_detail
 from backend.features.state_companies import headlines as state_headlines
 from backend.features.state_companies import levers as state_levers
 from backend.features.state_companies import panel as state_panel
@@ -263,6 +265,8 @@ class GovernmentBook:
             lambda: self.state.state_order_history,
             state_companies,
             self._market_price,
+            # O valor justo da fundada lê o PIB do último mês fechado antes de cada mês
+            lambda day: self._macro.latest(day).growth - TREND,
         )
         self._linked.layer.use_state_companies(
             StateFactors(
@@ -3699,6 +3703,20 @@ class GovernmentBook:
             market_price=self._market_price,
             portfolio_id=portfolio_id,
             cash_of=accounts.cash,
+        )
+
+    def state_detail(
+        self, today: date, ticker: str, portfolio_id: int | None
+    ) -> StateCompanyDetailDTO | None:
+        """A estatal na tela da ação; None quando o código não é de estatal da partida."""
+        return state_detail.build_detail(
+            self._state_companies,
+            ticker,
+            simulation_id=self._settings.id,
+            today=today,
+            market_price=self._market_price,
+            maker_stock=self._state_market.maker_stock,
+            portfolio_id=portfolio_id,
         )
 
     def state_order_preview(

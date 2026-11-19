@@ -112,6 +112,72 @@
         }
       }
     },
+    "/api/variable-income/{asset}/state-company": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Obter a estatal de um ativo",
+        "description": "Retorna o que a tela da ação mostra de uma estatal: origem, preço, valor justo por ação, dividendos por ação, política de dividendos em vigor, beta, os meses (fundação, cada mês fechado e a venda, com preço, lucro, dividendo e o motivo) e quem tem as ações (governo, formador, outros jogadores, bots, gestoras e você). Devolve nulo quando o ativo não é de estatal da partida ou a partida não usa a expansão Governo & Política. A estatal importada traz só o preço, o provento dos 12 últimos meses e a política.",
+        "operationId": "get_variable_income_state_company_api_variable_income__asset__state_company_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "asset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/StateCompanyDetailDTO"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Variable Income State Company Api Variable Income  Asset  State Company Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/variable-income/{asset}/corporate-events": {
       "get": {
         "tags": [
@@ -11907,7 +11973,7 @@
           "Simulation"
         ],
         "summary": "Listar as estratégias para os bots",
-        "description": "As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. A estratégia que exige a expansão Gestoras só vem quando a sala a tem: `funds_enabled` informado manda (o backtest passa falso), e sem ele valem as regras da sala. Serve também à preparação de cada jogador no lobby.",
+        "description": "As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. A estratégia que exige uma expansão só vem quando a sala a tem: `funds_enabled` (Gestoras) e `government_enabled` (Governo) informados mandam (o backtest passa falso nos dois), e sem eles valem as regras da sala. Serve também à preparação de cada jogador no lobby.",
         "operationId": "list_bot_strategies_api_simulation_bots_strategies_get",
         "parameters": [
           {
@@ -11941,6 +12007,22 @@
                 }
               ],
               "title": "Funds Enabled"
+            }
+          },
+          {
+            "name": "government_enabled",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Government Enabled"
             }
           }
         ],
@@ -39369,6 +39451,266 @@
         "title": "StateCompaniesPanelDTO",
         "description": "O painel das estatais: todos leem, e só o presidente comanda."
       },
+      "StateCompanyDetailDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/StateCompanyOrigin"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StateCompanyStatus"
+          },
+          "founded_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Founded On"
+          },
+          "size": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StateCompanySize"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "government_share": {
+            "type": "string",
+            "title": "Government Share"
+          },
+          "shares": {
+            "type": "integer",
+            "title": "Shares"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "fair_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fair Value"
+          },
+          "dividends": {
+            "type": "string",
+            "title": "Dividends"
+          },
+          "dividend_policy": {
+            "$ref": "#/components/schemas/DividendPolicy"
+          },
+          "policies": {
+            "items": {
+              "$ref": "#/components/schemas/StatePolicyPayoutDTO"
+            },
+            "type": "array",
+            "title": "Policies"
+          },
+          "beta": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Beta"
+          },
+          "months": {
+            "items": {
+              "$ref": "#/components/schemas/StateCompanyMonthDetailDTO"
+            },
+            "type": "array",
+            "title": "Months"
+          },
+          "holders": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StateCompanyHoldersDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "origin",
+          "status",
+          "founded_on",
+          "size",
+          "government_share",
+          "shares",
+          "price",
+          "fair_value",
+          "dividends",
+          "dividend_policy",
+          "policies",
+          "beta",
+          "months",
+          "holders"
+        ],
+        "title": "StateCompanyDetailDTO",
+        "description": "A estatal na tela da ação: origem, preço, valor justo, dividendos, política em vigor,\nos meses e quem tem as ações. A importada traz só o preço, o provento dos 12 últimos meses e a política: `months` vem vazia, e `holders`, `fair_value` e `beta`, nulos."
+      },
+      "StateCompanyHoldersDTO": {
+        "properties": {
+          "government": {
+            "type": "string",
+            "title": "Government"
+          },
+          "maker": {
+            "type": "string",
+            "title": "Maker"
+          },
+          "players": {
+            "type": "string",
+            "title": "Players"
+          },
+          "bots": {
+            "type": "string",
+            "title": "Bots"
+          },
+          "funds": {
+            "type": "string",
+            "title": "Funds"
+          },
+          "you": {
+            "type": "string",
+            "title": "You"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "government",
+          "maker",
+          "players",
+          "bots",
+          "funds",
+          "you"
+        ],
+        "title": "StateCompanyHoldersDTO",
+        "description": "Quem tem as ações da estatal, em ações; a soma é o total da empresa."
+      },
+      "StateCompanyMonthDetailDTO": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/StateMonthReason"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "fair_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fair Value"
+          },
+          "profit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profit"
+          },
+          "dividend": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dividend"
+          },
+          "dividend_policy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DividendPolicy"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payout": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payout"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "reason",
+          "price",
+          "fair_value",
+          "profit",
+          "dividend",
+          "dividend_policy",
+          "payout"
+        ],
+        "title": "StateCompanyMonthDetailDTO",
+        "description": "Um mês da estatal fundada na tela da ação, por ação: o que ela fechou e valeu, o que lucrou e o que pagou."
+      },
       "StateCompanyOrigin": {
         "type": "string",
         "enum": [
@@ -39656,6 +39998,17 @@
         ],
         "title": "StateLeverRuleDTO",
         "description": "O peso de uma alavanca: quanto do IPCA e do juro do crédito cada ponto percentual segurado move."
+      },
+      "StateMonthReason": {
+        "type": "string",
+        "enum": [
+          "PAID",
+          "LOSS",
+          "FOUNDING",
+          "PRIVATIZED"
+        ],
+        "title": "StateMonthReason",
+        "description": "Por que um mês da estatal fundada tem ou não dividendo."
       },
       "StateMovementDTO": {
         "properties": {
@@ -40035,6 +40388,25 @@
         ],
         "title": "StatePolicyEffectDTO",
         "description": "O efeito de uma política de dividendos, com o controle de hoje."
+      },
+      "StatePolicyPayoutDTO": {
+        "properties": {
+          "dividend_policy": {
+            "$ref": "#/components/schemas/DividendPolicy"
+          },
+          "payout": {
+            "type": "string",
+            "title": "Payout"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "dividend_policy",
+          "payout"
+        ],
+        "title": "StatePolicyPayoutDTO",
+        "description": "Uma política de dividendos e a fração do lucro do mês que ela paga ao acionista."
       },
       "StateReservationRequest": {
         "properties": {

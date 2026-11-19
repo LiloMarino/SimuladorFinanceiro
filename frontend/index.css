@@ -50,6 +50,8 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-warning-soft: var(--warning-soft);
   --color-expansion-government: var(--expansion-government);
+  --color-expansion-government-soft: var(--expansion-government-soft);
+  --color-expansion-government-strong: var(--expansion-government-strong);
   --color-fund: var(--fund);
   --color-fund-foreground: var(--fund-foreground);
   --color-fund-soft: var(--fund-soft);
@@ -183,6 +185,8 @@
   --warning-soft: #fdf1dc;
   /* Emblema de cada expansão */
   --expansion-government: #9a3412;
+  --expansion-government-soft: #fbefe6;
+  --expansion-government-strong: #7c2d12;
   /* Conta de gestora: faixa, rótulo do caixa e botão da ordem */
   --fund: #0f766e;
   --fund-foreground: #ffffff;

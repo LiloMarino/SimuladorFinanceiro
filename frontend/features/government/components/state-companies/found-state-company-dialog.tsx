@@ -32,7 +32,8 @@ import type { StateCompany, StateCompanySize, StateLever, StateRules } from "@/t
 import { useProposeMeasure } from "../../hooks/mutations/useProposeMeasure";
 import { useStateFoundingPreview } from "../../hooks/queries/useStateFoundingPreview";
 import { EXPECTED_DIVIDEND, FOUNDING_GDP_PUSH } from "../../lib/government-metrics";
-import { SIZE_LABEL, leverEffect, leverOwnedNote } from "../../lib/state-companies";
+import { SIZE_LABEL } from "@/shared/lib/state-company";
+import { leverEffect, leverOwnedNote } from "../../lib/state-companies";
 import { MeasureBudgetEffect } from "../measure-budget-effect";
 
 const foundSchema = z.object({

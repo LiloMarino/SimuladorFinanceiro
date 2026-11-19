@@ -98,6 +98,7 @@ from backend.core.dto.sovereign_fund import (
 from backend.core.dto.state_company import (
     FoundStateCompanyRequest,
     StateCompaniesPanelDTO,
+    StateCompanyDetailDTO,
     StateFoundingPreviewDTO,
     StateOrderPreviewDTO,
     StateOrderRequest,
@@ -422,6 +423,7 @@ class Simulation:
             self._price_impact,
             settings.end_date,
             settings.funds_enabled and backtest is None,
+            settings.government_enabled and backtest is None,
         )
         self._strategies.load(
             repository.simulation_player.participants(settings.id), resume_from
@@ -1008,6 +1010,19 @@ class Simulation:
         return self._ensure_government().state_panel(
             user, self._current_date, SimulationManager.get_portfolio_id(user.id)
         )
+
+    @synchronized
+    def get_state_company_detail(
+        self, user: UserDTO, ticker: str
+    ) -> StateCompanyDetailDTO | None:
+        """A estatal na tela da ação; None quando a partida não usa o governo ou o código não é de estatal."""
+        if self._government is None:
+            return None
+        try:
+            portfolio_id = SimulationManager.get_portfolio_id(user.id)
+        except NotFoundError:
+            portfolio_id = None
+        return self._government.state_detail(self._current_date, ticker, portfolio_id)
 
     @synchronized
     def preview_state_order(self, user: UserDTO, ticker: str) -> StateOrderPreviewDTO:

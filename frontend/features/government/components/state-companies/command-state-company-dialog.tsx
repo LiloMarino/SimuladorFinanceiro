@@ -25,21 +25,14 @@ import { Progress } from "@/shared/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { STATE_LEVER_LABEL } from "@/shared/lib/state-lever";
+import { POLICY_LABEL } from "@/shared/lib/state-company";
 import { displayMoneyLarge, displayPercent } from "@/shared/lib/utils/display";
 import type { DividendPolicy, StateControl, StateLever, StateOrderPreview } from "@/types";
 import { useSetStateOrder } from "../../hooks/mutations/useSetStateOrder";
 import { useStateOrderPreview } from "../../hooks/queries/useStateOrderPreview";
 import { BACKLOG, CONTROL_CAP, DIVIDEND_POLICY, PRICE_CONTROL } from "../../lib/government-metrics";
 import { nextMonthLabel } from "../../lib/campaign";
-import {
-  POLICY_LABEL,
-  POLICY_NOTE,
-  capLabel,
-  controlPercent,
-  pointsLabel,
-  stepEffect,
-  stepLabel,
-} from "../../lib/state-companies";
+import { POLICY_NOTE, capLabel, controlPercent, pointsLabel, stepEffect, stepLabel } from "../../lib/state-companies";
 
 const CONTROL_TITLE: Record<StateLever, string> = {
   FUEL: "Controle do preço da gasolina",

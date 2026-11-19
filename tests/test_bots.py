@@ -72,16 +72,32 @@ def bot_named(nickname: str) -> UserDTO:
 
 
 def test_the_catalog_suggests_names_for_every_strategy(room):
-    infos = catalog.infos(START, None, catalog.known_tickers(), funds_enabled=True)
+    infos = catalog.infos(
+        START,
+        None,
+        catalog.known_tickers(),
+        funds_enabled=True,
+        government_enabled=True,
+    )
 
     assert infos
     assert all(info.bot_names for info in infos)
 
 
 def test_the_fund_strategy_is_in_the_catalog_only_with_the_funds_expansion(room):
-    with_funds = catalog.infos(START, None, catalog.known_tickers(), funds_enabled=True)
+    with_funds = catalog.infos(
+        START,
+        None,
+        catalog.known_tickers(),
+        funds_enabled=True,
+        government_enabled=False,
+    )
     without_funds = catalog.infos(
-        START, None, catalog.known_tickers(), funds_enabled=False
+        START,
+        None,
+        catalog.known_tickers(),
+        funds_enabled=False,
+        government_enabled=False,
     )
 
     assert "fund_quotas" in {info.key for info in with_funds}
@@ -108,6 +124,52 @@ def test_the_backtest_refuses_the_fund_strategy_even_in_a_room_with_funds(
     monkeypatch.setattr(SettingsManager, "_settings", rules(funds_enabled=True))
 
     refusal(lambda: resolve_bot("fund_quotas", {}, funds_enabled=False), status=422)
+
+
+def test_the_state_strategy_is_in_the_catalog_only_with_the_government_expansion(
+    room,
+):
+    def keys(government: bool) -> set[str]:
+        return {
+            info.key
+            for info in catalog.infos(
+                START,
+                None,
+                catalog.known_tickers(),
+                funds_enabled=False,
+                government_enabled=government,
+            )
+        }
+
+    assert "state_companies" in keys(True)
+    assert "state_companies" not in keys(False)
+
+
+def test_a_room_without_government_refuses_the_state_strategy_for_bots(
+    room, monkeypatch
+):
+    monkeypatch.setattr(SettingsManager, "_settings", rules(government_enabled=False))
+
+    message = refusal(lambda: resolve_bot("state_companies", {}), status=422)
+
+    assert "Governo" in message
+
+
+def test_a_room_with_government_accepts_the_state_strategy_for_bots(room, monkeypatch):
+    monkeypatch.setattr(SettingsManager, "_settings", rules(government_enabled=True))
+
+    assert resolve_bot("state_companies", {}).strategy_key == "state_companies"
+
+
+def test_the_backtest_refuses_the_state_strategy_even_in_a_room_with_government(
+    room, monkeypatch
+):
+    monkeypatch.setattr(SettingsManager, "_settings", rules(government_enabled=True))
+
+    refusal(
+        lambda: resolve_bot("state_companies", {}, government_enabled=False),
+        status=422,
+    )
 
 
 def test_adding_a_bot_puts_a_new_bot_user_in_the_room(room):

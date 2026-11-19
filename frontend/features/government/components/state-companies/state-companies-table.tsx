@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Landmark, Plus } from "lucide-react";
 import { MetricLabel } from "@/shared/components/metric-hint";
 import { Badge } from "@/shared/components/ui/badge";
@@ -7,6 +8,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { cn } from "@/shared/lib/utils";
 import { STATE_LEVER_LABEL } from "@/shared/lib/state-lever";
+import { POLICY_LABEL, sizeLabel } from "@/shared/lib/state-company";
 import { displayMoneyLarge, displayMonthSlashYear, displayPercent } from "@/shared/lib/utils/display";
 import type { GovernmentMeasure, StateCompaniesPanel, StateCompany } from "@/types";
 import { DIVIDEND_POLICY, PRICE_CONTROL, SINCE_FOUNDING, STATE_STAKE } from "../../lib/government-metrics";
@@ -14,11 +16,9 @@ import {
   companyValue,
   controlLabel,
   heldCompanies,
-  POLICY_LABEL,
   rowControlEffect,
   signedSince,
   sinceFounding,
-  sizeLabel,
   votesOnLabel,
 } from "../../lib/state-companies";
 
@@ -226,6 +226,15 @@ function CompanyRow({ company, isPresident, voteLabel, onCommand, onPrivatize, o
           {nextPolicy && (
             <span className="text-xs text-muted-foreground">Mês seguinte: {POLICY_LABEL[nextPolicy]}</span>
           )}
+          <Button
+            variant="link"
+            size="xs"
+            nativeButton={false}
+            render={<Link to={`/variable-income/${company.ticker}`} />}
+            className="justify-self-start"
+          >
+            Ver lucro e dividendos
+          </Button>
         </span>
       </TableCell>
 

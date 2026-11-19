@@ -78,9 +78,12 @@ class BaseStrategy:
     requires_expansion: ClassVar[Expansion | None] = None
 
     @classmethod
-    def available(cls, *, funds_enabled: bool) -> bool:
+    def available(cls, *, funds_enabled: bool, government_enabled: bool) -> bool:
         """Se a sala tem a expansão que a estratégia exige."""
-        expansions = {Expansion.FUNDS: funds_enabled}
+        expansions = {
+            Expansion.FUNDS: funds_enabled,
+            Expansion.GOVERNMENT: government_enabled,
+        }
         return cls.requires_expansion is None or expansions.get(
             cls.requires_expansion, False
         )

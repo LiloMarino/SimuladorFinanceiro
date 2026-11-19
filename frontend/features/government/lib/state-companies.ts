@@ -1,12 +1,12 @@
 import { displayPoints } from "@/shared/lib/budget-metrics";
 import { STATE_LEVER_LABEL } from "@/shared/lib/state-lever";
+import { POLICY_LABEL } from "@/shared/lib/state-company";
 import { displayDayMonth, displayMoney, displayMoneyLarge, displayPercent } from "@/shared/lib/utils/display";
 import type {
   DividendPolicy,
   GovernmentMeasure,
   StateCompaniesPanel,
   StateCompany,
-  StateCompanySize,
   StateControl,
   StateLever,
   StateMovement,
@@ -30,14 +30,6 @@ export function leverEffect(rules: StateRules, lever: StateLever) {
   return `Segurar ${subject} baixa o IPCA: pesa cerca de ${displayPercent(rule.ipca_weight, 0)} do índice. 10% de controle tira cerca de ${tenPercent(rule.ipca_weight)}.`;
 }
 
-export const SIZE_LABEL: Record<StateCompanySize, string> = {
-  SMALL: "Pequena",
-  MEDIUM: "Média",
-  LARGE: "Grande",
-};
-
-export const sizeLabel = (size: StateCompanySize) => SIZE_LABEL[size].toLowerCase();
-
 const CONTROL_PERCENT: Record<StateControl, number> = { NONE: 0, P5: 5, P10: 10, P15: 15, P20: 20 };
 
 export const controlPercent = (control: StateControl) => CONTROL_PERCENT[control];
@@ -49,12 +41,6 @@ export const stepLabel = (control: StateControl) =>
 /** O controle em vigor na linha: "Sem controle" ou "Segurando 10%". */
 export const controlLabel = (control: StateControl) =>
   control === "NONE" ? "Sem controle" : `Segurando ${controlPercent(control)}%`;
-
-export const POLICY_LABEL: Record<DividendPolicy, string> = {
-  REINVEST: "Reinvestir",
-  NORMAL: "Normal",
-  SQUEEZE: "Espremer",
-};
 
 /** O que cada política faz com a empresa e a ação. */
 export const POLICY_NOTE: Record<DividendPolicy, string> = {

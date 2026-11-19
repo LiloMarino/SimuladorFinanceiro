@@ -18,6 +18,8 @@ export const badgeVariants = cva(
         fund: "bg-fund-soft text-fund-strong",
         // Selo de empresa estatal: a cor da expansão Governo & Política, cheia e com texto branco
         state: "bg-expansion-government font-semibold text-white",
+        // Selo de empresa estatal sobre fundo claro: o tom suave da expansão, com o texto escuro dela
+        "state-soft": "bg-expansion-government-soft font-semibold text-expansion-government-strong",
         outline: "border-input bg-card text-foreground",
         // Etiqueta neutra de um card (profissão, "Bot"): a borda separa o selo do fundo do card
         label: "border-label-border bg-muted text-secondary-foreground",

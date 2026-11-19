@@ -12,13 +12,20 @@ def close_candle(
     trades: DayTrades,
     previous_close: float | None,
     reference: Decimal,
+    idle_close: Decimal | None = None,
 ) -> CandleDTO:
     """A vela do pregão: primeiro negócio, máxima, mínima, último negócio e volume.
 
     Sem negócio, a vela repete o último fechamento (ou o valor de referência, na estreia) e
-    o volume é zero.
+    o volume é zero. Com `idle_close`, o dia sem negócio abre no último fechamento (ou no
+    próprio `idle_close`, na estreia) e fecha em `idle_close`; a máxima e a mínima são o
+    maior e o menor dos dois.
     """
-    if trades.open is None:
+    if trades.open is None and idle_close is not None:
+        close = float(idle_close)
+        open_ = previous_close if previous_close is not None else close
+        high, low = max(open_, close), min(open_, close)
+    elif trades.open is None:
         close = previous_close if previous_close is not None else float(reference)
         open_ = high = low = close
     else:

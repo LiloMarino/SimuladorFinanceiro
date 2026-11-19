@@ -23,11 +23,13 @@ from backend.core.enum import (
 )
 from backend.core.models.models import (
     EventEquity,
+    Portfolios,
     StateCompanies,
     StateCompanyMonths,
     StateOfferReservations,
     StateOwnedStocks,
     Stock,
+    Users,
 )
 from backend.core.repository.ticker_claim import claim_stock, letters_taken
 
@@ -281,6 +283,40 @@ class StateCompanyRepository:
             (EquityEventType(kind).quantity_sign * total for kind, total in rows),
             Decimal(0),
         )
+
+    @transactional
+    def shares_by_portfolio(
+        self, session: Session, simulation_id: int, stock_id: int, until: date
+    ) -> list[tuple[int, bool | None, Decimal]]:
+        """
+        As ações da empresa em cada carteira da partida até o dia: (carteira, se o dono é um
+        bot, saldo). O dono é None na carteira de gestora, que não tem usuário.
+        """
+        rows = session.execute(
+            select(
+                EventEquity.portfolio_id,
+                Users.is_bot,
+                EventEquity.event_type,
+                func.sum(EventEquity.quantity),
+            )
+            .join(Portfolios, Portfolios.id == EventEquity.portfolio_id)
+            .outerjoin(Users, Users.id == Portfolios.user_id)
+            .where(
+                EventEquity.simulation_id == simulation_id,
+                EventEquity.stock_id == stock_id,
+                EventEquity.event_date <= until,
+            )
+            .group_by(EventEquity.portfolio_id, Users.is_bot, EventEquity.event_type)
+            .order_by(EventEquity.portfolio_id)
+        ).all()
+        held: dict[int, tuple[bool | None, Decimal]] = {}
+        for portfolio_id, is_bot, kind, total in rows:
+            _, balance = held.get(portfolio_id, (is_bot, Decimal(0)))
+            held[portfolio_id] = (
+                is_bot,
+                balance + EquityEventType(kind).quantity_sign * total,
+            )
+        return [(pid, is_bot, balance) for pid, (is_bot, balance) in held.items()]
 
     @transactional
     def save_month(self, session: Session, month: StateCompanyMonthDTO) -> None:

@@ -771,6 +771,15 @@ class StateMovementKind(Enum):
     DIVIDEND_POLICY_SET = "DIVIDEND_POLICY_SET"
 
 
+class StateMonthReason(Enum):
+    """Por que um mês da estatal fundada tem ou não dividendo."""
+
+    PAID = "PAID"
+    LOSS = "LOSS"
+    FOUNDING = "FOUNDING"
+    PRIVATIZED = "PRIVATIZED"
+
+
 class SovereignFlowKind(Enum):
     """O que move dinheiro entre o Fundo Soberano e o Tesouro: o aporte entra no fundo, a venda e o dividendo voltam."""
 

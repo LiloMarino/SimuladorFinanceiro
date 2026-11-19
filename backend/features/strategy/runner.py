@@ -116,10 +116,12 @@ class StrategyRunner:
         price_impact: PriceImpact,
         end_date: date,
         funds_enabled: bool,
+        government_enabled: bool,
     ) -> None:
         self._engine = engine
-        # A partida tem a expansão Gestoras: só nela valem as estratégias que a exigem
+        # As expansões Gestoras e Governo da partida: só nelas valem as estratégias que as exigem
         self._funds_enabled = funds_enabled
+        self._government_enabled = government_enabled
         self._history = PriceHistory(engine.simulation_id, end_date, price_impact)
         self._active: dict[UUID, ActiveStrategy] = {}
         # Chamado com o jogador, o dia e a mensagem quando a estratégia dele dá erro
@@ -167,6 +169,7 @@ class StrategyRunner:
             self._engine.simulation_id,
             self._engine.stocks,
             funds_enabled=self._funds_enabled,
+            government_enabled=self._government_enabled,
         )
 
     def pending(self, user: UserDTO) -> list[PendingDTO]:
@@ -334,7 +337,11 @@ class StrategyRunner:
             return
 
         cls = get_strategy(key)
-        ensure_available(cls, funds_enabled=self._funds_enabled)
+        ensure_available(
+            cls,
+            funds_enabled=self._funds_enabled,
+            government_enabled=self._government_enabled,
+        )
         resolved = self._with_defaults(cls, params, today)
         errors = cls.validate(resolved, set(self._engine.stocks))
         if errors:
@@ -654,6 +661,7 @@ class StrategyRunner:
                 best_ask.price if best_ask else None,
                 best_bid.price if best_bid else None,
                 engine.fund_references.get(ticker),
+                engine.state_fair_values.get(ticker),
             )
         return _Market(
             quotes=quotes,

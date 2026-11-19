@@ -101,7 +101,7 @@ type RunningProps = Pick<BacktestStatus, "participants" | "points" | "failures">
 
 /** Barra, gráfico e classificação: dependem da lista de estratégias e da cobertura do mercado. */
 function Running({ progress, participants, points, failures }: RunningProps) {
-  const { data: strategies } = useBotStrategies(progress.start_date, { fundsEnabled: false });
+  const { data: strategies } = useBotStrategies(progress.start_date, { fundsEnabled: false, governmentEnabled: false });
   const { data: setup } = useBacktestSetup();
 
   return (

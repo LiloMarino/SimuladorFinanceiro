@@ -16,11 +16,12 @@ def resolve_bot(
     today: date | None = None,
     profession: Profession | None = None,
     funds_enabled: bool | None = None,
+    government_enabled: bool | None = None,
 ) -> BotConfig:
     """Os parâmetros completos pelo catálogo, na data das regras do lobby, e já validados; a profissão, quando fixa, é uma que a sala permite.
 
-    A estratégia que exige a expansão Gestoras vale só onde ela existe: `funds_enabled` nulo
-    segue as regras da sala.
+    A estratégia que exige uma expansão (Gestoras ou Governo) vale só onde ela existe:
+    `funds_enabled` e `government_enabled` nulos seguem as regras da sala.
     """
     if profession is not None and profession not in available_bot_professions(
         inflation_adjusted=SettingsManager.effective_inflation_adjusted(),
@@ -34,6 +35,9 @@ def resolve_bot(
         funds_enabled=SettingsManager.effective_funds_enabled()
         if funds_enabled is None
         else funds_enabled,
+        government_enabled=SettingsManager.effective_government_enabled()
+        if government_enabled is None
+        else government_enabled,
     )
     known = catalog.known_tickers()
     resolved = catalog.with_defaults(

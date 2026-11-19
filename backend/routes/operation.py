@@ -17,6 +17,7 @@ from backend.core.dto.fixed_income_projection import (
 )
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.order_preview import OrderPreviewDTO, TradeDTO
+from backend.core.dto.state_company import StateCompanyDetailDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.technical_indicators import (
     IndicatorsRequestDTO,
@@ -41,7 +42,12 @@ from backend.features.technical_analysis.summary import (
 )
 from backend.features.variable_income.broker import to_money
 from backend.features.variable_income.entities.order import LimitOrder, MarketOrder
-from backend.routes.dependencies import ActingClient, ActiveSimulation, ClientID
+from backend.routes.dependencies import (
+    ActingClient,
+    ActiveSimulation,
+    ClientID,
+    CurrentUser,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -117,6 +123,18 @@ def get_variable_income_details(simulation: ActiveSimulation, asset: str):
     if not stock:
         raise NotFoundError("Ativo não encontrado.")
     return stock
+
+
+@operation_router.get(
+    "/variable-income/{asset}/state-company",
+    response_model=StateCompanyDetailDTO | None,
+    summary="Obter a estatal de um ativo",
+    description="Retorna o que a tela da ação mostra de uma estatal: origem, preço, valor justo por ação, dividendos por ação, política de dividendos em vigor, beta, os meses (fundação, cada mês fechado e a venda, com preço, lucro, dividendo e o motivo) e quem tem as ações (governo, formador, outros jogadores, bots, gestoras e você). Devolve nulo quando o ativo não é de estatal da partida ou a partida não usa a expansão Governo & Política. A estatal importada traz só o preço, o provento dos 12 últimos meses e a política.",
+)
+def get_variable_income_state_company(
+    simulation: ActiveSimulation, user: CurrentUser, asset: str
+):
+    return simulation.get_state_company_detail(user, asset)
 
 
 @operation_router.get(

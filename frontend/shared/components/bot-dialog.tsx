@@ -67,6 +67,8 @@ type BotDialogProps = {
   startDate?: string;
   /** Com `false` a lista de estratégias sai sem as de gestoras */
   fundsEnabled?: boolean;
+  /** Com `false` a lista de estratégias sai sem as do governo */
+  governmentEnabled?: boolean;
   /** Quem já ocupa nome e cor; o bot em edição fica de fora */
   others: TakenSlot[];
   /** O dinheiro do exemplo em reais dos parâmetros e de onde ele vem */
@@ -116,11 +118,15 @@ function BotDialogContent({
   description,
   startDate,
   fundsEnabled,
+  governmentEnabled,
   loading = false,
   onClose,
   ...form
 }: BotDialogContentProps) {
-  const strategies = useBotStrategies(startDate, fundsEnabled === undefined ? {} : { fundsEnabled });
+  const strategies = useBotStrategies(startDate, {
+    ...(fundsEnabled === undefined ? {} : { fundsEnabled }),
+    ...(governmentEnabled === undefined ? {} : { governmentEnabled }),
+  });
   const tickers = useBotTickers();
 
   const ready = strategies.data && strategies.data.length > 0 && tickers.data && !loading;

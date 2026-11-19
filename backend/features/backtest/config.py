@@ -104,12 +104,13 @@ def resolve(
             raise UnprocessableEntityError("Dois participantes usam a mesma cor.")
         names.add(nickname.casefold())
         colors.add(participant.color)
-        # O backtest não tem gestoras
+        # O backtest não tem gestoras nem governo
         bot = resolve_bot(
             participant.strategy_key,
             participant.params,
             config.start_date,
             funds_enabled=False,
+            government_enabled=False,
         )
         resolved.append(
             (

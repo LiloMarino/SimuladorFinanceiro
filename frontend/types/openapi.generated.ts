@@ -44,6 +44,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/variable-income/{asset}/state-company": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter a estatal de um ativo
+         * @description Retorna o que a tela da ação mostra de uma estatal: origem, preço, valor justo por ação, dividendos por ação, política de dividendos em vigor, beta, os meses (fundação, cada mês fechado e a venda, com preço, lucro, dividendo e o motivo) e quem tem as ações (governo, formador, outros jogadores, bots, gestoras e você). Devolve nulo quando o ativo não é de estatal da partida ou a partida não usa a expansão Governo & Política. A estatal importada traz só o preço, o provento dos 12 últimos meses e a política.
+         */
+        get: operations["get_variable_income_state_company_api_variable_income__asset__state_company_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/variable-income/{asset}/corporate-events": {
         parameters: {
             query?: never;
@@ -3973,7 +3993,7 @@ export interface paths {
         };
         /**
          * Listar as estratégias para os bots
-         * @description As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. A estratégia que exige a expansão Gestoras só vem quando a sala a tem: `funds_enabled` informado manda (o backtest passa falso), e sem ele valem as regras da sala. Serve também à preparação de cada jogador no lobby.
+         * @description As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. A estratégia que exige uma expansão só vem quando a sala a tem: `funds_enabled` (Gestoras) e `government_enabled` (Governo) informados mandam (o backtest passa falso nos dois), e sem eles valem as regras da sala. Serve também à preparação de cada jogador no lobby.
          */
         get: operations["list_bot_strategies_api_simulation_bots_strategies_get"];
         put?: never;
@@ -13525,6 +13545,79 @@ export interface components {
             offers: components["schemas"]["StateOfferDTO"][];
         };
         /**
+         * StateCompanyDetailDTO
+         * @description A estatal na tela da ação: origem, preço, valor justo, dividendos, política em vigor,
+         *     os meses e quem tem as ações. A importada traz só o preço, o provento dos 12 últimos meses e a política: `months` vem vazia, e `holders`, `fair_value` e `beta`, nulos.
+         */
+        StateCompanyDetailDTO: {
+            /** Ticker */
+            ticker: string;
+            origin: components["schemas"]["StateCompanyOrigin"];
+            status: components["schemas"]["StateCompanyStatus"];
+            /** Founded On */
+            founded_on: string | null;
+            size: components["schemas"]["StateCompanySize"] | null;
+            /** Government Share */
+            government_share: string;
+            /** Shares */
+            shares: number;
+            /** Price */
+            price: string | null;
+            /** Fair Value */
+            fair_value: string | null;
+            /** Dividends */
+            dividends: string;
+            dividend_policy: components["schemas"]["DividendPolicy"];
+            /** Policies */
+            policies: components["schemas"]["StatePolicyPayoutDTO"][];
+            /** Beta */
+            beta: string | null;
+            /** Months */
+            months: components["schemas"]["StateCompanyMonthDetailDTO"][];
+            holders: components["schemas"]["StateCompanyHoldersDTO"] | null;
+        };
+        /**
+         * StateCompanyHoldersDTO
+         * @description Quem tem as ações da estatal, em ações; a soma é o total da empresa.
+         */
+        StateCompanyHoldersDTO: {
+            /** Government */
+            government: string;
+            /** Maker */
+            maker: string;
+            /** Players */
+            players: string;
+            /** Bots */
+            bots: string;
+            /** Funds */
+            funds: string;
+            /** You */
+            you: string;
+        };
+        /**
+         * StateCompanyMonthDetailDTO
+         * @description Um mês da estatal fundada na tela da ação, por ação: o que ela fechou e valeu, o que lucrou e o que pagou.
+         */
+        StateCompanyMonthDetailDTO: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            reason: components["schemas"]["StateMonthReason"];
+            /** Price */
+            price: string | null;
+            /** Fair Value */
+            fair_value: string | null;
+            /** Profit */
+            profit: string | null;
+            /** Dividend */
+            dividend: string | null;
+            dividend_policy: components["schemas"]["DividendPolicy"] | null;
+            /** Payout */
+            payout: string | null;
+        };
+        /**
          * StateCompanyOrigin
          * @description De onde a estatal veio: da base importada ou fundada pelo governo na partida.
          * @enum {string}
@@ -13624,6 +13717,12 @@ export interface components {
             /** Credit Weight */
             credit_weight: string;
         };
+        /**
+         * StateMonthReason
+         * @description Por que um mês da estatal fundada tem ou não dividendo.
+         * @enum {string}
+         */
+        StateMonthReason: "PAID" | "LOSS" | "FOUNDING" | "PRIVATIZED";
         /**
          * StateMovementDTO
          * @description Um fato recente das estatais: fundação, oferta, venda ou mudança de ordem em vigor.
@@ -13755,6 +13854,15 @@ export interface components {
             dividend_factor: string;
             /** Monthly Treasury Dividend */
             monthly_treasury_dividend: string | null;
+        };
+        /**
+         * StatePolicyPayoutDTO
+         * @description Uma política de dividendos e a fração do lucro do mês que ela paga ao acionista.
+         */
+        StatePolicyPayoutDTO: {
+            dividend_policy: components["schemas"]["DividendPolicy"];
+            /** Payout */
+            payout: string;
         };
         /** StateReservationRequest */
         StateReservationRequest: {
@@ -15286,6 +15394,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StockDetailsDTO"] | null;
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_variable_income_state_company_api_variable_income__asset__state_company_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StateCompanyDetailDTO"] | null;
                 };
             };
             /** @description Unprocessable Content */
@@ -23947,6 +24095,7 @@ export interface operations {
             query?: {
                 start_date?: string | null;
                 funds_enabled?: boolean | null;
+                government_enabled?: boolean | null;
             };
             header?: never;
             path?: never;

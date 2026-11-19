@@ -16,13 +16,19 @@ import { CorporateEventsCard } from "../components/corporate-events-card";
 import { OrderBookCard } from "../components/order-book-card";
 import { OrderTicket, type OrderPrefill } from "../components/order-ticket";
 import { PositionCard } from "../components/position-card";
+import { StateCompanyChartCard } from "../components/state-company/state-company-chart-card";
+import { StateCompanyHoldersCard } from "../components/state-company/state-company-holders-card";
+import { StateCompanyMetricsRow } from "../components/state-company/state-company-metrics-row";
+import { StateCompanyMonthsCard } from "../components/state-company/state-company-months-card";
+import { StateCompanyPolicyCard } from "../components/state-company/state-company-policy-card";
 import { usePendingOrders } from "../hooks/queries/usePendingOrders";
 import { useVariableIncomeStock } from "../hooks/queries/useVariableIncomeStock";
 import { useIndicatorSettings } from "../hooks/queries/useIndicatorSettings";
 import { usePortfolioPosition } from "../hooks/queries/usePortfolioPosition";
+import { useStateCompanyDetail } from "../hooks/queries/useStateCompanyDetail";
 import { describeOffer, typicalPrice } from "../lib/order-book";
 import { displayMoney } from "@/shared/lib/utils/display";
-import type { FundDetails, Order, StockDetails } from "@/types";
+import type { FundDetails, Order, StateCompanyDetail, StockDetails } from "@/types";
 
 /** Carrega a gestora dona da cota e só então monta o corpo, que recebe a gestora pronta. */
 function FundStockLoader({ stock, fundId }: { stock: StockDetails; fundId: number }) {
@@ -41,7 +47,27 @@ function FundStockLoader({ stock, fundId }: { stock: StockDetails; fundId: numbe
 
   if (!fund) return <DetailSkeleton />;
 
-  return <StockDetailsBody stock={stock} fund={fund} />;
+  return <StockDetailsBody stock={stock} fund={fund} stateCompany={null} />;
+}
+
+/** Carrega a estatal da ação (nula para as demais) e só então monta o corpo, que recebe o dado resolvido. */
+function StockLoader({ stock }: { stock: StockDetails }) {
+  const { data: stateCompany, error, refetch } = useStateCompanyDetail(stock.ticker);
+
+  if (error) {
+    return (
+      <ErrorState
+        title="Não deu para carregar os dados da estatal"
+        description="Confira a conexão e tente novamente."
+        error={error}
+        onRetry={() => void refetch()}
+      />
+    );
+  }
+
+  if (stateCompany === undefined) return <DetailSkeleton />;
+
+  return <StockDetailsBody stock={stock} fund={null} stateCompany={stateCompany} />;
 }
 
 function DetailSkeleton() {
@@ -60,9 +86,11 @@ type StockDetailsBodyProps = {
   stock: StockDetails;
   /** A gestora dona da cota; `null` para os demais ativos */
   fund: FundDetails | null;
+  /** A estatal dona da ação; `null` para os demais ativos */
+  stateCompany: StateCompanyDetail | null;
 };
 
-function StockDetailsBody({ stock, fund }: StockDetailsBodyProps) {
+function StockDetailsBody({ stock, fund, stateCompany }: StockDetailsBodyProps) {
   const {
     orders,
     isLoading: ordersLoading,
@@ -87,7 +115,7 @@ function StockDetailsBody({ stock, fund }: StockDetailsBodyProps) {
 
   return (
     <>
-      <StockHeader stock={stock} />
+      <StockHeader stock={stock} stateCompany={stateCompany} />
       {fund && (
         <>
           {/* Cards da gestora */}
@@ -95,6 +123,7 @@ function StockDetailsBody({ stock, fund }: StockDetailsBodyProps) {
           <FundMetricsRow fund={fund} viewer={fund.my_role !== "manager"} />
         </>
       )}
+      {stateCompany && <StateCompanyMetricsRow company={stateCompany} />}
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div className="grid gap-5">
           {indicatorSettings ? (
@@ -107,6 +136,19 @@ function StockDetailsBody({ stock, fund }: StockDetailsBodyProps) {
               <FundAboutCard fund={fund} />
               <FundDistributionsCard fund={fund} />
             </>
+          )}
+          {stateCompany && stateCompany.months.length > 0 && (
+            <>
+              {/* Cards da estatal */}
+              <StateCompanyChartCard months={stateCompany.months} />
+              <StateCompanyMonthsCard months={stateCompany.months} />
+            </>
+          )}
+          {stateCompany?.holders && (
+            <div className="grid items-start gap-5 md:grid-cols-2">
+              <StateCompanyHoldersCard holders={stateCompany.holders} />
+              <StateCompanyPolicyCard policies={stateCompany.policies} dividend_policy={stateCompany.dividend_policy} />
+            </div>
           )}
           <CorporateEventsCard ticker={stock.ticker} />
           <OrderBookCard
@@ -167,9 +209,9 @@ export default function VariableIncomeDetailPage() {
     );
   }
 
-  // A gestora chega resolvida: a cota passa pelo carregador, o resto vai direto ao corpo
+  // A gestora e a estatal chegam resolvidas: cada uma passa pelo seu carregador antes do corpo
   return stock.fund_id === null ? (
-    <StockDetailsBody stock={stock} fund={null} />
+    <StockLoader stock={stock} />
   ) : (
     <FundStockLoader stock={stock} fundId={stock.fund_id} />
   );

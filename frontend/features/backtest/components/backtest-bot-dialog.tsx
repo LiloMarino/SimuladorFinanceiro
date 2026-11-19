@@ -35,6 +35,7 @@ export function BacktestBotDialog({
       description="Vira um jogador sem pessoa, com carteira própria e as mesmas regras de dinheiro das outras."
       startDate={startDate}
       fundsEnabled={false}
+      governmentEnabled={false}
       others={others}
       startingCash={moneyToBody(startingCash)}
       cashLabel="o saldo inicial"

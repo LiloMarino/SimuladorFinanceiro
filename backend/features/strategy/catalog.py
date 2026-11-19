@@ -39,6 +39,7 @@ def infos(
     known: Collection[str],
     *,
     funds_enabled: bool,
+    government_enabled: bool,
 ) -> list[StrategyInfoDTO]:
     """As estratégias do app que a sala pode jogar, com os padrões calculados para `today`."""
     tickers = default_tickers(today, simulation_id)
@@ -58,7 +59,9 @@ def infos(
             ],
         )
         for cls in STRATEGIES.values()
-        if cls.available(funds_enabled=funds_enabled)
+        if cls.available(
+            funds_enabled=funds_enabled, government_enabled=government_enabled
+        )
     ]
 
 

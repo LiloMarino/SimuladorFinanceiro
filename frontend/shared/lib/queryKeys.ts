@@ -38,8 +38,8 @@ export const queryKeys = {
   savedStrategyParams: () => ["settings", "strategy-params"] as const,
   matchPlayers: () => ["simulation", "match-players"] as const,
   matchParties: () => ["simulation", "match-parties"] as const,
-  botStrategies: (startDate?: string, fundsEnabled?: boolean) =>
-    ["simulation", "bot-strategies", startDate ?? null, fundsEnabled ?? null] as const,
+  botStrategies: (startDate?: string, fundsEnabled?: boolean, governmentEnabled?: boolean) =>
+    ["simulation", "bot-strategies", startDate ?? null, fundsEnabled ?? null, governmentEnabled ?? null] as const,
   backtestSetup: (from?: number) => ["backtest", "setup", from ?? null] as const,
   backtestStatus: () => ["backtest", "status"] as const,
   backtestResult: (simulationId: number) => ["backtest", "result", simulationId] as const,
@@ -77,6 +77,7 @@ export const queryKeys = {
   portfolioCash: (account: AccountKey) => ["portfolio", account, "cash"] as const,
   portfolioDividends: (account: AccountKey) => ["portfolio", account, "dividends"] as const,
   corporateEvents: (ticker: string) => ["variable-income", ticker, "corporate-events"] as const,
+  stateCompanyDetail: (ticker: string) => ["variable-income", ticker, "state-company"] as const,
   statistics: () => ["statistics"] as const,
   statisticsNextUpdate: () => ["statistics", "next-update"] as const,
   statisticsReport: (tab: string, simulationIds: number[]) => ["statistics", tab, ...simulationIds] as const,

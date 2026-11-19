@@ -58,6 +58,7 @@ function WithStrategies({ setup }: { setup: BacktestSetup }) {
     refetch: refetchStrategies,
   } = useBotStrategies(startDate, {
     fundsEnabled: false,
+    governmentEnabled: false,
   });
   const { data: tickers, error: tickersError, refetch: refetchTickers } = useBotTickers();
   const values = useMemo(() => (strategies ? formValues(setup, strategies) : null), [setup, strategies]);

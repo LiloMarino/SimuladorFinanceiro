@@ -592,6 +592,22 @@ class FundRepository:
         ).scalar_one_or_none()
 
     @transactional
+    def month_end_closes(
+        self, session: Session, simulation_id: int, stock_id: int, until: date
+    ) -> dict[date, float]:
+        """O último fechamento de cada mês da série da partida até `until`, pelo primeiro dia do mês."""
+        rows = session.execute(
+            select(StockPriceHistory.price_date, StockPriceHistory.close)
+            .where(
+                StockPriceHistory.stock_id == stock_id,
+                StockPriceHistory.version == simulation_id,
+                StockPriceHistory.price_date <= until,
+            )
+            .order_by(StockPriceHistory.price_date)
+        ).all()
+        return {day.replace(day=1): close for day, close in rows}
+
+    @transactional
     def last_traded_close(
         self, session: Session, simulation_id: int, stock_id: int, until: date
     ) -> float | None:

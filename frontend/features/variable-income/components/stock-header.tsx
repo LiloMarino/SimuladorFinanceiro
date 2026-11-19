@@ -3,7 +3,8 @@ import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { displayCompactNumber, displayMoney, displaySignedPercent } from "@/shared/lib/utils/display";
-import type { StockDetails } from "@/types";
+import type { StateCompanyDetail, StockDetails } from "@/types";
+import { originLine } from "../lib/state-company";
 
 const CLASS_LABELS: Record<StockDetails["asset_class"], string> = {
   STOCK: "Ação",
@@ -14,8 +15,14 @@ const CLASS_LABELS: Record<StockDetails["asset_class"], string> = {
   FUND: "Cota",
 };
 
+type StockHeaderProps = {
+  stock: StockDetails;
+  /** A estatal dona da ação; ausente ou `null` para os demais ativos */
+  stateCompany?: StateCompanyDetail | null;
+};
+
 /** Cabeçalho do ativo: código, nome, o pregão do dia e o preço. */
-export function StockHeader({ stock }: { stock: StockDetails }) {
+export function StockHeader({ stock, stateCompany }: StockHeaderProps) {
   const up = stock.change >= 0;
   const ohlc = [
     { label: "Abertura", value: displayMoney(stock.open) },
@@ -41,7 +48,9 @@ export function StockHeader({ stock }: { stock: StockDetails }) {
           <h1 className="font-mono text-[28px] font-semibold">{stock.ticker}</h1>
           <span className="text-muted-foreground">{stock.name}</span>
           <Badge variant={stock.fund_id === null ? "secondary" : "fund"}>{CLASS_LABELS[stock.asset_class]}</Badge>
+          {stateCompany && <Badge variant="state-soft">Estatal</Badge>}
         </div>
+        {stateCompany && <p className="text-[13px] text-muted-foreground">{originLine(stateCompany)}</p>}
       </div>
 
       <div className="flex flex-wrap items-end gap-6">

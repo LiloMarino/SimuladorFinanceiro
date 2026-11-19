@@ -883,10 +883,12 @@ def get_match_parties():
     "/bots/strategies",
     response_model=list[StrategyInfoDTO],
     summary="Listar as estratégias para os bots",
-    description="As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. A estratégia que exige a expansão Gestoras só vem quando a sala a tem: `funds_enabled` informado manda (o backtest passa falso), e sem ele valem as regras da sala. Serve também à preparação de cada jogador no lobby.",
+    description="As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. A estratégia que exige uma expansão só vem quando a sala a tem: `funds_enabled` (Gestoras) e `government_enabled` (Governo) informados mandam (o backtest passa falso nos dois), e sem eles valem as regras da sala. Serve também à preparação de cada jogador no lobby.",
 )
 def list_bot_strategies(
-    start_date: date | None = None, funds_enabled: bool | None = None
+    start_date: date | None = None,
+    funds_enabled: bool | None = None,
+    government_enabled: bool | None = None,
 ):
     """
     Lista as estratégias que um bot pode jogar.
@@ -898,6 +900,9 @@ def list_bot_strategies(
         funds_enabled=SettingsManager.effective_funds_enabled()
         if funds_enabled is None
         else funds_enabled,
+        government_enabled=SettingsManager.effective_government_enabled()
+        if government_enabled is None
+        else government_enabled,
     )
 
 

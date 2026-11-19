@@ -134,6 +134,8 @@ class SimulationEngine:
         self.ranking_prices: dict[str, Decimal] = {}
         # A referência de negociação de cada cota listada, refeita a cada abertura de pregão
         self.fund_references: dict[str, FundReference] = {}
+        # O valor justo por ação de cada estatal fundada, refeito a cada abertura de pregão
+        self.state_fair_values: dict[str, float] = {}
         # Quem acompanha o lucro realizado de cada carteira (as gestoras): recebe a conta, a
         # origem e o valor de cada realização
         self.on_realized: Callable[[UUID, RealizedKind, Decimal], None] | None = None
