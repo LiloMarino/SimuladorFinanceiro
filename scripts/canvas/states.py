@@ -2358,6 +2358,95 @@ def stock_fund_quota(page: Page) -> None:
     dismiss_topic(page)
 
 
+# A conta do Fundo Soberano como a lista de contas a traz para o presidente
+SOVEREIGN_ACCOUNT = {
+    "fund_id": 0,
+    "name": "Fundo Soberano",
+    "ticker": None,
+    "cash": "2140000.00",
+    "frozen_until": None,
+    "automatic": False,
+    "eliminated_on": None,
+    "role": "president",
+}
+
+
+# A prévia de 100 PETR4 a mercado para o Fundo Soberano, com a fatia dele na empresa
+SOVEREIGN_PREVIEW = {
+    "price": "8.11",
+    "quantity": "100",
+    "total": "811.00",
+    "cash_before": "2140000.00",
+    "cash_after": "2139189.00",
+    "max_quantity": "263000",
+    "held": "0",
+    "reserved": "0",
+    "held_after": "100",
+    "networth_share_after": "0.0",
+    "profit": None,
+    "tax": None,
+    "month_sales_after": None,
+    "exemption_limit": "20000.00",
+    "tax_due_date": None,
+    "sovereign": {
+        "issuer": "Petrobras",
+        "is_fund": False,
+        "stake_before": "0.0412",
+        "stake_after": "0.0412",
+        "ceiling": "0.10",
+        "room": "10000",
+        "allied": False,
+        "refusal": None,
+    },
+}
+
+
+def account_stock(page: Page, quantity: str) -> None:
+    """A página de uma ação com a boleta pronta: a quantidade digitada e a prévia conferida."""
+    open_stock(page)
+    page.locator("#order-size").fill(quantity)
+    page.wait_for_load_state("networkidle")
+
+
+def account_ticket_personal(page: Page) -> None:
+    """A boleta da conta pessoal numa partida com gestora e governo: sem cor de conta."""
+    topbar_open(page)
+    account_stock(page, "100")
+
+
+def account_ticket_fund(page: Page) -> None:
+    """A boleta operando pela gestora, escolhida no menu "Operar com": borda, cabeçalho e botão na cor dela."""
+    topbar_operating_fund(page)
+    account_stock(page, "100")
+
+
+def account_ticket_sovereign(page: Page) -> None:
+    """
+    Dado forjado: o host é presidente, e a lista de contas traz o Fundo Soberano. Escolhido no
+    menu "Operar com", a faixa e a boleta ficam na cor do governo.
+    """
+
+    def accounts(body: dict | list) -> None:
+        assert isinstance(body, list)
+        body.append(SOVEREIGN_ACCOUNT)
+
+    def preview(route: Route) -> None:
+        route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps(SOVEREIGN_PREVIEW),
+        )
+
+    topbar_open(page)
+    patch_get(page, ACCOUNTS_GLOB, accounts)
+    page.route("**/api/variable-income/PETR4/order-preview", preview)
+    reload_stocks(page)
+    cash_button(page).click()
+    page.get_by_role("menuitem", name=re.compile("Fundo Soberano")).click()
+    expect(page.get_by_text("Operando pelo")).to_be_visible()
+    account_stock(page, "100")
+
+
 def funds_room_list(page: Page) -> None:
     """
     Gestoras de quem ainda não fundou, com a lista da sala: a gestora listada aparece como de
@@ -2619,4 +2708,7 @@ STATES: dict[str, Callable[[Page], None]] = {
     "ofertas/pagina": offers_page,
     "ofertas/vazia": offers_empty,
     "ofertas/janela": offers_window,
+    "conta/pessoal-boleta": account_ticket_personal,
+    "conta/gestora-boleta": account_ticket_fund,
+    "conta/soberano-boleta": account_ticket_sovereign,
 }
