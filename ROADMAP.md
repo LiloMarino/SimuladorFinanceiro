@@ -85,10 +85,9 @@
 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 | — | Alto | Médio | ⏳ |
-| [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | M18 · 4.2 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (54 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (55 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -145,6 +144,7 @@
 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | M18 · 4.2 | — | — | — | ✅ |
 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 | — | — | — | ✅ |
 | [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 | — | — | — | ✅ |
+| [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | M18 · 4.2 | — | — | — | ✅ |
 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
@@ -161,7 +161,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 33/38 concluídos
+> **Progresso:** 34/38 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -191,7 +191,7 @@
 | 24 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | — | ✅ Concluído |
 | 25 | [**F310**](#f310) | Feature | Página Ofertas públicas | — | ✅ Concluído |
 | 26 | [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | — | ✅ Concluído |
-| 27 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | — | ⏳ Pendente |
+| 27 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | — | ✅ Concluído |
 | 28 | [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | — | ✅ Concluído |
 | 29 | [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | — | ✅ Concluído |
 | 30 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | — | ⏳ Pendente |
@@ -297,7 +297,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | M18 · 4.2 · 27º | 0 | Baixo | Bom | ⏳ |
 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | M18 · 4.2 · 30º | 0 | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 34º | 0 | Médio | Bom | ⏳ |
 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 · 36º | 0 | Médio | Bom | ⏳ |
@@ -365,7 +364,6 @@
 | **F305** | Melhoria | Aquisição hostil como modo de vitória | N23 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F309** | Melhoria | Balanceamento das profissões | N39 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F311** | Feature | Fusão de gestoras | N23 | — | M18 · 4.2 | [F301](#f301), [F313](#f313) | Alto | Alto | Médio | Médio |
-| **F312** | Melhoria | Cor da expansão na conta que opera | N15, N23 | — | M18 · 4.2 | — | Baixo | Baixo | Médio | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -579,9 +577,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f311"></a>
 **F311 — Fusão de gestoras.** Serve N23. Da conversa sobre posse de gestoras, em 18/11. No modo aquisição hostil (F305) o jogador acaba gerindo várias gestoras (F301), e controlar dez ao mesmo tempo é inviável. A fusão junta duas: a gestora mãe incorpora a filha, o ticker que fica é o da mãe, e tudo o que a filha tem (caixa, ações, títulos e cotas de outros ativos) passa para a mãe; a filha deixa de existir e sai da renda variável. **Decidido em 18/11: as assembleias das duas aprovam.** Quem gere as duas propõe a fusão, e ela vira pauta na assembleia de cada uma, com 5 pregões de votação; sai se a maioria de quem votou aprovar nas duas. Cada cotista da filha recebe cotas da mãe pela relação entre os patrimônios por cota do dia da aprovação (filha a R$ 50 e mãe a R$ 100: duas cotas da filha viram uma da mãe), e quem votou contra pode sair recebendo o patrimônio por cota, pago pela filha antes da incorporação. O que o caixa da filha não cobre, a mãe paga com o próprio caixa logo depois da incorporação: pagar pelo patrimônio por cota não tira nada de quem fica. Se nem o caixa somado das duas cobre, a fusão trava e o placar mostra quanto falta. Só os cotistas da filha podem sair; os da mãe não, porque ela continua existindo. Depende da assembleia com aba própria (F313). Desenho na rodada de canvas da linha da gestora.
 
-<a id="f312"></a>
-**F312 — Cor da expansão na conta que opera.** Serve N15 e N23. Do comentário no canvas da tela da gestora, em 18/11. Os desenhos perderam a cor da expansão, e no app nada lembra o jogador de que a ordem sai pela gestora. Quando a conta ativa no topo é uma gestora, a boleta e o botão de comprar e vender ficam na cor da expansão Gestoras (a variante `fund` do botão já existe); com a conta do Fundo Soberano, na cor da expansão do governo. **A boleta inteira muda de cor**, escolhida no canvas em 18/11: borda, cabeçalho "Operando pela <gestora>" e o botão "Comprar pela gestora"; a faixa do alto e o seletor de conta ficam como estão.
-
 ---
 
 ## 🔍 Em avaliação
@@ -696,6 +691,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F307** | Correção | Estatais com preço vivo e lucro à vista | N34 | — | M18 · 4.2 |
 | **F308** | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | N3, N10 | — | M18 · 4.2 |
 | **F310** | Feature | Página Ofertas públicas | N23 | — | M18 · 4.2 |
+| **F312** | Melhoria | Cor da expansão na conta que opera | N15, N23 | — | M18 · 4.2 |
 | **F313** | Feature | Assembleia de cotistas com aba própria e aumento de taxa | N23 | — | M18 · 4.2 |
 
 <a id="f44"></a>
@@ -923,6 +919,9 @@ Os sete itens do playtest saíram: Levar da carteira sem cotas de gestora, botã
 
 <a id="f310"></a>
 **F310 — Página Ofertas públicas.** Serve N23. Da rodada de canvas da tela da gestora em abas, em 17/11. A compra na oferta pública e na sobra da emissão já sai pelo livro do detalhe da cota na renda variável, que mostra a venda em aberto (preço fixo, quanto sobra e até quando); a tela da gestora leva até lá. Falta quem não tem gestora achar as ofertas da sala: como no app das corretoras, uma página própria no menu lateral, "Ofertas públicas", com as ofertas e emissões abertas da sala, cada uma com o preço fixo, os pregões que faltam e a preferência do cotista na emissão (o gestor a tem só como cotista, na proporção das cotas, sem vantagem de gestor), o atalho para o detalhe da cota e o histórico das encerradas. A emissão segue no card da gestora. A abertura da oferta pública passa a chegar em janela (o nível WINDOW do jornal, no centro da tela, sem pausar), com o botão que leva à compra; a emissão segue no cartão do canto. Desenho na rodada de canvas da linha da gestora.
+
+<a id="f312"></a>
+**F312 — Cor da expansão na conta que opera.** Serve N15 e N23. Do comentário no canvas da tela da gestora, em 18/11. Os desenhos perderam a cor da expansão, e no app nada lembra o jogador de que a ordem sai pela gestora. Quando a conta ativa no topo é uma gestora, a boleta e o botão de comprar e vender ficam na cor da expansão Gestoras (a variante `fund` do botão já existe); com a conta do Fundo Soberano, na cor da expansão do governo. **A boleta inteira muda de cor**, escolhida no canvas em 18/11: borda, cabeçalho "Operando pela <gestora>" e o botão "Comprar pela gestora"; a faixa do alto e o seletor de conta ficam como estão.
 
 <a id="f313"></a>
 **F313 — Assembleia de cotistas com aba própria e aumento de taxa.** Serve N23. Do comentário no canvas da tela da gestora, em 18/11. A assembleia de cotistas existe em toda partida com Gestoras (`fund_assembly.py`): quem tem 10% das cotas convoca, a votação dura 5 pregões, vence a maioria de quem votou (bots e formador de mercado não votam) e a única pauta é trocar o gestor. Ela mora num bloco da página da gestora (`fund-assembly.tsx`) e não chega às pendências, que só levam o convite de candidato (`FUND_ASSEMBLY_INVITE`). **Decidido em 18/11.** **Aba Assembleia na tela da gestora, no nível da aba Congresso do governo:** a votação aberta com placar, pauta, prazo e o voto; a convocação; o histórico das encerradas. **Pautas:** trocar o gestor (a de hoje), a fusão de gestoras (F311) e o aumento de taxa: subir a taxa de administração ou a de performance passa a depender de aprovação e vale no mês seguinte ao resultado; baixar continua livre. Cada pauta tem a própria votação; o intervalo de 3 meses entre convocações segue valendo para a troca de gestor. **Pendência:** a votação aberta vira pendência para quem tem cota e ainda não votou, com o prazo, e entra no "Decida agora" da aba Suas ações. Desenho na rodada de canvas da linha da gestora. **Conflito de interesse:** gestor e co-gestores não votam no aumento de taxa, porque ganham com ele, e votam nas outras pautas (a Ana, com 54,8% das cotas, fica fora e a Bia e o Caio decidem). Sem nenhum voto a pauta não passa: na sala em que as outras cotas são só de bots, a taxa só desce.
