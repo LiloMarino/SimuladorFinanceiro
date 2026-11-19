@@ -83,14 +83,13 @@
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 | — | Médio | Bom | ⏳ |
-| [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | M18 · 4.2 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (52 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (53 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -143,6 +142,7 @@
 | [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | M18 · 4.2 | — | — | — | ✅ |
 | [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | M18 · 4.2 | — | — | — | ✅ |
 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | M18 · 4.2 | — | — | — | ✅ |
+| [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 | — | — | — | ✅ |
 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | M18 · 4.2 | — | — | — | ✅ |
 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 | — | — | — | ✅ |
 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | M18 · 4.2 | — | — | — | ✅ |
@@ -161,7 +161,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 31/38 concluídos
+> **Progresso:** 32/38 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -195,7 +195,7 @@
 | 28 | [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | — | ✅ Concluído |
 | 29 | [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | — | ✅ Concluído |
 | 30 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | — | ⏳ Pendente |
-| 31 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | — | ⏳ Pendente |
+| 31 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | — | ✅ Concluído |
 | 32 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | — | ✅ Concluído |
 | 33 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | — | ✅ Concluído |
 | 34 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | — | ⏳ Pendente |
@@ -300,7 +300,6 @@
 | [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 · 25º | 0 | Médio | Bom | ⏳ |
 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | M18 · 4.2 · 27º | 0 | Baixo | Bom | ⏳ |
 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | M18 · 4.2 · 30º | 0 | Médio | Bom | ⏳ |
-| [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 · 31º | 0 | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 34º | 0 | Médio | Bom | ⏳ |
 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 · 36º | 0 | Médio | Bom | ⏳ |
 | [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 · 38º | 0 | Alto | Médio | ⏳ |
@@ -365,7 +364,6 @@
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F304** | Feature | Co-gestão combinada no lobby | N23 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F305** | Melhoria | Aquisição hostil como modo de vitória | N23 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
-| **F306** | Feature | Automático só na carteira da gestora | N23, N4 | — | M18 · 4.2 | — | Médio | Médio | Médio | Bom |
 | **F309** | Melhoria | Balanceamento das profissões | N39 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F310** | Feature | Página Ofertas públicas | N23 | — | M18 · 4.2 | [F299](#f299) | Médio | Baixo | Médio | Bom |
 | **F311** | Feature | Fusão de gestoras | N23 | — | M18 · 4.2 | [F301](#f301), [F313](#f313) | Alto | Alto | Médio | Médio |
@@ -577,9 +575,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f305"></a>
 **F305 — Aquisição hostil como modo de vitória.** Serve N23. Do playtest de 17/11. O modo aquisição hostil é um interruptor no card da expansão de gestoras (`funds-card.tsx:152-186`), e isso dá a entender que ele combina com qualquer tipo de partida, quando ele mesmo define como se vence. **Decidido em 18/11.** A aquisição hostil vira um tipo de partida (`GameType`, `game-types.ts`), ao lado de Clássica, Corrida pela meta, Independência financeira e Política, e sai do card da expansão. **Tipo exclusivo de expansão:** a Aquisição hostil (das Gestoras) e a Política (do Governo) aparecem sempre na lista de tipos; com a expansão desligada, o tipo fica desabilitado com o motivo ("ligue a expansão Gestoras"), e para escolher liga-se a expansão; com o tipo escolhido, o interruptor da expansão trava ligado, com o motivo. A Política deixa de sumir sem o Governo. Com o tipo escolhido, a carência e a participação mínima do mercado aparecem embaixo do tipo, como a meta nos tipos de meta. **Vitória: o último de pé,** como o código já conta: quem perde para a assembleia a gestora que fundou é eliminado e vira espectador, e a partida acaba quando sobra um jogador ativo (`simulation.py:2262`). Se a data final chega com mais de um de pé, vence o maior patrimônio do ranking. A dica do lobby diz "sobra um jogador", e não "sobra uma gestora". Quem conquista gestoras passa a gerir várias (F301) e as junta pela fusão (F311). O ícone da Aquisição hostil é o prédio comercial (`Building`), distinto do `Building2` do Locador. Desenho do tipo no lobby na rodada de canvas da linha da gestora.
 
-<a id="f306"></a>
-**F306 — Automático só na carteira da gestora.** Serve N23 e N4. Do playtest de 17/11. O automático (a estratégia que opera pelo jogador, `useMyStrategy`) vale só para a conta pessoal e trava as boletas dela. O gestor liga uma estratégia só na carteira da gestora, na aba Configurações da gestora, e segue operando à mão a conta pessoal; o lock das boletas (`useTradeLock.ts`) passa a olhar a conta ativa. **Na presidência:** o gestor que toma posse sem co-gestor deixa a gestora no automático em vez de congelada, e ela segue operando durante o mandato pela estratégia escolhida; no fim do mandato sem reeleição ele retoma o controle e desliga o automático (a regra da posse está na F301). **Lista do automático:** a aba Configurações usa a mesma lista de estratégias da página Estratégias e da aba Estratégias da Minha preparação, com as seções por grupo (Referências e Táticas, com a dica ⓘ), o ícone do grupo em cada linha e a marca da ativa. Hoje as duas telas têm cada uma a sua cópia da lista (`strategy-list.tsx` e `strategies-tab.tsx`), e só os títulos e o ícone moram em `shared`; com a gestora, a lista vira um componente de `shared/components` usado pelas três. **Posse sem estratégia escolhida:** a gestora congela até o presidente ligar uma estratégia ou convidar um co-gestor, e o co-gestor que aceita assume na hora e descongela a carteira. O automático da gestora não compra cotas de outras gestoras.
-
 <a id="f309"></a>
 **F309 — Balanceamento das profissões.** Serve N39. Do playtest de 17/11. Na partida de Independência financeira, o bot Herdeiro venceu no primeiro dia: a meta era 1,2 milhão (12 × 5.000 ÷ 5%) e o capital inicial dele foi de 1,58 milhão, porque a validação da meta (`dto/simulation.py:66-95`) compara com o caixa da sala, e não com o capital do Herdeiro (caixa mais o valor presente dos salários). **Decidido em 18/11: meta acima do capital de todos.** A meta precisa passar do maior capital inicial entre as profissões da sala, bots incluídos (Corrida pela meta: a meta; Independência financeira: 12 × despesa ÷ taxa de saque); com um Herdeiro na sala a meta mínima sobe e o lobby explica "meta mínima de R$ X por causa do Herdeiro", e a partida não começa com a meta abaixo dela. **Profissões fracas:** o script de calibração da sessão de 18/11 mediu o Freelancer em 0,38× o CLT em 26 anos com IPCA e o Recém-formado em 0,47× em 5 anos. O ajuste leva cada profissão para a faixa de 0,8× a 1,25× o patrimônio final do CLT nos horizontes de 5, 10 e 26 anos, por número ou por mecânica própria.
 
@@ -702,6 +697,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F301** | Correção | Gestor que vira presidente e mais de uma gestora por jogador | N23 | — | M18 · 4.2 |
 | **F302** | Correção | Caixa da gestora sem ficar negativo | N23 | — | M18 · 4.2 |
 | **F303** | Feature | Dinheiro novo na gestora depois da oferta pública | N23 | — | M18 · 4.2 |
+| **F306** | Feature | Automático só na carteira da gestora | N23, N4 | — | M18 · 4.2 |
 | **F307** | Correção | Estatais com preço vivo e lucro à vista | N34 | — | M18 · 4.2 |
 | **F308** | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | N3, N10 | — | M18 · 4.2 |
 | **F313** | Feature | Assembleia de cotistas com aba própria e aumento de taxa | N23 | — | M18 · 4.2 |
@@ -919,6 +915,9 @@ Os sete itens do playtest saíram: Levar da carteira sem cotas de gestora, botã
 
 <a id="f303"></a>
 **F303 — Dinheiro novo na gestora depois da oferta pública.** Serve N23. Do playtest de 17/11. Depois da oferta pública não há como pôr dinheiro novo na gestora: o aporte existe só antes da listagem (`contribute`, `fund_book.py:450`), a emissão vai a público, o co-gestor não aporta e o crédito pega sempre a conta pessoal (`routes/credit.py:25-104` usa o ClientID; `credit_book` não conhece gestora). Desde a cota negociada na renda variável, os bots compram a sobra da emissão no último pregão quando o preço fica abaixo do que acham que a cota vale, e a emissão pública deve passar a vender. **Decidido em 18/11.** **Emissão dirigida ao gestor e aos co-gestores:** o gestor emite cotas novas para si ou para um co-gestor, que aceita na pendência; elas são liquidadas no mesmo pregão e pagas pelo caixa pessoal de quem compra. **Preço: o maior entre o patrimônio por cota e o preço de ranking.** Com deságio, a cota sai ao patrimônio por cota e ninguém é diluído; com ágio, sai ao preço de ranking e o ganho fica na gestora (patrimônio por cota de R$ 100 e ranking de R$ 120: sai a R$ 120). No modo aquisição hostil, a emissão respeita o teto do gestor somado aos co-gestores (1 − participação mínima do mercado: com mínimo de 30%, os dois juntos ficam com até 70% das cotas). **Empréstimo em nome da gestora:** o crédito passa a atender a conta ativa, e a gestora toma empréstimo pelas mesmas regras da conta pessoal (`credit/rules.py`): a nota sai da alavancagem, da volatilidade e do histórico de pagamento sobre o patrimônio da gestora, as parcelas saem do caixa dela e a dívida desconta do patrimônio por cota. Só o gestor principal toma, sem assembleia, e a taxa a pagar conta como dívida no limite. Emissão, empréstimo e fusão ficam com o gestor principal; o co-gestor opera a carteira, como hoje. A emissão dirigida a um cotista qualquer fica fora (abriria o aliado que fura o teto da aquisição hostil). Desenho do diálogo da emissão dirigida na rodada de canvas da linha da gestora.
+
+<a id="f306"></a>
+**F306 — Automático só na carteira da gestora.** Serve N23 e N4. Do playtest de 17/11. O automático (a estratégia que opera pelo jogador, `useMyStrategy`) vale só para a conta pessoal e trava as boletas dela. O gestor liga uma estratégia só na carteira da gestora, na aba Configurações da gestora, e segue operando à mão a conta pessoal; o lock das boletas (`useTradeLock.ts`) passa a olhar a conta ativa. **Na presidência:** o gestor que toma posse sem co-gestor deixa a gestora no automático em vez de congelada, e ela segue operando durante o mandato pela estratégia escolhida; no fim do mandato sem reeleição ele retoma o controle e desliga o automático (a regra da posse está na F301). **Lista do automático:** a aba Configurações usa a mesma lista de estratégias da página Estratégias e da aba Estratégias da Minha preparação, com as seções por grupo (Referências e Táticas, com a dica ⓘ), o ícone do grupo em cada linha e a marca da ativa. Hoje as duas telas têm cada uma a sua cópia da lista (`strategy-list.tsx` e `strategies-tab.tsx`), e só os títulos e o ícone moram em `shared`; com a gestora, a lista vira um componente de `shared/components` usado pelas três. **Posse sem estratégia escolhida:** a gestora congela até o presidente ligar uma estratégia ou convidar um co-gestor, e o co-gestor que aceita assume na hora e descongela a carteira. O automático da gestora não compra cotas de outras gestoras.
 
 <a id="f307"></a>
 **F307 — Estatais com preço vivo e lucro à vista.** Serve N34. Do playtest de 17/11. A estatal fundada ficou em linha reta: o valor justo sorteia um retorno por ano (`fair_value.py`, média abaixo do juro real, desvio de 10%) e o divide em fatores iguais por dia, então dentro do ano é uma reta, e num ano de sorteio negativo é uma reta descendo; sem negócio, o fechamento repete o último preço; o impacto da compra do jogador decai e parece "só cair"; e num mês de lucro negativo não há dividendo. O volume 0 com milhões no livro é a escada do formador de mercado esperando: volume conta só negócio fechado. A política de dividendos do governo já vale (Reinvestir paga 25% do lucro e cresce o porte 1% ao mês; Normal 50%; Espremer 80% e encolhe o porte, `payout.py`, `gdp.py`). **Decidido em 18/11.** **Preço de referência diário em três camadas:** a tendência do ano ligada ao PIB (ano de PIB acima da média dá retorno maior, e o que o presidente faz no PIB mexe na estatal), a sensibilidade à bolsa do dia (0,8 para começar: a bolsa cai 2% e a estatal cai 1,6%) e um ruído próprio que puxa de volta para o valor justo. Sem negócio, o fechamento é essa referência, e a escada do formador se monta em volta dela. A fonte do retorno da bolsa e a calibração se fecham no plano. **Os bots negociam estatais** como qualquer ação ou cota. **Tela da estatal:** gráfico mensal de lucro, dividendo e valor justo, com o que o jogo já guarda (`state_company_months`), sem receita, que o modelo não tem; o mês sem dividendo diz por quê; a fatia do governo aparece na composição. A estatal importada segue o preço e os proventos da história, com o controle de preço e a política do governo como multiplicadores (`book.py:584-594`); as três camadas valem para a fundada. **Onde mora:** no detalhe da ação na renda variável, onde o investidor decide comprar; a linha da estatal na aba Estatais do governo ganha o link "Ver lucro e dividendos", que leva para lá, porque o presidente escolhe a política olhando esses números. A estatal usa as cores da renda variável, com o selo "Estatal" na cor do governo (`--expansion-government`), e não o verde-água da gestora.
