@@ -1869,6 +1869,79 @@ def stock_state_owned(page: Page) -> None:
     dismiss_topic(page)
 
 
+STATE_COMPANY_GLOB = f"**/api/variable-income/{STATE_COMPANY_TICKER}/state-company"
+
+
+def founded_state_company(body: dict | list) -> None:
+    """
+    Dado forjado: a estatal da tela vem fundada pelo governo há oito meses, com o histórico
+    completo. A partida da receita não fecha meses, e a importada chega sem histórico.
+    """
+    assert isinstance(body, dict)
+    months = []
+    for index in range(8):
+        loss = index == 5
+        first = index == 0
+        months.append(
+            {
+                "month": f"2026-{index + 3:02d}-01",
+                "reason": "FOUNDING" if first else "LOSS" if loss else "PAID",
+                "price": f"{24.0 + index * 0.35:.2f}",
+                "fair_value": f"{24.6 + index * 0.1:.2f}",
+                "profit": None
+                if first
+                else "-0.40"
+                if loss
+                else f"{1.6 + index * 0.05:.2f}",
+                "dividend": None if first or loss else f"{0.8 + index * 0.04:.2f}",
+                "dividend_policy": None if first else "NORMAL",
+                "payout": None if first or loss else "0.50",
+            }
+        )
+    body |= {
+        "origin": "FOUNDED",
+        "status": "ACTIVE",
+        "founded_on": "2026-03-01",
+        "size": "MEDIUM",
+        "government_share": "0.60",
+        "price": "26.80",
+        "fair_value": "25.10",
+        "dividends": "0.87",
+        "dividend_policy": "NORMAL",
+        "policies": [
+            {"dividend_policy": "REINVEST", "payout": "0.25"},
+            {"dividend_policy": "NORMAL", "payout": "0.50"},
+            {"dividend_policy": "SQUEEZE", "payout": "0.80"},
+        ],
+        "beta": "0.8",
+        "months": months,
+        "holders": {
+            "government": "7800000000",
+            "maker": "2600000000",
+            "players": "1300000000",
+            "bots": "1300000000",
+            "funds": "0",
+            "you": "0",
+        },
+    }
+
+
+def stock_state_company_detail(page: Page) -> None:
+    """
+    Detalhe da estatal fundada: o cabeçalho com a origem, os cinco números, os gráficos, o
+    mês a mês, quem tem as ações e a política de dividendos. O dado da estatal é forjado sobre
+    a resposta real, porque a partida da receita não tem meses fechados.
+    """
+    fund_match(page, funds=False, government=True, state_company=True)
+    patch_get(page, STATE_COMPANY_GLOB, founded_state_company)
+    sidebar(page, "Renda variável").click()
+    page.get_by_role("row", name=re.compile(rf"^{STATE_COMPANY_TICKER}")).click()
+    page.get_by_role("heading", name=re.compile(STATE_COMPANY_TICKER)).first.wait_for()
+    page.get_by_text("Mês a mês").wait_for()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "carteira/vazia": portfolio_empty,
     "renda-variavel/detalhe": stock_detail,
@@ -1950,4 +2023,5 @@ STATES: dict[str, Callable[[Page], None]] = {
     "renda-variavel/cota-gestora": stock_fund_quota,
     "gestoras/sem-gestora-lista": funds_room_list,
     "renda-variavel/estatal": stock_state_owned,
+    "estatal/detalhe": stock_state_company_detail,
 }
