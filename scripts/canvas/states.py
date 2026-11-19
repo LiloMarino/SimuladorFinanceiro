@@ -2075,6 +2075,7 @@ def lobby_fund_tab(
     choice: str = "NONE",
     saved: dict | None = None,
     funds: bool = True,
+    forge: Callable[[Page], None] | None = None,
 ) -> None:
     """
     Lobby com o diálogo "Minha preparação" na aba Gestora. Com `saved`, a identidade vai ao
@@ -2093,6 +2094,8 @@ def lobby_fund_tab(
         )
     if saved is None:
         fulfill_get(page, SAVED_FUND_GLOB, "null")
+    if forge is not None:
+        forge(page)
     page.get_by_role("button", name="Minha preparação").click()
     dialog = page.get_by_role("dialog")
     dialog.get_by_role("tab", name=re.compile(r"^Gestora")).click()
@@ -2172,6 +2175,93 @@ def lobby_fund_save_failed(page: Page) -> None:
     dialog = page.get_by_role("dialog")
     dialog.get_by_label("Nome da gestora").fill("Aurora Gestão Ltda")
     dialog.get_by_text("Nada se perdeu").wait_for()
+
+
+# A co-gestão combinada no lobby: dado forjado sobre a sala real, que só tem o host
+ROOM_PLAYERS_GLOB = "**/api/simulation/players"
+MY_PREPARATION_GLOB = "**/api/simulation/players/me/preparation"
+COMANAGER_GUESTS = ("Duda", "Caio", "Eva")
+
+
+def forge_room_and_preparation(overlay: dict) -> Callable[[Page], None]:
+    """
+    A sala ganha os convidados de `COMANAGER_GUESTS` ao lado do host, e a preparação do host
+    ganha os campos de `overlay` por cima da resposta real.
+    """
+
+    def forge(page: Page) -> None:
+        def room(route: Route) -> None:
+            if route.request.method != "GET":
+                route.continue_()
+                return
+            players = route.fetch().json()
+            host = players[0]
+            guests = [
+                host | {"nickname": name, "color": color}
+                for name, color in zip(
+                    COMANAGER_GUESTS, ("#8b5cf6", "#0ea5e9", "#f59e0b"), strict=True
+                )
+            ]
+            route.fulfill(
+                status=200,
+                content_type="application/json",
+                body=json.dumps(players + guests),
+            )
+
+        def mine(route: Route) -> None:
+            if route.request.method != "GET":
+                route.continue_()
+                return
+            body = route.fetch().json() | overlay
+            route.fulfill(
+                status=200, content_type="application/json", body=json.dumps(body)
+            )
+
+        page.route(ROOM_PLAYERS_GLOB, room)
+        page.route(MY_PREPARATION_GLOB, mine)
+        # O lobby recarrega para pedir a sala e a preparação já forjadas
+        page.reload()
+        page.get_by_role("button", name="Minha preparação").wait_for()
+
+    return forge
+
+
+def lobby_comanagers_founder(page: Page) -> None:
+    """Quem funda a Aurora com a Duda convidada (20%) e o Caio já aceito (30%), e a Eva ainda a convidar."""
+    overlay = {
+        "fund_comanagers": [
+            {"nickname": "Duda", "share": "0.2", "status": "INVITED"},
+            {"nickname": "Caio", "share": "0.3", "status": "ACCEPTED"},
+        ]
+    }
+    lobby_fund_tab(
+        page,
+        saved={"name": FUND_NAME, "ticker": FUND_TICKER},
+        forge=forge_room_and_preparation(overlay),
+    )
+    page.get_by_role("dialog").get_by_text("Co-gestores").first.wait_for()
+
+
+def lobby_comanagers_guest(page: Page) -> None:
+    """Quem foi convidado: a Ana chama o host a co-gestor da Aurora Gestão com 20% das taxas."""
+    overlay = {
+        "fund_comanager_invites": [
+            {
+                "owner": "Ana",
+                "fund_name": FUND_NAME,
+                "share": "0.2",
+                "accepted": False,
+            }
+        ]
+    }
+    lobby_fund_tab(page, forge=forge_room_and_preparation(overlay))
+    page.get_by_role("dialog").get_by_text("te convidou").wait_for()
+
+
+def lobby_comanagers_alone(page: Page) -> None:
+    """Quem funda numa sala sem outro jogador: não há ninguém para convidar."""
+    lobby_fund_tab(page, saved={"name": FUND_NAME, "ticker": FUND_TICKER})
+    page.get_by_role("dialog").get_by_text("Ninguém para convidar ainda").wait_for()
 
 
 def lobby_expansions(page: Page) -> None:
@@ -2700,6 +2790,9 @@ STATES: dict[str, Callable[[Page], None]] = {
     "lobby-gestora/expansao-desligada": lobby_fund_disabled,
     "lobby-gestora/carregando": lobby_fund_loading,
     "lobby-gestora/erro-ao-salvar": lobby_fund_save_failed,
+    "lobby/cogestao-quem-funda": lobby_comanagers_founder,
+    "lobby/cogestao-convidado": lobby_comanagers_guest,
+    "lobby/cogestao-vazio": lobby_comanagers_alone,
     "regras/expansoes": lobby_expansions,
     "renda-variavel/cota-gestora": stock_fund_quota,
     "gestoras/sem-gestora-lista": funds_room_list,
