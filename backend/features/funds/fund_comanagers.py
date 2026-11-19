@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from datetime import date, timedelta
 from decimal import ROUND_DOWN, Decimal
 from typing import TYPE_CHECKING, Literal
@@ -23,6 +23,14 @@ MAX_COMANAGERS = 3
 
 # Dias de validade do convite: ele cai ao fechar o pregão do sétimo dia depois do envio
 INVITE_DAYS = 7
+
+
+def ensure_shares_fit(others: Iterable[Decimal], share: Decimal) -> None:
+    """A soma das partes dos co-gestores deixa parte ao principal: ele fica sempre com pelo menos 1%."""
+    if sum(others, Decimal(0)) + share >= 1:
+        raise UnprocessableEntityError(
+            "As partes dos co-gestores precisam deixar parte para o gestor principal"
+        )
 
 
 def operators_of(fund: "Fund") -> list[int]:
@@ -89,14 +97,9 @@ class FundComanagers:
         return comanager
 
     def _check_sum(self, fund: "Fund", user_id: int, share: Decimal) -> None:
-        others = sum(
-            (c.future_share for c in fund.comanagers if c.user_id != user_id),
-            Decimal(0),
+        ensure_shares_fit(
+            (c.future_share for c in fund.comanagers if c.user_id != user_id), share
         )
-        if others + share >= 1:
-            raise UnprocessableEntityError(
-                "As partes dos co-gestores precisam deixar parte para o gestor principal"
-            )
 
     def _put(self, fund: "Fund", comanager: FundComanagerDTO) -> None:
         if self._find(fund, comanager.user_id) is None:
@@ -266,6 +269,23 @@ class FundComanagers:
         others = sum((c.future_share for c in fund.comanagers), Decimal(0))
         if len(fund.comanagers) >= MAX_COMANAGERS or others + share >= 1:
             return False
+        self._activate(fund, user_id, share, today)
+        return True
+
+    def seat(self, fund: "Fund", user_id: int, share: Decimal, today: date) -> None:
+        """O co-gestor combinado no lobby entra ativo, com a parte já valendo nas taxas."""
+        if self._find(fund, user_id) is not None:
+            raise ConflictError("Esse jogador já é co-gestor ou tem convite pendente")
+        if len(fund.comanagers) >= MAX_COMANAGERS:
+            raise ConflictError(
+                f"A gestora aceita até {MAX_COMANAGERS} co-gestores, contando os convites"
+            )
+        self._check_sum(fund, user_id, share)
+        self._activate(fund, user_id, share, today)
+
+    def _activate(
+        self, fund: "Fund", user_id: int, share: Decimal, today: date
+    ) -> None:
         self._put(
             fund,
             FundComanagerDTO(
@@ -279,4 +299,3 @@ class FundComanagers:
             ),
         )
         self._record(fund, user_id, "joined", today, share)
-        return True

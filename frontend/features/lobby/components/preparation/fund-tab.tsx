@@ -7,11 +7,13 @@ import type {
   BotTicker,
   FundIdentity,
   FundPreparationRequest,
+  MyPreparation,
   Preparations,
   RoomPlayer,
   SimulationSettings,
 } from "@/types";
 import { fundChoice } from "../../lib/fund-preparation";
+import { FundComanagerInvites } from "./fund-comanager-invites";
 import { FundFoundTab } from "./fund-found-tab";
 import { FundNoneTab } from "./fund-none-tab";
 import { PreparationFooter } from "./preparation-footer";
@@ -20,6 +22,8 @@ type FundChoice = FundPreparationRequest["kind"];
 
 export type FundTabProps = {
   preparations: Preparations;
+  /** O que da preparação só o jogador vê: os convites de co-gestão */
+  mine: MyPreparation;
   /** A gestora salva no perfil; nula enquanto o jogador não salvou uma */
   saved: FundIdentity | null;
   /** Humanos na sala: a cor de quem preparou cada gestora */
@@ -35,7 +39,7 @@ export type FundTabProps = {
 
 /** Aba Gestora: fundar a própria gestora no 1º dia ou ficar sem, com as travas da sala. */
 export function FundTab(props: FundTabProps) {
-  const { preparations, nickname, rules, savedSimulation, onClose } = props;
+  const { preparations, mine, nickname, rules, savedSimulation, onClose } = props;
   // A escolha aberta na aba começa na que o servidor já guarda
   const [mode, setMode] = useState<FundChoice>(fundChoice(preparations, nickname));
 
@@ -80,6 +84,9 @@ export function FundTab(props: FundTabProps) {
           </Alert>
         )
       )}
+
+      {/* Convites de co-gestão */}
+      {!locked && <FundComanagerInvites invites={mine.fund_comanager_invites} />}
 
       {/* Escolha */}
       <ToggleGroup

@@ -189,9 +189,10 @@ function PreparationDialogContent({
             )}
           </TabsContent>
           <TabsContent value="fund" className="grid min-h-0">
-            {preparations.data && fund.isSuccess && tickers.data && room.data && user ? (
+            {preparations.data && mine.data && fund.isSuccess && tickers.data && room.data && user ? (
               <FundTab
                 preparations={preparations.data}
+                mine={mine.data}
                 saved={fund.data}
                 humans={room.data.filter((player) => !player.bot)}
                 assets={tickers.data}

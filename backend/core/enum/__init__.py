@@ -492,6 +492,14 @@ class FundPreparationKind(Enum):
     NONE = "NONE"
 
 
+class FundPreparationComanagerStatus(Enum):
+    """Em que pé está o convite de co-gestão do lobby: esperando resposta, aceito ou recusado."""
+
+    INVITED = "INVITED"
+    ACCEPTED = "ACCEPTED"
+    DECLINED = "DECLINED"
+
+
 class TeamNaming(Enum):
     """Como a equipe é chamada: pelo nome da cor (Índigo) ou pelo número."""
 

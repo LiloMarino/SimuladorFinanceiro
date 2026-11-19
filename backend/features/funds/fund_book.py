@@ -1313,6 +1313,12 @@ class FundBook:
             self._funds[ticker], nickname, share, self._engine.current_date
         )
 
+    def seat_comanager(self, ticker: str, user_id: int, share: Decimal) -> None:
+        """O co-gestor combinado no lobby entra ativo na gestora recém-fundada."""
+        self._comanagers.seat(
+            self._funds[ticker], user_id, share, self._engine.current_date
+        )
+
     def answer_comanager_invite(
         self, ticker: str, user: UserDTO, accept: bool
     ) -> FundComanagerDTO:

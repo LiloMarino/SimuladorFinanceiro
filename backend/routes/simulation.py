@@ -20,6 +20,8 @@ from backend.core.dto.life import (
 from backend.core.dto.preparation import (
     FederationAnswerRequest,
     FederationOfferRequest,
+    FundComanagerAnswerRequest,
+    FundComanagerPreparationRequest,
     FundPreparationRequest,
     MyPreparationDTO,
     PreparationRequest,
@@ -695,7 +697,9 @@ def get_my_preparation(client_id: ClientID):
     )
     if restored_party or restored_fund:
         _notify_preparations()
-    return RoomPreparation.mine(user, humans)
+    return RoomFundPreparation.with_mine(
+        RoomPreparation.mine(user, humans), user, humans
+    )
 
 
 @simulation_router.put(
@@ -753,6 +757,51 @@ def set_player_fund_preparation(payload: FundPreparationRequest, client_id: Clie
         user, payload.kind, repository.settings.get_my_fund(user.id)
     )
     repository.settings.set_fund_choice(user.id, payload.kind)
+    return _notify_preparations()
+
+
+@simulation_router.put(
+    "/players/me/fund-preparation/comanagers",
+    response_model=PreparationsDTO,
+    summary="Convidar um co-gestor no lobby",
+    description="Quem funda a gestora convida um jogador da sala a co-gestor, com a parte das taxas (fração entre 0 e 1). Sem `share`, retira o convite, tira o co-gestor que aceitou ou limpa a marca de recusa. A gestora aceita até 3 co-gestores, contando os convites sem resposta, e as partes deixam ao menos 1% ao principal; recusa com 409 acima do teto. Quem aceitou entra ativo na gestora no 1º dia da partida.",
+)
+def set_fund_comanager_preparation(
+    payload: FundComanagerPreparationRequest, client_id: ClientID
+):
+    """
+    Convida ou retira um co-gestor da gestora que o jogador funda.
+    """
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    if payload.share is None:
+        RoomFundPreparation.withdraw_comanager(user, _room_humans(), payload.nickname)
+    else:
+        RoomFundPreparation.invite_comanager(
+            user, _room_humans(), payload.nickname, payload.share
+        )
+    return _notify_preparations()
+
+
+@simulation_router.put(
+    "/players/me/fund-preparation/comanagers/answer",
+    response_model=PreparationsDTO,
+    summary="Responder ao convite de co-gestão do lobby",
+    description="O jogador convidado a co-gestor da gestora de um fundador (`owner`) aceita ou recusa. Aceitar uma gestora não recusa os convites das outras. Recusa com 404 se não há esse convite.",
+)
+def answer_fund_comanager_preparation(
+    payload: FundComanagerAnswerRequest, client_id: ClientID
+):
+    """
+    Aceita ou recusa o convite de co-gestão do lobby.
+    """
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    RoomFundPreparation.answer_comanager(
+        user, _room_humans(), payload.owner, payload.accept
+    )
     return _notify_preparations()
 
 

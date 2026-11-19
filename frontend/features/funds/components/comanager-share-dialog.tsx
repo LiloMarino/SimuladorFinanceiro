@@ -12,7 +12,8 @@ import {
 import { Spinner } from "@/shared/components/ui/spinner";
 import type { FundDetails } from "@/types";
 import { useUpdateComanagerShare } from "../hooks/mutations/useUpdateComanagerShare";
-import { futureShareOf, maxSharePoints, othersPoints, type Comanager } from "../lib/fund-comanagers";
+import { maxSharePoints } from "@/shared/lib/fund-comanager-shares";
+import { futureShareOf, othersPoints, type Comanager } from "../lib/fund-comanagers";
 import { feeToBody } from "../lib/fund-fees";
 import { ComanagerShareControls } from "./comanager-share-controls";
 

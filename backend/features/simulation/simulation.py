@@ -1641,6 +1641,12 @@ class Simulation:
         )
 
     @synchronized
+    def seat_fund_comanager(self, fund_id: int, user_id: int, share: Decimal) -> None:
+        """Põe na gestora o co-gestor que o lobby combinou, ativo e com a parte já valendo."""
+        book = self._ensure_funds()
+        book.seat_comanager(book.by_id(fund_id).ticker, user_id, share)
+
+    @synchronized
     def answer_fund_comanager_invite(
         self, user: UserDTO, fund_id: int, accept: bool
     ) -> None:

@@ -137,6 +137,7 @@ class SimulationLoader:
         )
         RoomPreparation.clear()
         founders = RoomFundPreparation.prepared(humans)
+        comanagers = RoomFundPreparation.accepted_comanagers(humans)
         RoomFundPreparation.clear()
         UserManager.release_bots()
         UserManager.release_saved_colors()
@@ -161,6 +162,9 @@ class SimulationLoader:
                         performance_fee=Decimal(0),
                     ),
                 )
+                # Os co-gestores combinados no lobby entram ativos, com a parte valendo desde o 1º mês
+                for guest, share in comanagers.get(founder.id, []):
+                    sim.seat_fund_comanager(fund.id, guest.id, share)
                 # No modo aquisição hostil toda a carteira do jogador entra na gestora no 1º dia
                 if settings.fund_takeover_enabled:
                     sim.contribute_to_fund(

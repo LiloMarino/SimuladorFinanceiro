@@ -12561,6 +12561,120 @@
         ]
       }
     },
+    "/api/simulation/players/me/fund-preparation/comanagers": {
+      "put": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Convidar um co-gestor no lobby",
+        "description": "Quem funda a gestora convida um jogador da sala a co-gestor, com a parte das taxas (fração entre 0 e 1). Sem `share`, retira o convite, tira o co-gestor que aceitou ou limpa a marca de recusa. A gestora aceita até 3 co-gestores, contando os convites sem resposta, e as partes deixam ao menos 1% ao principal; recusa com 409 acima do teto. Quem aceitou entra ativo na gestora no 1º dia da partida.",
+        "operationId": "set_fund_comanager_preparation_api_simulation_players_me_fund_preparation_comanagers_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundComanagerPreparationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparationsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/players/me/fund-preparation/comanagers/answer": {
+      "put": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Responder ao convite de co-gestão do lobby",
+        "description": "O jogador convidado a co-gestor da gestora de um fundador (`owner`) aceita ou recusa. Aceitar uma gestora não recusa os convites das outras. Recusa com 404 se não há esse convite.",
+        "operationId": "answer_fund_comanager_preparation_api_simulation_players_me_fund_preparation_comanagers_answer_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundComanagerAnswerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparationsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/players/me/preparation/vice": {
       "put": {
         "tags": [
@@ -24269,6 +24383,56 @@
           "issuance"
         ]
       },
+      "FundComanagerAnswerRequest": {
+        "properties": {
+          "owner": {
+            "type": "string",
+            "title": "Owner"
+          },
+          "accept": {
+            "type": "boolean",
+            "title": "Accept"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "owner",
+          "accept"
+        ],
+        "title": "FundComanagerAnswerRequest"
+      },
+      "FundComanagerInviteDTO": {
+        "properties": {
+          "owner": {
+            "type": "string",
+            "title": "Owner"
+          },
+          "fund_name": {
+            "type": "string",
+            "title": "Fund Name"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          },
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "owner",
+          "fund_name",
+          "share",
+          "accepted"
+        ],
+        "title": "FundComanagerInviteDTO",
+        "description": "Um convite de co-gestão que o jogador recebeu no lobby: de quem veio, para qual gestora e com qual parte das taxas."
+      },
       "FundComanagerInviteRequest": {
         "properties": {
           "nickname": {
@@ -24296,6 +24460,61 @@
           "share"
         ],
         "title": "FundComanagerInviteRequest"
+      },
+      "FundComanagerPreparationDTO": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FundPreparationComanagerStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "share",
+          "status"
+        ],
+        "title": "FundComanagerPreparationDTO",
+        "description": "Um convidado a co-gestor da gestora que o jogador funda: o estado do convite e a parte das taxas."
+      },
+      "FundComanagerPreparationRequest": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "share": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMaximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname"
+        ],
+        "title": "FundComanagerPreparationRequest",
+        "description": "O convite de co-gestão que o fundador da gestora faz no lobby; sem `share`, retira o convite, o co-gestor ou a marca de recusa."
       },
       "FundComanagerShareRequest": {
         "properties": {
@@ -26721,6 +26940,16 @@
         ],
         "title": "FundPreferenceOfferDTO",
         "description": "A preferência de quem consulta numa emissão aberta: o que ele ainda pode comprar antes do público."
+      },
+      "FundPreparationComanagerStatus": {
+        "type": "string",
+        "enum": [
+          "INVITED",
+          "ACCEPTED",
+          "DECLINED"
+        ],
+        "title": "FundPreparationComanagerStatus",
+        "description": "Em que pé está o convite de co-gestão do lobby: esperando resposta, aceito ou recusado."
       },
       "FundPreparationDTO": {
         "properties": {
@@ -32894,6 +33123,20 @@
               }
             ],
             "title": "Federation Invited"
+          },
+          "fund_comanager_invites": {
+            "items": {
+              "$ref": "#/components/schemas/FundComanagerInviteDTO"
+            },
+            "type": "array",
+            "title": "Fund Comanager Invites"
+          },
+          "fund_comanagers": {
+            "items": {
+              "$ref": "#/components/schemas/FundComanagerPreparationDTO"
+            },
+            "type": "array",
+            "title": "Fund Comanagers"
           }
         },
         "additionalProperties": false,
@@ -32904,7 +33147,9 @@
           "vice_declined",
           "left_party",
           "federation_invites",
-          "federation_invited"
+          "federation_invited",
+          "fund_comanager_invites",
+          "fund_comanagers"
         ],
         "title": "MyPreparationDTO",
         "description": "O que da preparação só o próprio jogador vê."

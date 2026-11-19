@@ -2,9 +2,6 @@ import type { FundDetails } from "@/types";
 
 export type Comanager = FundDetails["comanagers"][number];
 
-// Co-gestores por gestora, contando os convites pendentes
-export const MAX_COMANAGERS = 3;
-
 // Dias que o convidado tem para responder ao convite
 export const INVITE_DAYS = 7;
 
@@ -19,9 +16,6 @@ export const othersPoints = (comanagers: Comanager[], exceptUserId: number | nul
   comanagers
     .filter((comanager) => comanager.user_id !== exceptUserId)
     .reduce((sum, comanager) => sum + futureShareOf(comanager) * 100, 0);
-
-/** O teto da régua de um co-gestor: sobra ao menos 1 ponto para o gestor principal. */
-export const maxSharePoints = (others: number) => Math.max(0, Math.round(100 - others) - 1);
 
 /** A parte do principal depois da mudança: o que sobra das partes dos co-gestores. */
 export const managerPointsAfter = (others: number, points: number) => 100 - others - points;

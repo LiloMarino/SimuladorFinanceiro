@@ -8,6 +8,7 @@ export const alertVariants = cva(
         default: "bg-card text-card-foreground",
         muted: "border-transparent bg-subtle text-foreground",
         info: "border-info-border bg-info-soft text-foreground *:[svg]:text-primary",
+        fund: "border-fund-border bg-fund-soft text-foreground *:[svg]:text-fund",
         success: "border-transparent bg-success-soft text-foreground *:[svg]:text-success",
         warning:
           "border-transparent bg-warning-soft text-foreground *:[svg]:text-warning *:data-[slot=alert-description]:text-foreground",

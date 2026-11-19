@@ -4072,6 +4072,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/players/me/fund-preparation/comanagers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Convidar um co-gestor no lobby
+         * @description Quem funda a gestora convida um jogador da sala a co-gestor, com a parte das taxas (fração entre 0 e 1). Sem `share`, retira o convite, tira o co-gestor que aceitou ou limpa a marca de recusa. A gestora aceita até 3 co-gestores, contando os convites sem resposta, e as partes deixam ao menos 1% ao principal; recusa com 409 acima do teto. Quem aceitou entra ativo na gestora no 1º dia da partida.
+         */
+        put: operations["set_fund_comanager_preparation_api_simulation_players_me_fund_preparation_comanagers_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/players/me/fund-preparation/comanagers/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Responder ao convite de co-gestão do lobby
+         * @description O jogador convidado a co-gestor da gestora de um fundador (`owner`) aceita ou recusa. Aceitar uma gestora não recusa os convites das outras. Recusa com 404 se não há esse convite.
+         */
+        put: operations["answer_fund_comanager_preparation_api_simulation_players_me_fund_preparation_comanagers_answer_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/players/me/preparation/vice": {
         parameters: {
             query?: never;
@@ -8160,12 +8200,57 @@ export interface components {
         };
         /** @enum {string} */
         FundClosedOfferKind: "initial" | "issuance";
+        /** FundComanagerAnswerRequest */
+        FundComanagerAnswerRequest: {
+            /** Owner */
+            owner: string;
+            /** Accept */
+            accept: boolean;
+        };
+        /**
+         * FundComanagerInviteDTO
+         * @description Um convite de co-gestão que o jogador recebeu no lobby: de quem veio, para qual gestora e com qual parte das taxas.
+         */
+        FundComanagerInviteDTO: {
+            /** Owner */
+            owner: string;
+            /** Fund Name */
+            fund_name: string;
+            /** Share */
+            share: string;
+            /**
+             * Accepted
+             * @default false
+             */
+            accepted: boolean;
+        };
         /** FundComanagerInviteRequest */
         FundComanagerInviteRequest: {
             /** Nickname */
             nickname: string;
             /** Share */
             share: number | string;
+        };
+        /**
+         * FundComanagerPreparationDTO
+         * @description Um convidado a co-gestor da gestora que o jogador funda: o estado do convite e a parte das taxas.
+         */
+        FundComanagerPreparationDTO: {
+            /** Nickname */
+            nickname: string;
+            /** Share */
+            share: string;
+            status: components["schemas"]["FundPreparationComanagerStatus"];
+        };
+        /**
+         * FundComanagerPreparationRequest
+         * @description O convite de co-gestão que o fundador da gestora faz no lobby; sem `share`, retira o convite, o co-gestor ou a marca de recusa.
+         */
+        FundComanagerPreparationRequest: {
+            /** Nickname */
+            nickname: string;
+            /** Share */
+            share?: number | string | null;
         };
         /** FundComanagerShareRequest */
         FundComanagerShareRequest: {
@@ -8919,6 +9004,12 @@ export interface components {
             /** Leftover Sessions */
             leftover_sessions: number;
         };
+        /**
+         * FundPreparationComanagerStatus
+         * @description Em que pé está o convite de co-gestão do lobby: esperando resposta, aceito ou recusado.
+         * @enum {string}
+         */
+        FundPreparationComanagerStatus: "INVITED" | "ACCEPTED" | "DECLINED";
         /**
          * FundPreparationDTO
          * @description A gestora que um jogador da sala vai fundar no 1º dia da partida.
@@ -11022,6 +11113,10 @@ export interface components {
             federation_invites: components["schemas"]["FederationInviteDTO"][];
             /** Federation Invited */
             federation_invited: string | null;
+            /** Fund Comanager Invites */
+            fund_comanager_invites: components["schemas"]["FundComanagerInviteDTO"][];
+            /** Fund Comanagers */
+            fund_comanagers: components["schemas"]["FundComanagerPreparationDTO"][];
         };
         /** MyStrategyDTO */
         MyStrategyDTO: {
@@ -24992,6 +25087,90 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["FundPreparationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreparationsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_fund_comanager_preparation_api_simulation_players_me_fund_preparation_comanagers_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundComanagerPreparationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreparationsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    answer_fund_comanager_preparation_api_simulation_players_me_fund_preparation_comanagers_answer_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundComanagerAnswerRequest"];
             };
         };
         responses: {

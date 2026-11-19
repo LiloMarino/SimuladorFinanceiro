@@ -16,7 +16,7 @@ import { CREDIT_RATING } from "@/shared/lib/fund-metrics";
 import { netWorthOf } from "@/shared/lib/fund-view";
 import { displayMoney, displayPercent, displayQuantity } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
-import { MAX_COMANAGERS } from "../../lib/fund-comanagers";
+import { MAX_COMANAGERS } from "@/shared/lib/fund-comanager-shares";
 import { HOLDING_CLASSES } from "../../lib/fund-classes";
 import type { FundTabActions } from "../../lib/fund-tabs";
 import { FundLoanDebt } from "../fund-loan-debt";

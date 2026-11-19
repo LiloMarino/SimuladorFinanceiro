@@ -22,6 +22,7 @@ import {
   tickerHint,
   type TickerHint,
 } from "../../lib/fund-preparation";
+import { FundComanagersSection } from "./fund-comanagers-section";
 import { FundConflictsAlert, FundRoomSection } from "./fund-room-section";
 import { PreparationFooter } from "./preparation-footer";
 import { PreparationSection } from "./preparation-section";
@@ -53,6 +54,7 @@ const TIMELINE = [
 /** Fundar a minha gestora: nome e sigla à esquerda; prévia, taxas e as gestoras da sala à direita. */
 export function FundFoundTab({
   preparations,
+  mine: myPreparation,
   saved,
   humans,
   assets,
@@ -178,6 +180,11 @@ export function FundFoundTab({
                 )}
               />
             </PreparationSection>
+
+            {/* Co-gestores */}
+            {mine && (
+              <FundComanagersSection comanagers={myPreparation.fund_comanagers} humans={humans} nickname={nickname} />
+            )}
 
             {/* Linha do tempo */}
             <PreparationSection title="Como ela nasce" hint="na partida">

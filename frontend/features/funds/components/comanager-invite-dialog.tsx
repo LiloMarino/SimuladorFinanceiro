@@ -16,7 +16,8 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import type { FundDetails } from "@/types";
 import { useInviteComanager } from "../hooks/mutations/useInviteComanager";
-import { INVITE_DAYS, maxSharePoints, othersPoints } from "../lib/fund-comanagers";
+import { maxSharePoints } from "@/shared/lib/fund-comanager-shares";
+import { INVITE_DAYS, othersPoints } from "../lib/fund-comanagers";
 import { feeToBody } from "../lib/fund-fees";
 import { ComanagerShareControls } from "./comanager-share-controls";
 

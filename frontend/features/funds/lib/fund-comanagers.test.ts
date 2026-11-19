@@ -3,7 +3,6 @@ import {
   futureShareOf,
   hasScheduledChange,
   managerPointsAfter,
-  maxSharePoints,
   myInviteOf,
   othersPoints,
   splitMonthly,
@@ -33,12 +32,6 @@ describe("co-gestores da gestora", () => {
     const bia: Comanager = { ...base, user_id: 3, share: "0.1000", pending_share: "0.1500" };
     expect(othersPoints([base, bia], null)).toBeCloseTo(35, 9);
     expect(othersPoints([base, bia], 2)).toBeCloseTo(15, 9);
-  });
-
-  it("a régua deixa ao menos 1 ponto para o principal", () => {
-    expect(maxSharePoints(0)).toBe(99);
-    expect(maxSharePoints(35)).toBe(64);
-    expect(maxSharePoints(100)).toBe(0);
   });
 
   it("a parte do principal é o que sobra das partes dos co-gestores", () => {

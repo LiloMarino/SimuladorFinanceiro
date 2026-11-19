@@ -6,14 +6,19 @@ from typing import Annotated
 from pydantic import Field, StringConstraints
 
 from backend.core.dto.base import BaseDTO
-from backend.core.dto.fund import FundName, FundTicker
+from backend.core.dto.fund import ComanagerShare, FundName, FundTicker
 from backend.core.dto.government import (
     PARTY_COLOR_PATTERN,
     Contribution,
     PartyAbbr,
     PartyName,
 )
-from backend.core.enum import FundPreparationKind, PreparationKind, VoterValue
+from backend.core.enum import (
+    FundPreparationComanagerStatus,
+    FundPreparationKind,
+    PreparationKind,
+    VoterValue,
+)
 
 
 class PartyIdentityDTO(BaseDTO):
@@ -34,6 +39,20 @@ class FundIdentityDTO(BaseDTO):
 
 class FundPreparationRequest(BaseDTO):
     kind: FundPreparationKind
+
+
+class FundComanagerPreparationRequest(BaseDTO):
+    """O convite de co-gestão que o fundador da gestora faz no lobby; sem `share`, retira o convite, o co-gestor ou a marca de recusa."""
+
+    # O apelido do jogador convidado
+    nickname: str
+    share: ComanagerShare | None = None
+
+
+class FundComanagerAnswerRequest(BaseDTO):
+    # O fundador da gestora que convidou
+    owner: str
+    accept: bool
 
 
 class PartyContributionDTO(BaseDTO):
@@ -152,6 +171,24 @@ class FederationInviteDTO(BaseDTO):
     candidate: str
 
 
+class FundComanagerInviteDTO(BaseDTO):
+    """Um convite de co-gestão que o jogador recebeu no lobby: de quem veio, para qual gestora e com qual parte das taxas."""
+
+    owner: str
+    fund_name: str
+    # A parte das taxas como fração (0,2 é 20%)
+    share: Decimal
+    accepted: bool = False
+
+
+class FundComanagerPreparationDTO(BaseDTO):
+    """Um convidado a co-gestor da gestora que o jogador funda: o estado do convite e a parte das taxas."""
+
+    nickname: str
+    share: Decimal
+    status: FundPreparationComanagerStatus
+
+
 class MyPreparationDTO(BaseDTO):
     """O que da preparação só o próprio jogador vê."""
 
@@ -167,3 +204,7 @@ class MyPreparationDTO(BaseDTO):
     federation_invites: list[FederationInviteDTO]
     # O fundador a quem o jogador propôs federação e ainda não respondeu
     federation_invited: str | None = None
+    # Os convites de co-gestão que o jogador recebeu: os sem resposta e os que ele aceitou
+    fund_comanager_invites: list[FundComanagerInviteDTO] = Field(default_factory=list)
+    # Os convidados a co-gestor da gestora que o jogador funda, com o estado de cada convite
+    fund_comanagers: list[FundComanagerPreparationDTO] = Field(default_factory=list)

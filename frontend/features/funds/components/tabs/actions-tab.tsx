@@ -29,7 +29,8 @@ import { useAnswerComanagerInvite } from "../../hooks/mutations/useAnswerComanag
 import { useAnswerDirectedIssuance } from "../../hooks/mutations/useAnswerDirectedIssuance";
 import { useCloseFundOffer } from "../../hooks/mutations/useCloseFundOffer";
 import { blockReason, currentOf, currentTitle, optionOf } from "../../lib/fund-assembly";
-import { MAX_COMANAGERS, type Comanager } from "../../lib/fund-comanagers";
+import { MAX_COMANAGERS } from "@/shared/lib/fund-comanager-shares";
+import type { Comanager } from "../../lib/fund-comanagers";
 import type { DirectedOffer } from "../../lib/fund-directed";
 import { FIRST_QUOTA_PRICE } from "../../lib/fund-math";
 import { fundPending, fundPendingCount } from "../../lib/fund-pending";

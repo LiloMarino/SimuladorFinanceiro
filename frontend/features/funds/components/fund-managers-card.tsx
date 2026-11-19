@@ -8,7 +8,8 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { displayIsoDate, displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
 import { useLeaveComanagement } from "../hooks/mutations/useLeaveComanagement";
-import { hasScheduledChange, isInvited, MAX_COMANAGERS, splitMonthly, type Comanager } from "../lib/fund-comanagers";
+import { MAX_COMANAGERS } from "@/shared/lib/fund-comanager-shares";
+import { hasScheduledChange, isInvited, splitMonthly, type Comanager } from "../lib/fund-comanagers";
 import { FundSection } from "@/shared/components/fund-section";
 
 type ManagerActions = {
