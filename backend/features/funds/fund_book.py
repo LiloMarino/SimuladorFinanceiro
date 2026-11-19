@@ -384,6 +384,14 @@ class FundBook:
         """As gestoras de que o jogador é o gestor principal."""
         return [f for f in self._funds.values() if f.terms.manager_user_id == user_id]
 
+    def held_by(self, user_id: int) -> list[Fund]:
+        """As gestoras que o jogador tem: as que gere e as que passou ao herdeiro e retoma no fim do mandato."""
+        return [
+            f
+            for f in self._funds.values()
+            if user_id in (f.terms.manager_user_id, f.terms.leave_manager_user_id)
+        ]
+
     def operated_by(self, user_id: int) -> list[Fund]:
         """As gestoras cuja carteira o jogador opera: como principal ou como co-gestor ativo."""
         return [f for f in self._funds.values() if user_id in operators_of(f)]
@@ -441,6 +449,11 @@ class FundBook:
             ),
             offer_ends_on=offer_ends_on(open_on) if open_on else None,
             frozen_until=self.frozen_until(fund),
+            leave_until=(
+                self._manager_frozen_until(fund.terms.leave_manager_user_id)
+                if fund.terms.leave_manager_user_id is not None
+                else None
+            ),
         )
 
     def summaries(self) -> list[FundSummaryDTO]:
@@ -1442,11 +1455,14 @@ class FundBook:
         # O candidato que já era co-gestor passa a principal e deixa a lista deles
         if any(c.user_id == manager_user_id for c in fund.comanagers):
             self._comanagers.drop(fund, manager_user_id)
-        # A gestão muda de mão no dia de hoje: o "desde" do novo gestor começa aqui
+        # A gestão muda de mão no dia de hoje: o "desde" do novo gestor começa aqui. Quem
+        # estava em licença só retoma por `on_leave_office`: qualquer outra troca encerra a licença
         fund.terms = fund.terms.model_copy(
             update={
                 "manager_user_id": manager_user_id,
                 "manager_since": self._engine.current_date,
+                "leave_manager_user_id": None,
+                "leave_heir_share": None,
             }
         )
         self._engine.matching_engine.cancel_all(fund.account.client_id)
@@ -1459,7 +1475,8 @@ class FundBook:
         """O gestor assumiu a presidência: as ordens abertas das gestoras dele saem do livro.
 
         Com co-gestor ativo a gestora segue operando: o de maior parte vira o principal e o
-        presidente sai da gestão. Sem co-gestor ela congela até o fim do mandato.
+        presidente sai da gestão em licença, com a parte do herdeiro guardada para `on_leave_office`.
+        Sem co-gestor ela congela até o fim do mandato.
         """
         today = self._engine.current_date
         for fund in self._funds.values():
@@ -1471,6 +1488,31 @@ class FundBook:
                 continue
             self._comanagers.succeed(fund, heir, today)
             self._replace_manager(fund, heir.user_id)
+            fund.terms = fund.terms.model_copy(
+                update={
+                    "leave_manager_user_id": manager_user_id,
+                    "leave_heir_share": heir.share,
+                }
+            )
+            self._save(fund)
+
+    def on_leave_office(self, president_id: int) -> None:
+        """O presidente deixou a presidência sem reeleição (fim do mandato ou impeachment): a gestão volta a ele.
+
+        Retoma a gestora que passou ao herdeiro, desde que o gestor de hoje ainda seja o herdeiro
+        da posse (a troca por assembleia encerra a licença). O herdeiro volta a co-gestor com a
+        parte de antes. A gestora que congelou sem herdeiro já volta a operar sozinha, porque o
+        congelamento acaba junto com o mandato.
+        """
+        today = self._engine.current_date
+        for fund in self._funds.values():
+            if fund.terms.leave_manager_user_id != president_id:
+                continue
+            heir_id = fund.terms.manager_user_id
+            heir_share = fund.terms.leave_heir_share
+            self._replace_manager(fund, president_id)
+            if heir_share is not None:
+                self._comanagers.restore(fund, heir_id, heir_share, today)
             self._save(fund)
 
     def set_fees(

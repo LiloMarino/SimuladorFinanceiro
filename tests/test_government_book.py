@@ -2456,3 +2456,48 @@ def test_impeachment_pays_no_legacy(
     # Os pontos acumulados somem com o cargo e só a posse do sucessor chega ao jogo
     assert [call[0] for call in legacy] == ["office"]
     assert book.state.approvals == []
+
+
+@pytest.fixture
+def handovers(book: GovernmentBook) -> list[tuple[str, int]]:
+    """A ordem em que o livro avisa a partida da saída de um presidente e da posse do outro."""
+    calls: list[tuple[str, int]] = []
+    book._on_leave_office = lambda user, _day: calls.append(("leave", user.id))
+    book._on_office = lambda user, _day: calls.append(("office", user.id))
+    return calls
+
+
+def test_the_president_leaves_the_office_before_the_successor_takes_it(
+    book: GovernmentBook, engine, market, handovers
+):
+    govern(book, engine)
+    handovers.clear()
+
+    turn_over(book, president_id=BOB.id, consecutive=1)
+
+    assert handovers == [("leave", ALICE.id), ("office", BOB.id)]
+
+
+def test_the_reelected_president_does_not_leave_the_office(
+    book: GovernmentBook, engine, market, handovers
+):
+    govern(book, engine)
+    handovers.clear()
+
+    turn_over(book, president_id=ALICE.id, consecutive=2)
+
+    assert handovers == [("office", ALICE.id)]
+
+
+def test_impeachment_makes_the_president_leave_before_the_vice_takes_the_office(
+    book: GovernmentBook, engine, market, bleak, handovers, monkeypatch
+):
+    govern(book, engine, vice=True)
+    handovers.clear()
+    propose(book)
+    congress_says(monkeypatch, True)
+
+    assert close_months(book, 12) is None
+    assert close_months(book, 7, date(2023, 1, 31)) == PauseReason.IMPEACHMENT
+
+    assert handovers == [("leave", ALICE.id), ("office", BOB.id)]

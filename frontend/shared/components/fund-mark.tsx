@@ -5,7 +5,7 @@ type FundMarkProps = {
   name: string;
   /** `inverse`: sigla verde sobre fundo claro, para a faixa da cor da gestora. */
   tone?: "solid" | "inverse";
-  size?: "default" | "lg";
+  size?: "default" | "md" | "lg";
   className?: string;
 };
 
@@ -16,7 +16,9 @@ export function FundMark({ name, tone = "solid", size = "default", className }: 
       aria-hidden
       className={cn(
         "inline-flex shrink-0 items-center justify-center font-bold tracking-tight",
-        size === "default" ? "size-5 rounded-[5px] text-xs" : "size-10 rounded-lg text-base",
+        size === "default" && "size-5 rounded-[5px] text-xs",
+        size === "md" && "size-8 rounded-lg text-xs",
+        size === "lg" && "size-10 rounded-lg text-base",
         tone === "solid" ? "bg-fund text-fund-foreground" : "bg-fund-foreground text-fund",
         className,
       )}

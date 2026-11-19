@@ -2,7 +2,6 @@ import { NavLink } from "react-router-dom";
 import { Calculator } from "lucide-react";
 import type { NavItem } from "@/types";
 import { Badge } from "@/shared/components/ui/badge";
-import { isManagedFundAccount } from "@/shared/lib/active-account";
 import { summarizeAssistances } from "@/shared/lib/assistance";
 import {
   Sidebar as SidebarRoot,
@@ -25,7 +24,6 @@ import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
 import { useAchievementTally } from "@/shared/hooks/queries/useAchievementTally";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
-import { useFundAccounts } from "@/shared/hooks/queries/useFundAccounts";
 import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
 import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
 import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
@@ -68,10 +66,6 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
     (!item.debugOnly || showDebugTools) &&
     (!item.goalOnly || racing) &&
     (!item.expansion || expansionOn[item.expansion]);
-  // O item das Gestoras leva o nome da gestora do jogador
-  const { data: fundAccounts } = useFundAccounts({ enabled: expansionOn.funds });
-  const myFundName = fundAccounts?.find(isManagedFundAccount)?.name;
-  const labelOf = (item: NavItem) => (item.key === "funds" && myFundName ? myFundName : item.label);
   const isExpert =
     !!match &&
     summarizeAssistances([match.show_equivalent_rate, match.show_maturity_projection, match.show_chart_hints]).mode ===
@@ -120,7 +114,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
                         render={<NavLink to={item.endpoint} />}
                       >
                         <item.icon />
-                        <span>{labelOf(item)}</span>
+                        <span>{item.label}</span>
                       </SidebarMenuButton>
                       {item.badge && <SidebarMenuBadge tone={item.badgeTone}>{item.badge}</SidebarMenuBadge>}
                       {item.goalOnly && ownGoal && (

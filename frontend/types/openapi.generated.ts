@@ -2877,7 +2877,7 @@ export interface paths {
         };
         /**
          * Listar as gestoras da partida
-         * @description Cada gestora com os termos, o PL por cota de agora e o preço de ranking.
+         * @description Cada gestora com os termos, o PL por cota de agora, o preço de ranking e as cotas de quem consulta.
          */
         get: operations["get_funds_api_funds_get"];
         put?: never;
@@ -8176,6 +8176,8 @@ export interface components {
             pending_distribution_rate: string | null;
             /** Manager Since */
             manager_since: string | null;
+            /** Leave Manager User Id */
+            leave_manager_user_id: number | null;
             /** Nav */
             nav: string | null;
             /** Ranking Price */
@@ -8190,6 +8192,8 @@ export interface components {
             offer_ends_on: string | null;
             /** Frozen Until */
             frozen_until: string | null;
+            /** Leave Until */
+            leave_until: string | null;
             /** Holders */
             holders: components["schemas"]["FundHolderDTO"][];
             /** Control Quotas */
@@ -8749,6 +8753,85 @@ export interface components {
         };
         /** @enum {string} */
         FundRole: "manager" | "comanager" | "viewer";
+        /**
+         * FundRoomItemDTO
+         * @description A gestora na lista da sala, com as cotas e o papel de quem consulta.
+         */
+        FundRoomItemDTO: {
+            /** Id */
+            id: number;
+            /** Ticker */
+            ticker: string;
+            /** Founder User Id */
+            founder_user_id: number;
+            /** Manager User Id */
+            manager_user_id: number;
+            /** Name */
+            name: string;
+            /** Quotas */
+            quotas: string;
+            /** Maker Quotas */
+            maker_quotas: string;
+            /** Offer Remaining */
+            offer_remaining: string | null;
+            /** Listed On */
+            listed_on: string | null;
+            /** Offer Quotas */
+            offer_quotas: string | null;
+            /** Offer Price */
+            offer_price: string | null;
+            /** Offer Closed On */
+            offer_closed_on: string | null;
+            /** Management Fee */
+            management_fee: string;
+            /** Performance Fee */
+            performance_fee: string;
+            /** Pending Management Fee */
+            pending_management_fee: string | null;
+            /** Pending Performance Fee */
+            pending_performance_fee: string | null;
+            /** Pending From */
+            pending_from: string | null;
+            /** High Water Mark */
+            high_water_mark: string | null;
+            /** High Water Mark On */
+            high_water_mark_on: string | null;
+            /** Last Performance On */
+            last_performance_on: string | null;
+            /**
+             * Distribution Rate
+             * @default 0.95
+             */
+            distribution_rate: string;
+            /** Pending Distribution Rate */
+            pending_distribution_rate: string | null;
+            /** Manager Since */
+            manager_since: string | null;
+            /** Leave Manager User Id */
+            leave_manager_user_id: number | null;
+            /** Nav */
+            nav: string | null;
+            /** Ranking Price */
+            ranking_price: string | null;
+            /** Price */
+            price: string | null;
+            /** Manager Nickname */
+            manager_nickname: string | null;
+            /** Offer Session */
+            offer_session: number | null;
+            /** Offer Ends On */
+            offer_ends_on: string | null;
+            /** Frozen Until */
+            frozen_until: string | null;
+            /** Leave Until */
+            leave_until: string | null;
+            /** My Quotas */
+            my_quotas: string;
+            /** Comanager Nicknames */
+            comanager_nicknames: string[];
+            /** I Comanage */
+            i_comanage: boolean;
+        };
         /** FundSeriesPointDTO */
         FundSeriesPointDTO: {
             /**
@@ -8817,6 +8900,8 @@ export interface components {
             pending_distribution_rate: string | null;
             /** Manager Since */
             manager_since: string | null;
+            /** Leave Manager User Id */
+            leave_manager_user_id: number | null;
             /** Nav */
             nav: string | null;
             /** Ranking Price */
@@ -8831,6 +8916,8 @@ export interface components {
             offer_ends_on: string | null;
             /** Frozen Until */
             frozen_until: string | null;
+            /** Leave Until */
+            leave_until: string | null;
         };
         /**
          * FundTickerCheckDTO
@@ -21950,7 +22037,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FundSummaryDTO"][];
+                    "application/json": components["schemas"]["FundRoomItemDTO"][];
                 };
             };
             /** @description Unprocessable Content */

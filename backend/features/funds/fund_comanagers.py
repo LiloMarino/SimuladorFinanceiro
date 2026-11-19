@@ -256,3 +256,27 @@ class FundComanagers:
         """
         self._record(fund, fund.terms.manager_user_id, "left", today)
         self.drop(fund, heir.user_id)
+
+    def restore(self, fund: "Fund", user_id: int, share: Decimal, today: date) -> bool:
+        """O herdeiro que deixa de ser principal volta a co-gestor com a parte de antes da posse.
+
+        Volta só se a lista tem vaga e a soma das partes ainda deixa parte ao principal; devolve
+        se voltou.
+        """
+        others = sum((c.future_share for c in fund.comanagers), Decimal(0))
+        if len(fund.comanagers) >= MAX_COMANAGERS or others + share >= 1:
+            return False
+        self._put(
+            fund,
+            FundComanagerDTO(
+                user_id=user_id,
+                status=FundComanagerStatus.ACTIVE,
+                share=share,
+                pending_share=None,
+                pending_from=None,
+                invited_on=today,
+                since=today,
+            ),
+        )
+        self._record(fund, user_id, "joined", today, share)
+        return True

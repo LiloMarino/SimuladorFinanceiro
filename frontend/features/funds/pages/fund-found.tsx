@@ -2,22 +2,24 @@ import { Navigate } from "react-router-dom";
 import { CardState } from "@/shared/components/card-state";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
-import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
+import { useAuth } from "@/shared/hooks/useAuth";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { useSimulation } from "@/shared/hooks/useSimulation";
-import { isManagedFundAccount } from "@/shared/lib/active-account";
 import { FundFoundForm } from "../components/fund-found-form";
+import { useFunds } from "../hooks/queries/useFunds";
+import { isHeldBy } from "../lib/fund-room";
 
 /** Fundar a gestora: resolve a carteira e os tetos de taxa da partida e entrega o formulário já com eles. */
 export default function FundFoundPage() {
   usePageLabel("Fundar gestora");
-  const { accounts } = useActiveAccount();
+  const { user } = useAuth();
+  const { data: funds } = useFunds();
   const { simulation } = useSimulation();
   const { data: portfolio, error, refetch } = usePortfolio();
   const rules = simulation?.simulation;
 
-  // Quem já tem gestora abre a dela
-  if (accounts?.some(isManagedFundAccount)) return <Navigate to="/funds" replace />;
+  // Quem tem gestora (gerida, congelada ou em licença) volta à lista da sala
+  if (user && funds?.some((fund) => isHeldBy(fund, user.id))) return <Navigate to="/funds" replace />;
 
   if (!portfolio || !rules) {
     return (

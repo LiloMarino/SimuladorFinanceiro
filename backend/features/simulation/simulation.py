@@ -62,6 +62,7 @@ from backend.core.dto.fund import (
     FundIssuanceSubscriptionPreviewDTO,
     FundIssuanceSubscriptionRequest,
     FundMonthlyReportDTO,
+    FundRoomItemDTO,
     FundSummaryDTO,
     FundTickerCheckDTO,
 )
@@ -130,6 +131,7 @@ from backend.core.enum import (
     AssetClass,
     FixedIncomeType,
     FundAssemblyAgenda,
+    FundComanagerStatus,
     GameType,
     IndicatorSeries,
     LifeEventEffect,
@@ -468,6 +470,7 @@ class Simulation:
                 repository.state_company.of_simulation(settings.id),
                 repository.sovereign_fund.ensure(settings.id),
                 repository.sovereign_fund.flows(settings.id),
+                on_leave_office=self._leave_office,
             )
             if settings.government_enabled and backtest is None
             else None
@@ -1322,8 +1325,32 @@ class Simulation:
         return FundTickerCheckDTO(ticker=ticker, status="free", owner_name=None)
 
     @synchronized
-    def get_funds(self) -> list[FundSummaryDTO]:
-        return self._ensure_funds().summaries()
+    def get_funds(self, user: UserDTO) -> list[FundRoomItemDTO]:
+        """As gestoras da sala, cada uma com as cotas e o papel de `user`."""
+        book = self._ensure_funds()
+        summaries = book.summaries()
+        positions = self._engine.broker.get_positions(user.client_id)
+        nicknames = {p.id: p.nickname for p in book.participants()}
+        room: list[FundRoomItemDTO] = []
+        for summary in summaries:
+            position = positions.get(summary.ticker)
+            mine = position.size if position is not None and position.size > 0 else 0
+            comanagers = [
+                c.user_id
+                for c in book.by_id(summary.id).comanagers
+                if c.status is FundComanagerStatus.ACTIVE
+            ]
+            room.append(
+                FundRoomItemDTO(
+                    **summary.model_dump(),
+                    my_quotas=Decimal(mine),
+                    comanager_nicknames=[
+                        nicknames[uid] for uid in comanagers if uid in nicknames
+                    ],
+                    i_comanage=user.id in comanagers,
+                )
+            )
+        return room
 
     @synchronized
     def get_fund(self, user: UserDTO, fund_id: int) -> FundDetailsDTO:
@@ -1357,6 +1384,12 @@ class Simulation:
             request.ticker
         ):
             raise ConflictError("As quatro letras deste ticker já são de um ativo")
+        # Quem tem gestora, inclusive a congelada ou em licença pela presidência, não funda outra
+        if book.held_by(user.id):
+            raise ConflictError(
+                "Fundar exige não ter gestora: você já tem uma. Quem perde a gestora "
+                "(assembleia ou compra do controle) pode fundar outra."
+            )
         blocked_until = book.founding_blocked_until(user.id)
         if blocked_until is not None:
             raise ConflictError(
@@ -1846,6 +1879,16 @@ class Simulation:
             reason="Você assumiu a presidência: a carteira fica congelada",
         )
 
+    def _leave_office(self, president: UserDTO, day: date) -> None:
+        """O presidente deixou a presidência sem reeleição: a gestão das gestoras dele volta a ele.
+
+        É o ponto do fim do mandato, no dia em que o sucessor assume; o que a posse desligou para
+        o presidente volta a ele aqui.
+        """
+        if self._funds is not None:
+            self._funds.on_leave_office(president.id)
+            self._notify_funds_update()
+
     def _presidential_pay(self, user: UserDTO, multiple: Decimal, day: date) -> Decimal:
         """O que `multiple` salários do host valem em reais líquidos para `user` no dia; sem o viver de renda não há salário."""
         if self._life is None:
@@ -1907,6 +1950,7 @@ class Simulation:
                     f"{convener} convoca a assembleia da {fund.ticker} e indica você para a gestão · responda até {invite.ends_on:%d/%m}",
                     ref=str(fund.terms.id),
                     title=f"Convite para gerir a {fund.ticker}",
+                    fund_id=fund.terms.id,
                 )
                 for fund, invite, convener in self._funds.invites_for(user)
             ]
@@ -1926,6 +1970,7 @@ class Simulation:
                     f"{manager} convida você a co-gerir a {fund.ticker} com {format_quantity(invite.future_share * 100)}% das taxas · responda até {last_day:%d/%m}",
                     ref=str(fund.terms.id),
                     title=f"Convite para co-gerir a {fund.ticker}",
+                    fund_id=fund.terms.id,
                 )
                 for fund, invite, manager, last_day in self._funds.comanager_invites_for(
                     user

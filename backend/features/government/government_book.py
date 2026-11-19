@@ -190,9 +190,13 @@ class GovernmentBook:
         state_companies: Iterable[StateCompanyDTO] = (),
         sovereign_fund: SovereignFundDTO | None = None,
         sovereign_flows: Iterable[SovereignFlowDTO] = (),
+        on_leave_office: Callable[[UserDTO, date], None] | None = None,
     ):
         """
         `on_office` roda na posse de cada presidente jogador: a carteira dele congela.
+        `on_leave_office` roda quando o presidente jogador deixa a presidência sem reeleição,
+        no fim normal do mandato ou no impeachment, no dia em que o sucessor assume: o que
+        a posse congelou ou passou adiante volta a ele. Na reeleição não roda.
         `on_legacy` roda quando o mandato do jogador acaba na posse do sucessor: recebe o
         legado em salários, o credita ao ex-presidente e devolve o valor pago em reais.
         `on_news` publica no jornal da partida a manchete de cada fato político.
@@ -210,6 +214,7 @@ class GovernmentBook:
         self._settings = settings
         self._engine = engine
         self._on_office = on_office
+        self._on_leave_office = on_leave_office or (lambda _user, _day: None)
         self._on_legacy = on_legacy
         self._on_news = on_news
         self._seed = random_seed
@@ -4171,6 +4176,8 @@ class GovernmentBook:
             successor_id=successor.id if successor else None,
             party_id=heir.party_id if heir else None,
         )
+        if out is not None:
+            self._on_leave_office(out, today)
         if successor is not None:
             self._on_office(successor, today)
         self._notice(
@@ -4983,6 +4990,8 @@ class GovernmentBook:
 
     def _start_term(self, today: date, people: dict[int, UserDTO]) -> None:
         pending = required(self.state.pending_term)
+        # O presidente do mandato que acaba, lido antes de a posse trocar o mandato em curso
+        out = self.president()
         # O legado é pago com a aprovação e o presidente do mandato que acaba: a posse
         # seguinte zera as duas
         self._pay_legacy(today)
@@ -4995,6 +5004,9 @@ class GovernmentBook:
             consecutive=pending.consecutive,
         )
         president = people.get(pending.president_id) if pending.president_id else None
+        # Sem reeleição o ex-presidente retoma o que a posse dele congelou, antes da posse do sucessor
+        if out is not None and (president is None or president.id != out.id):
+            self._on_leave_office(out, today)
         if president is not None:
             self._on_office(president, today)
         party = self.state.parties.get(pending.party_id) if pending.party_id else None

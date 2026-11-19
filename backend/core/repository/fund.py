@@ -53,6 +53,8 @@ from backend.core.repository.ticker_claim import claim_stock, letters_taken
 _MUTABLE = (
     "manager_user_id",
     "manager_since",
+    "leave_manager_user_id",
+    "leave_heir_share",
     "quotas",
     "maker_quotas",
     "maker_cash",

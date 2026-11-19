@@ -33,6 +33,7 @@ from backend.features.funds.fund_comanagers import INVITE_DAYS, MAX_COMANAGERS
 from backend.features.simulation.simulation import Simulation
 from tests.test_fund_flow import (
     book_of,
+    found_request,
     fund_with_cash,
     governing,
     player,
@@ -452,6 +453,181 @@ def test_a_tie_goes_to_the_oldest_comanager(match):
     sim._take_office(ana, sim._current_date)
 
     assert book.get(TICKER).terms.manager_user_id == bruno.id
+
+
+def test_the_heir_takes_over_with_the_manager_on_leave(match):
+    sim, ana, bruno, _carla, _fund_id = heir_match(match)
+    governing(sim, ana, date(2004, 12, 31))
+
+    sim._take_office(ana, sim._current_date)
+
+    terms = book_of(sim).get(TICKER).terms
+    assert (terms.manager_user_id, terms.leave_manager_user_id) == (bruno.id, ana.id)
+    assert terms.leave_heir_share == Decimal("0.30")
+    # A licença fica gravada, e a lista diz até quando a gestão está com o herdeiro
+    [stored] = repository.fund.of_simulation(sim.settings.id)
+    assert (stored.leave_manager_user_id, stored.leave_heir_share) == (
+        ana.id,
+        Decimal("0.30"),
+    )
+    summary = book_of(sim).summary(book_of(sim).get(TICKER))
+    assert summary.leave_until == date(2004, 12, 31)
+    assert summary.frozen_until is None
+
+
+def test_the_manager_resumes_the_fund_when_the_term_ends_without_reelection(match):
+    sim, ana, bruno, carla, fund_id = heir_match(match)
+    state = governing(sim, ana, date(2004, 12, 31))
+    sim._take_office(ana, sim._current_date)
+    state["on"] = False
+
+    sim._leave_office(ana, sim._current_date)
+
+    fund = book_of(sim).get(TICKER)
+    assert fund.terms.manager_user_id == ana.id
+    assert fund.terms.manager_since == sim._current_date
+    assert (fund.terms.leave_manager_user_id, fund.terms.leave_heir_share) == (
+        None,
+        None,
+    )
+    # Bruno volta a co-gestor com os 30% de antes, e a parte de Ana volta a ser o que sobra
+    returned = comanager_of(sim, bruno)
+    assert returned is not None
+    assert (returned.status, returned.share) == (
+        FundComanagerStatus.ACTIVE,
+        Decimal("0.30"),
+    )
+    assert sorted(book_of(sim).operators(fund)) == sorted([ana.id, bruno.id, carla.id])
+    page = sim.get_fund(ana, fund_id)
+    assert page.my_role == "manager"
+    assert page.manager_share == Decimal("0.50")
+    assert sim.get_fund(bruno, fund_id).my_role == "comanager"
+    [stored] = repository.fund.of_simulation(sim.settings.id)
+    assert stored.manager_user_id == ana.id
+    assert stored.leave_manager_user_id is None
+
+
+def test_the_fund_frozen_without_an_heir_needs_no_handover_when_the_term_ends(match):
+    sim, ana, _bruno, fund_id = match
+    state = governing(sim, ana, date(2004, 12, 31))
+    sim._take_office(ana, sim._current_date)
+    assert sim.get_fund(ana, fund_id).frozen_until == date(2004, 12, 31)
+    state["on"] = False
+
+    sim._leave_office(ana, sim._current_date)
+
+    fund = book_of(sim).get(TICKER)
+    assert fund.terms.manager_user_id == ana.id
+    assert fund.terms.leave_manager_user_id is None
+    assert sim.get_fund(ana, fund_id).frozen_until is None
+
+
+def test_the_assembly_that_replaced_the_heir_keeps_the_fund_from_the_manager(match):
+    sim, ana, _bruno, carla, _fund_id = heir_match(match)
+    state = governing(sim, ana, date(2004, 12, 31))
+    sim._take_office(ana, sim._current_date)
+    book = book_of(sim)
+    # A assembleia troca o gestor da gestora durante o mandato
+    book._replace_manager(book.get(TICKER), carla.id)
+    state["on"] = False
+
+    sim._leave_office(ana, sim._current_date)
+
+    fund = book.get(TICKER)
+    assert fund.terms.manager_user_id == carla.id
+    assert fund.terms.leave_manager_user_id is None
+    assert ana.id not in book.operators(fund)
+    assert book.held_by(ana.id) == []
+
+
+def test_the_heir_does_not_return_as_comanager_when_the_list_is_full(match):
+    sim, ana, bruno, _carla, fund_id = heir_match(match)
+    state = governing(sim, ana, date(2004, 12, 31))
+    sim._take_office(ana, sim._current_date)
+    # Bruno gere e completa a lista com Davi e Eva, que ocupam as vagas deixadas por ele
+    for guest in (player(sim, "Davi"), player(sim, "Eva")):
+        active_comanager(sim, bruno, fund_id, guest, Decimal("0.05"))
+    assert len(book_of(sim).get(TICKER).comanagers) == MAX_COMANAGERS
+    state["on"] = False
+
+    sim._leave_office(ana, sim._current_date)
+
+    fund = book_of(sim).get(TICKER)
+    assert fund.terms.manager_user_id == ana.id
+    assert comanager_of(sim, bruno) is None
+
+
+def test_the_heir_does_not_return_as_comanager_when_the_shares_leave_nothing_for_him(
+    match,
+):
+    sim, ana, bruno, _carla, fund_id = heir_match(match)
+    state = governing(sim, ana, date(2004, 12, 31))
+    sim._take_office(ana, sim._current_date)
+    # Com Carla em 20%, a parte de Davi deixa a soma em 95%: os 30% de Bruno não cabem
+    active_comanager(sim, bruno, fund_id, player(sim, "Davi"), Decimal("0.75"))
+    state["on"] = False
+
+    sim._leave_office(ana, sim._current_date)
+
+    fund = book_of(sim).get(TICKER)
+    assert fund.terms.manager_user_id == ana.id
+    assert comanager_of(sim, bruno) is None
+
+
+def test_the_room_list_names_the_active_comanagers_and_marks_who_is_one(match):
+    sim, ana, bruno, fund_id = match
+    carla = player(sim, "Carla")
+    active_comanager(sim, ana, fund_id, bruno, Decimal("0.30"))
+    invite(sim, ana, fund_id, carla.nickname)
+
+    [as_ana] = sim.get_funds(ana)
+    [as_bruno] = sim.get_funds(bruno)
+    [as_carla] = sim.get_funds(carla)
+
+    # O convite pendente de Carla não a torna co-gestora
+    assert as_ana.comanager_nicknames == ["Bruno"]
+    assert (as_ana.i_comanage, as_bruno.i_comanage, as_carla.i_comanage) == (
+        False,
+        True,
+        False,
+    )
+
+
+def test_who_has_a_fund_cannot_found_another(match):
+    sim, ana, _bruno, _fund_id = match
+
+    with pytest.raises(ConflictError, match="Fundar exige não ter gestora"):
+        sim.found_fund(ana, found_request("OMEG11"))
+
+
+def test_the_president_with_the_fund_frozen_cannot_found_another(match):
+    sim, ana, _bruno, _fund_id = match
+    governing(sim, ana, date(2004, 12, 31))
+    sim._take_office(ana, sim._current_date)
+
+    with pytest.raises(ConflictError, match="Fundar exige não ter gestora"):
+        sim.found_fund(ana, found_request("OMEG11"))
+
+
+def test_the_manager_on_leave_still_has_the_fund_and_cannot_found_another(match):
+    sim, ana, _bruno, _carla, _fund_id = heir_match(match)
+    governing(sim, ana, date(2004, 12, 31))
+    sim._take_office(ana, sim._current_date)
+
+    assert [f.ticker for f in book_of(sim).held_by(ana.id)] == [TICKER]
+    with pytest.raises(ConflictError, match="Fundar exige não ter gestora"):
+        sim.found_fund(ana, found_request("OMEG11"))
+
+
+def test_who_lost_the_fund_founds_another(match):
+    sim, ana, bruno, _fund_id = match
+    book = book_of(sim)
+    book._replace_manager(book.get(TICKER), bruno.id)
+
+    founded = sim.found_fund(ana, found_request("OMEG11"))
+
+    assert founded.manager_user_id == ana.id
+    assert [f.ticker for f in book.held_by(ana.id)] == ["OMEG11"]
 
 
 def test_without_a_comanager_the_fund_freezes_with_the_manager(match):

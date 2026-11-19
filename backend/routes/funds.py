@@ -30,6 +30,7 @@ from backend.core.dto.fund import (
     FundIssuanceSubscriptionRequest,
     FundMonthlyReportDTO,
     FundOfferRequest,
+    FundRoomItemDTO,
     FundSummaryDTO,
     FundTickerCheckDTO,
 )
@@ -40,12 +41,12 @@ funds_router = APIRouter(prefix="/api/funds", tags=["Funds"])
 
 @funds_router.get(
     "",
-    response_model=list[FundSummaryDTO],
+    response_model=list[FundRoomItemDTO],
     summary="Listar as gestoras da partida",
-    description="Cada gestora com os termos, o PL por cota de agora e o preço de ranking.",
+    description="Cada gestora com os termos, o PL por cota de agora, o preço de ranking e as cotas de quem consulta.",
 )
-def get_funds(simulation: ActiveSimulation):
-    return simulation.get_funds()
+def get_funds(simulation: ActiveSimulation, user: CurrentUser):
+    return simulation.get_funds(user)
 
 
 @funds_router.post(

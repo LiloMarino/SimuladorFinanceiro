@@ -66,3 +66,13 @@ O gestor principal pode chamar até **3 co-gestores** pelo botão **Convidar co-
 - **Quando a parte vale:** a parte nova, ou a parte mudada de quem já opera, entra nas taxas do **mês seguinte**. O cartão mostra a mudança agendada.
 - **Saída:** o co-gestor pode **sair da gestão** e o principal pode **remover** um co-gestor. O acesso à carteira acaba no mesmo pregão, e a parte volta ao principal na próxima divisão de taxas.
 - **Afastamento do principal:** se uma assembleia troca o gestor, o **co-gestor de maior parte** (no empate, o mais antigo) assume como principal e herda a parte de quem saiu. Sem co-gestor, a gestora fica congelada.
+- **Presidência:** o gestor que vira presidente tem a gestora **em licença**. O co-gestor de maior parte assume enquanto durar o mandato (sem co-gestor a gestora fica congelada) e a gestora continua sendo do presidente: ele **não pode fundar outra**. No fim do mandato sem reeleição, ou no impeachment, a gestora **volta** ao ex-presidente, desde que o gestor atual ainda seja quem assumiu na posse; o co-gestor que assumiu volta como co-gestor, com a parte que tinha antes, **se houver vaga**: com a lista cheia (3 co-gestores) ou sem parte sobrando ao principal (a soma das partes chegaria a 100%), ele não volta. Se uma assembleia trocou o gestor nesse meio-tempo, a gestora fica com quem assumiu e o ex-presidente pode fundar outra, no mesmo prazo. Na reeleição nada volta.
+
+## Uma gestora por jogador
+
+Cada jogador gere **no máximo uma gestora**: quem já tem uma não funda outra, e a gestora em licença pela presidência conta como dele. Quem perde a gestora pode fundar outra, respeitando o prazo de 6 meses depois de afastado por assembleia.
+
+## A lista da sala
+
+O menu **Gestoras** abre a lista da sala em três blocos: **Você gere** (as que você gere, as em licença e as de que você é co-gestor ativo), **Você tem cotas** e **Outras da sala**. Na linha da gestora que você opera aparecem os co-gestores, o selo "N para decidir" quando há convite, votação ou oferta esperando você, e o aviso de quando a gestora foi ganha em assembleia. O botão **Fundar minha gestora** fica no topo só para quem não tem gestora; ser co-gestor não conta como ter uma. Quem perdeu a gestora para a assembleia vê o aviso da troca e o botão **Fundar outra gestora**. A gestora em licença aparece no bloco **Você gere** com o aviso de que volta no fim do mandato.
+

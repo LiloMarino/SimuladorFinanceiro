@@ -60,6 +60,9 @@ class FundTermsDTO(BaseDTO):
     pending_distribution_rate: Decimal | None = None
     # O dia em que o gestor de hoje assumiu a gestora; nulo nas gestoras antigas que nunca listaram
     manager_since: date | None = None
+    # O gestor que passou a gestão ao herdeiro na posse da presidência e retoma no fim do
+    # mandato; nulo sem gestor em licença
+    leave_manager_user_id: int | None = None
 
 
 class FundDTO(FundTermsDTO):
@@ -69,6 +72,9 @@ class FundDTO(FundTermsDTO):
     portfolio_id: int
     client_id: uuid.UUID
     maker_cash: Decimal
+    # A parte nas taxas que o herdeiro tinha como co-gestor antes de virar principal; volta com
+    # o gestor em licença. Nula sem gestor em licença
+    leave_heir_share: Decimal | None = None
     # O dia em que a oferta automática do modo aquisição hostil abriu; nulo sem ela
     takeover_offer_on: date | None = None
     # O lucro realizado desde a última data-com, por origem
@@ -213,6 +219,19 @@ class FundSummaryDTO(FundTermsDTO):
     offer_ends_on: date | None
     # O último dia do mandato do gestor presidente, em que a gestora fica congelada; nulo se opera
     frozen_until: date | None
+    # O último dia do mandato do gestor em licença, em que a gestão volta a ele; nulo sem licença
+    leave_until: date | None = None
+
+
+class FundRoomItemDTO(FundSummaryDTO):
+    """A gestora na lista da sala, com as cotas e o papel de quem consulta."""
+
+    # Zero quando quem consulta não tem cotas
+    my_quotas: Decimal
+    # Os apelidos dos co-gestores ativos, na ordem em que entraram
+    comanager_nicknames: list[str]
+    # Quem consulta é co-gestor ativo desta gestora
+    i_comanage: bool
 
 
 # Quem tem cotas: jogador, bot ou o formador de mercado

@@ -1401,6 +1401,10 @@ class Funds(Base):
     )
     # Dia em que o gestor de hoje assumiu a gestora
     manager_since: Mapped[datetime.date | None] = mapped_column(Date)
+    # O gestor que passou a gestão ao herdeiro na posse da presidência e a parte que o herdeiro
+    # tinha nas taxas antes de virar principal; nulos sem gestor em licença
+    leave_manager_user_id: Mapped[int | None] = mapped_column(Integer)
+    leave_heir_share: Mapped[decimal.Decimal | None] = mapped_column(Numeric(8, 6))
     # O lucro realizado desde a última data-com, por origem: dividendos, juros e cupons da
     # renda fixa, ganho nas vendas e taxas pagas
     month_dividends: Mapped[decimal.Decimal] = mapped_column(

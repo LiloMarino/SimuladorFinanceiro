@@ -1,80 +1,134 @@
+import { Landmark, Lock, Plus, TriangleAlert } from "lucide-react";
 import { Link } from "react-router-dom";
-import { FundMark } from "@/shared/components/fund-mark";
-import { MetricLabel } from "@/shared/components/metric-hint";
-import { Badge } from "@/shared/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { displayMoney, displaySignedPercent } from "@/shared/lib/utils/display";
-import type { FundSummary } from "@/types";
-import { premium } from "@/shared/lib/fund-quota";
-import { MARKET_PRICE, NAV_PER_QUOTA, PREMIUM } from "@/shared/lib/fund-metrics";
-import { fundStage } from "@/shared/lib/fund-view";
-import { FundSection } from "@/shared/components/fund-section";
+import { Alert, AlertDescription } from "@/shared/components/ui/alert";
+import { Button } from "@/shared/components/ui/button";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/shared/components/ui/empty";
+import { usePending } from "@/features/pending/hooks/queries/usePending";
+import { displayDayMonth, displayMoney, displayQuantity } from "@/shared/lib/utils/display";
+import type { FundRoomItem } from "@/types";
+import { isHeldBy, managedHint, roomBlocks, roomLostFund, roomTotalNetWorth } from "../lib/fund-room";
+import { FundRoomBlock } from "./fund-room-block";
 
-const STAGE_LABEL = { closed: "Fechada", offer: "Oferta aberta", listed: "Negociada" } as const;
+type FundRoomListProps = { funds: FundRoomItem[]; userId: number };
 
-/** As gestoras da sala, cada uma com o preço, o patrimônio por cota e o ágio de hoje. */
-export function FundRoomList({ funds }: { funds: FundSummary[] }) {
+/** A sala em três blocos (as que o jogador gere, as de que tem cotas e as outras); o botão de fundar aparece só a quem não tem gestora. */
+export function FundRoomList({ funds, userId }: FundRoomListProps) {
+  const { data: pending = [] } = usePending();
+  const { managed, quotas, others } = roomBlocks(funds, userId);
+  const holdsFund = funds.some((fund) => isHeldBy(fund, userId));
+  const lost = roomLostFund(funds, userId);
+  const found = (
+    <Button variant="fund" nativeButton={false} render={<Link to="/funds/new" />}>
+      <Plus />
+      {lost ? "Fundar outra gestora" : "Fundar minha gestora"}
+    </Button>
+  );
+
+  if (funds.length === 0) {
+    return (
+      <>
+        <h1 className="text-2xl font-bold">Gestoras da sala</h1>
+        {/* Sala sem gestora */}
+        <Empty variant="dashed">
+          <EmptyHeader>
+            <EmptyMedia>
+              <Landmark />
+            </EmptyMedia>
+            <EmptyTitle>Ninguém fundou uma gestora ainda</EmptyTitle>
+            <EmptyDescription>
+              A primeira a nascer aparece aqui e sai no jornal quando abrir a oferta pública.
+            </EmptyDescription>
+          </EmptyHeader>
+          {found}
+        </Empty>
+      </>
+    );
+  }
+
+  // A gestora congelada ou em licença volta ao jogador quando o mandato acaba
+  const returning = managed.find(
+    (fund) => (fund.frozen_until !== null && fund.manager_user_id === userId) || fund.leave_manager_user_id === userId,
+  );
+  const lostQuotas = lost ? Number(lost.my_quotas) : 0;
+
   return (
-    <FundSection title="Gestoras da sala">
-      {funds.length === 0 ? (
-        <p className="text-[13px] text-muted-foreground">
-          Ninguém fundou uma gestora ainda. A primeira a nascer aparece aqui.
-        </p>
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead wrap>Gestora</TableHead>
-              <TableHead>Etapa</TableHead>
-              <TableHead numeric>
-                <MetricLabel metric={MARKET_PRICE} />
-              </TableHead>
-              <TableHead numeric>
-                <MetricLabel metric={NAV_PER_QUOTA} />
-              </TableHead>
-              <TableHead numeric>
-                <MetricLabel metric={PREMIUM} />
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {funds.map((fund) => {
-              const price = fund.price === null ? null : Number(fund.price);
-              const nav = fund.nav === null ? null : Number(fund.nav);
-              return (
-                <TableRow key={fund.id}>
-                  <TableCell wrap>
-                    <Link to={`/funds/${fund.id}`} className="flex items-center gap-2.5 hover:text-primary">
-                      <FundMark name={fund.name} />
-                      <span className="grid min-w-0">
-                        <b className="line-clamp-2 font-semibold break-words">{fund.name}</b>
-                        <span className="text-xs text-muted-foreground">
-                          <span className="font-mono">{fund.ticker}</span>
-                          {fund.manager_nickname && <> · gerida por {fund.manager_nickname}</>}
-                        </span>
-                      </span>
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={fundStage(fund) === "closed" ? "secondary" : "success"} size="tag">
-                      {STAGE_LABEL[fundStage(fund)]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell numeric>{price === null ? "—" : displayMoney(price)}</TableCell>
-                  <TableCell numeric>{nav === null ? "—" : displayMoney(nav)}</TableCell>
-                  <TableCell numeric>
-                    {price === null || nav === null ? (
-                      "—"
-                    ) : (
-                      <b className="font-semibold">{displaySignedPercent(premium(price, nav), 1)}</b>
-                    )}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+    <>
+      {/* Cabeçalho */}
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div className="grid gap-1">
+          <h1 className="text-2xl font-bold">Gestoras da sala</h1>
+          <p className="text-[13px] text-muted-foreground">
+            {holdsFund
+              ? `${funds.length === 1 ? "1 gestora" : `${funds.length} gestoras`} · ${displayMoney(roomTotalNetWorth(funds))} de patrimônio somado`
+              : lost
+                ? "Você não gere nenhuma gestora agora."
+                : "Você ainda não tem gestora."}
+          </p>
+        </div>
+        {!holdsFund && found}
+      </header>
+
+      {/* A gestora que o jogador perdeu para a assembleia */}
+      {lost && (
+        <Alert variant="warning">
+          <TriangleAlert />
+          <AlertDescription>
+            <b className="font-semibold">
+              A assembleia da {lost.name} trocou o gestor
+              {lost.manager_since ? ` em ${displayDayMonth(lost.manager_since)}` : ""}.
+            </b>{" "}
+            {lostQuotas > 0
+              ? `Você segue com as suas ${displayQuantity(lost.my_quotas)} cotas, como cotista, e pode fundar outra gestora.`
+              : "Você pode fundar outra gestora."}
+          </AlertDescription>
+        </Alert>
       )}
-    </FundSection>
+
+      {/* Você gere */}
+      {managed.length > 0 && (
+        <FundRoomBlock
+          title="Você gere"
+          hint={managedHint(managed, userId)}
+          tone="fund"
+          funds={managed}
+          userId={userId}
+          pending={pending}
+          footer={
+            returning && (
+              <Alert variant="muted">
+                <Lock />
+                <AlertDescription>
+                  Fundar outra exige não ter gestora: a {returning.name} volta à sua mão quando o mandato acabar.
+                </AlertDescription>
+              </Alert>
+            )
+          }
+        />
+      )}
+
+      {/* Você tem cotas */}
+      {quotas.length > 0 && (
+        <FundRoomBlock
+          title="Você tem cotas"
+          hint="Você vê a gestora como cotista: carteira, rendimentos, assembleia e relatório."
+          tone="secondary"
+          funds={quotas}
+          userId={userId}
+          pending={pending}
+        />
+      )}
+
+      {/* Outras da sala */}
+      {others.length > 0 && (
+        <FundRoomBlock
+          title="Outras da sala"
+          hint="Cotas se compram na renda variável ou, durante a oferta, a preço fixo."
+          tone="secondary"
+          funds={others}
+          userId={userId}
+          pending={pending}
+        />
+      )}
+    </>
   );
 }

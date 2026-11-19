@@ -59,7 +59,7 @@ def test_founding_creates_a_fund_without_quotas(flow):
 
     assert fund.ticker == TICKER
     assert fund.quotas == 0
-    assert [f.ticker for f in sim.get_funds()] == [TICKER]
+    assert [f.ticker for f in sim.get_funds(ana)] == [TICKER]
     assert sim.get_fund(ana, fund.id).series == []
 
 
@@ -374,7 +374,7 @@ def test_ticker_check_tells_free_format_asset_and_fund_without_changing_anything
     assert check("KNRI11") == ("asset", None)
     assert check(TICKER) == ("fund", "Ana")
     assert check(TICKER, ana) == ("free", None)
-    assert [f.ticker for f in sim.get_funds()] == [TICKER]
+    assert [f.ticker for f in sim.get_funds(ana)] == [TICKER]
 
 
 def test_ticker_check_ignores_the_fund_of_a_founder_in_another_match(
@@ -431,6 +431,7 @@ def governing(sim: Simulation, president: UserDTO, term_end: date) -> dict:
     sim._government = SimpleNamespace(  # type: ignore[assignment]
         president=lambda: president if state["on"] else None,
         term_end=lambda: term_end,
+        founding_reserves=lambda _ticker: False,
         ensure_can_trade=lambda _client_id: None,
         sovereign_fund=lambda: SimpleNamespace(client_id=sovereign_client),
     )
@@ -545,15 +546,29 @@ def test_list_shows_the_last_trade_price_and_the_manager_nickname(started):  # n
     fund_id = fund_with_cash(sim, ana)
     sim.open_fund_offer(ana, fund_id, 20)
 
-    [before] = sim.get_funds()
+    [before] = sim.get_funds(ana)
     buy_at_market(sim, bruno, TICKER, 5)
-    [after] = sim.get_funds()
+    [after] = sim.get_funds(ana)
 
     assert (before.price, before.manager_nickname) == (None, "Ana")
     assert after.price == Decimal(100)
     assert after.price is not None
     assert after.nav is not None
     assert after.price / after.nav - 1 == 0
+
+
+def test_list_carries_the_quotas_of_who_asks(started):  # noqa: F811
+    sim, ana = empty_match("Bruno")
+    bruno = player(sim, "Bruno")
+    fund_id = fund_with_cash(sim, ana)
+    sim.open_fund_offer(ana, fund_id, 20)
+    buy_at_market(sim, bruno, TICKER, 5)
+
+    [seen_by_bruno] = sim.get_funds(bruno)
+    [seen_by_ana] = sim.get_funds(ana)
+
+    assert seen_by_bruno.my_quotas == 5
+    assert seen_by_ana.my_quotas == 50
 
 
 def test_holders_are_listed_from_the_largest_with_color_and_share(started):  # noqa: F811

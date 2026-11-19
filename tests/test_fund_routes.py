@@ -52,6 +52,9 @@ class _Book:
         self.calls: list[tuple] = []
         self.eliminated: dict[int, date] = {}
 
+    def held_by(self, user_id: int) -> list:
+        return []
+
     def founding_blocked_until(self, user_id: int) -> date | None:
         return None
 
