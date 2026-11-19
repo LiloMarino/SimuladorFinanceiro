@@ -9,4 +9,5 @@ export const fundKeys = {
   directedPreview: (fundId: number, quotas: number) => ["funds", "directed-preview", fundId, quotas] as const,
   buybackPreview: (fundId: number, quantity: number, maxPrice: string) =>
     ["funds", "buyback-preview", fundId, quantity, maxPrice] as const,
+  report: (fundId: number, month: string) => ["funds", "report", fundId, month] as const,
 };

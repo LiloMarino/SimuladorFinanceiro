@@ -57,6 +57,8 @@ class FundTermsDTO(BaseDTO):
     # A parte do lucro realizado que vira rendimento aos cotistas e a troca pedida (vale em `pending_from`)
     distribution_rate: Decimal = DEFAULT_DISTRIBUTION_RATE
     pending_distribution_rate: Decimal | None = None
+    # O dia em que o gestor de hoje assumiu a gestora; nulo nas gestoras antigas que nunca listaram
+    manager_since: date | None = None
 
 
 class FundDTO(FundTermsDTO):
@@ -225,6 +227,8 @@ type FundMovementType = Literal[
     "comanager_joined",
     "comanager_left",
     "directed_issuance",
+    "asset_buy",
+    "asset_sell",
 ]
 
 
@@ -273,6 +277,8 @@ class FundSeriesPointDTO(BaseDTO):
     # O fechamento do pregão; nulo antes da primeira vela
     close: Decimal | None
     nav: Decimal
+    # O preço de ranking do pregão; nulo no dia da oferta, antes do primeiro fechamento
+    ranking_price: Decimal | None = None
 
 
 class FundFeesDTO(BaseDTO):
@@ -327,6 +333,28 @@ class FundMovementDTO(BaseDTO):
     # emissão dirigida; nulos nos demais movimentos
     nickname: str | None = None
     share: Decimal | None = None
+
+
+class FundMonthlyReportDTO(BaseDTO):
+    """O relatório de um mês fechado: as posições do último pregão e o mês em números."""
+
+    # O primeiro dia do mês relatado e os meses com relatório publicado, do mais antigo ao mais novo
+    month: date
+    months: list[date]
+    report: FundReportDTO
+    # O saldo devedor dos empréstimos da gestora no fechamento do mês
+    loan_debt: Decimal
+    # O PL por cota no começo e no fim do mês e o CDI do mesmo período
+    nav_start: Decimal
+    nav_end: Decimal
+    cdi_return: Decimal
+    # O rendimento apurado na data-com do mês; nulo quando o mês não teve rendimento
+    distribution: FundDistributionDTO | None
+    # O que a gestora pagou de taxa de administração e de performance no mês
+    management_fee_paid: Decimal
+    performance_fee_paid: Decimal
+    # As operações do mês, da mais antiga à mais nova
+    operations: list[FundMovementDTO]
 
 
 class FundOfferBuyerDTO(BaseDTO):
@@ -530,6 +558,8 @@ class FundDetailsDTO(FundSummaryDTO):
     offer_sold: Decimal | None
     offer_raised: Decimal | None
     offer_buyers: list[FundOfferBuyerDTO] | None
+    # Quantos compradores a oferta pública teve (bots e formador contam um a um); nulo sem oferta
+    offer_buyers_count: int | None = None
     # A emissão e a recompra em aberto; nulas quando a gestora não tem
     issuance: FundIssuanceStatusDTO | None
     buyback: FundBuybackDTO | None

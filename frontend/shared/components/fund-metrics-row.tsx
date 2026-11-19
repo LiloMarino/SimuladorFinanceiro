@@ -34,7 +34,7 @@ function PremiumToday({ price, nav }: { price: number; nav: number }) {
 }
 
 /** Os quatro números que valem para quem gere e para quem olha: patrimônio, patrimônio por cota, preço e ágio. */
-function CommonKpis({ fund }: { fund: FundDetails }) {
+export function CommonKpis({ fund, cellClassName = "" }: { fund: FundDetails; cellClassName?: string }) {
   const nav = fund.nav === null ? null : Number(fund.nav);
   const price = fund.price === null ? null : Number(fund.price);
   const hasPremium = nav !== null && price !== null;
@@ -42,21 +42,25 @@ function CommonKpis({ fund }: { fund: FundDetails }) {
   return (
     <>
       <Kpi
+        className={cellClassName}
         label={<MetricLabel metric={NET_WORTH} />}
         value={displayMoneyWhole(netWorthOf(fund))}
         note={NET_WORTH.description}
       />
       <Kpi
+        className={cellClassName}
         label={<MetricLabel metric={NAV_PER_QUOTA} />}
         value={nav === null ? EMPTY : displayMoney(nav)}
         note={NAV_PER_QUOTA.description}
       />
       <Kpi
+        className={cellClassName}
         label={<MetricLabel metric={MARKET_PRICE} />}
         value={price === null ? EMPTY : displayMoney(price)}
         note={price === null ? "Ainda sem negócio no mercado" : MARKET_PRICE.description}
       />
       <Kpi
+        className={cellClassName}
         label={
           <MetricLabel metric={PREMIUM} extra={hasPremium ? <PremiumToday price={price} nav={nav} /> : undefined} />
         }
@@ -68,7 +72,7 @@ function CommonKpis({ fund }: { fund: FundDetails }) {
 }
 
 /** A rentabilidade em 12 meses contra o CDI, com a diferença em pontos percentuais. */
-function ReturnKpi({ fund }: { fund: FundDetails }) {
+export function ReturnKpi({ fund }: { fund: FundDetails }) {
   const gain = fund.return_12m === null ? null : Number(fund.return_12m);
   const cdi = fund.cdi_12m === null ? null : Number(fund.cdi_12m);
   const beats = gain !== null && cdi !== null ? gain >= cdi : null;
@@ -88,7 +92,7 @@ function ReturnKpi({ fund }: { fund: FundDetails }) {
 }
 
 /** O retorno total em 12 meses: a variação da cota somada aos rendimentos pagos, contra o CDI. */
-function TotalReturnKpi({ fund }: { fund: FundDetails }) {
+export function TotalReturnKpi({ fund }: { fund: FundDetails }) {
   const gain = fund.total_return_12m === null ? null : Number(fund.total_return_12m);
   const cdi = fund.cdi_12m === null ? null : Number(fund.cdi_12m);
   const beats = gain !== null && cdi !== null ? gain >= cdi : null;

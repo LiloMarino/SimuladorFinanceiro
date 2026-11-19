@@ -469,6 +469,7 @@ class FundBook:
             name=name,
             management_fee=management_fee,
             performance_fee=performance_fee,
+            manager_since=self._engine.current_date,
         )
         return self._load(terms)
 
@@ -1355,7 +1356,13 @@ class FundBook:
         # O candidato que já era co-gestor passa a principal e deixa a lista deles
         if any(c.user_id == manager_user_id for c in fund.comanagers):
             self._comanagers.drop(fund, manager_user_id)
-        fund.terms = fund.terms.model_copy(update={"manager_user_id": manager_user_id})
+        # A gestão muda de mão no dia de hoje: o "desde" do novo gestor começa aqui
+        fund.terms = fund.terms.model_copy(
+            update={
+                "manager_user_id": manager_user_id,
+                "manager_since": self._engine.current_date,
+            }
+        )
         self._engine.matching_engine.cancel_all(fund.account.client_id)
         self._finish_buyback(fund, "canceled")
 

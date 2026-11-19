@@ -16,7 +16,7 @@ export function FundFeesCard({ fund, onChange }: { fund: FundDetails; onChange: 
 
   return (
     <FundSection
-      title="Taxas que você recebe"
+      title="Taxas"
       action={
         <Button size="xs" variant="outline" onClick={onChange}>
           Mudar

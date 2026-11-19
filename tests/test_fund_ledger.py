@@ -236,3 +236,53 @@ def test_movements_are_cut_to_the_limit():
 def test_last_business_day_before_skips_the_weekend():
     # 03/05/2004 é segunda: o pregão anterior é a sexta, 30/04
     assert fund_ledger.last_business_day_before(date(2004, 5, 3)) == date(2004, 4, 30)
+
+
+def test_fees_paid_between_split_the_two_fees_inside_the_month():
+    events = [
+        cash(CashflowEventType.FUND_MANAGEMENT_FEE, date(2004, 3, 1), "10"),
+        cash(CashflowEventType.FUND_PERFORMANCE_FEE, date(2004, 3, 15), "4"),
+        cash(CashflowEventType.FUND_MANAGEMENT_FEE, date(2004, 4, 1), "99"),
+    ]
+
+    management, performance = fund_ledger.fees_paid_between(
+        events, date(2004, 3, 1), date(2004, 4, 1)
+    )
+
+    assert (management, performance) == (Decimal(10), Decimal(4))
+
+
+def test_the_fund_own_trades_become_asset_movements_without_the_limit():
+    trades = [
+        equity(
+            EquityEventType.BUY,
+            D1,
+            "100",
+            "10",
+            portfolio=FUND_PORTFOLIO,
+            ticker="VALE3",
+        ),
+        equity(
+            EquityEventType.SELL,
+            D2,
+            "40",
+            "12",
+            portfolio=FUND_PORTFOLIO,
+            ticker="VALE3",
+        ),
+    ]
+
+    found = fund_ledger.movements(
+        cash_events=[],
+        contributed_stocks=[],
+        manager_trades=[],
+        offer=None,
+        asset_trades=trades,
+        limit=None,
+        today=D3,
+    )
+
+    assert [(m.type, m.ticker, m.amount) for m in found] == [
+        ("asset_sell", "VALE3", Decimal(480)),
+        ("asset_buy", "VALE3", Decimal(1000)),
+    ]

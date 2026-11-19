@@ -1399,6 +1399,8 @@ class Funds(Base):
     pending_distribution_rate: Mapped[decimal.Decimal | None] = mapped_column(
         Numeric(8, 6)
     )
+    # Dia em que o gestor de hoje assumiu a gestora
+    manager_since: Mapped[datetime.date | None] = mapped_column(Date)
     # O lucro realizado desde a última data-com, por origem: dividendos, juros e cupons da
     # renda fixa, ganho nas vendas e taxas pagas
     month_dividends: Mapped[decimal.Decimal] = mapped_column(

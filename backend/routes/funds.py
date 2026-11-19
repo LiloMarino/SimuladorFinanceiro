@@ -1,7 +1,8 @@
+from datetime import date
 from decimal import Decimal
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Response, status
+from fastapi import APIRouter, Path, Query, Response, status
 
 from backend.core.dto.fund import (
     FundAccountDTO,
@@ -26,6 +27,7 @@ from backend.core.dto.fund import (
     FundIssuanceRequest,
     FundIssuanceSubscriptionPreviewDTO,
     FundIssuanceSubscriptionRequest,
+    FundMonthlyReportDTO,
     FundOfferRequest,
     FundSummaryDTO,
     FundTickerCheckDTO,
@@ -86,6 +88,21 @@ def check_fund_ticker(simulation: ActiveSimulation, user: CurrentUser, ticker: s
 )
 def get_fund(simulation: ActiveSimulation, user: CurrentUser, fund_id: int):
     return simulation.get_fund(user, fund_id)
+
+
+@funds_router.get(
+    "/{fund_id}/reports/{month}",
+    response_model=FundMonthlyReportDTO,
+    summary="Ler o relatório de um mês da gestora",
+    description="O relatório do mês fechado (formato aaaa-mm): as posições do último pregão, o PL por cota contra o CDI, o rendimento, as taxas pagas e as operações do mês. Qualquer jogador da sala lê; o mês só existe depois da virada seguinte à oferta.",
+)
+def get_fund_report(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    month: Annotated[str, Path(pattern=r"^\d{4}-(0[1-9]|1[0-2])$")],
+):
+    return simulation.get_fund_report(fund_id, date.fromisoformat(f"{month}-01"))
 
 
 @funds_router.post(

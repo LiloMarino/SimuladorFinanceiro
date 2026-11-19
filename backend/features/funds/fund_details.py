@@ -19,6 +19,8 @@ from backend.core.dto.fund import (
     FundHolderKind,
     FundHoldingClass,
     FundIssuanceStatusDTO,
+    FundMonthlyReportDTO,
+    FundMovementDTO,
     FundOfferBuyerDTO,
     FundOfferSaleDTO,
     FundPositionDTO,
@@ -27,8 +29,9 @@ from backend.core.dto.fund import (
 )
 from backend.core.dto.user import UserDTO
 from backend.core.enum import FixedIncomeType, FundComanagerStatus
+from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.runtime.user_manager import UserManager
-from backend.core.utils import last_month_turn, ratio
+from backend.core.utils import last_month_turn, next_month_turn, ratio
 from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
@@ -207,6 +210,7 @@ class FundDetailsBuilder:
             offer_sold=offer.facts.totals.sold if offer.facts else None,
             offer_raised=offer.facts.totals.raised if offer.facts else None,
             offer_buyers=offer.buyers,
+            offer_buyers_count=offer.buyers_count,
             issuance=self._issuance(fund, viewer, today),
             buyback=book.buyback_of(fund),
             assembly=book.assembly_panel(
@@ -390,7 +394,18 @@ class FundDetailsBuilder:
             return None
         if fund.report is not None and fund.report[0] == turn:
             return fund.report[1]
+        report = self._report_at(fund, turn, cash_events, equity_events)
+        fund.report = (turn, report)
+        return report
 
+    def _report_at(
+        self,
+        fund: Fund,
+        turn: date,
+        cash_events: list[CashflowEventDTO],
+        equity_events: list[EquityEventDTO],
+    ) -> FundReportDTO:
+        """As posições da gestora no último pregão antes da virada `turn`, a preços daquele dia."""
         engine = self._engine
         close = fund_ledger.last_business_day_before(turn)
         client = fund.account.client_id
@@ -436,15 +451,99 @@ class FundDetailsBuilder:
             if closed and closed[-1].day == close
             else Decimal(0),
         )
-        fund.report = (turn, report)
         return report
+
+    # =========================
+    # Relatório de um mês
+    # =========================
+
+    @staticmethod
+    def report_months(fund: Fund, today: date) -> list[date]:
+        """Os meses com relatório publicado, do mais antigo ao mais novo: cada um sai na virada seguinte."""
+        listed_on = fund.terms.listed_on
+        if listed_on is None:
+            return []
+        last = last_month_turn(today)
+        months: list[date] = []
+        month = listed_on.replace(day=1)
+        while (turn := next_month_turn(month)) <= last:
+            if turn > listed_on:
+                months.append(month)
+            month = (month + timedelta(days=32)).replace(day=1)
+        return months
+
+    def monthly_report(self, fund: Fund, month: date) -> FundMonthlyReportDTO:
+        """O relatório de `month` (o primeiro dia do mês): posições, o mês em números e as operações."""
+        terms = fund.terms
+        months = self.report_months(fund, self._engine.current_date)
+        if month not in months:
+            raise NotFoundError("Este mês ainda não tem relatório")
+        turn = next_month_turn(month)
+        cash_events = repository.event.get_cashflow_events(
+            self._simulation_id, terms.portfolio_id
+        )
+        equity_events = repository.fund.portfolio_equity_events(
+            self._simulation_id, terms.portfolio_id
+        )
+        report = self._report_at(fund, turn, cash_events, equity_events)
+        # Os fechamentos do mês, com o último do mês anterior para abrir a conta
+        closes = repository.fund.days(terms.id, turn, 40)
+        in_month = [day for day in closes if day.day >= month]
+        before = [day for day in closes if day.day < month]
+        if not in_month:
+            raise NotFoundError("Este mês ainda não tem relatório")
+        start_nav = before[-1].nav if before else terms.offer_price or in_month[0].nav
+        start_day = before[-1].day if before else terms.listed_on or month
+        end = in_month[-1]
+        management, performance = fund_ledger.fees_paid_between(
+            cash_events, month, turn
+        )
+        movements = fund_ledger.movements(
+            cash_events=cash_events,
+            contributed_stocks=equity_events,
+            manager_trades=[],
+            offer=None,
+            issuances=repository.fund.issuances(terms.id),
+            buybacks=repository.fund.buybacks(terms.id),
+            comanager_events=repository.fund_comanager.events(terms.id),
+            directed_issuances=repository.fund_directed_issuance.settled_of_fund(
+                terms.id
+            ),
+            nicknames={user.id: user.nickname for user in self._book.participants()},
+            asset_trades=equity_events,
+            limit=None,
+            today=self._engine.current_date,
+        )
+        operations: list[FundMovementDTO] = [
+            movement
+            for movement in reversed(movements)
+            if month <= movement.day < turn
+            and movement.type
+            not in ("management_fee", "performance_fee", "report_published")
+        ]
+        return FundMonthlyReportDTO(
+            month=month,
+            months=months,
+            report=report,
+            loan_debt=end.loan_debt,
+            nav_start=start_nav,
+            nav_end=end.nav,
+            cdi_return=cdi_growth(start_day, end.day) - 1,
+            distribution=next(
+                (d for d in fund.distributions if d.data_com.replace(day=1) == month),
+                None,
+            ),
+            management_fee_paid=management,
+            performance_fee_paid=performance,
+            operations=operations,
+        )
 
     # =========================
     # Desempenho
     # =========================
 
     def _series(self, fund: Fund, today: date) -> list[FundSeriesPointDTO]:
-        """O fechamento e o PL por cota de cada pregão dos últimos 12 meses."""
+        """O fechamento, o PL por cota e o preço de ranking de cada pregão dos últimos 12 meses."""
         terms = fund.terms
         start = fund_ledger.one_year_before(today)
         days = [
@@ -474,6 +573,7 @@ class FundDetailsBuilder:
                     day=day.day,
                     close=Decimal(str(closes[day.day])) if day.day in closes else None,
                     nav=day.nav,
+                    ranking_price=day.ranking_price,
                 )
                 for day in days
             ),
@@ -595,7 +695,7 @@ class FundDetailsBuilder:
         """A oferta como a gestora a gravou e quem comprou nela; sem oferta fica vazia."""
         terms = fund.terms
         if terms.listed_on is None:
-            return _Offer(None, None)
+            return _Offer(None, None, None)
         sales = repository.fund.offer_sales(terms.id)
         facts = fund_ledger.OfferFacts(
             listed_on=terms.listed_on,
@@ -605,7 +705,8 @@ class FundDetailsBuilder:
             closed_on=terms.offer_closed_on,
         )
         buyers = self._buyers(sales, users) if facts.in_progress else None
-        return _Offer(facts, buyers)
+        count = len({sale.buyer_user_id for sale in sales if sale.buyer_user_id})
+        return _Offer(facts, buyers, count)
 
     def _buyers(
         self, sales: list[FundOfferSaleDTO], users: list[UserDTO]
@@ -661,3 +762,5 @@ class _Offer:
 
     facts: fund_ledger.OfferFacts | None
     buyers: list[FundOfferBuyerDTO] | None
+    # Quantos compradores a oferta teve, mesmo depois de fechada
+    buyers_count: int | None

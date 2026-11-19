@@ -421,6 +421,7 @@ def test_the_comanager_with_the_largest_share_becomes_principal_when_the_manager
 
     fund = book_of(sim).get(TICKER)
     assert fund.terms.manager_user_id == bruno.id
+    assert fund.terms.manager_since == sim._current_date
     # Ana sai da gestão, a parte de Bruno se soma à do principal e Carla mantém a dela
     assert book_of(sim).operators(fund) == [bruno.id, carla.id]
     assert [c.user_id for c in fund.comanagers] == [carla.id]

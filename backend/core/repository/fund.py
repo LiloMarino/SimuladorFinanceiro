@@ -51,6 +51,7 @@ from backend.core.repository.ticker_claim import claim_stock, letters_taken
 # Colunas da linha de `funds` que mudam depois de a gestora nascer
 _MUTABLE = (
     "manager_user_id",
+    "manager_since",
     "quotas",
     "maker_quotas",
     "maker_cash",
@@ -150,6 +151,7 @@ class FundRepository:
         name: str,
         management_fee: Decimal,
         performance_fee: Decimal,
+        manager_since: date | None = None,
     ) -> FundDTO:
         """Abre a carteira da gestora (sem jogador dono) e grava a gestora com zero cota."""
         now = datetime.now(UTC)
@@ -171,6 +173,7 @@ class FundRepository:
             name=name,
             management_fee=management_fee,
             performance_fee=performance_fee,
+            manager_since=manager_since,
             distribution_rate=DEFAULT_DISTRIBUTION_RATE,
             month_dividends=Decimal(0),
             month_interest=Decimal(0),

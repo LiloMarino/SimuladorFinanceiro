@@ -33,6 +33,7 @@ export type FundAssemblyVoteRequest = components["schemas"]["FundAssemblyVoteReq
 export type FundComanagerInviteRequest = components["schemas"]["FundComanagerInviteRequest"];
 export type FundComanagerShareRequest = components["schemas"]["FundComanagerShareRequest"];
 export type FundBuybackPreview = components["schemas"]["FundBuybackPreviewDTO"];
+export type FundMonthlyReport = components["schemas"]["FundMonthlyReportDTO"];
 export type FundDirectedIssuanceRequest = components["schemas"]["FundDirectedIssuanceRequest"];
 export type FundDirectedIssuancePreview = components["schemas"]["FundDirectedIssuancePreviewDTO"];
 

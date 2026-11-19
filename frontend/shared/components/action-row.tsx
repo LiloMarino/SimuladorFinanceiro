@@ -6,16 +6,21 @@ import { cn } from "@/shared/lib/utils";
 type ActionRowProps = {
   title: string;
   description: string;
-  /** Onde a mesma ação também mora: "Contas › Impostos" */
-  alsoIn: string;
+  /** Onde a mesma ação também mora: "Contas › Impostos"; sem ela a linha não mostra o "Também em" */
+  alsoIn?: string;
   actionLabel: string;
   onAction: () => void;
   /** O ícone do grupo; a linha urgente do "Para decidir agora" vai sem ícone */
   icon?: LucideIcon;
   /** O número ou o prazo ao lado do título: "2 sem andar", "até 30 set" */
   chip?: string | undefined;
-  /** O tom do chip: aviso para o que tem prazo, informação para o estado de uma ação */
-  chipVariant?: "warning" | "info";
+  /** O tom do chip: aviso para o que tem prazo, informação para o estado de uma ação, sucesso para o que já foi feito */
+  chipVariant?: "warning" | "info" | "success";
+  /** O tom da linha: a gestora usa o verde dela no ícone e no botão principal */
+  tone?: "primary" | "fund";
+  /** Uma segunda ação ao lado da principal ("Recusar" ao lado de "Aceitar") */
+  secondaryLabel?: string;
+  onSecondary?: () => void;
   /** A ação principal da tela ou a urgente leva o botão cheio */
   primary?: boolean;
   /** O motivo de a ação estar apagada, escrito à vista; com ele o botão não clica */
@@ -32,6 +37,9 @@ export function ActionRow({
   icon: Icon,
   chip,
   chipVariant = "warning",
+  tone = "primary",
+  secondaryLabel,
+  onSecondary,
   primary = false,
   blockedReason,
 }: ActionRowProps) {
@@ -48,7 +56,11 @@ export function ActionRow({
         <span
           className={cn(
             "flex size-9 items-center justify-center rounded-[10px]",
-            blocked ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary",
+            blocked
+              ? "bg-muted text-muted-foreground"
+              : tone === "fund"
+                ? "bg-fund-soft text-fund"
+                : "bg-primary/10 text-primary",
           )}
         >
           <Icon className="size-[18px]" />
@@ -75,22 +87,30 @@ export function ActionRow({
             {blockedReason}
           </span>
         )}
-        <span className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-          <CornerDownRight className="size-3 shrink-0" />
-          <span>
-            Também em <b className="font-semibold text-foreground/70">{alsoIn}</b>
+        {alsoIn && (
+          <span className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <CornerDownRight className="size-3 shrink-0" />
+            <span>
+              Também em <b className="font-semibold text-foreground/70">{alsoIn}</b>
+            </span>
           </span>
-        </span>
+        )}
       </div>
-      <Button
-        size="sm"
-        variant={primary && !blocked ? "default" : "outline"}
-        disabled={blocked}
-        onClick={onAction}
-        className={Icon ? "mt-0.5" : undefined}
-      >
-        {actionLabel}
-      </Button>
+      <div className={cn("flex items-center gap-2", Icon && "mt-0.5")}>
+        {secondaryLabel && (
+          <Button size="sm" variant="outline" onClick={onSecondary}>
+            {secondaryLabel}
+          </Button>
+        )}
+        <Button
+          size="sm"
+          variant={primary && !blocked ? (tone === "fund" ? "fund" : "default") : "outline"}
+          disabled={blocked}
+          onClick={onAction}
+        >
+          {actionLabel}
+        </Button>
+      </div>
     </div>
   );
 }

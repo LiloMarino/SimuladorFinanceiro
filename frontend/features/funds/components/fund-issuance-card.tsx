@@ -15,6 +15,7 @@ import type { FundDetails } from "@/types";
 import { useSubscribeFundIssuance } from "../hooks/mutations/useSubscribeFundIssuance";
 import { useFundSubscriptionPreview } from "../hooks/queries/useFundSubscriptionPreview";
 import { PREFERENCE_RIGHT } from "@/shared/lib/fund-metrics";
+import { rightsLeftOf } from "../lib/fund-pending";
 
 type Issuance = NonNullable<FundDetails["issuance"]>;
 
@@ -92,7 +93,7 @@ export function FundIssuanceCard({ fund, viewer }: FundIssuanceCardProps) {
   const quotas = Number(issuance.quotas);
   const sold = Number(issuance.sold);
   const rights = issuance.my_rights === null ? null : Number(issuance.my_rights);
-  const rightsLeft = rights === null ? 0 : Math.max(rights - Number(issuance.my_bought ?? 0), 0);
+  const rightsLeft = rightsLeftOf(issuance);
 
   return (
     <Card variant={closed ? "default" : "info"}>

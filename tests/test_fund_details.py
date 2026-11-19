@@ -298,3 +298,22 @@ def test_holders_include_bots_and_the_maker_and_skip_empty_positions():
         Decimal(30) / 110,
         Decimal(10) / 110,
     ]
+
+
+def test_report_months_start_after_the_first_turn_that_follows_the_offer():
+    fund = fund_with(listed_on=date(2004, 3, 10))
+
+    months = FundDetailsBuilder.report_months(fund, date(2004, 6, 1))
+
+    # O de junho só sai na virada de julho
+    assert months == [date(2004, 3, 1), date(2004, 4, 1), date(2004, 5, 1)]
+
+
+def test_a_fund_listed_on_the_turn_has_no_report_for_the_month_before_it():
+    fund = fund_with(listed_on=date(2004, 4, 1))
+
+    assert FundDetailsBuilder.report_months(fund, date(2004, 4, 20)) == []
+
+
+def test_a_fund_without_offer_has_no_report_months():
+    assert FundDetailsBuilder.report_months(fund_with(), TODAY) == []

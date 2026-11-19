@@ -40,5 +40,9 @@ export function movementText(movement: Movement): string {
       return `O gestor comprou ${movement.quotas === null ? "" : `${displayQuantity(movement.quotas)} de `}${asset}`;
     case "manager_sell":
       return `O gestor vendeu ${movement.quotas === null ? "" : `${displayQuantity(movement.quotas)} de `}${asset}`;
+    case "asset_buy":
+      return `A gestora comprou ${movement.quotas === null ? "" : `${displayQuantity(movement.quotas)} de `}${asset}`;
+    case "asset_sell":
+      return `A gestora vendeu ${movement.quotas === null ? "" : `${displayQuantity(movement.quotas)} de `}${asset}`;
   }
 }

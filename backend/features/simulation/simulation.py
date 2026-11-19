@@ -59,6 +59,7 @@ from backend.core.dto.fund import (
     FundIssuanceRequest,
     FundIssuanceSubscriptionPreviewDTO,
     FundIssuanceSubscriptionRequest,
+    FundMonthlyReportDTO,
     FundSummaryDTO,
     FundTickerCheckDTO,
 )
@@ -1322,6 +1323,18 @@ class Simulation:
             lambda: repository.simulation_player.colors(self.settings.id),
         )
         return builder.build(book.by_id(fund_id), user)
+
+    @synchronized
+    def get_fund_report(self, fund_id: int, month: date) -> FundMonthlyReportDTO:
+        """O relatório de um mês fechado da gestora; qualquer jogador da sala lê."""
+        book = self._ensure_funds()
+        builder = FundDetailsBuilder(
+            book,
+            self._engine,
+            self.settings.id,
+            lambda: repository.simulation_player.colors(self.settings.id),
+        )
+        return builder.monthly_report(book.by_id(fund_id), month)
 
     @synchronized
     def found_fund(self, user: UserDTO, request: FundFoundRequest) -> FundSummaryDTO:

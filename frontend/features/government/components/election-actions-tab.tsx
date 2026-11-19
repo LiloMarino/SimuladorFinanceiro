@@ -16,8 +16,8 @@ import { displayDayMonth, displayList, displayShortDate } from "@/shared/lib/uti
 import type { ElectionPanel, ElectionParty } from "@/types";
 import { electionPending } from "../lib/actions";
 import { monthYear } from "../lib/election";
-import { ActionGroup, DecideNow } from "./action-card";
-import { ActionRow } from "./action-row";
+import { ActionGroup, DecideNow } from "@/shared/components/action-card";
+import { ActionRow } from "@/shared/components/action-row";
 
 /** Os diálogos da Eleição que as linhas abrem: o mesmo diálogo que a aba Campanha do partido abre. */
 type ElectionActionDialog = "ticket" | "promises" | "contribution" | "leave" | "federation-propose";

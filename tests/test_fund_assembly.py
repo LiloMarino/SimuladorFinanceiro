@@ -387,6 +387,8 @@ def test_the_replacement_wins_by_the_quotas_at_the_close_of_the_last_session(
     _close_all_sessions(setup)
 
     assert fund.terms.manager_user_id == ANA.id
+    # O novo gestor conta o "desde" do dia em que a votação fechou
+    assert fund.terms.manager_since == LAST_SESSION
     assert fund.assembly is None
     assert fund.last_assembly is not None
     assert fund.last_assembly.status is FundAssemblyStatus.REPLACED

@@ -1056,6 +1056,14 @@ def test_summary_names_the_manager_from_the_participants(memory: MemoryFunds):
     assert summary.manager_nickname == "Ana"
 
 
+def test_a_new_fund_counts_the_manager_since_from_the_founding_day(
+    memory: MemoryFunds,
+):
+    setup = _setup(memory)
+
+    assert setup.book.get(TICKER).terms.manager_since == TODAY
+
+
 def test_unknown_fund_id_is_not_found(memory: MemoryFunds):
     setup = _setup(memory)
 

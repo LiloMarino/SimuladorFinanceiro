@@ -19,7 +19,7 @@ import { PaymentsCard } from "../components/payments-card";
 import { PrepayDialog, type PrepayChoice } from "../components/prepay-dialog";
 import { RatingSuggestionsCard } from "../components/rating-suggestions-card";
 import { RiskRatingCard } from "../components/risk-rating-card";
-import { useCredit } from "../hooks/queries/useCredit";
+import { useCredit } from "@/shared/hooks/queries/useCredit";
 import { creditLockOfAccount, creditLockOfError } from "../lib/credit-lock";
 
 export default function CreditPage() {

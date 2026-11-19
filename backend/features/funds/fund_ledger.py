@@ -80,6 +80,21 @@ def fees_received(events: Iterable[CashflowEventDTO], after: date) -> Decimal:
     )
 
 
+def fees_paid_between(
+    events: Iterable[CashflowEventDTO], start: date, end: date
+) -> tuple[Decimal, Decimal]:
+    """As taxas de administração e de performance pagas em [start, end): uma soma para cada."""
+    management = performance = Decimal(0)
+    for event in events:
+        if not start <= event.event_date < end:
+            continue
+        if event.event_type is CashflowEventType.FUND_MANAGEMENT_FEE:
+            management += event.amount
+        elif event.event_type is CashflowEventType.FUND_PERFORMANCE_FEE:
+            performance += event.amount
+    return management, performance
+
+
 @dataclass(frozen=True)
 class OfferFacts:
     """A oferta como a gestora a gravou, para virar movimentos."""
@@ -108,9 +123,15 @@ def movements(
     comanager_events: Iterable[FundComanagerEventDTO] = (),
     directed_issuances: Iterable[FundDirectedIssuanceDTO] = (),
     nicknames: Mapping[int, str] | None = None,
+    asset_trades: Iterable[EquityEventDTO] = (),
+    limit: int | None = MOVEMENTS_LIMIT,
     today: date,
 ) -> list[FundMovementDTO]:
-    """Os movimentos mais novos da gestora, do mais recente ao mais antigo."""
+    """Os movimentos mais novos da gestora, do mais recente ao mais antigo.
+
+    `asset_trades` são as compras e vendas de ações da própria carteira da gestora; `limit`
+    nulo devolve todos.
+    """
     found: list[FundMovementDTO] = []
 
     def add(
@@ -176,6 +197,18 @@ def movements(
                 amount=event.price * event.quantity,
                 ticker=event.ticker,
             )
+    for trade in asset_trades:
+        if trade.event_type in (EquityEventType.BUY, EquityEventType.SELL):
+            add(
+                trade.event_date,
+                "asset_buy"
+                if trade.event_type is EquityEventType.BUY
+                else "asset_sell",
+                quotas=trade.quantity,
+                price=trade.price,
+                amount=trade.price * trade.quantity,
+                ticker=trade.ticker,
+            )
     for trade in manager_trades:
         add(
             trade.event_date,
@@ -235,7 +268,7 @@ def movements(
         )
 
     found.sort(key=lambda movement: movement.day)
-    return found[::-1][:MOVEMENTS_LIMIT]
+    return found[::-1][:limit]
 
 
 def last_business_day_before(day: date) -> date:

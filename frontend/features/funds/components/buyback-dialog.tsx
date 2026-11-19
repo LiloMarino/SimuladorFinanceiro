@@ -20,19 +20,20 @@ import { displayMoney, displayPercent, displayQuantity } from "@/shared/lib/util
 import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
 import { useOpenFundBuyback } from "../hooks/mutations/useOpenFundBuyback";
 import { useFundBuybackPreview } from "../hooks/queries/useFundBuybackPreview";
-import { BUYBACK_PREMIUM_COST, PREMIUM } from "@/shared/lib/fund-metrics";
+import { BUYBACK_PREMIUM_COST } from "@/shared/lib/fund-metrics";
 import { ControlNotice } from "@/shared/components/control-notice";
+import type { FundDetails } from "@/types";
 
 type BuybackDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  fundId: number;
-  fundName: string;
-  totalQuotas: number;
+  fund: FundDetails;
 };
 
 /** Recompra: a gestora compra cotas no livro, com o próprio caixa, até o preço máximo, e as cotas compradas deixam de existir. */
-export function BuybackDialog({ open, onOpenChange, fundId, fundName, totalQuotas }: BuybackDialogProps) {
+export function BuybackDialog({ open, onOpenChange, fund }: BuybackDialogProps) {
+  const fundId = fund.id;
+  const totalQuotas = Number(fund.quotas);
   const [quantityText, setQuantityText] = useState("");
   const [priceText, setPriceText] = useState("");
   const quantity = Number(quantityText);
@@ -48,6 +49,7 @@ export function BuybackDialog({ open, onOpenChange, fundId, fundName, totalQuota
   const settled = preview !== undefined && deferredQuantity === quantity && deferredPrice === maxPrice;
   const ready = valid && settled && !tooMany && !noCash;
   const premium = preview ? Number(preview.premium) : 0;
+  const cashNow = Number(fund.composition.find((item) => item.asset_class === "cash")?.value ?? 0);
 
   const submit = () => {
     if (ready && !openBuyback.isPending) {
@@ -59,10 +61,9 @@ export function BuybackDialog({ open, onOpenChange, fundId, fundName, totalQuota
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col sm:max-w-145">
         <DialogHeader variant="divided">
-          <DialogTitle>Recomprar cotas de {fundName}</DialogTitle>
+          <DialogTitle>Recompra de cotas</DialogTitle>
           <DialogDescription>
-            A gestora põe uma ordem de compra no livro e paga com o próprio caixa. As cotas compradas deixam de existir,
-            e o patrimônio dos cotistas que ficam se divide em menos cotas.
+            A gestora compra {fund.ticker} no livro com o caixa dela, e as cotas compradas deixam de existir.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
@@ -98,18 +99,20 @@ export function BuybackDialog({ open, onOpenChange, fundId, fundName, totalQuota
                 onChange={(event) => setPriceText(formatMoney(event.target.value))}
                 onKeyDown={(event) => event.key === "Enter" && submit()}
               />
-              <FieldDescription>A ordem não paga mais que isso por cota.</FieldDescription>
+              <FieldDescription>
+                Hoje o livro vende a {fund.price === null ? "—" : displayMoney(fund.price)}. A ordem não paga mais que
+                isso por cota.
+              </FieldDescription>
             </Field>
           </div>
           {valid && preview && !tooMany && (
             <>
               <div>
-                <KeyValueRow label="Patrimônio por cota hoje" value={displayMoney(preview.nav)} />
                 <KeyValueRow
-                  label={<MetricLabel metric={PREMIUM} />}
-                  value={`${premium > 0 ? "ágio de " : "deságio de "}${displayPercent(Math.abs(premium), 1)}`}
+                  label="Custa até"
+                  value={displayMoney(preview.cost)}
+                  note={`Do caixa da gestora, de ${displayMoney(cashNow)}`}
                 />
-                <KeyValueRow label="Custo, se comprar tudo ao preço máximo" value={displayMoney(preview.cost)} />
                 {premium > 0 && (
                   <KeyValueRow
                     label={<MetricLabel metric={BUYBACK_PREMIUM_COST} />}
@@ -118,9 +121,15 @@ export function BuybackDialog({ open, onOpenChange, fundId, fundName, totalQuota
                 )}
                 <KeyValueRow label="Caixa da gestora depois" value={displayMoney(preview.cash_after)} />
                 <KeyValueRow
-                  label="Patrimônio por cota depois"
-                  value={displayMoney(preview.nav_after)}
+                  label="Patrimônio por cota"
+                  value={`${displayMoney(preview.nav)} → ${displayMoney(preview.nav_after)}`}
                   valueClassName={premium > 0 ? "text-destructive" : "text-success"}
+                  note={`${premium > 0 ? "Ágio" : "Deságio"} de ${displayPercent(Math.abs(premium), 1)} sobre o patrimônio`}
+                />
+                <KeyValueRow
+                  label="Seu controle"
+                  value={`${displayPercent(preview.share_now, 1)} → ${displayPercent(preview.share_after, 1)}`}
+                  note={`De ${displayQuantity(preview.total_after)} cotas`}
                 />
               </div>
               {noCash && (
@@ -147,7 +156,7 @@ export function BuybackDialog({ open, onOpenChange, fundId, fundName, totalQuota
           </Button>
           <Button variant="fund" disabled={!ready || openBuyback.isPending} onClick={submit}>
             {openBuyback.isPending && <Spinner />}
-            Recomprar{valid ? ` ${displayQuantity(String(quantity))} cotas` : ""}
+            Recomprar{valid ? ` até ${displayQuantity(String(quantity))} cotas` : ""}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -16,9 +16,10 @@ export const FEE_PAYABLE: MetricInfo = {
   description: "A taxa que o caixa da gestora não cobriu e que ela ainda deve ao gestor",
   definition:
     "Quando a taxa vence e o caixa não tem o suficiente, a gestora paga o que dá e deve o resto ao gestor. A dívida desconta do patrimônio e o próximo dinheiro que entra no caixa (dividendo, juro ou venda de ativo) a quita antes de qualquer rendimento.",
-  example: "Ex.: taxa de R$ 10.000 com R$ 4.000 em caixa: o gestor recebe R$ 4.000 e R$ 6.000 ficam como taxa a pagar.",
+  example:
+    "Ex.: R$ 10.000 de taxa a pagar e R$ 25.000 de dividendo: R$ 10.000 quitam a taxa e R$ 15.000 ficam no caixa.",
   reading:
-    "Valor em aberto é patrimônio que ainda não chegou ao gestor e que o cotista não recebe como rendimento. O ideal é zero: o caixa cobriu a taxa.",
+    "Zero é o normal. Enquanto houver taxa a pagar, a recompra trava e o rendimento do mês paga só o que sobrar depois dela.",
   format: (value) => `${value}`,
 };
 
@@ -61,10 +62,32 @@ export const RANKING_PRICE: MetricInfo = {
   definition:
     "É a média dos negócios dos últimos 20 pregões, pesada pelo tamanho de cada negócio e presa a 30% acima ou abaixo do patrimônio por cota. É o preço que conta quando a cota entra na carteira de alguém.",
   example:
-    "Ex.: com patrimônio por cota de R$ 128,40, um negócio forçado a R$ 1.000 conta no máximo R$ 166,92 (128,40 × 1,30). Subir o preço no mercado não infla a carteira.",
+    "Ex.: com patrimônio por cota de R$ 100,00, o preço de ranking fica entre R$ 70,00 e R$ 130,00, mesmo que um negócio saia a R$ 200,00.",
   reading:
-    "Perto do patrimônio por cota, é um preço honesto. Colado no teto de +30% ou no piso de -30%, o mercado está tentando pagar ou receber mais do que a gestora vale.",
+    "Perto do patrimônio por cota, é um preço honesto. Colado no teto de +30% ou no piso de −30%, o mercado está forçando o preço.",
   format: (value) => `${value}`,
+};
+
+export const RANKING_BAND: MetricInfo = {
+  label: "Faixa de hoje",
+  description: "Entre quais preços o preço de ranking pode ficar hoje",
+  definition:
+    "É o patrimônio por cota de hoje com 30% a menos e 30% a mais. O preço de ranking nunca sai dessa faixa, por mais que o mercado negocie fora dela.",
+  example: "Ex.: patrimônio por cota de R$ 110,44: a faixa vai de R$ 77,31 (−30%) a R$ 143,57 (+30%).",
+  reading:
+    "A faixa anda junto com o patrimônio por cota. Um negócio fora dela não muda o preço de ranking além do teto ou do piso.",
+  format: (value) => `${value}`,
+};
+
+export const DIVIDEND_YIELD: MetricInfo = {
+  label: "Dividend yield",
+  description: "Quanto a cota pagou em rendimentos nos últimos 12 meses, sobre o preço dela",
+  definition:
+    "É a soma dos rendimentos por cota dos últimos 12 meses dividida pelo preço no mercado. Mede a renda que a cota gera, sem contar a variação do preço.",
+  example: "Ex.: R$ 12,00 de rendimentos em 12 meses para uma cota de R$ 100,00 = 12% ao ano.",
+  reading:
+    "Quanto maior, mais renda para quem compra hoje. Compare com o CDI: yield abaixo dele só compensa se o patrimônio por cota crescer. Yield muito alto com a cota caindo pode ser sinal de que a gestora paga o próprio patrimônio.",
+  format: (value) => `${value}%`,
 };
 
 export const PREMIUM: MetricInfo = {
@@ -180,7 +203,7 @@ export const DISTRIBUTION_RATE: MetricInfo = {
   example:
     "Ex.: a gestora realizou R$ 10.000 de lucro no mês e distribui 95%: paga R$ 9.500 aos cotistas e guarda R$ 500.",
   reading:
-    "Perto de 100% atrai quem quer renda todo mês, mas deixa a gestora com pouco caixa para comprar ativos. Perto de 0% faz o patrimônio por cota crescer mais, sem pagar nada ao cotista. Não há valor certo: depende do cotista que você quer atrair.",
+    "Toda gestora nasce com 95%. Perto de 100% atrai quem quer renda todo mês, mas deixa a gestora com pouco caixa para comprar ativos. Perto de 0% faz o patrimônio por cota crescer mais, sem pagar nada ao cotista. Não há valor certo: depende do cotista que você quer atrair.",
   format: (value) => `${value}%`,
 };
 
@@ -217,4 +240,14 @@ export const TOTAL_RETURN: MetricInfo = {
   reading:
     "É a medida justa para comparar gestoras que distribuem muito com as que distribuem pouco, e a mesma em que a taxa de performance é cobrada. Acima do CDI, a gestora entregou mais que a renda fixa segura.",
   format: (value) => `${value}%`,
+};
+
+export const CREDIT_RATING: MetricInfo = {
+  label: "Nota de crédito da gestora",
+  description: "De AAA a D: define os juros do empréstimo",
+  definition:
+    "Soma até 100 pontos: 40 pela alavancagem (quanto da gestora é dívida), 30 pela volatilidade da cota e 30 pelo histórico de pagamentos em dia. Quanto maior a nota, menor o juro sobre a SELIC.",
+  example: "Ex.: 32 de alavancagem + 14 de volatilidade + 30 de pagamentos = 76, nota A: SELIC + 5%.",
+  reading: "Abaixo de 30 pontos a nota é D e o empréstimo some.",
+  format: (value) => `${value}`,
 };

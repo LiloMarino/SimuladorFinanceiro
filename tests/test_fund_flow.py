@@ -20,7 +20,7 @@ from backend.core.dto.fund import (
 )
 from backend.core.dto.user import UserDTO
 from backend.core.enum import AssetClass, EquityEventType, OrderAction, OrderStatus
-from backend.core.exceptions.http_exceptions import ConflictError
+from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -810,6 +810,39 @@ def test_a_month_in_shows_report_fees_series_and_returns(started):  # noqa: F811
     assert page.return_12m == page.nav / page.series[0].nav - 1
     assert page.cdi_12m is not None
     assert page.cdi_12m > 0
+
+
+def test_a_published_month_can_be_read_with_its_numbers_and_operations(started):  # noqa: F811
+    sim, ana, _bruno, fund_id = offered_match()
+    stock = next(
+        ticker
+        for ticker, asset in sim._engine.stocks.items()
+        if asset.asset_class == AssetClass.STOCK
+    )
+    buy_for_fund(sim, fund_id, stock, 10)
+    run_days(sim, 45)
+    page = sim.get_fund(ana, fund_id)
+
+    april = sim.get_fund_report(fund_id, date(2004, 4, 1))
+    march = sim.get_fund_report(fund_id, date(2004, 3, 1))
+
+    assert april.months == [date(2004, 3, 1), date(2004, 4, 1)]
+    # O mês mais novo é o relatório que a página já mostra
+    assert april.report == page.last_report
+    assert april.nav_start == march.nav_end
+    assert march.nav_start == page.offer_price
+    assert march.report.day == date(2004, 3, 31)
+    assert april.management_fee_paid > 0
+    assert april.cdi_return > 0
+    operations = [op for m in (march, april) for op in m.operations]
+    assert ("asset_buy", stock) in {(op.type, op.ticker) for op in operations}
+    assert all(date(2004, 4, 1) <= op.day < date(2004, 5, 3) for op in april.operations)
+    # O pregão da série traz o preço de ranking; o dia da oferta ainda não tem
+    assert page.series[0].ranking_price is None
+    assert page.series[-1].ranking_price is not None
+    assert page.offer_buyers_count is not None
+    with pytest.raises(NotFoundError):
+        sim.get_fund_report(fund_id, date(2004, 5, 1))
 
 
 def test_report_is_kept_until_the_next_month_turn(started):  # noqa: F811

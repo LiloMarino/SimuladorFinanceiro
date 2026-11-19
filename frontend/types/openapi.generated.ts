@@ -2952,6 +2952,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/funds/{fund_id}/reports/{month}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ler o relatório de um mês da gestora
+         * @description O relatório do mês fechado (formato aaaa-mm): as posições do último pregão, o PL por cota contra o CDI, o rendimento, as taxas pagas e as operações do mês. Qualquer jogador da sala lê; o mês só existe depois da virada seguinte à oferta.
+         */
+        get: operations["get_fund_report_api_funds__fund_id__reports__month__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/funds/{fund_id}/contributions": {
         parameters: {
             query?: never;
@@ -8086,6 +8106,8 @@ export interface components {
             distribution_rate: string;
             /** Pending Distribution Rate */
             pending_distribution_rate: string | null;
+            /** Manager Since */
+            manager_since: string | null;
             /** Nav */
             nav: string | null;
             /** Ranking Price */
@@ -8131,6 +8153,8 @@ export interface components {
             offer_raised: string | null;
             /** Offer Buyers */
             offer_buyers: components["schemas"]["FundOfferBuyerDTO"][] | null;
+            /** Offer Buyers Count */
+            offer_buyers_count: number | null;
             issuance: components["schemas"]["FundIssuanceStatusDTO"] | null;
             buyback: components["schemas"]["FundBuybackDTO"] | null;
             assembly: components["schemas"]["FundAssemblyPanelDTO"];
@@ -8529,6 +8553,35 @@ export interface components {
             /** Quotas */
             quotas: number;
         };
+        /**
+         * FundMonthlyReportDTO
+         * @description O relatório de um mês fechado: as posições do último pregão e o mês em números.
+         */
+        FundMonthlyReportDTO: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /** Months */
+            months: string[];
+            report: components["schemas"]["FundReportDTO"];
+            /** Loan Debt */
+            loan_debt: string;
+            /** Nav Start */
+            nav_start: string;
+            /** Nav End */
+            nav_end: string;
+            /** Cdi Return */
+            cdi_return: string;
+            distribution: components["schemas"]["FundDistributionDTO"] | null;
+            /** Management Fee Paid */
+            management_fee_paid: string;
+            /** Performance Fee Paid */
+            performance_fee_paid: string;
+            /** Operations */
+            operations: components["schemas"]["FundMovementDTO"][];
+        };
         /** FundMovementDTO */
         FundMovementDTO: {
             /**
@@ -8551,7 +8604,7 @@ export interface components {
             share: string | null;
         };
         /** @enum {string} */
-        FundMovementType: "contribution" | "offer_opened" | "offer_closed" | "management_fee" | "performance_fee" | "report_published" | "manager_buy" | "manager_sell" | "issuance_opened" | "issuance_closed" | "buyback_opened" | "distribution" | "comanager_joined" | "comanager_left" | "directed_issuance";
+        FundMovementType: "contribution" | "offer_opened" | "offer_closed" | "management_fee" | "performance_fee" | "report_published" | "manager_buy" | "manager_sell" | "issuance_opened" | "issuance_closed" | "buyback_opened" | "distribution" | "comanager_joined" | "comanager_left" | "directed_issuance" | "asset_buy" | "asset_sell";
         /**
          * FundOfferBuyerDTO
          * @description Quem comprou na oferta em andamento; os bots entram somados numa linha só.
@@ -8639,6 +8692,8 @@ export interface components {
             close: string | null;
             /** Nav */
             nav: string;
+            /** Ranking Price */
+            ranking_price: string | null;
         };
         /**
          * FundSummaryDTO
@@ -8692,6 +8747,8 @@ export interface components {
             distribution_rate: string;
             /** Pending Distribution Rate */
             pending_distribution_rate: string | null;
+            /** Manager Since */
+            manager_since: string | null;
             /** Nav */
             nav: string | null;
             /** Ranking Price */
@@ -21986,6 +22043,47 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FundDetailsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_fund_report_api_funds__fund_id__reports__month__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+                month: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundMonthlyReportDTO"];
                 };
             };
             /** @description Unprocessable Content */

@@ -8900,6 +8900,74 @@
         }
       }
     },
+    "/api/funds/{fund_id}/reports/{month}": {
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Ler o relatório de um mês da gestora",
+        "description": "O relatório do mês fechado (formato aaaa-mm): as posições do último pregão, o PL por cota contra o CDI, o rendimento, as taxas pagas e as operações do mês. Qualquer jogador da sala lê; o mês só existe depois da virada seguinte à oferta.",
+        "operationId": "get_fund_report_api_funds__fund_id__reports__month__get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          },
+          {
+            "name": "month",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+              "title": "Month"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundMonthlyReportDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/funds/{fund_id}/contributions": {
       "post": {
         "tags": [
@@ -23983,6 +24051,18 @@
             ],
             "title": "Pending Distribution Rate"
           },
+          "manager_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manager Since"
+          },
           "nav": {
             "anyOf": [
               {
@@ -24209,6 +24289,17 @@
             ],
             "title": "Offer Buyers"
           },
+          "offer_buyers_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Buyers Count"
+          },
           "issuance": {
             "anyOf": [
               {
@@ -24326,6 +24417,7 @@
           "last_performance_on",
           "distribution_rate",
           "pending_distribution_rate",
+          "manager_since",
           "nav",
           "ranking_price",
           "price",
@@ -24350,6 +24442,7 @@
           "offer_sold",
           "offer_raised",
           "offer_buyers",
+          "offer_buyers_count",
           "issuance",
           "buyback",
           "assembly",
@@ -25422,6 +25515,84 @@
         ],
         "title": "FundIssuanceSubscriptionRequest"
       },
+      "FundMonthlyReportDTO": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month"
+          },
+          "months": {
+            "items": {
+              "type": "string",
+              "format": "date"
+            },
+            "type": "array",
+            "title": "Months"
+          },
+          "report": {
+            "$ref": "#/components/schemas/FundReportDTO"
+          },
+          "loan_debt": {
+            "type": "string",
+            "title": "Loan Debt"
+          },
+          "nav_start": {
+            "type": "string",
+            "title": "Nav Start"
+          },
+          "nav_end": {
+            "type": "string",
+            "title": "Nav End"
+          },
+          "cdi_return": {
+            "type": "string",
+            "title": "Cdi Return"
+          },
+          "distribution": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundDistributionDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "management_fee_paid": {
+            "type": "string",
+            "title": "Management Fee Paid"
+          },
+          "performance_fee_paid": {
+            "type": "string",
+            "title": "Performance Fee Paid"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/FundMovementDTO"
+            },
+            "type": "array",
+            "title": "Operations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "months",
+          "report",
+          "loan_debt",
+          "nav_start",
+          "nav_end",
+          "cdi_return",
+          "distribution",
+          "management_fee_paid",
+          "performance_fee_paid",
+          "operations"
+        ],
+        "title": "FundMonthlyReportDTO",
+        "description": "O relatório de um mês fechado: as posições do último pregão e o mês em números."
+      },
       "FundMovementDTO": {
         "properties": {
           "day": {
@@ -25530,7 +25701,9 @@
           "distribution",
           "comanager_joined",
           "comanager_left",
-          "directed_issuance"
+          "directed_issuance",
+          "asset_buy",
+          "asset_sell"
         ]
       },
       "FundOfferBuyerDTO": {
@@ -25754,6 +25927,17 @@
           "nav": {
             "type": "string",
             "title": "Nav"
+          },
+          "ranking_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ranking Price"
           }
         },
         "additionalProperties": false,
@@ -25761,7 +25945,8 @@
         "required": [
           "day",
           "close",
-          "nav"
+          "nav",
+          "ranking_price"
         ],
         "title": "FundSeriesPointDTO"
       },
@@ -25945,6 +26130,18 @@
             ],
             "title": "Pending Distribution Rate"
           },
+          "manager_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manager Since"
+          },
           "nav": {
             "anyOf": [
               {
@@ -26050,6 +26247,7 @@
           "last_performance_on",
           "distribution_rate",
           "pending_distribution_rate",
+          "manager_since",
           "nav",
           "ranking_price",
           "price",
