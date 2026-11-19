@@ -16,13 +16,13 @@ export function SovereignStake({ data }: SovereignStakeProps) {
   return (
     <>
       {/* Fatia e teto */}
-      <div className="grid gap-2 rounded-[10px] bg-fund-soft p-3.5 text-[13px]">
+      <div className="grid gap-2 rounded-[10px] bg-expansion-government-soft p-3.5 text-[13px]">
         <div className="flex justify-between gap-3">
           <span className="font-semibold">Fatia da {data.issuer} depois</span>
           <span className="font-mono font-semibold">{after === null ? "—" : displayPercent(after, 1)}</span>
         </div>
         <div className="h-1.5 rounded-full bg-card">
-          <div className="h-full rounded-full bg-fund" style={{ width: `${filled * 100}%` }} />
+          <div className="h-full rounded-full bg-expansion-government" style={{ width: `${filled * 100}%` }} />
         </div>
         <p className="text-muted-foreground">
           {data.room === null || data.stake_before === null

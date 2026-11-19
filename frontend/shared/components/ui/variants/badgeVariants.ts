@@ -16,6 +16,8 @@ export const badgeVariants = cva(
         split: "bg-split-soft text-split",
         federation: "bg-federation-soft text-federation",
         fund: "bg-fund-soft text-fund-strong",
+        // Etiqueta da conta do Fundo Soberano: o tom suave da expansão Governo & Política
+        government: "bg-expansion-government-soft text-expansion-government-strong",
         // Selo de empresa estatal: a cor da expansão Governo & Política, cheia e com texto branco
         state: "bg-expansion-government font-semibold text-white",
         // Selo de empresa estatal sobre fundo claro: o tom suave da expansão, com o texto escuro dela

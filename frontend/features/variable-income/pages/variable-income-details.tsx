@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import usePageLabel from "@/shared/hooks/usePageLabel";
+import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
+import { isSovereignAccount } from "@/shared/lib/active-account";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ErrorPage } from "@/pages/error";
@@ -16,6 +18,7 @@ import { CorporateEventsCard } from "../components/corporate-events-card";
 import { OrderBookCard } from "../components/order-book-card";
 import { OrderTicket, type OrderPrefill } from "../components/order-ticket";
 import { PositionCard } from "../components/position-card";
+import { SovereignAccountNotice } from "../components/sovereign-account-notice";
 import { StateCompanyChartCard } from "../components/state-company/state-company-chart-card";
 import { StateCompanyHoldersCard } from "../components/state-company/state-company-holders-card";
 import { StateCompanyMetricsRow } from "../components/state-company/state-company-metrics-row";
@@ -100,6 +103,7 @@ function StockDetailsBody({ stock, fund, stateCompany }: StockDetailsBodyProps) 
   const [prefill, setPrefill] = useState<OrderPrefill>();
   const { data: position } = usePortfolioPosition(stock.ticker);
   const { data: indicatorSettings } = useIndicatorSettings();
+  const { fund: activeAccount } = useActiveAccount();
 
   // Clicar numa venda prepara a compra limitada ao preço dela; numa compra, a venda
   const pickOffer = (order: Order) => {
@@ -131,6 +135,7 @@ function StockDetailsBody({ stock, fund, stateCompany }: StockDetailsBodyProps) 
           ) : (
             <Skeleton className="h-96" />
           )}
+          {isSovereignAccount(activeAccount) && <SovereignAccountNotice />}
           {fund && (
             <>
               <FundAboutCard fund={fund} />

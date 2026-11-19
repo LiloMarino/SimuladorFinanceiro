@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { FundAccount } from "@/types";
 import {
   accountHeaders,
+  accountTone,
   accountKey,
   effectiveFundId,
   eventAccountKey,
@@ -164,6 +165,13 @@ describe("Fundo Soberano", () => {
     expect(isSovereignAccount(aurora)).toBe(false);
     expect(isSovereignAccount(personal)).toBe(false);
     expect(isSovereignAccount(null)).toBe(false);
+  });
+
+  it("cada conta tem a cor da sua expansão: a pessoal nenhuma, a gestora a verde e o Fundo Soberano a do governo", () => {
+    expect(accountTone(personal)).toBe("personal");
+    expect(accountTone(null)).toBe("personal");
+    expect(accountTone(aurora)).toBe("fund");
+    expect(accountTone(sovereign)).toBe("government");
   });
 
   it("só a gestora de verdade conta como gestora: nem a pessoal nem o Fundo Soberano", () => {

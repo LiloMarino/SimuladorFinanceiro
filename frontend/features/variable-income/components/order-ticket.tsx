@@ -8,10 +8,9 @@ import { Input } from "@/shared/components/ui/input";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { DisabledHint } from "@/shared/components/disabled-hint";
-import { AccountOriginNotice } from "@/shared/components/account-origin-notice";
 import { PersonalAccountNotice } from "@/shared/components/personal-account-notice";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
-import { isSovereignAccount } from "@/shared/lib/active-account";
+import { accountTone, isSovereignAccount } from "@/shared/lib/active-account";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { ErrorState } from "@/shared/components/error-state";
@@ -24,8 +23,10 @@ import { EXEMPT_SALES_LABEL, INCOME_TAX_RATE, salesMonthName } from "@/shared/li
 import { displayPercent } from "@/shared/lib/utils/display";
 import type { AssetClass, FundDetails, OrderPreview, OrderPreviewRequest } from "@/types";
 import { useOrderPreview } from "../hooks/queries/useOrderPreview";
+import { ticketAccountHeading, ticketAccountSubmitLabel } from "../lib/order-ticket-account";
 import { FundQuotaBlock } from "./fund-quota-block";
 import { SovereignStake } from "./sovereign-stake";
+import { TicketAccountBand } from "./ticket-account-band";
 import { useSubmitOrder } from "@/shared/hooks/mutations/useSubmitOrder";
 
 type Action = "buy" | "sell";
@@ -106,6 +107,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
   // Com uma gestora ou o Fundo Soberano ativo a ordem sai do caixa dele
   const { fund } = useActiveAccount();
   const sovereign = isSovereignAccount(fund);
+  const tone = accountTone(fund);
   const cashLabel = sovereign ? "Caixa do fundo" : fund ? "Caixa da gestora" : "Caixa";
   // A cota entra e sai da carteira pessoal: com qualquer conta de fundo ativa a ordem fica bloqueada
   const quotaOnFundAccount = quotaFund !== undefined && fund !== null;
@@ -216,14 +218,18 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
   const approx = preview && Number(preview.quantity) > 0 ? "≈ " : "";
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Nova ordem</CardTitle>
-      </CardHeader>
+    <Card variant={tone === "personal" ? "default" : tone}>
+      {/* Cabeçalho: a conta que opera ou o título da boleta pessoal */}
+      {fund && tone !== "personal" ? (
+        <TicketAccountBand tone={tone}>{ticketAccountHeading(fund)}</TicketAccountBand>
+      ) : (
+        <CardHeader>
+          <CardTitle>Nova ordem</CardTitle>
+        </CardHeader>
+      )}
       <CardContent>
         {tradeLock && <TradeLockNotice lock={tradeLock} />}
         <div inert={locked} className={cn("grid gap-4", locked && "mt-4 opacity-55")}>
-          {!locked && !quotaOnFundAccount && <AccountOriginNotice />}
           {!locked && quotaOnFundAccount && (
             <PersonalAccountNotice>
               As cotas entram e saem da sua carteira pessoal. Volte para ela para comprar ou vender.
@@ -452,12 +458,12 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
                   type="submit"
                   form="order-form"
                   size="lg"
-                  variant={fund ? "fund" : selling ? "destructive" : "success"}
+                  variant={tone === "personal" ? (selling ? "destructive" : "success") : tone}
                   disabled={!canSubmit || submit.isPending}
                 >
                   {submit.isPending && <Spinner />}
                   {fund ? (
-                    `${selling ? "Vender" : "Comprar"} ${sovereign ? "pelo" : "pela"} ${fund.name}`
+                    ticketAccountSubmitLabel(fund, action, ticker)
                   ) : (
                     <>
                       {selling ? "Vender" : "Comprar"}{" "}

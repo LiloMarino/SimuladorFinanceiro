@@ -53,6 +53,16 @@ export const hasAccountChoice = (match: MatchFlags | null | undefined) =>
 export const isSovereignAccount = (account: Pick<FundAccount, "role"> | null | undefined) =>
   account?.role === "president";
 
+/** A cor da conta: a pessoal não tem, a gestora leva a da expansão Gestoras e o Fundo Soberano a da expansão Governo. */
+export type AccountTone = "personal" | "fund" | "government";
+
+export const accountTone = (account: Pick<FundAccount, "fund_id" | "role"> | null | undefined): AccountTone =>
+  account === null || account === undefined || account.fund_id === null
+    ? "personal"
+    : isSovereignAccount(account)
+      ? "government"
+      : "fund";
+
 /** A conta é de uma gestora de verdade: tem id e não é o Fundo Soberano. */
 export const isManagedFundAccount = (account: Pick<FundAccount, "fund_id" | "role">) =>
   account.fund_id !== null && !isSovereignAccount(account);

@@ -3,11 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { Badge } from "@/shared/components/ui/badge";
 import { MetricLabel } from "@/shared/components/metric-hint";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
+import { isSovereignAccount } from "@/shared/lib/active-account";
 import { YIELD_ON_COST } from "@/shared/lib/dividend-metrics";
 import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayPercent, displayQuantity } from "@/shared/lib/utils/display";
 import type { Position } from "@/types";
 import { useCorporateEvents } from "../hooks/queries/useCorporateEvents";
+import { positionEmptyText, positionTitle } from "../lib/position-account";
 
 /** A posição da conta ativa (a do jogador ou a da gestora) no ativo, com o que está preso em ordens abertas. */
 export function PositionCard({ ticker, position }: { ticker: string; position: Position | null }) {
@@ -19,9 +21,9 @@ export function PositionCard({ ticker, position }: { ticker: string; position: P
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{fund ? `Posição da ${fund.name}` : "Sua posição"}</CardTitle>
+        <CardTitle>{fund ? positionTitle(fund) : "Sua posição"}</CardTitle>
         {fund && (
-          <Badge variant="info" size="tag" className="justify-self-start">
+          <Badge variant={isSovereignAccount(fund) ? "government" : "fund"} size="tag" className="justify-self-start">
             conta: {fund.name}
           </Badge>
         )}
@@ -29,7 +31,7 @@ export function PositionCard({ ticker, position }: { ticker: string; position: P
       <CardContent>
         {!held ? (
           <p className="text-[13px] text-muted-foreground">
-            {fund ? `A ${fund.name} não tem ${ticker}.` : `Você não tem ${ticker}.`}
+            {fund ? positionEmptyText(fund, ticker) : `Você não tem ${ticker}.`}
           </p>
         ) : (
           <dl>

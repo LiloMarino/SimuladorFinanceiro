@@ -8,7 +8,7 @@ function Card({
   ...props
 }: React.ComponentProps<"div"> & {
   size?: "default" | "sm" | "lg" | "flush";
-  variant?: "default" | "destructive" | "warning" | "paper" | "info";
+  variant?: "default" | "destructive" | "warning" | "paper" | "info" | "fund" | "government";
 }) {
   return (
     <div
@@ -16,7 +16,7 @@ function Card({
       data-size={size}
       data-variant={variant}
       className={cn(
-        "group/card flex flex-col gap-(--card-spacing) overflow-clip rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground border border-border [--card-spacing:--spacing(5)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=flush]:[--card-spacing:0] data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=lg]:[--card-spacing:--spacing(7)] data-[variant=info]:border-info-border data-[variant=info]:bg-linear-to-r data-[variant=info]:from-info-soft data-[variant=info]:to-card data-[variant=info]:to-45% data-[variant=paper]:border-paper-border data-[variant=paper]:bg-paper data-[variant=destructive]:border-destructive/30 data-[variant=warning]:border-warning/30 data-[variant=warning]:bg-warning-soft/40 data-[size=lg]:shadow-[0_12px_32px_rgba(15,23,41,.08)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        "group/card flex flex-col gap-(--card-spacing) overflow-clip rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground border border-border [--card-spacing:--spacing(5)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=flush]:[--card-spacing:0] data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=lg]:[--card-spacing:--spacing(7)] data-[variant=info]:border-info-border data-[variant=info]:bg-linear-to-r data-[variant=info]:from-info-soft data-[variant=info]:to-card data-[variant=info]:to-45% data-[variant=paper]:border-paper-border data-[variant=paper]:bg-paper data-[variant=destructive]:border-destructive/30 data-[variant=fund]:border-2 data-[variant=fund]:border-fund data-[variant=government]:border-2 data-[variant=government]:border-expansion-government data-[variant=warning]:border-warning/30 data-[variant=warning]:bg-warning-soft/40 data-[size=lg]:shadow-[0_12px_32px_rgba(15,23,41,.08)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
         className,
       )}
       {...props}
