@@ -35,7 +35,7 @@
 | **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | [F285](#f285), [F287](#f287), [F288](#f288) | — | — | — |
 | **N21** | — | Jogar "na unha", sem a interface apontar a melhor escolha | — | — | — | — | — |
 | **N22** | — | Ter objetivos para buscar além de vencer a partida | — | [F90](#f90), [F123](#f123), [F159](#f159) | — | — | — |
-| **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F44](#f44), [F55](#f55), [F101](#f101), [F102](#f102), [F103](#f103), [F104](#f104), [F105](#f105), [F290](#f290), [F293](#f293), [F296](#f296), [F299](#f299), [F300](#f300), [F301](#f301), [F302](#f302), [F303](#f303), [F304](#f304), [F305](#f305), [F306](#f306), [F310](#f310), [F311](#f311), [F312](#f312), [F313](#f313) | — | — | — |
+| **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F44](#f44), [F55](#f55), [F101](#f101), [F102](#f102), [F103](#f103), [F104](#f104), [F105](#f105), [F290](#f290), [F293](#f293), [F296](#f296), [F299](#f299), [F300](#f300), [F301](#f301), [F302](#f302), [F303](#f303), [F304](#f304), [F305](#f305), [F306](#f306), [F310](#f310), [F311](#f311), [F312](#f312), [F313](#f313), [F314](#f314) | — | — | — |
 | **N24** | — | Saber onde está a lentidão durante uma partida | — | — | — | — | — |
 | **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F193](#f193), [F225](#f225), [F289](#f289) | — | — | — |
 | **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | — | — | — | — |
@@ -84,6 +84,7 @@
 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 | — | Alto | Médio | ⏳ |
+| [**F314**](#f314) | Feature | Aquisição hostil e Política no modo Equipes | M18 · 4.2 | — | — | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (56 itens — clique pra expandir)</strong></summary>
@@ -161,7 +162,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 35/38 concluídos
+> **Progresso:** 35/39 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -203,6 +204,7 @@
 | 36 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | — | ⏳ Pendente |
 | 37 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | — | ✅ Concluído |
 | 38 | [**F311**](#f311) | Feature | Fusão de gestoras | [F301](#f301), [F313](#f313) | ⏳ Pendente |
+| 39 | [**F314**](#f314) | Feature | Aquisição hostil e Política no modo Equipes | [F305](#f305) | 🔍 Em avaliação |
 
 ### 4.3 — Mesa do trader (M24)
 
@@ -298,7 +300,7 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 34º | 0 | Médio | Bom | ⏳ |
-| [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 · 36º | 0 | Médio | Bom | ⏳ |
+| [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 · 36º | 1 | Médio | Bom | ⏳ |
 | [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 · 38º | 0 | Alto | Médio | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
@@ -588,6 +590,7 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.4 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 | **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M24 · 4.3 | — | Medir as estratégias atuais em várias bases com governo, dólar e crédito; calibrar os níveis de dificuldade; escolher as estratégias novas |
 | **F285** | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | — | — | — | Escolher o mecanismo (filtrar o seletor, recolorir na tela de quem liga ou reforçar além da cor) e medir o tamanho do conjunto distinguível sob as três simulações |
+| **F314** | Feature | Aquisição hostil e Política no modo Equipes | N23 | — | M18 · 4.2 | [F305](#f305) | Vitória da Política, jogador sem grupo, troca de grupo no meio da partida, gestora e partido na mesma sala, bots |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -636,6 +639,18 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 3. Reforço além da cor: sigla, listra ou forma junto da cor, no mapa e nos gráficos. Vale para qualquer tipo de daltonismo, mas cada gráfico precisa de desenho próprio.
 
 Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no servidor, e deixar o 3 para onde só a cor carrega a informação (o mapa). O tamanho do conjunto distinguível sai de medir o ΔE sob as três simulações.
+
+<a id="f314"></a>
+**F314 — A equipe é o grupo em que o jogador entrou.** Hoje a Aquisição hostil e a Política só existem no modo individual: com Equipes ligado, o tipo fica desabilitado. Nos dois tipos, o grupo já existe dentro da partida (a gestora, o partido), então a equipe pode nascer dele e o lobby não precisa do seletor de equipe.
+
+**Ideia:** quem entra numa gestora (como co-gestor) ou num partido entra na equipe dela. Todo jogador precisa entrar num grupo ou fundar o próprio. Na Aquisição hostil, a equipe vencedora é a gestora vencedora; na Política, é o partido vencedor.
+
+**Em aberto:**
+- Como a vitória da Política funciona hoje, e se "partido vencedor" se encaixa nela.
+- O que acontece com quem fica sem grupo no início da partida: o jogo bloqueia o início ou cria um grupo para ele?
+- O grupo muda no meio da partida (a assembleia troca o gestor, um co-gestor sai, alguém troca de partido): a equipe acompanha ou fica a do início?
+- Se a sala tiver os dois grupos ao mesmo tempo (gestora e partido), quem está na mesma equipe precisa estar no mesmo partido?
+- Bots: em que grupo entram e se contam para a vitória da equipe.
 
 ---
 
