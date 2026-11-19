@@ -1307,6 +1307,22 @@ def fund_page(page: Page, stage: str, **match) -> None:
     ).wait_for()
 
 
+def open_fund_tab(page: Page, tab: str, ready: str | None = None) -> None:
+    """A aba `tab` da página da gestora, aberta pelo rótulo; com `ready`, espera esse texto dela."""
+    page.get_by_role("tab", name=re.compile(rf"^{tab}")).click()
+    if ready:
+        page.get_by_text(ready).first.wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def fund_tab_page(
+    page: Page, stage: str, tab: str, ready: str | None = None, **match
+) -> None:
+    """A página da gestora do host na fase `stage`, na aba `tab`."""
+    fund_page(page, stage, **match)
+    open_fund_tab(page, tab, ready)
+
+
 def funds_none(page: Page) -> None:
     """A página das gestoras de quem ainda não fundou: o convite e a lista da sala."""
     fund_match(page, stage="none")
@@ -1317,7 +1333,77 @@ def funds_none(page: Page) -> None:
 def funds_founded(page: Page) -> None:
     """A gestora fundada junto com a sala: nasce sem caixa nem cotas."""
     fund_page(page, "founded")
-    page.get_by_text("A gestora nasceu com a sala e está vazia").wait_for()
+    page.get_by_text("Para abrir a gestora").first.wait_for()
+
+
+def tab_actions(page: Page) -> None:
+    """Suas ações do gestor com a oferta pública encerrada."""
+    fund_page(page, "offer-closed")
+    page.get_by_text("Como gestor").first.wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def tab_actions_closed(page: Page) -> None:
+    """Suas ações da gestora fechada: os três passos para abrir."""
+    fund_page(page, "contributed")
+    page.get_by_text("Para abrir a gestora").first.wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def tab_actions_holder(page: Page) -> None:
+    """Suas ações de quem só tem cotas (a gestora é de outro jogador)."""
+    funds_viewer(page)
+    page.get_by_text("Como cotista").first.wait_for()
+
+
+def tab_overview(page: Page) -> None:
+    """A Visão geral da gestora listada."""
+    fund_tab_page(page, "offer-closed", "Visão geral", "Quanto rendeu")
+
+
+def tab_overview_closed(page: Page) -> None:
+    """A Visão geral da gestora fechada: o estado vazio."""
+    fund_tab_page(
+        page, "contributed", "Visão geral", "Preço e histórico chegam com o mercado"
+    )
+
+
+def tab_portfolio(page: Page) -> None:
+    """A Carteira do gestor."""
+    fund_tab_page(page, "offer-closed", "Carteira", "Patrimônio da gestora")
+
+
+def tab_portfolio_frozen(page: Page) -> None:
+    """Dado forjado: o gestor governa e a carteira da gestora fica congelada."""
+
+    def change(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        body["frozen_until"] = FROZEN_UNTIL
+
+    fund_match(page, stage="offer-closed")
+    patch_get(page, FUND_DETAIL_PATTERN, change)
+    open_funds_page(page)
+    open_fund_tab(page, "Carteira", "Patrimônio da gestora")
+
+
+def tab_quotas(page: Page) -> None:
+    """A aba Cotas: cotistas, emissões e ofertas."""
+    fund_tab_page(page, "offer-closed", "Cotas", "Emissões")
+
+
+def tab_income(page: Page) -> None:
+    """A aba Rendimentos."""
+    fund_tab_page(page, "offer-closed", "Rendimentos", "Quanto a cota paga")
+
+
+def tab_report(page: Page) -> None:
+    """A aba Relatório."""
+    fund_tab_page(page, "offer-closed", "Relatório", "O primeiro relatório")
+
+
+def tab_settings(page: Page) -> None:
+    """A aba Configurações do gestor."""
+    fund_tab_page(page, "offer-closed", "Configurações", "Taxas")
 
 
 def funds_closed(page: Page) -> None:
@@ -1327,14 +1413,12 @@ def funds_closed(page: Page) -> None:
 
 def funds_offer_open(page: Page) -> None:
     """A gestora com a oferta pública aberta, vista pelo gestor."""
-    fund_page(page, "offer-open")
-    page.get_by_text("Oferta pública em andamento").wait_for()
+    fund_tab_page(page, "offer-open", "Cotas", "Oferta pública em andamento")
 
 
 def funds_offer_closed(page: Page) -> None:
     """A gestora depois da oferta pública encerrada."""
-    fund_page(page, "offer-closed")
-    page.get_by_text("Oferta pública encerrada").first.wait_for()
+    fund_tab_page(page, "offer-closed", "Cotas", "Oferta pública encerrada")
 
 
 def funds_long_distributions(page: Page) -> None:
@@ -1368,8 +1452,7 @@ def funds_long_distributions(page: Page) -> None:
     fund_match(page, stage="offer-closed")
     patch_get(page, FUND_DETAIL_PATTERN, change)
     open_funds_page(page)
-    page.get_by_text("Pago em").wait_for()
-    page.wait_for_load_state("networkidle")
+    open_fund_tab(page, "Rendimentos", "Pago em")
 
 
 def funds_loading(page: Page) -> None:
@@ -1453,14 +1536,14 @@ def fund_dialog(page: Page, stage: str, button: str) -> Locator:
 
 def dialog_offer(page: Page) -> None:
     """Oferta pública: o gestor escolhe quantas cotas a sala pode comprar."""
-    dialog = fund_dialog(page, "contributed", "Oferta pública")
+    dialog = fund_dialog(page, "contributed", "Abrir a oferta")
     dialog.get_by_label("Quantas cotas").fill("20")
     dialog.get_by_text("Você mantém o controle").wait_for()
 
 
 def dialog_offer_too_big(page: Page) -> None:
     """Oferta que tira o controle do gestor: o aviso troca de cor antes do clique."""
-    dialog = fund_dialog(page, "contributed", "Oferta pública")
+    dialog = fund_dialog(page, "contributed", "Abrir a oferta")
     dialog.get_by_label("Quantas cotas").fill("200")
     dialog.get_by_text("Você perde o controle").wait_for()
 
@@ -1473,7 +1556,7 @@ def dialog_contribute(page: Page) -> None:
 
 def dialog_fees(page: Page) -> None:
     """Taxas: as duas taxas com o teto da partida e o aviso de que a nova vale no mês seguinte."""
-    fund_dialog(page, "contributed", "Taxas")
+    fund_dialog(page, "contributed", "Conferir taxas")
 
 
 def fund_account_stock(page: Page) -> None:
@@ -1484,10 +1567,11 @@ def fund_account_stock(page: Page) -> None:
 
 
 def fund_selling(page: Page) -> None:
-    """O gestor digita uma venda que o deixa sem a maioria das cotas: o aviso de controle aparece antes do clique."""
-    fund_page(page, "offer-closed")
-    page.get_by_placeholder("Ex.: 50").fill("49")
-    page.get_by_text("Você perde o controle").wait_for()
+    """O gestor digita a quantidade e o preço máximo de uma recompra: a prévia de custo aparece antes do clique."""
+    dialog = fund_dialog(page, "offer-closed", "Recomprar")
+    dialog.get_by_placeholder("Ex.: 500").fill("49")
+    dialog.get_by_placeholder("R$ 0,00").fill("10")
+    dialog.get_by_text("Custa até").wait_for()
 
 
 def fund_governing(page: Page) -> None:
@@ -1518,8 +1602,8 @@ def fund_frozen_panel(page: Page) -> None:
 
 def fund_premium_hint(page: Page) -> None:
     """A página da gestora com a dica do ágio aberta por hover."""
-    fund_page(page, "contributed")
-    page.get_by_role("button", name="O que é Ágio").hover()
+    fund_tab_page(page, "offer-closed", "Visão geral", "Quanto rendeu")
+    page.get_by_role("button", name="O que é Preço de ranking").hover()
     page.locator('[data-slot="tooltip-content"]').wait_for()
 
 
@@ -1714,18 +1798,22 @@ def forge_comanagers(
     patch_get(page, FUND_DETAIL_PATTERN, change)
 
 
-def open_fund_forged(page: Page, heading: str | None = None) -> None:
-    """A página da gestora do host depois de `forge_comanagers`, aberta pelo menu."""
+def open_fund_forged(
+    page: Page, heading: str | None = None, tab: str | None = None
+) -> None:
+    """A página da gestora do host depois de `forge_comanagers`, aberta pelo menu e, com `tab`, nessa aba."""
     open_funds_page(page)
     page.locator(CONTENT).get_by_role("heading", name=heading or FUND_NAME).wait_for()
     page.wait_for_load_state("networkidle")
+    if tab:
+        open_fund_tab(page, tab)
 
 
 def comanagers_card(page: Page) -> None:
     """Dado forjado: o gestor com um co-gestor ativo, um com mudança de parte agendada e um convite pendente."""
     fund_match(page, stage="contributed")
     forge_comanagers(page, [COMANAGER_ACTIVE, COMANAGER_SCHEDULED, COMANAGER_INVITED])
-    open_fund_forged(page)
+    open_fund_forged(page, tab="Cotas")
     page.get_by_text("Passa a 15%").wait_for()
 
 
@@ -1740,7 +1828,7 @@ def comanagers_full(page: Page) -> None:
             COMANAGER_INVITED | {"nickname": "Léo"},
         ],
     )
-    open_fund_forged(page)
+    open_fund_forged(page, tab="Cotas")
     page.get_by_role("button", name="Convidar co-gestor").wait_for()
 
 
@@ -1748,7 +1836,7 @@ def comanager_invite_dialog(page: Page) -> None:
     """O diálogo de convidar um co-gestor, sem convidado escolhido."""
     fund_match(page, stage="contributed")
     forge_comanagers(page, [COMANAGER_ACTIVE])
-    open_fund_forged(page)
+    open_fund_forged(page, tab="Cotas")
     page.get_by_role("button", name="Convidar co-gestor").click()
     page.get_by_role("dialog").get_by_text(
         "Parte do co-gestor nas taxas"
@@ -1759,7 +1847,7 @@ def comanager_share_dialog(page: Page) -> None:
     """O diálogo de mudar a parte de um co-gestor ativo."""
     fund_match(page, stage="contributed")
     forge_comanagers(page, [COMANAGER_ACTIVE, COMANAGER_SCHEDULED])
-    open_fund_forged(page)
+    open_fund_forged(page, tab="Cotas")
     page.get_by_role("button", name="Mudar parte").first.click()
     page.get_by_role("dialog").get_by_text(
         "Parte do co-gestor nas taxas"
@@ -1770,7 +1858,7 @@ def comanager_remove_dialog(page: Page) -> None:
     """A confirmação de remover um co-gestor ativo."""
     fund_match(page, stage="contributed")
     forge_comanagers(page, [COMANAGER_ACTIVE])
-    open_fund_forged(page)
+    open_fund_forged(page, tab="Cotas")
     page.get_by_role("button", name="Remover").first.click()
     page.get_by_role("alertdialog").wait_for()
 
@@ -2004,6 +2092,17 @@ STATES: dict[str, Callable[[Page], None]] = {
     "gestoras/gestor-governa": fund_governing,
     "gestoras/painel-congelado": fund_frozen_panel,
     "gestoras/dica-agio": fund_premium_hint,
+    "gestoras/aba-acoes": tab_actions,
+    "gestoras/aba-acoes-fechada": tab_actions_closed,
+    "gestoras/aba-acoes-cotista": tab_actions_holder,
+    "gestoras/aba-geral": tab_overview,
+    "gestoras/aba-geral-fechada": tab_overview_closed,
+    "gestoras/aba-carteira": tab_portfolio,
+    "gestoras/aba-carteira-congelada": tab_portfolio_frozen,
+    "gestoras/aba-cotas": tab_quotas,
+    "gestoras/aba-rendimentos": tab_income,
+    "gestoras/aba-relatorio": tab_report,
+    "gestoras/aba-config": tab_settings,
     "gestoras/co-gestores": comanagers_card,
     "gestoras/co-gestores-cheio": comanagers_full,
     "gestoras/dialogo-convidar-co-gestor": comanager_invite_dialog,
