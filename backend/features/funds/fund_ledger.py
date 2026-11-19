@@ -13,6 +13,7 @@ from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.fund import (
     FundBuybackDTO,
     FundComanagerEventDTO,
+    FundDirectedIssuanceDTO,
     FundIssuanceDTO,
     FundMovementDTO,
     FundMovementType,
@@ -105,6 +106,7 @@ def movements(
     issuances: Iterable[FundIssuanceDTO] = (),
     buybacks: Iterable[FundBuybackDTO] = (),
     comanager_events: Iterable[FundComanagerEventDTO] = (),
+    directed_issuances: Iterable[FundDirectedIssuanceDTO] = (),
     nicknames: Mapping[int, str] | None = None,
     today: date,
 ) -> list[FundMovementDTO]:
@@ -135,9 +137,29 @@ def movements(
             )
         )
 
+    # O caixa de uma emissão dirigida entra como transferência: o dia e o valor a ligam ao registro dela
+    directed: dict[tuple[date, Decimal], list[FundDirectedIssuanceDTO]] = {}
+    for issuance in directed_issuances:
+        if issuance.price is not None and issuance.settled_on is not None:
+            key = (issuance.settled_on, issuance.price * issuance.quotas)
+            directed.setdefault(key, []).append(issuance)
+    names = nicknames or {}
+
     for event in cash_events:
         if event.event_type is CashflowEventType.FUND_TRANSFER_IN:
-            add(event.event_date, "contribution", amount=event.amount)
+            matched = directed.get((event.event_date, event.amount))
+            if matched:
+                issuance = matched.pop(0)
+                add(
+                    event.event_date,
+                    "directed_issuance",
+                    quotas=issuance.quotas,
+                    price=issuance.price,
+                    amount=event.amount,
+                    nickname=names.get(issuance.buyer_user_id, "?"),
+                )
+            else:
+                add(event.event_date, "contribution", amount=event.amount)
         elif event.event_type is CashflowEventType.FUND_DISTRIBUTION:
             add(event.event_date, "distribution", amount=event.amount)
         elif event.event_type in _FEE_MOVEMENTS:
@@ -204,7 +226,6 @@ def movements(
         )
 
     # Entradas e saídas da co-gestão, com o apelido de quem mudou
-    names = nicknames or {}
     for change in comanager_events:
         add(
             change.day,

@@ -31,6 +31,10 @@ from tests.conftest import SetIndicator
 from tests.fakes import FakeSimulationEngine, client, daily_series
 
 PLAYER = client("player")
+FUND = client("fund")
+PRINCIPAL = client("principal")
+COMANAGER = client("comanager")
+FUND_ID = 7
 START = date(2020, 1, 6)
 STARTING_CASH = Decimal(10000)
 
@@ -511,3 +515,122 @@ def test_standing_reads_debt_delinquency_and_interest_from_the_events(
     # Duas parcelas pagas: o que passa do principal amortizado é juro
     assert 0 < standing.interest_paid < 2 * loan.state.installment
     assert standing.leverage == standing.debt / Decimal(4000)
+
+
+# =========================
+# Conta de gestora
+# =========================
+
+
+def test_the_payable_fee_is_debt_of_the_fund_account_and_weighs_on_the_limit(engine):
+    book = engine.credit_book
+    engine.cash[FUND] = Decimal(10000)
+    engine.fund_fee_payable[FUND] = Decimal(1000)
+
+    assert book.fee_payable(FUND) == Decimal(1000)
+    assert book.loan_debt(FUND, START) == 0
+    assert book.debt(FUND, START) == Decimal(1000)
+    # Patrimônio líquido de 9.000 e limite de 100%: cabem 9.000 menos a taxa a pagar
+    assert book.offer(FUND, START).max_amount == Decimal(8000)
+    overview = build_overview(book, FUND, START)
+    assert (overview.loan_debt, overview.fee_payable, overview.debt) == (
+        Decimal(0),
+        Decimal(1000),
+        Decimal(1000),
+    )
+    with pytest.raises(ConflictError):
+        book.contract(FUND, Decimal(8001), 12)
+    book.contract(FUND, Decimal(8000), 12)
+    assert book.loan_debt(FUND, START) == Decimal(8000)
+    assert book.debt(FUND, START) == Decimal(9000)
+
+
+def test_a_personal_account_has_no_payable_fee(engine):
+    book = engine.credit_book
+
+    assert book.fee_payable(PLAYER) == 0
+    assert build_overview(book, PLAYER, START).fee_payable == 0
+
+
+def test_quote_of_a_fund_settles_the_payable_fee_with_the_new_money(engine):
+    book = engine.credit_book
+    engine.cash[FUND] = Decimal(100)
+    engine.fund_fee_payable[FUND] = Decimal(300)
+
+    quote = build_quote(book, FUND, START, Decimal(1000), 12, Decimal(50))
+
+    # O caixa de 100 já cobria parte da taxa: o empréstimo quita os 200 que faltavam
+    assert quote.fee_payable_settled == Decimal(200)
+    assert quote.cash_after == Decimal(900)
+    assert quote.debt_after == Decimal(1100)
+    assert quote.current_debt == Decimal(300)
+    assert quote.networth_before == quote.networth_after == Decimal(-200)
+    assert quote.first_month_interest_per_quota == quote.schedule[0].interest / 50
+
+
+def test_quote_of_a_personal_account_has_no_fund_fields(engine):
+    quote = build_quote(engine.credit_book, PLAYER, START, Decimal(1000), 12)
+
+    assert quote.first_month_interest_per_quota is None
+    assert quote.fee_payable_settled is None
+    assert quote.debt_after is None
+    assert quote.cash_after == STARTING_CASH + 1000
+
+
+def test_fund_notices_go_to_the_principal_with_the_fund_id(engine, monkeypatch):
+    sent: list[tuple[str, dict, object]] = []
+    monkeypatch.setattr(
+        "backend.features.credit.credit_book.notify",
+        lambda name, payload, to=None: sent.append((name, payload, to)),
+    )
+    engine._account_route = lambda client_id: (
+        ((PRINCIPAL, COMANAGER), FUND_ID) if client_id == FUND else None
+    )
+    engine.cash[FUND] = Decimal(10000)
+    loan = engine.credit_book.contract(FUND, Decimal(5000), 12)
+    due = loan.state.next_due
+    day = START
+    while day < due:
+        day += timedelta(days=1)
+        engine.current_date = day
+        engine.credit_book.process_due([FUND], day, 1)
+
+    [(_, payload, to)] = [n for n in sent if n[0] == "credit_installment_paid"]
+    assert to == PRINCIPAL
+    assert payload["account"] == FUND_ID
+    assert not [n for n in sent if n[2] == COMANAGER]
+
+
+def test_personal_notices_carry_no_account(engine, monkeypatch):
+    sent: list[tuple[str, dict, object]] = []
+    monkeypatch.setattr(
+        "backend.features.credit.credit_book.notify",
+        lambda name, payload, to=None: sent.append((name, payload, to)),
+    )
+    loan = engine.credit_book.contract(PLAYER, Decimal(5000), 12)
+
+    run_until(engine, loan.state.next_due)
+
+    [(_, payload, to)] = [n for n in sent if n[0] == "credit_installment_paid"]
+    assert to == PLAYER
+    assert payload["account"] is None
+
+
+def test_fund_pending_names_the_fund_and_points_to_it(engine):
+    book = engine.credit_book
+    engine.cash[FUND] = Decimal(10000)
+    loan = book.contract(FUND, Decimal(5000), 12)
+    engine.cash[FUND] = Decimal(0)
+    day = START
+    while day < loan.state.next_due:
+        day += timedelta(days=1)
+        engine.current_date = day
+        book.process_due([FUND], day, 1)
+
+    [pending] = book.pending(FUND, day, fund=(FUND_ID, "AURA11"))
+
+    assert pending.type is PendingType.OVERDUE_INSTALLMENT
+    assert pending.fund_id == FUND_ID
+    assert pending.detail.startswith("AURA11 · Empréstimo 1")
+    [personal] = book.pending(FUND, day)
+    assert personal.fund_id is None

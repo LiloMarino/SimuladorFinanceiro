@@ -7,7 +7,7 @@ export function usePayoffLoan(loanId: string) {
   const renew = useRenewCredit();
 
   return useMutation({
-    mutationFn: () => apiFetch(`/api/credit/loans/${loanId}/payoff`, { method: "POST" }),
+    mutationFn: () => apiFetch(`/api/credit/loans/${loanId}/payoff`, { method: "POST", activeAccount: true }),
     onSuccess: renew,
     onError: (err) => toastApiError(err),
   });

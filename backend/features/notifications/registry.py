@@ -471,6 +471,12 @@ PENDING: tuple[PendingSpec, ...] = (
         "Some ao responder, quando o gestor retira o convite ou quando ele vence em 7 dias",
     ),
     PendingSpec(
+        PendingType.DIRECTED_ISSUANCE_OFFER,
+        PendingSeverity.WARNING,
+        "Oferta de cotas da gestora",
+        "Some ao responder, quando o gestor cancela ou quando a oferta vence em 7 dias",
+    ),
+    PendingSpec(
         PendingType.FUND_DISTRIBUTION_SHORT_CASH,
         PendingSeverity.WARNING,
         "Caixa da gestora não cobre o rendimento",
@@ -489,6 +495,7 @@ def pending(
     ref: str = "",
     loan_id: UUID | None = None,
     title: str | None = None,
+    fund_id: int | None = None,
 ) -> PendingDTO:
     """A pendência do tipo com título e gravidade do registro (o título pode nomear quem a originou); `ref` distingue duas do mesmo tipo."""
     spec = PENDING_BY_TYPE[pending_type]
@@ -500,6 +507,7 @@ def pending(
         detail=detail,
         resolves=spec.resolves,
         loan_id=loan_id,
+        fund_id=fund_id,
     )
 
 

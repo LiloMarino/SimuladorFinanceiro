@@ -85,7 +85,9 @@ def register_routes(app: FastAPI):
         logger.error("%s: %s", e.__class__.__name__, e, exc_info=e)
         return JSONResponse(
             status_code=500,
-            content=ErrorResponse(message=UNEXPECTED_ERROR_MESSAGE).model_dump(),
+            content=ErrorResponse(message=UNEXPECTED_ERROR_MESSAGE).model_dump(
+                exclude_none=True
+            ),
         )
 
     @app.exception_handler(StarletteHTTPException)
@@ -102,7 +104,9 @@ def register_routes(app: FastAPI):
             )
         return JSONResponse(
             status_code=e.status_code,
-            content=ErrorResponse(message=message).model_dump(),
+            content=ErrorResponse(
+                message=message, code=getattr(e, "code", None)
+            ).model_dump(exclude_none=True),
         )
 
     @app.exception_handler(RequestValidationError)
@@ -117,5 +121,5 @@ def register_routes(app: FastAPI):
             content=ValidationErrorResponse(
                 message=format_validation_errors(errors),
                 detail=to_items(errors),
-            ).model_dump(),
+            ).model_dump(exclude_none=True),
         )

@@ -22,6 +22,16 @@ Depois da oferta pública inicial, o gestor pode **emitir cotas novas** pelo bot
 
 Quem não compra não perde: como o preço é o patrimônio por cota do dia, o patrimônio por cota de quem não comprou fica igual antes e depois da emissão. O que muda é a parte dele no total, que diminui. Por isso o gestor vê o aviso de controle: com menos de 50%, os outros cotistas podem juntar mais votos que ele numa assembleia.
 
+## Emissão dirigida
+
+Depois da oferta pública, o gestor principal também pode pôr **dinheiro novo** na gestora sem abrir a emissão para a sala, pelo botão **Emissão dirigida**. As cotas novas vão para **ele mesmo** ou para **um co-gestor ativo**, e o dinheiro sai do **caixa pessoal** de quem compra e entra no caixa da gestora.
+
+- **Preço:** o maior entre o patrimônio por cota e o preço de ranking (o que o mercado paga pela cota hoje). Ex.: com patrimônio por cota de R$ 100,00 e ranking de R$ 120,00, a cota sai a R$ 120,00; com ranking de R$ 90,00, sai a R$ 100,00. Quem já tem cota não perde valor, porque ninguém entra abaixo do patrimônio por cota.
+- **Teto:** o diálogo mostra o máximo de cotas antes de confirmar. Fora do modo aquisição hostil, uma emissão vai até o total de cotas que já existem (com 10.000 cotas, até 10.000 novas). No modo, o gestor principal e os co-gestores, somados, ficam com no máximo a fatia que o modo permite, e o resto fica com o mercado. Ex.: com 35.740 cotas, 19.590 delas com os gestores e o mercado ficando com pelo menos 30%, o teto é de 18.093 cotas novas: depois delas, os gestores teriam 37.683 de 53.833 cotas, exatamente 70%.
+- **Para onde vai o dinheiro:** primeiro quita a **taxa a pagar** que a gestora deve ao gestor, e o resto vai para o caixa. Ex.: R$ 110.440,00 numa gestora com R$ 18.420,00 de taxa a pagar: R$ 18.420,00 quitam a taxa e R$ 92.020,00 ficam no caixa.
+- **Para si:** a compra liquida na hora, se o caixa pessoal cobrir o valor.
+- **Para um co-gestor:** ele recebe uma **oferta** na página da gestora e em **Pendências**, válida por **7 dias**. Ao **aceitar**, o preço e o teto são os do dia do aceite, e o dinheiro sai do caixa pessoal dele naquele momento; ao **recusar** ou deixar vencer, nada acontece. O gestor pode **cancelar** a oferta enquanto ela espera, e só existe uma oferta por vez.
+
 ## Recompra
 
 Pelo botão **Recomprar**, o gestor informa a **quantidade** de cotas e o **preço máximo** por cota. A gestora põe uma ordem de compra no livro, paga com o próprio caixa, e as cotas compradas **deixam de existir**.

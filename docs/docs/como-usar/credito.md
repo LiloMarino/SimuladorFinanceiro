@@ -40,6 +40,25 @@ O "+ 3", "+ 5" e os demais são pontos percentuais por ano somados à SELIC. Ex.
 
 As parcelas seguem a **Tabela Price**: o valor é sempre o mesmo, mas no começo a maior parte é juro e, a cada mês, o juro cai e a parte que abate a dívida cresce. Ex.: R$ 50.000 em 24 parcelas a 9,25% ao ano dá parcela de **R$ 2.281,48** e **R$ 4.755,40** de juro no total.
 
+## Crédito em nome da gestora
+
+O gestor principal também pede empréstimo **no nome de uma gestora**. Na página da gestora, o botão **Pedir empréstimo** troca a conta ativa para ela e abre o crédito. A tela do crédito segue a **conta ativa da barra de cima**: com a gestora selecionada, tudo ali (nota, limite, empréstimos, parcelas) é dela, e o nome dela aparece no topo.
+
+- **O dinheiro entra no caixa da gestora** e as parcelas saem dele. A nota de risco da gestora sai do histórico diário dela, não do seu.
+- **Taxa a pagar primeiro:** se a gestora deve taxa ao gestor, o empréstimo quita essa dívida antes de sobrar caixa. Ex.: R$ 200.000,00 de empréstimo numa gestora com R$ 18.420,00 de taxa a pagar: R$ 18.420,00 quitam a taxa e R$ 181.580,00 entram no caixa.
+- **A dívida aparece em duas partes** no resumo: o saldo dos **empréstimos** e a **taxa a pagar**, somados na dívida total. Na página da gestora, o saldo dos empréstimos aparece ao lado da taxa a pagar e desconta do patrimônio.
+- **Juros do primeiro mês:** o diálogo de revisão mostra quanto o primeiro mês de juros custa à gestora e quanto isso é por cota, porque o juro sai do patrimônio dos cotistas. Ex.: R$ 2.452,63 de juro num mês numa gestora com 36.740 cotas dão cerca de R$ 0,07 por cota.
+- **Dívida sobre o patrimônio:** a revisão mostra a dívida dividida pelo patrimônio da gestora, hoje e depois do empréstimo, e a nota é recalculada com o número novo. Ex.: R$ 180.000,00 de dívida sobre R$ 2.368.000,00 de patrimônio dão 7,6%; quanto menor, melhor para a nota.
+
+### Tela travada
+
+Duas contas não pedem crédito, e a tela diz por quê:
+
+- **Fundo Soberano:** "Você está controlando o Fundo Soberano". Ele não toma crédito.
+- **Co-gestor:** "Você é co-gestor desta gestora". O crédito em nome dela é do gestor principal; o co-gestor opera a carteira, mas não contrata dívida por ela.
+
+Na tela travada, **Usar a conta pessoal** volta para a sua conta e há um botão por gestora que você gere como principal.
+
 ## Pagar antes
 
 Em **Seus empréstimos**, **Amortizar** paga uma parte e **Quitar** paga tudo. Como o juro só corre sobre o que falta, pagar antes abate os juros que ainda não correram. Ao amortizar, você escolhe se a economia reduz o **prazo** (mesma parcela, menos meses) ou a **parcela** (mesmos meses, parcela menor).

@@ -8,15 +8,18 @@ export type PendingTarget = {
   state?: { dialog: "vice" | "campaign" | "contribution" | "federation-answer" };
 };
 
+/** A página da gestora de uma pendência que carrega `fund_id`; as pessoais seguem para o destino dado. */
+const fundLink = (item: Pending, fallback: string) => (item.fund_id === null ? fallback : `/funds/${item.fund_id}`);
+
 const TARGETS: Record<PendingType, (item: Pending) => PendingTarget> = {
   OVERDUE_INSTALLMENT: (item) => ({
     label: "Pagar",
-    to: item.loan_id ? payOverdueLink(item.loan_id) : "/credit",
+    to: item.fund_id !== null ? fundLink(item, "/credit") : item.loan_id ? payOverdueLink(item.loan_id) : "/credit",
   }),
   NEGATIVE_CASH: () => ({ label: "Ver carteira", to: "/portfolio" }),
   IMPEACHMENT_RISK: () => ({ label: "Ver governo", to: "/government" }),
   SELIC_MEETING: () => ({ label: "Marcar a SELIC", to: "/government?tab=accounts" }),
-  CASH_SHORT: () => ({ label: "Ver crédito", to: "/credit" }),
+  CASH_SHORT: (item) => ({ label: "Ver crédito", to: fundLink(item, "/credit") }),
   STRATEGY_ERROR: () => ({ label: "Religar", to: "/strategies" }),
   UNGUIDED_VOTE: () => ({ label: "Orientar", to: "/government?tab=congress" }),
   VICE_INVITE: () => ({ label: "Responder", to: "/election", state: { dialog: "vice" } }),
@@ -29,6 +32,7 @@ const TARGETS: Record<PendingType, (item: Pending) => PendingTarget> = {
   FUND_ASSEMBLY_INVITE: (item) => ({ label: "Responder", to: `/funds/${item.key.split(":")[1]}` }),
   // A chave do convite é "COMANAGER_INVITE:<id da gestora>"
   COMANAGER_INVITE: (item) => ({ label: "Responder", to: `/funds/${item.key.split(":")[1]}` }),
+  DIRECTED_ISSUANCE_OFFER: (item) => ({ label: "Responder", to: fundLink(item, "/funds") }),
   // A chave do aviso é "FUND_DISTRIBUTION_SHORT_CASH:<id da gestora>"
   FUND_DISTRIBUTION_SHORT_CASH: (item) => ({ label: "Ver rendimento", to: `/funds/${item.key.split(":")[1]}` }),
 };

@@ -123,6 +123,29 @@ export function GlobalNotifications() {
           description: "O acesso à carteira da gestora acabou.",
         });
         break;
+      case "directed_offered":
+        if (isToastOn("COMANAGER_INVITED")) {
+          toast.info(`${event.nickname} oferece cotas novas da ${event.ticker} a você`, {
+            description: "A oferta vale por 7 dias.",
+            action: { label: "Responder", onClick: open.onClick },
+          });
+        }
+        break;
+      case "directed_accepted":
+        if (isToastOn("COMANAGER_ANSWER")) {
+          toast.success(`${event.nickname} aceitou as cotas novas da ${event.ticker}`, { action: open });
+        }
+        break;
+      case "directed_declined":
+        if (isToastOn("COMANAGER_ANSWER")) {
+          toast.warning(`${event.nickname} recusou as cotas novas da ${event.ticker}`);
+        }
+        break;
+      case "directed_cancelled":
+        if (isToastOn("COMANAGER_ANSWER")) {
+          toast.warning(`${event.nickname} cancelou a oferta de cotas novas da ${event.ticker}`);
+        }
+        break;
     }
   });
 

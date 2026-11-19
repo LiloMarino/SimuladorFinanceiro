@@ -12,9 +12,9 @@ import {
 } from "@/shared/lib/active-account";
 import { queryKeys } from "@/shared/lib/queryKeys";
 
-// O que não carrega a conta na chave: trocar de conta renova tudo isso. A carteira e o caixa
-// têm uma entrada de cache por conta e o tempo real mantém cada uma viva.
-const ACCOUNT_KEYS = [queryKeys.variableIncome(), queryKeys.fixedIncome(), queryKeys.treasury()];
+// Trocar de conta renova tudo isso. A carteira, o caixa e o crédito têm uma entrada de cache
+// por conta, e o tempo real mantém viva a da carteira e do caixa.
+const ACCOUNT_KEYS = [queryKeys.variableIncome(), queryKeys.fixedIncome(), queryKeys.treasury(), queryKeys.credit()];
 
 /** A conta com que o jogador opera (a pessoal ou uma gestora que ele gere) e a troca entre elas. */
 export function useActiveAccount() {

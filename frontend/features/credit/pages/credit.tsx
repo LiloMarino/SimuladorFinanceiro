@@ -2,11 +2,13 @@ import { useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ErrorState } from "@/shared/components/error-state";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { PAY_OVERDUE_PARAM } from "@/shared/lib/credit";
 import type { CreditLoan, CreditOverview } from "@/types";
 import { BlockedRatingCard } from "../components/blocked-rating-card";
 import { CreditEmpty } from "../components/credit-empty";
+import { CreditLocked } from "../components/credit-locked";
 import { CreditSkeleton } from "../components/credit-skeleton";
 import { CreditSummary } from "../components/credit-summary";
 import { LoanOfferCard } from "../components/loan-offer-card";
@@ -18,10 +20,17 @@ import { PrepayDialog, type PrepayChoice } from "../components/prepay-dialog";
 import { RatingSuggestionsCard } from "../components/rating-suggestions-card";
 import { RiskRatingCard } from "../components/risk-rating-card";
 import { useCredit } from "../hooks/queries/useCredit";
+import { creditLockOfAccount, creditLockOfError } from "../lib/credit-lock";
 
 export default function CreditPage() {
   usePageLabel("Crédito");
-  const { data: overview, error, refetch } = useCredit();
+  const { active, fund } = useActiveAccount();
+  // O papel da conta ativa trava a tela sem consulta; o 403 tipado do servidor é a garantia
+  const accountLock = creditLockOfAccount(active);
+  const { data: overview, error, refetch } = useCredit({ enabled: accountLock === null });
+
+  const lock = accountLock ?? creditLockOfError(error);
+  if (lock) return <CreditLocked lock={lock} />;
 
   if (!overview) {
     return error ? (
@@ -35,12 +44,12 @@ export default function CreditPage() {
     );
   }
 
-  return <CreditContent overview={overview} />;
+  return <CreditContent overview={overview} fundName={fund?.name ?? null} />;
 }
 
 type PrepayTarget = { loanId: string; choice: PrepayChoice; amount?: string };
 
-function CreditContent({ overview }: { overview: CreditOverview }) {
+function CreditContent({ overview, fundName }: { overview: CreditOverview; fundName: string | null }) {
   const [params, setParams] = useSearchParams();
   const [prepay, setPrepay] = useState<PrepayTarget | null>(null);
   const amountInput = useRef<HTMLInputElement>(null);
@@ -70,7 +79,7 @@ function CreditContent({ overview }: { overview: CreditOverview }) {
       {/* Aviso de parcela em atraso */}
       <OverdueAlert loans={loans} onPay={openOverdue} />
 
-      <CreditSummary overview={overview} />
+      <CreditSummary overview={overview} fundName={fundName} />
 
       {/* Nota de risco e novo empréstimo */}
       <div className="grid items-start gap-5 xl:grid-cols-[1fr_1.3fr]">

@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import Annotated
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Query, Response, status
 
 from backend.core.dto.fund import (
     FundAccountDTO,
@@ -15,6 +15,9 @@ from backend.core.dto.fund import (
     FundContributionRequest,
     FundContributionResponse,
     FundDetailsDTO,
+    FundDirectedIssuanceDTO,
+    FundDirectedIssuancePreviewDTO,
+    FundDirectedIssuanceRequest,
     FundDistributionRequest,
     FundFeesRequest,
     FundFoundRequest,
@@ -169,6 +172,75 @@ def preview_fund_issuance(
     quotas: Annotated[int, Query(gt=0)],
 ):
     return simulation.preview_fund_issuance(user, fund_id, quotas)
+
+
+@funds_router.post(
+    "/{fund_id}/directed-issuance",
+    status_code=status.HTTP_201_CREATED,
+    response_model=FundDirectedIssuanceDTO,
+    responses={
+        status.HTTP_204_NO_CONTENT: {
+            "description": "Emissão para o próprio principal, já liquidada"
+        }
+    },
+    summary="Emitir cotas novas dirigidas",
+    description="Depois da oferta pública, o gestor principal emite cotas novas a um só comprador, ao maior entre o PL por cota e o preço de ranking, sem comissão. Sem `buyer_nickname` ele compra para si: a emissão liquida na hora e a resposta é 204. Com o apelido de um co-gestor ativo, a oferta guarda só a quantidade, espera a resposta dele por 7 dias (201) e o preço e o teto valem na aceitação. O dinheiro quita primeiro a taxa a pagar da gestora. Vale só com a gestora sem oferta, emissão, recompra ou assembleia em andamento; fora do modo aquisição hostil a emissão vai até o total de cotas, e nele o principal e os co-gestores somados não passam do teto de participação.",
+)
+def issue_fund_directed(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    payload: FundDirectedIssuanceRequest,
+):
+    offer = simulation.issue_fund_directed(user, fund_id, payload)
+    if offer is None:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return offer
+
+
+@funds_router.post(
+    "/{fund_id}/directed-issuance/acceptance",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Aceitar a oferta de cotas novas",
+    description="O co-gestor compra as cotas ao preço e dentro do teto de agora, pagando do caixa pessoal. Sem saldo, 409.",
+)
+def accept_fund_directed(simulation: ActiveSimulation, user: CurrentUser, fund_id: int):
+    simulation.accept_fund_directed(user, fund_id)
+
+
+@funds_router.post(
+    "/{fund_id}/directed-issuance/refusal",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Recusar a oferta de cotas novas",
+    description="A oferta se encerra sem emitir cotas.",
+)
+def refuse_fund_directed(simulation: ActiveSimulation, user: CurrentUser, fund_id: int):
+    simulation.decline_fund_directed(user, fund_id)
+
+
+@funds_router.delete(
+    "/{fund_id}/directed-issuance",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Cancelar a oferta de cotas novas",
+    description="O gestor principal retira a oferta que espera resposta.",
+)
+def cancel_fund_directed(simulation: ActiveSimulation, user: CurrentUser, fund_id: int):
+    simulation.cancel_fund_directed(user, fund_id)
+
+
+@funds_router.get(
+    "/{fund_id}/directed-issuance/preview",
+    response_model=FundDirectedIssuancePreviewDTO,
+    summary="Prever uma emissão dirigida",
+    description="Vista de quem consulta como comprador: preço (o maior entre o PL por cota e o preço de ranking), custo, caixa pessoal, parte que quita a taxa a pagar e a que fica no caixa, teto de cotas, participação antes e depois e PL por cota depois. Consultam o principal e os co-gestores ativos; não altera nada.",
+)
+def preview_fund_directed(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    quotas: Annotated[int, Query(gt=0)],
+):
+    return simulation.preview_fund_directed(user, fund_id, quotas)
 
 
 @funds_router.get(

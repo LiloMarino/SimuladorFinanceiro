@@ -5373,6 +5373,31 @@
         "summary": "Obter o crédito",
         "description": "Retorna a dívida, a nota de risco, a oferta de empréstimo, os empréstimos, as próximas parcelas, o histórico de 12 meses e as sugestões para subir a nota.",
         "operationId": "get_credit_api_credit_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -5385,31 +5410,26 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "500": {
-            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Internal Server Error"
           }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ]
+        }
       }
     },
     "/api/credit/quote": {
@@ -5451,6 +5471,24 @@
               "type": "integer",
               "title": "Term Months"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -5495,46 +5533,66 @@
         "summary": "Contratar um empréstimo",
         "description": "Assina o empréstimo com o juro da nota de hoje, travado até o fim, e credita o valor no caixa.",
         "operationId": "contract_loan_api_credit_loans_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ContractLoanRequestDTO"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "204": {
             "description": "Successful Response"
           },
           "422": {
-            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "500": {
-            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Internal Server Error"
           }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ]
+        }
       }
     },
     "/api/credit/loans/{loan_id}/prepayment": {
@@ -5578,6 +5636,24 @@
               "default": "0",
               "title": "Amount"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -5635,6 +5711,24 @@
               "format": "uuid",
               "title": "Loan Id"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "requestBody": {
@@ -5697,6 +5791,24 @@
               "format": "uuid",
               "title": "Loan Id"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -5749,6 +5861,24 @@
               "format": "uuid",
               "title": "Loan Id"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -9125,6 +9255,296 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/FundIssuancePreviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/directed-issuance": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Emitir cotas novas dirigidas",
+        "description": "Depois da oferta pública, o gestor principal emite cotas novas a um só comprador, ao maior entre o PL por cota e o preço de ranking, sem comissão. Sem `buyer_nickname` ele compra para si: a emissão liquida na hora e a resposta é 204. Com o apelido de um co-gestor ativo, a oferta guarda só a quantidade, espera a resposta dele por 7 dias (201) e o preço e o teto valem na aceitação. O dinheiro quita primeiro a taxa a pagar da gestora. Vale só com a gestora sem oferta, emissão, recompra ou assembleia em andamento; fora do modo aquisição hostil a emissão vai até o total de cotas, e nele o principal e os co-gestores somados não passam do teto de participação.",
+        "operationId": "issue_fund_directed_api_funds__fund_id__directed_issuance_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundDirectedIssuanceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundDirectedIssuanceDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "204": {
+            "description": "Emissão para o próprio principal, já liquidada"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Cancelar a oferta de cotas novas",
+        "description": "O gestor principal retira a oferta que espera resposta.",
+        "operationId": "cancel_fund_directed_api_funds__fund_id__directed_issuance_delete",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/directed-issuance/acceptance": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Aceitar a oferta de cotas novas",
+        "description": "O co-gestor compra as cotas ao preço e dentro do teto de agora, pagando do caixa pessoal. Sem saldo, 409.",
+        "operationId": "accept_fund_directed_api_funds__fund_id__directed_issuance_acceptance_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/directed-issuance/refusal": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Recusar a oferta de cotas novas",
+        "description": "A oferta se encerra sem emitir cotas.",
+        "operationId": "refuse_fund_directed_api_funds__fund_id__directed_issuance_refusal_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/directed-issuance/preview": {
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Prever uma emissão dirigida",
+        "description": "Vista de quem consulta como comprador: preço (o maior entre o PL por cota e o preço de ranking), custo, caixa pessoal, parte que quita a taxa a pagar e a que fica no caixa, teto de cotas, participação antes e depois e PL por cota depois. Consultam o principal e os co-gestores ativos; não altera nada.",
+        "operationId": "preview_fund_directed_api_funds__fund_id__directed_issuance_preview_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          },
+          {
+            "name": "quotas",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Quotas"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundDirectedIssuancePreviewDTO"
                 }
               }
             }
@@ -18064,15 +18484,7 @@
       "ComanagerEventDTO": {
         "properties": {
           "kind": {
-            "type": "string",
-            "enum": [
-              "invited",
-              "accepted",
-              "declined",
-              "left",
-              "removed"
-            ],
-            "title": "Kind"
+            "$ref": "#/components/schemas/ComanagerEventKind"
           },
           "fund_id": {
             "type": "integer",
@@ -18108,7 +18520,21 @@
           "share"
         ],
         "title": "ComanagerEventDTO",
-        "description": "O que mudou na co-gestão de uma gestora para o jogador: convite, resposta, saída ou remoção."
+        "description": "O que mudou na co-gestão de uma gestora para o jogador: convite, resposta, saída ou remoção, e a oferta de cotas novas com a resposta a ela."
+      },
+      "ComanagerEventKind": {
+        "type": "string",
+        "enum": [
+          "invited",
+          "accepted",
+          "declined",
+          "left",
+          "removed",
+          "directed_offered",
+          "directed_accepted",
+          "directed_declined",
+          "directed_cancelled"
+        ]
       },
       "CompleteNotificationSettings": {
         "properties": {
@@ -19090,6 +19516,17 @@
           "amount": {
             "type": "string",
             "title": "Amount"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
           }
         },
         "additionalProperties": false,
@@ -19099,7 +19536,8 @@
           "loan_number",
           "installment_number",
           "due_date",
-          "amount"
+          "amount",
+          "account"
         ],
         "title": "CreditInstallmentLateEventDTO"
       },
@@ -19120,6 +19558,17 @@
           "amount": {
             "type": "string",
             "title": "Amount"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
           }
         },
         "additionalProperties": false,
@@ -19128,7 +19577,8 @@
           "loan_number",
           "installment_number",
           "total_installments",
-          "amount"
+          "amount",
+          "account"
         ],
         "title": "CreditInstallmentPaidEventDTO"
       },
@@ -19150,6 +19600,17 @@
           "shortfall": {
             "type": "string",
             "title": "Shortfall"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
           }
         },
         "additionalProperties": false,
@@ -19158,7 +19619,8 @@
           "loan_number",
           "due_date",
           "amount",
-          "shortfall"
+          "shortfall",
+          "account"
         ],
         "title": "CreditInstallmentWarningEventDTO",
         "description": "Parcela que vence em até 7 dias sem caixa para cobri-la."
@@ -19176,6 +19638,17 @@
           "interest_saved": {
             "type": "string",
             "title": "Interest Saved"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
           }
         },
         "additionalProperties": false,
@@ -19183,7 +19656,8 @@
         "required": [
           "loan_number",
           "amount",
-          "interest_saved"
+          "interest_saved",
+          "account"
         ],
         "title": "CreditLoanPaidOffEventDTO"
       },
@@ -19201,6 +19675,17 @@
           "amount": {
             "type": "string",
             "title": "Amount"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
           }
         },
         "additionalProperties": false,
@@ -19208,7 +19693,8 @@
         "required": [
           "month",
           "installments",
-          "amount"
+          "amount",
+          "account"
         ],
         "title": "CreditMonthlySummaryEventDTO",
         "description": "O resumo do mês que substitui o aviso de cada parcela nas velocidades altas."
@@ -19288,6 +19774,14 @@
           "debt": {
             "type": "string",
             "title": "Debt"
+          },
+          "loan_debt": {
+            "type": "string",
+            "title": "Loan Debt"
+          },
+          "fee_payable": {
+            "type": "string",
+            "title": "Fee Payable"
           },
           "open_loans": {
             "type": "integer",
@@ -19414,6 +19908,8 @@
         "type": "object",
         "required": [
           "debt",
+          "loan_debt",
+          "fee_payable",
           "open_loans",
           "closed_loans",
           "networth",
@@ -19461,6 +19957,17 @@
           "debt_limit": {
             "type": "string",
             "title": "Debt Limit"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
           }
         },
         "additionalProperties": false,
@@ -19470,7 +19977,8 @@
           "after",
           "points",
           "spread",
-          "debt_limit"
+          "debt_limit",
+          "account"
         ],
         "title": "CreditRatingChangedEventDTO"
       },
@@ -21148,6 +21656,17 @@
           "message": {
             "type": "string",
             "title": "Message"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
           }
         },
         "type": "object",
@@ -23770,6 +24289,16 @@
               }
             ],
             "title": "My Share"
+          },
+          "directed_issuance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundDirectedIssuanceViewDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -23831,10 +24360,294 @@
           "comanagers",
           "manager_share",
           "my_role",
-          "my_share"
+          "my_share",
+          "directed_issuance"
         ],
         "title": "FundDetailsDTO",
         "description": "A página da gestora: quem tem as cotas, a carteira, o desempenho, as taxas e a oferta."
+      },
+      "FundDirectedIssuanceDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "buyer_user_id": {
+            "type": "integer",
+            "title": "Buyer User Id"
+          },
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "offered_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Offered On"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FundDirectedIssuanceStatus"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "settled_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settled On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "buyer_user_id",
+          "quotas",
+          "offered_on",
+          "status",
+          "price",
+          "settled_on"
+        ],
+        "title": "FundDirectedIssuanceDTO",
+        "description": "Uma emissão dirigida como a linha de `fund_directed_issuances` a guarda."
+      },
+      "FundDirectedIssuancePreviewDTO": {
+        "properties": {
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "nav": {
+            "type": "string",
+            "title": "Nav"
+          },
+          "ranking_price": {
+            "type": "string",
+            "title": "Ranking Price"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "cost": {
+            "type": "string",
+            "title": "Cost"
+          },
+          "buyer_cash": {
+            "type": "string",
+            "title": "Buyer Cash"
+          },
+          "cash_enough": {
+            "type": "boolean",
+            "title": "Cash Enough"
+          },
+          "to_payable": {
+            "type": "string",
+            "title": "To Payable"
+          },
+          "to_cash": {
+            "type": "string",
+            "title": "To Cash"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room"
+          },
+          "manager_cap": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manager Cap"
+          },
+          "total_after": {
+            "type": "string",
+            "title": "Total After"
+          },
+          "nav_after": {
+            "type": "string",
+            "title": "Nav After"
+          },
+          "my_quotas_after": {
+            "type": "string",
+            "title": "My Quotas After"
+          },
+          "my_share_now": {
+            "type": "string",
+            "title": "My Share Now"
+          },
+          "my_share_after": {
+            "type": "string",
+            "title": "My Share After"
+          },
+          "operators_share_now": {
+            "type": "string",
+            "title": "Operators Share Now"
+          },
+          "operators_share_after": {
+            "type": "string",
+            "title": "Operators Share After"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quotas",
+          "nav",
+          "ranking_price",
+          "price",
+          "cost",
+          "buyer_cash",
+          "cash_enough",
+          "to_payable",
+          "to_cash",
+          "room",
+          "manager_cap",
+          "total_after",
+          "nav_after",
+          "my_quotas_after",
+          "my_share_now",
+          "my_share_after",
+          "operators_share_now",
+          "operators_share_after"
+        ],
+        "title": "FundDirectedIssuancePreviewDTO",
+        "description": "O que uma emissão dirigida de `quotas` cotas faz, vista por quem consulta como comprador."
+      },
+      "FundDirectedIssuanceRequest": {
+        "properties": {
+          "quotas": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Quotas"
+          },
+          "buyer_nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buyer Nickname"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quotas"
+        ],
+        "title": "FundDirectedIssuanceRequest"
+      },
+      "FundDirectedIssuanceStatus": {
+        "type": "string",
+        "enum": [
+          "OFFERED",
+          "ACCEPTED",
+          "DECLINED",
+          "EXPIRED",
+          "CANCELLED"
+        ],
+        "title": "FundDirectedIssuanceStatus",
+        "description": "A emissão dirigida: a oferta que espera a resposta do co-gestor ou o desfecho dela."
+      },
+      "FundDirectedIssuanceViewDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "buyer_user_id": {
+            "type": "integer",
+            "title": "Buyer User Id"
+          },
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "offered_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Offered On"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FundDirectedIssuanceStatus"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "settled_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settled On"
+          },
+          "buyer_nickname": {
+            "type": "string",
+            "title": "Buyer Nickname"
+          },
+          "expires_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Expires On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "buyer_user_id",
+          "quotas",
+          "offered_on",
+          "status",
+          "price",
+          "settled_on",
+          "buyer_nickname",
+          "expires_on"
+        ],
+        "title": "FundDirectedIssuanceViewDTO",
+        "description": "A oferta de cotas novas na página da gestora, com quem compra e até quando ela vale."
       },
       "FundDistributionDTO": {
         "properties": {
@@ -24096,6 +24909,10 @@
           "payable": {
             "type": "string",
             "title": "Payable"
+          },
+          "loan_debt": {
+            "type": "string",
+            "title": "Loan Debt"
           }
         },
         "additionalProperties": false,
@@ -24109,7 +24926,8 @@
           "high_water_mark",
           "high_water_mark_on",
           "received_12m",
-          "payable"
+          "payable",
+          "loan_debt"
         ],
         "title": "FundFeesDTO"
       },
@@ -24711,7 +25529,8 @@
           "buyback_opened",
           "distribution",
           "comanager_joined",
-          "comanager_left"
+          "comanager_left",
+          "directed_issuance"
         ]
       },
       "FundOfferBuyerDTO": {
@@ -28854,6 +29673,61 @@
           "cash_after": {
             "type": "string",
             "title": "Cash After"
+          },
+          "first_month_interest_per_quota": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Month Interest Per Quota"
+          },
+          "fee_payable_settled": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fee Payable Settled"
+          },
+          "debt_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Debt After"
+          },
+          "networth_before": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Networth Before"
+          },
+          "networth_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Networth After"
           }
         },
         "additionalProperties": false,
@@ -28874,7 +29748,12 @@
           "projected_points",
           "current_debt",
           "excess",
-          "cash_after"
+          "cash_after",
+          "first_month_interest_per_quota",
+          "fee_payable_settled",
+          "debt_after",
+          "networth_before",
+          "networth_after"
         ],
         "title": "LoanQuoteDTO"
       },
@@ -32269,6 +33148,17 @@
               }
             ],
             "title": "Loan Id"
+          },
+          "fund_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fund Id"
           }
         },
         "additionalProperties": false,
@@ -32280,7 +33170,8 @@
           "title",
           "detail",
           "resolves",
-          "loan_id"
+          "loan_id",
+          "fund_id"
         ],
         "title": "PendingDTO",
         "description": "Uma pendência do jogador; a gravidade e o título vêm do tipo, no registro."
@@ -32312,6 +33203,7 @@
           "SELIC_MEETING",
           "FUND_ASSEMBLY_INVITE",
           "COMANAGER_INVITE",
+          "DIRECTED_ISSUANCE_OFFER",
           "FUND_DISTRIBUTION_SHORT_CASH"
         ],
         "title": "PendingType",
@@ -44307,6 +45199,17 @@
           "message": {
             "type": "string",
             "title": "Message"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
           },
           "detail": {
             "items": {

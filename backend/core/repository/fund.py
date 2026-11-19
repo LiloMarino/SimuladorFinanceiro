@@ -22,6 +22,7 @@ from backend.core.dto.fund import (
     FundIssuanceRightDTO,
     FundOfferSaleDTO,
 )
+from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.enum import (
     AssetClass,
@@ -228,6 +229,56 @@ class FundRepository:
             .limit(limit)
         ).scalars()
         return [FundDayDTO.model_validate(row) for row in reversed(list(rows))]
+
+    @transactional
+    def credit_history(
+        self,
+        session: Session,
+        portfolio_id: int,
+        before: date | None = None,
+        last: int | None = None,
+    ) -> list[PatrimonialHistoryDTO]:
+        """O histórico patrimonial da gestora, lido dos fechamentos dela, em ordem de data.
+
+        O patrimônio é o PL por cota vezes as cotas; o aporte acumulado soma a variação de cotas
+        vezes o PL por cota do dia; a dívida é o empréstimo mais a taxa a pagar. Com `last`, só os
+        `last` mais recentes antes de `before`.
+        """
+        stmt = (
+            select(FundDays)
+            .join(Funds, Funds.id == FundDays.fund_id)
+            .where(Funds.portfolio_id == portfolio_id)
+        )
+        if before is not None:
+            stmt = stmt.where(FundDays.day < before)
+        if last is None:
+            rows = list(session.scalars(stmt.order_by(FundDays.day)).all())
+        else:
+            recent = stmt.order_by(FundDays.day.desc()).limit(last)
+            rows = list(reversed(session.scalars(recent).all()))
+
+        history: list[PatrimonialHistoryDTO] = []
+        contribution = Decimal(0)
+        previous_quotas: Decimal | None = None
+        for row in rows:
+            networth = row.nav * row.quotas
+            if previous_quotas is None:
+                contribution = networth
+            else:
+                contribution += (row.quotas - previous_quotas) * row.nav
+            previous_quotas = row.quotas
+            history.append(
+                PatrimonialHistoryDTO(
+                    snapshot_date=row.day,
+                    total_networth=networth,
+                    total_equity=Decimal(0),
+                    total_fixed=Decimal(0),
+                    total_cash=Decimal(0),
+                    total_contribution=contribution,
+                    total_debt=row.loan_debt + row.fee_payable,
+                )
+            )
+        return history
 
     @transactional
     def drop_days_from(self, session: Session, fund_id: int, day: date) -> None:

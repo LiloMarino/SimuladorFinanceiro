@@ -132,6 +132,8 @@ class SimulationEngine:
         # As cotas de gestora desta partida e o preço de ranking do dia de cada uma
         self.created_stocks: dict[str, StockDTO] = {}
         self.ranking_prices: dict[str, Decimal] = {}
+        # A taxa a pagar de cada gestora, por conta: dívida dela, somada à dos empréstimos
+        self.fund_fee_payable: dict[UUID, Decimal] = {}
         # A referência de negociação de cada cota listada, refeita a cada abertura de pregão
         self.fund_references: dict[str, FundReference] = {}
         # O valor justo por ação de cada estatal fundada, refeito a cada abertura de pregão
@@ -257,6 +259,9 @@ class SimulationEngine:
         """
         shortfall = needed - self.get_cash(client_id)
         if needed <= 0 or shortfall <= 0:
+            return
+        # Só a conta pessoal tem renda fixa a vender: o caixa da gestora é só caixa
+        if self.audience(client_id)[1] is not None:
             return
         source = self._cover_marked_source
         include_marked = source is not None and source(client_id)

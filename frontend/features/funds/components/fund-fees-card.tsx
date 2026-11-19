@@ -7,6 +7,7 @@ import { displayIsoDate, displayMoney, displayPercent } from "@/shared/lib/utils
 import type { FundDetails } from "@/types";
 import { HIGH_WATER_MARK, MANAGEMENT_FEE, PERFORMANCE_FEE } from "@/shared/lib/fund-metrics";
 import { FundSection } from "@/shared/components/fund-section";
+import { FundLoanDebt } from "./fund-loan-debt";
 import { FundPayableFee } from "./fund-payable-fee";
 
 /** As taxas que o gestor recebe: o que vale hoje, a estimativa em reais, o que já recebeu e a mudança marcada. */
@@ -45,6 +46,7 @@ export function FundFeesCard({ fund, onChange }: { fund: FundDetails; onChange: 
             value={fees.high_water_mark === null ? "—" : displayMoney(fees.high_water_mark)}
           />
           <FundPayableFee payable={fees.payable} />
+          <FundLoanDebt debt={fees.loan_debt} />
           <KeyValueRow label="Recebido em 12 meses" value={displayMoney(fees.received_12m)} total />
         </div>
         {fund.pending_from && (

@@ -1,6 +1,6 @@
 import { Gavel, Lock } from "lucide-react";
 import { useRef, useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { CardState } from "@/shared/components/card-state";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -39,6 +39,8 @@ import { FundMovements } from "../components/fund-movements";
 import { FundOfferCard } from "../components/fund-offer-card";
 import { FundPriceChart } from "../components/fund-price-chart";
 import { FundSkeleton } from "../components/fund-skeleton";
+import { DirectedIssuanceAlert } from "../components/directed-issuance-alert";
+import { DirectedIssuanceDialog } from "../components/directed-issuance-dialog";
 import { IssuanceDialog } from "../components/issuance-dialog";
 import { OfferDialog } from "../components/offer-dialog";
 import { useCloseFundOffer } from "../hooks/mutations/useCloseFundOffer";
@@ -105,11 +107,14 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
   const [distributionOpen, setDistributionOpen] = useState(false);
   const [offerOpen, setOfferOpen] = useState(false);
   const [issuanceOpen, setIssuanceOpen] = useState(false);
+  const [directedOpen, setDirectedOpen] = useState(false);
   const [buybackOpen, setBuybackOpen] = useState(false);
   const [contributeOpen, setContributeOpen] = useState(false);
   const assemblyRef = useRef<HTMLDivElement>(null);
   const { fund: activeFund, switchAccount } = useActiveAccount();
   const closeOffer = useCloseFundOffer(fund.id);
+  const navigate = useNavigate();
+  const directedOffer = fund.directed_issuance;
 
   const stage = fundStage(fund);
   const managerQuotas = managerQuotasOf(fund);
@@ -164,6 +169,13 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
           >
             Recomprar
           </Button>
+          <Button
+            variant="outline"
+            disabled={total === 0 || directedOffer !== null || issuanceOpenNow || buybackOpenNow || assemblyOpenNow}
+            onClick={() => setDirectedOpen(true)}
+          >
+            Emissão dirigida
+          </Button>
         </>
       )}
       {stage !== "closed" && (
@@ -174,6 +186,17 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
       <Button variant="outline" onClick={() => setFeesOpen(true)}>
         Taxas
       </Button>
+      {stage === "listed" && (
+        <Button
+          variant="outline"
+          onClick={() => {
+            switchAccount(fund.id);
+            void navigate("/credit");
+          }}
+        >
+          Pedir empréstimo
+        </Button>
+      )}
       {operateButton}
     </>
   );
@@ -215,6 +238,11 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
 
       {/* Convite para co-gestor */}
       {invite && <ComanagerInviteAlert fund={fund} invite={invite} />}
+
+      {/* Oferta de emissão dirigida */}
+      {directedOffer && (
+        <DirectedIssuanceAlert fund={fund} offer={directedOffer} isBuyer={directedOffer.buyer_user_id === userId} />
+      )}
 
       {/* Carteira congelada */}
       {fund.frozen_until && !viewer && (
@@ -369,6 +397,7 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
             nav={nav}
             totalQuotas={total}
           />
+          <DirectedIssuanceDialog open={directedOpen} onOpenChange={setDirectedOpen} fund={fund} />
           <BuybackDialog
             open={buybackOpen}
             onOpenChange={setBuybackOpen}

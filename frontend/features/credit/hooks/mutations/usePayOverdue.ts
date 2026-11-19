@@ -7,7 +7,7 @@ export function usePayOverdue(loanId: string) {
   const renew = useRenewCredit();
 
   return useMutation({
-    mutationFn: () => apiFetch(`/api/credit/loans/${loanId}/overdue`, { method: "POST" }),
+    mutationFn: () => apiFetch(`/api/credit/loans/${loanId}/overdue`, { method: "POST", activeAccount: true }),
     onSuccess: renew,
     onError: (err) => toastApiError(err),
   });

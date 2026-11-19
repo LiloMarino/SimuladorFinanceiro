@@ -32,6 +32,8 @@ export function movementText(movement: Movement): string {
       return `${movement.nickname ?? "Um jogador"} virou co-gestor${movement.share === null ? "" : `, com ${displayPercent(movement.share, 0)} das taxas`}`;
     case "comanager_left":
       return `${movement.nickname ?? "Um jogador"} deixou a gestão`;
+    case "directed_issuance":
+      return `Emissão dirigida: ${quotas} para ${movement.nickname ?? "um jogador"}${movement.price === null ? "" : ` a ${displayMoney(movement.price)} cada`}`;
     case "report_published":
       return "Relatório mensal publicado";
     case "manager_buy":

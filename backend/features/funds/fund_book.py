@@ -14,6 +14,7 @@ from backend.core.dto.fund import (
     FundBuybackDTO,
     FundComanagerDTO,
     FundDayDTO,
+    FundDirectedIssuanceDTO,
     FundDistributionDTO,
     FundDistributionPlanDTO,
     FundDTO,
@@ -31,6 +32,7 @@ from backend.core.enum import (
     AssetClass,
     FundAssemblyStatus,
     FundComanagerStatus,
+    FundDirectedIssuanceStatus,
     IndicatorSeries,
     OrderAction,
     OrderStatus,
@@ -66,6 +68,12 @@ from backend.features.funds.fund_comanagers import (
     operators_of,
     split_fee,
 )
+from backend.features.funds.fund_directed import (
+    FundDirectedIssuances,
+    cap_room,
+    directed_price,
+)
+from backend.features.funds.fund_directed import expires_on as directed_expires_on
 from backend.features.funds.fund_ledger import PERFORMANCE_PERIOD_MONTHS
 from backend.features.funds.fund_offer import FundOffer
 from backend.features.funds.performance import (
@@ -236,6 +244,8 @@ class Fund:
     last_assembly: FundAssemblyDTO | None = None
     # Os co-gestores: convites pendentes e ativos, que operam a carteira e dividem as taxas
     comanagers: list[FundComanagerDTO] = field(default_factory=list)
+    # A oferta de cotas novas do principal que espera a resposta de um co-gestor
+    directed: FundDirectedIssuanceDTO | None = None
     # Os rendimentos mensais já apurados, do mais antigo ao mais novo; o último ainda pode
     # estar sem pagamento (entre a data-com e o primeiro pregão do mês seguinte)
     distributions: list[FundDistributionDTO] = field(default_factory=list)
@@ -311,6 +321,7 @@ class FundBook:
             simulation_id, engine, lambda: self.participants(), grace_ends
         )
         self._comanagers = FundComanagers(lambda: self.participants())
+        self._directed = FundDirectedIssuances()
         engine.broker.on_fund_offer_sale = self._record_offer_sale
         engine.broker.on_fund_buyback = self._record_buyback
         engine.on_realized = self._record_realized
@@ -321,6 +332,11 @@ class FundBook:
     def eliminated(self) -> dict[int, date]:
         """Os eliminados do modo aquisição hostil e o dia da eliminação, por id de usuário."""
         return dict(self._eliminated)
+
+    @property
+    def manager_cap(self) -> Decimal | None:
+        """No modo aquisição hostil, a fração das cotas que o principal e os co-gestores mantêm; nulo sem o modo."""
+        return self._manager_cap
 
     @property
     def client_ids(self) -> list[UUID]:
@@ -758,6 +774,164 @@ class FundBook:
         self._announce(today, headlines.issuance_opened(ticker, size, issuance.price))
         return issuance
 
+    # =========================
+    # Emissão dirigida
+    # =========================
+
+    def directed_terms(self, fund: Fund) -> tuple[Decimal, Decimal, Decimal]:
+        """O PL por cota, o preço de ranking e o preço da emissão dirigida: o maior dos dois, ao centavo."""
+        nav = self._nav(fund)
+        if nav is None or nav <= 0:
+            raise ConflictError("A gestora ainda não tem PL por cota")
+        ranking = self._engine.ranking_prices.get(fund.ticker, nav)
+        return nav, ranking, directed_price(nav, ranking)
+
+    def operators_quotas(self, fund: Fund) -> Decimal:
+        """As cotas do principal e dos co-gestores ativos, somadas, nas carteiras pessoais deles."""
+        held = self._assemblies.holdings(fund)
+        return sum((held.get(u, Decimal(0)) for u in operators_of(fund)), Decimal(0))
+
+    def directed_room(self, fund: Fund) -> Decimal:
+        """O máximo de cotas novas de uma emissão dirigida agora.
+
+        Fora do modo aquisição hostil, uma emissão vai até o total de cotas em circulação; no
+        modo, o teto vale para o principal e os co-gestores somados e a conta é a de `cap_room`.
+        """
+        total = fund.account.quotas
+        cap = self._manager_cap
+        if cap is None:
+            return total * ISSUANCE_LIMIT
+        return cap_room(self.operators_quotas(fund), total, cap)
+
+    def ensure_directed_open(self, fund: Fund) -> None:
+        """A emissão dirigida vale numa gestora listada, sem oferta, emissão, recompra nem assembleia em andamento."""
+        self._sync_buyback(fund)
+        if not fund.listed:
+            raise ConflictError(
+                "A emissão dirigida vale depois da oferta pública da gestora"
+            )
+        if fund.account.offer_remaining is not None or fund.issuance is not None:
+            raise ConflictError("A gestora já tem uma oferta ou emissão em andamento")
+        if fund.buyback is not None:
+            raise ConflictError("Encerre a recompra antes de emitir cotas")
+        if fund.assembly is not None:
+            raise ConflictError(
+                "A gestora tem uma assembleia em andamento e não emite cotas até o resultado"
+            )
+
+    def offer_directed(
+        self, ticker: str, buyer_nickname: str, quotas: Decimal
+    ) -> FundDirectedIssuanceDTO:
+        """O principal oferece `quotas` cotas novas a um co-gestor ativo; preço e teto nascem na aceitação."""
+        fund = self._funds[ticker]
+        buyer = next(
+            (
+                u
+                for u in self.participants()
+                if u.nickname == buyer_nickname and not u.is_bot
+            ),
+            None,
+        )
+        if buyer is None:
+            raise UnprocessableEntityError("O comprador precisa ser um jogador da sala")
+        self._ensure_directed_quantity(fund, quotas)
+        return self._directed.offer(fund, buyer.id, quotas, self._engine.current_date)
+
+    def issue_directed(self, ticker: str, buyer: UserDTO, quotas: Decimal) -> Decimal:
+        """O principal emite `quotas` cotas novas para si e devolve o preço pago por cota."""
+        fund = self._funds[ticker]
+        if fund.directed is not None:
+            raise ConflictError(
+                "A gestora já tem uma oferta de cotas esperando resposta"
+            )
+        self._ensure_directed_quantity(fund, quotas)
+        price = self._settle_directed(fund, buyer, quotas)
+        self._directed.record_settled(
+            fund, buyer.id, quotas, price, self._engine.current_date
+        )
+        return price
+
+    def accept_directed(self, ticker: str, buyer: UserDTO) -> FundDirectedIssuanceDTO:
+        """O co-gestor aceita a oferta: a emissão liquida ao preço e ao teto de agora."""
+        fund = self._funds[ticker]
+        offer = self._directed.pending_for(fund, buyer)
+        price = self._settle_directed(fund, buyer, offer.quotas)
+        today = self._engine.current_date
+        self._directed.settle(fund, price, today)
+        return offer.model_copy(
+            update={
+                "price": price,
+                "settled_on": today,
+                "status": FundDirectedIssuanceStatus.ACCEPTED,
+            }
+        )
+
+    def decline_directed(self, ticker: str, buyer: UserDTO) -> FundDirectedIssuanceDTO:
+        """O co-gestor recusa a oferta."""
+        return self._directed.decline(self._funds[ticker], buyer)
+
+    def cancel_directed(self, ticker: str) -> FundDirectedIssuanceDTO:
+        """O principal cancela a oferta que espera resposta."""
+        offer = self._directed.cancel(self._funds[ticker])
+        if offer is None:
+            raise NotFoundError("A gestora não tem oferta de cotas esperando resposta")
+        return offer
+
+    def directed_offers_for(
+        self, user: UserDTO
+    ) -> list[tuple[Fund, FundDirectedIssuanceDTO, str, date]]:
+        """As ofertas de cotas que esperam `user`: a gestora, a oferta, o apelido do principal e o último dia dela."""
+        names = self._nicknames()
+        return [
+            (
+                fund,
+                fund.directed,
+                names.get(fund.terms.manager_user_id, "?"),
+                directed_expires_on(fund.directed),
+            )
+            for fund in self._funds.values()
+            if fund.directed is not None and fund.directed.buyer_user_id == user.id
+        ]
+
+    def _ensure_directed_quantity(self, fund: Fund, quotas: Decimal) -> None:
+        self.ensure_directed_open(fund)
+        if quotas <= 0 or quotas != quotas.to_integral_value():
+            raise UnprocessableEntityError("Informe uma quantidade inteira de cotas")
+        room = self.directed_room(fund)
+        if quotas > room:
+            raise UnprocessableEntityError(
+                f"Uma emissão dirigida vai até {format_quantity(room)} cotas agora"
+            )
+
+    def _settle_directed(self, fund: Fund, buyer: UserDTO, quotas: Decimal) -> Decimal:
+        """Liquida a emissão dirigida ao preço e ao teto de agora e devolve o preço por cota.
+
+        O caixa do comprador entra na gestora, a taxa a pagar sai primeiro dele e as cotas
+        nascem na carteira do comprador ao preço pago. Sem comissão de banqueiro.
+        """
+        self.ensure_directed_open(fund)
+        _, _, price = self.directed_terms(fund)
+        room = self.directed_room(fund)
+        if quotas > room:
+            raise ConflictError(
+                f"Uma emissão dirigida vai até {format_quantity(room)} cotas agora"
+            )
+        cost = price * quotas
+        engine = self._engine
+        if engine.get_cash(buyer.client_id) < cost:
+            raise ConflictError("Caixa insuficiente para comprar as cotas")
+
+        engine.transfer_cash(buyer.client_id, fund.account.client_id, cost)
+        fund.account.subscribe(quotas)
+        engine.broker.receive_position(buyer.client_id, fund.ticker, quotas, price)
+        self.settle_payable(fund)
+        fund.nav = self._nav(fund)
+        if fund.nav is not None:
+            engine.ranking_prices[fund.ticker] = ranking_price(fund.days, fund.nav)
+        self._refresh_orders(fund, engine.current_date)
+        self._save(fund)
+        return price
+
     def subscribe_issuance(self, ticker: str, user: UserDTO, quotas: Decimal) -> None:
         """O cotista compra `quotas` da preferência ao preço da emissão, dentro do direito que resta.
 
@@ -1074,13 +1248,16 @@ class FundBook:
 
     def remove_comanager(self, ticker: str, user_id: int) -> FundComanagerDTO:
         """O principal tira o co-gestor ou retira o convite; o acesso acaba no mesmo pregão."""
-        return self._comanagers.remove(
-            self._funds[ticker], user_id, self._engine.current_date
-        )
+        fund = self._funds[ticker]
+        removed = self._comanagers.remove(fund, user_id, self._engine.current_date)
+        self._directed.cancel_of(fund, user_id)
+        return removed
 
     def leave_comanagement(self, ticker: str, user: UserDTO) -> None:
         """O co-gestor deixa a gestão; o acesso acaba no mesmo pregão."""
-        self._comanagers.leave(self._funds[ticker], user, self._engine.current_date)
+        fund = self._funds[ticker]
+        self._comanagers.leave(fund, user, self._engine.current_date)
+        self._directed.cancel_of(fund, user.id)
 
     def comanager_invites_for(
         self, user: UserDTO
@@ -1173,6 +1350,8 @@ class FundBook:
     def _replace_manager(self, fund: Fund, manager_user_id: int) -> None:
         """O candidato assume: as ordens do gestor afastado saem do livro e a recompra dele cai."""
         self._sync_buyback(fund)
+        # A oferta de cotas é do principal que sai
+        self._directed.cancel(fund)
         # O candidato que já era co-gestor passa a principal e deixa a lista deles
         if any(c.user_id == manager_user_id for c in fund.comanagers):
             self._comanagers.drop(fund, manager_user_id)
@@ -1270,7 +1449,7 @@ class FundBook:
         for fund in self._funds.values():
             # A taxa a pagar é a primeira a sair do caixa; o rendimento apurado na data-com
             # paga só o que sobra, e os dois saem antes de o PL do dia ser calculado
-            self._settle_payable(fund)
+            self.settle_payable(fund)
             self._pay_distribution(fund, today)
             nav = self._nav(fund)
             if nav is None:
@@ -1298,7 +1477,8 @@ class FundBook:
         candles: list[CandleDTO] = []
         for fund in self._funds.values():
             # O convite de co-gestão vence também na gestora que ainda não abriu a oferta
-            if self._comanagers.expire_invites(fund, today):
+            invites = self._comanagers.expire_invites(fund, today)
+            if self._directed.expire(fund, today) or invites:
                 self._save(fund)
             if fund.nav is None or not fund.listed:
                 continue
@@ -1327,6 +1507,9 @@ class FundBook:
                     traded_value=trades.value,
                     ranking_price=ranking,
                     fee_payable=fund.terms.fee_payable,
+                    loan_debt=self._engine.credit_book.loan_debt(
+                        fund.account.client_id, today
+                    ),
                 ),
             )
             self._engine.update_market_data([candle])
@@ -1451,7 +1634,7 @@ class FundBook:
             update[column] = getattr(fund.terms, column) + owed
         fund.terms = fund.terms.model_copy(update=update)
 
-    def _settle_payable(self, fund: Fund) -> None:
+    def settle_payable(self, fund: Fund) -> None:
         """A taxa a pagar sai do caixa positivo antes de qualquer outro uso: administração primeiro, depois performance."""
         client_id = fund.account.client_id
         update: dict[str, Decimal] = {}
@@ -1653,6 +1836,7 @@ class FundBook:
             assembly_votes=assembly_votes,
             last_assembly=last_assembly,
             comanagers=self._comanagers.load(terms.id),
+            directed=self._directed.load(terms.id),
             distributions=repository.fund.distributions(terms.id, after),
             days=[
                 TradedDay(d.traded_quantity, d.traded_value)
@@ -1676,6 +1860,7 @@ class FundBook:
             },
         )
         self._funds[terms.ticker] = fund
+        self._publish_fee_payable(fund)
         self._accounts[terms.ticker] = account
         self._engine.broker.maker_accounts[terms.ticker] = account
         SimulationManager.add_fund_portfolios({terms.client_id: terms.portfolio_id})
@@ -1710,7 +1895,7 @@ class FundBook:
             balance.total_cash + self._reserved_for_buyback(fund),
             balance.total_equity,
             balance.total_fixed,
-            balance.total_debt + fund.terms.fee_payable,
+            balance.total_debt,
             fund.account.quotas,
         )
 
@@ -1848,6 +2033,10 @@ class FundBook:
             fund.terms = fund.terms.model_copy(update={"offer_closed_on": today})
         self._save(fund)
 
+    def _publish_fee_payable(self, fund: Fund) -> None:
+        """A taxa a pagar é dívida da conta da gestora no motor, e o balanço da carteira a soma."""
+        self._engine.fund_fee_payable[fund.account.client_id] = fund.terms.fee_payable
+
     def _save(self, fund: Fund) -> None:
         account = fund.account
         fund.terms = fund.terms.model_copy(
@@ -1858,4 +2047,5 @@ class FundBook:
                 "offer_remaining": account.offer_remaining,
             }
         )
+        self._publish_fee_payable(fund)
         repository.fund.save(fund.terms)

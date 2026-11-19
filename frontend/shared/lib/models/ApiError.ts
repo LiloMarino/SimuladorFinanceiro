@@ -45,6 +45,12 @@ export default class ApiError extends Error {
     this.body = body;
   }
 
+  /** O motivo tipado que a API manda em alguns erros (ex.: `credit_sovereign_fund`); nulo nos demais. */
+  get code(): string | null {
+    const code = (this.body as { code?: unknown } | null)?.code;
+    return typeof code === "string" ? code : null;
+  }
+
   /** Linha técnica que acompanha a mensagem, ex.: "Erro 500 · o servidor falhou". */
   get statusLine(): string {
     if (this.status === NETWORK_ERROR_STATUS) return "Sem conexão com o servidor do host";

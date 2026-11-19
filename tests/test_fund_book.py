@@ -20,6 +20,7 @@ from backend.core.dto.fund import (
     FundComanagerDTO,
     FundComanagerEventDTO,
     FundDayDTO,
+    FundDirectedIssuanceDTO,
     FundDistributionDTO,
     FundDTO,
     FundIssuanceDTO,
@@ -28,7 +29,12 @@ from backend.core.dto.fund import (
 )
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import AssetClass, FundAssemblyStatus, OrderAction
+from backend.core.enum import (
+    AssetClass,
+    FundAssemblyStatus,
+    FundDirectedIssuanceStatus,
+    OrderAction,
+)
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     NotFoundError,
@@ -85,8 +91,13 @@ class FundEngine(FakeSimulationEngine):
         self.created_stocks: dict[str, StockDTO] = {}
 
     def balance_sheet(self, client_id: UUID) -> BalanceSheet:
+        # A taxa a pagar é dívida da conta, como no motor real
         return BalanceSheet(
-            Decimal(0), Decimal(0), self.cash[client_id], Decimal(0), {}
+            Decimal(0),
+            Decimal(0),
+            self.cash[client_id],
+            self.fund_fee_payable.get(client_id, Decimal(0)),
+            {},
         )
 
     def add_created_stock(self, stock: StockDTO) -> None:
@@ -340,11 +351,71 @@ class MemoryComanagers:
         return list(self.logged.get(fund_id, []))
 
 
+@dataclass
+class MemoryDirectedIssuances:
+    """As emissões dirigidas das gestoras em memória."""
+
+    rows: dict[int, tuple[int, FundDirectedIssuanceDTO]] = field(default_factory=dict)
+
+    def pending_of_fund(self, fund_id: int) -> FundDirectedIssuanceDTO | None:
+        offers = [
+            row
+            for owner, row in self.rows.values()
+            if owner == fund_id and row.status is FundDirectedIssuanceStatus.OFFERED
+        ]
+        return offers[-1] if offers else None
+
+    def settled_of_fund(self, fund_id: int) -> list[FundDirectedIssuanceDTO]:
+        return [
+            row
+            for owner, row in self.rows.values()
+            if owner == fund_id and row.status is FundDirectedIssuanceStatus.ACCEPTED
+        ]
+
+    def create(
+        self,
+        fund_id: int,
+        buyer_user_id: int,
+        quotas: Decimal,
+        offered_on: date,
+        status: FundDirectedIssuanceStatus,
+        price: Decimal | None = None,
+        settled_on: date | None = None,
+    ) -> FundDirectedIssuanceDTO:
+        row = FundDirectedIssuanceDTO(
+            id=len(self.rows) + 1,
+            buyer_user_id=buyer_user_id,
+            quotas=quotas,
+            offered_on=offered_on,
+            status=status,
+            price=price,
+            settled_on=settled_on,
+        )
+        self.rows[row.id] = (fund_id, row)
+        return row
+
+    def close(
+        self,
+        issuance_id: int,
+        status: FundDirectedIssuanceStatus,
+        price: Decimal | None = None,
+        settled_on: date | None = None,
+    ) -> None:
+        owner, row = self.rows[issuance_id]
+        self.rows[issuance_id] = (
+            owner,
+            row.model_copy(
+                update={"status": status, "price": price, "settled_on": settled_on}
+            ),
+        )
+
+
 @pytest.fixture
 def memory(monkeypatch: pytest.MonkeyPatch) -> MemoryFunds:
     memory = MemoryFunds()
     monkeypatch.setattr(repository, "fund", memory)
     monkeypatch.setattr(repository, "fund_comanager", MemoryComanagers())
+    monkeypatch.setattr(repository, "fund_directed_issuance", MemoryDirectedIssuances())
     return memory
 
 

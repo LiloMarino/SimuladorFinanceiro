@@ -28,13 +28,19 @@ describe("leituras da página", () => {
       { asset_class: "stocks", value: "100000", fraction: "0.5" },
       { asset_class: "fixed_income", value: "60000", fraction: "0.3" },
     ] as const;
-    expect(netWorthOf({ composition: [...composition], fees: { payable: "0" } })).toBe(200_000);
+    expect(netWorthOf({ composition: [...composition], fees: { payable: "0", loan_debt: "0" } })).toBe(200_000);
   });
 
   it("o patrimônio desconta a taxa a pagar", () => {
     // 40.000 em caixa - 6.000 a pagar = 34.000
     const composition = [{ asset_class: "cash", value: "40000", fraction: "1" }] as const;
-    expect(netWorthOf({ composition: [...composition], fees: { payable: "6000" } })).toBe(34_000);
+    expect(netWorthOf({ composition: [...composition], fees: { payable: "6000", loan_debt: "0" } })).toBe(34_000);
+  });
+
+  it("o patrimônio desconta a dívida dos empréstimos", () => {
+    // 240.000 em caixa (200.000 emprestados) - 200.000 de dívida = 40.000
+    const composition = [{ asset_class: "cash", value: "240000", fraction: "1" }] as const;
+    expect(netWorthOf({ composition: [...composition], fees: { payable: "0", loan_debt: "200000" } })).toBe(40_000);
   });
 
   it("a parte e as cotas do gestor vêm da linha dele nos cotistas", () => {

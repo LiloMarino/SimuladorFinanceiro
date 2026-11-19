@@ -22,6 +22,17 @@ export const FEE_PAYABLE: MetricInfo = {
   format: (value) => `${value}`,
 };
 
+export const LOAN_DEBT: MetricInfo = {
+  label: "Dívida de empréstimo",
+  description: "O que a gestora deve de empréstimos contratados em nome dela",
+  definition:
+    "É o saldo devedor dos empréstimos que o gestor pediu no nome da gestora. A dívida desconta do patrimônio e cada parcela sai do caixa dela.",
+  example: "Ex.: empréstimo de R$ 50.000 com R$ 30.000 ainda por pagar: R$ 30.000 saem do patrimônio da gestora.",
+  reading:
+    "Dívida alta em relação ao patrimônio deixa a cota mais frágil. O ideal é a gestora pagar as parcelas em dia.",
+  format: (value) => `${value}`,
+};
+
 export const NAV_PER_QUOTA: MetricInfo = {
   label: "Patrimônio por cota",
   description: "O valor justo de uma cota, pelo que a gestora tem",

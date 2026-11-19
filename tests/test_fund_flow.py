@@ -11,8 +11,10 @@ import pytest
 
 from backend.core import repository
 from backend.core.dto.fund import (
+    FundComanagerInviteRequest,
     FundContributionRequest,
     FundContributionStockRequest,
+    FundDirectedIssuanceRequest,
     FundFeesRequest,
     FundFoundRequest,
 )
@@ -938,3 +940,66 @@ def test_fund_does_not_trade_with_the_managers_personal_account(started):  # noq
     assert purchase.status is OrderStatus.CANCELED
     assert sale.remaining == 10
     assert engine.order_book.find(sale.id) is sale
+
+
+def resume(sim: Simulation) -> Simulation:
+    """Recarrega a partida salva, como a retomada faz."""
+    summary = repository.simulation.get_simulation(sim.settings.id)
+    assert summary is not None
+    SimulationLoader.load(summary)
+    return SimulationManager.get_active_simulation()
+
+
+def listed_fund_with_comanager(started) -> tuple[Simulation, UserDTO, UserDTO, int]:  # noqa: F811
+    """A gestora da Ana listada e sem oferta aberta, com Bruno co-gestor ativo."""
+    sim, ana = empty_match("Bruno")
+    bruno = player(sim, "Bruno")
+    fund_id = fund_with_cash(sim, ana)
+    sim.open_fund_offer(ana, fund_id, 20)
+    sim.close_fund_offer(ana, fund_id)
+    sim.invite_fund_comanager(
+        ana,
+        fund_id,
+        FundComanagerInviteRequest(nickname="Bruno", share=Decimal("0.30")),
+    )
+    sim.answer_fund_comanager_invite(bruno, fund_id, True)
+    return sim, ana, bruno, fund_id
+
+
+def test_directed_offer_survives_the_resume_and_settles_after_it(started):  # noqa: F811
+    sim, ana, bruno, fund_id = listed_fund_with_comanager(started)
+    sim.issue_fund_directed(
+        ana, fund_id, FundDirectedIssuanceRequest(quotas=10, buyer_nickname="Bruno")
+    )
+
+    resumed = resume(sim)
+
+    pending = book_of(resumed).get(TICKER).directed
+    assert pending is not None
+    assert (pending.quotas, pending.buyer_user_id) == (10, bruno.id)
+    cash = resumed._engine.get_cash(bruno.client_id)
+    resumed.accept_fund_directed(bruno, fund_id)
+    assert resumed._engine.get_cash(bruno.client_id) < cash
+    assert book_of(resumed).get(TICKER).directed is None
+
+
+def test_settled_directed_issuance_resumes_with_the_quotas_the_position_and_the_statement(
+    started,  # noqa: F811
+):
+    sim, ana, bruno, fund_id = listed_fund_with_comanager(started)
+    sim.issue_fund_directed(
+        ana, fund_id, FundDirectedIssuanceRequest(quotas=10, buyer_nickname="Bruno")
+    )
+    sim.accept_fund_directed(bruno, fund_id)
+    before = book_of(sim).get(TICKER)
+    quotas, nav = before.account.quotas, before.nav
+
+    resumed = resume(sim)
+
+    after = book_of(resumed).get(TICKER)
+    assert after.account.quotas == quotas
+    assert after.directed is None
+    assert resumed._engine.broker.get_positions(bruno.client_id)[TICKER].size == 10
+    assert nav is None or after.nav is not None
+    kinds = [m.type for m in resumed.get_fund(ana, fund_id).movements]
+    assert kinds.count("directed_issuance") == 1

@@ -17,3 +17,5 @@ class PendingDTO(BaseDTO):
     resolves: str
     # Presente na parcela em atraso: o empréstimo que a ação paga
     loan_id: UUID | None
+    # Presente na pendência de crédito da gestora: a gestora dona do empréstimo
+    fund_id: int | None = None

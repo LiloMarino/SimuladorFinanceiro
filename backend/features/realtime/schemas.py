@@ -136,15 +136,28 @@ class FundsUpdateEventDTO(BaseDTO):
     não carrega dado, quem exibe uma gestora busca de novo."""
 
 
-class ComanagerEventDTO(BaseDTO):
-    """O que mudou na co-gestão de uma gestora para o jogador: convite, resposta, saída ou remoção."""
+type ComanagerEventKind = Literal[
+    "invited",
+    "accepted",
+    "declined",
+    "left",
+    "removed",
+    "directed_offered",
+    "directed_accepted",
+    "directed_declined",
+    "directed_cancelled",
+]
 
-    kind: Literal["invited", "accepted", "declined", "left", "removed"]
+
+class ComanagerEventDTO(BaseDTO):
+    """O que mudou na co-gestão de uma gestora para o jogador: convite, resposta, saída ou remoção, e a oferta de cotas novas com a resposta a ela."""
+
+    kind: ComanagerEventKind
     fund_id: int
     ticker: str
     # Quem agiu: o principal que convidou ou removeu, ou o co-gestor que respondeu ou saiu
     nickname: str
-    # A parte das taxas do convite ou do aceite (0,30 é 30%)
+    # A parte das taxas do convite ou do aceite (0,30 é 30%); nula na oferta de cotas novas
     share: Decimal | None
 
 
@@ -180,6 +193,8 @@ class CreditInstallmentPaidEventDTO(BaseDTO):
     installment_number: int
     total_installments: int
     amount: Decimal
+    # A gestora dona da conta do empréstimo; nulo na conta pessoal
+    account: int | None = None
 
 
 class AutoRedeemEventDTO(BaseDTO):
@@ -246,6 +261,8 @@ class CreditMonthlySummaryEventDTO(BaseDTO):
     month: date
     installments: int
     amount: Decimal
+    # A gestora dona da conta do empréstimo; nulo na conta pessoal
+    account: int | None = None
 
 
 class CreditInstallmentLateEventDTO(BaseDTO):
@@ -254,6 +271,8 @@ class CreditInstallmentLateEventDTO(BaseDTO):
     installment_number: int
     due_date: date
     amount: Decimal
+    # A gestora dona da conta do empréstimo; nulo na conta pessoal
+    account: int | None = None
 
 
 class CreditInstallmentWarningEventDTO(BaseDTO):
@@ -263,6 +282,8 @@ class CreditInstallmentWarningEventDTO(BaseDTO):
     due_date: date
     amount: Decimal
     shortfall: Decimal
+    # A gestora dona da conta do empréstimo; nulo na conta pessoal
+    account: int | None = None
 
 
 class CreditRatingChangedEventDTO(BaseDTO):
@@ -272,6 +293,8 @@ class CreditRatingChangedEventDTO(BaseDTO):
     # Spread e limite da nota nova; o spread é nulo na nota D
     spread: Decimal | None
     debt_limit: Decimal
+    # A gestora dona da conta do empréstimo; nulo na conta pessoal
+    account: int | None = None
 
 
 class CreditLoanPaidOffEventDTO(BaseDTO):
@@ -279,6 +302,8 @@ class CreditLoanPaidOffEventDTO(BaseDTO):
     amount: Decimal
     # Juro que a quitação antecipada deixou de custar; zero na última parcela
     interest_saved: Decimal
+    # A gestora dona da conta do empréstimo; nulo na conta pessoal
+    account: int | None = None
 
 
 class GovernmentUpdateEventDTO(BaseDTO):

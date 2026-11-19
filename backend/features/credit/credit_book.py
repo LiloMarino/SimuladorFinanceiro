@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from backend.core import repository
+from backend.core.dto.base import BaseDTO
 from backend.core.dto.events.credit import CreditEventDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.pending import PendingDTO
@@ -30,6 +31,7 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.core.indicators import annual_index_rate
 from backend.core.runtime.event_manager import EventManager
+from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import format_money, next_business_day, required
 from backend.core.utils.lazy_dict import LazyDict
@@ -72,6 +74,7 @@ from backend.features.statistics.risk import (
     annual_volatility,
     daily_returns,
 )
+from backend.types import Event
 
 if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine
@@ -297,14 +300,24 @@ class CreditBook:
     ):
         self._engine = engine
         self._lock = lock
-        self._history = history or (
-            lambda client_id, before, last: (
-                repository.portfolio.get_patrimonial_history(
-                    UserManager.get_portfolio_id(client_id), before, last
-                )
-            )
-        )
+        self._history = history or self._stored_history
         self._clients: LazyDict[UUID, ClientCredit] = LazyDict(self._load)
+
+    def _stored_history(
+        self, client_id: UUID, before: date | None, last: int | None
+    ) -> list[PatrimonialHistoryDTO]:
+        """O histórico gravado da conta: os snapshots do jogador ou os fechamentos da gestora."""
+        portfolio_id = UserManager.get_portfolio_id(client_id)
+        if SimulationManager.find_fund_portfolio(client_id) is not None:
+            return repository.fund.credit_history(portfolio_id, before, last)
+        return repository.portfolio.get_patrimonial_history(portfolio_id, before, last)
+
+    def _notify(self, event: Event, payload: BaseDTO, client_id: UUID) -> None:
+        """O aviso vai a quem vê a conta: o dono da conta pessoal ou o gestor principal da gestora."""
+        audience, account = self._engine.audience(client_id)
+        json = payload.model_copy(update={"account": account}).to_json()
+        for recipient in audience[:1]:
+            notify(event, json, to=recipient)
 
     def _load(self, client_id: UUID) -> ClientCredit:
         events = repository.credit.get_events(
@@ -324,10 +337,18 @@ class CreditBook:
 
     # ------------------------------------------------------------------ leitura
 
-    def debt(self, client_id: UUID, day: date) -> Decimal:
-        """Saldo devedor do jogador no dia, com multa e mora."""
+    def loan_debt(self, client_id: UUID, day: date) -> Decimal:
+        """Saldo devedor dos empréstimos da conta no dia, com multa e mora."""
         client = self.client(client_id)
         return sum((loan.debt_on(day) for loan in client.loans.values()), ZERO)
+
+    def fee_payable(self, client_id: UUID) -> Decimal:
+        """A taxa a pagar da gestora: dívida da conta dela, fora dos empréstimos; zero nas demais contas."""
+        return self._engine.fund_fee_payable.get(client_id, ZERO)
+
+    def debt(self, client_id: UUID, day: date) -> Decimal:
+        """A dívida total da conta no dia: os empréstimos mais a taxa a pagar da gestora."""
+        return self.loan_debt(client_id, day) + self.fee_payable(client_id)
 
     def loans(self, client_id: UUID) -> list[Loan]:
         return sorted(self.client(client_id).loans.values(), key=lambda x: x.number)
@@ -401,17 +422,25 @@ class CreditBook:
             return True
         return self._shortfall(client_id, client, day) > 0
 
-    def pending(self, client_id: UUID, day: date) -> list[PendingDTO]:
-        """Uma pendência por empréstimo com parcela em atraso e uma se o caixa não cobre o que vence em breve."""
+    def pending(
+        self, client_id: UUID, day: date, fund: tuple[int, str] | None = None
+    ) -> list[PendingDTO]:
+        """Uma pendência por empréstimo com parcela em atraso e uma se o caixa não cobre o que vence em breve.
+
+        Na conta de uma gestora, `fund` traz o id e o ticker dela: a pendência nomeia a gestora e aponta para ela.
+        """
         client = self.client(client_id)
+        owner = f"{fund[1]} · " if fund else ""
+        fund_id = fund[0] if fund else None
         items = [
             registry.pending(
                 PendingType.OVERDUE_INSTALLMENT,
-                f"Empréstimo {loan.number} · "
+                f"{owner}Empréstimo {loan.number} · "
                 f"{format_money(sum((o.amount for o in loan.overdue), ZERO))}"
                 " · multa de 2% e mora correndo",
                 ref=str(loan.loan_id),
                 loan_id=loan.loan_id,
+                fund_id=fund_id,
             )
             for loan in sorted(client.loans.values(), key=lambda loan: loan.number)
             if loan.overdue
@@ -424,7 +453,9 @@ class CreditBook:
             items.append(
                 registry.pending(
                     PendingType.CASH_SHORT,
-                    f"Faltam {format_money(shortfall)} até {next_due:%d/%m}",
+                    f"{owner}Faltam {format_money(shortfall)} até {next_due:%d/%m}",
+                    ref=str(fund_id) if fund_id is not None else "",
+                    fund_id=fund_id,
                 )
             )
         return items
@@ -470,7 +501,7 @@ class CreditBook:
         if not client.events:
             return
         tier = tier_of(score.grade)
-        notify(
+        self._notify(
             "credit_rating_changed",
             CreditRatingChangedEventDTO(
                 before=seen.grade,
@@ -478,8 +509,8 @@ class CreditBook:
                 points=score.points,
                 spread=tier.spread,
                 debt_limit=tier.debt_limit,
-            ).to_json(),
-            to=client_id,
+            ),
+            client_id,
         )
 
     # ------------------------------------------------------------------ vencimentos
@@ -524,15 +555,15 @@ class CreditBook:
                 total = loan.total_installments
                 loan.state = loan.state.advance()
                 if speed <= PER_INSTALLMENT_NOTICE_MAX_SPEED:
-                    notify(
+                    self._notify(
                         "credit_installment_paid",
                         CreditInstallmentPaidEventDTO(
                             loan_number=loan.number,
                             installment_number=number,
                             total_installments=total,
                             amount=amount,
-                        ).to_json(),
-                        to=client_id,
+                        ),
+                        client_id,
                     )
             else:
                 due = loan.state.next_due
@@ -546,7 +577,7 @@ class CreditBook:
                 )
                 loan.overdue.append(Overdue(number, due, amount))
                 loan.state = loan.state.advance()
-                notify(
+                self._notify(
                     "credit_installment_late",
                     CreditInstallmentLateEventDTO(
                         loan_id=loan.loan_id,
@@ -554,19 +585,19 @@ class CreditBook:
                         installment_number=number,
                         due_date=due,
                         amount=amount,
-                    ).to_json(),
-                    to=client_id,
+                    ),
+                    client_id,
                 )
         if loan.is_settled:
             del client.loans[loan.loan_id]
-            notify(
+            self._notify(
                 "credit_loan_paid_off",
                 CreditLoanPaidOffEventDTO(
                     loan_number=loan.number,
                     amount=loan.principal,
                     interest_saved=ZERO,
-                ).to_json(),
-                to=client_id,
+                ),
+                client_id,
             )
 
     def _warn(self, client_id: UUID, client: ClientCredit, day: date) -> None:
@@ -579,15 +610,15 @@ class CreditBook:
             if key in client.warned:
                 continue
             client.warned.add(key)
-            notify(
+            self._notify(
                 "credit_installment_warning",
                 CreditInstallmentWarningEventDTO(
                     loan_number=loan.number,
                     due_date=loan.state.next_due,
                     amount=amount,
                     shortfall=shortfall,
-                ).to_json(),
-                to=client_id,
+                ),
+                client_id,
             )
 
     def monthly_summary(self, client_ids: list[UUID], day: date, speed: int) -> None:
@@ -605,14 +636,14 @@ class CreditBook:
             ]
             if not paid:
                 continue
-            notify(
+            self._notify(
                 "credit_monthly_summary",
                 CreditMonthlySummaryEventDTO(
                     month=day.replace(day=1),
                     installments=len(paid),
                     amount=sum((e.amount for e in paid), ZERO),
-                ).to_json(),
-                to=client_id,
+                ),
+                client_id,
             )
 
     # ------------------------------------------------------------------ operações
@@ -698,12 +729,12 @@ class CreditBook:
             self._engine.pay_loan(client_id, amount)
             self._record(client, client_id, loan, CreditEventType.PAYOFF, amount)
             del client.loans[loan_id]
-            notify(
+            self._notify(
                 "credit_loan_paid_off",
                 CreditLoanPaidOffEventDTO(
                     loan_number=loan.number, amount=amount, interest_saved=saved
-                ).to_json(),
-                to=client_id,
+                ),
+                client_id,
             )
             self._announce_grade(client_id, client, day)
             return amount

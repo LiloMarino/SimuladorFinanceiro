@@ -6,6 +6,7 @@ import { cn } from "@/shared/lib/utils";
 import { displayIsoDate, displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
 import { HOLDING_CLASSES } from "../lib/fund-classes";
+import { FundLoanDebt } from "./fund-loan-debt";
 import { FundPayableFee } from "./fund-payable-fee";
 import { FundPositionsTable } from "./fund-positions-table";
 import { FundReportDialog } from "./fund-report-dialog";
@@ -48,6 +49,7 @@ export function FundComposition({ fund }: { fund: FundDetails }) {
         <ClassBreakdown composition={fund.composition} />
         {positions && <FundPositionsTable positions={positions} />}
         <FundPayableFee payable={fund.fees.payable} />
+        <FundLoanDebt debt={fund.fees.loan_debt} />
         {report ? (
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-subtle px-3 py-2.5">
             <span className="text-xs text-muted-foreground">

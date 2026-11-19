@@ -11,7 +11,7 @@ from backend.core.dto.credit import (
     PrepayLoanRequestDTO,
     PrepaymentPreviewDTO,
 )
-from backend.routes.dependencies import ActiveSimulation, ClientID
+from backend.routes.dependencies import ActingClient, ActiveSimulation, CurrentUser
 
 credit_router = APIRouter(prefix="/api/credit", tags=["Credit"])
 
@@ -22,8 +22,8 @@ credit_router = APIRouter(prefix="/api/credit", tags=["Credit"])
     summary="Obter o crédito",
     description="Retorna a dívida, a nota de risco, a oferta de empréstimo, os empréstimos, as próximas parcelas, o histórico de 12 meses e as sugestões para subir a nota.",
 )
-def get_credit(simulation: ActiveSimulation, client_id: ClientID):
-    return simulation.get_credit(client_id)
+def get_credit(simulation: ActiveSimulation, user: CurrentUser, acting: ActingClient):
+    return simulation.get_credit(user, acting)
 
 
 @credit_router.get(
@@ -34,11 +34,12 @@ def get_credit(simulation: ActiveSimulation, client_id: ClientID):
 )
 def quote_loan(
     simulation: ActiveSimulation,
-    client_id: ClientID,
+    user: CurrentUser,
+    acting: ActingClient,
     amount: Annotated[Decimal, Query(gt=0)],
     term_months: Annotated[int, Query()],
 ):
-    return simulation.quote_loan(client_id, amount, term_months)
+    return simulation.quote_loan(user, acting, amount, term_months)
 
 
 @credit_router.post(
@@ -49,10 +50,11 @@ def quote_loan(
 )
 def contract_loan(
     simulation: ActiveSimulation,
-    client_id: ClientID,
+    user: CurrentUser,
+    acting: ActingClient,
     payload: ContractLoanRequestDTO,
 ):
-    simulation.contract_loan(client_id, payload.amount, payload.term_months)
+    simulation.contract_loan(user, acting, payload.amount, payload.term_months)
 
 
 @credit_router.get(
@@ -63,11 +65,12 @@ def contract_loan(
 )
 def preview_prepayment(
     simulation: ActiveSimulation,
-    client_id: ClientID,
+    user: CurrentUser,
+    acting: ActingClient,
     loan_id: UUID,
     amount: Annotated[Decimal, Query(ge=0)] = Decimal(0),
 ):
-    return simulation.preview_prepayment(client_id, loan_id, amount)
+    return simulation.preview_prepayment(user, acting, loan_id, amount)
 
 
 @credit_router.post(
@@ -78,11 +81,12 @@ def preview_prepayment(
 )
 def prepay_loan(
     simulation: ActiveSimulation,
-    client_id: ClientID,
+    user: CurrentUser,
+    acting: ActingClient,
     loan_id: UUID,
     payload: PrepayLoanRequestDTO,
 ):
-    simulation.prepay_loan(client_id, loan_id, payload.amount, payload.mode)
+    simulation.prepay_loan(user, acting, loan_id, payload.amount, payload.mode)
 
 
 @credit_router.post(
@@ -91,8 +95,10 @@ def prepay_loan(
     summary="Quitar um empréstimo",
     description="Paga o saldo devedor do dia, sem os juros que ainda não correram.",
 )
-def payoff_loan(simulation: ActiveSimulation, client_id: ClientID, loan_id: UUID):
-    simulation.payoff_loan(client_id, loan_id)
+def payoff_loan(
+    simulation: ActiveSimulation, user: CurrentUser, acting: ActingClient, loan_id: UUID
+):
+    simulation.payoff_loan(user, acting, loan_id)
 
 
 @credit_router.post(
@@ -101,5 +107,7 @@ def payoff_loan(simulation: ActiveSimulation, client_id: ClientID, loan_id: UUID
     summary="Pagar a parcela em atraso",
     description="Paga as parcelas em atraso do empréstimo com a multa de 2% e a mora até hoje.",
 )
-def pay_overdue(simulation: ActiveSimulation, client_id: ClientID, loan_id: UUID):
-    simulation.pay_overdue(client_id, loan_id)
+def pay_overdue(
+    simulation: ActiveSimulation, user: CurrentUser, acting: ActingClient, loan_id: UUID
+):
+    simulation.pay_overdue(user, acting, loan_id)

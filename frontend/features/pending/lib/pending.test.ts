@@ -11,6 +11,7 @@ function pending(overrides: Partial<Pending>): Pending {
     detail: "Faltam R$ 920,00 até 05/04",
     resolves: "Some quando o caixa cobre; no vencimento, vira atraso",
     loan_id: null,
+    fund_id: null,
     ...overrides,
   };
 }
@@ -42,6 +43,23 @@ describe("pendingTarget", () => {
     const item = pending({ type: "COMANAGER_INVITE", key: "COMANAGER_INVITE:4" });
 
     expect(pendingTarget(item)).toEqual({ label: "Responder", to: "/funds/4" });
+  });
+});
+
+describe("pendências de gestora", () => {
+  it("leva a oferta de cotas novas à página da gestora", () => {
+    const item = pending({ type: "DIRECTED_ISSUANCE_OFFER", key: "DIRECTED_ISSUANCE_OFFER:9", fund_id: 9 });
+
+    expect(pendingTarget(item)).toEqual({ label: "Responder", to: "/funds/9" });
+  });
+
+  it("leva o atraso e o caixa curto do crédito da gestora à página dela", () => {
+    expect(pendingTarget(pending({ type: "OVERDUE_INSTALLMENT", loan_id: "abc", fund_id: 4 })).to).toBe("/funds/4");
+    expect(pendingTarget(pending({ type: "CASH_SHORT", fund_id: 4 })).to).toBe("/funds/4");
+  });
+
+  it("mantém o crédito pessoal na página de Crédito", () => {
+    expect(pendingTarget(pending({ type: "CASH_SHORT" })).to).toBe("/credit");
   });
 });
 

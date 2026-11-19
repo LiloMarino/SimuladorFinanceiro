@@ -7,6 +7,9 @@ from backend.core.repository.event import EventRepository
 from backend.core.repository.fixed_income import FixedIncomeRepository
 from backend.core.repository.fund import FundRepository
 from backend.core.repository.fund_comanager import FundComanagerRepository
+from backend.core.repository.fund_directed_issuance import (
+    FundDirectedIssuanceRepository,
+)
 from backend.core.repository.generated_future import GeneratedFutureRepository
 from backend.core.repository.government import GovernmentRepository
 from backend.core.repository.import_settings import ImportSettingsRepository
@@ -40,6 +43,7 @@ credit = CreditRepository()
 government = GovernmentRepository()
 fund = FundRepository()
 fund_comanager = FundComanagerRepository()
+fund_directed_issuance = FundDirectedIssuanceRepository()
 statistics = StatisticsRepository()
 settings = SettingsRepository()
 simulation = SimulationRepository()

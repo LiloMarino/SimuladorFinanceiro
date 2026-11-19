@@ -265,7 +265,9 @@ def _rating(book: CreditBook, client_id: UUID, day: date) -> RatingDTO:
 def build_overview(book: CreditBook, client_id: UUID, day: date) -> CreditOverviewDTO:
     client = book.client(client_id)
     loans = book.loans(client_id)
-    debt = book.debt(client_id, day)
+    loan_debt = book.loan_debt(client_id, day)
+    fee_payable = book.fee_payable(client_id)
+    debt = loan_debt + fee_payable
     assets = book.assets_value(client_id)
     networth = assets - debt
     offer = book.offer(client_id, day)
@@ -287,6 +289,8 @@ def build_overview(book: CreditBook, client_id: UUID, day: date) -> CreditOvervi
 
     return CreditOverviewDTO(
         debt=debt,
+        loan_debt=loan_debt,
+        fee_payable=fee_payable,
         open_loans=len(loans),
         closed_loans=client.closed_loans,
         networth=networth,
@@ -323,7 +327,9 @@ def build_quote(
     day: date,
     amount: Decimal,
     term_months: int,
+    fund_quotas: Decimal | None = None,
 ) -> LoanQuoteDTO:
+    """A simulação do empréstimo; `fund_quotas` marca a conta de uma gestora e traz as cotas dela."""
     if not MIN_TERM_MONTHS <= term_months <= MAX_TERM_MONTHS:
         raise UnprocessableEntityError(
             f"O prazo vai de {MIN_TERM_MONTHS} a {MAX_TERM_MONTHS} meses."
@@ -341,7 +347,11 @@ def build_quote(
     interest = total_interest(rows, amount)
     debt = book.debt(client_id, day)
     networth = book.assets_value(client_id) - debt
-    after = leverage(debt + amount, networth)
+    cash = book.cash(client_id)
+    # O empréstimo cai no caixa da gestora e a taxa a pagar sai primeiro dele
+    settled = _fee_settled(book.fee_payable(client_id), cash, amount)
+    debt_after = debt + amount - settled
+    after = leverage(debt_after, networth)
 
     # A nota do fim do mês: a alavancagem com o empréstimo, a volatilidade de hoje
     live = book.closing(client_id, add_months(day.replace(day=1), 1))
@@ -377,8 +387,21 @@ def build_quote(
         projected_points=projected.points,
         current_debt=debt,
         excess=max(amount - offer.max_amount, ZERO),
-        cash_after=book.cash(client_id) + amount,
+        cash_after=cash + amount - settled,
+        first_month_interest_per_quota=(
+            rows[0].interest / fund_quotas if fund_quotas else None
+        ),
+        fee_payable_settled=settled if fund_quotas is not None else None,
+        debt_after=debt_after if fund_quotas is not None else None,
+        networth_before=networth if fund_quotas is not None else None,
+        networth_after=networth if fund_quotas is not None else None,
     )
+
+
+def _fee_settled(fee_payable: Decimal, cash: Decimal, amount: Decimal) -> Decimal:
+    """A parte da taxa a pagar que o empréstimo quita: o caixa positivo com o valor novo cobre a taxa, descontado o que o caixa já cobria."""
+    base = max(cash, ZERO)
+    return min(fee_payable, base + amount) - min(fee_payable, base)
 
 
 def build_prepayment_preview(

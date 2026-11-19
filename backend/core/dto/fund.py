@@ -8,7 +8,11 @@ from typing import Annotated, Literal
 from pydantic import Field, StringConstraints
 
 from backend.core.dto.base import BaseDTO
-from backend.core.enum import FundAssemblyStatus, FundComanagerStatus
+from backend.core.enum import (
+    FundAssemblyStatus,
+    FundComanagerStatus,
+    FundDirectedIssuanceStatus,
+)
 
 # Quatro letras e o 11 das cotas
 FUND_TICKER_PATTERN = r"^[A-Z]{4}11$"
@@ -182,6 +186,8 @@ class FundDayDTO(BaseDTO):
     traded_value: Decimal
     ranking_price: Decimal
     fee_payable: Decimal = Decimal(0)
+    # O saldo devedor dos empréstimos da gestora no fim do pregão
+    loan_debt: Decimal = Decimal(0)
 
 
 class FundSummaryDTO(FundTermsDTO):
@@ -218,6 +224,7 @@ type FundMovementType = Literal[
     "distribution",
     "comanager_joined",
     "comanager_left",
+    "directed_issuance",
 ]
 
 
@@ -282,6 +289,8 @@ class FundFeesDTO(BaseDTO):
     received_12m: Decimal
     # A taxa que o caixa não cobriu e a gestora ainda deve ao gestor
     payable: Decimal
+    # O saldo devedor dos empréstimos da gestora, à parte da taxa a pagar
+    loan_debt: Decimal
 
 
 class FundDistributionPlanDTO(BaseDTO):
@@ -314,7 +323,8 @@ class FundMovementDTO(BaseDTO):
     # Valor em reais do movimento
     amount: Decimal | None
     ticker: str | None
-    # Quem entrou ou saiu da gestão e a parte das taxas de quem entrou; nulos nos demais movimentos
+    # Quem entrou ou saiu da gestão (a parte das taxas, de quem entrou) ou quem comprou numa
+    # emissão dirigida; nulos nos demais movimentos
     nickname: str | None = None
     share: Decimal | None = None
 
@@ -458,6 +468,26 @@ class FundComanagerEventDTO(BaseDTO):
     share: Decimal | None
 
 
+class FundDirectedIssuanceDTO(BaseDTO):
+    """Uma emissão dirigida como a linha de `fund_directed_issuances` a guarda."""
+
+    id: int
+    buyer_user_id: int
+    # As cotas da oferta; o preço só nasce na liquidação
+    quotas: Decimal
+    offered_on: date
+    status: FundDirectedIssuanceStatus
+    price: Decimal | None
+    settled_on: date | None
+
+
+class FundDirectedIssuanceViewDTO(FundDirectedIssuanceDTO):
+    """A oferta de cotas novas na página da gestora, com quem compra e até quando ela vale."""
+
+    buyer_nickname: str
+    expires_on: date
+
+
 class FundComanagerViewDTO(FundComanagerDTO):
     """O co-gestor na página da gestora, com quem ele é e até quando o convite vale."""
 
@@ -518,6 +548,8 @@ class FundDetailsDTO(FundSummaryDTO):
     manager_share: Decimal
     my_role: FundRole
     my_share: Decimal | None
+    # A oferta de cotas novas que espera resposta; só o principal e o comprador a veem
+    directed_issuance: FundDirectedIssuanceViewDTO | None
 
 
 class FundAccountDTO(BaseDTO):
@@ -571,6 +603,12 @@ class FundOfferRequest(BaseDTO):
 
 class FundIssuanceRequest(BaseDTO):
     quotas: int = Field(gt=0)
+
+
+class FundDirectedIssuanceRequest(BaseDTO):
+    quotas: int = Field(gt=0)
+    # O apelido do co-gestor que recebe a oferta; nulo é o gestor principal comprando para si
+    buyer_nickname: str | None = None
 
 
 class FundIssuanceSubscriptionRequest(BaseDTO):
@@ -638,6 +676,36 @@ class FundIssuanceSubscriptionPreviewDTO(BaseDTO):
     my_share_after: Decimal
     # O direito que ainda resta depois da compra
     rights_left_after: Decimal
+
+
+class FundDirectedIssuancePreviewDTO(BaseDTO):
+    """O que uma emissão dirigida de `quotas` cotas faz, vista por quem consulta como comprador."""
+
+    quotas: Decimal
+    # PL por cota, preço de ranking e o preço da emissão: o maior dos dois
+    nav: Decimal
+    ranking_price: Decimal
+    price: Decimal
+    cost: Decimal
+    # O caixa pessoal de quem consulta e se ele cobre o custo
+    buyer_cash: Decimal
+    cash_enough: bool
+    # Do custo, a parte que quita a taxa a pagar da gestora e a que fica no caixa dela
+    to_payable: Decimal
+    to_cash: Decimal
+    # O máximo de cotas novas agora (nulo sem limite) e o teto de participação do modo aquisição hostil (nulo fora dele)
+    room: Decimal | None
+    manager_cap: Decimal | None
+    total_after: Decimal
+    # PL por cota de quem já tem cotas depois da emissão
+    nav_after: Decimal
+    # As cotas e a participação de quem consulta, antes e depois
+    my_quotas_after: Decimal
+    my_share_now: Decimal
+    my_share_after: Decimal
+    # A participação somada do principal e dos co-gestores, antes e depois
+    operators_share_now: Decimal
+    operators_share_after: Decimal
 
 
 class FundBuybackPreviewDTO(BaseDTO):

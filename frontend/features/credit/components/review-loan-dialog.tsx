@@ -34,6 +34,12 @@ export function ReviewLoanDialog({ open, onOpenChange, quote, rating }: ReviewLo
   const sign = () =>
     contract.mutate({ amount: quote.amount, term_months: quote.term_months }, { onSuccess: () => onOpenChange(false) });
 
+  // A gestora devolve primeiro a taxa a pagar: o quote traz os campos só nessa conta
+  const fundQuote =
+    quote.fee_payable_settled !== null && quote.first_month_interest_per_quota !== null
+      ? { settled: quote.fee_payable_settled, interestPerQuota: quote.first_month_interest_per_quota }
+      : null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col sm:max-w-130">
@@ -59,10 +65,31 @@ export function ReviewLoanDialog({ open, onOpenChange, quote, rating }: ReviewLo
               A parcela é a mesma; o juro cai e a dívida paga sobe a cada mês.
             </span>
 
+            {/* O que muda na gestora */}
+            {fundQuote && (
+              <div>
+                <KeyValueRow
+                  label="Juros no primeiro mês"
+                  note={`≈ ${displayMoney(fundQuote.interestPerQuota)} por cota, saídos do patrimônio`}
+                  value={`≈ ${displayMoney(quote.schedule[0]?.interest ?? 0)}`}
+                />
+                <KeyValueRow
+                  label="Caixa da gestora depois"
+                  note={
+                    Number(fundQuote.settled) > 0
+                      ? `${displayMoney(fundQuote.settled)} do empréstimo quitam antes a taxa a pagar`
+                      : undefined
+                  }
+                  value={displayMoney(quote.cash_after)}
+                />
+              </div>
+            )}
+
             {/* Efeito na nota */}
             <div>
               <KeyValueRow
-                label="Alavancagem"
+                label={fundQuote ? "Dívida sobre o patrimônio" : "Alavancagem"}
+                note={fundQuote ? "A nota é recalculada com a dívida nova" : undefined}
                 value={`${displayLeverage(quote.leverage_before)} → ${displayLeverage(quote.leverage_after)}`}
               />
               <KeyValueRow

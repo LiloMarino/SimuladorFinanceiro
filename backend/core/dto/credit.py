@@ -132,8 +132,11 @@ class SuggestionDTO(BaseDTO):
 
 
 class CreditOverviewDTO(BaseDTO):
-    # Saldo devedor de todos os empréstimos mais multa e mora
+    # A dívida total: o saldo dos empréstimos com multa e mora, mais a taxa a pagar da gestora
     debt: Decimal
+    # As duas partes da dívida; a taxa a pagar só existe na conta de uma gestora
+    loan_debt: Decimal
+    fee_payable: Decimal
     open_loans: int
     closed_loans: int
     # Patrimônio líquido e os ativos de onde ele sai
@@ -186,6 +189,13 @@ class LoanQuoteDTO(BaseDTO):
     current_debt: Decimal
     excess: Decimal
     cash_after: Decimal
+    # Só na conta de uma gestora: o juro do primeiro mês por cota, a parte do empréstimo que
+    # quita a taxa a pagar, a dívida depois e o patrimônio antes e depois
+    first_month_interest_per_quota: Decimal | None = None
+    fee_payable_settled: Decimal | None = None
+    debt_after: Decimal | None = None
+    networth_before: Decimal | None = None
+    networth_after: Decimal | None = None
 
 
 class PrepaymentOptionDTO(BaseDTO):

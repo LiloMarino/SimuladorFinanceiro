@@ -1413,6 +1413,7 @@ class PendingType(Enum):
     SELIC_MEETING = "SELIC_MEETING"
     FUND_ASSEMBLY_INVITE = "FUND_ASSEMBLY_INVITE"
     COMANAGER_INVITE = "COMANAGER_INVITE"
+    DIRECTED_ISSUANCE_OFFER = "DIRECTED_ISSUANCE_OFFER"
     FUND_DISTRIBUTION_SHORT_CASH = "FUND_DISTRIBUTION_SHORT_CASH"
 
 
@@ -1451,6 +1452,16 @@ class FundAssemblyStatus(Enum):
     REPLACED = "REPLACED"
     KEPT = "KEPT"
     # Encerradas sem votação: o aliado recusou, o convite venceu ou quem convocou cancelou
+    DECLINED = "DECLINED"
+    EXPIRED = "EXPIRED"
+    CANCELLED = "CANCELLED"
+
+
+class FundDirectedIssuanceStatus(Enum):
+    """A emissão dirigida: a oferta que espera a resposta do co-gestor ou o desfecho dela."""
+
+    OFFERED = "OFFERED"
+    ACCEPTED = "ACCEPTED"
     DECLINED = "DECLINED"
     EXPIRED = "EXPIRED"
     CANCELLED = "CANCELLED"

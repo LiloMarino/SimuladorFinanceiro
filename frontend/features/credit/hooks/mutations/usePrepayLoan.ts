@@ -9,7 +9,7 @@ export function usePrepayLoan(loanId: string) {
 
   return useMutation({
     mutationFn: (body: PrepayLoanRequest) =>
-      apiFetch(`/api/credit/loans/${loanId}/prepayment`, { method: "POST", body }),
+      apiFetch(`/api/credit/loans/${loanId}/prepayment`, { method: "POST", body, activeAccount: true }),
     onSuccess: renew,
     onError: (err) => toastApiError(err),
   });

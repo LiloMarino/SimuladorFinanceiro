@@ -22,13 +22,15 @@ class UnauthorizedError(HTTPException):
 
 
 class ForbiddenError(HTTPException):
-    """403 Forbidden"""
+    """403 Forbidden; o `code` opcional distingue o motivo para quem consome a API."""
 
     def __init__(
         self,
         detail: str = "Você não tem permissão para acessar este recurso.",
+        code: str | None = None,
     ):
         super().__init__(status_code=403, detail=detail)
+        self.code = code
 
 
 class NotFoundError(HTTPException):

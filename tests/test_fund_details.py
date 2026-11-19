@@ -94,9 +94,12 @@ TODAY = date(2004, 9, 1)
 
 
 def builder() -> FundDetailsBuilder:
+    engine = SimpleNamespace(
+        credit_book=SimpleNamespace(loan_debt=lambda *_args: Decimal(0))
+    )
     return FundDetailsBuilder(
         cast("FundBook", None),
-        cast("SimulationEngine", None),
+        cast("SimulationEngine", engine),
         1,
         lambda: {1: "chart-1", 2: "chart-2"},
     )

@@ -2,6 +2,7 @@ from decimal import ROUND_FLOOR, Decimal
 
 from backend.core.dto.fund import (
     FundBuybackPreviewDTO,
+    FundDirectedIssuancePreviewDTO,
     FundIssuancePreviewDTO,
     FundIssuanceSubscriptionPreviewDTO,
 )
@@ -56,6 +57,44 @@ class FundPreviewBuilder:
             keeps_control_if_buy=_keeps_control(mine + rights, total_after),
             manager_rights=rights,
             manager_cost=nav * rights,
+        )
+
+    def directed(self, fund: Fund, quotas: Decimal) -> FundDirectedIssuancePreviewDTO:
+        """Uma emissão dirigida de `quotas` cotas comprada por quem consulta: preço, custo, destino do dinheiro e participações."""
+        nav, ranking, price = self._book.directed_terms(fund)
+        total = fund.account.quotas
+        total_after = total + quotas
+        cost = price * quotas
+        cash = self._engine.get_cash(self._manager.client_id)
+        fund_cash = max(self._engine.get_cash(fund.account.client_id), Decimal(0))
+        payable = fund.terms.fee_payable
+        to_payable = min(payable, fund_cash + cost) - min(payable, fund_cash)
+        room = self._book.directed_room(fund)
+        mine = self._book.quotas_of(fund, self._manager)
+        operators = self._book.operators_quotas(fund)
+        # Se quem consulta é operador, as cotas novas entram na soma dele; senão só nas dele
+        operators_after = operators + (
+            quotas if self._manager.id in self._book.operators(fund) else Decimal(0)
+        )
+        return FundDirectedIssuancePreviewDTO(
+            quotas=quotas,
+            nav=nav,
+            ranking_price=ranking,
+            price=price,
+            cost=cost,
+            buyer_cash=cash,
+            cash_enough=cash >= cost,
+            to_payable=to_payable,
+            to_cash=cost - to_payable,
+            room=room if room.is_finite() else None,
+            manager_cap=self._book.manager_cap,
+            total_after=total_after,
+            nav_after=(nav * total + cost) / total_after,
+            my_quotas_after=mine + quotas,
+            my_share_now=_share(mine, total),
+            my_share_after=_share(mine + quotas, total_after),
+            operators_share_now=_share(operators, total),
+            operators_share_after=_share(operators_after, total_after),
         )
 
     def subscription(

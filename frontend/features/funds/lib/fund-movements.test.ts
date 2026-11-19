@@ -133,4 +133,20 @@ describe("movementText", () => {
     });
     expect(text).toBe("Ana deixou a gestão");
   });
+
+  it("a emissão dirigida diz as cotas, quem comprou e o preço", () => {
+    const text = movementText({
+      day: "2024-05-06",
+      type: "directed_issuance",
+      quotas: "1000",
+      price: "110.44",
+      amount: null,
+      ticker: null,
+      nickname: "Duda",
+      share: null,
+    });
+    expect(text).toContain("1.000 cotas");
+    expect(text).toContain("Duda");
+    expect(text).toContain("110,44");
+  });
 });

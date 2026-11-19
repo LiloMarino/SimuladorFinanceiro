@@ -124,9 +124,11 @@ export const queryKeys = {
   promisesPreview: (request: object) => ["government", "promises", "preview", request] as const,
   balances: () => ["government", "balances"] as const,
   credit: () => ["credit"] as const,
-  creditOverview: () => ["credit", "overview"] as const,
-  loanQuote: (amount: string, termMonths: number) => ["credit", "quote", amount, termMonths] as const,
-  prepaymentPreview: (loanId: string, amount: string) => ["credit", "prepayment", loanId, amount] as const,
+  creditOverview: (account: AccountKey) => ["credit", account, "overview"] as const,
+  loanQuote: (account: AccountKey, amount: string, termMonths: number) =>
+    ["credit", account, "quote", amount, termMonths] as const,
+  prepaymentPreview: (account: AccountKey, loanId: string, amount: string) =>
+    ["credit", account, "prepayment", loanId, amount] as const,
   strategies: () => ["strategies"] as const,
   strategyList: () => ["strategies", "list"] as const,
   myStrategy: () => ["strategies", "me"] as const,

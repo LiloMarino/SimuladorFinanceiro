@@ -3056,6 +3056,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/funds/{fund_id}/directed-issuance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Emitir cotas novas dirigidas
+         * @description Depois da oferta pública, o gestor principal emite cotas novas a um só comprador, ao maior entre o PL por cota e o preço de ranking, sem comissão. Sem `buyer_nickname` ele compra para si: a emissão liquida na hora e a resposta é 204. Com o apelido de um co-gestor ativo, a oferta guarda só a quantidade, espera a resposta dele por 7 dias (201) e o preço e o teto valem na aceitação. O dinheiro quita primeiro a taxa a pagar da gestora. Vale só com a gestora sem oferta, emissão, recompra ou assembleia em andamento; fora do modo aquisição hostil a emissão vai até o total de cotas, e nele o principal e os co-gestores somados não passam do teto de participação.
+         */
+        post: operations["issue_fund_directed_api_funds__fund_id__directed_issuance_post"];
+        /**
+         * Cancelar a oferta de cotas novas
+         * @description O gestor principal retira a oferta que espera resposta.
+         */
+        delete: operations["cancel_fund_directed_api_funds__fund_id__directed_issuance_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/directed-issuance/acceptance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Aceitar a oferta de cotas novas
+         * @description O co-gestor compra as cotas ao preço e dentro do teto de agora, pagando do caixa pessoal. Sem saldo, 409.
+         */
+        post: operations["accept_fund_directed_api_funds__fund_id__directed_issuance_acceptance_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/directed-issuance/refusal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Recusar a oferta de cotas novas
+         * @description A oferta se encerra sem emitir cotas.
+         */
+        post: operations["refuse_fund_directed_api_funds__fund_id__directed_issuance_refusal_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/directed-issuance/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Prever uma emissão dirigida
+         * @description Vista de quem consulta como comprador: preço (o maior entre o PL por cota e o preço de ranking), custo, caixa pessoal, parte que quita a taxa a pagar e a que fica no caixa, teto de cotas, participação antes e depois e PL por cota depois. Consultam o principal e os co-gestores ativos; não altera nada.
+         */
+        get: operations["preview_fund_directed_api_funds__fund_id__directed_issuance_preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/funds/{fund_id}/issuance/subscription-preview": {
         parameters: {
             query?: never;
@@ -6109,14 +6193,10 @@ export interface components {
         };
         /**
          * ComanagerEventDTO
-         * @description O que mudou na co-gestão de uma gestora para o jogador: convite, resposta, saída ou remoção.
+         * @description O que mudou na co-gestão de uma gestora para o jogador: convite, resposta, saída ou remoção, e a oferta de cotas novas com a resposta a ela.
          */
         ComanagerEventDTO: {
-            /**
-             * Kind
-             * @enum {string}
-             */
-            kind: "invited" | "accepted" | "declined" | "left" | "removed";
+            kind: components["schemas"]["ComanagerEventKind"];
             /** Fund Id */
             fund_id: number;
             /** Ticker */
@@ -6126,6 +6206,8 @@ export interface components {
             /** Share */
             share: string | null;
         };
+        /** @enum {string} */
+        ComanagerEventKind: "invited" | "accepted" | "declined" | "left" | "removed" | "directed_offered" | "directed_accepted" | "directed_declined" | "directed_cancelled";
         /** CompleteNotificationSettings */
         CompleteNotificationSettings: {
             /** @default BOTTOM_LEFT */
@@ -6495,6 +6577,8 @@ export interface components {
             due_date: string;
             /** Amount */
             amount: string;
+            /** Account */
+            account: number | null;
         };
         /** CreditInstallmentPaidEventDTO */
         CreditInstallmentPaidEventDTO: {
@@ -6506,6 +6590,8 @@ export interface components {
             total_installments: number;
             /** Amount */
             amount: string;
+            /** Account */
+            account: number | null;
         };
         /**
          * CreditInstallmentWarningEventDTO
@@ -6523,6 +6609,8 @@ export interface components {
             amount: string;
             /** Shortfall */
             shortfall: string;
+            /** Account */
+            account: number | null;
         };
         /** CreditLoanPaidOffEventDTO */
         CreditLoanPaidOffEventDTO: {
@@ -6532,6 +6620,8 @@ export interface components {
             amount: string;
             /** Interest Saved */
             interest_saved: string;
+            /** Account */
+            account: number | null;
         };
         /**
          * CreditMonthlySummaryEventDTO
@@ -6547,6 +6637,8 @@ export interface components {
             installments: number;
             /** Amount */
             amount: string;
+            /** Account */
+            account: number | null;
         };
         /** CreditOfferDTO */
         CreditOfferDTO: {
@@ -6571,6 +6663,10 @@ export interface components {
         CreditOverviewDTO: {
             /** Debt */
             debt: string;
+            /** Loan Debt */
+            loan_debt: string;
+            /** Fee Payable */
+            fee_payable: string;
             /** Open Loans */
             open_loans: number;
             /** Closed Loans */
@@ -6616,6 +6712,8 @@ export interface components {
             spread: string | null;
             /** Debt Limit */
             debt_limit: string;
+            /** Account */
+            account: number | null;
         };
         /**
          * DealDTO
@@ -7183,6 +7281,8 @@ export interface components {
         ErrorResponse: {
             /** Message */
             message: string;
+            /** Code */
+            code?: string | null;
         };
         /** ExpelRequest */
         ExpelRequest: {
@@ -8049,6 +8149,113 @@ export interface components {
             my_role: components["schemas"]["FundRole"];
             /** My Share */
             my_share: string | null;
+            directed_issuance: components["schemas"]["FundDirectedIssuanceViewDTO"] | null;
+        };
+        /**
+         * FundDirectedIssuanceDTO
+         * @description Uma emissão dirigida como a linha de `fund_directed_issuances` a guarda.
+         */
+        FundDirectedIssuanceDTO: {
+            /** Id */
+            id: number;
+            /** Buyer User Id */
+            buyer_user_id: number;
+            /** Quotas */
+            quotas: string;
+            /**
+             * Offered On
+             * Format: date
+             */
+            offered_on: string;
+            status: components["schemas"]["FundDirectedIssuanceStatus"];
+            /** Price */
+            price: string | null;
+            /** Settled On */
+            settled_on: string | null;
+        };
+        /**
+         * FundDirectedIssuancePreviewDTO
+         * @description O que uma emissão dirigida de `quotas` cotas faz, vista por quem consulta como comprador.
+         */
+        FundDirectedIssuancePreviewDTO: {
+            /** Quotas */
+            quotas: string;
+            /** Nav */
+            nav: string;
+            /** Ranking Price */
+            ranking_price: string;
+            /** Price */
+            price: string;
+            /** Cost */
+            cost: string;
+            /** Buyer Cash */
+            buyer_cash: string;
+            /** Cash Enough */
+            cash_enough: boolean;
+            /** To Payable */
+            to_payable: string;
+            /** To Cash */
+            to_cash: string;
+            /** Room */
+            room: string | null;
+            /** Manager Cap */
+            manager_cap: string | null;
+            /** Total After */
+            total_after: string;
+            /** Nav After */
+            nav_after: string;
+            /** My Quotas After */
+            my_quotas_after: string;
+            /** My Share Now */
+            my_share_now: string;
+            /** My Share After */
+            my_share_after: string;
+            /** Operators Share Now */
+            operators_share_now: string;
+            /** Operators Share After */
+            operators_share_after: string;
+        };
+        /** FundDirectedIssuanceRequest */
+        FundDirectedIssuanceRequest: {
+            /** Quotas */
+            quotas: number;
+            /** Buyer Nickname */
+            buyer_nickname?: string | null;
+        };
+        /**
+         * FundDirectedIssuanceStatus
+         * @description A emissão dirigida: a oferta que espera a resposta do co-gestor ou o desfecho dela.
+         * @enum {string}
+         */
+        FundDirectedIssuanceStatus: "OFFERED" | "ACCEPTED" | "DECLINED" | "EXPIRED" | "CANCELLED";
+        /**
+         * FundDirectedIssuanceViewDTO
+         * @description A oferta de cotas novas na página da gestora, com quem compra e até quando ela vale.
+         */
+        FundDirectedIssuanceViewDTO: {
+            /** Id */
+            id: number;
+            /** Buyer User Id */
+            buyer_user_id: number;
+            /** Quotas */
+            quotas: string;
+            /**
+             * Offered On
+             * Format: date
+             */
+            offered_on: string;
+            status: components["schemas"]["FundDirectedIssuanceStatus"];
+            /** Price */
+            price: string | null;
+            /** Settled On */
+            settled_on: string | null;
+            /** Buyer Nickname */
+            buyer_nickname: string;
+            /**
+             * Expires On
+             * Format: date
+             */
+            expires_on: string;
         };
         /**
          * FundDistributionDTO
@@ -8140,6 +8347,8 @@ export interface components {
             received_12m: string;
             /** Payable */
             payable: string;
+            /** Loan Debt */
+            loan_debt: string;
         };
         /** FundFeesRequest */
         FundFeesRequest: {
@@ -8342,7 +8551,7 @@ export interface components {
             share: string | null;
         };
         /** @enum {string} */
-        FundMovementType: "contribution" | "offer_opened" | "offer_closed" | "management_fee" | "performance_fee" | "report_published" | "manager_buy" | "manager_sell" | "issuance_opened" | "issuance_closed" | "buyback_opened" | "distribution" | "comanager_joined" | "comanager_left";
+        FundMovementType: "contribution" | "offer_opened" | "offer_closed" | "management_fee" | "performance_fee" | "report_published" | "manager_buy" | "manager_sell" | "issuance_opened" | "issuance_closed" | "buyback_opened" | "distribution" | "comanager_joined" | "comanager_left" | "directed_issuance";
         /**
          * FundOfferBuyerDTO
          * @description Quem comprou na oferta em andamento; os bots entram somados numa linha só.
@@ -9816,6 +10025,16 @@ export interface components {
             excess: string;
             /** Cash After */
             cash_after: string;
+            /** First Month Interest Per Quota */
+            first_month_interest_per_quota: string | null;
+            /** Fee Payable Settled */
+            fee_payable_settled: string | null;
+            /** Debt After */
+            debt_after: string | null;
+            /** Networth Before */
+            networth_before: string | null;
+            /** Networth After */
+            networth_after: string | null;
         };
         /** @enum {string} */
         LogFilter: "all" | "orders" | "modes";
@@ -10979,6 +11198,8 @@ export interface components {
             resolves: string;
             /** Loan Id */
             loan_id: string | null;
+            /** Fund Id */
+            fund_id: number | null;
         };
         /**
          * PendingSeverity
@@ -10991,7 +11212,7 @@ export interface components {
          * @description Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar.
          * @enum {string}
          */
-        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "FEDERATION_PROPOSAL" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING" | "FUND_ASSEMBLY_INVITE" | "COMANAGER_INVITE" | "FUND_DISTRIBUTION_SHORT_CASH";
+        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "FEDERATION_PROPOSAL" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING" | "FUND_ASSEMBLY_INVITE" | "COMANAGER_INVITE" | "DIRECTED_ISSUANCE_OFFER" | "FUND_DISTRIBUTION_SHORT_CASH";
         /**
          * PlaceKind
          * @description Um lugar do mapa é um estado ou uma região.
@@ -15172,6 +15393,8 @@ export interface components {
         ValidationErrorResponse: {
             /** Message */
             message: string;
+            /** Code */
+            code?: string | null;
             /** Detail */
             detail: components["schemas"]["ValidationErrorItem"][];
         };
@@ -19166,7 +19389,10 @@ export interface operations {
     get_credit_api_credit_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -19207,7 +19433,10 @@ export interface operations {
                 amount: number | string;
                 term_months: number;
             };
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -19245,7 +19474,10 @@ export interface operations {
     contract_loan_api_credit_loans_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -19287,7 +19519,10 @@ export interface operations {
             query?: {
                 amount?: number | string;
             };
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 loan_id: string;
             };
@@ -19327,7 +19562,10 @@ export interface operations {
     prepay_loan_api_credit_loans__loan_id__prepayment_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 loan_id: string;
             };
@@ -19369,7 +19607,10 @@ export interface operations {
     payoff_loan_api_credit_loans__loan_id__payoff_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 loan_id: string;
             };
@@ -19407,7 +19648,10 @@ export interface operations {
     pay_overdue_api_credit_loans__loan_id__overdue_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 loan_id: string;
             };
@@ -21996,6 +22240,213 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FundIssuancePreviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    issue_fund_directed_api_funds__fund_id__directed_issuance_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundDirectedIssuanceRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundDirectedIssuanceDTO"];
+                };
+            };
+            /** @description Emissão para o próprio principal, já liquidada */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    cancel_fund_directed_api_funds__fund_id__directed_issuance_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    accept_fund_directed_api_funds__fund_id__directed_issuance_acceptance_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    refuse_fund_directed_api_funds__fund_id__directed_issuance_refusal_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_fund_directed_api_funds__fund_id__directed_issuance_preview_get: {
+        parameters: {
+            query: {
+                quotas: number;
+            };
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundDirectedIssuancePreviewDTO"];
                 };
             };
             /** @description Unprocessable Content */

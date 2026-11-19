@@ -5,6 +5,7 @@ from collections import defaultdict
 from datetime import date
 from decimal import Decimal
 from types import SimpleNamespace
+from typing import Any
 
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.dto.stock import StockDTO
@@ -102,6 +103,9 @@ class FakeSimulationEngine(SimulationEngine):
         self.cash: defaultdict[uuid.UUID, Decimal] = defaultdict(Decimal, cash or {})
         self.stocks = {}
         self.created_stocks = {}
+        self.fund_fee_payable: dict[uuid.UUID, Decimal] = {}
+        # Sem empréstimos: o livro de crédito em memória não deve dívida a ninguém
+        self.credit_book: Any = SimpleNamespace(loan_debt=lambda *_args: Decimal(0))
         self.broker = SimpleNamespace(maker_accounts={})
         self.fixed_broker = NoFixedIncome()
         self.dividends: list[tuple[uuid.UUID, str, Decimal]] = []

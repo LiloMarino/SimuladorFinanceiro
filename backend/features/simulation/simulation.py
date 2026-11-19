@@ -8,7 +8,7 @@ from dataclasses import replace
 from datetime import UTC, date, datetime, timedelta
 from decimal import ROUND_FLOOR, Decimal
 from functools import wraps
-from typing import Concatenate, Literal, ParamSpec, TypeVar
+from typing import Concatenate, ParamSpec, TypeVar
 from uuid import UUID
 
 from backend import config
@@ -48,6 +48,9 @@ from backend.core.dto.fund import (
     FundContributionRequest,
     FundContributionResponse,
     FundDetailsDTO,
+    FundDirectedIssuanceDTO,
+    FundDirectedIssuancePreviewDTO,
+    FundDirectedIssuanceRequest,
     FundDistributionRequest,
     FundFeesRequest,
     FundFoundRequest,
@@ -251,6 +254,7 @@ from backend.features.notifications import news, registry
 from backend.features.realtime import notify, subscribed_clients
 from backend.features.realtime.schemas import (
     ComanagerEventDTO,
+    ComanagerEventKind,
     CorporateActionsEventDTO,
     FundsUpdateEventDTO,
     PortfolioUpdateEventDTO,
@@ -1519,7 +1523,7 @@ class Simulation:
     def _notify_comanager(
         self,
         recipient_user_id: int,
-        kind: Literal["invited", "accepted", "declined", "left", "removed"],
+        kind: ComanagerEventKind,
         fund: Fund,
         nickname: str,
         share: Decimal | None,
@@ -1537,6 +1541,67 @@ class Simulation:
             to=self._client_of_user(recipient_user_id),
         )
         self._notify_funds_update()
+
+    @synchronized
+    def issue_fund_directed(
+        self, user: UserDTO, fund_id: int, request: FundDirectedIssuanceRequest
+    ) -> FundDirectedIssuanceDTO | None:
+        """Emissão dirigida: para si, liquida na hora e devolve nulo; para um co-gestor, devolve a oferta que espera a resposta dele."""
+        book = self._ensure_funds()
+        fund = self._managed_fund(user, fund_id)
+        quotas = Decimal(request.quotas)
+        if request.buyer_nickname is None:
+            self._ensure_can_operate(user.client_id)
+            book.issue_directed(fund.ticker, user, quotas)
+            EventManager.flush()
+            self._notify_funds_update()
+            return None
+        offer = book.offer_directed(fund.ticker, request.buyer_nickname, quotas)
+        self._notify_comanager(
+            offer.buyer_user_id, "directed_offered", fund, user.nickname, None
+        )
+        return offer
+
+    @synchronized
+    def accept_fund_directed(self, user: UserDTO, fund_id: int) -> None:
+        self._ensure_not_eliminated(user)
+        book = self._ensure_funds()
+        fund = book.by_id(fund_id)
+        self._ensure_can_operate(user.client_id)
+        book.accept_directed(fund.ticker, user)
+        EventManager.flush()
+        self._notify_comanager(
+            fund.terms.manager_user_id, "directed_accepted", fund, user.nickname, None
+        )
+
+    @synchronized
+    def decline_fund_directed(self, user: UserDTO, fund_id: int) -> None:
+        book = self._ensure_funds()
+        fund = book.by_id(fund_id)
+        book.decline_directed(fund.ticker, user)
+        self._notify_comanager(
+            fund.terms.manager_user_id, "directed_declined", fund, user.nickname, None
+        )
+
+    @synchronized
+    def cancel_fund_directed(self, user: UserDTO, fund_id: int) -> None:
+        book = self._ensure_funds()
+        fund = self._managed_fund(user, fund_id)
+        offer = book.cancel_directed(fund.ticker)
+        self._notify_comanager(
+            offer.buyer_user_id, "directed_cancelled", fund, user.nickname, None
+        )
+
+    @synchronized
+    def preview_fund_directed(
+        self, user: UserDTO, fund_id: int, quotas: int
+    ) -> FundDirectedIssuancePreviewDTO:
+        """A emissão dirigida vista por `user` como comprador: o principal e os co-gestores ativos a consultam."""
+        book = self._ensure_funds()
+        fund = book.by_id(fund_id)
+        if user.id not in book.operators(fund):
+            raise ForbiddenError("Só quem gere a gestora consulta a emissão dirigida.")
+        return self._fund_previews(user).directed(fund, Decimal(quotas))
 
     @synchronized
     def vote_fund_assembly(
@@ -1775,6 +1840,14 @@ class Simulation:
         """O que pede ação do jogador agora: as graves primeiro, cada uma some quando a condição acaba."""
         client_id, today = user.client_id, self._current_date
         items = self._engine.credit_book.pending(client_id, today)
+        if self._funds is not None:
+            # O atraso de parcela da gestora vai ao gestor principal e aponta para a gestora
+            for fund in self._funds.managed_by(user.id):
+                items += self._engine.credit_book.pending(
+                    fund.account.client_id,
+                    today,
+                    fund=(fund.terms.id, fund.ticker),
+                )
         cash = self._engine.get_cash(client_id)
         if cash < 0:
             detail = format_money(cash)
@@ -1807,6 +1880,18 @@ class Simulation:
             ]
             items += [
                 registry.pending(
+                    PendingType.DIRECTED_ISSUANCE_OFFER,
+                    f"{manager} oferece {format_quantity(offer.quotas)} cotas novas da {fund.ticker} · responda até {last_day:%d/%m}",
+                    ref=str(fund.terms.id),
+                    title=f"Oferta de cotas da {fund.ticker}",
+                    fund_id=fund.terms.id,
+                )
+                for fund, offer, manager, last_day in self._funds.directed_offers_for(
+                    user
+                )
+            ]
+            items += [
+                registry.pending(
                     PendingType.FUND_DISTRIBUTION_SHORT_CASH,
                     f"O caixa tem {format_money(plan.cash)} e o rendimento projetado é {format_money(plan.projected)} · o pagamento de {plan.pay_on:%d/%m} sai só até o caixa",
                     ref=str(fund.terms.id),
@@ -1818,59 +1903,116 @@ class Simulation:
             items += self._government.pending(user, today)
         return registry.sort_pending(items)
 
+    def _credit_account(self, user: UserDTO, acting: UUID) -> tuple[UUID, Fund | None]:
+        """A conta do crédito e, na conta de gestora, a gestora: o crédito é da conta pessoal ou da gestora do gestor principal."""
+        if acting == user.client_id:
+            return acting, None
+        government = self._government
+        if government is not None and acting == government.sovereign_fund().client_id:
+            raise ForbiddenError(
+                "O Fundo Soberano não toma crédito.", code="credit_sovereign_fund"
+            )
+        self._ensure_not_eliminated(user)
+        fund = self._funds.of_client(acting) if self._funds is not None else None
+        if fund is None or fund.terms.manager_user_id != user.id:
+            raise ForbiddenError(
+                "Só o gestor principal toma crédito pela gestora.",
+                code="credit_comanager",
+            )
+        return acting, fund
+
     @synchronized
-    def get_credit(self, client_id: UUID) -> CreditOverviewDTO:
-        return build_overview(self._engine.credit_book, client_id, self._current_date)
+    def get_credit(self, user: UserDTO, acting: UUID) -> CreditOverviewDTO:
+        account, _ = self._credit_account(user, acting)
+        return build_overview(self._engine.credit_book, account, self._current_date)
 
     @synchronized
     def quote_loan(
-        self, client_id: UUID, amount: Decimal, term_months: int
+        self, user: UserDTO, acting: UUID, amount: Decimal, term_months: int
     ) -> LoanQuoteDTO:
+        account, fund = self._credit_account(user, acting)
+        if fund is not None:
+            self._ensure_fund_borrows(fund)
         return build_loan_quote(
             self._engine.credit_book,
-            client_id,
+            account,
             self._current_date,
             amount,
             term_months,
+            fund.account.quotas if fund is not None else None,
         )
 
     @synchronized
     def preview_prepayment(
-        self, client_id: UUID, loan_id: UUID, amount: Decimal
+        self, user: UserDTO, acting: UUID, loan_id: UUID, amount: Decimal
     ) -> PrepaymentPreviewDTO:
+        account, _ = self._credit_account(user, acting)
         return build_prepayment_preview(
-            self._engine.credit_book, client_id, loan_id, self._current_date, amount
+            self._engine.credit_book, account, loan_id, self._current_date, amount
         )
 
     @synchronized
-    def contract_loan(self, client_id: UUID, amount: Decimal, term_months: int) -> None:
+    def contract_loan(
+        self, user: UserDTO, acting: UUID, amount: Decimal, term_months: int
+    ) -> None:
+        account, fund = self._credit_account(user, acting)
+        if fund is not None:
+            self._ensure_fund_borrows(fund)
+            self._ensure_fund_active(fund)
         try:
-            self._engine.credit_book.contract(client_id, amount, term_months)
+            self._engine.credit_book.contract(account, amount, term_months)
+            if fund is not None:
+                # A taxa a pagar sai do dinheiro novo logo na contratação
+                self._ensure_funds().settle_payable(fund)
+                self._notify_funds_update()
         finally:
             EventManager.flush()
 
     @synchronized
     def prepay_loan(
-        self, client_id: UUID, loan_id: UUID, amount: Decimal, mode: PrepaymentMode
+        self,
+        user: UserDTO,
+        acting: UUID,
+        loan_id: UUID,
+        amount: Decimal,
+        mode: PrepaymentMode,
     ) -> None:
+        account, fund = self._credit_account(user, acting)
         try:
-            self._engine.credit_book.prepay(client_id, loan_id, amount, mode)
+            self._engine.credit_book.prepay(account, loan_id, amount, mode)
+            self._after_fund_credit(fund)
         finally:
             EventManager.flush()
 
     @synchronized
-    def payoff_loan(self, client_id: UUID, loan_id: UUID) -> None:
+    def payoff_loan(self, user: UserDTO, acting: UUID, loan_id: UUID) -> None:
+        account, fund = self._credit_account(user, acting)
         try:
-            self._engine.credit_book.payoff(client_id, loan_id)
+            self._engine.credit_book.payoff(account, loan_id)
+            self._after_fund_credit(fund)
         finally:
             EventManager.flush()
 
     @synchronized
-    def pay_overdue(self, client_id: UUID, loan_id: UUID) -> None:
+    def pay_overdue(self, user: UserDTO, acting: UUID, loan_id: UUID) -> None:
+        account, fund = self._credit_account(user, acting)
         try:
-            self._engine.credit_book.pay_overdue(client_id, loan_id)
+            self._engine.credit_book.pay_overdue(account, loan_id)
+            self._after_fund_credit(fund)
         finally:
             EventManager.flush()
+
+    def _ensure_fund_borrows(self, fund: Fund) -> None:
+        """A gestora toma empréstimo depois da oferta pública, quando já está listada."""
+        if not fund.listed:
+            raise ConflictError(
+                "A gestora toma empréstimo depois da oferta pública, quando já está listada."
+            )
+
+    def _after_fund_credit(self, fund: Fund | None) -> None:
+        """O pagamento de empréstimo mexe no caixa da gestora: as páginas dela se atualizam."""
+        if fund is not None:
+            self._notify_funds_update()
 
     @synchronized
     def get_fixed_offers(self) -> list[FixedIncomeOfferDTO]:
@@ -3014,6 +3156,9 @@ class Simulation:
         """
         credit = self._engine.credit_book
         client_ids = [user.client_id for user in users]
+        # As gestoras pagam as parcelas dos empréstimos pelo caixa delas
+        if self._funds is not None:
+            client_ids += self._funds.client_ids
         if month_changed:
             credit.close_month(client_ids, self._current_date)
         credit.process_due(client_ids, self._current_date, self._speed)

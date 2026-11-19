@@ -5,6 +5,8 @@ from pydantic import BaseModel
 
 class ErrorResponse(BaseModel):
     message: str
+    # O motivo tipado de alguns erros (ex.: `credit_sovereign_fund`); ausente nos demais
+    code: str | None = None
 
 
 class ValidationErrorItem(BaseModel):

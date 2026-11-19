@@ -69,6 +69,9 @@ class _Book:
     def cast_assembly_vote(self, ticker: str, user: UserDTO, in_favor: bool) -> None:
         self.calls.append(("vote", ticker, user.id, in_favor))
 
+    def accept_directed(self, ticker: str, user: UserDTO) -> None:
+        raise ConflictError("Caixa insuficiente para comprar as cotas")
+
     def frozen_until(self, fund: Any) -> date | None:
         return None
 
@@ -146,6 +149,11 @@ def with_funds() -> Iterator[TestClient]:
             {"management_fee": "0.01", "performance_fee": "0.10"},
         ),
         ("put", "/api/funds/5/distribution", {"distribution_rate": "0.5"}),
+        ("post", "/api/funds/5/directed-issuance", {"quotas": 10}),
+        ("post", "/api/funds/5/directed-issuance/acceptance", None),
+        ("post", "/api/funds/5/directed-issuance/refusal", None),
+        ("delete", "/api/funds/5/directed-issuance", None),
+        ("get", "/api/funds/5/directed-issuance/preview?quotas=10", None),
     ],
 )
 def test_every_route_is_refused_when_the_expansion_is_off(
@@ -210,6 +218,14 @@ def test_performance_fee_above_the_match_ceiling_is_unprocessable(
             {"management_fee": "0.01", "performance_fee": "0.10"},
         ),
         ("put", "/api/funds/5/distribution", {"distribution_rate": "0.5"}),
+        ("post", "/api/funds/5/directed-issuance", {"quotas": 10}),
+        (
+            "post",
+            "/api/funds/5/directed-issuance",
+            {"quotas": 10, "buyer_nickname": "Bruno"},
+        ),
+        ("delete", "/api/funds/5/directed-issuance", None),
+        ("get", "/api/funds/5/directed-issuance/preview?quotas=10", None),
     ],
 )
 def test_only_the_manager_operates_the_fund(method: str, path: str, body: dict | None):
@@ -267,6 +283,18 @@ def test_assembly_routes_forward_the_shareholder_to_the_book(
 
     assert response.status_code == 204
     assert book.calls == [call]
+
+
+def test_the_buyer_without_cash_gets_a_conflict_on_the_acceptance(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    monkeypatch.setattr(Simulation, "_ensure_can_operate", lambda *_: None)
+    other = _app(_simulation(_Book()), BRUNO)
+
+    response = other.post("/api/funds/5/directed-issuance/acceptance")
+
+    assert response.status_code == 409
+    assert "Caixa insuficiente" in response.json()["detail"]
 
 
 def test_acting_client_without_the_header_is_the_player(with_funds: TestClient):
@@ -360,6 +388,7 @@ def _page(fund_id: int) -> FundDetailsDTO:
         ),
         frozen_until=None,
         comanagers=[],
+        directed_issuance=None,
         manager_share=Decimal(1),
         my_role="manager",
         my_share=None,
@@ -382,6 +411,7 @@ def _page(fund_id: int) -> FundDetailsDTO:
             high_water_mark_on=None,
             received_12m=zero,
             payable=zero,
+            loan_debt=zero,
         ),
         distribution=FundDistributionPlanDTO(
             rate=Decimal("0.95"),

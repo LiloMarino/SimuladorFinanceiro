@@ -1492,6 +1492,10 @@ class FundDays(Base):
     fee_payable: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False, server_default=text("0")
     )
+    # O saldo devedor dos empréstimos da gestora no fim do pregão
+    loan_debt: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
 
 
 class FundOfferSales(Base):
@@ -1832,6 +1836,52 @@ class FundComanagerEvents(Base):
     day: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     # A parte das taxas de quem entrou; nula na saída
     share: Mapped[decimal.Decimal | None] = mapped_column(Numeric(7, 6))
+
+
+class FundDirectedIssuances(Base):
+    """A emissão dirigida: cotas novas que o gestor principal vende a si ou a um co-gestor."""
+
+    __tablename__ = "fund_directed_issuances"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fund_id"],
+            ["funds.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_directed_issuances_fund_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["buyer_user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fund_directed_issuances_buyer_user_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="fund_directed_issuances_pkey"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    fund_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    buyer_user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    quotas: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    offered_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    # Um valor de `FundDirectedIssuanceStatus`
+    status: Mapped[str] = mapped_column(Text, nullable=False)
+    # O preço e o dia da liquidação; nulos enquanto a oferta espera ou se ela não liquidou
+    price: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+    settled_on: Mapped[datetime.date | None] = mapped_column(Date)
 
 
 class StateOwnedStocks(Base):

@@ -5,7 +5,11 @@ import { LEVERAGE, displayLeverage } from "@/shared/lib/credit-metrics";
 import { displayDayMonth, displayMoney, displayMonthName, displaySignedMoney } from "@/shared/lib/utils/display";
 import type { CreditOverview } from "@/types";
 
-type CreditSummaryProps = { overview: CreditOverview };
+type CreditSummaryProps = {
+  overview: CreditOverview;
+  /** O nome da gestora quando o crédito é dela; nulo na conta pessoal */
+  fundName: string | null;
+};
 
 const pluralLoans = (count: number) => `${count} ${count === 1 ? "empréstimo" : "empréstimos"}`;
 
@@ -19,24 +23,36 @@ const displayRange = (first: string, last: string) => {
 };
 
 /** Faixa de números do topo: dívida, patrimônio líquido, alavancagem e as parcelas do próximo mês. */
-export function CreditSummary({ overview }: CreditSummaryProps) {
+export function CreditSummary({ overview, fundName }: CreditSummaryProps) {
   const hasDebt = Number(overview.debt) > 0;
   const overdueTotal = overview.loans.reduce(
     (total, loan) => total + loan.overdue.reduce((sum, item) => sum + Number(item.total), 0),
     0,
   );
+  // Na gestora a dívida soma o empréstimo e a taxa que ela ainda deve ao gestor
+  const hasFeePayable = Number(overview.fee_payable) > 0;
+  const debtNote = hasFeePayable
+    ? `${displayMoney(overview.loan_debt)} de empréstimos + ${displayMoney(overview.fee_payable)} de taxa a pagar`
+    : hasDebt
+      ? pluralLoans(overview.open_loans)
+      : "Nenhum empréstimo";
   const monthName = overview.next_installments_month ? displayMonthName(overview.next_installments_month) : null;
 
   return (
     <Card>
       <CardContent>
+        {fundName && (
+          <p className="mb-4 text-sm text-muted-foreground">
+            Crédito em nome de <b className="text-foreground">{fundName}</b>
+          </p>
+        )}
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {/* Dívida */}
           <Kpi
             label="Dívida"
             value={hasDebt ? displaySignedMoney(-Number(overview.debt)) : displayMoney(0)}
             tone={hasDebt ? "destructive" : "default"}
-            note={hasDebt ? pluralLoans(overview.open_loans) : "Nenhum empréstimo"}
+            note={debtNote}
           />
 
           {/* Patrimônio líquido */}

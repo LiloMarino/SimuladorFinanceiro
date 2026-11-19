@@ -8,9 +8,13 @@ export function fundStage(fund: Pick<FundSummary, "listed_on" | "offer_remaining
   return fund.offer_remaining === null ? "listed" : "offer";
 }
 
-/** O patrimônio: a soma do que a gestora tem em cada classe, a preço de hoje, menos a taxa a pagar. */
-export const netWorthOf = (fund: Pick<FundDetails, "composition"> & { fees: Pick<FundDetails["fees"], "payable"> }) =>
-  fund.composition.reduce((sum, item) => sum + Number(item.value), 0) - Number(fund.fees.payable);
+/** O patrimônio: a soma do que a gestora tem em cada classe, a preço de hoje, menos a taxa a pagar e a dívida dos empréstimos. */
+export const netWorthOf = (
+  fund: Pick<FundDetails, "composition"> & { fees: Pick<FundDetails["fees"], "payable" | "loan_debt"> },
+) =>
+  fund.composition.reduce((sum, item) => sum + Number(item.value), 0) -
+  Number(fund.fees.payable) -
+  Number(fund.fees.loan_debt);
 
 /** A parte das cotas que o gestor tem (fração de 0 a 1). */
 export const managerShareOf = (fund: Pick<FundDetails, "holders" | "manager_user_id">) =>

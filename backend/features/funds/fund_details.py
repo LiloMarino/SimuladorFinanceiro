@@ -12,6 +12,7 @@ from backend.core.dto.fund import (
     FundComanagerViewDTO,
     FundCompositionDTO,
     FundDetailsDTO,
+    FundDirectedIssuanceViewDTO,
     FundDistributionDTO,
     FundFeesDTO,
     FundHolderDTO,
@@ -42,6 +43,7 @@ from backend.features.funds.fund_book import (
     cdi_growth,
 )
 from backend.features.funds.fund_comanagers import expires_on, manager_share
+from backend.features.funds.fund_directed import expires_on as directed_expires_on
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.variable_income.broker import replay_positions
 
@@ -196,6 +198,9 @@ class FundDetailsBuilder:
                 issuances=repository.fund.issuances(terms.id),
                 buybacks=repository.fund.buybacks(terms.id),
                 comanager_events=repository.fund_comanager.events(terms.id),
+                directed_issuances=repository.fund_directed_issuance.settled_of_fund(
+                    terms.id
+                ),
                 nicknames={user.id: user.nickname for user in users},
                 today=today,
             ),
@@ -219,6 +224,7 @@ class FundDetailsBuilder:
             my_quotas=my_quotas,
             my_value=my_value,
             my_return=my_return,
+            directed_issuance=self._directed_issuance(fund, viewer, users),
         )
 
     # =========================
@@ -242,6 +248,23 @@ class FundDetailsBuilder:
             )
             for comanager in fund.comanagers
         ]
+
+    def _directed_issuance(
+        self, fund: Fund, viewer: UserDTO, users: list[UserDTO]
+    ) -> FundDirectedIssuanceViewDTO | None:
+        """A oferta de cotas novas que espera resposta, para o principal e para o comprador."""
+        offer = fund.directed
+        if offer is None or viewer.id not in (
+            fund.terms.manager_user_id,
+            offer.buyer_user_id,
+        ):
+            return None
+        names = {user.id: user.nickname for user in users}
+        return FundDirectedIssuanceViewDTO(
+            **offer.model_dump(),
+            buyer_nickname=names.get(offer.buyer_user_id, "?"),
+            expires_on=directed_expires_on(offer),
+        )
 
     def _my_share(self, fund: Fund, viewer: UserDTO) -> Decimal | None:
         """A parte das taxas em vigor de quem consulta; nula para quem não gere a gestora."""
@@ -540,6 +563,7 @@ class FundDetailsBuilder:
                 cash_events, fund_ledger.one_year_before(today)
             ),
             payable=terms.fee_payable,
+            loan_debt=self._engine.credit_book.loan_debt(account.client_id, today),
         )
 
     # =========================

@@ -8,7 +8,8 @@ export function useContractLoan() {
   const renew = useRenewCredit();
 
   return useMutation({
-    mutationFn: (body: ContractLoanRequest) => apiFetch("/api/credit/loans", { method: "POST", body }),
+    mutationFn: (body: ContractLoanRequest) =>
+      apiFetch("/api/credit/loans", { method: "POST", body, activeAccount: true }),
     onSuccess: renew,
     onError: (err) => toastApiError(err),
   });
