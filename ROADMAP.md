@@ -81,7 +81,6 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
-| [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | M18 · 4.2 | — | Alto | Bom | ⏳ |
 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 | — | Médio | Bom | ⏳ |
@@ -91,7 +90,7 @@
 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | M18 · 4.2 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (51 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (52 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -141,6 +140,7 @@
 | [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | M18 · 4.2 | — | — | — | ✅ |
 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | M18 · 4.2 | — | — | — | ✅ |
 | [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | M18 · 4.2 | — | — | — | ✅ |
+| [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | M18 · 4.2 | — | — | — | ✅ |
 | [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | M18 · 4.2 | — | — | — | ✅ |
 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | M18 · 4.2 | — | — | — | ✅ |
 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | M18 · 4.2 | — | — | — | ✅ |
@@ -161,7 +161,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 30/38 concluídos
+> **Progresso:** 31/38 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -192,7 +192,7 @@
 | 25 | [**F310**](#f310) | Feature | Página Ofertas públicas | [F299](#f299) | ⏳ Pendente |
 | 26 | [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | — | ✅ Concluído |
 | 27 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | — | ⏳ Pendente |
-| 28 | [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | — | ⏳ Pendente |
+| 28 | [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | — | ✅ Concluído |
 | 29 | [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | — | ✅ Concluído |
 | 30 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | — | ⏳ Pendente |
 | 31 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | — | ⏳ Pendente |
@@ -299,11 +299,11 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 · 25º | 0 | Médio | Bom | ⏳ |
 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | M18 · 4.2 · 27º | 0 | Baixo | Bom | ⏳ |
-| [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | M18 · 4.2 · 28º | 1 | Alto | Bom | ⏳ |
 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | M18 · 4.2 · 30º | 0 | Médio | Bom | ⏳ |
 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 · 31º | 0 | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 34º | 0 | Médio | Bom | ⏳ |
 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 · 36º | 0 | Médio | Bom | ⏳ |
+| [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 · 38º | 0 | Alto | Médio | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
@@ -363,7 +363,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F301** | Correção | Gestor que vira presidente e mais de uma gestora por jogador | N23 | — | M18 · 4.2 | — | Alto | Médio | Alto | Bom |
 | **F304** | Feature | Co-gestão combinada no lobby | N23 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F305** | Melhoria | Aquisição hostil como modo de vitória | N23 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F306** | Feature | Automático só na carteira da gestora | N23, N4 | — | M18 · 4.2 | — | Médio | Médio | Médio | Bom |
@@ -572,9 +571,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f301"></a>
-**F301 — Gestor que vira presidente e mais de uma gestora por jogador.** Serve N23. Do playtest de 17/11. O gestor de uma gestora fechada virou presidente; na posse, `on_office` (`fund_book.py:1163-1179`) passou a gestão ao co-gestor (outro jogador, que já tinha a própria gestora), embora o gestor tivesse 100% das cotas. Daí: a lista de gestoras diz "gerida por" quem tem fatia mínima ou nenhuma; o co-gestor promovido não alcança a tela de gestão da segunda gestora (o front supõe uma gestora por jogador: `funds.tsx:33-34`, `sidebar.tsx:72-73`); o dono-presidente perde o acesso à própria gestora e vê "Funde a sua gestora". **A posse segue a regra de hoje:** o co-gestor de maior participação assume e, sem co-gestor, a gestora congela com a carteira do presidente ou segue no automático (F306). **No fim do mandato sem reeleição, o ex-presidente retoma a gestão:** a gestora congelada volta para a mão dele, e a que passou a um co-gestor volta a tê-lo como gestor principal; hoje nada desfaz a troca da posse. **Gerir mais de uma gestora é um caso normal do jogo,** porque a aquisição hostil (F305) termina nele. **O menu Gestoras vira a lista da sala (decidido em 18/11):** três blocos, as que você gere, as em que você tem cotas e as outras, cada linha com ticker, gestor, patrimônio e a sua parte, abrindo a gestora; "Funde a sua gestora" vira um botão no topo, só para quem não tem gestora. O seletor de conta lista todas as geridas, e a tela distingue gestor, co-gestor e cotista. **Fundar exige não ter gestora:** quem perdeu a sua (a assembleia trocou o gestor, alguém comprou o controle) funda outra; quem tem uma, inclusive congelada pela presidência, não. O backend recusa em `found_fund` (`simulation.py:1305-1330`), que hoje só tem o redirecionamento do front (`fund-found.tsx:20`). **O Fundo Soberano não é gestora:** ele só reaproveita o seletor do caixa, e o menu lateral e a lista de gestoras nunca o tratam como uma. As cotas de quem não gere chegam pela renda variável (F299). Desenho da lista na rodada de canvas da linha da gestora. O item do menu lateral se chama sempre "Gestoras", porque leva à lista da sala; o rótulo com o nome da gestora do jogador (`labelOf` em `sidebar.tsx`) sai.
-
 <a id="f304"></a>
 **F304 — Co-gestão combinada no lobby.** Serve N23. Do playtest de 17/11. A co-gestão só se combina dentro da partida (convite com validade de 7 dias). No lobby, o jogador escolhe começar como co-gestor da gestora de outro jogador, no mesmo molde do convite de vice dos partidos: quem funda convida, o convidado aceita na própria preparação e a partida começa com a co-gestão de pé. Respeita o teto de 3 co-gestores. Desenho do convite no lobby na rodada de canvas da linha da gestora. Aceitar a co-gestão no lobby não impede fundar a própria gestora.
 
@@ -703,6 +699,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F298** | Correção | Correções do playtest: lobby, bots e profissões | N39, N8 | — | M18 · 4.2 |
 | **F299** | Feature | Cota de gestora negociada na renda variável | N23 | — | M18 · 4.2 |
 | **F300** | Melhoria | Tela da gestora em abas, como a do governo | N23, N15 | — | M18 · 4.2 |
+| **F301** | Correção | Gestor que vira presidente e mais de uma gestora por jogador | N23 | — | M18 · 4.2 |
 | **F302** | Correção | Caixa da gestora sem ficar negativo | N23 | — | M18 · 4.2 |
 | **F303** | Feature | Dinheiro novo na gestora depois da oferta pública | N23 | — | M18 · 4.2 |
 | **F307** | Correção | Estatais com preço vivo e lucro à vista | N34 | — | M18 · 4.2 |
@@ -913,6 +910,9 @@ Os sete itens do playtest saíram: Levar da carteira sem cotas de gestora, botã
 
 <a id="f300"></a>
 **F300 — Tela da gestora em abas, como a do governo.** Serve N23 e N15. Do playtest de 17/11. A tela da gestora mistura tudo numa página: a oferta pública encerrada fica sempre à vista, os botões de ação ficam soltos no topo, a tabela de rendimentos cresce sem paginar (`fund-distributions-card.tsx`) e empurra os cards para baixo, o relatório mensal fica escondido num botão da composição (`fund-composition.tsx:42-62`), e a recompra tem dois jeitos no diálogo (`buyback-dialog.tsx:70-101`). **Decidido em 18/11.** **Topo fixo acima das abas, em todas elas:** identidade (marca, nome, ticker, etapa), os quatro números comuns com ⓘ (patrimônio, patrimônio por cota, preço no mercado, ágio) e o aviso da fase; o patrimônio por cota começa em R$ 100, como `FIRST_NAV`. **Primeira aba "Suas ações", no molde da aba de mesmo nome do governo** (`actions-tab.tsx`, `action-row.tsx`, `action-card.tsx`): um cartão por papel (Como gestor, Como cotista), cada ação numa linha com ícone, explicação, o motivo quando está travada e um botão; botão cheio só na ação principal, os outros contornados; o bloco "Decida agora" no topo para o que tem prazo (votação aberta, preferência da emissão, convite de co-gestão). Quem não gere também vê a aba, com as ações de cotista: comprar na emissão com preferência, votar ou convocar a assembleia, negociar a cota na renda variável, responder convite; sem cota, só a oferta aberta e o atalho para negociar. Os componentes de linha e de grupo do governo sobem para `shared/` (dois consumidores). **Gestora fechada:** os passos (levar da carteira, conferir as taxas, abrir a oferta pública) moram em Suas ações, e a Visão geral vira um estado vazio que explica que preço e histórico chegam com a bolsa. **Abas do gestor:** Suas ações, Visão geral, Carteira, Cotas (cotistas, emissões e a oferta encerrada como histórico), Rendimentos (paginada), Assembleia (F313), Relatório e Configurações (taxas, parte do lucro distribuída e o automático da F306). Quem não gere vê Suas ações, Visão geral, Cotas, Rendimentos, Assembleia e Relatório. **Visão geral:** o gráfico do preço contra o patrimônio por cota ganha a terceira linha, o preço de ranking, com a faixa de ±30% e o número com ⓘ. **Rendimentos:** "parte do lucro distribuída" é a fração do lucro realizado do mês que vai aos cotistas (padrão 95%, vale no mês seguinte), e o controle mostra a prévia em reais por cota com o lucro do mês; o dividend yield é consequência, não controle. **Relatório:** aberto a qualquer cotista, com a rosca da alocação da carteira. **Recompra:** um caminho só, explicado no próprio diálogo. **Cor:** todas as abas no verde-água da expansão (o token `fund`: ícone, botão cheio e sublinhado da aba), escolhido no canvas em 18/11. Desenho na rodada de canvas da linha da gestora, com todas as telas da 4.2 juntas.
+
+<a id="f301"></a>
+**F301 — Gestor que vira presidente e mais de uma gestora por jogador.** Serve N23. Do playtest de 17/11. O gestor de uma gestora fechada virou presidente; na posse, `on_office` (`fund_book.py:1163-1179`) passou a gestão ao co-gestor (outro jogador, que já tinha a própria gestora), embora o gestor tivesse 100% das cotas. Daí: a lista de gestoras diz "gerida por" quem tem fatia mínima ou nenhuma; o co-gestor promovido não alcança a tela de gestão da segunda gestora (o front supõe uma gestora por jogador: `funds.tsx:33-34`, `sidebar.tsx:72-73`); o dono-presidente perde o acesso à própria gestora e vê "Funde a sua gestora". **A posse segue a regra de hoje:** o co-gestor de maior participação assume e, sem co-gestor, a gestora congela com a carteira do presidente ou segue no automático (F306). **No fim do mandato sem reeleição, o ex-presidente retoma a gestão:** a gestora congelada volta para a mão dele, e a que passou a um co-gestor volta a tê-lo como gestor principal; hoje nada desfaz a troca da posse. **Gerir mais de uma gestora é um caso normal do jogo,** porque a aquisição hostil (F305) termina nele. **O menu Gestoras vira a lista da sala (decidido em 18/11):** três blocos, as que você gere, as em que você tem cotas e as outras, cada linha com ticker, gestor, patrimônio e a sua parte, abrindo a gestora; "Funde a sua gestora" vira um botão no topo, só para quem não tem gestora. O seletor de conta lista todas as geridas, e a tela distingue gestor, co-gestor e cotista. **Fundar exige não ter gestora:** quem perdeu a sua (a assembleia trocou o gestor, alguém comprou o controle) funda outra; quem tem uma, inclusive congelada pela presidência, não. O backend recusa em `found_fund` (`simulation.py:1305-1330`), que hoje só tem o redirecionamento do front (`fund-found.tsx:20`). **O Fundo Soberano não é gestora:** ele só reaproveita o seletor do caixa, e o menu lateral e a lista de gestoras nunca o tratam como uma. As cotas de quem não gere chegam pela renda variável (F299). Desenho da lista na rodada de canvas da linha da gestora. O item do menu lateral se chama sempre "Gestoras", porque leva à lista da sala; o rótulo com o nome da gestora do jogador (`labelOf` em `sidebar.tsx`) sai.
 
 <a id="f302"></a>
 **F302 — Caixa da gestora sem ficar negativo.** Serve N23. Do playtest de 17/11. A gestora ficou com caixa negativo em 106 dias, o pior em −239 mil: a taxa de performance de 225,6 mil foi cobrada logo depois de uma distribuição de 1,14 milhão ter esvaziado o caixa. `charge_fund_fee` cobra sem olhar o caixa, e a distribuição não reserva as taxas. **Decidido em 18/11: taxa a pagar.** A parte da taxa que o caixa não cobre vira "taxa a pagar", uma dívida da gestora com o gestor: ela desconta do patrimônio pelo termo de dívida que `nav_per_quota` já tem, e o próximo dinheiro que entra (dividendo, juro, venda de ativo) quita a taxa a pagar antes de qualquer outra coisa. A distribuição paga só o caixa que sobra depois da taxa a pagar. O gestor recebe quando a gestora paga, e os co-gestores pela divisão de hoje (`split_fee`). A Carteira e o Relatório mostram a taxa a pagar em aberto.
