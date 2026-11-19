@@ -89,10 +89,9 @@
 | [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | M18 · 4.2 | — | Baixo | Bom | ⏳ |
-| [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | M18 · 4.2 | — | Alto | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (50 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (51 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -146,6 +145,7 @@
 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | M18 · 4.2 | — | — | — | ✅ |
 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | M18 · 4.2 | — | — | — | ✅ |
 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 | — | — | — | ✅ |
+| [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
 
@@ -161,7 +161,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 29/38 concluídos
+> **Progresso:** 30/38 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -201,7 +201,7 @@
 | 34 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | — | ⏳ Pendente |
 | 35 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | — | ✅ Concluído |
 | 36 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | — | ⏳ Pendente |
-| 37 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | [F300](#f300) | ⏳ Pendente |
+| 37 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | — | ✅ Concluído |
 | 38 | [**F311**](#f311) | Feature | Fusão de gestoras | [F301](#f301), [F313](#f313) | ⏳ Pendente |
 
 ### 4.3 — Mesa do trader (M24)
@@ -304,7 +304,6 @@
 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 · 31º | 0 | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 34º | 0 | Médio | Bom | ⏳ |
 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 · 36º | 0 | Médio | Bom | ⏳ |
-| [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | M18 · 4.2 · 37º | 1 | Alto | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
@@ -372,7 +371,6 @@
 | **F310** | Feature | Página Ofertas públicas | N23 | — | M18 · 4.2 | [F299](#f299) | Médio | Baixo | Médio | Bom |
 | **F311** | Feature | Fusão de gestoras | N23 | — | M18 · 4.2 | [F301](#f301), [F313](#f313) | Alto | Alto | Médio | Médio |
 | **F312** | Melhoria | Cor da expansão na conta que opera | N15, N23 | — | M18 · 4.2 | — | Baixo | Baixo | Médio | Bom |
-| **F313** | Feature | Assembleia de cotistas com aba própria e aumento de taxa | N23 | — | M18 · 4.2 | [F300](#f300) | Alto | Médio | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -598,9 +596,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f312"></a>
 **F312 — Cor da expansão na conta que opera.** Serve N15 e N23. Do comentário no canvas da tela da gestora, em 18/11. Os desenhos perderam a cor da expansão, e no app nada lembra o jogador de que a ordem sai pela gestora. Quando a conta ativa no topo é uma gestora, a boleta e o botão de comprar e vender ficam na cor da expansão Gestoras (a variante `fund` do botão já existe); com a conta do Fundo Soberano, na cor da expansão do governo. **A boleta inteira muda de cor**, escolhida no canvas em 18/11: borda, cabeçalho "Operando pela <gestora>" e o botão "Comprar pela gestora"; a faixa do alto e o seletor de conta ficam como estão.
 
-<a id="f313"></a>
-**F313 — Assembleia de cotistas com aba própria e aumento de taxa.** Serve N23. Do comentário no canvas da tela da gestora, em 18/11. A assembleia de cotistas existe em toda partida com Gestoras (`fund_assembly.py`): quem tem 10% das cotas convoca, a votação dura 5 pregões, vence a maioria de quem votou (bots e formador de mercado não votam) e a única pauta é trocar o gestor. Ela mora num bloco da página da gestora (`fund-assembly.tsx`) e não chega às pendências, que só levam o convite de candidato (`FUND_ASSEMBLY_INVITE`). **Decidido em 18/11.** **Aba Assembleia na tela da gestora, no nível da aba Congresso do governo:** a votação aberta com placar, pauta, prazo e o voto; a convocação; o histórico das encerradas. **Pautas:** trocar o gestor (a de hoje), a fusão de gestoras (F311) e o aumento de taxa: subir a taxa de administração ou a de performance passa a depender de aprovação e vale no mês seguinte ao resultado; baixar continua livre. Cada pauta tem a própria votação; o intervalo de 3 meses entre convocações segue valendo para a troca de gestor. **Pendência:** a votação aberta vira pendência para quem tem cota e ainda não votou, com o prazo, e entra no "Decida agora" da aba Suas ações. Desenho na rodada de canvas da linha da gestora. **Conflito de interesse:** gestor e co-gestores não votam no aumento de taxa, porque ganham com ele, e votam nas outras pautas (a Ana, com 54,8% das cotas, fica fora e a Bia e o Caio decidem). Sem nenhum voto a pauta não passa: na sala em que as outras cotas são só de bots, a taxa só desce.
-
 ---
 
 ## 🔍 Em avaliação
@@ -712,6 +707,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F303** | Feature | Dinheiro novo na gestora depois da oferta pública | N23 | — | M18 · 4.2 |
 | **F307** | Correção | Estatais com preço vivo e lucro à vista | N34 | — | M18 · 4.2 |
 | **F308** | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | N3, N10 | — | M18 · 4.2 |
+| **F313** | Feature | Assembleia de cotistas com aba própria e aumento de taxa | N23 | — | M18 · 4.2 |
 
 <a id="f44"></a>
 **F44 — Expansão "Gestoras": fundar a gestora e abrir capital.** Serve N23. Inspiração: o Capitalism Lab (oferta pública, emissão de novas ações, recompra, compra de ações dos concorrentes), o OpenTTD e o Software Inc. Lá cada jogador é uma empresa que fabrica ou transporta; aqui tudo é finanças, então a empresa de cada jogador é uma gestora, e o que ela vende é o próprio desempenho. **Como expansão:** ligável por partida numa **aba própria "Expansões"** no lobby, com banner, emblema e "o que muda", como a loja de DLC dos jogos da Paradox; é enfeite visual, o sistema é o mesmo ligado ou não. **A gestora** tem nome e ticker de 4 letras mais 11, como cota de FII na B3 (o servidor recusa letras que já existam entre os ativos importados), e no livro de ofertas redesenhado (F211) cada linha leva a cor e a sigla de quem pôs a ordem, jogador ou bot, para não se confundir com ativo real. O jogador a funda levando **caixa, ações e títulos** da carteira em troca de cotas, e a opera **pelo rótulo do caixa na topbar** ("Caixa · Aurora Gestão ▾"): o rótulo abre a lista das contas, a pessoal e as gestoras que ele gere, e a escolhida vale para todas as telas de mercado, com uma faixa verde-petróleo dizendo qual conta está ativa. O botão "Operando" do desenho de 22/out sai, porque disputava a linha com a corrida e o governo (F179). **É um fundo fechado listado, como um FII:** (1) **oferta pública** quando o gestor quiser — cotas novas ao preço do patrimônio por cota (patrimônio de R$ 100 mil em 1.000 cotas dá R$ 100), e o dinheiro de quem compra entra na gestora: é investir no amigo; (2) **mercado** — depois da oferta, as cotas são negociadas no livro de ofertas que a renda variável já tem, e o preço sai da oferta e da procura, acima do patrimônio por cota (ágio) quando a sala acredita no gestor e abaixo (deságio) quando não; (3) **liquidez** — a liquidez de fundo do livro nasce dos candles de cada ativo, e a cota não tem candle, então um formador de mercado sintético põe ordens de compra e venda em volta do patrimônio por cota, numa faixa de 20% para cima e para baixo recalculada todo dia; dentro da faixa, o preço sai dos jogadores, e o livro tem contraparte até numa sala de 2; (4) **taxas** — a gestora paga aos gestores taxa de administração todo mês sobre o patrimônio e taxa de performance a cada 6 meses sobre o que passar do CDI, com teto na partida de **2% ao ano de administração e 20% de performance**, e cada gestor escolhe até o teto. Uma taxa nova passa a valer no mês seguinte, com aviso no jornal para a sala. A performance respeita a **marca d'água**, o maior patrimônio por cota sobre o qual a taxa já foi cobrada: se a cota cai de R$ 100 para 80 e volta a 100, a recuperação não paga performance. **O lucro fica dentro da gestora** e valoriza a cota. **Por que abrir capital, e quando:** as taxas são sobre o dinheiro dos outros, e com ágio as cotas do próprio gestor valem mais no ranking; o custo é ficar exposto, porque vender mais da metade abre a porta para perder o controle (F103). Abrir cedo, sem histórico, tende a sair com pouca procura; abrir depois de um bom ano tende a sair com ágio. **O gestor e a própria gestora:** o gestor negocia com a gestora pelo livro como qualquer jogador; a linha leva a sigla dele, então a negociação fica à vista, e quem cobra é a sala, vendendo a cota (deságio) ou trocando o gestor (F103). **Quem compra cotas:** pessoas, jogadores e bots, e o Fundo Soberano do governo; nunca gestoras, o que impede a participação cruzada (A com cotas da B, que tem cotas da A). **Os bots** não fundam gestora: compram e vendem cotas pelas estratégias que já têm, com a cota como mais um ativo do livro, e cada bot fica com no máximo 20% das cotas de uma gestora, para não decidir a assembleia; na assembleia (F103) eles se abstêm. **Regras para o cálculo fechar:** No ranking, cada jogador soma a carteira pessoal, as taxas recebidas e as cotas que tem pelo **preço de ranking**: a média dos negócios dos últimos 20 pregões, ponderada pelo volume e limitada a 30% acima ou abaixo do patrimônio por cota; sem negócio no período, vale o patrimônio por cota. Um ágio de até 30% conta, e um negócio forçado a R$ 1.000 numa cota de R$ 100 conta no máximo como R$ 130. A carteira da gestora só conta através das cotas, sem contar o mesmo dinheiro duas vezes. **Estrutura:** a carteira própria da gestora é a F101; a cota é um ativo no livro de ofertas, com o patrimônio por cota publicado a cada dia. **Com a expansão Governo & Política (F95):** quando o gestor vence a eleição, na posse ele deixa de operar a gestora e de receber as taxas, porque a carteira do presidente fica congelada; um co-gestor (F104) assume e, sem co-gestor, a gestora congela até o fim do mandato; as cotas que ele tem continuam dele. A F95 sai antes, então a carteira congelada do presidente já existe quando a gestora for implementada: cabe a esta feature estender o congelamento à gestora. **Nas features seguintes:** emissão de novas cotas e recompra (F102), troca de gestor pela assembleia (F103), co-gestores (F104) e rendimentos mensais (F105).
@@ -929,6 +925,9 @@ Os sete itens do playtest saíram: Levar da carteira sem cotas de gestora, botã
 
 <a id="f308"></a>
 **F308 — Spike: impacto do jogador no preço, teto do k e oscilação no pregão.** Serve N3 e N10; condicionado por D22. Do playtest de 17/11: a partida das estatais rodou com k 3,0, contra 0,05 das outras, houve preço de 1.837 a 237.871 e o gráfico da estatal saltou e voltou ao pausar. Mediu a faixa realista do k sobre 8 séries reais de preço e volume (81 ativo-anos, 21.315 pregões) com o script `measure_k.py` em `.claude/trabalho/impacto-k/`. **Resultado:** a volatilidade diária mediana é de 2,06% (quartis de 1,70% e 2,61%), o que dá k de 0,01 a 0,04, centrado em 0,02; o teste com preço e volume reais ajusta Y em 0,77 (k ≈ 0,016, um teto). O preset Realista (0,02) está no centro da faixa e o Forte (0,05) logo acima. **Feito:** o campo do k segue sem teto e o lobby avisa acima de 0,10 (compra de 4 vezes o volume médio: k 0,10 sobe 20%, k 1 sobe 200%, com a faixa realista no texto). **A causa do gráfico que saltava ao pausar** era a vela de fechamento da cota de gestora e da estatal fundada, que ia crua pelo tempo real enquanto a leitura de detalhes a multiplicava pelo fator das ordens; esses ativos têm o preço formado pelo livro e passaram a ficar fora do fator (`price_impact.py` e o fluxo de ordens do repositório), com testes. **Impacto dentro do pregão como opção da sala:** viável sem tocar no backtest, com um flag da sala separado de `price_impact_enabled`, mas fica de fora por mudar o fator por dia, os caches, a publicação de preço a cada ordem e a liquidez do livro; a D22 registra quando reabrir. **Limitações:** não há dado real de ordens, só preço e volume, e a amostra tem poucos ativos: a faixa vale como ordem de grandeza. O relatório completo está em `.claude/trabalho/impacto-k/resultado.md`.
+
+<a id="f313"></a>
+**F313 — Assembleia de cotistas com aba própria e aumento de taxa.** Serve N23. Do comentário no canvas da tela da gestora, em 18/11. A assembleia de cotistas existe em toda partida com Gestoras (`fund_assembly.py`): quem tem 10% das cotas convoca, a votação dura 5 pregões, vence a maioria de quem votou (bots e formador de mercado não votam) e a única pauta é trocar o gestor. Ela mora num bloco da página da gestora (`fund-assembly.tsx`) e não chega às pendências, que só levam o convite de candidato (`FUND_ASSEMBLY_INVITE`). **Decidido em 18/11.** **Aba Assembleia na tela da gestora, no nível da aba Congresso do governo:** a votação aberta com placar, pauta, prazo e o voto; a convocação; o histórico das encerradas. **Pautas:** trocar o gestor (a de hoje), a fusão de gestoras (F311) e o aumento de taxa: subir a taxa de administração ou a de performance passa a depender de aprovação e vale no mês seguinte ao resultado; baixar continua livre. Cada pauta tem a própria votação; o intervalo de 3 meses entre convocações segue valendo para a troca de gestor. **Pendência:** a votação aberta vira pendência para quem tem cota e ainda não votou, com o prazo, e entra no "Decida agora" da aba Suas ações. Desenho na rodada de canvas da linha da gestora. **Conflito de interesse:** gestor e co-gestores não votam no aumento de taxa, porque ganham com ele, e votam nas outras pautas (a Ana, com 54,8% das cotas, fica fora e a Bia e o Caio decidem). Sem nenhum voto a pauta não passa: na sala em que as outras cotas são só de bots, a taxa só desce.
 
 ---
 
