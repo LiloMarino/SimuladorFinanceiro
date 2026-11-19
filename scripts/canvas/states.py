@@ -1406,6 +1406,218 @@ def tab_settings(page: Page) -> None:
     fund_tab_page(page, "offer-closed", "Configurações", "Taxas")
 
 
+def assembly_tally(total: float, favor: float, against: float) -> dict:
+    """O placar em cotas de uma votação: o que falta de abstenção e quantas cotas a favor ainda faltam para vencer."""
+    return {
+        "in_favor": str(favor),
+        "against": str(against),
+        "abstention": str(total - favor - against),
+        "total": str(total),
+        "missing_to_win": str(max(against - favor + 1, 0)),
+    }
+
+
+def assembly_voters(total: float, stances: list[tuple[str, float, str]]) -> list[dict]:
+    """Os cotistas jogadores da votação: (apelido, cotas, posição)."""
+    return [
+        {
+            "user_id": 100 + index,
+            "nickname": nickname,
+            "color": None,
+            "quotas": str(quotas),
+            "share": str(quotas / total),
+            "stance": stance,
+            "is_manager": False,
+        }
+        for index, (nickname, quotas, stance) in enumerate(stances)
+    ]
+
+
+ASSEMBLY_HISTORY = [
+    {
+        "id": 91,
+        "agenda": "REPLACE_MANAGER",
+        "status": "KEPT",
+        "convener_nickname": "Bia",
+        "candidate_nickname": "Bia",
+        "previous_manager_nickname": "Ana",
+        "started_on": "2026-10-27",
+        "closed_on": "2026-11-02",
+        "tally": {
+            "in_favor": "2",
+            "against": "9",
+            "abstention": "9",
+            "total": "20",
+            "missing_to_win": "8",
+        },
+        "fee": None,
+        "effective_on": None,
+    },
+    {
+        "id": 90,
+        "agenda": "FEE_INCREASE",
+        "status": "APPROVED",
+        "convener_nickname": "Ana",
+        "candidate_nickname": None,
+        "previous_manager_nickname": "Ana",
+        "started_on": "2026-06-02",
+        "closed_on": "2026-06-08",
+        "tally": {
+            "in_favor": "9",
+            "against": "2",
+            "abstention": "9",
+            "total": "20",
+            "missing_to_win": "0",
+        },
+        "fee": {
+            "management_from": "0.015000",
+            "management_to": "0.020000",
+            "performance_from": "0.200000",
+            "performance_to": "0.200000",
+        },
+        "effective_on": "2026-07-01",
+    },
+]
+
+
+def assembly_current(agenda: str, **over) -> dict:
+    """Uma votação aberta como a página a recebe; `over` ajusta o que a cena pede."""
+    fee = (
+        {
+            "management_from": "0.020000",
+            "management_to": "0.030000",
+            "performance_from": "0.200000",
+            "performance_to": "0.200000",
+        }
+        if agenda == "FEE_INCREASE"
+        else None
+    )
+    return {
+        "id": 1 if agenda == "REPLACE_MANAGER" else 2,
+        "agenda": agenda,
+        "status": "VOTING",
+        "convener_user_id": 7,
+        "convener_nickname": "Bia",
+        "candidate_user_id": 7 if agenda == "REPLACE_MANAGER" else None,
+        "candidate_nickname": "Bia" if agenda == "REPLACE_MANAGER" else None,
+        "fee": fee,
+        "called_on": "2026-11-18",
+        "started_on": "2026-11-18",
+        "ends_on": "2026-11-24",
+        "session": 2,
+        "sessions": 5,
+        "tally": assembly_tally(20, 6, 4),
+        "voters": assembly_voters(20, [("Bia", 6, "favor"), ("Caio", 4, "against")]),
+        "non_voting": "5",
+        "my_vote": None,
+        "can_vote": True,
+    } | over
+
+
+def forge_assembly(page: Page, panel: dict, **fund_fields) -> None:
+    """Dado forjado: a seção Assembleia da gestora do host vem com o `panel` pedido, e `fund_fields` ajusta o resto da página."""
+
+    def change(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        body["assembly"] = panel
+        body.update(fund_fields)
+
+    patch_get(page, FUND_DETAIL_PATTERN, change)
+
+
+def assembly_panel(**over) -> dict:
+    """O painel da assembleia sem votação aberta: as duas pautas liberadas e o histórico."""
+    return {
+        "current": [],
+        "history": ASSEMBLY_HISTORY,
+        "options": [
+            {
+                "agenda": "REPLACE_MANAGER",
+                "can_convene": True,
+                "block": None,
+                "next_allowed_on": None,
+            },
+            {
+                "agenda": "FEE_INCREASE",
+                "can_convene": False,
+                "block": "manager_only",
+                "next_allowed_on": None,
+            },
+        ],
+        "convene_quotas": "2",
+        "my_quotas": "5",
+        "blocked_founding_until": None,
+    } | over
+
+
+def tab_assembly(page: Page) -> None:
+    """Dado forjado: uma troca de gestor em votação, vista por um cotista que ainda não votou."""
+    fund_match(page, stage="offer-closed")
+    forge_assembly(
+        page,
+        assembly_panel(current=[assembly_current("REPLACE_MANAGER")]),
+        manager_user_id=OTHER_MANAGER_ID,
+        manager_nickname="Duda",
+        my_role="viewer",
+        my_quotas="5",
+    )
+    open_funds_page(page)
+    open_fund_tab(page, "Assembleia", "Como a assembleia decide")
+
+
+def tab_assembly_fee(page: Page) -> None:
+    """Dado forjado: um aumento de taxa em votação, visto pelo gestor, que não vota."""
+    fund_match(page, stage="offer-closed")
+    forge_assembly(
+        page,
+        assembly_panel(
+            current=[assembly_current("FEE_INCREASE", can_vote=False)],
+            options=[
+                {
+                    "agenda": "REPLACE_MANAGER",
+                    "can_convene": False,
+                    "block": "manager",
+                    "next_allowed_on": None,
+                },
+                {
+                    "agenda": "FEE_INCREASE",
+                    "can_convene": False,
+                    "block": "pending",
+                    "next_allowed_on": None,
+                },
+            ],
+        ),
+    )
+    open_funds_page(page)
+    open_fund_tab(page, "Assembleia", "Como a assembleia decide")
+
+
+def tab_assembly_empty(page: Page) -> None:
+    """Dado forjado: sem votação aberta, com votações passadas e a convocação do aumento liberada ao gestor."""
+    fund_match(page, stage="offer-closed")
+    forge_assembly(
+        page,
+        assembly_panel(
+            options=[
+                {
+                    "agenda": "REPLACE_MANAGER",
+                    "can_convene": False,
+                    "block": "manager",
+                    "next_allowed_on": None,
+                },
+                {
+                    "agenda": "FEE_INCREASE",
+                    "can_convene": True,
+                    "block": None,
+                    "next_allowed_on": None,
+                },
+            ]
+        ),
+    )
+    open_funds_page(page)
+    open_fund_tab(page, "Assembleia", "Como a assembleia decide")
+
+
 def funds_closed(page: Page) -> None:
     """A gestora fechada, com as cotas do gestor e sem oferta."""
     fund_page(page, "contributed")
@@ -2103,6 +2315,9 @@ STATES: dict[str, Callable[[Page], None]] = {
     "gestoras/aba-rendimentos": tab_income,
     "gestoras/aba-relatorio": tab_report,
     "gestoras/aba-config": tab_settings,
+    "gestoras/aba-assembleia": tab_assembly,
+    "gestoras/aba-assembleia-taxa": tab_assembly_fee,
+    "gestoras/aba-assembleia-vazia": tab_assembly_empty,
     "gestoras/co-gestores": comanagers_card,
     "gestoras/co-gestores-cheio": comanagers_full,
     "gestoras/dialogo-convidar-co-gestor": comanager_invite_dialog,
